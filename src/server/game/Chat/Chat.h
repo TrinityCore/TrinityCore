@@ -114,7 +114,7 @@ class TC_GAME_API ChatHandler
         char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
 
         // if args have single value then it return in arg2 and arg1 == nullptr
-        void      extractOptFirstArg(char* args, char** arg1, char** arg2);
+        void extractOptFirstArg(char* args, char** arg1, char** arg2);
         char*     extractQuotedArg(char* args);
 
         uint32    extractSpellIdFromLink(char* text);

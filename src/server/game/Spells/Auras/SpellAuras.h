@@ -164,12 +164,12 @@ class TC_GAME_API Aura
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
 
         bool  CanApplyResilience() const { return _casterInfo.ApplyResilience; }
-        void  SetCanApplyResilience(bool val) { _casterInfo.ApplyResilience = val; }
+        void SetCanApplyResilience(bool val) { _casterInfo.ApplyResilience = val; }
         uint8 GetCasterLevel() const { return _casterInfo.Level; }
         float GetCritChance() const { return _casterInfo.CritChance; }
-        void  SetCritChance(float val) { _casterInfo.CritChance = val; }
+        void SetCritChance(float val) { _casterInfo.CritChance = val; }
         float GetDonePct() const { return _casterInfo.BonusDonePct; }
-        void  SetDonePct(float val) { _casterInfo.BonusDonePct = val; }
+        void SetDonePct(float val) { _casterInfo.BonusDonePct = val; }
 
         bool HasMoreThanOneEffectForType(AuraType auraType) const;
         bool IsArea() const;

@@ -635,7 +635,7 @@ class TC_GAME_API Spell
         uint32 m_procAttacker;                // Attacker trigger flags
         uint32 m_procVictim;                  // Victim   trigger flags
         uint32 m_hitMask;
-        void   prepareDataForTriggerSystem();
+        void prepareDataForTriggerSystem();
 
         // *****************************************
         // Spell target subsystem

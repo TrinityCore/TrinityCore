@@ -1432,7 +1432,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void UpdateDamagePhysical(WeaponAttackType attType);
         float GetTotalAttackPowerValue(WeaponAttackType attType) const;
         float GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type, uint8 damageIndex = 0) const;
-        void  SetBaseWeaponDamage(WeaponAttackType attType, WeaponDamageRange damageRange, float value, uint8 damageIndex = 0) { m_weaponDamage[attType][damageRange][damageIndex] = value; }
+        void SetBaseWeaponDamage(WeaponAttackType attType, WeaponDamageRange damageRange, float value, uint8 damageIndex = 0) { m_weaponDamage[attType][damageRange][damageIndex] = value; }
         virtual void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage, uint8 damageIndex) const = 0;
         uint32 CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, uint8 itemDamagesMask = 0) const;
         float GetAPMultiplier(WeaponAttackType attType, bool normalized) const;
@@ -1457,15 +1457,15 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveVisibleAura(uint8 slot);
 
         uint32 GetInterruptMask() const { return m_interruptMask; }
-        void  AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
-        void  UpdateInterruptMask();
+        void AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
+        void UpdateInterruptMask();
 
         uint32 GetDisplayId() const { return GetUInt32Value(UNIT_FIELD_DISPLAYID); }
         virtual void SetDisplayId(uint32 modelId);
         uint32 GetNativeDisplayId() const { return GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID); }
-        void   RestoreDisplayId();
-        void   SetNativeDisplayId(uint32 modelId) { SetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID, modelId); }
-        void   SetTransformSpell(uint32 spellid) { m_transformSpell = spellid;}
+        void RestoreDisplayId();
+        void SetNativeDisplayId(uint32 modelId) { SetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID, modelId); }
+        void SetTransformSpell(uint32 spellid) { m_transformSpell = spellid;}
         uint32 GetTransformSpell() const { return m_transformSpell;}
 
         // DynamicObject management
@@ -1481,10 +1481,10 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveGameObject(uint32 spellid, bool del);
         void RemoveAllGameObjects();
 
-        void   ModifyAuraState(AuraStateType flag, bool apply);
+        void ModifyAuraState(AuraStateType flag, bool apply);
         uint32 BuildAuraStateUpdateForTarget(Unit* target) const;
         bool   HasAuraState(AuraStateType flag, SpellInfo const* spellProto = nullptr, Unit const* Caster = nullptr) const;
-        void   UnsummonAllTotems();
+        void UnsummonAllTotems();
         bool   IsMagnet() const;
         Unit*  GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = nullptr);
 
@@ -1513,7 +1513,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetCastingTimeForBonus(SpellInfo const* spellProto, DamageEffectType damagetype, uint32 CastingTime) const;
         float CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffectType damagetype) const;
 
-        void   ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
+        void ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply);
         virtual bool IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster) const;
         uint32 GetSchoolImmunityMask() const;
         uint32 GetDamageImmunityMask() const;
@@ -1529,11 +1529,11 @@ class TC_GAME_API Unit : public WorldObject
         static void CalcAbsorbResist(DamageInfo& damageInfo);
         static void CalcHealAbsorb(HealInfo& healInfo);
 
-        void  UpdateSpeed(UnitMoveType mtype);
+        void UpdateSpeed(UnitMoveType mtype);
         float GetSpeed(UnitMoveType mtype) const;
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
-        void  SetSpeed(UnitMoveType mtype, float newValue);
-        void  SetSpeedRate(UnitMoveType mtype, float rate);
+        void SetSpeed(UnitMoveType mtype, float newValue);
+        void SetSpeedRate(UnitMoveType mtype, float rate);
 
         float CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellInfo) const;
 
@@ -1550,17 +1550,17 @@ class TC_GAME_API Unit : public WorldObject
         void PauseMovement(uint32 timer = 0, uint8 slot = 0, bool forced = true); // timer in ms
         void ResumeMovement(uint32 timer = 0, uint8 slot = 0); // timer in ms
 
-        void   AddUnitMovementFlag(uint32 f) { m_movementInfo.flags |= f; }
-        void   RemoveUnitMovementFlag(uint32 f) { m_movementInfo.flags &= ~f; }
+        void AddUnitMovementFlag(uint32 f) { m_movementInfo.flags |= f; }
+        void RemoveUnitMovementFlag(uint32 f) { m_movementInfo.flags &= ~f; }
         bool   HasUnitMovementFlag(uint32 f) const { return (m_movementInfo.flags & f) == f; }
         uint32 GetUnitMovementFlags() const { return m_movementInfo.flags; }
-        void   SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
+        void SetUnitMovementFlags(uint32 f) { m_movementInfo.flags = f; }
 
-        void   AddExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 |= f; }
-        void   RemoveExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 &= ~f; }
+        void AddExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 |= f; }
+        void RemoveExtraUnitMovementFlag(uint16 f) { m_movementInfo.flags2 &= ~f; }
         uint16 HasExtraUnitMovementFlag(uint16 f) const { return m_movementInfo.flags2 & f; }
         uint16 GetExtraUnitMovementFlags() const { return m_movementInfo.flags2; }
-        void   SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
+        void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
 
         void SetControlled(bool apply, UnitState state);
         void ApplyControlStatesIfNeeded();

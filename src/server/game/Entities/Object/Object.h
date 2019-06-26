@@ -251,12 +251,12 @@ class FlaggedValuesArray32
 
         T_FLAGS  GetFlags() const { return m_flags; }
         bool     HasFlag(FLAG_TYPE flag) const { return m_flags & (1 << flag); }
-        void     AddFlag(FLAG_TYPE flag) { m_flags |= (1 << flag); }
-        void     DelFlag(FLAG_TYPE flag) { m_flags &= ~(1 << flag); }
+        void AddFlag(FLAG_TYPE flag) { m_flags |= (1 << flag); }
+        void DelFlag(FLAG_TYPE flag) { m_flags &= ~(1 << flag); }
 
         T_VALUES GetValue(FLAG_TYPE flag) const { return m_values[flag]; }
-        void     SetValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] = value; }
-        void     AddValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] += value; }
+        void SetValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] = value; }
+        void AddValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] += value; }
 
     private:
         T_VALUES m_values[ARRAY_SIZE];
