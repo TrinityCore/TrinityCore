@@ -1264,7 +1264,7 @@ bool Item::HasEnchantRequiredSkill(Player const* player) const
                     return false;
     }
 
-  return true;
+    return true;
 }
 
 uint32 Item::GetEnchantRequiredLevel() const
