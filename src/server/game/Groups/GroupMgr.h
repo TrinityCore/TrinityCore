@@ -35,16 +35,18 @@ public:
     Group* GetGroupByGUID(ObjectGuid::LowType guid) const;
 
     uint32 GenerateNewGroupDbStoreId();
-    void RegisterGroupDbStoreId(uint32 storageId, Group* group);
-    void FreeGroupDbStoreId(Group* group);
-    void SetNextGroupDbStoreId(uint32 storageId) { NextGroupDbStoreId = storageId; };
+    void   RegisterGroupDbStoreId(uint32 storageId, Group* group);
+    void   FreeGroupDbStoreId(Group* group);
+    void   SetNextGroupDbStoreId(uint32 storageId) { NextGroupDbStoreId = storageId; };
     Group* GetGroupByDbStoreId(uint32 storageId) const;
-    void SetGroupDbStoreSize(uint32 newSize) { GroupDbStore.resize(newSize); }
+    void   SetGroupDbStoreSize(uint32 newSize) { GroupDbStore.resize(newSize); }
 
-    void LoadGroups();
+    void Update(uint32 diff);
+
+    void   LoadGroups();
     ObjectGuid::LowType GenerateGroupId();
-    void AddGroup(Group* group);
-    void RemoveGroup(Group* group);
+    void   AddGroup(Group* group);
+    void   RemoveGroup(Group* group);
 
 
 protected:
