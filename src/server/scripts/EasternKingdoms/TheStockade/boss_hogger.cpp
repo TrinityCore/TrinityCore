@@ -171,7 +171,6 @@ struct npc_warden_thelwater : public ScriptedAI
             scheduler.Update(diff);
         }
 
-
     private:
         TaskScheduler scheduler;
 };
