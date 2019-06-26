@@ -15,28 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "ScriptMgr.h"
 #include "the_stockade.h"
 
 class instance_the_stockade : public InstanceMapScript
 {
-public:
-    instance_the_stockade() : InstanceMapScript("instance_the_stockade", 34) { }
+    public:
+        instance_the_stockade() : InstanceMapScript("instance_the_stockade", 34) { }
 
-    struct instance_the_stockade_InstanceMapScript : public InstanceScript
-    {
-        instance_the_stockade_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+        struct instance_the_stockade_InstanceMapScript : public InstanceScript
         {
-            SetHeaders(DataHeader);
-            SetBossNumber(EncounterCount);
-        }
-    };
+            instance_the_stockade_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+            {
+                SetHeaders(DataHeader);
+                SetBossNumber(EncounterCount);
+            }
+        };
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_the_stockade_InstanceMapScript(map);
-    }
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
+        {
+            return new instance_the_stockade_InstanceMapScript(map);
+        }
 };
 
 void AddSC_instance_the_stockade()

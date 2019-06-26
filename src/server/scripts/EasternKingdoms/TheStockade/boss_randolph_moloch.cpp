@@ -15,17 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "the_stockade.h"
 
 enum Spells
 {
-    SPELL_WILDLY_STABBING           = 86726,
-    SPELL_SWEEP                     = 86729,
-    SPELL_VANISH                    = 55964,
-    SPELL_SHADOWSTEP                = 55966
+    SPELL_WILDLY_STABBING = 86726,
+    SPELL_SWEEP           = 86729,
+    SPELL_VANISH          = 55964,
+    SPELL_SHADOWSTEP      = 55966
 };
 
 enum Events
@@ -42,29 +42,26 @@ enum Events
 
 enum Says
 {
-    SAY_PULL                = 0, //Allow me to introduce myself. I am Randolph Moloch and I will be killing you all today.
+    SAY_PULL                = 0, // Allow me to introduce myself. I am Randolph Moloch and I will be killing you all today.
     SAY_VANISH              = 1, // Area Trigger: %s vanishes!
-    SAY_DEATH               = 2, //My epic schemes, my great plans! Gone!
+    SAY_DEATH               = 2, // My epic schemes, my great plans! Gone!
 
     MORTIMER_MOLOCH_DEATH   = 0, // %s collapses from a heart attack!
-    MORTIMER_MOLOCH_EMOTE   = 1, //Egad! My sophisticated heart!
+    MORTIMER_MOLOCH_EMOTE   = 1, // Egad! My sophisticated heart!
 };
 
 enum Points
 {
-    POINT_FINISH = 0,
+    POINT_FINISH = 1,
 };
 
 Position const mortimerMolochPos = { 145.5811f, 0.7059f, -25.606f, 6.2f };
 
-class boss_randolph_moloch : public CreatureScript
+// Randolph Moloch - 46383
+struct boss_randolph_moloch : public BossAI
 {
-public:
-    boss_randolph_moloch() : CreatureScript("boss_randolph_moloch") {}
-
-    struct boss_randolph_molochAI : public BossAI
-    {
-        boss_randolph_molochAI(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH)
+    public:
+        boss_randolph_moloch(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH)
         {
             firstVanish = false;
             secondVanish = false;
@@ -73,7 +70,9 @@ public:
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
+
             Talk(SAY_PULL);
+
             events.ScheduleEvent(EVENT_WILDLY_STABBING, Seconds(4), Seconds(5));
             events.ScheduleEvent(EVENT_SWEEP, Seconds(2), Seconds(3));
         }
@@ -81,6 +80,7 @@ public:
         void JustSummoned(Creature* summon) override
         {
             BossAI::JustSummoned(summon);
+
             if (summon->GetEntry() == NPC_MORTIMER_MOLOCH)
             {
                 summon->SetWalk(true);
@@ -90,8 +90,10 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            Talk(SAY_DEATH);
             _JustDied();
+
+            Talk(SAY_DEATH);
+
             me->SummonCreature(NPC_MORTIMER_MOLOCH, mortimerMolochPos);
         }
 
@@ -105,33 +107,33 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            while (uint32 eventId = events.ExecuteEvent())
+            if (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                case EVENT_WILDLY_STABBING:
-                    DoCastVictim(SPELL_WILDLY_STABBING);
-                    events.Repeat(Seconds(8), Seconds(12));
-                    break;
-                case EVENT_SWEEP:
-                    DoCastVictim(SPELL_SWEEP);
-                    events.ScheduleEvent(EVENT_SWEEP, Seconds(6), Seconds(7));
-                    break;
-                case EVENT_VANISH:
-                    Talk(SAY_VANISH);
-                    me->RemoveAllAuras();
-                    DoCastSelf(SPELL_VANISH);
-                    me->SetReactState(REACT_PASSIVE);
-                    me->SetInCombatState(true); // Prevents the boss from resetting
-                    events.ScheduleEvent(EVENT_JUST_VANISHED, Seconds(2));
-                    break;
-                case EVENT_JUST_VANISHED:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        DoCast(target, SPELL_SHADOWSTEP, true);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    break;
-                default:
-                    break;
+                    case EVENT_WILDLY_STABBING:
+                        DoCastVictim(SPELL_WILDLY_STABBING);
+                        events.Repeat(Seconds(8), Seconds(12));
+                        break;
+                    case EVENT_SWEEP:
+                        DoCastVictim(SPELL_SWEEP);
+                        events.ScheduleEvent(EVENT_SWEEP, Seconds(6), Seconds(7));
+                        break;
+                    case EVENT_VANISH:
+                        Talk(SAY_VANISH);
+                        me->RemoveAllAuras();
+                        DoCastSelf(SPELL_VANISH);
+                        me->SetReactState(REACT_PASSIVE);
+                        me->SetInCombatState(true); // Prevents the boss from resetting
+                        events.ScheduleEvent(EVENT_JUST_VANISHED, Seconds(2));
+                        break;
+                    case EVENT_JUST_VANISHED:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            DoCast(target, SPELL_SHADOWSTEP, true);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -155,22 +157,13 @@ public:
 
     private:
         bool firstVanish, secondVanish;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetStormwindStockadeAI<boss_randolph_molochAI>(creature);
-    }
 };
 
-class npc_mortimer_moloch : public CreatureScript
+// Mortimer Moloch - 46482
+struct npc_mortimer_moloch : public ScriptedAI
 {
-public:
-    npc_mortimer_moloch() : CreatureScript("npc_mortimer_moloch") {}
-
-    struct npc_mortimer_molochAI : public ScriptedAI
-    {
-        npc_mortimer_molochAI(Creature* creature) : ScriptedAI(creature) {}
+    public:
+        npc_mortimer_moloch(Creature* creature) : ScriptedAI(creature) {}
 
         void Reset() override
         {
@@ -179,45 +172,35 @@ public:
 
         void MovementInform(uint32 type, uint32 id) override
         {
-            if (type == POINT_MOTION_TYPE)
-                if(id == POINT_FINISH)
-                    _events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_EMOTE, Seconds(4));
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            if (id == POINT_FINISH)
+            {
+                scheduler.Schedule(Seconds(4), [this](TaskContext /*context*/)
+                {
+                    Talk(MORTIMER_MOLOCH_EMOTE);
+                });
+
+                scheduler.Schedule(Seconds(7), [this](TaskContext /*context*/)
+                {
+                    Talk(MORTIMER_MOLOCH_DEATH);
+                    me->KillSelf();
+                });
+            }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_MORTIMER_MOLOCH_EMOTE:
-                    Talk(MORTIMER_MOLOCH_EMOTE);
-                    _events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_DEATH, Seconds(3));
-                    break;
-                case EVENT_MORTIMER_MOLOCH_DEATH:
-                    Talk(MORTIMER_MOLOCH_DEATH);
-                    me->KillSelf();
-                    break;
-                default:
-                    break;
-                }
-            }
+            scheduler.Update(diff);
         }
 
     private:
-        EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetStormwindStockadeAI<npc_mortimer_molochAI>(creature);
-    }
+        TaskScheduler scheduler;
 };
 
 void AddSC_boss_randolph_moloch()
 {
-    new boss_randolph_moloch();
-    new npc_mortimer_moloch();
+    RegisterStormwindStockadesAI(boss_randolph_moloch);
+    RegisterStormwindStockadesAI(npc_mortimer_moloch);
 }
