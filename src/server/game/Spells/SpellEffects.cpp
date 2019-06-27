@@ -41,7 +41,6 @@
 #include "OutdoorPvPMgr.h"
 #include "PathGenerator.h"
 #include "Pet.h"
-#include "PetAI.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
