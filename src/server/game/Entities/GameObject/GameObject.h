@@ -177,6 +177,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         LootState getLootState() const { return m_lootState; }
         // Note: unit is only used when s = GO_ACTIVATED
         void SetLootState(LootState s, Unit* unit = nullptr);
+        void SendLootStateUpdateToNearbyPlayers();
 
         uint16 GetLootMode() const { return m_LootMode; }
         bool HasLootMode(uint16 lootMode) const { return (m_LootMode & lootMode) != 0; }
@@ -308,6 +309,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         LootState   m_lootState;
         ObjectGuid  m_lootStateUnitGUID;                    // GUID of the unit passed with SetLootState(LootState, Unit*)
         bool        m_spawnedByDefault;
+        time_t      m_restockTime;
         time_t      m_cooldownTime;                         // used as internal reaction delay time store (not state change reaction).
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         GOState     m_prevGoState;                          // What state to set whenever resetting
