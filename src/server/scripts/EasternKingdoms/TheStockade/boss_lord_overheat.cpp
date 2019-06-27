@@ -73,7 +73,7 @@ struct boss_lord_overheat : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            if (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
