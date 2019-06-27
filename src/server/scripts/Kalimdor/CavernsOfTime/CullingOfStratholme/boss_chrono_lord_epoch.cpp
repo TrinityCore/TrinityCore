@@ -37,7 +37,6 @@ enum Yells
 {
     SAY_TIME_WARP = 2,
     SAY_SLAY = 3,
-    SAY_DEATH = 4
 };
 
 enum Events
@@ -139,7 +138,6 @@ class boss_epoch : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                Talk(SAY_DEATH);
                 _JustDied();
             }
 

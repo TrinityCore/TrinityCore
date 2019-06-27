@@ -2320,7 +2320,7 @@ class spell_maiev_down : public AuraScript
     }
 };
 
-//  40693 - Cage Trap
+// 40693 - Cage Trap
 class spell_illidan_cage_teleport : public SpellScript
 {
     PrepareSpellScript(spell_illidan_cage_teleport);
