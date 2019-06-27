@@ -1895,14 +1895,14 @@ inline std::vector<Difficulty> ParseSpawnDifficulties(std::string const& difficu
         if (difficultyId && !sDifficultyStore.LookupEntry(difficultyId))
         {
             TC_LOG_ERROR("sql.sql", "Table `%s` has %s (GUID: " UI64FMTD ") with non invalid difficulty id %u, skipped.",
-                table.c_str(), table.c_str(), spawnId, difficultyId);
+                table.c_str(), table.c_str(), spawnId, uint32(difficultyId));
             continue;
         }
 
         if (!isTransportMap && mapDifficulties.find(difficultyId) == mapDifficulties.end())
         {
             TC_LOG_ERROR("sql.sql", "Table `%s` has %s (GUID: " UI64FMTD ") has unsupported difficulty %u for map (Id: %u).",
-                table.c_str(), table.c_str(), spawnId, difficultyId, mapId);
+                table.c_str(), table.c_str(), spawnId, uint32(difficultyId), mapId);
             continue;
         }
 
