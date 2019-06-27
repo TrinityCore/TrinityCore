@@ -177,7 +177,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         LootState getLootState() const { return m_lootState; }
         // Note: unit is only used when s = GO_ACTIVATED
         void SetLootState(LootState s, Unit* unit = nullptr);
-        void SendLootStateUpdateToNearbyPlayers();
 
         uint16 GetLootMode() const { return m_LootMode; }
         bool HasLootMode(uint16 lootMode) const { return (m_LootMode & lootMode) != 0; }
