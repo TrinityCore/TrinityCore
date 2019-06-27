@@ -797,7 +797,7 @@ void GameObject::Update(uint32 diff)
                 UpdateObjectVisibility();
                 return;
             }
-            else
+            else if (GetOwner() || GetSpellId())
             {
                 SetRespawnTime(0);
                 Delete();
