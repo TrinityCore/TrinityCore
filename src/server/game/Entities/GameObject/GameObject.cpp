@@ -510,6 +510,13 @@ void GameObject::Update(uint32 diff)
                     }
                     return;
                 }
+                case GAMEOBJECT_TYPE_CHEST:
+                    if (m_restockTime > GameTime::GetGameTime())
+                        return;
+                    // If there is no restock timer, or if the restock timer passed, the chest becomes ready to loot
+                    m_lootState = GO_READY;
+                    AddToObjectUpdateIfNeeded();
+                    break;
                 default:
                     m_lootState = GO_READY;                         // for other GOis same switched without delay to GO_READY
                     break;
@@ -694,6 +701,13 @@ void GameObject::Update(uint32 diff)
                         }
                         else m_groupLootTimer -= diff;
                     }
+
+                    // Gameobject was partially looted and restock time passed, restock all loot now
+                    if (GameTime::GetGameTime() >= m_restockTime)
+                    {
+                        m_lootState = GO_READY;
+                        AddToObjectUpdateIfNeeded();
+                    }
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
                 {
@@ -769,16 +783,21 @@ void GameObject::Update(uint32 diff)
 
             // Do not delete gameobjects that are not consumed on loot, while still allowing them to despawn when they expire if summoned
             bool isSummonedAndExpired = (GetOwner() || GetSpellId()) && m_respawnTime == 0;
-            bool isPermanentSpawn = m_respawnDelayTime == 0;
-            if (!GetGOInfo()->IsDespawnAtAction() &&
-                ((GetGoType() == GAMEOBJECT_TYPE_GOOBER && (!isSummonedAndExpired || isPermanentSpawn)) ||
-                (GetGoType() == GAMEOBJECT_TYPE_CHEST && !isSummonedAndExpired && GetGOInfo()->chest.chestRestockTime == 0))) // ToDo: chests with data2 (chestRestockTime) > 0 and data3 (consumable) = 0 should not despawn on loot
+            if (!GetGOInfo()->IsDespawnAtAction() && !isSummonedAndExpired)
             {
-                SetLootState(GO_READY);
+                if (GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.chestRestockTime > 0)
+                {
+                    // Start restock timer when the chest is fully looted
+                    m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
+                    SetLootState(GO_NOT_READY);
+                    AddToObjectUpdateIfNeeded();
+                }
+                else
+                    SetLootState(GO_READY);
                 UpdateObjectVisibility();
                 return;
             }
-            else
+            else if (GetOwner() || GetSpellId())
             {
                 SetRespawnTime(0);
                 Delete();
@@ -1308,6 +1327,10 @@ bool GameObject::ActivateToQuest(Player* target) const
         }
         case GAMEOBJECT_TYPE_CHEST:
         {
+            // Chests become inactive while not ready to be looted
+            if (getLootState() == GO_NOT_READY)
+                return false;
+
             // scan GO chest with loot including quest items
             if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
             {
@@ -2306,6 +2329,10 @@ void GameObject::SetLootState(LootState state, Unit* unit)
         m_lootStateUnitGUID.Clear();
 
     AI()->OnLootStateChanged(state, unit);
+
+    // Start restock timer if the chest is partially looted or not looted at all
+    if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED && GetGOInfo()->chest.chestRestockTime > 0 && m_restockTime == 0)
+        m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
 
     if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
         return;
