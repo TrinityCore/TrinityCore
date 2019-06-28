@@ -1640,7 +1640,7 @@ struct npc_stratholme_rp_dummy : NullCreatureAI
     {
         if (type == POINT_MOTION_TYPE || type == EFFECT_MOTION_TYPE || type == SPLINE_CHAIN_MOTION_TYPE)
             if (TempSummon* self = me->ToTempSummon())
-                self->GetSummonerCreatureBase()->AI()->MovementInform(type, id);
+                ASSERT_NOTNULL(self->GetSummonerCreatureBase())->AI()->MovementInform(type, id);
     }
 };
 
