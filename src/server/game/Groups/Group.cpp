@@ -1022,7 +1022,7 @@ bool CanRollOnItem(const LootItem& item, Player const* player)
         return false;
 
     uint32 itemCount = player->GetItemCount(item.itemid);
-    if ((proto->MaxCount > 0 && static_cast<int32>(itemCount) >= proto->MaxCount) || (player->CanEquipUniqueItem(proto) != EQUIP_ERR_OK))
+    if (proto->MaxCount > 0 && static_cast<int32>(itemCount) >= proto->MaxCount)
         return false;
 
     if (!item.AllowedForPlayer(player))
