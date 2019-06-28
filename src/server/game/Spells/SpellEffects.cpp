@@ -970,44 +970,6 @@ void Spell::EffectTeleportUnits()
             }
             return;
         }
-        // Dimensional Ripper - Area 52
-        case 36890:
-        {
-            if (roll_chance_i(50))                        // 50% success
-            {
-                int32 rand_eff = urand(1, 4);
-                switch (rand_eff)
-                {
-                    case 1:
-                        // soul split - evil
-                        m_caster->CastSpell(m_caster, 36900, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                            .SetOriginalCastId(m_castId));
-                        break;
-                    case 2:
-                        // soul split - good
-                        m_caster->CastSpell(m_caster, 36901, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                            .SetOriginalCastId(m_castId));
-                        break;
-                    case 3:
-                        // Increase the size
-                        m_caster->CastSpell(m_caster, 36895, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                            .SetOriginalCastId(m_castId));
-                        break;
-                    case 4:
-                        // Transform
-                    {
-                        if (m_caster->ToPlayer()->GetTeam() == ALLIANCE)
-                            m_caster->CastSpell(m_caster, 36897, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                .SetOriginalCastId(m_castId));
-                        else
-                            m_caster->CastSpell(m_caster, 36899, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                .SetOriginalCastId(m_castId));
-                        break;
-                    }
-                }
-            }
-            return;
-        }
     }
 }
 
