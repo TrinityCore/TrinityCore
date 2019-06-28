@@ -135,17 +135,17 @@ class Roll : public LootValidatorRef
 
         ObjectGuid itemGUID;
         uint32 itemid;
-        int32  itemRandomPropId;
+        int32 itemRandomPropId;
         uint32 itemRandomSuffix;
-        uint8  itemCount;
+        uint8 itemCount;
         typedef std::map<ObjectGuid, RollVote> PlayerVote;
         PlayerVote playerVote;                              //vote position correspond with player position (in group)
-        uint8  totalPlayersRolling;
-        uint8  totalNeed;
-        uint8  totalGreed;
-        uint8  totalPass;
-        uint8  itemSlot;
-        uint8  rollVoteMask;
+        uint8 totalPlayersRolling;
+        uint8 totalNeed;
+        uint8 totalGreed;
+        uint8 totalPass;
+        uint8 itemSlot;
+        uint8 rollVoteMask;
 };
 
 struct InstanceGroupBind
@@ -195,7 +195,7 @@ class TC_GAME_API Group
         bool AddMember(Player* player);
         bool RemoveMember(ObjectGuid guid, RemoveMethod const& method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, char const* reason = nullptr);
         void ChangeLeader(ObjectGuid guid);
- static void ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
+        static void ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
         void SetLootMethod(LootMethod method);
         void SetLooterGuid(ObjectGuid guid);
         void SetMasterLooterGuid(ObjectGuid guid);

@@ -254,13 +254,13 @@ class GuildBankRightsAndSlots
         void SetSlots(uint32 _slots) { slots = _slots; }
         void SetRights(uint8 _rights) { rights = _rights; }
 
-        int8  GetTabId() const { return tabId; }
+        int8 GetTabId() const { return tabId; }
         int32 GetSlots() const { return slots; }
-        int8  GetRights() const { return rights; }
+        int8 GetRights() const { return rights; }
 
     private:
-        uint8  tabId;
-        uint8  rights;
+        uint8 tabId;
+        uint8 rights;
         uint32 slots;
 };
 

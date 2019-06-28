@@ -34,7 +34,7 @@ namespace Movement
             float x, y, z;
         } f;
         uint64 target;
-        float  angle;
+        float angle;
 
         FacingInfo(float o) : angle(o) { }
         FacingInfo(uint64 t) : target(t) { }
@@ -50,21 +50,21 @@ namespace Movement
         PointsArray path;
         FacingInfo facing;
         MoveSplineFlag flags;
-        int32  path_Idx_offset;
-        float  velocity;
-        float  parabolic_amplitude;
-        float  time_perc;
+        int32 path_Idx_offset;
+        float velocity;
+        float parabolic_amplitude;
+        float time_perc;
         uint32 splineId;
-        float  initialOrientation;
-        bool   walk;
-        bool   HasVelocity;
-        bool   TransformForTransport;
+        float initialOrientation;
+        bool walk;
+        bool HasVelocity;
+        bool TransformForTransport;
 
         /** Returns true to show that the arguments were configured correctly and MoveSpline initialization will succeed. */
-        bool   Validate(Unit* unit) const;
+        bool Validate(Unit* unit) const;
 
     private:
-        bool   _checkPathBounds() const;
+        bool _checkPathBounds() const;
     };
 }
 
