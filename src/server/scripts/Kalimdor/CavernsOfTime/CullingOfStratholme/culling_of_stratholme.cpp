@@ -1139,7 +1139,7 @@ struct npc_sergeant_morigan : public CreatureScript
 
     struct npc_sergeant_moriganAI : public NullCreatureAI
     {
-        npc_sergeant_moriganAI(Creature* creature) : NullCreatureAI(creature), Started(false) { }
+        npc_sergeant_moriganAI(Creature* creature) : NullCreatureAI(creature), Started(false), Question(0) { }
 
         void InitializeAI() override
         {

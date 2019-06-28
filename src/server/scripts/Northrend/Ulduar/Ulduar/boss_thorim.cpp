@@ -788,7 +788,7 @@ class boss_thorim : public CreatureScript
                             for (auto itr = triggers.cbegin(); itr != triggers.cend();)
                             {
                                 auto prev = itr++;
-                                if (itr != triggers.end())
+                                if (itr != triggers.cend())
                                     (*prev)->CastSpell(*itr, SPELL_LIGHTNING_BEAM_CHANNEL);
                             }
                             break;
