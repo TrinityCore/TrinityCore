@@ -124,6 +124,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_respawnDelayTime = 300;
     m_despawnDelay = 0;
     m_despawnRespawnTime = 0s;
+    m_restockTime = 0;
     m_lootState = GO_NOT_READY;
     m_spawnedByDefault = true;
     m_usetimes = 0;
@@ -906,9 +907,9 @@ void GameObject::Update(uint32 diff)
 
             loot.clear();
 
-            // Do not delete gameobjects that are not consumed on loot, while still allowing them to despawn when they expire if summoned
+            // Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
             bool isSummonedAndExpired = (GetOwner() || GetSpellId()) && m_respawnTime == 0;
-            if (!GetGOInfo()->IsDespawnAtAction() && !isSummonedAndExpired)
+            if ((GetGoType() == GAMEOBJECT_TYPE_CHEST || GetGoType() == GAMEOBJECT_TYPE_GOOBER) && !GetGOInfo()->IsDespawnAtAction() && !isSummonedAndExpired)
             {
                 if (GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.chestRestockTime > 0)
                 {
@@ -922,10 +923,11 @@ void GameObject::Update(uint32 diff)
                 UpdateObjectVisibility();
                 return;
             }
-            else if (GetOwner() || GetSpellId())
+            else if (!GetOwnerGUID().IsEmpty() || GetSpellId())
             {
                 SetRespawnTime(0);
                 Delete();
+                return;
             }
 
             SetLootState(GO_NOT_READY);
