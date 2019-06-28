@@ -3143,21 +3143,6 @@ void Spell::EffectScriptEffect()
 
                     break;
                 }
-                // Deathbolt from Thalgran Blightbringer
-                // reflected by Freya's Ward
-                // Retribution by Sevenfold Retribution
-                case 51854:
-                {
-                    if (!unitTarget)
-                        return;
-                    if (unitTarget->HasAura(51845))
-                        unitTarget->CastSpell(m_caster, 51856, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                            .SetOriginalCastId(m_castId));
-                    else
-                        m_caster->CastSpell(unitTarget, 51855, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                            .SetOriginalCastId(m_castId));
-                    break;
-                }
                 // Summon Ghouls On Scarlet Crusade
                 case 51904:
                 {
