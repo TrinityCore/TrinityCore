@@ -313,6 +313,7 @@ class boss_thekal : public CreatureScript
                             events.ScheduleEvent(EVENT_SPELL_CHARGE, 12s, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_SUMMONTIGERS, 25s, 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
+                            break;
                         }
                         case EVENT_FORCEPUNCH:
                             DoCastVictim(SPELL_FORCEPUNCH, true);
