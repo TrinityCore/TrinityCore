@@ -3069,7 +3069,18 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
 
     // this effect use before aura Taunt apply for prevent taunt already attacking target
     // for spell as marked "non effective at already attacking target"
-    if (!unitTarget || !unitTarget->CanHaveThreatList())
+    if (!unitTarget || unitTarget->IsTotem())
+    {
+        SendCastResult(SPELL_FAILED_DONT_REPORT);
+        return;
+    }
+
+    // Hand of Reckoning can hit some entities that can't have a threat list (including players' pets)
+    if (m_spellInfo->Id == 62124)
+        if (unitTarget->GetTypeId() != TYPEID_PLAYER && unitTarget->GetTarget() != unitCaster->GetGUID())
+            unitCaster->CastSpell(unitTarget, 67485, true);
+
+    if (!unitTarget->CanHaveThreatList())
     {
         SendCastResult(SPELL_FAILED_DONT_REPORT);
         return;
@@ -3081,10 +3092,6 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
         SendCastResult(SPELL_FAILED_DONT_REPORT);
         return;
     }
-
-    // Hand of Reckoning
-    if (m_spellInfo->Id == 62124)
-        unitCaster->CastSpell(unitTarget, 67485, true);
 
     if (!mgr.IsThreatListEmpty())
         // Set threat equal to highest threat currently on target
