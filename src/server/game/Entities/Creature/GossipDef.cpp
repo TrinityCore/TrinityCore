@@ -224,13 +224,10 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
         {
             ++count;
             data << uint32(questID);
-            data << uint32(quest->IsAutoComplete() ? 0 : item.QuestIcon);
+            data << uint32(item.QuestIcon);
             data << int32(quest->GetQuestLevel());
             data << uint32(quest->GetFlags());              // 3.3.3 quest flags
-            uint8 changeIcon = 0;
-            if (quest->IsAutoComplete() && quest->IsRepeatable())
-                changeIcon = 1;
-            data << uint8(changeIcon);                      // 3.3.3 changes icon: blue question or yellow exclamation
+            data << uint8(quest->IsRepeatable());           // 3.3.3 changes icon: blue question or yellow exclamation
             std::string title = quest->GetTitle();
 
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
@@ -381,7 +378,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
             data << uint32(questMenuItem.QuestIcon);
             data << int32(quest->GetQuestLevel());
             data << uint32(quest->GetFlags());             // 3.3.3 quest flags
-            data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
+            data << uint8(quest->IsRepeatable());          // 3.3.3 changes icon: blue question or yellow exclamation
             data << title;
         }
     }
