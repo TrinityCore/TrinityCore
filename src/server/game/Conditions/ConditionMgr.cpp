@@ -505,7 +505,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         {
             if (Player* player = object->ToPlayer())
             {
-                const Quest* quest = sObjectMgr->GetQuestTemplate(ConditionValue1);
+                const Quest* quest = ASSERT_NOTNULL(sObjectMgr->GetQuestTemplate(ConditionValue1));
                 uint16 log_slot = player->FindQuestSlot(quest->GetQuestId());
                 if (log_slot >= MAX_QUEST_LOG_SIZE)
                     break;
