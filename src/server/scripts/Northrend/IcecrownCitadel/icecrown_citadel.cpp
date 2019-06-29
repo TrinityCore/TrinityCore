@@ -1846,7 +1846,7 @@ struct npc_entrance_faction_leader : public ScriptedAI
     {
         if (menuId == ICC_BUFF_MENUID_ALLY || menuId == ICC_BUFF_MENUID_HORDE)
             if (InstanceScript* instance = me->GetInstanceScript())
-                instance->SetData(DATA_ICC_BUFF, 0);
+                instance->SetData(DATA_FACTION_BUFF, 0);
         return false;
     }
 };
