@@ -3057,11 +3057,6 @@ void Spell::EffectScriptEffect()
         {
             switch (m_spellInfo->Id)
             {
-                case 55693:                                 // Remove Collapsing Cave Aura
-                    if (!unitTarget)
-                        return;
-                    unitTarget->RemoveAurasDueToSpell(effectInfo->CalcValue());
-                    break;
                 // Brittle Armor - need remove one 24575 Brittle Armor aura
                 case 24590:
                     unitTarget->RemoveAuraFromStack(24575);
