@@ -756,9 +756,9 @@ class npc_acolyte_of_vesperon : public CreatureScript
                         i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                 }
 
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_TORMENT_VESP_ACO);
-                instance->DoRemoveAurasDueToSpellOnPlayers(57935);
-                instance->DoRemoveAurasDueToSpellOnPlayers(58835); // Components of spell Twilight Torment
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_TORMENT_VESP_ACO, true, true);
+                instance->DoRemoveAurasDueToSpellOnPlayers(57935, true, true);
+                instance->DoRemoveAurasDueToSpellOnPlayers(58835, true, true); // Components of spell Twilight Torment
             }
 
             void UpdateAI(uint32 /*diff*/) override

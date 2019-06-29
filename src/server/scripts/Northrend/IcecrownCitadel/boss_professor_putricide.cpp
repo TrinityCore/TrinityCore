@@ -70,6 +70,7 @@ enum Spells
     SPELL_MALLEABLE_GOO                     = 70852,
     SPELL_UNSTABLE_EXPERIMENT               = 70351,
     SPELL_TEAR_GAS                          = 71617,    // phase transition
+    SPELL_TEAR_GAS_TRIGGER_MISSILE          = 71615,
     SPELL_TEAR_GAS_CREATURE                 = 71618,
     SPELL_TEAR_GAS_CANCEL                   = 71620,
     SPELL_TEAR_GAS_PERIODIC_TRIGGER         = 73170,
@@ -626,7 +627,7 @@ class boss_professor_putricide : public CreatureScript
                             AttackStart(me->GetVictim());
                             // remove Tear Gas
                             me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PERIODIC_TRIGGER);
-                            instance->DoRemoveAurasDueToSpellOnPlayers(71615);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEAR_GAS_TRIGGER_MISSILE, true, true);
                             DoCastAOE(SPELL_TEAR_GAS_CANCEL);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_VARIABLE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OOZE_VARIABLE);

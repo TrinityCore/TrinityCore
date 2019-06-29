@@ -211,7 +211,7 @@ public:
                             {
                                 SetData(DATA_EGG_EVENT, DONE);
                                 razor->RemoveAurasDueToSpell(42013); // MindControl
-                                DoRemoveAurasDueToSpellOnPlayers(42013);
+                                DoRemoveAurasDueToSpellOnPlayers(42013, true, true);
                             }
                             _events.ScheduleEvent(EVENT_RAZOR_PHASE_TWO, 1s);
                             _events.CancelEvent(EVENT_RAZOR_SPAWN);

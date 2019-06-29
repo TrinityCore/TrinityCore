@@ -225,10 +225,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoStopTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
 
         // Remove Auras due to Spell on all players in instance
-        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
+        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Cast spell on all players in instance
-        void DoCastSpellOnPlayers(uint32 spell);
+        void DoCastSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Return wether server allow two side groups or not
         static bool ServerAllowsTwoSideGroups();
