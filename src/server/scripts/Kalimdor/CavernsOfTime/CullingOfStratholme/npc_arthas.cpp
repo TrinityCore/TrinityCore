@@ -580,7 +580,7 @@ public:
                 else
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-                TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::AdvanceToState: has snapback for this state, distance = %u", target.SnapbackPosition->GetExactDist(me));
+                TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::AdvanceToState: has snapback for this state, distance = %f", target.SnapbackPosition->GetExactDist(me));
                 // Snapback handling - if we're too far from where we're supposed to be, teleport there
                 if (target.SnapbackPosition->GetExactDist(me) > ArthasSnapbackDistanceThreshold)
                     me->NearTeleportTo(*target.SnapbackPosition);
