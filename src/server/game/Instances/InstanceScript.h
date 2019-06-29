@@ -232,6 +232,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoCastSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Return wether server allow two side groups or not
         static bool ServerAllowsTwoSideGroups();
