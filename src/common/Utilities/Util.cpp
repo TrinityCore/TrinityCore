@@ -86,6 +86,23 @@ time_t LocalTimeToUTCTime(time_t time)
 #endif
 }
 
+TC_COMMON_API time_t LocalTimeHourToUnixTime(time_t day, uint32 hour, bool mustBeAfterDay)
+{
+    tm todayLocal;
+    localtime_r(&day, &todayLocal);
+    todayLocal.tm_hour = 0;
+    todayLocal.tm_min = 0;
+    todayLocal.tm_sec = 0;
+    time_t midnightLocal = mktime(&todayLocal);
+    time_t hourLocal = midnightLocal + hour * HOUR;
+
+    // In timezones west of GMT (so GMT-1, etc) the / DAY * DAY math will return the day before. In this cases we just add 1 day to the time
+    if (mustBeAfterDay && hourLocal < day)
+        hourLocal += DAY;
+
+    return hourLocal;
+}
+
 std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
