@@ -198,6 +198,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) { }
+        // Called when a player successfully leaves the instance.
+        virtual void OnPlayerLeave(Player* /*player*/) { }
 
         // Handle open / close objects
         // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
@@ -226,6 +228,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
