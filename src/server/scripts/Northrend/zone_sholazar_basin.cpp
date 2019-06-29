@@ -766,6 +766,16 @@ class spell_q12611_deathbolt : public SpellScript
 {
     PrepareSpellScript(spell_q12611_deathbolt);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_FREYAS_WARD,
+                SPELL_SEVENFOLD_RETRIBUTION,
+                SPELL_DEATHBOLT
+            });
+    }
+
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
         Unit* caster = GetCaster();

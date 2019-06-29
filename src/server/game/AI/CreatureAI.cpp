@@ -152,7 +152,7 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
 }
 
-// adapted from logic in Spell:EFfectSummonType before commit 8499434
+// adapted from logic in Spell:EffectSummonType
 static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
 {
     // Summons without SummonProperties are generally scripted summons that don't belong to any owner
@@ -183,6 +183,7 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
             return false;
     }
 }
+
 void CreatureAI::JustAppeared()
 {
     if (TempSummon* summon = me->ToTempSummon())

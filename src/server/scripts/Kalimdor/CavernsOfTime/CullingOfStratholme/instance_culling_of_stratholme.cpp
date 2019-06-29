@@ -639,6 +639,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         object->setActive(true);
                         object->SetGoState(_currentState <= GAUNTLET_TRANSITION ? GO_STATE_READY : GO_STATE_ACTIVE);
                         break;
+                    default:
+                        break;
                 }
             }
 
