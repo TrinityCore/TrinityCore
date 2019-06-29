@@ -1446,6 +1446,11 @@ class spell_q12823_remove_collapsing_cave_aura : public SpellScript
 {
     PrepareSpellScript(spell_q12823_remove_collapsing_cave_aura);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_COLLAPSING_CAVE });
+    }
+
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
         GetHitUnit()->RemoveAurasDueToSpell(SPELL_COLLAPSING_CAVE);
