@@ -15,14 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
-#include "icecrown_citadel.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 
 static std::vector<uint32> const TeleportSpells =
@@ -94,11 +95,11 @@ class at_frozen_throne_teleport : public AreaTriggerScript
             }
 
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE &&
-                    instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE &&
-                    instance->GetBossState(DATA_SINDRAGOSA) == DONE &&
-                    instance->GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS)
+            {
+                if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE &&
+                    instance->GetBossState(DATA_SINDRAGOSA) == DONE && instance->GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS)
                     player->CastSpell(player, FROZEN_THRONE_TELEPORT, true);
+            }
 
             return true;
         }
