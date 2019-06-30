@@ -14504,7 +14504,7 @@ void Player::PrepareQuestMenu(ObjectGuid guid)
         if (!CanTakeQuest(quest, false))
             continue;
 
-        if (quest->IsAutoComplete() && !quest->IsRepeatable())
+        if (quest->IsAutoComplete() && (!quest->IsRepeatable() || quest->IsDaily() || quest->IsWeekly() || quest->IsMonthly()))
             qm.AddMenuItem(quest_id, 0);
         else if (quest->IsAutoComplete())
             qm.AddMenuItem(quest_id, 4);
@@ -16032,7 +16032,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
                             else
                                 result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE_REP;
                         }
-                        else if (quest->IsWeekly())
+                        else if (quest->IsWeekly() || quest->IsMonthly())
                         {
                             if (isNotLowLevelQuest)
                                 result2 = DIALOG_STATUS_AVAILABLE;
