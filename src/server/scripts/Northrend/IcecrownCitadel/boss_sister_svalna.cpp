@@ -31,7 +31,6 @@
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptMgr.h"
-#include "SmartAI.h"
 #include "SpellDefines.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -113,6 +112,27 @@ enum ICCSisterSvalnaSpells
     SPELL_FEL_IRON_BOMB_UNDEAD = 71787,
     SPELL_MACHINE_GUN_UNDEAD = 71788,
     SPELL_ROCKET_LAUNCH_UNDEAD = 71786,
+
+    // Ymirjar Vrykuls
+    SPELL_ARCTIC_CHILL = 71270,
+    SPELL_FROZEN_ORB_CAST = 71274,
+    SPELL_FROZEN_ORB_MISSILE = 71285,
+    SPELL_SPIRIT_STREAM = 69929,
+    SPELL_TWISTED_WINDS = 71306,
+    SPELL_BARBARIC_STRIKE = 71257,
+    SPELL_ADRENALINE_RUSH = 71258,
+    SPELL_WHIRLWIND = 41056,
+    SPELL_RAPID_SHOT = 71251,
+    SPELL_ICE_TRAP = 71249,
+    SPELL_SUMMON_WARHAWK = 71705,
+    SPELL_VOLLEY = 71252,
+    SPELL_YMIRJAR_SHOOT = 71253,
+    SPELL_YMIRJAR_SHADOW_BOLT = 71296,
+    SPELL_DEATH_EMBRACE = 71299,
+    SPELL_BANISH = 71298,
+    SPELL_SUMMON_YMIRJAR = 71303,
+    SPELL_AWAKEN_YMIRJAR_FALLEN = 71302,
+    SPELL_WARLORDS_PRESENCE = 71244,
 };
 
 enum ICCSisterSvalnaTimedEventIds
@@ -154,6 +174,22 @@ enum ICCSisterSvalnaTimedEventIds
     EVENT_RUPERT_FEL_IRON_BOMB,
     EVENT_RUPERT_MACHINE_GUN,
     EVENT_RUPERT_ROCKET_LAUNCH,
+
+    // Ymirjar Vrykuls
+    EVENT_YMIRJAR_FROZEN_ORB,
+    EVENT_YMIRJAR_TWISTED_WINDS,
+    EVENT_YMIRJAR_SPIRIT_STREAM,
+    EVENT_YMIRJAR_BARBARIC_STRIKE,
+    EVENT_YMIRJAR_ADRENALINE_RUSH,
+    EVENT_YMIRJAR_WHIRLWIND,
+    EVENT_YMIRJAR_RAPID_SHOT,
+    EVENT_YMIRJAR_ICE_TRAP,
+    EVENT_YMIRJAR_VOLLEY,
+    EVENT_YMIRJAR_SHOOT,
+    EVENT_YMIRJAR_SHADOW_BOLT,
+    EVENT_YMIRJAR_DEATH_EMBRACE,
+    EVENT_YMIRJAR_BANISH,
+    EVENT_YMIRJAR_SUMMON,
 };
 
 enum ICCSisterSvalnaActions
@@ -168,6 +204,16 @@ enum ICCSisterSvalnaActions
 enum ICCSisterSvalnaMovePoints
 {
     POINT_SVALNA_LAND = 1
+};
+
+enum ICCYmirjarFrostWingMisc
+{
+    NPC_YMIRJAR_BATTLE_MAIDEN = 37132,
+    NPC_YMIRJAR_DEATHBRINGER = 38125,
+    NPC_YMIRJAR_FROSTBINDER = 37127,
+    NPC_YMIRJAR_HUNTRESS = 37134,
+    NPC_YMIRJAR_WARLORD = 37133,
+    NPC_YMIRJAR_WARHAWK = 38154
 };
 
 // Helper defines
@@ -1132,17 +1178,205 @@ struct npc_captain_rupert : public npc_argent_captainAI
     }
 };
 
-struct npc_frostwing_vrykul : public SmartAI
+struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
 {
-    npc_frostwing_vrykul(Creature* creature) : SmartAI(creature)
+    npc_frostwing_ymirjar_vrykul(Creature* creature) : ScriptedAI(creature), _summons(creature)
     {
     }
 
-    bool CanAIAttack(Unit const* target) const override
+    void Reset() override
     {
-        // do not see targets inside Frostwing Halls when we are not there
-        return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f) && SmartAI::CanAIAttack(target);
+        _events.Reset();
+        _OOCevents.Reset();
+        _summons.DespawnAll();
+
+        if (!me->IsAlive())
+            return;
+
+        switch (me->GetEntry())
+        {
+            case NPC_YMIRJAR_FROSTBINDER:
+                me->RemoveAurasDueToSpell(SPELL_ARCTIC_CHILL);
+            case NPC_YMIRJAR_DEATHBRINGER:
+                _OOCevents.ScheduleEvent(EVENT_YMIRJAR_SPIRIT_STREAM, 10s, 20s);
+                break;
+            case NPC_YMIRJAR_HUNTRESS:
+                if (Is25ManRaid())
+                    DoCast(SPELL_SUMMON_WARHAWK);
+                break;
+            default:
+                break;
+        }
     }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (me->GetEntry() == NPC_YMIRJAR_WARLORD)
+            me->RemoveAurasDueToSpell(SPELL_WARLORDS_PRESENCE);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_YMIRJAR_WARHAWK)
+            summon->SetReactState(REACT_DEFENSIVE);
+
+        _summons.Summon(summon);
+
+        if (me->IsEngaged())
+            DoZoneInCombat(summon);
+    }
+
+    void SummonedCreatureDespawn(Creature* summon) override
+    {
+        _summons.Despawn(summon);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (!who)
+            return;
+
+        me->InterruptNonMeleeSpells(false);
+
+        switch (me->GetEntry())
+        {
+            case NPC_YMIRJAR_FROSTBINDER:
+                DoCast(SPELL_ARCTIC_CHILL);
+                _events.ScheduleEvent(EVENT_YMIRJAR_FROZEN_ORB, 5s, 10s);
+                _events.ScheduleEvent(EVENT_YMIRJAR_TWISTED_WINDS, 10s, 20s);
+                break;
+            case NPC_YMIRJAR_BATTLE_MAIDEN:
+                _events.ScheduleEvent(EVENT_YMIRJAR_BARBARIC_STRIKE, 5s, 8s);
+                _events.ScheduleEvent(EVENT_YMIRJAR_ADRENALINE_RUSH, 10s, 20s);
+                break;
+            case NPC_YMIRJAR_WARLORD:
+                _events.ScheduleEvent(EVENT_YMIRJAR_WHIRLWIND, 5s, 8s);
+                break;
+            case NPC_YMIRJAR_HUNTRESS:
+                _events.ScheduleEvent(EVENT_YMIRJAR_RAPID_SHOT, 10s, 20s);
+                _events.ScheduleEvent(EVENT_YMIRJAR_ICE_TRAP, 5s, 10s);
+                _events.ScheduleEvent(EVENT_YMIRJAR_VOLLEY, 20s, 30s);
+                _events.ScheduleEvent(EVENT_YMIRJAR_SHOOT, 1s);
+                break;
+            case NPC_YMIRJAR_DEATHBRINGER:
+                _events.ScheduleEvent(EVENT_YMIRJAR_SHADOW_BOLT, 6s, 1s);
+                _events.ScheduleEvent(EVENT_YMIRJAR_DEATH_EMBRACE, 5s, 10s);
+                _events.ScheduleEvent(EVENT_YMIRJAR_BANISH, 10s, 20s);
+                _events.ScheduleEvent(EVENT_YMIRJAR_SUMMON, 10s, 25s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+        {
+            _OOCevents.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventId = _OOCevents.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_YMIRJAR_SPIRIT_STREAM:
+                        DoCast(SPELL_SPIRIT_STREAM);
+                        _OOCevents.Repeat(40s, 60s);
+                        break;
+                    default:
+                        break;
+                }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+            }
+            return;
+        }
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_YMIRJAR_FROZEN_ORB:
+                    DoCast(me, SPELL_FROZEN_ORB_CAST);
+                    _events.Repeat(10s, 20s);
+                    break;
+                case EVENT_YMIRJAR_TWISTED_WINDS:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+                        DoCast(target, SPELL_TWISTED_WINDS);
+                    _events.Repeat(10s, 20s);
+                    break;
+                case EVENT_YMIRJAR_BARBARIC_STRIKE:
+                    DoCastVictim(SPELL_BARBARIC_STRIKE);
+                    _events.Repeat(2s, 4s);
+                    break;
+                case EVENT_YMIRJAR_ADRENALINE_RUSH:
+                    me->AddAura(SPELL_ADRENALINE_RUSH, me);
+                    _events.Repeat(10s, 20s);
+                    break;
+                case EVENT_YMIRJAR_WHIRLWIND:
+                    DoCastAOE(SPELL_WHIRLWIND);
+                    _events.Repeat(6s, 12s);
+                    break;
+                case EVENT_YMIRJAR_RAPID_SHOT:
+                    DoCast(SPELL_RAPID_SHOT);
+                    _events.Repeat(20s, 30s);
+                    break;
+                case EVENT_YMIRJAR_ICE_TRAP:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                        DoCast(target, SPELL_ICE_TRAP);
+                    _events.Repeat(15s, 20s);
+                    break;
+                case EVENT_YMIRJAR_VOLLEY:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true))
+                        DoCast(target, SPELL_VOLLEY);
+                    _events.Repeat(10s, 20s);
+                    break;
+                case EVENT_YMIRJAR_SHOOT:
+                    DoCastVictim(SPELL_YMIRJAR_SHOOT);
+                    _events.Repeat(2s);
+                    break;
+                case EVENT_YMIRJAR_SHADOW_BOLT:
+                    DoCastVictim(SPELL_YMIRJAR_SHADOW_BOLT);
+                    _events.Repeat(5s, 8s);
+                    break;
+                case EVENT_YMIRJAR_DEATH_EMBRACE:
+                    DoCast(SPELL_DEATH_EMBRACE);
+                    _events.Repeat(10s, 20s);
+                    break;
+                case EVENT_YMIRJAR_BANISH:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                        DoCast(target, SPELL_BANISH);
+                    _events.Repeat(10s, 20s);
+                    break;
+                case EVENT_YMIRJAR_SUMMON:
+                    DoCast(SPELL_SUMMON_YMIRJAR);
+                    _events.DelayEvents(2s);
+                    _events.Repeat(90s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    EventMap _OOCevents;
+    SummonList _summons;
 };
 
 struct npc_impaling_spear : public CreatureAI
@@ -1263,7 +1497,7 @@ void AddSC_boss_sister_svalna()
     RegisterIcecrownCitadelCreatureAI(npc_captain_brandon);
     RegisterIcecrownCitadelCreatureAI(npc_captain_grondel);
     RegisterIcecrownCitadelCreatureAI(npc_captain_rupert);
-    RegisterIcecrownCitadelCreatureAI(npc_frostwing_vrykul);
+    RegisterIcecrownCitadelCreatureAI(npc_frostwing_ymirjar_vrykul);
     RegisterIcecrownCitadelCreatureAI(npc_impaling_spear);
     new spell_trigger_spell_from_caster("spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
     RegisterSpellScript(spell_svalna_revive_champion);
