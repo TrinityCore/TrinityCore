@@ -145,6 +145,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 HeroicAttempts = MaxHeroicAttempts;
                 ColdflameJetsState = NOT_STARTED;
                 UpperSpireTeleporterActiveState = NOT_STARTED;
+                SisterSvalnaState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
                 BloodPrinceIntro = 1;
@@ -1469,6 +1470,9 @@ class instance_icecrown_citadel : public InstanceMapScript
 
         protected:
             EventMap Events;
+            std::unordered_set<uint32> FrostwyrmGUIDs;
+            std::unordered_set<uint32> SpinestalkerTrash;
+            std::unordered_set<uint32> RimefangTrash;
             ObjectGuid LordMarrowgarGUID;
             ObjectGuid LadyDeahtwhisperGUID;
             ObjectGuid LadyDeathwisperElevatorGUID;
@@ -1522,13 +1526,11 @@ class instance_icecrown_citadel : public InstanceMapScript
             ObjectGuid PillarsChainedGUID;
             ObjectGuid PillarsUnchainedGUID;
             uint32 TeamInInstance;
+            uint32 HeroicAttempts;
             uint32 ColdflameJetsState;
             uint32 UpperSpireTeleporterActiveState;
-            std::unordered_set<uint32> FrostwyrmGUIDs;
-            std::unordered_set<uint32> SpinestalkerTrash;
-            std::unordered_set<uint32> RimefangTrash;
+            uint32 SisterSvalnaState;
             uint32 BloodQuickeningState;
-            uint32 HeroicAttempts;
             uint16 BloodQuickeningMinutes;
             uint8 BloodPrinceIntro;
             uint8 SindragosaIntro;
