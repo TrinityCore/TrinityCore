@@ -31,6 +31,7 @@
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Random.h"
 #include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
@@ -1720,19 +1721,106 @@ class spell_item_scroll_of_recall : public SpellScript
     }
 };
 
-// 36890 - Dimensional Ripper - Area 52
-enum DimensionalRipperArea52
+enum TransporterSpells
 {
-    SPELL_TRANSPORTER_MALFUNCTION    = 36895,
-    SPELL_TRANSFORM_HORDE            = 36897,
-    SPELL_TRANSFORM_ALLIANCE         = 36899,
-    SPELL_SOUL_SPLIT_EVIL            = 36900,
-    SPELL_SOUL_SPLIT_GOOD            = 36901
+    SPELL_EVIL_TWIN                         = 23445,
+    SPELL_TRANSPORTER_MALFUNCTION_SMALLER   = 36893,
+    SPELL_TRANSPORTER_MALFUNCTION_BIGGER    = 36895,
+    SPELL_TRANSPORTER_MALFUNCTION_CHICKEN   = 36940,
+    SPELL_TRANSFORM_HORDE                   = 36897,
+    SPELL_TRANSFORM_ALLIANCE                = 36899,
+    SPELL_SOUL_SPLIT_EVIL                   = 36900,
+    SPELL_SOUL_SPLIT_GOOD                   = 36901
 };
 
+// 36941 - Ultrasafe Transporter: Toshley's Station
+class spell_item_ultrasafe_transporter : public SpellScript
+{
+    PrepareSpellScript(spell_item_ultrasafe_transporter);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_TRANSPORTER_MALFUNCTION_SMALLER,
+                SPELL_TRANSPORTER_MALFUNCTION_BIGGER,
+                SPELL_SOUL_SPLIT_EVIL,
+                SPELL_SOUL_SPLIT_GOOD,
+                SPELL_TRANSFORM_HORDE,
+                SPELL_TRANSFORM_ALLIANCE,
+                SPELL_TRANSPORTER_MALFUNCTION_CHICKEN,
+                SPELL_EVIL_TWIN,
+            });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleScript(SpellEffIndex /* effIndex */)
+    {
+        if (!roll_chance_i(50)) // 50% success
+            return;
+
+        Unit* caster = GetCaster();
+
+        uint32 spellId = 0;
+        switch (urand(0, 6))
+        {
+            case 0:
+                spellId = SPELL_TRANSPORTER_MALFUNCTION_SMALLER;
+                break;
+            case 1:
+                spellId = SPELL_TRANSPORTER_MALFUNCTION_BIGGER;
+                break;
+            case 2:
+                spellId = SPELL_SOUL_SPLIT_EVIL;
+                break;
+            case 3:
+                spellId = SPELL_SOUL_SPLIT_GOOD;
+                break;
+            case 4:
+                if (caster->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
+                    spellId = SPELL_TRANSFORM_HORDE;
+                else
+                    spellId = SPELL_TRANSFORM_ALLIANCE;
+                break;
+            case 5:
+                spellId = SPELL_TRANSPORTER_MALFUNCTION_CHICKEN;
+                break;
+            case 6:
+                spellId = SPELL_EVIL_TWIN;
+                break;
+            default:
+                break;
+        }
+
+        caster->CastSpell(caster, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_ultrasafe_transporter::HandleScript, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
+    }
+};
+
+// 36890 - Dimensional Ripper - Area 52
 class spell_item_dimensional_ripper_area52 : public SpellScript
 {
     PrepareSpellScript(spell_item_dimensional_ripper_area52);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_TRANSPORTER_MALFUNCTION_BIGGER,
+                SPELL_SOUL_SPLIT_EVIL,
+                SPELL_SOUL_SPLIT_GOOD,
+                SPELL_TRANSFORM_HORDE,
+                SPELL_TRANSFORM_ALLIANCE
+            });
+    }
 
     bool Load() override
     {
@@ -1750,7 +1838,7 @@ class spell_item_dimensional_ripper_area52 : public SpellScript
         switch (urand(0, 3))
         {
             case 0:
-                spellId = SPELL_TRANSPORTER_MALFUNCTION;
+                spellId = SPELL_TRANSPORTER_MALFUNCTION_BIGGER;
                 break;
             case 1:
                 spellId = SPELL_SOUL_SPLIT_EVIL;
@@ -1763,6 +1851,8 @@ class spell_item_dimensional_ripper_area52 : public SpellScript
                     spellId = SPELL_TRANSFORM_HORDE;
                 else
                     spellId = SPELL_TRANSFORM_ALLIANCE;
+                break;
+            default:
                 break;
         }
 
@@ -4124,6 +4214,7 @@ void AddSC_item_spell_scripts()
     RegisterAuraScript(spell_item_power_circle);
     RegisterSpellScript(spell_item_savory_deviate_delight);
     RegisterSpellScript(spell_item_scroll_of_recall);
+    RegisterSpellScript(spell_item_ultrasafe_transporter);
     RegisterSpellScript(spell_item_dimensional_ripper_area52);
     RegisterAuraScript(spell_item_unsated_craving);
     RegisterAuraScript(spell_item_shadows_fate);

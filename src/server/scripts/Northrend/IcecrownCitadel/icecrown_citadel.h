@@ -130,7 +130,7 @@ enum ICDataTypes
     DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42,
     DATA_BLOOD_PRINCE_COUNCIL_INTRO    = 43,
     DATA_SINDRAGOSA_INTRO              = 44,
-    DATA_ICC_BUFF                      = 45 // used by conditions
+    DATA_FACTION_BUFF                  = 45 // used by conditions
 };
 
 enum ICCreaturesIds
