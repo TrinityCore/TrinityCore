@@ -99,9 +99,11 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Called when hit by a spell
         void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
+        void SpellHitByGameObject(GameObject* object, SpellInfo const* spellInfo) override;
 
         // Called when spell hits a target
         void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override;
+        void SpellHitTargetGameObject(GameObject* object, SpellInfo const* spellInfo) override;
 
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage) override;

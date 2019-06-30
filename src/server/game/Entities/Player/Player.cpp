@@ -16246,6 +16246,8 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 }
                 if (CanCompleteQuest(questid))
                     CompleteQuest(questid);
+                else if (q_status.ItemCount[j] == reqitemcount) // Send quest update when an objective is completed
+                    UpdateForQuestWorldObjects();
                 return;
             }
         }
@@ -16927,6 +16929,7 @@ void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
             }
 
             uint8 arenaSlot = arenaTeam->GetSlot();
+            ASSERT(arenaSlot < 3);
 
             personalRatingCache[arenaSlot] = fields[4].GetUInt16();
 
