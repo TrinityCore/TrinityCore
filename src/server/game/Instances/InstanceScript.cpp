@@ -620,32 +620,7 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool include
 {
     Map::PlayerList const& playerList = instance->GetPlayers();
     for (auto itr = playerList.begin(); itr != playerList.end(); ++itr)
-    {
-        if (Player* player = itr->GetSource())
-        {
-            player->RemoveAurasDueToSpell(spell);
-
-            if (!includePets)
-                continue;
-
-            for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
-            {
-                if (ObjectGuid summonGUID = player->m_SummonSlot[itr2])
-                    if (Creature* summon = instance->GetCreature(summonGUID))
-                        summon->RemoveAurasDueToSpell(spell);
-            }
-
-            if (!includeControlled)
-                continue;
-
-            for (auto itr2 = player->m_Controlled.begin(); itr2 != player->m_Controlled.end(); ++itr2)
-            {
-                if (Unit* controlled = *itr2)
-                    if (controlled->IsInWorld() && controlled->GetTypeId() == TYPEID_UNIT)
-                        controlled->RemoveAurasDueToSpell(spell);
-            }
-        }
-    }
+        DoRemoveAurasDueToSpellOnPlayer(itr->GetSource(), spell, includePets, includeControlled);
 }
 
 void InstanceScript::DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
@@ -680,32 +655,7 @@ void InstanceScript::DoCastSpellOnPlayers(uint32 spell, bool includePets /*= fal
 {
     Map::PlayerList const& playerList = instance->GetPlayers();
     for (auto itr = playerList.begin(); itr != playerList.end(); ++itr)
-    {
-        if (Player* player = itr->GetSource())
-        {
-            player->CastSpell(player, spell, true);
-
-            if (!includePets)
-                continue;
-
-            for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
-            {
-                if (ObjectGuid summonGUID = player->m_SummonSlot[itr2])
-                    if (Creature* summon = instance->GetCreature(summonGUID))
-                        summon->CastSpell(player, spell, true);
-            }
-
-            if (!includeControlled)
-                continue;
-
-            for (auto itr2 = player->m_Controlled.begin(); itr2 != player->m_Controlled.end(); ++itr2)
-            {
-                if (Unit* controlled = *itr2)
-                    if (controlled->IsInWorld() && controlled->GetTypeId() == TYPEID_UNIT)
-                        controlled->CastSpell(player, spell, true);
-            }
-        }
-    }
+        DoCastSpellOnPlayer(itr->GetSource(), spell, includePets, includeControlled);
 }
 
 void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
