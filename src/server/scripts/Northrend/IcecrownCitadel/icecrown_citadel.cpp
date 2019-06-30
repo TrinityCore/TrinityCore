@@ -15,290 +15,159 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
 #include "CellImpl.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
-#include "icecrown_citadel.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptMgr.h"
 #include "SmartAI.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "VehicleDefines.h"
 
-// Weekly quest support
-// * Deprogramming                (DONE)
-// * Securing the Ramparts        (DONE)
-// * Residue Rendezvous           (DONE)
-// * Blood Quickening             (DONE)
-// * Respite for a Tormented Soul
-
 enum ICCTexts
 {
     // Highlord Tirion Fordring (at Light's Hammer)
-    SAY_TIRION_INTRO_1              = 0,
-    SAY_TIRION_INTRO_2              = 1,
-    SAY_TIRION_INTRO_3              = 2,
-    SAY_TIRION_INTRO_4              = 3,
-    SAY_TIRION_INTRO_H_5            = 4,
-    SAY_TIRION_INTRO_A_5            = 5,
+    SAY_TIRION_INTRO_1 = 0,
+    SAY_TIRION_INTRO_2 = 1,
+    SAY_TIRION_INTRO_3 = 2,
+    SAY_TIRION_INTRO_4 = 3,
+    SAY_TIRION_INTRO_H_5 = 4,
+    SAY_TIRION_INTRO_A_5 = 5,
 
     // The Lich King (at Light's Hammer)
-    SAY_LK_INTRO_1                  = 0,
-    SAY_LK_INTRO_2                  = 1,
-    SAY_LK_INTRO_3                  = 2,
-    SAY_LK_INTRO_4                  = 3,
-    SAY_LK_INTRO_5                  = 4,
+    SAY_LK_INTRO_1 = 0,
+    SAY_LK_INTRO_2 = 1,
+    SAY_LK_INTRO_3 = 2,
+    SAY_LK_INTRO_4 = 3,
+    SAY_LK_INTRO_5 = 4,
 
     // Highlord Bolvar Fordragon (at Light's Hammer)
-    SAY_BOLVAR_INTRO_1              = 0,
+    SAY_BOLVAR_INTRO_1 = 0,
 
     // High Overlord Saurfang (at Light's Hammer)
-    SAY_SAURFANG_INTRO_1            = 15,
-    SAY_SAURFANG_INTRO_2            = 16,
-    SAY_SAURFANG_INTRO_3            = 17,
-    SAY_SAURFANG_INTRO_4            = 18,
+    SAY_SAURFANG_INTRO_1 = 15,
+    SAY_SAURFANG_INTRO_2 = 16,
+    SAY_SAURFANG_INTRO_3 = 17,
+    SAY_SAURFANG_INTRO_4 = 18,
 
     // Muradin Bronzebeard (at Light's Hammer)
-    SAY_MURADIN_INTRO_1             = 13,
-    SAY_MURADIN_INTRO_2             = 14,
-    SAY_MURADIN_INTRO_3             = 15,
+    SAY_MURADIN_INTRO_1 = 13,
+    SAY_MURADIN_INTRO_2 = 14,
+    SAY_MURADIN_INTRO_3 = 15,
 
     // Deathbound Ward
-    SAY_TRAP_ACTIVATE               = 0,
+    SAY_TRAP_ACTIVATE = 0,
 
     // Rotting Frost Giant
-    EMOTE_DEATH_PLAGUE_WARNING      = 0,
-
-    // Sister Svalna
-    SAY_SVALNA_KILL_CAPTAIN         = 1, // happens when she kills a captain
-    SAY_SVALNA_KILL                 = 4,
-    SAY_SVALNA_CAPTAIN_DEATH        = 5, // happens when a captain resurrected by her dies
-    SAY_SVALNA_DEATH                = 6,
-    EMOTE_SVALNA_IMPALE             = 7,
-    EMOTE_SVALNA_BROKEN_SHIELD      = 8,
-
-    SAY_CROK_INTRO_1                = 0, // Ready your arms, my Argent Brothers. The Vrykul will protect the Frost Queen with their lives.
-    SAY_ARNATH_INTRO_2              = 5, // Even dying here beats spending another day collecting reagents for that madman, Finklestein.
-    SAY_CROK_INTRO_3                = 1, // Enough idle banter! Our champions have arrived - support them as we push our way through the hall!
-    SAY_SVALNA_EVENT_START          = 0, // You may have once fought beside me, Crok, but now you are nothing more than a traitor. Come, your second death approaches!
-    SAY_CROK_COMBAT_WP_0            = 2, // Draw them back to us, and we'll assist you.
-    SAY_CROK_COMBAT_WP_1            = 3, // Quickly, push on!
-    SAY_CROK_FINAL_WP               = 4, // Her reinforcements will arrive shortly, we must bring her down quickly!
-    SAY_SVALNA_RESURRECT_CAPTAINS   = 2, // Foolish Crok. You brought my reinforcements with you. Arise, Argent Champions, and serve the Lich King in death!
-    SAY_CROK_COMBAT_SVALNA          = 5, // I'll draw her attacks. Return our brothers to their graves, then help me bring her down!
-    SAY_SVALNA_AGGRO                = 3, // Come, Scourgebane. I'll show the master which of us is truly worthy of the title of "Champion"!
-    SAY_CAPTAIN_DEATH               = 0,
-    SAY_CAPTAIN_RESURRECTED         = 1,
-    SAY_CAPTAIN_KILL                = 2,
-    SAY_CAPTAIN_SECOND_DEATH        = 3,
-    SAY_CAPTAIN_SURVIVE_TALK        = 4,
-    SAY_CROK_WEAKENING_GAUNTLET     = 6,
-    SAY_CROK_WEAKENING_SVALNA       = 7,
-    SAY_CROK_DEATH                  = 8,
+    EMOTE_DEATH_PLAGUE_WARNING = 0,
 };
 
 enum ICCSpells
 {
     // Rotting Frost Giant
-    SPELL_DEATH_PLAGUE              = 72879,
-    SPELL_DEATH_PLAGUE_AURA         = 72865,
-    SPELL_RECENTLY_INFECTED         = 72884,
-    SPELL_DEATH_PLAGUE_KILL         = 72867,
-    SPELL_STOMP                     = 64652,
-    SPELL_ARCTIC_BREATH             = 72848,
+    SPELL_DEATH_PLAGUE = 72879,
+    SPELL_DEATH_PLAGUE_AURA = 72865,
+    SPELL_RECENTLY_INFECTED = 72884,
+    SPELL_DEATH_PLAGUE_KILL = 72867,
+    SPELL_STOMP = 64652,
+    SPELL_ARCTIC_BREATH = 72848,
 
     // Frost Freeze Trap
-    SPELL_COLDFLAME_JETS            = 70460,
+    SPELL_COLDFLAME_JETS = 70460,
 
     // Alchemist Adrianna
-    SPELL_HARVEST_BLIGHT_SPECIMEN   = 72155,
-
-    // Crok Scourgebane
-    SPELL_ICEBOUND_ARMOR            = 70714,
-    SPELL_SCOURGE_STRIKE            = 71488,
-    SPELL_DEATH_STRIKE              = 71489,
-
-    // Sister Svalna
-    SPELL_CARESS_OF_DEATH           = 70078,
-    SPELL_IMPALING_SPEAR_KILL       = 70196,
-    SPELL_REVIVE_CHAMPION           = 70053,
-    SPELL_UNDEATH                   = 70089,
-    SPELL_IMPALING_SPEAR            = 71443,
-    SPELL_AETHER_SHIELD             = 71463,
-    SPELL_HURL_SPEAR                = 71466,
-    SPELL_DIVINE_SURGE              = 71465,
-
-    // Captain Arnath
-    SPELL_DOMINATE_MIND             = 14515,
-    SPELL_FLASH_HEAL_NORMAL         = 71595,
-    SPELL_POWER_WORD_SHIELD_NORMAL  = 71548,
-    SPELL_SMITE_NORMAL              = 71546,
-    SPELL_FLASH_HEAL_UNDEAD         = 71782,
-    SPELL_POWER_WORD_SHIELD_UNDEAD  = 71780,
-    SPELL_SMITE_UNDEAD              = 71778,
-
-    // Captain Brandon
-    SPELL_CRUSADER_STRIKE           = 71549,
-    SPELL_DIVINE_SHIELD             = 71550,
-    SPELL_JUDGEMENT_OF_COMMAND      = 71551,
-    SPELL_HAMMER_OF_BETRAYAL        = 71784,
-
-    // Captain Grondel
-    SPELL_CHARGE                    = 71553,
-    SPELL_MORTAL_STRIKE             = 71552,
-    SPELL_SUNDER_ARMOR              = 71554,
-    SPELL_CONFLAGRATION             = 71785,
-
-    // Captain Rupert
-    SPELL_FEL_IRON_BOMB_NORMAL      = 71592,
-    SPELL_MACHINE_GUN_NORMAL        = 71594,
-    SPELL_ROCKET_LAUNCH_NORMAL      = 71590,
-    SPELL_FEL_IRON_BOMB_UNDEAD      = 71787,
-    SPELL_MACHINE_GUN_UNDEAD        = 71788,
-    SPELL_ROCKET_LAUNCH_UNDEAD      = 71786,
+    SPELL_HARVEST_BLIGHT_SPECIMEN = 72155,
 
     // Invisible Stalker (Float, Uninteractible, LargeAOI)
-    SPELL_SOUL_MISSILE              = 72585,
+    SPELL_SOUL_MISSILE = 72585,
 
     // Empowering Blood Orb
-    SPELL_EMPOWERED_BLOOD_2         = 70232,
-    SPELL_EMPOWERED_BLOOD_3         = 70304,
-    SPELL_EMPOWERED_BLOOD_4         = 70320,
-    SPELL_ORB_CONTROLLER_ACTIVE     = 70293,
+    SPELL_EMPOWERED_BLOOD_2 = 70232,
+    SPELL_EMPOWERED_BLOOD_3 = 70304,
+    SPELL_EMPOWERED_BLOOD_4 = 70320,
+    SPELL_ORB_CONTROLLER_ACTIVE = 70293,
 
     // Darkfallen Generic
-    SPELL_BLOOD_ORB_VISUAL          = 72099,
-    SPELL_SIPHON_ESSENCE            = 70299,
+    SPELL_BLOOD_ORB_VISUAL = 72099,
+    SPELL_SIPHON_ESSENCE = 70299,
 
     // Darkfallen Blood Knight
-    SPELL_VAMPIRIC_AURA             = 71736,
-    SPELL_BLOOD_MIRROR              = 70450,
-    SPELL_BLOOD_MIRROR_2            = 70451,
+    SPELL_VAMPIRIC_AURA = 71736,
+    SPELL_BLOOD_MIRROR = 70450,
+    SPELL_BLOOD_MIRROR_2 = 70451,
     SPELL_BLOOD_MIRROR_DAMAGE_SHARE = 70445,
-    SPELL_UNHOLY_STRIKE             = 70437,
+    SPELL_UNHOLY_STRIKE = 70437,
 
     // Darkfallen Noble
-    SPELL_SHADOW_BOLT               = 72960,
-    SPELL_CHAINS_OF_SHADOW          = 72960,
+    SPELL_SHADOW_BOLT = 72960,
+    SPELL_CHAINS_OF_SHADOW = 72960,
 
     // Darkfallen Archmage
-    SPELL_FIREBALL                  = 70409,
-    SPELL_AMPLIFY_MAGIC             = 70408,
-    SPELL_BLAST_WAVE                = 70407,
-    SPELL_POLYMORPH_ALLY            = 72106,
-    SPELL_POLYMORPH                 = 70410,
+    SPELL_FIREBALL = 70409,
+    SPELL_AMPLIFY_MAGIC = 70408,
+    SPELL_BLAST_WAVE = 70407,
+    SPELL_POLYMORPH_ALLY = 72106,
+    SPELL_POLYMORPH = 70410,
 
     // Darkfallen Advisor
-    SPELL_LICH_SLAP                 = 72057,
-    SPELL_SHROUD_OF_SPELL_WARDING   = 72066,
+    SPELL_LICH_SLAP = 72057,
+    SPELL_SHROUD_OF_SPELL_WARDING = 72066,
 
     // Vampiric Fiend
-    SPELL_DISEASE_CLOUD             = 41290,
-    SPELL_LEECHING_ROOT             = 70671,
+    SPELL_DISEASE_CLOUD = 41290,
+    SPELL_LEECHING_ROOT = 70671,
 
     // Darkfallen Tactician
-    SPELL_SHADOWSTEP                = 70431,
-    SPELL_BLOOD_SAP                 = 70432
+    SPELL_SHADOWSTEP = 70431,
+    SPELL_BLOOD_SAP = 70432
 };
 
-// Helper defines
-// Captain Arnath
-#define SPELL_FLASH_HEAL        (IsUndead ? SPELL_FLASH_HEAL_UNDEAD : SPELL_FLASH_HEAL_NORMAL)
-#define SPELL_POWER_WORD_SHIELD (IsUndead ? SPELL_POWER_WORD_SHIELD_UNDEAD : SPELL_POWER_WORD_SHIELD_NORMAL)
-#define SPELL_SMITE             (IsUndead ? SPELL_SMITE_UNDEAD : SPELL_SMITE_NORMAL)
-
-// Captain Rupert
-#define SPELL_FEL_IRON_BOMB     (IsUndead ? SPELL_FEL_IRON_BOMB_UNDEAD : SPELL_FEL_IRON_BOMB_NORMAL)
-#define SPELL_MACHINE_GUN       (IsUndead ? SPELL_MACHINE_GUN_UNDEAD : SPELL_MACHINE_GUN_NORMAL)
-#define SPELL_ROCKET_LAUNCH     (IsUndead ? SPELL_ROCKET_LAUNCH_UNDEAD : SPELL_ROCKET_LAUNCH_NORMAL)
-
-enum ICCEventTypes
+enum ICCTimedEventIds
 {
-    // Highlord Tirion Fordring (at Light's Hammer)
-    // The Lich King (at Light's Hammer)
-    // Highlord Bolvar Fordragon (at Light's Hammer)
-    // High Overlord Saurfang (at Light's Hammer)
-    // Muradin Bronzebeard (at Light's Hammer)
-    EVENT_TIRION_INTRO_2                = 1,
-    EVENT_TIRION_INTRO_3                = 2,
-    EVENT_TIRION_INTRO_4                = 3,
-    EVENT_TIRION_INTRO_5                = 4,
-    EVENT_LK_INTRO_1                    = 5,
-    EVENT_TIRION_INTRO_6                = 6,
-    EVENT_LK_INTRO_2                    = 7,
-    EVENT_LK_INTRO_3                    = 8,
-    EVENT_LK_INTRO_4                    = 9,
-    EVENT_BOLVAR_INTRO_1                = 10,
-    EVENT_LK_INTRO_5                    = 11,
-    EVENT_SAURFANG_INTRO_1              = 12,
-    EVENT_TIRION_INTRO_H_7              = 13,
-    EVENT_SAURFANG_INTRO_2              = 14,
-    EVENT_SAURFANG_INTRO_3              = 15,
-    EVENT_SAURFANG_INTRO_4              = 16,
-    EVENT_SAURFANG_RUN                  = 17,
-    EVENT_MURADIN_INTRO_1               = 18,
-    EVENT_MURADIN_INTRO_2               = 19,
-    EVENT_MURADIN_INTRO_3               = 20,
-    EVENT_TIRION_INTRO_A_7              = 21,
-    EVENT_MURADIN_INTRO_4               = 22,
-    EVENT_MURADIN_INTRO_5               = 23,
-    EVENT_MURADIN_RUN                   = 24,
+    // Light's Hammer RP
+    EVENT_TIRION_INTRO_2 = 1,
+    EVENT_TIRION_INTRO_3,
+    EVENT_TIRION_INTRO_4,
+    EVENT_TIRION_INTRO_5,
+    EVENT_LK_INTRO_1,
+    EVENT_TIRION_INTRO_6,
+    EVENT_LK_INTRO_2,
+    EVENT_LK_INTRO_3,
+    EVENT_LK_INTRO_4,
+    EVENT_BOLVAR_INTRO_1,
+    EVENT_LK_INTRO_5,
+    EVENT_SAURFANG_INTRO_1,
+    EVENT_TIRION_INTRO_H_7,
+    EVENT_SAURFANG_INTRO_2,
+    EVENT_SAURFANG_INTRO_3,
+    EVENT_SAURFANG_INTRO_4,
+    EVENT_SAURFANG_RUN,
+    EVENT_MURADIN_INTRO_1,
+    EVENT_MURADIN_INTRO_2,
+    EVENT_MURADIN_INTRO_3,
+    EVENT_TIRION_INTRO_A_7,
+    EVENT_MURADIN_INTRO_4,
+    EVENT_MURADIN_INTRO_5,
+    EVENT_MURADIN_RUN,
 
     // Rotting Frost Giant
-    EVENT_DEATH_PLAGUE                  = 25,
-    EVENT_STOMP                         = 26,
-    EVENT_ARCTIC_BREATH                 = 27,
+    EVENT_DEATH_PLAGUE,
+    EVENT_STOMP,
+    EVENT_ARCTIC_BREATH,
 
     // Frost Freeze Trap
-    EVENT_ACTIVATE_TRAP                 = 28,
-
-    // Crok Scourgebane
-    EVENT_SCOURGE_STRIKE                = 29,
-    EVENT_DEATH_STRIKE                  = 30,
-    EVENT_HEALTH_CHECK                  = 31,
-    EVENT_CROK_INTRO_3                  = 32,
-    EVENT_START_PATHING                 = 33,
-
-    // Sister Svalna
-    EVENT_ARNATH_INTRO_2                = 34,
-    EVENT_SVALNA_START                  = 35,
-    EVENT_SVALNA_RESURRECT              = 36,
-    EVENT_SVALNA_COMBAT                 = 37,
-    EVENT_IMPALING_SPEAR                = 38,
-    EVENT_AETHER_SHIELD                 = 39,
-
-    // Captain Arnath
-    EVENT_ARNATH_FLASH_HEAL             = 40,
-    EVENT_ARNATH_PW_SHIELD              = 41,
-    EVENT_ARNATH_SMITE                  = 42,
-    EVENT_ARNATH_DOMINATE_MIND          = 43,
-
-    // Captain Brandon
-    EVENT_BRANDON_CRUSADER_STRIKE       = 44,
-    EVENT_BRANDON_DIVINE_SHIELD         = 45,
-    EVENT_BRANDON_JUDGEMENT_OF_COMMAND  = 46,
-    EVENT_BRANDON_HAMMER_OF_BETRAYAL    = 47,
-
-    // Captain Grondel
-    EVENT_GRONDEL_CHARGE_CHECK          = 48,
-    EVENT_GRONDEL_MORTAL_STRIKE         = 49,
-    EVENT_GRONDEL_SUNDER_ARMOR          = 50,
-    EVENT_GRONDEL_CONFLAGRATION         = 51,
-
-    // Captain Rupert
-    EVENT_RUPERT_FEL_IRON_BOMB          = 52,
-    EVENT_RUPERT_MACHINE_GUN            = 53,
-    EVENT_RUPERT_ROCKET_LAUNCH          = 54,
+    EVENT_ACTIVATE_TRAP,
 
     // Invisible Stalker (Float, Uninteractible, LargeAOI)
-    EVENT_SOUL_MISSILE                  = 55,
+    EVENT_SOUL_MISSILE,
 };
 
 enum ICCDataTypes
@@ -309,15 +178,9 @@ enum ICCDataTypes
 
 enum ICCActions
 {
-    // Sister Svalna
-    ACTION_KILL_CAPTAIN         = 1,
-    ACTION_START_GAUNTLET       = 2,
-    ACTION_RESURRECT_CAPTAINS   = 3,
-    ACTION_CAPTAIN_DIES         = 4,
-    ACTION_RESET_EVENT          = 5,
-    ACTION_SIPHON_INTERRUPTED   = 6,
-    ACTION_EVADE                = 7,
-    ACTION_COMBAT               = 8
+    ACTION_SIPHON_INTERRUPTED = 1,
+    ACTION_EVADE,
+    ACTION_COMBAT
 };
 
 enum ICCEventIds
@@ -330,9 +193,8 @@ enum ICCEventIds
 
 enum ICCMisc
 {
-    POINT_LAND            = 1,
-    ICC_BUFF_MENUID_ALLY  = 11204,
-    ICC_BUFF_MENUID_HORDE = 11207
+    GOSSIP_MENUID_ALLY = 11204,
+    GOSSIP_MENUID_HORDE = 11207
 };
 
 class FrostwingVrykulSearcher
@@ -1844,7 +1706,7 @@ struct npc_entrance_faction_leader : public ScriptedAI
 
     bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 /*gossipListId*/) override
     {
-        if (menuId == ICC_BUFF_MENUID_ALLY || menuId == ICC_BUFF_MENUID_HORDE)
+        if (menuId == GOSSIP_MENUID_ALLY || menuId == GOSSIP_MENUID_HORDE)
             if (InstanceScript* instance = me->GetInstanceScript())
                 instance->SetData(DATA_FACTION_BUFF, 0);
         return false;
