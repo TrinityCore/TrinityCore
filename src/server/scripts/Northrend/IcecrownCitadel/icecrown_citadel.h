@@ -21,24 +21,10 @@
 #include "CreatureAIImpl.h"
 #include "ScriptMgr.h"
 
-struct Position;
-enum TriggerCastFlags : uint32;
-
 #define ICCScriptName "instance_icecrown_citadel"
-#define DataHeader    "IC"
+#define DataHeader "IC"
 
 uint32 const EncounterCount = 13;
-uint32 const WeeklyNPCs = 9;
-uint32 const MaxHeroicAttempts = 50;
-
-// Defined in boss_valithria_dreamwalker.cpp
-extern Position const ValithriaSpawnPos;
-// Defined in boss_sindragosa.cpp
-extern Position const SindragosaSpawnPos;
-// Defined in boss_the_lich_king.cpp
-extern Position const TerenasSpawn;
-extern Position const TerenasSpawnHeroic;
-extern Position const SpiritWardenSpawn;
 
 // Shared spells used by more than one script
 enum ICSharedSpells
@@ -546,6 +532,21 @@ enum ICAreaIds
 {
     AREA_ICECROWN_CITADEL   = 4812
 };
+
+struct Position;
+enum TriggerCastFlags : uint32;
+
+// Defined in boss_valithria_dreamwalker.cpp
+extern Position const ValithriaSpawnPos;
+// Defined in boss_sindragosa.cpp
+extern Position const SindragosaSpawnPos;
+// Defined in boss_the_lich_king.cpp
+extern Position const TerenasSpawn;
+extern Position const TerenasSpawnHeroic;
+extern Position const SpiritWardenSpawn;
+
+uint32 const WeeklyNPCs = 9;
+uint32 const MaxHeroicAttempts = 50;
 
 class spell_trigger_spell_from_caster : public SpellScriptLoader
 {
