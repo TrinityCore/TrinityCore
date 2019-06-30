@@ -15287,10 +15287,6 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
 
 bool Player::CanRewardQuest(Quest const* quest, LootItemType rewardType, uint32 rewardId, bool msg) const
 {
-    // prevent receive reward with quest items in bank or for not completed quest
-    if (!CanRewardQuest(quest, msg))
-        return false;
-
     ItemPosCountVec dest;
     if (quest->GetRewChoiceItemsCount() > 0)
     {
