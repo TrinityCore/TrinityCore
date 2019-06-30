@@ -1724,6 +1724,7 @@ class spell_item_scroll_of_recall : public SpellScript
 enum TransporterSpells
 {
     SPELL_EVIL_TWIN                         = 23445,
+    SPELL_TRANSPORTER_MALFUNCTION_FIRE      = 23449,
     SPELL_TRANSPORTER_MALFUNCTION_SMALLER   = 36893,
     SPELL_TRANSPORTER_MALFUNCTION_BIGGER    = 36895,
     SPELL_TRANSPORTER_MALFUNCTION_CHICKEN   = 36940,
@@ -1731,6 +1732,41 @@ enum TransporterSpells
     SPELL_TRANSFORM_ALLIANCE                = 36899,
     SPELL_SOUL_SPLIT_EVIL                   = 36900,
     SPELL_SOUL_SPLIT_GOOD                   = 36901
+};
+
+// 23442 - Dimensional Ripper - Everlook
+class spell_item_dimensional_ripper_everlook : public SpellScript
+{
+    PrepareSpellScript(spell_item_dimensional_ripper_everlook);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TRANSPORTER_MALFUNCTION_FIRE, SPELL_EVIL_TWIN });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleScript(SpellEffIndex /* effIndex */)
+    {
+        int32 r = irand(0, 119);
+        if (r <= 70)                               // 7/12 success
+            return;
+
+        Unit* caster = GetCaster();
+
+        if (r < 100)                              // 4/12 evil twin
+            caster->CastSpell(caster, SPELL_EVIL_TWIN, true);
+        else                                      // 1/12 fire
+            caster->CastSpell(caster, SPELL_TRANSPORTER_MALFUNCTION_FIRE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_dimensional_ripper_everlook::HandleScript, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
+    }
 };
 
 // 36941 - Ultrasafe Transporter: Toshley's Station
@@ -4214,6 +4250,7 @@ void AddSC_item_spell_scripts()
     RegisterAuraScript(spell_item_power_circle);
     RegisterSpellScript(spell_item_savory_deviate_delight);
     RegisterSpellScript(spell_item_scroll_of_recall);
+    RegisterSpellScript(spell_item_dimensional_ripper_everlook);
     RegisterSpellScript(spell_item_ultrasafe_transporter);
     RegisterSpellScript(spell_item_dimensional_ripper_area52);
     RegisterAuraScript(spell_item_unsated_craving);

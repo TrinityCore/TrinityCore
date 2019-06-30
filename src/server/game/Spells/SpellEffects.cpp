@@ -1062,25 +1062,6 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
         TC_LOG_ERROR("spells", "Spell::EffectTeleportUnits - spellId %u attempted to teleport creature to a different map.", m_spellInfo->Id);
         return;
     }
-
-    // post effects for TARGET_DEST_DB
-    /// @todo: awful hacks, move this to spellscripts
-    switch (m_spellInfo->Id)
-    {
-        // Dimensional Ripper - Everlook
-        case 23442:
-        {
-            int32 r = irand(0, 119);
-            if (r >= 70)                                  // 7/12 success
-            {
-                if (r < 100)                              // 4/12 evil twin
-                    m_caster->CastSpell(m_caster, 23445, true);
-                else                                        // 1/12 fire
-                    m_caster->CastSpell(m_caster, 23449, true);
-            }
-            return;
-        }
-    }
 }
 
 void Spell::EffectApplyAura(SpellEffIndex effIndex)
