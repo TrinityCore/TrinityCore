@@ -50,7 +50,7 @@ class npc_paladin : public CreatureScript
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
-            if (!handOfProtection && HealthBelowPct(10))
+            if (!handOfProtection && HealthBelowPct(20))
             {
                 handOfProtection = true;
 

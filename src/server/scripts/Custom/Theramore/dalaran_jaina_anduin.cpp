@@ -13,6 +13,7 @@
 enum NPCs
 {
     NPC_ANDUIN_WRYNN        = 100041,
+    NPC_JAINA_PROUDMOORE_D  = 100042,
     NPC_KALEC               = 100001,
     NPC_JAINA_PROUDMOORE    = 100038,
     NPC_INVISIBLE_STALKER   = 32780,
@@ -970,7 +971,7 @@ class dalaran_anduin_wrynn : public CreatureScript
             switch (id)
             {
                 case ACTION_OUTRO_REUNION:
-                    jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 10.f);
+                    jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE_D, 10.f);
                     jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
