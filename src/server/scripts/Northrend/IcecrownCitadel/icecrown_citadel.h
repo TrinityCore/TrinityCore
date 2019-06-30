@@ -24,6 +24,8 @@
 #define ICCScriptName "instance_icecrown_citadel"
 #define DataHeader "IC"
 
+uint32 const EncounterCount = 12;
+
 // Shared spells used by more than one script
 enum ICSharedSpells
 {
@@ -76,12 +78,12 @@ enum ICDataTypes
     DATA_PROFESSOR_PUTRICIDE           = 6,
     DATA_BLOOD_PRINCE_COUNCIL          = 7,
     DATA_BLOOD_QUEEN_LANA_THEL         = 8,
-    DATA_SISTER_SVALNA                 = 9,
-    DATA_VALITHRIA_DREAMWALKER         = 10,
-    DATA_SINDRAGOSA                    = 11,
-    DATA_THE_LICH_KING                 = 12,
+    DATA_VALITHRIA_DREAMWALKER         = 9,
+    DATA_SINDRAGOSA                    = 10,
+    DATA_THE_LICH_KING                 = 11,
 
     // Additional data
+    DATA_SISTER_SVALNA                 = 12,
     DATA_SAURFANG_EVENT_NPC            = 13,
     DATA_BONED_ACHIEVEMENT             = 14,
     DATA_OOZE_DANCE_ACHIEVEMENT        = 15,
@@ -534,10 +536,6 @@ enum ICAreaIds
 struct Position;
 enum TriggerCastFlags : uint32;
 
-uint32 const EncounterCount = 13;
-uint32 const WeeklyNPCs = 9;
-uint32 const MaxHeroicAttempts = 50;
-
 // Defined in boss_valithria_dreamwalker.cpp
 extern Position const ValithriaSpawnPos;
 // Defined in boss_sindragosa.cpp
@@ -546,6 +544,9 @@ extern Position const SindragosaSpawnPos;
 extern Position const TerenasSpawn;
 extern Position const TerenasSpawnHeroic;
 extern Position const SpiritWardenSpawn;
+
+uint32 const WeeklyNPCs = 9;
+uint32 const MaxHeroicAttempts = 50;
 
 class spell_trigger_spell_from_caster : public SpellScriptLoader
 {
