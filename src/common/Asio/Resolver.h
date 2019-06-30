@@ -37,7 +37,7 @@ namespace Trinity
 
             return results.begin()->endpoint();
 #else
-            boost::asio::ip::tcp::resolver::query query(std::move(protocol), std::move(host), std::move(service));
+            boost::asio::ip::tcp::resolver::query query(std::move(protocol), std::move(host), std::move(service), boost::asio::ip::tcp::resolver::query::canonical_name);
             boost::asio::ip::tcp::resolver::iterator itr = resolver.resolve(query, ec);
             boost::asio::ip::tcp::resolver::iterator end;
             if (itr == end || ec)
