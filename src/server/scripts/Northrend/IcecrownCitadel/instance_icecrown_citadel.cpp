@@ -1321,28 +1321,31 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 data << HeroicAttempts << ' '
                     << ColdflameJetsState << ' '
+                    << UpperSpireTeleporterActiveState << ' '
+                    << SisterSvalnaState << ' '
                     << BloodQuickeningState << ' '
-                    << BloodQuickeningMinutes << ' '
-                    << UpperSpireTeleporterActiveState;
+                    << BloodQuickeningMinutes;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
+                uint32 temp = 0;
+
                 data >> HeroicAttempts;
 
-                uint32 temp = 0;
                 data >> temp;
-                if (temp == IN_PROGRESS)
-                    ColdflameJetsState = NOT_STARTED;
-                else
-                    ColdflameJetsState = temp ? DONE : NOT_STARTED;
+                (temp == DONE) ? ColdflameJetsState = DONE : ColdflameJetsState = NOT_STARTED;
 
                 data >> temp;
-                BloodQuickeningState = temp ? DONE : NOT_STARTED;   // DONE means finished (not success/fail)
+                (temp == DONE) ? UpperSpireTeleporterActiveState = DONE : UpperSpireTeleporterActiveState = NOT_STARTED;
+
+                data >> temp;
+                (temp == DONE) ? SisterSvalnaState = DONE : SisterSvalnaState = NOT_STARTED;
+
+                data >> temp;
+                (temp == DONE) ? BloodQuickeningState = DONE : BloodQuickeningState = NOT_STARTED;
+
                 data >> BloodQuickeningMinutes;
-
-                data >> temp;
-                UpperSpireTeleporterActiveState = temp ? DONE : NOT_STARTED;
             }
 
             void Update(uint32 diff) override
