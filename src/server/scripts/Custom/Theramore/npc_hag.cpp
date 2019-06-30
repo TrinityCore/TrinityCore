@@ -76,7 +76,7 @@ class npc_hag : public CreatureScript
                 {
                     case CASTING_FIREBALL:
                         DoCastVictim(SPELL_FIREBALL);
-                        events.RescheduleEvent(CASTING_FIREBALL, 3s, 5s);
+                        events.RescheduleEvent(CASTING_FIREBALL, 5s, 8s);
                         break;
 
                     case CASTING_ICE_LANCE:

@@ -3,18 +3,18 @@
 
 enum Spells
 {
-    SPELL_LIGHTNING_BOLT    = 100026,
-    SPELL_HEALING_WAVE      = 100025,
-    SPELL_HEX               = 51514,
-    SPELL_HEALING           = 100030,
-    SPELL_LIGHTNING_CHAIN   = 100031,
+    SPELL_LIGHTNING_BOLT = 100026,
+    SPELL_HEALING_WAVE = 100025,
+    SPELL_HEX = 51514,
+    SPELL_HEALING = 100030,
+    SPELL_LIGHTNING_CHAIN = 100031,
 
-    NPC_HEALING_TOTEM       = 100036
+    NPC_HEALING_TOTEM = 100036
 };
 
 enum Casting
 {
-    CASTING_LIGHTNING_BOLT  = 1,
+    CASTING_LIGHTNING_BOLT = 1,
     CASTING_HEALING_WAVE,
     CASTING_HEX,
     CASTING_HEALING_TOTEM,
@@ -57,7 +57,7 @@ class npc_shaman : public CreatureScript
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (events.ExecuteEvent())
+                switch (eventId)
                 {
                     case CASTING_LIGHTNING_BOLT:
                         DoCastVictim(SPELL_LIGHTNING_BOLT);
@@ -77,13 +77,16 @@ class npc_shaman : public CreatureScript
 
                     case CASTING_HEALING_WAVE:
                         if (Unit * target = DoSelectLowestHpFriendly(40.0f))
+                        {
+                            me->InterruptNonMeleeSpells(true);
                             DoCast(target, SPELL_HEALING_WAVE);
-                        events.RescheduleEvent(CASTING_HEALING_WAVE, 3s);
+                        }
+                        events.RescheduleEvent(CASTING_HEALING_WAVE, 2s);
                         break;
 
                     case CASTING_HEALING_TOTEM:
                     {
-                        float alpha = 2.f * float(M_PI) * float(rand_norm());
+                        float alpha = 2.f * float(M_PI * rand_norm());
                         float r = 3.f * sqrtf(float(rand_norm()));
                         float x = r * cosf(alpha) + me->GetPositionX();
                         float y = r * sinf(alpha) + me->GetPositionY();
@@ -96,7 +99,7 @@ class npc_shaman : public CreatureScript
                             totem->SetReactState(REACT_PASSIVE);
                         }
 
-                        events.RescheduleEvent(CASTING_HEALING_TOTEM, 32s, 60s);
+                        events.RescheduleEvent(CASTING_HEALING_TOTEM, 20s, 30s);
                         break;
                     }
                 }
@@ -112,7 +115,7 @@ class npc_shaman : public CreatureScript
         EventMap events;
     };
 
-    CreatureAI* GetAI(Creature * creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_shamanAI(creature);
     }

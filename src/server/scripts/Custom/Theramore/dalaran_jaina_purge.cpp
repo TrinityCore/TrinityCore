@@ -1,4 +1,4 @@
-﻿#include "ScriptMgr.h"
+#include "ScriptMgr.h"
 #include "Map.h"
 #include "GameObject.h"
 #include "ObjectAccessor.h"
@@ -824,7 +824,7 @@ class npc_enchanter_isian : public CreatureScript
 
         bool GossipHello(Player* player) override
         {
-            if (player->GetQuestStatus(QUEST_NOWHERE_TO_HIDE) == QUEST_STATUS_INCOMPLETE)
+            if (player->IsGameMaster() || player->GetQuestStatus(QUEST_NOWHERE_TO_HIDE) == QUEST_STATUS_INCOMPLETE)
             {
                 AddGossipItemFor(player, 57021, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, 100004, me->GetGUID());
