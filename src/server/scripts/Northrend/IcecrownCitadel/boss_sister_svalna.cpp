@@ -1255,7 +1255,7 @@ public:
     }
 };
 
-void AddSC_icecrown_citadel()
+void AddSC_boss_sister_svalna()
 {
     RegisterIcecrownCitadelCreatureAI(boss_sister_svalna);
     RegisterIcecrownCitadelCreatureAI(npc_crok_scourgebane);
