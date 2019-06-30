@@ -176,6 +176,8 @@ class boss_thekal : public CreatureScript
                         case NPC_ZEALOT_ZATH:
                             _isZathDead = true;
                             break;
+                        default:
+                            return;
                     }
 
                     if (_isThekalDead && _isLorkhanDead && _isZathDead)
@@ -373,23 +375,23 @@ enum LorkhanEvents
 class LorKhanSelectTargetToHeal
 {
     public:
-        LorKhanSelectTargetToHeal(Unit const* obj, float range) : i_obj(obj), i_range(range), i_hp(0) { }
+        LorKhanSelectTargetToHeal(Unit const* reference, float range) : _reference(reference), _range(range), _hp(0) { }
 
-        bool operator()(Unit* u)
+        bool operator()(Unit* object)
         {
-            if (u->GetTypeId() != TYPEID_UNIT || !u->IsAlive() || !u->IsInCombat())
+            if (object->GetTypeId() != TYPEID_UNIT || !object->IsAlive() || !object->IsInCombat())
                 return false;
 
-            if (u->ToCreature()->GetEntry() != NPC_HIGH_PRIEST_THEKAL && u->GetEntry() != NPC_ZEALOT_LORKHAN && u->GetEntry() != NPC_ZEALOT_ZATH)
+            if (object->ToCreature()->GetEntry() != NPC_HIGH_PRIEST_THEKAL && object->GetEntry() != NPC_ZEALOT_LORKHAN && object->GetEntry() != NPC_ZEALOT_ZATH)
                 return false;
 
             // Don't allow to heal a target that is waiting for resurrection
-            if (u->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
+            if (object->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
                 return false;
 
-            if ((u->GetMaxHealth() - u->GetHealth() > i_hp) && i_obj->IsWithinDistInMap(u, i_range))
+            if ((object->GetMaxHealth() - object->GetHealth() > _hp) && _reference->IsWithinDistInMap(object, _range))
             {
-                i_hp = u->GetMaxHealth() - u->GetHealth();
+                _hp = object->GetMaxHealth() - object->GetHealth();
                 return true;
             }
 
@@ -397,15 +399,16 @@ class LorKhanSelectTargetToHeal
         }
 
     private:
-        Unit const* i_obj;
-        float i_range;
-        uint32 i_hp;
+        Unit const* _reference;
+        float const _range;
+        uint32 _hp;
 };
 
 // Zealot Lor'Khan
 class npc_zealot_lorkhan : public CreatureScript
 {
-public: npc_zealot_lorkhan() : CreatureScript("npc_zealot_lorkhan") { }
+    public:
+        npc_zealot_lorkhan() : CreatureScript("npc_zealot_lorkhan") { }
 
         struct npc_zealot_lorkhanAI : public ScriptedAI
         {
@@ -478,6 +481,8 @@ public: npc_zealot_lorkhan() : CreatureScript("npc_zealot_lorkhan") { }
                         case EVENT_DISARM:
                             DoCastVictim(SPELL_DISARM);
                             _events.ScheduleEvent(EVENT_DISARM, 15s, 25s);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -580,6 +585,8 @@ class npc_zealot_zath : public CreatureScript
                         case EVENT_BLIND:
                             DoCastVictim(SPELL_BLIND);
                             _events.ScheduleEvent(EVENT_BLIND, 10s, 20s);
+                            break;
+                        default:
                             break;
                     }
                 }

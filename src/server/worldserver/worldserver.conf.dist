@@ -3925,6 +3925,7 @@ Logger.mmaps=3,Server
 #Logger.scripts.ai.followerai=3,Console Server
 #Logger.scripts.ai.petai=3,Console Server
 #Logger.scripts.ai.sai=3,Console Server
+#Logger.scripts.cos=3,Console Server
 #Logger.server.authserver=3,Console Server
 #Logger.spells=3,Console Server
 #Logger.spells.aura.effect=3,Console Server

@@ -555,8 +555,12 @@ public:
 
         void AdvanceToState(COSProgressStates newState)
         {
+            TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::AdvanceToState: advancing to 0x%X", newState);
             if (!_progressRP)
+            {
+                TC_LOG_WARN("scripts.cos", "npc_arthas_stratholmeAI::AdvanceToState: advancing to instance state 0x%X, but RP is paused. Overriding!", newState);
                 _progressRP = true;
+            }
 
             auto itr = ArthasSnapbackPositions.find(newState);
             if (itr != ArthasSnapbackPositions.end())
@@ -576,6 +580,7 @@ public:
                 else
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
+                TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::AdvanceToState: has snapback for this state, distance = %f", target.SnapbackPosition->GetExactDist(me));
                 // Snapback handling - if we're too far from where we're supposed to be, teleport there
                 if (target.SnapbackPosition->GetExactDist(me) > ArthasSnapbackDistanceThreshold)
                     me->NearTeleportTo(*target.SnapbackPosition);
@@ -1536,18 +1541,24 @@ public:
 
         void JustEngagedWith(Unit* who) override
         {
+            TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::JustEngagedWith: RP in progress? '%s'", _progressRP ? "YES" : "NO");
             if (_progressRP)
             {
                 _progressRP = false;
                 me->SetHomePosition(me->GetPosition());
 
                 SplineChainMovementGenerator::GetResumeInfo(_resumeMovement, me);
+                if (!_resumeMovement.Empty())
+                    TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::JustEngagedWith: spline chain motion paused");
+                else
+                    TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::JustEngagedWith: entered combat without pathing, pausing RP regardless");
             }
             ScriptedAI::JustEngagedWith(who);
         }
 
         void EnterEvadeMode(EvadeReason why) override
         {
+            TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::EnterEvadeMode: why = %u ", why);
             ScriptedAI::EnterEvadeMode(why);
         }
 
@@ -1560,9 +1571,12 @@ public:
 
             if (!_resumeMovement.Empty()) // WP motion was interrupted, resume
             {
+                TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::JustReachedHome: Resuming motion");
                 me->GetMotionMaster()->ResumeSplineChain(_resumeMovement);
                 _resumeMovement.Clear();
             }
+            else
+                TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::JustReachedHome: Back at leash pos, resuming RP");
 
             if (_afterCombat)
             {
@@ -1591,8 +1605,11 @@ public:
                 instance->SetGuidData(command, cause->GetGUID());
         }
 
-        bool GossipSelect(Player* player, uint32 /*sender*/, uint32 /*listId*/) override
+        bool GossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
         {
+            uint32 const action = GetGossipActionFor(player, listId);
+            TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::GossipSelect: '%s' selects action '%u' on '%s'", player->GetGUID().ToString().c_str(), action, me->GetGUID().ToString().c_str());
+
             AdvanceDungeon(player, PURGE_PENDING, DATA_START_PURGE);
             AdvanceDungeon(player, TOWN_HALL_PENDING, DATA_START_TOWN_HALL);
             AdvanceDungeon(player, TOWN_HALL_COMPLETE, DATA_TO_GAUNTLET);
