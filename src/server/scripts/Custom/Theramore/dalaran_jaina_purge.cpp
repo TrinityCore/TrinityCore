@@ -1,4 +1,4 @@
-#include "ScriptMgr.h"
+ï»¿#include "ScriptMgr.h"
 #include "Map.h"
 #include "GameObject.h"
 #include "ObjectAccessor.h"
@@ -15,8 +15,7 @@
 
 #include <iostream>
 
-#define NPCS_TOTAL_COUNT 5
-#define GOSSIP_ITEM_ISIAN_WALL "Vereesa me demande de faire le ménage dans le sanctuaire des saccage-soleil."
+constexpr uint32 NPCS_TOTAL_COUNT = 5;
 
 enum NPCs
 {
@@ -300,7 +299,7 @@ class dalaran_jaina_purge : public CreatureScript
                 return;
 
             if (me->Attack(who, false))
-                DoStartMovement(who, 35.f);
+                SetCombatMovement(false);
         }
 
         void Reset() override
@@ -827,7 +826,7 @@ class npc_enchanter_isian : public CreatureScript
         {
             if (player->GetQuestStatus(QUEST_NOWHERE_TO_HIDE) == QUEST_STATUS_INCOMPLETE)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ISIAN_WALL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, 57021, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, 100004, me->GetGUID());
                 return true;
             }

@@ -78,6 +78,8 @@ class KalecgosFlightEvent : public BasicEvent
     public:
     KalecgosFlightEvent(Creature* owner) : owner(owner)
     {
+        spellArgs.AddSpellBP0(1258);
+
         spellArgs.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS);

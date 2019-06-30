@@ -149,8 +149,6 @@ enum Texts
 
 #pragma region CONSTANTS
 
-constexpr auto GOSSIP_ITEM_JAINA_START   = "Nous devons faire tout ce que nous pouvons pour garder la neutralité du Kirin Tor.";
-
 constexpr int INSIDE_PATH_SIZE           = 11;
 constexpr int SCENE_KALECGOS_COUNT       = 4;
 constexpr int SCENE_KEL_THUZAD_COUNT     = 3;
@@ -391,7 +389,7 @@ class dalaran_jaina_anduin : public CreatureScript
 
             if (player->GetQuestStatus(QUEST_THE_FATE_OF_DALARAN) == QUEST_STATUS_INCOMPLETE)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_JAINA_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, 57022, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, 100001, me->GetGUID());
                 return true;
             }
@@ -444,6 +442,7 @@ class dalaran_jaina_anduin : public CreatureScript
                 case ACTION_START_REUNION:
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     anduin->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    anduin->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     phase = PHASE_STARTED;
                     events.CancelEvent(EVENT_TELEPORT);
                     events.ScheduleEvent(EVENT_REUNION_1, 2s);

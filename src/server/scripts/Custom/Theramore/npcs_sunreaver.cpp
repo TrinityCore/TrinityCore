@@ -373,8 +373,11 @@ class npc_magister_brasael : public CreatureScript
             events.ScheduleEvent(CASTING_DRAGON_BREATH, 14s);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(Unit* attacker, uint32& /*damage*/) override
         {
+            if (attacker->GetTypeId() != TYPEID_PLAYER)
+                return;
+
             if (phase != 2 && HealthBelowPct(80))
             {
                 phase = 2;
@@ -439,16 +442,21 @@ class npc_magister_brasael : public CreatureScript
                         break;
 
                     case CASTING_POSTCOMBUSTION:
+                    {
+                        if (me->GetVictim()->GetTypeId() != TYPEID_PLAYER)
+                        {
+                            events.ScheduleEvent(CASTING_SCORCH, 5ms);
+                            events.ScheduleEvent(CASTING_DRAGON_BREATH, 14s);
+                            break;
+                        }
+
                         DoCastSelf(SPELL_POSTCOMBUSTION);
                         me->SetControlled(true, UNIT_STATE_ROOT);
+                    }
                         break;
 
                     case CASTING_METEOR:
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (target->GetTypeId() != TYPEID_PLAYER)
-                            break;
-
                         if (meteors > 1)
                         {
                             me->SetControlled(false, UNIT_STATE_ROOT);
@@ -459,7 +467,7 @@ class npc_magister_brasael : public CreatureScript
 
                         meteors++;
                         
-                        const Position spellDestination = target->GetPosition();
+                        const Position spellDestination = SelectTarget(SELECT_TARGET_RANDOM, 0)->GetPosition();
                         if (Creature * fx = DoSummon(NPC_INVISIBLE_STALKER, spellDestination, 7000, TEMPSUMMON_TIMED_DESPAWN))
                             fx->CastSpell(fx, SPELL_DUMMY_METEOR);
                         me->CastSpell(spellDestination, SPELL_METEOR);
