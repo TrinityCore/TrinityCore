@@ -1,7 +1,7 @@
 --
 SET @GUID := 111225;
 
-DELETE FROM `creature` WHERE `guid` IN (@GUID, @GUID+1, @GUID+2);
+DELETE FROM `creature` WHERE `guid` IN (@GUID, @GUID+1, @GUID+2, @GUID+3);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `VerifiedBuild`) VALUES
 (@GUID  , 15655, 530, 0, 0, 1, 1, 0, 0, 9301.48, -6958.67, 8.01523, 6.19155, 60, 0, 0, 120, 0, 0, 0, 0, 0, "", 0),
 (@GUID+1, 15655, 530, 0, 0, 1, 1, 0, 0, 9298.69, -6960.92, 7.68314, 6.19155, 60, 0, 0, 120, 0, 0, 0, 0, 0, "", 0),
