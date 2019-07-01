@@ -6662,12 +6662,12 @@ void Player::RewardReputation(Quest const* quest)
 
         // @hack some quests give reputation to Alliance-only AND Horde-only factions, but DBC data does not allow to identify faction-only reputations
         if (GetTeamId() == TEAM_HORDE && (
-            (rewardFactionId == 1037) || // Alliance Vanguard
-            (rewardFactionId == 946)))   // Honor Hold
+            rewardFactionId == 1037 || // Alliance Vanguard
+            rewardFactionId == 946))   // Honor Hold
             continue;
 
         if (GetTeamId() == TEAM_ALLIANCE &&
-            rewardFactionId == 947)     // Thrallmar
+            rewardFactionId == 947)    // Thrallmar
             continue;
 
         int32 rep = 0;
