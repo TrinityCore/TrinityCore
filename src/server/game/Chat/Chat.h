@@ -108,7 +108,7 @@ class TC_GAME_API ChatHandler
         Unit* getSelectedUnit();
         WorldObject* getSelectedObject();
         // Returns either the selected player or self if there is no selected player
-        Player*   getSelectedPlayerOrSelf();
+        Player* getSelectedPlayerOrSelf();
 
         char* extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
         char* extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
