@@ -191,9 +191,9 @@ class TC_GAME_API ArenaTeam
         ObjectGuid CaptainGuid;
 
         uint32 BackgroundColor; // ARGB format
-        uint8 EmblemStyle;     // icon id
+        uint8 EmblemStyle;      // icon id
         uint32 EmblemColor;     // ARGB format
-        uint8 BorderStyle;     // border image id
+        uint8 BorderStyle;      // border image id
         uint32 BorderColor;     // ARGB format
 
         MemberList     Members;
