@@ -1704,11 +1704,11 @@ class npc_tournament_mount : public CreatureScript
                     case NPC_ARGENT_WARHORSE:
                     {
                         if (player->HasAchieved(ACHIEVEMENT_CHAMPION_ALLIANCE) || player->HasAchieved(ACHIEVEMENT_CHAMPION_HORDE))
-                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_CHAMPION : SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION;
+                            return player->GetClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_CHAMPION : SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION;
                         else if (player->HasAchieved(ACHIEVEMENT_ARGENT_VALOR))
-                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_VALIANT : SPELL_PENNANT_ARGENT_CRUSADE_VALIANT;
+                            return player->GetClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_VALIANT : SPELL_PENNANT_ARGENT_CRUSADE_VALIANT;
                         else
-                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_ASPIRANT : SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT;
+                            return player->GetClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_ASPIRANT : SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT;
                     }
                     default:
                         return 0;
@@ -2951,6 +2951,40 @@ public:
     }
 };
 
+enum TravelerTundraMammothNPCs
+{
+    NPC_HAKMUD_OF_ARGUS  = 32638,
+    NPC_GNIMO            = 32639,
+    NPC_DRIX_BLACKWRENCH = 32641,
+    NPC_MOJODISHU        = 32642
+};
+
+class npc_traveler_tundra_mammoth_exit_pos : public UnitScript
+{
+public:
+    npc_traveler_tundra_mammoth_exit_pos() : UnitScript("npc_traveler_tundra_mammoth_exit_pos") { }
+
+    void ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* /*vehicle*/, Position& pos)
+    {
+        if (passenger->GetTypeId() == TYPEID_UNIT)
+        {
+            switch (passenger->GetEntry())
+            {
+                // Right side
+                case NPC_DRIX_BLACKWRENCH:
+                case NPC_GNIMO:
+                    pos.RelocateOffset({ -2.0f, -2.0f, 0.0f, 0.0f });
+                    break;
+                // Left side
+                case NPC_MOJODISHU:
+                case NPC_HAKMUD_OF_ARGUS:
+                    pos.RelocateOffset({ -2.0f, 2.0f, 0.0f, 0.0f });
+                    break;
+            }
+        }
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2978,4 +3012,5 @@ void AddSC_npcs_special()
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
     new npc_bountiful_table();
+    new npc_traveler_tundra_mammoth_exit_pos();
 }

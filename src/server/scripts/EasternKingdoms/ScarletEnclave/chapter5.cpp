@@ -23,6 +23,8 @@
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 #define LESS_MOB // if you do not have a good server and do not want it to be laggy as hell
@@ -1384,8 +1386,8 @@ public:
                     if (me->HasAura(SPELL_THE_MIGHT_OF_MOGRAINE))
                         me->RemoveAurasDueToSpell(SPELL_THE_MIGHT_OF_MOGRAINE);
                     me->RemoveAllAuras();
-                    me->GetThreatManager().ClearAllThreat();
                     me->CombatStop(true);
+                    me->GetThreatManager().NotifyDisengaged();
                     me->InterruptNonMeleeSpells(false);
                     me->SetWalk(false);
 
@@ -1405,8 +1407,8 @@ public:
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiKorfaxGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
+                        temp->GetThreatManager().NotifyDisengaged();
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
@@ -1416,7 +1418,6 @@ public:
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiMaxwellGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
@@ -1427,8 +1428,8 @@ public:
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiEligorGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
+                        temp->GetThreatManager().NotifyDisengaged();
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
@@ -1439,8 +1440,8 @@ public:
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiKoltiraGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
+                        temp->GetThreatManager().NotifyDisengaged();
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
@@ -1454,8 +1455,8 @@ public:
                     if (Creature* temp = ObjectAccessor::GetCreature(*me, uiThassarianGUID))
                     {
                         temp->RemoveAllAuras();
-                        temp->GetThreatManager().ClearAllThreat();
                         temp->CombatStop(true);
+                        temp->GetThreatManager().NotifyDisengaged();
                         temp->AttackStop();
                         temp->SetFaction(me->GetFaction());
                         temp->SetWalk(false);
@@ -1664,8 +1665,34 @@ public:
 
 };
 
+// 58418 - Portal to Orgrimmar
+// 58420 - Portal to Stormwind
+class spell_teleport_leaders_blessing : public SpellScript
+{
+    PrepareSpellScript(spell_teleport_leaders_blessing);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Player* target = GetHitPlayer();
+        if (!target)
+            return;
+
+        uint32 spellID = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+        uint32 questID = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+
+        if (target->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE)
+            target->CastSpell(target, spellID, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_teleport_leaders_blessing::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_the_scarlet_enclave_c5()
 {
     new npc_highlord_darion_mograine();
     new npc_the_lich_king_tirion_dawn();
+    RegisterSpellScript(spell_teleport_leaders_blessing);
 }

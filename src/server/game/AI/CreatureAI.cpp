@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
+#include "DBCStructure.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
@@ -151,6 +152,54 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
 }
 
+// adapted from logic in Spell:EffectSummonType
+static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
+{
+    // Summons without SummonProperties are generally scripted summons that don't belong to any owner
+    if (!properties)
+        return false;
+
+    switch (properties->Category)
+    {
+        case SUMMON_CATEGORY_PET:
+            return true;
+        case SUMMON_CATEGORY_WILD:
+        case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_UNK:
+            if (properties->Flags & 512)
+                return true;
+            switch (properties->Type)
+            {
+                case SUMMON_TYPE_PET:
+                case SUMMON_TYPE_GUARDIAN:
+                case SUMMON_TYPE_GUARDIAN2:
+                case SUMMON_TYPE_MINION:
+                case SUMMON_TYPE_MINIPET:
+                    return true;
+                default:
+                    return false;
+            }
+        default:
+            return false;
+    }
+}
+
+void CreatureAI::JustAppeared()
+{
+    if (TempSummon* summon = me->ToTempSummon())
+    {
+        // Only apply this to specific types of summons
+        if (!summon->GetVehicle() && ShouldFollowOnSpawn(summon->m_Properties))
+        {
+            if (Unit* owner = summon->GetCharmerOrOwner())
+            {
+                summon->GetMotionMaster()->Clear();
+                summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
+            }
+        }
+    }
+}
+
 void CreatureAI::EnterEvadeMode(EvadeReason why)
 {
     if (!_EnterEvadeMode(why))
@@ -208,9 +257,8 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 
     me->RemoveAurasOnEvade();
 
-    // sometimes bosses stuck in combat?
-    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
+    me->GetThreatManager().NotifyDisengaged();
     me->LoadCreaturesAddon();
     me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
@@ -218,10 +266,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->SetCannotReachTarget(false);
     me->DoNotReacquireTarget();
 
-    if (me->IsInEvadeMode())
-        return false;
-
-    return true;
+    return !me->IsInEvadeMode();
 }
 
 static const uint32 BOUNDARY_VISUALIZE_CREATURE = 15425;

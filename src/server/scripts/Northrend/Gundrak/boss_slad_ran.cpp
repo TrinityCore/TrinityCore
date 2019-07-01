@@ -170,8 +170,8 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
-            Talk(SAY_DEATH);
             Talk(EMOTE_ACTIVATE_ALTAR);
+            Talk(SAY_DEATH);
         }
 
         void KilledUnit(Unit* who) override

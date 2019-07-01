@@ -107,7 +107,7 @@ struct TC_GAME_API AuctionEntry
 //this class is used as auctionhouse instance
 class TC_GAME_API AuctionHouseObject
 {
-  public:
+public:
     ~AuctionHouseObject()
     {
         for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
@@ -141,7 +141,7 @@ class TC_GAME_API AuctionHouseObject
         uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
         uint32& count, uint32& totalcount, bool getall = false);
 
-  private:
+private:
     AuctionEntryMap AuctionsMap;
 
     // Map of throttled players for GetAll, and throttle expiry time
