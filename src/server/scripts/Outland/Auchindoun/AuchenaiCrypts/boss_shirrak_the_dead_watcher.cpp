@@ -97,7 +97,7 @@ public:
             {
                 summoned->CastSpell(summoned, SPELL_FOCUS_FIRE_VISUAL, false);
                 summoned->SetFaction(me->GetFaction());
-                summoned->SetLevel(me->getLevel());
+                summoned->SetLevel(me->GetLevel());
                 summoned->AddUnitState(UNIT_STATE_ROOT);
 
                 if (Unit* pFocusedTarget = ObjectAccessor::GetUnit(*me, FocusedTargetGUID))

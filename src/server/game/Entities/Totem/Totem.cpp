@@ -66,7 +66,7 @@ void Totem::InitStats(uint32 duration)
         }
 
         // set display id depending on caster's race
-        if (uint32 totemDisplayId = sSpellMgr->GetModelForTotem(m_unitData->CreatedBySpell, owner->getRace()))
+        if (uint32 totemDisplayId = sSpellMgr->GetModelForTotem(m_unitData->CreatedBySpell, owner->GetRace()))
             SetDisplayId(totemDisplayId);
     }
 
@@ -79,7 +79,7 @@ void Totem::InitStats(uint32 duration)
 
     m_duration = duration;
 
-    SetLevel(GetOwner()->getLevel());
+    SetLevel(GetOwner()->GetLevel());
 }
 
 void Totem::InitSummon()

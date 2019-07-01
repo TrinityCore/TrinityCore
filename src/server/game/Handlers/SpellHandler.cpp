@@ -558,9 +558,9 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         WorldPackets::Spells::MirrorImageComponentedData mirrorImageComponentedData;
         mirrorImageComponentedData.UnitGUID = guid;
         mirrorImageComponentedData.DisplayID = creator->GetDisplayId();
-        mirrorImageComponentedData.RaceID = creator->getRace();
-        mirrorImageComponentedData.Gender = creator->getGender();
-        mirrorImageComponentedData.ClassID = creator->getClass();
+        mirrorImageComponentedData.RaceID = creator->GetRace();
+        mirrorImageComponentedData.Gender = creator->GetGender();
+        mirrorImageComponentedData.ClassID = creator->GetClass();
 
 
         for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)

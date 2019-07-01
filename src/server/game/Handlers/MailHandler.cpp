@@ -79,7 +79,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
 
     Player* player = _player;
 
-    if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
+    if (player->GetLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_MAIL_SENDER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
         return;
@@ -155,7 +155,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     {
         receiverTeam = receiver->GetTeam();
         mailsCount = receiver->GetMailSize();
-        receiverLevel = receiver->getLevel();
+        receiverLevel = receiver->GetLevel();
         receiverAccountId = receiver->GetSession()->GetAccountId();
         receiverBnetAccountId = receiver->GetSession()->GetBattlenetAccountId();
     }

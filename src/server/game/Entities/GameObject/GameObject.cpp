@@ -2054,11 +2054,11 @@ void GameObject::Use(Unit* user)
 
             //required lvl checks!
             if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
-                if (player->getLevel() < userLevels->MaxLevel)
+                if (player->GetLevel() < userLevels->MaxLevel)
                     return;
 
             if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ContentTuningConditionMask))
-                if (targetPlayer->getLevel() < targetLevels->MaxLevel)
+                if (targetPlayer->GetLevel() < targetLevels->MaxLevel)
                     return;
 
             if (info->entry == 194097)

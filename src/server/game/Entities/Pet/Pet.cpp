@@ -221,7 +221,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     switch (getPetType())
     {
         case SUMMON_PET:
-            petlevel = owner->getLevel();
+            petlevel = owner->GetLevel();
             SetClass(CLASS_MAGE);
             SetUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED); // this enables popup window (pet dismiss, cancel)
             break;
@@ -464,7 +464,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         stmt->setUInt32(1, GetEntry());
         stmt->setUInt64(2, ownerLowGUID);
         stmt->setUInt32(3, GetNativeDisplayId());
-        stmt->setUInt8(4, getLevel());
+        stmt->setUInt8(4, GetLevel());
         stmt->setUInt32(5, m_unitData->PetExperience);
         stmt->setUInt8(6, GetReactState());
         stmt->setInt16(7, mode);
@@ -654,8 +654,8 @@ void Pet::GivePetXP(uint32 xp)
     if (!IsAlive())
         return;
 
-    uint8 maxlevel = std::min((uint8)sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL), GetOwner()->getLevel());
-    uint8 petlevel = getLevel();
+    uint8 maxlevel = std::min((uint8)sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL), GetOwner()->GetLevel());
+    uint8 petlevel = GetLevel();
 
     // If pet is detected to be at, or above(?) the players level, don't hand out XP
     if (petlevel >= maxlevel)
@@ -682,7 +682,7 @@ void Pet::GivePetXP(uint32 xp)
 
 void Pet::GivePetLevel(uint8 level)
 {
-    if (!level || level == getLevel())
+    if (!level || level == GetLevel())
         return;
 
     if (getPetType() == HUNTER_PET)
@@ -749,7 +749,7 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
 
     SetPetNameTimestamp(0);
     SetPetExperience(0);
-    SetPetNextLevelExperience(uint32(sObjectMgr->GetXPForLevel(getLevel() + 1) * PET_XP_FACTOR));
+    SetPetNextLevelExperience(uint32(sObjectMgr->GetXPForLevel(GetLevel() + 1) * PET_XP_FACTOR));
     SetNpcFlags(UNIT_NPC_FLAG_NONE);
     SetNpcFlags2(UNIT_NPC_FLAG_2_NONE);
 
@@ -777,13 +777,13 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     PetType petType = MAX_PET_TYPE;
     if (IsPet() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetOwner()->getClass() == CLASS_WARLOCK
-            || GetOwner()->getClass() == CLASS_SHAMAN        // Fire Elemental
-            || GetOwner()->getClass() == CLASS_DEATH_KNIGHT) // Risen Ghoul
+        if (GetOwner()->GetClass() == CLASS_WARLOCK
+            || GetOwner()->GetClass() == CLASS_SHAMAN        // Fire Elemental
+            || GetOwner()->GetClass() == CLASS_DEATH_KNIGHT) // Risen Ghoul
         {
             petType = SUMMON_PET;
         }
-        else if (GetOwner()->getClass() == CLASS_HUNTER)
+        else if (GetOwner()->GetClass() == CLASS_HUNTER)
         {
             petType = HUNTER_PET;
             m_unitTypeMask |= UNIT_MASK_HUNTER_PET;
@@ -791,7 +791,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         else
         {
             TC_LOG_ERROR("entities.pet", "Unknown type pet %u is summoned by player class %u",
-                           GetEntry(), GetOwner()->getClass());
+                           GetEntry(), GetOwner()->GetClass());
         }
     }
 
@@ -810,12 +810,12 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     if (cFamily && cFamily->MinScale > 0.0f && petType == HUNTER_PET)
     {
         float scale;
-        if (getLevel() >= cFamily->MaxScaleLevel)
+        if (GetLevel() >= cFamily->MaxScaleLevel)
             scale = cFamily->MaxScale;
-        else if (getLevel() <= cFamily->MinScaleLevel)
+        else if (GetLevel() <= cFamily->MinScaleLevel)
             scale = cFamily->MinScale;
         else
-            scale = cFamily->MinScale + float(getLevel() - cFamily->MinScaleLevel) / cFamily->MaxScaleLevel * (cFamily->MaxScale - cFamily->MinScale);
+            scale = cFamily->MinScale + float(GetLevel() - cFamily->MinScaleLevel) / cFamily->MaxScaleLevel * (cFamily->MaxScale - cFamily->MinScale);
 
         SetObjectScale(scale);
     }
@@ -1431,7 +1431,7 @@ void Pet::learnSpells(std::vector<uint32> const& spellIds)
 
 void Pet::InitLevelupSpellsForLevel()
 {
-    uint8 level = getLevel();
+    uint8 level = GetLevel();
 
     if (PetLevelupSpellSet const* levelupSpells = GetCreatureTemplate()->family ? sSpellMgr->GetPetLevelupSpellList(GetCreatureTemplate()->family) : nullptr)
     {
@@ -1606,7 +1606,7 @@ bool Pet::IsPermanentPetFor(Player* owner) const
     switch (getPetType())
     {
         case SUMMON_PET:
-            switch (owner->getClass())
+            switch (owner->GetClass())
             {
                 case CLASS_WARLOCK:
                     return GetCreatureTemplate()->type == CREATURE_TYPE_DEMON;
@@ -1738,7 +1738,7 @@ void Pet::SynchronizeLevelWithOwner()
         // always same level
         case SUMMON_PET:
         case HUNTER_PET:
-            GivePetLevel(owner->getLevel());
+            GivePetLevel(owner->GetLevel());
             break;
         default:
             break;
@@ -1786,7 +1786,7 @@ void Pet::LearnSpecializationSpells()
         {
             SpecializationSpellsEntry const* specSpell = specSpells->at(j);
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID, DIFFICULTY_NONE);
-            if (!spellInfo || spellInfo->SpellLevel > getLevel())
+            if (!spellInfo || spellInfo->SpellLevel > GetLevel())
                 continue;
 
             learnedSpells.push_back(specSpell->SpellID);

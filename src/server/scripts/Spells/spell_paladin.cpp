@@ -198,7 +198,7 @@ class spell_pal_blessing_of_faith : public SpellScript
         if (Unit* unitTarget = GetHitUnit())
         {
             uint32 spell_id = 0;
-            switch (unitTarget->getClass())
+            switch (unitTarget->GetClass())
             {
                 case CLASS_DRUID:
                     spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID;
@@ -438,7 +438,7 @@ class spell_pal_divine_steed : public SpellScript
         Unit* caster = GetCaster();
 
         uint32 spellId = SPELL_PALADIN_DIVINE_STEED_HUMAN;
-        switch (caster->getRace())
+        switch (caster->GetRace())
         {
             case RACE_HUMAN:
                 spellId = SPELL_PALADIN_DIVINE_STEED_HUMAN;
@@ -1073,7 +1073,7 @@ class spell_pal_t3_6p_bonus : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
 
-                switch (target->getClass())
+                switch (target->GetClass())
                 {
                     case CLASS_PALADIN:
                     case CLASS_PRIEST:

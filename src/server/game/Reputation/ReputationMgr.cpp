@@ -513,7 +513,7 @@ void ReputationMgr::SetVisible(FactionTemplateEntry const* factionTemplateEntry)
 
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplateEntry->Faction))
         // Never show factions of the opposing team
-        if (!(factionEntry->ReputationRaceMask[1].HasRace(_player->getRace()) && factionEntry->ReputationBase[1] == Reputation_Bottom))
+        if (!(factionEntry->ReputationRaceMask[1].HasRace(_player->GetRace()) && factionEntry->ReputationBase[1] == Reputation_Bottom))
             SetVisible(factionEntry);
 }
 
@@ -722,8 +722,8 @@ int32 ReputationMgr::GetFactionDataIndexForRaceAndClass(FactionEntry const* fact
     if (!factionEntry)
         return -1;
 
-    uint8 race = _player->getRace();
-    uint32 classMask = _player->getClassMask();
+    uint8 race = _player->GetRace();
+    uint32 classMask = _player->GetClassMask();
     for (int32 i = 0; i < 4; i++)
     {
         if ((factionEntry->ReputationRaceMask[i].HasRace(race) || (!factionEntry->ReputationRaceMask[i] && factionEntry->ReputationClassMask[i] != 0))
@@ -751,5 +751,5 @@ bool ReputationMgr::CanGainParagonReputationForFaction(FactionEntry const* facti
     if (!quest)
         return false;
 
-    return _player->getLevel() >= _player->GetQuestMinLevel(quest);
+    return _player->GetLevel() >= _player->GetQuestMinLevel(quest);
 }

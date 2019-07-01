@@ -283,7 +283,7 @@ class spell_item_arcane_shroud : public AuraScript
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
-        int32 diff = GetUnitOwner()->getLevel() - 60;
+        int32 diff = GetUnitOwner()->GetLevel() - 60;
         if (diff > 0)
             amount += 2 * diff;
     }
@@ -366,7 +366,7 @@ class spell_item_aura_of_madness : public AuraScript
 
         PreventDefaultAction();
         Unit* caster = eventInfo.GetActor();
-        uint32 spellId = Trinity::Containers::SelectRandomContainerElement(triggeredSpells[caster->getClass()]);
+        uint32 spellId = Trinity::Containers::SelectRandomContainerElement(triggeredSpells[caster->GetClass()]);
         caster->CastSpell(caster, spellId, aurEff);
 
         if (roll_chance_i(10))
@@ -594,7 +594,7 @@ class spell_item_deathbringers_will : public SpellScriptLoader
 
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                std::vector<uint32> const& randomSpells = triggeredSpells[caster->getClass()];
+                std::vector<uint32> const& randomSpells = triggeredSpells[caster->GetClass()];
                 if (randomSpells.empty())
                     return;
 
@@ -932,7 +932,7 @@ class spell_item_flask_of_the_north : public SpellScript
     {
         Unit* caster = GetCaster();
         std::vector<uint32> possibleSpells;
-        switch (caster->getClass())
+        switch (caster->GetClass())
         {
             case CLASS_WARLOCK:
             case CLASS_MAGE:
@@ -960,7 +960,7 @@ class spell_item_flask_of_the_north : public SpellScript
 
         if (possibleSpells.empty())
         {
-            TC_LOG_WARN("spells", "Missing spells for class %u in script spell_item_flask_of_the_north", caster->getClass());
+            TC_LOG_WARN("spells", "Missing spells for class %u in script spell_item_flask_of_the_north", caster->GetClass());
             return;
         }
 
@@ -1636,9 +1636,9 @@ class spell_item_savory_deviate_delight : public SpellScript
         switch (urand(1, 2))
         {
             // Flip Out - ninja
-            case 1: spellId = (caster->getGender() == GENDER_MALE ? SPELL_FLIP_OUT_MALE : SPELL_FLIP_OUT_FEMALE); break;
+            case 1: spellId = (caster->GetGender() == GENDER_MALE ? SPELL_FLIP_OUT_MALE : SPELL_FLIP_OUT_FEMALE); break;
             // Yaaarrrr - pirate
-            case 2: spellId = (caster->getGender() == GENDER_MALE ? SPELL_YAAARRRR_MALE : SPELL_YAAARRRR_FEMALE); break;
+            case 2: spellId = (caster->GetGender() == GENDER_MALE ? SPELL_YAAARRRR_MALE : SPELL_YAAARRRR_FEMALE); break;
         }
         caster->CastSpell(caster, spellId, true);
     }
@@ -1690,7 +1690,7 @@ class spell_item_scroll_of_recall : public SpellScript
                 break;
         }
 
-        if (caster->getLevel() > maxSafeLevel)
+        if (caster->GetLevel() > maxSafeLevel)
         {
             caster->CastSpell(caster, SPELL_LOST, true);
 
@@ -2157,7 +2157,7 @@ class spell_item_the_eye_of_diminution : public AuraScript
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
-        int32 diff = GetUnitOwner()->getLevel() - 60;
+        int32 diff = GetUnitOwner()->GetLevel() - 60;
         if (diff > 0)
             amount += diff;
     }
@@ -3401,7 +3401,7 @@ class spell_item_soul_preserver : public AuraScript
 
         Unit* caster = eventInfo.GetActor();
 
-        switch (caster->getClass())
+        switch (caster->GetClass())
         {
             case CLASS_DRUID:
                 caster->CastSpell(caster, SPELL_SOUL_PRESERVER_DRUID, aurEff);
@@ -3516,7 +3516,7 @@ class spell_item_toy_train_set_pulse : public SpellScript
         if (Player* target = GetHitUnit()->ToPlayer())
         {
             target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
-            if (EmotesTextSoundEntry const* soundEntry = sDB2Manager.GetTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->getRace(), target->getGender(), target->getClass()))
+            if (EmotesTextSoundEntry const* soundEntry = sDB2Manager.GetTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->GetRace(), target->GetGender(), target->GetClass()))
                 target->PlayDistanceSound(soundEntry->SoundID);
         }
     }

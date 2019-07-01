@@ -1442,11 +1442,11 @@ void Spell::EffectEnergize()
     {
         case 24571:                                         // Blood Fury
             // Instantly increases your rage by ${(300-10*$max(0,$PL-60))/10}.
-            damage -= 10 * std::max(0, std::min(30, unitCaster->getLevel() - 60));
+            damage -= 10 * std::max(0, std::min(30, unitCaster->GetLevel() - 60));
             break;
         case 24532:                                         // Burst of Energy
             // Instantly increases your energy by ${60-4*$max(0,$min(15,$PL-60))}.
-            damage -= 4 * std::max(0, std::min(15, unitCaster->getLevel() - 60));
+            damage -= 4 * std::max(0, std::min(15, unitCaster->GetLevel() - 60));
             break;
         case 67490:                                         // Runic Mana Injector (mana gain increased by 25% for engineers - 3.2.0 patch change)
         {
@@ -2276,7 +2276,7 @@ void Spell::EffectLearnSkill()
         return;
 
     uint32 skillid = effectInfo->MiscValue;
-    SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillid, unitTarget->getRace(), unitTarget->getClass());
+    SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillid, unitTarget->GetRace(), unitTarget->GetClass());
     if (!rcEntry)
         return;
 
@@ -2538,7 +2538,7 @@ void Spell::EffectTameCreature()
     if (creatureTarget->IsPet())
         return;
 
-    if (unitCaster->getClass() != CLASS_HUNTER)
+    if (unitCaster->GetClass() != CLASS_HUNTER)
         return;
 
     // cast finish successfully
@@ -3213,7 +3213,7 @@ void Spell::EffectDuel()
     PhasingHandler::InheritPhaseShift(go, caster);
 
     go->SetFaction(caster->GetFaction());
-    go->SetLevel(caster->getLevel() + 1);
+    go->SetLevel(caster->GetLevel() + 1);
     int32 duration = m_spellInfo->CalcDuration(caster);
     go->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     go->SetSpellId(m_spellInfo->Id);
@@ -3474,7 +3474,7 @@ void Spell::EffectFeedPet()
     ExecuteLogEffectDestroyItem(SpellEffectName(effectInfo->Effect), foodItem->GetEntry());
 
     int32 pct;
-    int32 levelDiff = int32(pet->getLevel()) - int32(foodItem->GetTemplate()->GetBaseItemLevel());
+    int32 levelDiff = int32(pet->GetLevel()) - int32(foodItem->GetTemplate()->GetBaseItemLevel());
     if (levelDiff >= 30)
         return;
     else if (levelDiff >= 20)
@@ -3549,7 +3549,7 @@ void Spell::EffectSummonObject()
     PhasingHandler::InheritPhaseShift(go, m_caster);
 
     go->SetFaction(unitCaster->GetFaction());
-    go->SetLevel(unitCaster->getLevel());
+    go->SetLevel(unitCaster->GetLevel());
     int32 duration = m_spellInfo->CalcDuration(m_caster);
     go->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
     go->SetSpellId(m_spellInfo->Id);
@@ -4667,7 +4667,7 @@ void Spell::EffectCreateTamedPet()
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || !unitTarget->GetPetGUID().IsEmpty() || unitTarget->getClass() != CLASS_HUNTER)
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || !unitTarget->GetPetGUID().IsEmpty() || unitTarget->GetClass() != CLASS_HUNTER)
         return;
 
     uint32 creatureEntry = effectInfo->MiscValue;
@@ -4772,7 +4772,7 @@ void Spell::SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPr
         unitCaster = unitCaster->ToTotem()->GetOwner();
 
     // in another case summon new
-    uint8 level = unitCaster->getLevel();
+    uint8 level = unitCaster->GetLevel();
 
     // level of pet summoned using engineering item based at engineering skill level
     if (m_CastItem && unitCaster->GetTypeId() == TYPEID_PLAYER)
