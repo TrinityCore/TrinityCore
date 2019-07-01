@@ -352,7 +352,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                 if (AuraEffect const* aegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS, EFFECT_0))
                     absorb += aegis->GetAmount();
 
-                absorb = std::min(absorb, eventInfo.GetProcTarget()->getLevel() * 125);
+                absorb = std::min(absorb, eventInfo.GetProcTarget()->GetLevel() * 125);
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(absorb);

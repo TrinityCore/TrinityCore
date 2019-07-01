@@ -1277,10 +1277,10 @@ bool GameObject::IsInvisibleDueToDespawn() const
     return false;
 }
 
-uint8 GameObject::getLevelForTarget(WorldObject const* target) const
+uint8 GameObject::GetLevelForTarget(WorldObject const* target) const
 {
     if (Unit* owner = GetOwner())
-        return owner->getLevelForTarget(target);
+        return owner->GetLevelForTarget(target);
 
     return 1;
 }
@@ -1902,10 +1902,10 @@ void GameObject::Use(Unit* user)
                 return;
 
             //required lvl checks!
-            uint8 level = player->getLevel();
+            uint8 level = player->GetLevel();
             if (level < info->meetingstone.minLevel)
                 return;
-            level = targetPlayer->getLevel();
+            level = targetPlayer->GetLevel();
             if (level < info->meetingstone.minLevel)
                 return;
 

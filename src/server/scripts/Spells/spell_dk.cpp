@@ -223,7 +223,7 @@ public:
         {
             if (Unit* caster = eventInfo.GetActor())
             {
-                if (caster->GetTypeId() != TYPEID_PLAYER || caster->getClass() != CLASS_DEATH_KNIGHT)
+                if (caster->GetTypeId() != TYPEID_PLAYER || caster->GetClass() != CLASS_DEATH_KNIGHT)
                     return false;
 
                 for (uint8 i = 0; i < MAX_RUNES; ++i)
@@ -431,7 +431,7 @@ class spell_dk_blade_barrier : public SpellScriptLoader
             {
                 if (eventInfo.GetSpellInfo() != nullptr)
                     if (Player* player = eventInfo.GetActor()->ToPlayer())
-                        if (player->getClass() == CLASS_DEATH_KNIGHT && player->IsBaseRuneSlotsOnCooldown(RUNE_BLOOD))
+                        if (player->GetClass() == CLASS_DEATH_KNIGHT && player->IsBaseRuneSlotsOnCooldown(RUNE_BLOOD))
                             return true;
 
                 return false;
@@ -473,7 +473,7 @@ class spell_dk_blood_boil : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCaster()->getClass() == CLASS_DEATH_KNIGHT;
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCaster()->GetClass() == CLASS_DEATH_KNIGHT;
             }
 
             void HandleAfterHit()
@@ -908,7 +908,7 @@ class spell_dk_death_gate : public SpellScriptLoader
 
             SpellCastResult CheckClass()
             {
-                if (GetCaster()->getClass() != CLASS_DEATH_KNIGHT)
+                if (GetCaster()->GetClass() != CLASS_DEATH_KNIGHT)
                 {
                     SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_BE_DEATH_KNIGHT);
                     return SPELL_FAILED_CUSTOM_ERROR;
@@ -1037,7 +1037,7 @@ class spell_dk_death_rune : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER && GetUnitOwner()->ToPlayer()->getClass() == CLASS_DEATH_KNIGHT;
+                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER && GetUnitOwner()->ToPlayer()->GetClass() == CLASS_DEATH_KNIGHT;
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1048,7 +1048,7 @@ class spell_dk_death_rune : public SpellScriptLoader
                     return false;
 
                 Player* player = caster->ToPlayer();
-                if (player->getClass() != CLASS_DEATH_KNIGHT)
+                if (player->GetClass() != CLASS_DEATH_KNIGHT)
                     return false;
 
                 return true;

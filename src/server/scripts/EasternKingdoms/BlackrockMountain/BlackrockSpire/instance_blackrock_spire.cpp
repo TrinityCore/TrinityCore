@@ -597,7 +597,7 @@ public:
             {
                 if (Creature* infiltrator = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SCARSHIELD_INFILTRATOR)))
                 {
-                    if (player->getLevel() >= 57)
+                    if (player->GetLevel() >= 57)
                         infiltrator->AI()->SetData(1, 1);
                     else if (infiltrator->GetEntry() == NPC_SCARSHIELD_INFILTRATOR)
                         infiltrator->AI()->Talk(0, player);
