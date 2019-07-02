@@ -9848,7 +9848,7 @@ void Unit::SetDisplayId(uint32 modelId, float displayScale /*= 1.f*/)
 
     // Set Gender by modelId
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
-        SetGender(minfo->gender);
+        SetGender(Gender(minfo->gender));
 }
 
 void Unit::RestoreDisplayId(bool ignorePositiveAurasPreventingMounting /*= false*/)
@@ -11499,7 +11499,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                     if (ShapeshiftForm(artifactAppearance->OverrideShapeshiftFormID) == form)
                         return artifactAppearance->OverrideShapeshiftDisplayID;
 
-        if (ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(GetRace(), thisPlayer->GetNativeSex(), form))
+        if (ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(GetRace(), thisPlayer->GetNativeGender(), form))
         {
             bool useRandom = false;
             switch (form)

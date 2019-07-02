@@ -77,7 +77,7 @@ void WorldPackets::Inspect::PlayerModelDisplayInfo::Initialize(Player const* pla
     GUID = player->GetGUID();
     SpecializationID = player->GetPrimarySpecialization();
     Name = player->GetName();
-    GenderID = player->GetNativeSex();
+    GenderID = player->GetNativeGender();
     Race = player->GetRace();
     ClassID = player->GetClass();
 

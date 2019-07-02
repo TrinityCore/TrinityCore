@@ -731,7 +731,7 @@ void SpellMgr::ForEachSpellInfoDifficulty(uint32 spellId, std::function<void(Spe
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
 {
     if (gender != GENDER_NONE)                   // is not expected gender
-        if (!player || gender != player->GetGender())
+        if (!player || gender != player->GetNativeGender())
             return false;
 
     if (raceMask)                                // is not expected race

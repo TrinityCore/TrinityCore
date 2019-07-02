@@ -482,7 +482,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     SetRace(createInfo->Race);
     SetClass(createInfo->Class);
-    SetGender(createInfo->Sex);
+    SetGender(Gender(createInfo->Sex));
     SetPowerType(Powers(powertype));
     InitDisplayIds();
     UpdatePositionData();
@@ -500,7 +500,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetCustomizations(Trinity::Containers::MakeIteratorPair(createInfo->Customizations.begin(), createInfo->Customizations.end()));
     SetRestState(REST_TYPE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
     SetRestState(REST_TYPE_HONOR, REST_STATE_NOT_RAF_LINKED);
-    SetNativeSex(createInfo->Sex);
+    SetNativeGender(Gender(createInfo->Sex));
     SetInventorySlotCount(INVENTORY_DEFAULT_SIZE);
 
     // set starting level
@@ -4492,7 +4492,7 @@ Corpse* Player::CreateCorpse()
         flags |= CORPSE_FLAG_FFA_PVP;
 
     corpse->SetRace(GetRace());
-    corpse->SetSex(GetNativeSex());
+    corpse->SetSex(GetNativeGender());
     corpse->SetClass(GetClass());
     corpse->SetCustomizations(Trinity::Containers::MakeIteratorPair(m_playerData->Customizations.begin(), m_playerData->Customizations.end()));
     corpse->SetFlags(flags);
@@ -18021,7 +18021,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations.begin(), customizations.end()), false);
     SetInventorySlotCount(fields.inventorySlots);
     SetBankBagSlotCount(fields.bankSlots);
-    SetNativeSex(fields.gender);
+    SetNativeGender(fields.gender);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::Inebriation), fields.drunk);
     SetPlayerFlags(fields.playerFlags);
     SetPlayerFlagsEx(fields.playerFlagsEx);
@@ -20437,7 +20437,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setString(index++, GetName());
         stmt->setUInt8(index++, GetRace());
         stmt->setUInt8(index++, GetClass());
-        stmt->setUInt8(index++, GetNativeSex());   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
+        stmt->setUInt8(index++, GetNativeGender());   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, GetLevel());
         stmt->setUInt32(index++, m_activePlayerData->XP);
         stmt->setUInt64(index++, GetMoney());
@@ -20565,7 +20565,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setString(index++, GetName());
         stmt->setUInt8(index++, GetRace());
         stmt->setUInt8(index++, GetClass());
-        stmt->setUInt8(index++, GetNativeSex());   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
+        stmt->setUInt8(index++, GetNativeGender());   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, GetLevel());
         stmt->setUInt32(index++, m_activePlayerData->XP);
         stmt->setUInt64(index++, GetMoney());
@@ -23042,7 +23042,7 @@ void Player::InitDataForForm(bool reapplyMods)
 
 void Player::InitDisplayIds()
 {
-    ChrModelEntry const* model = sDB2Manager.GetChrModel(GetRace(), GetNativeSex());
+    ChrModelEntry const* model = sDB2Manager.GetChrModel(GetRace(), GetNativeGender());
     if (!model)
     {
         TC_LOG_ERROR("entities.player", "Player::InitDisplayIds: Player '%s' (%s) has incorrect race/gender pair. Can't init display ids.", GetName().c_str(), GetGUID().ToString().c_str());

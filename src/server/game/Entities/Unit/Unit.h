@@ -860,8 +860,10 @@ class TC_GAME_API Unit : public WorldObject
         uint8 GetClass() const { return m_unitData->ClassId; }
         void SetClass(uint8 classId) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ClassId), classId); }
         uint32 GetClassMask() const { return 1 << (GetClass()-1); }
-        uint8 GetGender() const { return m_unitData->Sex; }
-        void SetGender(uint8 sex) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Sex), sex); }
+        Gender GetGender() const { return Gender(*m_unitData->Sex); }
+        void SetGender(Gender gender) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Sex), gender); }
+        virtual Gender GetNativeGender() const { return GetGender(); }
+        virtual void SetNativeGender(Gender gender) { SetGender(gender); }
 
         float GetStat(Stats stat) const { return float(m_unitData->Stats[stat]); }
         void SetStat(Stats stat, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Stats, stat), val); }

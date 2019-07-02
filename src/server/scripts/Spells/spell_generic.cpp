@@ -415,7 +415,7 @@ class spell_gen_aura_service_uniform : public AuraScript
         Unit* target = GetTarget();
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
-            if (target->GetGender() == GENDER_MALE)
+            if (target->GetNativeGender() == GENDER_MALE)
                 target->SetDisplayId(MODEL_GOBLIN_MALE);
             else
                 target->SetDisplayId(MODEL_GOBLIN_FEMALE);
@@ -1154,7 +1154,7 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
             {
                 if (Player* player = GetHitPlayer())
                 {
-                    uint8 gender = player->GetGender();
+                    uint8 gender = player->GetNativeGender();
 
                     uint32 spellId = GetSpellInfo()->Id;
 
@@ -2382,7 +2382,7 @@ class spell_gen_orc_disguise : public SpellScript
         Unit* caster = GetCaster();
         if (Player* target = GetHitPlayer())
         {
-            uint8 gender = target->GetGender();
+            uint8 gender = target->GetNativeGender();
             if (!gender)
                 caster->CastSpell(target, SPELL_ORC_DISGUISE_MALE, true);
             else

@@ -1196,6 +1196,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetTotalPlayedTime() const { return m_Played_time[PLAYED_TIME_TOTAL]; }
         uint32 GetLevelPlayedTime() const { return m_Played_time[PLAYED_TIME_LEVEL]; }
 
+        Gender GetNativeGender() const override { return Gender(*m_playerData->NativeSex); }
+        void SetNativeGender(Gender gender) override { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::NativeSex), gender); }
+
         void setDeathState(DeathState s) override;                   // overwrite Unit::setDeathState
 
         Pet* GetPet() const;
@@ -2650,8 +2653,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
                 newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
             }
         }
-        Gender GetNativeSex() const { return Gender(*m_playerData->NativeSex); }
-        void SetNativeSex(uint8 sex) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::NativeSex), sex); }
         void SetPvpTitle(uint8 pvpTitle) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PvpTitle), pvpTitle); }
         void SetArenaFaction(uint8 arenaFaction) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::ArenaFaction), arenaFaction); }
         void ApplyModFakeInebriation(int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::FakeInebriation), mod, apply); }

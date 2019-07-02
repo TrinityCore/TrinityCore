@@ -880,7 +880,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                 {
                     TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Create Character: %s %s", GetAccountId(), GetRemoteAddress().c_str(), newChar->GetName().c_str(), newChar->GetGUID().ToString().c_str());
                     sScriptMgr->OnPlayerCreate(newChar.get());
-                    sCharacterCache->AddCharacterCacheEntry(newChar->GetGUID(), GetAccountId(), newChar->GetName(), newChar->GetNativeSex(), newChar->GetRace(), newChar->GetClass(), newChar->GetLevel(), false);
+                    sCharacterCache->AddCharacterCacheEntry(newChar->GetGUID(), GetAccountId(), newChar->GetName(), newChar->GetNativeGender(), newChar->GetRace(), newChar->GetClass(), newChar->GetLevel(), false);
 
                     SendCharCreate(CHAR_CREATE_SUCCESS, newChar->GetGUID());
                 }
@@ -1714,9 +1714,9 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     _player->ModifyMoney(-cost);                     // it isn't free
     _player->UpdateCriteria(CriteriaType::MoneySpentAtBarberShop, cost);
 
-    if (_player->GetNativeSex() != packet.NewSex)
+    if (_player->GetNativeGender() != packet.NewSex)
     {
-        _player->SetNativeSex(packet.NewSex);
+        _player->SetNativeGender(Gender(packet.NewSex));
         _player->InitDisplayIds();
         _player->RestoreDisplayId(false);
     }
