@@ -187,13 +187,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_CLASS:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = (unit->getClassMask() & ConditionValue1) != 0;
+                condMeets = (unit->GetClassMask() & ConditionValue1) != 0;
             break;
         }
         case CONDITION_RACE:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = (unit->getRaceMask() & ConditionValue1) != 0;
+                condMeets = (unit->GetRaceMask() & ConditionValue1) != 0;
             break;
         }
         case CONDITION_GENDER:
@@ -285,7 +285,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_LEVEL:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), static_cast<uint32>(unit->getLevel()), ConditionValue1);
+                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), static_cast<uint32>(unit->GetLevel()), ConditionValue1);
             break;
         }
         case CONDITION_DRUNKENSTATE:
@@ -505,7 +505,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         {
             if (Player* player = object->ToPlayer())
             {
-                const Quest* quest = sObjectMgr->GetQuestTemplate(ConditionValue1);
+                const Quest* quest = ASSERT_NOTNULL(sObjectMgr->GetQuestTemplate(ConditionValue1));
                 uint16 log_slot = player->FindQuestSlot(quest->GetQuestId());
                 if (log_slot >= MAX_QUEST_LOG_SIZE)
                     break;

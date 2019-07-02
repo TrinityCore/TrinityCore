@@ -259,6 +259,7 @@ class spell_hallow_end_trick : public SpellScriptLoader
                 if (Player* target = GetHitPlayer())
                 {
                     uint8 gender = target->GetNativeGender();
+
                     uint32 spellId = SPELL_TRICK_BUFF;
                     switch (urand(0, 5))
                     {

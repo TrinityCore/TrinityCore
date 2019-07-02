@@ -295,54 +295,57 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                            _player->GetName().c_str(), _player->GetGUID().GetCounter(), questId);
             return;
         }
-        if (_player->CanRewardQuest(quest, reward, true))
+        if (_player->CanRewardQuest(quest, true)) // First, check if player is allowed to turn the quest in (all objectives completed). If not, we send players to the offer reward screen
         {
-            _player->RewardQuest(quest, reward, object);
-
-            switch (object->GetTypeId())
+            if (_player->CanRewardQuest(quest, reward, true)) // Then check if player can receive the reward item (if inventory is not full, if player doesn't have too many unique items, and so on). If not, the client will close the gossip window
             {
-                case TYPEID_UNIT:
+                _player->RewardQuest(quest, reward, object);
+
+                switch (object->GetTypeId())
                 {
-                    Creature* questgiver = object->ToCreature();
-                    // Send next quest
-                    if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
+                    case TYPEID_UNIT:
                     {
-                        // Only send the quest to the player if the conditions are met
-                        if (_player->CanTakeQuest(nextQuest, false))
+                        Creature* questgiver = object->ToCreature();
+                        // Send next quest
+                        if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                            // Only send the quest to the player if the conditions are met
+                            if (_player->CanTakeQuest(nextQuest, false))
+                            {
+                                if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                                    _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                                _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                            }
                         }
-                    }
 
-                    _player->PlayerTalkClass->ClearMenus();
-                    questgiver->AI()->QuestReward(_player, quest, reward);
-                    break;
-                }
-                case TYPEID_GAMEOBJECT:
-                {
-                    GameObject* questGiver = object->ToGameObject();
-                    // Send next quest
-                    if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
+                        _player->PlayerTalkClass->ClearMenus();
+                        questgiver->AI()->QuestReward(_player, quest, reward);
+                        break;
+                    }
+                    case TYPEID_GAMEOBJECT:
                     {
-                        // Only send the quest to the player if the conditions are met
-                        if (_player->CanTakeQuest(nextQuest, false))
+                        GameObject* questGiver = object->ToGameObject();
+                        // Send next quest
+                        if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                         {
-                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                _player->AddQuestAndCheckCompletion(nextQuest, object);
+                            // Only send the quest to the player if the conditions are met
+                            if (_player->CanTakeQuest(nextQuest, false))
+                            {
+                                if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                                    _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                                _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
+                            }
                         }
-                    }
 
-                    _player->PlayerTalkClass->ClearMenus();
-                    questGiver->AI()->QuestReward(_player, quest, reward);
-                    break;
+                        _player->PlayerTalkClass->ClearMenus();
+                        questGiver->AI()->QuestReward(_player, quest, reward);
+                        break;
+                    }
+                    default:
+                        break;
                 }
-                default:
-                    break;
             }
         }
         else

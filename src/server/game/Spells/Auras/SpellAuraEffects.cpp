@@ -1789,7 +1789,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         if (!target->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
         {
             target->SetShapeshiftForm(FORM_NONE);
-            if (target->getClass() == CLASS_DRUID)
+            if (target->GetClass() == CLASS_DRUID)
             {
                 // Remove movement impairing effects also when shifting out
                 target->RemoveAurasByShapeShift();
@@ -1855,7 +1855,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     else
         target->UpdateDisplayPower();
 
-    if (target->getClass() == CLASS_DRUID)
+    if (target->GetClass() == CLASS_DRUID)
     {
         // Dash
         if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_AURA_MOD_INCREASE_SPEED, SPELLFAMILY_DRUID, 0, 0, 0x8))
@@ -1918,7 +1918,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                         if (target->GetTypeId() != TYPEID_PLAYER)
                             return;
 
-                        switch (target->getRace())
+                        switch (target->GetRace())
                         {
                             // Blood Elf
                             case RACE_BLOODELF:
@@ -1977,7 +1977,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                         if (target->GetTypeId() != TYPEID_PLAYER)
                             return;
 
-                        switch (target->getRace())
+                        switch (target->GetRace())
                         {
                             // Blood Elf
                             case RACE_BLOODELF:
@@ -4048,7 +4048,7 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const* aurApp, u
 
     Unit* target = aurApp->GetTarget();
 
-    if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
+    if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
     target->HandleStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
@@ -4078,7 +4078,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* au
 
     Unit* target = aurApp->GetTarget();
 
-    if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
+    if ((target->GetClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
     //UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1
@@ -4099,7 +4099,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerOfStatPercent(AuraApplication con
     Unit* target = aurApp->GetTarget();
 
     // Recalculate bonus
-    if (target->GetTypeId() == TYPEID_PLAYER && !(target->getClassMask() & CLASSMASK_WAND_USERS))
+    if (target->GetTypeId() == TYPEID_PLAYER && !(target->GetClassMask() & CLASSMASK_WAND_USERS))
         target->ToPlayer()->UpdateAttackPowerAndDamage(true);
 }
 
@@ -4824,7 +4824,7 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
     if (!player)
         return;
 
-    if (player->getClass() != CLASS_DEATH_KNIGHT)
+    if (player->GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
     uint32 runes = GetAmount();

@@ -1818,14 +1818,14 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_DFM_START_MUSIC:
-                    if (!IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_ELWYNN) || !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_THUNDER) || !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_SHATTRATH))
+                    case EVENT_DFM_START_MUSIC:
+                        if (!IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_ELWYNN) && !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_THUNDER) && !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_SHATTRATH))
+                            break;
+                        me->PlayDirectMusic(MUSIC_DARKMOON_FAIRE_MUSIC);
+                        _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 5s);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
                         break;
-                    me->PlayDirectMusic(MUSIC_DARKMOON_FAIRE_MUSIC);
-                    _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 5s);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
-                    break;
-                default:
-                    break;
+                    default:
+                        break;
                 }
             }
         }

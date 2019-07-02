@@ -700,7 +700,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             return false;
 
     if (raceMask)                                // is not expected race
-        if (!player || !(raceMask & player->getRaceMask()))
+        if (!player || !(raceMask & player->GetRaceMask()))
             return false;
 
     if (areaId)                                  // is not in expected zone
@@ -3365,9 +3365,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         58121, // Torch
         43109, // Throw Torch
         58552, // Return to Orgrimmar
-        58533  // Return to Stormwind
-        
-        
+        58533, // Return to Stormwind
+        21855  // Challenge Flag
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
