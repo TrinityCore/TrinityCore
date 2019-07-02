@@ -56,6 +56,7 @@ SmartScript::SmartScript()
     mTemplate = SMARTAI_TEMPLATE_BASIC;
     mScriptType = SMART_SCRIPT_TYPE_CREATURE;
     isProcessingTimedActionList = false;
+    wasActiveBeforeStartingActionList = false;
 }
 
 SmartScript::~SmartScript()
@@ -3502,8 +3503,9 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                     }
 
                     // Set object to non-active if there's nothing else to process
-                    if (isActionListOver)
+                    if (isActionListOver && !wasActiveBeforeStartingActionList))
                         GetBaseObject()->setActive(false);
+                    wasActiveBeforeStartingActionList = false;
                 }
                 else
                     ProcessEvent(e);
@@ -3814,7 +3816,10 @@ void SmartScript::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* i
         return;
 
     // Object will be set to active until the actionlist is over.
-    GetBaseObject()->setActive(true);
+    if (GetBaseObject()->isActiveObject())
+        wasActiveBeforeStartingActionList = true;
+    else
+        GetBaseObject()->setActive(true);
 
     mTimedActionList.clear();
     mTimedActionList = sSmartScriptMgr->GetScript(entry, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);
