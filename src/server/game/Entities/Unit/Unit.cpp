@@ -12058,7 +12058,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
             break;
     }
 
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player* player = ToPlayer())
     {
         switch (form)
         {
@@ -12066,7 +12066,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                 // Based on Hair color
                 if (GetRace() == RACE_NIGHTELF)
                 {
-                    switch (GetHairColorId())
+                    switch (player->GetHairColorId())
                     {
                         case 7: // Violet
                         case 8:
@@ -12086,7 +12086,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                 // Based on Skin color
                 else if (GetRace() == RACE_TAUREN)
                 {
-                    uint8 skinColor = GetSkinId();
+                    uint8 skinColor = player->GetSkinId();
                     // Male
                     if (GetNativeGender() == GENDER_MALE)
                     {
@@ -12145,7 +12145,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                 // Based on Hair color
                 if (GetRace() == RACE_NIGHTELF)
                 {
-                    switch (GetHairColorId())
+                    switch (player->GetHairColorId())
                     {
                         case 0: // Green
                         case 1: // Light Green
@@ -12164,7 +12164,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                 // Based on Skin color
                 else if (GetRace() == RACE_TAUREN)
                 {
-                    uint8 skinColor = GetSkinId();
+                    uint8 skinColor = player->GetSkinId();
                     // Male
                     if (GetNativeGender() == GENDER_MALE)
                     {

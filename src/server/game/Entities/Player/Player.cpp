@@ -532,7 +532,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     SetHairStyleId(createInfo->HairStyle);
     SetHairColorId(createInfo->HairColor);
     SetFacialStyle(createInfo->FacialHair);
-    SetRestState(GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
+    SetRestState((GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
     SetNativeGender(createInfo->Gender);
     SetArenaFaction(0);
 
