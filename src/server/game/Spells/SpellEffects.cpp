@@ -352,7 +352,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 // Shield Slam
                 if ((m_spellInfo->SpellFamilyFlags[1] & 0x200) && m_spellInfo->GetCategory() == 1209)
                 {
-                    uint8 level = unitCaster->getLevel();
+                    uint8 level = unitCaster->GetLevel();
                     uint32 block_value = unitCaster->GetShieldBlockValue(uint32(float(level) * 24.5f), uint32(float(level) * 34.5f));
                     damage += int32(unitCaster->ApplyEffectModifiers(m_spellInfo, effIndex, float(block_value)));
                 }
@@ -654,7 +654,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 // Shield of Righteousness
                 if (m_spellInfo->SpellFamilyFlags[EFFECT_1] & 0x100000)
                 {
-                    uint8 level = unitCaster->getLevel();
+                    uint8 level = unitCaster->GetLevel();
                     uint32 block_value = unitCaster->GetShieldBlockValue(uint32(float(level) * 29.5f), uint32(float(level) * 39.5f));
                     damage += CalculatePct(block_value, m_spellInfo->Effects[EFFECT_1].CalcValue());
                     break;
@@ -1061,25 +1061,6 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     {
         TC_LOG_ERROR("spells", "Spell::EffectTeleportUnits - spellId %u attempted to teleport creature to a different map.", m_spellInfo->Id);
         return;
-    }
-
-    // post effects for TARGET_DEST_DB
-    /// @todo: awful hacks, move this to spellscripts
-    switch (m_spellInfo->Id)
-    {
-        // Dimensional Ripper - Everlook
-        case 23442:
-        {
-            int32 r = irand(0, 119);
-            if (r >= 70)                                  // 7/12 success
-            {
-                if (r < 100)                              // 4/12 evil twin
-                    m_caster->CastSpell(m_caster, 23445, true);
-                else                                        // 1/12 fire
-                    m_caster->CastSpell(m_caster, 23449, true);
-            }
-            return;
-        }
     }
 }
 
@@ -1666,15 +1647,15 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     switch (m_spellInfo->Id)
     {
         case 9512:                                          // Restore Energy
-            level_diff = unitCaster->getLevel() - 40;
+            level_diff = unitCaster->GetLevel() - 40;
             level_multiplier = 2;
             break;
         case 24571:                                         // Blood Fury
-            level_diff = unitCaster->getLevel() - 60;
+            level_diff = unitCaster->GetLevel() - 60;
             level_multiplier = 10;
             break;
         case 24532:                                         // Burst of Energy
-            level_diff = unitCaster->getLevel() - 60;
+            level_diff = unitCaster->GetLevel() - 60;
             level_multiplier = 4;
             break;
         case 31930:                                         // Judgements of the Wise
@@ -2500,7 +2481,7 @@ void Spell::EffectLearnSkill(SpellEffIndex effIndex)
         return;
 
     uint32 skillid = m_spellInfo->Effects[effIndex].MiscValue;
-    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillid, unitTarget->getRace(), unitTarget->getClass());
+    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillid, unitTarget->GetRace(), unitTarget->GetClass());
     if (!rcEntry)
         return;
 
@@ -2531,7 +2512,7 @@ void Spell::EffectAddHonor(SpellEffIndex /*effIndex*/)
     // do not allow to add too many honor for player (50 * 21) = 1040 at level 70, or (50 * 31) = 1550 at level 80
     if (damage <= 50)
     {
-        uint32 honor_reward = Trinity::Honor::hk_honor_at_level(unitTarget->getLevel(), float(damage));
+        uint32 honor_reward = Trinity::Honor::hk_honor_at_level(unitTarget->GetLevel(), float(damage));
         unitTarget->ToPlayer()->RewardHonor(nullptr, 1, honor_reward);
         TC_LOG_DEBUG("spells", "SpellEffect::AddHonor (spell_id %u) rewards %u honor points (scale) to player: %u", m_spellInfo->Id, honor_reward, unitTarget->ToPlayer()->GetGUID().GetCounter());
     }
@@ -2830,7 +2811,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     if (creatureTarget->IsPet())
         return;
 
-    if (unitCaster->getClass() != CLASS_HUNTER)
+    if (unitCaster->GetClass() != CLASS_HUNTER)
         return;
 
     // cast finish successfully
@@ -2844,7 +2825,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     // "kill" original creature
     creatureTarget->DespawnOrUnsummon();
 
-    uint8 level = (creatureTarget->getLevel() < (unitCaster->getLevel() - 5)) ? (unitCaster->getLevel() - 5) : creatureTarget->getLevel();
+    uint8 level = (creatureTarget->GetLevel() < (unitCaster->GetLevel() - 5)) ? (unitCaster->GetLevel() - 5) : creatureTarget->GetLevel();
 
     // prepare visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
@@ -3694,7 +3675,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     }
 
     pGameObj->SetFaction(caster->GetFaction());
-    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, caster->getLevel() + 1);
+    pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, caster->GetLevel() + 1);
     int32 duration = m_spellInfo->GetDuration();
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
@@ -3823,7 +3804,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
         case 4: minLevel = 70; break;
         case 5: minLevel = 80; break;
     }
-    if (minLevel && player->getLevel() < minLevel)
+    if (minLevel && player->GetLevel() < minLevel)
     {
         SendCastResult(SPELL_FAILED_GLYPH_SOCKET_LOCKED);
         return;
@@ -4038,7 +4019,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     }
 
     go->SetFaction(unitCaster->GetFaction());
-    go->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->getLevel());
+    go->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->GetLevel());
     int32 duration = m_spellInfo->GetDuration();
     go->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
     go->SetSpellId(m_spellInfo->Id);
@@ -4253,7 +4234,7 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
         return;
 
     Creature* creature = unitTarget->ToCreature();
-    int32 targetLevel = creature->getLevel();
+    int32 targetLevel = creature->GetLevel();
 
     uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
@@ -4754,7 +4735,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     pGameObj->SetOwnerGUID(unitCaster->GetGUID());
 
-    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->getLevel());
+    //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->GetLevel());
     pGameObj->SetSpellId(m_spellInfo->Id);
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
@@ -4768,7 +4749,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (GameObject* linkedTrap = pGameObj->GetLinkedTrap())
     {
         linkedTrap->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
-        //linkedTrap->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->getLevel());
+        //linkedTrap->SetUInt32Value(GAMEOBJECT_LEVEL, unitCaster->GetLevel());
         linkedTrap->SetSpellId(m_spellInfo->Id);
         linkedTrap->SetOwnerGUID(unitCaster->GetGUID());
 
@@ -5053,7 +5034,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
 
     Player* player = m_caster->ToPlayer();
 
-    if (player->getClass() != CLASS_DEATH_KNIGHT)
+    if (player->GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
     // needed later
@@ -5114,7 +5095,7 @@ void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || unitTarget->GetPetGUID() || unitTarget->getClass() != CLASS_HUNTER)
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || unitTarget->GetPetGUID() || unitTarget->GetClass() != CLASS_HUNTER)
         return;
 
     uint32 creatureEntry = m_spellInfo->Effects[effIndex].MiscValue;
@@ -5216,7 +5197,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
         unitCaster = unitCaster->ToTotem()->GetOwner();
 
     // in another case summon new
-    uint8 level = unitCaster->getLevel();
+    uint8 level = unitCaster->GetLevel();
 
     // level of pet summoned using engineering item based at engineering skill level
     if (m_CastItem && unitCaster->GetTypeId() == TYPEID_PLAYER)

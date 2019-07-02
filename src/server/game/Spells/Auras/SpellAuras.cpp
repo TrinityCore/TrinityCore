@@ -438,7 +438,7 @@ m_procCooldown(std::chrono::steady_clock::time_point::min())
     _casterInfo.Level = m_spellInfo->SpellLevel;
     if (createInfo.Caster)
     {
-        _casterInfo.Level = createInfo.Caster->getLevel();
+        _casterInfo.Level = createInfo.Caster->GetLevel();
         _casterInfo.ApplyResilience = createInfo.Caster->CanApplyResilience();
         SaveCasterInfo(createInfo.Caster);
     }
@@ -831,7 +831,7 @@ void Aura::Update(uint32 diff, Unit* caster)
                 m_timeCla -= diff;
             else if (caster)
             {
-                if (int32 manaPerSecond = m_spellInfo->ManaPerSecond + m_spellInfo->ManaPerSecondPerLevel * caster->getLevel())
+                if (int32 manaPerSecond = m_spellInfo->ManaPerSecond + m_spellInfo->ManaPerSecondPerLevel * caster->GetLevel())
                 {
                     m_timeCla += 1000 - diff;
 
@@ -1740,7 +1740,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                     if (target->GetTypeId() != TYPEID_PLAYER)
                         break;
-                    if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
+                    if (target->ToPlayer()->GetClass() != CLASS_DEATH_KNIGHT)
                         break;
 
                      // aura removed - remove death runes
@@ -2152,8 +2152,8 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
     }
 
     // proc chance is reduced by an additional 3.333% per level past 60
-    if ((procEntry.AttributesMask & PROC_ATTR_REDUCE_PROC_60) && eventInfo.GetActor()->getLevel() > 60)
-        chance = std::max(0.f, (1.f - ((eventInfo.GetActor()->getLevel() - 60) * 1.f / 30.f)) * chance);
+    if ((procEntry.AttributesMask & PROC_ATTR_REDUCE_PROC_60) && eventInfo.GetActor()->GetLevel() > 60)
+        chance = std::max(0.f, (1.f - ((eventInfo.GetActor()->GetLevel() - 60) * 1.f / 30.f)) * chance);
 
     return chance;
 }

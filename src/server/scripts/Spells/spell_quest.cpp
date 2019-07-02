@@ -823,7 +823,7 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 if (Player* target = GetHitPlayer())
                 {
-                    target->CastSpell(target, target->getGender() == GENDER_MALE ? SPELL_MALE_DISGUISE : SPELL_FEMALE_DISGUISE, true);
+                    target->CastSpell(target, target->GetGender() == GENDER_MALE ? SPELL_MALE_DISGUISE : SPELL_FEMALE_DISGUISE, true);
                     target->CastSpell(target, SPELL_GENERIC_DISGUISE, true);
                 }
             }

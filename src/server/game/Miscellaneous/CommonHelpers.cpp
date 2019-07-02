@@ -250,7 +250,7 @@ uint8 Trinity::Helpers::Entity::GetPlayerSpecialization(Player const* who)
     if (!who)
         return 0;
 
-    uint8 playerClass = who->getClass();
+    uint8 playerClass = who->GetClass();
     for (uint8 tier = 0; tier < MaximumSpecializationIconicSpells; ++tier)
     {
         for (uint8 tree = 0; tree < MAX_TALENT_TREES; ++tree)
@@ -266,7 +266,7 @@ bool Trinity::Helpers::Entity::IsPlayerHealer(Player const* who)
     if (!who)
         return false;
 
-    switch (who->getClass())
+    switch (who->GetClass())
     {
         case CLASS_WARRIOR:
         case CLASS_HUNTER:
@@ -292,7 +292,7 @@ bool Trinity::Helpers::Entity::IsPlayerRangedAttacker(Player const* who)
     if (!who)
         return false;
 
-    switch (who->getClass())
+    switch (who->GetClass())
     {
         case CLASS_WARRIOR:
         case CLASS_PALADIN:

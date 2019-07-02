@@ -696,11 +696,11 @@ SpellAreaForQuestAreaMapBounds SpellMgr::GetSpellAreaForQuestAreaMapBounds(uint3
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
 {
     if (gender != GENDER_NONE)                   // is not expected gender
-        if (!player || gender != player->getGender())
+        if (!player || gender != player->GetGender())
             return false;
 
     if (raceMask)                                // is not expected race
-        if (!player || !(raceMask & player->getRaceMask()))
+        if (!player || !(raceMask & player->GetRaceMask()))
             return false;
 
     if (areaId)                                  // is not in expected zone

@@ -233,7 +233,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsInvisibleDueToDespawn() const override;
 
-        uint8 getLevelForTarget(WorldObject const* target) const override;
+        uint8 GetLevelForTarget(WorldObject const* target) const override;
 
         GameObject* LookupFishingHoleAround(float range);
 

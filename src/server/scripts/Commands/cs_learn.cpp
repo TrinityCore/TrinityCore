@@ -148,7 +148,7 @@ public:
 
     static bool HandleLearnAllMySpellsCommand(ChatHandler* handler, char const* /*args*/)
     {
-        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(handler->GetSession()->GetPlayer()->getClass());
+        ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(handler->GetSession()->GetPlayer()->GetClass());
         if (!classEntry)
             return true;
         uint32 family = classEntry->spellfamily;
@@ -193,7 +193,7 @@ public:
     static bool HandleLearnAllMyTalentsCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 classMask = player->getClassMask();
+        uint32 classMask = player->GetClassMask();
 
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         {
@@ -441,7 +441,7 @@ public:
 
     static void HandleLearnSkillRecipesHelper(Player* player, uint32 skillId)
     {
-        uint32 classmask = player->getClassMask();
+        uint32 classmask = player->GetClassMask();
 
         for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
         {
