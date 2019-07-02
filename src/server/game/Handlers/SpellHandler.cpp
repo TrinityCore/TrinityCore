@@ -636,15 +636,14 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
     data << uint8(creator->GetGender());
     data << uint8(creator->GetClass());
 
-    if (creator->GetTypeId() == TYPEID_PLAYER)
+    if (Player* player = creator->ToPlayer())
     {
-        Player* player = creator->ToPlayer();
-        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID));
-        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID));
-        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID));
-        data << uint8(player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID));
-        data << uint8(player->GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE));
-        data << uint32(player->GetGuildId());                   // unk
+        data << uint8(player->GetSkinId());
+        data << uint8(player->GetFaceId());
+        data << uint8(player->GetHairStyleId());
+        data << uint8(player->GetHairColorId());
+        data << uint8(player->GetFacialStyle());
+        data << uint32(player->GetGuildId());
 
         static EquipmentSlots const itemSlots[] =
         {
