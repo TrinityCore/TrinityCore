@@ -23876,24 +23876,38 @@ void Player::ResurrectUsingRequestDataImpl()
 
 void Player::SetClientControl(Unit* target, bool allowMove)
 {
-    // still affected by some aura that shouldn't allow control, only allow on last such aura to be removed
-    if (allowMove && target->HasUnitState(UNIT_STATE_CANT_CLIENT_CONTROL))
+    // a player can never client control nothing
+    ASSERT(target);
+
+    // don't allow possession to be overridden
+    if (target->HasUnitState(UNIT_STATE_CHARMED) && (GetGUID() != target->GetCharmerGUID()))
     {
-        // this should never happen, otherwise m_unitBeingMoved might be left dangling!
-        ASSERT(GetUnitBeingMoved() == target);
+        TC_LOG_ERROR("entities.player", "Player '%s' attempt to client control '%s', which is charmed by GUID %s",
+                     GetName().c_str(), target->GetName().c_str(), target->GetCharmerGUID().ToString().c_str());
         return;
     }
+
+    // still affected by some aura that shouldn't allow control, only allow on last such aura to be removed
+    if (target->HasUnitState(UNIT_STATE_CONTROLLED))
+        allowMove = false;
 
     WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, target->GetPackGUID().size()+1);
     data << target->GetPackGUID();
     data << uint8(allowMove ? 1 : 0);
     SendDirectMessage(&data);
 
-    if (this != target)
-        SetViewpoint(target, allowMove);
+    WorldObject* viewpoint = GetViewpoint();
+    if (!viewpoint)
+        viewpoint = this;
+    if (target != viewpoint)
+    {
+        if (viewpoint != this)
+            SetViewpoint(viewpoint, false);
+        if (target != this)
+            SetViewpoint(target, true);
+    }
 
-    if (allowMove)
-        SetMovedUnit(target);
+    SetMovedUnit(target);
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)

@@ -455,7 +455,7 @@ void Unit::Update(uint32 p_time)
     UpdateSplineMovement(p_time);
     i_motionMaster->Update(p_time);
 
-    if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || IsCharmed()))
+    if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || (IsCharmed() && GetCharmerGUID().IsCreature())))
         UpdateCharmAI();
     RefreshAI();
 }
