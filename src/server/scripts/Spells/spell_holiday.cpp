@@ -187,15 +187,13 @@ class spell_hallow_end_candy_pirate : public SpellScriptLoader
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                uint8 gender = GetTarget()->GetTypeId() == TYPEID_PLAYER ? GetTarget()->ToPlayer()->GetNativeGender() : GetTarget()->GetGender();
-                uint32 spell = gender == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+                uint32 spell = GetTarget()->GetNativeGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
                 GetTarget()->CastSpell(GetTarget(), spell, true);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                uint8 gender = GetTarget()->GetTypeId() == TYPEID_PLAYER ? GetTarget()->ToPlayer()->GetNativeGender() : GetTarget()->GetGender();
-                uint32 spell = gender == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+                uint32 spell = GetTarget()->GetNativeGender() == GENDER_FEMALE ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
                 GetTarget()->RemoveAurasDueToSpell(spell);
             }
 
@@ -426,7 +424,7 @@ public:
             Unit* target = GetHitUnit();
 
             uint32 spellId = 0;
-            uint8 gender = target->GetTypeId() == TYPEID_PLAYER ? target->ToPlayer()->GetNativeGender() : target->GetGender();
+            uint8 gender = target->GetNativeGender();
 
             switch (GetSpellInfo()->Id)
             {

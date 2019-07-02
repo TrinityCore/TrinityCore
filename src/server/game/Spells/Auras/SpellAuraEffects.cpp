@@ -1909,7 +1909,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
             // special case (spell specific functionality)
             if (GetMiscValue() == 0)
             {
-                uint8 gender = target->GetTypeId() == TYPEID_PLAYER ? target->ToPlayer()->GetNativeGender() : target->GetGender();
+                uint8 gender = target->GetNativeGender();
                 switch (GetId())
                 {
                     // Orb of Deception

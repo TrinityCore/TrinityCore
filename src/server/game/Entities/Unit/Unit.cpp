@@ -12083,7 +12083,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                 {
                     uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
                     // Male
-                    if (ToPlayer()->GetNativeGender() == GENDER_MALE)
+                    if (GetNativeGender() == GENDER_MALE)
                     {
                         switch (skinColor)
                         {
@@ -12162,7 +12162,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                 {
                     uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
                     // Male
-                    if (ToPlayer()->GetNativeGender() == GENDER_MALE)
+                    if (GetNativeGender() == GENDER_MALE)
                     {
                         switch (skinColor)
                         {

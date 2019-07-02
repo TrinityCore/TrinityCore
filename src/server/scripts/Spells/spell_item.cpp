@@ -1646,9 +1646,9 @@ class spell_item_savory_deviate_delight : public SpellScript
         switch (urand(1, 2))
         {
             // Flip Out - ninja
-            case 1: spellId = (caster->ToPlayer()->GetNativeGender() == GENDER_MALE ? SPELL_FLIP_OUT_MALE : SPELL_FLIP_OUT_FEMALE); break;
+            case 1: spellId = (caster->GetNativeGender() == GENDER_MALE ? SPELL_FLIP_OUT_MALE : SPELL_FLIP_OUT_FEMALE); break;
             // Yaaarrrr - pirate
-            case 2: spellId = (caster->ToPlayer()->GetNativeGender() == GENDER_MALE ? SPELL_YAAARRRR_MALE : SPELL_YAAARRRR_FEMALE); break;
+            case 2: spellId = (caster->GetNativeGender() == GENDER_MALE ? SPELL_YAAARRRR_MALE : SPELL_YAAARRRR_FEMALE); break;
         }
         caster->CastSpell(caster, spellId, true);
     }

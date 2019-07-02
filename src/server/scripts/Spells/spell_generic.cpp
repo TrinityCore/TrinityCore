@@ -414,7 +414,7 @@ class spell_gen_aura_service_uniform : public AuraScript
         Unit* target = GetTarget();
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
-            if (target->ToPlayer()->GetNativeGender() == GENDER_MALE)
+            if (target->GetNativeGender() == GENDER_MALE)
                 target->SetDisplayId(MODEL_GOBLIN_MALE);
             else
                 target->SetDisplayId(MODEL_GOBLIN_FEMALE);
