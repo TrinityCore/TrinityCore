@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -260,7 +260,7 @@ public:
                 stmt->setUInt32(0, guildLow);
                 WorldDatabase.Execute(stmt);
 
-                target->UpdateWaypointID(0);
+                target->UpdateCurrentWaypointInfo(0, 0);
 
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
                 stmt->setUInt8(0, uint8(IDLE_MOTION_TYPE));

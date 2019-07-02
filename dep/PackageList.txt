@@ -12,13 +12,17 @@ bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
   Version: 1.0.6
 
+cotire (CMake module to speed up builds)
+  https://github.com/sakra/cotire
+  Version: 1.7.10 516d78476f6dda336181fc5514f72774e1e0a8e2
+
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
   Version: 1.0.0 9a7cbec70b8a88b2e876a382f57c59f3796da0d9
 
 fmt (a small, safe and fast formatting library)
   https://github.com/fmtlib/fmt
-  Version: 4.0.0 5f39721c0a41be404a23c3893cdea89e598c9531
+  Version: 4.0.0 f9c97de46b9914c86366ddcb3474a36e654cbd42
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
@@ -26,7 +30,7 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
-  Version: 3.6.0
+  Version: 5.2.0
 
 libMPQ (a library for reading MPQ files)
   https://github.com/mbroemme/libmpq/
@@ -57,5 +61,6 @@ gSOAP (a portable development toolkit for C and C++ XML Web services and XML dat
   Version: 2.8.49
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
-  https://github.com/memononen/recastnavigation
-  Version: 64385e9ed0822427bca5814d03a3f4c4d7a6db9f
+  https://github.com/recastnavigation/recastnavigation
+  Version: 54bb0943e5174a71eeeca11919920f685760a4f0
+  Custom changes: https://github.com/TrinityCore/recastnavigation/tree/3.3.5

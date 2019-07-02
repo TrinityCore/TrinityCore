@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,6 +54,10 @@ class TC_GAME_API LfgPlayerData
         std::string const& GetComment() const;
         LfgDungeonSet const& GetSelectedDungeons() const;
 
+        // Achievement-related
+        void SetNumberOfPartyMembersAtJoin(uint8 count);
+        uint8 GetNumberOfPartyMembersAtJoin();
+
     private:
         // General
         LfgState m_State;                                  ///< State if group in LFG
@@ -66,6 +70,9 @@ class TC_GAME_API LfgPlayerData
         uint8 m_Roles;                                     ///< Roles the player selected when joined LFG
         std::string m_Comment;                             ///< Player comment used when joined LFG
         LfgDungeonSet m_SelectedDungeons;                  ///< Selected Dungeons when joined LFG
+
+        // Achievement-related
+        uint8 m_NumberOfPartyMembersAtJoin;
 };
 
 } // namespace lfg

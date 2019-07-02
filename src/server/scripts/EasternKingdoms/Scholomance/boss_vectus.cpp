@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,10 +53,10 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_FIRE_SHIELD, 2000);
-            events.ScheduleEvent(EVENT_BLAST_WAVE, 14000);
+            events.ScheduleEvent(EVENT_FIRE_SHIELD, 2s);
+            events.ScheduleEvent(EVENT_BLAST_WAVE, 14s);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -65,7 +65,7 @@ public:
             {
                 DoCast(me, SPELL_FRENZY);
                 Talk(EMOTE_FRENZY);
-                events.ScheduleEvent(EVENT_FRENZY, 24000);
+                events.ScheduleEvent(EVENT_FRENZY, 24s);
             }
         }
 
@@ -85,16 +85,16 @@ public:
                 {
                     case EVENT_FIRE_SHIELD:
                         DoCast(me, SPELL_FIRE_SHIELD);
-                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 90000);
+                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 90s);
                         break;
                     case EVENT_BLAST_WAVE:
                         DoCast(me, SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST_WAVE, 12000);
+                        events.ScheduleEvent(EVENT_BLAST_WAVE, 12s);
                         break;
                     case EVENT_FRENZY:
                         DoCast(me, SPELL_FRENZY);
                         Talk(EMOTE_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 24000);
+                        events.ScheduleEvent(EVENT_FRENZY, 24s);
                         break;
                     default:
                         break;

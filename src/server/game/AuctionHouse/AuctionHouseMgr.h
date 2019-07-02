@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,6 +88,7 @@ struct TC_GAME_API AuctionEntry
     ObjectGuid::LowType bidder;
     uint32 deposit;                                         //deposit can be calculated only when creating auction
     uint32 etime;
+    std::unordered_set<ObjectGuid> bidders;
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
 
     // helpers
@@ -106,7 +107,7 @@ struct TC_GAME_API AuctionEntry
 //this class is used as auctionhouse instance
 class TC_GAME_API AuctionHouseObject
 {
-  public:
+public:
     ~AuctionHouseObject()
     {
         for (AuctionEntryMap::iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
@@ -140,7 +141,7 @@ class TC_GAME_API AuctionHouseObject
         uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
         uint32& count, uint32& totalcount, bool getall = false);
 
-  private:
+private:
     AuctionEntryMap AuctionsMap;
 
     // Map of throttled players for GetAll, and throttle expiry time
@@ -164,7 +165,6 @@ class TC_GAME_API AuctionHouseMgr
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
         AuctionHouseObject* GetAuctionsMapByHouseId(uint8 auctionHouseId);
-        AuctionHouseObject* GetBidsMap(uint32 factionTemplateId);
 
         Item* GetAItem(ObjectGuid::LowType id)
         {

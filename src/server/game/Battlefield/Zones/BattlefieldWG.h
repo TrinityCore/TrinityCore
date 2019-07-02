@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,14 @@
 #define BATTLEFIELD_WG_
 
 #include "Battlefield.h"
+
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
 
 class Group;
 class BattlefieldWG;
@@ -365,7 +373,7 @@ class TC_GAME_API BattlefieldWG : public Battlefield
 
         void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll() override;
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         void HandleKill(Player* killer, Unit* victim) override;
         void OnUnitDeath(Unit* unit) override;
@@ -387,10 +395,10 @@ class TC_GAME_API BattlefieldWG : public Battlefield
 
         WorkshopVect Workshops;
 
-        GuidVector DefenderPortalList[BG_TEAMS_COUNT];
+        GuidVector DefenderPortalList[PVP_TEAMS_COUNT];
         GameObjectBuildingVect BuildingsInZone;
 
-        GuidUnorderedSet m_vehicles[BG_TEAMS_COUNT];
+        GuidUnorderedSet m_vehicles[PVP_TEAMS_COUNT];
         GuidVector CanonList;
 
         TeamId m_tenacityTeam;
@@ -557,11 +565,11 @@ private:
     StaticWintergraspTowerInfo const* _staticTowerInfo;
 
     // GameObject associations
-    GuidVector m_GameObjectList[BG_TEAMS_COUNT];
+    GuidVector m_GameObjectList[PVP_TEAMS_COUNT];
 
     // Creature associations
-    GuidVector m_CreatureBottomList[BG_TEAMS_COUNT];
-    GuidVector m_CreatureTopList[BG_TEAMS_COUNT];
+    GuidVector m_CreatureBottomList[PVP_TEAMS_COUNT];
+    GuidVector m_CreatureTopList[PVP_TEAMS_COUNT];
     GuidVector m_TowerCannonBottomList;
     GuidVector m_TurretTopList;
 
@@ -572,6 +580,7 @@ public:
     ObjectGuid const& GetGUID() const { return _buildGUID; }
 
     void Rebuild();
+    void RebuildGate();
 
     // Called when associated gameobject is damaged
     void Damaged();
@@ -583,7 +592,7 @@ public:
 
     void UpdateTurretAttack(bool disable);
 
-    void FillInitialWorldStates(WorldPacket& data);
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     void Save();
 };
@@ -610,7 +619,7 @@ public:
 
     void UpdateGraveyardAndWorkshop();
 
-    void FillInitialWorldStates(WorldPacket& data);
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     void Save();
 };

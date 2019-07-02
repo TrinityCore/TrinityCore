@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ TC_COMMON_API uint32 urandms(uint32 min, uint32 max);
 TC_COMMON_API uint32 rand32();
 
 /* Return a random time in the range min..max (up to millisecond precision). Only works for values where millisecond difference is a valid uint32. */
-TC_COMMON_API Milliseconds randtime(Milliseconds const& min, Milliseconds const& max);
+TC_COMMON_API Milliseconds randtime(Milliseconds min, Milliseconds max);
 
 /* Return a random number in the range min..max */
 TC_COMMON_API float frand(float min, float max);

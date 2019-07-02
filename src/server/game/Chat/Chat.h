@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,9 +20,11 @@
 #define TRINITYCORE_CHAT_H
 
 #include "Common.h"
+#include "ChatCommand.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
+#include <string>
 #include <vector>
 
 class ChatHandler;
@@ -36,21 +38,6 @@ class WorldObject;
 class WorldPacket;
 
 struct GameTele;
-
-class TC_GAME_API ChatCommand
-{
-    typedef bool(*pHandler)(ChatHandler*, char const*);
-
-    public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
-
-        char const* Name;
-        uint32 Permission;                   // function pointer required correct align (use uint32)
-        bool AllowConsole;
-        pHandler Handler;
-        std::string Help;
-        std::vector<ChatCommand> ChildCommands;
-};
 
 class TC_GAME_API ChatHandler
 {
@@ -99,7 +86,6 @@ class TC_GAME_API ChatHandler
         static std::vector<ChatCommand> const& getCommandTable();
         static void invalidateCommandTable();
 
-        bool isValidChatMessage(char const* msg);
         void SendGlobalSysMessage(const char *str);
 
         bool hasStringAbbr(char const* name, char const* part);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,7 +50,8 @@ enum BFCreatureIds
     NPC_THE_MAKER               = 17381,
     NPC_BROGGOK                 = 17380,
     NPC_KELIDAN_THE_BREAKER     = 17377,
-    NPC_PRISONER                = 17398,
+    NPC_PRISONER1               = 17398,
+    NPC_PRISONER2               = 17429,
     NPC_BROGGOK_POISON_CLOUD    = 17662
 };
 

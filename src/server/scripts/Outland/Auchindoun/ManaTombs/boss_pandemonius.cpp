@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,12 +67,12 @@ public:
             Talk(SAY_KILL);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_DARK_SHELL, 20000);
-            events.ScheduleEvent(EVENT_VOID_BLAST, urand(8000, 23000));
+            events.ScheduleEvent(EVENT_DARK_SHELL, 20s);
+            events.ScheduleEvent(EVENT_VOID_BLAST, 8s, 23s);
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -89,11 +89,11 @@ public:
                     if (VoidBlastCounter == 5)
                     {
                         VoidBlastCounter = 0;
-                        events.ScheduleEvent(EVENT_VOID_BLAST, urand(15000, 25000));
+                        events.ScheduleEvent(EVENT_VOID_BLAST, 15s, 25s);
                     }
                     else
                     {
-                        events.ScheduleEvent(EVENT_VOID_BLAST, 500);
+                        events.ScheduleEvent(EVENT_VOID_BLAST, 500ms);
                         events.DelayEvents(EVENT_DARK_SHELL, 500);
                     }
                     break;
@@ -102,7 +102,7 @@ public:
                         me->InterruptNonMeleeSpells(true);
                     Talk(EMOTE_DARK_SHELL);
                     DoCast(me, SPELL_DARK_SHELL);
-                    events.ScheduleEvent(EVENT_DARK_SHELL, 20000);
+                    events.ScheduleEvent(EVENT_DARK_SHELL, 20s);
                     break;
                 default:
                     break;

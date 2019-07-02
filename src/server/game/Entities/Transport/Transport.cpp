@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -85,10 +85,10 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     _triggeredArrivalEvent = false;
     _triggeredDepartureEvent = false;
 
-    if (m_goTemplateAddon)
+    if (GameObjectOverride const* goOverride = GetGameObjectOverride())
     {
-        SetFaction(m_goTemplateAddon->faction);
-        SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
+        SetFaction(goOverride->Faction);
+        SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
     }
 
     m_goValue.Transport.PathProgress = 0;
@@ -100,7 +100,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetGoType(GAMEOBJECT_TYPE_MO_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
-    SetWorldRotation(0.0f, 0.0f, 0.0f, 1.0f);
+    SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
     SetParentRotation(QuaternionData());
 
     m_model = CreateModel();
@@ -300,9 +300,12 @@ void Transport::RemovePassenger(WorldObject* passenger)
 Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData const* data)
 {
     Map* map = GetMap();
+    if (map->GetCreatureRespawnTime(guid))
+        return nullptr;
+
     Creature* creature = new Creature();
 
-    if (!creature->LoadFromDB(guid, map, false, true))
+    if (!creature->LoadFromDB(guid, map, false, false))
     {
         delete creature;
         return nullptr;
@@ -345,6 +348,9 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
 GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectData const* data)
 {
     Map* map = GetMap();
+    if (map->GetGORespawnTime(guid))
+        return nullptr;
+
     GameObject* go = new GameObject();
 
     if (!go->LoadFromDB(guid, map, false))
@@ -760,4 +766,11 @@ void Transport::BuildUpdate(UpdateDataMapType& data_map)
         BuildFieldsUpdate(itr->GetSource(), data_map);
 
     ClearUpdateMask(true);
+}
+
+std::string Transport::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << GameObject::GetDebugInfo();
+    return sstr.str();
 }

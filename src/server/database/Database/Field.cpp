@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ uint8 Field::GetUInt8() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int8))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetUInt8() on non-tinyint field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -55,7 +55,7 @@ int8 Field::GetInt8() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int8))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetInt8() on non-tinyint field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -74,7 +74,7 @@ uint16 Field::GetUInt16() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int16))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetUInt16() on non-smallint field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -93,7 +93,7 @@ int16 Field::GetInt16() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int16))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetInt16() on non-smallint field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -112,7 +112,7 @@ uint32 Field::GetUInt32() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int32))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetUInt32() on non-(medium)int field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -131,7 +131,7 @@ int32 Field::GetInt32() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int32))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetInt32() on non-(medium)int field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -150,7 +150,7 @@ uint64 Field::GetUInt64() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int64))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetUInt64() on non-bigint field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -169,7 +169,7 @@ int64 Field::GetInt64() const
     if (!data.value)
         return 0;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Int64))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetInt64() on non-bigint field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -188,7 +188,7 @@ float Field::GetFloat() const
     if (!data.value)
         return 0.0f;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Float))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetFloat() on non-float field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -207,7 +207,7 @@ double Field::GetDouble() const
     if (!data.value)
         return 0.0f;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (!IsType(DatabaseFieldTypes::Double) && !IsType(DatabaseFieldTypes::Decimal))
     {
         TC_LOG_WARN("sql.sql", "Warning: GetDouble() on non-double/non-decimal field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -226,7 +226,7 @@ char const* Field::GetCString() const
     if (!data.value)
         return nullptr;
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
     if (IsNumeric() && data.raw)
     {
         TC_LOG_WARN("sql.sql", "Error: GetCString() on numeric field %s.%s (%s.%s) at index %u. Using type: %s.",
@@ -302,7 +302,7 @@ bool Field::IsNumeric() const
         data.type == DatabaseFieldTypes::Double);
 }
 
-#ifdef TRINITY_DEBUG
+#ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
 
 #ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
 #include <winsock2.h>

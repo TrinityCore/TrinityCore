@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,9 +44,7 @@
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
 
-#define snprintf _snprintf
 #define atoll _atoi64
-#define vsnprintf _vsnprintf
 #define llabs _abs64
 
 #else
@@ -115,31 +113,18 @@ TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 #endif
 
 #ifndef M_PI
-#define M_PI            3.14159265358979323846
+#define M_PI 3.14159265358979323846
+#endif
+
+#ifndef M_PI_4
+#define M_PI_4 0.785398163397448309616
 #endif
 
 #define MAX_QUERY_LEN 32*1024
 
 namespace Trinity
 {
-    //! std::make_unique implementation (TODO: remove this once C++14 is supported)
-    template<typename T, typename ...Args>
-    inline auto make_unique(Args&& ...args) ->
-        typename std::enable_if<!std::is_array<T>::value, std::unique_ptr<T>>::type
-    {
-        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-    }
-
-    template<typename T>
-    inline auto make_unique(std::size_t size) ->
-        typename std::enable_if<std::is_array<T>::value && std::extent<T>::value == 0, std::unique_ptr<T>>::type
-    {
-        return std::unique_ptr<T>(new typename std::remove_extent<T>::type[size]());
-    }
-
-    template<typename T, typename... Args>
-    inline auto make_unique(Args&&...) ->
-        typename std::enable_if<std::extent<T>::value != 0, void>::type = delete;
+    using std::make_unique;
 }
 
 #endif

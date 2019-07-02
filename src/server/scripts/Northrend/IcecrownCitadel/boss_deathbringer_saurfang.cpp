@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -277,7 +277,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (_dead)
                     return;
@@ -306,11 +306,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _introDone = true;
 
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 30000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 30s, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 360000 : 480000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BOILING_BLOOD, 15500, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_BLOOD_NOVA, 17000, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_BLOOD_NOVA, 17s, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20s, 0, PHASE_COMBAT);
 
                 _fallenChampionCastCount = 0;
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
@@ -434,7 +434,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                     case 72445:
                     case 72446:
                         if (me->GetPower(POWER_ENERGY) != me->GetMaxPower(POWER_ENERGY))
-                            target->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, (Unit*)nullptr, true);
+                        {
+                            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                            args.AddSpellBP0(1);
+                            target->CastSpell(nullptr, SPELL_BLOOD_LINK_DUMMY, args);
+                        }
                         break;
                     default:
                         break;
@@ -499,9 +503,9 @@ class boss_deathbringer_saurfang : public CreatureScript
                                 for (uint32 i25 = 0; i25 < 3; ++i25)
                                     DoCast(me, SPELL_SUMMON_BLOOD_BEAST_25_MAN+i25);
                             Talk(SAY_BLOOD_BEASTS);
-                            events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40000, 0, PHASE_COMBAT);
+                            events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40s, 0, PHASE_COMBAT);
                             if (IsHeroic())
-                                events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, 10000, 0, PHASE_COMBAT);
+                                events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, 10s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_BLOOD_NOVA:
                             DoCastAOE(SPELL_BLOOD_NOVA_TRIGGER);
@@ -572,7 +576,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             return;
 
                         events.ScheduleEvent(EVENT_INTRO_ALLIANCE_6, 6500+500, 0, PHASE_INTRO_A);
-                        events.ScheduleEvent(EVENT_INTRO_FINISH, 8000, 0, PHASE_INTRO_A);
+                        events.ScheduleEvent(EVENT_INTRO_FINISH, 8s, 0, PHASE_INTRO_A);
 
                         events.ScheduleEvent(EVENT_INTRO_HORDE_4, 6500, 0, PHASE_INTRO_H);
                         events.ScheduleEvent(EVENT_INTRO_HORDE_9, 46700+1000+500, 0, PHASE_INTRO_H);
@@ -649,6 +653,14 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 return false;
             }
 
+            void GuardBroadcast(std::function<void(Creature*)>&& action) const
+            {
+                std::vector<Creature*> guardList;
+                GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_KOR_KRON_REAVER, 100.0f);
+                for (Creature* guard : guardList)
+                    action(guard);
+            }
+
             void DoAction(int32 action) override
             {
                 switch (action)
@@ -659,10 +671,11 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         if (_events.IsInPhase(PHASE_INTRO_A) || _events.IsInPhase(PHASE_INTRO_H))
                             return;
 
-                        GetCreatureListWithEntryInGrid(_guardList, me, NPC_SE_KOR_KRON_REAVER, 20.0f);
-                        _guardList.sort(Trinity::ObjectDistanceOrderPred(me));
+                        std::list<Creature*> guardList;
+                        GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_KOR_KRON_REAVER, 20.0f);
+                        guardList.sort(Trinity::ObjectDistanceOrderPred(me));
                         uint32 x = 1;
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++x, ++itr)
+                        for (auto itr = guardList.begin(); itr != guardList.end(); ++x, ++itr)
                             (*itr)->AI()->SetData(0, x);
 
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -684,15 +697,19 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 30000);   // move
                         me->SetDisableGravity(false);
                         me->GetMotionMaster()->MoveFall();
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                            (*itr)->AI()->DoAction(ACTION_DESPAWN);
+                        GuardBroadcast([](Creature* guard)
+                        {
+                            guard->AI()->DoAction(ACTION_DESPAWN);
+                        });
                         break;
                     }
                     case ACTION_INTERRUPT_INTRO:
                     {
                         _events.Reset();
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                            (*itr)->AI()->DoAction(ACTION_DESPAWN);
+                        GuardBroadcast([](Creature* guard)
+                        {
+                            guard->AI()->DoAction(ACTION_DESPAWN);
+                        });
                         break;
                     }
                     default:
@@ -776,8 +793,10 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                             break;
                         case EVENT_INTRO_HORDE_8:
                             Talk(SAY_INTRO_HORDE_8);
-                            for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                                (*itr)->AI()->DoAction(ACTION_CHARGE);
+                            GuardBroadcast([](Creature* guard)
+                            {
+                                guard->AI()->DoAction(ACTION_CHARGE);
+                            });
                             me->GetMotionMaster()->MoveCharge(chargePos[0].GetPositionX(), chargePos[0].GetPositionY(), chargePos[0].GetPositionZ(), 8.5f, POINT_CHARGE);
                             break;
                         case EVENT_OUTRO_HORDE_2:   // say
@@ -810,7 +829,6 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* _instance;
-            std::list<Creature*> _guardList;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -846,6 +864,14 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 return false;
             }
 
+            void GuardBroadcast(std::function<void(Creature*)>&& action) const
+            {
+                std::vector<Creature*> guardList;
+                GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_SKYBREAKER_MARINE, 100.0f);
+                for (Creature* guard : guardList)
+                    action(guard);
+            }
+
             void DoAction(int32 action) override
             {
                 switch (action)
@@ -857,10 +883,11 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                             return;
 
                         _events.SetPhase(PHASE_INTRO_A);
-                        GetCreatureListWithEntryInGrid(_guardList, me, NPC_SE_SKYBREAKER_MARINE, 20.0f);
-                        _guardList.sort(Trinity::ObjectDistanceOrderPred(me));
+                        std::list<Creature*> guardList;
+                        GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_SKYBREAKER_MARINE, 20.0f);
+                        guardList.sort(Trinity::ObjectDistanceOrderPred(me));
                         uint32 x = 1;
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++x, ++itr)
+                        for (auto itr = guardList.begin(); itr != guardList.end(); ++x, ++itr)
                             (*itr)->AI()->SetData(0, x);
 
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -877,8 +904,10 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                         Talk(SAY_OUTRO_ALLIANCE_1);
                         me->SetDisableGravity(false);
                         me->GetMotionMaster()->MoveFall();
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                            (*itr)->AI()->DoAction(ACTION_DESPAWN);
+                        GuardBroadcast([](Creature* guard)
+                        {
+                            guard->AI()->DoAction(ACTION_DESPAWN);
+                        });
 
                         // temp until outro fully done - to put deathbringer on respawn timer (until next reset)
                         if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
@@ -887,8 +916,10 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                     }
                     case ACTION_INTERRUPT_INTRO:
                         _events.Reset();
-                        for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                            (*itr)->AI()->DoAction(ACTION_DESPAWN);
+                        GuardBroadcast([](Creature* guard)
+                        {
+                            guard->AI()->DoAction(ACTION_DESPAWN);
+                        });
                         break;
                 }
             }
@@ -935,8 +966,10 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                             break;
                         case EVENT_INTRO_ALLIANCE_5:
                             Talk(SAY_INTRO_ALLIANCE_5);
-                            for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
-                                (*itr)->AI()->DoAction(ACTION_CHARGE);
+                            GuardBroadcast([](Creature* guard)
+                            {
+                                guard->AI()->DoAction(ACTION_CHARGE);
+                            });
                             me->GetMotionMaster()->MoveCharge(chargePos[0].GetPositionX(), chargePos[0].GetPositionY(), chargePos[0].GetPositionZ(), 8.5f, POINT_CHARGE);
                             break;
                     }
@@ -946,7 +979,6 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
         private:
             EventMap _events;
             InstanceScript* _instance;
-            std::list<Creature*> _guardList;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -969,7 +1001,8 @@ class npc_saurfang_event : public CreatureScript
 
             void SetData(uint32 type, uint32 data) override
             {
-                ASSERT(!type && data && data < 6);
+                if (!(!type && data && data < 6))
+                    return;
                 _index = data;
             }
 
@@ -1016,7 +1049,9 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_POWER, SPELLVALUE_BASE_POINT0, GetEffectValue(), GetHitUnit(), true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.AddSpellBP0(GetEffectValue());
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BLOOD_LINK_POWER, args);
                 PreventHitDefaultEffect(EFFECT_0);
             }
 
@@ -1049,7 +1084,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
-                if (GetUnitOwner()->getPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
+                if (GetUnitOwner()->GetPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
                     if (Creature* saurfang = GetUnitOwner()->ToCreature())
                         saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
             }
@@ -1132,7 +1167,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);  // make this the default handler
-                GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, (Unit*)nullptr, true);
+                GetHitUnit()->CastSpell(nullptr, SPELL_BLOOD_LINK_DUMMY, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(1));
             }
 
             void Register() override
@@ -1165,7 +1200,7 @@ class spell_deathbringer_blood_beast_blood_link : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetProcTarget()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 3, (Unit*)nullptr, true, nullptr, aurEff);
+                eventInfo.GetProcTarget()->CastSpell(nullptr, SPELL_BLOOD_LINK_DUMMY, CastSpellExtraArgs(aurEff).AddSpellBP0(3));
             }
 
             void Register() override
@@ -1197,7 +1232,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);  // make this the default handler
-                GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 2, (Unit*)nullptr, true);
+                GetHitUnit()->CastSpell(nullptr, SPELL_BLOOD_LINK_DUMMY, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(2));
             }
 
             void Register() override

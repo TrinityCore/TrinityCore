@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,13 +49,13 @@ class boss_scorn : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_LICH_SLAP, 45000);
-                events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 30000);
-                events.ScheduleEvent(EVENT_MIND_FLAY, 30000);
-                events.ScheduleEvent(EVENT_FROST_NOVA, 30000);
+                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_LICH_SLAP, 45s);
+                events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 30s);
+                events.ScheduleEvent(EVENT_MIND_FLAY, 30s);
+                events.ScheduleEvent(EVENT_FROST_NOVA, 30s);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -69,19 +69,19 @@ class boss_scorn : public CreatureScript
                 {
                     case EVENT_LICH_SLAP:
                         DoCastVictim(SPELL_LICHSLAP);
-                        events.ScheduleEvent(EVENT_LICH_SLAP, 45000);
+                        events.ScheduleEvent(EVENT_LICH_SLAP, 45s);
                         break;
                     case EVENT_FROSTBOLT_VOLLEY:
                         DoCastVictim(SPELL_FROSTBOLT_VOLLEY);
-                        events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 20000);
+                        events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 20s);
                         break;
                     case EVENT_MIND_FLAY:
                         DoCastVictim(SPELL_MINDFLAY);
-                        events.ScheduleEvent(EVENT_MIND_FLAY, 20000);
+                        events.ScheduleEvent(EVENT_MIND_FLAY, 20s);
                         break;
                     case EVENT_FROST_NOVA:
                         DoCastVictim(SPELL_FROSTNOVA);
-                        events.ScheduleEvent(EVENT_FROST_NOVA, 15000);
+                        events.ScheduleEvent(EVENT_FROST_NOVA, 15s);
                         break;
                     default:
                         break;

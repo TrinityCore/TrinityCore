@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -168,10 +168,12 @@ std::vector<TableStruct> CharacterTables;
 inline bool StringsEqualCaseInsensitive(std::string const& left, std::string const& right)
 {
     std::string upperLeftString = left;
-    ASSERT(Utf8ToUpperOnlyLatin(upperLeftString));
+    bool leftResult = Utf8ToUpperOnlyLatin(upperLeftString);
+    ASSERT(leftResult);
 
     std::string upperRightString = right;
-    ASSERT(Utf8ToUpperOnlyLatin(upperRightString));
+    bool rightResult = Utf8ToUpperOnlyLatin(upperRightString);
+    ASSERT(rightResult);
 
     return upperLeftString == upperRightString;
 }
@@ -270,7 +272,8 @@ void PlayerDump::InitializeTables()
             TableField f;
             f.FieldName = columnName;
 
-            ASSERT(Utf8ToUpperOnlyLatin(columnName));
+            bool toUpperResult = Utf8ToUpperOnlyLatin(columnName);
+            ASSERT(toUpperResult);
 
             t.TableFields.emplace_back(std::move(f));
         } while (result->NextRow());
@@ -610,16 +613,16 @@ void PlayerDumpWriter::PopulateGuids(ObjectGuid::LowType guid)
             switch (baseTable.StoredType)
             {
                 case GUID_TYPE_ITEM:
-                    if (ObjectGuid::LowType guid = (*result)[0].GetUInt32())
-                        _items.insert(guid);
+                    if (ObjectGuid::LowType itemLowGuid = (*result)[0].GetUInt32())
+                        _items.insert(itemLowGuid);
                     break;
                 case GUID_TYPE_MAIL:
-                    if (ObjectGuid::LowType guid = (*result)[0].GetUInt32())
-                        _mails.insert(guid);
+                    if (ObjectGuid::LowType mailLowGuid = (*result)[0].GetUInt32())
+                        _mails.insert(mailLowGuid);
                     break;
                 case GUID_TYPE_PET:
-                    if (ObjectGuid::LowType guid = (*result)[0].GetUInt32())
-                        _pets.insert(guid);
+                    if (ObjectGuid::LowType petLowGuid = (*result)[0].GetUInt32())
+                        _pets.insert(petLowGuid);
                     break;
                 case GUID_TYPE_EQUIPMENT_SET:
                     if (uint64 eqSetId = (*result)[0].GetUInt64())

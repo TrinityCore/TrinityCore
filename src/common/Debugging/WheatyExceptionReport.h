@@ -115,20 +115,7 @@ struct SymbolDetail
 {
     SymbolDetail() : Prefix(), Type(), Suffix(), Name(), Value(), Logged(false), HasChildren(false) {}
 
-    std::string ToString()
-    {
-        Logged = true;
-        std::string formatted = Prefix + Type + Suffix;
-        if (!Name.empty())
-        {
-            if (!formatted.empty())
-                formatted += " ";
-            formatted += Name;
-        }
-        if (!Value.empty())
-            formatted += " = " + Value;
-        return formatted;
-    }
+    std::string ToString();
 
     bool empty() const
     {
@@ -154,6 +141,8 @@ class WheatyExceptionReport
         // entry point where control comes on an unhandled exception
         static LONG WINAPI WheatyUnhandledExceptionFilter(
             PEXCEPTION_POINTERS pExceptionInfo);
+
+        static void __cdecl WheatyCrtHandler(wchar_t const* expression, wchar_t const* function, wchar_t const* file, unsigned int line, uintptr_t pReserved);
 
         static void printTracesForAllThreads(bool);
     private:
@@ -192,6 +181,7 @@ class WheatyExceptionReport
         static TCHAR m_szLogFileName[MAX_PATH];
         static TCHAR m_szDumpFileName[MAX_PATH];
         static LPTOP_LEVEL_EXCEPTION_FILTER m_previousFilter;
+        static _invalid_parameter_handler m_previousCrtHandler;
         static HANDLE m_hReportFile;
         static HANDLE m_hDumpFile;
         static HANDLE m_hProcess;
@@ -212,4 +202,3 @@ class WheatyExceptionReport
 extern WheatyExceptionReport g_WheatyExceptionReport;       //  global instance of class
 #endif                                                      // _WIN32
 #endif                                                      // _WHEATYEXCEPTIONREPORT_
-

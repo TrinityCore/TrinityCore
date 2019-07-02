@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SC_GOSSIP_H
-#define SC_GOSSIP_H
+#ifndef TRINITY_SCRIPTEDGOSSIP_H
+#define TRINITY_SCRIPTEDGOSSIP_H
 
 #include "GossipDef.h"
 #include "QuestDef.h"
@@ -81,6 +81,7 @@ enum eTradeskill
 };
 
 class Creature;
+
 uint32 TC_GAME_API GetGossipActionFor(Player* player, uint32 gossipListId);
 void TC_GAME_API ClearGossipMenuFor(Player* player);
 // Using provided text, not from DB

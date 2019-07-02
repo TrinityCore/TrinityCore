@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,6 @@
 #define METRIC_H__
 
 #include "Define.h"
-#include "AsioHacksFwd.h"
 #include "MPSCQueue.h"
 #include <chrono>
 #include <functional>
@@ -27,11 +26,12 @@
 #include <memory>
 #include <string>
 
-namespace boost
+namespace Trinity
 {
-    namespace asio
+    namespace Asio
     {
-        class io_service;
+        class IoContext;
+        class DeadlineTimer;
     }
 }
 
@@ -61,8 +61,8 @@ private:
     std::iostream& GetDataStream() { return *_dataStream; }
     std::unique_ptr<std::iostream> _dataStream;
     MPSCQueue<MetricData> _queuedData;
-    std::unique_ptr<boost::asio::deadline_timer> _batchTimer;
-    std::unique_ptr<boost::asio::deadline_timer> _overallStatusTimer;
+    std::unique_ptr<Trinity::Asio::DeadlineTimer> _batchTimer;
+    std::unique_ptr<Trinity::Asio::DeadlineTimer> _overallStatusTimer;
     int32 _updateInterval = 0;
     int32 _overallStatusTimerInterval = 0;
     bool _enabled = false;
@@ -95,7 +95,7 @@ public:
     ~Metric();
     static Metric* instance();
 
-    void Initialize(std::string const& realmName, boost::asio::io_service& ioService, std::function<void()> overallStatusLogger);
+    void Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
     void LoadFromConfigs();
     void Update();
 
@@ -115,13 +115,16 @@ public:
 
     void LogEvent(std::string const& category, std::string const& title, std::string const& description);
 
-    void ForceSend();
+    void Unload();
     bool IsEnabled() const { return _enabled; }
 };
 
 #define sMetric Metric::instance()
 
-#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#ifdef PERFORMANCE_PROFILING
+#define TC_METRIC_EVENT(category, title, description) ((void)0)
+#define TC_METRIC_VALUE(category, value) ((void)0)
+#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 #define TC_METRIC_EVENT(category, title, description)                    \
         do {                                                            \
             if (sMetric->IsEnabled())                              \

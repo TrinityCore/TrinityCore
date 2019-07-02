@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 BattlegroundRV::BattlegroundRV()
 {
@@ -101,10 +102,11 @@ void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-void BattlegroundRV::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundRV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << uint32(BG_RV_WORLD_STATE) << uint32(1);
-    Arena::FillInitialWorldStates(data);
+    packet.Worldstates.emplace_back(BG_RV_WORLD_STATE, 1);
+
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundRV::SetupBattleground()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameTime.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "vault_of_archavon.h"
@@ -65,13 +66,13 @@ class instance_vault_of_archavon : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_ARCHAVON:
-                        ArchavonDeath = time(nullptr);
+                        ArchavonDeath = GameTime::GetGameTime();
                         break;
                     case DATA_EMALON:
-                        EmalonDeath = time(nullptr);
+                        EmalonDeath = GameTime::GetGameTime();
                         break;
                     case DATA_KORALON:
-                        KoralonDeath = time(nullptr);
+                        KoralonDeath = GameTime::GetGameTime();
                         break;
                     default:
                         return true;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,22 +20,15 @@
 #define TRINITY_CREATUREAIFACTORY_H
 
 #include "ObjectRegistry.h"
-#include "FactoryHolder.h"
+#include "SelectableAI.h"
 
 class Creature;
 class CreatureAI;
 
-typedef FactoryHolder<CreatureAI, Creature> CreatureAICreator;
-
-struct SelectableAI : public CreatureAICreator, public Permissible<Creature>
+template <class REAL_AI, bool is_db_allowed = true>
+struct CreatureAIFactory : public SelectableAI<Creature, CreatureAI, is_db_allowed>
 {
-    SelectableAI(std::string const& name) : CreatureAICreator(name), Permissible<Creature>() { }
-};
-
-template<class REAL_AI>
-struct CreatureAIFactory : public SelectableAI
-{
-    CreatureAIFactory(std::string const& name) : SelectableAI(name) { }
+    CreatureAIFactory(std::string const& name) : SelectableAI<Creature, CreatureAI, is_db_allowed>(name) { }
 
     inline CreatureAI* Create(Creature* c) const override
     {
@@ -48,7 +41,7 @@ struct CreatureAIFactory : public SelectableAI
     }
 };
 
-typedef CreatureAICreator::FactoryHolderRegistry CreatureAIRegistry;
+typedef SelectableAI<Creature, CreatureAI>::FactoryHolderRegistry CreatureAIRegistry;
 
 #define sCreatureAIRegistry CreatureAIRegistry::instance()
 

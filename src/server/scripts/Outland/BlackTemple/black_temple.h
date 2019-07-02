@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -105,7 +105,10 @@ enum BTCreatureIds
     NPC_ILLIDARI_ELITE              = 23226,
     NPC_GLAIVE_TARGET               = 23448,
     NPC_GLAIVE_WORLD_TRIGGER        = 22515,
-    NPC_DEMON_FIRE                  = 23069
+    NPC_DEMON_FIRE                  = 23069,
+    NPC_PARASITIC_SHADOWFIEND       = 23498,
+    NPC_BLAZE                       = 23259,
+    NPC_FLAME_CRASH                 = 23336
 };
 
 enum BTGameObjectIds
@@ -142,5 +145,7 @@ inline AI* GetBlackTempleAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, BTScriptName);
 }
+
+#define RegisterBlackTempleCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackTempleAI)
 
 #endif // BLACK_TEMPLE_H_

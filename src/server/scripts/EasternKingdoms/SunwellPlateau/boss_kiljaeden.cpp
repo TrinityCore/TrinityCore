@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -265,6 +265,7 @@ public:
             me->SetDisableGravity(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setActive(true);
+            me->SetFarVisible(true);
 
             for (uint8 i = 0; i < 4; ++i)
                 if (GameObject* pOrb = GetOrb(i))
@@ -312,6 +313,7 @@ public:
                         pOrb->CastSpell(me, SPELL_RING_OF_BLUE_FLAMES);
                         pOrb->SetFaction(FACTION_FRIENDLY);
                         pOrb->setActive(true);
+                        pOrb->SetFarVisible(true);
                         pOrb->Refresh();
                     }
                 }
@@ -324,6 +326,7 @@ public:
                     pOrb->CastSpell(me, SPELL_RING_OF_BLUE_FLAMES);
                     pOrb->SetFaction(FACTION_FRIENDLY);
                     pOrb->setActive(true);
+                    pOrb->SetFarVisible(true);
                     pOrb->Refresh();
 
                     OrbsEmpowered = (OrbsEmpowered+1)%4;
@@ -355,6 +358,7 @@ public:
                     {
                         pOrb->CastSpell(me, SPELL_RING_OF_BLUE_FLAMES);
                         pOrb->setActive(true);
+                        pOrb->SetFarVisible(true);
                         pOrb->Refresh();
                     }
                 }
@@ -619,7 +623,7 @@ public:
         //      summoned->SetVisibility(VISIBILITY_OFF);  //with this we cant see the armageddon visuals
             }
             else
-                summoned->SetLevel(me->getLevel());
+                summoned->SetLevel(me->GetLevel());
 
             summoned->SetFaction(me->GetFaction());
             summons.Summon(summoned);
@@ -648,7 +652,7 @@ public:
                 ENSURE_AI(npc_kiljaeden_controller::npc_kiljaeden_controllerAI, pControl->AI())->Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
         }
@@ -948,10 +952,10 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             summoned->SetFaction(me->GetFaction());
-            summoned->SetLevel(me->getLevel());
+            summoned->SetLevel(me->GetLevel());
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             instance->SetBossState(DATA_KILJAEDEN, IN_PROGRESS);
             if (Creature* pControl = instance->GetCreature(DATA_KILJAEDEN_CONTROLLER))
@@ -1041,7 +1045,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             summoned->SetFaction(me->GetFaction());
-            summoned->SetLevel(me->getLevel());
+            summoned->SetLevel(me->GetLevel());
         }
 
         void UpdateAI(uint32 diff) override
@@ -1322,7 +1326,7 @@ public:
 
             if ((victimClass == 0) && me->GetVictim())
             {
-                victimClass = me->EnsureVictim()->getClass();
+                victimClass = me->EnsureVictim()->GetClass();
                 switch (victimClass)
                 {
                     case CLASS_DRUID:

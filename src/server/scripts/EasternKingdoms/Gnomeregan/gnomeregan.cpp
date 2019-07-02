@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -276,10 +276,10 @@ public:
                     switch (uiValue)
                     {
                         case 1:
-                            instance->SetData(TYPE_EVENT, IN_PROGRESS);
+                            instance->SetBossState(DATA_BLASTMASTER_EVENT, IN_PROGRESS);
                             break;
                         case 2:
-                            instance->SetData(TYPE_EVENT, DONE);
+                            instance->SetBossState(DATA_BLASTMASTER_EVENT, DONE);
                             NextStep(5000, false, 22);
                             break;
                     }
@@ -518,7 +518,7 @@ public:
             if (!me->IsSummon())
                 return;
 
-            if (Unit* summon = me->ToTempSummon()->GetSummoner())
+            if (Unit* summon = me->ToTempSummon()->GetSummonerUnit())
                 if (Creature* creature = summon->ToCreature())
                     creature->AI()->SetData(2, 1);
         }
@@ -536,7 +536,7 @@ public:
             if (!me->IsSummon())
                 return;
 
-            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                 if (Creature* creature = summoner->ToCreature())
                     creature->AI()->SetData(2, 2);
         }

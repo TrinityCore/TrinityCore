@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,7 +29,9 @@
 #include <cmath>
 
 struct ItemTemplate;
+enum class VisibilityDistanceType : uint8;
 
+// EnumUtils: DESCRIBE THIS
 enum CreatureFlagsExtra : uint32
 {
     CREATURE_FLAG_EXTRA_INSTANCE_BIND        = 0x00000001,       // creature kill bind instance with killer and killer's group
@@ -43,8 +45,8 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_NO_TAUNT             = 0x00000100,       // creature is immune to taunt auras and effect attack me
     CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE = 0x00000200,       // creature won't update movement flags
     CREATURE_FLAG_EXTRA_GHOST_VISIBILITY     = 0x00000400,       // creature will be only visible for dead players
-    CREATURE_FLAG_EXTRA_UNUSED_11            = 0x00000800,
-    CREATURE_FLAG_EXTRA_UNUSED_12            = 0x00001000,
+    CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK   = 0x00000800,       // creature will use offhand attacks
+    CREATURE_FLAG_EXTRA_NO_SELL_VENDOR       = 0x00001000,       // players can't sell items to this vendor
     CREATURE_FLAG_EXTRA_UNUSED_13            = 0x00002000,
     CREATURE_FLAG_EXTRA_WORLDEVENT           = 0x00004000,       // custom flag for world event creatures (left room for merging)
     CREATURE_FLAG_EXTRA_GUARD                = 0x00008000,       // Creature is guard
@@ -66,12 +68,70 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_UNUSED_31            = 0x80000000,
 
     // Masks
-    CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_11 | CREATURE_FLAG_EXTRA_UNUSED_12 | CREATURE_FLAG_EXTRA_UNUSED_13 |
-                                                CREATURE_FLAG_EXTRA_UNUSED_16 | CREATURE_FLAG_EXTRA_UNUSED_22 | CREATURE_FLAG_EXTRA_UNUSED_23 |
-                                                CREATURE_FLAG_EXTRA_UNUSED_24 | CREATURE_FLAG_EXTRA_UNUSED_25 | CREATURE_FLAG_EXTRA_UNUSED_26 |
-                                                CREATURE_FLAG_EXTRA_UNUSED_27 | CREATURE_FLAG_EXTRA_UNUSED_31),
+    CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_13 | CREATURE_FLAG_EXTRA_UNUSED_16 | CREATURE_FLAG_EXTRA_UNUSED_22 |
+                                                CREATURE_FLAG_EXTRA_UNUSED_23 | CREATURE_FLAG_EXTRA_UNUSED_24 | CREATURE_FLAG_EXTRA_UNUSED_25 |
+                                                CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27 | CREATURE_FLAG_EXTRA_UNUSED_31), // SKIP
 
-    CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS))
+    CREATURE_FLAG_EXTRA_DB_ALLOWED           = (0xFFFFFFFF & ~(CREATURE_FLAG_EXTRA_UNUSED | CREATURE_FLAG_EXTRA_DUNGEON_BOSS)) // SKIP
+};
+
+enum class CreatureGroundMovementType : uint8
+{
+    None,
+    Run,
+    Hover,
+
+    Max
+};
+
+enum class CreatureFlightMovementType : uint8
+{
+    None,
+    DisableGravity,
+    CanFly,
+
+    Max
+};
+
+enum class CreatureChaseMovementType : uint8
+{
+    Run,
+    CanWalk,
+    AlwaysWalk,
+
+    Max
+};
+
+enum class CreatureRandomMovementType : uint8
+{
+    Walk,
+    CanRun,
+    AlwaysRun,
+
+    Max
+};
+
+struct TC_GAME_API CreatureMovementData
+{
+    CreatureMovementData() : Ground(CreatureGroundMovementType::Run), Flight(CreatureFlightMovementType::None), Swim(true), Rooted(false), Chase(CreatureChaseMovementType::Run),
+        Random(CreatureRandomMovementType::Walk) { }
+
+    CreatureGroundMovementType Ground;
+    CreatureFlightMovementType Flight;
+    bool Swim;
+    bool Rooted;
+    CreatureChaseMovementType Chase;
+    CreatureRandomMovementType Random;
+
+    bool IsGroundAllowed() const { return Ground != CreatureGroundMovementType::None; }
+    bool IsSwimAllowed() const { return Swim; }
+    bool IsFlightAllowed() const { return Flight != CreatureFlightMovementType::None; }
+    bool IsRooted() const { return Rooted; }
+
+    CreatureChaseMovementType GetChase() const { return Chase; }
+    CreatureRandomMovementType GetRandom() const { return Random; }
+
+    std::string ToString() const;
 };
 
 static const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
@@ -116,10 +176,6 @@ struct TC_GAME_API CreatureTemplate
     uint32  unit_flags2;                                    // enum UnitFlags2 mask values
     uint32  dynamicflags;
     CreatureFamily  family;                                 // enum CreatureFamily values (optional)
-    uint32  trainer_type;
-    uint32  trainer_spell;
-    uint32  trainer_class;
-    uint32  trainer_race;
     uint32  type;                                           // enum CreatureType values
     uint32  type_flags;                                     // enum CreatureTypeFlags mask values
     uint32  lootid;
@@ -133,7 +189,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  maxgold;
     std::string AIName;
     uint32  MovementType;
-    uint32  InhabitType;
+    CreatureMovementData Movement;
     float   HoverHeight;
     float   ModHealth;
     float   ModMana;
@@ -144,6 +200,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  movementId;
     bool    RegenHealth;
     uint32  MechanicImmuneMask;
+    uint32  SpellSchoolImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
     WorldPacket QueryData[TOTAL_LOCALES];
@@ -280,6 +337,7 @@ struct CreatureAddon
     uint32 bytes2;
     uint32 emote;
     std::vector<uint32> auras;
+    VisibilityDistanceType visibilityDistanceType;
 };
 
 // Vendors
@@ -320,38 +378,6 @@ struct VendorItemData
     {
         m_items.clear();
     }
-};
-
-struct TrainerSpell
-{
-    TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0)
-    {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            ReqAbility[i] = 0;
-    }
-
-    uint32 SpellID;
-    uint32 MoneyCost;
-    uint32 ReqSkillLine;
-    uint32 ReqSkillRank;
-    uint32 ReqLevel;
-    uint32 ReqAbility[3];
-
-    // helpers
-    bool IsCastable() const { return ReqAbility[0] != SpellID; }
-};
-
-typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
-
-struct TC_GAME_API TrainerSpellData
-{
-    TrainerSpellData() : trainerType(0) { }
-    ~TrainerSpellData() { spellList.clear(); }
-
-    TrainerSpellMap spellList;
-    uint32 trainerType;                                     // trainer type based at trainer spells, can be different from creature_template value.
-                                                            // req. for correct show non-prof. trainers like weaponmaster, allowed values 0 and 2.
-    TrainerSpell const* Find(uint32 spell_id) const;
 };
 
 #endif // CreatureData_h__

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "AuctionHouseBotBuyer.h"
+#include "GameTime.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "ItemTemplate.h"
@@ -97,7 +98,7 @@ bool AuctionBotBuyer::Update(AuctionHouseType houseType)
 uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
 {
     config.SameItemInfo.clear();
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     uint32 count = 0;
 
     AuctionHouseObject* house = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
@@ -237,7 +238,7 @@ bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, Item const* ite
 void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 {
     // now - 5 seconds to leave out all old entries but keep the ones just updated a moment ago
-    time_t now = time(nullptr) - 5;
+    time_t now = GameTime::GetGameTime() - 5;
 
     for (CheckEntryMap::iterator itr = config.EligibleItems.begin(); itr != config.EligibleItems.end();)
     {
@@ -253,7 +254,7 @@ void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 // Tries to bid and buy items based on their prices and chances set in configs
 void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
 {
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
     CheckEntryMap& items = config.EligibleItems;
 

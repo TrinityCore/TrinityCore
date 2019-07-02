@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,9 +19,20 @@
 #include "PassiveAI.h"
 #include "Creature.h"
 
-PassiveAI::PassiveAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
-PossessedAI::PossessedAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
-NullCreatureAI::NullCreatureAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
+PassiveAI::PassiveAI(Creature* creature) : CreatureAI(creature)
+{
+    creature->SetReactState(REACT_PASSIVE);
+}
+
+PossessedAI::PossessedAI(Creature* creature) : CreatureAI(creature)
+{
+    creature->SetReactState(REACT_PASSIVE);
+}
+
+NullCreatureAI::NullCreatureAI(Creature* creature) : CreatureAI(creature)
+{
+    creature->SetReactState(REACT_PASSIVE);
+}
 
 int32 NullCreatureAI::Permissible(Creature const* creature)
 {
@@ -36,7 +47,7 @@ int32 NullCreatureAI::Permissible(Creature const* creature)
 
 void PassiveAI::UpdateAI(uint32)
 {
-    if (me->IsInCombat() && me->getAttackers().empty())
+    if (me->IsEngaged() && !me->IsInCombat())
         EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
 }
 
@@ -69,12 +80,6 @@ void PossessedAI::KilledUnit(Unit* victim)
         victim->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 }
 
-void PossessedAI::OnCharmed(bool /*apply*/)
-{
-    me->NeedChangeAI = true;
-    me->IsAIEnabled = false;
-}
-
 void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
 {
     if (!me->HasUnitState(UNIT_STATE_FLEEING))
@@ -96,10 +101,14 @@ int32 CritterAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-void TriggerAI::IsSummonedBy(Unit* summoner)
+void TriggerAI::IsSummonedBy(WorldObject* summoner)
 {
     if (me->m_spells[0])
-        me->CastSpell(me, me->m_spells[0], false, nullptr, nullptr, summoner->GetGUID());
+    {
+        CastSpellExtraArgs extra;
+        extra.OriginalCaster = summoner->GetGUID();
+        me->CastSpell(me, me->m_spells[0], extra);
+    }
 }
 
 int32 TriggerAI::Permissible(Creature const* creature)

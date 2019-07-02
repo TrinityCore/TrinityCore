@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -103,7 +103,7 @@ class boss_shattered_executioner : public CreatureScript
 
             void JustSummoned(Creature*) override { } // avoid despawn of prisoners on death/reset
 
-            void JustDied(Unit*) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
 
@@ -125,7 +125,7 @@ class boss_shattered_executioner : public CreatureScript
                 if (type == DATA_PRISONERS_EXECUTED && data <= 3)
                 {
                     if (Creature* victim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FIRST_PRISONER + data - 1)))
-                        me->Kill(victim);
+                        Unit::Kill(me, victim);
 
                     if (data == 1)
                     {
@@ -143,10 +143,13 @@ class boss_shattered_executioner : public CreatureScript
                     {
                         case 3:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_1);
+                            /* fallthrough */
                         case 2:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_2);
+                            /* fallthrough */
                         case 1:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_3);
+                            /* fallthrough */
                         default:
                             break;
                     }

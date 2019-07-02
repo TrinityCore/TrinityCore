@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -128,12 +128,13 @@ enum BuyResult
 
 enum SellResult
 {
-    SELL_ERR_CANT_FIND_ITEM                      = 1,
-    SELL_ERR_CANT_SELL_ITEM                      = 2,       // merchant doesn't like that item
-    SELL_ERR_CANT_FIND_VENDOR                    = 3,       // merchant doesn't like you
-    SELL_ERR_YOU_DONT_OWN_THAT_ITEM              = 4,       // you don't own that item
+    SELL_ERR_CANT_FIND_ITEM                      = 1,       // The item was not found.
+    SELL_ERR_CANT_SELL_ITEM                      = 2,       // The merchant doesn't want that item.
+    SELL_ERR_CANT_FIND_VENDOR                    = 3,       // The merchant doesn't like you.
+    SELL_ERR_YOU_DONT_OWN_THAT_ITEM              = 4,       // You don't own that item.
     SELL_ERR_UNK                                 = 5,       // nothing appears...
-    SELL_ERR_ONLY_EMPTY_BAG                      = 6        // can only do with empty bags
+    SELL_ERR_ONLY_EMPTY_BAG                      = 6,       // You can only do that with empty bags.
+    SELL_ERR_CANT_SELL_TO_THIS_MERCHANT          = 7        // You cannot sell items to this merchant.
 };
 
 // -1 from client enchantment slot number

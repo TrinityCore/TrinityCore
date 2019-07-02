@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,6 +33,7 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 #include "wailing_caverns.h"
 
 /*######
@@ -90,6 +91,7 @@ public:
             currentEvent = 0;
             eventProgress = 0;
             me->setActive(true);
+            me->SetFarVisible(true);
             me->SetImmuneToPC(false);
         }
 
@@ -132,12 +134,12 @@ public:
 
         }
 
-        void EnterCombat(Unit* who) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_ATTACKED, who);
         }
 
-        void JustDied(Unit* /*slayer*/) override
+        void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(TYPE_NARALEX_EVENT, FAIL);
             instance->SetData(TYPE_NARALEX_PART1, FAIL);
@@ -243,8 +245,9 @@ public:
                                 ++eventProgress;
                                 if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
                                     naralex->AI()->Talk(EMOTE_HORRENDOUS_VISION);
-                                me->SummonCreature(NPC_MUTANUS_THE_DEVOURER, 150.872f, 262.905f, -103.503f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                Talk(SAY_MUTANUS_THE_DEVOURER);
+                                if (Creature* mutanus = me->SummonCreature(NPC_MUTANUS_THE_DEVOURER, 150.872f, 262.905f, -103.503f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
+                                    Talk(SAY_MUTANUS_THE_DEVOURER, mutanus);
+
                                 instance->SetData(TYPE_MUTANUS_THE_DEVOURER, IN_PROGRESS);
                             }
                             else

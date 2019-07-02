@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -265,7 +265,7 @@ void InstanceScript::UpdateSpawnGroups()
         if (doSpawn)
             instance->SpawnGroupSpawn(groupId);
         else // otherwise, set it as inactive so it no longer respawns (but don't despawn it)
-            instance->SetSpawnGroupActive(groupId, false);
+            instance->SetSpawnGroupInactive(groupId);
     }
 }
 
@@ -353,7 +353,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             if (bossInfo->state == DONE)
             {
-                TC_LOG_ERROR("map", "InstanceScript: Tried to set instance state from %s back to %s for map %u, instance id %u. Blocked!", GetBossStateName(bossInfo->state), GetBossStateName(state), instance->GetId(), instance->GetInstanceId());
+                TC_LOG_ERROR("map", "InstanceScript: Tried to set instance boss %u state from %s back to %s for map %u, instance id %u. Blocked!", id, GetBossStateName(bossInfo->state), GetBossStateName(state), instance->GetId(), instance->GetInstanceId());
                 return false;
             }
 
@@ -616,33 +616,74 @@ void InstanceScript::DoStopTimedAchievement(AchievementCriteriaTimedTypes type, 
                 player->RemoveTimedAchievement(type, entry);
 }
 
-// Remove Auras due to Spell on all players in instance
-void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
+void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
 {
-    Map::PlayerList const& PlayerList = instance->GetPlayers();
-    if (!PlayerList.isEmpty())
+    Map::PlayerList const& playerList = instance->GetPlayers();
+    for (auto itr = playerList.begin(); itr != playerList.end(); ++itr)
+        DoRemoveAurasDueToSpellOnPlayer(itr->GetSource(), spell, includePets, includeControlled);
+}
+
+void InstanceScript::DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
+{
+    if (!player)
+        return;
+
+    player->RemoveAurasDueToSpell(spell);
+
+    if (!includePets)
+        return;
+
+    for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
     {
-        for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-        {
-            if (Player* player = itr->GetSource())
-            {
-                player->RemoveAurasDueToSpell(spell);
-                if (Pet* pet = player->GetPet())
-                    pet->RemoveAurasDueToSpell(spell);
-            }
-        }
+        if (ObjectGuid summonGUID = player->m_SummonSlot[itr2])
+            if (Creature* summon = instance->GetCreature(summonGUID))
+                summon->RemoveAurasDueToSpell(spell);
+    }
+
+    if (!includeControlled)
+        return;
+
+    for (auto itr2 = player->m_Controlled.begin(); itr2 != player->m_Controlled.end(); ++itr2)
+    {
+        if (Unit* controlled = *itr2)
+            if (controlled->IsInWorld() && controlled->GetTypeId() == TYPEID_UNIT)
+                controlled->RemoveAurasDueToSpell(spell);
     }
 }
 
-// Cast spell on all players in instance
-void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
+void InstanceScript::DoCastSpellOnPlayers(uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
 {
-    Map::PlayerList const& PlayerList = instance->GetPlayers();
+    Map::PlayerList const& playerList = instance->GetPlayers();
+    for (auto itr = playerList.begin(); itr != playerList.end(); ++itr)
+        DoCastSpellOnPlayer(itr->GetSource(), spell, includePets, includeControlled);
+}
 
-    if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->GetSource())
-                player->CastSpell(player, spell, true);
+void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
+{
+    if (!player)
+        return;
+
+    player->CastSpell(player, spell, true);
+
+    if (!includePets)
+        return;
+
+    for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
+    {
+        if (ObjectGuid summonGUID = player->m_SummonSlot[itr2])
+            if (Creature* summon = instance->GetCreature(summonGUID))
+                summon->CastSpell(player, spell, true);
+    }
+
+    if (!includeControlled)
+        return;
+
+    for (auto itr2 = player->m_Controlled.begin(); itr2 != player->m_Controlled.end(); ++itr2)
+    {
+        if (Unit* controlled = *itr2)
+            if (controlled->IsInWorld() && controlled->GetTypeId() == TYPEID_UNIT)
+                controlled->CastSpell(player, spell, true);
+    }
 }
 
 bool InstanceScript::ServerAllowsTwoSideGroups()
@@ -698,9 +739,8 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
 
     uint32 dungeonId = 0;
 
-    for (DungeonEncounterList::const_iterator itr = encounters->begin(); itr != encounters->end(); ++itr)
+    for (auto const& encounter : *encounters)
     {
-        DungeonEncounter const* encounter = *itr;
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
             completedEncounters |= 1 << encounter->dbcEntry->encounterIndex;
@@ -716,15 +756,19 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
     if (dungeonId)
     {
         Map::PlayerList const& players = instance->GetPlayers();
-        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+        for (auto const& ref : players)
         {
-            if (Player* player = i->GetSource())
+            if (Player* player = ref.GetSource())
+            {
                 if (Group* grp = player->GetGroup())
+                {
                     if (grp->isLFGGroup())
                     {
                         sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
                         return;
                     }
+                }
+            }
         }
     }
 }

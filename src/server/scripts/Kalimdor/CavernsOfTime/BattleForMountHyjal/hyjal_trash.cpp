@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -194,7 +194,7 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : EscortAI(creature)
 
 void hyjal_trashAI::DamageTaken(Unit* done_by, uint32 &damage)
 {
-    if (done_by->GetTypeId() == TYPEID_PLAYER || done_by->IsPet())
+    if (!done_by || done_by->GetTypeId() == TYPEID_PLAYER || done_by->IsPet())
     {
         damageTaken += damage;
         instance->SetData(DATA_RAIDDAMAGE, damage);//store raid's damage
@@ -441,7 +441,7 @@ public:
             imol = false;
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
@@ -584,7 +584,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -683,7 +683,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -803,7 +803,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -898,7 +898,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -994,7 +994,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -1080,7 +1080,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -1180,7 +1180,7 @@ public:
             me->UpdatePosition(x, y, z, 0);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -1188,7 +1188,7 @@ public:
 
             if (IsEvent || IsOverrun)
             {
-                ENSURE_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
+                ENSURE_AI(hyjal_trashAI, me->AI())->SetActiveAttacker(false);
                 EscortAI::UpdateAI(diff);
             }
 
@@ -1309,7 +1309,7 @@ public:
 
             if (IsEvent || IsOverrun)
             {
-                ENSURE_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
+                ENSURE_AI(hyjal_trashAI, me->AI())->SetActiveAttacker(false);
                 EscortAI::UpdateAI(diff);
             }
 
@@ -1339,7 +1339,7 @@ public:
                 {
                     if (StrikeTimer <= diff)
                     {
-                        me->CastSpell(DummyTarget[0], DummyTarget[1], DummyTarget[2], SPELL_GARGOYLE_STRIKE, false);
+                        me->CastSpell({ DummyTarget[0], DummyTarget[1], DummyTarget[2] }, SPELL_GARGOYLE_STRIKE, false);
                         StrikeTimer = 2000 + rand32() % 1000;
                     } else StrikeTimer -= diff;
                     }
@@ -1350,9 +1350,9 @@ public:
 
             if (!me->IsWithinDist(me->GetVictim(), 20) || forcemove)
             {
-                forcemove = false;
                 if (forcemove)
                 {
+                    forcemove = false;
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         me->Attack(target, false);
                 }
@@ -1436,7 +1436,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
         }
 
@@ -1452,8 +1452,9 @@ public:
                     EnterEvadeMode();
                     return;
                 }
-                int dmg = 500 + rand32() % 700;
-                me->CastCustomSpell(me->GetVictim(), SPELL_EXPLODING_SHOT, &dmg, 0, 0, false);
+                CastSpellExtraArgs args;
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, 500 + rand32() % 700);
+                me->CastSpell(me->GetVictim(), SPELL_EXPLODING_SHOT, args);
                 ExplodeTimer = 5000 + rand32() % 5000;
             } else ExplodeTimer -= diff;
             DoMeleeAttackIfReady();

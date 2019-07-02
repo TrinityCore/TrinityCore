@@ -5,7 +5,11 @@ set pagination 0
 set logging on
 echo \n--- DEBUG: --- START\n\n
 run
-echo \n--- DEBUG: BACKTRACE FULL\n\n
+echo \n--- DEBUG: BACKTRACE FULL\n
+if TrinityAssertionFailedMessage != 0
+  printf "%s\n", TrinityAssertionFailedMessage
+end
+echo \n
 backtrace full
 echo \n--- DEBUG: INFO REGISTERS\n\n
 info registers

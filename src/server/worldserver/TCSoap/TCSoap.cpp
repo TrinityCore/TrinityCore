@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +28,10 @@ void TCSoapThread(const std::string& host, uint16 port)
     soap_init(&soap);
     soap_set_imode(&soap, SOAP_C_UTFSTRING);
     soap_set_omode(&soap, SOAP_C_UTFSTRING);
+
+#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+    soap.bind_flags = SO_REUSEADDR;
+#endif
 
     // check every 3 seconds if world ended
     soap.accept_timeout = 3;

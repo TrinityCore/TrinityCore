@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "PetitionMgr.h"
 #include "DatabaseEnv.h"
@@ -79,7 +79,7 @@ void PetitionMgr::LoadSignatures()
         if (!petition)
             continue;
 
-        petition->AddSignature(petition->petitionGuid, fields[1].GetUInt32(), ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt32()), true);
+        petition->AddSignature(fields[1].GetUInt32(), ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt32()), true);
         ++count;
     } while (result->NextRow());
 
@@ -89,11 +89,11 @@ void PetitionMgr::LoadSignatures()
 void PetitionMgr::AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std::string const& name, CharterTypes type, bool isLoading)
 {
     Petition& p = _petitionStore[petitionGuid];
-    p.petitionGuid = petitionGuid;
-    p.ownerGuid = ownerGuid;
-    p.petitionName = name;
-    p.petitionType = type;
-    p.signatures.clear();
+    p.PetitionGuid = petitionGuid;
+    p.OwnerGuid = ownerGuid;
+    p.PetitionName = name;
+    p.PetitionType = type;
+    p.Signatures.clear();
 
     if (isLoading)
         return;
@@ -136,7 +136,7 @@ Petition* PetitionMgr::GetPetition(ObjectGuid petitionGuid)
 Petition* PetitionMgr::GetPetitionByOwnerWithType(ObjectGuid ownerGuid, CharterTypes type)
 {
     for (auto& petitionPair : _petitionStore)
-        if (petitionPair.second.ownerGuid == ownerGuid && petitionPair.second.petitionType == type)
+        if (petitionPair.second.OwnerGuid == ownerGuid && petitionPair.second.PetitionType == type)
             return &petitionPair.second;
 
     return nullptr;
@@ -146,11 +146,11 @@ void PetitionMgr::RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTyp
 {
     for (auto itr = _petitionStore.begin(); itr != _petitionStore.end();)
     {
-        if (itr->second.ownerGuid == ownerGuid)
+        if (itr->second.OwnerGuid == ownerGuid)
         {
             if (type == CHARTER_TYPE_ANY)
                 itr = _petitionStore.erase(itr);
-            else if (type == itr->second.petitionType)
+            else if (type == itr->second.PetitionType)
             {
                 itr = _petitionStore.erase(itr);
                 break;
@@ -193,7 +193,7 @@ void PetitionMgr::RemoveSignaturesBySignerAndType(ObjectGuid signerGuid, Charter
 {
     for (auto& petitionPair : _petitionStore)
     {
-        if (petitionPair.second.petitionType == CHARTER_TYPE_ANY || petitionPair.second.petitionType == type)
+        if (petitionPair.second.PetitionType == CHARTER_TYPE_ANY || petitionPair.second.PetitionType == type)
             petitionPair.second.RemoveSignatureBySigner(signerGuid);
     }
 
@@ -214,24 +214,24 @@ void PetitionMgr::RemoveSignaturesBySignerAndType(ObjectGuid signerGuid, Charter
 
 bool Petition::IsPetitionSignedByAccount(uint32 accountId) const
 {
-    for (Signature const& signature : signatures)
+    for (Signature const& signature : Signatures)
         if (signature.first == accountId)
             return true;
 
     return false;
 }
 
-void Petition::AddSignature(ObjectGuid petitionGuid, uint32 accountId, ObjectGuid playerGuid, bool isLoading)
+void Petition::AddSignature(uint32 accountId, ObjectGuid playerGuid, bool isLoading)
 {
-    signatures.emplace_back(accountId, playerGuid);
+    Signatures.emplace_back(accountId, playerGuid);
 
     if (isLoading)
         return;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION_SIGNATURE);
 
-    stmt->setUInt32(0, ownerGuid.GetCounter());
-    stmt->setUInt32(1, petitionGuid.GetCounter());
+    stmt->setUInt32(0, OwnerGuid.GetCounter());
+    stmt->setUInt32(1, PetitionGuid.GetCounter());
     stmt->setUInt32(2, playerGuid);
     stmt->setUInt32(3, accountId);
 
@@ -240,25 +240,25 @@ void Petition::AddSignature(ObjectGuid petitionGuid, uint32 accountId, ObjectGui
 
 void Petition::UpdateName(std::string const& newName)
 {
-    petitionName = newName;
+    PetitionName = newName;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PETITION_NAME);
     stmt->setString(0, newName);
-    stmt->setUInt32(1, petitionGuid.GetCounter());
+    stmt->setUInt32(1, PetitionGuid.GetCounter());
     CharacterDatabase.Execute(stmt);
 }
 
 void Petition::RemoveSignatureBySigner(ObjectGuid playerGuid)
 {
-    for (auto itr = signatures.begin(); itr != signatures.end(); ++itr)
+    for (auto itr = Signatures.begin(); itr != Signatures.end(); ++itr)
     {
         if (itr->second == playerGuid)
         {
-            signatures.erase(itr);
+            Signatures.erase(itr);
 
             // notify owner
-            if (Player* owner = ObjectAccessor::FindConnectedPlayer(ownerGuid))
-                owner->GetSession()->SendPetitionQueryOpcode(petitionGuid);
+            if (Player* owner = ObjectAccessor::FindConnectedPlayer(OwnerGuid))
+                owner->GetSession()->SendPetitionQueryOpcode(PetitionGuid);
 
             break;
         }

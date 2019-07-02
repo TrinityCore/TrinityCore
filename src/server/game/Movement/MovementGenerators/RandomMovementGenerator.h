@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,30 +20,34 @@
 #define TRINITY_RANDOMMOTIONGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Position.h"
 #include "Timer.h"
 
+class PathGenerator;
+
 template<class T>
-class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
+class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovementGenerator<T>>
 {
     public:
-        explicit RandomMovementGenerator(float distance = 0.0f) : _path(nullptr), _timer(0), _reference(), _wanderDistance(distance), _interrupt(false) { }
-        ~RandomMovementGenerator();
+        explicit RandomMovementGenerator(float distance = 0.0f);
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return RANDOM_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
         void DoInitialize(T*);
-        void DoFinalize(T*);
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
+        void DoDeactivate(T*);
+        void DoFinalize(T*, bool, bool);
+
+        void UnitSpeedChanged() override { RandomMovementGenerator<T>::AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
 
     private:
         void SetRandomLocation(T*);
 
-        PathGenerator* _path;
+        std::unique_ptr<PathGenerator> _path;
         TimeTracker _timer;
         Position _reference;
         float _wanderDistance;
-        bool _interrupt;
 };
 
 #endif

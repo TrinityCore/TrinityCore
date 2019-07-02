@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,6 +39,11 @@ enum Events
     EVENT_AVATAROFFLAME                                    = 2
 };
 
+enum Emotes
+{
+    EMOTE_SHAKEN                                           = 0
+};
+
 class boss_emperor_dagran_thaurissan : public CreatureScript
 {
     public:
@@ -56,12 +61,12 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 me->CallForHelp(VISIBLE_RANGE);
-                _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 4000);
-                _events.ScheduleEvent(EVENT_AVATAROFFLAME, 25000);
+                _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 4s);
+                _events.ScheduleEvent(EVENT_AVATAROFFLAME, 25s);
             }
 
             void KilledUnit(Unit* who) override
@@ -76,6 +81,7 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
                 {
                     moira->AI()->EnterEvadeMode();
                     moira->SetFaction(FACTION_FRIENDLY);
+                    moira->AI()->Talk(EMOTE_SHAKEN);
                 }
             }
 
@@ -93,11 +99,11 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
                         case EVENT_HANDOFTHAURISSAN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_HANDOFTHAURISSAN);
-                            _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 5000);
+                            _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 5s);
                             break;
                         case EVENT_AVATAROFFLAME:
                             DoCastVictim(SPELL_AVATAROFFLAME);
-                            _events.ScheduleEvent(EVENT_AVATAROFFLAME, 18000);
+                            _events.ScheduleEvent(EVENT_AVATAROFFLAME, 18s);
                             break;
                         default:
                             break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "oculus.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "oculus.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
-#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 DoorData const doorData[] =
 {
@@ -145,17 +145,17 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void FillInitialWorldStates(WorldPacket& data) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
                 if (GetBossState(DATA_DRAKOS) == DONE && GetBossState(DATA_VAROS) != DONE)
                 {
-                    data << uint32(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW) << uint32(1);
-                    data << uint32(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT) << uint32(CentrifugueConstructCounter);
+                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
+                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, CentrifugueConstructCounter);
                 }
                 else
                 {
-                    data << uint32(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW) << uint32(0);
-                    data << uint32(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT) << uint32(0);
+                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
+                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, 0);
                 }
             }
 
@@ -202,7 +202,7 @@ class instance_oculus : public InstanceMapScript
                             {
                                 eregos->SetPhaseMask(1, true);
                                 GreaterWhelps();
-                                events.ScheduleEvent(EVENT_EREGOS_INTRO, 5000);
+                                events.ScheduleEvent(EVENT_EREGOS_INTRO, 5s);
                             }
                         }
                         break;
@@ -229,7 +229,7 @@ class instance_oculus : public InstanceMapScript
                         return KILL_NO_CONSTRUCT;
                     else if (CentrifugueConstructCounter == 1)
                         return KILL_ONE_CONSTRUCT;
-                    else if (CentrifugueConstructCounter > 1)
+                    else
                         return KILL_MORE_CONSTRUCT;
                 }
 

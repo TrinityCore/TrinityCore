@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -231,6 +231,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                     cBoss->SetReactState(REACT_PASSIVE);
                     cBoss->AttackStop(); // clear initial target that was set on enter combat
                     cBoss->setActive(true);
+                    cBoss->SetFarVisible(true);
 
                     for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
                     {
@@ -280,7 +281,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             DoCastAOE(SPELL_ENCOUNTER_CREDIT, true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             if (instance->GetBossState(BOSS_HORSEMEN) == IN_PROGRESS || instance->GetBossState(BOSS_HORSEMEN) == DONE) // another horseman already did it
                 return;
@@ -408,8 +409,8 @@ class boss_four_horsemen_baron : public CreatureScript
                 else
                     AttackStart(threat.GetCurrentVictim());
 
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_MARK, 24s);
                 events.ScheduleEvent(EVENT_UNHOLYSHADOW, randtime(Seconds(3), Seconds(7)));
             }
 
@@ -481,8 +482,8 @@ class boss_four_horsemen_thane : public CreatureScript
                 else
                     AttackStart(threat.GetCurrentVictim());
 
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_MARK, 24s);
                 events.ScheduleEvent(EVENT_METEOR, randtime(Seconds(10), Seconds(25)));
             }
             void _UpdateAI(uint32 diff) override
@@ -547,8 +548,8 @@ class boss_four_horsemen_lady : public CreatureScript
             boss_four_horsemen_ladyAI(Creature* creature) : boss_four_horsemen_baseAI(creature, LADY, ladyPath) { }
             void BeginFighting() override
             {
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_MARK, 24s);
                 events.ScheduleEvent(EVENT_VOIDZONE, randtime(Seconds(5), Seconds(10)));
             }
 
@@ -617,8 +618,8 @@ class boss_four_horsemen_sir : public CreatureScript
             boss_four_horsemen_sirAI(Creature* creature) : boss_four_horsemen_baseAI(creature, SIR, sirPath), _shouldSay(true) { }
             void BeginFighting() override
             {
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
-                events.ScheduleEvent(EVENT_MARK, Seconds(24));
+                events.ScheduleEvent(EVENT_BERSERK, 10min);
+                events.ScheduleEvent(EVENT_MARK, 24s);
                 events.ScheduleEvent(EVENT_HOLYWRATH, randtime(Seconds(13), Seconds(18)));
             }
 
@@ -689,60 +690,69 @@ class boss_four_horsemen_sir : public CreatureScript
         }
 };
 
-class spell_four_horsemen_mark : public SpellScriptLoader
-{
-    public:
-        spell_four_horsemen_mark() : SpellScriptLoader("spell_four_horsemen_mark") { }
+ class spell_four_horsemen_mark : public AuraScript
+ {
+     PrepareAuraScript(spell_four_horsemen_mark);
 
-        class spell_four_horsemen_mark_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_four_horsemen_mark_AuraScript);
+     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+     {
+         if (Unit* caster = GetCaster())
+         {
+             int32 damage;
+             switch (GetStackAmount())
+             {
+                 case 1:
+                     damage = 0;
+                     break;
+                 case 2:
+                     damage = 500;
+                     break;
+                 case 3:
+                     damage = 1000;
+                     break;
+                 case 4:
+                     damage = 1500;
+                     break;
+                 case 5:
+                     damage = 4000;
+                     break;
+                 case 6:
+                     damage = 12000;
+                     break;
+                 default:
+                     damage = 20000 + 1000 * (GetStackAmount() - 7);
+                     break;
+             }
+             if (damage)
+             {
+                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                 args.AddSpellBP0(damage);
+                 caster->CastSpell(GetTarget(), SPELL_MARK_DAMAGE, args);
+             }
+         }
+     }
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 damage;
-                    switch (GetStackAmount())
-                    {
-                        case 1:
-                            damage = 0;
-                            break;
-                        case 2:
-                            damage = 500;
-                            break;
-                        case 3:
-                            damage = 1000;
-                            break;
-                        case 4:
-                            damage = 1500;
-                            break;
-                        case 5:
-                            damage = 4000;
-                            break;
-                        case 6:
-                            damage = 12000;
-                            break;
-                        default:
-                            damage = 20000 + 1000 * (GetStackAmount() - 7);
-                            break;
-                    }
-                    if (damage)
-                        caster->CastCustomSpell(SPELL_MARK_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget());
-                }
-            }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_four_horsemen_mark_AuraScript();
-        }
+     void Register() override
+     {
+         AfterEffectApply += AuraEffectApplyFn(spell_four_horsemen_mark::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+     }
 };
+
+ class spell_four_horsemen_consumption : public SpellScript
+ {
+     PrepareSpellScript(spell_four_horsemen_consumption);
+
+     void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+     {
+         uint32 damage = GetCaster()->GetMap()->IsHeroic() ? 4250 : 2750;
+         SetEffectValue(damage);
+     }
+
+     void Register() override
+     {
+         OnEffectLaunchTarget += SpellEffectFn(spell_four_horsemen_consumption::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+     }
+ };
 
 void AddSC_boss_four_horsemen()
 {
@@ -750,5 +760,6 @@ void AddSC_boss_four_horsemen()
     new boss_four_horsemen_thane();
     new boss_four_horsemen_lady();
     new boss_four_horsemen_sir();
-    new spell_four_horsemen_mark();
+    RegisterAuraScript(spell_four_horsemen_mark);
+    RegisterSpellScript(spell_four_horsemen_consumption);
 }

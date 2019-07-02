@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -102,7 +102,7 @@ class npc_ioc_gunship_captain : public CreatureScript
                 if (action == ACTION_GUNSHIP_READY)
                 {
                     DoCast(me, SPELL_SIMPLE_TELEPORT);
-                    _events.ScheduleEvent(EVENT_TALK, 3000);
+                    _events.ScheduleEvent(EVENT_TALK, 3s);
                 }
             }
 
@@ -114,7 +114,7 @@ class npc_ioc_gunship_captain : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TALK:
-                            _events.ScheduleEvent(EVENT_DESPAWN, 1000);
+                            _events.ScheduleEvent(EVENT_DESPAWN, 1s);
                             Talk(SAY_ONBOARD);
                             DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
                             break;
@@ -190,6 +190,7 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
+                PreventDefaultAction();
                 if (Player* target = GetTarget()->ToPlayer())
                     if (target->m_movementInfo.fallTime > 2000 && !target->GetTransport())
                         target->CastSpell(target, SPELL_PARACHUTE_IC, true);

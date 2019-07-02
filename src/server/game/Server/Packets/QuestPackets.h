@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,8 +52,8 @@ namespace WorldPackets
             uint32 SuggestedGroupNum        = 0;
             int32  AllowableRaces           = -1;
 
-            uint32 RequiredFactionId[BG_TEAMS_COUNT]  = { };  // shown in quest log as part of quest objective (same/opposite faction)
-            int32  RequiredFactionValue[BG_TEAMS_COUNT]  = { };  // shown in quest log as part of quest objective (same/opposite faction)
+            uint32 RequiredFactionId[PVP_TEAMS_COUNT]  = { };  // shown in quest log as part of quest objective (same/opposite faction)
+            int32  RequiredFactionValue[PVP_TEAMS_COUNT]  = { };  // shown in quest log as part of quest objective (same/opposite faction)
 
             uint32 RewardNextQuest          = 0;    // client will request this quest from NPC, if not 0
             uint32 RewardXPDifficulty       = 0;    // used for calculating rewarded experience

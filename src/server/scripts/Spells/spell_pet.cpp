@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -262,7 +262,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (_tempBonus)
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     uint32 healthMod = 0;
                     uint32 baseHealth = pInfo->health;
                     switch (pet->GetEntry())
@@ -294,7 +294,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     pet->ToPet()->SetCreateHealth(pInfo->health);
                 }
         }
@@ -408,7 +408,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (_tempBonus)
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     uint32 manaMod = 0;
                     uint32 baseMana = pInfo->mana;
                     switch (pet->GetEntry())
@@ -436,7 +436,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     pet->ToPet()->SetCreateMana(pInfo->mana);
                 }
         }
@@ -1724,7 +1724,8 @@ public:
                 if (pet->IsGuardian())
                     ((Guardian*)pet)->SetBonusDamage(owner->GetTotalAttackPowerValue(BASE_ATTACK));
 
-                amount += owner->CalculateDamage(BASE_ATTACK, true, true);
+                for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+                    amount += owner->CalculateDamage(BASE_ATTACK, true, true, i);
             }
         }
 

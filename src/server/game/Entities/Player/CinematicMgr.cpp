@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -114,7 +114,7 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
         lastPosition.Relocate(cam.locations);
         lastTimestamp = cam.timeStamp;
     }
-    float angle = lastPosition.GetAngle(&nextPosition);
+    float angle = lastPosition.GetAbsoluteAngle(&nextPosition);
     angle -= lastPosition.GetOrientation();
     if (angle < 0)
         angle += 2 * float(M_PI);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,15 @@
 #include "SpellMgr.h"
 
 #include "Packets/QueryPackets.h"
+
+bool ItemTemplate::HasSignature() const
+{
+    return GetMaxStackSize() == 1 &&
+        Class != ITEM_CLASS_CONSUMABLE &&
+        Class != ITEM_CLASS_QUEST &&
+        (Flags & ITEM_FLAG_NO_CREATOR) == 0 &&
+        ItemId != 6948; /*Hearthstone*/
+}
 
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
@@ -149,12 +158,8 @@ void ItemTemplate::_LoadTotalAP()
 
 void ItemTemplate::InitializeQueryData()
 {
-    WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
-    {
-        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
-        QueryData[loc] = queryTemp;
-    }
+        QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc));
 }
 
 WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
@@ -270,5 +275,7 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
     response.Stats.ItemLimitCategory = ItemLimitCategory;
     response.Stats.HolidayId = HolidayId;
 
-    return *response.Write();
+    response.Write();
+    response.ShrinkToFit();
+    return response.Move();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -317,14 +317,14 @@ public:
                         break;
                     case 6:
                         SummonRingMob();
-                        Event_Timer = 0;
+                        Event_Timer = 5000;
                         break;
                     case 7:
                         me->SetVisible(true);
                         HandleGameObject(DATA_ARENA1, false);
                         Talk(SAY_TEXT6);
                         CanWalk = true;
-                        Event_Timer = 0;
+                        Event_Timer = 5000;
                         break;
                     case 8:
                         HandleGameObject(DATA_ARENA2, true);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -102,6 +102,11 @@ BoundaryUnionBoundary::BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundar
     AreaBoundary(isInverted), _b1(b1), _b2(b2)
 {
     ASSERT(b1 && b2);
+}
+BoundaryUnionBoundary::~BoundaryUnionBoundary()
+{
+    delete _b1;
+    delete _b2;
 }
 bool BoundaryUnionBoundary::IsWithinBoundaryArea(Position const* pos) const
 {

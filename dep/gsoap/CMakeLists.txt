@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -17,6 +17,10 @@ set_target_properties(gsoap PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(gsoap
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(gsoap
+  PRIVATE
+    trinity-dependency-interface)
 
 set_target_properties(gsoap
     PROPERTIES

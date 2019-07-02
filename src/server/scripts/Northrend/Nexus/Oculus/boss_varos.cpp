@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,17 +84,17 @@ class boss_varos : public CreatureScript
             {
                 _Reset();
 
-                events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20, 25) * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
+                events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, 20s, 25s);
+                events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5s);
                 // not sure if this is handled by a timer or hp percentage
-                events.ScheduleEvent(EVENT_CALL_AZURE, urand(15, 30) * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_CALL_AZURE, 15s, 30s);
 
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 Talk(SAY_AGGRO);
             }
@@ -132,19 +132,19 @@ class boss_varos : public CreatureScript
                                 coreEnergizeOrientation = Position::NormalizeOrientation(coreEnergizeOrientation - 2.0f);
 
                             DoCast(me, SPELL_ENERGIZE_CORES_VISUAL);
-                            events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
-                            events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4000);
+                            events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5s);
+                            events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4s);
                             break;
                         case EVENT_CALL_AZURE:
                             // not sure how blizz handles this, i cant see any pattern between the differnt spells
                             DoCast(me, SPELL_CALL_AZURE_RING_CAPTAIN);
                             Talk(SAY_AZURE);
                             Talk(SAY_AZURE_EMOTE);
-                            events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_CALL_AZURE, 20s, 25s);
                             break;
                         case EVENT_AMPLIFY_MAGIC:
                             DoCastVictim(SPELL_CALL_AMPLIFY_MAGIC);
-                            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17, 20) * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, 17s, 20s);
                             break;
                         default:
                             break;
@@ -336,7 +336,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
+                    float angle = varos->GetAbsoluteAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
                     float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)
@@ -380,7 +380,7 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
 
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    float angle = varos->GetAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
+                    float angle = varos->GetAbsoluteAngle((*itr)->GetPositionX(), (*itr)->GetPositionY());
                     float diff = std::fabs(orientation - angle);
 
                     if (diff > 1.0f)

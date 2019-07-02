@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@
 
 #ifndef _WIN32
     #include <cstddef>
+    #include <cstring>
     #include <dirent.h>
 #else
     #include <Windows.h>
@@ -33,20 +34,6 @@
 #ifndef _WIN32
     #include <cerrno>
 #endif
-
-enum NavTerrain
-{
-    NAV_EMPTY   = 0x00,
-    NAV_GROUND  = 0x01,
-    NAV_MAGMA   = 0x02,
-    NAV_SLIME   = 0x04,
-    NAV_WATER   = 0x08,
-    NAV_UNUSED1 = 0x10,
-    NAV_UNUSED2 = 0x20,
-    NAV_UNUSED3 = 0x40,
-    NAV_UNUSED4 = 0x80
-    // we only have 8 bits
-};
 
 namespace MMAP
 {
@@ -120,7 +107,7 @@ namespace MMAP
             errno = 0;
             if ((dp = readdir(dirp)) != nullptr)
             {
-                if (matchWildcardFilter(filter.c_str(), dp->d_name))
+                if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0 && matchWildcardFilter(filter.c_str(), dp->d_name))
                     fileList.push_back(std::string(dp->d_name));
             }
             else

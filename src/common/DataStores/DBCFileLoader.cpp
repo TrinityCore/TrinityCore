@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -119,7 +119,7 @@ DBCFileLoader::~DBCFileLoader()
 
 DBCFileLoader::Record DBCFileLoader::getRecord(size_t id)
 {
-    assert(data);
+    ASSERT(data);
     return Record(*this, data + id * recordSize);
 }
 

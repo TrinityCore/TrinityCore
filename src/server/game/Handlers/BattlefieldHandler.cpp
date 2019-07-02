@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -37,7 +38,7 @@ void WorldSession::SendBfInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint3
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 12);
     data << uint32(battleId);
     data << uint32(zoneId);
-    data << uint32(time(nullptr) + acceptTime);
+    data << uint32(GameTime::GetGameTime() + acceptTime);
     SendPacket(&data);
 }
 

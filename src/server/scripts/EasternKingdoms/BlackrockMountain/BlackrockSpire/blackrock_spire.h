@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -75,7 +75,8 @@ enum BRSCreaturesIds
     NPC_BLACKHAND_VETERAN           = 9819,
     NPC_BLACKHAND_INCARCERATOR      = 10316,
     NPC_LORD_VICTOR_NEFARIUS        = 10162,
-    NPC_SCARSHIELD_INFILTRATOR      = 10299
+    NPC_SCARSHIELD_INFILTRATOR      = 10299,
+    NPC_FINKLE_EINHORN              = 10776
 };
 
 enum BRSAdditionalData
@@ -85,7 +86,8 @@ enum BRSAdditionalData
     EVENT_PYROGUARD_EMBERSEER       = 4884,
     AREATRIGGER                     = 1,
     AREATRIGGER_DRAGONSPIRE_HALL    = 2046,
-    AREATRIGGER_BLACKROCK_STADIUM   = 2026
+    AREATRIGGER_BLACKROCK_STADIUM   = 2026,
+    SAY_FINKLE_GANG                 = 0
 };
 
 enum BRSGameObjectsIds
@@ -127,5 +129,7 @@ inline AI* GetBlackrockSpireAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, BRSScriptName);
 }
+
+#define RegisterBlackrockSpireCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackrockSpireAI)
 
 #endif

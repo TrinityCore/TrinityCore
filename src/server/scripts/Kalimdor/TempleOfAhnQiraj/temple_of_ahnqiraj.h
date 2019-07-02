@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,22 +24,33 @@
 #define AQ40ScriptName "instance_temple_of_ahnqiraj"
 #define DataHeader "AQT"
 
+uint32 const EncounterCount = 9;
+
 enum AQTDataTypes
 {
-    DATA_SKERAM             = 1,
-    DATA_KRI                = 2,
-    DATA_VEM                = 3,
-    DATA_VEMISDEAD          = 4,
-    DATA_VEM_DEATH          = 5,
-    DATA_VEKLOR             = 6,
-    DATA_VEKLORISDEAD       = 7,
-    DATA_VEKLOR_DEATH       = 8,
-    DATA_VEKNILASH          = 9,
-    DATA_VEKNILASHISDEAD    = 10,
-    DATA_VEKNILASH_DEATH    = 11,
-    DATA_BUG_TRIO_DEATH     = 14,
-    DATA_CTHUN_PHASE        = 20,
-    DATA_VISCIDUS           = 21
+    DATA_SKERAM             = 0,
+    DATA_SARTURA            = 1,
+    DATA_FRANKRIS           = 2,
+    DATA_HUHURAN            = 3,
+    DATA_TWIN_EMPERORS      = 4,
+    DATA_CTHUN              = 5,
+    DATA_BUG_TRIO           = 6,
+    DATA_VISCIDUS           = 7,
+    DATA_OURO               = 8,
+
+    // Others
+    DATA_KRI                = 9,
+    DATA_VEM                = 10,
+    DATA_VEMISDEAD          = 11,
+    DATA_VEM_DEATH          = 12,
+    DATA_VEKLOR             = 13,
+    DATA_VEKLORISDEAD       = 14,
+    DATA_VEKLOR_DEATH       = 15,
+    DATA_VEKNILASH          = 16,
+    DATA_VEKNILASHISDEAD    = 17,
+    DATA_VEKNILASH_DEATH    = 18,
+    DATA_BUG_TRIO_DEATH     = 19,
+    DATA_CTHUN_PHASE        = 20
 };
 
 enum AQTCreatures
@@ -62,7 +73,15 @@ enum AQTCreatures
     NPC_VEM                 = 15544,
     NPC_KRI                 = 15511,
     NPC_VEKLOR              = 15276,
-    NPC_VEKNILASH           = 15275
+    NPC_VEKNILASH           = 15275,
+    NPC_SARTURA             = 15516
+};
+
+enum ObjectsAQ40
+{
+    AQ40_DOOR_1 = 180634,
+    AQ40_DOOR_2 = 180635,
+    AQ40_DOOR_3 = 180636
 };
 
 template <class AI, class T>

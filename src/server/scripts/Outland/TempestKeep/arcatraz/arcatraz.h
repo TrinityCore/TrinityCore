@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,7 +49,8 @@ enum AZCreatureIds
     NPC_DALLIAH                                 = 20885,
     NPC_SOCCOTHRATES                            = 20886,
     NPC_MELLICHAR                               = 20904, // skyriss will kill this unit
-    NPC_ALPHA_POD_TARGET                        = 21436
+    NPC_ALPHA_POD_TARGET                        = 21436,
+    NPC_MILLHOUSE                               = 20977
 };
 
 enum AZGameObjectIds
@@ -62,6 +63,11 @@ enum AZGameObjectIds
     GO_STASIS_POD_GAMMA                         = 183962, // pod fourth boss wave
     GO_STASIS_POD_OMEGA                         = 183965, // pod fifth boss wave
     GO_WARDENS_SHIELD                           = 184802  // shield 'protecting' mellichar
+};
+
+enum AZSpellIds
+{
+    SPELL_QID_10886                             = 39564
 };
 
 template <class AI, class T>

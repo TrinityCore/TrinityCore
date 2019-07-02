@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -51,9 +51,9 @@ public:
             _Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_FRENZY,      20000);
             events.ScheduleEvent(EVENT_KNOCK_AWAY,  18000);
         }
@@ -79,11 +79,11 @@ public:
                 {
                     case EVENT_FRENZY:
                         DoCastVictim(SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 60000);
+                        events.ScheduleEvent(EVENT_FRENZY, 1min);
                         break;
                     case EVENT_KNOCK_AWAY:
                         DoCastVictim(SPELL_KNOCK_AWAY);
-                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12000);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s);
                         break;
                     default:
                         break;

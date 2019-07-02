@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -96,14 +96,14 @@ class boss_faerlina : public CreatureScript
                 SummonAdds();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 summons.DoZoneInCombat();
                 events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
                 events.ScheduleEvent(EVENT_FIRE, randtime(Seconds(6), Seconds(18)));
-                events.ScheduleEvent(EVENT_FRENZY, Minutes(1)+randtime(Seconds(0), Seconds(20)));
+                events.ScheduleEvent(EVENT_FRENZY, Minutes(1)+randtime(0s, Seconds(20)));
             }
 
             void Reset() override
@@ -130,7 +130,7 @@ class boss_faerlina : public CreatureScript
                 {
                     ++_frenzyDispels;
                     Talk(EMOTE_WIDOW_EMBRACE, caster);
-                    me->Kill(caster);
+                    Unit::Kill(me, caster);
                 }
             }
 
@@ -173,7 +173,7 @@ class boss_faerlina : public CreatureScript
                             {
                                 DoCast(SPELL_FRENZY);
                                 Talk(EMOTE_FRENZY);
-                                events.Repeat(Minutes(1) + randtime(Seconds(0), Seconds(20)));
+                                events.Repeat(Minutes(1) + randtime(0s, Seconds(20)));
                             }
                             break;
                     }
@@ -215,10 +215,10 @@ class npc_faerlina_add : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FAERLINA)))
-                    faerlina->AI()->DoZoneInCombat(nullptr, 250.0f);
+                    faerlina->AI()->DoZoneInCombat();
             }
 
             void JustDied(Unit* /*killer*/) override

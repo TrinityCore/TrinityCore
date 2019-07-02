@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -57,9 +57,7 @@ enum SPCreaturesIds
     NPC_SHAMAN_BONFIRE_BUNNY_002         = 25973,
     NPC_SHAMAN_BEAM_BUNNY_000            = 25964,
     NPC_SHAMAN_BEAM_BUNNY_001            = 25965,
-    NPC_SHAMAN_BEAM_BUNNY_002            = 25966,
-    NPC_WHISP_DEST_BUNNY                 = 26120,
-    NPC_WHISP_SOURCE_BUNNY               = 26121
+    NPC_SHAMAN_BEAM_BUNNY_002            = 25966
 };
 
 enum SPGameObjectIds
@@ -73,5 +71,7 @@ inline AI* GetSlavePensAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SPScriptName);
 }
+
+#define RegisterSlavePensCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSlavePensAI)
 
 #endif // SLAVE_PENS_H

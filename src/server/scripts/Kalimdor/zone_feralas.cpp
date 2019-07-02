@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -108,7 +108,7 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             //For an small probability the npc says something when he get aggro
             if (urand(0, 9) > 7)
@@ -149,10 +149,10 @@ public:
 ## spell_gordunni_trap
 ######*/
 
-enum GordunniTrap
+enum GordunniTrapSpells
 {
-    GO_GORDUNNI_DIRT_MOUND_1 = 144064,
-    GO_GORDUNNI_DIRT_MOUND_2 = 177681
+    SPELL_GORDUNNI_DIRT_MOUND_CHEST = 11756,
+    SPELL_GORDUNNI_DIRT_MOUND_JUNK = 19394
 };
 
 class spell_gordunni_trap : public SpellScriptLoader
@@ -166,12 +166,8 @@ class spell_gordunni_trap : public SpellScriptLoader
 
             void HandleDummy()
             {
-                Unit* caster = GetCaster();
-                if (GameObject* chest = caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, QuaternionData(), 0))
-                {
-                    chest->SetSpellId(GetSpellInfo()->Id);
-                    caster->RemoveGameObject(chest, false);
-                }
+                GameObject* caster = GetGObjCaster();
+                caster->CastSpell(caster, urand(0, 1) ? SPELL_GORDUNNI_DIRT_MOUND_CHEST : SPELL_GORDUNNI_DIRT_MOUND_JUNK);
             }
 
             void Register() override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -182,7 +182,7 @@ public:
             Start(false, false);
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
@@ -354,6 +354,7 @@ public:
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 2:
                     CloseGossipMenuFor(player);
+                    m_uiEventId = urand(EVENT_OZ, EVENT_RAJ);
                     StartEvent();
                     break;
                 case GOSSIP_ACTION_INFO_DEF + 3:
@@ -481,7 +482,7 @@ public:
                 me->DespawnOrUnsummon();
             }
         }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void MovementInform(uint32 type, uint32 id) override
         {
@@ -559,6 +560,7 @@ public:
                 {
                     arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
                     arca->setActive(true);
+                    arca->SetFarVisible(true);
                     arca->InterruptNonMeleeSpells(true);
                     arca->SetSpeedRate(MOVE_FLIGHT, 2.0f);
                 }
@@ -584,7 +586,7 @@ public:
             }
             case 15:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->DealDamage(arca, arca->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    arca->KillSelf();
                 return 5000;
             default:
                 return 9999999;
