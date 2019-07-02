@@ -12058,7 +12058,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
             break;
     }
 
-    if (Player* player = ToPlayer())
+    if (Player const* player = ToPlayer())
     {
         switch (form)
         {
