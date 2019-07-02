@@ -23,6 +23,7 @@
 #include "Hash.h"
 #include <array>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 class Creature;
