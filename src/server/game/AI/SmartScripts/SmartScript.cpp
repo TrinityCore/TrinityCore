@@ -3503,7 +3503,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                     }
 
                     // Set object to non-active if there's nothing else to process
-                    if (isActionListOver && !wasActiveBeforeStartingActionList))
+                    if (isActionListOver && !wasActiveBeforeStartingActionList)
                         GetBaseObject()->setActive(false);
                     wasActiveBeforeStartingActionList = false;
                 }
