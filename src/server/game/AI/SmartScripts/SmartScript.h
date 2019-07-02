@@ -104,6 +104,7 @@ class TC_GAME_API SmartScript
         SmartAIEventList mTimedActionList;
         ObjectGuid mTimedActionListInvoker;
         bool isProcessingTimedActionList;
+        bool wasActiveBeforeStartingActionList;
         Creature* me;
         ObjectGuid meOrigGUID;
         GameObject* go;
