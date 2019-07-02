@@ -199,7 +199,7 @@ void Quest::LoadQuestMailSender(Field* fields)
     _rewardMailSenderEntry = fields[1].GetUInt32();
 }
 
-uint32 Quest::XPValue(Player* player) const
+uint32 Quest::GetXPReward(Player const* player) const
 {
     if (player)
     {
@@ -227,14 +227,17 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-int32 Quest::GetRewOrReqMoney() const
+int32 Quest::GetRewOrReqMoney(Player const* player) const
 {
     // RequiredMoney: the amount is the negative copper sum.
-    if (_rewardMoney <= 0)
+    if (_rewardMoney < 0)
         return _rewardMoney;
 
     // RewardMoney: the positive amount
-    return int32(_rewardMoney * sWorld->getRate(RATE_MONEY_QUEST));
+    if (!player || player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        return int32(_rewardMoney * sWorld->getRate(RATE_MONEY_QUEST));
+    else // At level cap, the money reward is the maximum amount between normal and bonus money reward
+        return std::max(int32(GetRewMoneyMaxLevel()), int32(_rewardMoney * sWorld->getRate(RATE_MONEY_QUEST)));
 }
 
 uint32 Quest::GetRewMoneyMaxLevel() const
