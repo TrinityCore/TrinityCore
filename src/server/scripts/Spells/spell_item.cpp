@@ -1646,9 +1646,9 @@ class spell_item_savory_deviate_delight : public SpellScript
         switch (urand(1, 2))
         {
             // Flip Out - ninja
-            case 1: spellId = (caster->GetGender() == GENDER_MALE ? SPELL_FLIP_OUT_MALE : SPELL_FLIP_OUT_FEMALE); break;
+            case 1: spellId = (caster->GetNativeGender() == GENDER_MALE ? SPELL_FLIP_OUT_MALE : SPELL_FLIP_OUT_FEMALE); break;
             // Yaaarrrr - pirate
-            case 2: spellId = (caster->GetGender() == GENDER_MALE ? SPELL_YAAARRRR_MALE : SPELL_YAAARRRR_FEMALE); break;
+            case 2: spellId = (caster->GetNativeGender() == GENDER_MALE ? SPELL_YAAARRRR_MALE : SPELL_YAAARRRR_FEMALE); break;
         }
         caster->CastSpell(caster, spellId, true);
     }
@@ -3539,7 +3539,7 @@ class spell_item_toy_train_set_pulse : public SpellScript
         if (Player* target = GetHitUnit()->ToPlayer())
         {
             target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
-            if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->GetRace(), target->GetGender()))
+            if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->GetRace(), target->GetNativeGender()))
                 target->PlayDistanceSound(soundEntry->SoundId);
         }
     }

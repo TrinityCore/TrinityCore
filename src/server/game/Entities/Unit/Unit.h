@@ -249,7 +249,6 @@ enum UnitState : uint32
     UNIT_STATE_UNATTACKABLE        = UNIT_STATE_IN_FLIGHT,
     UNIT_STATE_MOVING              = UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE,
     UNIT_STATE_CONTROLLED          = UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING,
-    UNIT_STATE_CANT_CLIENT_CONTROL = UNIT_STATE_CHARMED | UNIT_STATE_FLEEING | UNIT_STATE_CONFUSED | UNIT_STATE_POSSESSED,
     UNIT_STATE_LOST_CONTROL        = UNIT_STATE_CONTROLLED | UNIT_STATE_POSSESSED | UNIT_STATE_JUMPING | UNIT_STATE_CHARGING,
     UNIT_STATE_CANNOT_AUTOATTACK   = UNIT_STATE_CONTROLLED | UNIT_STATE_CHARGING | UNIT_STATE_CASTING,
     UNIT_STATE_SIGHTLESS           = UNIT_STATE_LOST_CONTROL | UNIT_STATE_EVADE,
@@ -855,6 +854,9 @@ class TC_GAME_API Unit : public WorldObject
         uint8 GetClass() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS); }
         uint32 GetClassMask() const { return 1 << (GetClass() - 1); }
         uint8 GetGender() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER); }
+        void SetGender(uint8 gender) { SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, gender); }
+        virtual uint8 GetNativeGender() const { return GetGender(); }
+        virtual void SetNativeGender(uint8 gender) { SetGender(gender); }
 
         float GetStat(Stats stat) const { return float(GetUInt32Value(UNIT_FIELD_STAT0+stat)); }
         void SetStat(Stats stat, int32 val) { SetStatInt32Value(UNIT_FIELD_STAT0+stat, val); }

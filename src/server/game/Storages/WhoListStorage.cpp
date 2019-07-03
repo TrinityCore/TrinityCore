@@ -55,7 +55,7 @@ void WhoListStorageMgr::Update()
         wstrToLower(wideGuildName);
 
         _whoListStorage.emplace_back(itr->second->GetGUID(), itr->second->GetTeam(), itr->second->GetSession()->GetSecurity(), itr->second->GetLevel(),
-            itr->second->GetClass(), itr->second->GetRace(), itr->second->GetZoneId(), itr->second->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER), itr->second->IsVisible(),
+            itr->second->GetClass(), itr->second->GetRace(), itr->second->GetZoneId(), itr->second->GetNativeGender(), itr->second->IsVisible(),
             widePlayerName, wideGuildName, playerName, guildName);
     }
 }
