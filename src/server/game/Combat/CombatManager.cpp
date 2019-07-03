@@ -343,7 +343,7 @@ bool CombatManager::UpdateOwnerCombatState() const
     {
         _owner->RemoveUnitFlag(UNIT_FLAG_IN_COMBAT);
         _owner->AtExitCombat();
-        if (_owner->IsEngaged() && !(_owner->ToCreature() && _owner->ToCreature()->IsAIEnabled()))
+        if (_owner->IsEngaged() && !(_owner->ToCreature() && _owner->CanHaveThreatList() && _owner->ToCreature()->IsAIEnabled()))
             _owner->AtDisengage();
     }
 
