@@ -2557,7 +2557,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     SendLogXPGain(xp, victim, bonus_xp, recruitAFriend, group_rate);
 
     uint32 nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
-    uint32 newXP = GetPlayerXP() + xp + bonus_xp;
+    uint32 newXP = GetXP() + xp + bonus_xp;
 
     while (newXP >= nextLvlXP && level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
@@ -2570,7 +2570,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
         nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
     }
 
-    SetPlayerXP(newXP);
+    SetXP(newXP);
 }
 
 // Update player to next level
@@ -17126,7 +17126,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     }
 
     SetLevel(fields[6].GetUInt8(), false);
-    SetPlayerXP(fields[7].GetUInt32());
+    SetXP(fields[7].GetUInt32());
 
     _LoadIntoDataField(fields[66].GetString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
     _LoadIntoDataField(fields[69].GetString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE * 2);
@@ -19231,7 +19231,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, GetClass());
         stmt->setUInt8(index++, GetNativeGender());   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, GetLevel());
-        stmt->setUInt32(index++, GetPlayerXP());
+        stmt->setUInt32(index++, GetXP());
         stmt->setUInt32(index++, GetMoney());
         stmt->setUInt8(index++, GetSkinId());
         stmt->setUInt8(index++, GetFaceId());
@@ -19341,7 +19341,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, GetClass());
         stmt->setUInt8(index++, GetNativeGender());   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, GetLevel());
-        stmt->setUInt32(index++, GetPlayerXP());
+        stmt->setUInt32(index++, GetXP());
         stmt->setUInt32(index++, GetMoney());
         stmt->setUInt8(index++, GetSkinId());
         stmt->setUInt8(index++, GetFaceId());
