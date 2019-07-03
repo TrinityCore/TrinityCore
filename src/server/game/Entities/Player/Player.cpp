@@ -25762,7 +25762,7 @@ void Player::SetClientControl(Unit* target, bool allowMove)
     }
 
     // still affected by some aura that shouldn't allow control, only allow on last such aura to be removed
-    if (target->HasUnitState(UNIT_STATE_CONTROLLED))
+    if (target->HasUnitState(UNIT_STATE_FLEEING | UNIT_STATE_CONFUSED))
         allowMove = false;
 
     WorldPackets::Movement::ControlUpdate data;
