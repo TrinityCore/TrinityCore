@@ -82,7 +82,7 @@ void CharacterCache::LoadCharacterCacheStorage()
     {
         Field* fields = result->Fetch();
         AddCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32()) /*guid*/, fields[2].GetUInt32() /*account*/, fields[1].GetString() /*name*/,
-            fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
+            Gender(fields[4].GetUInt8()), Races(fields[3].GetUInt8()), Classes(fields[5].GetUInt8()), fields[6].GetUInt8() /*level*/);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", "Loaded character infos for " SZFMTD " characters in %u ms", _characterCacheStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -91,7 +91,7 @@ void CharacterCache::LoadCharacterCacheStorage()
 /*
 Modifying functions
 */
-void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, Gender gender, Races race, Classes playerClass, uint8 level)
 {
     CharacterCacheEntry& data = _characterCacheStore[guid];
     data.Guid = guid;
@@ -115,7 +115,7 @@ void CharacterCache::DeleteCharacterCacheEntry(ObjectGuid const& guid, std::stri
     _characterCacheByNameStore.erase(name);
 }
 
-void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string const& name, uint8* gender /*= nullptr*/, uint8* race /*= nullptr*/)
+void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string const& name, Gender* gender /*= nullptr*/, Races* race /*= nullptr*/)
 {
     auto itr = _characterCacheStore.find(guid);
     if (itr == _characterCacheStore.end())

@@ -813,9 +813,9 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     static size_t const BUFFER_SIZE = 32000;
     char buf[BUFFER_SIZE] = { };
 
-    uint8 gender = GENDER_NONE;
-    uint8 race = RACE_NONE;
-    uint8 playerClass = CLASS_NONE;
+    Gender gender = GENDER_NONE;
+    Races race = RACE_NONE;
+    Classes playerClass = CLASS_NONE;
     uint8 level = 1;
 
     // for logs
@@ -921,9 +921,9 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         {
             case DTT_CHARACTER:
             {
-                race = uint8(atoul(GetColumn(ts, line, "race").c_str()));
-                playerClass = uint8(atoul(GetColumn(ts, line, "class").c_str()));
-                gender = uint8(atoul(GetColumn(ts, line, "gender").c_str()));
+                race = Races(atoul(GetColumn(ts, line, "race").c_str()));
+                playerClass = Classes(atoul(GetColumn(ts, line, "class").c_str()));
+                gender = Gender(atoul(GetColumn(ts, line, "gender").c_str()));
                 level = uint8(atoul(GetColumn(ts, line, "level").c_str()));
                 if (name.empty())
                 {

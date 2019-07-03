@@ -236,7 +236,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
                     _legitCharacters.insert(guid);
 
                 if (!sCharacterCache->HasCharacterCacheEntry(guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                    sCharacterCache->AddCharacterCacheEntry(guid, GetAccountId(), (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[10].GetUInt8());
+                    sCharacterCache->AddCharacterCacheEntry(guid, GetAccountId(), (*result)[1].GetString(), Gender((*result)[4].GetUInt8()), Races((*result)[2].GetUInt8()), Classes((*result)[3].GetUInt8()), (*result)[10].GetUInt8());
                 ++num;
             }
         }
@@ -271,16 +271,21 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 {
     std::shared_ptr<CharacterCreateInfo> createInfo = std::make_shared<CharacterCreateInfo>();
 
+    uint8 race, charClass, gender;
     recvData >> createInfo->Name
-             >> createInfo->Race
-             >> createInfo->Class
-             >> createInfo->Gender
+             >> race
+             >> charClass
+             >> gender
              >> createInfo->Skin
              >> createInfo->Face
              >> createInfo->HairStyle
              >> createInfo->HairColor
              >> createInfo->FacialHair
              >> createInfo->OutfitId;
+
+    createInfo->Race = Races(race);
+    createInfo->Class = Classes(charClass);
+    createInfo->Gender = Gender(gender);
 
     if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_TEAMMASK))
     {
@@ -464,7 +469,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                 uint32 freeDeathKnightSlots = sWorld->getIntConfig(CONFIG_DEATH_KNIGHTS_PER_REALM);
 
                 Field* field = result->Fetch();
-                uint8 accRace = field[1].GetUInt8();
+                Races accRace = Races(field[1].GetUInt8());
 
                 if (checkDeathKnightReqs)
                 {
@@ -512,7 +517,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                         break;
 
                     field = result->Fetch();
-                    accRace = field[1].GetUInt8();
+                    accRace = Races(field[1].GetUInt8());
 
                     if (!haveSameRace)
                         haveSameRace = createInfo->Race == accRace;
@@ -1353,13 +1358,16 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
         return;
     }
 
+    uint8 gender;
     recvData >> customizeInfo->Name
-             >> customizeInfo->Gender
+             >> gender
              >> customizeInfo->Skin
              >> customizeInfo->HairColor
              >> customizeInfo->HairStyle
              >> customizeInfo->FacialHair
              >> customizeInfo->Face;
+
+    customizeInfo->Gender = Gender(gender);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_CUSTOMIZE_INFO);
     stmt->setUInt32(0, customizeInfo->Guid.GetCounter());
@@ -1606,15 +1614,18 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         return;
     }
 
+    uint8 gender, race;
     recvData >> factionChangeInfo->Name
-             >> factionChangeInfo->Gender
+             >> gender
              >> factionChangeInfo->Skin
              >> factionChangeInfo->HairColor
              >> factionChangeInfo->HairStyle
              >> factionChangeInfo->FacialHair
              >> factionChangeInfo->Face
-             >> factionChangeInfo->Race;
+             >> race;
 
+    factionChangeInfo->Gender = Gender(gender);
+    factionChangeInfo->Race = Races(race);
     factionChangeInfo->FactionChange = (recvData.GetOpcode() == CMSG_CHAR_FACTION_CHANGE);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_RACE_OR_FACTION_CHANGE_INFOS);
@@ -1640,9 +1651,9 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
         return;
     }
 
-    uint8 oldRace     = characterInfo->Race;
-    uint8 playerClass = characterInfo->Class;
-    uint8 level       = characterInfo->Level;
+    Races oldRace       = characterInfo->Race;
+    Classes playerClass = characterInfo->Class;
+    uint8 level         = characterInfo->Level;
     //std::string oldName = characterInfo->Name;
 
     if (!sObjectMgr->GetPlayerInfo(factionChangeInfo->Race, playerClass))

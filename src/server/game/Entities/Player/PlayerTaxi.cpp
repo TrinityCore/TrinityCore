@@ -21,7 +21,7 @@
 #include "Player.h"
 #include <sstream>
 
-void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
+void PlayerTaxi::InitTaxiNodesForLevel(Races race, Classes chrClass, uint8 level)
 {
     // class specific initial known nodes
     switch (chrClass)

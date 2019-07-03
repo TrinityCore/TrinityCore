@@ -1978,7 +1978,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_GENDER:
         {
-            if (!Player::IsValidGender(uint8(cond->ConditionValue1)))
+            if (!Player::IsValidGender(Gender(cond->ConditionValue1)))
             {
                 TC_LOG_ERROR("sql.sql", "%s has invalid gender (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;

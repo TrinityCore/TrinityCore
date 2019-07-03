@@ -11549,7 +11549,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
-                        SetClass(uint8(cinfo->unit_class));
+                        SetClass(Classes(cinfo->unit_class));
                         if (GetCharmInfo())
                             GetCharmInfo()->SetPetNumber(0, true);
                         else

@@ -810,6 +810,7 @@ enum ReferAFriendError
 
 enum PlayerRestState : uint8
 {
+    REST_STATE_NONE                                  = 0x00,
     REST_STATE_RESTED                                = 0x01,
     REST_STATE_NOT_RAF_LINKED                        = 0x02,
     REST_STATE_RAF_LINKED                            = 0x06
@@ -985,8 +986,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetTotalPlayedTime() const { return m_Played_time[PLAYED_TIME_TOTAL]; }
         uint32 GetLevelPlayedTime() const { return m_Played_time[PLAYED_TIME_LEVEL]; }
 
-        uint8 GetNativeGender() const override { return GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER); }
-        void SetNativeGender(uint8 gender) override { SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER, gender); }
+        Gender GetNativeGender() const override { return Gender(GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)); }
+        void SetNativeGender(Gender gender) override { SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER, gender); }
         uint8 GetSkinId() const { return GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID); }
         void SetSkinId(uint8 skin) { SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID, skin); }
         uint8 GetFaceId() const { return GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID); }
@@ -1003,8 +1004,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         float GetRestBonus() const { return m_rest_bonus; }
         void SetRestBonus(float rest_bonus_new);
 
-        uint8 GetRestState() const { return GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE); }
-        void SetRestState(uint8 restState) { SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE, restState); }
+        PlayerRestState GetRestState() const { return PlayerRestState(GetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE)); }
+        void SetRestState(PlayerRestState restState) { SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_REST_STATE, restState); }
 
         bool HasRestFlag(RestFlag restFlag) const { return (_restFlagMask & restFlag) != 0; }
         void SetRestFlag(RestFlag restFlag, uint32 triggerId = 0);
@@ -1326,7 +1327,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid);
 
-        static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE; }
+        static bool IsValidGender(Gender Gender) { return Gender <= GENDER_FEMALE; }
         static bool ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create = false);
 
         /*********************************************************/
@@ -1746,10 +1747,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void CheckAreaExploreAndOutdoor(void);
 
-        static uint32 TeamForRace(uint8 race);
+        static uint32 TeamForRace(Races race);
         uint32 GetTeam() const { return m_team; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
-        void SetFactionForRace(uint8 race);
+        void SetFactionForRace(Races race);
 
         void InitDisplayIds();
 

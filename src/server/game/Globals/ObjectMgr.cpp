@@ -1648,7 +1648,7 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         modelInfo.bounding_radius      = fields[1].GetFloat();
         modelInfo.combat_reach         = fields[2].GetFloat();
-        modelInfo.gender               = fields[3].GetUInt8();
+        modelInfo.gender               = Gender(fields[3].GetUInt8());
         modelInfo.modelid_other_gender = fields[4].GetUInt32();
         modelInfo.is_trigger           = false;
 

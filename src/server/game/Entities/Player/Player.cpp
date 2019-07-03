@@ -1427,7 +1427,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     ObjectGuid::LowType guid = fields[0].GetUInt32();
     uint8 plrRace = fields[2].GetUInt8();
     uint8 plrClass = fields[3].GetUInt8();
-    uint8 gender = fields[4].GetUInt8();
+    Gender gender = Gender(fields[4].GetUInt8());
 
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(plrRace, plrClass);
     if (!info)
@@ -6482,7 +6482,7 @@ void Player::CheckAreaExploreAndOutdoor()
     }
 }
 
-uint32 Player::TeamForRace(uint8 race)
+uint32 Player::TeamForRace(Races race)
 {
     if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race))
     {
@@ -6499,7 +6499,7 @@ uint32 Player::TeamForRace(uint8 race)
     return ALLIANCE;
 }
 
-void Player::SetFactionForRace(uint8 race)
+void Player::SetFactionForRace(Races race)
 {
     m_team = TeamForRace(race);
 
@@ -17106,15 +17106,15 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // overwrite possible wrong/corrupted guid
     SetGuidValue(OBJECT_FIELD_GUID, guid);
 
-    uint8 gender = fields[5].GetUInt8();
+    Gender gender = Gender(fields[5].GetUInt8());
     if (!IsValidGender(gender))
     {
         TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) has wrong gender (%u), can't load.", guid.ToString().c_str(), gender);
         return false;
     }
 
-    SetRace(fields[3].GetUInt8());
-    SetClass(fields[4].GetUInt8());
+    SetRace(Races(fields[3].GetUInt8()));
+    SetClass(Classes(fields[4].GetUInt8()));
     SetGender(gender);
 
     // check if race/class combination is valid
@@ -17148,8 +17148,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetHairColorId(fields[12].GetUInt8());
     SetFacialStyle(fields[13].GetUInt8());
     SetBankBagSlotCount(fields[14].GetUInt8());
-    SetRestState(fields[15].GetUInt8());
-    SetNativeGender(fields[5].GetUInt8());
+    SetRestState(PlayerRestState(fields[15].GetUInt8()));
+    SetNativeGender(Gender(fields[5].GetUInt8()));
     SetDrunkValue(fields[54].GetUInt8());
 
     if (!ValidateAppearance(
