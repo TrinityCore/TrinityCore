@@ -147,7 +147,7 @@ public:
         target->InitTaxiNodesForLevel();
         target->InitGlyphsForLevel();
         target->InitTalentForLevel();
-        target->SetPlayerXP(0);
+        target->SetXP(0);
 
         target->_ApplyAllLevelScaleItemMods(true);
 
