@@ -27,9 +27,9 @@ struct CharacterCacheEntry
     ObjectGuid Guid;
     std::string Name;
     uint32 AccountId;
-    Classes Class;
-    Races Race;
-    Gender Sex;
+    uint8 Class;
+    uint8 Race;
+    uint8 Sex;
     uint8 Level;
     ObjectGuid::LowType GuildId;
     uint32 ArenaTeamId[3];
@@ -43,10 +43,10 @@ class TC_GAME_API CharacterCache
         static CharacterCache* instance();
 
         void LoadCharacterCacheStorage();
-        void AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, Gender gender, Races race, Classes playerClass, uint8 level);
+        void AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
         void DeleteCharacterCacheEntry(ObjectGuid const& guid, std::string const& name);
 
-        void UpdateCharacterData(ObjectGuid const& guid, std::string const& name, Gender* gender = nullptr, Races* race = nullptr);
+        void UpdateCharacterData(ObjectGuid const& guid, std::string const& name, uint8* gender = nullptr, uint8* race = nullptr);
         void UpdateCharacterLevel(ObjectGuid const& guid, uint8 level);
         void UpdateCharacterAccountId(ObjectGuid const& guid, uint32 accountId);
         void UpdateCharacterGuildId(ObjectGuid const& guid, ObjectGuid::LowType guildId);

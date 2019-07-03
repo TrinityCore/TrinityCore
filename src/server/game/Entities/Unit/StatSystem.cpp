@@ -451,8 +451,6 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             case CLASS_WARLOCK:
                 val2 = GetStat(STAT_STRENGTH) - 10.0f;
                 break;
-            default:
-                break;
         }
     }
 

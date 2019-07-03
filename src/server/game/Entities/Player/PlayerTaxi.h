@@ -32,7 +32,7 @@ class TC_GAME_API PlayerTaxi
         PlayerTaxi() : m_flightMasterFactionId(0) { m_taximask.fill(0); }
         ~PlayerTaxi() { }
         // Nodes
-        void InitTaxiNodesForLevel(Races race, Classes chrClass, uint8 level);
+        void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
         void LoadTaxiMask(std::string const& data);
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const

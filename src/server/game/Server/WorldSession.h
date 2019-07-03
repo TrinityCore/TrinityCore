@@ -216,18 +216,18 @@ class CharacterCreateInfo
     protected:
         /// User specified variables
         std::string Name;
-        Races   Race        = RACE_NONE;
-        Classes Class       = CLASS_NONE;
-        Gender  Gender      = GENDER_NONE;
-        uint8   Skin        = 0;
-        uint8   Face        = 0;
-        uint8   HairStyle   = 0;
-        uint8   HairColor   = 0;
-        uint8   FacialHair  = 0;
-        uint8   OutfitId    = 0;
+        uint8 Race       = 0;
+        uint8 Class      = 0;
+        uint8 Gender     = GENDER_NONE;
+        uint8 Skin       = 0;
+        uint8 Face       = 0;
+        uint8 HairStyle  = 0;
+        uint8 HairColor  = 0;
+        uint8 FacialHair = 0;
+        uint8 OutfitId   = 0;
 
         /// Server side data
-        uint8   CharCount   = 0;
+        uint8 CharCount = 0;
 };
 
 struct CharacterRenameInfo
@@ -245,7 +245,7 @@ struct CharacterCustomizeInfo : public CharacterRenameInfo
     friend class WorldSession;
 
     protected:
-        Gender Gender    = GENDER_NONE;
+        uint8 Gender     = GENDER_NONE;
         uint8 Skin       = 0;
         uint8 Face       = 0;
         uint8 HairStyle  = 0;
@@ -259,8 +259,8 @@ struct CharacterFactionChangeInfo : public CharacterCustomizeInfo
     friend class WorldSession;
 
     protected:
-        Races Race          = RACE_NONE;
-        bool FactionChange  = false;
+        uint8 Race = 0;
+        bool FactionChange = false;
 };
 
 struct PacketCounter

@@ -1091,7 +1091,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if (!cInfo->unit_class || ((1 << (cInfo->unit_class-1)) & CLASSMASK_ALL_CREATURES) == 0)
     {
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid unit_class (%u) in creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo->Entry, cInfo->unit_class);
-        const_cast<CreatureTemplate*>(cInfo)->unit_class = CLASS_WARRIOR;
+        const_cast<CreatureTemplate*>(cInfo)->unit_class = UNIT_CLASS_WARRIOR;
     }
 
     if (cInfo->dmgschool >= MAX_SPELL_SCHOOL)
@@ -1648,7 +1648,7 @@ void ObjectMgr::LoadCreatureModelInfo()
 
         modelInfo.bounding_radius      = fields[1].GetFloat();
         modelInfo.combat_reach         = fields[2].GetFloat();
-        modelInfo.gender               = Gender(fields[3].GetUInt8());
+        modelInfo.gender               = fields[3].GetUInt8();
         modelInfo.modelid_other_gender = fields[4].GetUInt32();
         modelInfo.is_trigger           = false;
 
@@ -3652,7 +3652,7 @@ PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) 
     return &itr->second[level - 1];                         // data for level 1 stored in [0] array element, ...
 }
 
-void ObjectMgr::PlayerCreateInfoAddItemHelper(Races race_, Classes class_, uint32 itemId, int32 count)
+void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count)
 {
     if (!_playerInfo[race_][class_])
         return;
@@ -3792,14 +3792,14 @@ void ObjectMgr::LoadPlayerInfo()
             {
                 Field* fields = result->Fetch();
 
-                Races current_race = Races(fields[0].GetUInt8());
+                uint32 current_race = fields[0].GetUInt8();
                 if (current_race >= MAX_RACES)
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong race %u in `playercreateinfo_item` table, ignoring.", current_race);
                     continue;
                 }
 
-                Classes current_class = Classes(fields[1].GetUInt8());
+                uint32 current_class = fields[1].GetUInt8();
                 if (current_class >= MAX_CLASSES)
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong class %u in `playercreateinfo_item` table, ignoring.", current_class);
@@ -3830,7 +3830,7 @@ void ObjectMgr::LoadPlayerInfo()
                     uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
                     for (uint32 r = min_race; r < max_race; ++r)
                         for (uint32 c = min_class; c < max_class; ++c)
-                            PlayerCreateInfoAddItemHelper(Races(r), Classes(c), item_id, amount);
+                            PlayerCreateInfoAddItemHelper(r, c, item_id, amount);
                 }
                 else
                     PlayerCreateInfoAddItemHelper(current_race, current_class, item_id, amount);
@@ -4339,7 +4339,7 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassL
     *info = pInfo->levelInfo[level - 1];
 }
 
-void ObjectMgr::GetPlayerLevelInfo(Races race, Classes class_, uint8 level, PlayerLevelInfo* info) const
+void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const
 {
     if (level < 1 || race >= MAX_RACES || class_ >= MAX_CLASSES)
         return;
@@ -4354,7 +4354,7 @@ void ObjectMgr::GetPlayerLevelInfo(Races race, Classes class_, uint8 level, Play
         BuildPlayerLevelInfo(race, class_, level, info);
 }
 
-void ObjectMgr::BuildPlayerLevelInfo(Races race, Classes _class, uint8 level, PlayerLevelInfo* info) const
+void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, PlayerLevelInfo* info) const
 {
     // base data (last known level)
     *info = _playerInfo[race][_class]->levelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - 1];
@@ -4426,9 +4426,6 @@ void ObjectMgr::BuildPlayerLevelInfo(Races race, Classes _class, uint8 level, Pl
                 info->stats[STAT_AGILITY]   += (lvl > 38 ? 2: (lvl > 8 && (lvl%2) ? 1: 0));
                 info->stats[STAT_INTELLECT] += (lvl > 38 ? 3: (lvl > 4 ? 1: 0));
                 info->stats[STAT_SPIRIT]    += (lvl > 38 ? 3: (lvl > 5 ? 1: 0));
-                break;
-            default:
-                break;
         }
     }
 }
@@ -8715,7 +8712,7 @@ SpellScriptsBounds ObjectMgr::GetSpellScriptsBounds(uint32 spellId)
 }
 
 // this allows calculating base reputations to offline players, just by race and class
-int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, Races race, Classes playerClass) const
+int32 ObjectMgr::GetBaseReputationOf(FactionEntry const* factionEntry, uint8 race, uint8 playerClass) const
 {
     if (!factionEntry)
         return 0;
@@ -10041,7 +10038,7 @@ DungeonEncounterList const* ObjectMgr::GetDungeonEncounterList(uint32 mapId, Dif
     return nullptr;
 }
 
-PlayerInfo const* ObjectMgr::GetPlayerInfo(Races race, Classes class_) const
+PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
 {
     if (race >= MAX_RACES)
         return nullptr;

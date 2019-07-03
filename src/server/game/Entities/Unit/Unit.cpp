@@ -11549,7 +11549,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
                     {
-                        SetClass(Classes(cinfo->unit_class));
+                        SetClass(uint8(cinfo->unit_class));
                         if (GetCharmInfo())
                             GetCharmInfo()->SetPetNumber(0, true);
                         else
@@ -12333,8 +12333,6 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
             }
             break;
         }
-        default:
-            break;
     }
     return 0;
 }

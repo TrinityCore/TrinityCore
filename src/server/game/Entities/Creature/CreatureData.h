@@ -312,7 +312,7 @@ struct CreatureModelInfo
 {
     float bounding_radius;
     float combat_reach;
-    Gender gender;
+    uint8 gender;
     uint32 modelid_other_gender;
     bool is_trigger;
 };

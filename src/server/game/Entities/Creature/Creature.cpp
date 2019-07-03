@@ -468,7 +468,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetRace(RACE_NONE);
 
     // known valid are: CLASS_WARRIOR, CLASS_PALADIN, CLASS_ROGUE, CLASS_MAGE
-    SetClass(Classes(cinfo->unit_class));
+    SetClass(uint8(cinfo->unit_class));
 
     // Cancel load if no model defined
     if (!(cinfo->GetFirstValidModelId()))
@@ -1401,8 +1401,8 @@ void Creature::UpdateLevelDependantStats()
 
     switch (GetClass())
     {
-        case CLASS_PALADIN:
-        case CLASS_MAGE:
+        case UNIT_CLASS_PALADIN:
+        case UNIT_CLASS_MAGE:
             SetMaxPower(POWER_MANA, mana);
             SetFullPower(POWER_MANA);
             break;
