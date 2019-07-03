@@ -1146,6 +1146,8 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     break;
             }
             break;
+        default:
+            break;
     }
 
     return SelectSpellCast(spells);

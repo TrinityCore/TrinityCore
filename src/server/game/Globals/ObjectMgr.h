@@ -965,9 +965,9 @@ class TC_GAME_API ObjectMgr
 
         void GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassLevelInfo* info) const;
 
-        PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const;
+        PlayerInfo const* GetPlayerInfo(Races race, Classes class_) const;
 
-        void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
+        void GetPlayerLevelInfo(Races race, Classes class_, uint8 level, PlayerLevelInfo* info) const;
 
         std::vector<uint32> const* GetGameObjectQuestItemList(uint32 id) const
         {
@@ -1048,7 +1048,7 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        int32 GetBaseReputationOf(FactionEntry const* factionEntry, uint8 race, uint8 playerClass) const;
+        int32 GetBaseReputationOf(FactionEntry const* factionEntry, Races race, Classes playerClass) const;
 
         RepSpilloverTemplate const* GetRepSpilloverTemplate(uint32 factionId) const
         {
@@ -1605,7 +1605,7 @@ class TC_GAME_API ObjectMgr
     private:
         void LoadScripts(ScriptsType type);
         void LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go);
-        void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
+        void PlayerCreateInfoAddItemHelper(Races race_, Classes class_, uint32 itemId, int32 count);
 
         MailLevelRewardContainer _mailLevelRewardStore;
 
@@ -1616,7 +1616,7 @@ class TC_GAME_API ObjectMgr
 
         std::unique_ptr<PlayerClassInfo> _playerClassInfo[MAX_CLASSES];
 
-        void BuildPlayerLevelInfo(uint8 race, uint8 class_, uint8 level, PlayerLevelInfo* plinfo) const;
+        void BuildPlayerLevelInfo(Races race, Classes class_, uint8 level, PlayerLevelInfo* plinfo) const;
 
         std::unique_ptr<PlayerInfo> _playerInfo[MAX_RACES][MAX_CLASSES];
 

@@ -1386,9 +1386,9 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
 
     Field* fields = result->Fetch();
     std::string oldName = fields[0].GetString();
-    uint8 plrRace = fields[1].GetUInt8();
-    uint8 plrClass = fields[2].GetUInt8();
-    uint8 plrGender = fields[3].GetUInt8();
+    Races plrRace = Races(fields[1].GetUInt8());
+    Classes plrClass = Classes(fields[2].GetUInt8());
+    Gender plrGender = Gender(fields[3].GetUInt8());
     uint16 atLoginFlags = fields[4].GetUInt16();
 
     if (!Player::ValidateAppearance(plrRace, plrClass, plrGender, customizeInfo->HairStyle, customizeInfo->HairColor, customizeInfo->Face, customizeInfo->FacialHair, customizeInfo->Skin, true))
@@ -1823,6 +1823,8 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
                     break;
                 case RACE_BLOODELF:
                     stmt->setUInt16(1, 137);
+                    break;
+                default:
                     break;
             }
 

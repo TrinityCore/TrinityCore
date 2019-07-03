@@ -12333,6 +12333,8 @@ uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
             }
             break;
         }
+        default:
+            break;
     }
     return 0;
 }

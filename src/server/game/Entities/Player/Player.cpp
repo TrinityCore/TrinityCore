@@ -1425,8 +1425,8 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     Field* fields = result->Fetch();
 
     ObjectGuid::LowType guid = fields[0].GetUInt32();
-    uint8 plrRace = fields[2].GetUInt8();
-    uint8 plrClass = fields[3].GetUInt8();
+    Races plrRace = Races(fields[2].GetUInt8());
+    Classes plrClass = Classes(fields[3].GetUInt8());
     Gender gender = Gender(fields[4].GetUInt8());
 
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(plrRace, plrClass);
@@ -1455,7 +1455,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
 
     uint16 atLoginFlags = fields[18].GetUInt16();
 
-    if (!ValidateAppearance(uint8(plrRace), uint8(plrClass), gender, hairStyle, hairColor, face, facialStyle, skin))
+    if (!ValidateAppearance(plrRace, plrClass, gender, hairStyle, hairColor, face, facialStyle, skin))
     {
         TC_LOG_ERROR("entities.player.loading", "Player %u has wrong Appearance values (Hair/Skin/Color), forcing recustomize", guid);
 
@@ -11677,6 +11677,8 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
                         case CLASS_WARRIOR:
                             allowEquip = (itemSkill == SKILL_PLATE_MAIL);
                             break;
+                        default:
+                            break;
                     }
                 }
                 if (!allowEquip && GetSkillValue(itemSkill) == 0)
@@ -17152,10 +17154,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetNativeGender(Gender(fields[5].GetUInt8()));
     SetDrunkValue(fields[54].GetUInt8());
 
-    if (!ValidateAppearance(
-        fields[3].GetUInt8(), // race
-        fields[4].GetUInt8(), // class
-        gender, GetHairStyleId(), GetHairColorId(), GetFaceId(), GetFacialStyle(), GetSkinId()))
+    if (!ValidateAppearance(Races(fields[3].GetUInt8()), Classes(fields[4].GetUInt8()), gender, GetHairStyleId(), GetHairColorId(), GetFaceId(), GetFacialStyle(), GetSkinId()))
     {
         TC_LOG_ERROR("entities.player", "Player::LoadFromDB: Player (%s) has wrong Appearance values (Hair/Skin/Color), can't load.", guid.ToString().c_str());
         return false;
@@ -26606,7 +26605,7 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
     SendDirectMessage(&data);
 }
 
-bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create /*=false*/)
+bool Player::ValidateAppearance(Races race, Classes class_, Gender gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create /*=false*/)
 {
     auto validateCharSection = [class_, create](CharSectionsEntry const* entry) -> bool
     {

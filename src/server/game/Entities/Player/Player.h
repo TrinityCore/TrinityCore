@@ -1328,7 +1328,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid);
 
         static bool IsValidGender(Gender Gender) { return Gender <= GENDER_FEMALE; }
-        static bool ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create = false);
+        static bool ValidateAppearance(Races race, Classes class_, Gender gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create = false);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/

@@ -1401,8 +1401,8 @@ void Creature::UpdateLevelDependantStats()
 
     switch (GetClass())
     {
-        case UNIT_CLASS_PALADIN:
-        case UNIT_CLASS_MAGE:
+        case CLASS_PALADIN:
+        case CLASS_MAGE:
             SetMaxPower(POWER_MANA, mana);
             SetFullPower(POWER_MANA);
             break;
