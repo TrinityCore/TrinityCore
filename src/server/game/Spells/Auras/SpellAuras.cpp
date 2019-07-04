@@ -857,12 +857,8 @@ void Aura::Update(uint32 diff, Unit* caster)
     
     if (m_heartBeatResistTimer)
     {
-        if (m_heartBeatResistTimer > diff)
-            m_heartBeatResistTimer -= diff;
-        else
-        {     
-            m_heartBeatResistTimer = CalculatePct(m_maxDuration, 25);
-            
+        while (m_heartBeatResistTimer <= diff)
+        {
             if (caster && caster->GetTypeId() == TYPEID_PLAYER)
             {
                 if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT)
@@ -884,7 +880,11 @@ void Aura::Update(uint32 diff, Unit* caster)
                     }
                 }
             }
+            
+           diff -= m_heartBeatResistTimer;
+           m_heartBeastResistTimer = CalculatePct(m_maxDuration, 25);
         }
+        m_heartBeatResistTimer -= diff;
     }
 }
 
