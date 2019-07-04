@@ -455,7 +455,7 @@ void Unit::Update(uint32 p_time)
     UpdateSplineMovement(p_time);
     i_motionMaster->Update(p_time);
 
-    if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || IsCharmed()))
+    if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || (IsCharmed() && GetCharmerGUID().IsCreature())))
         UpdateCharmAI();
     RefreshAI();
 }
@@ -1275,7 +1275,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
         {
             damageInfo->HitInfo     |= HITINFO_GLANCING;
             damageInfo->TargetState  = VICTIMSTATE_HIT;
-            int32 leveldif = int32(victim->getLevel()) - int32(getLevel());
+            int32 leveldif = int32(victim->GetLevel()) - int32(GetLevel());
             if (leveldif > 3)
                 leveldif = 3;
 
@@ -1426,8 +1426,8 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         float chance = 20.0f;
 
         // there is a newbie protection, at level 10 just 7% base chance; assuming linear function
-        if (victim->getLevel() < 30)
-            chance = 0.65f * victim->getLevel() + 0.5f;
+        if (victim->GetLevel() < 30)
+            chance = 0.65f * victim->GetLevel() + 0.5f;
 
         uint32 const victimDefense = victim->GetDefenseSkillValue();
         uint32 const attackerMeleeSkill = GetMaxSkillValueForLevel();
@@ -1556,10 +1556,10 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
             RoundToInterval(arpPct, 0.f, 100.f);
 
             float maxArmorPen = 0.f;
-            if (victim->getLevel() < 60)
-                maxArmorPen = float(400 + 85 * victim->getLevel());
+            if (victim->GetLevel() < 60)
+                maxArmorPen = float(400 + 85 * victim->GetLevel());
             else
-                maxArmorPen = 400 + 85 * victim->getLevel() + 4.5f * 85 * (victim->getLevel() - 59);
+                maxArmorPen = 400 + 85 * victim->GetLevel() + 4.5f * 85 * (victim->GetLevel() - 59);
 
             // Cap armor penetration to this number
             maxArmorPen = std::min((armor + maxArmorPen) / 3.f, armor);
@@ -1571,7 +1571,7 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     if (armor < 0.0f)
         armor = 0.0f;
 
-    float levelModifier = attacker ? attacker->getLevel() : attackerLevel;
+    float levelModifier = attacker ? attacker->GetLevel() : attackerLevel;
     if (levelModifier > 59.f)
         levelModifier = levelModifier + 4.5f * (levelModifier - 59.f);
 
@@ -1683,11 +1683,11 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     // level-based resistance does not apply to binary spells, and cannot be overcome by spell penetration
     // gameobject caster -- should it have level based resistance?
     if (caster && caster->GetTypeId() != TYPEID_GAMEOBJECT && (!spellInfo || !spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL)))
-        victimResistance += std::max((float(victim->getLevelForTarget(caster)) - float(caster->getLevelForTarget(victim))) * 5.0f, 0.0f);
+        victimResistance += std::max((float(victim->GetLevelForTarget(caster)) - float(caster->GetLevelForTarget(victim))) * 5.0f, 0.0f);
 
     static uint32 const BOSS_LEVEL = 83;
     static float const BOSS_RESISTANCE_CONSTANT = 510.0f;
-    uint32 level = victim->getLevel();
+    uint32 level = victim->GetLevel();
     float resistanceConstant = 0.0f;
 
     if (level == BOSS_LEVEL)
@@ -2128,7 +2128,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
     if ((GetTypeId() == TYPEID_PLAYER || IsPet()) &&
         victim->GetTypeId() != TYPEID_PLAYER && !victim->IsPet() &&
-        getLevel() < victim->getLevelForTarget(this))
+        GetLevel() < victim->GetLevelForTarget(this))
     {
         // cap possible value (with bonuses > max skill)
         int32 skill = attackerWeaponSkill;
@@ -2159,7 +2159,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
 
     // 7. CRUSHING
     // mobs can score crushing blows if they're 4 or more levels above victim
-    if (getLevelForTarget(victim) >= victim->getLevelForTarget(this) + 4 &&
+    if (GetLevelForTarget(victim) >= victim->GetLevelForTarget(this) + 4 &&
         // can be from by creature (if can) or from controlled player that considered as creature
         !IsControlledByPlayer() &&
         !(GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRUSH))
@@ -2237,10 +2237,10 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
 
 float Unit::CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellInfo) const
 {
-    if (!spellInfo->MaxLevel || getLevel() < spellInfo->MaxLevel)
+    if (!spellInfo->MaxLevel || GetLevel() < spellInfo->MaxLevel)
         return 1.0f;
 
-    return std::max(0.0f, std::min(1.0f, (22.0f + spellInfo->MaxLevel - getLevel()) / 20.0f));
+    return std::max(0.0f, std::min(1.0f, (22.0f + spellInfo->MaxLevel - GetLevel()) / 20.0f));
 }
 
 void Unit::SendMeleeAttackStart(Unit* victim)
@@ -5363,7 +5363,7 @@ void Unit::UpdateDisplayPower()
         {
             if (GetTypeId() == TYPEID_PLAYER)
             {
-                ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(getClass());
+                ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(GetClass());
                 if (cEntry && cEntry->powerType < MAX_POWERS)
                     displayPower = Powers(cEntry->powerType);
             }
@@ -5373,7 +5373,7 @@ void Unit::UpdateDisplayPower()
                 {
                     if (PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(vehicle->GetVehicleInfo()->m_powerDisplayId))
                         displayPower = Powers(powerDisplay->PowerType);
-                    else if (getClass() == CLASS_ROGUE)
+                    else if (GetClass() == CLASS_ROGUE)
                         displayPower = POWER_ENERGY;
                 }
                 else if (Pet* pet = ToPet())
@@ -6660,7 +6660,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
                 {
                     // Glyph of Ice Lance
-                    if (owner->HasAura(56377) && victim->getLevel() > owner->getLevel())
+                    if (owner->HasAura(56377) && victim->GetLevel() > owner->GetLevel())
                         DoneTotalMod *= 4.0f;
                     else
                         DoneTotalMod *= 3.0f;
@@ -7068,7 +7068,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
                 // Spell crit suppression
                 if (GetTypeId() == TYPEID_UNIT)
                 {
-                    int32 const levelDiff = static_cast<int32>(getLevelForTarget(caster)) - caster->getLevel();
+                    int32 const levelDiff = static_cast<int32>(GetLevelForTarget(caster)) - caster->GetLevel();
                     crit_chance -= levelDiff * 0.7f;
                 }
             }
@@ -9951,7 +9951,7 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
                 if (hitMask & PROC_HIT_DODGE)
                 {
                     // Update AURA_STATE on dodge
-                    if (getClass() != CLASS_ROGUE) // skip Rogue Riposte
+                    if (GetClass() != CLASS_ROGUE) // skip Rogue Riposte
                     {
                         ModifyAuraState(AURA_STATE_DEFENSE, true);
                         StartReactiveTimer(REACTIVE_DEFENSE);
@@ -9961,7 +9961,7 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
                 if (hitMask & PROC_HIT_PARRY)
                 {
                     // For Hunters only Counterattack (skip Mongoose bite)
-                    if (getClass() == CLASS_HUNTER)
+                    if (GetClass() == CLASS_HUNTER)
                     {
                         ModifyAuraState(AURA_STATE_HUNTER_PARRY, true);
                         StartReactiveTimer(REACTIVE_HUNTER_PARRY);
@@ -9982,7 +9982,7 @@ void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMa
             else // For attacker
             {
                 // Overpower on victim dodge
-                if ((hitMask & PROC_HIT_DODGE) && GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_WARRIOR)
+                if ((hitMask & PROC_HIT_DODGE) && GetTypeId() == TYPEID_PLAYER && GetClass() == CLASS_WARRIOR)
                 {
                     AddComboPoints(procTarget, 1);
                     StartReactiveTimer(REACTIVE_OVERPOWER);
@@ -10232,7 +10232,7 @@ void Unit::SetDisplayId(uint32 modelId)
     SetUInt32Value(UNIT_FIELD_DISPLAYID, modelId);
     // Set Gender by modelId
     if (CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(modelId))
-        SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
+        SetGender(minfo->gender);
 }
 
 void Unit::RestoreDisplayId()
@@ -10361,9 +10361,9 @@ void Unit::ClearAllReactives()
 
     if (HasAuraState(AURA_STATE_DEFENSE))
         ModifyAuraState(AURA_STATE_DEFENSE, false);
-    if (getClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
+    if (GetClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
         ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
-    if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
+    if (GetClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
         ClearComboPoints();
     if (IsHunterPet())
         ClearComboPoints();
@@ -10389,11 +10389,11 @@ void Unit::UpdateReactives(uint32 p_time)
                         ModifyAuraState(AURA_STATE_DEFENSE, false);
                     break;
                 case REACTIVE_HUNTER_PARRY:
-                    if (getClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
+                    if (GetClass() == CLASS_HUNTER && HasAuraState(AURA_STATE_HUNTER_PARRY))
                         ModifyAuraState(AURA_STATE_HUNTER_PARRY, false);
                     break;
                 case REACTIVE_OVERPOWER:
-                    if (getClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
+                    if (GetClass() == CLASS_WARRIOR && GetTypeId() == TYPEID_PLAYER)
                         ClearComboPoints();
                     break;
                 case REACTIVE_WOLVERINE_BITE:
@@ -10688,7 +10688,7 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
         return nullptr;
     }
 
-    uint8 level = creatureTarget->getLevel() + 5 < getLevel() ? (getLevel() - 5) : creatureTarget->getLevel();
+    uint8 level = creatureTarget->GetLevel() + 5 < GetLevel() ? (GetLevel() - 5) : creatureTarget->GetLevel();
 
     InitTamedPet(pet, level, spell_id);
 
@@ -10706,7 +10706,7 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
 
     Pet* pet = new Pet(ToPlayer(), HUNTER_PET);
 
-    if (!pet->CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, getLevel(), spell_id))
+    if (!pet->CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, GetLevel(), spell_id))
     {
         delete pet;
         return nullptr;
@@ -11440,7 +11440,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
                 AddUnitState(UNIT_STATE_POSSESSED);
                 break;
             case CHARM_TYPE_CHARM:
-                if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
+                if (GetTypeId() == TYPEID_UNIT && charmer->GetClass() == CLASS_WARLOCK)
                 {
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
@@ -11538,7 +11538,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
                 RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED);
                 break;
             case CHARM_TYPE_CHARM:
-                if (GetTypeId() == TYPEID_UNIT && charmer->getClass() == CLASS_WARLOCK)
+                if (GetTypeId() == TYPEID_UNIT && charmer->GetClass() == CLASS_WARLOCK)
                 {
                     CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
                     if (cinfo && cinfo->type == CREATURE_TYPE_DEMON)
@@ -11581,7 +11581,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 void Unit::RestoreFaction()
 {
     if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->setFactionForRace(getRace());
+        ToPlayer()->setFactionForRace(GetRace());
     else
     {
         if (HasUnitTypeMask(UNIT_MASK_MINION))
@@ -11915,7 +11915,7 @@ float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, i
     else
     {
         missChance += diff > 10 ? 1 + (diff - 10) * 0.4f : diff * 0.1f;
-        float levelFactor = victim->getLevelForTarget(this);
+        float levelFactor = victim->GetLevelForTarget(this);
         if (levelFactor < 10.f)
             missChance *= (levelFactor / 10.f);
     }
@@ -12058,7 +12058,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
         {
             case FORM_CAT:
                 // Based on Hair color
-                if (getRace() == RACE_NIGHTELF)
+                if (GetRace() == RACE_NIGHTELF)
                 {
                     uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                     switch (hairColor)
@@ -12079,11 +12079,11 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                     }
                 }
                 // Based on Skin color
-                else if (getRace() == RACE_TAUREN)
+                else if (GetRace() == RACE_TAUREN)
                 {
                     uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
                     // Male
-                    if (getGender() == GENDER_MALE)
+                    if (GetNativeGender() == GENDER_MALE)
                     {
                         switch (skinColor)
                         {
@@ -12131,14 +12131,14 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                             return 8571;
                     }
                 }
-                else if (Player::TeamForRace(getRace()) == ALLIANCE)
+                else if (Player::TeamForRace(GetRace()) == ALLIANCE)
                     return 892;
                 else
                     return 8571;
             case FORM_DIREBEAR:
             case FORM_BEAR:
                 // Based on Hair color
-                if (getRace() == RACE_NIGHTELF)
+                if (GetRace() == RACE_NIGHTELF)
                 {
                     uint8 hairColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID);
                     switch (hairColor)
@@ -12158,11 +12158,11 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                     }
                 }
                 // Based on Skin color
-                else if (getRace() == RACE_TAUREN)
+                else if (GetRace() == RACE_TAUREN)
                 {
                     uint8 skinColor = GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID);
                     // Male
-                    if (getGender() == GENDER_MALE)
+                    if (GetNativeGender() == GENDER_MALE)
                     {
                         switch (skinColor)
                         {
@@ -12210,16 +12210,16 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                             return 2289;
                     }
                 }
-                else if (Player::TeamForRace(getRace()) == ALLIANCE)
+                else if (Player::TeamForRace(GetRace()) == ALLIANCE)
                     return 2281;
                 else
                     return 2289;
             case FORM_FLIGHT:
-                if (Player::TeamForRace(getRace()) == ALLIANCE)
+                if (Player::TeamForRace(GetRace()) == ALLIANCE)
                     return 20857;
                 return 20872;
             case FORM_FLIGHT_EPIC:
-                if (Player::TeamForRace(getRace()) == ALLIANCE)
+                if (Player::TeamForRace(GetRace()) == ALLIANCE)
                     return 21243;
                 return 21244;
             default:
@@ -12236,13 +12236,13 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
             return formEntry->modelID_A;
         else
         {
-            if (Player::TeamForRace(getRace()) == ALLIANCE)
+            if (Player::TeamForRace(GetRace()) == ALLIANCE)
                 modelid = formEntry->modelID_A;
             else
                 modelid = formEntry->modelID_H;
 
             // If the player is horde but there are no values for the horde modelid - take the alliance modelid
-            if (!modelid && Player::TeamForRace(getRace()) == HORDE)
+            if (!modelid && Player::TeamForRace(GetRace()) == HORDE)
                 modelid = formEntry->modelID_A;
         }
     }
@@ -12252,7 +12252,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
 
 uint32 Unit::GetModelForTotem(PlayerTotemType totemType)
 {
-    switch (getRace())
+    switch (GetRace())
     {
         case RACE_ORC:
         {
@@ -12818,11 +12818,11 @@ void Unit::RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker)
 {
     float addRage;
 
-    float rageconversion = ((0.0091107836f * getLevel() * getLevel()) + 3.225598133f * getLevel()) + 4.2652911f;
+    float rageconversion = ((0.0091107836f * GetLevel() * GetLevel()) + 3.225598133f * GetLevel()) + 4.2652911f;
 
     // Unknown if correct, but lineary adjust rage conversion above level 70
-    if (getLevel() > 70)
-        rageconversion += 13.27f * (getLevel() - 70);
+    if (GetLevel() > 70)
+        rageconversion += 13.27f * (GetLevel() - 70);
 
     if (attacker)
     {
@@ -13430,7 +13430,7 @@ void Unit::Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject con
         return;
     }
 
-    Trinity::BroadcastTextBuilder builder(this, msgType, textId, getGender(), target);
+    Trinity::BroadcastTextBuilder builder(this, msgType, textId, GetGender(), target);
     Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> localizer(builder);
     Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> > worker(this, textRange, localizer);
     Cell::VisitWorldObjects(this, worker, textRange);
@@ -13465,7 +13465,7 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
 
     LocaleConstant locale = target->GetSession()->GetSessionDbLocaleIndex();
     WorldPacket data;
-    ChatHandler::BuildChatPacket(data, isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, getGender()), 0, "", locale);
+    ChatHandler::BuildChatPacket(data, isBossWhisper ? CHAT_MSG_RAID_BOSS_WHISPER : CHAT_MSG_MONSTER_WHISPER, LANG_UNIVERSAL, this, target, bct->GetText(locale, GetGender()), 0, "", locale);
     target->SendDirectMessage(&data);
 }
 
@@ -13503,6 +13503,6 @@ std::string Unit::GetDebugInfo() const
         << std::boolalpha
         << "IsAIEnabled: " << IsAIEnabled() << " DeathState: " << std::to_string(getDeathState())
         << " UnitMovementFlags: " << GetUnitMovementFlags() << " ExtraUnitMovementFlags: " << GetExtraUnitMovementFlags()
-        << " Class: " << std::to_string(getClass());
+        << " Class: " << std::to_string(GetClass());
     return sstr.str();
 }

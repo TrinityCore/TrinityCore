@@ -226,8 +226,8 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             data << uint32(questID);
             data << uint32(item.QuestIcon);
             data << int32(quest->GetQuestLevel());
-            data << uint32(quest->GetFlags());              // 3.3.3 quest flags
-            data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
+            data << uint32(quest->GetFlags()); // 3.3.3 quest flags
+            data << uint8(quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly()); // 3.3.3 icon changes: blue question mark or yellow exclamation mark
             std::string title = quest->GetTitle();
 
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
@@ -377,8 +377,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
             data << uint32(questID);
             data << uint32(questMenuItem.QuestIcon);
             data << int32(quest->GetQuestLevel());
-            data << uint32(quest->GetFlags());             // 3.3.3 quest flags
-            data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
+            data << uint32(quest->GetFlags()); // 3.3.3 quest flags
+            data << uint8(quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly()); // 3.3.3 icon changes: blue question mark or yellow exclamation mark
             data << title;
         }
     }
@@ -473,8 +473,8 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
                 data << uint32(0);
         }
 
-        data << uint32(quest->GetRewOrReqMoney());
-        data << uint32(quest->XPValue(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
+        data << uint32(quest->GetRewOrReqMoney(_session->GetPlayer()));
+        data << uint32(quest->GetXPReward(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
     }
 
     // rewarded honor points. Multiply with 10 to satisfy client
@@ -587,8 +587,8 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
             data << uint32(0);
     }
 
-    data << uint32(quest->GetRewOrReqMoney());
-    data << uint32(quest->XPValue(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
+    data << uint32(quest->GetRewOrReqMoney(_session->GetPlayer()));
+    data << uint32(quest->GetXPReward(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
 
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10 * quest->CalculateHonorGain(_session->GetPlayer()->GetQuestLevel(quest)));

@@ -134,7 +134,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool isElite() const;
         bool isWorldBoss() const;
 
-        uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
+        uint8 GetLevelForTarget(WorldObject const* target) const override; // overwrite Unit::GetLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }

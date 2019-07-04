@@ -1328,7 +1328,7 @@ void BattlefieldWG::UpdateTenacity()
     {
         for (auto itr = m_players[m_tenacityTeam].begin(); itr != m_players[m_tenacityTeam].end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(*itr))
-                if (player->getLevel() >= m_MinLevel)
+                if (player->GetLevel() >= m_MinLevel)
                     player->RemoveAurasDueToSpell(SPELL_TENACITY);
 
         for (auto itr = m_vehicles[m_tenacityTeam].begin(); itr != m_vehicles[m_tenacityTeam].end(); ++itr)

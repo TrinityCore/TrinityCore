@@ -38,7 +38,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
         return;
 
-    if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ))
+    if (GetPlayer()->GetLevel() < sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ));
         return;

@@ -67,6 +67,21 @@ bool ReputationMgr::IsAtWar(FactionEntry const* factionEntry) const
     return false;
 }
 
+bool ReputationMgr::IsReputationAllowedForTeam(TeamId team, uint32 factionId) const
+{
+    // @hack some quests give reputation to Alliance-only AND Horde-only factions, but DBC data does not allow to identify faction-only reputations
+    if (team == TEAM_HORDE && (
+        factionId == 1037 || // Alliance Vanguard
+        factionId == 946))   // Honor Hold
+        return false;
+
+    if (team == TEAM_ALLIANCE &&
+        factionId == 947)    // Thrallmar
+        return false;
+
+    return true;
+}
+
 int32 ReputationMgr::GetReputation(uint32 faction_id) const
 {
     FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
@@ -85,8 +100,8 @@ int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
     if (!factionEntry)
         return 0;
 
-    uint32 raceMask = _player->getRaceMask();
-    uint32 classMask = _player->getClassMask();
+    uint32 raceMask = _player->GetRaceMask();
+    uint32 classMask = _player->GetClassMask();
     for (int i=0; i < 4; i++)
     {
         if ((factionEntry->BaseRepRaceMask[i] & raceMask  ||
@@ -139,8 +154,8 @@ uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) con
     if (!factionEntry)
         return 0;
 
-    uint32 raceMask = _player->getRaceMask();
-    uint32 classMask = _player->getClassMask();
+    uint32 raceMask = _player->GetRaceMask();
+    uint32 classMask = _player->GetClassMask();
     for (int i=0; i < 4; i++)
     {
         if ((factionEntry->BaseRepRaceMask[i] & raceMask  ||
@@ -412,7 +427,7 @@ void ReputationMgr::SetVisible(FactionTemplateEntry const*factionTemplateEntry)
 
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplateEntry->faction))
         // Never show factions of the opposing team
-        if (!(factionEntry->BaseRepRaceMask[1] & _player->getRaceMask() && factionEntry->BaseRepValue[1] == Reputation_Bottom))
+        if (!(factionEntry->BaseRepRaceMask[1] & _player->GetRaceMask() && factionEntry->BaseRepValue[1] == Reputation_Bottom))
             SetVisible(factionEntry);
 }
 
