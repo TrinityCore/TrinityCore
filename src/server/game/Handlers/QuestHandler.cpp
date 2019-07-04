@@ -351,7 +351,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
                         _player->PlayerTalkClass->ClearMenus();
 #ifdef ELUNA
-                        sEluna->OnQuestReward(_player, questgiver, quest, reward);
+                        sEluna->OnQuestReward(_player, questGiver, quest, reward);
 #endif
                         questGiver->AI()->QuestReward(_player, quest, reward);
                         break;
