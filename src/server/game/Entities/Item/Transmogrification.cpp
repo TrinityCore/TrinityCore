@@ -216,7 +216,7 @@ std::string Transmogrification::GetItemLink(Item* item, WorldSession* session) c
         item->GetEnchantmentId(SOCK_ENCHANTMENT_SLOT_3) << ":" <<
         item->GetEnchantmentId(BONUS_ENCHANTMENT_SLOT) << ":" <<
         item->GetItemRandomPropertyId() << ":" << item->GetItemSuffixFactor() << ":" <<
-        (uint32)item->GetOwner()->getLevel() << "|h[" << name << "]|h|r";
+        (uint32)item->GetOwner()->GetLevel() << "|h[" << name << "]|h|r";
 
     return oss.str();
 }
@@ -446,10 +446,10 @@ bool Transmogrification::SuitableForTransmogrification(Player* player, ItemTempl
     if ((proto->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
         return false;
 
-    if (!IgnoreReqClass && (proto->AllowableClass & player->getClassMask()) == 0)
+    if (!IgnoreReqClass && (proto->AllowableClass & player->GetClassMask()) == 0)
         return false;
 
-    if (!IgnoreReqRace && (proto->AllowableRace & player->getRaceMask()) == 0)
+    if (!IgnoreReqRace && (proto->AllowableRace & player->GetRaceMask()) == 0)
         return false;
 
     if (!IgnoreReqSkill && proto->RequiredSkill != 0)
@@ -463,7 +463,7 @@ bool Transmogrification::SuitableForTransmogrification(Player* player, ItemTempl
     if (!IgnoreReqSpell && proto->RequiredSpell != 0 && !player->HasSpell(proto->RequiredSpell))
         return false;
 
-    if (!IgnoreReqLevel && player->getLevel() < proto->RequiredLevel)
+    if (!IgnoreReqLevel && player->GetLevel() < proto->RequiredLevel)
         return false;
 
     // If World Event is not active, prevent using event dependant items
