@@ -473,8 +473,8 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
                 data << uint32(0);
         }
 
-        data << uint32(quest->GetRewOrReqMoney());
-        data << uint32(quest->XPValue(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
+        data << uint32(quest->GetRewOrReqMoney(_session->GetPlayer()));
+        data << uint32(quest->GetXPReward(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
     }
 
     // rewarded honor points. Multiply with 10 to satisfy client
@@ -587,8 +587,8 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
             data << uint32(0);
     }
 
-    data << uint32(quest->GetRewOrReqMoney());
-    data << uint32(quest->XPValue(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
+    data << uint32(quest->GetRewOrReqMoney(_session->GetPlayer()));
+    data << uint32(quest->GetXPReward(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
 
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10 * quest->CalculateHonorGain(_session->GetPlayer()->GetQuestLevel(quest)));
