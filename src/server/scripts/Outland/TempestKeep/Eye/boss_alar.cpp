@@ -441,7 +441,7 @@ class boss_alar : public CreatureScript
                                 Summoned->SetObjectScale(Summoned->GetObjectScale() * 2.5f);
                                 Summoned->SetDisplayId(11686);
                                 Summoned->SetFaction(me->GetFaction());
-                                Summoned->SetLevel(me->getLevel());
+                                Summoned->SetLevel(me->GetLevel());
                                 Summoned->CastSpell(Summoned, SPELL_FLAME_PATCH, false);
                             }
                         }
