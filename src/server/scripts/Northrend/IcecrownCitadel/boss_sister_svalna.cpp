@@ -1254,7 +1254,7 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
                 _events.ScheduleEvent(EVENT_YMIRJAR_SHOOT, 1s);
                 break;
             case NPC_YMIRJAR_DEATHBRINGER:
-                _events.ScheduleEvent(EVENT_YMIRJAR_SHADOW_BOLT, 6s, 1s);
+                _events.ScheduleEvent(EVENT_YMIRJAR_SHADOW_BOLT, 6s, 12s);
                 _events.ScheduleEvent(EVENT_YMIRJAR_DEATH_EMBRACE, 5s, 10s);
                 _events.ScheduleEvent(EVENT_YMIRJAR_BANISH, 10s, 20s);
                 _events.ScheduleEvent(EVENT_YMIRJAR_SUMMON, 10s, 25s);
