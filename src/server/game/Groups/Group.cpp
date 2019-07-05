@@ -326,7 +326,7 @@ void Group::ConvertToRaid()
     // update quest related GO states (quest activity dependent from raid membership)
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
         if (Player* player = ObjectAccessor::FindPlayer(citr->guid))
-            player->UpdateForQuestWorldObjects();
+            player->UpdateVisibleGameobjectsOrSpellClicks();
 }
 
 void Group::ConvertToGroup()
@@ -357,7 +357,7 @@ void Group::ConvertToGroup()
     // update quest related GO states (quest activity dependent from raid membership)
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
         if (Player* player = ObjectAccessor::FindPlayer(citr->guid))
-            player->UpdateForQuestWorldObjects();
+            player->UpdateVisibleGameobjectsOrSpellClicks();
 }
 
 bool Group::AddInvite(Player* player)
@@ -534,7 +534,7 @@ bool Group::AddMember(Player* player)
 
     // quest related GO state dependent from raid membership
     if (isRaidGroup())
-        player->UpdateForQuestWorldObjects();
+        player->UpdateVisibleGameobjectsOrSpellClicks();
 
     {
         // Broadcast new player group member fields to rest of the group
@@ -622,7 +622,7 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod method /*= GROUP_REMOVEME
                     player->SetGroup(nullptr);
 
                 // quest related GO state dependent from raid membership
-                player->UpdateForQuestWorldObjects();
+                player->UpdateVisibleGameobjectsOrSpellClicks();
             }
 
             player->SetPartyType(m_groupCategory, GROUP_TYPE_NONE);
@@ -859,7 +859,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
         // quest related GO state dependent from raid membership
         if (isRaidGroup())
-            player->UpdateForQuestWorldObjects();
+            player->UpdateVisibleGameobjectsOrSpellClicks();
 
         if (!hideDestroy)
             player->SendDirectMessage(WorldPackets::Party::GroupDestroyed().Write());

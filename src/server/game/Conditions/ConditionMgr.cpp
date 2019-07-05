@@ -1071,6 +1071,11 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
     return true;
 }
 
+bool ConditionMgr::IsSpellUsedInSpellClickConditions(uint32 spellId) const
+{
+    return SpellsUsedInSpellClickConditions.find(spellId) != SpellsUsedInSpellClickConditions.end();
+}
+
 ConditionContainer const* ConditionMgr::GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const
 {
     return Trinity::Containers::MapGetValuePtr(AreaTriggerConditionContainerStore, { areaTriggerId, isServerSide });
@@ -1294,6 +1299,8 @@ void ConditionMgr::LoadConditions(bool isReload)
                 case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
                 {
                     SpellClickEventConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    if (cond->ConditionType == CONDITION_AURA)
+                        SpellsUsedInSpellClickConditions.insert(cond->ConditionValue1);
                     valid = true;
                     ++count;
                     continue;   // do not add to m_AllocatedMemory to avoid double deleting
@@ -1360,6 +1367,8 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         //handle not grouped conditions
         //add new Condition to storage based on Type/Entry
+        if (cond->SourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT && cond->ConditionType == CONDITION_AURA)
+            SpellsUsedInSpellClickConditions.insert(cond->ConditionValue1);
         ConditionStore[cond->SourceType][cond->SourceEntry].push_back(cond);
         ++count;
     }
@@ -2554,6 +2563,7 @@ void ConditionMgr::Clean()
                 delete *i;
 
     SpellClickEventConditionStore.clear();
+    SpellsUsedInSpellClickConditions.clear();
 
     for (ConditionEntriesByCreatureIdMap::iterator itr = NpcVendorConditionContainerStore.begin(); itr != NpcVendorConditionContainerStore.end(); ++itr)
         for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)

@@ -16546,7 +16546,7 @@ void Player::SendQuestUpdate(uint32 questId)
         }
     }
 
-    UpdateForQuestWorldObjects();
+    UpdateVisibleGameobjectsOrSpellClicks();
     PhasingHandler::OnConditionChange(this);
 }
 
@@ -16914,8 +16914,7 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
             IncompleteQuest(questId);
         }
     }
-
-    UpdateForQuestWorldObjects();
+    UpdateVisibleGameobjectsOrSpellClicks();
 }
 
 void Player::KilledMonster(CreatureTemplate const* cInfo, ObjectGuid guid)
@@ -17095,7 +17094,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
     }
 
     if (anyObjectiveChangedCompletionState)
-        UpdateForQuestWorldObjects();
+        UpdateVisibleGameobjectsOrSpellClicks();
 }
 
 bool Player::HasQuestForItem(uint32 itemid) const
@@ -25257,7 +25256,7 @@ bool Player::HasQuestForGO(int32 GOId) const
     return false;
 }
 
-void Player::UpdateForQuestWorldObjects()
+void Player::UpdateVisibleGameobjectsOrSpellClicks()
 {
     if (m_clientGUIDs.empty())
         return;
@@ -25306,23 +25305,13 @@ void Player::UpdateForQuestWorldObjects()
             auto clickBounds = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
             for (auto const& clickPair : clickBounds)
             {
-                //! This code doesn't look right, but it was logically converted to condition system to do the exact
-                //! same thing it did before. It definitely needs to be overlooked for intended functionality.
                 if (ConditionContainer const* conds = sConditionMgr->GetConditionsForSpellClickEvent(obj->GetEntry(), clickPair.second.spellId))
                 {
-                    bool buildUpdateBlock = false;
-                    for (ConditionContainer::const_iterator jtr = conds->begin(); jtr != conds->end() && !buildUpdateBlock; ++jtr)
-                        if ((*jtr)->ConditionType == CONDITION_QUESTREWARDED || (*jtr)->ConditionType == CONDITION_QUESTTAKEN || (*jtr)->ConditionType == CONDITION_QUEST_COMPLETE)
-                            buildUpdateBlock = true;
-
-                    if (buildUpdateBlock)
-                    {
-                        UF::ObjectData::Base objMask;
-                        UF::UnitData::Base unitMask;
-                        unitMask.MarkChanged(&UF::UnitData::NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
-                        obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
-                        break;
-                    }
+                    UF::ObjectData::Base objMask;
+                    UF::UnitData::Base unitMask;
+                    unitMask.MarkChanged(&UF::UnitData::NpcFlags, 0); // NpcFlags[0] has UNIT_NPC_FLAG_SPELLCLICK
+                    obj->BuildValuesUpdateForPlayerWithMask(&udata, objMask.GetChangesMask(), unitMask.GetChangesMask(), this);
+                    break;
                 }
             }
         }
