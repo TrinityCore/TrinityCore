@@ -17173,7 +17173,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     SetBankBagSlotCount(fields[14].GetUInt8());
     SetRestState(fields[15].GetUInt8());
     SetNativeGender(fields[5].GetUInt8());
-    SetDrunkValue(fields[54].GetUInt8());
+    SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_INEBRIATION, fields[54].GetUInt8());
 
     if (!ValidateAppearance(
         fields[3].GetUInt8(), // race
