@@ -1,6 +1,19 @@
 <!--- (**********************************)
       (** Fill in the following fields **)
-      (**********************************) --->
+      (**********************************)
+      For SQL fixes:
+      don't modify WDB fields without supply one sniff of those fields (censure guids, character names, anything blizzard can use to identify source)
+      don't use pull requests for sql only fixes, unless it's to fix one existing unable to apply file.
+      don't hardcode guids.
+      don't DELETE + INSERT to update only few fields of one row.
+      don't use database names.
+      don't put ' around numbers.
+      don't put ( ) if they aren't needed.
+      use only 1 DELETE + INSERT when we add multiple items to one table, unless you are scripting multiple creatures.
+      put default values on every new column we want to add on that way we can make smallers inserts.
+      start fix by -- in case some previous sql misses proper ending.
+      DELETE by guid AND entry to be sure we don't delete existing spawns.
+      start sql code with 3 ` sql         --->
 
 **Description:**
 

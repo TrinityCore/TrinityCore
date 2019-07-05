@@ -398,14 +398,14 @@ void InstanceSaveManager::LoadResetTimes()
             if (!mapDiff)
             {
                 TC_LOG_ERROR("misc", "InstanceSaveManager::LoadResetTimes: invalid mapid(%u)/difficulty(%u) pair in instance_reset!", mapid, uint32(difficulty));
-                CharacterDatabase.DirectPExecute("DELETE FROM instance_reset WHERE mapid = '%u' AND difficulty = '%u'", mapid, difficulty);
+                CharacterDatabase.DirectPExecute("DELETE FROM instance_reset WHERE mapid = '%u' AND difficulty = '%u'", mapid, uint32(difficulty));
                 continue;
             }
 
             // update the reset time if the hour in the configs changes
             uint64 newresettime = (oldresettime / DAY) * DAY + diff;
             if (oldresettime != newresettime)
-                CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '%u' WHERE mapid = '%u' AND difficulty = '%u'", uint32(newresettime), mapid, difficulty);
+                CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '%u' WHERE mapid = '%u' AND difficulty = '%u'", uint32(newresettime), mapid, uint32(difficulty));
 
             InitializeResetTimeFor(mapid, difficulty, newresettime);
         } while (result->NextRow());
@@ -434,7 +434,7 @@ void InstanceSaveManager::LoadResetTimes()
             {
                 // initialize the reset time
                 t = today + period + diff;
-                CharacterDatabase.DirectPExecute("INSERT INTO instance_reset VALUES ('%u', '%u', '%u')", mapid, difficulty, (uint32)t);
+                CharacterDatabase.DirectPExecute("INSERT INTO instance_reset VALUES ('%u', '%u', '%u')", mapid, uint32(difficulty), (uint32)t);
             }
 
             if (t < now)
@@ -443,7 +443,7 @@ void InstanceSaveManager::LoadResetTimes()
                 // calculate the next reset time
                 t = (t / DAY) * DAY;
                 t += ((today - t) / period + 1) * period + diff;
-                CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '" UI64FMTD "' WHERE mapid = '%u' AND difficulty= '%u'", (uint64)t, mapid, difficulty);
+                CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '" UI64FMTD "' WHERE mapid = '%u' AND difficulty= '%u'", (uint64)t, mapid, uint32(difficulty));
             }
 
             InitializeResetTimeFor(mapid, difficulty, t);
