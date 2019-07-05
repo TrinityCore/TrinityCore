@@ -3690,7 +3690,7 @@ class spell_gen_gm_freeze : public AuraScript
         if (Player* player = GetTarget()->ToPlayer())
         {
             // Reset player faction + allow combat + allow duels
-            player->setFactionForRace(player->GetRace());
+            player->SetFactionForRace(player->GetRace());
             player->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             // save player
             player->SaveToDB();

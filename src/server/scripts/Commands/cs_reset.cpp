@@ -104,7 +104,7 @@ public:
         if (!player->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
             player->SetShapeshiftForm(FORM_NONE);
 
-        player->setFactionForRace(player->GetRace());
+        player->SetFactionForRace(player->GetRace());
         player->SetPowerType(Powers(powerType));
 
         // reset only if player not in some form;

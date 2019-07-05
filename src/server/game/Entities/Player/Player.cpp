@@ -471,7 +471,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
 
     SetObjectScale(1.0f);
 
-    setFactionForRace(createInfo->Race);
+    SetFactionForRace(createInfo->Race);
 
     if (!IsValidGender(createInfo->Sex))
     {
@@ -483,7 +483,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetRace(createInfo->Race);
     SetClass(createInfo->Class);
     SetGender(Gender(createInfo->Sex));
-    SetPowerType(Powers(powertype));
+    SetPowerType(Powers(powertype), false);
     InitDisplayIds();
     UpdatePositionData();
     if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
@@ -2157,7 +2157,7 @@ void Player::SetGameMaster(bool on)
         PhasingHandler::SetAlwaysVisible(this, HasAuraType(SPELL_AURA_PHASE_ALWAYS_VISIBLE), false);
 
         m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
-        setFactionForRace(GetRace());
+        SetFactionForRace(GetRace());
         RemovePlayerFlag(PLAYER_FLAGS_GM);
         RemoveUnitFlag2(UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
@@ -2311,9 +2311,8 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     packet.ReferAFriendBonusType = recruitAFriend ? 1 : 0;
     SendDirectMessage(packet.Write());
 
-    uint32 curXP = m_activePlayerData->XP;
-    uint32 nextLvlXP = m_activePlayerData->NextLevelXP;
-    uint32 newXP = curXP + xp + bonus_xp;
+    uint32 nextLvlXP = GetXPForNextLevel();
+    uint32 newXP = GetXP() + xp + bonus_xp;
 
     while (newXP >= nextLvlXP && level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
@@ -2323,7 +2322,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
             GiveLevel(level + 1);
 
         level = GetLevel();
-        nextLvlXP = m_activePlayerData->NextLevelXP;
+        nextLvlXP = GetXPForNextLevel();
     }
 
     SetXP(newXP);
@@ -6306,7 +6305,7 @@ TeamId Player::TeamIdForRace(uint8 race)
     return TEAM_NEUTRAL;
 }
 
-void Player::setFactionForRace(uint8 race)
+void Player::SetFactionForRace(uint8 race)
 {
     m_team = TeamForRace(race);
 
@@ -17980,7 +17979,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
         return false;
     }
 
-    SetLevel(fields.level);
+    SetLevel(fields.level, false);
     SetXP(fields.xp);
 
     Tokenizer exploredZones(fields.exploredZones, ' ');
@@ -18059,7 +18058,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
     //Need to call it to initialize m_team (m_team can be calculated from race)
     //Other way is to saves m_team into characters table.
-    setFactionForRace(GetRace());
+    SetFactionForRace(GetRace());
 
     // load home bind and check in same time class/race pair, it used later for restore broken positions
     if (!_LoadHomeBind(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_HOME_BIND)))
@@ -20441,7 +20440,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt8(index++, GetClass());
         stmt->setUInt8(index++, GetNativeGender());   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, GetLevel());
-        stmt->setUInt32(index++, m_activePlayerData->XP);
+        stmt->setUInt32(index++, GetXP());
         stmt->setUInt64(index++, GetMoney());
         stmt->setUInt8(index++, GetInventorySlotCount());
         stmt->setUInt8(index++, GetBankBagSlotCount());
@@ -20569,7 +20568,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt8(index++, GetClass());
         stmt->setUInt8(index++, GetNativeGender());   // save gender from PLAYER_BYTES_3, UNIT_BYTES_0 changes with every transform effect
         stmt->setUInt8(index++, GetLevel());
-        stmt->setUInt32(index++, m_activePlayerData->XP);
+        stmt->setUInt32(index++, GetXP());
         stmt->setUInt64(index++, GetMoney());
         stmt->setUInt8(index++, GetInventorySlotCount());
         stmt->setUInt8(index++, GetBankBagSlotCount());

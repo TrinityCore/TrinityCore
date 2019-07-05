@@ -5218,12 +5218,15 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
     SendAttackStateUpdate(&dmgInfo);
 }
 
-void Unit::SetPowerType(Powers new_powertype)
+void Unit::SetPowerType(Powers new_powertype, bool sendUpdate/* = true*/)
 {
     if (GetPowerType() == new_powertype)
         return;
 
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DisplayPower), new_powertype);
+
+    if (!sendUpdate)
+        return;
 
     if (Player* thisPlayer = ToPlayer())
     {
@@ -8813,9 +8816,12 @@ bool Unit::CanFreeMove() const
         UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) && GetOwnerGUID().IsEmpty();
 }
 
-void Unit::SetLevel(uint8 lvl)
+void Unit::SetLevel(uint8 lvl, bool sendUpdate/* = true*/)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Level), lvl);
+
+    if (!sendUpdate)
+        return;
 
     if (Player* player = ToPlayer())
     {
@@ -11073,7 +11079,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 void Unit::RestoreFaction()
 {
     if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->setFactionForRace(GetRace());
+        ToPlayer()->SetFactionForRace(GetRace());
     else
     {
         if (HasUnitTypeMask(UNIT_MASK_MINION))
@@ -11491,15 +11497,15 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
         break;
     }
 
-    if (Player const* thisPlayer = ToPlayer())
+    if (Player const* player = ToPlayer())
     {
         if (Aura* artifactAura = GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE))
-            if (Item* artifact = ToPlayer()->GetItemByGuid(artifactAura->GetCastItemGUID()))
+            if (Item* artifact = player->GetItemByGuid(artifactAura->GetCastItemGUID()))
                 if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID)))
                     if (ShapeshiftForm(artifactAppearance->OverrideShapeshiftFormID) == form)
                         return artifactAppearance->OverrideShapeshiftDisplayID;
 
-        if (ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(GetRace(), thisPlayer->GetNativeGender(), form))
+        if (ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(GetRace(), player->GetNativeGender(), form))
         {
             bool useRandom = false;
             switch (form)
@@ -11524,8 +11530,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
                     if (ChrCustomizationDisplayInfoEntry const* displayInfo = formModelData->Displays[i])
                     {
                         ChrCustomizationReqEntry const* choiceReq = sChrCustomizationReqStore.LookupEntry((*formModelData->Choices)[i]->ChrCustomizationReqID);
-                        if (!choiceReq || thisPlayer->GetSession()->MeetsChrCustomizationReq(choiceReq, Classes(GetClass()), false,
-                            MakeChrCustomizationChoiceRange(thisPlayer->m_playerData->Customizations)))
+                        if (!choiceReq || player->GetSession()->MeetsChrCustomizationReq(choiceReq, Classes(GetClass()), false,
+                            MakeChrCustomizationChoiceRange(player->m_playerData->Customizations)))
                             displayIds.push_back(displayInfo->DisplayID);
                     }
                 }
@@ -11535,7 +11541,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form, uint32 spellId) const
             }
             else
             {
-                if (uint32 formChoice = thisPlayer->GetCustomizationChoice(formModelData->OptionID))
+                if (uint32 formChoice = player->GetCustomizationChoice(formModelData->OptionID))
                 {
                     auto choiceItr = std::find_if(formModelData->Choices->begin(), formModelData->Choices->end(), [formChoice](ChrCustomizationChoiceEntry const* choice)
                     {
