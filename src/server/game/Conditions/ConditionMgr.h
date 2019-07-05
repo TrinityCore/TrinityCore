@@ -23,6 +23,7 @@
 #include "Hash.h"
 #include <array>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 class Creature;
@@ -263,6 +264,8 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetingSmartEventConditions(int32 entryOrGuid, uint32 eventId, uint32 sourceType, Unit* unit, WorldObject* baseObject) const;
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player* player, Creature* vendor) const;
 
+        bool IsSpellUsedInSpellClickConditions(uint32 spellId) const;
+
         struct ConditionTypeInfo
         {
             char const* Name;
@@ -292,6 +295,8 @@ class TC_GAME_API ConditionMgr
         ConditionEntriesByCreatureIdMap SpellClickEventConditionStore;
         ConditionEntriesByCreatureIdMap NpcVendorConditionContainerStore;
         SmartEventConditionContainer    SmartEventConditionStore;
+
+        std::unordered_set<uint32> SpellsUsedInSpellClickConditions;
 };
 
 #define sConditionMgr ConditionMgr::instance()
