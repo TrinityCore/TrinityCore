@@ -131,7 +131,7 @@ bool BattlegroundQueue::SelectionPool::AddGroup(GroupQueueInfo* ginfo, uint32 de
 /*********************************************************/
 
 // add group or player (grp == NULL) to bg queue with the given leader and bg specifications
-GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, BattlegroundTypeId BgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 arenateamid)
+GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, BattlegroundTypeId BgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 arenateamid, uint32 PreviousOpponentsArenaTeamId)
 {
     BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
 
@@ -147,6 +147,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     ginfo->Team                      = leader->GetTeam();
     ginfo->ArenaTeamRating           = ArenaRating;
     ginfo->ArenaMatchmakerRating     = MatchmakerRating;
+    ginfo->PreviousOpponentsTeamId   = PreviousOpponentsArenaTeamId;
     ginfo->OpponentsTeamRating       = 0;
     ginfo->OpponentsMatchmakerRating = 0;
 
@@ -924,6 +925,9 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         // this has to be signed value - when the server starts, this value would be negative and thus overflow
         int32 discardTime = GameTime::GetGameTimeMS() - sBattlegroundMgr->GetRatingDiscardTimer();
 
+        // timer for previous opponents
+        int32 discardOpponentsTime = GameTime::GetGameTimeMS() - sWorld->getIntConfig(CONFIG_ARENA_PREV_OPPONENTS_DISCARD_TIMER);
+
         // we need to find 2 teams which will play next game
         GroupsQueueType::iterator itr_teams[PVP_TEAMS_COUNT];
         uint8 found = 0;
@@ -955,8 +959,8 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
             for (GroupsQueueType::iterator itr3 = itr_teams[0]; itr3 != m_QueuedGroups[bracket_id][team].end(); ++itr3)
             {
                 if (!(*itr3)->IsInvitedToBGInstanceGUID
-                    && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating)
-                        || (int32)(*itr3)->JoinTime < discardTime)
+                    && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating) || (int32)(*itr3)->JoinTime < discardTime)
+                    && ((*itr_teams[0])->ArenaTeamId != (*itr3)->PreviousOpponentsTeamId || ((int32)(*itr3)->JoinTime < discardOpponentsTime))
                     && (*itr_teams[0])->ArenaTeamId != (*itr3)->ArenaTeamId)
                 {
                     itr_teams[found++] = itr3;
