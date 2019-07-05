@@ -465,10 +465,10 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     m_creatureInfo = cinfo;                                 // map mode related always
 
     // equal to player Race field, but creature does not have race
-    SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE, 0);
+    SetRace(RACE_NONE);
 
     // known valid are: CLASS_WARRIOR, CLASS_PALADIN, CLASS_ROGUE, CLASS_MAGE
-    SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, uint8(cinfo->unit_class));
+    SetClass(uint8(cinfo->unit_class));
 
     // Cancel load if no model defined
     if (!(cinfo->GetFirstValidModelId()))
