@@ -14535,7 +14535,9 @@ void Player::PrepareQuestMenu(ObjectGuid guid)
         if (!CanTakeQuest(quest, false))
             continue;
 
-        if (quest->IsAutoComplete())
+        if (quest->IsAutoComplete() && (!quest->IsRepeatable() || quest->IsDaily() || quest->IsWeekly() || quest->IsMonthly()))
+            qm.AddMenuItem(quest_id, 0);
+        else if (quest->IsAutoComplete())
             qm.AddMenuItem(quest_id, 4);
         else if (GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
             qm.AddMenuItem(quest_id, 2);
@@ -16040,13 +16042,40 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
             {
                 if (SatisfyQuestLevel(quest, false))
                 {
-                    if (GetLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
+                    bool isNotLowLevelQuest = GetLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF));
+                    if (quest->IsRepeatable())
                     {
                         if (quest->IsDaily())
-                            result2 = DIALOG_STATUS_AVAILABLE_REP;
+                        {
+                            if (isNotLowLevelQuest)
+                                result2 = DIALOG_STATUS_AVAILABLE_REP;
+                            else
+                                result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE_REP;
+                        }
+                        else if (quest->IsWeekly() || quest->IsMonthly())
+                        {
+                            if (isNotLowLevelQuest)
+                                result2 = DIALOG_STATUS_AVAILABLE;
+                            else
+                                result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE;
+                        }
+                        else if (quest->IsAutoComplete())
+                        {
+                            if (isNotLowLevelQuest)
+                                result2 = DIALOG_STATUS_REWARD_REP;
+                            else
+                                result2 = DIALOG_STATUS_LOW_LEVEL_REWARD_REP;
+                        }
                         else
-                            result2 = DIALOG_STATUS_AVAILABLE;
+                        {
+                            if (isNotLowLevelQuest)
+                                result2 = DIALOG_STATUS_AVAILABLE;
+                            else
+                                result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE;
+                        }
                     }
+                    else if (isNotLowLevelQuest)
+                        result2 = DIALOG_STATUS_AVAILABLE;
                     else
                         result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE;
                 }
