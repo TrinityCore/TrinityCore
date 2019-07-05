@@ -3981,6 +3981,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RecoveryTime = 20000;
     });
 
+    // Summon Frigid Bones
+    ApplySpellFix({ 53525 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 2 minutes
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
