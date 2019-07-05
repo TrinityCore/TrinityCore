@@ -15,14 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef MiscPackets_h__
+#define MiscPackets_h__
 
-#include "NPCPackets.h"
-#include "MiscPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "WorldStatePackets.h"
+#include "Packet.h"
+#include "Weather.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace Misc
+    {
+        class Weather : public ServerPacket
+        {
+        public:
+            Weather();
+            Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
+
+            WorldPacket const* Write() override;
+
+            bool Abrupt = false;
+            float Intensity = 0.0f;
+            WeatherState WeatherID = WEATHER_STATE_FINE;
+        };
+    }
+}
+
+#endif // NPCPackets_h__

@@ -81,6 +81,10 @@ namespace WorldPackets
         class Hello;
         class TrainerBuySpell;
     }
+    namespace Misc
+    {
+        class Weather;
+    }
     namespace Query
     {
         class QueryCreature;

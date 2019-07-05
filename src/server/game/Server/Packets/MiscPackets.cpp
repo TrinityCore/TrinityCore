@@ -15,14 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
-
-#include "NPCPackets.h"
 #include "MiscPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "WorldStatePackets.h"
 
-#endif // AllPackets_h__
+WorldPackets::Misc::Weather::Weather() : ServerPacket(SMSG_WEATHER, 4 + 4 + 1) { }
+
+WorldPackets::Misc::Weather::Weather(WeatherState weatherID, float intensity /*= 0.0f*/, bool abrupt /*= false*/)
+    : ServerPacket(SMSG_WEATHER, 4 + 4 + 1), Abrupt(abrupt), Intensity(intensity), WeatherID(weatherID) { }
+
+WorldPacket const* WorldPackets::Misc::Weather::Write()
+{
+    _worldPacket << uint32(WeatherID);
+    _worldPacket << float(Intensity);
+    _worldPacket << uint8(Abrupt);
+
+    return &_worldPacket;
+}
