@@ -509,7 +509,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     init.Launch();
 }
 
-void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk /*= false*/, bool fly /*= false*/)
+void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk /*= false*/, bool fly /*= false*/, float velocity /*= 0.0f*/)
 {
     Movement::MoveSplineInit init(_owner);
     Movement::PointsArray path;
@@ -524,6 +524,9 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
         init.SetFly();
         init.SetUncompressed();
     }
+
+    if (velocity > 0.0f)
+        init.SetVelocity(velocity);
 
     init.MovebyPath(path);
     init.SetSmooth();
