@@ -40,6 +40,7 @@ void AddSC_boss_temporus();
 void AddSC_the_black_morass();
 void AddSC_instance_the_black_morass();
 void AddSC_boss_epoch();                     //CoT Culling Of Stratholme
+void AddSC_npc_arthas_stratholme();
 void AddSC_boss_infinite_corruptor();
 void AddSC_boss_salramm();
 void AddSC_boss_mal_ganis();
@@ -166,6 +167,7 @@ void AddKalimdorScripts()
     AddSC_the_black_morass();
     AddSC_instance_the_black_morass();
     AddSC_boss_epoch();                     //CoT Culling Of Stratholme
+    AddSC_npc_arthas_stratholme();
     AddSC_boss_infinite_corruptor();
     AddSC_boss_salramm();
     AddSC_boss_mal_ganis();
