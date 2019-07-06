@@ -622,6 +622,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     uint8 arenatype = 0;
     uint32 arenaRating = 0;
     uint32 matchmakerRating = 0;
+    uint32 previousOpponents = 0;
 
     switch (arenaslot)
     {
@@ -710,6 +711,8 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 
         if (arenaRating <= 0)
             arenaRating = 1;
+
+        previousOpponents = at->GetPreviousOpponents();
     }
 
     BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
@@ -728,7 +731,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
             else
                 bg->SetRated(false);
 
-            GroupQueueInfo* ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, arenatype, isRated != 0, false, arenaRating, matchmakerRating, ateamId);
+            GroupQueueInfo* ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, arenatype, isRated != 0, false, arenaRating, matchmakerRating, ateamId, previousOpponents);
             avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         }
 
@@ -760,7 +763,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     }
     else
     {
-        GroupQueueInfo* ginfo = bgQueue.AddGroup(_player, nullptr, bgTypeId, bracketEntry, arenatype, isRated != 0, false, arenaRating, matchmakerRating, ateamId);
+        GroupQueueInfo* ginfo = bgQueue.AddGroup(_player, nullptr, bgTypeId, bracketEntry, arenatype, isRated != 0, false, arenaRating, matchmakerRating, ateamId, previousOpponents);
         uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         uint32 queueSlot = _player->AddBattlegroundQueueId(bgQueueTypeId);
 
