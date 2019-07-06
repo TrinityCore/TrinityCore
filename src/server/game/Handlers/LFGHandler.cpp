@@ -186,8 +186,8 @@ void WorldSession::SendLfgPlayerLockInfo()
 
         if (currentQuest)
         {
-            playerDungeonInfo.Rewards.RewardMoney = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? currentQuest->GetRewOrReqMoney() : currentQuest->GetRewMoneyMaxLevel();
-            playerDungeonInfo.Rewards.RewardXP = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? currentQuest->XPValue(_player) : 0;
+            playerDungeonInfo.Rewards.RewardMoney = currentQuest->GetRewOrReqMoney(_player);
+            playerDungeonInfo.Rewards.RewardXP = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? currentQuest->GetXPReward(_player) : 0;
             for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
                 if (uint32 itemId = currentQuest->RewardItemId[i])
                     playerDungeonInfo.Rewards.Item.emplace_back(itemId, currentQuest->RewardItemIdCount[i]);
@@ -206,8 +206,8 @@ void WorldSession::SendLfgPlayerLockInfo()
         if (shortageQuest)
         {
             playerDungeonInfo.ShortageEligible = true;
-            playerDungeonInfo.ShortageReward.RewardMoney = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? shortageQuest->GetRewOrReqMoney() : shortageQuest->GetRewMoneyMaxLevel();
-            playerDungeonInfo.ShortageReward.RewardXP = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? shortageQuest->XPValue(_player) : 0;
+            playerDungeonInfo.ShortageReward.RewardMoney = shortageQuest->GetRewOrReqMoney(_player);;
+            playerDungeonInfo.ShortageReward.RewardXP = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? shortageQuest->GetXPReward(_player) : 0;
             for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
                 if (uint32 itemId = shortageQuest->RewardItemId[i])
                     playerDungeonInfo.ShortageReward.Item.emplace_back(itemId, shortageQuest->RewardItemIdCount[i]);
@@ -487,13 +487,13 @@ void WorldSession::SendLfgPlayerReward(lfg::LfgPlayerRewardData const& rewardDat
     WorldPackets::LFG::LFGPlayerReward lfgPlayerReward;
     lfgPlayerReward.QueuedSlot = rewardData.rdungeonEntry;
     lfgPlayerReward.ActualSlot = rewardData.sdungeonEntry;
-    uint32 rewardMoney = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.quest->GetRewOrReqMoney() : rewardData.quest->GetRewMoneyMaxLevel();
-    uint32 rewardExp = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.quest->XPValue(_player) : 0;
+    uint32 rewardMoney = rewardData.quest->GetRewOrReqMoney(_player);
+    uint32 rewardExp = _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.quest->GetXPReward(_player) : 0;
 
     if (rewardData.shortageQuest)
     {
-        rewardMoney += _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.shortageQuest->GetRewOrReqMoney() : rewardData.shortageQuest->GetRewMoneyMaxLevel();
-        rewardExp += _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.shortageQuest->XPValue(_player) : 0;
+        rewardMoney += rewardData.shortageQuest->GetRewOrReqMoney(_player);
+        rewardExp += _player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) ? rewardData.shortageQuest->GetXPReward(_player) : 0;
     }
 
     lfgPlayerReward.RewardMoney = rewardMoney;

@@ -214,7 +214,7 @@ class TC_GAME_API Quest
         void LoadQuestOfferReward(Field* fields);
         void LoadQuestTemplateAddon(Field* fields);
 
-        uint32 XPValue(Player* player) const;
+        uint32 GetXPReward(Player const* player) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
         void SetFlag(uint32 flag) { Flags |= flag; }
@@ -267,7 +267,7 @@ class TC_GAME_API Quest
         std::string const& GetQuestGiverTargetName() const { return QuestGiverTargetName; }
         std::string const& GetQuestTurnTextWindow() const { return QuestTurnTextWindow; }
         std::string const& GetQuestTurnTargetName() const { return QuestTurnTargetName; }
-        int32  GetRewOrReqMoney() const;
+        int32  GetRewOrReqMoney(Player const* player = nullptr) const;
         uint32 GetRewHonorAddition() const { return RewardHonor; }
         float GetRewHonorMultiplier() const { return RewardKillHonor; }
         uint32 GetRewMoneyMaxLevel() const; // use in XP calculation at client

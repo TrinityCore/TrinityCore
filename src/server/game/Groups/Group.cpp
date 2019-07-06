@@ -322,7 +322,7 @@ void Group::ConvertToGroup()
     // update quest related GO states (quest activity dependent from raid membership)
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
         if (Player* player = ObjectAccessor::FindPlayer(citr->guid))
-            player->UpdateForQuestWorldObjects();
+            player->UpdateVisibleGameobjectsOrSpellClicks();
 }
 
 bool Group::AddInvite(Player* player)

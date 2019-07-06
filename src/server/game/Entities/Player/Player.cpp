@@ -15381,22 +15381,19 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
 
     // Not give XP in case already completed once repeatable quest
-    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST));
+    uint32 XP = rewarded && !quest->IsDFQuest() ? 0 : uint32(quest->GetXPReward(this) * sWorld->getRate(RATE_XP_QUEST));
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
     for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
         AddPct(XP, (*i)->GetAmount());
 
-    int32 moneyRew = 0;
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         GiveXP(XP, nullptr);
-    else
-        moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
 
     if (Guild* guild = GetGuild())
     {
-        uint32 _xp = quest->XPValue(this);
+        uint32 _xp = quest->GetXPReward(this);
         uint32 guildRep = std::max(uint32(1), uint32(_xp / 450));
         guild->GiveXP(uint32(_xp * sWorld->getRate(RATE_XP_QUEST) * sWorld->getRate(RATE_XP_QUEST_GUILD_MODIFIER)), this);
         guild->GiveReputation(guildRep, this);
@@ -15404,12 +15401,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     }
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
-    // Do not reward the default reward money for max level dungeon quests
-    if (quest->GetRewOrReqMoney())
-        if ((quest->IsDFQuest() && getLevel() != sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)) || !quest->IsDFQuest())
-            moneyRew += quest->GetRewOrReqMoney();
-
-    if (moneyRew)
+    if (int32 moneyRew = quest->GetRewOrReqMoney(this))
     {
         ModifyMoney(moneyRew);
 
@@ -16327,8 +16319,7 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
             {
                 if (SatisfyQuestLevel(quest, false))
                 {
-                    if (getLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF)))
-                    bool isNotLowLevelQuest = GetLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF));
+                    bool isNotLowLevelQuest = getLevel() <= (GetQuestLevel(quest) + sWorld->getIntConfig(CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF));
                     if (quest->IsRepeatable())
                     {
                         if (quest->IsDaily())
@@ -17002,25 +16993,14 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP)
     uint32 questId = quest->GetQuestId();
     sGameEventMgr->HandleQuestComplete(questId);
 
-    uint32 xp;
-    uint32 moneyReward;
-
+    uint32 xp = 0;
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-    {
         xp = XP;
-        moneyReward = quest->GetRewOrReqMoney();
-    }
-    else // At max level, increase gold reward
-    {
-        xp = 0;
-        moneyReward = uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
-    }
 
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
-
+    WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
     data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
     data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
-    data << uint32(moneyReward);
+    data << uint32(quest->GetRewOrReqMoney(this));
     data << uint32(xp);
     data << uint32(questId);
     data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id

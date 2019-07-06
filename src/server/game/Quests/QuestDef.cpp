@@ -244,7 +244,7 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
         Flags |= QUEST_FLAGS_AUTO_ACCEPT;
 }
 
-uint32 Quest::XPValue(Player* player) const
+uint32 Quest::GetXPReward(Player const* player) const
 {
     if (player)
     {
@@ -272,14 +272,17 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-int32 Quest::GetRewOrReqMoney() const
+int32 Quest::GetRewOrReqMoney(Player const* player) const
 {
     // RequiredMoney: the amount is the negative copper sum.
-    if (RewardMoney <= 0)
+    if (RewardMoney < 0)
         return RewardMoney;
 
     // RewardMoney: the positive amount
-    return int32(RewardMoney * sWorld->getRate(RATE_MONEY_QUEST));
+    if (!player || player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        return int32(RewardMoney * sWorld->getRate(RATE_MONEY_QUEST));
+    else // At level cap, the money reward is the maximum amount between normal and bonus money reward
+        return std::max(int32(GetRewMoneyMaxLevel()), int32(RewardMoney * sWorld->getRate(RATE_MONEY_QUEST)));
 }
 
 void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
@@ -310,8 +313,8 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
             data << uint32(0);
     }
 
-    data << uint32(GetRewOrReqMoney());
-    data << uint32(XPValue(player) * sWorld->getRate(RATE_XP_QUEST));
+    data << uint32(GetRewOrReqMoney(player));
+    data << uint32(GetXPReward(player) * sWorld->getRate(RATE_XP_QUEST));
 
     data << uint32(GetCharTitleId());
     data << uint32(0);                                      // unk
