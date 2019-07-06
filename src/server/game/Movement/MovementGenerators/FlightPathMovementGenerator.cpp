@@ -119,7 +119,10 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
         // this prevent cheating with landing  point at lags
         // when client side flight end early in comparison server side
         player->StopMoving();
-        player->SetFallInformation(0, player->GetPositionZ());
+        float mapHeight = player->GetMap()->GetHeight(player->GetPhaseShift(), _path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, _path[GetCurrentNode()]->LocZ);
+        player->SetFallInformation(0, mapHeight);
+        // When the player reaches the last flight point, teleport to destination at map height
+        player->TeleportTo(_path[GetCurrentNode()]->MapID, _path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, mapHeight, player->GetOrientation());
     }
 
     player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
