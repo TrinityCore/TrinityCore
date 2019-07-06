@@ -132,8 +132,8 @@ class TC_GAME_API Pet : public Guardian
         void InitTalentForLevel();
 
         uint8 GetMaxTalentPointsForLevel(uint8 level) const;
-        uint8 GetFreeTalentPoints() const { return GetByteValue(UNIT_FIELD_BYTES_1, 1); }
-        void SetFreeTalentPoints(uint8 points) { SetByteValue(UNIT_FIELD_BYTES_1, 1, points); }
+        uint8 GetFreeTalentPoints() const { return GetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_PET_TALENTS); }
+        void SetFreeTalentPoints(uint8 points) { SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_PET_TALENTS, points); }
 
         uint32  m_usedTalentCount;
 
