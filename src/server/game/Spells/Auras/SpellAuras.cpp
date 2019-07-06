@@ -238,7 +238,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     auraData.SpellID = aura->GetId();
     auraData.Visual = aura->GetSpellVisual();
     auraData.Flags = GetFlags();
-    if (aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_HIDE_DURATION))
+    if (aura->GetType() != DYNOBJ_AURA_TYPE && aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_HIDE_DURATION))
         auraData.Flags |= AFLAG_DURATION;
 
     auraData.ActiveFlags = GetEffectMask();
