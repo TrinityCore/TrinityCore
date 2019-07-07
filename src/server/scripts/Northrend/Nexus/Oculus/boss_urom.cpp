@@ -317,7 +317,7 @@ class boss_urom : public CreatureScript
                 }
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 // If killed while in center, teleport to a valid ground position before dying
                 if (damage >= me->GetHealth())
