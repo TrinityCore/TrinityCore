@@ -3905,6 +3905,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
+        15538, // Gout of Flame
         42490, // Energized!
         42492, // Cast Energized
         43115  // Plague Vial
@@ -4031,6 +4032,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RecoveryTime = 20000;
+    });
+
+    // Summon Frigid Bones
+    ApplySpellFix({ 53525 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 2 minutes
     });
 
     //

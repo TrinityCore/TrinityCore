@@ -1192,6 +1192,7 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
         {
             case NPC_YMIRJAR_FROSTBINDER:
                 me->RemoveAurasDueToSpell(SPELL_ARCTIC_CHILL);
+            /* fallthrough */
             case NPC_YMIRJAR_DEATHBRINGER:
                 _OOCevents.ScheduleEvent(EVENT_YMIRJAR_SPIRIT_STREAM, 10s, 20s);
                 break;

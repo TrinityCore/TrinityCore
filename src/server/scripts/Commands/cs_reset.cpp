@@ -107,9 +107,9 @@ public:
         if (!player->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
             player->SetShapeshiftForm(FORM_NONE);
 
-        player->setFactionForRace(player->GetRace());
+        player->SetFactionForRace(player->GetRace());
 
-        player->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_POWER_TYPE, powerType);
+        player->SetPowerType(Powers(powerType), false);
 
         // reset only if player not in some form;
         if (player->GetShapeshiftForm() == FORM_NONE)
@@ -147,7 +147,7 @@ public:
         target->InitTaxiNodesForLevel();
         target->InitGlyphsForLevel();
         target->InitTalentForLevel();
-        target->SetUInt32Value(PLAYER_XP, 0);
+        target->SetXP(0);
 
         target->_ApplyAllLevelScaleItemMods(true);
 
