@@ -101,7 +101,8 @@ public:
             _blocksMask[i] &= right._blocksMask[i];
 
         for (uint32 i = 0; i < BlockCount; ++i)
-            _blocks[i] &= right._blocks[i];
+            if (!(_blocks[i] &= right._blocks[i]))
+                _blocksMask[UpdateMaskHelpers::GetBlockIndex(i)] &= ~UpdateMaskHelpers::GetBlockFlag(i);
 
         return *this;
     }

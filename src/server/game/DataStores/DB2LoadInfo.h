@@ -59,9 +59,9 @@ struct AnimationDataLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { false, FT_SHORT, "Fallback" },
+            { false, FT_SHORT, "BehaviorID" },
             { false, FT_BYTE, "BehaviorTier" },
-            { true, FT_INT, "BehaviorID" },
+            { true, FT_INT, "Fallback" },
             { true, FT_INT, "Flags1" },
             { true, FT_INT, "Flags2" },
         };
@@ -4487,9 +4487,9 @@ struct SpellItemEnchantmentLoadInfo
             { false, FT_FLOAT, "EffectScalingPoints1" },
             { false, FT_FLOAT, "EffectScalingPoints2" },
             { false, FT_FLOAT, "EffectScalingPoints3" },
+            { false, FT_INT, "TransmogPlayerConditionID" },
             { false, FT_INT, "TransmogCost" },
             { false, FT_INT, "IconFileDataID" },
-            { false, FT_INT, "TransmogPlayerConditionID" },
             { true, FT_SHORT, "EffectPointsMin1" },
             { true, FT_SHORT, "EffectPointsMin2" },
             { true, FT_SHORT, "EffectPointsMin3" },

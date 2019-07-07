@@ -225,26 +225,34 @@ size_t ListFile_GetNextLine(void * pvListFile, char * szBuffer, size_t nMaxChars
     const char * szLineBegin = NULL;
     const char * szLineEnd = NULL;
     size_t nLength;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Retrieve the next line
     nLength = ListFile_GetNextLine(pvListFile, &szLineBegin, &szLineEnd);
 
     // Check the length
-    if(nLength > nMaxChars)
+    if(nLength < nMaxChars)
     {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-        return 0;
+        // Copy the line to the user buffer
+        memcpy(szBuffer, szLineBegin, nLength);
+        szBuffer[nLength] = 0;
+    }
+    else
+    {
+        dwErrCode = ERROR_INSUFFICIENT_BUFFER;
+        nLength = 0;
     }
 
-    // Copy the line to the user buffer
-    memcpy(szBuffer, szLineBegin, nLength);
-    szBuffer[nLength] = 0;
+    // If we didn't read anything, set the error code
+    if(nLength == 0)
+        SetLastError(dwErrCode);
     return nLength;
 }
 
 size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PDWORD PtrFileDataId)
 {
     PLISTFILE_CACHE pCache = (PLISTFILE_CACHE)pvListFile;
+    const char * szTemp;
     size_t nLength = 0;
     int nError = ERROR_SUCCESS;
 
@@ -257,18 +265,24 @@ size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PD
         // Lines that contain bogus data, invalid numbers or too big values will be skipped
         if(pCache->Flags & LISTFILE_FLAG_USES_FILEDATAID)
         {
+            // Retrieve the data ID from the current position
             nError = ListFile_GetFileDataId(pCache, &FileDataId);
             if(nError == ERROR_NO_MORE_FILES)
                 break;
+            
+            // If there was an error, skip the current line
             if(nError != ERROR_SUCCESS || FileDataId == CASC_INVALID_ID)
+            {
+                ListFile_GetNextLine(pvListFile, &szTemp, &szTemp);
                 continue;
+            }
         }
 
         // Read the (next) line
         nLength = ListFile_GetNextLine(pvListFile, szBuffer, nMaxChars);
         if(nLength == 0)
         {
-            nError = ERROR_NO_MORE_FILES;
+            nError = GetLastError();
             break;
         }
 
