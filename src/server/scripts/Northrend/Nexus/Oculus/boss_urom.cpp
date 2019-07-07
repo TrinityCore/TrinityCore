@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Containers.h"
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "oculus.h"
@@ -103,9 +104,9 @@ class boss_urom : public CreatureScript
                 _isInCenter = false;
 
                 for (uint8 i = 0; i < 3; ++i)
-                    _group[i] = i;
+                    _group.push_back(i);
 
-                std::random_shuffle(_group, _group + 3);
+                Trinity::Containers::RandomShuffle(_group);
             }
 
             void EnterEvadeMode(EvadeReason why) override
@@ -333,7 +334,7 @@ class boss_urom : public CreatureScript
             float _x, _y;
             bool _isInCenter;
             uint8 _platform;
-            uint8 _group[3];
+            std::vector<uint8> _group;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
