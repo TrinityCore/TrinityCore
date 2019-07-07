@@ -26,7 +26,7 @@ void InvalidState::Update(Map&, NGridType&, GridInfo&, uint32) const
 {
 }
 
-void ActiveState::Update(Map& map, NGridType& grid, GridInfo&  info, uint32 diff) const
+void ActiveState::Update(Map& map, NGridType& grid, GridInfo& info, uint32 diff) const
 {
     // Only check grid activity every (grid_expiry/10) ms, because it's really useless to do it every cycle
     info.UpdateTimeTracker(diff);

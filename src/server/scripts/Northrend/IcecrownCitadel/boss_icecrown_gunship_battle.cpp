@@ -579,8 +579,8 @@ struct gunship_npc_AI : public ScriptedAI
         if (!me->IsAlive() || !me->IsInCombat())
             return;
 
-        me->GetThreatManager().ClearAllThreat();
         me->CombatStop(true);
+        me->GetThreatManager().NotifyDisengaged();
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
@@ -724,8 +724,8 @@ class npc_gunship : public CreatureScript
                 {
                     Creature* stalker = *itr;
                     stalker->RemoveAllAuras();
-                    stalker->GetThreatManager().ClearAllThreat();
                     stalker->CombatStop(true);
+                    stalker->GetThreatManager().NotifyDisengaged();
                 }
 
                 uint32 explosionSpell = isVictory ? SPELL_EXPLOSION_VICTORY : SPELL_EXPLOSION_WIPE;
@@ -883,8 +883,8 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 if (!me->IsAlive())
                     return;
 
-                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
+                me->GetThreatManager().NotifyDisengaged();
                 me->GetMotionMaster()->MoveTargetedHome();
 
                 Reset();
@@ -1147,8 +1147,8 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 if (!me->IsAlive())
                     return;
 
-                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
+                me->GetThreatManager().NotifyDisengaged();
                 me->GetMotionMaster()->MoveTargetedHome();
 
                 Reset();

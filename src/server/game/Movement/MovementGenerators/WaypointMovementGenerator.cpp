@@ -390,3 +390,11 @@ bool WaypointMovementGenerator<Creature>::ComputeNextNode()
     _currentNode = (_currentNode + 1) % _path->nodes.size();
     return true;
 }
+
+std::string WaypointMovementGenerator<Creature>::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << PathMovementBase::GetDebugInfo() << "\n"
+        << MovementGeneratorMedium::GetDebugInfo();
+    return sstr.str();
+}

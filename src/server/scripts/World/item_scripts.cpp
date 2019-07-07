@@ -399,11 +399,11 @@ class item_generic_limit_chance_above_60 : public ItemScript
         bool OnCastItemCombatSpell(Player* /*player*/, Unit* victim, SpellInfo const* /*spellInfo*/, Item* /*item*/) override
         {
             // spell proc chance gets severely reduced on victims > 60 (formula unknown)
-            if (victim->getLevel() > 60)
+            if (victim->GetLevel() > 60)
             {
                 // gives ~0.1% proc chance at lvl 70
                 float const lvlPenaltyFactor = 9.93f;
-                float const failureChance = (victim->getLevel() - 60) * lvlPenaltyFactor;
+                float const failureChance = (victim->GetLevel() - 60) * lvlPenaltyFactor;
 
                 // base ppm chance was already rolled, only roll success chance
                 return !roll_chance_f(failureChance);

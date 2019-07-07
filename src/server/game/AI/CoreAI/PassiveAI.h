@@ -57,6 +57,7 @@ class TC_GAME_API NullCreatureAI : public CreatureAI
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }
         void UpdateAI(uint32) override { }
+        void JustAppeared() override { }
         void EnterEvadeMode(EvadeReason /*why*/) override { }
         void OnCharmed(bool /*isNew*/) override { }
 
@@ -78,7 +79,7 @@ class TC_GAME_API TriggerAI : public NullCreatureAI
 {
     public:
         explicit TriggerAI(Creature* creature) : NullCreatureAI(creature) { }
-        void IsSummonedBy(Unit* summoner) override;
+        void IsSummonedBy(WorldObject* summoner) override;
 
         static int32 Permissible(Creature const* creature);
 };

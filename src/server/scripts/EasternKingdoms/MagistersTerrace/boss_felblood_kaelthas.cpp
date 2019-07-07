@@ -389,7 +389,7 @@ struct npc_felblood_kaelthas_phoenix : public ScriptedAI
         _isInEgg = false;
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(WorldObject* /*summoner*/) override
     {
         DoZoneInCombat();
         DoCastSelf(SPELL_BURN);

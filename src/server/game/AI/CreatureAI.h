@@ -125,7 +125,7 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called when the creature summon successfully other creature
         virtual void JustSummoned(Creature* /*summon*/) { }
-        virtual void IsSummonedBy(Unit* /*summoner*/) { }
+        virtual void IsSummonedBy(WorldObject* /*summoner*/) { }
 
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
@@ -141,7 +141,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual bool IsEscorted() const { return false; }
 
         // Called when creature appears in the world (spawn, respawn, grid load etc...)
-        virtual void JustAppeared() { }
+        virtual void JustAppeared();
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }

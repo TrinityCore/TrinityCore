@@ -99,9 +99,11 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Called when hit by a spell
         void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
+        void SpellHitByGameObject(GameObject* object, SpellInfo const* spellInfo) override;
 
         // Called when spell hits a target
         void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override;
+        void SpellHitTargetGameObject(GameObject* object, SpellInfo const* spellInfo) override;
 
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage) override;
@@ -119,7 +121,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void MovementInform(uint32 MovementType, uint32 Data) override;
 
         // Called when creature is summoned by another unit
-        void IsSummonedBy(Unit* summoner) override;
+        void IsSummonedBy(WorldObject* summoner) override;
 
         // Called at any Damage to any victim (before damage apply)
         void DamageDealt(Unit* doneTo, uint32& damage, DamageEffectType /*damagetype*/) override;
@@ -133,8 +135,11 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Called when a Player/Creature enters the creature (vehicle)
         void PassengerBoarded(Unit* who, int8 seatId, bool apply) override;
 
-        // Called when gets initialized, when creature is added to world
+        // Called when gets initialized
         void InitializeAI() override;
+
+        // Called once creature is fully added to world
+        void JustAppeared() override;
 
         // Called when creature gets charmed by another unit
         void OnCharmed(bool isNew) override;
@@ -265,6 +270,12 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void OnLootStateChanged(uint32 state, Unit* unit) override;
         void EventInform(uint32 eventId) override;
         void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
+
+        // Called when the gameobject summon successfully other creature
+        void JustSummoned(Creature* creature) override;
+
+        // Called when a summoned creature dissapears (UnSommoned)
+        void SummonedCreatureDespawn(Creature* unit) override;
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
 

@@ -16,23 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Borean_Tundra
-SD%Complete: 100
-SDCategory: Borean Tundra
-EndScriptData */
-
-/* ContentData
-npc_iruk
-npc_corastrasza
-npc_sinkhole_kill_credit
-npc_khunok_the_behemoth
-npc_nerubar_victim
-npc_nesingwary_trapper
-npc_lurgglbr
-EndContentData */
-
 #include "ScriptMgr.h"
+#include "CreatureAIImpl.h"
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -487,7 +472,7 @@ public:
 
             if (TempSummon* summon = me->ToTempSummon())
                 if (summon->IsSummon())
-                    if (Unit* temp = summon->GetSummoner())
+                    if (Unit* temp = summon->GetSummonerUnit())
                         if (Player* player = temp->ToPlayer())
                             player->KilledMonsterCredit(me->GetEntry());
 
@@ -734,7 +719,7 @@ public:
             Creature* owner = GetOwner()->ToCreature();
             owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
             owner->CombatStop(true);
-            owner->GetThreatManager().ClearAllThreat();
+            owner->GetThreatManager().NotifyDisengaged();
             owner->GetMotionMaster()->Clear();
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
@@ -1134,7 +1119,7 @@ public:
                 return;
 
             if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arthasInPosition = true;
         }
     };
@@ -1166,7 +1151,7 @@ public:
             me->AddUnitState(UNIT_STATE_STUNNED);
             me->CastSpell(me, SPELL_STUN, true);
             if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arlosInPosition = true;
         }
     };
@@ -1228,7 +1213,7 @@ public:
                 return;
 
             if (me->IsSummon())
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->talbotInPosition = true;
         }
 
@@ -1345,7 +1330,7 @@ public:
                 me->CastSpell(me, SPELL_STUN, true);
 
                 if (me->IsSummon())
-                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                         ENSURE_AI(npc_thassarian::npc_thassarianAI, summoner->GetAI())->leryssaInPosition = true;
                 bDone = true;
             }
@@ -1353,7 +1338,7 @@ public:
             {
                 me->SetStandState(UNIT_STAND_STATE_SIT);
                 if (me->IsSummon())
-                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                     summoner->SetStandState(UNIT_STAND_STATE_SIT);
                 phaseTimer = 1500;
                 phase = 1;
@@ -1370,7 +1355,7 @@ public:
                 {
                     case 1:
                         if (me->IsSummon())
-                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                                 if (Creature* thassarian = summoner->ToCreature())
                                     thassarian->AI()->Talk(SAY_THASSARIAN_4);
                         phaseTimer = 5000;
@@ -1383,7 +1368,7 @@ public:
                         break;
                     case 3:
                         if (me->IsSummon())
-                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                                 if (Creature* thassarian = summoner->ToCreature())
                                     thassarian->AI()->Talk(SAY_THASSARIAN_5);
                         phaseTimer = 5000;
@@ -1396,7 +1381,7 @@ public:
                         break;
                     case 5:
                         if (me->IsSummon())
-                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                                 if (Creature* thassarian = summoner->ToCreature())
                                     thassarian->AI()->Talk(SAY_THASSARIAN_6);
                         phaseTimer = 5000;
@@ -1410,7 +1395,7 @@ public:
                         break;
                     case 7:
                         if (me->IsSummon())
-                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                                 if (Creature* thassarian = summoner->ToCreature())
                                 {
                                     thassarian->AI()->Talk(SAY_THASSARIAN_7);
@@ -1528,17 +1513,14 @@ public:
 ######*/
 enum ImprisionedBerylSorcerer
 {
-    SPELL_NEURAL_NEEDLE             = 45634,
+    SPELL_NEURAL_NEEDLE                  = 45634,
+    SPELL_PROTOTYPE_NEURAL_NEEDLE        = 48252,
+    SPELL_NEURAL_NEEDLE_IMPACT           = 45702,
+    SPELL_PROTOTYPE_NEURAL_NEEDLE_IMPACT = 48254,
 
-    NPC_IMPRISONED_BERYL_SORCERER   = 25478,
+    NPC_IMPRISONED_BERYL_SORCERER = 25478,
 
-    SAY_IMPRISIONED_BERYL_1         = 0,
-    SAY_IMPRISIONED_BERYL_2         = 1,
-    SAY_IMPRISIONED_BERYL_3         = 2,
-    SAY_IMPRISIONED_BERYL_4         = 3,
-    SAY_IMPRISIONED_BERYL_5         = 4,
-    SAY_IMPRISIONED_BERYL_6         = 5,
-    SAY_IMPRISIONED_BERYL_7         = 6
+    QUEST_THE_ART_OF_PERSUASION   = 11648
 };
 
 class npc_imprisoned_beryl_sorcerer : public CreatureScript
@@ -1575,9 +1557,7 @@ public:
             if (rebuff <= diff)
             {
                 if (!me->HasAura(SPELL_COSMETIC_ENSLAVE_CHAINS_SELF))
-                {
                     DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF);
-                }
                 rebuff = 180000;
             }
             else
@@ -1592,42 +1572,29 @@ public:
 
         void SpellHit(Unit* unit, SpellInfo const* spell) override
         {
-            if (spell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
-                if (Player* player = unit->ToPlayer())
-                    GotStinged(player->GetGUID());
+            if ((spell->Id == SPELL_NEURAL_NEEDLE || spell->Id == SPELL_PROTOTYPE_NEURAL_NEEDLE) && unit->GetTypeId() == TYPEID_PLAYER)
+                GotStinged(unit->ToPlayer(), spell->Id);
         }
 
-        void GotStinged(ObjectGuid casterGUID)
+        void GotStinged(Player* caster, uint32 spellId)
         {
-            if (Player* caster = ObjectAccessor::GetPlayer(*me, casterGUID))
-            {
-                uint32 step = caster->GetAuraCount(SPELL_NEURAL_NEEDLE) + 1;
-                switch (step)
-                {
-                    case 1:
-                        Talk(SAY_IMPRISIONED_BERYL_1);
-                        break;
-                    case 2:
-                        Talk(SAY_IMPRISIONED_BERYL_2, caster);
-                        break;
-                    case 3:
-                        Talk(SAY_IMPRISIONED_BERYL_3);
-                        break;
-                    case 4:
-                        Talk(SAY_IMPRISIONED_BERYL_4);
-                        break;
-                    case 5:
-                        Talk(SAY_IMPRISIONED_BERYL_5);
-                        caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
-                        break;
-                    case 6:
-                        Talk(SAY_IMPRISIONED_BERYL_6, caster);
-                        break;
-                    case 7:
-                        Talk(SAY_IMPRISIONED_BERYL_7);
-                        break;
-                }
-            }
+            DoCastSelf(spellId == SPELL_NEURAL_NEEDLE ? SPELL_NEURAL_NEEDLE_IMPACT : SPELL_PROTOTYPE_NEURAL_NEEDLE_IMPACT);
+
+            // Event cannot happen if quest is not accepted/completed/rewarded
+            if (caster->GetQuestStatus(QUEST_THE_ART_OF_PERSUASION) == QUEST_STATUS_NONE)
+                return;
+
+            uint32 step = 0;
+
+            if (spellId == SPELL_NEURAL_NEEDLE)
+                step = caster->GetAuraCount(SPELL_NEURAL_NEEDLE); // Text IDs 0-6
+            else
+                step = caster->GetAuraCount(SPELL_PROTOTYPE_NEURAL_NEEDLE) + 7; // Text IDs 7-18
+
+            if (spellId == SPELL_NEURAL_NEEDLE && step == 4)
+                caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER);
+
+            Talk(step, caster);
         }
     };
 
@@ -2503,6 +2470,86 @@ public:
     }
 };
 
+enum OrabusTheHelmsman
+{
+    NPC_ORABUS            = 32576,
+    NPC_KVALDIR_CREWMAN_1 = 32577,
+    NPC_KVALDIR_CREWMAN_2 = 32578,
+    NPC_KVALDIR_CREWMAN_3 = 32579,
+    NPC_KVALDIR_CREWMAN_4 = 32580
+};
+
+class npc_orabus_the_helmsman_ship_exit_pos : public UnitScript
+{
+public:
+    npc_orabus_the_helmsman_ship_exit_pos() : UnitScript("npc_orabus_the_helmsman_ship_exit_pos") { }
+
+    void ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* /*vehicle*/, Position& pos)
+    {
+        if (passenger->GetTypeId() == TYPEID_UNIT)
+        {
+            switch (passenger->GetEntry())
+            {
+                case NPC_ORABUS:
+                    pos.Relocate(2807.858f, 7038.571f, 7.075813f, 4.73481f);
+                    break;
+                case NPC_KVALDIR_CREWMAN_1:
+                    pos.Relocate(2801.168f, 7046.468f, 5.362013f, 4.73481f);
+                    break;
+                case NPC_KVALDIR_CREWMAN_2:
+                    pos.Relocate(2803.729f, 7046.516f, 5.362013f, 4.73481f);
+                    break;
+                case NPC_KVALDIR_CREWMAN_3:
+                    pos.Relocate(2801.48f, 7051.379f, 5.362913f, 4.73481f);
+                    break;
+                case NPC_KVALDIR_CREWMAN_4:
+                    pos.Relocate(2803.319f, 7051.411f, 5.362913f, 4.73481f);
+                    break;
+            }
+        }
+    }
+};
+
+// 45668 - Ultra-Advanced Proto-Typical Shortening Blaster
+enum ShorteningBlaster
+{
+    SPELL_SHORTENING_BLASTER_BIGGER1    = 45674,
+    SPELL_SHORTENING_BLASTER_SHRUNK1    = 45675,
+    SPELL_SHORTENING_BLASTER_YELLOW1    = 45678,
+    SPELL_SHORTENING_BLASTER_GHOST1     = 45682,
+    SPELL_SHORTENING_BLASTER_POLYMORPH1 = 45684,
+
+    SPELL_SHORTENING_BLASTER_BIGGER2    = 45673,
+    SPELL_SHORTENING_BLASTER_SHRUNK2    = 45672,
+    SPELL_SHORTENING_BLASTER_YELLOW2    = 45677,
+    SPELL_SHORTENING_BLASTER_GHOST2     = 45682,
+    SPELL_SHORTENING_BLASTER_POLYMORPH2 = 45683
+};
+
+class spell_q11653_shortening_blaster : public SpellScript
+{
+    PrepareSpellScript(spell_q11653_shortening_blaster);
+
+    void HandleScript(SpellEffIndex /* effIndex */)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        uint32 spellId = RAND(SPELL_SHORTENING_BLASTER_BIGGER1, SPELL_SHORTENING_BLASTER_SHRUNK1, SPELL_SHORTENING_BLASTER_YELLOW1,
+            SPELL_SHORTENING_BLASTER_GHOST1, SPELL_SHORTENING_BLASTER_POLYMORPH1);
+        uint32 spellId2 = RAND(SPELL_SHORTENING_BLASTER_BIGGER2, SPELL_SHORTENING_BLASTER_SHRUNK2, SPELL_SHORTENING_BLASTER_YELLOW2,
+            SPELL_SHORTENING_BLASTER_GHOST2, SPELL_SHORTENING_BLASTER_POLYMORPH2);
+
+        caster->CastSpell(caster, spellId, true);
+        target->CastSpell(target, spellId2, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q11653_shortening_blaster::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit();
@@ -2529,4 +2576,6 @@ void AddSC_borean_tundra()
     new spell_windsoul_totem_aura();
     new spell_q11719_bloodspore_ruination_45997();
     new npc_bloodmage_laurith();
+    new npc_orabus_the_helmsman_ship_exit_pos();
+    RegisterSpellScript(spell_q11653_shortening_blaster);
 }
