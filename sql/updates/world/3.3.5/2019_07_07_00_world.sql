@@ -1,5 +1,5 @@
 --
-DELETE FROM `spell_script_names` WHERE `ScriptName`="spell_frostbomb";
+DELETE FROM `spell_script_names` WHERE `ScriptName`="spell_urom_frostbomb";
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (51103, "spell_urom_frostbomb");
 
