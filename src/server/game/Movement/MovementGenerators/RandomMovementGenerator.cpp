@@ -47,14 +47,14 @@ void RandomMovementGenerator<T>::Pause(uint32 timer /*= 0*/)
 {
     if (timer)
     {
-        AddFlag(MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
+        this->AddFlag(MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
         _timer.Reset(timer);
-        RemoveFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
+        this->RemoveFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
     }
     else
     {
-        AddFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
-        RemoveFlag(MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
+        this->AddFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
+        this->RemoveFlag(MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
     }
 }
 
@@ -64,7 +64,7 @@ void RandomMovementGenerator<T>::Resume(uint32 overrideTimer /*= 0*/)
     if (overrideTimer)
         _timer.Reset(overrideTimer);
 
-    RemoveFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
+    this->RemoveFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
 }
 
 template MovementGeneratorType RandomMovementGenerator<Creature>::GetMovementGeneratorType() const;
