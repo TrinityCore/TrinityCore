@@ -146,7 +146,7 @@ public:
                 if (_instance->GetData(TYPE_IRON_HALL) == NOT_STARTED)
                     return;
                 // Once the boss is engaged, the guardians will stay activated until the next instance reset
-                _events.ScheduleEvent(EVENT_GOUTOFFLAME, 0s);
+                _events.ScheduleEvent(EVENT_GOUTOFFLAME, 0s, 10s);
                 _active = true;
             }
 
@@ -157,7 +157,7 @@ public:
                 if (eventId == EVENT_GOUTOFFLAME)
                 {
                     DoCastAOE(SPELL_GOUTOFFLAME);
-                    _events.Repeat(16s);
+                    _events.Repeat(16s, 21s);
                 }
             }
         }
