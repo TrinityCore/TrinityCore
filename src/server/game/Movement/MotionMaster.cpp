@@ -830,6 +830,10 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
     {
         return G3D::Vector3(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
     });
+    
+    // The spline movement uses will use the first vertex as starting position
+    // We are going to add the owner's position first so we wont lose any waypoint provided in the position array
+    path.insert(path.begin(), G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()));
 
     init.MovebyPath(path);
     init.SetSmooth();
