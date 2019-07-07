@@ -30,6 +30,7 @@
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "CreatureGroups.h"
 #include "Formulas.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
@@ -12506,6 +12507,20 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
             vehicle->GetBase()->RemoveAura(const_cast<AuraApplication*>(aurApp));
             return;
         }
+
+        if (vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
+        {
+            // If a player entered a vehicle that is part of a formation, remove it from said formation and replace current movement generator with MoveIdle (no movement)
+            if (CreatureGroup* creatureGroup = vehicle->GetBase()->ToCreature()->GetFormation())
+            {
+                creatureGroup->RemoveMember(vehicle->GetBase()->ToCreature());
+                vehicle->GetBase()->GetMotionMaster()->MoveIdle();
+            }
+
+            // If the vehicle has the random movement generator active, replace it with MoveIdle (no movement) so it won't override player control
+            if (vehicle->GetBase()->GetMotionMaster()->GetCurrentMovementGeneratorType() == RANDOM_MOTION_TYPE)
+                vehicle->GetBase()->GetMotionMaster()->MoveIdle();
+        }
     }
 
     // If vehicle flag for fixed position set (cannons), or if the following hardcoded units, then set state rooted
@@ -12625,7 +12640,13 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_EXIT, MOTION_PRIORITY_HIGHEST);
 
     if (player)
+    {
         player->ResummonPetTemporaryUnSummonedIfAny();
+
+        // When a player exits a creature vehicle, restore its default motion generator (if any)
+        if (vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
+            vehicle->GetBase()->GetMotionMaster()->InitializeDefault();
+    }
 
     if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION) && vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
         if (((Minion*)vehicle->GetBase())->GetOwner() == this)
