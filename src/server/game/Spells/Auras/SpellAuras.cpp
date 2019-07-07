@@ -234,7 +234,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
     Aura const* aura = GetBase();
     data << uint32(aura->GetId());
     uint32 flags = _flags;
-    if (aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_HIDE_DURATION))
+    if (aura->GetType() != DYNOBJ_AURA_TYPE && aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
     data << uint8(flags);
     data << uint8(aura->GetCasterLevel());
