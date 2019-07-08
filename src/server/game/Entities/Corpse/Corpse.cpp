@@ -20,7 +20,6 @@
 #include "CharacterCache.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "GameTime.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -39,7 +38,7 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
 
     m_valuesCount = CORPSE_END;
 
-    m_time = GameTime::GetGameTime();
+    m_time = time(nullptr);
 
     lootForBody = false;
     lootRecipient = nullptr;
@@ -147,11 +146,6 @@ void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE_PHASES);
     stmt->setUInt32(0, ownerGuid.GetCounter());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
-}
-
-void Corpse::ResetGhostTime()
-{
-    m_time = GameTime::GetGameTime();
 }
 
 bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)

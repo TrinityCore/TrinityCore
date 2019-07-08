@@ -18,7 +18,6 @@
 #include "WorldSession.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "GameTime.h"
 #include "Log.h"
 #include "Object.h"
 #include "Opcodes.h"
@@ -54,7 +53,7 @@ void WorldSession::SendBfInvitePlayerToWar(ObjectGuid guid, uint32 zoneId, uint3
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[2]);
     data.WriteByteSeq(guid[0]);
-    data << uint32(GameTime::GetGameTime() + acceptTime); // Invite lasts until
+    data << uint32(time(nullptr) + acceptTime); // Invite lasts until
     data.WriteByteSeq(guid[7]);
     data.WriteByteSeq(guid[5]);
     SendPacket(&data);

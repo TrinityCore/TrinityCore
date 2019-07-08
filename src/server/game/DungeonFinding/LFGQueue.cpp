@@ -19,7 +19,6 @@
 #include "Containers.h"
 #include "DBCStructure.h"
 #include "DBCStores.h"
-#include "GameTime.h"
 #include "Group.h"
 #include "LFGQueue.h"
 #include "LFGMgr.h"
@@ -79,11 +78,6 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
         default:
             return "Unknown";
     }
-}
-
-LfgQueueData::LfgQueueData() : joinTime(GameTime::GetGameTime())
-{
-    InitializeGroupSetup();
 }
 
 void LfgQueueData::InitializeGroupSetup()
@@ -569,7 +563,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     }
 
     // Create a new proposal
-    proposal.cancelTime = GameTime::GetGameTime() + LFG_TIME_PROPOSAL;
+    proposal.cancelTime = time(nullptr) + LFG_TIME_PROPOSAL;
     proposal.state = LFG_PROPOSAL_INITIATING;
     proposal.leader.Clear();
 

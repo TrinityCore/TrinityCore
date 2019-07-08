@@ -4975,28 +4975,6 @@ class spell_gen_launch_quest : public SpellScript
     }
 };
 
-// Used for some spells cast by vehicles or charmed creatures that do not send a cooldown event on their own
-class spell_gen_charmed_unit_spell_cooldown : public SpellScript
-{
-    PrepareSpellScript(spell_gen_charmed_unit_spell_cooldown);
-
-    void HandleCast()
-    {
-        Unit* caster = GetCaster();
-        if (Player* owner = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
-        {
-            WorldPacket data;
-            caster->GetSpellHistory()->BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, GetSpellInfo()->Id, GetSpellInfo()->RecoveryTime);
-            owner->SendDirectMessage(&data);
-        }
-    }
-
-    void Register() override
-    {
-        OnCast += SpellCastFn(spell_gen_charmed_unit_spell_cooldown::HandleCast);
-    }
-};
-
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5111,5 +5089,4 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_mirror_image_aura);
     RegisterSpellScript(spell_gen_reverse_cast_ride_vehicle);
     RegisterSpellScript(spell_gen_launch_quest);
-    RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
 }

@@ -20,9 +20,9 @@
 
 namespace GameTime
 {
-    time_t const StartTime = GameTime::GetGameTime();
+    time_t const StartTime = time(nullptr);
 
-    time_t GameTime = time(nullptr);
+    time_t GameTime = 0;
     uint32 GameMSTime = 0;
 
     std::chrono::system_clock::time_point GameTimeSystemPoint = std::chrono::system_clock::time_point::min();
@@ -60,7 +60,7 @@ namespace GameTime
 
     void UpdateGameTimers()
     {
-        GameTime = GameTime::GetGameTime();
+        GameTime = time(nullptr);
         GameMSTime = getMSTime();
         GameTimeSystemPoint = std::chrono::system_clock::now();
         GameTimeSteadyPoint = std::chrono::steady_clock::now();

@@ -230,7 +230,7 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
             break;
     }
 
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(GameTime::GetGameTime())); // cast can't be helped here
+    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(nullptr))); // cast can't be helped here
     SetCreatorGUID(owner->GetGUID());
 
     InitStatsForLevel(petlevel);
@@ -301,7 +301,7 @@ bool Pet::LoadPetData(Player* owner, uint32 petEntry, uint32 petnumber, bool cur
 
     InitTalentForLevel();                                   // set original talents points before spell loading
 
-    uint32 timediff = uint32(GameTime::GetGameTime() - playerPetData->Timediff);
+    uint32 timediff = uint32(time(nullptr) - playerPetData->Timediff);
     _LoadAuras(timediff);
 
     // load action bar, if data broken will fill later by default spells.
@@ -454,7 +454,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
         stmt->setString(13, GenerateActionBarData());
 
-        stmt->setUInt32(14, GameTime::GetGameTime()); // unsure about this
+        stmt->setUInt32(14, time(nullptr)); // unsure about this
         stmt->setUInt32(15, GetUInt32Value(UNIT_CREATED_BY_SPELL));
         stmt->setUInt8(16, getPetType());
         trans->Append(stmt);
@@ -478,7 +478,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         playerPetData->SavedHealth = curhealth;
         playerPetData->SavedMana = curmana;
         playerPetData->Actionbar = GenerateActionBarData();
-        playerPetData->Timediff = GameTime::GetGameTime();
+        playerPetData->Timediff = time(nullptr);
         playerPetData->SummonSpellId = GetUInt32Value(UNIT_CREATED_BY_SPELL);
         playerPetData->Type = getPetType();
 
@@ -557,7 +557,7 @@ void Pet::Update(uint32 diff)
     {
         case CORPSE:
         {
-            if (!IsHunterPet() || m_corpseRemoveTime <= GameTime::GetGameTime())
+            if (!IsHunterPet() || m_corpseRemoveTime <= time(nullptr))
             {
                 Remove(PET_SAVE_DISMISS);               //hunters' pets never get removed because of death, NEVER!
                 return;

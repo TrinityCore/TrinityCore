@@ -1556,7 +1556,16 @@ class TC_GAME_API ObjectMgr
 
         void LoadHotfixData();
         HotfixData const& GetHotfixData() const { return _hotfixData; }
-        time_t GetHotfixDate(uint32 entry, uint32 type) const;
+        time_t GetHotfixDate(uint32 entry, uint32 type) const
+        {
+            time_t ret = 0;
+            for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)
+                if (itr->Entry == entry && itr->Type == type)
+                    if (time_t(itr->Timestamp) > ret)
+                        ret = time_t(itr->Timestamp);
+
+            return ret ? ret : time(nullptr);
+        }
 
         void LoadMissingKeyChains();
 

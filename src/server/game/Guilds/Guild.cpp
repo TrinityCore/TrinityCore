@@ -25,7 +25,6 @@
 #include "Chat.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
-#include "GameTime.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "Language.h"
@@ -180,8 +179,6 @@ inline void Guild::LogHolder::WritePacket(WorldPacket& data) const
     data.append(buffer);
 }
 
-Guild::LogEntry::LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(GameTime::GetGameTime()) { }
-
 inline uint32 Guild::LogHolder::GetNextGUID()
 {
     // Next guid was not initialized. It means there are no records for this holder in DB yet.
@@ -247,7 +244,7 @@ void Guild::EventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& content) c
     content.WriteByteSeq(guid1[4]);
 
     // Event timestamp
-    content << uint32(::GameTime::GetGameTime() - m_timestamp);
+    content << uint32(::time(nullptr) - m_timestamp);
 
     content.WriteByteSeq(guid1[7]);
     content.WriteByteSeq(guid1[3]);
@@ -329,7 +326,7 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data, ByteBuffer& conten
     if (hasItem)
         content << uint32(m_itemOrMoney);
 
-    content << uint32(GameTime::GetGameTime() - m_timestamp);
+    content << uint32(time(nullptr) - m_timestamp);
 
     if (IsMoneyEvent())
         content << uint64(m_itemOrMoney);
@@ -667,7 +664,7 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_level(0),
     m_class(0),
     m_flags(GUILDMEMBER_STATUS_NONE),
-    m_logoutTime(::GameTime::GetGameTime()),
+    m_logoutTime(::time(nullptr)),
     m_accountId(0),
     m_rankId(rankId),
     m_achievementPoints(0),
@@ -751,11 +748,6 @@ void Guild::Member::AddActivity(uint64 activity)
     stmt->setUInt64(1, m_weekActivity);
     stmt->setUInt32(2, m_guid.GetCounter());
     CharacterDatabase.Execute(stmt);
-}
-
-void Guild::Member::UpdateLogoutTime()
-{
-    m_logoutTime = GameTime::GetGameTime();
 }
 
 void Guild::Member::SaveToDB(SQLTransaction& trans) const
@@ -1340,7 +1332,7 @@ bool Guild::Create(Player* pLeader, std::string const& name)
     m_info = "";
     m_motd = "No message set.";
     m_bankMoney = 0;
-    m_createdDate = ::GameTime::GetGameTime();
+    m_createdDate = ::time(nullptr);
     _level = 1;
     _experience = 0;
     _todayExperience = 0;
@@ -1585,7 +1577,7 @@ void Guild::HandleRoster(WorldSession* session)
         memberData.WriteByteSeq(guid[4]);
         memberData << uint8(0);                                     // unk
         memberData.WriteByteSeq(guid[1]);
-        memberData << float(member->IsOnline() ? 0.0f : float(::GameTime::GetGameTime() - member->GetLogoutTime()) / DAY);
+        memberData << float(member->IsOnline() ? 0.0f : float(::time(nullptr) - member->GetLogoutTime()) / DAY);
 
         if (offNoteLength)
             memberData.WriteString(member->GetOfficerNote());
@@ -3079,7 +3071,7 @@ void Guild::DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbandi
             stmt->setUInt32(0, lowguid);
             stmt->setUInt32(1, m_id);
             stmt->setUInt32(2, member->GetWeekReputation());
-            stmt->setUInt64(3, uint32(::GameTime::GetGameTime()));
+            stmt->setUInt64(3, uint32(::time(nullptr)));
             CharacterDatabase.Execute(stmt);
         }
         delete member;

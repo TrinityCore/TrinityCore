@@ -24,7 +24,6 @@
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DisableMgr.h"
-#include "GameTime.h"
 #include "GameEventMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -694,7 +693,7 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
 
     if (criteriaResult)
     {
-        time_t now = GameTime::GetGameTime();
+        time_t now = time(nullptr);
         do
         {
             Field* fields  = criteriaResult->Fetch();
@@ -757,7 +756,7 @@ void AchievementMgr<Guild>::LoadFromDB(PreparedQueryResult achievementResult, Pr
 
     if (criteriaResult)
     {
-        time_t now = GameTime::GetGameTime();
+        time_t now = time(nullptr);
         do
         {
             Field* fields = criteriaResult->Fetch();
@@ -896,7 +895,7 @@ void AchievementMgr<T>::SendAchievementEarned(AchievementEntry const* achievemen
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);
     data << GetOwner()->GetPackGUID();
     data << uint32(achievement->ID);
-    data.AppendPackedTime(GameTime::GetGameTime());
+    data.AppendPackedTime(time(nullptr));
     data << uint32(0);  // does not notify player ingame
     GetOwner()->SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
@@ -917,7 +916,7 @@ void AchievementMgr<Guild>::SendAchievementEarned(AchievementEntry const* achiev
     data.WriteBit(guid[5]);
 
     data.WriteByteSeq(guid[2]);
-    data.AppendPackedTime(GameTime::GetGameTime());
+    data.AppendPackedTime(time(nullptr));
     data.WriteByteSeq(guid[0]);
     data.WriteByteSeq(guid[4]);
     data.WriteByteSeq(guid[1]);
@@ -1858,7 +1857,7 @@ void AchievementMgr<T>::SetCriteriaProgress(AchievementCriteriaEntry const* entr
     }
 
     progress->changed = true;
-    progress->date = GameTime::GetGameTime(); // set the date to the latest update.
+    progress->date = time(nullptr); // set the date to the latest update.
 
     AchievementEntry const* achievement = sAchievementMgr->GetAchievement(entry->achievement);
     uint32 timeElapsed = 0;
@@ -1975,7 +1974,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
         achievement->ID, GetOwner()->GetName().c_str(), GetOwner()->GetGUID().GetCounter());
 
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];
-    ca.date = GameTime::GetGameTime();
+    ca.date = time(nullptr);
     ca.changed = true;
 
     sAchievementMgr->SetRealmCompleted(achievement, GetOwner()->GetInstanceId());
@@ -2056,7 +2055,7 @@ void AchievementMgr<Guild>::CompletedAchievement(AchievementEntry const* achieve
 
     SendAchievementEarned(achievement);
     CompletedAchievementData& ca = m_completedAchievements[achievement->ID];
-    ca.date = GameTime::GetGameTime();
+    ca.date = time(nullptr);
     ca.changed = true;
 
     if (achievement->flags & ACHIEVEMENT_FLAG_SHOW_GUILD_MEMBERS)
