@@ -34,7 +34,16 @@ uint32 SplineChainMovementGenerator::SendPathSpline(Unit* me, float velocity, Mo
 
     if (velocity > 0.f)
         init.SetVelocity(velocity);
-    init.SetWalk(_walk);
+
+    if (me->IsFlying())
+    {
+        init.SetFly();
+        init.SetUncompressed();
+        init.SetSmooth();
+    }
+    else
+        init.SetWalk(_walk);
+
     return init.Launch();
 }
 
