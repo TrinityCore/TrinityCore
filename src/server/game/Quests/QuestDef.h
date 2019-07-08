@@ -376,24 +376,24 @@ class TC_GAME_API Quest
         uint32 _emoteOnComplete = 0;
 
         // quest_template_addon table (custom data)
-        uint32 _maxLevel              = 0;
-        uint32 _requiredClasses       = 0;
-        uint32 _sourceSpellid         = 0;
-        int32 _prevQuestId           = 0;
-        uint32 _nextQuestId           = 0;
-        int32 _exclusiveGroup        = 0;
-        int32 _breadcrumbForQuestId  = 0;
-        uint32 _rewardMailTemplateId  = 0;
-        uint32 _rewardMailDelay       = 0;
-        uint32 _requiredSkillId       = 0;
-        uint32 _requiredSkillPoints   = 0;
+        uint32 _maxLevel = 0;
+        uint32 _requiredClasses = 0;
+        uint32 _sourceSpellid = 0;
+        int32 _prevQuestId = 0;
+        uint32 _nextQuestId = 0;
+        int32 _exclusiveGroup = 0;
+        int32 _breadcrumbForQuestId = 0;
+        uint32 _rewardMailTemplateId = 0;
+        uint32 _rewardMailDelay = 0;
+        uint32 _requiredSkillId = 0;
+        uint32 _requiredSkillPoints = 0;
         uint32 _requiredMinRepFaction = 0;
-        int32 _requiredMinRepValue   = 0;
+        int32 _requiredMinRepValue = 0;
         uint32 _requiredMaxRepFaction = 0;
-        int32 _requiredMaxRepValue   = 0;
-        uint32 _startItemCount        = 0;
+        int32 _requiredMaxRepValue = 0;
+        uint32 _startItemCount = 0;
         uint32 _rewardMailSenderEntry = 0;
-        uint32 _specialFlags          = 0; // custom flags, not sniffed/WDB
+        uint32 _specialFlags = 0; // custom flags, not sniffed/WDB
 
         // Helpers
         static uint32 RoundXPValue(uint32 xp);
