@@ -1542,7 +1542,7 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
             // @todo pools need fixing! this is just a temporary thing, but they violate dynspawn principles
             if (!sPoolMgr->IsPartOfAPool<Creature>(spawnId))
             {
-                TC_LOG_ERROR("entities.unit", "Creature (SpawnID %u) trying to load in inactive spawn group '%s':\n%s", spawnId, data->spawnGroupData->name.c_str(), GetDebugInfo().c_str());
+                TC_LOG_ERROR("entities.unit", "Creature (SpawnID %u) trying to load in inactive spawn group '%s':\n", spawnId, data->spawnGroupData->name.c_str());
                 return false;
             }
         }
@@ -1557,7 +1557,7 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
             // @todo same as above
             if (!sPoolMgr->IsPartOfAPool<Creature>(spawnId))
             {
-                TC_LOG_ERROR("entities.unit", "Creature (SpawnID %u) trying to load despite a respawn timer in progress:\n%s", spawnId, GetDebugInfo().c_str());
+                TC_LOG_ERROR("entities.unit", "Creature (SpawnID %u) trying to load despite a respawn timer in progress:\n", spawnId);
                 return false;
             }
         }
