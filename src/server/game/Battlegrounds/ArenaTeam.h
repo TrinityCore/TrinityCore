@@ -125,9 +125,9 @@ class TC_GAME_API ArenaTeam
 
         typedef std::list<ArenaTeamMember> MemberList;
 
-        uint32 GetId() const              { return TeamId; }
-        uint32 GetType() const            { return Type; }
-        uint8  GetSlot() const            { return GetSlotByType(GetType()); }
+        uint32 GetId() const { return TeamId; }
+        uint32 GetType() const { return Type; }
+        uint8 GetSlot() const { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
         ObjectGuid GetCaptain() const  { return CaptainGuid; }
         std::string const& GetName() const { return TeamName; }
@@ -141,10 +141,10 @@ class TC_GAME_API ArenaTeam
         bool AddMember(ObjectGuid PlayerGuid);
         void DelMember(ObjectGuid guid, bool cleanDb);
 
-        size_t GetMembersSize() const         { return Members.size(); }
-        bool   Empty() const                  { return Members.empty(); }
+        size_t GetMembersSize() const { return Members.size(); }
+        bool Empty() const { return Members.empty(); }
         MemberList::iterator m_membersBegin() { return Members.begin(); }
-        MemberList::iterator m_membersEnd()   { return Members.end(); }
+        MemberList::iterator m_membersEnd() { return Members.end(); }
         bool IsMember(ObjectGuid guid) const;
 
         ArenaTeamMember* GetMember(ObjectGuid guid);
