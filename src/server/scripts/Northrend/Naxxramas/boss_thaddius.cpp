@@ -475,7 +475,7 @@ public:
                 SetBoundary(instance->GetBossBoundary(BOSS_THADDIUS));
             }
 
-            void InitializeAI()
+            void InitializeAI() override
             {
                 if (GameObject* coil = myCoilGO())
                     coil->SetGoState(GO_STATE_ACTIVE);
