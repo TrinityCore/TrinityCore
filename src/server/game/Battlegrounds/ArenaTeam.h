@@ -199,7 +199,7 @@ class TC_GAME_API ArenaTeam
         uint8 BorderStyle;      // border image id
         uint32 BorderColor;     // ARGB format
 
-        MemberList     Members;
+        MemberList Members;
         ArenaTeamStats Stats;
 
         uint32 PreviousOpponents;
