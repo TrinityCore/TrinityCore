@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "CombatAI.h"
 #include "grim_batol.h"
 
 enum TwilightBeguiler
@@ -135,7 +136,157 @@ private:
     EventMap _events;
 };
 
+enum BatteredRedDrake
+{
+    SPELL_NET                               = 79377,
+    SPELL_NET_SCRIPT                        = 79374,
+    SPELL_BOMBING_RUN_PROTECTION_TRIGGER    = 80364,
+    SPELL_GEAR_SCALING_TRIGGER              = 73917,
+    SPELL_EJECT_ALL_PASSENGERS              = 68576,
+
+    ANIM_KIT_ID_LIFTOFF                     = 1009,
+
+    EVENT_SET_HOVERING                      = 1,
+    EVENT_PREPARE_BOMBARDMENT,
+    EVENT_FLY_BOMBARDMENT,
+    EVENT_FLY_AWAY,
+
+    SAY_WHISPER_BOMBARDMENT                 = 0,
+    SAY_ANNOUNCE_BOMBARDMENT                = 1,
+
+    SPLINE_CHAIN_BOMBARDMENT                = 1,
+    SPLINE_CHAIN_ESCAPE_BOMBARDMENT         = 2,
+
+    POINT_EJECT_PLAYER                      = 1
+};
+
+struct npc_grim_batol_battered_red_drake: public VehicleAI
+{
+    npc_grim_batol_battered_red_drake(Creature* creature) : VehicleAI(creature), _instance(me->GetInstanceScript()) { }
+
+    void JustAppeared() override
+    {
+        if (_instance->GetData(DATA_BATTERED_RED_DRAKE_STATE) != DONE)
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            DoCastSelf(SPELL_NET);
+        }
+    }
+
+    void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
+    {
+        if (summon->GetEntry() == NPC_NET)
+        {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveAurasDueToSpell(SPELL_NET);
+            DoCastSelf(SPELL_BOMBING_RUN_PROTECTION_TRIGGER);
+            summon->CastSpell(summon, SPELL_NET_SCRIPT);
+            summon->DespawnOrUnsummon(3s);
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != SPLINE_CHAIN_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_EJECT_PLAYER:
+                DoCastSelf(SPELL_EJECT_ALL_PASSENGERS);
+                _events.ScheduleEvent(EVENT_FLY_AWAY, 2s + 500ms);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seat*/, bool apply) override
+    {
+        Player* player = passenger->ToPlayer();
+        if (!player)
+            return;
+
+        if (apply)
+        {
+            _instance->SetData(DATA_START_BATTERED_RED_DRAKE_DESPAWN_EVENT, IN_PROGRESS);
+            me->SetControlled(true, UNIT_STATE_ROOT);
+            me->PlayOneShotAnimKitId(ANIM_KIT_ID_LIFTOFF);
+            player->SetMover(me);
+            _playerGuid = player->GetGUID();
+
+            _events.ScheduleEvent(EVENT_SET_HOVERING, 2s);
+            _events.ScheduleEvent(EVENT_PREPARE_BOMBARDMENT, 1s);
+        }
+        else
+            player->SetMover(player);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SET_HOVERING:
+                    if (Player* player = ObjectAccessor::FindConnectedPlayer(_playerGuid))
+                        DoCast(player, SPELL_GEAR_SCALING_TRIGGER, true);
+                    me->SendSetPlayHoverAnim(true);
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                    break;
+                case EVENT_PREPARE_BOMBARDMENT:
+                    if (Player* player = ObjectAccessor::FindConnectedPlayer(_playerGuid))
+                    {
+                        Talk(SAY_WHISPER_BOMBARDMENT, player);
+                        Talk(SAY_ANNOUNCE_BOMBARDMENT, player);
+                        _events.ScheduleEvent(EVENT_FLY_BOMBARDMENT, 2s);
+                    }
+                    break;
+                case EVENT_FLY_BOMBARDMENT:
+                    me->GetMotionMaster()->MoveAlongSplineChain(POINT_EJECT_PLAYER, SPLINE_CHAIN_BOMBARDMENT, false);
+                    break;
+                case EVENT_FLY_AWAY:
+                    me->GetMotionMaster()->MoveAlongSplineChain(0, SPLINE_CHAIN_ESCAPE_BOMBARDMENT, false);
+                    me->DespawnOrUnsummon(6s + 700ms);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    ObjectGuid _playerGuid;
+};
+
+class spell_grim_batol_engulfing_flames : public SpellScript
+{
+    PrepareSpellScript(spell_grim_batol_engulfing_flames);
+
+    void HandleEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitCreature())
+            creature->setRegeneratingHealth(false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_grim_batol_engulfing_flames::HandleEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_grim_batol()
 {
     RegisterGrimBatolCreatureAI(npc_grim_batol_twilight_beguiler);
+    RegisterGrimBatolCreatureAI(npc_grim_batol_battered_red_drake);
+    RegisterSpellScript(spell_grim_batol_engulfing_flames);
 }

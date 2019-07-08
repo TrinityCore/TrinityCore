@@ -3613,63 +3613,94 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
         }
 };
 
-enum VehicleScaling
+class spell_gen_vehicle_scaling_trigger : public SpellScript
 {
-    SPELL_GEAR_SCALING      = 66668
+    PrepareSpellScript(spell_gen_vehicle_scaling_trigger);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].BasePoints) });
+    }
+
+    void HandleEffect(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            GetHitUnit()->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_vehicle_scaling_trigger::HandleEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
-class spell_gen_vehicle_scaling : public SpellScriptLoader
+enum VehicleScaling
 {
-    public:
-        spell_gen_vehicle_scaling() : SpellScriptLoader("spell_gen_vehicle_scaling") { }
+    SPELL_GEAR_SCALING_1        = 66668,
+    SPELL_GEAR_SCALING_CATA_N   = 91401,
+    SPELL_GEAR_SCALING_CATA_HC  = 91405
 
-        class spell_gen_vehicle_scaling_AuraScript : public AuraScript
+};
+
+class spell_gen_vehicle_scaling : public AuraScript
+{
+    PrepareAuraScript(spell_gen_vehicle_scaling);
+
+    bool Load() override
+    {
+        return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Unit* caster = GetCaster();
+        float factor = 0.0f;
+        uint16 baseItemLevel = 0;
+
+        /// @todo Reserach coeffs for different vehicles
+        switch (GetId())
         {
-            PrepareAuraScript(spell_gen_vehicle_scaling_AuraScript);
-
-            bool Load() override
-            {
-                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                Unit* caster = GetCaster();
-                float factor;
-                uint16 baseItemLevel;
-
-                /// @todo Reserach coeffs for different vehicles
-                switch (GetId())
-                {
-                    case SPELL_GEAR_SCALING:
-                        factor = 1.0f;
-                        baseItemLevel = 205;
-                        break;
-                    default:
-                        factor = 1.0f;
-                        baseItemLevel = 170;
-                        break;
-                }
-
-                float avgILvl = caster->ToPlayer()->GetAverageItemLevel();
-                if (avgILvl < baseItemLevel)
-                    return;                     /// @todo Research possibility of scaling down
-
-                amount = uint16((avgILvl - baseItemLevel) * factor);
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_gen_vehicle_scaling_AuraScript();
+            case SPELL_GEAR_SCALING_1:
+                factor = 1.0f;
+                baseItemLevel = 205;
+                break;
+            case SPELL_GEAR_SCALING_CATA_N:
+                factor = 1.0f;
+                baseItemLevel = 305;
+                break;
+            case SPELL_GEAR_SCALING_CATA_HC:
+                factor = 1.0f;
+                baseItemLevel = 329;
+                break;
+            default:
+                factor = 1.0f;
+                baseItemLevel = 170;
+                break;
         }
+
+        float avgILvl = caster->ToPlayer()->GetAverageItemLevel();
+        if (avgILvl < baseItemLevel)
+            return;                     /// @todo Research possibility of scaling down
+
+        amount = uint16((avgILvl - baseItemLevel) * factor);
+    }
+
+    void Register() override
+    {
+        switch (m_scriptSpellId)
+        {
+            case SPELL_GEAR_SCALING_CATA_N:
+            case SPELL_GEAR_SCALING_CATA_HC:
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+                break;
+            default:
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
+                break;
+        }
+
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_vehicle_scaling::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_INCREASE_HEALTH_PERCENT);
+    }
 };
 
 enum VendorBarkTrigger
@@ -5087,7 +5118,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_turkey_marker();
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_vampiric_touch();
-    new spell_gen_vehicle_scaling();
+    RegisterSpellScript(spell_gen_vehicle_scaling_trigger);
+    RegisterAuraScript(spell_gen_vehicle_scaling);
     new spell_gen_vendor_bark_trigger();
     new spell_gen_wg_water();
     new spell_gen_whisper_gulch_yogg_saron_whisper();
