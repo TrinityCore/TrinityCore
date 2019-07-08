@@ -102,6 +102,7 @@ struct boss_rajh : public BossAI
     {
         _energized = true;
         _achievementEnabled = true;
+        _randomTimerCase = 0;
     }
 
     void Reset() override

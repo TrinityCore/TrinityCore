@@ -31,13 +31,17 @@ enum GBDataTypes
     DATA_DRAHGA_SHADOWBURNER            = 2,
     DATA_ERUDAX                         = 3,
 
+    // Event Data
+    DATA_BATTERED_RED_DRAKE_STATE,
+    DATA_START_BATTERED_RED_DRAKE_DESPAWN_EVENT,
+
     // Encounter Data
-    DATA_VALIONA                        = 4,
-    DATA_FACELESS_PORTAL_STALKER        = 5,
-    DATA_SHADOW_GALE_STALKER            = 6,
-    DATA_SHADOW_GALE_CONTROLLER_STALKER = 7,
-    DATA_FACELESS_CORRUPTOR_1           = 8,
-    DATA_FACELESS_CORRUPTOR_2           = 9
+    DATA_VALIONA,
+    DATA_FACELESS_PORTAL_STALKER,
+    DATA_SHADOW_GALE_STALKER,
+    DATA_SHADOW_GALE_CONTROLLER_STALKER,
+    DATA_FACELESS_CORRUPTOR_1,
+    DATA_FACELESS_CORRUPTOR_2,
 };
 
 enum GBCreatureIds
@@ -77,12 +81,18 @@ enum GBCreatureIds
 
     // Generic Creatures
     NPC_ENSLAVED_GRONN_BRUTE            = 40166,
-
+    NPC_NET                             = 42570,
+    NPC_BATTERED_RED_DRAKE_BOMBARDMENT  = 39294,
 };
 
 enum GBSpells
 {
     SPELL_PORTAL_VISUAL = 82847
+};
+
+enum GBSummonGroups
+{
+    SUMMON_GROUP_BATTERED_DRAKES = 0
 };
 
 template<class AI>
