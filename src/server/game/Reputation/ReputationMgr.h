@@ -50,7 +50,7 @@ struct FactionState
 {
     uint32 ID;
     RepListID ReputationListID;
-    int32  Standing;
+    int32 Standing;
     uint8 Flags;
     bool needSend;
     bool needSave;
