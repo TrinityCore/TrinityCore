@@ -17,6 +17,7 @@
 
 #include "WorldSession.h"
 #include "AchievementMgr.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
@@ -74,7 +75,7 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
     if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
         return;
 
-    MembershipRequest request = MembershipRequest(GetPlayer()->GetGUID(), guildLowGuid, availability, classRoles, guildInterests, comment, time(nullptr));
+    MembershipRequest request = MembershipRequest(GetPlayer()->GetGUID(), guildLowGuid, availability, classRoles, guildInterests, comment, GameTime::GetGameTime());
     sGuildFinderMgr->AddMembershipRequest(guildLowGuid, request);
 }
 
@@ -246,7 +247,7 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
             bufferData.WriteString(guild->GetName());
 
             bufferData << uint32(guildSettings.GetAvailability());
-            bufferData << uint32(request.GetExpiryTime() - time(nullptr)); // Time left to application expiry (seconds)
+            bufferData << uint32(request.GetExpiryTime() - GameTime::GetGameTime()); // Time left to application expiry (seconds)
 
             bufferData.WriteByteSeq(guildGuid[0]);
             bufferData.WriteByteSeq(guildGuid[6]);
@@ -258,7 +259,7 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPacket& /*recvPacket*/)
             bufferData.WriteByteSeq(guildGuid[4]);
             bufferData.WriteByteSeq(guildGuid[1]);
 
-            bufferData << uint32(time(nullptr) - request.GetSubmitTime()); // Time since application (seconds)
+            bufferData << uint32(GameTime::GetGameTime() - request.GetSubmitTime()); // Time since application (seconds)
             bufferData << uint32(guildSettings.GetInterests());
         }
 
@@ -307,7 +308,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
 
         dataBuffer.WriteByteSeq(playerGuid[4]);
 
-        dataBuffer << int32(time(nullptr) <= request.GetExpiryTime());
+        dataBuffer << int32(GameTime::GetGameTime() <= request.GetExpiryTime());
 
         dataBuffer.WriteByteSeq(playerGuid[3]);
         dataBuffer.WriteByteSeq(playerGuid[0]);
@@ -319,11 +320,11 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
         dataBuffer.WriteByteSeq(playerGuid[7]);
         dataBuffer.WriteByteSeq(playerGuid[2]);
 
-        dataBuffer << int32(time(nullptr) - request.GetSubmitTime()); // Time in seconds since application submitted.
+        dataBuffer << int32(GameTime::GetGameTime() - request.GetSubmitTime()); // Time in seconds since application submitted.
         dataBuffer << int32(request.GetAvailability());
         dataBuffer << int32(request.GetClassRoles());
         dataBuffer << int32(request.GetInterests());
-        dataBuffer << int32(request.GetExpiryTime() - time(nullptr)); // TIme in seconds until application expires.
+        dataBuffer << int32(request.GetExpiryTime() - GameTime::GetGameTime()); // TIme in seconds until application expires.
 
         dataBuffer.WriteString(request.GetName());
         dataBuffer.WriteString(request.GetComment());
@@ -335,7 +336,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPacket& recvPacket)
 
     data.FlushBits();
     data.append(dataBuffer);
-    data << uint32(time(nullptr)); // Unk time
+    data << uint32(GameTime::GetGameTime()); // Unk time
 
     player->SendDirectMessage(&data);
 }

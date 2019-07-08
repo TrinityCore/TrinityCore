@@ -18,6 +18,7 @@
 #include "GuildMgr.h"
 #include "AchievementMgr.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "Log.h"
 #include "ObjectMgr.h"
@@ -587,7 +588,7 @@ void GuildMgr::ResetTimes(bool week)
 
     // Delete too old old guild member
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_OLD_GUILD_MEMBER);
-    stmt->setUInt32(0, uint32(time(nullptr) - time_t(30 * DAY)));
+    stmt->setUInt32(0, uint32(GameTime::GetGameTime() - time_t(30 * DAY)));
     CharacterDatabase.Execute(stmt);
 
     // Reset week reputation for old guild member

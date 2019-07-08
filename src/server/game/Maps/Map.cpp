@@ -3875,7 +3875,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
 
             // increase current instances (hourly limit)
             if (!group || !group->isLFGGroup())
-                player->AddInstanceEnterTime(GetInstanceId(), time(nullptr));
+                player->AddInstanceEnterTime(GetInstanceId(), GameTime::GetGameTime());
 
             // get or create an instance save for the map
             InstanceSave* mapSave = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
@@ -4686,7 +4686,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
 
 void Map::RemoveOldCorpses()
 {
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
 
     std::vector<ObjectGuid> corpses;
     corpses.reserve(_corpsesByPlayer.size());

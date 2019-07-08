@@ -16,6 +16,7 @@
  */
 
 #include "LFGMgr.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "LFGPackets.h"
 #include "Log.h"
@@ -542,7 +543,7 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
     lfg::LfgAnswer playerVote = boot.votes.find(GetPlayer()->GetGUID())->second;
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
-    int32 secsleft = int32((boot.cancelTime - time(nullptr)) / 1000);
+    int32 secsleft = int32((boot.cancelTime - GameTime::GetGameTime()) / 1000);
     for (const auto& vote : boot.votes)
     {
         if (vote.second != lfg::LFG_ANSWER_PENDING)

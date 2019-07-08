@@ -1147,7 +1147,7 @@ void MovementInfo::OutDebug()
     TC_LOG_DEBUG("misc", "%s", guid.ToString().c_str());
     TC_LOG_DEBUG("misc", "flags %u", flags);
     TC_LOG_DEBUG("misc", "flags2 %u", flags2);
-    TC_LOG_DEBUG("misc", "time %u current time " UI64FMTD "", flags2, uint64(::time(nullptr)));
+    TC_LOG_DEBUG("misc", "time %u current time " UI64FMTD "", flags2, uint64(::GameTime::GetGameTime()));
     TC_LOG_DEBUG("misc", "position: `%s`", pos.ToString().c_str());
     if (transport.guid)
     {

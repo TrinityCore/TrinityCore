@@ -51,10 +51,7 @@ struct LfgCompatibilityData
 /// Stores player or group queue info
 struct LfgQueueData
 {
-    LfgQueueData(): joinTime(time_t(time(nullptr)))
-    {
-        InitializeGroupSetup();
-    }
+    LfgQueueData();
 
     LfgQueueData(time_t _joinTime, LfgDungeonSet const& _dungeons, LfgRolesMap const& _roles) :
         joinTime(_joinTime), dungeons(_dungeons), roles(_roles)

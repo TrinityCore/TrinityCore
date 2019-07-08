@@ -18,6 +18,7 @@
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Log.h"
@@ -26,6 +27,9 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "WorldPacket.h"
+
+CalendarInvite::CalendarInvite() : _inviteId(1), _eventId(0), _invitee(), _senderGUID(), _statusTime(GameTime::GetGameTime()),
+_status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }
 
 CalendarInvite::~CalendarInvite()
 {

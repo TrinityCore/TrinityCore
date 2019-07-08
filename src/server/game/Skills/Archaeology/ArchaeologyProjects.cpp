@@ -18,6 +18,7 @@
 #include "Archaeology.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "Player.h"
 
@@ -190,11 +191,11 @@ void Archaeology::CompleteProject(uint16 projectId)
 
     if (_completedProjects.find(projectId) == _completedProjects.end())
     {
-        _completedProjects[projectId].first = time(nullptr);
+        _completedProjects[projectId].first = GameTime::GetGameTime();
         _completedProjects[projectId].second = 1;
 
         CharacterDatabase.PExecute("REPLACE INTO character_archaeology_completed VALUES (%u, %u, %u, 1);",
-            _player->GetGUID(), projectId, time(nullptr));
+            _player->GetGUID(), projectId, GameTime::GetGameTime());
     }
     else
     {

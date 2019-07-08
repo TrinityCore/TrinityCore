@@ -30,6 +30,7 @@
 #include "DisableMgr.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
@@ -6196,7 +6197,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
     uint32 oldMSTime = getMSTime();
 
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
     tm lt;
     localtime_r(&curTime, &lt);
     uint64 basetime(curTime);
@@ -10454,4 +10455,15 @@ uint32 ObjectMgr::GetGameObjectTypeByEntry(uint32 entry) const
         return goinfo->type;
 
     return MAX_GAMEOBJECT_TYPE;
+}
+
+time_t ObjectMgr::GetHotfixDate(uint32 entry, uint32 type) const
+{
+    time_t ret = 0;
+    for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)
+        if (itr->Entry == entry && itr->Type == type)
+            if (time_t(itr->Timestamp) > ret)
+                ret = time_t(itr->Timestamp);
+
+    return ret ? ret : GameTime::GetGameTime();
 }

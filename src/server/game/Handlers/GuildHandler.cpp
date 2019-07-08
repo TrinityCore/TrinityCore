@@ -20,6 +20,7 @@
 #include "AchievementMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Log.h"
@@ -780,7 +781,7 @@ void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
             data << uint32(0); // Unused
             data << uint32(rewards[i].AchievementId);
         }
-        data << uint32(time(nullptr));
+        data << uint32(GameTime::GetGameTime());
         SendPacket(&data);
     }
 }
@@ -1038,7 +1039,7 @@ void WorldSession::HandleGuildChallengeRequest(WorldPacket& recvPacket)
         if (Guild::ChallengesMgr* challengesMgr = pGuild->GetChallengesMgr())
         {
             // First check if it's time to reset the challenges.
-            time_t thisTime = time(nullptr);
+            time_t thisTime = GameTime::GetGameTime();
             if (pGuild->GetChallengesMgr()->CompletedFirstChallenge(pGuild->GetId()) && pGuild->GetChallengesMgr()->GetFirstCompletedChallengeTime(pGuild->GetId()) + WEEK <= thisTime)
                 pGuild->GetChallengesMgr()->ResetWeeklyChallenges();
 
