@@ -131,7 +131,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SaveToDB();
         void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool = true); // arg4 is unused, only present to match the signature on Creature
-        void DeleteFromDB();
+        static bool DeleteFromDB(ObjectGuid::LowType spawnId);
 
         void SetOwnerGUID(ObjectGuid owner)
         {

@@ -3218,9 +3218,9 @@ void Map::DoRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 gr
     }
 }
 
-void Map::Respawn(RespawnInfo* info, bool force, CharacterDatabaseTransaction dbTrans)
+void Map::Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans)
 {
-    if (!force && !CheckRespawn(info))
+    if (!CheckRespawn(info))
     {
         if (info->respawnTime)
             SaveRespawnTime(info->type, info->spawnId, info->entry, info->respawnTime, info->zoneId, info->gridId, true, true, dbTrans);
@@ -3237,11 +3237,11 @@ void Map::Respawn(RespawnInfo* info, bool force, CharacterDatabaseTransaction db
     DoRespawn(type, spawnId, gridId);
 }
 
-void Map::Respawn(std::vector<RespawnInfo*>& respawnData, bool force, CharacterDatabaseTransaction dbTrans)
+void Map::Respawn(std::vector<RespawnInfo*>& respawnData, CharacterDatabaseTransaction dbTrans)
 {
     CharacterDatabaseTransaction trans = dbTrans ? dbTrans : CharacterDatabase.BeginTransaction();
     for (RespawnInfo* info : respawnData)
-        Respawn(info, force, trans);
+        Respawn(info, trans);
     if (!dbTrans)
         CharacterDatabase.CommitTransaction(trans);
 }
