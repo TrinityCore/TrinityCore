@@ -200,7 +200,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SaveToDB();
                                                             // overriden in Pet
         virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
-        virtual void DeleteFromDB();                        // overriden in Pet
+        static bool DeleteFromDB(ObjectGuid::LowType spawnId);
 
         Loot loot;
         void StartPickPocketRefillTimer();
