@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Containers.h"
-#include "ScriptMgr.h"
-#include "MotionMaster.h"
 #include "oculus.h"
+#include "Containers.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Spells
 {

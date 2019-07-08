@@ -3277,9 +3277,9 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
                     continue;
 
         time_t respawnTime = GetRespawnTime(data->type, data->spawnId);
-        if (respawnTime && respawnTime > GameTime::GetGameTime())
+        if (respawnTime)
         {
-            if (!force && !ignoreRespawn)
+            if (!force && !ignoreRespawn && (respawnTime > GameTime::GetGameTime()))
                 continue;
 
             // we need to remove the respawn time, otherwise we'd end up double spawning
