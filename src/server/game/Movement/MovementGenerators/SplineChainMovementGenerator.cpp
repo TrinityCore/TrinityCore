@@ -22,7 +22,7 @@
 #include "MoveSpline.h"
 #include "Log.h"
 
-uint32 SplineChainMovementGenerator::SendPathSpline(Unit* me, Movement::PointsArray const& wp) const
+uint32 SplineChainMovementGenerator::SendPathSpline(Unit* me, float velocity, Movement::PointsArray const& wp) const
 {
     uint32 numWp = wp.size();
     ASSERT(numWp > 1 && "Every path must have source & destination");
@@ -31,6 +31,9 @@ uint32 SplineChainMovementGenerator::SendPathSpline(Unit* me, Movement::PointsAr
         init.MovebyPath(wp);
     else
         init.MoveTo(wp[1], false, true);
+
+    if (velocity > 0.f)
+        init.SetVelocity(velocity);
     init.SetWalk(_walk);
     return init.Launch();
 }
@@ -41,7 +44,7 @@ void SplineChainMovementGenerator::SendSplineFor(Unit* me, uint32 index, uint32&
     TC_LOG_DEBUG("movement.splinechain", "%s: Sending spline for %u.", me->GetGUID().ToString().c_str(), index);
 
     SplineChainLink const& thisLink = _chain[index];
-    uint32 actualDuration = SendPathSpline(me, thisLink.Points);
+    uint32 actualDuration = SendPathSpline(me, thisLink.Velocity, thisLink.Points);
     if (actualDuration != thisLink.ExpectedDuration)
     {
         TC_LOG_DEBUG("movement.splinechain", "%s: Sent spline for %u, duration is %u ms. Expected was %u ms (delta %d ms). Adjusting.", me->GetGUID().ToString().c_str(), index, actualDuration, thisLink.ExpectedDuration, int32(actualDuration) - int32(thisLink.ExpectedDuration));
@@ -68,7 +71,7 @@ void SplineChainMovementGenerator::Initialize(Unit* me)
                 _nextFirstWP = thisLink.Points.size()-1;
             }
             Movement::PointsArray partial(thisLink.Points.begin() + (_nextFirstWP-1), thisLink.Points.end());
-            SendPathSpline(me, partial);
+            SendPathSpline(me, thisLink.Velocity, partial);
             TC_LOG_DEBUG("movement.splinechain", "%s: Resumed spline chain generator from resume state.", me->GetGUID().ToString().c_str());
             ++_nextIndex;
             if (_nextIndex >= _chainSize)
