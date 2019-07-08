@@ -243,7 +243,7 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     static uint64 sendPacketCount = 0;
     static uint64 sendPacketBytes = 0;
 
-    static time_t firstTime = GameTime::GetGameTime();
+    static time_t firstTime = time(nullptr);
     static time_t lastTime = firstTime;                     // next 60 secs start time
 
     static uint64 sendLastPacketCount = 0;

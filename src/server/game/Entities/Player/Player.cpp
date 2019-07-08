@@ -6815,8 +6815,8 @@ void Player::RewardReputation(Quest const* quest)
 void Player::UpdateHonorFields()
 {
     /// called when rewarding honor and at each save
-    time_t now = time_t(GameTime::GetGameTime());
-    time_t today = time_t(GameTime::GetGameTime() / DAY) * DAY;
+    time_t now = GameTime::GetGameTime();
+    time_t today = GameTime::GetGameTime() / DAY * DAY;
 
     if (m_lastHonorUpdateTime < today)
     {
