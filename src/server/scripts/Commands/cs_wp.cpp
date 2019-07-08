@@ -137,6 +137,7 @@ public:
         stmt->setFloat(2, player->GetPositionX());
         stmt->setFloat(3, player->GetPositionY());
         stmt->setFloat(4, player->GetPositionZ());
+        stmt->setFloat(5, player->GetOrientation());
 
         WorldDatabase.Execute(stmt);
 
@@ -705,8 +706,9 @@ public:
             stmt->setFloat(0, chr->GetPositionX());
             stmt->setFloat(1, chr->GetPositionY());
             stmt->setFloat(2, chr->GetPositionZ());
-            stmt->setUInt32(3, pathid);
-            stmt->setUInt32(4, point);
+            stmt->setFloat(3, chr->GetOrientation());
+            stmt->setUInt32(4, pathid);
+            stmt->setUInt32(5, point);
             WorldDatabase.Execute(stmt);
 
             handler->PSendSysMessage(LANG_WAYPOINT_CHANGED);
@@ -876,14 +878,14 @@ public:
                 float x         = fields[1].GetFloat();
                 float y         = fields[2].GetFloat();
                 float z         = fields[3].GetFloat();
+                float o         = fields[4].GetFloat();
 
                 uint32 id = VISUAL_WAYPOINT;
 
                 Player* chr = handler->GetSession()->GetPlayer();
                 Map* map = chr->GetMap();
-                Position pos = { x, y, z, chr->GetOrientation() };
 
-                Creature* wpCreature = Creature::CreateCreature(id, map, pos);
+                Creature* wpCreature = Creature::CreateCreature(id, map, { x, y, z, o });
                 if (!wpCreature)
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -946,13 +948,14 @@ public:
             float x         = fields[0].GetFloat();
             float y         = fields[1].GetFloat();
             float z         = fields[2].GetFloat();
+            float o         = fields[3].GetFloat();
+
             uint32 id = VISUAL_WAYPOINT;
 
             Player* chr = handler->GetSession()->GetPlayer();
             Map* map = chr->GetMap();
-            Position pos = { x, y, z, chr->GetOrientation() };
 
-            Creature* creature = Creature::CreateCreature(id, map, pos);
+            Creature* creature = Creature::CreateCreature(id, map, { x, y, z, o });
             if (!creature)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
