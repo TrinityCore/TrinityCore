@@ -31,13 +31,13 @@ class Quest;
 
 struct PoolTemplateData
 {
-    uint32  MaxLimit;
+    uint32 MaxLimit;
 };
 
 struct PoolObject
 {
-    uint64  guid;
-    float   chance;
+    uint64 guid;
+    float chance;
     PoolObject(uint64 _guid, float _chance);
 };
 

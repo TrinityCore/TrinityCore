@@ -303,7 +303,7 @@ class TC_GAME_API Item : public Object
 
         // spell charges (signed but stored as unsigned)
         int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return m_itemData->SpellCharges[index]; }
-        void  SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, index), value); }
+        void SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, index), value); }
 
         Loot loot;
         bool m_lootGenerated;

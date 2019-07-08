@@ -294,7 +294,7 @@ class GuildBankRightsAndSlots
 
     private:
         uint8 tabId;
-        int8  rights;
+        int8 rights;
         int32 slots;
 };
 
@@ -435,7 +435,7 @@ class TC_GAME_API Guild
                 GuildEventLogTypes m_eventType;
                 ObjectGuid::LowType m_playerGuid1;
                 ObjectGuid::LowType m_playerGuid2;
-                uint8  m_newRank;
+                uint8 m_newRank;
         };
 
         // Bank event log entry
