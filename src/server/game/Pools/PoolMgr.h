@@ -27,13 +27,13 @@
 
 struct PoolTemplateData
 {
-    uint32  MaxLimit;
+    uint32 MaxLimit;
 };
 
 struct PoolObject
 {
-    ObjectGuid::LowType  guid;
-    float   chance;
+    ObjectGuid::LowType guid;
+    float chance;
     PoolObject(ObjectGuid::LowType _guid, float _chance) : guid(_guid), chance(std::fabs(_chance)) { }
 };
 
