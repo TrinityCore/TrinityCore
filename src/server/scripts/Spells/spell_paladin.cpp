@@ -420,88 +420,79 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
 };
 
 // 53385 - Divine Storm
-class spell_pal_divine_storm : public SpellScriptLoader
+class spell_pal_divine_storm : public SpellScript
 {
-    public:
-        spell_pal_divine_storm() : SpellScriptLoader("spell_pal_divine_storm") { }
+    PrepareSpellScript(spell_pal_divine_storm);
 
-        class spell_pal_divine_storm_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_STORM_DUMMY });
+    }
+
+    void TriggerHeal()
+    {
+        Unit* caster = GetCaster();
+        if (Unit* caster = GetCaster())
         {
-            PrepareSpellScript(spell_pal_divine_storm_SpellScript);
-
-            uint32 healPct = 0;
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_STORM_DUMMY });
-            }
-
-            bool Load() override
-            {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
-                return true;
-            }
-
-            void TriggerHeal()
-            {
-                Unit* caster = GetCaster();
-                caster->CastCustomSpell(SPELL_PALADIN_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, CalculatePct(GetHitDamage(), healPct), caster, true);
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_pal_divine_storm_SpellScript::TriggerHeal);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_divine_storm_SpellScript();
+            int32 heal = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster()));
+            caster->CastCustomSpell(SPELL_PALADIN_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, heal, caster, true);
         }
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        _targetCount = targets.size();
+    }
+
+    void HandleEnergize(SpellEffIndex effIndex)
+    {
+        if (_targetCount < 4)
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pal_divine_storm::TriggerHeal);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_divine_storm::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_pal_divine_storm::HandleEnergize, EFFECT_0, SPELL_EFFECT_ENERGIZE);
+    }
+
+private:
+    uint8 _targetCount = 0;
 };
 
 // 54171 - Divine Storm (Dummy)
-class spell_pal_divine_storm_dummy : public SpellScriptLoader
+class spell_pal_divine_storm_dummy : public SpellScript
 {
-    public:
-        spell_pal_divine_storm_dummy() : SpellScriptLoader("spell_pal_divine_storm_dummy") { }
+    PrepareSpellScript(spell_pal_divine_storm_dummy);
 
-        class spell_pal_divine_storm_dummy_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_divine_storm_dummy_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_STORM_HEAL });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_STORM_HEAL });
-            }
+    void CountTargets(std::list<WorldObject*>& targetList)
+    {
+        _targetCount = targetList.size();
+    }
 
-            void CountTargets(std::list<WorldObject*>& targetList)
-            {
-                _targetCount = targetList.size();
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (!_targetCount || !GetHitUnit() || !GetEffectValue())
+            return;
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (!_targetCount || !GetHitUnit() || !GetEffectValue())
-                    return;
+        int32 heal = GetEffectValue() / _targetCount;
+        GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_PALADIN_DIVINE_STORM_HEAL, &heal, nullptr, nullptr, true);
+    }
 
-                int32 heal = GetEffectValue() / _targetCount;
-                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_PALADIN_DIVINE_STORM_HEAL, &heal, nullptr, nullptr, true);
-            }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_divine_storm_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_divine_storm_dummy::CountTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+    }
 
-            uint32 _targetCount = 0;
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_divine_storm_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_divine_storm_dummy_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_divine_storm_dummy_SpellScript();
-        }
+private:
+    uint32 _targetCount = 0;
 };
 
 // 33695 - Exorcism and Holy Wrath Damage
@@ -2066,8 +2057,8 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_consecration();
     RegisterAuraScript(spell_pal_divine_purpose);
     new spell_pal_divine_sacrifice();
-    new spell_pal_divine_storm();
-    new spell_pal_divine_storm_dummy();
+    RegisterSpellScript(spell_pal_divine_storm);
+    RegisterSpellScript(spell_pal_divine_storm_dummy);
     RegisterSpellAndAuraScriptPair(spell_pal_exorcism, spell_pal_exorcism_AuraScript);
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
