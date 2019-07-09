@@ -1266,7 +1266,7 @@ class spell_pri_holy_word_sanctuary_triggered : public SpellScript
     void HandleHeal(SpellEffIndex /*effIndex*/)
     {
         if (GetHitHeal() && _targets > 6)
-            SetHitHeal(GetHitHeal() / _targets);
+            SetHitHeal((GetHitHeal() * 6) / _targets);
     }
 
     void FilterTargets(std::list<WorldObject*>& unitList)

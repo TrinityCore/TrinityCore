@@ -1635,9 +1635,8 @@ class spell_sha_healing_rain_triggered : public SpellScript
 
     void HandleHeal(SpellEffIndex /*effIndex*/)
     {
-        if (uint32 heal = GetHitHeal())
-        if (_targets > 6)
-            SetHitHeal((heal * 6) / _targets);
+        if (GetHitHeal()() && _targets > 6)
+            SetHitHeal((GetHitHeal() * 6) / _targets);
     }
 
     void Register() override
