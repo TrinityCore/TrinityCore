@@ -120,7 +120,7 @@ bool MotionMaster::Empty() const
 
 uint32 MotionMaster::Size() const
 {
-    return _defaultGenerator ? 1 : 0 + uint32(_generators.size());
+    return (_defaultGenerator ? 1 : 0) + uint32(_generators.size());
 }
 
 std::vector<MovementGeneratorInformation> MotionMaster::GetMovementGeneratorsInformation() const
