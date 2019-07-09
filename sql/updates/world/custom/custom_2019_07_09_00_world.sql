@@ -65,7 +65,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@PATH, 18, -514.628, 1730.98, 49.77023, 0, 0, 0, 0, 100, 0);
 -- 0x2016FC5B802D8140003C43000016A860 .go xyz -518.523 1710.23 49.82735
 
-UPDATE `creature` SET `position_x`= -432.307, `position_y`= 1878.55, `position_z`= 46.57799 WHERE `guid`= 291108;
+UPDATE `creature` SET `position_x`= -518.523, `position_y`= 1710.23, `position_z`= 49.82735 WHERE `guid`= 291108;
 DELETE FROM `creature_formations` WHERE `leaderGUID`= 291109;
 INSERT INTO `creature_formations` (`leaderGUID`, `memberGUID`, `dist`, `angle`, `groupAI`, `point_1`, `point_2`) VALUES
 (291109, 291109, 0, 0, 515, 0, 0),
