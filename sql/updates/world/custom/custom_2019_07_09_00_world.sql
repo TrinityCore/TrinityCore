@@ -548,11 +548,9 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 
 DELETE FROM `creature` WHERE `guid`= 252434;
 DELETE FROM `creature_addon` WHERE `guid`= 252434;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
-(252434, 46989, 732, 5389, 5539, 1, 169, 0, 0, 0, -34.45447, 1682.912, 34.91486, 3.910952, 120, 10, 0, 0, 0, 1, 0, 0, 0, 30948); -- 46989 (Area: 5539 - Difficulty: 0) (Auras: 81219 - 81219) (possible waypoints or random movement)
 
 -- Pathing for  Entry: 46989 'TDB FORMAT' 
-SET @NPC := 252434;
+SET @NPC := 291407;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`= 0, `MovementType`= 2, `position_x`= -112.3837, `position_y`= 1608.026, `position_z`= 20.93827 WHERE `guid`= @NPC;
 DELETE FROM `creature_addon` WHERE `guid`= @NPC;
