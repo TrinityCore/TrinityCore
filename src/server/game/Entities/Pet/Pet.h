@@ -164,9 +164,5 @@ class TC_GAME_API Pet : public Guardian
         {
             ABORT();
         }
-        void DeleteFromDB() override                                 // override of Creature::DeleteFromDB - must not be called
-        {
-            ABORT();
-        }
 };
 #endif

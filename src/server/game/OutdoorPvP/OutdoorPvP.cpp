@@ -171,56 +171,24 @@ bool OPvPCapturePoint::DelCreature(uint32 type)
         TC_LOG_DEBUG("outdoorpvp", "opvp creature type %u was already deleted", type);
         return false;
     }
-
-    auto bounds = m_PvP->GetMap()->GetCreatureBySpawnIdStore().equal_range(spawnId);
-    for (auto itr = bounds.first; itr != bounds.second;)
-    {
-        Creature* c = itr->second;
-        ++itr;
-        // Don't save respawn time
-        c->SetRespawnTime(0);
-        c->DespawnOrUnsummon();
-        c->AddObjectToRemoveList();
-    }
-
     TC_LOG_DEBUG("outdoorpvp", "deleting opvp creature type %u", type);
-    // explicit removal from map
-    // beats me why this is needed, but with the recent removal "cleanup" some creatures stay in the map if "properly" deleted
-    // so this is a big fat workaround, if AddObjectToRemoveList and DoDelayedMovesAndRemoves worked correctly, this wouldn't be needed
-    //if (Map* map = sMapMgr->FindMap(cr->GetMapId()))
-    //    map->Remove(cr, false);
-    // delete respawn time for this creature
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
-    stmt->setUInt32(0, spawnId);
-    stmt->setUInt16(1, m_PvP->GetMap()->GetId());
-    stmt->setUInt32(2, 0);  // instance id, always 0 for world maps
-    CharacterDatabase.Execute(stmt);
-
-    sObjectMgr->DeleteCreatureData(spawnId);
     m_CreatureTypes[m_Creatures[type]] = 0;
     m_Creatures[type] = 0;
-    return true;
+    
+    return Creature::DeleteFromDB(spawnId);
 }
 
 bool OPvPCapturePoint::DelObject(uint32 type)
 {
-    if (!m_Objects[type])
-        return false;
-
     uint32 spawnId = m_Objects[type];
-    auto bounds = m_PvP->GetMap()->GetGameObjectBySpawnIdStore().equal_range(spawnId);
-    for (auto itr = bounds.first; itr != bounds.second;)
-    {
-        GameObject* go = itr->second;
-        ++itr;
-        // Don't save respawn time
-        go->SetRespawnTime(0);
-        go->Delete();
-    }
+    if (!spawnId)
+        return false;
+    
     sObjectMgr->DeleteGameObjectData(spawnId);
     m_ObjectTypes[m_Objects[type]] = 0;
     m_Objects[type] = 0;
-    return true;
+    
+    return GameObject::DeleteFromDB(spawnId);
 }
 
 bool OPvPCapturePoint::DelCapturePoint()

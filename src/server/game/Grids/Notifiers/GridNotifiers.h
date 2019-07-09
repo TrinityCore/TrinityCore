@@ -776,7 +776,7 @@ namespace Trinity
         private:
             WorldObject const& i_obj;
             GameobjectTypes i_type;
-            float  i_range;
+            float i_range;
 
             // prevent clone this object
             NearestGameObjectTypeInObjectRangeCheck(NearestGameObjectTypeInObjectRangeCheck const&) = delete;
@@ -1263,7 +1263,7 @@ namespace Trinity
         private:
             Creature* const i_obj;
             Unit* const i_enemy;
-            float  i_range;
+            float i_range;
 
             // prevent clone this object
             NearestAssistCreatureInCreatureRangeCheck(NearestAssistCreatureInCreatureRangeCheck const&) = delete;
@@ -1400,14 +1400,25 @@ namespace Trinity
     class AllCreaturesOfEntryInRange
     {
         public:
-            AllCreaturesOfEntryInRange(WorldObject const* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
+            AllCreaturesOfEntryInRange(WorldObject const* object, uint32 entry, float maxRange = 0.0f) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
 
             bool operator()(Unit* unit) const
             {
-                if ((!m_uiEntry || unit->GetEntry() == m_uiEntry) && m_pObject->IsWithinDist(unit, m_fRange, false))
-                    return true;
+                if (m_uiEntry)
+                {
+                    if (unit->GetEntry() != m_uiEntry)
+                        return false;
+                }
 
-                return false;
+                if (m_fRange)
+                {
+                    if (m_fRange > 0.0f && !m_pObject->IsWithinDist(unit, m_fRange, false))
+                        return false;
+                    if (m_fRange < 0.0f && m_pObject->IsWithinDist(unit, m_fRange, false))
+                        return false;
+                }
+
+                return true;
             }
 
         private:
