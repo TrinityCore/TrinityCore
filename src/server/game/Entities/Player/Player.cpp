@@ -7056,13 +7056,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         return;
 
     if (sWorld->getBoolConfig(CONFIG_WEATHER))
-    {
-        if (Weather* weather = WeatherMgr::FindWeather(zone->ID))
-            weather->SendWeatherUpdateToPlayer(this);
-        else if (!WeatherMgr::AddWeather(zone->ID))
-            // send fine weather packet to remove old zone's weather
-            WeatherMgr::SendFineWeatherUpdateToPlayer(this);
-    }
+        GetMap()->GetOrGenerateZoneDefaultWeather(newZone);
+
+    GetMap()->SendZoneDynamicInfo(newZone, this);
+
 
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,23 +15,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup world
-/// @{
-/// \file
+#ifndef MiscPackets_h__
+#define MiscPackets_h__
 
-#ifndef __WEATHERMGR_H
-#define __WEATHERMGR_H
+#include "Packet.h"
+#include "Weather.h"
 
-#include "Define.h"
+enum WeatherState : uint32;
 
-class Weather;
-class Player;
-struct WeatherData;
-
-namespace WeatherMgr
+namespace WorldPackets
 {
-    TC_GAME_API void LoadWeatherData();
-    TC_GAME_API WeatherData const* GetWeatherData(uint32 zone_id);
+    namespace Misc
+    {
+        class TC_GAME_API Weather final : public ServerPacket
+        {
+        public:
+            Weather();
+            Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
+
+            WorldPacket const* Write() override;
+
+            bool Abrupt = false;
+            float Intensity = 0.0f;
+            WeatherState WeatherID = WeatherState(0);
+        };
+    }
 }
 
-#endif
+#endif // MiscPackets_h__
