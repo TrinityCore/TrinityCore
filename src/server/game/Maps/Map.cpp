@@ -860,6 +860,7 @@ void Map::Update(uint32 t_diff)
         i_scriptLock = false;
     }
 
+    _weatherUpdateTimer.Update(t_diff);
     if (_weatherUpdateTimer.Passed())
     {
         for (auto&& zoneInfo : _zoneDynamicInfo)
