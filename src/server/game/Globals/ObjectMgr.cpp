@@ -1702,27 +1702,26 @@ void ObjectMgr::LoadPlayerTotemModels()
 
         if (totemSlot < SUMMON_SLOT_TOTEM_FIRE || totemSlot >= MAX_TOTEM_SLOT)
         {
-            TC_LOG_ERROR("sql.sql", "Wrong TotemSlot %u in `spell_totem_model` table, skipped.", totemSlot);
+            TC_LOG_ERROR("sql.sql", "Wrong TotemSlot %u in `player_totem_model` table, skipped.", totemSlot);
             continue;
         }
 
         ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race);
         if (!raceEntry)
         {
-            TC_LOG_ERROR("sql.sql", "Race %u defined in `spell_totem_model` does not exists, skipped.", uint32(race));
+            TC_LOG_ERROR("sql.sql", "Race %u defined in `player_totem_model` does not exists, skipped.", uint32(race));
             continue;
         }
 
         CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(displayId);
         if (!displayEntry)
         {
-            TC_LOG_ERROR("sql.sql", "TotemSlot: %u defined in `spell_totem_model` has non-existing model (%u), skipped.", totemSlot, displayId);
+            TC_LOG_ERROR("sql.sql", "TotemSlot: %u defined in `player_totem_model` has non-existing model (%u), skipped.", totemSlot, displayId);
             continue;
         }
 
         _playerTotemModel[std::make_pair(totemSlot, Races(race))] = displayId;
         ++count;
-
     }
     while (result->NextRow());
 
@@ -1735,7 +1734,7 @@ uint32 ObjectMgr::GetModelForTotem(SummonSlot totemSlot, Races race) const
     if (itr != _playerTotemModel.end())
         return itr->second;
 
-    TC_LOG_ERROR("spells", "TotemSlot %u with RaceID (%u) have no totem model data defined, set to default model.", totemSlot, race);
+    TC_LOG_ERROR("misc", "TotemSlot %u with RaceID (%u) have no totem model data defined, set to default model.", totemSlot, race);
     return 0;
 }
 
