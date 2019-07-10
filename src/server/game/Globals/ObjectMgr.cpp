@@ -5074,8 +5074,6 @@ void ObjectMgr::LoadQuests()
             }
             if (qinfo->_nextQuestId)
                 TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb, should not unlock quest %u", qinfo->_id, qinfo->_nextQuestId);
-            if (qinfo->_exclusiveGroup)
-                TC_LOG_ERROR("sql.sql", "Quest %u is a breadcrumb in exclusive group %i", qinfo->_id, qinfo->_exclusiveGroup);
         }
 
         if (qinfo->_exclusiveGroup)
