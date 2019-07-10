@@ -1791,7 +1791,7 @@ class spell_sha_stoneclaw_totem : public SpellScript
         Unit* target = GetHitUnit();
 
         // Cast Absorb on totems
-        for (uint8 slot = SUMMON_SLOT_TOTEM; slot < MAX_TOTEM_SLOT; ++slot)
+        for (uint8 slot = SUMMON_SLOT_TOTEM_FIRE; slot < MAX_TOTEM_SLOT; ++slot)
         {
             if (!target->m_SummonSlot[slot])
                 continue;
@@ -1988,7 +1988,7 @@ public:
         void HandleDummy(AuraEffect const* aurEff)
         {
             Unit* target = GetTarget();
-            for (uint8 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+            for (uint8 i = SUMMON_SLOT_TOTEM_FIRE; i < MAX_TOTEM_SLOT; ++i)
                 if (!target->m_SummonSlot[i])
                     return;
 

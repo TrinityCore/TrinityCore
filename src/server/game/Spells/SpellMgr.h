@@ -577,8 +577,6 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
 
-typedef std::map<std::pair<uint32 /*SpellId*/, uint8 /*RaceId*/>, uint32 /*DisplayId*/> SpellTotemModelMap;
-
 class TC_GAME_API SpellMgr
 {
     // Constructors
@@ -678,8 +676,6 @@ class TC_GAME_API SpellMgr
         }
         uint32 GetSpellInfoStoreSize() const { return mSpellInfoMap.size(); }
 
-        uint32 GetModelForTotem(uint32 spellId, uint8 race) const;
-
     private:
         SpellInfo* _GetSpellInfo(uint32 spellId) { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : nullptr; }
 
@@ -715,7 +711,6 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoSpellSpecificAndAuraState();
         void LoadSpellInfoDiminishing();
         void LoadSpellInfoImmunities();
-        void LoadSpellTotemModel();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
@@ -746,7 +741,6 @@ class TC_GAME_API SpellMgr
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellInfoMap               mSpellInfoMap;
-        SpellTotemModelMap         mSpellTotemModel;
 };
 
 #define sSpellMgr SpellMgr::instance()

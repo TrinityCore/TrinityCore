@@ -1602,8 +1602,8 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellInfo immunity infos...");
     sSpellMgr->LoadSpellInfoImmunities();
 
-    TC_LOG_INFO("server.loading", "Loading Spell Totem models...");
-    sSpellMgr->LoadSpellTotemModel();
+    TC_LOG_INFO("server.loading", "Loading Player Totem models...");
+    sObjectMgr->LoadPlayerTotemModels();
 
     TC_LOG_INFO("server.loading", "Loading GameObject models...");
     LoadGameObjectModelList(m_dataPath);
