@@ -67,40 +67,51 @@ void SplineChainMovementGenerator::SendSplineFor(Unit* me, uint32 index, uint32&
 
 void SplineChainMovementGenerator::Initialize(Unit* me)
 {
-    if (_chainSize)
+    if (!_chainSize)
     {
-        if (_nextFirstWP) // this is a resumed movegen that has to start with a partial spline
+        TC_LOG_ERROR("movement.splinechain", "SplineChainMovementGenerator::Initialize: couldn't initialize generator, referenced spline is empty! (%s)", me->GetGUID().ToString().c_str());
+        return;
+    }
+
+    if (_nextIndex >= _chainSize)
+    {
+        TC_LOG_WARN("movement.splinechain", "SplineChainMovementGenerator::Initialize: couldn't initialize generator, _nextIndex is >= _chainSize (%s)", me->GetGUID().ToString().c_str());
+        _msToNext = 0;
+        return;
+    }
+
+    if (_nextFirstWP) // this is a resumed movegen that has to start with a partial spline
+    {
+        if (finished)
+            return;
+
+        SplineChainLink const& thisLink = _chain[_nextIndex];
+        if (_nextFirstWP >= thisLink.Points.size())
         {
-            if (finished)
-                return;
-            SplineChainLink const& thisLink = _chain[_nextIndex];
-            if (_nextFirstWP >= thisLink.Points.size())
-            {
-                TC_LOG_ERROR("movement.splinechain", "%s: Attempted to resume spline chain from invalid resume state (%u, %u).", me->GetGUID().ToString().c_str(), _nextIndex, _nextFirstWP);
-                _nextFirstWP = thisLink.Points.size()-1;
-            }
-            Movement::PointsArray partial(thisLink.Points.begin() + (_nextFirstWP-1), thisLink.Points.end());
-            SendPathSpline(me, thisLink.Velocity, partial);
-            TC_LOG_DEBUG("movement.splinechain", "%s: Resumed spline chain generator from resume state.", me->GetGUID().ToString().c_str());
-            ++_nextIndex;
-            if (_nextIndex >= _chainSize)
-                _msToNext = 0;
-            else if (!_msToNext)
-                _msToNext = 1;
-            _nextFirstWP = 0;
+            TC_LOG_ERROR("movement.splinechain", "%s: Attempted to resume spline chain from invalid resume state (%u, %u).", me->GetGUID().ToString().c_str(), _nextIndex, _nextFirstWP);
+            _nextFirstWP = thisLink.Points.size() - 1;
         }
-        else
-        {
-            _msToNext = std::max(_chain[_nextIndex].TimeToNext, 1u);
-            SendSplineFor(me, _nextIndex, _msToNext);
-            ++_nextIndex;
-            if (_nextIndex >= _chainSize)
-                _msToNext = 0;
-        }
+
+        Movement::PointsArray partial(thisLink.Points.begin() + (_nextFirstWP - 1), thisLink.Points.end());
+        SendPathSpline(me, thisLink.Velocity, partial);
+
+        TC_LOG_DEBUG("movement.splinechain", "%s: Resumed spline chain generator from resume state.", me->GetGUID().ToString().c_str());
+
+        ++_nextIndex;
+        if (_nextIndex >= _chainSize)
+            _msToNext = 0;
+        else if (!_msToNext)
+            _msToNext = 1;
+        _nextFirstWP = 0;
     }
     else
     {
-        TC_LOG_ERROR("movement", "SplineChainMovementGenerator::Initialize - empty spline chain passed for %s.", me->GetGUID().ToString().c_str());
+        _msToNext = std::max(_chain[_nextIndex].TimeToNext, 1u);
+        SendSplineFor(me, _nextIndex, _msToNext);
+
+        ++_nextIndex;
+        if (_nextIndex >= _chainSize)
+            _msToNext = 0;
     }
 }
 
