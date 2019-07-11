@@ -29,3 +29,35 @@ VALUES(
 'frFR',
 'Coucou',
 'Je suis si fier de toi! $B$B C''est incroyable de t''avoir parmi mes amis. Voici un petit présent pour notre prochaine fête.$B$BBisous bisou.');
+
+-- Add anniversery reward
+INSERT INTO `achievement_reward`
+(`ID`,
+`TitleA`,
+`TitleH`,
+`ItemID`,
+`Sender`,
+`Subject`,
+`Body`,
+`MailTemplateID`)
+VALUES
+(2398,
+0,
+0,
+43599,
+2496,
+'Founding Fathers',
+'You have the honor to be one of the firsts, this may be reward.',
+0);
+
+-- add lvl 60 reward translate
+INSERT into `achievement_reward_locale`
+(`ID`,
+`Locale`,
+`Subject`,
+`Body`)
+VALUES(
+2398,
+'frFR',
+'Pères fondateurs',
+'Vous avez l''honneur de faire partie de nos premières recrues.Ceci mérite une récompense');
