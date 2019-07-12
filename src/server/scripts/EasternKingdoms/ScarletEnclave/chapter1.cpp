@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "CreatureTextMgr.h"
+#include "G3DPosition.hpp"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"
@@ -33,7 +34,6 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
-#include <G3D/Vector3.h>
 
 /*######
 ##Quest 12848
@@ -400,31 +400,31 @@ class spell_death_knight_initiate_visual : public SpellScript
 ## npc_eye_of_acherus
 ######*/
 
-enum EyeOfAcherus
+enum EyeOfAcherusMisc
 {
-    SPELL_EYE_VISUAL            = 51892,
-    SPELL_EYE_FLIGHT_BOOST      = 51923,
-    SPELL_EYE_FLIGHT            = 51890,
+    SPELL_EYE_VISUAL = 51892,
+    SPELL_EYE_FLIGHT_BOOST = 51923,
+    SPELL_EYE_FLIGHT = 51890,
 
-    EVENT_MOVE_START            = 1,
+    EVENT_MOVE_START = 1,
 
-    TALK_MOVE_START             = 0,
-    TALK_CONTROL                = 1,
+    TALK_MOVE_START = 0,
+    TALK_CONTROL = 1,
 
-    POINT_EYE_FALL              = 1,
-    POINT_EYE_MOVE_END          = 3
+    POINT_EYE_FALL = 1,
+    POINT_EYE_MOVE_END = 3
 };
 
 Position const EyeOFAcherusFallPoint = { 2361.21f, -5660.45f, 496.7444f, 0.0f };
 
-Position const EyeOfAcherusPath[] =
+G3D::Vector3 const EyeOfAcherusPath[] =
 {
     { 2361.21f, -5660.45f, 496.744f },
     { 2341.57f, -5672.8f,  538.394f },
     { 1957.4f,  -5844.1f,  273.867f },
     { 1758.01f, -5876.79f, 166.867f }
 };
-std::size_t const EyeOfAcherusPathSize = std::extent<decltype(EyeOfAcherusPath)>::value;
+std::size_t constexpr EyeOfAcherusPathSize = std::extent<decltype(EyeOfAcherusPath)>::value;
 
 class npc_eye_of_acherus : public CreatureScript
 {
@@ -435,18 +435,22 @@ class npc_eye_of_acherus : public CreatureScript
         {
             npc_eye_of_acherusAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+                creature->SetDisplayId(creature->GetCreatureTemplate()->Modelid1);
+                creature->SetReactState(REACT_PASSIVE);
+                creature->SetDisableGravity(true);
+                creature->SetControlled(true, UNIT_STATE_ROOT);
+            }
+
+            void JustAppeared() override
+            {
+                ScriptedAI::JustAppeared();
+
                 DoCastSelf(SPELL_EYE_VISUAL);
-                me->SetReactState(REACT_PASSIVE);
-                me->SetDisableGravity(true);
-                me->SetControlled(true, UNIT_STATE_ROOT);
 
                 Movement::MoveSplineInit init(me);
-                init.MoveTo(EyeOFAcherusFallPoint.GetPositionX(), EyeOFAcherusFallPoint.GetPositionY(), EyeOFAcherusFallPoint.GetPositionZ(), false);
+                init.MoveTo(PositionToVector3(EyeOFAcherusFallPoint), false);
                 init.SetFall();
                 me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_EYE_FALL, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
-
-                _events.ScheduleEvent(EVENT_MOVE_START, 7s);
             }
 
             void OnCharmed(bool /*isNew*/) override { }
@@ -463,21 +467,14 @@ class npc_eye_of_acherus : public CreatureScript
                         {
                             DoCastSelf(SPELL_EYE_FLIGHT_BOOST);
                             me->SetControlled(false, UNIT_STATE_ROOT);
-
-                            if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+                            if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
                             {
-                                for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
-                                    me->SetSpeedRate(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)));
+                                for (uint8 itr = 0; itr < MAX_MOVE_TYPE; ++itr)
+                                    me->SetSpeedRate(UnitMoveType(itr), owner->GetSpeedRate(UnitMoveType(itr)));
                                 Talk(TALK_MOVE_START, owner);
                             }
 
-                            Movement::PointsArray path;
-                            path.reserve(EyeOfAcherusPathSize);
-                            std::transform(std::begin(EyeOfAcherusPath), std::end(EyeOfAcherusPath), std::back_inserter(path), [](Position const& pos)
-                            {
-                                return G3D::Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
-                            });
-
+                            Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
                             Movement::MoveSplineInit init(me);
                             init.MovebyPath(path);
                             me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_EYE_MOVE_END, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
@@ -491,20 +488,27 @@ class npc_eye_of_acherus : public CreatureScript
 
             void MovementInform(uint32 movementType, uint32 pointId) override
             {
-                if (movementType == POINT_MOTION_TYPE && pointId == POINT_EYE_MOVE_END)
+                if (movementType != POINT_MOTION_TYPE)
+                    return;
+
+                switch (pointId)
                 {
-                    me->RemoveAllAuras();
-
-                    if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
-                    {
-                        owner->RemoveAura(SPELL_EYE_FLIGHT_BOOST);
-                        for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
-                            me->SetSpeedRate(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)));
-
-                        Talk(TALK_CONTROL, owner);
-                    }
-                    me->SetDisableGravity(false);
-                    DoCastSelf(SPELL_EYE_FLIGHT);
+                    case POINT_EYE_FALL:
+                        _events.ScheduleEvent(EVENT_MOVE_START, 2s);
+                        break;
+                    case POINT_EYE_MOVE_END:
+                        me->RemoveAurasDueToSpell(SPELL_EYE_FLIGHT_BOOST);
+                        if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                        {
+                            owner->RemoveAurasDueToSpell(SPELL_EYE_FLIGHT_BOOST);
+                            for (uint8 itr = 0; itr < MAX_MOVE_TYPE; ++itr)
+                                me->SetSpeedRate(UnitMoveType(itr), owner->GetSpeedRate(UnitMoveType(itr)));
+                            Talk(TALK_CONTROL, owner);
+                        }
+                        DoCastSelf(SPELL_EYE_FLIGHT);
+                        break;
+                    default:
+                        break;
                 }
             }
 
