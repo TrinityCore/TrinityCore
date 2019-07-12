@@ -19,17 +19,27 @@
 #ifndef _WORLDPACKETCRYPT_H
 #define _WORLDPACKETCRYPT_H
 
-#include "PacketCrypt.h"
+#include "Cryptography/AES.h"
 
 class BigNumber;
 
-class TC_COMMON_API WorldPacketCrypt : public PacketCrypt
+class TC_COMMON_API WorldPacketCrypt
 {
-    public:
-        WorldPacketCrypt();
+public:
+    WorldPacketCrypt();
 
-        void Init(BigNumber* K) override;
-        void Init(BigNumber* k, uint8 const* serverKey, uint8 const* clientKey);
+    void Init(uint8 const* key);
+    bool DecryptRecv(uint8* data, size_t length, uint8* tag);
+    bool EncryptSend(uint8* data, size_t length, uint8* tag);
+
+    bool IsInitialized() const { return _initialized; }
+
+protected:
+    Trinity::Crypto::AES _clientDecrypt;
+    Trinity::Crypto::AES _serverEncrypt;
+    uint64 _clientCounter;
+    uint64 _serverCounter;
+    bool _initialized;
 };
 
 #endif // _WORLDPACKETCRYPT_H

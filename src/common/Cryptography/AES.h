@@ -15,25 +15,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PacketCrypt.h"
+#ifndef Trinity_AES_h__
+#define Trinity_AES_h__
 
-PacketCrypt::PacketCrypt(uint32 rc4InitSize)
-    : _clientDecrypt(rc4InitSize), _serverEncrypt(rc4InitSize), _initialized(false)
+#include "Define.h"
+#include <openssl/evp.h>
+
+namespace Trinity
 {
+namespace Crypto
+{
+class TC_COMMON_API AES
+{
+public:
+    AES(bool encrypting);
+    ~AES();
+
+    void Init(uint8 const* key);
+
+    bool Process(uint8 const* iv, uint8* data, std::size_t length, uint8* tag);
+
+private:
+    EVP_CIPHER_CTX* _ctx;
+};
+}
 }
 
-void PacketCrypt::DecryptRecv(uint8* data, size_t len)
-{
-    if (!_initialized)
-        return;
-
-    _clientDecrypt.UpdateData(len, data);
-}
-
-void PacketCrypt::EncryptSend(uint8* data, size_t len)
-{
-    if (!_initialized)
-        return;
-
-    _serverEncrypt.UpdateData(len, data);
-}
+#endif // Trinity_AES_h__
