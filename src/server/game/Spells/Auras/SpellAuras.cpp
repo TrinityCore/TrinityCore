@@ -871,7 +871,7 @@ void Aura::Update(uint32 diff, Unit* caster)
                     if (m_spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)
                         breakPct += 100 * pow(auraMaxDuration - auraTimePassed, 2) / (auraMaxDuration * auraMaxDuration);
                     else
-                        breakPct += (uint32)floor(100 * (resistance / powf(GetUnitOwner()->getLevel(), 1.441f) * 0.10));
+                        breakPct += (uint32)floor(100 * (resistance / powf(GetUnitOwner()->GetLevel(), 1.441f) * 0.10));
                     
                     if (roll_chance_i(breakPct))
                     {
@@ -882,7 +882,7 @@ void Aura::Update(uint32 diff, Unit* caster)
             }
             
            diff -= m_heartBeatResistTimer;
-           m_heartBeastResistTimer = CalculatePct(m_maxDuration, 25);
+           m_heartBeatResistTimer = CalculatePct(m_maxDuration, 25);
         }
         m_heartBeatResistTimer -= diff;
     }
