@@ -446,6 +446,7 @@ class npc_eye_of_acherus : public CreatureScript
                 ScriptedAI::JustAppeared();
 
                 DoCastSelf(SPELL_EYE_VISUAL);
+                DoCastSelf(SPELL_EYE_FLIGHT);
 
                 Movement::MoveSplineInit init(me);
                 init.MoveTo(PositionToVector3(EyeOFAcherusFallPoint), false);
@@ -465,14 +466,12 @@ class npc_eye_of_acherus : public CreatureScript
                     {
                         case EVENT_MOVE_START:
                         {
-                            DoCastSelf(SPELL_EYE_FLIGHT_BOOST);
                             me->SetControlled(false, UNIT_STATE_ROOT);
-                            if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                            {
-                                for (uint8 itr = 0; itr < MAX_MOVE_TYPE; ++itr)
-                                    me->SetSpeedRate(UnitMoveType(itr), owner->GetSpeedRate(UnitMoveType(itr)));
+
+                            DoCastSelf(SPELL_EYE_FLIGHT_BOOST);
+
+                            if (Unit* owner = me->GetCharmerOrOwner())
                                 Talk(TALK_MOVE_START, owner);
-                            }
 
                             Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
                             Movement::MoveSplineInit init(me);
@@ -498,14 +497,8 @@ class npc_eye_of_acherus : public CreatureScript
                         break;
                     case POINT_EYE_MOVE_END:
                         me->RemoveAurasDueToSpell(SPELL_EYE_FLIGHT_BOOST);
-                        if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                        {
-                            owner->RemoveAurasDueToSpell(SPELL_EYE_FLIGHT_BOOST);
-                            for (uint8 itr = 0; itr < MAX_MOVE_TYPE; ++itr)
-                                me->SetSpeedRate(UnitMoveType(itr), owner->GetSpeedRate(UnitMoveType(itr)));
+                        if (Unit* owner = me->GetCharmerOrOwner())
                             Talk(TALK_CONTROL, owner);
-                        }
-                        DoCastSelf(SPELL_EYE_FLIGHT);
                         break;
                     default:
                         break;
