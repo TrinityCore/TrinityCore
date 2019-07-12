@@ -79,16 +79,21 @@ class KalecgosFlightEvent : public BasicEvent
     KalecgosFlightEvent(Creature* owner) : owner(owner)
     {
         spellArgs.AddSpellBP0(1258);
+        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT1, 558);
 
         spellArgs.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS);
+
+        owner->SetReactState(REACT_PASSIVE);
     }
 
     bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
     {
+        if (roll_chance_i(20))
+            owner->PlayDistanceSound(RAND(28141, 28142));
+
         owner->CastSpell(owner, SPELL_FROST_BREEZE, spellArgs);
-        owner->SetReactState(REACT_PASSIVE);
         owner->GetThreatManager().RemoveMeFromThreatLists();
         owner->m_Events.AddEvent(this, eventTime + 5000);
         return false;
@@ -161,7 +166,7 @@ class theramore_waves_invoker : public CreatureScript
                         players.push_back(player);
                 }
 
-                events.ScheduleEvent(EVENT_BATTLE_1, 2s);
+                events.ScheduleEvent(EVENT_BATTLE_1, 5s);
             }
         }
 
@@ -229,6 +234,7 @@ class theramore_waves_invoker : public CreatureScript
                         break;
 
                     case EVENT_BATTLE_4:
+                        jaina->AI()->Talk(JAINA_SAY_04);
                         if (Creature * fx = DoSummon(NPC_INVISIBLE_STALKER, jaina->GetPosition(), 5000, TEMPSUMMON_TIMED_DESPAWN))
                             fx->CastSpell(fx, SPELL_TELEPORT, true);
                         jaina->NearTeleportTo(-3612.43f, -4335.63f, 9.29f, 0.72f);

@@ -159,7 +159,6 @@ class npc_jaina_theramore : public CreatureScript
         void Initialize()
         {
             sayInCombatTimer = 0;
-            fireballTimer = 0;
             blizzardTimer = 0;
             playerShaker = false;
             firesCount = 0;
@@ -357,9 +356,17 @@ class npc_jaina_theramore : public CreatureScript
         {
             me->RemoveAllAuras();
 
-            sayInCombatTimer = 8000;
-            fireballTimer = 1;
+            sayInCombatTimer = 2000;
             blizzardTimer = urand(3500, 5000);
+        }
+
+        void AttackStart(Unit* who) override
+        {
+            if (!who)
+                return;
+
+            if (me->Attack(who, false))
+                SetCombatMovement(false);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -1450,18 +1457,13 @@ class npc_jaina_theramore : public CreatureScript
             if (blizzardTimer <= diff)
             {
                 if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                {
+                    me->PlayDistanceSound(RAND(28138, 28139));
                     DoCast(pTarget, SPELL_BLIZZARD);
+                }
                 blizzardTimer = urand(6000, 15000);
             }
             else blizzardTimer -= diff;
-
-            // Boule de Feu
-            if (fireballTimer <= diff)
-            {
-                DoCastVictim(SPELL_FIREBALL);
-                fireballTimer = urand(3600, 5000);
-            }
-            else fireballTimer -= diff;
 
             // Parle en combat
             if (sayInCombatTimer <= diff)
@@ -1471,7 +1473,7 @@ class npc_jaina_theramore : public CreatureScript
             }
             else sayInCombatTimer -= diff;
 
-            DoMeleeAttackIfReady();
+            DoSpellAttackIfReady(SPELL_FIREBALL);
         }
 
         private:
@@ -1495,7 +1497,7 @@ class npc_jaina_theramore : public CreatureScript
         uint8 firesCount;
         uint8 npcCount;
 
-        uint32 sayInCombatTimer, fireballTimer, blizzardTimer;
+        uint32 sayInCombatTimer, blizzardTimer;
 
         void Relocate(Creature * c, float x, float y, float z, float orientation)
         {

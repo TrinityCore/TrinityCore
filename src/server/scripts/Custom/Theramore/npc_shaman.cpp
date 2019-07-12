@@ -1,5 +1,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ThreatManager.h"
 
 enum Spells
 {
@@ -42,6 +43,15 @@ class npc_shaman : public CreatureScript
         void Reset() override
         {
             events.Reset();
+        }
+
+        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->Id == SPELL_HEALING_WAVE)
+            {
+                for (ThreatReference* ref : me->GetThreatManager().GetModifiableThreatList())
+                    ref->AddThreat(80);
+            }
         }
 
         void UpdateAI(uint32 diff) override
