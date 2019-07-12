@@ -33,6 +33,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
+#include <G3D/Vector3.h>
 
 /*######
 ##Quest 12848
@@ -416,6 +417,15 @@ enum EyeOfAcherus
 
 Position const EyeOFAcherusFallPoint = { 2361.21f, -5660.45f, 496.7444f, 0.0f };
 
+Position const EyeOfAcherusPath[] =
+{
+    { 2361.21f, -5660.45f, 496.744f },
+    { 2341.57f, -5672.8f,  538.394f },
+    { 1957.4f,  -5844.1f,  273.867f },
+    { 1758.01f, -5876.79f, 166.867f }
+};
+std::size_t const EyeOfAcherusPathSize = std::extent<decltype(EyeOfAcherusPath)>::value;
+
 class npc_eye_of_acherus : public CreatureScript
 {
     public:
@@ -460,7 +470,17 @@ class npc_eye_of_acherus : public CreatureScript
                                     me->SetSpeedRate(UnitMoveType(i), owner->GetSpeedRate(UnitMoveType(i)));
                                 Talk(TALK_MOVE_START, owner);
                             }
-                            me->GetMotionMaster()->MovePath(me->GetEntry() * 100, false);
+
+                            Movement::PointsArray path;
+                            path.reserve(EyeOfAcherusPathSize);
+                            std::transform(std::begin(EyeOfAcherusPath), std::end(EyeOfAcherusPath), std::back_inserter(path), [](Position const& pos)
+                            {
+                                return G3D::Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                            });
+
+                            Movement::MoveSplineInit init(me);
+                            init.MovebyPath(path);
+                            me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_EYE_MOVE_END, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                             break;
                         }
                         default:
@@ -471,7 +491,7 @@ class npc_eye_of_acherus : public CreatureScript
 
             void MovementInform(uint32 movementType, uint32 pointId) override
             {
-                if (movementType == WAYPOINT_MOTION_TYPE && pointId == POINT_EYE_MOVE_END - 1)
+                if (movementType == POINT_MOTION_TYPE && pointId == POINT_EYE_MOVE_END)
                 {
                     me->RemoveAllAuras();
 
