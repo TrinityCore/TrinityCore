@@ -2316,6 +2316,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 GetBattlegroundQueueJoinTime(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool InBattlegroundQueue(bool ignoreArena = false) const;
+        bool IsDeserter() const { return HasAura(26013); }
+
         BattlegroundQueueTypeId GetBattlegroundQueueTypeId(uint32 index) const;
         uint32 GetBattlegroundQueueIndex(BattlegroundQueueTypeId bgQueueTypeId) const;
         bool IsInvitedForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId) const;

@@ -1900,6 +1900,9 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // offline member? don't let join
         if (!member)
             return ERR_BATTLEGROUND_JOIN_FAILED;
+        // rbac permissions
+        if (!member->CanJoinToBattleground(bgOrTemplate))
+            return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // don't allow cross-faction join as group
         if (member->GetTeam() != team)
         {
@@ -1925,7 +1928,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if ((bgOrTemplate->GetTypeID() == BATTLEGROUND_RB || bgOrTemplate->GetTypeID() == BATTLEGROUND_RANDOM_EPIC) && member->InBattlegroundQueue(true) && !isInRandomBgQueue)
             return ERR_IN_NON_RANDOM_BG;
         // check for deserter debuff in case not arena queue
-        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground(bgOrTemplate))
+        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && member->IsDeserter())
             return ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS;
         // check if member can join any more battleground queues
         if (!member->HasFreeBattlegroundQueueId())
