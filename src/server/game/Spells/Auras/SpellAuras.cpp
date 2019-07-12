@@ -429,10 +429,10 @@ m_procCooldown(std::chrono::steady_clock::time_point::min())
         m_timeCla = 1 * IN_MILLISECONDS;
 
     m_maxDuration = CalcMaxDuration(createInfo.Caster);
-    m_duration = m_maxDuration;  
+    m_duration = m_maxDuration;
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
         m_heartBeatResistTimer = CalculatePct(m_maxDuration, 25);
-    
+
     m_procCharges = CalcMaxCharges(createInfo.Caster);
     m_isUsingCharges = m_procCharges != 0;
     memset(m_effects, 0, sizeof(m_effects));
@@ -854,7 +854,7 @@ void Aura::Update(uint32 diff, Unit* caster)
             }
         }
     }
-    
+
     if (m_heartBeatResistTimer)
     {
         while (m_heartBeatResistTimer <= diff)
@@ -862,17 +862,17 @@ void Aura::Update(uint32 diff, Unit* caster)
             if (caster && caster->GetTypeId() == TYPEID_PLAYER)
             {
                 if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT)
-                {              
+                {
                     int32 auraMaxDuration = m_maxDuration / IN_MILLISECONDS;
                     int32 auraTimePassed = m_duration / IN_MILLISECONDS;
                     uint32 resistance = GetUnitOwner()->GetResistance(GetFirstSchoolInMask(m_spellInfo->GetSchoolMask()));
                     uint32 breakPct = 5;
-                    
+
                     if (m_spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)
                         breakPct += 100 * pow(auraMaxDuration - auraTimePassed, 2) / (auraMaxDuration * auraMaxDuration);
                     else
                         breakPct += (uint32)floor(100 * (resistance / powf(GetUnitOwner()->GetLevel(), 1.441f) * 0.10));
-                    
+
                     if (roll_chance_i(breakPct))
                     {
                         Remove();
@@ -880,7 +880,7 @@ void Aura::Update(uint32 diff, Unit* caster)
                     }
                 }
             }
-            
+
            diff -= m_heartBeatResistTimer;
            m_heartBeatResistTimer = CalculatePct(m_maxDuration, 25);
         }
