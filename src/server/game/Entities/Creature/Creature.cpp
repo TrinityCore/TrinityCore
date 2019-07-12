@@ -35,6 +35,7 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "MapManager.h"
 #include "MotionMaster.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
@@ -1651,14 +1652,32 @@ bool Creature::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, 
 
     if (!m_respawnTime && !map->IsSpawnGroupActive(data->spawnGroupData->groupId))
     {
-        // @todo pools need fixing! this is just a temporary crashfix, but they violate dynspawn principles
-        ASSERT(m_respawnCompatibilityMode || sPoolMgr->IsPartOfAPool<Creature>(spawnId), "Creature (SpawnID %u) trying to load in inactive spawn group %s.", spawnId, data->spawnGroupData->name.c_str());
+        if (!m_respawnCompatibilityMode)
+        {
+            // @todo pools need fixing! this is just a temporary thing, but they violate dynspawn principles
+            if (!sPoolMgr->IsPartOfAPool<Creature>(spawnId))
+            {
+                TC_LOG_ERROR("entities.unit", "Creature (SpawnID %u) trying to load in inactive spawn group '%s':\n%s", spawnId, data->spawnGroupData->name.c_str(), GetDebugInfo().c_str());
+                return false;
+            }
+        }
+
         m_respawnTime = GameTime::GetGameTime() + urand(4, 7);
     }
 
-    if (m_respawnTime)                          // respawn on Update
+    if (m_respawnTime)
     {
-        ASSERT(m_respawnCompatibilityMode || sPoolMgr->IsPartOfAPool<Creature>(spawnId), "Creature (SpawnID %u) trying to load despite a respawn timer in progress.", spawnId);
+        if (!m_respawnCompatibilityMode)
+        {
+            // @todo same as above
+            if (!sPoolMgr->IsPartOfAPool<Creature>(spawnId))
+            {
+                TC_LOG_ERROR("entities.unit", "Creature (SpawnID %u) trying to load despite a respawn timer in progress:\n%s", spawnId, GetDebugInfo().c_str());
+                return false;
+            }
+        }
+
+        // compatibility mode creatures will be respawned in ::Update()
         m_deathState = DEAD;
         if (CanFly())
         {
@@ -1761,70 +1780,75 @@ bool Creature::hasInvolvedQuest(uint32 quest_id) const
     return false;
 }
 
-void Creature::DeleteFromDB()
+/*static*/ bool Creature::DeleteFromDB(ObjectGuid::LowType spawnId)
 {
-    if (!m_spawnId)
-    {
-        TC_LOG_ERROR("entities.unit", "Trying to delete not saved creature! LowGUID: %u, Entry: %u", GetGUID().GetCounter(), GetEntry());
-        return;
-    }
+    CreatureData const* data = sObjectMgr->GetCreatureData(spawnId);
+    if (!data)
+        return false;
 
-    // remove any scheduled respawns
-    GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId);
-
-    // delete data from memory
-    sObjectMgr->DeleteCreatureData(m_spawnId);
-
-    // delete data and all its associations from DB
     SQLTransaction trans = WorldDatabase.BeginTransaction();
 
+    sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
+        [spawnId, trans](Map* map) -> void
+        {
+            // despawn all active creatures, and remove their respawns
+            std::vector<Creature*> toUnload;
+            for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetCreatureBySpawnIdStore(), spawnId))
+                toUnload.push_back(pair.second);
+            for (Creature* creature : toUnload)
+                map->AddObjectToRemoveList(creature);
+            map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, spawnId, false, trans);
+        }
+    );
+
+    // delete data from memory ...
+    sObjectMgr->DeleteCreatureData(spawnId);
+
+    // ... and the database
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_SPAWNGROUP_MEMBER);
     stmt->setUInt8(0, uint8(SPAWN_TYPE_CREATURE));
-    stmt->setUInt32(1, m_spawnId);
+    stmt->setUInt32(1, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_ADDON);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_EVENT_CREATURE);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_EVENT_MODEL_EQUIP);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_CREATURE);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_GO);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_CREATURE);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_CREATURE);
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
 
-    // then delete any active instances of the creature
-    auto const& spawnMap = GetMap()->GetCreatureBySpawnIdStore();
-    for (auto it = spawnMap.find(m_spawnId); it != spawnMap.end(); it = spawnMap.find(m_spawnId))
-        it->second->AddObjectToRemoveList();
+    return true;
 }
 
 bool Creature::IsInvisibleDueToDespawn() const

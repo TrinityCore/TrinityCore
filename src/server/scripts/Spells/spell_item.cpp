@@ -404,6 +404,27 @@ class spell_item_dementia : public AuraScript
     }
 };
 
+// 24590 - Brittle Armor
+enum BrittleArmor
+{
+    SPELL_BRITTLE_ARMOR = 24575
+};
+
+class spell_item_brittle_armor : public SpellScript
+{
+    PrepareSpellScript(spell_item_brittle_armor);
+
+    void HandleScript(SpellEffIndex /* effIndex */)
+    {
+        GetHitUnit()->RemoveAuraFromStack(SPELL_BRITTLE_ARMOR);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_brittle_armor::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 64411 - Blessing of Ancient Kings (Val'anyr, Hammer of Ancient Kings)
 enum BlessingOfAncientKings
 {
@@ -1275,6 +1296,27 @@ class spell_item_mark_of_conquest : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_item_mark_of_conquest::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 26465 - Mercurial Shield
+enum MercurialShield
+{
+    SPELL_MERCURIAL_SHIELD = 26464
+};
+
+class spell_item_mercurial_shield : public SpellScript
+{
+    PrepareSpellScript(spell_item_mercurial_shield);
+
+    void HandleScript(SpellEffIndex /* effIndex */)
+    {
+        GetHitUnit()->RemoveAuraFromStack(SPELL_MERCURIAL_SHIELD);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_mercurial_shield::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -4212,6 +4254,7 @@ void AddSC_item_spell_scripts()
     RegisterAuraScript(spell_item_arcane_shroud);
     RegisterAuraScript(spell_item_aura_of_madness);
     RegisterAuraScript(spell_item_dementia);
+    RegisterSpellScript(spell_item_brittle_armor);
     RegisterAuraScript(spell_item_blessing_of_ancient_kings);
     RegisterAuraScript(spell_item_valanyr_hammer_of_ancient_kings);
     RegisterAuraScript(spell_item_deadly_precision);
@@ -4239,6 +4282,7 @@ void AddSC_item_spell_scripts()
     RegisterAuraScript(spell_item_crystal_spire_of_karabor);
     RegisterSpellScript(spell_item_make_a_wish);
     RegisterAuraScript(spell_item_mark_of_conquest);
+    RegisterSpellScript(spell_item_mercurial_shield);
     RegisterSpellScript(spell_item_mingos_fortune_generator);
     RegisterAuraScript(spell_item_necrotic_touch);
     RegisterSpellScript(spell_item_net_o_matic);

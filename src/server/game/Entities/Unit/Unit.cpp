@@ -30,6 +30,7 @@
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "CreatureGroups.h"
 #include "Formulas.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
@@ -12505,6 +12506,13 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         {
             vehicle->GetBase()->RemoveAura(const_cast<AuraApplication*>(aurApp));
             return;
+        }
+
+        if (vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
+        {
+            // If a player entered a vehicle that is part of a formation, remove it from said formation
+            if (CreatureGroup* creatureGroup = vehicle->GetBase()->ToCreature()->GetFormation())
+                creatureGroup->RemoveMember(vehicle->GetBase()->ToCreature());
         }
     }
 

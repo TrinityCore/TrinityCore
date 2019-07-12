@@ -3431,14 +3431,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Brittle Armor - need remove one 24575 Brittle Armor aura
-                case 24590:
-                    unitTarget->RemoveAuraFromStack(24575);
-                    return;
-                // Mercurial Shield - need remove one 26464 Mercurial Shield aura
-                case 26465:
-                    unitTarget->RemoveAuraFromStack(26464);
-                    return;
                 // Shadow Flame (All script effects, not just end ones to prevent player from dodging the last triggered spell)
                 case 22539:
                 case 22972:

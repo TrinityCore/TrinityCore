@@ -58,6 +58,13 @@ class boss_broggok : public CreatureScript
             void Reset() override
             {
                 _Reset();
+
+                if (GameObject * lever = instance->GetGameObject(DATA_BROGGOK_LEVER))
+                {
+                    lever->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
+                    lever->SetGoState(GO_STATE_READY);
+                }
+
                 DoAction(ACTION_RESET_BROGGOK);
             }
 
@@ -144,12 +151,14 @@ class go_broggok_lever : public GameObjectScript
                 if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)
                 {
                     instance->SetBossState(DATA_BROGGOK, IN_PROGRESS);
-                    if (Creature* broggok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BROGGOK)))
+                    if (Creature* broggok = instance->GetCreature(DATA_BROGGOK))
                         broggok->AI()->DoAction(ACTION_PREPARE_BROGGOK);
                 }
 
-                me->UseDoorOrButton();
-                return false;
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
+                me->SetGoState(GO_STATE_ACTIVE);
+
+                return true;
             }
         };
 

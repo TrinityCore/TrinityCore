@@ -91,7 +91,7 @@ class TC_GAME_API CreatureTextMgr
 
         void LoadCreatureTexts();
         void LoadCreatureTextLocales();
-        CreatureTextMap  const& GetTextMap() const { return mTextMap; }
+        CreatureTextMap const& GetTextMap() const { return mTextMap; }
 
         void SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
         void SendEmote(Unit* source, uint32 emote);

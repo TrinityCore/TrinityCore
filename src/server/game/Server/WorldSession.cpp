@@ -736,7 +736,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 
         if ((mask & (1 << type)) == 0)
         {
-            TC_LOG_ERROR("misc", "Table `%s` have non appropriate for table  account data type (%u), ignore.",
+            TC_LOG_ERROR("misc", "Table `%s` have non appropriate for table account data type (%u), ignore.",
                 mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
             continue;
         }
