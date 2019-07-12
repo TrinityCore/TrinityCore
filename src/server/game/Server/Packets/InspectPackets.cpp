@@ -54,6 +54,49 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectItemData 
     return data;
 }
 
+void WorldPackets::Inspect::PlayerModelDisplayInfo::Initialize(Player const* player)
+{
+    GUID = player->GetGUID();
+    SpecializationID = player->GetPrimarySpecialization();
+    Name = player->GetName();
+    GenderID = player->m_playerData->NativeSex;
+    Skin = player->m_playerData->SkinID;
+    HairColor = player->m_playerData->HairColorID;
+    HairStyle = player->m_playerData->HairStyleID;
+    FacialHairStyle = player->m_playerData->FacialHairStyleID;
+    Face = player->m_playerData->FaceID;
+    Race = player->getRace();
+    ClassID = player->getClass();
+    std::copy(player->m_playerData->CustomDisplayOption.begin(), player->m_playerData->CustomDisplayOption.end(), CustomDisplay.begin());
+
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        if (::Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            Items.emplace_back(item, i);
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PlayerModelDisplayInfo const& displayInfo)
+{
+    data << displayInfo.GUID;
+    data << int32(displayInfo.SpecializationID);
+    data << uint32(displayInfo.Items.size());
+    data.WriteBits(displayInfo.Name.length(), 6);
+    data << uint8(displayInfo.GenderID);
+    data << uint8(displayInfo.Skin);
+    data << uint8(displayInfo.HairColor);
+    data << uint8(displayInfo.HairStyle);
+    data << uint8(displayInfo.FacialHairStyle);
+    data << uint8(displayInfo.Face);
+    data << uint8(displayInfo.Race);
+    data << uint8(displayInfo.ClassID);
+    data.append(displayInfo.CustomDisplay.data(), displayInfo.CustomDisplay.size());
+    data.WriteString(displayInfo.Name);
+
+    for (WorldPackets::Inspect::InspectItemData const& item : displayInfo.Items)
+        data << item;
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectGuildData const& guildData)
 {
     data << guildData.GuildGUID;
@@ -110,14 +153,11 @@ WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint
 
 WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
 {
-    _worldPacket << InspecteeGUID;
-    _worldPacket << uint32(Items.size());
+    _worldPacket << DisplayInfo;
     _worldPacket << uint32(Glyphs.size());
     _worldPacket << uint32(Talents.size());
     _worldPacket << uint32(PvpTalents.size());
-    _worldPacket << int32(ClassID);
-    _worldPacket << int32(SpecializationID);
-    _worldPacket << int32(GenderID);
+    _worldPacket << int32(ItemLevel);
     _worldPacket << uint8(LifetimeMaxRank);
     _worldPacket << uint16(TodayHK);
     _worldPacket << uint16(YesterdayHK);
@@ -142,9 +182,6 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
 
     if (AzeriteLevel)
         _worldPacket << int32(*AzeriteLevel);
-
-    for (InspectItemData const& item : Items)
-        _worldPacket << item;
 
     return &_worldPacket;
 }

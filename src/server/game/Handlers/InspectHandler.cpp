@@ -43,25 +43,14 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
         return;
 
     WorldPackets::Inspect::InspectResult inspectResult;
-    inspectResult.InspecteeGUID = inspect.Target;
-
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            inspectResult.Items.emplace_back(item, i);
-    }
-
-    inspectResult.ClassID = player->getClass();
-    inspectResult.GenderID = player->m_playerData->NativeSex;
+    inspectResult.DisplayInfo.Initialize(player);
 
     if (GetPlayer()->CanBeGameMaster() || sWorld->getIntConfig(CONFIG_TALENTS_INSPECTING) + (GetPlayer()->GetTeamId() == player->GetTeamId()) > 1)
     {
         PlayerTalentMap const* talents = player->GetTalentMap(player->GetActiveTalentGroup());
         for (PlayerTalentMap::value_type const& v : *talents)
-        {
             if (v.second != PLAYERSPELL_REMOVED)
                 inspectResult.Talents.push_back(v.first);
-        }
 
         PlayerPvpTalentMap const& pvpTalents = player->GetPvpTalentMap(player->GetActiveTalentGroup());
         for (std::size_t i = 0; i < pvpTalents.size(); ++i)
@@ -76,8 +65,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
         inspectResult.GuildData->AchievementPoints = guild->GetAchievementMgr().GetAchievementPoints();
     }
 
-    inspectResult.InspecteeGUID = inspect.Target;
-    inspectResult.SpecializationID = player->GetPrimarySpecialization();
+    inspectResult.ItemLevel = int32(player->GetAverageItemLevel());
     inspectResult.LifetimeMaxRank = player->m_activePlayerData->LifetimeMaxRank;
     inspectResult.TodayHK = player->m_activePlayerData->TodayHonorableKills;
     inspectResult.YesterdayHK = player->m_activePlayerData->YesterdayHonorableKills;

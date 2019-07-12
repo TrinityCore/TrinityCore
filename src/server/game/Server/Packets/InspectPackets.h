@@ -24,6 +24,7 @@
 #include "SharedDefines.h"
 
 class Item;
+class Player;
 
 namespace WorldPackets
 {
@@ -60,6 +61,25 @@ namespace WorldPackets
             std::vector<int32> AzeritePowers;
         };
 
+        struct PlayerModelDisplayInfo
+        {
+            ObjectGuid GUID;
+            std::vector<InspectItemData> Items;
+            std::string Name;
+            int32 SpecializationID = 0;
+            uint8 GenderID = GENDER_NONE;
+            uint8 Skin = 0;
+            uint8 HairColor = 0;
+            uint8 HairStyle = 0;
+            uint8 FacialHairStyle = 0;
+            uint8 Face = 0;
+            uint8 Race = RACE_NONE;
+            uint8 ClassID = CLASS_NONE;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+
+            void Initialize(Player const* player);
+        };
+
         struct InspectGuildData
         {
             ObjectGuid GuildGUID;
@@ -92,17 +112,14 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            ObjectGuid InspecteeGUID;
-            std::vector<InspectItemData> Items;
+            PlayerModelDisplayInfo DisplayInfo;
             std::vector<uint16> Glyphs;
             std::vector<uint16> Talents;
             std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
-            int32 ClassID = CLASS_NONE;
-            int32 GenderID = GENDER_NONE;
             Optional<InspectGuildData> GuildData;
             std::array<PVPBracketData, 6> Bracket;
-            int32 SpecializationID = 0;
             Optional<int32> AzeriteLevel;
+            int32 ItemLevel = 0;
             uint32 LifetimeHK = 0;
             uint32 HonorLevel = 0;
             uint16 TodayHK = 0;

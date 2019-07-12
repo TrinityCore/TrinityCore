@@ -1276,13 +1276,10 @@ bool Battleground::HasFreeSlots() const
 
 void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const
 {
-    if (GetStatus() == STATUS_WAIT_LEAVE)
-        pvpLogData.Winner = GetWinner();
-
-    pvpLogData.Players.reserve(GetPlayerScoresSize());
+    pvpLogData.Statistics.reserve(GetPlayerScoresSize());
     for (auto const& score : PlayerScores)
     {
-        WorldPackets::Battleground::PVPLogData::PlayerData playerData;
+        WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics playerData;
         score.second->BuildPvPLogPlayerDataPacket(playerData);
 
         if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerData.PlayerGUID))
@@ -1295,7 +1292,7 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
             playerData.HonorLevel = player->GetHonorLevel();
         }
 
-        pvpLogData.Players.push_back(playerData);
+        pvpLogData.Statistics.push_back(playerData);
     }
 
     pvpLogData.PlayerCount[BG_TEAM_HORDE] = int8(GetPlayersCountByTeam(HORDE));
