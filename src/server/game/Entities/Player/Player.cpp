@@ -83,6 +83,7 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "TicketMgr.h"
 #include "TradeData.h"
 #include "Trainer.h"
@@ -24601,16 +24602,15 @@ void Player::ResyncRunes() const
     if (GetClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    WorldPacket data(SMSG_RESYNC_RUNES, 4 + MAX_RUNES * 2);
-    data << uint32(MAX_RUNES);
+    WorldPackets::Spells::ResyncRunes packet;
+    packet.Count = MAX_RUNES;
     for (uint32 itr = 0; itr < MAX_RUNES; ++itr)
     {
-        data << uint8(GetCurrentRune(itr)); // rune type
-
-        uint32 value = uint32(255) - ((GetRuneCooldown(itr) * uint32(255)) / uint32(RUNE_BASE_COOLDOWN));
-        data << uint8(value); // passed cooldown time (0-255)
+        uint8 type = GetCurrentRune(itr);
+        uint32 value = uint32(255) - ((GetRuneCooldown(itr) * uint32(255)) / uint32(RUNE_BASE_COOLDOWN)); // cooldown time (0-255)
+        packet.Cooldowns.emplace_back(type, value);
     }
-    SendDirectMessage(&data);
+    SendDirectMessage(packet.Write());
 }
 
 void Player::AddRunePower(uint8 index) const

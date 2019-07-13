@@ -255,8 +255,6 @@ struct Areas
     float y2;
 };
 
-#define MAX_RUNES       6
-
 enum RuneCooldowns
 {
     RUNE_BASE_COOLDOWN  = 10000,
