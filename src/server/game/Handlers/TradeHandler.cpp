@@ -628,6 +628,8 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
     if (GetPlayer()->GetLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_TRADE_REQ), sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ));
+        info.Status = TRADE_STATUS_CLOSE_WINDOW;
+        SendTradeStatus(info);
         return;
     }
 
@@ -695,12 +697,6 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
     {
         info.Status = TRADE_STATUS_TARGET_TO_FAR;
         SendTradeStatus(info);
-        return;
-    }
-
-    if (pOther->GetLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
-    {
-        SendNotification(GetTrinityString(LANG_TRADE_OTHER_REQ), sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ));
         return;
     }
 

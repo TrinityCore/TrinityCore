@@ -11405,17 +11405,24 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     _oldFactionId = GetFaction();
     SetFaction(charmer->GetFaction());
 
+    // Pause any Idle movement
+    PauseMovement(0, 0, false);
+
+    // Remove any active voluntary movement
+    GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
+
+    // Stop any remaining spline, if no involuntary movement is found
+    auto criteria = [](MovementGenerator const* movement) -> bool
+    {
+        return movement->Priority == MOTION_PRIORITY_HIGHEST;
+    };
+    if (!GetMotionMaster()->HasMovementGenerator(criteria))
+        StopMoving();
+
     // Set charmed
     charmer->SetCharm(this, true);
 
-    if (GetTypeId() == TYPEID_UNIT)
-    {
-        PauseMovement(0, 0, false);
-        GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
-
-        StopMoving();
-    }
-    else if (Player* player = ToPlayer())
+    if (Player* player = ToPlayer())
     {
         if (player->isAFK())
             player->ToggleAFK();
