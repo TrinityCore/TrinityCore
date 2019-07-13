@@ -124,7 +124,9 @@ u_map_fcc InterestingChunks[] =
     { { 'T', 'V', 'C', 'M' } },
     { { 'O', 'M', 'W', 'M' } },
     { { 'Q', 'L', 'C', 'M' } },
-    { { 'O', 'B', 'F', 'M' } }
+    { { 'O', 'B', 'F', 'M' } },
+    { { 'D', 'H', 'P', 'M' } },
+    { { 'D', 'I', 'A', 'M' } }
 };
 
 bool IsInterestingChunk(u_map_fcc const& fcc)
