@@ -5318,6 +5318,16 @@ float Player::GetMeleeCritFromAgility() const
 
 void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing) const
 {
+    /*
+      "Patch 4.2.0 (2011-06-28): Death Knights, Paladins, and Warriors no
+      longer receive any bonus to their chance to dodge from Agility. Their base chance to dodge is now a fixed 5%."
+    */
+    if (getClass() == CLASS_WARRIOR || getClass() == CLASS_PALADIN | getClass() == CLASS_DEATH_KNIGHT)
+    {
+        diminishing += 5.f;
+        return;
+    }
+
     // Table for base dodge values
     const float dodge_base[MAX_CLASSES] =
     {
