@@ -5099,7 +5099,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                 if (channelEntry->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
                     continue;                            // Already on the channel, as city channel names are not changing
 
-                joinChannel = cMgr->GetJoinChannel(channelEntry->ChannelID, std::string(), current_zone);
+                joinChannel = cMgr->GetSystemChannel(channelEntry->ChannelID, current_zone);
                 if (usedChannel)
                 {
                     if (joinChannel != usedChannel)
@@ -5112,13 +5112,13 @@ void Player::UpdateLocalChannels(uint32 newZone)
                 }
             }
             else
-                joinChannel = cMgr->GetJoinChannel(channelEntry->ChannelID, std::string());
+                joinChannel = cMgr->GetSystemChannel(channelEntry->ChannelID);
         }
         else
             removeChannel = usedChannel;
 
         if (joinChannel)
-            joinChannel->JoinChannel(this, "");          // Changed Channel: ... or Joined Channel: ...
+            joinChannel->JoinChannel(this);          // Changed Channel: ... or Joined Channel: ...
 
         if (removeChannel)
         {
