@@ -568,6 +568,13 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             return GetGuidSequenceGenerator<high>().Generate();
         }
 
+        template<HighGuid high>
+        inline ObjectGuid::LowType GetMaxLowGuid()
+        {
+            static_assert(ObjectGuidTraits<high>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Map), "Only map specific guid can be retrieved in Map context");
+            return GetGuidSequenceGenerator<high>().GetNextAfterMaxUsed();
+        }
+
         void AddUpdateObject(Object* obj)
         {
             _updateObjects.insert(obj);
