@@ -494,6 +494,7 @@ class TC_GAME_API SpellInfo
         uint32 TotemCategory[MAX_SPELL_TOTEMS];
         uint32 IconFileDataId;
         uint32 ActiveIconFileDataId;
+        uint32 ContentTuningId;
         LocalizedString const* SpellName;
         float ConeAngle;
         float Width;
