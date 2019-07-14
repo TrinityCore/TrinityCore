@@ -114,6 +114,12 @@ namespace WorldPackets
                 SpellCastData Cast;
         };
 
+        struct ResyncRune
+        {
+            uint8 RuneType = 0;
+            uint8 Cooldown = 0;
+        };
+
         class ResyncRunes final : public ServerPacket
         {
         public:
@@ -122,7 +128,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Count = 0;
-            std::vector<std::pair<uint8, uint8>> Cooldowns;
+            std::vector<ResyncRune> Runes;
         };
     }
 }
