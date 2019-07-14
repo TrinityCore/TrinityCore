@@ -17,10 +17,10 @@
 
 #include "AES.h"
 
-Trinity::Crypto::AES::AES(bool encrypting) : _ctx(EVP_CIPHER_CTX_new())
+Trinity::Crypto::AES::AES(bool encrypting) : _ctx(EVP_CIPHER_CTX_new()), _encrypting(encrypting)
 {
     EVP_CIPHER_CTX_init(_ctx);
-    EVP_CipherInit_ex(_ctx, EVP_aes_128_gcm(), nullptr, nullptr, nullptr, encrypting ? 1 : 0);
+    EVP_CipherInit_ex(_ctx, EVP_aes_128_gcm(), nullptr, nullptr, nullptr, _encrypting ? 1 : 0);
 }
 
 Trinity::Crypto::AES::~AES()
@@ -42,13 +42,13 @@ bool Trinity::Crypto::AES::Process(uint8 const* iv, uint8* data, std::size_t len
     if (!EVP_CipherUpdate(_ctx, data, &outLen, data, length))
         return false;
 
-    if (!EVP_CIPHER_CTX_encrypting(_ctx) && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_SET_TAG, 12, tag))
+    if (!_encrypting && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_SET_TAG, 12, tag))
         return false;
 
     if (!EVP_CipherFinal_ex(_ctx, data + outLen, &outLen))
         return false;
 
-    if (EVP_CIPHER_CTX_encrypting(_ctx) && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_GET_TAG, 12, tag))
+    if (_encrypting && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_GET_TAG, 12, tag))
         return false;
 
     return true;

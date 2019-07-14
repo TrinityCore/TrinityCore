@@ -37,6 +37,7 @@ public:
 
 private:
     EVP_CIPHER_CTX* _ctx;
+    bool _encrypting;
 };
 }
 }
