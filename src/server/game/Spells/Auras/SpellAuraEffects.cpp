@@ -3168,7 +3168,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
         target->GetThreatManager().EvaluateSuppressed();
     }
     else
-    { 
+    {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit
         if (target->HasAuraType(GetAuraType()))
             return;
@@ -3899,6 +3899,24 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
         }
 
         return;
+    }
+
+    if (GetAuraType() == SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK)
+    {
+        // Find stronger effect
+        int32 strongEffect = 0;
+        Unit::AuraEffectList const& castingSpeedNotStack = target->GetAuraEffectsByType(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK);
+        for (AuraEffect const* aurEff : castingSpeedNotStack)
+        {
+            if (aurEff != this && abs(strongEffect) < abs(aurEff->GetAmount()))
+                strongEffect = aurEff->GetAmount();
+        }
+
+        if (abs(strongEffect) >= abs(GetAmount()))
+            return;
+
+        if (strongEffect)
+            target->ApplyCastTimePercentMod(float(strongEffect), !apply);
     }
 
     target->ApplyCastTimePercentMod((float)GetAmount(), apply);
