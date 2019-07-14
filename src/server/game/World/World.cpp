@@ -1611,7 +1611,7 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Instance Template...");
     sObjectMgr->LoadInstanceTemplate();
 
-    // Must be called before `creature_respawn`/`gameobject_respawn` tables
+    // Must be called before `respawn` data
     TC_LOG_INFO("server.loading", "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
 
