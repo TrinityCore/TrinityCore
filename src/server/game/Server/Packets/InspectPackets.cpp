@@ -17,6 +17,7 @@
 
 #include "InspectPackets.h"
 #include "Item.h"
+#include "Player.h"
 
 void WorldPackets::Inspect::Inspect::Read()
 {
