@@ -83,6 +83,7 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "TicketMgr.h"
 #include "TradeData.h"
 #include "Trainer.h"
@@ -5099,7 +5100,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                 if (channelEntry->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
                     continue;                            // Already on the channel, as city channel names are not changing
 
-                joinChannel = cMgr->GetJoinChannel(channelEntry->ChannelID, std::string(), current_zone);
+                joinChannel = cMgr->GetSystemChannel(channelEntry->ChannelID, current_zone);
                 if (usedChannel)
                 {
                     if (joinChannel != usedChannel)
@@ -5112,13 +5113,13 @@ void Player::UpdateLocalChannels(uint32 newZone)
                 }
             }
             else
-                joinChannel = cMgr->GetJoinChannel(channelEntry->ChannelID, std::string());
+                joinChannel = cMgr->GetSystemChannel(channelEntry->ChannelID);
         }
         else
             removeChannel = usedChannel;
 
         if (joinChannel)
-            joinChannel->JoinChannel(this, "");          // Changed Channel: ... or Joined Channel: ...
+            joinChannel->JoinChannel(this);          // Changed Channel: ... or Joined Channel: ...
 
         if (removeChannel)
         {
@@ -22596,6 +22597,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
 
+    ResyncRunes();
+
     SetMovedUnit(this);
 }
 
@@ -24514,46 +24517,73 @@ void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false
 
     m_runes->runes[index].Cooldown = cooldown;
     m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
+
+    ResyncRunes();
 }
 
 void Player::SetRuneConvertAura(uint8 index, AuraEffect const* aura)
 {
-    m_runes->runes[index].ConvertAura = aura;
+    m_runes->runes[index].ConvertAuras.insert(aura);
+}
+
+void Player::RemoveRuneConvertAura(uint8 index, AuraEffect const* aura)
+{
+    m_runes->runes[index].ConvertAuras.erase(aura);
 }
 
 void Player::AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura)
 {
-    SetRuneConvertAura(index, aura); ConvertRune(index, newType);
+    SetRuneConvertAura(index, aura);
+    ConvertRune(index, newType);
 }
 
 void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
 {
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    for (uint8 itr = 0; itr < MAX_RUNES; ++itr)
     {
-        if (m_runes->runes[i].ConvertAura == aura)
-        {
-            ConvertRune(i, GetBaseRune(i));
-            SetRuneConvertAura(i, nullptr);
-        }
+        RemoveRuneConvertAura(itr, aura);
+
+        if (m_runes->runes[itr].ConvertAuras.empty())
+            ConvertRune(itr, GetBaseRune(itr));
     }
 }
 
 void Player::RestoreBaseRune(uint8 index)
 {
-    AuraEffect const* aura = m_runes->runes[index].ConvertAura;
-    // If rune was converted by a non-passive aura that still active we should keep it converted
-    if (aura && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PASSIVE))
+    std::unordered_set<AuraEffect const*>& auras = m_runes->runes[index].ConvertAuras;
+
+    AuraEffect const* aura = nullptr;
+    for (auto itr = auras.begin(); itr != auras.end() && !aura;)
+    {
+        if (AuraEffect const* temp = *itr)
+        {
+            if (temp->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PASSIVE))
+            {
+                aura = temp;
+                auras.erase(itr);
+            }
+            else
+                ++itr;
+        }
+        else
+            itr = auras.erase(itr);
+    }
+
+    if (!auras.empty())
         return;
+
     ConvertRune(index, GetBaseRune(index));
-    SetRuneConvertAura(index, nullptr);
+
     // Don't drop passive talents providing rune convertion
     if (!aura || aura->GetAuraType() != SPELL_AURA_CONVERT_RUNE)
         return;
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
+
+    for (uint8 itr = 0; itr < MAX_RUNES; ++itr)
     {
-        if (aura == m_runes->runes[i].ConvertAura)
+        if (m_runes->runes[itr].ConvertAuras.find(aura) != m_runes->runes[itr].ConvertAuras.end())
             return;
     }
+
     aura->GetBase()->Remove();
 }
 
@@ -24567,16 +24597,20 @@ void Player::ConvertRune(uint8 index, RuneType newType)
     SendDirectMessage(&data);
 }
 
-void Player::ResyncRunes(uint8 count) const
+void Player::ResyncRunes() const
 {
-    WorldPacket data(SMSG_RESYNC_RUNES, 4 + count * 2);
-    data << uint32(count);
-    for (uint32 i = 0; i < count; ++i)
+    if (GetClass() != CLASS_DEATH_KNIGHT)
+        return;
+
+    WorldPackets::Spells::ResyncRunes packet;
+    packet.Count = MAX_RUNES;
+    for (uint32 itr = 0; itr < MAX_RUNES; ++itr)
     {
-        data << uint8(GetCurrentRune(i));                   // rune type
-        data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
+        uint8 type = GetCurrentRune(itr);
+        uint32 value = uint32(255) - ((GetRuneCooldown(itr) * uint32(255)) / uint32(RUNE_BASE_COOLDOWN)); // cooldown time (0-255)
+        packet.Cooldowns.emplace_back(type, value);
     }
-    SendDirectMessage(&data);
+    SendDirectMessage(packet.Write());
 }
 
 void Player::AddRunePower(uint8 index) const

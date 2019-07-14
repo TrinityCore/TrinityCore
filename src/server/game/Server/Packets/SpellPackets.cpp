@@ -158,3 +158,14 @@ WorldPacket const* WorldPackets::Spells::SpellStart::Write()
     _worldPacket << Cast;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
+{
+    _worldPacket << Count;
+    for (auto itr = Cooldowns.begin(); itr != Cooldowns.end(); ++itr)
+    {
+        _worldPacket << itr->first;
+        _worldPacket << itr->second;
+    }
+    return &_worldPacket;
+}

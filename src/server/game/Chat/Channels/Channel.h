@@ -162,10 +162,10 @@ class TC_GAME_API Channel
         bool IsLFG() const { return (GetFlags() & CHANNEL_FLAG_LFG) != 0; }
 
         bool IsAnnounce() const { return _announceEnabled; }
-        void SetAnnounce(bool nannounce) { _announceEnabled = nannounce; }
+        void SetAnnounce(bool announce) { _announceEnabled = announce; }
 
-        std::string const& GetPassword() const { return _channelPassword; }
-        void SetPassword(std::string const& npassword) { _channelPassword = npassword; }
+        void SetPassword(std::string const& password) { _channelPassword = password; }
+        bool CheckPassword(std::string const& password) const { return _channelPassword.empty() || (_channelPassword == password); }
 
         uint32 GetNumPlayers() const { return _playersStore.size(); }
 
@@ -174,7 +174,7 @@ class TC_GAME_API Channel
 
         AreaTableEntry const* GetZoneEntry() const { return _zoneEntry; }
 
-        void JoinChannel(Player* player, std::string const& pass);
+        void JoinChannel(Player* player, std::string const& pass = "");
         void LeaveChannel(Player* player, bool send = true);
 
         void KickOrBan(Player const* player, std::string const& badname, bool ban);

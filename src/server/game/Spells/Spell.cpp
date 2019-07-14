@@ -4160,7 +4160,7 @@ void Spell::SendSpellGo()
         castFlags |= CAST_FLAG_PENDING;
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
-        castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
+        castFlags |= CAST_FLAG_AMMO; // arrows/bullets visual
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsPet()))
@@ -4173,12 +4173,12 @@ void Spell::SendSpellGo()
         && m_spellInfo->PowerType == POWER_RUNE
         && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
     {
-        castFlags |= CAST_FLAG_NO_GCD;                       // not needed, but Blizzard sends it
-        castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
+        castFlags |= CAST_FLAG_RUNE_LIST; // rune cooldowns list
     }
 
     if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
-        castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        castFlags |= CAST_FLAG_RUNE_LIST; // rune cooldowns list
 
     if (m_targets.HasTraj())
         castFlags |= CAST_FLAG_ADJUST_MISSILE;
@@ -4207,12 +4207,12 @@ void Spell::SendSpellGo()
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
         castData.RemainingPower = ASSERT_NOTNULL(m_caster->ToUnit())->GetPower(m_spellInfo->PowerType);
 
-    if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list
+    if (castFlags & CAST_FLAG_RUNE_LIST && !m_spellInfo->HasAura(SPELL_AURA_CONVERT_RUNE)) // rune cooldowns list
     {
         castData.RemainingRunes = boost::in_place();
 
         /// @todo There is a crash caused by a spell with CAST_FLAG_RUNE_LIST cast by a creature
-        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
+        // The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
             uint8 runeMaskInitial = m_runesState;
