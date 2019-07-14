@@ -291,6 +291,8 @@ enum Powers : int8
     POWER_ALL                           = 127 // SKIP
 };
 
+#define MAX_RUNES 6
+
 // EnumUtils: DESCRIBE THIS
 enum SpellSchools
 {
