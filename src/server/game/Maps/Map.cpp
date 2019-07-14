@@ -4359,7 +4359,7 @@ void Map::LoadRespawnTimes()
             if (SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId))
                 SaveRespawnTime(type, spawnId, data->id, time_t(respawnTime), GetZoneId(data->spawnPoint), Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId(), false);
             else
-                TC_LOG_ERROR("maps", "Loading saved respawn time of %llu for spawnid (%u,%u) - spawn does not exist, ignoring", respawnTime, uint32(type), spawnId);
+                TC_LOG_ERROR("maps", "Loading saved respawn time of " PRIu64 " for spawnid (%u,%u) - spawn does not exist, ignoring", respawnTime, uint32(type), spawnId);
 
         } while (result->NextRow());
     }
