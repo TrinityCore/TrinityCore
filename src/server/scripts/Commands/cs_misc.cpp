@@ -1983,7 +1983,7 @@ public:
             uint32 const gridId = Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId();
             for (RespawnInfo* info : data)
                 if (info->gridId == gridId)
-                    player->GetMap()->RemoveRespawnTime(info, true);
+                    player->GetMap()->Respawn(info->type, info->spawnId);
         }
 
         return true;

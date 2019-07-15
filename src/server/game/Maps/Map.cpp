@@ -76,7 +76,7 @@ Map::~Map()
 
     // Delete all waiting spawns, else there will be a memory leak
     // This doesn't delete from database.
-    DeleteRespawnInfo();
+    UnloadAllRespawnInfos();
 
     while (!i_worldObjects.empty())
     {
@@ -3214,9 +3214,12 @@ void Map::Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans)
     if (!CheckRespawn(info))
     {
         if (info->respawnTime)
-            SaveRespawnTime(info->type, info->spawnId, info->entry, info->respawnTime, info->zoneId, info->gridId, true, true, dbTrans);
+        {
+            _respawnTimes.decrease(info->handle);
+            SaveRespawnInfoDB(*info, dbTrans);
+        }
         else
-            RemoveRespawnTime(info);
+            DeleteRespawnInfo(info, dbTrans);
         return;
     }
 
@@ -3224,23 +3227,13 @@ void Map::Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans)
     SpawnObjectType const type = info->type;
     uint32 const gridId = info->gridId;
     ObjectGuid::LowType const spawnId = info->spawnId;
-    RemoveRespawnTime(info);
+    DeleteRespawnInfo(info, dbTrans);
     DoRespawn(type, spawnId, gridId);
 }
 
-void Map::Respawn(std::vector<RespawnInfo*>& respawnData, CharacterDatabaseTransaction dbTrans)
+bool Map::AddRespawnInfo(RespawnInfo const& info)
 {
-    CharacterDatabaseTransaction trans = dbTrans ? dbTrans : CharacterDatabase.BeginTransaction();
-    for (RespawnInfo* info : respawnData)
-        Respawn(info, trans);
-    if (!dbTrans)
-        CharacterDatabase.CommitTransaction(trans);
-}
-
-void Map::AddRespawnInfo(RespawnInfo& info, bool replace)
-{
-    if (!info.spawnId)
-        return;
+    ASSERT(info.spawnId, "Attempt to schedule respawn with zero spawnid (type %u)", uint32(info.type));
 
     RespawnInfoMap& bySpawnIdMap = GetRespawnMapForType(info.type);
 
@@ -3248,13 +3241,10 @@ void Map::AddRespawnInfo(RespawnInfo& info, bool replace)
     if (it != bySpawnIdMap.end()) // spawnid already has a respawn scheduled
     {
         RespawnInfo* const existing = it->second;
-        if (replace || info.respawnTime < existing->respawnTime) // delete existing in this case
+        if (info.respawnTime < existing->respawnTime) // delete existing in this case
             DeleteRespawnInfo(existing);
-        else // don't delete existing, instead replace respawn time so caller saves the correct time
-        {
-            info.respawnTime = existing->respawnTime;
-            return;
-        }
+        else
+            return false;
     }
 
     // if we get to this point, we should insert the respawninfo (there either was no prior entry, or it was deleted already)
@@ -3262,6 +3252,7 @@ void Map::AddRespawnInfo(RespawnInfo& info, bool replace)
     ri->handle = _respawnTimes.push(ri);
     bool success = bySpawnIdMap.emplace(ri->spawnId, ri).second;
     ASSERT(success, "Insertion of respawn info with id (%u," UI64FMTD ") into spawn id map failed - state desync.", uint32(ri->type), ri->spawnId);
+    return true;
 }
 
 static void PushRespawnInfoFrom(std::vector<RespawnInfo*>& data, RespawnInfoMap const& map, uint32 zoneId)
@@ -3287,7 +3278,7 @@ RespawnInfo* Map::GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawn
     return it->second;
 }
 
-void Map::DeleteRespawnInfo() // delete everything
+void Map::UnloadAllRespawnInfos() // delete everything from memory
 {
     for (RespawnInfo* info : _respawnTimes)
         delete info;
@@ -3296,7 +3287,7 @@ void Map::DeleteRespawnInfo() // delete everything
     _gameObjectRespawnTimesBySpawnId.clear();
 }
 
-void Map::DeleteRespawnInfo(RespawnInfo* info)
+void Map::DeleteRespawnInfo(RespawnInfo* info, CharacterDatabaseTransaction dbTrans)
 {
     // Delete from all relevant containers to ensure consistency
     ASSERT(info);
@@ -3305,15 +3296,10 @@ void Map::DeleteRespawnInfo(RespawnInfo* info)
     size_t const n = GetRespawnMapForType(info->type).erase(info->spawnId);
     ASSERT(n == 1, "Respawn stores inconsistent for map %u, spawnid " UI64FMTD " (type %u)", GetId(), info->spawnId, uint32(info->type));
 
-    //respawn heap
+    // respawn heap
     _respawnTimes.erase(info->handle);
 
-    // then cleanup the object
-    delete info;
-}
-
-void Map::RemoveRespawnTime(RespawnInfo* info, bool doRespawn, CharacterDatabaseTransaction dbTrans)
-{
+    // database
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESPAWN);
     stmt->setUInt16(0, info->type);
     stmt->setUInt64(1, info->spawnId);
@@ -3321,19 +3307,8 @@ void Map::RemoveRespawnTime(RespawnInfo* info, bool doRespawn, CharacterDatabase
     stmt->setUInt32(3, GetInstanceId());
     CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
 
-    if (doRespawn)
-        Respawn(info);
-    else
-        DeleteRespawnInfo(info);
-}
-
-void Map::RemoveRespawnTime(std::vector<RespawnInfo*>& respawnData, bool doRespawn, CharacterDatabaseTransaction dbTrans)
-{
-    CharacterDatabaseTransaction trans = dbTrans ? dbTrans : CharacterDatabase.BeginTransaction();
-    for (RespawnInfo* info : respawnData)
-        RemoveRespawnTime(info, doRespawn, trans);
-    if (!dbTrans)
-        CharacterDatabase.CommitTransaction(trans);
+    // then cleanup the object
+    delete info;
 }
 
 void Map::ProcessRespawns()
@@ -3362,6 +3337,7 @@ void Map::ProcessRespawns()
         {
             ASSERT(now < next->respawnTime); // infinite loop guard
             _respawnTimes.decrease(next->handle);
+            SaveRespawnInfoDB(*next);
         }
     }
 }
@@ -3442,7 +3418,7 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
                 continue;
 
             // we need to remove the respawn time, otherwise we'd end up double spawning
-            RemoveRespawnTime(data->type, data->spawnId, false);
+            RemoveRespawnTime(data->type, data->spawnId);
         }
 
         // don't spawn if the grid isn't loaded (will be handled in grid loader)
@@ -4511,12 +4487,15 @@ void Map::UpdateIteratorBack(Player* player)
         m_mapRefIter = m_mapRefIter->nocheck_prev();
 }
 
-void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 zoneId, uint32 gridId, bool writeDB, bool replace, CharacterDatabaseTransaction dbTrans)
+void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 zoneId, uint32 gridId, CharacterDatabaseTransaction dbTrans, bool startup)
 {
+    if (!spawnId)
+        return;
+
     if (!respawnTime)
     {
         // Delete only
-        RemoveRespawnTime(type, spawnId, false, dbTrans);
+        RemoveRespawnTime(type, spawnId, dbTrans);
         return;
     }
 
@@ -4527,19 +4506,23 @@ void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uin
     ri.respawnTime = respawnTime;
     ri.gridId = gridId;
     ri.zoneId = zoneId;
-    AddRespawnInfo(ri, replace);
+    bool success = AddRespawnInfo(ri);
 
-    if (writeDB)
-        SaveRespawnTimeDB(type, spawnId, ri.respawnTime, dbTrans); // might be different from original respawn time if we didn't replace
+    if (startup)
+    {
+        if (!success)
+            TC_LOG_ERROR("maps", "Attempt to load saved respawn %" PRIu64 " for (%u," UI64FMTD ") failed - duplicate respawn? Skipped.", respawnTime, uint32(type), spawnId);
+    }
+    else if (success)
+        SaveRespawnInfoDB(ri, dbTrans);
 }
 
-void Map::SaveRespawnTimeDB(SpawnObjectType type, ObjectGuid::LowType spawnId, time_t respawnTime, CharacterDatabaseTransaction dbTrans)
+void Map::SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransaction dbTrans)
 {
-    // Just here for support of compatibility mode
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_RESPAWN);
-    stmt->setUInt16(0, type);
-    stmt->setUInt64(1, spawnId);
-    stmt->setInt64(2, respawnTime);
+    stmt->setUInt16(0, info.type);
+    stmt->setUInt64(1, info.spawnId);
+    stmt->setInt64(2, info.respawnTime);
     stmt->setUInt16(3, GetId());
     stmt->setUInt32(4, GetInstanceId());
     CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
@@ -4559,10 +4542,17 @@ void Map::LoadRespawnTimes()
             ObjectGuid::LowType spawnId = fields[1].GetUInt64();
             time_t respawnTime = fields[2].GetInt64();
 
-            if (SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId))
-                SaveRespawnTime(type, spawnId, data->id, time_t(respawnTime), GetZoneId(PhasingHandler::GetEmptyPhaseShift(), data->spawnPoint), Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId(), false);
+            if (type < SPAWN_TYPE_MAX)
+            {
+                if (SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId))
+                    SaveRespawnTime(type, spawnId, data->id, time_t(respawnTime), GetZoneId(PhasingHandler::GetEmptyPhaseShift(), data->spawnPoint), Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId(), nullptr, true);
+                else
+                    TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u," UI64FMTD ") - spawn does not exist, ignoring", respawnTime, uint32(type), spawnId);
+            }
             else
-                TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u," UI64FMTD ") - spawn does not exist, ignoring", respawnTime, uint32(type), spawnId);
+            {
+                TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u," UI64FMTD ") - invalid spawn type, ignoring", respawnTime, uint32(type), spawnId);
+            }
 
         } while (result->NextRow());
     }

@@ -337,8 +337,8 @@ struct boss_thaddius : public BossAI
             me->SetReactState(REACT_PASSIVE);
 
             // @todo these guys should really be moved to a summon group - this is merely a hack to make them work in dynamic_spawning
-            instance->instance->RemoveRespawnTime(SPAWN_TYPE_CREATURE, 130958, true); // Stalagg
-            instance->instance->RemoveRespawnTime(SPAWN_TYPE_CREATURE, 130959, true); // Feugen
+            instance->instance->Respawn(SPAWN_TYPE_CREATURE, 130958); // Stalagg
+            instance->instance->Respawn(SPAWN_TYPE_CREATURE, 130959); // Feugen
         }
 
         void UpdateAI(uint32 diff) override
