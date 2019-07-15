@@ -1012,7 +1012,10 @@ void WorldSession::ReadAddonsInfo(ByteBuffer &data)
     {
         try
         {
-            uint32 addonsCount = std::min(addonInfo.read<uint32>(), Addons::MaxSecureAddons);
+            uint32 addonsCount = addonInfo.read<uint32>();
+            if (addonsCount > Addons::MaxSecureAddons)
+                addonsCount = Addons::MaxSecureAddons;
+
             _addons.SecureAddons.resize(addonsCount);
 
             for (uint32 i = 0; i < addonsCount; ++i)
