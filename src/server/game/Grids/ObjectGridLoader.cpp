@@ -233,9 +233,6 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
     while (!m.isEmpty())
     {
         T *obj = m.getFirst()->GetSource();
-        // if option set then object already saved at this moment
-        if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-            obj->SaveRespawnTime();
         //Some creatures may summon other temp summons in CleanupsBeforeDelete()
         //So we need this even after cleaner (maybe we can remove cleaner)
         //Example: Flame Leviathan Turret 33139 is summoned when a creature is deleted
