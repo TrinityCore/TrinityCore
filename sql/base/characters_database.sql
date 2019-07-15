@@ -1447,30 +1447,22 @@ LOCK TABLES `corpse` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `creature_respawn`
+-- Table structure for table `respawn`
 --
 
-DROP TABLE IF EXISTS `creature_respawn`;
+DROP TABLE IF EXISTS `respawn`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `creature_respawn` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `respawnTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `mapId` smallint(10) unsigned NOT NULL DEFAULT '0',
-  `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
-  PRIMARY KEY (`guid`,`instanceId`),
+CREATE TABLE `respawn` (
+  `type` smallint(10) unsigned NOT NULL,
+  `spawnId` int(10) unsigned NOT NULL,
+  `respawnTime` bigint(20) unsigned NOT NULL,
+  `mapId` smallint(10) unsigned NOT NULL,
+  `instanceId` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`type`,`spawnId`,`instanceId`),
   KEY `idx_instance` (`instanceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stored respawn times';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `creature_respawn`
---
-
-LOCK TABLES `creature_respawn` WRITE;
-/*!40000 ALTER TABLE `creature_respawn` DISABLE KEYS */;
-/*!40000 ALTER TABLE `creature_respawn` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `game_event_condition_save`
@@ -1518,32 +1510,6 @@ CREATE TABLE `game_event_save` (
 LOCK TABLES `game_event_save` WRITE;
 /*!40000 ALTER TABLE `game_event_save` DISABLE KEYS */;
 /*!40000 ALTER TABLE `game_event_save` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `gameobject_respawn`
---
-
-DROP TABLE IF EXISTS `gameobject_respawn`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gameobject_respawn` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `respawnTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `mapId` smallint(10) unsigned NOT NULL DEFAULT '0',
-  `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
-  PRIMARY KEY (`guid`,`instanceId`),
-  KEY `idx_instance` (`instanceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `gameobject_respawn`
---
-
-LOCK TABLES `gameobject_respawn` WRITE;
-/*!40000 ALTER TABLE `gameobject_respawn` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gameobject_respawn` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2616,23 +2582,24 @@ INSERT INTO `updates` VALUES
 ('2016_03_13_2016_01_05_00_characters.sql','0EAD24977F40DE2476B4567DA2B477867CC0DA1A','ARCHIVED','2016-03-13 20:03:56',0),
 ('2016_04_11_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-04-11 03:18:17',0),
 ('2016_09_13_00_characters.sql','27A04615B11B2CFC3A26778F52F74C071E4F9C54','ARCHIVED','2016-07-06 18:55:18',0),
-('2016_10_16_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-10-16 14:02:49',35),
+('2016_10_16_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-10-16 14:02:49',0),
 ('2016_10_30_00_characters.sql','7E2D5B226907B5A9AF320797F46E86DC27B7EC90','ARCHIVED','2016-10-30 00:00:00',0),
 ('2017_04_03_00_characters.sql','CB072C56692C9FBF170C4036F15773DD86D368B5','ARCHIVED','2017-04-03 00:00:00',0),
 ('2017_04_12_00_characters.sql','4FE3C6866A6DCD4926D451F6009464D290C2EF1F','ARCHIVED','2017-04-12 00:00:00',0),
 ('2017_04_12_01_characters.sql','5A8A1215E3A2356722F52CD7A64BBE03D21FBEA3','ARCHIVED','2017-04-12 00:00:00',0),
-('2017_04_19_00_characters.sql','CE06FA9005C8A8EE4BDD925520278A5D83E87485','ARCHIVED','2017-04-19 00:07:40',25),
-('2017_10_29_00_characters.sql','8CFC473E7E87E58C317A72016BF69E9050D3BC83','ARCHIVED','2017-04-19 00:07:40',25),
+('2017_04_19_00_characters.sql','CE06FA9005C8A8EE4BDD925520278A5D83E87485','ARCHIVED','2017-04-19 00:07:40',0),
+('2017_10_29_00_characters.sql','8CFC473E7E87E58C317A72016BF69E9050D3BC83','ARCHIVED','2017-04-19 00:07:40',0),
 ('2017_11_27_00_characters.sql','6FF1F84B8985ADFC7FF97F0BF8E53403CF13C320','ARCHIVED','2017-11-27 22:08:42',0),
 ('2018_01_13_00_characters.sql','E3C0DA9995BA71ED5A267294470CD03DC51862DD','ARCHIVED','2018-01-13 00:00:00',0),
 ('2018_02_19_00_characters.sql','FE5C5F9B88F0791549DDE680942493781E2269E6','ARCHIVED','2018-02-18 19:49:38',0),
 ('2018_04_24_00_characters.sql','77264AB7BEF421C0A4BB81EEAFD0D8C1CBCA840F','ARCHIVED','2018-04-20 09:38:10',0),
 ('2018_07_09_00_characters.sql','6F3EA22DD5E4CD9F9C60C4332B147E3DBF2E8A44','ARCHIVED','2018-07-09 18:19:18',0),
 ('2018_11_09_00_characters.sql','50429D68E6EBD1149CDA14A9EA642BC06A1FAE3D','ARCHIVED','2018-11-09 20:49:47',0),
-('2019_03_19_00_characters.sql','1FD394E354CB9E854ABDC8CFD02329240AE07C3F','ARCHIVED','2019-03-19 07:17:45',5),
-('2019_04_15_00_characters.sql','942FB57BF890E523B35B9BFEF3686CB0AA52B795','ARCHIVED','2019-04-15 06:16:09',5),
-('2019_05_15_00_characters.sql','A12F21C8044C8BC8E2AA17F4C6CEB8B722CBC714','ARCHIVED','2019-05-15 06:13:20',5),
-('2019_06_15_00_characters.sql','32DA6E004D7DD6EFFB0BB26238D17F6CC9E51DE6','ARCHIVED','2019-06-15 07:33:45',4);
+('2019_03_19_00_characters.sql','1FD394E354CB9E854ABDC8CFD02329240AE07C3F','ARCHIVED','2019-03-19 07:17:45',0),
+('2019_04_15_00_characters.sql','942FB57BF890E523B35B9BFEF3686CB0AA52B795','ARCHIVED','2019-04-15 06:16:09',0),
+('2019_05_15_00_characters.sql','A12F21C8044C8BC8E2AA17F4C6CEB8B722CBC714','ARCHIVED','2019-05-15 06:13:20',0),
+('2019_06_15_00_characters.sql','32DA6E004D7DD6EFFB0BB26238D17F6CC9E51DE6','ARCHIVED','2019-06-15 07:33:45',0),
+('2019_07_14_00_characters.sql','A141F4F15BDF0320483921429871D4C572BD7E2D','ARCHIVED','2019-07-04 00:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

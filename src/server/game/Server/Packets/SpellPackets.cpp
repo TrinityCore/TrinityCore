@@ -162,10 +162,10 @@ WorldPacket const* WorldPackets::Spells::SpellStart::Write()
 WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
 {
     _worldPacket << Count;
-    for (auto itr = Cooldowns.begin(); itr != Cooldowns.end(); ++itr)
+    for (WorldPackets::Spells::ResyncRune const& rune : Runes)
     {
-        _worldPacket << itr->first;
-        _worldPacket << itr->second;
+        _worldPacket << rune.RuneType;
+        _worldPacket << rune.Cooldown;
     }
     return &_worldPacket;
 }

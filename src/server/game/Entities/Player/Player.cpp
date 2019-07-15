@@ -24606,9 +24606,10 @@ void Player::ResyncRunes() const
     packet.Count = MAX_RUNES;
     for (uint32 itr = 0; itr < MAX_RUNES; ++itr)
     {
-        uint8 type = GetCurrentRune(itr);
-        uint32 value = uint32(255) - ((GetRuneCooldown(itr) * uint32(255)) / uint32(RUNE_BASE_COOLDOWN)); // cooldown time (0-255)
-        packet.Cooldowns.emplace_back(type, value);
+        WorldPackets::Spells::ResyncRune resyncRune;
+        resyncRune.RuneType = GetCurrentRune(itr);
+        resyncRune.Cooldown = uint8(255) - uint8(GetRuneCooldown(itr) * uint32(255) / uint32(RUNE_BASE_COOLDOWN)); // cooldown time (0-255)
+        packet.Runes.emplace_back(resyncRune);
     }
     SendDirectMessage(packet.Write());
 }
