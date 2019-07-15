@@ -78,6 +78,7 @@ DB2Storage<ChrSpecializationEntry>              sChrSpecializationStore("ChrSpec
 DB2Storage<CinematicCameraEntry>                sCinematicCameraStore("CinematicCamera.db2", CinematicCameraLoadInfo::Instance());
 DB2Storage<CinematicSequencesEntry>             sCinematicSequencesStore("CinematicSequences.db2", CinematicSequencesLoadInfo::Instance());
 DB2Storage<ContentTuningEntry>                  sContentTuningStore("ContentTuning.db2", ContentTuningLoadInfo::Instance());
+DB2Storage<ContentTuningXExpectedEntry>         sContentTuningXExpectedStore("ContentTuningXExpected.db2", ContentTuningXExpectedLoadInfo::Instance());
 DB2Storage<ConversationLineEntry>               sConversationLineStore("ConversationLine.db2", ConversationLineLoadInfo::Instance());
 DB2Storage<CreatureDisplayInfoEntry>            sCreatureDisplayInfoStore("CreatureDisplayInfo.db2", CreatureDisplayInfoLoadInfo::Instance());
 DB2Storage<CreatureDisplayInfoExtraEntry>       sCreatureDisplayInfoExtraStore("CreatureDisplayInfoExtra.db2", CreatureDisplayInfoExtraLoadInfo::Instance());
@@ -362,6 +363,7 @@ namespace
     CurvePointsContainer _curvePoints;
     EmotesTextSoundContainer _emoteTextSounds;
     std::unordered_map<std::pair<uint32 /*level*/, int32 /*expansion*/>, ExpectedStatEntry const*> _expectedStatsByLevel;
+    std::unordered_map<uint32 /*contentTuningId*/, std::vector<ExpectedStatModEntry const*>> _expectedStatModsByContentTuning;
     FactionTeamContainer _factionTeams;
     HeirloomItemsContainer _heirlooms;
     GlyphBindableSpellsContainer _glyphBindableSpells;
@@ -534,6 +536,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sCinematicCameraStore);
     LOAD_DB2(sCinematicSequencesStore);
     LOAD_DB2(sContentTuningStore);
+    LOAD_DB2(sContentTuningXExpectedStore);
     LOAD_DB2(sConversationLineStore);
     LOAD_DB2(sCreatureDisplayInfoStore);
     LOAD_DB2(sCreatureDisplayInfoExtraStore);
@@ -822,6 +825,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         if (chrSpec->Flags & CHR_SPECIALIZATION_FLAG_RECOMMENDED)
             _defaultChrSpecializationsByClass[chrSpec->ClassID] = chrSpec;
     }
+
+    for (ContentTuningXExpectedEntry const* contentTuningXExpectedStat : sContentTuningXExpectedStore)
+        if (ExpectedStatModEntry const* expectedStatMod = sExpectedStatModStore.LookupEntry(contentTuningXExpectedStat->ExpectedStatModID))
+            _expectedStatModsByContentTuning[contentTuningXExpectedStat->ContentTuningID].push_back(expectedStatMod);
 
     for (CurvePointEntry const* curvePoint : sCurvePointStore)
         if (sCurveStore.LookupEntry(curvePoint->CurveID))
@@ -1723,72 +1730,93 @@ float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int3
     if (expectedStatItr == _expectedStatsByLevel.end())
         return 1.0f;
 
-    std::array<ExpectedStatModEntry const*, 3> mods;
-    mods.fill(nullptr);
-    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
-    {
-        mods[0] = sExpectedStatModStore.LookupEntry(contentTuning->ExpectedStatModID);
-        mods[1] = sExpectedStatModStore.LookupEntry(contentTuning->DifficultyESMID);
-    }
-
+    ExpectedStatModEntry const* classMod = nullptr;
     switch (unitClass)
     {
         case CLASS_WARRIOR:
-            mods[2] = sExpectedStatModStore.LookupEntry(4);
+            classMod = sExpectedStatModStore.LookupEntry(4);
             break;
         case CLASS_PALADIN:
-            mods[2] = sExpectedStatModStore.LookupEntry(2);
+            classMod = sExpectedStatModStore.LookupEntry(2);
             break;
         case CLASS_ROGUE:
-            mods[2] = sExpectedStatModStore.LookupEntry(3);
+            classMod = sExpectedStatModStore.LookupEntry(3);
             break;
         case CLASS_MAGE:
-            mods[2] = sExpectedStatModStore.LookupEntry(1);
+            classMod = sExpectedStatModStore.LookupEntry(1);
             break;
         default:
             break;
     }
 
+    std::vector<ExpectedStatModEntry const*> const* contentTuningMods = Trinity::Containers::MapGetValuePtr(_expectedStatModsByContentTuning, contentTuningId);
     float value = 0.0f;
     switch (stat)
     {
         case ExpectedStatType::CreatureHealth:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureHealth,
-                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureHealthMod>());
+            value = expectedStatItr->second->CreatureHealth;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureHealthMod>());
+            if (classMod)
+                value *= classMod->CreatureHealthMod;
             break;
         case ExpectedStatType::PlayerHealth:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerHealth,
-                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerHealthMod>());
+            value = expectedStatItr->second->PlayerHealth;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerHealthMod>());
+            if (classMod)
+                value *= classMod->PlayerHealthMod;
             break;
         case ExpectedStatType::CreatureAutoAttackDps:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureAutoAttackDps,
-                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureAutoAttackDPSMod>());
+            value = expectedStatItr->second->CreatureAutoAttackDps;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureAutoAttackDPSMod>());
+            if (classMod)
+                value *= classMod->CreatureAutoAttackDPSMod;
             break;
         case ExpectedStatType::CreatureArmor:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureArmor,
-                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureArmorMod>());
+            value = expectedStatItr->second->CreatureArmor;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureArmorMod>());
+            if (classMod)
+                value *= classMod->CreatureArmorMod;
             break;
         case ExpectedStatType::PlayerMana:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerMana,
-                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerManaMod>());
+            value = expectedStatItr->second->PlayerMana;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerManaMod>());
+            if (classMod)
+                value *= classMod->PlayerManaMod;
             break;
         case ExpectedStatType::PlayerPrimaryStat:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerPrimaryStat,
-                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerPrimaryStatMod>());
+            value = expectedStatItr->second->PlayerPrimaryStat;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerPrimaryStatMod>());
+            if (classMod)
+                value *= classMod->PlayerPrimaryStatMod;
             break;
         case ExpectedStatType::PlayerSecondaryStat:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerSecondaryStat,
-                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerSecondaryStatMod>());
+            value = expectedStatItr->second->PlayerSecondaryStat;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerSecondaryStatMod>());
+            if (classMod)
+                value *= classMod->PlayerSecondaryStatMod;
             break;
         case ExpectedStatType::ArmorConstant:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->ArmorConstant,
-                ExpectedStatModReducer<&ExpectedStatModEntry::ArmorConstantMod>());
+            value = expectedStatItr->second->ArmorConstant;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::ArmorConstantMod>());
+            if (classMod)
+                value *= classMod->ArmorConstantMod;
             break;
         case ExpectedStatType::None:
             break;
         case ExpectedStatType::CreatureSpellDamage:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureSpellDamage,
-                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureSpellDamageMod>());
+            value = expectedStatItr->second->CreatureSpellDamage;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureSpellDamageMod>());
+            if (classMod)
+                value *= classMod->CreatureSpellDamageMod;
             break;
         default:
             break;

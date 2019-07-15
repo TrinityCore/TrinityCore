@@ -55,6 +55,7 @@ WorldPacket const* WorldPackets::Battlenet::Response::Write()
 WorldPacket const* WorldPackets::Battlenet::SetSessionState::Write()
 {
     _worldPacket.WriteBits(State, 2);
+    _worldPacket.WriteBit(SuppressNotification);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

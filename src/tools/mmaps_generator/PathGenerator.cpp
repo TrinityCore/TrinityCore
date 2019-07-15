@@ -275,6 +275,9 @@ std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale)
         for (uint32 x = 0; x < liquidDb2.GetRecordCount(); ++x)
         {
             DB2Record record = liquidDb2.GetRecord(x);
+            if (!record)
+                continue;
+
             liquidData[record.GetId()] = record.GetUInt8("SoundBank");
         }
     }
@@ -292,6 +295,9 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
         for (uint32 x = 0; x < mapDb2.GetRecordCount(); ++x)
         {
             DB2Record record = mapDb2.GetRecord(x);
+            if (!record)
+                continue;
+
             mapData.emplace(std::piecewise_construct, std::forward_as_tuple(record.GetId()), std::forward_as_tuple());
             int16 parentMapId = int16(record.GetUInt16("ParentMapID"));
             if (parentMapId != -1)
