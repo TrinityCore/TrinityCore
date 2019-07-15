@@ -358,7 +358,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
 
     WorldPacket packet(std::move(_packetBuffer), GetConnectionType());
     OpcodeClient opcode = packet.read<OpcodeClient>();
-    if (opcode >= NUM_OPCODE_HANDLERS)
+    if (uint32(opcode) >= uint32(NUM_OPCODE_HANDLERS))
     {
         TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent wrong opcode (opcode: %u)",
             GetRemoteIpAddress().to_string().c_str(), uint32(opcode));
