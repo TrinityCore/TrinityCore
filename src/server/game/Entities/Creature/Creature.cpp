@@ -465,7 +465,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
             uint32 respawnDelay = m_respawnDelay;
             m_respawnTime = std::max<time_t>(GameTime::GetGameTime() + respawnDelay, m_respawnTime);
 
-            SaveRespawnTime(0, false);
+            SaveRespawnTime();
         }
 
         if (TempSummon* summon = ToTempSummon())
@@ -2109,11 +2109,7 @@ void Creature::setDeathState(DeathState s)
                 m_respawnTime = GameTime::GetGameTime() + respawnDelay;
         }
 
-        // always save boss respawn time at death to prevent crash cheating
-        if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
-            SaveRespawnTime();
-        else if (!m_respawnCompatibilityMode)
-            SaveRespawnTime(0, false);
+        SaveRespawnTime();
 
         ReleaseFocus(nullptr, false); // remove spellcast focus
         DoNotReacquireTarget(); // cancel delayed re-target
@@ -2572,7 +2568,7 @@ bool Creature::_IsTargetAcceptable(Unit const* target) const
     return false;
 }
 
-void Creature::SaveRespawnTime(uint32 forceDelay, bool savetodb)
+void Creature::SaveRespawnTime(uint32 forceDelay)
 {
     if (IsSummon() || !m_spawnId || (m_creatureData && !m_creatureData->dbData))
         return;
@@ -2584,7 +2580,7 @@ void Creature::SaveRespawnTime(uint32 forceDelay, bool savetodb)
     }
 
     time_t thisRespawnTime = forceDelay ? GameTime::GetGameTime() + forceDelay : m_respawnTime;
-    GetMap()->SaveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId, GetEntry(), thisRespawnTime, GetMap()->GetZoneId(GetPhaseShift(), GetHomePosition()), Trinity::ComputeGridCoord(GetHomePosition().GetPositionX(), GetHomePosition().GetPositionY()).GetId(), savetodb && m_creatureData && m_creatureData->dbData);
+    GetMap()->SaveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId, GetEntry(), thisRespawnTime, GetMap()->GetZoneId(GetPhaseShift(), GetHomePosition()), Trinity::ComputeGridCoord(GetHomePosition().GetPositionX(), GetHomePosition().GetPositionY()).GetId());
 }
 
 // this should not be called by petAI or

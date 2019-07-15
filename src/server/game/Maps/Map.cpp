@@ -1075,12 +1075,7 @@ void Map::RemoveFromMap(T *obj, bool remove)
     obj->ResetMap();
 
     if (remove)
-    {
-        // if option set then object already saved at this moment
-        if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-            obj->SaveRespawnTime();
         DeleteFromWorld(obj);
-    }
 }
 
 template<>
@@ -1120,12 +1115,7 @@ void Map::RemoveFromMap(Transport* obj, bool remove)
     obj->ResetMap();
 
     if (remove)
-    {
-        // if option set then object already saved at this moment
-        if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-            obj->SaveRespawnTime();
         DeleteFromWorld(obj);
-    }
 }
 
 template <typename T>

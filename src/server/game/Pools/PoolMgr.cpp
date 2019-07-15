@@ -210,7 +210,7 @@ void PoolGroup<Creature>::Despawn1Object(uint64 guid)
                 ++itr;
                 // For dynamic spawns, save respawn time here
                 if (!creature->GetRespawnCompatibilityMode())
-                    creature->SaveRespawnTime(0, false);
+                    creature->SaveRespawnTime();
                 creature->AddObjectToRemoveList();
             }
         }
@@ -236,7 +236,7 @@ void PoolGroup<GameObject>::Despawn1Object(uint64 guid)
 
                 // For dynamic spawns, save respawn time here
                 if (!go->GetRespawnCompatibilityMode())
-                    go->SaveRespawnTime(0, false);
+                    go->SaveRespawnTime();
                 go->AddObjectToRemoveList();
             }
         }
