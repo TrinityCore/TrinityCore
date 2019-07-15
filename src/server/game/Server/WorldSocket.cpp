@@ -330,7 +330,7 @@ void WorldSocket::SetWorldSession(WorldSession* session)
 
 bool WorldSocket::ReadHeaderHandler()
 {
-    ASSERT(_headerBuffer.GetActiveSize() == sizeof(PacketHeader), "Header size " SZFMTD " different than expected %u", _headerBuffer.GetActiveSize(), sizeof(PacketHeader));
+    ASSERT(_headerBuffer.GetActiveSize() == sizeof(PacketHeader), "Header size " SZFMTD " different than expected " SZFMTD, _headerBuffer.GetActiveSize(), sizeof(PacketHeader));
 
     PacketHeader* header = reinterpret_cast<PacketHeader*>(_headerBuffer.GetReadPointer());
 
