@@ -100,7 +100,6 @@ enum BWDCreatureIds
     NPC_SONAR_PULSE_BOMB                = 49623,
     NPC_TRACKING_FLAMES                 = 41879,
     NPC_REVERBERATING_FLAME             = 41962,
-    NPC_REVERBERATING_FLAME_FIRE        = 42001,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST            = 43125,
@@ -141,7 +140,8 @@ enum BWDSpells
 
 enum BWDSummonGroups
 {
-    SUMMON_GROUP_ATRAMEDES_INTRO = 0
+    SUMMON_GROUP_ATRAMEDES_INTRO            = 0,
+    SUMMON_GROUP_ANCIENT_DWARVEN_SHIELDS    = 1
 };
 
 template <class AI, class T>

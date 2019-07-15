@@ -87,7 +87,21 @@ class instance_blackwing_descent : public InstanceMapScript
             void Initialize()
             {
                 _deadDwarfSpirits = 0;
+                _initialized = false;
                 _atramedesIntro = NOT_STARTED;
+            }
+
+            void OnPlayerEnter(Player* /*player*/) override
+            {
+                if (_initialized)
+                    return;
+
+                std::list<TempSummon*> summoned;
+                instance->SummonCreatureGroup(SUMMON_GROUP_ANCIENT_DWARVEN_SHIELDS, &summoned);
+                for (TempSummon* summon : summoned)
+                    _ancientDwarvenShieldGUIDs.push_back(summon->GetGUID());
+
+                _initialized = true;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -133,7 +147,6 @@ class instance_blackwing_descent : public InstanceMapScript
                     case NPC_TRACKING_FLAMES:
                     case NPC_SONAR_PULSE_BOMB:
                     case NPC_REVERBERATING_FLAME:
-                    case NPC_REVERBERATING_FLAME_FIRE:
                         if (Creature* atramedes = GetCreature(DATA_ATRAMEDES))
                             atramedes->AI()->JustSummoned(creature);
                         break;
@@ -214,7 +227,14 @@ class instance_blackwing_descent : public InstanceMapScript
                         break;
                     case DATA_ATRAMEDES:
                         if (state == FAIL)
+                        {
+                            for (ObjectGuid guid : _ancientDwarvenShieldGUIDs)
+                                if (Creature* shield = instance->GetCreature(guid))
+                                    shield->DespawnOrUnsummon();
+
+                            _ancientDwarvenShieldGUIDs.clear();
                             _events.ScheduleEvent(EVENT_RESPAWN_ATRAMEDES, 30s);
+                        }
                         break;
                     default:
                         break;
@@ -337,6 +357,7 @@ class instance_blackwing_descent : public InstanceMapScript
                                 column->CastSpell(column, SPELL_COLUMN_OF_LIGHT);
                             break;
                         case EVENT_RESPAWN_ATRAMEDES:
+                            instance->SummonCreatureGroup(SUMMON_GROUP_ANCIENT_DWARVEN_SHIELDS);
                             instance->SummonCreature(BOSS_ATRAMEDES, AtramedesRespawnPosition);
                             break;
                         default:
@@ -368,9 +389,10 @@ class instance_blackwing_descent : public InstanceMapScript
             ObjectGuid _roomStalkerTargetDummyLeftGuid;
             ObjectGuid _roomStalkerTargetDummyRightGuid;
             GuidVector _roomStalkerGUIDs;
-
+            GuidVector _ancientDwarvenShieldGUIDs;
             uint8 _deadDwarfSpirits;
             uint8 _atramedesIntro;
+            bool _initialized;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
