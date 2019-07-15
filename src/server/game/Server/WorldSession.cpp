@@ -722,13 +722,13 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_INSTANCE);
     if (instanceAddress.is_v4())
     {
-        memcpy(connectTo.Payload.Where.data(), instanceAddress.to_v4().to_bytes().data(), 4);
-        connectTo.Payload.Type = WorldPackets::Auth::ConnectTo::IPv4;
+        memcpy(connectTo.Payload.Where.Address.V4.data(), instanceAddress.to_v4().to_bytes().data(), 4);
+        connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv4;
     }
     else
     {
-        memcpy(connectTo.Payload.Where.data(), instanceAddress.to_v6().to_bytes().data(), 16);
-        connectTo.Payload.Type = WorldPackets::Auth::ConnectTo::IPv6;
+        memcpy(connectTo.Payload.Where.Address.V6.data(), instanceAddress.to_v6().to_bytes().data(), 16);
+        connectTo.Payload.Where.Type = WorldPackets::Auth::ConnectTo::IPv6;
     }
     connectTo.Con = CONNECTION_TYPE_INSTANCE;
 

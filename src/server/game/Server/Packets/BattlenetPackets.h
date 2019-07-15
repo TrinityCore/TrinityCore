@@ -68,6 +68,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 State = 0;
+            bool SuppressNotification = true;
         };
 
         class RealmListTicket final : public ServerPacket

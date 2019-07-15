@@ -1938,7 +1938,7 @@ void GameObject::Use(Unit* user)
             player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight), info->barberChair.SitAnimKit);
             return;
         }
-        case GAMEOBJECT_TYPE_ARTIFACT_FORGE:
+        case GAMEOBJECT_TYPE_ITEM_FORGE:
         {
             GameObjectTemplate const* info = GetGOInfo();
             if (!info)
@@ -1948,7 +1948,7 @@ void GameObject::Use(Unit* user)
                 return;
 
             Player* player = user->ToPlayer();
-            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(info->artifactForge.conditionID1))
+            if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(info->itemForge.conditionID1))
                 if (!sConditionMgr->IsPlayerMeetingCondition(player, playerCondition))
                     return;
 

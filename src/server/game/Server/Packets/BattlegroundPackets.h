@@ -32,13 +32,14 @@ namespace WorldPackets
         class PVPSeason final : public ServerPacket
         {
         public:
-            PVPSeason() : ServerPacket(SMSG_PVP_SEASON, 8) { }
+            PVPSeason() : ServerPacket(SMSG_PVP_SEASON, 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
-            uint32 PreviousSeason = 0;
-            uint32 CurrentSeason = 0;
-            uint32 PvpSeasonID = 0;
+            int32 MythicPlusSeasonID = 0;
+            int32 PreviousSeason = 0;
+            int32 CurrentSeason = 0;
+            int32 PvpSeasonID = 0;
         };
 
         class AreaSpiritHealerQuery final : public ClientPacket
@@ -109,7 +110,7 @@ namespace WorldPackets
                 uint32 ContributionPoints = 0;
             };
 
-            struct PlayerData
+            struct PVPMatchPlayerStatistics
             {
                 ObjectGuid PlayerGUID;
                 uint32 Kills = 0;
@@ -131,10 +132,9 @@ namespace WorldPackets
                 int32 HonorLevel = 0;
             };
 
-            Optional<uint8> Winner;
-            std::vector<PlayerData> Players;
+            std::vector<PVPMatchPlayerStatistics> Statistics;
             Optional<RatingData> Ratings;
-            int8 PlayerCount[2] = { };
+            std::array<int8, 2> PlayerCount = { };
         };
 
         struct BattlefieldStatusHeader
