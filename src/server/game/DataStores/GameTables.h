@@ -171,6 +171,7 @@ struct GtSpellScalingEntry
     float Gem3 = 0.0f;
     float Health = 0.0f;
     float DamageReplaceStat = 0.0f;
+    float DamageSecondary = 0.0f;
 };
 
 struct GtXpEntry
@@ -298,6 +299,8 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Health;
         case -8:
             return row->DamageReplaceStat;
+        case -9:
+            return row->DamageSecondary;
         default:
             break;
     }

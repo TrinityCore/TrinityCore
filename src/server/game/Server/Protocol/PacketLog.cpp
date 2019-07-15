@@ -137,7 +137,16 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
 
     fwrite(&header, sizeof(header), 1, _file);
     if (!packet.empty())
+    {
+        uint8 const* data = packet.contents();
+        std::size_t size = packet.size();
+        if (direction == CLIENT_TO_SERVER)
+        {
+            data += 2;
+            size -= 2;
+        }
         fwrite(packet.contents(), 1, packet.size(), _file);
+    }
 
     fflush(_file);
 }
