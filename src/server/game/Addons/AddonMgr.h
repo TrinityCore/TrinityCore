@@ -21,20 +21,7 @@
 
 #include "Define.h"
 #include <string>
-#include <list>
-
-struct AddonInfo
-{
-    AddonInfo(const std::string& name, uint8 enabled, uint32 crc, uint8 state, bool crcOrPubKey)
-        : Name(name), Enabled(enabled), CRC(crc), State(state), UsePublicKeyOrCRC(crcOrPubKey)
-        { }
-
-    std::string Name;
-    uint8 Enabled;
-    uint32 CRC;
-    uint8 State;
-    bool UsePublicKeyOrCRC;
-};
+#include <vector>
 
 struct SavedAddon
 {
@@ -60,10 +47,10 @@ struct BannedAddon
 namespace AddonMgr
 {
     void LoadFromDB();
-    void SaveAddon(AddonInfo const& addon);
+    void SaveAddon(std::string const& name, uint32 publicKeyCrc);
     SavedAddon const* GetAddonInfo(const std::string& name);
 
-    typedef std::list<BannedAddon> BannedAddonList;
+    typedef std::vector<BannedAddon> BannedAddonList;
     BannedAddonList const* GetBannedAddons();
 }
 
