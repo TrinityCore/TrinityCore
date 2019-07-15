@@ -1512,7 +1512,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     if (level_diff > 0)
         damage -= level_multiplier * level_diff;
 
-    if (damage < 0 && power != POWER_ECLIPSE)
+    if (damage < 0 && power != POWER_ECLIPSE && power != POWER_ALTERNATE_POWER)
         return;
 
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
