@@ -33,7 +33,7 @@ void Trinity::Crypto::AES::Init(uint8 const* key)
     EVP_CipherInit_ex(_ctx, nullptr, nullptr, key, nullptr, -1);
 }
 
-bool Trinity::Crypto::AES::Process(uint8 const* iv, uint8* data, std::size_t length, uint8* tag)
+bool Trinity::Crypto::AES::Process(uint8 const* iv, uint8* data, std::size_t length, uint8(&tag)[12])
 {
     if (!EVP_CipherInit_ex(_ctx, nullptr, nullptr, nullptr, iv, -1))
         return false;
@@ -42,13 +42,13 @@ bool Trinity::Crypto::AES::Process(uint8 const* iv, uint8* data, std::size_t len
     if (!EVP_CipherUpdate(_ctx, data, &outLen, data, length))
         return false;
 
-    if (!_encrypting && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_SET_TAG, 12, tag))
+    if (!_encrypting && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_SET_TAG, sizeof(tag), tag))
         return false;
 
     if (!EVP_CipherFinal_ex(_ctx, data + outLen, &outLen))
         return false;
 
-    if (_encrypting && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_GET_TAG, 12, tag))
+    if (_encrypting && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_GET_TAG, sizeof(tag), tag))
         return false;
 
     return true;
