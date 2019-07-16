@@ -58,10 +58,10 @@ Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zo
         _channelFlags |= CHANNEL_FLAG_NOT_LFG;
 }
 
-Channel::Channel(std::string const& name, uint32 team /*= 0*/) :
+Channel::Channel(std::string const& name, uint32 team /*= 0*/, std::string const& banList) :
     _announceEnabled(true),
     _ownershipEnabled(true),
-    _persistentChannel(false),
+    _persistentChannel(sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS)),
     _isOwnerInvisible(false),
     _channelFlags(CHANNEL_FLAG_CUSTOM),
     _channelId(0),
@@ -71,45 +71,15 @@ Channel::Channel(std::string const& name, uint32 team /*= 0*/) :
     _channelPassword(),
     _zoneEntry(nullptr)
 {
-    // If storing custom channels in the db is enabled either load or save the channel
-    if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
+    Tokenizer tokens(banList, ' ');
+    for (auto const& token : tokens)
     {
-        PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHANNEL);
-        stmt->setString(0, name);
-        stmt->setUInt32(1, _channelTeam);
-        if (PreparedQueryResult result = CharacterDatabase.Query(stmt)) // load
-        {
-            Field* fields = result->Fetch();
-            _channelName = fields[0].GetString(); // re-get channel name. MySQL table collation is case insensitive
-            _announceEnabled = fields[1].GetBool();
-            _ownershipEnabled = fields[2].GetBool();
-            _channelPassword = fields[3].GetString();
-            std::string db_BannedList = fields[4].GetString();
+        ObjectGuid banned(uint64(atoull(token)));
+        if (!banned)
+            continue;
 
-            if (!db_BannedList.empty())
-            {
-                Tokenizer tokens(db_BannedList, ' ');
-                for (auto const& token : tokens)
-                {
-                    ObjectGuid banned_guid(uint64(atoull(token)));
-                    if (banned_guid)
-                    {
-                        TC_LOG_DEBUG("chat.system", "Channel(%s) loaded player %s into bannedStore", name.c_str(), banned_guid.ToString().c_str());
-                        _bannedStore.insert(banned_guid);
-                    }
-                }
-            }
-        }
-        else // save
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL);
-            stmt->setString(0, name);
-            stmt->setUInt32(1, _channelTeam);
-            CharacterDatabase.Execute(stmt);
-            TC_LOG_DEBUG("chat.system", "Channel(%s) saved in database", name.c_str());
-        }
-
-        _persistentChannel = true;
+        TC_LOG_DEBUG("chat.system", "Channel(%s) loaded player %s into bannedStore", name.c_str(), banned.ToString().c_str());
+        _bannedStore.insert(banned);
     }
 }
 
