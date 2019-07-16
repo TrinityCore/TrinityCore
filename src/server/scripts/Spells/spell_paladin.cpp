@@ -1174,43 +1174,41 @@ class spell_pal_seal_of_righteousness : public AuraScript
 };
 
 // 76669 - Illuminated Healing
-class spell_pal_illuminated_healing : public SpellScriptLoader
+class spell_pal_illuminated_healing : public AuraScript
 {
-    public:
-        spell_pal_illuminated_healing() : SpellScriptLoader("spell_pal_illuminated_healing") { }
+    PrepareAuraScript(spell_pal_illuminated_healing);
 
-        class spell_pal_illuminated_healing_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_ILLUMINATED_HEALING });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
         {
-            PrepareAuraScript(spell_pal_illuminated_healing_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            if (Unit* target = eventInfo.GetProcTarget())
             {
-                return ValidateSpellInfo({ SPELL_PALADIN_ILLUMINATED_HEALING });
-            }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                if (Unit* caster = GetCaster())
+                uint32 shieldAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+                if (Aura* aura = target->GetAura(SPELL_PALADIN_ILLUMINATED_HEALING, caster->GetGUID()))
                 {
-                    if (Unit* target = eventInfo.GetProcTarget())
-                    {
-                        uint32 shieldAmount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
-                        caster->CastCustomSpell(SPELL_PALADIN_ILLUMINATED_HEALING, SPELLVALUE_BASE_POINT0, shieldAmount, target, true, nullptr, aurEff);
-                    }
+                    if (AuraEffect* eff = aura->GetEffect(EFFECT_0))
+                        eff->SetAmount(std::min<int32>(CalculatePct(caster->GetMaxHealth(), 33), eff->GetAmount() + shieldAmount));
+
+                    aura->RefreshDuration();
                 }
+                else
+                    caster->CastCustomSpell(SPELL_PALADIN_ILLUMINATED_HEALING, SPELLVALUE_BASE_POINT0, shieldAmount, target, true, nullptr, aurEff);
             }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_pal_illuminated_healing_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_illuminated_healing_AuraScript();
         }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pal_illuminated_healing::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 76672 - Hand of Light
@@ -2069,7 +2067,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_pal_holy_radiance, spell_pal_holy_radiance_AuraScript);
     new spell_pal_hand_of_sacrifice();
     new spell_pal_holy_shock();
-    new spell_pal_illuminated_healing();
+    RegisterAuraScript(spell_pal_illuminated_healing);
     new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
