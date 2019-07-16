@@ -122,7 +122,7 @@ enum SkillFieldOffset : uint16
     SKILL_PERM_BONUS_OFFSET    = SKILL_TEMP_BONUS_OFFSET + CalculateSkillFieldArraySize<uint16>()
 };
 
-#define PLAYER_EXPLORED_ZONES_SIZE  160
+#define PLAYER_EXPLORED_ZONES_SIZE  192
 
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType : uint8

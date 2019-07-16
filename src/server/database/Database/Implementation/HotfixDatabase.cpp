@@ -151,8 +151,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_BROADCAST_TEXT, "SELECT ID, Text_lang, Text1_lang FROM broadcast_text_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // CfgRegions.db2
-    PrepareStatement(HOTFIX_SEL_CFG_REGIONS, "SELECT ID, Tag, RegionID, Raidorigin, RegionGroupMask, ChallengeOrigin, ChallengeTimeOffset1, "
-        "ChallengeTimeOffset2 FROM cfg_regions ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CFG_REGIONS, "SELECT ID, Tag, RegionID, Raidorigin, RegionGroupMask, ChallengeOrigin FROM cfg_regions ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CharacterFacialHairStyles.db2
     PrepareStatement(HOTFIX_SEL_CHARACTER_FACIAL_HAIR_STYLES, "SELECT ID, Geoset1, Geoset2, Geoset3, Geoset4, Geoset5, RaceID, SexID, VariationID"
@@ -218,7 +217,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM cinematic_sequences ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ContentTuning.db2
-    PrepareStatement(HOTFIX_SEL_CONTENT_TUNING, "SELECT ID, MinLevel, MaxLevel, Flags, ExpectedStatModID, DifficultyESMID FROM content_tuning"
+    PrepareStatement(HOTFIX_SEL_CONTENT_TUNING, "SELECT ID, MinLevel, MaxLevel, Flags, ExpansionID FROM content_tuning ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // ContentTuningXExpected.db2
+    PrepareStatement(HOTFIX_SEL_CONTENT_TUNING_X_EXPECTED, "SELECT ID, ExpectedStatModID, ContentTuningID FROM content_tuning_x_expected"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ConversationLine.db2
@@ -247,7 +249,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "FootprintTextureID, FootprintTextureLength, FootprintTextureWidth, FootprintParticleScale, FoleyMaterialID, FootstepCameraEffectID, "
         "DeathThudCameraEffectID, SoundID, SizeClass, CollisionWidth, CollisionHeight, WorldEffectScale, CreatureGeosetDataID, HoverHeight, "
         "AttachedEffectScale, ModelScale, MissileCollisionRadius, MissileCollisionPush, MissileCollisionRaise, MountHeight, OverrideLootEffectScale, "
-        "OverrideNameScale, OverrideSelectionRadius, TamedPetBaseScale FROM creature_model_data ORDER BY ID DESC", CONNECTION_SYNCH);
+        "OverrideNameScale, OverrideSelectionRadius, TamedPetBaseScale, Unknown820_1, Unknown820_2, Unknown820_31, Unknown820_32"
+        " FROM creature_model_data ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CreatureType.db2
     PrepareStatement(HOTFIX_SEL_CREATURE_TYPE, "SELECT ID, Name, Flags FROM creature_type ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -404,7 +407,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT ID, SpellID, GlyphPropertiesID FROM glyph_bindable_spell ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GlyphProperties.db2
-    PrepareStatement(HOTFIX_SEL_GLYPH_PROPERTIES, "SELECT ID, SpellID, SpellIconID, GlyphType, GlyphExclusiveCategoryID FROM glyph_properties"
+    PrepareStatement(HOTFIX_SEL_GLYPH_PROPERTIES, "SELECT ID, SpellID, GlyphType, GlyphExclusiveCategoryID, SpellIconFileDataID FROM glyph_properties"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // GlyphRequiredSpec.db2
@@ -657,7 +660,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // MountCapability.db2
     PrepareStatement(HOTFIX_SEL_MOUNT_CAPABILITY, "SELECT ID, Flags, ReqRidingSkill, ReqAreaID, ReqSpellAuraID, ReqSpellKnownID, ModSpellAuraID, "
-        "ReqMapID FROM mount_capability ORDER BY ID DESC", CONNECTION_SYNCH);
+        "ReqMapID, PlayerConditionID FROM mount_capability ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // MountTypeXCapability.db2
     PrepareStatement(HOTFIX_SEL_MOUNT_TYPE_X_CAPABILITY, "SELECT ID, MountTypeID, MountCapabilityID, OrderIndex FROM mount_type_x_capability"
@@ -768,8 +771,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Difficulty8, Difficulty9, Difficulty10 FROM quest_xp ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // RandPropPoints.db2
-    PrepareStatement(HOTFIX_SEL_RAND_PROP_POINTS, "SELECT ID, DamageReplaceStat, Epic1, Epic2, Epic3, Epic4, Epic5, Superior1, Superior2, Superior3, "
-        "Superior4, Superior5, Good1, Good2, Good3, Good4, Good5 FROM rand_prop_points ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_RAND_PROP_POINTS, "SELECT ID, DamageReplaceStat, DamageSecondary, Epic1, Epic2, Epic3, Epic4, Epic5, Superior1, "
+        "Superior2, Superior3, Superior4, Superior5, Good1, Good2, Good3, Good4, Good5 FROM rand_prop_points ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // RewardPack.db2
     PrepareStatement(HOTFIX_SEL_REWARD_PACK, "SELECT ID, CharTitleID, Money, ArtifactXPDifficulty, ArtifactXPMultiplier, ArtifactXPCategoryID, "
@@ -913,9 +916,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // SpellMisc.db2
     PrepareStatement(HOTFIX_SEL_SPELL_MISC, "SELECT ID, DifficultyID, CastingTimeIndex, DurationIndex, RangeIndex, SchoolMask, Speed, LaunchDelay, "
-        "MinDuration, SpellIconFileDataID, ActiveIconFileDataID, Attributes1, Attributes2, Attributes3, Attributes4, Attributes5, Attributes6, "
-        "Attributes7, Attributes8, Attributes9, Attributes10, Attributes11, Attributes12, Attributes13, Attributes14, SpellID FROM spell_misc"
-        " ORDER BY ID DESC", CONNECTION_SYNCH);
+        "MinDuration, SpellIconFileDataID, ActiveIconFileDataID, ContentTuningID, Attributes1, Attributes2, Attributes3, Attributes4, Attributes5, "
+        "Attributes6, Attributes7, Attributes8, Attributes9, Attributes10, Attributes11, Attributes12, Attributes13, Attributes14, SpellID"
+        " FROM spell_misc ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SpellName.db2
     PrepareStatement(HOTFIX_SEL_SPELL_NAME, "SELECT ID, Name FROM spell_name ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -1041,8 +1044,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Region2Z, ID, UiMapID, OrderIndex, MapID, AreaID, WmoDoodadPlacementID, WmoGroupID FROM ui_map_assignment ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // UiMapLink.db2
-    PrepareStatement(HOTFIX_SEL_UI_MAP_LINK, "SELECT UiMinX, UiMinY, UiMaxX, UiMaxY, ID, ParentUiMapID, OrderIndex, ChildUiMapID FROM ui_map_link"
-        " ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_UI_MAP_LINK, "SELECT UiMinX, UiMinY, UiMaxX, UiMaxY, ID, ParentUiMapID, OrderIndex, ChildUiMapID, "
+        "OverrideHighlightFileDataID, OverrideHighlightAtlasID FROM ui_map_link ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // UiMapXMapArt.db2
     PrepareStatement(HOTFIX_SEL_UI_MAP_X_MAP_ART, "SELECT ID, PhaseID, UiMapArtID, UiMapID FROM ui_map_x_map_art ORDER BY ID DESC", CONNECTION_SYNCH);

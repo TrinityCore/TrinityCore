@@ -166,7 +166,7 @@ enum ArtifactPowerFlag : uint8
 
 #define MAX_ARTIFACT_TIER 1
 
-#define BATTLE_PET_SPECIES_MAX_ID 2592
+#define BATTLE_PET_SPECIES_MAX_ID 2775
 
 enum ChrSpecializationFlag
 {
@@ -623,6 +623,7 @@ enum Difficulty : uint8
     DIFFICULTY_MYTHIC_ISLAND        = 40,
     DIFFICULTY_PVP_ISLAND           = 45,
     DIFFICULTY_NORMAL_WARFRONT      = 147,
+    DIFFICULTY_HEROIC_WARFRONT      = 149,
 
     MAX_DIFFICULTY
 };
@@ -1008,7 +1009,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 299
+#define TaxiMaskSize 311
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType

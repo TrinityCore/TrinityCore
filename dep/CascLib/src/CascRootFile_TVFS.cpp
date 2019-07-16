@@ -114,8 +114,6 @@ typedef struct _TVFS_SPAN_ENTRY
 //-----------------------------------------------------------------------------
 // Handler definition for TVFS root file
 
-//static FILE * fp = NULL;
-
 // Structure for the root handler
 struct TRootHandler_TVFS : public TFileTreeRoot
 {
@@ -439,14 +437,10 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         TVFS_DIRECTORY_HEADER SubHeader;
         TVFS_PATH_TABLE_ENTRY PathEntry;
         PCASC_CKEY_ENTRY pCKeyEntry;
-        ENCODED_KEY EKey;
         LPBYTE pbVfsSpanEntry;
         char * szSavePathPtr = PathBuffer.szPtr;
         DWORD dwSpanCount = 0;
         int nError;
-
-        // Prepare the EKey structure to be filled with zeros
-        memset(&EKey, 0, sizeof(ENCODED_KEY));
 
         // Parse the file table
         while(pbPathTablePtr < pbPathTableEnd)
@@ -486,17 +480,17 @@ struct TRootHandler_TVFS : public TFileTreeRoot
                     pbVfsSpanEntry = CaptureVfsSpanCount(DirHeader, PathEntry.NodeValue, dwSpanCount);
                     if(pbVfsSpanEntry == NULL)
                         return ERROR_BAD_FORMAT;
-#ifdef _DEBUG
-                    // So far we've only saw entries with 1 span.
-                    // Need to test files with multiple spans. Ignore such files for now.
-                    if(dwSpanCount != 1)
-                        __debugbreak();
+
+                    // TODO: Need to support multi-span files larger than 4 GB
+                    // Example: CoD: Black Ops 4, file "zone/base.xpak" 0x16 spans, over 15 GB size
+                    assert(dwSpanCount == 1);
                     dwSpanCount = 1;
-#endif
+
                     // Parse all span entries
                     for(DWORD i = 0; i < dwSpanCount; i++)
                     {
                         TVFS_SPAN_ENTRY SpanEntry;
+                        ENCODED_KEY EKey = {0};
 
                         // Capture the n-th span entry
                         pbVfsSpanEntry = CaptureVfsSpanEntry(DirHeader, pbVfsSpanEntry, SpanEntry);
@@ -529,12 +523,6 @@ struct TRootHandler_TVFS : public TFileTreeRoot
                         }
                         else
                         {
-//                          if (fp != NULL)
-//                          {
-//                              fwrite(PathBuffer.szBegin, 1, (PathBuffer.szPtr - PathBuffer.szBegin), fp);
-//                              fprintf(fp, "\n");
-//                          }
-
                             // Insert the file to the file tree
                             if((pCKeyEntry = FindCKeyEntry_EKey(hs, EKey.Value)) != NULL)
                             {

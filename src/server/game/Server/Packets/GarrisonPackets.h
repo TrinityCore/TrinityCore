@@ -236,7 +236,7 @@ namespace WorldPackets
         class GarrisonBuildingRemoved final : public ServerPacket
         {
         public:
-            GarrisonBuildingRemoved() : ServerPacket(SMSG_GARRISON_BUILDING_REMOVED, 4 + 4 + 4) { }
+            GarrisonBuildingRemoved() : ServerPacket(SMSG_GARRISON_BUILDING_REMOVED, 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -353,7 +353,7 @@ namespace WorldPackets
         class GarrisonRemoveFollowerResult final : public ServerPacket
         {
         public:
-            GarrisonRemoveFollowerResult() : ServerPacket(SMSG_GARRISON_REMOVE_FOLLOWER_RESULT, 8 + 4 + 4) { }
+            GarrisonRemoveFollowerResult() : ServerPacket(SMSG_GARRISON_REMOVE_FOLLOWER_RESULT, 8 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 

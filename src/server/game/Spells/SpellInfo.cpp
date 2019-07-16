@@ -541,13 +541,13 @@ int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, int
                 if (_spellInfo->Scaling.ScalesFromItemLevel)
                     effectiveItemLevel = _spellInfo->Scaling.ScalesFromItemLevel;
 
-                if (_spellInfo->Scaling.Class == -8)
+                if (_spellInfo->Scaling.Class == -8 || _spellInfo->Scaling.Class == -9)
                 {
                     RandPropPointsEntry const* randPropPoints = sRandPropPointsStore.LookupEntry(effectiveItemLevel);
                     if (!randPropPoints)
                         randPropPoints = sRandPropPointsStore.AssertEntry(sRandPropPointsStore.GetNumRows() - 1);
 
-                    value = randPropPoints->DamageReplaceStat;
+                    value = _spellInfo->Scaling.Class == -8 ? randPropPoints->DamageReplaceStat : randPropPoints->DamageSecondary;
                 }
                 else
                     value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
@@ -579,8 +579,13 @@ int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, int
                 stat = ExpectedStatType::CreatureAutoAttackDps;
 
             // TODO - add expansion and content tuning id args?
+            uint32 contentTuningId = _spellInfo->ContentTuningId; // content tuning should be passed as arg, the one stored in SpellInfo is fallback
+            int32 expansion = -2;
+            if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
+                expansion = contentTuning->ExpansionID;
+
             int32 level = caster ? int32(caster->getLevel()) : 1;
-            value = sDB2Manager.EvaluateExpectedStat(stat, level, -2, 0, CLASS_NONE) * BasePoints / 100.0f;
+            value = sDB2Manager.EvaluateExpectedStat(stat, level, expansion, 0, CLASS_NONE) * BasePoints / 100.0f;
         }
 
         return int32(round(value));
@@ -1078,6 +1083,7 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
     AttributesCu = 0;
     IconFileDataId = _misc ? _misc->SpellIconFileDataID : 0;
     ActiveIconFileDataId = _misc ? _misc->ActiveIconFileDataID : 0;
+    ContentTuningId = _misc ? _misc->ContentTuningID : 0;
 
     _visuals = std::move(visuals);
     // sort all visuals so that the ones without a condition requirement are last on the list

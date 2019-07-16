@@ -17,42 +17,53 @@
  */
 
 #include "WorldPacketCrypt.h"
-#include "Cryptography/HmacHash.h"
-#include "Cryptography/BigNumber.h"
-
+#include <array>
 #include <cstring>
 
-WorldPacketCrypt::WorldPacketCrypt() : PacketCrypt(SHA_DIGEST_LENGTH)
+WorldPacketCrypt::WorldPacketCrypt() : _clientDecrypt(false), _serverEncrypt(true), _clientCounter(0), _serverCounter(0), _initialized(false)
 {
 }
 
-void WorldPacketCrypt::Init(BigNumber* K)
+void WorldPacketCrypt::Init(uint8 const* key)
 {
-    uint8 ServerEncryptionKey[SEED_KEY_SIZE] = { 0x08, 0xF1, 0x95, 0x9F, 0x47, 0xE5, 0xD2, 0xDB, 0xA1, 0x3D, 0x77, 0x8F, 0x3F, 0x3E, 0xE7, 0x00 };
-    uint8 ServerDecryptionKey[SEED_KEY_SIZE] = { 0x40, 0xAA, 0xD3, 0x92, 0x26, 0x71, 0x43, 0x47, 0x3A, 0x31, 0x08, 0xA6, 0xE7, 0xDC, 0x98, 0x2A };
-    Init(K, ServerEncryptionKey, ServerDecryptionKey);
-}
-
-void WorldPacketCrypt::Init(BigNumber* k, uint8 const* serverKey, uint8 const* clientKey)
-{
-    HmacSha1 serverEncryptHmac(SEED_KEY_SIZE, (uint8*)serverKey);
-    uint8 *encryptHash = serverEncryptHmac.ComputeHash(k);
-
-    HmacSha1 clientDecryptHmac(SEED_KEY_SIZE, (uint8*)clientKey);
-    uint8 *decryptHash = clientDecryptHmac.ComputeHash(k);
-
-    _clientDecrypt.Init(decryptHash);
-    _serverEncrypt.Init(encryptHash);
-
-    // Drop first 1024 bytes, as WoW uses ARC4-drop1024.
-    uint8 syncBuf[1024];
-    memset(syncBuf, 0, 1024);
-
-    _serverEncrypt.UpdateData(1024, syncBuf);
-
-    memset(syncBuf, 0, 1024);
-
-    _clientDecrypt.UpdateData(1024, syncBuf);
-
+    _clientDecrypt.Init(key);
+    _serverEncrypt.Init(key);
     _initialized = true;
+}
+
+struct WorldPacketCryptIV
+{
+    WorldPacketCryptIV(uint64 counter, uint32 magic)
+    {
+        memcpy(Value.data(), &counter, sizeof(uint64));
+        memcpy(Value.data() + sizeof(uint64), &magic, sizeof(uint32));
+    }
+
+    std::array<uint8, 12> Value;
+};
+
+bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t len, uint8* tag)
+{
+    if (_initialized)
+    {
+        WorldPacketCryptIV iv{ _clientCounter, 0x544E4C43 };
+        if (!_clientDecrypt.Process(iv.Value.data(), data, len, tag))
+            return false;
+    }
+
+    ++_clientCounter;
+    return true;
+}
+
+bool WorldPacketCrypt::EncryptSend(uint8* data, size_t len, uint8* tag)
+{
+    if (_initialized)
+    {
+        WorldPacketCryptIV iv{ _serverCounter, 0x52565253 };
+        if (!_serverEncrypt.Process(iv.Value.data(), data, len, tag))
+            return false;
+    }
+
+    ++_serverCounter;
+    return true;
 }
