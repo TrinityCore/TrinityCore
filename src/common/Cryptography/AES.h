@@ -33,7 +33,7 @@ public:
 
     void Init(uint8 const* key);
 
-    bool Process(uint8 const* iv, uint8* data, std::size_t length, uint8* tag);
+    bool Process(uint8 const* iv, uint8* data, std::size_t length, uint8(&tag)[12]);
 
 private:
     EVP_CIPHER_CTX* _ctx;
