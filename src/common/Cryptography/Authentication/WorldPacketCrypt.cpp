@@ -42,27 +42,31 @@ struct WorldPacketCryptIV
     std::array<uint8, 12> Value;
 };
 
-bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t len, uint8* tag)
+bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t length, uint8 (&tag)[12])
 {
     if (_initialized)
     {
         WorldPacketCryptIV iv{ _clientCounter, 0x544E4C43 };
-        if (!_clientDecrypt.Process(iv.Value.data(), data, len, tag))
+        if (!_clientDecrypt.Process(iv.Value.data(), data, length, tag))
             return false;
     }
+    else
+        memset(tag, 0, sizeof(tag));
 
     ++_clientCounter;
     return true;
 }
 
-bool WorldPacketCrypt::EncryptSend(uint8* data, size_t len, uint8* tag)
+bool WorldPacketCrypt::EncryptSend(uint8* data, size_t length, uint8 (&tag)[12])
 {
     if (_initialized)
     {
         WorldPacketCryptIV iv{ _serverCounter, 0x52565253 };
-        if (!_serverEncrypt.Process(iv.Value.data(), data, len, tag))
+        if (!_serverEncrypt.Process(iv.Value.data(), data, length, tag))
             return false;
     }
+    else
+        memset(tag, 0, sizeof(tag));
 
     ++_serverCounter;
     return true;
