@@ -1010,48 +1010,60 @@ void WorldSession::ReadAddonsInfo(ByteBuffer &data)
 
     if (uncompress(addonInfo.contents(), &uSize, data.contents() + pos, data.size() - pos) == Z_OK)
     {
-        uint32 addonsCount;
-        addonInfo >> addonsCount;                         // addons count
-
-        for (uint32 i = 0; i < addonsCount; ++i)
+        try
         {
-            std::string addonName;
-            uint8 enabled;
-            uint32 crc, unk1;
+            uint32 addonsCount = addonInfo.read<uint32>();
+            if (addonsCount > Addons::MaxSecureAddons)
+                addonsCount = Addons::MaxSecureAddons;
 
-            // check next addon data format correctness
-            if (addonInfo.rpos() + 1 > addonInfo.size())
-                return;
+            _addons.SecureAddons.resize(addonsCount);
 
-            addonInfo >> addonName;
-
-            addonInfo >> enabled >> crc >> unk1;
-
-            TC_LOG_DEBUG("addon", "AddOn: %s (CRC: 0x%x) - enabled: 0x%x - Unknown2: 0x%x", addonName.c_str(), crc, enabled, unk1);
-
-            AddonInfo addon(addonName, enabled, crc, 2, true);
-
-            SavedAddon const* savedAddon = AddonMgr::GetAddonInfo(addonName);
-            if (savedAddon)
+            for (uint32 i = 0; i < addonsCount; ++i)
             {
-                if (addon.CRC != savedAddon->CRC)
-                    TC_LOG_WARN("addon", " Addon: %s: modified (CRC: 0x%x) - accountID %d)", addon.Name.c_str(), savedAddon->CRC, GetAccountId());
+                Addons::SecureAddonInfo& addon = _addons.SecureAddons[i];
+                uint32 publicKeyCrc, urlCrc;
+
+                addonInfo >> addon.Name >> addon.HasKey;
+                addonInfo >> publicKeyCrc >> urlCrc;
+
+                TC_LOG_DEBUG("addon", "AddOn: %s (CRC: 0x%x) - has key: 0x%x - URL CRC: 0x%x", addon.Name.c_str(), publicKeyCrc, addon.HasKey, urlCrc);
+
+                SavedAddon const* savedAddon = AddonMgr::GetAddonInfo(addon.Name);
+                if (savedAddon)
+                {
+                    if (publicKeyCrc != savedAddon->CRC)
+                    {
+                        if (addon.HasKey)
+                        {
+                            addon.Status = Addons::SecureAddonInfo::BANNED;
+                            TC_LOG_WARN("addon", " Addon: %s: modified (CRC: 0x%x) - accountID %d)", addon.Name.c_str(), savedAddon->CRC, GetAccountId());
+                        }
+                        else
+                            addon.Status = Addons::SecureAddonInfo::SECURE_HIDDEN;
+                    }
+                    else
+                    {
+                        addon.Status = Addons::SecureAddonInfo::SECURE_HIDDEN;
+                        TC_LOG_DEBUG("addon", "Addon: %s: validated (CRC: 0x%x) - accountID %d", addon.Name.c_str(), savedAddon->CRC, GetAccountId());
+                    }
+                }
                 else
-                    TC_LOG_DEBUG("addon", "Addon: %s: validated (CRC: 0x%x) - accountID %d", addon.Name.c_str(), savedAddon->CRC, GetAccountId());
-            }
-            else
-            {
-                AddonMgr::SaveAddon(addon);
-                TC_LOG_WARN("addon", "Addon: %s: unknown (CRC: 0x%x) - accountId %d (storing addon name and checksum to database)", addon.Name.c_str(), addon.CRC, GetAccountId());
+                {
+                    addon.Status = Addons::SecureAddonInfo::BANNED;
+                    TC_LOG_WARN("addon", "Addon: %s: not registered as known secure addon - accountId %d", addon.Name.c_str(), GetAccountId());
+                }
             }
 
-            /// @todo Find out when to not use CRC/pubkey, and other possible states.
-            m_addonsList.push_back(addon);
+            addonInfo.rpos(addonInfo.size() - 4);
+
+            uint32 lastBannedAddOnTimestamp;
+            addonInfo >> lastBannedAddOnTimestamp;
+            TC_LOG_DEBUG("addon", "AddOn: Newest banned addon timestamp: %u", lastBannedAddOnTimestamp);
         }
-
-        uint32 currentTime;
-        addonInfo >> currentTime;
-        TC_LOG_DEBUG("addon", "AddOn: CurrentTime: %u", currentTime);
+        catch (ByteBufferException const& e)
+        {
+            TC_LOG_DEBUG("addon", "AddOn: Addon packet read error! %s", e.what());
+        }
     }
     else
         TC_LOG_DEBUG("addon", "AddOn: Addon packet uncompress error!");
@@ -1059,7 +1071,7 @@ void WorldSession::ReadAddonsInfo(ByteBuffer &data)
 
 void WorldSession::SendAddonsInfo()
 {
-    uint8 addonPublicKey[256] =
+    uint8 constexpr addonPublicKey[256] =
     {
         0xC3, 0x5B, 0x50, 0x84, 0xB9, 0x3E, 0x32, 0x42, 0x8C, 0xD0, 0xC7, 0x48, 0xFA, 0x0E, 0x5D, 0x54,
         0x5A, 0xA3, 0x0E, 0x14, 0xBA, 0x9E, 0x0D, 0xB9, 0x5D, 0x8B, 0xEE, 0xB6, 0x84, 0x93, 0x45, 0x75,
@@ -1081,37 +1093,46 @@ void WorldSession::SendAddonsInfo()
 
     WorldPacket data(SMSG_ADDON_INFO, 4);
 
-    for (AddonsList::iterator itr = m_addonsList.begin(); itr != m_addonsList.end(); ++itr)
+    for (Addons::SecureAddonInfo const& addonInfo : _addons.SecureAddons)
     {
-        data << uint8(itr->State);
+        // fresh install, not yet created Interface\Addons\addon_name\addon_name.pub files
+        uint8 infoProvided = (addonInfo.Status == Addons::SecureAddonInfo::SECURE_HIDDEN && !addonInfo.HasKey)
+            || addonInfo.Status == Addons::SecureAddonInfo::SECURE_VISIBLE;
 
-        uint8 crcpub = itr->UsePublicKeyOrCRC;
-        data << uint8(crcpub);
-        if (crcpub)
+        data << uint8(addonInfo.Status);                            // Status
+        data << uint8(infoProvided);                                // InfoProvided
+        if (infoProvided)
         {
-            uint8 usepk = (itr->CRC != STANDARD_ADDON_CRC); // If addon is Standard addon CRC
-            data << uint8(usepk);
-            if (usepk)                                      // if CRC is wrong, add public key (client need it)
+            data << uint8(!addonInfo.HasKey);                       // KeyProvided
+            if (!addonInfo.HasKey)                                  // if CRC is wrong, add public key (client need it)
             {
-                TC_LOG_DEBUG("addon", "AddOn: %s: CRC checksum mismatch: got 0x%x - expected 0x%x - sending pubkey to accountID %d",
-                    itr->Name.c_str(), itr->CRC, STANDARD_ADDON_CRC, GetAccountId());
+                TC_LOG_DEBUG("addon", "AddOn: %s: key missing: sending pubkey to accountID %d", addonInfo.Name.c_str(), GetAccountId());
 
                 data.append(addonPublicKey, sizeof(addonPublicKey));
             }
 
-            data << uint32(0);                              /// @todo Find out the meaning of this.
+            data << uint32(0);                                      // Revision (from .toc), can be used by SECURE_VISIBLE to display "update available" in client addon controls
         }
 
-        data << uint8(0);       // uses URL
+        data << uint8(0);                                           // UrlProvided
         //if (usesURL)
-        //    data << uint8(0); // URL
+        //    data << uint8(0);                                     // URL, client will create internet shortcut with this destination in Interface\Addons\addon_name\addon_name.url
     }
 
-    m_addonsList.clear();
-
+    // Send new uncached banned addons
     AddonMgr::BannedAddonList const* bannedAddons = AddonMgr::GetBannedAddons();
-    data << uint32(bannedAddons->size());
-    for (AddonMgr::BannedAddonList::const_iterator itr = bannedAddons->begin(); itr != bannedAddons->end(); ++itr)
+    uint32 lastBannedAddOnTimestamp = _addons.LastBannedAddOnTimestamp;
+    if (!bannedAddons->empty() && bannedAddons->back().Timestamp < lastBannedAddOnTimestamp) // cheating attempt OR connecting to a realm with different configured banned addons, send everything
+        lastBannedAddOnTimestamp = 0;
+
+    std::size_t sizePos = data.wpos();
+    uint32 bannedAddonCount = 0;
+    data << uint32(0);
+    auto itr = std::lower_bound(bannedAddons->begin(), bannedAddons->end(), _addons.LastBannedAddOnTimestamp, [](BannedAddon const& bannedAddon, uint32 timestamp)
+    {
+        return bannedAddon.Timestamp < timestamp;
+    });
+    for (; itr != bannedAddons->end(); ++itr)
     {
         data << uint32(itr->Id);
         data.append(itr->NameMD5, sizeof(itr->NameMD5));
@@ -1119,6 +1140,8 @@ void WorldSession::SendAddonsInfo()
         data << uint32(itr->Timestamp);
         data << uint32(1);  // IsBanned
     }
+
+    data.put<uint32>(sizePos, bannedAddonCount);
 
     SendPacket(&data);
 }

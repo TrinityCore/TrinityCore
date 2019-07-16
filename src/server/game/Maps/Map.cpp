@@ -77,7 +77,7 @@ Map::~Map()
 
     // Delete all waiting spawns, else there will be a memory leak
     // This doesn't delete from database.
-    DeleteRespawnInfo();
+    UnloadAllRespawnInfos();
 
     while (!i_worldObjects.empty())
     {
@@ -1009,12 +1009,7 @@ void Map::RemoveFromMap(T *obj, bool remove)
     obj->ResetMap();
 
     if (remove)
-    {
-        // if option set then object already saved at this moment
-        if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-            obj->SaveRespawnTime();
         DeleteFromWorld(obj);
-    }
 }
 
 template<>
@@ -1049,12 +1044,7 @@ void Map::RemoveFromMap(Transport* obj, bool remove)
     obj->ResetMap();
 
     if (remove)
-    {
-        // if option set then object already saved at this moment
-        if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-            obj->SaveRespawnTime();
         DeleteFromWorld(obj);
-    }
 }
 
 void Map::PlayerRelocation(Player* player, float x, float y, float z, float orientation)
@@ -3062,9 +3052,12 @@ void Map::Respawn(RespawnInfo* info, SQLTransaction dbTrans)
     if (!CheckRespawn(info))
     {
         if (info->respawnTime)
-            SaveRespawnTime(info->type, info->spawnId, info->entry, info->respawnTime, info->zoneId, info->gridId, true, true, dbTrans);
+        {
+            _respawnTimes.decrease(info->handle);
+            SaveRespawnInfoDB(*info, dbTrans);
+        }
         else
-            RemoveRespawnTime(info);
+            DeleteRespawnInfo(info, dbTrans);
         return;
     }
 
@@ -3072,23 +3065,13 @@ void Map::Respawn(RespawnInfo* info, SQLTransaction dbTrans)
     SpawnObjectType const type = info->type;
     uint32 const gridId = info->gridId;
     ObjectGuid::LowType const spawnId = info->spawnId;
-    RemoveRespawnTime(info);
+    DeleteRespawnInfo(info, dbTrans);
     DoRespawn(type, spawnId, gridId);
 }
 
-void Map::Respawn(std::vector<RespawnInfo*>& respawnData, SQLTransaction dbTrans)
+bool Map::AddRespawnInfo(RespawnInfo const& info)
 {
-    SQLTransaction trans = dbTrans ? dbTrans : CharacterDatabase.BeginTransaction();
-    for (RespawnInfo* info : respawnData)
-        Respawn(info, trans);
-    if (!dbTrans)
-        CharacterDatabase.CommitTransaction(trans);
-}
-
-void Map::AddRespawnInfo(RespawnInfo& info, bool replace)
-{
-    if (!info.spawnId)
-        return;
+    ASSERT(info.spawnId, "Attempt to schedule respawn with zero spawnid (type %u)", uint32(info.type));
 
     RespawnInfoMap& bySpawnIdMap = GetRespawnMapForType(info.type);
 
@@ -3096,13 +3079,10 @@ void Map::AddRespawnInfo(RespawnInfo& info, bool replace)
     if (it != bySpawnIdMap.end()) // spawnid already has a respawn scheduled
     {
         RespawnInfo* const existing = it->second;
-        if (replace || info.respawnTime < existing->respawnTime) // delete existing in this case
+        if (info.respawnTime < existing->respawnTime) // delete existing in this case
             DeleteRespawnInfo(existing);
-        else // don't delete existing, instead replace respawn time so caller saves the correct time
-        {
-            info.respawnTime = existing->respawnTime;
-            return;
-        }
+        else
+            return false;
     }
 
     // if we get to this point, we should insert the respawninfo (there either was no prior entry, or it was deleted already)
@@ -3110,6 +3090,7 @@ void Map::AddRespawnInfo(RespawnInfo& info, bool replace)
     ri->handle = _respawnTimes.push(ri);
     bool success = bySpawnIdMap.emplace(ri->spawnId, ri).second;
     ASSERT(success, "Insertion of respawn info with id (%u,%u) into spawn id map failed - state desync.", uint32(ri->type), ri->spawnId);
+    return true;
 }
 
 static void PushRespawnInfoFrom(std::vector<RespawnInfo*>& data, RespawnInfoMap const& map, uint32 zoneId)
@@ -3135,7 +3116,7 @@ RespawnInfo* Map::GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawn
     return it->second;
 }
 
-void Map::DeleteRespawnInfo() // delete everything
+void Map::UnloadAllRespawnInfos() // delete everything from memory
 {
     for (RespawnInfo* info : _respawnTimes)
         delete info;
@@ -3144,7 +3125,7 @@ void Map::DeleteRespawnInfo() // delete everything
     _gameObjectRespawnTimesBySpawnId.clear();
 }
 
-void Map::DeleteRespawnInfo(RespawnInfo* info)
+void Map::DeleteRespawnInfo(RespawnInfo* info, SQLTransaction dbTrans)
 {
     // Delete from all relevant containers to ensure consistency
     ASSERT(info);
@@ -3153,15 +3134,10 @@ void Map::DeleteRespawnInfo(RespawnInfo* info)
     size_t const n = GetRespawnMapForType(info->type).erase(info->spawnId);
     ASSERT(n == 1, "Respawn stores inconsistent for map %u, spawnid %u (type %u)", GetId(), info->spawnId, uint32(info->type));
 
-    //respawn heap
+    // respawn heap
     _respawnTimes.erase(info->handle);
 
-    // then cleanup the object
-    delete info;
-}
-
-void Map::RemoveRespawnTime(RespawnInfo* info, bool doRespawn, SQLTransaction dbTrans)
-{
+    // database
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESPAWN);
     stmt->setUInt16(0, info->type);
     stmt->setUInt32(1, info->spawnId);
@@ -3169,19 +3145,8 @@ void Map::RemoveRespawnTime(RespawnInfo* info, bool doRespawn, SQLTransaction db
     stmt->setUInt32(3, GetInstanceId());
     CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
 
-    if (doRespawn)
-        Respawn(info);
-    else
-        DeleteRespawnInfo(info);
-}
-
-void Map::RemoveRespawnTime(std::vector<RespawnInfo*>& respawnData, bool doRespawn, SQLTransaction dbTrans)
-{
-    SQLTransaction trans = dbTrans ? dbTrans : CharacterDatabase.BeginTransaction();
-    for (RespawnInfo* info : respawnData)
-        RemoveRespawnTime(info, doRespawn, trans);
-    if (!dbTrans)
-        CharacterDatabase.CommitTransaction(trans);
+    // then cleanup the object
+    delete info;
 }
 
 void Map::ProcessRespawns()
@@ -3210,6 +3175,7 @@ void Map::ProcessRespawns()
         {
             ASSERT(now < next->respawnTime); // infinite loop guard
             _respawnTimes.decrease(next->handle);
+            SaveRespawnInfoDB(*next);
         }
     }
 }
@@ -3290,7 +3256,7 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
                 continue;
 
             // we need to remove the respawn time, otherwise we'd end up double spawning
-            RemoveRespawnTime(data->type, data->spawnId, false);
+            RemoveRespawnTime(data->type, data->spawnId);
         }
 
         // don't spawn if the grid isn't loaded (will be handled in grid loader)
@@ -4308,12 +4274,15 @@ void Map::UpdateIteratorBack(Player* player)
         m_mapRefIter = m_mapRefIter->nocheck_prev();
 }
 
-void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 zoneId, uint32 gridId, bool writeDB, bool replace, SQLTransaction dbTrans)
+void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 zoneId, uint32 gridId, SQLTransaction dbTrans, bool startup)
 {
+    if (!spawnId)
+        return;
+
     if (!respawnTime)
     {
         // Delete only
-        RemoveRespawnTime(type, spawnId, false, dbTrans);
+        RemoveRespawnTime(type, spawnId, dbTrans);
         return;
     }
 
@@ -4324,19 +4293,23 @@ void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uin
     ri.respawnTime = respawnTime;
     ri.gridId = gridId;
     ri.zoneId = zoneId;
-    AddRespawnInfo(ri, replace);
+    bool success = AddRespawnInfo(ri);
 
-    if (writeDB)
-        SaveRespawnTimeDB(type, spawnId, ri.respawnTime, dbTrans); // might be different from original respawn time if we didn't replace
+    if (startup)
+    {
+        if (!success)
+            TC_LOG_ERROR("maps", "Attempt to load saved respawn %" PRIu64 " for (%u,%u) failed - duplicate respawn? Skipped.", respawnTime, uint32(type), spawnId);
+    }
+    else if (success)
+        SaveRespawnInfoDB(ri, dbTrans);
 }
 
-void Map::SaveRespawnTimeDB(SpawnObjectType type, ObjectGuid::LowType spawnId, time_t respawnTime, SQLTransaction dbTrans)
+void Map::SaveRespawnInfoDB(RespawnInfo const& info, SQLTransaction dbTrans)
 {
-    // Just here for support of compatibility mode
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_RESPAWN);
-    stmt->setUInt16(0, type);
-    stmt->setUInt32(1, spawnId);
-    stmt->setUInt64(2, uint64(respawnTime));
+    stmt->setUInt16(0, info.type);
+    stmt->setUInt32(1, info.spawnId);
+    stmt->setUInt64(2, uint64(info.respawnTime));
     stmt->setUInt16(3, GetId());
     stmt->setUInt32(4, GetInstanceId());
     CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
@@ -4356,10 +4329,17 @@ void Map::LoadRespawnTimes()
             ObjectGuid::LowType spawnId = fields[1].GetUInt32();
             uint64 respawnTime = fields[2].GetUInt64();
 
-            if (SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId))
-                SaveRespawnTime(type, spawnId, data->id, time_t(respawnTime), GetZoneId(data->spawnPoint), Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId(), false);
+            if (type < SPAWN_TYPE_MAX)
+            {
+                if (SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId))
+                    SaveRespawnTime(type, spawnId, data->id, time_t(respawnTime), GetZoneId(data->spawnPoint), Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId(), nullptr, true);
+                else
+                    TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u,%u) - spawn does not exist, ignoring", respawnTime, uint32(type), spawnId);
+            }
             else
-                TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u,%u) - spawn does not exist, ignoring", respawnTime, uint32(type), spawnId);
+            {
+                TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u,%u) - invalid spawn type, ignoring", respawnTime, uint32(type), spawnId);
+            }
 
         } while (result->NextRow());
     }
