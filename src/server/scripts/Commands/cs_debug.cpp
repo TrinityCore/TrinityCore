@@ -32,6 +32,7 @@ EndScriptData */
 #include "ChatPackets.h"
 #include "Conversation.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -55,6 +56,7 @@ EndScriptData */
 #include <set>
 #include <sstream>
 
+using namespace Trinity::ChatCommands;
 class debug_commandscript : public CommandScript
 {
 public:
@@ -123,6 +125,7 @@ public:
             { "dummy",         rbac::RBAC_PERM_COMMAND_DEBUG_DUMMY,         false, &HandleDebugDummyCommand,            "" },
             { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
             { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
+            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" }
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1459,6 +1462,43 @@ public:
                     difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
             sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
         }
+        return true;
+    }
+
+    static bool HandleDebugQuestResetCommand(ChatHandler* handler, std::string arg)
+    {
+        if (!Utf8ToUpperOnlyLatin(arg))
+            return false;
+
+        bool daily = false, weekly = false, monthly = false;
+        if (arg == "ALL")
+            daily = weekly = monthly = true;
+        else if (arg == "DAILY")
+            daily = true;
+        else if (arg == "WEEKLY")
+            weekly = true;
+        else if (arg == "MONTHLY")
+            monthly = true;
+        else
+            return false;
+
+        time_t const now = GameTime::GetGameTime();
+        if (daily)
+        {
+            sWorld->m_NextDailyQuestReset = now;
+            handler->SendSysMessage("Daily quest reset scheduled for next tick.");
+        }
+        if (weekly)
+        {
+            sWorld->m_NextWeeklyQuestReset = now;
+            handler->SendSysMessage("Weekly quest reset scheduled for next tick.");
+        }
+        if (monthly)
+        {
+            sWorld->m_NextMonthlyQuestReset = now;
+            handler->SendSysMessage("Monthly quest reset scheduled for next tick.");
+        }
+
         return true;
     }
 
