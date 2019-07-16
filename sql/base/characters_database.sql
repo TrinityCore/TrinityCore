@@ -114,6 +114,30 @@ CREATE TABLE `addons` (
 
 LOCK TABLES `addons` WRITE;
 /*!40000 ALTER TABLE `addons` DISABLE KEYS */;
+INSERT INTO `addons` VALUES
+('Blizzard_AchievementUI', 1276933997),
+('Blizzard_ArenaUI', 1276933997),
+('Blizzard_AuctionUI', 1276933997),
+('Blizzard_BarbershopUI', 1276933997),
+('Blizzard_BattlefieldMinimap', 1276933997),
+('Blizzard_BindingUI', 1276933997),
+('Blizzard_Calendar', 1276933997),
+('Blizzard_CombatLog', 1276933997),
+('Blizzard_CombatText', 1276933997),
+('Blizzard_DebugTools', 1276933997),
+('Blizzard_GlyphUI', 1276933997),
+('Blizzard_GMChatUI', 1276933997),
+('Blizzard_GMSurveyUI', 1276933997),
+('Blizzard_GuildBankUI', 1276933997),
+('Blizzard_InspectUI', 1276933997),
+('Blizzard_ItemSocketingUI', 1276933997),
+('Blizzard_MacroUI', 1276933997),
+('Blizzard_RaidUI', 1276933997),
+('Blizzard_TalentUI', 1276933997),
+('Blizzard_TimeManager', 1276933997),
+('Blizzard_TokenUI', 1276933997),
+('Blizzard_TradeSkillUI', 1276933997),
+('Blizzard_TrainerUI', 1276933997);
 /*!40000 ALTER TABLE `addons` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1447,24 +1471,6 @@ LOCK TABLES `corpse` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `respawn`
---
-
-DROP TABLE IF EXISTS `respawn`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `respawn` (
-  `type` smallint(10) unsigned NOT NULL,
-  `spawnId` int(10) unsigned NOT NULL,
-  `respawnTime` bigint(20) unsigned NOT NULL,
-  `mapId` smallint(10) unsigned NOT NULL,
-  `instanceId` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`type`,`spawnId`,`instanceId`),
-  KEY `idx_instance` (`instanceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stored respawn times';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `game_event_condition_save`
 --
 
@@ -2542,6 +2548,33 @@ LOCK TABLES `reserved_name` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `respawn`
+--
+
+DROP TABLE IF EXISTS `respawn`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `respawn` (
+  `type` smallint(10) unsigned NOT NULL,
+  `spawnId` int(10) unsigned NOT NULL,
+  `respawnTime` bigint(20) unsigned NOT NULL,
+  `mapId` smallint(10) unsigned NOT NULL,
+  `instanceId` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`type`,`spawnId`,`instanceId`),
+  KEY `idx_instance` (`instanceId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stored respawn times';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `respawn`
+--
+
+LOCK TABLES `respawn` WRITE;
+/*!40000 ALTER TABLE `respawn` DISABLE KEYS */;
+/*!40000 ALTER TABLE `respawn` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `updates`
 --
 
@@ -2599,7 +2632,9 @@ INSERT INTO `updates` VALUES
 ('2019_04_15_00_characters.sql','942FB57BF890E523B35B9BFEF3686CB0AA52B795','ARCHIVED','2019-04-15 06:16:09',0),
 ('2019_05_15_00_characters.sql','A12F21C8044C8BC8E2AA17F4C6CEB8B722CBC714','ARCHIVED','2019-05-15 06:13:20',0),
 ('2019_06_15_00_characters.sql','32DA6E004D7DD6EFFB0BB26238D17F6CC9E51DE6','ARCHIVED','2019-06-15 07:33:45',0),
-('2019_07_14_00_characters.sql','A141F4F15BDF0320483921429871D4C572BD7E2D','ARCHIVED','2019-07-04 00:00:00',0);
+('2019_07_14_00_characters.sql','A141F4F15BDF0320483921429871D4C572BD7E2D','ARCHIVED','2019-07-04 00:00:00',0),
+('2019_07_15_00_characters.sql','5BCF35896BB36A306CE79CF1E3F1945FAF9019D9','ARCHIVED','2019-07-15 05:57:41',4),
+('2019_07_15_01_characters.sql','5D383B026AB9EDE7114F249D206DE7E432E19468','RELEASED','2019-07-15 17:41:30',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2765,4 +2800,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-15  7:33:48
+-- Dump completed on 2019-07-15  5:57:44
