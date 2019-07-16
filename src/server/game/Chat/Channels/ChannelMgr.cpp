@@ -18,7 +18,9 @@
 
 #include "ChannelMgr.h"
 #include "Channel.h"
+#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "Log.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"
