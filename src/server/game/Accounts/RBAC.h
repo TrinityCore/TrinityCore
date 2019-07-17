@@ -784,7 +784,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LOOKUP_ITEM_ID                         = 876,
     RBAC_PERM_COMMAND_LOOKUP_QUEST_ID                        = 877,
     RBAC_PERM_COMMAND_DEBUG_QUESTRESET                       = 878,
-    // 879 previously used, do not reuse
+    RBAC_PERM_COMMAND_DEBUG_POOLSTATUS                       = 879,
     RBAC_PERM_COMMAND_PDUMP_COPY                             = 880,
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE                = 881,
     RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPT_NAMES              = 882,
