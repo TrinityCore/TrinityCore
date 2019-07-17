@@ -18,7 +18,9 @@
 
 #include "ChannelMgr.h"
 #include "Channel.h"
+#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "Log.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -103,11 +105,21 @@ Channel* ChannelMgr::CreateCustomChannel(std::string const& name)
         return nullptr;
 
     Channel* newChannel = new Channel(name, _team);
+
+    if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL);
+        stmt->setString(0, name);
+        stmt->setUInt32(1, _team);
+        CharacterDatabase.Execute(stmt);
+        TC_LOG_DEBUG("chat.system", "Channel(%s) saved in database", name.c_str());
+    }
+
     c = newChannel;
     return newChannel;
 }
 
-Channel* ChannelMgr::GetCustomChannel(std::string const& name) const
+Channel* ChannelMgr::GetCustomChannel(std::string const& name)
 {
     std::wstring channelName;
     if (!Utf8toWStr(name, channelName))
@@ -117,8 +129,30 @@ Channel* ChannelMgr::GetCustomChannel(std::string const& name) const
     auto itr = _customChannels.find(channelName);
     if (itr != _customChannels.end())
         return itr->second;
-    else
-        return nullptr;
+    else if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHANNEL);
+        stmt->setString(0, name);
+        stmt->setUInt32(1, _team);
+        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        {
+            Field* fields = result->Fetch();
+            std::string dbName = fields[0].GetString(); // may be different - channel names are case insensitive
+            bool dbAnnounce = fields[1].GetBool();
+            bool dbOwnership = fields[2].GetBool();
+            std::string dbPass = fields[3].GetString();
+            std::string dbBanned = fields[4].GetString();
+
+            Channel* channel = new Channel(dbName, _team, dbBanned);
+            channel->SetAnnounce(dbAnnounce);
+            channel->SetOwnership(dbOwnership);
+            channel->SetPassword(dbPass);
+            _customChannels.emplace(channelName, channel);
+            return channel;
+        }
+    }
+
+    return nullptr;
 }
 
 Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Player* player, bool pkt /*= true*/, AreaTableEntry const* zoneEntry /*= nullptr*/) const
