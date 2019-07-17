@@ -1050,8 +1050,9 @@ enum TrinityStrings
     LANG_LIST_RESPAWNS_CREATURES          = 5081,
     LANG_LIST_RESPAWNS_GAMEOBJECTS        = 5082,
     LANG_OBJECTINFO_AITYPE                = 5083,
+    LANG_LIST_RESPAWNS_POOLS              = 5084,
 
-    // Room for more Trinity strings        5084-6603
+    // Room for more Trinity strings        5085-6603
 
     // Level requirement notifications
     LANG_SAY_REQ                          = 6604,
