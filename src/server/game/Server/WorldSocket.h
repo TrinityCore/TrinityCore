@@ -55,10 +55,9 @@ namespace WorldPackets
 struct PacketHeader
 {
     uint32 Size;
-    uint16 Command;
+    uint8 Tag[12];
 
     bool IsValidSize() { return Size < 0x10000; }
-    bool IsValidOpcode();
 };
 
 #pragma pack(pop)
@@ -72,6 +71,7 @@ class TC_GAME_API WorldSocket : public Socket<WorldSocket>
     static uint8 const AuthCheckSeed[16];
     static uint8 const SessionKeySeed[16];
     static uint8 const ContinuedSessionSeed[16];
+    static uint8 const EncryptionKeySeed[16];
 
     typedef Socket<WorldSocket> BaseSocket;
 
@@ -133,9 +133,8 @@ private:
 
     BigNumber _serverChallenge;
     WorldPacketCrypt _authCrypt;
-    BigNumber _encryptSeed;
-    BigNumber _decryptSeed;
     BigNumber _sessionKey;
+    uint8 _encryptKey[16];
 
     std::chrono::steady_clock::time_point _LastPingTime;
     uint32 _OverSpeedPings;

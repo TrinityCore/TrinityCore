@@ -62,13 +62,21 @@ namespace WorldPackets
         class AvailableHotfixes final : public ServerPacket
         {
         public:
-            AvailableHotfixes(int32 hotfixCacheVersion, std::map<uint64, int32> const& hotfixes)
-                : ServerPacket(SMSG_AVAILABLE_HOTFIXES), HotfixCacheVersion(hotfixCacheVersion), Hotfixes(hotfixes) { }
+            AvailableHotfixes(int32 hotfixCacheVersion, uint32 hotfixCount, DB2Manager::HotfixContainer const& hotfixes)
+                : ServerPacket(SMSG_AVAILABLE_HOTFIXES), HotfixCacheVersion(hotfixCacheVersion), HotfixCount(hotfixCount), Hotfixes(hotfixes) { }
 
             WorldPacket const* Write() override;
 
             int32 HotfixCacheVersion;
-            std::map<uint64, int32> const& Hotfixes;
+            uint32 HotfixCount;
+            DB2Manager::HotfixContainer const& Hotfixes;
+        };
+
+        struct HotfixRecord
+        {
+            uint32 TableHash = 0;
+            int32 RecordID = 0;
+            int32 HotfixID = 0;
         };
 
         class HotfixRequest final : public ClientPacket
@@ -78,7 +86,9 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector<uint64> Hotfixes;
+            uint32 ClientBuild = 0;
+            uint32 DataBuild = 0;
+            std::vector<HotfixRecord> Hotfixes;
         };
 
         class HotfixResponse final : public ServerPacket
@@ -86,9 +96,8 @@ namespace WorldPackets
         public:
             struct HotfixData
             {
-                uint64 ID = 0;
-                int32 RecordID = 0;
-                Optional<ByteBuffer> Data;
+                HotfixRecord Record;
+                Optional<uint32> Size;
             };
 
             HotfixResponse() : ServerPacket(SMSG_HOTFIX_RESPONSE) { }
@@ -96,6 +105,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<HotfixData> Hotfixes;
+            ByteBuffer HotfixContent;
         };
     }
 }

@@ -48,11 +48,13 @@ namespace CASC
 
     char const* HumanReadableCASCError(DWORD error);
 
-    StorageHandle OpenStorage(boost::filesystem::path const& path, DWORD localeMask);
+    StorageHandle OpenStorage(boost::filesystem::path const& path, DWORD localeMask, char const* product);
     DWORD GetBuildNumber(StorageHandle const& storage);
     DWORD GetInstalledLocalesMask(StorageHandle const& storage);
+    bool HasTactKey(StorageHandle const& storage, ULONGLONG keyLookup);
 
-    FileHandle OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors = false);
+    FileHandle OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors = false, bool zerofillEncryptedParts = false);
+    FileHandle OpenFile(StorageHandle const& storage, DWORD fileDataId, DWORD localeMask, bool printErrors = false, bool zerofillEncryptedParts = false);
     DWORD GetFileSize(FileHandle const& file, PDWORD fileSizeHigh);
     DWORD GetFilePointer(FileHandle const& file);
     bool SetFilePointer(FileHandle const& file, LONGLONG position);

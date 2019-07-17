@@ -88,7 +88,7 @@ class boss_ragnaros : public CreatureScript
                 Initialize();
                 _introState = 0;
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 SetCombatMovement(false);
             }
 
@@ -104,7 +104,7 @@ class boss_ragnaros : public CreatureScript
             {
                 BossAI::Reset();
                 Initialize();
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                me->SetEmoteState(EMOTE_ONESHOT_NONE);
             }
 
             void EnterCombat(Unit* victim) override
@@ -162,7 +162,7 @@ class boss_ragnaros : public CreatureScript
                             break;
                         case EVENT_INTRO_5:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
                             _introState = 2;
                             break;
                         default:
@@ -177,8 +177,8 @@ class boss_ragnaros : public CreatureScript
                         //Become unbanished again
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->setFaction(14);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             AttackStart(target);
@@ -255,8 +255,8 @@ class boss_ragnaros : public CreatureScript
                                     //Root self
                                     //DoCast(me, 23973);
                                     me->setFaction(35);
-                                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
+                                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                                    me->SetEmoteState(EMOTE_STATE_SUBMERGED);
                                     me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
                                     instance->SetData(DATA_RAGNAROS_ADDS, 0);
 

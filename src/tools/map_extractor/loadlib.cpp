@@ -61,6 +61,33 @@ bool ChunkedFile::loadFile(CASC::StorageHandle const& mpq, std::string const& fi
     return false;
 }
 
+bool ChunkedFile::loadFile(CASC::StorageHandle const& mpq, uint32 fileDataId, std::string const& description, bool log)
+{
+    free();
+    CASC::FileHandle file = CASC::OpenFile(mpq, fileDataId, CASC_LOCALE_ALL, log);
+    if (!file)
+        return false;
+
+    DWORD fileSize = CASC::GetFileSize(file, nullptr);
+    if (fileSize == CASC_INVALID_SIZE)
+        return false;
+
+    data_size = fileSize;
+    data = new uint8[data_size];
+    DWORD bytesRead = 0;
+    if (!CASC::ReadFile(file, data, data_size, &bytesRead) || bytesRead != data_size)
+        return false;
+
+    parseChunks();
+    if (prepareLoadedData())
+        return true;
+
+    printf("Error loading %s\n", description.c_str());
+    free();
+
+    return false;
+}
+
 bool ChunkedFile::prepareLoadedData()
 {
     FileChunk* chunk = GetChunk("MVER");
@@ -97,7 +124,9 @@ u_map_fcc InterestingChunks[] =
     { { 'T', 'V', 'C', 'M' } },
     { { 'O', 'M', 'W', 'M' } },
     { { 'Q', 'L', 'C', 'M' } },
-    { { 'O', 'B', 'F', 'M' } }
+    { { 'O', 'B', 'F', 'M' } },
+    { { 'D', 'H', 'P', 'M' } },
+    { { 'D', 'I', 'A', 'M' } }
 };
 
 bool IsInterestingChunk(u_map_fcc const& fcc)

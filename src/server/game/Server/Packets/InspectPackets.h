@@ -24,6 +24,7 @@
 #include "SharedDefines.h"
 
 class Item;
+class Player;
 
 namespace WorldPackets
 {
@@ -60,68 +61,30 @@ namespace WorldPackets
             std::vector<int32> AzeritePowers;
         };
 
+        struct PlayerModelDisplayInfo
+        {
+            ObjectGuid GUID;
+            std::vector<InspectItemData> Items;
+            std::string Name;
+            int32 SpecializationID = 0;
+            uint8 GenderID = GENDER_NONE;
+            uint8 Skin = 0;
+            uint8 HairColor = 0;
+            uint8 HairStyle = 0;
+            uint8 FacialHairStyle = 0;
+            uint8 Face = 0;
+            uint8 Race = RACE_NONE;
+            uint8 ClassID = CLASS_NONE;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+
+            void Initialize(Player const* player);
+        };
+
         struct InspectGuildData
         {
             ObjectGuid GuildGUID;
             int32 NumGuildMembers = 0;
             int32 AchievementPoints = 0;
-        };
-
-        class InspectResult final : public ServerPacket
-        {
-        public:
-            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45)
-            {
-                PvpTalents.fill(0);
-            }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid InspecteeGUID;
-            std::vector<InspectItemData> Items;
-            std::vector<uint16> Glyphs;
-            std::vector<uint16> Talents;
-            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
-            int32 ClassID = CLASS_NONE;
-            int32 GenderID = GENDER_NONE;
-            Optional<InspectGuildData> GuildData;
-            int32 SpecializationID = 0;
-            Optional<int32> AzeriteLevel;
-        };
-
-        class RequestHonorStats final : public ClientPacket
-        {
-        public:
-            RequestHonorStats(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_HONOR_STATS, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid TargetGUID;
-        };
-
-        class InspectHonorStats final : public ServerPacket
-        {
-        public:
-            InspectHonorStats() : ServerPacket(SMSG_INSPECT_HONOR_STATS, 25) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid PlayerGUID;
-            uint32 LifetimeHK     = 0;
-            uint16 YesterdayHK    = 0;
-            uint16 TodayHK        = 0;
-            uint8 LifetimeMaxRank = 0;
-        };
-
-        class InspectPVPRequest final : public ClientPacket
-        {
-        public:
-            InspectPVPRequest(WorldPacket&& packet) : ClientPacket(CMSG_INSPECT_PVP, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid InspectTarget;
-            uint32 InspectRealmAddress = 0;
         };
 
         struct PVPBracketData
@@ -139,15 +102,29 @@ namespace WorldPackets
             bool Unk801_2          = false;
         };
 
-        class InspectPVPResponse final : public ServerPacket
+        class InspectResult final : public ServerPacket
         {
         public:
-            InspectPVPResponse() : ServerPacket(SMSG_INSPECT_PVP, 17) { }
+            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45)
+            {
+                PvpTalents.fill(0);
+            }
 
             WorldPacket const* Write() override;
 
-            std::vector<PVPBracketData> Bracket;
-            ObjectGuid ClientGUID;
+            PlayerModelDisplayInfo DisplayInfo;
+            std::vector<uint16> Glyphs;
+            std::vector<uint16> Talents;
+            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
+            Optional<InspectGuildData> GuildData;
+            std::array<PVPBracketData, 6> Bracket;
+            Optional<int32> AzeriteLevel;
+            int32 ItemLevel = 0;
+            uint32 LifetimeHK = 0;
+            uint32 HonorLevel = 0;
+            uint16 TodayHK = 0;
+            uint16 YesterdayHK = 0;
+            uint8 LifetimeMaxRank = 0;
         };
 
         class QueryInspectAchievements final : public ClientPacket

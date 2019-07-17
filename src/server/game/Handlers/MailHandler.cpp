@@ -52,7 +52,7 @@ bool WorldSession::CanOpenMailBox(ObjectGuid guid)
     }
     else if (guid.IsAnyTypeCreature())
     {
-        if (!_player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_MAILBOX))
+        if (!_player->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_MAILBOX, UNIT_NPC_FLAG_2_NONE))
             return false;
     }
     else
@@ -253,13 +253,13 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
             }
         }
 
-        if (item->GetTemplate()->GetFlags() & ITEM_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION))
+        if (item->GetTemplate()->GetFlags() & ITEM_FLAG_CONJURED || *item->m_itemData->Expiration)
         {
             player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_MAIL_BOUND_ITEM);
             return;
         }
 
-        if (packet.Info.Cod && item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
+        if (packet.Info.Cod && item->HasItemFlag(ITEM_FIELD_FLAG_WRAPPED))
         {
             player->SendMailResult(0, MAIL_SEND, MAIL_ERR_CANT_SEND_WRAPPED_COD);
             return;
@@ -639,9 +639,9 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
         bodyItem->SetText(m->body);
 
     if (m->messageType == MAIL_NORMAL)
-        bodyItem->SetGuidValue(ITEM_FIELD_CREATOR, ObjectGuid::Create<HighGuid::Player>(m->sender));
+        bodyItem->SetCreator(ObjectGuid::Create<HighGuid::Player>(m->sender));
 
-    bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_READABLE);
+    bodyItem->AddItemFlag(ITEM_FIELD_FLAG_READABLE);
 
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);

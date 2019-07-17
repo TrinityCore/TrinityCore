@@ -1160,11 +1160,12 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
                 for (auto itr = creatureBounds.first; itr != creatureBounds.second; ++itr)
                 {
                     Creature* creature = itr->second;
-                    uint32 npcflag = GetNPCFlag(creature);
+                    uint64 npcflag = GetNPCFlag(creature);
                     if (CreatureTemplate const* creatureTemplate = creature->GetCreatureTemplate())
                         npcflag |= creatureTemplate->npcflag;
 
-                    creature->SetUInt64Value(UNIT_NPC_FLAGS, npcflag);
+                    creature->SetNpcFlags(NPCFlags(npcflag & 0xFFFFFFFF));
+                    creature->SetNpcFlags2(NPCFlags2(npcflag >> 32));
                     // reset gossip options, since the flag change might have added / removed some
                     //cr->ResetGossipOptions();
                 }

@@ -110,6 +110,9 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.HealthScalingExpansion = creatureInfo->HealthScalingExpansion;
         stats.VignetteID = creatureInfo->VignetteID;
         stats.Class = creatureInfo->unit_class;
+        stats.FadeRegionRadius = creatureInfo->FadeRegionRadius;
+        stats.WidgetSetID = creatureInfo->WidgetSetID;
+        stats.WidgetSetUnitConditionID = creatureInfo->WidgetSetUnitConditionID;
 
         stats.Title = creatureInfo->SubName;
         stats.TitleAlt = creatureInfo->TitleAlt;

@@ -93,7 +93,7 @@ class npc_voljin_zulaman : public CreatureScript
             {
                 me->SetDisplayFromModel(0);
                 if (_instance->GetData(DATA_ZULAMAN_STATE) == NOT_STARTED)
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             }
 
             void Reset() override
@@ -109,9 +109,9 @@ class npc_voljin_zulaman : public CreatureScript
                 if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
                     _events.Reset();
-                    me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    me->SetUInt32Value(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
+                    me->SetMountDisplayId(0);
+                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetDynamicFlags(UNIT_DYNFLAG_NONE);
                     _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_1, 1000);
                     Talk(SAY_INTRO_1, player);
                     me->SetWalk(true);
@@ -149,7 +149,7 @@ class npc_voljin_zulaman : public CreatureScript
                         case EVENT_BANGING_THE_GONG:
                             DoCast(me, SPELL_BANGING_THE_GONG);
                             if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
-                                strangeGong->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                strangeGong->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             me->SetVirtualItem(0, uint32(ITEM_VIRTUAL_ITEM));
                             break;
                         case EVENT_START_DOOR_OPENING_1:
@@ -159,7 +159,7 @@ class npc_voljin_zulaman : public CreatureScript
                         case EVENT_START_DOOR_OPENING_2:
                             me->SetVirtualItem(0, uint32(0));
                             if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
-                                strangeGong->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                strangeGong->AddFlag(GO_FLAG_NOT_SELECTABLE);
                             _events.ScheduleEvent(EVENT_START_DOOR_OPENING_3, 500);
                             break;
                         case EVENT_START_DOOR_OPENING_3:

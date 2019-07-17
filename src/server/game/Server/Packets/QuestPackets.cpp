@@ -146,6 +146,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << uint64(Info.AllowableRaces);
         _worldPacket << int32(Info.TreasurePickerID);
         _worldPacket << int32(Info.Expansion);
+        _worldPacket << int32(Info.ManagedWorldStateID);
 
         _worldPacket.WriteBits(Info.LogTitle.size(), 9);
         _worldPacket.WriteBits(Info.LogDescription.size(), 12);
@@ -649,12 +650,17 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::PlayerChoiceRespon
     data << int32(playerChoiceResponse.ChoiceArtFileID);
     data << int32(playerChoiceResponse.Flags);
     data << uint32(playerChoiceResponse.WidgetSetID);
+    data << uint32(playerChoiceResponse.UiTextureAtlasElementID);
+    data << uint32(playerChoiceResponse.SoundKitID);
     data << uint8(playerChoiceResponse.GroupID);
 
     data.WriteBits(playerChoiceResponse.Answer.length(), 9);
     data.WriteBits(playerChoiceResponse.Header.length(), 9);
+    data.WriteBits(playerChoiceResponse.SubHeader.length() , 7);
+    data.WriteBits(playerChoiceResponse.ButtonTooltip.length(), 9);
     data.WriteBits(playerChoiceResponse.Description.length(), 11);
     data.WriteBits(playerChoiceResponse.Confirmation.length(), 7);
+    data.WriteBit(playerChoiceResponse.RewardQuestID.is_initialized());
     data.WriteBit(playerChoiceResponse.Reward.is_initialized());
     data.FlushBits();
 
@@ -663,8 +669,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::PlayerChoiceRespon
 
     data.WriteString(playerChoiceResponse.Answer);
     data.WriteString(playerChoiceResponse.Header);
+    data.WriteString(playerChoiceResponse.SubHeader);
+    data.WriteString(playerChoiceResponse.ButtonTooltip);
     data.WriteString(playerChoiceResponse.Description);
     data.WriteString(playerChoiceResponse.Confirmation);
+
+    if (playerChoiceResponse.RewardQuestID)
+        data << uint32(*playerChoiceResponse.RewardQuestID);
+
     return data;
 }
 
@@ -674,6 +686,7 @@ WorldPacket const* WorldPackets::Quest::DisplayPlayerChoice::Write()
     _worldPacket << uint32(Responses.size());
     _worldPacket << SenderGUID;
     _worldPacket << int32(UiTextureKitID);
+    _worldPacket << uint32(SoundKitID);
     _worldPacket.WriteBits(Question.length(), 8);
     _worldPacket.WriteBit(CloseChoiceFrame);
     _worldPacket.WriteBit(HideWarboardHeader);

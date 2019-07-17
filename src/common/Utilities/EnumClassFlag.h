@@ -39,7 +39,7 @@ public:
         return left &= right;
     }
 
-    EnumClassFlag operator|=(EnumClassFlag right)
+    EnumClassFlag& operator|=(EnumClassFlag right)
     {
         _value = static_cast<T>(static_cast<std::underlying_type_t<T>>(_value) | static_cast<std::underlying_type_t<T>>(right._value));
         return *this;

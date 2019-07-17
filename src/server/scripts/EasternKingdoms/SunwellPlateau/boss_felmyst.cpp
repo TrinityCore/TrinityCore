@@ -147,8 +147,8 @@ public:
             events.Reset();
 
             me->SetDisableGravity(true);
-            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+            me->SetBoundingRadius(10);
+            me->SetCombatReach(10);
 
             DespawnSummons(NPC_VAPOR_TRAIL);
             me->setActive(false);
@@ -526,7 +526,7 @@ public:
     {
         npc_felmyst_vaporAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetSpeedRate(MOVE_RUN, 0.8f);
         }
 
@@ -560,10 +560,10 @@ public:
     {
         npc_felmyst_trailAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             DoCast(me, SPELL_TRAIL_TRIGGER, true);
             me->SetTarget(me->GetGUID());
-            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 0.01f); // core bug
+            me->SetBoundingRadius(0.01f); // core bug
         }
 
         void Reset() override { }

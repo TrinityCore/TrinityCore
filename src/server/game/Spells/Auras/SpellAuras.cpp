@@ -801,7 +801,7 @@ void Aura::RefreshDuration(bool withMods)
         int32 duration = m_spellInfo->GetMaxDuration();
         // Calculate duration of periodics affected by haste.
         if (caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, m_spellInfo) || m_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
-            duration = int32(duration * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
+            duration = int32(duration * caster->m_unitData->ModCastingSpeed);
 
         SetMaxDuration(duration);
         SetDuration(duration);

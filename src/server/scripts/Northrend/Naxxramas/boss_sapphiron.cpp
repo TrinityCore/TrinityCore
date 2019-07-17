@@ -125,7 +125,7 @@ class boss_sapphiron : public CreatureScript
                 if (!instance->GetData(DATA_HAD_SAPPHIRON_BIRTH))
                 {
                     me->SetVisible(false);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_PASSIVE);
                 }
 
@@ -362,7 +362,7 @@ class boss_sapphiron : public CreatureScript
                                 return;
                             case EVENT_BIRTH:
                                 me->SetVisible(true);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 return;
                         }

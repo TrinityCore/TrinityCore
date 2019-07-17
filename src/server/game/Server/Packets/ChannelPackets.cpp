@@ -65,7 +65,7 @@ WorldPacket const* WorldPackets::Channel::ChannelNotify::Write()
 WorldPacket const* WorldPackets::Channel::ChannelNotifyJoined::Write()
 {
     _worldPacket.WriteBits(_Channel.length(), 7);
-    _worldPacket.WriteBits(ChannelWelcomeMsg.length(), 10);
+    _worldPacket.WriteBits(ChannelWelcomeMsg.length(), 11);
     _worldPacket << uint32(_ChannelFlags);
     _worldPacket << int32(ChatChannelID);
     _worldPacket << uint64(InstanceID);

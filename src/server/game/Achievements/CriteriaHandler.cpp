@@ -657,7 +657,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
                 SetCriteriaProgress(criteria, referencePlayer->GetReputationMgr().GetVisibleFactionCount(), referencePlayer);
                 break;
             case CRITERIA_TYPE_EARN_HONORABLE_KILL:
-                SetCriteriaProgress(criteria, referencePlayer->GetUInt32Value(ACTIVE_PLAYER_FIELD_LIFETIME_HONORABLE_KILLS), referencePlayer);
+                SetCriteriaProgress(criteria, referencePlayer->m_activePlayerData->LifetimeHonorableKills, referencePlayer);
                 break;
             case CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED:
                 SetCriteriaProgress(criteria, referencePlayer->GetMoney(), referencePlayer, PROGRESS_HIGHEST);
@@ -1445,12 +1445,12 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 if (area->AreaBit < 0)
                     continue;
 
-                uint16 playerIndexOffset = uint16(uint32(area->AreaBit) / 32);
+                uint16 playerIndexOffset = uint16(uint32(area->AreaBit) / 64);
                 if (playerIndexOffset >= PLAYER_EXPLORED_ZONES_SIZE)
                     continue;
 
-                uint32 mask = 1 << (uint32(area->AreaBit) % 32);
-                if (referencePlayer->GetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + playerIndexOffset) & mask)
+                uint64 mask = uint64(1) << (area->AreaBit % 64);
+                if (referencePlayer->m_activePlayerData->ExploredZones[playerIndexOffset] & mask)
                 {
                     matchFound = true;
                     break;
@@ -1580,6 +1580,13 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
 
     switch (CriteriaAdditionalCondition(reqType))
     {
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_PLAYER_CONDITION: // 2
+        {
+            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(reqValue);
+            if (!playerCondition || !ConditionMgr::IsPlayerMeetingCondition(referencePlayer, playerCondition))
+                return false;
+            break;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL: // 3
         {
             // miscValue1 is itemid
@@ -1608,12 +1615,24 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
             if (!referencePlayer->HasAura(reqValue))
                 return false;
             break;
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_HAS_AURA_TYPE: // 9
+            if (!referencePlayer->HasAuraType(AuraType(reqValue)))
+                return false;
+            break;
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA: // 10
             if (!unit || !unit->HasAura(reqValue))
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA_TYPE: // 11
             if (!unit || !unit->HasAuraType(AuraType(reqValue)))
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_AURA_STATE: // 12
+            if (!referencePlayer->HasAuraState(AuraStateType(reqValue)))
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_TARGET_AURA_STATE: // 13
+            if (!unit || !unit->HasAuraState(AuraStateType(reqValue)))
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_MIN: // 14
@@ -1717,6 +1736,16 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
             if (!unit || unit->GetHealthPct() >= reqValue)
                 return false;
             break;
+        case CRITERIA_ADDITIONAL_CONDITION_TARGET_PLAYER_CONDITION: // 55
+        {
+            if (!unit || !unit->IsPlayer())
+                return false;
+
+            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(reqValue);
+            if (!playerCondition || !ConditionMgr::IsPlayerMeetingCondition(unit->ToPlayer(), playerCondition))
+                return false;
+            break;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND_RATING: // 64
             if (referencePlayer->GetRBGPersonalRating() < reqValue)
                 return false;
@@ -1730,6 +1759,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
         }
         case CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES: // 91
             if (miscValue1 != reqValue)
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_REWARDED_QUEST: // 110
+            if (!referencePlayer->GetQuestRewardStatus(reqValue))
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_COMPLETED_QUEST: // 111
+            if (referencePlayer->GetQuestStatus(reqValue) != QUEST_STATUS_COMPLETE)
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY: // 144

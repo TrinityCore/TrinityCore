@@ -743,8 +743,6 @@ struct TC_GAME_API ItemTemplate
     uint32 GetPageText() const { return ExtendedData->PageID; }
     uint32 GetStartQuest() const { return ExtendedData->StartQuestID; }
     uint32 GetLockID() const { return ExtendedData->LockID; }
-    uint32 GetRandomProperty() const { return ExtendedData->RandomSelect; }
-    uint32 GetRandomSuffix() const { return ExtendedData->ItemRandomSuffixGroupID; }
     uint32 GetItemSet() const { return ExtendedData->ItemSet; }
     uint32 GetArea() const { return ExtendedData->ZoneBound; }
     uint32 GetMap() const { return ExtendedData->InstanceBound; }
@@ -771,6 +769,7 @@ struct TC_GAME_API ItemTemplate
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
     float SpellPPMRate;
+    uint32 RandomBonusListTemplateId;
     std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[3];  // one set for 1-40 level range and another for 41-109 and one for 110
     uint32 ItemSpecClassMask;
 
@@ -787,7 +786,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetSkill() const;
 
     bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
-    bool IsVellum() const { return GetClass() == ITEM_CLASS_TRADE_GOODS && GetSubClass() == ITEM_SUBCLASS_ENCHANTMENT; }
+    bool IsVellum() const { return GetFlags3() & ITEM_FLAG3_CAN_STORE_ENCHANTS; }
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
     bool IsCraftingReagent() const { return (GetFlags2() & ITEM_FLAG2_USED_IN_A_TRADESKILL) != 0; }
 

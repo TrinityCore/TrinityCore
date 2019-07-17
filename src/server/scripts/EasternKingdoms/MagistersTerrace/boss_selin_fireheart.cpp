@@ -87,7 +87,7 @@ class boss_selin_fireheart : public CreatureScript
                     if (!creature->IsAlive())
                         creature->Respawn();
 
-                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    creature->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 }
 
                 _Reset();
@@ -168,7 +168,7 @@ class boss_selin_fireheart : public CreatureScript
                     Unit* CrystalChosen = ObjectAccessor::GetUnit(*me, CrystalGUID);
                     if (CrystalChosen && CrystalChosen->IsAlive())
                     {
-                        CrystalChosen->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        CrystalChosen->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         CrystalChosen->CastSpell(me, SPELL_MANA_RAGE, true);
                         events.ScheduleEvent(EVENT_EMPOWER, 10000, PHASE_DRAIN);
                     }

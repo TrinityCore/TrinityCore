@@ -117,7 +117,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(Class, fields[29].GetUInt8()))
         SpecID = spec->ID;
 
-    LastLoginBuild = fields[30].GetUInt32();
+    LastLoginVersion = fields[30].GetUInt32();
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
@@ -172,7 +172,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharacters
     data << uint32(charInfo.LastPlayedTime);
     data << uint16(charInfo.SpecID);
     data << uint32(charInfo.Unknown703);
-    data << uint32(charInfo.LastLoginBuild);
+    data << uint32(charInfo.LastLoginVersion);
     data << uint32(charInfo.Flags4);
     data.WriteBits(charInfo.Name.length(), 6);
     data.WriteBit(charInfo.FirstLogin);
@@ -196,6 +196,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharacters
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharactersResult::UnlockedConditionalAppearance const& unlockedConditionalAppearance)
+{
+    data << int32(unlockedConditionalAppearance.AchievementID);
+    data << int32(unlockedConditionalAppearance.Unused);
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
 {
     _worldPacket.reserve(9 + Characters.size() * sizeof(CharacterInfo) + RaceUnlockData.size() * sizeof(RaceUnlock));
@@ -210,9 +218,13 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
     _worldPacket << uint32(Characters.size());
     _worldPacket << int32(MaxCharacterLevel);
     _worldPacket << uint32(RaceUnlockData.size());
+    _worldPacket << uint32(UnlockedConditionalAppearances.size());
 
     if (DisabledClassesMask)
         _worldPacket << uint32(*DisabledClassesMask);
+
+    for (UnlockedConditionalAppearance const& unlockedConditionalAppearance : UnlockedConditionalAppearances)
+        _worldPacket << unlockedConditionalAppearance;
 
     for (CharacterInfo const& charInfo : Characters)
         _worldPacket << charInfo;

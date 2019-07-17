@@ -424,23 +424,9 @@ void Map::ScriptsProcess()
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
                 {
                     if (step.script->Emote.Flags & SF_EMOTE_USE_STATE)
-                        cSource->SetUInt32Value(UNIT_NPC_EMOTESTATE, step.script->Emote.EmoteID);
+                        cSource->SetEmoteState(Emote(step.script->Emote.EmoteID));
                     else
                         cSource->HandleEmoteCommand(step.script->Emote.EmoteID);
-                }
-                break;
-
-            case SCRIPT_COMMAND_FIELD_SET:
-                // Source or target must be Creature.
-                if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
-                {
-                    // Validate field number.
-                    if (step.script->FieldSet.FieldID <= OBJECT_FIELD_ENTRY || step.script->FieldSet.FieldID >= cSource->GetValuesCount())
-                        TC_LOG_ERROR("scripts", "%s wrong field %u (max count: %u) in object (TypeId: %u, %s) specified, skipping.",
-                            step.script->GetDebugInfo().c_str(), step.script->FieldSet.FieldID,
-                            cSource->GetValuesCount(), cSource->GetTypeId(), cSource->GetGUID().ToString().c_str());
-                    else
-                        cSource->SetUInt32Value(step.script->FieldSet.FieldID, step.script->FieldSet.FieldValue);
                 }
                 break;
 
@@ -456,38 +442,6 @@ void Map::ScriptsProcess()
                     }
                     else
                         unit->NearTeleportTo(step.script->MoveTo.DestX, step.script->MoveTo.DestY, step.script->MoveTo.DestZ, unit->GetOrientation());
-                }
-                break;
-
-            case SCRIPT_COMMAND_FLAG_SET:
-                // Source or target must be Creature.
-                if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
-                {
-                    // Validate field number.
-                    if (step.script->FlagToggle.FieldID <= OBJECT_FIELD_ENTRY || step.script->FlagToggle.FieldID >= cSource->GetValuesCount())
-                    {
-                        TC_LOG_ERROR("scripts", "%s wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, %s) specified, skipping.",
-                            step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID,
-                            cSource->GetValuesCount(), cSource->GetTypeId(), cSource->GetEntry(), cSource->GetGUID().ToString().c_str());
-                    }
-                    else
-                        cSource->SetFlag(step.script->FlagToggle.FieldID, step.script->FlagToggle.FieldValue);
-                }
-                break;
-
-            case SCRIPT_COMMAND_FLAG_REMOVE:
-                // Source or target must be Creature.
-                if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
-                {
-                    // Validate field number.
-                    if (step.script->FlagToggle.FieldID <= OBJECT_FIELD_ENTRY || step.script->FlagToggle.FieldID >= cSource->GetValuesCount())
-                    {
-                        TC_LOG_ERROR("scripts", "%s wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, %s) specified, skipping.",
-                            step.script->GetDebugInfo().c_str(), step.script->FlagToggle.FieldID,
-                            cSource->GetValuesCount(), cSource->GetTypeId(), cSource->GetEntry(), cSource->GetGUID().ToString().c_str());
-                    }
-                    else
-                        cSource->RemoveFlag(step.script->FlagToggle.FieldID, step.script->FlagToggle.FieldValue);
                 }
                 break;
 

@@ -174,7 +174,7 @@ public:
                 {
                     DoCast(ancestor, SPELL_CHANNEL_YMIRON_TO_SPIRIT);
                     ancestor->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
-                    ancestor->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    ancestor->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                     ancestor->SetDisableGravity(true);
                     ActiveAncestorGUID = ancestor->GetGUID();
                 }

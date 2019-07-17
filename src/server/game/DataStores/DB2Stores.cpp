@@ -79,6 +79,7 @@ DB2Storage<ChrSpecializationEntry>              sChrSpecializationStore("ChrSpec
 DB2Storage<CinematicCameraEntry>                sCinematicCameraStore("CinematicCamera.db2", CinematicCameraLoadInfo::Instance());
 DB2Storage<CinematicSequencesEntry>             sCinematicSequencesStore("CinematicSequences.db2", CinematicSequencesLoadInfo::Instance());
 DB2Storage<ContentTuningEntry>                  sContentTuningStore("ContentTuning.db2", ContentTuningLoadInfo::Instance());
+DB2Storage<ContentTuningXExpectedEntry>         sContentTuningXExpectedStore("ContentTuningXExpected.db2", ContentTuningXExpectedLoadInfo::Instance());
 DB2Storage<ConversationLineEntry>               sConversationLineStore("ConversationLine.db2", ConversationLineLoadInfo::Instance());
 DB2Storage<CreatureDisplayInfoEntry>            sCreatureDisplayInfoStoreRaw("CreatureDisplayInfo.db2", CreatureDisplayInfoLoadInfo::Instance());
 CreatureDisplayInfoStore                        sCreatureDisplayInfoStore;
@@ -159,8 +160,6 @@ DB2Storage<ItemLimitCategoryEntry>              sItemLimitCategoryStore("ItemLim
 DB2Storage<ItemLimitCategoryConditionEntry>     sItemLimitCategoryConditionStore("ItemLimitCategoryCondition.db2", ItemLimitCategoryConditionLoadInfo::Instance());
 DB2Storage<ItemModifiedAppearanceEntry>         sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", ItemModifiedAppearanceLoadInfo::Instance());
 DB2Storage<ItemPriceBaseEntry>                  sItemPriceBaseStore("ItemPriceBase.db2", ItemPriceBaseLoadInfo::Instance());
-DB2Storage<ItemRandomPropertiesEntry>           sItemRandomPropertiesStore("ItemRandomProperties.db2", ItemRandomPropertiesLoadInfo::Instance());
-DB2Storage<ItemRandomSuffixEntry>               sItemRandomSuffixStore("ItemRandomSuffix.db2", ItemRandomSuffixLoadInfo::Instance());
 DB2Storage<ItemSearchNameEntry>                 sItemSearchNameStore("ItemSearchName.db2", ItemSearchNameLoadInfo::Instance());
 DB2Storage<ItemSetEntry>                        sItemSetStore("ItemSet.db2", ItemSetLoadInfo::Instance());
 DB2Storage<ItemSetSpellEntry>                   sItemSetSpellStore("ItemSetSpell.db2", ItemSetSpellLoadInfo::Instance());
@@ -352,7 +351,8 @@ namespace
     };
 
     StorageMap _stores;
-    std::map<uint64, int32> _hotfixData;
+    uint32 _hotfixCount = 0;
+    DB2Manager::HotfixContainer _hotfixData;
     std::map<std::pair<uint32 /*tableHash*/, int32 /*recordId*/>, std::vector<uint8>> _hotfixBlob;
 
     AreaGroupMemberContainer _areaGroupMembers;
@@ -368,6 +368,7 @@ namespace
     CurvePointsContainer _curvePoints;
     EmotesTextSoundContainer _emoteTextSounds;
     std::unordered_map<std::pair<uint32 /*level*/, int32 /*expansion*/>, ExpectedStatEntry const*> _expectedStatsByLevel;
+    std::unordered_map<uint32 /*contentTuningId*/, std::vector<ExpectedStatModEntry const*>> _expectedStatModsByContentTuning;
     FactionTeamContainer _factionTeams;
     HeirloomItemsContainer _heirlooms;
     GlyphBindableSpellsContainer _glyphBindableSpells;
@@ -398,6 +399,7 @@ namespace
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
+    std::unordered_map<uint32, std::vector<SkillLineEntry const*>> _skillLinesByParentSkillLine;
     std::unordered_map<uint32, std::vector<SkillLineAbilityEntry const*>> _skillLineAbilitiesBySkillupSkill;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
     SpecializationSpellsContainer _specializationSpellsBySpec;
@@ -539,6 +541,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sCinematicCameraStore);
     LOAD_DB2(sCinematicSequencesStore);
     LOAD_DB2(sContentTuningStore);
+    LOAD_DB2(sContentTuningXExpectedStore);
     LOAD_DB2(sConversationLineStore);
     LOAD_DB2(sCreatureDisplayInfoStoreRaw);
     LOAD_DB2(sCreatureDisplayInfoExtraStore);
@@ -616,8 +619,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemLimitCategoryConditionStore);
     LOAD_DB2(sItemModifiedAppearanceStore);
     LOAD_DB2(sItemPriceBaseStore);
-    LOAD_DB2(sItemRandomPropertiesStore);
-    LOAD_DB2(sItemRandomSuffixStore);
     LOAD_DB2(sItemSearchNameStore);
     LOAD_DB2(sItemSetStore);
     LOAD_DB2(sItemSetSpellStore);
@@ -831,6 +832,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
             _defaultChrSpecializationsByClass[chrSpec->ClassID] = chrSpec;
     }
 
+    for (ContentTuningXExpectedEntry const* contentTuningXExpectedStat : sContentTuningXExpectedStore)
+        if (ExpectedStatModEntry const* expectedStatMod = sExpectedStatModStore.LookupEntry(contentTuningXExpectedStat->ExpectedStatModID))
+            _expectedStatModsByContentTuning[contentTuningXExpectedStat->ContentTuningID].push_back(expectedStatMod);
+
     for (CurvePointEntry const* curvePoint : sCurvePointStore)
         if (sCurveStore.LookupEntry(curvePoint->CurveID))
             _curvePoints[curvePoint->CurveID].push_back(curvePoint);
@@ -1030,6 +1035,10 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (RulesetItemUpgradeEntry const* rulesetItemUpgrade : sRulesetItemUpgradeStore)
         _rulesetItemUpgrade[rulesetItemUpgrade->ItemID] = rulesetItemUpgrade->ItemUpgradeID;
+
+    for (SkillLineEntry const* skill : sSkillLineStore)
+        if (skill->ParentSkillLineID)
+            _skillLinesByParentSkillLine[skill->ParentSkillLineID].push_back(skill);
 
     for (SkillLineAbilityEntry const* skillLineAbility : sSkillLineAbilityStore)
         _skillLineAbilitiesBySkillupSkill[skillLineAbility->SkillupSkillLineID ? skillLineAbility->SkillupSkillLineID : skillLineAbility->SkillLine].push_back(skillLineAbility);
@@ -1264,13 +1273,13 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(10048) ||                // last area added in 8.0.1 (28153)
-        !sCharTitlesStore.LookupEntry(633) ||                // last char title added in 8.0.1 (28153)
-        !sGemPropertiesStore.LookupEntry(3745) ||            // last gem property added in 8.0.1 (28153)
-        !sItemStore.LookupEntry(164760) ||                   // last item added in 8.0.1 (28153)
-        !sItemExtendedCostStore.LookupEntry(6448) ||         // last item extended cost added in 8.0.1 (28153)
-        !sMapStore.LookupEntry(2103) ||                      // last map added in 8.0.1 (28153)
-        !sSpellNameStore.LookupEntry(281872))                // last spell added in 8.0.1 (28153)
+    if (!sAreaTableStore.LookupEntry(10521) ||               // last area added in 8.1.5 (30706)
+        !sCharTitlesStore.LookupEntry(649) ||                // last char title added in 8.1.5 (30706)
+        !sGemPropertiesStore.LookupEntry(3746) ||            // last gem property added in 8.1.5 (30706)
+        !sItemStore.LookupEntry(168279) ||                   // last item added in 8.1.5 (30706)
+        !sItemExtendedCostStore.LookupEntry(6545) ||         // last item extended cost added in 8.1.5 (30706)
+        !sMapStore.LookupEntry(2178) ||                      // last map added in 8.1.5 (30706)
+        !sSpellNameStore.LookupEntry(296952))                // last spell added in 8.1.5 (30706)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
@@ -1308,7 +1317,7 @@ void DB2Manager::LoadHotfixData()
     {
         Field* fields = result->Fetch();
 
-        uint32 id = fields[0].GetUInt32();
+        int32 id = fields[0].GetInt32();
         uint32 tableHash = fields[1].GetUInt32();
         int32 recordId = fields[2].GetInt32();
         bool deleted = fields[3].GetBool();
@@ -1319,7 +1328,8 @@ void DB2Manager::LoadHotfixData()
         }
 
         _maxHotfixId = std::max(_maxHotfixId, id);
-        _hotfixData[MAKE_PAIR64(id, tableHash)] = recordId;
+        _hotfixData[id].emplace_back(tableHash, recordId);
+        ++_hotfixCount;
         deletedRecords[std::make_pair(tableHash, recordId)] = deleted;
         ++count;
     } while (result->NextRow());
@@ -1365,7 +1375,12 @@ void DB2Manager::LoadHotfixBlob()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " hotfix blob records in %u ms", _hotfixBlob.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-std::map<uint64, int32> const& DB2Manager::GetHotfixData() const
+uint32 DB2Manager::GetHotfixCount() const
+{
+    return _hotfixCount;
+}
+
+DB2Manager::HotfixContainer const& DB2Manager::GetHotfixData() const
 {
     return _hotfixData;
 }
@@ -1377,7 +1392,8 @@ std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
 {
-    _hotfixData[MAKE_PAIR64(tableHash, ++_maxHotfixId)] = recordId;
+    _hotfixData[++_maxHotfixId].emplace_back(tableHash, recordId);
+    ++_hotfixCount;
 }
 
 std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const
@@ -1720,72 +1736,93 @@ float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int3
     if (expectedStatItr == _expectedStatsByLevel.end())
         return 1.0f;
 
-    std::array<ExpectedStatModEntry const*, 3> mods;
-    mods.fill(nullptr);
-    if (ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId))
-    {
-        mods[0] = sExpectedStatModStore.LookupEntry(contentTuning->ExpectedStatModID);
-        mods[1] = sExpectedStatModStore.LookupEntry(contentTuning->DifficultyESMID);
-    }
-
+    ExpectedStatModEntry const* classMod = nullptr;
     switch (unitClass)
     {
         case CLASS_WARRIOR:
-            mods[2] = sExpectedStatModStore.LookupEntry(4);
+            classMod = sExpectedStatModStore.LookupEntry(4);
             break;
         case CLASS_PALADIN:
-            mods[2] = sExpectedStatModStore.LookupEntry(2);
+            classMod = sExpectedStatModStore.LookupEntry(2);
             break;
         case CLASS_ROGUE:
-            mods[2] = sExpectedStatModStore.LookupEntry(3);
+            classMod = sExpectedStatModStore.LookupEntry(3);
             break;
         case CLASS_MAGE:
-            mods[2] = sExpectedStatModStore.LookupEntry(1);
+            classMod = sExpectedStatModStore.LookupEntry(1);
             break;
         default:
             break;
     }
 
+    std::vector<ExpectedStatModEntry const*> const* contentTuningMods = Trinity::Containers::MapGetValuePtr(_expectedStatModsByContentTuning, contentTuningId);
     float value = 0.0f;
     switch (stat)
     {
         case ExpectedStatType::CreatureHealth:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureHealth,
-                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureHealthMod>());
+            value = expectedStatItr->second->CreatureHealth;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureHealthMod>());
+            if (classMod)
+                value *= classMod->CreatureHealthMod;
             break;
         case ExpectedStatType::PlayerHealth:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerHealth,
-                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerHealthMod>());
+            value = expectedStatItr->second->PlayerHealth;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerHealthMod>());
+            if (classMod)
+                value *= classMod->PlayerHealthMod;
             break;
         case ExpectedStatType::CreatureAutoAttackDps:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureAutoAttackDps,
-                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureAutoAttackDPSMod>());
+            value = expectedStatItr->second->CreatureAutoAttackDps;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureAutoAttackDPSMod>());
+            if (classMod)
+                value *= classMod->CreatureAutoAttackDPSMod;
             break;
         case ExpectedStatType::CreatureArmor:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureArmor,
-                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureArmorMod>());
+            value = expectedStatItr->second->CreatureArmor;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureArmorMod>());
+            if (classMod)
+                value *= classMod->CreatureArmorMod;
             break;
         case ExpectedStatType::PlayerMana:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerMana,
-                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerManaMod>());
+            value = expectedStatItr->second->PlayerMana;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerManaMod>());
+            if (classMod)
+                value *= classMod->PlayerManaMod;
             break;
         case ExpectedStatType::PlayerPrimaryStat:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerPrimaryStat,
-                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerPrimaryStatMod>());
+            value = expectedStatItr->second->PlayerPrimaryStat;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerPrimaryStatMod>());
+            if (classMod)
+                value *= classMod->PlayerPrimaryStatMod;
             break;
         case ExpectedStatType::PlayerSecondaryStat:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->PlayerSecondaryStat,
-                ExpectedStatModReducer<&ExpectedStatModEntry::PlayerSecondaryStatMod>());
+            value = expectedStatItr->second->PlayerSecondaryStat;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::PlayerSecondaryStatMod>());
+            if (classMod)
+                value *= classMod->PlayerSecondaryStatMod;
             break;
         case ExpectedStatType::ArmorConstant:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->ArmorConstant,
-                ExpectedStatModReducer<&ExpectedStatModEntry::ArmorConstantMod>());
+            value = expectedStatItr->second->ArmorConstant;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::ArmorConstantMod>());
+            if (classMod)
+                value *= classMod->ArmorConstantMod;
             break;
         case ExpectedStatType::None:
             break;
         case ExpectedStatType::CreatureSpellDamage:
-            value = std::accumulate(mods.begin(), mods.end(), expectedStatItr->second->CreatureSpellDamage,
-                ExpectedStatModReducer<&ExpectedStatModEntry::CreatureSpellDamageMod>());
+            value = expectedStatItr->second->CreatureSpellDamage;
+            if (contentTuningMods)
+                value *= std::accumulate(contentTuningMods->begin(), contentTuningMods->end(), 1.0f, ExpectedStatModReducer<&ExpectedStatModEntry::CreatureSpellDamageMod>());
+            if (classMod)
+                value *= classMod->CreatureSpellDamageMod;
             break;
         default:
             break;
@@ -2325,6 +2362,11 @@ uint32 DB2Manager::GetRulesetItemUpgrade(uint32 itemId) const
         return itr->second;
 
     return 0;
+}
+
+std::vector<SkillLineEntry const*> const* DB2Manager::GetSkillLinesForParentSkill(uint32 parentSkillId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_skillLinesByParentSkillLine, parentSkillId);
 }
 
 std::vector<SkillLineAbilityEntry const*> const* DB2Manager::GetSkillLineAbilitiesBySkill(uint32 skillId) const

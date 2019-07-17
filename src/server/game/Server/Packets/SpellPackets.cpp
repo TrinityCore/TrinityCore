@@ -171,7 +171,7 @@ ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellTargetData
 {
     buffer.ResetBitPos();
 
-    targetData.Flags = buffer.ReadBits(25);
+    targetData.Flags = buffer.ReadBits(26);
     bool hasSrcLocation = buffer.ReadBit();
     bool hasDstLocation = buffer.ReadBit();
     bool hasOrientation = buffer.ReadBit();
@@ -274,7 +274,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::TargetLocation co
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellTargetData const& spellTargetData)
 {
-    data.WriteBits(spellTargetData.Flags, 25);
+    data.WriteBits(spellTargetData.Flags, 26);
     data.WriteBit(spellTargetData.SrcLocation.is_initialized());
     data.WriteBit(spellTargetData.DstLocation.is_initialized());
     data.WriteBit(spellTargetData.Orientation.is_initialized());
@@ -309,6 +309,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellMissStatus c
         data.WriteBits(spellMissStatus.ReflectStatus, 4);
 
     data.FlushBits();
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHitStatus const& spellHitStatus)
+{
+    data << uint8(spellHitStatus.Reason);
     return data;
 }
 
@@ -377,22 +383,26 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << spellCastData.Predict;
     data.WriteBits(spellCastData.HitTargets.size(), 16);
     data.WriteBits(spellCastData.MissTargets.size(), 16);
+    data.WriteBits(spellCastData.HitStatus.size(), 16);
     data.WriteBits(spellCastData.MissStatus.size(), 16);
     data.WriteBits(spellCastData.RemainingPower.size(), 9);
     data.WriteBit(spellCastData.RemainingRunes.is_initialized());
     data.WriteBits(spellCastData.TargetPoints.size(), 16);
     data.FlushBits();
 
-    for (WorldPackets::Spells::SpellMissStatus const& status : spellCastData.MissStatus)
-        data << status;
+    for (WorldPackets::Spells::SpellMissStatus const& missStatus : spellCastData.MissStatus)
+        data << missStatus;
 
     data << spellCastData.Target;
 
-    for (ObjectGuid const& target : spellCastData.HitTargets)
-        data << target;
+    for (ObjectGuid const& hitTarget : spellCastData.HitTargets)
+        data << hitTarget;
 
-    for (ObjectGuid const& target : spellCastData.MissTargets)
-        data << target;
+    for (ObjectGuid const& missTarget : spellCastData.MissTargets)
+        data << missTarget;
+
+    for (WorldPackets::Spells::SpellHitStatus const& hitStatus : spellCastData.HitStatus)
+        data << hitStatus;
 
     for (WorldPackets::Spells::SpellPowerData const& power : spellCastData.RemainingPower)
         data << power;
@@ -717,8 +727,8 @@ WorldPacket const* WorldPackets::Spells::PlayOrphanSpellVisual::Write()
     _worldPacket << Target;
     _worldPacket << int32(SpellVisualID);
     _worldPacket << float(TravelSpeed);
-    _worldPacket << float(UnkZero);
-    _worldPacket << float(Unk801);
+    _worldPacket << float(LaunchDelay);
+    _worldPacket << float(MinDuration);
     _worldPacket.WriteBit(SpeedAsTime);
     _worldPacket.FlushBits();
 
@@ -729,14 +739,15 @@ WorldPacket const* WorldPackets::Spells::PlaySpellVisual::Write()
 {
     _worldPacket << Source;
     _worldPacket << Target;
-    _worldPacket << Unk801_1;
+    _worldPacket << Transport;
     _worldPacket << TargetPosition;
     _worldPacket << uint32(SpellVisualID);
     _worldPacket << float(TravelSpeed);
+    _worldPacket << uint16(HitReason);
     _worldPacket << uint16(MissReason);
     _worldPacket << uint16(ReflectStatus);
-    _worldPacket << float(Orientation);
-    _worldPacket << float(Unk801_2);
+    _worldPacket << float(LaunchDelay);
+    _worldPacket << float(MinDuration);
     _worldPacket.WriteBit(SpeedAsTime);
     _worldPacket.FlushBits();
 

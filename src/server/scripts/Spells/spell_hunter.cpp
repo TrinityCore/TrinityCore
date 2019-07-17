@@ -443,7 +443,7 @@ class spell_hun_masters_call : public SpellScriptLoader
 
                 // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
                 SpellCastResult result = SPELL_CAST_OK;
-                uint32 const unitflag = pet->GetUInt32Value(UNIT_FIELD_FLAGS);
+                uint32 const unitflag = pet->m_unitData->Flags;
                 if (!pet->GetCharmerGUID().IsEmpty())
                     result = SPELL_FAILED_CHARMED;
                 else if (unitflag & UNIT_FLAG_STUNNED)
@@ -510,7 +510,7 @@ class spell_hun_misdirection : public SpellScriptLoader
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_INTERRUPT)
                     return;
-                
+
                 if (!GetTarget()->HasAura(SPELL_HUNTER_MISDIRECTION_PROC))
                     GetTarget()->ResetRedirectThreat();
             }
@@ -590,7 +590,7 @@ class spell_hun_multi_shot : public SpellScriptLoader
             void HandleOnHit()
             {
                 // We need to check hunter's spec because it doesn't generate focus on other specs than MM
-                if (GetCaster()->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_HUNTER_MARKSMAN)
+                if (GetCaster()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_HUNTER_MARKSMAN)
                     GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
             }
 

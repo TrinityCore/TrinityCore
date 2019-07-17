@@ -89,14 +89,14 @@ public:
                         break;
                     case EVENT_ILLUSION:
                         DoCast(SPELL_ILLUSION);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisplayId(11686);  // Invisible Model
                         DoModifyThreatPercent(me->GetVictim(), -99);
                         events.ScheduleEvent(EVENT_SET_VISIBILITY, 3000);
                         events.ScheduleEvent(EVENT_ILLUSION, 25000);
                         break;
                     case EVENT_SET_VISIBILITY:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisplayId(11073);     //Jandice Model
                         break;
                     default:

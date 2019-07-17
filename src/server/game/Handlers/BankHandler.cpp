@@ -67,7 +67,7 @@ void WorldSession::HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet)
          if (Creature* creature = _player->GetMap()->GetCreature(packet.Unit))
              creature->SendMirrorSound(_player, 0);
  #endif
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_BANKER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
     if (!unit)
     {
         TC_LOG_ERROR("network", "WORLD: HandleBankerActivateOpcode - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());

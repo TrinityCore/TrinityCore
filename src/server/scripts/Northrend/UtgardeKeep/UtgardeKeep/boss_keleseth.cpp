@@ -264,10 +264,10 @@ class npc_vrykul_skeleton : public CreatureScript
 
                     // There are some issues with pets
                     // they will still attack. I would say it is a PetAI bug
-                    if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                    if (!me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                     {
                         // from sniffs
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->SetStandState(UNIT_STAND_STATE_DEAD);
 
                         events.Reset();
@@ -308,7 +308,7 @@ class npc_vrykul_skeleton : public CreatureScript
                         case EVENT_SHADOW_FISSURE:
                             DoCast(me, SPELL_SHADOW_FISSURE, true);
                             DoCastAOE(SPELL_BONE_ARMOR, true);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->GetMotionMaster()->MoveChase(me->GetVictim());
                             events.ScheduleEvent(EVENT_DECREPIFY, urand(4, 6) * IN_MILLISECONDS);
@@ -321,7 +321,7 @@ class npc_vrykul_skeleton : public CreatureScript
                         return;
                 }
 
-                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                if (!me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
                     DoMeleeAttackIfReady();
             }
 
