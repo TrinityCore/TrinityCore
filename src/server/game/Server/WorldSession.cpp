@@ -1096,8 +1096,7 @@ void WorldSession::SendAddonsInfo()
     for (Addons::SecureAddonInfo const& addonInfo : _addons.SecureAddons)
     {
         // fresh install, not yet created Interface\Addons\addon_name\addon_name.pub files
-        uint8 infoProvided = (addonInfo.Status == Addons::SecureAddonInfo::SECURE_HIDDEN && !addonInfo.HasKey)
-            || addonInfo.Status == Addons::SecureAddonInfo::SECURE_VISIBLE;
+        uint8 infoProvided = addonInfo.Status != Addons::SecureAddonInfo::BANNED || addonInfo.HasKey;
 
         data << uint8(addonInfo.Status);                            // Status
         data << uint8(infoProvided);                                // InfoProvided
