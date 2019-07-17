@@ -697,7 +697,7 @@ void BfGraveyard::Resurrect()
         if (!player)
             continue;
 
-        // Check  if the player is in world and on the good graveyard
+        // Check if the player is in world and on the good graveyard
         if (player->IsInWorld())
             if (Creature* spirit = m_Bf->GetCreature(m_SpiritGuide[m_ControlTeam]))
                 spirit->CastSpell(spirit, SPELL_SPIRIT_HEAL, true);

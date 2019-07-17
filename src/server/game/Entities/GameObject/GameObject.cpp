@@ -30,6 +30,8 @@
 #include "GroupMgr.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "Map.h"
+#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -557,7 +559,7 @@ void GameObject::Update(uint32 diff)
                                 SetRespawnTime(WEEK);
                             else
                                 m_respawnTime = (now > linkedRespawntime ? now : linkedRespawntime) + urand(5, MINUTE); // else copy time from master and add a little
-                            SaveRespawnTime(); // also save to DB immediately
+                            SaveRespawnTime();
                             return;
                         }
 
@@ -619,7 +621,7 @@ void GameObject::Update(uint32 diff)
 
             // Set respawn timer
             if (!m_respawnCompatibilityMode && m_respawnTime > 0)
-                SaveRespawnTime(0, false);
+                SaveRespawnTime();
 
             if (isSpawned())
             {
@@ -853,22 +855,13 @@ void GameObject::Update(uint32 diff)
 
             // if option not set then object will be saved at grid unload
             // Otherwise just save respawn time to map object memory
-            if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-                SaveRespawnTime();
+            SaveRespawnTime();
 
-            if (!m_respawnCompatibilityMode)
-            {
-                // Respawn time was just saved if set to save to DB
-                // If not, we save only to map memory
-                if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-                    SaveRespawnTime(0, false);
-
-                // Then despawn
+            if (m_respawnCompatibilityMode)
+                DestroyForNearbyPlayers();
+            else
                 AddObjectToRemoveList();
-                return;
-            }
 
-            DestroyForNearbyPlayers(); // old UpdateObjectVisibility()
             break;
         }
     }
@@ -1124,51 +1117,71 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     return true;
 }
 
-void GameObject::DeleteFromDB()
+/*static*/ bool GameObject::DeleteFromDB(ObjectGuid::LowType spawnId)
 {
-    GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId);
-    sObjectMgr->DeleteGameObjectData(m_spawnId);
+    GameObjectData const* data = sObjectMgr->GetGameObjectData(spawnId);
+    if (!data)
+        return false;
 
     SQLTransaction trans = WorldDatabase.BeginTransaction();
 
+    sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
+        [spawnId, trans](Map* map) -> void
+        {
+            // despawn all active objects, and remove their respawns
+            std::vector<GameObject*> toUnload;
+            for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetGameObjectBySpawnIdStore(), spawnId))
+                toUnload.push_back(pair.second);
+            for (GameObject* obj : toUnload)
+                map->AddObjectToRemoveList(obj);
+            map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, spawnId, trans);
+        }
+    );
+
+    // delete data from memory
+    sObjectMgr->DeleteGameObjectData(spawnId);
+
+    // ... and the database
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_SPAWNGROUP_MEMBER);
     stmt->setUInt8(0, uint8(SPAWN_TYPE_GAMEOBJECT));
-    stmt->setUInt32(1, m_spawnId);
+    stmt->setUInt32(1, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_EVENT_GAMEOBJECT);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_GO);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_CREATURE);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_GO);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_GO);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT_ADDON);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
+
+    return true;
 }
 
 /*********************************************************/
@@ -1226,18 +1239,22 @@ bool GameObject::IsDestructibleBuilding() const
     return gInfo->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING;
 }
 
-void GameObject::SaveRespawnTime(uint32 forceDelay, bool savetodb)
+void GameObject::SaveRespawnTime(uint32 forceDelay)
 {
     if (m_goData && (forceDelay || m_respawnTime > GameTime::GetGameTime()) && m_spawnedByDefault)
     {
         if (m_respawnCompatibilityMode)
         {
-            GetMap()->SaveRespawnTimeDB(SPAWN_TYPE_GAMEOBJECT, m_spawnId, m_respawnTime);
+            RespawnInfo ri;
+            ri.type = SPAWN_TYPE_GAMEOBJECT;
+            ri.spawnId = m_spawnId;
+            ri.respawnTime = m_respawnTime;
+            GetMap()->SaveRespawnInfoDB(ri);
             return;
         }
 
         uint32 thisRespawnTime = forceDelay ? GameTime::GetGameTime() + forceDelay : m_respawnTime;
-        GetMap()->SaveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, GetEntry(), thisRespawnTime, GetZoneId(), Trinity::ComputeGridCoord(GetPositionX(), GetPositionY()).GetId(), m_goData->dbData ? savetodb : false);
+        GetMap()->SaveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, GetEntry(), thisRespawnTime, GetZoneId(), Trinity::ComputeGridCoord(GetPositionX(), GetPositionY()).GetId());
     }
 }
 
@@ -1320,7 +1337,7 @@ void GameObject::Respawn()
     if (m_spawnedByDefault && m_respawnTime > 0)
     {
         m_respawnTime = GameTime::GetGameTime();
-        GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, true);
+        GetMap()->Respawn(SPAWN_TYPE_GAMEOBJECT, m_spawnId);
     }
 }
 

@@ -71,7 +71,6 @@ enum WorldTimers
 {
     WUPDATE_AUCTIONS,
     WUPDATE_AUCTIONS_PENDING,
-    WUPDATE_WEATHERS,
     WUPDATE_UPTIME,
     WUPDATE_CORPSES,
     WUPDATE_EVENTS,
@@ -109,7 +108,6 @@ enum WorldBoolConfigs
     CONFIG_GM_LOWER_SECURITY,
     CONFIG_SKILL_PROSPECTING,
     CONFIG_SKILL_MILLING,
-    CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY,
     CONFIG_WEATHER,
     CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL,
     CONFIG_QUEST_IGNORE_RAID,
@@ -526,11 +524,12 @@ enum RealmZone
 enum WorldStates
 {
     WS_ARENA_DISTRIBUTION_TIME  = 20001,                     // Next arena distribution time
-    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly reset time
+    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
     WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
     WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
     WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
-    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly reset time
+    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly quest reset time
+    WS_DAILY_QUEST_RESET_TIME   = 20008                      // Next daily quest reset time
 };
 
 /// Storage class for commands issued for delayed execution
@@ -762,8 +761,8 @@ class TC_GAME_API World
         void UpdateAreaDependentAuras();
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
-        void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
-        void   ResetEventSeasonalQuests(uint16 event_id);
+        void SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
+        void ResetEventSeasonalQuests(uint16 event_id);
 
         void ReloadRBAC();
 
@@ -881,6 +880,8 @@ class TC_GAME_API World
         bool _guidAlert;
         uint32 _warnDiff;
         time_t _warnShutdownTime;
+
+    friend class debug_commandscript;
 };
 
 TC_GAME_API extern Realm realm;

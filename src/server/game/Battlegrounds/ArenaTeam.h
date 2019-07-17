@@ -125,9 +125,9 @@ class TC_GAME_API ArenaTeam
 
         typedef std::list<ArenaTeamMember> MemberList;
 
-        uint32 GetId() const              { return TeamId; }
-        uint32 GetType() const            { return Type; }
-        uint8  GetSlot() const            { return GetSlotByType(GetType()); }
+        uint32 GetId() const { return TeamId; }
+        uint32 GetType() const { return Type; }
+        uint8 GetSlot() const { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
         ObjectGuid GetCaptain() const  { return CaptainGuid; }
         std::string const& GetName() const { return TeamName; }
@@ -141,10 +141,10 @@ class TC_GAME_API ArenaTeam
         bool AddMember(ObjectGuid PlayerGuid);
         void DelMember(ObjectGuid guid, bool cleanDb);
 
-        size_t GetMembersSize() const         { return Members.size(); }
-        bool   Empty() const                  { return Members.empty(); }
+        size_t GetMembersSize() const { return Members.size(); }
+        bool Empty() const { return Members.empty(); }
         MemberList::iterator m_membersBegin() { return Members.begin(); }
-        MemberList::iterator m_membersEnd()   { return Members.end(); }
+        MemberList::iterator m_membersEnd() { return Members.end(); }
         bool IsMember(ObjectGuid guid) const;
 
         ArenaTeamMember* GetMember(ObjectGuid guid);
@@ -169,14 +169,14 @@ class TC_GAME_API ArenaTeam
         void Inspect(WorldSession* session, ObjectGuid guid);
 
         uint32 GetPoints(uint32 MemberRating);
-        int32  GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
-        int32  GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
-        float  GetChanceAgainst(uint32 ownRating, uint32 opponentRating);
-        int32  WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
-        void   MemberWon(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange);
-        int32  LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
-        void   MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
-        void   OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
+        int32 GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
+        int32 GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
+        float GetChanceAgainst(uint32 ownRating, uint32 opponentRating);
+        int32 WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
+        void MemberWon(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange);
+        int32 LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
+        void MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
+        void OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
 
         void UpdateArenaPointsHelper(std::map<uint32, uint32> & PlayerPoints);
 
@@ -188,18 +188,18 @@ class TC_GAME_API ArenaTeam
 
     protected:
 
-        uint32      TeamId;
-        uint8       Type;
+        uint32 TeamId;
+        uint8 Type;
         std::string TeamName;
-        ObjectGuid  CaptainGuid;
+        ObjectGuid CaptainGuid;
 
         uint32 BackgroundColor; // ARGB format
-        uint8  EmblemStyle;     // icon id
+        uint8 EmblemStyle;      // icon id
         uint32 EmblemColor;     // ARGB format
-        uint8  BorderStyle;     // border image id
+        uint8 BorderStyle;      // border image id
         uint32 BorderColor;     // ARGB format
 
-        MemberList     Members;
+        MemberList Members;
         ArenaTeamStats Stats;
 
         uint32 PreviousOpponents;

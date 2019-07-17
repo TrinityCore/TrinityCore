@@ -1401,10 +1401,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zoneid = player->GetZoneId();
 
-        Weather* weather = WeatherMgr::FindWeather(zoneid);
-
-        if (!weather)
-            weather = WeatherMgr::AddWeather(zoneid);
+        Weather* weather = player->GetMap()->GetOrGenerateZoneDefaultWeather(zoneid);
         if (!weather)
         {
             handler->SendSysMessage(LANG_NO_WEATHER);
@@ -1911,7 +1908,7 @@ public:
             uint32 const gridId = Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId();
             for (RespawnInfo* info : data)
                 if (info->gridId == gridId)
-                    player->GetMap()->ForceRespawn(info->type, info->spawnId);
+                    player->GetMap()->Respawn(info->type, info->spawnId);
         }
 
         return true;

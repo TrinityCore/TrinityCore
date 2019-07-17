@@ -2,7 +2,7 @@ version: 2
 jobs:
   pch_and_sql:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-bionic
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-cosmic
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
@@ -43,7 +43,7 @@ jobs:
             ./worldserver --version
   nopch:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-bionic
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-cosmic
     steps:
       - run:
           name: Requirements

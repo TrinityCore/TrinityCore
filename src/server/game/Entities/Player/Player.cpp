@@ -83,6 +83,7 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "TicketMgr.h"
 #include "TradeData.h"
 #include "Trainer.h"
@@ -5105,7 +5106,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                 if (channelEntry->flags & CHANNEL_DBC_FLAG_CITY_ONLY && usedChannel)
                     continue;                            // Already on the channel, as city channel names are not changing
 
-                joinChannel = cMgr->GetJoinChannel(channelEntry->ChannelID, std::string(), current_zone);
+                joinChannel = cMgr->GetSystemChannel(channelEntry->ChannelID, current_zone);
                 if (usedChannel)
                 {
                     if (joinChannel != usedChannel)
@@ -5118,13 +5119,13 @@ void Player::UpdateLocalChannels(uint32 newZone)
                 }
             }
             else
-                joinChannel = cMgr->GetJoinChannel(channelEntry->ChannelID, std::string());
+                joinChannel = cMgr->GetSystemChannel(channelEntry->ChannelID);
         }
         else
             removeChannel = usedChannel;
 
         if (joinChannel)
-            joinChannel->JoinChannel(this, "");          // Changed Channel: ... or Joined Channel: ...
+            joinChannel->JoinChannel(this);          // Changed Channel: ... or Joined Channel: ...
 
         if (removeChannel)
         {
@@ -7062,13 +7063,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         return;
 
     if (sWorld->getBoolConfig(CONFIG_WEATHER))
-    {
-        if (Weather* weather = WeatherMgr::FindWeather(zone->ID))
-            weather->SendWeatherUpdateToPlayer(this);
-        else if (!WeatherMgr::AddWeather(zone->ID))
-            // send fine weather packet to remove old zone's weather
-            WeatherMgr::SendFineWeatherUpdateToPlayer(this);
-    }
+        GetMap()->GetOrGenerateZoneDefaultWeather(newZone);
+
+    GetMap()->SendZoneDynamicInfo(newZone, this);
+
 
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital
@@ -14821,12 +14819,20 @@ bool Player::CanCompleteRepeatableQuest(Quest const* quest)
 
 bool Player::CanRewardQuest(Quest const* quest, bool msg)
 {
+    // quest is disabled
+    if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this))
+        return false;
+
     // not auto complete quest and not completed quest (only cheating case, then ignore without message)
     if (!quest->IsDFQuest() && !quest->IsAutoComplete() && !(quest->GetFlags() & QUEST_FLAGS_AUTOCOMPLETE) && GetQuestStatus(quest->GetQuestId()) != QUEST_STATUS_COMPLETE)
         return false;
 
     // daily quest can't be rewarded (25 daily quest already completed)
-    if (!SatisfyQuestDay(quest, true) || !SatisfyQuestWeek(quest, true) || !SatisfyQuestMonth(quest, true) || !SatisfyQuestSeasonal(quest, true))
+    if (!SatisfyQuestDay(quest, msg) || !SatisfyQuestWeek(quest, msg) || !SatisfyQuestMonth(quest, msg) || !SatisfyQuestSeasonal(quest, msg))
+        return false;
+
+    // player no longer satisfies the quest's requirements (skill level etc.)
+    if (!SatisfyQuestLevel(quest, msg) || !SatisfyQuestSkill(quest, msg) || !SatisfyQuestReputation(quest, msg))
         return false;
 
     // rewarded and not repeatable quest (only cheating case, then ignore without message)
@@ -16299,7 +16305,6 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                     CompleteQuest(questid);
                 else if (q_status.ItemCount[j] == reqitemcount) // Send quest update when an objective is completed
                     UpdateVisibleGameobjectsOrSpellClicks();
-                return;
             }
         }
     }
@@ -17584,11 +17589,10 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // set value, including drunk invisibility detection
     // calculate sobering. after 15 minutes logged out, the player will be sober again
-    uint8 newDrunkValue = 0;
     if (time_diff < uint32(GetDrunkValue()) * 9)
-        newDrunkValue = GetDrunkValue() - time_diff / 9;
-
-    SetDrunkValue(newDrunkValue);
+        SetDrunkValue(GetDrunkValue() - time_diff / 9);
+    else
+        SetDrunkValue(0);
 
     m_cinematic = fields[23].GetUInt8();
     m_Played_time[PLAYED_TIME_TOTAL] = fields[24].GetUInt32();
@@ -17820,6 +17824,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
                 break;
         }
     }
+
+    InitPvP();
 
     // RaF stuff.
     m_grantableLevels = fields[71].GetUInt8();
@@ -18719,12 +18725,10 @@ void Player::_LoadGroup(PreparedQueryResult result)
 
             uint8 subgroup = group->GetMemberGroup(GetGUID());
             SetGroup(group, subgroup);
-            if (GetLevel() >= LEVELREQUIREMENT_HEROIC)
-            {
-                // the group leader may change the instance difficulty while the player is offline
-                SetDungeonDifficulty(group->GetDungeonDifficulty());
-                SetRaidDifficulty(group->GetRaidDifficulty());
-            }
+
+            // Make sure the player's difficulty settings are always aligned with the group's settings in order to avoid issues when checking access requirements
+            SetDungeonDifficulty(group->GetDungeonDifficulty());
+            SetRaidDifficulty(group->GetRaidDifficulty());
         }
     }
 
@@ -20533,13 +20537,14 @@ void Player::ResetContestedPvP()
 
 void Player::UpdatePvPFlag(time_t currTime)
 {
-    if (!IsPvP())
-        return;
+    if (pvpInfo.EndTimer && pvpInfo.EndTimer <= currTime)
+    {
+        pvpInfo.EndTimer = 0;
+        RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER);
+    }
 
-    if (!pvpInfo.EndTimer || currTime < (pvpInfo.EndTimer + 300) || pvpInfo.IsHostile)
-        return;
-
-    UpdatePvP(false);
+    if (IsPvP() && !pvpInfo.IsHostile && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP | PLAYER_FLAGS_PVP_TIMER))
+        UpdatePvP(false);
 }
 
 void Player::UpdateDuelFlag(time_t currTime)
@@ -21846,6 +21851,18 @@ void Player::UpdateHomebindTime(uint32 time)
     }
 }
 
+void Player::InitPvP()
+{
+    if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP))
+        UpdatePvP(true, true);
+    else if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_PVP_TIMER))
+    {
+        UpdatePvP(true, true);
+        if (!pvpInfo.IsHostile)
+            pvpInfo.EndTimer = GameTime::GetGameTime() + 300;
+    }
+}
+
 void Player::UpdatePvPState(bool onlyFFA)
 {
     /// @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
@@ -21878,7 +21895,7 @@ void Player::UpdatePvPState(bool onlyFFA)
     else                                                    // in friendly area
     {
         if (IsPvP() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) && !pvpInfo.EndTimer)
-            pvpInfo.EndTimer = GameTime::GetGameTime();                  // start toggle-off
+            pvpInfo.EndTimer = GameTime::GetGameTime() + 300;                  // start toggle-off
     }
 }
 
@@ -21898,7 +21915,7 @@ void Player::UpdatePvP(bool state, bool _override)
     }
     else
     {
-        pvpInfo.EndTimer = GameTime::GetGameTime();
+        pvpInfo.EndTimer = GameTime::GetGameTime() + 300;
         SetPvP(state);
     }
 }
@@ -22193,20 +22210,13 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
 
 bool Player::CanJoinToBattleground(Battleground const* bg) const
 {
-    // check Deserter debuff
-    if (HasAura(26013))
-        return false;
+    uint32 perm = rbac::RBAC_PERM_JOIN_NORMAL_BG;
+    if (bg->isArena())
+        perm = rbac::RBAC_PERM_JOIN_ARENAS;
+    else if (bg->IsRandom())
+        perm = rbac::RBAC_PERM_JOIN_RANDOM_BG;
 
-    if (bg->isArena() && !GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_ARENAS))
-        return false;
-
-    if (bg->IsRandom() && !GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_RANDOM_BG))
-        return false;
-
-    if (!GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_NORMAL_BG))
-        return false;
-
-    return true;
+    return GetSession()->HasPermission(perm);
 }
 
 bool Player::CanReportAfkDueToLimit()
@@ -22528,13 +22538,6 @@ bool Player::ModifyMoney(int32 amount, bool sendError /*= true*/)
     return true;
 }
 
-bool Player::HasEnoughMoney(int32 amount) const
-{
-    if (amount > 0)
-        return (GetMoney() >= (uint32) amount);
-    return true;
-}
-
 void Player::SetMoney(uint32 value)
 {
     SetUInt32Value(PLAYER_FIELD_COINAGE, value);
@@ -22624,6 +22627,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_PET_GUIDS
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
+
+    ResyncRunes();
 
     SetMovedUnit(this);
 }
@@ -24543,46 +24548,73 @@ void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false
 
     m_runes->runes[index].Cooldown = cooldown;
     m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
+
+    ResyncRunes();
 }
 
 void Player::SetRuneConvertAura(uint8 index, AuraEffect const* aura)
 {
-    m_runes->runes[index].ConvertAura = aura;
+    m_runes->runes[index].ConvertAuras.insert(aura);
+}
+
+void Player::RemoveRuneConvertAura(uint8 index, AuraEffect const* aura)
+{
+    m_runes->runes[index].ConvertAuras.erase(aura);
 }
 
 void Player::AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura)
 {
-    SetRuneConvertAura(index, aura); ConvertRune(index, newType);
+    SetRuneConvertAura(index, aura);
+    ConvertRune(index, newType);
 }
 
 void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
 {
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    for (uint8 itr = 0; itr < MAX_RUNES; ++itr)
     {
-        if (m_runes->runes[i].ConvertAura == aura)
-        {
-            ConvertRune(i, GetBaseRune(i));
-            SetRuneConvertAura(i, nullptr);
-        }
+        RemoveRuneConvertAura(itr, aura);
+
+        if (m_runes->runes[itr].ConvertAuras.empty())
+            ConvertRune(itr, GetBaseRune(itr));
     }
 }
 
 void Player::RestoreBaseRune(uint8 index)
 {
-    AuraEffect const* aura = m_runes->runes[index].ConvertAura;
-    // If rune was converted by a non-passive aura that still active we should keep it converted
-    if (aura && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PASSIVE))
+    std::unordered_set<AuraEffect const*>& auras = m_runes->runes[index].ConvertAuras;
+
+    AuraEffect const* aura = nullptr;
+    for (auto itr = auras.begin(); itr != auras.end() && !aura;)
+    {
+        if (AuraEffect const* temp = *itr)
+        {
+            if (temp->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PASSIVE))
+            {
+                aura = temp;
+                auras.erase(itr);
+            }
+            else
+                ++itr;
+        }
+        else
+            itr = auras.erase(itr);
+    }
+
+    if (!auras.empty())
         return;
+
     ConvertRune(index, GetBaseRune(index));
-    SetRuneConvertAura(index, nullptr);
+
     // Don't drop passive talents providing rune convertion
     if (!aura || aura->GetAuraType() != SPELL_AURA_CONVERT_RUNE)
         return;
-    for (uint8 i = 0; i < MAX_RUNES; ++i)
+
+    for (uint8 itr = 0; itr < MAX_RUNES; ++itr)
     {
-        if (aura == m_runes->runes[i].ConvertAura)
+        if (m_runes->runes[itr].ConvertAuras.find(aura) != m_runes->runes[itr].ConvertAuras.end())
             return;
     }
+
     aura->GetBase()->Remove();
 }
 
@@ -24596,16 +24628,21 @@ void Player::ConvertRune(uint8 index, RuneType newType)
     SendDirectMessage(&data);
 }
 
-void Player::ResyncRunes(uint8 count) const
+void Player::ResyncRunes() const
 {
-    WorldPacket data(SMSG_RESYNC_RUNES, 4 + count * 2);
-    data << uint32(count);
-    for (uint32 i = 0; i < count; ++i)
+    if (GetClass() != CLASS_DEATH_KNIGHT)
+        return;
+
+    WorldPackets::Spells::ResyncRunes packet;
+    packet.Count = MAX_RUNES;
+    for (uint32 itr = 0; itr < MAX_RUNES; ++itr)
     {
-        data << uint8(GetCurrentRune(i));                   // rune type
-        data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
+        WorldPackets::Spells::ResyncRune resyncRune;
+        resyncRune.RuneType = GetCurrentRune(itr);
+        resyncRune.Cooldown = uint8(255) - uint8(GetRuneCooldown(itr) * uint32(255) / uint32(RUNE_BASE_COOLDOWN)); // cooldown time (0-255)
+        packet.Runes.emplace_back(resyncRune);
     }
-    SendDirectMessage(&data);
+    SendDirectMessage(packet.Write());
 }
 
 void Player::AddRunePower(uint8 index) const

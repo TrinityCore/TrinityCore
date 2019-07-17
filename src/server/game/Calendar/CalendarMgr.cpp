@@ -33,7 +33,9 @@ _status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }
 
 CalendarInvite::~CalendarInvite()
 {
-    sCalendarMgr->FreeInviteId(_inviteId);
+    // Free _inviteId only if it's a real invite and not just a pre-invite or guild announcement
+    if (_inviteId != 0 && _eventId != 0)
+        sCalendarMgr->FreeInviteId(_inviteId);
 }
 
 CalendarEvent::~CalendarEvent()

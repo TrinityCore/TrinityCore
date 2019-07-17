@@ -265,14 +265,14 @@ class FlaggedValuesArray32
             m_flags = 0;
         }
 
-        T_FLAGS  GetFlags() const { return m_flags; }
-        bool     HasFlag(FLAG_TYPE flag) const { return m_flags & (1 << flag); }
-        void     AddFlag(FLAG_TYPE flag) { m_flags |= (1 << flag); }
-        void     DelFlag(FLAG_TYPE flag) { m_flags &= ~(1 << flag); }
+        T_FLAGS GetFlags() const { return m_flags; }
+        bool HasFlag(FLAG_TYPE flag) const { return m_flags & (1 << flag); }
+        void AddFlag(FLAG_TYPE flag) { m_flags |= (1 << flag); }
+        void DelFlag(FLAG_TYPE flag) { m_flags &= ~(1 << flag); }
 
         T_VALUES GetValue(FLAG_TYPE flag) const { return m_values[flag]; }
-        void     SetValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] = value; }
-        void     AddValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] += value; }
+        void SetValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] = value; }
+        void AddValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] += value; }
 
     private:
         T_VALUES m_values[ARRAY_SIZE];
@@ -292,15 +292,15 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        void GetNearPoint2D(WorldObject const* searcher, float &x, float &y, float distance, float absAngle) const;
-        void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float distance2d, float absAngle) const;
-        void GetClosePoint(float &x, float &y, float &z, float size, float distance2d = 0, float relAngle = 0) const;
+        void GetNearPoint2D(WorldObject const* searcher, float& x, float& y, float distance, float absAngle) const;
+        void GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle) const;
+        void GetClosePoint(float& x, float& y, float& z, float size, float distance2d = 0, float relAngle = 0) const;
         void MovePosition(Position &pos, float dist, float angle);
         Position GetNearPosition(float dist, float angle);
         void MovePositionToFirstCollision(Position &pos, float dist, float angle);
         Position GetFirstCollisionPosition(float dist, float angle);
         Position GetRandomNearPosition(float radius);
-        void GetContactPoint(WorldObject const* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const;
+        void GetContactPoint(WorldObject const* obj, float& x, float& y, float& z, float distance2d = CONTACT_DISTANCE) const;
 
         virtual float GetCombatReach() const { return 0.0f; } // overridden (only) in Unit
         void UpdateGroundPositionZ(float x, float y, float &z) const;
@@ -373,7 +373,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         void SendObjectDeSpawnAnim(ObjectGuid guid);
 
-        virtual void SaveRespawnTime(uint32 /*forceDelay*/ = 0, bool /*saveToDB*/ = true) { }
         void AddObjectToRemoveList();
 
         float GetGridActivationRange() const;

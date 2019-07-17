@@ -147,7 +147,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
     if (owner->m_taxi.empty())
     {
         // update z position to ground and orientation for landing point
-        // this prevent cheating with landing  point at lags
+        // this prevent cheating with landing point at lags
         // when client side flight end early in comparison server side
         owner->StopMoving();
         float mapHeight = owner->GetMap()->GetHeight(_path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, _path[GetCurrentNode()]->LocZ);

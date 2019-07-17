@@ -110,10 +110,10 @@ class TC_GAME_API MailReceiver
         MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid);
     public:                                                 // Accessors
         Player* GetPlayer() const { return m_receiver; }
-        ObjectGuid::LowType  GetPlayerGUIDLow() const { return m_receiver_lowguid; }
+        ObjectGuid::LowType GetPlayerGUIDLow() const { return m_receiver_lowguid; }
     private:
         Player* m_receiver;
-        ObjectGuid::LowType  m_receiver_lowguid;
+        ObjectGuid::LowType m_receiver_lowguid;
 };
 
 class TC_GAME_API MailDraft

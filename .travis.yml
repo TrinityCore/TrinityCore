@@ -9,14 +9,10 @@ git:
 
 addons:
   apt:
+    sources:
+      - sourceline: 'ppa:mhier/libboost-latest'
     packages:
-      - libboost1.58-dev
-      - libboost-filesystem1.58-dev
-      - libboost-iostreams1.58-dev
-      - libboost-program-options1.58-dev
-      - libboost-regex1.58-dev
-      - libboost-system1.58-dev
-      - libboost-thread1.58-dev
+      - boost1.67
       - libssl-dev
       - libmysqlclient-dev
       - libreadline6-dev

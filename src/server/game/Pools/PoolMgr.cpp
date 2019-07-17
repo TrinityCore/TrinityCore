@@ -204,7 +204,7 @@ void PoolGroup<Creature>::Despawn1Object(ObjectGuid::LowType guid)
                 ++itr;
                 // For dynamic spawns, save respawn time here
                 if (!creature->GetRespawnCompatibilityMode())
-                    creature->SaveRespawnTime(0, false);
+                    creature->SaveRespawnTime();
                 creature->AddObjectToRemoveList();
             }
         }
@@ -230,7 +230,7 @@ void PoolGroup<GameObject>::Despawn1Object(ObjectGuid::LowType guid)
 
                 // For dynamic spawns, save respawn time here
                 if (!go->GetRespawnCompatibilityMode())
-                    go->SaveRespawnTime(0, false);
+                    go->SaveRespawnTime();
                 go->AddObjectToRemoveList();
             }
         }
@@ -605,12 +605,12 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 1       2         3
-        QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_creature");
+        //                                                 1      2            3
+        QueryResult result = WorldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 0");
 
         if (!result)
         {
-            TC_LOG_INFO("server.loading", ">> Loaded 0 creatures in  pools. DB table `pool_creature` is empty.");
+            TC_LOG_INFO("server.loading", ">> Loaded 0 creatures in pools. DB table `pool_creature` is empty.");
         }
         else
         {
@@ -662,12 +662,12 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 1        2         3
-        QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_gameobject");
+        //                                               1        2            3
+        QueryResult result = WorldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 1");
 
         if (!result)
         {
-            TC_LOG_INFO("server.loading", ">> Loaded 0 gameobjects in  pools. DB table `pool_gameobject` is empty.");
+            TC_LOG_INFO("server.loading", ">> Loaded 0 gameobjects in pools. DB table `pool_gameobject` is empty.");
         }
         else
         {
@@ -732,7 +732,7 @@ void PoolMgr::LoadFromDB()
         uint32 oldMSTime = getMSTime();
 
         //                                                  1        2            3
-        QueryResult result = WorldDatabase.Query("SELECT pool_id, mother_pool, chance FROM pool_pool");
+        QueryResult result = WorldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 2");
 
         if (!result)
         {
@@ -910,9 +910,9 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_pool.pool_id, pool_pool.mother_pool FROM pool_template"
+        QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_members.spawnId, pool_members.poolSpawnId FROM pool_template"
             " LEFT JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry"
-            " LEFT JOIN pool_pool ON pool_template.entry = pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
+            " LEFT JOIN pool_members ON pool_members.type = 2 AND pool_template.entry = pool_members.spawnId WHERE game_event_pool.pool_entry IS NULL");
 
         if (!result)
         {

@@ -4160,7 +4160,7 @@ void Spell::SendSpellGo()
         castFlags |= CAST_FLAG_PENDING;
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) || m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NEEDS_AMMO_DATA))
-        castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
+        castFlags |= CAST_FLAG_AMMO; // arrows/bullets visual
 
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsPet()))
@@ -4173,12 +4173,12 @@ void Spell::SendSpellGo()
         && m_spellInfo->PowerType == POWER_RUNE
         && !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST))
     {
-        castFlags |= CAST_FLAG_NO_GCD;                       // not needed, but Blizzard sends it
-        castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
+        castFlags |= CAST_FLAG_RUNE_LIST; // rune cooldowns list
     }
 
     if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
-        castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        castFlags |= CAST_FLAG_RUNE_LIST; // rune cooldowns list
 
     if (m_targets.HasTraj())
         castFlags |= CAST_FLAG_ADJUST_MISSILE;
@@ -4207,12 +4207,12 @@ void Spell::SendSpellGo()
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
         castData.RemainingPower = ASSERT_NOTNULL(m_caster->ToUnit())->GetPower(m_spellInfo->PowerType);
 
-    if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list
+    if (castFlags & CAST_FLAG_RUNE_LIST && !m_spellInfo->HasAura(SPELL_AURA_CONVERT_RUNE)) // rune cooldowns list
     {
         castData.RemainingRunes = boost::in_place();
 
         /// @todo There is a crash caused by a spell with CAST_FLAG_RUNE_LIST cast by a creature
-        //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
+        // The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
             uint8 runeMaskInitial = m_runesState;
@@ -6994,8 +6994,8 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
 
 void Spell::Delayed() // only called in DealDamage()
 {
-    Unit* unitCaster = m_caster->ToUnit();
-    if (!unitCaster)
+    Player* playerCaster = m_caster->ToPlayer();
+    if (!playerCaster)
         return;
 
     // spells not losing casting time
@@ -7009,9 +7009,9 @@ void Spell::Delayed() // only called in DealDamage()
     int32 delaytime = 500;                                  // spellcasting delay is normally 500ms
 
     int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
-    if (Player* player = unitCaster->GetSpellModOwner())
+    if (Player* player = playerCaster->GetSpellModOwner())
         player->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
-    delayReduce += unitCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
+    delayReduce += playerCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
 
@@ -7026,16 +7026,16 @@ void Spell::Delayed() // only called in DealDamage()
         m_timer += delaytime;
 
     WorldPacket data(SMSG_SPELL_DELAYED, 8+4);
-    data << unitCaster->GetPackGUID();
+    data << playerCaster->GetPackGUID();
     data << uint32(delaytime);
 
-    unitCaster->SendMessageToSet(&data, true);
+    playerCaster->SendMessageToSet(&data, true);
 }
 
 void Spell::DelayedChannel()
 {
-    Unit* unitCaster = m_caster->ToUnit();
-    if (!unitCaster)
+    Player* playerCaster = m_caster->ToPlayer();
+    if (!playerCaster)
         return;
 
     if (m_spellState != SPELL_STATE_CASTING)
@@ -7055,9 +7055,9 @@ void Spell::DelayedChannel()
     int32 delaytime = CalculatePct(duration, 25); // channeling delay is normally 25% of its time per hit
 
     int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
-    if (Player* player = unitCaster->GetSpellModOwner())
+    if (Player* player = playerCaster->GetSpellModOwner())
         player->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
-    delayReduce += unitCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
+    delayReduce += playerCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
 
@@ -7073,11 +7073,11 @@ void Spell::DelayedChannel()
 
     for (TargetInfo const& targetInfo : m_UniqueTargetInfo)
         if (targetInfo.MissCondition == SPELL_MISS_NONE)
-            if (Unit* unit = (unitCaster->GetGUID() == targetInfo.TargetGUID) ? unitCaster : ObjectAccessor::GetUnit(*unitCaster, targetInfo.TargetGUID))
+            if (Unit* unit = (playerCaster->GetGUID() == targetInfo.TargetGUID) ? playerCaster : ObjectAccessor::GetUnit(*playerCaster, targetInfo.TargetGUID))
                 unit->DelayOwnedAuras(m_spellInfo->Id, m_originalCasterGUID, delaytime);
 
     // partially interrupt persistent area auras
-    if (DynamicObject* dynObj = unitCaster->GetDynObject(m_spellInfo->Id))
+    if (DynamicObject* dynObj = playerCaster->GetDynObject(m_spellInfo->Id))
         dynObj->Delay(delaytime);
 
     SendChannelUpdate(m_timer);

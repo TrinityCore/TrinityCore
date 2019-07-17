@@ -158,3 +158,14 @@ WorldPacket const* WorldPackets::Spells::SpellStart::Write()
     _worldPacket << Cast;
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
+{
+    _worldPacket << Count;
+    for (WorldPackets::Spells::ResyncRune const& rune : Runes)
+    {
+        _worldPacket << rune.RuneType;
+        _worldPacket << rune.Cooldown;
+    }
+    return &_worldPacket;
+}

@@ -2288,7 +2288,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 map = targets.front()->GetMap();
 
             if (map)
-                map->RemoveRespawnTime(SpawnObjectType(e.action.respawnData.spawnType), e.action.respawnData.spawnId, true);
+                map->Respawn(SpawnObjectType(e.action.respawnData.spawnType), e.action.respawnData.spawnId);
             else
                 TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u - tries to respawn by spawnId but does not provide a map", e.entryOrGuid, e.GetScriptType(), e.event_id);
             break;

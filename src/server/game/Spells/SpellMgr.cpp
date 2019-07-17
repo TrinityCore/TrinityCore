@@ -4036,7 +4036,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Summon Frigid Bones
     ApplySpellFix({ 53525 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->DurationEntry = spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 2 minutes
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 2 minutes
     });
 
     //
@@ -4887,6 +4887,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 17466, 17467 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+    
+    // Spore - Spore Visual
+    ApplySpellFix({ 42525 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
     });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)

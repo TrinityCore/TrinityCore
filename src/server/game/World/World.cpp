@@ -205,6 +205,25 @@ void World::SetClosed(bool val)
     sScriptMgr->OnOpenStateChange(!val);
 }
 
+void World::LoadDBAllowedSecurityLevel()
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
+    stmt->setInt32(0, int32(realm.Id.Realm));
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+    if (result)
+        SetPlayerSecurityLimit(AccountTypes(result->Fetch()->GetUInt8()));
+}
+
+void World::SetPlayerSecurityLimit(AccountTypes _sec)
+{
+    AccountTypes sec = _sec < SEC_CONSOLE ? _sec : SEC_PLAYER;
+    bool update = sec > m_allowedSecurityLevel;
+    m_allowedSecurityLevel = sec;
+    if (update)
+        KickAllLess(m_allowedSecurityLevel);
+}
+
 void World::TriggerGuidWarning()
 {
     // Lock this only to prevent multiple maps triggering at the same time
@@ -1053,13 +1072,6 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_MAX_OVERSPEED_PINGS] = 2;
     }
 
-    m_bool_configs[CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY] = sConfigMgr->GetBoolDefault("SaveRespawnTimeImmediately", true);
-    if (!m_bool_configs[CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY])
-    {
-        TC_LOG_WARN("server.loading", "SaveRespawnTimeImmediately triggers assertions when disabled, overridden to Enabled");
-        m_bool_configs[CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY] = true;
-    }
-
     m_bool_configs[CONFIG_WEATHER] = sConfigMgr->GetBoolDefault("ActivateWeather", true);
 
     m_int_configs[CONFIG_DISABLE_BREATHING] = sConfigMgr->GetIntDefault("DisableWaterBreath", SEC_CONSOLE);
@@ -1620,7 +1632,7 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Instance Template...");
     sObjectMgr->LoadInstanceTemplate();
 
-    // Must be called before `creature_respawn`/`gameobject_respawn` tables
+    // Must be called before `respawn` data
     TC_LOG_INFO("server.loading", "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
 
@@ -2050,7 +2062,6 @@ void World::SetInitialWorldSettings()
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
                             realm.Id.Realm, uint32(GameTime::GetStartTime()), GitRevision::GetFullVersion());       // One-time query
 
-    m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS_PENDING].SetInterval(250);
     m_timers[WUPDATE_UPTIME].SetInterval(m_int_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
@@ -2345,13 +2356,6 @@ void World::Update(uint32 diff)
     sWorldUpdateTime.RecordUpdateTimeReset();
     UpdateSessions(diff);
     sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
-
-    /// <li> Handle weather updates when the timer has passed
-    if (m_timers[WUPDATE_WEATHERS].Passed())
-    {
-        m_timers[WUPDATE_WEATHERS].Reset();
-        WeatherMgr::Update(uint32(m_timers[WUPDATE_WEATHERS].GetInterval()));
-    }
 
     /// <li> Update uptime table
     if (m_timers[WUPDATE_UPTIME].Passed())
@@ -3164,6 +3168,8 @@ void World::InitDailyQuestResetTime(bool loading)
         m_NextDailyQuestReset = mostRecentQuestTime;
     else // plan next reset time
         m_NextDailyQuestReset = (curTime >= curDayResetTime) ? curDayResetTime + DAY : curDayResetTime;
+
+    sWorld->setWorldState(WS_DAILY_QUEST_RESET_TIME, uint64(m_NextDailyQuestReset));
 }
 
 void World::InitMonthlyQuestResetTime()
@@ -3242,25 +3248,6 @@ void World::ResetDailyQuests()
 
     // change available dailies
     sPoolMgr->ChangeDailyQuests();
-}
-
-void World::LoadDBAllowedSecurityLevel()
-{
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST_SECURITY_LEVEL);
-    stmt->setInt32(0, int32(realm.Id.Realm));
-    PreparedQueryResult result = LoginDatabase.Query(stmt);
-
-    if (result)
-        SetPlayerSecurityLimit(AccountTypes(result->Fetch()->GetUInt8()));
-}
-
-void World::SetPlayerSecurityLimit(AccountTypes _sec)
-{
-    AccountTypes sec = _sec < SEC_CONSOLE ? _sec : SEC_PLAYER;
-    bool update = sec > m_allowedSecurityLevel;
-    m_allowedSecurityLevel = sec;
-    if (update)
-        KickAllLess(m_allowedSecurityLevel);
 }
 
 void World::ResetWeeklyQuests()

@@ -3448,14 +3448,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Brittle Armor - need remove one 24575 Brittle Armor aura
-                case 24590:
-                    unitTarget->RemoveAuraFromStack(24575);
-                    return;
-                // Mercurial Shield - need remove one 26464 Mercurial Shield aura
-                case 26465:
-                    unitTarget->RemoveAuraFromStack(26464);
-                    return;
                 // Shadow Flame (All script effects, not just end ones to prevent player from dodging the last triggered spell)
                 case 22539:
                 case 22972:
@@ -5060,28 +5052,6 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     uint32 count = damage;
     if (count == 0)
         count = 1;
-
-    // Blood Tap
-    if (m_spellInfo->Id == 45529 && count > 0)
-    {
-        for (uint32 l = 0; l + 1 < MAX_RUNES && count > 0; ++l)
-        {
-            // Check if both runes are on cd as that is the only time when this needs to come into effect
-            if ((player->GetRuneCooldown(l) && player->GetBaseRune(l) == RUNE_BLOOD) && (player->GetRuneCooldown(l + 1) && player->GetBaseRune(l + 1) == RUNE_BLOOD))
-            {
-                // Should always update the rune with the lowest cd
-                if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l + 1))
-                    ++l;
-
-                player->SetRuneCooldown(l, 0);
-                --count;
-                // is needed to push through to the client that the rune is active
-                player->ResyncRunes(MAX_RUNES);
-            }
-            else
-                break;
-        }
-    }
 
     for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
     {
