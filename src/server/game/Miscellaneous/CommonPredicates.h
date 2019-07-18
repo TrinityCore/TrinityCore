@@ -27,17 +27,42 @@ namespace Trinity
 {
     namespace Predicates
     {
-        /// Checks the given container for the attacker's current victim and either keeps it as only element or removes it
-        class TC_GAME_API UnitVictimCheck
+        /// Checks the given container elements for the attacker's current victim and removes it
+        class TC_GAME_API IsVictimOfAttacker
         {
             public:
-                UnitVictimCheck(Unit* attacker, bool keepVictim) : _attacker(attacker), _keepVictim(keepVictim) { }
+                IsVictimOfAttacker(Unit* attacker) : _attacker(attacker) { }
                 bool operator()(WorldObject* obj) const;
                 bool operator()(Unit* obj) const;
             private:
                 Unit* _attacker;
-                bool _keepVictim;
         };
+
+        template <typename PRED>
+        class TC_GAME_API Inverter
+        {
+            public:
+                Inverter(PRED&& p) : _child(std::move(p)) { }
+
+                template <typename... Args>
+                bool operator()(Args&&... args)
+                {
+                    return !_child(std::forward<Args>(args)...);
+                }
+
+                template <typename... Args>
+                bool operator()(Args&&... args) const
+                {
+                    return !_child(std::forward<Args>(args)...);
+                }
+
+            private:
+                PRED _child;
+        };
+
+        template <typename PRED>
+        /// Inverts the given predicate to return the opposite result
+        Inverter<PRED> Invert(PRED&& p) { return Inverter<PRED>(std::forward<PRED>(p)); }
     }
 }
 
