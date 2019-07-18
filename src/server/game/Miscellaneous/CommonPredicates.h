@@ -19,6 +19,7 @@
 #define TRINITY_COMMONPREDICATES_H
 
 #include "Define.h"
+#include <utility>
 
 class Unit;
 class WorldObject;
