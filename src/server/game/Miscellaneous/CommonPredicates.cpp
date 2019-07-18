@@ -20,13 +20,7 @@
 #include "Unit.h"
 #include "SharedDefines.h"
 
-bool Trinity::Predicates::IsVictimOf::operator()(Unit* unit) const
-{
-    return _attacker->GetVictim() && _attacker->GetVictim() == unit;
-}
-
-bool Trinity::Predicates::IsVictimOf::operator()(WorldObject* object) const
+bool Trinity::Predicates::IsVictimOf::operator()(WorldObject const* object) const
 {
     return _attacker->GetVictim() && _attacker->GetVictim() == object;
 }
-
