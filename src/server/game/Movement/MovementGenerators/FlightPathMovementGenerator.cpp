@@ -238,7 +238,7 @@ void FlightPathMovementGenerator::SetCurrentNodeAfterTeleport()
 
 void FlightPathMovementGenerator::DoEventIfAny(Player* owner, TaxiPathNodeEntry const* node, bool departure)
 {
-    ASSERT(node);
+    ASSERT(node, owner->GetDebugInfo().c_str());
 
     if (uint32 eventid = departure ? node->DepartureEventID : node->ArrivalEventID)
     {
