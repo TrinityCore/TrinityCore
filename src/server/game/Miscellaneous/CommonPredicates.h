@@ -33,7 +33,7 @@ namespace Trinity
         {
             public:
                 IsVictimOf(Unit const* attacker);
-                bool operator()(WorldObject const* obj) const {  return _victim == obj;  }
+                bool operator()(WorldObject const* obj) const { return obj && (_victim == obj); }
             private:
                 WorldObject const* _victim;
         };
