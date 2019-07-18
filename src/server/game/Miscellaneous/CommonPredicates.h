@@ -28,7 +28,7 @@ namespace Trinity
 {
     namespace Predicates
     {
-        /// Checks the given container's elements for the attacker's current victim and removes it
+        /// Returns true when the container's element is the given attacker's current victim
         class TC_GAME_API IsVictimOf
         {
             public:
