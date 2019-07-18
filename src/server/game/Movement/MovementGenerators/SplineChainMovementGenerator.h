@@ -47,7 +47,7 @@ class TC_GAME_API SplineChainMovementGenerator : public MovementGenerator
 
     private:
         void SendSplineFor(Unit* owner, uint32 index, uint32& duration);
-        uint32 SendPathSpline(Unit* owner, Movement::PointsArray const& path) const;
+        uint32 SendPathSpline(Unit* owner, float velocity, Movement::PointsArray const& path) const;
 
         uint32 const _id;
         std::vector<SplineChainLink> const& _chain;
