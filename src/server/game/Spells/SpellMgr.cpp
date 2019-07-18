@@ -5363,8 +5363,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 4;
     });
 
-    // Sonic Breath
-    ApplySpellFix({ 78075 }, [](SpellInfo* spellInfo)
+    // Roaring Flame Breath
+    ApplySpellFix({ 78207 }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
     });
@@ -5373,12 +5373,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 77782 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
-    });
-
-    // Sonic Flames
-    ApplySpellFix({ 78945 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_500_YARDS);
     });
 
     // END OF BLACKWING DESCENT SPELLS

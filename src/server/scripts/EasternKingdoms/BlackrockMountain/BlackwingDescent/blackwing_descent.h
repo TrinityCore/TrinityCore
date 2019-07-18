@@ -55,6 +55,7 @@ enum BWDDataTypes
 
     /*Atramedes*/
     DATA_ATHENAEUM_DOOR,
+    DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES
 };
 
 enum BWDCreatureIds
@@ -100,6 +101,7 @@ enum BWDCreatureIds
     NPC_SONAR_PULSE_BOMB                = 49623,
     NPC_TRACKING_FLAMES                 = 41879,
     NPC_REVERBERATING_FLAME             = 41962,
+    NPC_LORD_VICTOR_NEFARIUS_ATRAMEDES  = 49580,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST            = 43125,
@@ -136,12 +138,6 @@ enum BWDSpells
 
     // Column of Light
     SPELL_COLUMN_OF_LIGHT       = 95660
-};
-
-enum BWDSummonGroups
-{
-    SUMMON_GROUP_ATRAMEDES_INTRO            = 0,
-    SUMMON_GROUP_ANCIENT_DWARVEN_SHIELDS    = 1
 };
 
 template <class AI, class T>
