@@ -35,8 +35,8 @@ namespace Trinity
                 bool operator()(WorldObject* obj) const;
                 bool operator()(Unit* obj) const;
             private:
-                bool _keepVictim;
                 Unit* _attacker;
+                bool _keepVictim;
         };
     }
 }
