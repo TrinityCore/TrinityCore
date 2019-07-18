@@ -27,5 +27,6 @@ bool Trinity::Predicates::IsVictimOf::operator()(Unit* unit) const
 
 bool Trinity::Predicates::IsVictimOf::operator()(WorldObject* object) const
 {
-    return object->ToUnit() && _attacker->GetVictim() && _attacker->GetVictim() == object->ToUnit();
+    return _attacker->GetVictim() && _attacker->GetVictim() == object;
 }
+
