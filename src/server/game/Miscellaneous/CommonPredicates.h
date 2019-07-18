@@ -35,7 +35,7 @@ namespace Trinity
                 IsVictimOf(Unit const* attacker);
                 bool operator()(WorldObject const* obj) const {  return _victim == obj;  }
             private:
-                Unit const* _victim;
+                WorldObject const* _victim;
         };
 
         /// Only returns true when the object is in the given phase ID
