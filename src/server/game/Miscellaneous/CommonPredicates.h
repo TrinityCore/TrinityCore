@@ -29,10 +29,10 @@ namespace Trinity
     namespace Predicates
     {
         /// Checks the given container's elements for the attacker's current victim and removes it
-        class TC_GAME_API IsVictimOfAttacker
+        class TC_GAME_API IsVictimOf
         {
             public:
-                IsVictimOfAttacker(Unit* attacker) : _attacker(attacker) { }
+                IsVictimOf(Unit* attacker) : _attacker(attacker) { }
                 bool operator()(WorldObject* obj) const;
                 bool operator()(Unit* obj) const;
             private:
