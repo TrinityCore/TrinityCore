@@ -35,7 +35,7 @@ namespace Trinity
                 IsVictimOf(Unit const* attacker);
                 bool operator()(WorldObject const* obj) const { return obj && (_victim == obj); }
             private:
-                Unit const* _victim;
+                WorldObject const* _victim;
         };
 
         template <typename PRED>
