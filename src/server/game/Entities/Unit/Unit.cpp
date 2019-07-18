@@ -5863,11 +5863,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         }
 
         if (minion->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
-        {
-            if (AddGuidValue(UNIT_FIELD_SUMMON, minion->GetGUID()))
-            {
-            }
-        }
+            AddGuidValue(UNIT_FIELD_SUMMON, minion->GetGUID());
 
         if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
             SetCritterGUID(minion->GetGUID());
