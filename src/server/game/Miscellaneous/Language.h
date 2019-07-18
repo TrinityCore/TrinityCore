@@ -1047,8 +1047,8 @@ enum TrinityStrings
     LANG_LIST_RESPAWNS_ZONE               = 5078,
     LANG_LIST_RESPAWNS_LISTHEADER         = 5079,
     LANG_LIST_RESPAWNS_OVERDUE            = 5080,
-    LANG_LIST_RESPAWNS_CREATURES          = 5081,
-    LANG_LIST_RESPAWNS_GAMEOBJECTS        = 5082,
+    // unused 5081
+    // unused 5082
     LANG_OBJECTINFO_AITYPE                = 5083,
 
     // Room for more Trinity strings        5084-6603

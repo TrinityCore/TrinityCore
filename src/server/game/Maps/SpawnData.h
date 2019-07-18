@@ -20,12 +20,13 @@
 
 #include "Position.h"
 
+// EnumUtils: DESCRIBE THIS
 enum SpawnObjectType
 {
-    SPAWN_TYPE_CREATURE = 0,
-    SPAWN_TYPE_GAMEOBJECT = 1,
+    SPAWN_TYPE_CREATURE = 0,   // TITLE Creature
+    SPAWN_TYPE_GAMEOBJECT = 1, // TITLE Gameobject
 
-    SPAWN_TYPE_MAX
+    SPAWN_TYPE_MAX             // SKIP
 };
 
 enum SpawnObjectTypeMask
