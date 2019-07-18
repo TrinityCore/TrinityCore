@@ -16,6 +16,7 @@ http://rochet2.github.io/
 
 class Player;
 class GameObject;
+class PhaseShift;
 
 class TC_GAME_API GameObjectStore
 {
@@ -43,8 +44,8 @@ public:
 
     static void DeleteGameObject(GameObject* object);
     static GameObject* GetGameObject(Player* player, ObjectGuid::LowType lowguid);
-    static GameObject* SpawnGameObject(Player* player, float x, float y, float z, float o, std::set<uint32> p, uint32 entry);
-    static GameObject* MoveGameObject(Player* player, float x, float y, float z, float o, std::set<uint32> p, ObjectGuid::LowType lowguid);
+    static GameObject* SpawnGameObject(Player* player, float x, float y, float z, float o, PhaseShift const & p, PhaseShift const & sp, uint32 entry);
+    static GameObject* MoveGameObject(Player* player, float x, float y, float z, float o, PhaseShift const & p, PhaseShift const & sp, ObjectGuid::LowType lowguid);
     static std::list<GameObject*> GetNearbyGameObjects(Player* player, float range);
 };
 

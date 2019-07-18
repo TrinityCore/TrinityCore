@@ -16,6 +16,7 @@ http://rochet2.github.io/
 #include "MapManager.h"
 #include "Object.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "Position.h"
 #include "ScriptMgr.h"
@@ -36,7 +37,7 @@ void GOMove::SendAddonMessage(Player * player, const char * msg)
     if (!player || !msg)
         return;
 
-    player->WhisperAddon(msg, "GOMOVE", player);
+    player->WhisperAddon(msg, "GOMOVE", false, player);
 }
 
 GameObject * GOMove::GetGameObject(Player * player, ObjectGuid::LowType lowguid)
@@ -86,7 +87,7 @@ void GOMove::DeleteGameObject(GameObject * object)
     object->DeleteFromDB();
 }
 
-GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, float o, std::set<uint32> p, uint32 entry)
+GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, float o, PhaseShift const & p, PhaseShift const & sp, uint32 entry)
 {
     if (!player || !entry)
         return nullptr;
@@ -117,15 +118,12 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     if (!object)
         return nullptr;
 
-    // copy paste from WorldObject::CopyPhaseFrom(object, update)
-    bool update = false;
-    for (uint32 phase : p)
-        object->SetInPhase(phase, false, true);
-    if (update && object->IsInWorld())
-        object->UpdateObjectVisibility();
+    // copy paste from PhasingHandler::InheritPhaseShift(object, player)
+    object->GetPhaseShift() = p;
+    object->GetSuppressedPhaseShift() = sp;
 
     // fill the gameobject data and save to the db
-    object->SaveToDB(map->GetId(), UI64LIT(1) << map->GetSpawnMode());
+    object->SaveToDB(map->GetId(), { map->GetDifficultyID() });
     ObjectGuid::LowType spawnId = object->GetSpawnId();
 
     // delete the old object and do a clean load from DB with a fresh new GameObject instance.
@@ -144,7 +142,7 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     return object;
 }
 
-GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, float o, std::set<uint32> p, ObjectGuid::LowType lowguid)
+GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, float o, PhaseShift const & p, PhaseShift const & sp, ObjectGuid::LowType lowguid)
 {
     if (!player)
         return nullptr;
@@ -170,15 +168,10 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
     object->RelocateStationaryPosition(x, y, z, object->GetOrientation());
     object->GetMap()->GameObjectRelocation(object, x, y, z, object->GetOrientation());
 
-    // copy paste .gob phase command
-    // TODO multi phase support for 7.x
-    object->ClearPhases();
-    // copy paste from WorldObject::CopyPhaseFrom(object, update)
-    bool update = true;
-    for (uint32 phase : p)
-        object->SetInPhase(phase, false, true);
-    if (update && object->IsInWorld())
-        object->UpdateObjectVisibility();
+    //// copy paste .gob phase command
+    //// TODO multi phase support for 7.x
+    object->GetPhaseShift() = p;
+    object->GetSuppressedPhaseShift() = sp;
 
     object->SaveToDB();
 

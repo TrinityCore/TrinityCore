@@ -110,15 +110,16 @@ public:
                 {
                     float x, y, z, o;
                     target->GetPosition(x, y, z, o);
-                    std::set<uint32> p = target->GetPhases();
+                    auto p = target->GetPhaseShift();
+                    auto sp = target->GetSuppressedPhaseShift();
                     switch (ID)
                     {
                     case DELET: GOMove::DeleteGameObject(target); GOMove::SendRemove(player, lowguid); break;
-                    case X: GOMove::MoveGameObject(player, player->GetPositionX(), y, z, o, p, lowguid);       break;
-                    case Y: GOMove::MoveGameObject(player, x, player->GetPositionY(), z, o, p, lowguid);       break;
-                    case Z: GOMove::MoveGameObject(player, x, y, player->GetPositionZ(), o, p, lowguid);       break;
-                    case O: GOMove::MoveGameObject(player, x, y, z, player->GetOrientation(), p, lowguid);     break;
-                    case RESPAWN: GOMove::SpawnGameObject(player, x, y, z, o, p, target->GetEntry());                   break;
+                    case X: GOMove::MoveGameObject(player, player->GetPositionX(), y, z, o, p, sp, lowguid);       break;
+                    case Y: GOMove::MoveGameObject(player, x, player->GetPositionY(), z, o, p, sp, lowguid);       break;
+                    case Z: GOMove::MoveGameObject(player, x, y, player->GetPositionZ(), o, p, sp, lowguid);       break;
+                    case O: GOMove::MoveGameObject(player, x, y, z, player->GetOrientation(), p, sp, lowguid);     break;
+                    case RESPAWN: GOMove::SpawnGameObject(player, x, y, z, o, p, sp, target->GetEntry());                   break;
                     case GOTO:
                     {
                         // stop flight if need
@@ -134,15 +135,15 @@ public:
                     } break;
                     case GROUND:
                     {
-                        float ground = target->GetMap()->GetHeight(x, y, MAX_HEIGHT);
+                        float ground = target->GetMap()->GetHeight(target->GetPhaseShift(), x, y, MAX_HEIGHT);
                         if (ground != INVALID_HEIGHT)
-                            GOMove::MoveGameObject(player, x, y, ground, o, p, lowguid);
+                            GOMove::MoveGameObject(player, x, y, ground, o, p, sp, lowguid);
                     } break;
                     case FLOOR:
                     {
-                        float floor = target->GetMap()->GetHeight(x, y, z);
+                        float floor = target->GetMap()->GetHeight(target->GetPhaseShift(), x, y, z);
                         if (floor != INVALID_HEIGHT)
-                            GOMove::MoveGameObject(player, x, y, floor, o, p, lowguid);
+                            GOMove::MoveGameObject(player, x, y, floor, o, p, sp, lowguid);
                     } break;
                     }
                 }
@@ -187,22 +188,27 @@ public:
                 {
                     float x, y, z, o;
                     target->GetPosition(x, y, z, o);
-                    std::set<uint32> p = target->GetPhases();
+                    auto p = target->GetPhaseShift();
+                    auto sp = target->GetSuppressedPhaseShift();
                     switch (ID)
                     {
-                    case NORTH: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y, z, o, p, lowguid);                            break;
-                    case EAST: GOMove::MoveGameObject(player, x, y - ((float)ARG / 100), z, o, p, lowguid);                             break;
-                    case SOUTH: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y, z, o, p, lowguid);                            break;
-                    case WEST: GOMove::MoveGameObject(player, x, y + ((float)ARG / 100), z, o, p, lowguid);                             break;
-                    case NORTHEAST: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y - ((float)ARG / 100), z, o, p, lowguid);   break;
-                    case SOUTHEAST: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y - ((float)ARG / 100), z, o, p, lowguid);   break;
-                    case SOUTHWEST: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y + ((float)ARG / 100), z, o, p, lowguid);   break;
-                    case NORTHWEST: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y + ((float)ARG / 100), z, o, p, lowguid);   break;
-                    case UP: GOMove::MoveGameObject(player, x, y, z + ((float)ARG / 100), o, p, lowguid);                               break;
-                    case DOWN: GOMove::MoveGameObject(player, x, y, z - ((float)ARG / 100), o, p, lowguid);                             break;
-                    case RIGHT: GOMove::MoveGameObject(player, x, y, z, o - ((float)ARG / 100), p, lowguid);                            break;
-                    case LEFT: GOMove::MoveGameObject(player, x, y, z, o + ((float)ARG / 100), p, lowguid);                             break;
-                    case PHASE: GOMove::MoveGameObject(player, x, y, z, o, {ARG}, lowguid);                                               break;
+                    case NORTH: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y, z, o, p, sp, lowguid);                            break;
+                    case EAST: GOMove::MoveGameObject(player, x, y - ((float)ARG / 100), z, o, p, sp, lowguid);                             break;
+                    case SOUTH: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y, z, o, p, sp, lowguid);                            break;
+                    case WEST: GOMove::MoveGameObject(player, x, y + ((float)ARG / 100), z, o, p, sp, lowguid);                             break;
+                    case NORTHEAST: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y - ((float)ARG / 100), z, o, p, sp, lowguid);   break;
+                    case SOUTHEAST: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y - ((float)ARG / 100), z, o, p, sp, lowguid);   break;
+                    case SOUTHWEST: GOMove::MoveGameObject(player, x - ((float)ARG / 100), y + ((float)ARG / 100), z, o, p, sp, lowguid);   break;
+                    case NORTHWEST: GOMove::MoveGameObject(player, x + ((float)ARG / 100), y + ((float)ARG / 100), z, o, p, sp, lowguid);   break;
+                    case UP: GOMove::MoveGameObject(player, x, y, z + ((float)ARG / 100), o, p, sp, lowguid);                               break;
+                    case DOWN: GOMove::MoveGameObject(player, x, y, z - ((float)ARG / 100), o, p, sp, lowguid);                             break;
+                    case RIGHT: GOMove::MoveGameObject(player, x, y, z, o - ((float)ARG / 100), p, sp, lowguid);                            break;
+                    case LEFT: GOMove::MoveGameObject(player, x, y, z, o + ((float)ARG / 100), p, sp, lowguid);                             break;
+                    case PHASE:
+                        p.ClearPhases();
+                        p.AddPhase(ARG, PhaseFlags::None, nullptr);
+                        GOMove::MoveGameObject(player, x, y, z, o, p, sp, lowguid);
+                        break;
                     }
                 }
             }
@@ -212,7 +218,7 @@ public:
                 {
                 case SPAWN:
                 {
-                    if (GOMove::SpawnGameObject(player, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), player->GetPhases(), ARG))
+                    if (GOMove::SpawnGameObject(player, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), player->GetPhaseShift(), player->GetSuppressedPhaseShift(), ARG))
                         GOMove::Store.SpawnQueAdd(player->GetGUID(), ARG);
                 } break;
                 case SPAWNSPELL:
@@ -256,7 +262,7 @@ public:
             if (!summonPos)
                 return;
             if (uint32 entry = GOMove::Store.SpawnQueGet(player->GetGUID()))
-                GOMove::SpawnGameObject(player, summonPos->GetPositionX(), summonPos->GetPositionY(), summonPos->GetPositionZ(), player->GetOrientation(), player->GetPhases(), entry);
+                GOMove::SpawnGameObject(player, summonPos->GetPositionX(), summonPos->GetPositionY(), summonPos->GetPositionZ(), player->GetOrientation(), player->GetPhaseShift(), player->GetSuppressedPhaseShift(), entry);
         }
 
         void Register() override
