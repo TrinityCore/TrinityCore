@@ -31,11 +31,15 @@ namespace Trinity
         /// Returns true when the container's element is the given attacker's current victim
         class TC_GAME_API IsVictimOf
         {
-            public:
-                IsVictimOf(Unit const* attacker) : _victim(attacker ? attacker->GetVictim() : nullptr) { }
-                bool operator()(WorldObject const* obj) const;
-            private:
-                Unit const* _victim;
+        public:
+            IsVictimOf(Unit const* attacker);
+
+            bool operator()(WorldObject const* obj) const
+            {
+                return _victim == obj;
+            }
+        private:
+            Unit const* _victim;
         };
 
         template <typename PRED>
