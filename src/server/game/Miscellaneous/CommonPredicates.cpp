@@ -18,6 +18,12 @@
 #include "CommonPredicates.h"
 #include "Common.h"
 #include "Unit.h"
+#include "Object.h"
 #include "SharedDefines.h"
 
 Trinity::Predicates::IsVictimOf::IsVictimOf(Unit const* attacker) : _victim(attacker ? attacker->GetVictim() : nullptr) { }
+
+bool Trinity::Predicates::HasPhaseId::operator()(WorldObject const* obj) const
+{
+    return obj->GetPhaseShift().HasPhase(_phaseId);
+}

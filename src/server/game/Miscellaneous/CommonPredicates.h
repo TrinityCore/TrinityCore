@@ -28,18 +28,24 @@ namespace Trinity
 {
     namespace Predicates
     {
-        /// Returns true when the container's element is the given attacker's current victim
+        /// Only returns true for the given attacker's current victim, if any
         class TC_GAME_API IsVictimOf
         {
             public:
                 IsVictimOf(Unit const* attacker);
-
-                bool operator()(WorldObject const* obj) const
-                {
-                    return _victim == obj;
-                }
+                bool operator()(WorldObject const* obj) const {  return _victim == obj;  }
             private:
                 Unit const* _victim;
+        };
+
+        /// Only returns true when the object is in the given phase ID
+        class TC_GAME_API HasPhaseId
+        {
+            public:
+                HasPhaseId(uint32 const phaseId) : _phaseId(phaseId) { }
+                bool operator()(WorldObject const* obj) const;
+            private:
+                uint32 const _phaseId;
         };
 
         template <typename PRED>
