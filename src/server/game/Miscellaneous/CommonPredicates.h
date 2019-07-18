@@ -32,10 +32,10 @@ namespace Trinity
         class TC_GAME_API IsVictimOf
         {
             public:
-                IsVictimOf(Unit const* attacker) : _attacker(attacker) { }
+                IsVictimOf(Unit const* attacker) : _victim(attacker ? attacker->GetVictim() : nullptr) { }
                 bool operator()(WorldObject const* obj) const;
             private:
-                Unit const* _attacker;
+                Unit const* _victim;
         };
 
         template <typename PRED>
