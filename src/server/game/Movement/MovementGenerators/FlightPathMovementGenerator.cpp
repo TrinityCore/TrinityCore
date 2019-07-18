@@ -98,6 +98,8 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
         bool departureEvent = true;
         do
         {
+            ASSERT(_currentNode < _path.size(), "Point Id: %u\n%s", pointId, owner->GetDebugInfo().c_str());
+
             DoEventIfAny(owner, _path[_currentNode], departureEvent);
             while (!_pointsForPathSwitch.empty() && _pointsForPathSwitch.front().PathIndex <= _currentNode)
             {
