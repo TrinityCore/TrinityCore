@@ -22,5 +22,5 @@
 
 bool Trinity::Predicates::IsVictimOf::operator()(WorldObject const* object) const
 {
-    return _attacker && _attacker->GetVictim() == object;
+    return _victim == object;
 }
