@@ -691,52 +691,32 @@ public:
         if (*args)
             range = atoi((char*)args);
 
-        std::vector<RespawnInfo*> respawns;
         LocaleConstant locale = handler->GetSession()->GetSessionDbcLocale();
         char const* stringOverdue = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_OVERDUE, locale);
-        char const* stringCreature = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_CREATURES, locale);
-        char const* stringGameobject = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_GAMEOBJECTS, locale);
 
         uint32 zoneId = player->GetZoneId();
-        if (range)
-            handler->PSendSysMessage(LANG_LIST_RESPAWNS_RANGE, stringCreature, range);
-        else
-            handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, stringCreature, GetZoneName(zoneId, handler->GetSessionDbcLocale()), zoneId);
-        handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
-        map->GetRespawnInfo(respawns, SPAWN_TYPEMASK_CREATURE, range ? 0 : zoneId);
-        for (RespawnInfo* ri : respawns)
+        for (SpawnObjectType type : EnumUtils::Iterate<SpawnObjectType>())
         {
-            CreatureData const* data = sObjectMgr->GetCreatureData(ri->spawnId);
-            if (!data)
-                continue;
-            if (range && !player->IsInDist(data->spawnPoint, range))
-                continue;
-            uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
-            uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
+            if (range)
+                handler->PSendSysMessage(LANG_LIST_RESPAWNS_RANGE, EnumUtils::ToTitle(type), range);
+            else
+                handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, EnumUtils::ToTitle(type), GetZoneName(zoneId, locale), zoneId);
+            handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
+            std::vector<RespawnInfo*> respawns;
+            map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type), range ? 0 : zoneId);
+            for (RespawnInfo* ri : respawns)
+            {
+                SpawnData const* data = sObjectMgr->GetSpawnData(ri->type, ri->spawnId);
+                if (!data)
+                    continue;
+                if (range && !player->IsInDist(data->spawnPoint, range))
+                    continue;
+                uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
+                uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
 
-            std::string respawnTime = ri->respawnTime > GameTime::GetGameTime() ? secsToTimeString(uint64(ri->respawnTime - GameTime::GetGameTime()), true) : stringOverdue;
-            handler->PSendSysMessage("%u | %u | [%02u,%02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, handler->GetSessionDbcLocale()), ri->zoneId, respawnTime.c_str(), map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? "" : " (inactive)");
-        }
-
-        respawns.clear();
-        if (range)
-            handler->PSendSysMessage(LANG_LIST_RESPAWNS_RANGE, stringGameobject, range);
-        else
-            handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, stringGameobject, GetZoneName(zoneId, handler->GetSessionDbcLocale()), zoneId);
-        handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
-        map->GetRespawnInfo(respawns, SPAWN_TYPEMASK_GAMEOBJECT, range ? 0 : zoneId);
-        for (RespawnInfo* ri : respawns)
-        {
-            GameObjectData const* data = sObjectMgr->GetGameObjectData(ri->spawnId);
-            if (!data)
-                continue;
-            if (range && !player->IsInDist(data->spawnPoint, range))
-                continue;
-            uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
-            uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
-
-            std::string respawnTime = ri->respawnTime > GameTime::GetGameTime() ? secsToTimeString(uint64(ri->respawnTime - GameTime::GetGameTime()), true) : stringOverdue;
-            handler->PSendSysMessage("%u | %u | [% 02u, % 02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, handler->GetSessionDbcLocale()), ri->zoneId, respawnTime.c_str(), map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? "" : " (inactive)");
+                std::string respawnTime = ri->respawnTime > GameTime::GetGameTime() ? secsToTimeString(uint64(ri->respawnTime - GameTime::GetGameTime()), true) : stringOverdue;
+                handler->PSendSysMessage("%u | %u | [%02u,%02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, locale), ri->zoneId, respawnTime.c_str(), map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? "" : " (inactive)");
+            }
         }
         return true;
     }
