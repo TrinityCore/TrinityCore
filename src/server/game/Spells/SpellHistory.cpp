@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -415,28 +415,28 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         // shoot spells used equipped item cooldown values already assigned in SetBaseAttackTime(RANGED_ATTACK)
         // prevent 0 cooldowns set by another way
         if (cooldown <= 0 && categoryCooldown <= 0 && (categoryId == 76 || (spellInfo->IsAutoRepeatRangedSpell() && spellInfo->Id != 75)))
-            cooldown = _owner->GetUInt32Value(UNIT_FIELD_RANGEDATTACKTIME);
+            cooldown = _owner->m_unitData->RangedAttackRoundBaseTime;
 
         // Now we have cooldown data (if found any), time to apply mods
         if (Player* modOwner = _owner->GetSpellModOwner())
         {
-            if (cooldown > 0)
+            if (cooldown >= 0)
                 modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, cooldown, spell);
 
-            if (categoryCooldown > 0 && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
+            if (categoryCooldown >= 0 && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
                 modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, categoryCooldown, spell);
         }
 
         if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE, spellInfo))
         {
-            cooldown = int32(cooldown * _owner->GetFloatValue(UNIT_MOD_CAST_HASTE));
-            categoryCooldown = int32(categoryCooldown * _owner->GetFloatValue(UNIT_MOD_CAST_HASTE));
+            cooldown = int32(cooldown * _owner->m_unitData->ModSpellHaste);
+            categoryCooldown = int32(categoryCooldown * _owner->m_unitData->ModSpellHaste);
         }
 
         if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_COOLDOWN_BY_HASTE_REGEN, spellInfo))
         {
-            cooldown = int32(cooldown * _owner->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN));
-            categoryCooldown = int32(categoryCooldown * _owner->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN));
+            cooldown = int32(cooldown * _owner->m_unitData->ModHasteRegen);
+            categoryCooldown = int32(categoryCooldown * _owner->m_unitData->ModHasteRegen);
         }
 
         if (int32 cooldownMod = _owner->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
@@ -830,10 +830,10 @@ int32 SpellHistory::GetChargeRecoveryTime(uint32 chargeCategoryId) const
     recoveryTimeF *= _owner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, chargeCategoryId);
 
     if (_owner->HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE))
-        recoveryTimeF *= _owner->GetFloatValue(UNIT_MOD_CAST_HASTE);
+        recoveryTimeF *= _owner->m_unitData->ModSpellHaste;
 
     if (_owner->HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN))
-        recoveryTimeF *= _owner->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
+        recoveryTimeF *= _owner->m_unitData->ModHasteRegen;
 
     return int32(std::floor(recoveryTimeF));
 }

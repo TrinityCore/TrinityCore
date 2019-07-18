@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -117,7 +117,7 @@ bool Trinity::Crypto::RSA::Sign(int32 hashType, uint8 const* dataHash, std::size
     uint32 signatureLength = 0;
     int result = RSA_sign(hashType, dataHash, dataHashLength, output, &signatureLength, _rsa);
     std::reverse(output, output + GetOutputSize());
-    return result != -1;
+    return result != 0;
 }
 
 namespace Trinity

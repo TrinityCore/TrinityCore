@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1098,8 +1098,8 @@ class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->SetFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-                target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                target->AddDynamicFlag(UNIT_DYNFLAG_DEAD);
+                target->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
                 if (target->GetTypeId() == TYPEID_UNIT)
                     target->ToCreature()->SetReactState(REACT_PASSIVE);
@@ -1108,8 +1108,8 @@ class spell_gen_creature_permanent_feign_death : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->RemoveFlag(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-                target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+                target->RemoveDynamicFlag(UNIT_DYNFLAG_DEAD);
+                target->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
             }
 
             void Register() override
@@ -3927,7 +3927,7 @@ class spell_gen_gm_freeze : public SpellScriptLoader
                     player->CombatStop();
                     if (player->IsNonMeleeSpellCast(true))
                         player->InterruptNonMeleeSpells(true);
-                    player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    player->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
                     // if player class = hunter || warlock remove pet if alive
                     if ((player->getClass() == CLASS_HUNTER) || (player->getClass() == CLASS_WARLOCK))
@@ -3950,7 +3950,7 @@ class spell_gen_gm_freeze : public SpellScriptLoader
                 {
                     // Reset player faction + allow combat + allow duels
                     player->setFactionForRace(player->getRace());
-                    player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    player->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     // save player
                     player->SaveToDB();
                 }

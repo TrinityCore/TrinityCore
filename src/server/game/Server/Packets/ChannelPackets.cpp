@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,7 +65,7 @@ WorldPacket const* WorldPackets::Channel::ChannelNotify::Write()
 WorldPacket const* WorldPackets::Channel::ChannelNotifyJoined::Write()
 {
     _worldPacket.WriteBits(_Channel.length(), 7);
-    _worldPacket.WriteBits(ChannelWelcomeMsg.length(), 10);
+    _worldPacket.WriteBits(ChannelWelcomeMsg.length(), 11);
     _worldPacket << uint32(_ChannelFlags);
     _worldPacket << int32(ChatChannelID);
     _worldPacket << uint64(InstanceID);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -328,15 +328,6 @@ void WorldPackets::Item::UseCritterItem::Read()
     _worldPacket >> ItemGuid;
 }
 
-void WorldPackets::Item::UpgradeItem::Read()
-{
-    _worldPacket >> ItemMaster;
-    _worldPacket >> ItemGUID;
-    _worldPacket >> UpgradeID;
-    _worldPacket >> ContainerSlot;
-    _worldPacket >> Slot;
-}
-
 void WorldPackets::Item::SocketGems::Read()
 {
     _worldPacket >> ItemGuid;
@@ -347,14 +338,6 @@ void WorldPackets::Item::SocketGems::Read()
 WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
 {
     _worldPacket << Item;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Item::ItemUpgradeResult::Write()
-{
-    _worldPacket.WriteBit(Success);
-    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

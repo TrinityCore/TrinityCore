@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -94,9 +94,9 @@ class boss_shattered_executioner : public CreatureScript
                     me->AddLootMode(LOOT_MODE_HARD_MODE_1);
 
                 if (instance->GetBossState(DATA_KARGATH) == DONE)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 else
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
 
                 Initialize();
             }

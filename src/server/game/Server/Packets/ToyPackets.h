@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,6 +54,16 @@ namespace WorldPackets
 
             bool IsFullUpdate = false;
             ToyBoxContainer const* Toys = nullptr;
+        };
+
+        class ToyClearFanfare final : public ClientPacket
+        {
+        public:
+            ToyClearFanfare(WorldPacket&& packet) : ClientPacket(CMSG_TOY_CLEAR_FANFARE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ItemID = 0;
         };
     }
 }

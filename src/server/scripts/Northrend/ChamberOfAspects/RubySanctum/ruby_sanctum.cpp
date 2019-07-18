@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -72,7 +72,7 @@ class npc_xerestrasza : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                me->RemoveFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
             }
 
             void DoAction(int32 action) override
@@ -131,7 +131,7 @@ class npc_xerestrasza : public CreatureScript
                             Talk(SAY_XERESTRASZA_EVENT_6);
                             break;
                         case EVENT_XERESTRASZA_EVENT_7:
-                            me->SetFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
+                            me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                             Talk(SAY_XERESTRASZA_EVENT_7);
                             me->setActive(false);
                             break;
@@ -163,10 +163,10 @@ class at_baltharus_plateau : public AreaTriggerScript
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_XERESTRASZA)))
+                if (Creature* xerestrasza = instance->GetCreature(DATA_XERESTRASZA))
                     xerestrasza->AI()->DoAction(ACTION_INTRO_BALTHARUS);
 
-                if (Creature* baltharus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_BALTHARUS_THE_WARBORN)))
+                if (Creature* baltharus = instance->GetCreature(DATA_BALTHARUS_THE_WARBORN))
                     baltharus->AI()->DoAction(ACTION_INTRO_BALTHARUS);
             }
 

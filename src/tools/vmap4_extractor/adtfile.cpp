@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -77,9 +77,14 @@ char* GetExtension(char* FileName)
 
 extern CASC::StorageHandle CascStorage;
 
-ADTFile::ADTFile(char* filename, bool cache) : _file(CascStorage, filename, false)
+ADTFile::ADTFile(std::string const& filename, bool cache) : _file(CascStorage, filename.c_str(), false)
 {
-    Adtfilename.append(filename);
+    cacheable = cache;
+    dirfileCache = nullptr;
+}
+
+ADTFile::ADTFile(uint32 fileDataId, std::string const& description, bool cache) : _file(CascStorage, fileDataId, description, false)
+{
     cacheable = cache;
     dirfileCache = nullptr;
 }
@@ -114,13 +119,7 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
 
         size_t nextpos = _file.getPos() + size;
 
-        if (!strcmp(fourcc,"MCIN"))
-        {
-        }
-        else if (!strcmp(fourcc,"MTEX"))
-        {
-        }
-        else if (!strcmp(fourcc,"MMDX"))
+        if (!strcmp(fourcc,"MMDX"))
         {
             if (size)
             {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -72,6 +72,7 @@ namespace Trinity
     namespace Asio
     {
         class IoContext;
+        class DeadlineTimer;
     }
 }
 
@@ -91,6 +92,7 @@ public:
     Realm const* GetRealm(Battlenet::RealmHandle const& id) const;
 
     RealmBuildInfo const* GetBuildInfo(uint32 build) const;
+    uint32 GetMinorMajorBugfixVersionForBuild(uint32 build) const;
     void WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const;
     std::vector<uint8> GetRealmEntryJSON(Battlenet::RealmHandle const& id, uint32 build) const;
     std::vector<uint8> GetRealmList(uint32 build, std::string const& subRegion) const;
@@ -109,7 +111,7 @@ private:
     RealmMap _realms;
     std::unordered_set<std::string> _subRegions;
     uint32 _updateInterval;
-    std::unique_ptr<boost::asio::deadline_timer> _updateTimer;
+    std::unique_ptr<Trinity::Asio::DeadlineTimer> _updateTimer;
     std::unique_ptr<boost::asio::ip::tcp_resolver> _resolver;
 };
 

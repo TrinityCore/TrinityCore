@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -126,16 +126,17 @@ Quest::Quest(Field* questRecord)
     AllowableRaces = questRecord[108].GetUInt64();
     TreasurePickerID = questRecord[109].GetInt32();
     Expansion = questRecord[110].GetInt32();
+    ManagedWorldStateID = questRecord[111].GetInt32();
 
-    LogTitle = questRecord[111].GetString();
-    LogDescription = questRecord[112].GetString();
-    QuestDescription = questRecord[113].GetString();
-    AreaDescription = questRecord[114].GetString();
-    PortraitGiverText = questRecord[115].GetString();
-    PortraitGiverName = questRecord[116].GetString();
-    PortraitTurnInText = questRecord[117].GetString();
-    PortraitTurnInName = questRecord[118].GetString();
-    QuestCompletionLog = questRecord[119].GetString();
+    LogTitle = questRecord[112].GetString();
+    LogDescription = questRecord[113].GetString();
+    QuestDescription = questRecord[114].GetString();
+    AreaDescription = questRecord[115].GetString();
+    PortraitGiverText = questRecord[116].GetString();
+    PortraitGiverName = questRecord[117].GetString();
+    PortraitTurnInText = questRecord[118].GetString();
+    PortraitTurnInName = questRecord[119].GetString();
+    QuestCompletionLog = questRecord[120].GetString();
 
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,7 +56,8 @@ enum KZDataTypes
     DATA_IMAGE_OF_MEDIVH            = 26,
     DATA_MASTERS_TERRACE_DOOR_1     = 27,
     DATA_MASTERS_TERRACE_DOOR_2     = 28,
-    DATA_GO_SIDE_ENTRANCE_DOOR      = 29
+    DATA_GO_SIDE_ENTRANCE_DOOR      = 29,
+    DATA_GO_BLACKENED_URN           = 30
 };
 
 enum KZOperaEvents
@@ -73,6 +74,7 @@ enum KZMiscCreatures
     NPC_SHADIKITH_THE_GLIDER        = 16180,
     NPC_TERESTIAN_ILLHOOF           = 15688,
     NPC_MOROES                      = 15687,
+    NPC_NIGHTBANE                   = 17225,
     NPC_ATTUMEN_UNMOUNTED           = 15550,
     NPC_ATTUMEN_MOUNTED             = 16152,
     NPC_MIDNIGHT                    = 16151,
@@ -102,7 +104,8 @@ enum KZGameObjectIds
     GO_MASTERS_TERRACE_DOOR         = 184274,
     GO_MASTERS_TERRACE_DOOR2        = 184280,
     GO_SIDE_ENTRANCE_DOOR           = 184275,
-    GO_DUST_COVERED_CHEST           = 185119
+    GO_DUST_COVERED_CHEST           = 185119,
+    GO_BLACKENED_URN                = 194092
 };
 
 enum KZMisc

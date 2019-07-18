@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -88,19 +88,19 @@ class instance_ahnkahet : public InstanceMapScript
                         if (SpheresState[0])
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         else
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_SPHERE_2:
                         if (SpheresState[1])
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         else
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_PRINCE_TALDARAM_GATE:
                         AddDoor(go, true);

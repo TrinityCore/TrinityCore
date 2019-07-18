@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -242,7 +242,7 @@ WorldPacket const* WorldPackets::Chat::ChatPlayerNotfound::Write()
 
 WorldPacket const* WorldPackets::Chat::ChatServerMessage::Write()
 {
-    _worldPacket << MessageID;
+    _worldPacket << int32(MessageID);
 
     _worldPacket.WriteBits(StringParam.length(), 11);
     _worldPacket.FlushBits();

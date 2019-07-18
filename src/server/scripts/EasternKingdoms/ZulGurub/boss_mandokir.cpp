@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -246,7 +246,7 @@ class boss_mandokir : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SUMMON_OHGAN:
-                            me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
+                            me->SetMountDisplayId(0);
                             DoCast(me, SPELL_SUMMON_OHGAN, true);
                             break;
                         case EVENT_DECAPITATE:

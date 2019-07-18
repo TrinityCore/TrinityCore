@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,9 +60,9 @@ private:
     float m_orientation;
 
 public:
-    bool operator==(Position const &a);
+    bool operator==(Position const &a) const;
 
-    inline bool operator!=(Position const &a)
+    inline bool operator!=(Position const &a) const
     {
         return !(operator==(a));
     }
@@ -219,7 +219,7 @@ public:
 
     bool IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const;
     bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
-    bool HasInLine(Position const* pos, float width) const;
+    bool HasInLine(Position const* pos, float objSize, float width) const;
     std::string ToString() const;
 
     // modulos a radian orientation to the range of 0..2PI
@@ -283,6 +283,9 @@ struct TaggedPosition
     }
 
     operator Position() const { return Pos; }
+
+    friend bool operator==(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos == right.Pos; }
+    friend bool operator!=(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos != right.Pos; }
 
     friend ByteBuffer& operator<<(ByteBuffer& buf, TaggedPosition const& tagged) { return buf << Position::ConstStreamer<Tag>(tagged.Pos); }
     friend ByteBuffer& operator>>(ByteBuffer& buf, TaggedPosition& tagged) { return buf >> Position::Streamer<Tag>(tagged.Pos); }

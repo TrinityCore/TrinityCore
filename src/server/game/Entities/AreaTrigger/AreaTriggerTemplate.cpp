@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,11 +23,7 @@
 
 AreaTriggerScaleInfo::AreaTriggerScaleInfo()
 {
-    memset(OverrideScale, 0, sizeof(OverrideScale));
-    memset(ExtraScale, 0, sizeof(ExtraScale));
-
-    ExtraScale[5].AsFloat = 1.0000001f;
-    ExtraScale[6].AsInt32 = 1;
+    memset(Data.Raw, 0, sizeof(Data.Raw));
 }
 
 AreaTriggerTemplate::AreaTriggerTemplate()
@@ -103,6 +99,13 @@ AreaTriggerMiscTemplate::AreaTriggerMiscTemplate()
 
     TimeToTarget = 0;
     TimeToTargetScale = 0;
+
+    // legacy code from before it was known what each curve field does
+    // wtf? thats not how you pack curve data
+    float tmp = 1.0000001f;
+    memcpy(&ExtraScale.Data.Raw[5], &tmp, sizeof(tmp));
+    // also OverrideActive does nothing on ExtraScale
+    ExtraScale.Data.Structured.OverrideActive = 1;
 
     Template = nullptr;
 }

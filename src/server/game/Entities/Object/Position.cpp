@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 #include <G3D/g3dmath.h>
 #include <sstream>
 
-bool Position::operator==(Position const &a)
+bool Position::operator==(Position const &a) const
 {
     return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
         G3D::fuzzyEq(a.m_positionY, m_positionY) &&
@@ -170,11 +170,12 @@ bool Position::HasInArc(float arc, const Position* obj, float border) const
     return ((angle >= lborder) && (angle <= rborder));
 }
 
-bool Position::HasInLine(Position const* pos, float width) const
+bool Position::HasInLine(Position const* pos, float objSize, float width) const
 {
     if (!HasInArc(float(M_PI), pos))
         return false;
 
+    width += objSize;
     float angle = GetRelativeAngle(pos);
     return std::fabs(std::sin(angle)) * GetExactDist2d(pos->GetPositionX(), pos->GetPositionY()) < width;
 }

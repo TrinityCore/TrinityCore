@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,17 +19,27 @@
 #ifndef _WORLDPACKETCRYPT_H
 #define _WORLDPACKETCRYPT_H
 
-#include "PacketCrypt.h"
+#include "Cryptography/AES.h"
 
 class BigNumber;
 
-class TC_COMMON_API WorldPacketCrypt : public PacketCrypt
+class TC_COMMON_API WorldPacketCrypt
 {
-    public:
-        WorldPacketCrypt();
+public:
+    WorldPacketCrypt();
 
-        void Init(BigNumber* K) override;
-        void Init(BigNumber* k, uint8 const* serverKey, uint8 const* clientKey);
+    void Init(uint8 const* key);
+    bool DecryptRecv(uint8* data, size_t length, uint8 (&tag)[12]);
+    bool EncryptSend(uint8* data, size_t length, uint8 (&tag)[12]);
+
+    bool IsInitialized() const { return _initialized; }
+
+protected:
+    Trinity::Crypto::AES _clientDecrypt;
+    Trinity::Crypto::AES _serverEncrypt;
+    uint64 _clientCounter;
+    uint64 _serverCounter;
+    bool _initialized;
 };
 
 #endif // _WORLDPACKETCRYPT_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,6 +55,7 @@ WorldPacket const* WorldPackets::Battlenet::Response::Write()
 WorldPacket const* WorldPackets::Battlenet::SetSessionState::Write()
 {
     _worldPacket.WriteBits(State, 2);
+    _worldPacket.WriteBit(SuppressNotification);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

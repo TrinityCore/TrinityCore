@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,6 +20,7 @@
 #include "BattlenetRpcErrorCodes.h"
 #include "BigNumber.h"
 #include "DatabaseEnv.h"
+#include "DeadlineTimer.h"
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
@@ -28,7 +29,6 @@
 #include "Util.h"
 #include "game_utilities_service.pb.h"
 #include "RealmList.pb.h"
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
@@ -53,7 +53,7 @@ RealmList* RealmList::Instance()
 void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval)
 {
     _updateInterval = updateInterval;
-    _updateTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioContext);
+    _updateTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _resolver = Trinity::make_unique<boost::asio::ip::tcp::resolver>(ioContext);
 
     // Get the content of the realmlist table in the database
@@ -204,36 +204,46 @@ Realm const* RealmList::GetRealm(Battlenet::RealmHandle const& id) const
     return NULL;
 }
 
+// List of client builds for verbose version info in realmlist packet
+static RealmBuildInfo const ClientBuilds[] =
+{
+    { 28938, 8, 1, 5, ' ' },
+    { 21355, 6, 2, 4, ' ' },
+    { 20726, 6, 2, 3, ' ' },
+    { 20574, 6, 2, 2, 'a' },
+    { 20490, 6, 2, 2, 'a' },
+    { 15595, 4, 3, 4, ' ' },
+    { 14545, 4, 2, 2, ' ' },
+    { 13623, 4, 0, 6, 'a' },
+    { 13930, 3, 3, 5, 'a' },                                  // 3.3.5a China Mainland build
+    { 12340, 3, 3, 5, 'a' },
+    { 11723, 3, 3, 3, 'a' },
+    { 11403, 3, 3, 2, ' ' },
+    { 11159, 3, 3, 0, 'a' },
+    { 10505, 3, 2, 2, 'a' },
+    { 9947,  3, 1, 3, ' ' },
+    { 8606,  2, 4, 3, ' ' },
+    { 6141,  1, 12, 3, ' ' },
+    { 6005,  1, 12, 2, ' ' },
+    { 5875,  1, 12, 1, ' ' },
+};
+
 RealmBuildInfo const* RealmList::GetBuildInfo(uint32 build) const
 {
-    // List of client builds for verbose version info in realmlist packet
-    static std::vector<RealmBuildInfo> const ClientBuilds =
-    {
-        { 21355, 6, 2, 4, ' ' },
-        { 20726, 6, 2, 3, ' ' },
-        { 20574, 6, 2, 2, 'a' },
-        { 20490, 6, 2, 2, 'a' },
-        { 15595, 4, 3, 4, ' ' },
-        { 14545, 4, 2, 2, ' ' },
-        { 13623, 4, 0, 6, 'a' },
-        { 13930, 3, 3, 5, 'a' },                                  // 3.3.5a China Mainland build
-        { 12340, 3, 3, 5, 'a' },
-        { 11723, 3, 3, 3, 'a' },
-        { 11403, 3, 3, 2, ' ' },
-        { 11159, 3, 3, 0, 'a' },
-        { 10505, 3, 2, 2, 'a' },
-        { 9947,  3, 1, 3, ' ' },
-        { 8606,  2, 4, 3, ' ' },
-        { 6141,  1, 12, 3, ' ' },
-        { 6005,  1, 12, 2, ' ' },
-        { 5875,  1, 12, 1, ' ' },
-    };
-
-    for (std::size_t i = 0; i < ClientBuilds.size(); ++i)
-        if (ClientBuilds[i].Build == build)
-            return &ClientBuilds[i];
+    for (RealmBuildInfo const& clientBuild : ClientBuilds)
+        if (clientBuild.Build == build)
+            return &clientBuild;
 
     return nullptr;
+}
+
+uint32 RealmList::GetMinorMajorBugfixVersionForBuild(uint32 build) const
+{
+    RealmBuildInfo const* buildInfo = std::lower_bound(std::begin(ClientBuilds), std::end(ClientBuilds), build, [](RealmBuildInfo const& buildInfo, uint32 value)
+    {
+        return buildInfo.Build < value;
+    });
+    return buildInfo != std::end(ClientBuilds) ? (buildInfo->MajorVersion * 10000 + buildInfo->MinorVersion * 100 + buildInfo->BugfixVersion) : 0;
 }
 
 void RealmList::WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@ namespace WorldPackets
 {
     namespace Reputation
     {
-        static uint16 const FactionCount = 300;
+        static uint16 const FactionCount = 350;
 
         class InitializeFactions final : public ServerPacket
         {

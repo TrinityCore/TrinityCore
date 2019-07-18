@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,7 +43,8 @@ bool ExtractSingleModel(std::string& fname)
     std::string originalName = fname;
 
     char* name = GetPlainName((char*)fname.c_str());
-    FixNameCase(name, strlen(name));
+    if (fname.substr(0, 4) != "FILE")
+        FixNameCase(name, strlen(name));
     FixNameSpaces(name, strlen(name));
 
     std::string output(szWorkDirWmo);
@@ -87,7 +88,7 @@ void ExtractGameobjectModels()
 {
     printf("Extracting GameObject models...\n");
 
-    DB2CascFileSource source(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.db2");
+    DB2CascFileSource source(CascStorage, GameobjectDisplayInfoLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
     if (!db2.Load(&source, GameobjectDisplayInfoLoadInfo::Instance()))
     {

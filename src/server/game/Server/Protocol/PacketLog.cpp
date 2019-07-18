@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -137,7 +137,16 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
 
     fwrite(&header, sizeof(header), 1, _file);
     if (!packet.empty())
+    {
+        uint8 const* data = packet.contents();
+        std::size_t size = packet.size();
+        if (direction == CLIENT_TO_SERVER)
+        {
+            data += 2;
+            size -= 2;
+        }
         fwrite(packet.contents(), 1, packet.size(), _file);
+    }
 
     fflush(_file);
 }

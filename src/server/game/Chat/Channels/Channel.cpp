@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -749,7 +749,7 @@ void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang) 
     SendToAll(builder, !playerInfo.IsModerator() ? guid : ObjectGuid::Empty);
 }
 
-void Channel::AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what) const
+void Channel::AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what, bool isLogged) const
 {
     if (what.empty())
         return;
@@ -777,10 +777,10 @@ void Channel::AddonSay(ObjectGuid const& guid, std::string const& prefix, std::s
 
         WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
         if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-            packet->Initialize(CHAT_MSG_CHANNEL, LANG_ADDON, player, player, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
+            packet->Initialize(CHAT_MSG_CHANNEL, isLogged ? LANG_ADDON_LOGGED : LANG_ADDON, player, player, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
         else
         {
-            packet->Initialize(CHAT_MSG_CHANNEL, LANG_ADDON, nullptr, nullptr, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
+            packet->Initialize(CHAT_MSG_CHANNEL, isLogged ? LANG_ADDON_LOGGED : LANG_ADDON, nullptr, nullptr, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
             packet->SenderGUID = guid;
             packet->TargetGUID = guid;
         }

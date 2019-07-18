@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -308,7 +308,6 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
     {
         return sLFGMgr->GetLFGDungeonEntry(dungeonId);
     });
-    lfgRoleCheckUpdate.BgQueueID = 0;
     lfgRoleCheckUpdate.GroupFinderActivityID = 0;
     if (!roleCheck.roles.empty())
     {
@@ -340,6 +339,8 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
     lfgJoinResult.Result = joinData.result;
     if (joinData.result == lfg::LFG_JOIN_ROLE_CHECK_FAILED)
         lfgJoinResult.ResultDetail = joinData.state;
+    else if (joinData.result == lfg::LFG_JOIN_NO_SLOTS)
+        lfgJoinResult.BlackListNames = joinData.playersMissingRequirement;
 
     for (lfg::LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
     {

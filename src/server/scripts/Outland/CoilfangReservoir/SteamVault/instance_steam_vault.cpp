@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,7 +39,7 @@ class go_main_chambers_access_panel : public GameObjectScript
             if (go->GetEntry() == GO_ACCESS_PANEL_MEK && (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE || instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL))
                 instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, SPECIAL);
 
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
             go->SetGoState(GO_STATE_ACTIVE);
 
             return true;
@@ -140,7 +140,7 @@ class instance_steam_vault : public InstanceMapScript
                     case DATA_HYDROMANCER_THESPIA:
                         if (state == DONE)
                             if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_HYDRO))
-                                panel->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                panel->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         if (state == SPECIAL)
                         {
                             if (GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL)
@@ -152,7 +152,7 @@ class instance_steam_vault : public InstanceMapScript
                     case DATA_MEKGINEER_STEAMRIGGER:
                         if (state == DONE)
                             if (GameObject* panel = GetGameObject(DATA_ACCESS_PANEL_MEK))
-                                panel->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                panel->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         if (state == SPECIAL)
                         {
                             if (GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL)

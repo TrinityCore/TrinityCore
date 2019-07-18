@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -99,6 +99,8 @@ enum LfgLockStatusType
     LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE            = 4,
     LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE           = 5,
     LFG_LOCKSTATUS_RAID_LOCKED                   = 6,
+    LFG_LOCKSTATUS_NO_SPEC                       = 14,
+    LFG_LOCKSTATUS_HAS_RESTRICTION               = 15,
     LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL      = 1001,
     LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL     = 1002,
     LFG_LOCKSTATUS_QUEST_NOT_COMPLETED           = 1022,

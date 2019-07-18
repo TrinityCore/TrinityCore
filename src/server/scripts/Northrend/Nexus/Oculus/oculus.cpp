@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -201,7 +201,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                     Talk(SAY_BELGARISTRASZ);
 
                 // The gossip flag should activate when Drakos die and not from DB
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             }
         };
 

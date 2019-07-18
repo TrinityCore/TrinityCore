@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -103,7 +103,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                         if (GetBossState(DATA_GORTOK_PALEHOOF) == DONE)
                         {
                             HandleGameObject(ObjectGuid::Empty, true, go);
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         break;
                     case GO_SKADI_THE_RUTHLESS_DOOR:

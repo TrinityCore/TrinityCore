@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@
 #include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
 #include "IpAddress.h"
+#include "IPLocation.h"
 #include "Item.h"
 #include "Language.h"
 #include "LFG.h"
@@ -155,7 +156,7 @@ public:
     {
         if (!*args)
         {
-            if (handler->GetSession()->GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
+            if (handler->GetSession()->GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_DEVELOPER))
                 handler->GetSession()->SendNotification(LANG_DEV_ON);
             else
                 handler->GetSession()->SendNotification(LANG_DEV_OFF);
@@ -166,14 +167,14 @@ public:
 
         if (argstr == "on")
         {
-            handler->GetSession()->GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+            handler->GetSession()->GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_DEVELOPER);
             handler->GetSession()->SendNotification(LANG_DEV_ON);
             return true;
         }
 
         if (argstr == "off")
         {
-            handler->GetSession()->GetPlayer()->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER);
+            handler->GetSession()->GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_DEVELOPER);
             handler->GetSession()->SendNotification(LANG_DEV_OFF);
             return true;
         }
@@ -1194,7 +1195,7 @@ public:
             return false;
         }
 
-        int32 offset = area->AreaBit / 32;
+        uint32 offset = area->AreaBit / 64;
         if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -1202,9 +1203,8 @@ public:
             return false;
         }
 
-        uint32 val = uint32((1 << (area->AreaBit % 32)));
-        uint32 currFields = playerTarget->GetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + offset);
-        playerTarget->SetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + offset, uint32((currFields | val)));
+        uint64 val = UI64LIT(1) << (area->AreaBit % 64);
+        playerTarget->AddExploredZones(offset, val);
 
         handler->SendSysMessage(LANG_EXPLORE_AREA);
         return true;
@@ -1238,7 +1238,7 @@ public:
             return false;
         }
 
-        int32 offset = area->AreaBit / 32;
+        uint32 offset = area->AreaBit / 64;
         if (offset >= PLAYER_EXPLORED_ZONES_SIZE)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -1246,9 +1246,8 @@ public:
             return false;
         }
 
-        uint32 val = uint32((1 << (area->AreaBit % 32)));
-        uint32 currFields = playerTarget->GetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + offset);
-        playerTarget->SetUInt32Value(ACTIVE_PLAYER_FIELD_EXPLORED_ZONES + offset, uint32((currFields ^ val)));
+        uint64 val = UI64LIT(1) << (area->AreaBit % 64);
+        playerTarget->RemoveExploredZones(offset, val);
 
         handler->SendSysMessage(LANG_UNEXPLORE_AREA);
         return true;
@@ -1356,7 +1355,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId), GuidSet(), 0, bonusListIDs);
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomBonusListId(itemId), GuidSet(), 0, bonusListIDs);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -1711,7 +1710,7 @@ public:
             mapId             = target->GetMapId();
             areaId            = target->GetAreaId();
             alive             = target->IsAlive() ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO);
-            gender            = target->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
+            gender            = target->m_playerData->NativeSex;
         }
         // get additional information from DB
         else
@@ -1768,17 +1767,10 @@ public:
                 lastIp    = fields[4].GetString();
                 lastLogin = fields[5].GetString();
 
-                uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(lastIp));
-                EndianConvertReverse(ip);
-
-                // If ip2nation table is populated, it displays the country
-                stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
-                stmt->setUInt32(0, ip);
-                if (PreparedQueryResult result2 = LoginDatabase.Query(stmt))
+                if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(lastIp))
                 {
-                    Field* fields2 = result2->Fetch();
                     lastIp.append(" (");
-                    lastIp.append(fields2[0].GetString());
+                    lastIp.append(location->CountryName);
                     lastIp.append(")");
                 }
             }

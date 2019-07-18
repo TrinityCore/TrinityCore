@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,7 +84,8 @@ enum SpellTargetSelectionCategories
     TARGET_SELECT_CATEGORY_CHANNEL,
     TARGET_SELECT_CATEGORY_NEARBY,
     TARGET_SELECT_CATEGORY_CONE,
-    TARGET_SELECT_CATEGORY_AREA
+    TARGET_SELECT_CATEGORY_AREA,
+    TARGET_SELECT_CATEGORY_TRAJ
 };
 
 enum SpellTargetReferenceTypes
@@ -493,6 +494,7 @@ class TC_GAME_API SpellInfo
         uint32 TotemCategory[MAX_SPELL_TOTEMS];
         uint32 IconFileDataId;
         uint32 ActiveIconFileDataId;
+        uint32 ContentTuningId;
         LocalizedString const* SpellName;
         float ConeAngle;
         float Width;
@@ -668,6 +670,8 @@ class TC_GAME_API SpellInfo
         bool CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInfo) const;
         bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
+        uint32 GetAllowedMechanicMask() const;
+
     private:
         // loading helpers
         void _InitializeExplicitTargetMask();
@@ -691,6 +695,7 @@ class TC_GAME_API SpellInfo
         AuraStateType _auraState;
 
         SpellDiminishInfo _diminishInfo;
+        uint32 _allowedMechanicMask;
 };
 
 #endif // _SPELLINFO_H

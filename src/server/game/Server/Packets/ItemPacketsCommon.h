@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,9 +25,13 @@
 
 class ByteBuffer;
 class Item;
-struct ItemDynamicFieldGems;
 struct LootItem;
 struct VoidStorageItem;
+
+namespace UF
+{
+    struct SocketedGem;
+}
 
 namespace WorldPackets
 {
@@ -45,13 +49,11 @@ namespace WorldPackets
         struct ItemInstance
         {
             void Initialize(::Item const* item);
-            void Initialize(::ItemDynamicFieldGems const* gem);
+            void Initialize(UF::SocketedGem const* gem);
             void Initialize(::LootItem const& lootItem);
             void Initialize(::VoidStorageItem const* voidItem);
 
             uint32 ItemID = 0;
-            uint32 RandomPropertiesSeed = 0;
-            uint32 RandomPropertiesID = 0;
             Optional<ItemBonusInstanceData> ItemBonus;
             Optional<CompactArray<int32>> Modifications;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,6 +82,9 @@ namespace WorldPackets
             uint32 RequiredExpansion = 0;
             uint32 VignetteID = 0;
             int32 Class = 0;
+            float FadeRegionRadius = 0.0f;
+            int32 WidgetSetID = 0;
+            int32 WidgetSetUnitConditionID = 0;
             std::array<uint32, 2> Flags;
             std::array<uint32, 2> ProxyCreatureID;
             std::array<std::string, 4> Name;

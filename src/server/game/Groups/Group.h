@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -182,8 +182,7 @@ class Roll : public LootValidatorRef
         ItemDisenchantLootEntry const* GetItemDisenchantLoot(Player const* player) const;
 
         uint32 itemid;
-        ItemRandomEnchantmentId itemRandomPropId;
-        uint32 itemRandomSuffix;
+        ItemRandomBonusListId itemRandomBonusListId;
         uint8 itemCount;
         typedef std::map<ObjectGuid, RollVote> PlayerVote;
         PlayerVote playerVote;                              //vote position correspond with player position (in group)

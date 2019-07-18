@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -131,7 +131,7 @@ public:
                 DoCast(me, SPELL_TELEPORT);
 
                 DoCast(me, SPELL_SHIELD_OF_LIGHT);
-                me->SetFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_UNK_31));
+                me->AddUnitFlag(UNIT_FLAG_UNK_31);
 
                 DoCastAOE(SPELL_ACTIVATE_BEACONS);
 
@@ -357,7 +357,7 @@ class spell_anhuur_activate_beacons : public SpellScriptLoader
             void Activate(SpellEffIndex index)
             {
                 PreventHitDefaultEffect(index);
-                GetHitGObj()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                GetHitGObj()->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
             }
 
             void Register() override

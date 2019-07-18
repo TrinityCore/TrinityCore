@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2006-2013 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -104,7 +104,7 @@ public:
                     break;
                 case 45:
                     Talk(SAY_WIN, player);
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                     player->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER, me);
                     break;
                 case 46:
@@ -177,7 +177,7 @@ public:
                 {
                     go->SetRespawnTime(5 * MINUTE);
                     go->Refresh();
-                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    go->RemoveFlag(GO_FLAG_INTERACT_COND);
                 }
 
                 IsMovementActive = false;
@@ -196,7 +196,7 @@ public:
 
             tubbersInRange.remove_if([](GameObject* go)
             {
-                return go->isSpawned() || !go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                return go->isSpawned() || !go->HasFlag(GO_FLAG_INTERACT_COND);
             });
 
             tubbersInRange.sort(Trinity::ObjectDistanceOrderPred(me));

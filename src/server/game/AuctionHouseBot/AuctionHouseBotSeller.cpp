@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -957,7 +957,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
 
         // Update the just created item so that if it needs random properties it has them.
         // Ex:  Notched Shortsword of Stamina will only generate as a Notched Shortsword without this.
-        item->SetItemRandomProperties(GenerateItemRandomPropertyId(itemId));
+        item->SetItemRandomBonusList(GenerateItemRandomBonusListId(itemId));
 
         uint32 buyoutPrice;
         uint32 bidPrice = 0;

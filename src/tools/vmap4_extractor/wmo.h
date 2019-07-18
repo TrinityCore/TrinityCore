@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,6 +71,7 @@ struct WMODoodadData
 {
     std::vector<WMO::MODS> Sets;
     std::unique_ptr<char[]> Paths;
+    std::unique_ptr<uint32[]> FileDataIds;
     std::vector<WMO::MODD> Spawns;
     std::unordered_set<uint16> References;
 };

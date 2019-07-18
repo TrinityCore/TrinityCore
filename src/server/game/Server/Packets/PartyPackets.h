@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -122,6 +122,14 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::string Name;
+        };
+
+        class GroupUninvite final : public ServerPacket
+        {
+        public:
+            GroupUninvite() : ServerPacket(SMSG_GROUP_UNINVITE, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
         };
 
         class RequestPartyMemberStats final : public ClientPacket
@@ -603,7 +611,7 @@ namespace WorldPackets
             uint8 PartyIndex = 0;
             uint32 ActiveMarkers = 0u;
 
-            std::vector<RaidMarker*> RaidMarkers;
+            std::vector<RaidMarker const*> RaidMarkers;
         };
 
         class PartyKillLog final : public ServerPacket

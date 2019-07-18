@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -64,7 +64,6 @@ WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
     return &_worldPacket;
 }
 
-
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::NPC::VendorItem const &item)
 {
     data << uint32(item.MuID);
@@ -77,6 +76,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::NPC::VendorItem const &it
     data << int32(item.PlayerConditionFailed);
     data << item.Item;
     data.WriteBit(item.DoNotFilterOnVendor);
+    data.WriteBit(item.Refundable);
     data.FlushBits();
 
     return data;

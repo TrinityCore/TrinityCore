@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -97,7 +97,7 @@ class instance_gundrak : public InstanceMapScript
                         if (GetBossState(DATA_SLAD_RAN) == DONE)
                         {
                             if (SladRanStatueState == GO_STATE_ACTIVE)
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             else
                                 go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -106,7 +106,7 @@ class instance_gundrak : public InstanceMapScript
                         if (GetBossState(DATA_MOORABI) == DONE)
                         {
                             if (MoorabiStatueState == GO_STATE_ACTIVE)
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             else
                                 go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -115,7 +115,7 @@ class instance_gundrak : public InstanceMapScript
                         if (GetBossState(DATA_DRAKKARI_COLOSSUS) == DONE)
                         {
                             if (DrakkariColossusStatueState == GO_STATE_ACTIVE)
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             else
                                 go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -171,17 +171,17 @@ class instance_gundrak : public InstanceMapScript
                     case DATA_SLAD_RAN:
                         if (state == DONE)
                             if (GameObject* go = GetGameObject(DATA_SLAD_RAN_ALTAR))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case DATA_DRAKKARI_COLOSSUS:
                         if (state == DONE)
                             if (GameObject* go = GetGameObject(DATA_DRAKKARI_COLOSSUS_ALTAR))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case DATA_MOORABI:
                         if (state == DONE)
                             if (GameObject* go = GetGameObject(DATA_MOORABI_ALTAR))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     default:
                         break;
@@ -354,7 +354,7 @@ class go_gundrak_altar : public GameObjectScript
 
         bool OnGossipHello(Player* /*player*/, GameObject* go) override
         {
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
             go->SetGoState(GO_STATE_ACTIVE);
 
             if (InstanceScript* instance = go->GetInstanceScript())

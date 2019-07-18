@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,8 +28,8 @@ WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8
     Item.Initialize(item);
     Count = item->GetCount();
     Charges = item->GetSpellCharges();
-    MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
-    Durability = item->GetUInt32Value(ITEM_FIELD_DURABILITY);
+    MaxDurability = item->m_itemData->MaxDurability;
+    Durability = item->m_itemData->Durability;
     Unlocked = !item->IsLocked();
 
     for (uint8 j = 0; j < MAX_INSPECTED_ENCHANTMENT_SLOT; j++)
@@ -42,9 +42,9 @@ WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8
     }
 
     uint8 i = 0;
-    for (ItemDynamicFieldGems const& gemData : item->GetGems())
+    for (UF::SocketedGem const& gemData : item->m_itemData->Gems)
     {
-        if (gemData.ItemId)
+        if (gemData.ItemID)
         {
             WorldPackets::Item::ItemGemData gem;
             gem.Slot = i;
@@ -272,7 +272,7 @@ WorldPacket const* WorldPackets::Mail::MailQueryNextTimeResult::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Mail::NotifyRecievedMail::Write()
+WorldPacket const* WorldPackets::Mail::NotifyReceivedMail::Write()
 {
     _worldPacket << float(Delay);
 

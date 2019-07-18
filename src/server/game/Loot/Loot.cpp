@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,8 +46,7 @@ LootItem::LootItem(LootStoreItem const& li)
 
     needs_quest = li.needs_quest;
 
-    randomSuffix = GenerateEnchSuffixFactor(itemid);
-    randomPropertyId = GenerateItemRandomPropertyId(itemid);
+    randomBonusListId = GenerateItemRandomBonusListId(itemid);
     upgradeId = sDB2Manager.GetRulesetItemUpgrade(itemid);
     context = 0;
     count = 0;
@@ -413,7 +412,7 @@ bool Loot::hasItemForAll() const
 }
 
 // return true if there is any FFA, quest or conditional item for the player.
-bool Loot::hasItemFor(Player* player) const
+bool Loot::hasItemFor(Player const* player) const
 {
     NotNormalLootItemMap const& lootPlayerQuestItems = GetPlayerQuestItems();
     NotNormalLootItemMap::const_iterator q_itr = lootPlayerQuestItems.find(player->GetGUID());

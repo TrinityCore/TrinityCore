@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -110,6 +110,9 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         stats.HealthScalingExpansion = creatureInfo->HealthScalingExpansion;
         stats.VignetteID = creatureInfo->VignetteID;
         stats.Class = creatureInfo->unit_class;
+        stats.FadeRegionRadius = creatureInfo->FadeRegionRadius;
+        stats.WidgetSetID = creatureInfo->WidgetSetID;
+        stats.WidgetSetUnitConditionID = creatureInfo->WidgetSetUnitConditionID;
 
         stats.Title = creatureInfo->SubName;
         stats.TitleAlt = creatureInfo->TitleAlt;
