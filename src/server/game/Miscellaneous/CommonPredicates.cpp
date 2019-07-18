@@ -20,12 +20,12 @@
 #include "Unit.h"
 #include "SharedDefines.h"
 
-bool Trinity::Predicates::IsVictimOfAttacker::operator()(Unit* unit) const
+bool Trinity::Predicates::IsVictimOf::operator()(Unit* unit) const
 {
     return _attacker->GetVictim() && _attacker->GetVictim() == unit;
 }
 
-bool Trinity::Predicates::IsVictimOfAttacker::operator()(WorldObject* object) const
+bool Trinity::Predicates::IsVictimOf::operator()(WorldObject* object) const
 {
     return object->ToUnit() && _attacker->GetVictim() && _attacker->GetVictim() == object->ToUnit();
 }
