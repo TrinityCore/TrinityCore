@@ -28,18 +28,14 @@ namespace Trinity
 {
     namespace Predicates
     {
-        /// Returns true when the container's element is the given attacker's current victim
+        /// Only returns true for the given attacker's current victim, if any
         class TC_GAME_API IsVictimOf
         {
-        public:
-            IsVictimOf(Unit const* attacker);
-
-            bool operator()(WorldObject const* obj) const
-            {
-                return _victim == obj;
-            }
-        private:
-            Unit const* _victim;
+            public:
+                IsVictimOf(Unit const* attacker);
+                bool operator()(WorldObject const* obj) const { return obj && (_victim == obj); }
+            private:
+                Unit const* _victim;
         };
 
         template <typename PRED>
