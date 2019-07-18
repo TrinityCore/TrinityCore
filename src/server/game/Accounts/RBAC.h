@@ -776,6 +776,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LOOKUP_ITEM_ID                         = 876,
     RBAC_PERM_COMMAND_LOOKUP_QUEST_ID                        = 877,
     RBAC_PERM_COMMAND_DEBUG_QUESTRESET                       = 878,
+    RBAC_PERM_COMMAND_DEBUG_POOLSTATUS                       = 879,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //
