@@ -369,7 +369,7 @@ void InstanceSaveManager::LoadResetTimes()
             }
 
             // update the reset time if the hour in the configs changes
-            uint64 newresettime = LocalTimeHourToUnixTime(oldresettime, resetHour, false);
+            uint64 newresettime = GetLocalHourTimestamp(oldresettime, resetHour, false);
             if (oldresettime != newresettime)
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
@@ -403,7 +403,7 @@ void InstanceSaveManager::LoadResetTimes()
         if (!t)
         {
             // initialize the reset time
-            t = LocalTimeHourToUnixTime(today + period, resetHour);
+            t = GetLocalHourTimestamp(today + period, resetHour);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GLOBAL_INSTANCE_RESETTIME);
             stmt->setUInt16(0, uint16(mapid));
@@ -417,7 +417,7 @@ void InstanceSaveManager::LoadResetTimes()
             // assume that expired instances have already been cleaned
             // calculate the next reset time
             time_t day = (t / DAY) * DAY;
-            t = LocalTimeHourToUnixTime(day + ((today - day) / period + 1) * period, resetHour);
+            t = GetLocalHourTimestamp(day + ((today - day) / period + 1) * period, resetHour);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
             stmt->setUInt64(0, uint64(t));
@@ -456,7 +456,7 @@ time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty diff
     if (period < DAY)
         period = DAY;
 
-    return LocalTimeHourToUnixTime(((resetTime + MINUTE) / DAY * DAY) + period, resetHour);
+    return GetLocalHourTimestamp(((resetTime + MINUTE) / DAY * DAY) + period, resetHour);
 }
 
 void InstanceSaveManager::SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
