@@ -158,7 +158,7 @@ UPDATE `gameobject_addon` SET `parent_rotation2`= 1, `parent_rotation3`= -0.0000
 DELETE FROM `creature` WHERE `guid` IN (250122, 250123, 250124, 250125, 250126, 250127, 250128, 250129, 250130, 250131, 259719, 259721);
 DELETE FROM `creature_addon` WHERE `guid` IN (250122, 250123, 250124, 250125, 250126, 250127, 250128, 250129, 250130, 250131, 259719, 259721);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
-(250122, 42956, 669, 5094, 5094, 15, 169, 0, 0, 0, 106.283, -276.9514, 76.72944, 1.012291, 7200, 0, 0, 0, 0, 0, 0, 0, 0, 26365), -- Ancient Dwarven Shield (Area: Blackwing Descent - Difficulty: 6)
+(250122, 42956, 669, 5094, 5094, 15, 169, 0, 0, 0, 106.283, -276.9514, 76.72944, 1.012291, 604800, 0, 0, 0, 0, 0, 0, 0, 0, 26365), -- Ancient Dwarven Shield (Area: Blackwing Descent - Difficulty: 6)
 (250123, 42954, 669, 5094, 5094, 15, 169, 0, 0, 0, 108.625, -171.259, 76.72993, 5.026548, 604800, 0, 0, 0, 0, 0, 0, 0, 0, 26365), -- Ancient Dwarven Shield (Area: Blackwing Descent - Difficulty: 6)
 (250124, 42958, 669, 5094, 5094, 15, 169, 0, 0, 0, 152.0052, -173.8819, 76.7294, 4.29351, 604800, 0, 0, 0, 0, 0, 0, 0, 0, 26365), -- Ancient Dwarven Shield (Area: Blackwing Descent - Difficulty: 6)
 (250125, 42947, 669, 5094, 5094, 15, 169, 0, 0, 0, 130.481, -282.245, 76.72993, 1.466077, 604800, 0, 0, 0, 0, 0, 0, 0, 0, 26365), -- Ancient Dwarven Shield (Area: Blackwing Descent - Difficulty: 6)
