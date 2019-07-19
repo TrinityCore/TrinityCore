@@ -5381,6 +5381,17 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF1;
     });
 
+    // Building Speed Effect
+    ApplySpellFix({
+        78218,
+        92463,
+        92464,
+        92465
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->StackAmount = 10;
+    });
+
     // END OF BLACKWING DESCENT SPELLS
 
     // Living Bomb
