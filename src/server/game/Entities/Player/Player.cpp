@@ -24553,7 +24553,8 @@ void Player::RestoreBaseRune(uint8 index)
 {
     std::vector<AuraEffect const*> removeList;
     std::unordered_set<AuraEffect const*>& auras = m_runes->runes[index].ConvertAuras;
-    std::remove_if(auras.begin(), auras.end(), [&removeList](AuraEffect const* storedAura) -> bool
+
+    auto criteria = [&removeList](AuraEffect const* storedAura) -> bool
     {
         // AuraEffect already gone
         if (!storedAura)
@@ -24569,7 +24570,9 @@ void Player::RestoreBaseRune(uint8 index)
 
         // If rune was converted by a non-passive aura that is still active we should keep it converted
         return false;
-    });
+    };
+
+    auras.erase(std::remove_if(auras.begin(), auras.end(), criteria), auras.end());
 
     if (!auras.empty())
         return;
