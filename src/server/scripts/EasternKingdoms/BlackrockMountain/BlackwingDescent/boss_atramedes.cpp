@@ -510,6 +510,7 @@ struct boss_atramedes : public BossAI
         DoMeleeAttackIfReady();
     }
 
+private:
     GuidSet _noisyPlayerGUIDs;
     ObjectGuid _lastShieldUserGUID;
     ObjectGuid _lastUsedAncientDwarvenShieldGUID;
