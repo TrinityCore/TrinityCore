@@ -24,8 +24,7 @@ namespace
     bool IsXPBoostActive()
     {
         time_t time = GameTime::GetGameTime();
-        tm localTm;
-        localtime_r(&time, &localTm);
+        tm localTm = TimeBreakdown(time);
         uint32 weekdayMaskBoosted = sWorld->getIntConfig(CONFIG_XP_BOOST_DAYMASK);
         uint32 weekdayMask = (1 << localTm.tm_wday);
         bool currentDayBoosted = (weekdayMask & weekdayMaskBoosted) != 0;
