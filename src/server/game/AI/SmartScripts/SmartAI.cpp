@@ -548,8 +548,8 @@ void SmartAI::JustReachedHome()
             if (me->GetWaypointPath())
                 me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
         }
-        else
-            me->ResumeMovement();
+
+        me->ResumeMovement();
     }
     else if (formation->IsFormed())
         me->GetMotionMaster()->MoveIdle(); // wait the order of leader
