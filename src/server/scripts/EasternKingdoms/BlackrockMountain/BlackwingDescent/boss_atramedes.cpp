@@ -1072,6 +1072,21 @@ class achievement_silence_is_golden : public AchievementCriteriaScript
         }
 };
 
+class spell_atramedes_apply_vehicle_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_atramedes_apply_vehicle_periodic);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_atramedes_apply_vehicle_periodic::AfterApply, EFFECT_0, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_boss_atramedes()
 {
     RegisterBlackwingDescentCreatureAI(boss_atramedes);
@@ -1093,5 +1108,6 @@ void AddSC_boss_atramedes()
     RegisterSpellScript(spell_atramedes_sonic_breath);
     RegisterSpellScript(spell_atramedes_destroy_shield);
     RegisterAuraScript(spell_atramedes_pestered);
+    RegisterAuraScript(spell_atramedes_apply_vehicle_periodic);
     new achievement_silence_is_golden();
 }

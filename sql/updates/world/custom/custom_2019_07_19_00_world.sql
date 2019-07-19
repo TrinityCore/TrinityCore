@@ -58,7 +58,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_atramedes_devastation_trigger',
 'spell_atramedes_sonic_breath',
 'spell_atramedes_destroy_shield',
-'spell_atramedes_pestered');
+'spell_atramedes_pestered',
+'spell_atramedes_apply_vehicle_periodic');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (92452, 'spell_atramedes_modulation'),
@@ -79,7 +80,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (78898, 'spell_atramedes_devastation_trigger'),
 (78075, 'spell_atramedes_sonic_breath'),
 (92607, 'spell_atramedes_destroy_shield'),
-(92685, 'spell_atramedes_pestered');
+(92685, 'spell_atramedes_pestered'),
+(92647, 'spell_atramedes_apply_vehicle_periodic');
 
 -- Addons
 DELETE FROM `creature_template_addon` WHERE `entry` IN (41807, 42001, 41962, 49580);
