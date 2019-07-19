@@ -97,11 +97,11 @@ enum BWDCreatureIds
 
     /*Atramedes*/
     NPC_SONAR_PULSE                     = 41546,
-    NPC_SONAR_PULSE_TARGET              = 49679,
     NPC_SONAR_PULSE_BOMB                = 49623,
     NPC_TRACKING_FLAMES                 = 41879,
     NPC_REVERBERATING_FLAME             = 41962,
     NPC_LORD_VICTOR_NEFARIUS_ATRAMEDES  = 49580,
+    NPC_OBNOXIOUS_FIEND                 = 49740,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST            = 43125,

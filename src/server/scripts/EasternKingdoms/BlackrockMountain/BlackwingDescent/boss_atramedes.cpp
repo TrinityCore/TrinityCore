@@ -41,7 +41,7 @@ enum Spells
     SPELL_SONIC_BREATH_CAST                 = 78098,
     SPELL_TAKE_OFF_ANIM_KIT                 = 86915,
     SPELL_SONAR_PULSE_TRIGGER               = 92519,
-    SPELL_SONAR_BOMB                        = 92765,
+    SPELL_SONAR_BOMB                        = 92557,
     SPELL_ROARING_FLAME_BREATH              = 78207,
 
     // Sonar Pulse
@@ -59,6 +59,12 @@ enum Spells
     // Lord Victor Nefarius
     SPELL_SUMMON_IMP                        = 92625,
     SPELL_DESTROY_SHIELD                    = 92607,
+    SPELL_APPLY_VEHICLE_PERIODIC            = 92647,
+
+    // Obnoxious Imp
+    SPELL_PHASE_SHIFT                       = 92681,
+    SPELL_PESTERED                          = 92685,
+    SPELL_OBNOXIOUS                         = 92677,
 
     // Player
     SPELL_RESONATING_CLASH_GROUND           = 77611,
@@ -74,10 +80,12 @@ enum Texts
     SAY_ANNOUNCE_SEARING_FLAME  = 1,
     SAY_SEARING_FLAME           = 2,
     SAY_FLIGHT_PHASE            = 3,
+    SAY_SLAY                    = 4,
+    SAY_DEATH                   = 5,
 
     // Lord Victor Nefarius
     SAY_INTRO                   = 0,
-    SAY_SUMMON_IMP              = 1,
+    SAY_SUMMON_FIEND            = 1,
     SAY_DESTROY_SHIELD          = 2
 };
 
@@ -105,7 +113,12 @@ enum Events
 
     // Lord Victor Nefarius
     EVENT_SAY_INTRO,
-    EVENT_SUMMON_IMP
+    EVENT_SUMMON_FIEND,
+
+    // Obnoxious Imp
+    EVENT_FOCUS_PLAYER,
+    EVENT_CHASE_PLAYER,
+    EVENT_OBNOXIOUS
 };
 
 enum Actions
@@ -113,7 +126,16 @@ enum Actions
     // Atramedes
     ACTION_START_INTRO              = 0,
     ACTION_HALT_REVERBERATING_FLAME = 1,
-    ACTION_DESTROY_SHIELD           = 2
+    ACTION_FAIL_ACHIEVEMENT         = 2,
+
+    // Lord Victor Nefarius
+    ACTION_DESTROY_SHIELD           = 0,
+    ACTION_STOP_SUMMONING_FIENDS    = 1,
+    ACTION_START_SUMMONING_FIENDS   = 2,
+
+    // Obnoxious Imp
+    ACTION_PLAYER_ENTERED           = 0,
+    ACTION_PLAYER_LEFT              = 1
 };
 
 enum MovePoints
@@ -140,11 +162,17 @@ enum Data
     DATA_ADD_NOISY_PLAYER                   = 1,
     DATA_REMOVE_NOISY_PLAYER                = 2,
     DATA_LAST_SHIELD_USER                   = 3,
+    DATA_ACHIEVEMT_ENLIGIBLE                = 4,
 
     // Getter
     DATA_IS_IN_AIR                          = 0,
     DATA_HAS_NOISY_PLAYER                   = 1,
     DATA_IS_IN_INTRO_PHASE                  = 2
+};
+
+enum Misc
+{
+    AI_ANIM_KIT_ID_OBNOXIOUS_IMP = 1162
 };
 
 Position const IntroFlightPosition1             = { 249.432f, -223.616f, 98.6447f };
@@ -156,7 +184,7 @@ Position const LordVictorNefariusSummonPosition = { 92.91319f, -223.9931f, 96.89
 
 struct boss_atramedes : public BossAI
 {
-    boss_atramedes(Creature* creature) : BossAI(creature, DATA_ATRAMEDES) { }
+    boss_atramedes(Creature* creature) : BossAI(creature, DATA_ATRAMEDES), _achievementEnligible(true) { }
 
     void Reset() override
     {
@@ -189,7 +217,8 @@ struct boss_atramedes : public BossAI
         summons.DespawnAll();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetBossState(DATA_ATRAMEDES, FAIL);
-        CleanupEncounter();
+        if (GameObject* door = instance->GetGameObject(DATA_ATHENAEUM_DOOR))
+            door->SetGoState(GO_STATE_ACTIVE);
         me->DespawnOrUnsummon();
     }
 
@@ -197,6 +226,15 @@ struct boss_atramedes : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        if (GameObject* door = instance->GetGameObject(DATA_ATHENAEUM_DOOR))
+            door->SetGoState(GO_STATE_ACTIVE);
+        Talk(SAY_DEATH);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY, victim);
     }
 
     void JustSummoned(Creature* summon) override
@@ -263,6 +301,8 @@ struct boss_atramedes : public BossAI
                 return (uint8(!_noisyPlayerGUIDs.empty()));
             case DATA_IS_IN_INTRO_PHASE:
                 return (uint8(events.IsInPhase(PHASE_INTRO)));
+            case DATA_ACHIEVEMT_ENLIGIBLE:
+                return (uint8(_achievementEnligible));
         }
 
         return 0;
@@ -339,6 +379,10 @@ struct boss_atramedes : public BossAI
                 events.ScheduleEvent(EVENT_SEARING_FLAME, 51s, 0, PHASE_GROUND);
                 events.ScheduleEvent(EVENT_SONIC_BREATH, 22s, 0, PHASE_GROUND);
                 events.ScheduleEvent(EVENT_LIFTOFF, 1min + 33s, 0, PHASE_GROUND);
+
+                if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES))
+                    if (nefarius->IsAIEnabled)
+                        nefarius->AI()->DoAction(ACTION_START_SUMMONING_FIENDS);
                 break;
             default:
                 break;
@@ -363,6 +407,9 @@ struct boss_atramedes : public BossAI
                     events.CancelEvent(EVENT_DESTROY_SHIELD_AND_RESUME_PLAYER_TRACKING);
                     events.ScheduleEvent(EVENT_MOVE_REVERBERATING_FLAME_TO_SHIELD, 2s, 0, PHASE_AIR);
                 }
+                break;
+            case ACTION_FAIL_ACHIEVEMENT:
+                _achievementEnligible = false;
                 break;
             default:
                 break;
@@ -420,6 +467,10 @@ struct boss_atramedes : public BossAI
                     me->SetReactState(REACT_PASSIVE);
                     DoCastSelf(SPELL_TAKE_OFF_ANIM_KIT);
                     me->GetMotionMaster()->MoveTakeoff(POINT_LIFTOFF, LiftoffPosition);
+
+                    if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES))
+                        if (nefarius->IsAIEnabled)
+                            nefarius->AI()->DoAction(ACTION_STOP_SUMMONING_FIENDS);
                     break;
                 case EVENT_MOVE_REVERBERATING_FLAME_TO_SHIELD:
                     if (Creature* flame = ObjectAccessor::GetCreature(*me, _reverberatingFlameGUID))
@@ -459,17 +510,11 @@ struct boss_atramedes : public BossAI
         DoMeleeAttackIfReady();
     }
 
-private:
-    void CleanupEncounter()
-    {
-        if (GameObject* door = instance->GetGameObject(DATA_ATHENAEUM_DOOR))
-            door->SetGoState(GO_STATE_ACTIVE);
-    }
-
     GuidSet _noisyPlayerGUIDs;
     ObjectGuid _lastShieldUserGUID;
     ObjectGuid _lastUsedAncientDwarvenShieldGUID;
     ObjectGuid _reverberatingFlameGUID;
+    bool _achievementEnligible;
 };
 
 struct npc_atramedes_ancient_dwarven_shield : public NullCreatureAI
@@ -507,12 +552,16 @@ struct npc_atramedes_lord_victor_nefarius : public NullCreatureAI
     void IsSummonedBy(Unit* /*summoner*/) override
     {
         _events.ScheduleEvent(EVENT_SAY_INTRO, 10s);
-        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+        _events.ScheduleEvent(EVENT_SUMMON_FIEND, 30s);
+        DoCastSelf(SPELL_APPLY_VEHICLE_PERIODIC);
     }
 
     void UpdateAI(uint32 diff) override
     {
         _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
@@ -520,6 +569,11 @@ struct npc_atramedes_lord_victor_nefarius : public NullCreatureAI
             {
                 case EVENT_SAY_INTRO:
                     Talk(SAY_INTRO);
+                    break;
+                case EVENT_SUMMON_FIEND:
+                    Talk(SAY_SUMMON_FIEND);
+                    DoCastSelf(SPELL_SUMMON_IMP);
+                    _events.Repeat(35s);
                     break;
                 default:
                     break;
@@ -535,9 +589,99 @@ struct npc_atramedes_lord_victor_nefarius : public NullCreatureAI
                 Talk(SAY_DESTROY_SHIELD);
                 DoCastAOE(SPELL_DESTROY_SHIELD);
                 break;
+            case ACTION_STOP_SUMMONING_FIENDS:
+                _events.Reset();
+                break;
+            case ACTION_START_SUMMONING_FIENDS:
+                _events.ScheduleEvent(EVENT_SUMMON_FIEND, 30s);
+                break;
             default:
                 break;
         }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
+struct npc_atramedes_obnoxious_fiend : public ScriptedAI
+{
+    npc_atramedes_obnoxious_fiend(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->DespawnOrUnsummon(2s);
+    }
+
+    void JustAppeared() override
+    {
+        DoZoneInCombat();
+        DoCastSelf(SPELL_PHASE_SHIFT, true);
+        _events.ScheduleEvent(EVENT_FOCUS_PLAYER, 1s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_PLAYER_ENTERED:
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                _events.ScheduleEvent(EVENT_OBNOXIOUS, 1s);
+                me->SetAIAnimKitId(AI_ANIM_KIT_ID_OBNOXIOUS_IMP);
+                break;
+            case ACTION_PLAYER_LEFT:
+                DoCastSelf(SPELL_PHASE_SHIFT, true);
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_FOCUS_PLAYER, 1s);
+                me->SetAIAnimKitId(0);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SAY_INTRO:
+                    Talk(SAY_INTRO);
+                    break;
+                case EVENT_FOCUS_PLAYER:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_PESTERED))
+                        me->AddThreat(target, 50000000.0f);
+                    _events.ScheduleEvent(EVENT_CHASE_PLAYER, 1s);
+                    break;
+                case EVENT_CHASE_PLAYER:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_OBNOXIOUS:
+                    if (Unit* vehicle = me->GetVehicleBase())
+                        DoCast(vehicle, SPELL_OBNOXIOUS);
+                    _events.Repeat(2s + 500ms);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
     }
 
 private:
@@ -697,15 +841,21 @@ class spell_atramedes_sound_bar : public AuraScript
     void HandleNoisyAura(AuraEffect const* aurEff)
     {
         Unit* target = GetTarget();
+        InstanceScript* instance = target->GetInstanceScript();
+        if (!instance)
+            return;
+
         if (target->GetPower(POWER_ALTERNATE_POWER) == target->GetMaxPower(POWER_ALTERNATE_POWER))
         {
             if (!target->HasAura(SPELL_NOISY))
-                if (InstanceScript* instance = target->GetInstanceScript())
-                    if (Creature* atramedes = instance->GetCreature(DATA_ATRAMEDES))
-                        atramedes->AI()->SetGUID(target->GetGUID(), DATA_ADD_NOISY_PLAYER);
+                if (Creature* atramedes = instance->GetCreature(DATA_ATRAMEDES))
+                    atramedes->AI()->SetGUID(target->GetGUID(), DATA_ADD_NOISY_PLAYER);
 
             target->CastSpell(target, SPELL_NOISY, true, nullptr, aurEff);
         }
+        else if (target->GetPower(POWER_ALTERNATE_POWER) >= 50)
+            if (Creature* atramedes = instance->GetCreature(DATA_ATRAMEDES))
+                atramedes->AI()->DoAction(ACTION_FAIL_ACHIEVEMENT);
     }
 
     void Register() override
@@ -853,19 +1003,6 @@ class spell_atramedes_sonic_breath : public SpellScript
     }
 };
 
-class ValidInvalidShieldCheck
-{
-public:
-    ValidInvalidShieldCheck(ObjectGuid guid) : _guid(guid) { }
-
-    bool operator()(WorldObject const* obj) const
-    {
-        return obj->GetGUID() == _guid || obj->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    }
-private:
-    ObjectGuid _guid;
-};
-
 class spell_atramedes_destroy_shield : public SpellScript
 {
     PrepareSpellScript(spell_atramedes_destroy_shield);
@@ -875,9 +1012,10 @@ class spell_atramedes_destroy_shield : public SpellScript
         if (targets.empty())
             return;
 
-        if (Creature* creature = GetCaster()->ToCreature())
-            if (creature->IsAIEnabled)
-                targets.remove_if(ValidInvalidShieldCheck(creature->AI()->GetGUID(DATA_LAST_USED_ANCIENT_DWARVEN_SHIELD)));
+        targets.remove_if([](WorldObject const* obj)
+        {
+            return obj->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        });
 
         if (targets.size() > 1)
             Trinity::Containers::RandomResize(targets, 1);
@@ -889,11 +1027,56 @@ class spell_atramedes_destroy_shield : public SpellScript
     }
 };
 
+class spell_atramedes_pestered : public AuraScript
+{
+    PrepareAuraScript(spell_atramedes_pestered);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Creature* creature = caster->ToCreature())
+                if (creature->IsAIEnabled)
+                    creature->AI()->DoAction(ACTION_PLAYER_ENTERED);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Creature* creature = caster->ToCreature())
+                if (creature->IsAIEnabled)
+                    creature->AI()->DoAction(ACTION_PLAYER_LEFT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_atramedes_pestered::AfterApply, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_atramedes_pestered::AfterRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class achievement_silence_is_golden : public AchievementCriteriaScript
+{
+    public:
+        achievement_silence_is_golden() : AchievementCriteriaScript("achievement_silence_is_golden") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target) override
+        {
+            if (!target)
+                return false;
+
+            if (target->IsAIEnabled)
+                return target->GetAI()->GetData(DATA_ACHIEVEMT_ENLIGIBLE);
+
+            return false;
+        }
+};
+
 void AddSC_boss_atramedes()
 {
     RegisterBlackwingDescentCreatureAI(boss_atramedes);
     RegisterBlackwingDescentCreatureAI(npc_atramedes_ancient_dwarven_shield);
     RegisterBlackwingDescentCreatureAI(npc_atramedes_lord_victor_nefarius);
+    RegisterBlackwingDescentCreatureAI(npc_atramedes_obnoxious_fiend);
     RegisterSpellScript(spell_atramedes_modulation);
     RegisterSpellScript(spell_atramedes_roaring_flame_breath_reverse_cast);
     RegisterAuraScript(spell_atramedes_roaring_flame_breath);
@@ -908,4 +1091,6 @@ void AddSC_boss_atramedes()
     RegisterAuraScript(spell_atramedes_devastation_trigger);
     RegisterSpellScript(spell_atramedes_sonic_breath);
     RegisterSpellScript(spell_atramedes_destroy_shield);
+    RegisterAuraScript(spell_atramedes_pestered);
+    new achievement_silence_is_golden();
 }

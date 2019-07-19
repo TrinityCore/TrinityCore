@@ -22,6 +22,9 @@ UPDATE `creature_template` SET `unit_flags`= 33554432, `flags_extra`= 130, `spee
 UPDATE `creature_template` SET `ScriptName`= 'npc_atramedes_ancient_dwarven_shield' WHERE `entry` IN (41445, 42947, 42949, 42951, 42954, 42956, 42958, 42960);
 -- Lord Victor Nefarius
 UPDATE `creature_template` SET `unit_flags`= 33554496, `ScriptName`= 'npc_atramedes_lord_victor_nefarius' WHERE `entry`= 49580;
+-- Obnoxious Imp
+UPDATE `creature_template` SET `ScriptName`= 'npc_atramedes_obnoxious_fiend', `difficulty_entry_3`= 49798 WHERE `entry`= 49740;
+UPDATE `creature_template` SET `minlevel`= 85, `maxlevel`= 85, `faction`= 16, `exp`= 3, `speed_run`= 1.429, `mechanic_immune_mask`= 650854271 WHERE `entry` IN (49740, 49798);
 
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID` IN (41442, 49580);
@@ -30,8 +33,10 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (41442, 0, 0, 'I have no need for eyes to see my enemies. Your clumsy footsteps and foul stench give you away!', 14, 0, 100, 0, 0, 20820, 48030, 'Atramedes - Aggro'),
 (41442, 1, 0, '|TInterface\\Icons\\spell_fire_selfdestruct.blp:20|t%s rears back and casts |cFFFF0000|Hspell:77982|h[Searing Flame]|h|r!\n', 41, 0, 100, 0, 0, 0, 42180, 'Atramedes - Announce Searing Flame'),
 (41442, 2, 0, 'You cannot hide from searing flame!', 14, 0, 100, 0, 0, 20826, 48036, 'Atramedes - Searing Flame'),
-(41442, 3, 0, 'Yes, run! With every step your heart quickens. The beating, loud and thunderous... Almost deafening. You cannot escape!', 14, 0, 100, 0, 0, 20827, 48038, 'Atramedes'),
-(41442, 4, 0, 'This miserable existence finally ends.', 14, 0, 100, 0, 0, 20823, 48034, 'Atramedes to Player'),
+(41442, 3, 0, 'Yes, run! With every step your heart quickens. The beating, loud and thunderous... Almost deafening. You cannot escape!', 14, 0, 100, 0, 0, 20827, 48038, 'Atramedes - Roaring Flame Breath'),
+(41442, 4, 0, 'Death waits in the darkness!', 14, 0, 100, 0, 0, 20822, 48033, 'Atramedes - Slay 1'),
+(41442, 4, 1, 'Sighted, but blind to the truth. Embrace the finality of it all!', 14, 0, 100, 0, 0, 20821, 48031, 'Atramedes - Slay 2'),
+(41442, 5, 0, 'This miserable existence finally ends.', 14, 0, 100, 0, 0, 20823, 48034, 'Atramedes - Death'),
 -- Lord Victor Nefarius
 (49580, 0, 0, 'Atramedes, are you going deaf as well as blind? Hurry up and kill them all.', 14, 0, 100, 0, 0, 23360, 49074, 'Lord Victor Nefarius'),
 (49580, 1, 0, 'Atramedes, the heroes are right THERE!', 14, 0, 100, 0, 0, 23359, 49075, 'Lord Victor Nefarius'),
@@ -52,7 +57,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 'spell_atramedes_sonic_flames',
 'spell_atramedes_devastation_trigger',
 'spell_atramedes_sonic_breath',
-'spell_atramedes_destroy_shield');
+'spell_atramedes_destroy_shield',
+'spell_atramedes_pestered');
 
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (92452, 'spell_atramedes_modulation'),
@@ -72,7 +78,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (78864, 'spell_atramedes_sonic_flames'),
 (78898, 'spell_atramedes_devastation_trigger'),
 (78075, 'spell_atramedes_sonic_breath'),
-(92607, 'spell_atramedes_destroy_shield');
+(92607, 'spell_atramedes_destroy_shield'),
+(92685, 'spell_atramedes_pestered');
 
 -- Addons
 DELETE FROM `creature_template_addon` WHERE `entry` IN (41807, 42001, 41962, 49580);
@@ -80,7 +87,7 @@ INSERT INTO `creature_template_addon` (`entry`, `bytes1`, `bytes2`, `auras`) VAL
 (41807, 0, 1, '78024 78018'),
 (42001, 0, 1, '78024 78018'),
 (41962, 0, 1, '78354 78217'),
-(49580, 0, 1, '78494 92647');
+(49580, 0, 1, '78494');
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceEntry` IN (77673, 78098, 92403, 92404, 92405, 78230, 78431, 77611, 78168, 78945, 92607) AND `SourceTypeOrReferenceId`= 13;
@@ -134,14 +141,14 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 (42956, 77709, 0, 1),
 (42958, 77709, 0, 1),
 (42960, 77709, 0, 1);
-
 -- Movement
-DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (41546, 41962, 42956, 49580);
+DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (41546, 41962, 42956, 49580, 49623);
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`) VALUES
 (41546, 0, 1, 1, 0),
 (41962, 0, 0, 2, 0),
 (42956, 0, 0, 2, 1),
-(49580, 0, 0, 1, 0);
+(49580, 2, 0, 1, 0),
+(49623, 2, 0, 0, 0);
 
 -- Correct Athenaeum Door Rotation
 UPDATE `gameobject` SET `rotation2`= -1, `rotation3`= 0 WHERE `guid`= 235177;
@@ -178,3 +185,29 @@ INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
 (400, 0, 250129),
 (400, 0, 250130),
 (400, 0, 250131);
+
+DELETE FROM `spell_dbc` WHERE `Id`= 92647;
+INSERT INTO `spell_dbc` (`Id`, `CastingTimeIndex`, `DurationIndex`, `Attributes`, `AttributesEx`, `AttributesEx3`, `AttributesEx6`, `AttributesEx7`, `Comment`) VALUES
+(92647, 0, 21, 0x20000100, 0x10000400, 0x10070300, 0x00000400, 0x02000000, '(Serverside/Non-DB2) Apply Vehicle Periodic');
+
+DELETE FROM `spelleffect_dbc` WHERE `Id`= 160097;
+INSERT INTO `spelleffect_dbc` (`Id`, `Effect`, `EffectApplyAuraName`, `EffectAmplitude`, `EffectMiscValue`, `EffectMiscValueB`, `EffectRadiusIndex`, `EffectRadiusIndexMax`, `EffectImplicitTargetA`, `EffectImplicitTargetB`, `EffectSpellId`, `EffectIndex`, `Comment`) VALUES
+(160097, 27, 296, 0, 443, 445, 0, 12, 22, 7, 92647, 0, '(Serverside/Non-DB2) Apply Vehicle Periodic - EFFECT_0');
+
+-- Procs
+DELETE FROM `spell_proc` WHERE `SpellId`= 92681;
+INSERT INTO `spell_proc` (`SpellId`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `Charges`) VALUES
+(92681, 0x00000004, 0, 0, 0x00002FFF,  1);
+
+-- Achievement
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id`= 15655;
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(15655, 11, 0, 0, 'achievement_silence_is_golden');
+
+-- Currency Loot
+DELETE FROM `creature_onkill_reward` WHERE `creature_id` IN (41442, 49583, 49584, 49585);
+INSERT INTO `creature_onkill_reward` (`creature_id`, `CurrencyId1`, `CurrencyCount1`) VALUES
+(41442, 396, 3500),
+(49583, 396, 4500),
+(49584, 396, 3500),
+(49585, 396, 4500);

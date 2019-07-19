@@ -5375,6 +5375,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
     });
 
+    // Pestered!
+    ApplySpellFix({ 92685 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF1;
+    });
+
     // END OF BLACKWING DESCENT SPELLS
 
     // Living Bomb

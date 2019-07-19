@@ -150,6 +150,7 @@ class instance_blackwing_descent : public InstanceMapScript
                     case NPC_TRACKING_FLAMES:
                     case NPC_SONAR_PULSE_BOMB:
                     case NPC_REVERBERATING_FLAME:
+                    case NPC_OBNOXIOUS_FIEND:
                         if (Creature* atramedes = GetCreature(DATA_ATRAMEDES))
                             atramedes->AI()->JustSummoned(creature);
                         break;
