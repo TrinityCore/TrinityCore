@@ -24562,7 +24562,7 @@ void Player::RestoreBaseRune(uint8 index)
 
         if (storedAura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PASSIVE))
         {
-            // Don't drop passive talents providing rune convertion
+            // Don't drop passive talents providing rune conversion
             if (storedAura->GetAuraType() == SPELL_AURA_CONVERT_RUNE)
                 removeList.push_back(storedAura);
             return true;
@@ -24572,7 +24572,7 @@ void Player::RestoreBaseRune(uint8 index)
         return false;
     };
 
-    auras.erase(std::remove_if(auras.begin(), auras.end(), criteria), auras.end());
+    Trinity::Containers::EraseIf(auras, criteria);
 
     if (!auras.empty())
         return;
