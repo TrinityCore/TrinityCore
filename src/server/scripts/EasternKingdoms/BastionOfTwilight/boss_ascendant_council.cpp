@@ -313,6 +313,8 @@ class boss_ascendant_council_controller : public CreatureScript
         {
             boss_ascendant_council_controllerAI(Creature* creature) : BossAI(creature, DATA_ASCENDANT_COUNCIL) { }
 
+            bool CanAIAttack(Unit const* /*victim*/) const override { return false; }
+
             void Reset() override
             {
                 if (instance->GetBossState(DATA_ASCENDANT_COUNCIL) != DONE)
@@ -357,7 +359,6 @@ class boss_ascendant_council_controller : public CreatureScript
                             if (IsHeroic())
                                 terrastra->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
                         }
-
 
                         events.ScheduleEvent(EVENT_PREPARE_ULTIMATE_ABILITY, 15s, 0, PHASE_FELUDIUS_IGNACIOUS);
 
