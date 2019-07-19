@@ -77,7 +77,7 @@ struct tm* localtime_r(time_t const* time, struct tm *result)
 }
 #endif
 
-TC_COMMON_API tm TimeBreakdown(time_t time)
+tm TimeBreakdown(time_t time)
 {
     tm timeLocal;
     localtime_r(&time, &timeLocal);
@@ -93,7 +93,7 @@ time_t LocalTimeToUTCTime(time_t time)
 #endif
 }
 
-TC_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
+time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
 {
     tm timeLocal = TimeBreakdown(time);
     timeLocal.tm_hour = 0;
@@ -102,7 +102,6 @@ TC_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAft
     time_t midnightLocal = mktime(&timeLocal);
     time_t hourLocal = midnightLocal + hour * HOUR;
 
-    // In timezones west of GMT (so GMT-1, etc) the / DAY * DAY math will return the day before. In this cases we just add 1 day to the time
     if (onlyAfterTime && hourLocal < time)
         hourLocal += DAY;
 
