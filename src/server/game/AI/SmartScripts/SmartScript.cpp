@@ -557,17 +557,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                         if (e.action.cast.castFlags & SMARTCAST_COMBAT_MOVE)
                         {
-                            // If cast flag SMARTCAST_COMBAT_MOVE is set combat movement will not be allowed
-                            // unless target is outside spell range, out of mana, or LOS.
-
+                            // If cast flag SMARTCAST_COMBAT_MOVE is set combat movement will not be allowed unless target is outside spell range, out of mana, or LOS.
                             bool allowMove = false;
                             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(e.action.cast.spell);
                             int32 mana = me->GetPower(POWER_MANA);
 
-                            if (me->GetDistance(target) > spellInfo->GetMaxRange(true) ||
-                                me->GetDistance(target) < spellInfo->GetMinRange(true) ||
+                            if (me->GetDistance(target) > spellInfo->GetMaxRange(true) || me->GetDistance(target) < spellInfo->GetMinRange(true) ||
                                 !me->IsWithinLOSInMap(target) ||
-                                mana < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask())||
+                                mana < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()) ||
                                 me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
                                 allowMove = true;
 
