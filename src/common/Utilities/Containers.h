@@ -18,6 +18,7 @@
 #ifndef TRINITY_CONTAINERS_H
 #define TRINITY_CONTAINERS_H
 
+#include "advstd.h"
 #include "Define.h"
 #include "Random.h"
 #include <algorithm>
@@ -239,6 +240,34 @@ namespace Trinity
                     itr = multimap.erase(itr);
                 else
                     ++itr;
+            }
+        }
+
+        template <typename Container, typename Predicate>
+        std::enable_if_t<advstd::is_move_assignable_v<decltype(*std::declval<Container>().begin())>, void> EraseIf(Container& c, Predicate p)
+        {
+            auto wpos = c.begin();
+            for (auto rpos = c.begin(), end = c.end(); rpos != end; ++rpos)
+            {
+                if (!p(*rpos))
+                {
+                    if (rpos != wpos)
+                        std::swap(*rpos, *wpos);
+                    ++wpos;
+                }
+            }
+            c.erase(wpos, c.end());
+        }
+
+        template <typename Container, typename Predicate>
+        std::enable_if_t<!advstd::is_move_assignable_v<decltype(*std::declval<Container>().begin())>, void> EraseIf(Container& c, Predicate p)
+        {
+            for (auto it = c.begin(); it != c.end();)
+            {
+                if (p(*it))
+                    it = c.erase(it);
+                else
+                    ++it;
             }
         }
     }

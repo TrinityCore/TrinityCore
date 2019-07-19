@@ -17,17 +17,17 @@
 
 #include "GameTime.h"
 #include "ScriptMgr.h"
+#include "Util.h"
 #include "World.h"
-
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace
 {
     bool IsXPBoostActive()
     {
-        auto now = boost::posix_time::to_tm(boost::posix_time::from_time_t(GameTime::GetGameTime()));
+        time_t time = GameTime::GetGameTime();
+        tm localTm = TimeBreakdown(time);
         uint32 weekdayMaskBoosted = sWorld->getIntConfig(CONFIG_XP_BOOST_DAYMASK);
-        uint32 weekdayMask = (1 << now.tm_wday);
+        uint32 weekdayMask = (1 << localTm.tm_wday);
         bool currentDayBoosted = (weekdayMask & weekdayMaskBoosted) != 0;
         return currentDayBoosted;
     }
