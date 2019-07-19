@@ -17,6 +17,7 @@
 
 #include "GameTime.h"
 #include "ScriptMgr.h"
+#include "Util.h"
 #include "World.h"
 
 namespace
