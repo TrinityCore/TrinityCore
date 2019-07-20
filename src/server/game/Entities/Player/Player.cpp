@@ -24551,41 +24551,50 @@ void Player::RemoveRunesByAuraEffect(AuraEffect const* aura)
 
 void Player::RestoreBaseRune(uint8 index)
 {
+    std::vector<AuraEffect const*> removeList;
     std::unordered_set<AuraEffect const*>& auras = m_runes->runes[index].ConvertAuras;
 
-    AuraEffect const* aura = nullptr;
-    for (auto itr = auras.begin(); itr != auras.end() && !aura;)
+    auto criteria = [&removeList](AuraEffect const* storedAura) -> bool
     {
-        if (AuraEffect const* temp = *itr)
+        // AuraEffect already gone
+        if (!storedAura)
+            return true;
+
+        if (storedAura->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PASSIVE))
         {
-            if (temp->GetSpellInfo()->HasAttribute(SPELL_ATTR0_PASSIVE))
-            {
-                aura = temp;
-                auras.erase(itr);
-            }
-            else
-                ++itr;
+            // Don't drop passive talents providing rune conversion
+            if (storedAura->GetAuraType() == SPELL_AURA_CONVERT_RUNE)
+                removeList.push_back(storedAura);
+            return true;
         }
-        else
-            itr = auras.erase(itr);
-    }
+
+        // If rune was converted by a non-passive aura that is still active we should keep it converted
+        return false;
+    };
+
+    Trinity::Containers::EraseIf(auras, criteria);
 
     if (!auras.empty())
         return;
 
     ConvertRune(index, GetBaseRune(index));
 
-    // Don't drop passive talents providing rune convertion
-    if (!aura || aura->GetAuraType() != SPELL_AURA_CONVERT_RUNE)
+    if (removeList.empty())
         return;
 
-    for (uint8 itr = 0; itr < MAX_RUNES; ++itr)
+    // Filter auras set to be removed if they are converting any other rune index
+    for (AuraEffect const* storedAura : removeList)
     {
-        if (m_runes->runes[itr].ConvertAuras.find(aura) != m_runes->runes[itr].ConvertAuras.end())
-            return;
-    }
+        uint8 itr = 0;
+        for (; itr < MAX_RUNES; ++itr)
+        {
+            if (m_runes->runes[itr].ConvertAuras.find(storedAura) != m_runes->runes[itr].ConvertAuras.end())
+                break;
+        }
 
-    aura->GetBase()->Remove();
+        if (itr == MAX_RUNES)
+            storedAura->GetBase()->Remove();
+    }
 }
 
 void Player::ConvertRune(uint8 index, RuneType newType)
