@@ -230,11 +230,11 @@ void World::TriggerGuidWarning()
     time_t today = (gameTime / DAY) * DAY;
 
     // Check if our window to restart today has passed. 5 mins until quiet time
-    while (gameTime >= (today + (getIntConfig(CONFIG_RESPAWN_RESTARTQUIETTIME) * HOUR) - 1810))
+    while (gameTime >= GetLocalHourTimestamp(today, getIntConfig(CONFIG_RESPAWN_RESTARTQUIETTIME)) - 1810)
         today += DAY;
 
     // Schedule restart for 30 minutes before quiet time, or as long as we have
-    _warnShutdownTime = today + (getIntConfig(CONFIG_RESPAWN_RESTARTQUIETTIME) * HOUR) - 1800;
+    _warnShutdownTime = GetLocalHourTimestamp(today, getIntConfig(CONFIG_RESPAWN_RESTARTQUIETTIME)) - 1800;
 
     _guidWarn = true;
     SendGuidWarning();
