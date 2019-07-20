@@ -1778,7 +1778,7 @@ class npc_terenas_menethil : public CreatureScript
                     return;
 
                 me->CombatStop(false);
-                me->GetThreatManager().NotifyDisengaged();
+                EngagementOver();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override

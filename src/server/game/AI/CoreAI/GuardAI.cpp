@@ -52,7 +52,7 @@ void GuardAI::EnterEvadeMode(EvadeReason /*why*/)
     {
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop(true);
-        me->GetThreatManager().NotifyDisengaged();
+        EngagementOver();
         return;
     }
 
@@ -60,7 +60,7 @@ void GuardAI::EnterEvadeMode(EvadeReason /*why*/)
 
     me->RemoveAllAuras();
     me->CombatStop(true);
-    me->GetThreatManager().NotifyDisengaged();
+    EngagementOver();
 
     me->GetMotionMaster()->MoveTargetedHome();
 }

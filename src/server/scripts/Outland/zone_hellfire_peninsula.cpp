@@ -100,7 +100,7 @@ public:
                 me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                 me->RemoveAllAuras();
                 me->CombatStop(true);
-                me->GetThreatManager().NotifyDisengaged();
+                EngagementOver();
                 Talk(SAY_FREE);
                 return;
             }
@@ -973,7 +973,7 @@ public:
                 me->RestoreFaction();
                 me->RemoveAllAuras();
                 me->CombatStop(true);
-                me->GetThreatManager().NotifyDisengaged();
+                EngagementOver();
                 me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                 me->SetImmuneToPC(true);
                 Talk(SAY_DEFEATED);

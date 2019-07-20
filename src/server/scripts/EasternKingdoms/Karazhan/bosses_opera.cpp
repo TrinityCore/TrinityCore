@@ -1257,7 +1257,6 @@ public:
                         Julianne->GetMotionMaster()->Clear();
                         Julianne->setDeathState(JUST_DIED);
                         Julianne->CombatStop(true);
-                        Julianne->GetThreatManager().NotifyDisengaged();
                         Julianne->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
                     }
                     return;
@@ -1527,7 +1526,6 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &dama
                 Romulo->GetMotionMaster()->Clear();
                 Romulo->setDeathState(JUST_DIED);
                 Romulo->CombatStop(true);
-                Romulo->GetThreatManager().NotifyDisengaged();
                 Romulo->SetDynamicFlags(UNIT_DYNFLAG_LOOTABLE);
             }
 
