@@ -32,6 +32,7 @@ Quest::Quest(Field* questRecord)
     EmoteOnComplete = 0;
     _rewItemsCount = 0;
     _rewChoiceItemsCount = 0;
+    _eventIdForQuest = 0;
     _rewCurrencyCount = 0;
 
     ID = questRecord[0].GetUInt32();
