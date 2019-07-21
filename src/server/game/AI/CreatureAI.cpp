@@ -186,15 +186,18 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
 
 void CreatureAI::JustAppeared()
 {
-    if (TempSummon* summon = me->ToTempSummon())
+    if (!IsEngaged())
     {
-        // Only apply this to specific types of summons
-        if (!summon->GetVehicle() && ShouldFollowOnSpawn(summon->m_Properties))
+        if (TempSummon* summon = me->ToTempSummon())
         {
-            if (Unit* owner = summon->GetCharmerOrOwner())
+            // Only apply this to specific types of summons
+            if (!summon->GetVehicle() && ShouldFollowOnSpawn(summon->m_Properties))
             {
-                summon->GetMotionMaster()->Clear();
-                summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
+                if (Unit* owner = summon->GetCharmerOrOwner())
+                {
+                    summon->GetMotionMaster()->Clear();
+                    summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
+                }
             }
         }
     }

@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ThreatManager.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
 #include "MotionMaster.h"
 #include "Player.h"
-#include "ThreatManager.h"
+#include "TemporarySummon.h"
 #include "Unit.h"
 #include "UnitAI.h"
 #include "UnitDefines.h"
@@ -160,9 +161,11 @@ void ThreatReference::UnregisterAndFree()
     if (cWho->IsPet() || cWho->IsTotem() || cWho->IsTrigger())
         return false;
 
-    // summons cannot have a threat list, unless they are controlled by a creature
-    if (cWho->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN) && !cWho->GetOwnerGUID().IsCreature())
-        return false;
+    // summons cannot have a threat list if they were summoned by a player
+    if (cWho->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN))
+        if (TempSummon const* tWho = cWho->ToTempSummon())
+            if (tWho->GetSummonerGUID().IsPlayer())
+                return false;
 
     return true;
 }
