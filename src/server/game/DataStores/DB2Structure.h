@@ -381,6 +381,13 @@ struct CharacterFacialHairStylesEntry
     uint8 VariationID;
 };
 
+struct CharBaseInfoEntry
+{
+    uint32 ID;
+    uint8 RaceID;
+    uint8 ClassID;
+};
+
 struct CharBaseSectionEntry
 {
     uint32 ID;

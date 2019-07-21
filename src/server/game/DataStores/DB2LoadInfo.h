@@ -650,6 +650,21 @@ struct CharacterFacialHairStylesLoadInfo
     }
 };
 
+struct CharBaseInfoLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_BYTE, "RaceID"},
+            { true, FT_BYTE, "ClassID"},
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharBaseInfoMeta::Instance(), HOTFIX_SEL_CHAR_BASE_INFO);
+        return &loadInfo;
+    }
+};
+
 struct CharBaseSectionLoadInfo
 {
     static DB2LoadInfo const* Instance()
