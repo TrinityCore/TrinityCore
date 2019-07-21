@@ -359,6 +359,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool CanGiveExperience() const;
 
+        bool IsEngaged() const override;
         void AtEngage(Unit* target) override;
         void AtDisengage() override;
 
