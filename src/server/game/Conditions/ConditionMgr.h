@@ -84,8 +84,9 @@ enum ConditionTypes
     CONDITION_TAXI                     = 46,                   // 0                0              0                  true if player is on taxi
     CONDITION_QUESTSTATE               = 47,                   // quest_id         state_mask     0                  true if player is in any of the provided quest states for the quest (1 = not taken, 2 = completed, 8 = in progress, 32 = failed, 64 = rewarded)
     CONDITION_QUEST_OBJECTIVE_PROGRESS = 48,                   // quest_id         objectiveIndex objectiveCount     true if player has reached the specified objectiveCount quest progress for the objectiveIndex for the specified quest
-    CONDITION_GAMEMASTER               = 49,                   // canBeGM          0              0                  true if player is gamemaster (or can be gamemaster)
-    CONDITION_MAX                      = 50                    // MAX
+    CONDITION_DIFFICULTY_ID            = 49,                   // Difficulty       0              0                  true is map has difficulty id
+    CONDITION_GAMEMASTER               = 50,                   // canBeGM          0              0                  true if player is gamemaster (or can be gamemaster)
+    CONDITION_MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:
