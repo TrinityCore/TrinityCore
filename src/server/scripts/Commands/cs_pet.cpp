@@ -98,8 +98,7 @@ public:
             return false;
         }
 
-        creatureTarget->setDeathState(JUST_DIED);
-        creatureTarget->RemoveCorpse();
+        creatureTarget->DespawnOrUnsummon();
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
         pet->SetCreatorGUID(player->GetGUID());

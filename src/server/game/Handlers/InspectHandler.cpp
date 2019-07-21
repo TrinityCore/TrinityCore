@@ -27,7 +27,7 @@
 
 void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
 {
-    Player* player = ObjectAccessor::FindPlayer(inspect.Target);
+    Player* player = ObjectAccessor::GetPlayer(*_player, inspect.Target);
     if (!player)
     {
         TC_LOG_DEBUG("network", "WorldSession::HandleInspectOpcode: Target %s not found.", inspect.Target.ToString().c_str());
@@ -77,7 +77,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
 
 void WorldSession::HandleQueryInspectAchievements(WorldPackets::Inspect::QueryInspectAchievements& inspect)
 {
-    Player* player = ObjectAccessor::FindPlayer(inspect.Guid);
+    Player* player = ObjectAccessor::GetPlayer(*_player, inspect.Guid);
     if (!player)
     {
         TC_LOG_DEBUG("network", "WorldSession::HandleQueryInspectAchievements: [%s] inspected unknown Player [%s]", GetPlayer()->GetGUID().ToString().c_str(), inspect.Guid.ToString().c_str());

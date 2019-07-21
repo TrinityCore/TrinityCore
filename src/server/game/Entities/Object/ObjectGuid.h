@@ -399,4 +399,67 @@ namespace std
     };
 }
 
+namespace Trinity
+{
+    namespace Legacy
+    {
+        enum class TypeID
+        {
+            Object          = 0,
+            Item            = 1,
+            Container       = 2,
+            Unit            = 3,
+            Player          = 4,
+            GameObject      = 5,
+            DynamicObject   = 6,
+            Corpse          = 7,
+            AreaTrigger     = 8,
+            SceneObject     = 9,
+            Conversation    = 10,
+            Max
+        };
+
+        constexpr inline ::TypeID ConvertLegacyTypeID(TypeID legacyTypeID)
+        {
+            switch (legacyTypeID)
+            {
+                case TypeID::Object:
+                    return TYPEID_OBJECT;
+                case TypeID::Item:
+                    return TYPEID_ITEM;
+                case TypeID::Container:
+                    return TYPEID_CONTAINER;
+                case TypeID::Unit:
+                    return TYPEID_UNIT;
+                case TypeID::Player:
+                    return TYPEID_PLAYER;
+                case TypeID::GameObject:
+                    return TYPEID_GAMEOBJECT;
+                case TypeID::DynamicObject:
+                    return TYPEID_DYNAMICOBJECT;
+                case TypeID::Corpse:
+                    return TYPEID_CORPSE;
+                case TypeID::AreaTrigger:
+                    return TYPEID_AREATRIGGER;
+                case TypeID::SceneObject:
+                    return TYPEID_SCENEOBJECT;
+                case TypeID::Conversation:
+                    return TYPEID_CONVERSATION;
+                default:
+                    return TYPEID_OBJECT;
+            }
+        }
+
+        constexpr inline TypeMask ConvertLegacyTypeMask(uint32 legacyTypeMask)
+        {
+            uint32 typeMask = 0;
+            for (TypeID i = TypeID::Object; i < TypeID::Max; i = TypeID(uint32(i) + 1))
+                if (legacyTypeMask & (1 << uint32(i)))
+                    typeMask |= 1u << ConvertLegacyTypeID(i);
+
+            return TypeMask(typeMask);
+        }
+    }
+}
+
 #endif // ObjectGuid_h__

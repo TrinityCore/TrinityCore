@@ -40,22 +40,23 @@ enum BTDataTypes
 
     // Additional Data
     DATA_AKAMA_SHADE                = 9,
+
     DATA_AKAMA                      = 10,
+    DATA_MAIEV                      = 11,
+    DATA_GO_ILLIDAN_GATE            = 12,
+    DATA_BLACK_TEMPLE_TRIGGER       = 13,
 
-    DATA_GATHIOS_THE_SHATTERER      = 11,
-    DATA_HIGH_NETHERMANCER_ZEREVOR  = 12,
-    DATA_LADY_MALANDE               = 13,
-    DATA_VERAS_DARKSHADOW           = 14,
-    DATA_BLOOD_ELF_COUNCIL_VOICE    = 15,
+    DATA_GATHIOS_THE_SHATTERER      = 14,
+    DATA_HIGH_NETHERMANCER_ZEREVOR  = 15,
+    DATA_LADY_MALANDE               = 16,
+    DATA_VERAS_DARKSHADOW           = 17,
+    DATA_BLOOD_ELF_COUNCIL_VOICE    = 18,
 
-    DATA_GO_ILLIDAN_GATE            = 16,
+    DATA_GO_DEN_OF_MORTAL_DOOR      = 19,
 
-    DATA_BLACK_TEMPLE_TRIGGER       = 17,
-    DATA_GO_DEN_OF_MORTAL_DOOR      = 18,
-
-    DATA_ESSENCE_OF_SUFFERING       = 19,
-    DATA_ESSENCE_OF_DESIRE          = 20,
-    DATA_ESSENCE_OF_ANGER           = 21
+    DATA_ESSENCE_OF_SUFFERING       = 20,
+    DATA_ESSENCE_OF_DESIRE          = 21,
+    DATA_ESSENCE_OF_ANGER           = 22
 };
 
 enum TriggerEmotes
@@ -95,7 +96,17 @@ enum BTCreatureIds
     NPC_ASHTONGUE_PRIMALIST         = 22847,
     NPC_ASHTONGUE_STORMCALLER       = 22846,
     NPC_ASHTONGUE_FERAL_SPIRIT      = 22849,
-    NPC_STORM_FURY                  = 22848
+    NPC_STORM_FURY                  = 22848,
+    NPC_SPIRIT_OF_UDALO             = 23410,
+    NPC_SPIRIT_OF_OLUM              = 23411,
+    NPC_FLAME_OF_AZZINOTH           = 22997,
+    NPC_BLADE_OF_AZZINOTH           = 22996,
+    NPC_MAIEV_SHADOWSONG            = 23197,
+    NPC_ILLIDAN_DB_TARGET           = 23070,
+    NPC_ILLIDARI_ELITE              = 23226,
+    NPC_GLAIVE_TARGET               = 23448,
+    NPC_GLAIVE_WORLD_TRIGGER        = 22515,
+    NPC_DEMON_FIRE                  = 23069
 };
 
 enum BTGameObjectIds
@@ -113,13 +124,18 @@ enum BTGameObjectIds
     GO_COUNCIL_DOOR_2               = 186152,
     GO_ILLIDAN_GATE                 = 185905,
     GO_ILLIDAN_DOOR_R               = 186261,
-    GO_ILLIDAN_DOOR_L               = 186262
+    GO_ILLIDAN_DOOR_L               = 186262,
+    GO_ILLIDAN_CAGE_TRAP            = 185916
 };
 
-enum BlackTempleFactions
+enum BlackTempleMisc
 {
     ASHTONGUE_FACTION_FRIEND        = 1820,
-    AKAMA_FACTION_COMBAT            = 1868
+    AKAMA_FACTION_COMBAT            = 1868,
+    AKAMA_INTRO                     = 1,
+    AKAMA_FIGHT                     = 2,
+    ACTION_ACTIVE_AKAMA_INTRO       = 3,
+    ACTION_OPEN_DOOR                = 4
 };
 
 template<typename AI>

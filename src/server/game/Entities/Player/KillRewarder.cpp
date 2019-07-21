@@ -94,7 +94,7 @@ inline void KillRewarder::_InitGroupData()
         // 2. In case when player is in group, initialize variables necessary for group calculations:
         for (GroupReference* itr = _group->GetFirstMember(); itr != nullptr; itr = itr->next())
             if (Player* member = itr->GetSource())
-                if (member->IsAlive() && member->IsAtGroupRewardDistance(_victim))
+                if (_killer == member || (member->IsAtGroupRewardDistance(_victim) && member->IsAlive()))
                 {
                     const uint8 lvl = member->getLevel();
                     // 2.1. _count - number of alive group members within reward distance;
@@ -240,7 +240,8 @@ void KillRewarder::_RewardGroup()
             {
                 if (Player* member = itr->GetSource())
                 {
-                    if (member->IsAtGroupRewardDistance(_victim))
+                    // Killer may not be at reward distance, check directly
+                    if (_killer == member || member->IsAtGroupRewardDistance(_victim))
                     {
                         _RewardPlayer(member, isDungeon);
                         member->UpdateCriteria(CRITERIA_TYPE_SPECIAL_PVP_KILL, 1, 0, 0, _victim);
