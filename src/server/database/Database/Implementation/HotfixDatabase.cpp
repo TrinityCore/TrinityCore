@@ -157,7 +157,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_CHARACTER_FACIAL_HAIR_STYLES, "SELECT ID, Geoset1, Geoset2, Geoset3, Geoset4, Geoset5, RaceID, SexID, VariationID"
         " FROM character_facial_hair_styles ORDER BY ID DESC", CONNECTION_SYNCH);
 
-    // CharBaseInfo.db2 -- TRY
+    // CharBaseInfo.db2
     PrepareStatement(HOTFIX_SEL_CHAR_BASE_INFO, "SELECT ID, RaceID, ClassID FROM char_base_info ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CharBaseSection.db2
