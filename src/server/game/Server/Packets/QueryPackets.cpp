@@ -17,6 +17,7 @@
 
 #include "QueryPackets.h"
 #include "BattlenetAccountMgr.h"
+#include "CharacterCache.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
@@ -121,7 +122,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHi
 
 bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& guid, Player const* player /*= nullptr*/)
 {
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
+    CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid);
     if (!characterInfo)
         return false;
 
@@ -142,7 +143,7 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
     }
     else
     {
-        uint32 accountId = ObjectMgr::GetPlayerAccountIdByGUID(guid);
+        uint32 accountId = sCharacterCache->GetCharacterAccountIdByGuid(guid);
         uint32 bnetAccountId = ::Battlenet::AccountMgr::GetIdByGameAccount(accountId);
 
         AccountID     = ObjectGuid::Create<HighGuid::WowAccount>(accountId);

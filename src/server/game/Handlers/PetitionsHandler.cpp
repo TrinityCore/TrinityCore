@@ -18,6 +18,7 @@
 
 #include "WorldSession.h"
 #include "Common.h"
+#include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -159,7 +160,7 @@ void WorldSession::HandlePetitionShowSignatures(WorldPackets::Petition::Petition
     WorldPackets::Petition::ServerPetitionShowSignatures signaturesPacket;
     signaturesPacket.Item = packet.Item;
     signaturesPacket.Owner = _player->GetGUID();
-    signaturesPacket.OwnerAccountID = ObjectGuid::Create<HighGuid::WowAccount>(ObjectMgr::GetPlayerAccountIdByGUID(_player->GetGUID()));
+    signaturesPacket.OwnerAccountID = ObjectGuid::Create<HighGuid::WowAccount>(sCharacterCache->GetCharacterAccountIdByGuid(_player->GetGUID()));
     signaturesPacket.PetitionID = int32(packet.Item.GetCounter());  // @todo verify that...
 
     signaturesPacket.Signatures.reserve(signs);
@@ -288,7 +289,7 @@ void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition& pack
         return;
 
     // not let enemies sign guild charter
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != ObjectMgr::GetPlayerTeamByGUID(ownerGuid))
+    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != sCharacterCache->GetCharacterTeamByGuid(ownerGuid))
     {
         Guild::SendCommandResult(this, GUILD_COMMAND_CREATE_GUILD, ERR_GUILD_NOT_ALLIED);
         return;

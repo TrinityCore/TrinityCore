@@ -228,8 +228,7 @@ class instance_uldaman : public InstanceMapScript
                     Creature* target = instance->GetCreature(*i);
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
-                    target->setDeathState(JUST_DIED);
-                    target->RemoveCorpse();
+                    target->DespawnOrUnsummon();
                 }
 
                 // Vault Walkers
@@ -238,8 +237,7 @@ class instance_uldaman : public InstanceMapScript
                     Creature* target = instance->GetCreature(*i);
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
-                    target->setDeathState(JUST_DIED);
-                    target->RemoveCorpse();
+                    target->DespawnOrUnsummon();
                 }
 
                 // Earthen Guardians
@@ -248,8 +246,7 @@ class instance_uldaman : public InstanceMapScript
                     Creature* target = instance->GetCreature(*i);
                     if (!target || target->isDead() || target->getFaction() != 14)
                         continue;
-                    target->setDeathState(JUST_DIED);
-                    target->RemoveCorpse();
+                    target->DespawnOrUnsummon();
                 }
             }
 

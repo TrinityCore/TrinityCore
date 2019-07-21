@@ -2541,67 +2541,6 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
     }
 }
 
-// name must be checked to correctness (if received) before call this function
-ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
-    stmt->setString(0, name);
-
-    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-        return ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt64());
-
-    return ObjectGuid::Empty;
-}
-
-bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
-{
-    CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
-    if (!characterInfo)
-        return false;
-
-    name = characterInfo->Name;
-    return true;
-}
-
-bool ObjectMgr::GetPlayerNameAndClassByGUID(ObjectGuid const& guid, std::string& name, uint8& _class)
-{
-    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
-    {
-        name = characterInfo->Name;
-        _class = characterInfo->Class;
-        return true;
-    }
-
-    return false;
-}
-
-uint32 ObjectMgr::GetPlayerTeamByGUID(ObjectGuid const& guid)
-{
-    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
-        return Player::TeamForRace(characterInfo->Race);
-
-    return 0;
-}
-
-uint32 ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid const& guid)
-{
-    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
-        return characterInfo->AccountId;
-
-    return 0;
-}
-
-uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(std::string const& name)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_NAME);
-    stmt->setString(0, name);
-
-    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-        return (*result)[0].GetUInt32();
-
-    return 0;
-}
-
 uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventoryType, uint32 quality, uint32 itemLevel)
 {
     if (itemClass != ITEM_CLASS_ARMOR && itemClass != ITEM_CLASS_WEAPON)
@@ -5732,6 +5671,14 @@ void ObjectMgr::LoadInstanceEncounters()
                     continue;
                 }
                 const_cast<CreatureTemplate*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                for (uint8 diff = 0; diff < MAX_CREATURE_DIFFICULTIES; ++diff)
+                {
+                    if (uint32 diffEntry = creatureInfo->DifficultyEntry[diff])
+                    {
+                        if (CreatureTemplate const* diffInfo = GetCreatureTemplate(diffEntry))
+                            const_cast<CreatureTemplate*>(diffInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                    }
+                }
                 break;
             }
             case ENCOUNTER_CREDIT_CAST_SPELL:

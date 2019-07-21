@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "DB2Stores.h"
 #include "WorldSession.h"
 #include "Group.h"
@@ -313,7 +314,7 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
     {
         // Leader info MUST be sent 1st :S
         uint8 roles = roleCheck.roles.find(roleCheck.leader)->second;
-        lfgRoleCheckUpdate.Members.emplace_back(roleCheck.leader, roles, ASSERT_NOTNULL(sWorld->GetCharacterInfo(roleCheck.leader))->Level, roles > 0);
+        lfgRoleCheckUpdate.Members.emplace_back(roleCheck.leader, roles, ASSERT_NOTNULL(sCharacterCache->GetCharacterCacheByGuid(roleCheck.leader))->Level, roles > 0);
 
         for (lfg::LfgRolesMap::const_iterator it = roleCheck.roles.begin(); it != roleCheck.roles.end(); ++it)
         {
@@ -321,7 +322,7 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
                 continue;
 
             roles = it->second;
-            lfgRoleCheckUpdate.Members.emplace_back(it->first, roles, ASSERT_NOTNULL(sWorld->GetCharacterInfo(it->first))->Level, roles > 0);
+            lfgRoleCheckUpdate.Members.emplace_back(it->first, roles, ASSERT_NOTNULL(sCharacterCache->GetCharacterCacheByGuid(it->first))->Level, roles > 0);
         }
     }
 

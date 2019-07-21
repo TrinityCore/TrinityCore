@@ -1700,7 +1700,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             case FORM_MOONKIN_FORM:
             {
                 // remove movement affects
-                target->RemoveMovementImpairingAuras();
+                target->RemoveAurasByShapeShift();
 
                 // and polymorphic affects
                 if (target->IsPolymorphed())
@@ -1741,7 +1741,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             if (target->getClass() == CLASS_DRUID)
             {
                 // Remove movement impairing effects also when shifting out
-                target->RemoveMovementImpairingAuras();
+                target->RemoveAurasByShapeShift();
             }
         }
 
@@ -2943,7 +2943,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         {
             target->Kill(caster);
             if (caster->GetTypeId() == TYPEID_UNIT)
-                caster->ToCreature()->RemoveCorpse();
+                caster->ToCreature()->DespawnOrUnsummon();
         }
 
         if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT))
