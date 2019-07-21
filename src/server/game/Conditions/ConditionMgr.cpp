@@ -117,7 +117,9 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Quest state mask",          true, true,  false },
     { "Quest objective progress",  true, true,   true },
     { "Map difficulty",            true, false, false },
-    { "Is Gamemaster",             true, false, false }
+    { "Is Gamemaster",             true, false, false },
+    { "Object Entry or Guid",      true, true,  true  },
+    { "Object TypeMask",           true, false, false }
 };
 
 // Checks if object meets the condition
