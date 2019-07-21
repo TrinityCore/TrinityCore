@@ -168,7 +168,8 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     //if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
     //    GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (unit->IsArmorer() || unit->IsCivilian() || unit->IsQuestGiver() || unit->IsServiceProvider() || unit->IsGuard())
+    // and if he has pure gossip or is banker and moves or is tabard designer?
+    //if (unit->IsArmorer() || unit->IsCivilian() || unit->IsQuestGiver() || unit->IsServiceProvider() || unit->IsGuard())
         unit->StopMoving();
 
     // If spiritguide, no need for gossip menu, just put player into resurrect queue
@@ -315,13 +316,7 @@ void WorldSession::SendSpiritResurrect()
 
         if (corpseGrave != ghostGrave)
             _player->TeleportTo(corpseGrave->MapID, corpseGrave->Loc.X, corpseGrave->Loc.Y, corpseGrave->Loc.Z, (corpseGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
-        // or update at original position
-        else
-            _player->UpdateObjectVisibility();
     }
-    // or update at original position
-    else
-        _player->UpdateObjectVisibility();
 }
 
 void WorldSession::HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet)

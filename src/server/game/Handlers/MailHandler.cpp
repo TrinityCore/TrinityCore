@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"
+#include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GossipDef.h"
@@ -85,7 +86,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
 
     ObjectGuid receiverGuid;
     if (normalizePlayerName(packet.Info.Target))
-        receiverGuid = ObjectMgr::GetPlayerGUIDByName(packet.Info.Target);
+        receiverGuid = sCharacterCache->GetCharacterGuidByName(packet.Info.Target);
 
     if (!receiverGuid)
     {
@@ -159,7 +160,12 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
     }
     else
     {
-        receiverTeam = ObjectMgr::GetPlayerTeamByGUID(receiverGuid);
+        if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(receiverGuid))
+        {
+            receiverTeam = Player::TeamForRace(characterInfo->Race);
+            receiverLevel = characterInfo->Level;
+            receiverAccountId = characterInfo->AccountId;
+        }
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
         stmt->setUInt64(0, receiverGuid.GetCounter());
@@ -171,17 +177,6 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
             mailsCount = fields[0].GetUInt64();
         }
 
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-        stmt->setUInt64(0, receiverGuid.GetCounter());
-
-        result = CharacterDatabase.Query(stmt);
-        if (result)
-        {
-            Field* fields = result->Fetch();
-            receiverLevel = fields[0].GetUInt8();
-        }
-
-        receiverAccountId = ObjectMgr::GetPlayerAccountIdByGUID(receiverGuid);
         receiverBnetAccountId = Battlenet::AccountMgr::GetIdByGameAccount(receiverAccountId);
     }
 
@@ -491,16 +486,16 @@ void WorldSession::HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& packet)
                 else
                 {
                     // can be calculated early
-                    sender_accId = ObjectMgr::GetPlayerAccountIdByGUID(sender_guid);
+                    sender_accId = sCharacterCache->GetCharacterAccountIdByGuid(sender_guid);
 
-                    if (!ObjectMgr::GetPlayerNameByGUID(sender_guid, sender_name))
+                    if (!sCharacterCache->GetCharacterNameByGuid(sender_guid, sender_name))
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
                     GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->GetDefaultLocaleName(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receiver)
-                sender_accId = ObjectMgr::GetPlayerAccountIdByGUID(sender_guid);
+                sender_accId = sCharacterCache->GetCharacterAccountIdByGuid(sender_guid);
 
             // check player existence
             if (receiver || sender_accId)
@@ -627,12 +622,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
     if (m->mailTemplateId)
     {
         MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
-        if (!mailTemplateEntry)
-        {
-            player->SendMailResult(packet.MailID, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
-            return;
-        }
-
+        ASSERT(mailTemplateEntry);
         bodyItem->SetText(mailTemplateEntry->Body->Str[GetSessionDbcLocale()]);
     }
     else
