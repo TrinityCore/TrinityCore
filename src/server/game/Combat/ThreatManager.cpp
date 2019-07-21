@@ -25,6 +25,7 @@
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
 BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::threat_list_heap::value_type)
@@ -158,9 +159,11 @@ void ThreatReference::UnregisterAndFree()
     if (cWho->IsPet() || cWho->IsTotem() || cWho->IsTrigger())
         return false;
 
-    // summons cannot have a threat list, unless they are controlled by a creature
-    if (cWho->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN) && !cWho->GetOwnerGUID().IsCreature())
-        return false;
+    // summons cannot have a threat list if they were summoned by a player
+    if (cWho->HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN))
+        if (TempSummon const* tWho = cWho->ToTempSummon())
+            if (tWho->GetSummonerGUID().IsPlayer())
+                return false;
 
     return true;
 }
