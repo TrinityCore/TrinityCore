@@ -1,3 +1,4 @@
+--
 SET @GROUP_ID := 1122; -- Change with the proper ID if this is in use
 DELETE FROM `spell_group` WHERE `id`=@GROUP_ID AND `spell_id` IN (10060,12042);
 INSERT INTO `spell_group` (`id`,`spell_id`) VALUES
