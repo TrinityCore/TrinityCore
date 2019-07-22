@@ -27,6 +27,7 @@ ObjectData const creatureData[] =
     { BOSS_MAGMAW,                          DATA_MAGMAW                         },
     { BOSS_OMNOTRON,                        DATA_OMNOTRON_DEFENSE_SYSTEM        },
     { BOSS_ATRAMEDES,                       DATA_ATRAMEDES                      },
+    { BOSS_CHIMAERON,                       DATA_CHIMAERON                      },
     { NPC_ELECTRON,                         DATA_ELECTRON                       },
     { NPC_MAGMATRON,                        DATA_MAGMATRON                      },
     { NPC_TOXITRON,                         DATA_TOXITRON                       },
@@ -35,6 +36,8 @@ ObjectData const creatureData[] =
     { NPC_LORD_VICTOR_NEFARIUS_OMNOTRON,    DATA_LORD_VICTOR_NEFARIUS_OMNOTRON  },
     { NPC_COLUMN_OF_LIGHT,                  DATA_COLUMN_OF_LIGHT                },
     { NPC_LORD_VICTOR_NEFARIUS_ATRAMEDES,   DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES },
+    { NPC_BILE_O_TRON_800,                  DATA_BILE_O_TRON_800                },
+    { NPC_FINKLE_EINHORN,                   DATA_FINKLE_EINHORN                 },
     { 0,                                    0                                   } // END
 };
 

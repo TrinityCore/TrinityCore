@@ -5392,6 +5392,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->StackAmount = 10;
     });
 
+    // Break
+    ApplySpellFix({ 82881 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+    });
+
     // END OF BLACKWING DESCENT SPELLS
 
     // Living Bomb

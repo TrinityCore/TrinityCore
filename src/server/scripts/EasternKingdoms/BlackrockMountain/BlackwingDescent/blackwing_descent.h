@@ -55,7 +55,11 @@ enum BWDDataTypes
 
     /*Atramedes*/
     DATA_ATHENAEUM_DOOR,
-    DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES
+    DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES,
+
+    /*Chimaeron*/
+    DATA_BILE_O_TRON_800,
+    DATA_FINKLE_EINHORN
 };
 
 enum BWDCreatureIds
@@ -102,6 +106,10 @@ enum BWDCreatureIds
     NPC_REVERBERATING_FLAME             = 41962,
     NPC_LORD_VICTOR_NEFARIUS_ATRAMEDES  = 49580,
     NPC_OBNOXIOUS_FIEND                 = 49740,
+
+    /*Chimaeron*/
+    NPC_FINKLE_EINHORN                  = 44202,
+    NPC_BILE_O_TRON_800                 = 44418,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST            = 43125,
