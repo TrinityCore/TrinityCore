@@ -116,7 +116,10 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "On Taxi",                  false, false, false },
     { "Quest state mask",          true, true,  false },
     { "Quest objective progress",  true, true,   true },
-    { "Is Gamemaster",             true, false, false }
+    { "Map difficulty",            true, false, false },
+    { "Is Gamemaster",             true, false, false },
+    { "Object Entry or Guid",      true, true,  true  },
+    { "Object TypeMask",           true, false, false }
 };
 
 // Checks if object meets the condition
@@ -514,7 +517,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             }
             break;
         }
-
+        case CONDITION_DIFFICULTY_ID:
+        {
+            condMeets = object->GetMap()->GetDifficulty() == ConditionValue1;
+            break;
+        }
         case CONDITION_GAMEMASTER:
         {
             if (Player* player = object->ToPlayer())
@@ -715,6 +722,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_QUEST_OBJECTIVE_PROGRESS:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_DIFFICULTY_ID:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         case CONDITION_GAMEMASTER:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
@@ -2326,6 +2336,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_DIFFICULTY_ID:
+            if (cond->ConditionValue1 >= MAX_DIFFICULTY)
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non existing difficulty in value1 (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
         case CONDITION_IN_WATER:
         case CONDITION_CHARMED:
         case CONDITION_TAXI:

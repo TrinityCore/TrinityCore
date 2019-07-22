@@ -7009,8 +7009,7 @@ void Spell::Delayed() // only called in DealDamage()
     int32 delaytime = 500;                                  // spellcasting delay is normally 500ms
 
     int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
-    if (Player* player = playerCaster->GetSpellModOwner())
-        player->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
+    playerCaster->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
     delayReduce += playerCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
@@ -7055,8 +7054,7 @@ void Spell::DelayedChannel()
     int32 delaytime = CalculatePct(duration, 25); // channeling delay is normally 25% of its time per hit
 
     int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
-    if (Player* player = playerCaster->GetSpellModOwner())
-        player->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
+    playerCaster->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
     delayReduce += playerCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
