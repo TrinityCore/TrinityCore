@@ -402,6 +402,7 @@ class spell_death_knight_initiate_visual : public SpellScript
 
 enum EyeOfAcherusMisc
 {
+    SPELL_THE_EYE_OF_ACHERUS = 51852,
     SPELL_EYE_VISUAL = 51892,
     SPELL_EYE_FLIGHT_BOOST = 51923,
     SPELL_EYE_FLIGHT = 51890,
@@ -454,7 +455,14 @@ class npc_eye_of_acherus : public CreatureScript
                 me->GetMotionMaster()->LaunchMoveSpline(std::move(init), POINT_EYE_FALL, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
             }
 
-            void OnCharmed(bool /*isNew*/) override { }
+            void OnCharmed(bool /*isNew*/) override
+            {
+                if (!me->IsCharmed())
+                {
+                    me->GetCharmerOrOwner()->RemoveAurasDueToSpell(SPELL_THE_EYE_OF_ACHERUS);
+                    me->GetCharmerOrOwner()->RemoveAurasDueToSpell(SPELL_EYE_FLIGHT_BOOST);
+                }
+            }
 
             void UpdateAI(uint32 diff) override
             {

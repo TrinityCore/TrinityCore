@@ -126,7 +126,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void JustEngagedWith(Unit* /*who*/) { }
 
         // Called when the creature is killed
-        virtual void JustDied(Unit* /*killer*/) { if (IsEngaged()) EngagementOver(); }
+        virtual void JustDied(Unit* /*killer*/) { }
 
         // Called when the creature kills a unit
         virtual void KilledUnit(Unit* /*victim*/) { }
