@@ -61,7 +61,8 @@ enum WarriorSpells
     SPELL_WARRIOR_SECOND_WIND_TRIGGER_RANK_1        = 29841,
     SPELL_WARRIOR_SECOND_WIND_TRIGGER_RANK_2        = 29842,
     SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
-    SPELL_WARRIOR_SLAM                              = 50782,
+    SPELL_WARRIOR_SLAM_MAIN_HAND                    = 50782,
+    SPELL_WARRIOR_SLAM_OFF_HAND                     = 97992,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
@@ -79,7 +80,8 @@ enum WarriorSpells
 enum WarriorSpellIcons
 {
     WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989,
-    WARRIOR_ICON_ID_BLOOD_AND_THUNDER               = 5057
+    WARRIOR_ICON_ID_BLOOD_AND_THUNDER               = 5057,
+    WARRIOR_ICON_ID_SINGLE_MINDED_FURY              = 4975
 };
 
 
@@ -679,36 +681,36 @@ class spell_warr_shattering_throw : public SpellScriptLoader
 };
 
 /// Updated 4.3.4
-class spell_warr_slam : public SpellScriptLoader
+class spell_warr_slam : public SpellScript
 {
-    public:
-        spell_warr_slam() : SpellScriptLoader("spell_warr_slam") { }
+    PrepareSpellScript(spell_warr_slam);
 
-        class spell_warr_slam_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_slam_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
             {
-                return ValidateSpellInfo({ SPELL_WARRIOR_SLAM });
-            }
+                SPELL_WARRIOR_SLAM_MAIN_HAND,
+                SPELL_WARRIOR_SLAM_OFF_HAND
+            });
+    }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (GetHitUnit())
-                    GetCaster()->CastCustomSpell(SPELL_WARRIOR_SLAM, SPELLVALUE_BASE_POINT0, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_slam_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
+        Unit* target = GetHitUnit();
+        caster->CastCustomSpell(SPELL_WARRIOR_SLAM_MAIN_HAND, SPELLVALUE_BASE_POINT0, GetEffectValue(), target, true);
 
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_slam_SpellScript();
-        }
+        if (caster->GetAuraEffect(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, SPELLFAMILY_WARRIOR, WARRIOR_ICON_ID_SINGLE_MINDED_FURY, EFFECT_0))
+            caster->CastCustomSpell(SPELL_WARRIOR_SLAM_OFF_HAND, SPELLVALUE_BASE_POINT0, GetEffectValue(), target, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_slam::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 class spell_warr_second_wind_proc : public SpellScriptLoader
@@ -1242,7 +1244,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_shattering_throw();
     RegisterAuraScript(spell_warr_shield_specialization);
     RegisterSpellScript(spell_warr_shockwave);
-    new spell_warr_slam();
+    RegisterSpellScript(spell_warr_slam);
     RegisterAuraScript(spell_warr_strikes_of_opportunity);
     new spell_warr_sudden_death();
     new spell_warr_sweeping_strikes();
