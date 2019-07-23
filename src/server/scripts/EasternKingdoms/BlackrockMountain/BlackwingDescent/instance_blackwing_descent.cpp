@@ -38,6 +38,7 @@ ObjectData const creatureData[] =
     { NPC_LORD_VICTOR_NEFARIUS_ATRAMEDES,   DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES },
     { NPC_BILE_O_TRON_800,                  DATA_BILE_O_TRON_800                },
     { NPC_FINKLE_EINHORN,                   DATA_FINKLE_EINHORN                 },
+    { NPC_LORD_VICTOR_NEFARIUS_CHIMAERON,   NPC_LORD_VICTOR_NEFARIUS_CHIMAERON  },
     { 0,                                    0                                   } // END
 };
 

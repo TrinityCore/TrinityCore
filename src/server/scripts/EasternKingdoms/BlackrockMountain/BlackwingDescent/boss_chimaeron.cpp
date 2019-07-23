@@ -557,9 +557,7 @@ class spell_chimaeron_finkles_mixture : public AuraScript
         Unit* target = GetTarget();
 
         if (dmgInfo.GetDamage() >= target->GetHealth() && target->GetHealth() > healthThreshold)
-        {
             absorbAmount = dmgInfo.GetDamage() - target->GetHealth() + 1;
-        }
     }
 
     void Register() override

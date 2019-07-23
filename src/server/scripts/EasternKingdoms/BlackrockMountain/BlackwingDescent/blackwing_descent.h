@@ -59,7 +59,8 @@ enum BWDDataTypes
 
     /*Chimaeron*/
     DATA_BILE_O_TRON_800,
-    DATA_FINKLE_EINHORN
+    DATA_FINKLE_EINHORN,
+    DATA_LORD_VICTOR_NEFARIUS_CHIMAERON
 };
 
 enum BWDCreatureIds
@@ -110,6 +111,7 @@ enum BWDCreatureIds
     /*Chimaeron*/
     NPC_FINKLE_EINHORN                  = 44202,
     NPC_BILE_O_TRON_800                 = 44418,
+    NPC_LORD_VICTOR_NEFARIUS_CHIMAERON  = 48964,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST            = 43125,
@@ -120,7 +122,7 @@ enum BWDCreatureIds
     NPC_SPIRIT_OF_IRONSTAR              = 43127,
     NPC_SPIRIT_OF_THAURISSAN            = 43126,
     NPC_SPIRIT_OF_BURNINGEYE            = 43130,
-    NPC_COLUMN_OF_LIGHT                 = 51506,
+    NPC_COLUMN_OF_LIGHT                 = 51506
 };
 
 enum BWDGameObjectIds
