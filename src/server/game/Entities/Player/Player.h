@@ -1001,6 +1001,11 @@ struct PlayerTalentInfo
 
     struct TalentSpecInfo
     {
+        TalentSpecInfo() : Talents(nullptr), TalentTree(0)
+        {
+            memset(Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
+        }
+
         PlayerTalentMap* Talents;
         uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
         uint32 TalentTree;

@@ -1651,7 +1651,7 @@ class spell_sha_healing_rain_triggered : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain_triggered::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 private:
-    uint8 _targets;
+    uint8 _targets = 0;
 };
 
 class spell_sha_earthliving_weapon : public SpellScriptLoader

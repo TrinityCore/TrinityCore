@@ -78,6 +78,8 @@ enum VehicleSpells
 
 struct PassengerInfo
 {
+    PassengerInfo() : IsUnselectable(false) { }
+
     ObjectGuid Guid;
     bool IsUnselectable;
 
