@@ -2293,7 +2293,7 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
         if (!m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
             target.timeDelay = uint64(floor(dist / m_spellInfo->Speed * 1000.0f));
         else
-            target.timeDelay = uint64(m_spellInfo->Speed * 1000.0f);
+            target.timeDelay = uint64(float(m_spellInfo->Speed * 1000.0f));
 
         if (!m_delayMoment || m_delayMoment > target.timeDelay)
             m_delayMoment = target.timeDelay;
