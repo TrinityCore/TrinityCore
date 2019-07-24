@@ -3168,7 +3168,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
         target->GetThreatManager().EvaluateSuppressed();
     }
     else
-    { 
+    {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit
         if (target->HasAuraType(GetAuraType()))
             return;
@@ -3901,6 +3901,13 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
         return;
     }
 
+    int32 spellGroupVal = target->GetHighestExclusiveSameEffectSpellGroupValue(this, GetAuraType());
+    if (abs(spellGroupVal) >= abs(GetAmount()))
+        return;
+
+    if (spellGroupVal)
+        target->ApplyCastTimePercentMod(float(spellGroupVal), !apply);
+    
     target->ApplyCastTimePercentMod((float)GetAmount(), apply);
 }
 
