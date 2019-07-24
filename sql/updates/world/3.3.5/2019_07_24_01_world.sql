@@ -4,7 +4,7 @@ CREATE TABLE `player_totem_model` (
   `RaceId` TINYINT(3) UNSIGNED NOT NULL,
   `DisplayId` INT(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`TotemSlot`,`RaceID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 INSERT INTO `player_totem_model` (`TotemSlot`, `RaceId`, `DisplayId`) VALUES
 -- Orc
