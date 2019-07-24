@@ -3901,37 +3901,13 @@ void AuraEffect::HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode
         return;
     }
 
-    if (GetAuraType() == SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK)
-    {
-        int32 schoolMask = GetMiscValue() ? GetMiscValue() : SPELL_SCHOOL_MASK_ALL;
-        Unit::AuraEffectList castingSpeedNotStack(target->GetAuraEffectsByType(SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK));
-        castingSpeedNotStack.remove_if([schoolMask, this](AuraEffect const* aurEff) -> bool
-        {
-            if (aurEff == this)
-                return true;
+    int32 spellGroupVal = target->GetHighestExclusiveSameEffectSpellGroupValue(this, GetAuraType());
+    if (abs(spellGroupVal) >= abs(GetAmount()))
+        return;
 
-            uint32 aurSpellMask = aurEff->GetMiscValue() ? aurEff->GetMiscValue() : SPELL_SCHOOL_MASK_ALL;
-            if (!(aurSpellMask & schoolMask) || aurEff->GetSpellInfo()->IsPassive())
-                return true;
-
-            return false;
-        });
-        
-        // Find stronger effect
-        int32 strongEffect = 0;
-        for (AuraEffect const* aurEff : castingSpeedNotStack)
-        {
-            if (abs(strongEffect) < abs(aurEff->GetAmount()))
-                strongEffect = aurEff->GetAmount();
-        }
-
-        if (abs(strongEffect) >= abs(GetAmount()))
-            return;
-
-        if (strongEffect)
-            target->ApplyCastTimePercentMod(float(strongEffect), !apply);
-    }
-
+    if (spellGroupVal)
+        target->ApplyCastTimePercentMod(float(spellGroupVal), !apply);
+    
     target->ApplyCastTimePercentMod((float)GetAmount(), apply);
 }
 
