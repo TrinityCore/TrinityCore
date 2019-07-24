@@ -188,6 +188,9 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
         if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
             flags |= UPDATEFLAG_ANIMKITS;
+
+        if (!worldObject->m_movementInfo.transport.guid.IsEmpty() && (ToGameObject() || ToDynObject()))
+            flags |= UPDATEFLAG_GO_TRANSPORT_POSITION;
     }
 
     if (Unit const* unit = ToUnit())
