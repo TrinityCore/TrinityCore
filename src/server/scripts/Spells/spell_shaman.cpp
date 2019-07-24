@@ -1285,7 +1285,7 @@ class spell_sha_elemental_overload : public AuraScript
         if (!eventInfo.GetSpellInfo())
             return false;
 
-        if (eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_CHAIN_LIGHTNING || eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED)
+        if (eventInfo.GetSpellInfo()->Id == SPELL_SHAMAN_CHAIN_LIGHTNING)
             return roll_chance_i(CalculatePct(GetEffect(EFFECT_0)->GetAmount(), 33));
 
         return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
@@ -1302,15 +1302,12 @@ class spell_sha_elemental_overload : public AuraScript
                 switch (eventInfo.GetSpellInfo()->Id)
                 {
                     case SPELL_SHAMAN_LIGHTNING_BOLT:
-                    case SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED:
                         caster->CastSpell(target, SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED, true);
                         break;
                     case SPELL_SHAMAN_CHAIN_LIGHTNING:
-                    case SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED:
                         caster->CastSpell(target, SPELL_SHAMAN_CHAIN_LIGHTNING_TRIGGERED, true);
                         break;
                     case SPELL_SHAMAN_LAVA_BURST:
-                    case SPELL_SHAMAN_LAVA_BURST_TRIGGERED:
                         caster->CastSpell(target, SPELL_SHAMAN_LAVA_BURST_TRIGGERED, true);
                         break;
                     default:
