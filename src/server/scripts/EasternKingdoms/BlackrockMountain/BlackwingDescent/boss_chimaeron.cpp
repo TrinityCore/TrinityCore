@@ -46,6 +46,11 @@ enum Spells
     SPELL_SYSTEM_FAILURE            = 88853,
     SPELL_REROUTE_POWER             = 88861,
     SPELL_SHUT_DOWN                 = 90405,
+
+    // Lord Victor Nefarius
+    SPELL_MOCKING_SHADOWS           = 91307,
+    SPELL_TELEPORT_VISUAL_ONLY      = 41232,
+    SPELL_SHADOW_WHIP               = 91304
 };
 
 enum Texts
@@ -65,7 +70,13 @@ enum Texts
     SAY_ACTIVATED               = 0,
     SAY_KNOCKED_OUT             = 1,
     SAY_ONLINE                  = 2,
-    SAY_SHUT_DOWN               = 3
+    SAY_SHUT_DOWN               = 3,
+
+    // Lord Victor Nefarius
+    SAY_INTRODUCTION            = 0,
+    SAY_STOP_FEUD               = 1,
+    SAY_PHASE_2                 = 2,
+    SAY_CHIMAERON_LOST          = 3
 };
 
 enum Phases
@@ -91,7 +102,13 @@ enum Events
     EVENT_TALK_SEARCH_FOR_KEY,
 
     // Bile-O-Tron 800
-    EVENT_SHUT_DOWN
+    EVENT_SHUT_DOWN,
+
+    // Lord Victor Nefarius
+    EVENT_INTRODUCE_CHIMAERON = 1,
+    EVENT_MOCKING_SHADOWS,
+    EVENT_TALK_CHIMAERON_DIED,
+    EVENT_TELEPORT_AWAY
 };
 
 enum Actions
@@ -108,7 +125,13 @@ enum Actions
     ACTION_ACTIVATE_BILE_O_TRON     = 1,
     ACTION_KNOCK_OUT_BILE_O_TRON    = 2,
     ACTION_BILE_O_TRON_BACK_ONLINE  = 3,
-    ACTION_SHUT_DOWN                = 4
+    ACTION_SHUT_DOWN                = 4,
+    ACTION_ENCOUNTER_STARTED        = 5,
+
+    // Lord Victor Nefarius
+    ACTION_STOP_FEUD                = 1,
+    ACTION_ENTER_PHASE_2            = 2,
+    ACTION_CHIMAERON_DEFEATED       = 3,
 };
 
 enum GossipMenuMisc
@@ -116,6 +139,13 @@ enum GossipMenuMisc
     GOSSIP_MENU_ID_RESTRICTIONS = 11837,
     NPC_TEXT_MISSING_KEY        = 16565
 };
+
+enum Data
+{
+    DATA_ACHIEVEMENT_ENLIGIBLE = 0
+};
+
+Position const LordVictorNefariusSummonPosition = { -113.8229f, 45.86111f, 80.36481f, 4.817109f };
 
 struct boss_chimaeron : public BossAI
 {
@@ -146,6 +176,13 @@ struct boss_chimaeron : public BossAI
         events.ScheduleEvent(EVENT_BREAK, 5s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_DOUBLE_ATTACK, 5s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_MASSACRE, 26s, 0, PHASE_1);
+
+        if (IsHeroic())
+            DoSummon(NPC_LORD_VICTOR_NEFARIUS_CHIMAERON, LordVictorNefariusSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
+
+        if (Creature * finkle = instance->GetCreature(DATA_FINKLE_EINHORN))
+            if (finkle->IsAIEnabled)
+                finkle->AI()->DoAction(ACTION_ENCOUNTER_STARTED);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -158,6 +195,9 @@ struct boss_chimaeron : public BossAI
 
         if (Creature* finkle = instance->GetCreature(DATA_FINKLE_EINHORN))
             finkle->DespawnOrUnsummon(0ms, 30s);
+
+        if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_CHIMAERON))
+            nefarius->DespawnOrUnsummon();
 
         _DespawnAtEvade();
     }
@@ -172,11 +212,19 @@ struct boss_chimaeron : public BossAI
                 bileOTron->AI()->DoAction(ACTION_SHUT_DOWN);
 
         if (Creature* finkle = instance->GetCreature(DATA_FINKLE_EINHORN))
-        {
-            finkle->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             if (finkle->IsAIEnabled)
                 finkle->AI()->DoAction(ACTION_CHIMAERON_DIED);
-        }
+
+        if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_CHIMAERON))
+            if (nefarius->IsAIEnabled)
+                nefarius->AI()->DoAction(ACTION_CHIMAERON_DEFEATED);
+                
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            _killedPlayerCount++;
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -190,6 +238,10 @@ struct boss_chimaeron : public BossAI
             events.ScheduleEvent(EVENT_DOUBLE_ATTACK, 1ms, 0, PHASE_2);
             DoCastAOE(SPELL_MORTALITY_1, true);
             DoCastSelf(SPELL_MORTALITY_2, true);
+
+            if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_CHIMAERON))
+                if (nefarius->IsAIEnabled)
+                    nefarius->AI()->DoAction(ACTION_ENTER_PHASE_2);
         }
     }
 
@@ -242,6 +294,10 @@ struct boss_chimaeron : public BossAI
                 break;
             case ACTION_START_FEUD:
                 _isInFeud = true;
+                if (IsHeroic())
+                    if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_CHIMAERON))
+                        if (nefarius->IsAIEnabled)
+                            nefarius->AI()->DoAction(ACTION_STOP_FEUD);
                 break;
             case ACTION_END_FEUD:
                 _isInFeud = false;
@@ -249,6 +305,31 @@ struct boss_chimaeron : public BossAI
             default:
                 break;
         }
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        switch (summon->GetEntry())
+        {
+            case NPC_LORD_VICTOR_NEFARIUS_CHIMAERON:
+                break;
+            default:
+                summons.Summon(summon);
+                break;
+        }
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        switch (type)
+        {
+            case DATA_ACHIEVEMENT_ENLIGIBLE:
+                return uint8(_killedPlayerCount <= 2);
+            default:
+                return 0;
+        }
+
+        return 0;
     }
 
     void UpdateAI(uint32 diff) override
@@ -310,6 +391,7 @@ struct boss_chimaeron : public BossAI
     }
 private:
     uint8 _knockOutChance;
+    uint8 _killedPlayerCount;
     bool _isInFeud;
 };
 
@@ -322,7 +404,6 @@ struct npc_chimaeron_finkle_einhorn : public ScriptedAI
         if (menuId == GOSSIP_MENU_ID_RESTRICTIONS && !_bileOTronActivated)
         {
             _events.Reset();
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             if (Creature* bileOTron = _instance->GetCreature(DATA_BILE_O_TRON_800))
                 if (bileOTron->IsAIEnabled)
                     bileOTron->AI()->DoAction(ACTION_ACTIVATE_BILE_O_TRON);
@@ -338,7 +419,10 @@ struct npc_chimaeron_finkle_einhorn : public ScriptedAI
 
     void Reset() override
     {
-        _events.ScheduleEvent(EVENT_CALL_FOR_HELP, 14s, 22s);
+        if (_instance->GetBossState(DATA_CHIMAERON) == DONE)
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        else
+            _events.ScheduleEvent(EVENT_CALL_FOR_HELP, 14s, 22s);
     }
 
     void DoAction(int32 action) override
@@ -347,6 +431,10 @@ struct npc_chimaeron_finkle_einhorn : public ScriptedAI
         {
             case ACTION_CHIMAERON_DIED:
                 _events.ScheduleEvent(EVENT_TALK_SEARCH_FOR_KEY, 6s);
+                break;
+            case ACTION_ENCOUNTER_STARTED:
+                _events.Reset();
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 break;
             default:
                 break;
@@ -441,6 +529,75 @@ struct npc_chimaeron_bile_o_tron : public ScriptedAI
 private:
     EventMap _events;
     InstanceScript* _instance;
+};
+
+struct npc_chimaeron_lord_victor_nefarius : public NullCreatureAI
+{
+    npc_chimaeron_lord_victor_nefarius(Creature* creature) : NullCreatureAI(creature) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
+        if (summoner->GetEntry() == BOSS_CHIMAERON)
+            _events.ScheduleEvent(EVENT_INTRODUCE_CHIMAERON, 4s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_INTRODUCE_CHIMAERON:
+                    Talk(SAY_INTRODUCTION);
+                    break;
+                case EVENT_MOCKING_SHADOWS:
+                    Talk(SAY_PHASE_2);
+                    DoCastSelf(SPELL_MOCKING_SHADOWS);
+                    me->AddAura(SPELL_MOCKING_SHADOWS, me); // Tempfix until player only attribute spells accept creatures as original caster
+                    break;
+                case EVENT_TALK_CHIMAERON_DIED:
+                    Talk(SAY_CHIMAERON_LOST);
+                    _events.ScheduleEvent(EVENT_TELEPORT_AWAY, 6s);
+                    break;
+                case EVENT_TELEPORT_AWAY:
+                    DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
+                    me->DespawnOrUnsummon(2s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_ENTER_PHASE_2:
+                _events.ScheduleEvent(EVENT_MOCKING_SHADOWS, 1ms);
+                break;
+            case ACTION_CHIMAERON_DEFEATED:
+                me->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_TALK_CHIMAERON_DIED, 2s + 500ms);
+                break;
+            case ACTION_STOP_FEUD:
+                Talk(SAY_STOP_FEUD);
+                DoCastSelf(SPELL_SHADOW_WHIP);
+                break;
+            default:
+                break;
+        }
+    }
+
+private:
+    EventMap _events;
 };
 
 class spell_chimaeron_caustic_slime_targeting : public SpellScript
@@ -613,15 +770,50 @@ class spell_chimaeron_feud : public AuraScript
     }
 };
 
+class spell_chimaeron_shadow_whip : public SpellScript
+{
+    PrepareSpellScript(spell_chimaeron_shadow_whip);
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->InterruptNonMeleeSpells(true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_chimaeron_shadow_whip::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class achievement_full_of_sound_and_fury : public AchievementCriteriaScript
+{
+    public:
+        achievement_full_of_sound_and_fury() : AchievementCriteriaScript("achievement_full_of_sound_and_fury") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target) override
+        {
+            if (!target)
+                return false;
+
+            if (target->IsAIEnabled)
+                return target->GetAI()->GetData(DATA_ACHIEVEMENT_ENLIGIBLE);
+
+            return false;
+        }
+};
+
 void AddSC_boss_chimaeron()
 {
     RegisterBlackwingDescentCreatureAI(boss_chimaeron);
     RegisterBlackwingDescentCreatureAI(npc_chimaeron_finkle_einhorn);
     RegisterBlackwingDescentCreatureAI(npc_chimaeron_bile_o_tron);
+    RegisterBlackwingDescentCreatureAI(npc_chimaeron_lord_victor_nefarius);
     RegisterSpellScript(spell_chimaeron_caustic_slime_targeting);
     RegisterSpellScript(spell_chimaeron_caustic_slime);
     RegisterAuraScript(spell_chimaeron_double_attack);
     RegisterAuraScript(spell_chimaeron_finkles_mixture);
     RegisterAuraScript(spell_chimaeron_reroute_power);
     RegisterAuraScript(spell_chimaeron_feud);
+    RegisterSpellScript(spell_chimaeron_shadow_whip);
+    new achievement_full_of_sound_and_fury();
 }
