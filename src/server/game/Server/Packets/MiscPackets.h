@@ -19,6 +19,7 @@
 #define MiscPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
 #include "Weather.h"
 
 enum WeatherState : uint32;
@@ -55,6 +56,8 @@ namespace WorldPackets
         {
         public:
             PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 4 + 8) { }
+            PlayObjectSound(ObjectGuid const& sourceObjectGUID, uint32 soundKitID)
+                : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 4 + 8), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID) { }
 
             WorldPacket const* Write() override;
 

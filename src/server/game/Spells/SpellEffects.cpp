@@ -35,6 +35,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
