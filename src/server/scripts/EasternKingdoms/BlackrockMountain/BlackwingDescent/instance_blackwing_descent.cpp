@@ -62,7 +62,7 @@ Position const MassiveCrashTargetPositionRight  = { -337.375f, -43.6615f,  212.0
 Position const ColumnOfLightPosition            = { 231.3559f, -224.3038f, 74.95496f, 3.193953f };
 Position const AtramedesIntroSummonPosition     = { 288.325f,  -222.438f,  96.61964f, 3.089233f };
 Position const AtramedesRespawnPosition         = { 220.0347f, -224.3125f, 74.88777f, 3.141593f };
-Position const LordVictorNefariusIntroPosition  = { -290.4809f, -224.5955f, 191.6532f, 3.124139 };
+Position const LordVictorNefariusIntroPosition  = { -290.4809f, -224.5955f, 191.6532f, 3.124139f };
 
 enum Events
 {
