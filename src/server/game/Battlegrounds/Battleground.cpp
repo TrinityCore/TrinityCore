@@ -605,7 +605,7 @@ void Battleground::SendBroadcastText(uint32 id, ChatMsg msgType, WorldObject con
 
 void Battleground::PlaySoundToAll(uint32 soundID)
 {
-    SendPacketToAll(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundID).Write());
+    SendPacketToAll(WorldPackets::Misc::PlaySound(soundID).Write());
 }
 
 void Battleground::PlaySoundToTeam(uint32 soundID, uint32 teamID)
@@ -613,7 +613,7 @@ void Battleground::PlaySoundToTeam(uint32 soundID, uint32 teamID)
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         if (Player* player = _GetPlayerForTeam(teamID, itr, "PlaySoundToTeam"))
-            player->SendDirectMessage(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundID).Write());
+            player->SendDirectMessage(WorldPackets::Misc::PlaySound(soundID).Write());
     }
 }
 

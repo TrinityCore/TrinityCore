@@ -43,13 +43,13 @@ namespace WorldPackets
         class PlaySound final : public ServerPacket
         {
         public:
-            PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 20) { }
-            PlaySound(ObjectGuid sourceObjectGuid, int32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 20), SourceObjectGuid(sourceObjectGuid), SoundKitID(soundKitID) { }
+            PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 4) { }
+            PlaySound(int32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 4), SoundKitID(soundKitID) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid SourceObjectGuid;
             int32 SoundKitID = 0;
+        };
 
         class OverrideLight final : public ServerPacket
         {

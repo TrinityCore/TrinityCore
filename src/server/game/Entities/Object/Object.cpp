@@ -3344,20 +3344,20 @@ void WorldObject::PlayDistanceSound(uint32 sound_id, Player* target /*= nullptr*
 
 void WorldObject::PlayDirectSound(uint32 sound_id, Player* target /*= nullptr*/)
 {
-    WorldPacket data(SMSG_PLAY_SOUND, 4);
-    data << uint32(sound_id);
     if (target)
-        target->SendDirectMessage(&data);
+        target->SendDirectMessage(WorldPackets::Misc::PlaySound(sound_id).Write());
     else
-        SendMessageToSet(&data, true);
+        SendMessageToSet(WorldPackets::Misc::PlaySound(sound_id).Write(), true);
 }
 
 void WorldObject::PlayDirectMusic(uint32 music_id, Player* target /*= nullptr*/)
 {
+    WorldPacket data(SMSG_PLAY_MUSIC, 4);
+    data << uint32(music_id);
     if (target)
-        target->SendDirectMessage(WorldPackets::Misc::PlaySound(GetGUID(), sound_id).Write());
+        target->SendDirectMessage(&data);
     else
-        SendMessageToSet(WorldPackets::Misc::PlaySound(GetGUID(), sound_id).Write(), true);
+        SendMessageToSet(&data, true);
 }
 
 void WorldObject::DestroyForNearbyPlayers()

@@ -2612,7 +2612,7 @@ public:
             return false;
         }
 
-        sWorld->SendGlobalMessage(WorldPackets::Misc::PlaySound(handler->GetSession()->GetPlayer()->GetGUID(), soundId).Write());
+        sWorld->SendGlobalMessage(WorldPackets::Misc::PlaySound(soundId).Write());
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
         return true;
