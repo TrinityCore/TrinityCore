@@ -285,7 +285,7 @@ class spell_warr_deep_wounds : public SpellScriptLoader
                     if (mainhandWeapon)
                         damage += (mainhandWeapon->GetTemplate()->DamageMin + mainhandWeapon->GetTemplate()->DamageMax) * 0.5f;
                     if (offhandWeapon)
-                        damage += (mainhandWeapon->GetTemplate()->DamageMin + mainhandWeapon->GetTemplate()->DamageMax) * 0.5f;
+                        damage += (offhandWeapon->GetTemplate()->DamageMin + offhandWeapon->GetTemplate()->DamageMax) * 0.5f;
 
                     damage = CalculatePct(damage, 16 * GetSpellInfo()->GetRank());
 
