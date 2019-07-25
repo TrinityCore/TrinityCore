@@ -61,8 +61,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 SoundKitID = 0;
             ObjectGuid SourceObjectGUID;
+            uint32 SoundKitID = 0;
             
         };
 
