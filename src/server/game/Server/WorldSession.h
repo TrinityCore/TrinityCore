@@ -92,6 +92,10 @@ namespace WorldPackets
     {
         class QueryQuestInfo;
     }
+    namespace Totem
+    {
+        class TotemDestroyed;
+    }
 }
 
 enum AccountDataType
@@ -828,7 +832,7 @@ class TC_GAME_API WorldSession
 
         void HandleSetActionBarToggles(WorldPacket& recvData);
 
-        void HandleTotemDestroyed(WorldPacket& recvData);
+        void HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed);
         void HandleDismissCritter(WorldPacket& recvData);
 
         //Battleground
