@@ -512,6 +512,7 @@ struct boss_chogall : public BossAI
                     break;
                 case EVENT_CONSUME_BLOOD_OF_THE_OLD_GOD:
                     Talk(SAY_CONSUME_BLOOD_OF_THE_OLD_GODS);
+                    me->StopMoving();
                     DoCastAOE(SPELL_CONSUME_BLOOD_OF_THE_OLD_GODS);
                     events.ScheduleEvent(EVENT_CHECK_BLOOD_OF_THE_OLD_GOD_BUFF, 5s + 100ms, 0, PHASE_2);
                     events.ScheduleEvent(EVENT_DARKENED_CREATIONS, 6s, 0, PHASE_2);
