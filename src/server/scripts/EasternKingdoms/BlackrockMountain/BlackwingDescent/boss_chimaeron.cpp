@@ -191,6 +191,7 @@ struct boss_chimaeron : public BossAI
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        me->RemoveAllAuras();
 
         if (Creature* bileOTron = instance->GetCreature(DATA_BILE_O_TRON_800))
             bileOTron->DespawnOrUnsummon(0ms, 30s);
@@ -208,6 +209,7 @@ struct boss_chimaeron : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        me->RemoveAllAuras();
 
         if (Creature* bileOTron = instance->GetCreature(DATA_BILE_O_TRON_800))
             if (bileOTron->IsAIEnabled)
@@ -541,7 +543,7 @@ struct npc_chimaeron_lord_victor_nefarius : public NullCreatureAI
     void JustAppeared() override
     {
         DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
-        if (_instance->GetBossState(DATA_CHIMAERON) == IN_PROGRESS)
+        if (me->FindNearestCreature(BOSS_CHIMAERON, 50.0f, true))
             _events.ScheduleEvent(EVENT_INTRODUCE_CHIMAERON, 4s);
         else
             _events.ScheduleEvent(EVENT_TALK_HEROIC_INTRO, 3s);
