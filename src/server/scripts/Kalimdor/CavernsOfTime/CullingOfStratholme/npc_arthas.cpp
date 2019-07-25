@@ -1071,7 +1071,7 @@ public:
                         break;
                     case RP2_EVENT_KILL1:
                         if (Creature* citizen = me->FindNearestCreature(NPC_CITIZEN, 100.0f, true))
-                            DoCast(citizen, SPELL_CRUSADER_STRIKE);
+                            DoCast(citizen, SPELL_CRUSADER_STRIKE, TRIGGERED_IGNORE_SET_FACING);
                         if (Creature* resident = me->FindNearestCreature(NPC_RESIDENT, 100.0f, true))
                         {
                             resident->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
@@ -1083,7 +1083,7 @@ public:
                         break;
                     case RP2_EVENT_KILL2:
                         if (Creature* resident = me->FindNearestCreature(NPC_RESIDENT, 100.0f, true))
-                            DoCast(resident, SPELL_CRUSADER_STRIKE);
+                            DoCast(resident, SPELL_CRUSADER_STRIKE, TRIGGERED_IGNORE_SET_FACING);
                         break;
                     case RP2_EVENT_REACT1:
                     case RP2_EVENT_REACT2:
