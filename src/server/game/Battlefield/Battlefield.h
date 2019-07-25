@@ -347,7 +347,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         uint32 GetTimer() const { return m_Timer; }
         void SetTimer(uint32 timer) { m_Timer = timer; }
 
-        void DoPlaySoundToAll(uint32 SoundID);
+        void DoPlaySoundToAll(uint32 soundID);
 
         void InvitePlayerToQueue(Player* player);
         void InvitePlayerToWar(Player* player);
