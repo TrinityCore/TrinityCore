@@ -39,6 +39,18 @@ namespace WorldPackets
             float Intensity = 0.0f;
             WeatherState WeatherID = WeatherState(0);
         };
+
+        class PlaySound final : public ServerPacket
+        {
+        public:
+            PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 20) { }
+            PlaySound(ObjectGuid sourceObjectGuid, int32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 20), SourceObjectGuid(sourceObjectGuid), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGuid;
+            int32 SoundKitID = 0;
+        };
     }
 }
 
