@@ -344,13 +344,13 @@ class spell_warr_execute : public SpellScriptLoader
                     int32 baseDamage = int32(10 + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.437f * GetEffectValue() / 100.0f);
                     /// Formula taken from the DBC: "${$ap*0.874*$m1/100-1} = 20 rage"
                     int32 moreDamage = int32(rageUsed * (caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.874f * GetEffectValue() / 100.0f - 1) / 200);
-                    SetHitDamage(baseDamage + moreDamage);
+                    SetEffectValue(baseDamage + moreDamage);
                 }
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_execute_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectLaunchTarget += SpellEffectFn(spell_warr_execute_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
