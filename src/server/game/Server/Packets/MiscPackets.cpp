@@ -30,3 +30,13 @@ WorldPacket const* WorldPackets::Misc::Weather::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::OverrideLight::Write()
+{
+    _worldPacket << int32(AreaLightID);
+    _worldPacket << int32(OverrideLightID);
+    _worldPacket << int32(TransitionMilliseconds);
+
+    return &_worldPacket;
+}
+
