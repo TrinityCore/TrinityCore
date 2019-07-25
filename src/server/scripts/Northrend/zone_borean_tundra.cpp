@@ -755,7 +755,7 @@ public:
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
-            owner->SetFaction(35);
+            owner->SetFaction(FACTION_FRIENDLY);
             owner->SetImmuneToAll(true);
             owner->DespawnOrUnsummon(3min);
         }
@@ -936,7 +936,7 @@ public:
                         if (talbot)
                         {
                             talbot->UpdateEntry(NPC_PRINCE_VALANAR);
-                            talbot->SetFaction(14);
+                            talbot->SetFaction(FACTION_MONSTER);
                             talbot->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                             talbot->SetReactState(REACT_PASSIVE);
                         }
@@ -2242,7 +2242,7 @@ public:
 
         void AttackPlayer()
         {
-            me->SetFaction(14);
+            me->SetFaction(FACTION_MONSTER);
             if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                 AttackStart(player);
         }

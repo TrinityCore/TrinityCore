@@ -133,7 +133,6 @@ enum BTGameObjectIds
 
 enum BlackTempleMisc
 {
-    AKAMA_FACTION_COMBAT            = 1868,
     AKAMA_INTRO                     = 1,
     AKAMA_FIGHT                     = 2,
     ACTION_ACTIVE_AKAMA_INTRO       = 3,
