@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "CommonPredicates.h"
 #include "GridNotifiers.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -2312,7 +2313,7 @@ class spell_arion_lightning_rod : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        if (targets.size() < 3)
+        if (targets.empty())
             return;
 
         uint8 size = GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1;
@@ -2400,32 +2401,6 @@ class spell_arion_disperse : public SpellScript
     }
 };
 
-class AttackerVictimCheck
-{
-    public:
-        AttackerVictimCheck(Unit* _attacker) : attacker(_attacker)  { }
-
-        bool operator()(WorldObject* object)
-        {
-            return (attacker->GetVictim() && attacker->GetVictim() == object->ToUnit());
-        }
-    private:
-        Unit* attacker;
-};
-
-class AttackerNonVictimCheck
-{
-    public:
-        AttackerNonVictimCheck(Unit* _attacker) : attacker(_attacker)  { }
-
-        bool operator()(WorldObject* object)
-        {
-            return (attacker->GetVictim() && attacker->GetVictim() != object->ToUnit());
-        }
-    private:
-        Unit* attacker;
-};
-
 class spell_arion_lightning_blast : public SpellScript
 {
     PrepareSpellScript(spell_arion_lightning_blast);
@@ -2435,13 +2410,31 @@ class spell_arion_lightning_blast : public SpellScript
         if (targets.empty())
             return;
 
-        targets.remove_if(AttackerNonVictimCheck(GetCaster()));
+        targets.remove_if(Trinity::Predicates::Invert(Trinity::Predicates::IsVictimOf(GetCaster())));
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arion_lightning_blast::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arion_lightning_blast::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+class spell_arion_lightning_blast_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_arion_lightning_blast_dummy);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if(Trinity::Predicates::Invert(Trinity::Predicates::IsVictimOf(GetCaster())));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arion_lightning_blast_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
@@ -2798,7 +2791,10 @@ class spell_elementium_monstrosity_gravity_crush : public SpellScript
         if (targets.empty())
             return;
 
-        targets.remove_if(AttackerVictimCheck(GetCaster()));
+        targets.remove_if(Trinity::Predicates::IsVictimOf(GetCaster()));
+
+        if (targets.empty())
+            return;
 
         Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
     }
@@ -2859,6 +2855,7 @@ void AddSC_boss_ascendant_council()
     RegisterSpellScript(spell_arion_chain_lightning_targeting);
     RegisterSpellScript(spell_arion_disperse);
     RegisterSpellScript(spell_arion_lightning_blast);
+    RegisterSpellScript(spell_arion_lightning_blast_dummy);
     RegisterSpellScript(spell_arion_static_overload);
     RegisterSpellScript(spell_arion_static_overload_triggered);
     RegisterSpellScript(spell_terrastra_gravity_well);
