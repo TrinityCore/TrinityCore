@@ -108,6 +108,7 @@ enum Spells
     SPELL_ERUPTION_DAMAGE               = 83692,
     SPELL_ELEMENTAL_STASIS              = 82285,
     SPELL_TELEPORT_EARTH                = 82329,
+    SPELL_GRAVITY_CORE                  = 92075,
 
     // Elementium Monstrosity
     SPELL_TWILIGHT_EXPLOSION_DND        = 95789,
@@ -120,7 +121,6 @@ enum Spells
     SPELL_LIQUID_ICE_MOD_SCALE          = 84917,
     SPELL_GRAVITY_CRUSH                 = 84948,
     SPELL_GRAVITY_CRUSH_SUMMON          = 84947, // Serverside spell
-    SPELL_GRAVITY_CORE                  = 92075,
 
     // Water Bomb
     SPELL_WATER_BOMB_TRIGGERED          = 82700,
@@ -1450,6 +1450,7 @@ class npc_elementium_monstrosity : public CreatureScript
                             _events.Repeat(21s + 700ms);
                             break;
                         case EVENT_GRAVITY_CRUSH:
+                            me->StopMoving();
                             DoCastAOE(SPELL_GRAVITY_CRUSH);
                             _events.Repeat(24s, 28s);
                             break;
