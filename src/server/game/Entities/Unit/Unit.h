@@ -715,23 +715,6 @@ enum ReactiveType
     MAX_REACTIVE
 };
 
-#define SUMMON_SLOT_PET     0
-#define SUMMON_SLOT_TOTEM   1
-#define MAX_TOTEM_SLOT      5
-#define SUMMON_SLOT_MINIPET 5
-#define SUMMON_SLOT_QUEST   6
-#define MAX_SUMMON_SLOT     7
-
-#define MAX_GAMEOBJECT_SLOT 4
-
-enum PlayerTotemType
-{
-    SUMMON_TYPE_TOTEM_FIRE  = 63,
-    SUMMON_TYPE_TOTEM_EARTH = 81,
-    SUMMON_TYPE_TOTEM_WATER = 82,
-    SUMMON_TYPE_TOTEM_AIR   = 83
-};
-
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
 #define MAX_PLAYER_STEALTH_DETECT_RANGE 30.0f               // max distance for detection targets by player
@@ -1605,7 +1588,6 @@ class TC_GAME_API Unit : public WorldObject
         void SetCantProc(bool apply);
 
         uint32 GetModelForForm(ShapeshiftForm form, uint32 spellId) const;
-        uint32 GetModelForTotem(PlayerTotemType totemType);
 
         friend class VehicleJoinEvent;
         ObjectGuid LastCharmerGUID;

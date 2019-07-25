@@ -876,6 +876,8 @@ struct DungeonEncounter
 typedef std::vector<std::unique_ptr<DungeonEncounter const>> DungeonEncounterList;
 typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
+typedef std::map<std::pair<SummonSlot /*TotemSlot*/, Races /*RaceId*/>, uint32 /*DisplayId*/> PlayerTotemModelMap;
+
 enum QueryDataGroup
 {
     QUERY_DATA_CREATURES        = 0x01,
@@ -947,6 +949,8 @@ class TC_GAME_API ObjectMgr
         CreatureMovementData const* GetCreatureMovementOverride(ObjectGuid::LowType spawnId) const;
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const& GetItemTemplateStore() const { return _itemTemplateStore; }
+
+        uint32 GetModelForTotem(SummonSlot totemSlot, Races race) const;
 
         ItemSetNameEntry const* GetItemSetNameEntry(uint32 itemId) const
         {
@@ -1154,6 +1158,7 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureAddons();
         void LoadGameObjectAddons();
         void LoadCreatureModelInfo();
+        void LoadPlayerTotemModels();
         void LoadEquipmentTemplates();
         void LoadCreatureMovementOverrides();
         void LoadGameObjectLocales();
@@ -1684,6 +1689,8 @@ class TC_GAME_API ObjectMgr
         std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
         std::set<uint32> _transportMaps; // Helper container storing map ids that are for transports only, loaded from gameobject_template
+
+        PlayerTotemModelMap _playerTotemModel;
 };
 
 #define sObjectMgr ObjectMgr::instance()

@@ -1679,6 +1679,65 @@ void ObjectMgr::LoadCreatureModelInfo()
     TC_LOG_INFO("server.loading", ">> Loaded %u creature model based info in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadPlayerTotemModels()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT TotemSlot, RaceId, DisplayId from player_totem_model");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 player totem model records. DB table `player_totem_model` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        SummonSlot totemSlot = SummonSlot(fields[0].GetUInt8());
+        uint8 race = fields[1].GetUInt8();
+        uint32 displayId = fields[2].GetUInt32();
+
+        if (totemSlot < SUMMON_SLOT_TOTEM_FIRE || totemSlot >= MAX_TOTEM_SLOT)
+        {
+            TC_LOG_ERROR("sql.sql", "Wrong TotemSlot %u in `player_totem_model` table, skipped.", totemSlot);
+            continue;
+        }
+
+        ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race);
+        if (!raceEntry)
+        {
+            TC_LOG_ERROR("sql.sql", "Race %u defined in `player_totem_model` does not exists, skipped.", uint32(race));
+            continue;
+        }
+
+        CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(displayId);
+        if (!displayEntry)
+        {
+            TC_LOG_ERROR("sql.sql", "TotemSlot: %u defined in `player_totem_model` has non-existing model (%u), skipped.", totemSlot, displayId);
+            continue;
+        }
+
+        _playerTotemModel[std::make_pair(totemSlot, Races(race))] = displayId;
+        ++count;
+    }
+    while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u player totem model records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+uint32 ObjectMgr::GetModelForTotem(SummonSlot totemSlot, Races race) const
+{
+    auto itr = _playerTotemModel.find(std::make_pair(totemSlot, race));
+    if (itr != _playerTotemModel.end())
+        return itr->second;
+
+    TC_LOG_ERROR("misc", "TotemSlot %u with RaceID (%u) have no totem model data defined, set to default model.", totemSlot, race);
+    return 0;
+}
+
 void ObjectMgr::LoadLinkedRespawn()
 {
     uint32 oldMSTime = getMSTime();
