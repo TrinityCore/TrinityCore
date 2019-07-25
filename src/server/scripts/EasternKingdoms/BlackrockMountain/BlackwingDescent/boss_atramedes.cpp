@@ -162,7 +162,7 @@ enum Data
     DATA_ADD_NOISY_PLAYER                   = 1,
     DATA_REMOVE_NOISY_PLAYER                = 2,
     DATA_LAST_SHIELD_USER                   = 3,
-    DATA_ACHIEVEMT_ENLIGIBLE                = 4,
+    DATA_ACHIEVEMENT_ENLIGIBLE              = 4,
 
     // Getter
     DATA_IS_IN_AIR                          = 0,
@@ -301,7 +301,7 @@ struct boss_atramedes : public BossAI
                 return (uint8(!_noisyPlayerGUIDs.empty()));
             case DATA_IS_IN_INTRO_PHASE:
                 return (uint8(events.IsInPhase(PHASE_INTRO)));
-            case DATA_ACHIEVEMT_ENLIGIBLE:
+            case DATA_ACHIEVEMENT_ENLIGIBLE:
                 return (uint8(_achievementEnligible));
         }
 
@@ -1081,7 +1081,7 @@ class achievement_silence_is_golden : public AchievementCriteriaScript
                 return false;
 
             if (target->IsAIEnabled)
-                return target->GetAI()->GetData(DATA_ACHIEVEMT_ENLIGIBLE);
+                return target->GetAI()->GetData(DATA_ACHIEVEMENT_ENLIGIBLE);
 
             return false;
         }
