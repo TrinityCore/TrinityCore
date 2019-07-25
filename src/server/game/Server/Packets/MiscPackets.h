@@ -39,6 +39,18 @@ namespace WorldPackets
             float Intensity = 0.0f;
             WeatherState WeatherID = WeatherState(0);
         };
+
+        class OverrideLight final : public ServerPacket
+        {
+        public:
+            OverrideLight() : ServerPacket(SMSG_OVERRIDE_LIGHT, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 AreaLightID = 0;
+            int32 TransitionMilliseconds = 0;
+            int32 OverrideLightID = 0;
+        };
     }
 }
 
