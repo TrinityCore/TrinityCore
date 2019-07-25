@@ -1055,6 +1055,21 @@ class spell_atramedes_pestered : public AuraScript
     }
 };
 
+class spell_atramedes_apply_vehicle_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_atramedes_apply_vehicle_periodic);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_atramedes_apply_vehicle_periodic::AfterApply, EFFECT_0, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class achievement_silence_is_golden : public AchievementCriteriaScript
 {
     public:
@@ -1070,21 +1085,6 @@ class achievement_silence_is_golden : public AchievementCriteriaScript
 
             return false;
         }
-};
-
-class spell_atramedes_apply_vehicle_periodic : public AuraScript
-{
-    PrepareAuraScript(spell_atramedes_apply_vehicle_periodic);
-
-    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        GetTarget()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectApplyFn(spell_atramedes_apply_vehicle_periodic::AfterApply, EFFECT_0, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
-    }
 };
 
 void AddSC_boss_atramedes()
