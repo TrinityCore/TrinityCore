@@ -226,7 +226,7 @@ class instance_uldaman : public InstanceMapScript
                 for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->GetFaction() != 14)
+                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
                         continue;
 
                     target->DespawnOrUnsummon();
@@ -236,7 +236,7 @@ class instance_uldaman : public InstanceMapScript
                 for (GuidVector::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->GetFaction() != 14)
+                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
                         continue;
 
                     target->DespawnOrUnsummon();
@@ -246,7 +246,7 @@ class instance_uldaman : public InstanceMapScript
                 for (GuidVector::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->GetFaction() != 14)
+                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
                         continue;
 
                     target->DespawnOrUnsummon();

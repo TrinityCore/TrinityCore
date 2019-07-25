@@ -948,7 +948,7 @@ public:
             {
                 deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                deathcharger->SetFaction(2096);
+                deathcharger->SetFaction(FACTION_SCARLET_CRUSADE_2);
             }
         }
     };

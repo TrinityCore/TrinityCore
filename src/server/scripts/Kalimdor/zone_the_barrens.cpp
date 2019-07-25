@@ -176,7 +176,6 @@ public:
 
 enum TaskmasterFizzule
 {
-    FACTION_FRIENDLY_F  = 35,
     SPELL_FLARE         = 10113,
     SPELL_FOLLY         = 10137,
 };
@@ -226,7 +225,7 @@ public:
             EngagementOver();
             
             me->GetMotionMaster()->MoveIdle();
-            me->SetFaction(FACTION_FRIENDLY_F);
+            me->SetFaction(FACTION_FRIENDLY);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
         }
 
@@ -266,7 +265,7 @@ public:
             {
                 if (FlareCount >= 2)
                 {
-                    if (me->GetFaction() == FACTION_FRIENDLY_F)
+                    if (me->GetFaction() == FACTION_FRIENDLY)
                         return;
 
                     DoFriend();
@@ -520,7 +519,6 @@ enum Wizzlecrank
     SAY_END             = 6,
 
     QUEST_ESCAPE        = 863,
-    FACTION_RATCHET     = 637,
     NPC_PILOT_WIZZ      = 3451,
     NPC_MERCENARY       = 3282,
 };
