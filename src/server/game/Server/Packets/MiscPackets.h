@@ -37,7 +37,6 @@ namespace WorldPackets
 
             bool Abrupt = false;
             float Intensity = 0.0f;
-
             WeatherState WeatherID = WeatherState(0);
         };
 
