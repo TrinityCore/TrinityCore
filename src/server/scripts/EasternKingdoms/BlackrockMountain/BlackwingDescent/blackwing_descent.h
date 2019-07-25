@@ -36,10 +36,12 @@ enum BWDDataTypes
     DATA_NEFARIANS_END              = 5,
 
     /*Events*/
+
     DATA_DEAD_DWARF_SPIRITS,
     DATA_ANCIENT_BELL,
     DATA_COLUMN_OF_LIGHT,
     DATA_ATRAMEDES_INTRO,
+    DATA_ENTRANCE_INTRO,
 
     // Encounter Data
     /*Magmaw*/

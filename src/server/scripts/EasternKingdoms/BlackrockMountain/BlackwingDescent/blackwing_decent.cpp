@@ -52,7 +52,21 @@ private:
     InstanceScript* _instance;
 };
 
+class at_bwd_intro: public AreaTriggerScript
+{
+    public:
+        at_bwd_intro() : AreaTriggerScript("at_bwd_intro") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript * instance = player->GetInstanceScript())
+                instance->SetData(DATA_ENTRANCE_INTRO, IN_PROGRESS);
+            return true;
+        }
+};
+
 void AddSC_blackwing_descent()
 {
     RegisterGameObjectAI(go_bwd_ancient_bell);
+    new at_bwd_intro();
 }

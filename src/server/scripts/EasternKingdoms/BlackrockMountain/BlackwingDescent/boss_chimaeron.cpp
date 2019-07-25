@@ -76,7 +76,8 @@ enum Texts
     SAY_INTRODUCTION            = 0,
     SAY_STOP_FEUD               = 1,
     SAY_PHASE_2                 = 2,
-    SAY_CHIMAERON_LOST          = 3
+    SAY_CHIMAERON_LOST          = 3,
+    SAY_ENTRANCE_INTRO_HEROIC   = 4
 };
 
 enum Phases
@@ -108,7 +109,8 @@ enum Events
     EVENT_INTRODUCE_CHIMAERON = 1,
     EVENT_MOCKING_SHADOWS,
     EVENT_TALK_CHIMAERON_DIED,
-    EVENT_TELEPORT_AWAY
+    EVENT_TELEPORT_AWAY,
+    EVENT_TALK_HEROIC_INTRO
 };
 
 enum Actions
@@ -450,7 +452,8 @@ struct npc_chimaeron_finkle_einhorn : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_CALL_FOR_HELP:
-                    Talk(SAY_CALL_FOR_HELP);
+                    if (me->SelectNearestPlayer(60.0f))
+                        Talk(SAY_CALL_FOR_HELP);
                     _events.Repeat(14s, 22s);
                     break;
                 case EVENT_TALK_SEARCH_FOR_KEY:
@@ -533,13 +536,15 @@ private:
 
 struct npc_chimaeron_lord_victor_nefarius : public NullCreatureAI
 {
-    npc_chimaeron_lord_victor_nefarius(Creature* creature) : NullCreatureAI(creature) { }
+    npc_chimaeron_lord_victor_nefarius(Creature* creature) : NullCreatureAI(creature), _instance(me->GetInstanceScript()) { }
 
-    void IsSummonedBy(Unit* summoner) override
+    void JustAppeared() override
     {
         DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
-        if (summoner->GetEntry() == BOSS_CHIMAERON)
+        if (_instance->GetBossState(DATA_CHIMAERON) == IN_PROGRESS)
             _events.ScheduleEvent(EVENT_INTRODUCE_CHIMAERON, 4s);
+        else
+            _events.ScheduleEvent(EVENT_TALK_HEROIC_INTRO, 3s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -568,6 +573,10 @@ struct npc_chimaeron_lord_victor_nefarius : public NullCreatureAI
                 case EVENT_TELEPORT_AWAY:
                     DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
                     me->DespawnOrUnsummon(2s);
+                    break;
+                case EVENT_TALK_HEROIC_INTRO:
+                    Talk(SAY_ENTRANCE_INTRO_HEROIC);
+                    _events.ScheduleEvent(EVENT_TELEPORT_AWAY, 6s);
                     break;
                 default:
                     break;
@@ -598,6 +607,7 @@ struct npc_chimaeron_lord_victor_nefarius : public NullCreatureAI
 
 private:
     EventMap _events;
+    InstanceScript* _instance;
 };
 
 class spell_chimaeron_caustic_slime_targeting : public SpellScript
