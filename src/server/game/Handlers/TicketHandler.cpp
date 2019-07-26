@@ -220,7 +220,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
         if (!ValidateHyperlinksAndMaybeKick(comment))
             return;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
         stmt->setUInt32(0, nextSurveyID);
         stmt->setUInt32(1, subSurveyId);
         stmt->setUInt32(2, rank);
@@ -234,7 +234,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recvData)
     if (!ValidateHyperlinksAndMaybeKick(comment))
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
     stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
     stmt->setUInt32(1, nextSurveyID);
     stmt->setUInt32(2, mainSurvey);
@@ -257,7 +257,7 @@ void WorldSession::HandleReportLag(WorldPacket& recvData)
     recvData >> y;
     recvData >> z;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
     stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
     stmt->setUInt8 (1, lagType);
     stmt->setUInt16(2, mapId);
