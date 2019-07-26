@@ -59,6 +59,9 @@ void PetAI::UpdateAI(uint32 diff)
 
     Unit* owner = me->GetCharmerOrOwner();
 
+    if (IsEngaged() && !owner->IsEngaged())
+        EngagementOver();
+
     if (_updateAlliesTimer <= diff)
         // UpdateAllies self set update timer
         UpdateAllies();
