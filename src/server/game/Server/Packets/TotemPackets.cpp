@@ -15,14 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
-
-#include "NPCPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
 #include "TotemPackets.h"
-#include "WorldStatePackets.h"
 
-#endif // AllPackets_h__
+void WorldPackets::Totem::TotemDestroyed::Read()
+{
+    _worldPacket >> Slot;
+}
+
+WorldPacket const* WorldPackets::Totem::TotemCreated::Write()
+{
+    _worldPacket << Slot;
+    _worldPacket << Totem;
+    _worldPacket << Duration;
+    _worldPacket << SpellID;
+
+    return &_worldPacket;
+}

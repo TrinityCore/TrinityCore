@@ -28,8 +28,6 @@
 
 enum Kaya
 {
-    FACTION_ESCORTEE_H          = 775,
-
     NPC_GRIMTOTEM_RUFFIAN       = 11910,
     NPC_GRIMTOTEM_BRUTE         = 11912,
     NPC_GRIMTOTEM_SORCERER      = 11913,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,43 +15,40 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MiscPackets_h__
-#define MiscPackets_h__
+#ifndef TotemPackets_h__
+#define TotemPackets_h__
 
 #include "Packet.h"
-#include "Weather.h"
-
-enum WeatherState : uint32;
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {
-    namespace Misc
+    namespace Totem
     {
-        class TC_GAME_API Weather final : public ServerPacket
+        class TotemDestroyed final : public ClientPacket
         {
         public:
-            Weather();
-            Weather(WeatherState weatherID, float intensity = 0.0f, bool abrupt = false);
+            TotemDestroyed(WorldPacket&& packet) : ClientPacket(CMSG_TOTEM_DESTROYED, std::move(packet)) { }
 
-            WorldPacket const* Write() override;
+            void Read() override;
 
-            bool Abrupt = false;
-            float Intensity = 0.0f;
-            WeatherState WeatherID = WeatherState(0);
+            uint8 Slot = 0;
         };
 
-        class OverrideLight final : public ServerPacket
+        class TotemCreated final : public ServerPacket
         {
         public:
-            OverrideLight() : ServerPacket(SMSG_OVERRIDE_LIGHT, 4 + 4 + 4) { }
+            TotemCreated() : ServerPacket(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
-            int32 AreaLightID = 0;
-            int32 TransitionMilliseconds = 0;
-            int32 OverrideLightID = 0;
+            uint8 Slot = 0;
+            ObjectGuid Totem;
+            uint32 Duration = 0;
+            uint32 SpellID = 0;
+            
         };
     }
 }
 
-#endif // MiscPackets_h__
+#endif // TotemPackets_h__
