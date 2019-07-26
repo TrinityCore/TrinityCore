@@ -16,17 +16,20 @@
  */
 
 #include "ScriptMgr.h"
+#include "black_temple.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "PassiveAI.h"
-#include "black_temple.h"
-#include "InstanceScript.h"
-#include "MotionMaster.h"
-#include "Player.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "GridNotifiersImpl.h"
+#include "TemporarySummon.h"
 
 enum IllidanSay
 {
