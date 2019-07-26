@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "PassiveAI.h"
 #include "black_temple.h"
+#include "InstanceScript.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
