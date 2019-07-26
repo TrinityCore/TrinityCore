@@ -28,6 +28,9 @@ typedef std::shared_ptr<ResultSet> QueryResult;
 typedef std::future<QueryResult> QueryResultFuture;
 typedef std::promise<QueryResult> QueryResultPromise;
 
+class PreparedStatementBase;
+
+template<typename T>
 class PreparedStatement;
 
 class PreparedResultSet;

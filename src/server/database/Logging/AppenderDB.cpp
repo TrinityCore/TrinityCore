@@ -31,7 +31,7 @@ void AppenderDB::_write(LogMessage const* message)
     if (!enabled || (message->type.find("sql") != std::string::npos))
         return;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
     stmt->setUInt64(0, message->mtime);
     stmt->setUInt32(1, realmId);
     stmt->setString(2, message->type);

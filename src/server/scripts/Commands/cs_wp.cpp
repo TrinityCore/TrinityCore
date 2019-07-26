@@ -98,7 +98,7 @@ public:
                 pathid = target->GetWaypointPath();
             else
             {
-                PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_MAX_ID);
+                WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_MAX_ID);
 
                 PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -119,7 +119,7 @@ public:
             return true;
         }
 
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_MAX_POINT);
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_MAX_POINT);
         stmt->setUInt32(0, pathid);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -186,7 +186,7 @@ public:
 
         guidLow = target->GetSpawnId();
 
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_ADDON_BY_GUID);
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_ADDON_BY_GUID);
 
         stmt->setUInt64(0, guidLow);
 
@@ -243,7 +243,7 @@ public:
     {
 
         Creature* target = handler->getSelectedCreature();
-        PreparedStatement* stmt = NULL;
+        WorldDatabasePreparedStatement* stmt = NULL;
 
         if (!target)
         {
@@ -291,7 +291,7 @@ public:
 
         char* show_str = strtok((char*)args, " ");
         std::string show = show_str;
-        PreparedStatement* stmt = NULL;
+        WorldDatabasePreparedStatement* stmt = NULL;
 
         // Check
         if ((show != "add") && (show != "mod") && (show != "del") && (show != "listid"))
@@ -572,7 +572,7 @@ public:
         uint32 pathid = 0;
         uint32 point = 0;
         Creature* target = handler->getSelectedCreature();
-        PreparedStatement* stmt = NULL;
+        WorldDatabasePreparedStatement* stmt = NULL;
 
         // User did select a visual waypoint?
         if (!target || target->GetEntry() != VISUAL_WAYPOINT)
@@ -736,7 +736,7 @@ public:
 
         uint32 pathid = 0;
         Creature* target = handler->getSelectedCreature();
-        PreparedStatement* stmt = NULL;
+        WorldDatabasePreparedStatement* stmt = NULL;
 
         // Did player provide a PathID?
 

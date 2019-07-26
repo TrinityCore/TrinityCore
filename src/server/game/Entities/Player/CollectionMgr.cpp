@@ -125,7 +125,7 @@ void CollectionMgr::LoadAccountToys(PreparedQueryResult result)
 
 void CollectionMgr::SaveAccountToys(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = nullptr;
+    LoginDatabasePreparedStatement* stmt = nullptr;
     for (auto const& toy : _toys)
     {
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_TOYS);
@@ -203,7 +203,7 @@ void CollectionMgr::LoadAccountHeirlooms(PreparedQueryResult result)
 
 void CollectionMgr::SaveAccountHeirlooms(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = nullptr;
+    LoginDatabasePreparedStatement* stmt = nullptr;
     for (auto const& heirloom : _heirlooms)
     {
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_HEIRLOOMS);
@@ -399,7 +399,7 @@ void CollectionMgr::SaveAccountMounts(SQLTransaction& trans)
 {
     for (auto const& mount : _mounts)
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_MOUNTS);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_MOUNTS);
         stmt->setUInt32(0, _owner->GetBattlenetAccountId());
         stmt->setUInt32(1, mount.first);
         stmt->setUInt8(2, mount.second);
@@ -558,7 +558,7 @@ void CollectionMgr::SaveAccountItemAppearances(SQLTransaction& trans)
     {
         if (blockValue) // this table is only appended/bits are set (never cleared) so don't save empty blocks
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ITEM_APPEARANCES);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ITEM_APPEARANCES);
             stmt->setUInt32(0, _owner->GetBattlenetAccountId());
             stmt->setUInt16(1, blockIndex);
             stmt->setUInt32(2, blockValue);
@@ -568,7 +568,7 @@ void CollectionMgr::SaveAccountItemAppearances(SQLTransaction& trans)
         ++blockIndex;
     }));
 
-    PreparedStatement* stmt;
+    LoginDatabasePreparedStatement* stmt;
     for (auto itr = _favoriteAppearances.begin(); itr != _favoriteAppearances.end();)
     {
         switch (itr->second)

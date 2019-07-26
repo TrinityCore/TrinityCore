@@ -103,7 +103,7 @@ void LFGMgr::_SaveToDB(ObjectGuid guid, uint32 db_guid)
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
     stmt->setUInt32(0, db_guid);
     trans->Append(stmt);
 

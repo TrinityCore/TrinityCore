@@ -193,7 +193,7 @@ bool MySQLConnection::Execute(const char* sql)
     return true;
 }
 
-bool MySQLConnection::Execute(PreparedStatement* stmt)
+bool MySQLConnection::Execute(PreparedStatementBase* stmt)
 {
     if (!m_Mysql)
         return false;
@@ -243,7 +243,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
     }
 }
 
-bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount)
+bool MySQLConnection::_Query(PreparedStatementBase* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!m_Mysql)
         return false;
@@ -387,7 +387,7 @@ int MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
         {
             case SQL_ELEMENT_PREPARED:
             {
-                PreparedStatement* stmt = data.element.stmt;
+                PreparedStatementBase* stmt = data.element.stmt;
                 ASSERT(stmt);
                 if (!Execute(stmt))
                 {
@@ -490,7 +490,7 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql, Connection
     }
 }
 
-PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
+PreparedResultSet* MySQLConnection::Query(PreparedStatementBase* stmt)
 {
     MYSQL_RES *result = NULL;
     uint64 rowCount = 0;

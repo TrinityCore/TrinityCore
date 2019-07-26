@@ -32,7 +32,7 @@ void Transaction::Append(const char* sql)
 }
 
 //- Append a prepared statement to the transaction
-void Transaction::Append(PreparedStatement* stmt)
+void Transaction::Append(PreparedStatementBase* stmt)
 {
     SQLElementData data;
     data.type = SQL_ELEMENT_PREPARED;
