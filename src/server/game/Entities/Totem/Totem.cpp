@@ -19,12 +19,11 @@
 #include "Totem.h"
 #include "Group.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
-#include "WorldPacket.h"
+#include "TotemPackets.h"
 
 Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false)
 {
@@ -60,12 +59,12 @@ void Totem::InitStats(uint32 duration)
         uint32 slot = m_Properties->Slot;
         if (slot >= SUMMON_SLOT_TOTEM_FIRE && slot < MAX_TOTEM_SLOT)
         {
-            WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
-            data << uint8(m_Properties->Slot - 1);
-            data << uint64(GetGUID());
-            data << uint32(duration);
-            data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
-            GetOwner()->ToPlayer()->SendDirectMessage(&data);
+            WorldPackets::Totem::TotemCreated data;
+            data.Totem = GetGUID();
+            data.Slot = slot - SUMMON_SLOT_TOTEM_FIRE;
+            data.Duration = duration;
+            data.SpellID = GetUInt32Value(UNIT_CREATED_BY_SPELL);
+            owner->SendDirectMessage(data.Write());
         }
 
         // set display id depending on caster's race

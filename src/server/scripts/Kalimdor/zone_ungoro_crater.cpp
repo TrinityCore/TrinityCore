@@ -171,8 +171,7 @@ enum Ringo
 
     SPELL_REVIVE_RINGO          = 15591,
     QUEST_A_LITTLE_HELP         = 4491,
-    NPC_SPRAGGLE                = 9997,
-    FACTION_ESCORTEE            = 113
+    NPC_SPRAGGLE                = 9997
 };
 
 class npc_ringo : public CreatureScript
@@ -341,7 +340,7 @@ public:
             if (quest->GetQuestId() == QUEST_A_LITTLE_HELP)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                StartFollow(player, FACTION_ESCORTEE, quest);
+                StartFollow(player, FACTION_ESCORTEE_N_NEUTRAL_PASSIVE, quest);
             }
         }
     };
