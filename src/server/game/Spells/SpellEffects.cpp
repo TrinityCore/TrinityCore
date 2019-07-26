@@ -2788,20 +2788,14 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         case SPELLFAMILY_WARRIOR:
         {
-            // Devastate (player ones)
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x40)
+            // Devastate
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x40 && effIndex == EFFECT_1)
             {
-                // Player can apply only 58567 Sunder Armor effect.
-                bool needCast = !unitTarget->HasAura(58567, m_caster->GetGUID());
-                if (needCast)
-                    m_caster->CastSpell(unitTarget, 58567, true);
-
                 if (Aura* aur = unitTarget->GetAura(58567, m_caster->GetGUID()))
-                {
-                    if (int32 num = (needCast ? 0 : 1))
-                        aur->ModStackAmount(num);
-                    fixed_bonus += (aur->GetStackAmount() - 1) * CalculateDamage(2, unitTarget);
-                }
+                    fixed_bonus += aur->GetStackAmount() * CalculateDamage(EFFECT_1, unitTarget);
+
+                // Devastate applies Sunder Armor on the target
+                m_caster->CastSpell(unitTarget, 58567, true);
             }
             break;
         }
