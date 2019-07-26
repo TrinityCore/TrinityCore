@@ -73,15 +73,15 @@ struct PreparedStatementData
 class MySQLPreparedStatement;
 
 //- Upper-level class that is used in code
-class TC_DATABASE_API PreparedStatement
+class TC_DATABASE_API PreparedStatementBase
 {
     friend class PreparedStatementTask;
     friend class MySQLPreparedStatement;
     friend class MySQLConnection;
 
     public:
-        explicit PreparedStatement(uint32 index);
-        ~PreparedStatement();
+        explicit PreparedStatementBase(uint32 index);
+        virtual ~PreparedStatementBase();
 
         void setBool(const uint8 index, const bool value);
         void setUInt8(const uint8 index, const uint8 value);
@@ -106,8 +106,21 @@ class TC_DATABASE_API PreparedStatement
         uint32 m_index;
         std::vector<PreparedStatementData> statement_data;    //- Buffer of parameters, not tied to MySQL in any way yet
 
-        PreparedStatement(PreparedStatement const& right) = delete;
-        PreparedStatement& operator=(PreparedStatement const& right) = delete;
+        PreparedStatementBase(PreparedStatementBase const& right) = delete;
+        PreparedStatementBase& operator=(PreparedStatementBase const& right) = delete;
+};
+
+template<typename T>
+class PreparedStatement : public PreparedStatementBase
+{
+public:
+    explicit PreparedStatement(uint32 index) : PreparedStatementBase(index)
+    {
+    }
+
+private:
+    PreparedStatement(PreparedStatement const& right) = delete;
+    PreparedStatement& operator=(PreparedStatement const& right) = delete;
 };
 
 //- Class of which the instances are unique per MySQLConnection
@@ -116,7 +129,7 @@ class TC_DATABASE_API PreparedStatement
 class TC_DATABASE_API MySQLPreparedStatement
 {
     friend class MySQLConnection;
-    friend class PreparedStatement;
+    friend class PreparedStatementBase;
 
     public:
         MySQLPreparedStatement(MYSQL_STMT* stmt);
@@ -139,7 +152,7 @@ class TC_DATABASE_API MySQLPreparedStatement
     protected:
         MYSQL_STMT* GetSTMT() { return m_Mstmt; }
         MYSQL_BIND* GetBind() { return m_bind; }
-        PreparedStatement* m_stmt;
+        PreparedStatementBase* m_stmt;
         void ClearParameters();
         void CheckValidIndex(uint8 index);
         std::string getQueryString(std::string const& sqlPattern) const;
@@ -158,14 +171,14 @@ class TC_DATABASE_API MySQLPreparedStatement
 class TC_DATABASE_API PreparedStatementTask : public SQLOperation
 {
     public:
-        PreparedStatementTask(PreparedStatement* stmt, bool async = false);
+        PreparedStatementTask(PreparedStatementBase* stmt, bool async = false);
         ~PreparedStatementTask();
 
         bool Execute() override;
         PreparedQueryResultFuture GetFuture() { return m_result->get_future(); }
 
     protected:
-        PreparedStatement* m_stmt;
+        PreparedStatementBase* m_stmt;
         bool m_has_result;
         PreparedQueryResultPromise* m_result;
 };

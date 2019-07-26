@@ -83,7 +83,7 @@ class DatabaseWorkerPool
 
         //! Enqueues a one-way SQL operation in prepared statement format that will be executed asynchronously.
         //! Statement must be prepared with CONNECTION_ASYNC flag.
-        void Execute(PreparedStatement* stmt);
+        void Execute(PreparedStatement<T>* stmt);
 
         /**
             Direct synchronous one-way statement methods.
@@ -106,7 +106,7 @@ class DatabaseWorkerPool
 
         //! Directly executes a one-way SQL operation in prepared statement format, that will block the calling thread until finished.
         //! Statement must be prepared with the CONNECTION_SYNCH flag.
-        void DirectExecute(PreparedStatement* stmt);
+        void DirectExecute(PreparedStatement<T>* stmt);
 
         /**
             Synchronous query (with resultset) methods.
@@ -141,7 +141,7 @@ class DatabaseWorkerPool
         //! Directly executes an SQL query in prepared format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
         //! Statement must be prepared with CONNECTION_SYNCH flag.
-        PreparedQueryResult Query(PreparedStatement* stmt);
+        PreparedQueryResult Query(PreparedStatement<T>* stmt);
 
         /**
             Asynchronous query (with resultset) methods.
@@ -154,7 +154,7 @@ class DatabaseWorkerPool
         //! Enqueues a query in prepared format that will set the value of the PreparedQueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Statement must be prepared with CONNECTION_ASYNC flag.
-        QueryCallback AsyncQuery(PreparedStatement* stmt);
+        QueryCallback AsyncQuery(PreparedStatement<T>* stmt);
 
         //! Enqueues a vector of SQL operations (can be both adhoc and prepared) that will set the value of the QueryResultHolderFuture
         //! return object as soon as the query is executed.
@@ -183,7 +183,7 @@ class DatabaseWorkerPool
 
         //! Method used to execute prepared statements in a diverse context.
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
-        void ExecuteOrAppend(SQLTransaction& trans, PreparedStatement* stmt);
+        void ExecuteOrAppend(SQLTransaction& trans, PreparedStatement<T>* stmt);
 
         /**
             Other
@@ -194,7 +194,7 @@ class DatabaseWorkerPool
         //! Automanaged (internally) pointer to a prepared statement object for usage in upper level code.
         //! Pointer is deleted in this->DirectExecute(PreparedStatement*), this->Query(PreparedStatement*) or PreparedStatementTask::~PreparedStatementTask.
         //! This object is not tied to the prepared statement on the MySQL context yet until execution.
-        PreparedStatement* GetPreparedStatement(PreparedStatementIndex index);
+        PreparedStatement<T>* GetPreparedStatement(PreparedStatementIndex index);
 
         //! Apply escape string'ing for current collation. (utf8)
         void EscapeString(std::string& str);

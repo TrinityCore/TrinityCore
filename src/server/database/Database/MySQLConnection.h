@@ -70,11 +70,11 @@ class TC_DATABASE_API MySQLConnection
 
     public:
         bool Execute(const char* sql);
-        bool Execute(PreparedStatement* stmt);
+        bool Execute(PreparedStatementBase* stmt);
         ResultSet* Query(const char* sql);
-        PreparedResultSet* Query(PreparedStatement* stmt);
+        PreparedResultSet* Query(PreparedStatementBase* stmt);
         bool _Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount);
-        bool _Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount);
+        bool _Query(PreparedStatementBase* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount);
 
         void BeginTransaction();
         void RollbackTransaction();

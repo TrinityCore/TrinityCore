@@ -91,7 +91,7 @@ void WorldSession::HandleBugReportOpcode(WorldPackets::Ticket::BugReport& bugRep
     if (!sSupportMgr->GetBugSystemStatus())
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BUG_REPORT);
     stmt->setString(0, bugReport.Text);
     stmt->setString(1, bugReport.DiagInfo);
     CharacterDatabase.Execute(stmt);
