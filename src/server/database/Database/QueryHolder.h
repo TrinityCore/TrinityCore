@@ -24,11 +24,11 @@ class TC_DATABASE_API SQLQueryHolder
 {
     friend class SQLQueryHolderTask;
     private:
-        std::vector<std::pair<PreparedStatement*, PreparedQueryResult>> m_queries;
+        std::vector<std::pair<PreparedStatementBase*, PreparedQueryResult>> m_queries;
     public:
         SQLQueryHolder() { }
         virtual ~SQLQueryHolder();
-        bool SetPreparedQuery(size_t index, PreparedStatement* stmt);
+        bool SetPreparedQuery(size_t index, PreparedStatementBase* stmt);
         void SetSize(size_t size);
         PreparedQueryResult GetPreparedResult(size_t index);
         void SetPreparedResult(size_t index, PreparedResultSet* result);

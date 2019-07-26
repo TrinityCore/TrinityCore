@@ -121,7 +121,7 @@ void Channel::UpdateChannelInDB()
 
         std::string banListStr = banlist.str();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL);
         stmt->setString(0, _channelName);
         stmt->setUInt32(1, _channelTeam);
         stmt->setBool(2, _announceEnabled);
@@ -134,7 +134,7 @@ void Channel::UpdateChannelInDB()
     {
         if (!_playersStore.empty())
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_USAGE);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_USAGE);
             stmt->setString(0, _channelName);
             stmt->setUInt32(1, _channelTeam);
             CharacterDatabase.Execute(stmt);
