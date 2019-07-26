@@ -21,6 +21,7 @@
 #include "PassiveAI.h"
 #include "black_temple.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
