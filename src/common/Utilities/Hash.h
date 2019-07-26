@@ -48,4 +48,48 @@ namespace std
     };
 }
 
+//! Hash implementation for std::tuple to allow using tuples in unordered_set or as key for unordered_map
+//! Individual types used in tuple must be hashable by std::hash
+namespace std
+{
+    template<class T1>
+    struct hash<std::tuple<T1>>
+    {
+    public:
+        size_t operator()(std::tuple<T1> const& p) const
+        {
+            size_t hashVal = 0;
+            Trinity::hash_combine(hashVal, std::get<0>(p));
+            return hashVal;
+        }
+    };
+
+    template<class T1, class T2>
+    struct hash<std::tuple<T1, T2>>
+    {
+    public:
+        size_t operator()(std::tuple<T1, T2> const& p) const
+        {
+            size_t hashVal = 0;
+            Trinity::hash_combine(hashVal, std::get<0>(p));
+            Trinity::hash_combine(hashVal, std::get<1>(p));
+            return hashVal;
+        }
+    };
+
+    template<class T1, class T2, class T3>
+    struct hash<std::tuple<T1, T2, T3>>
+    {
+    public:
+        size_t operator()(std::tuple<T1, T2, T3> const& p) const
+        {
+            size_t hashVal = 0;
+            Trinity::hash_combine(hashVal, std::get<0>(p));
+            Trinity::hash_combine(hashVal, std::get<1>(p));
+            Trinity::hash_combine(hashVal, std::get<2>(p));
+            return hashVal;
+        }
+    };
+}
+
 #endif // TrinityCore_Hash_h__

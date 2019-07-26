@@ -385,6 +385,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         static bool ExistMap(uint32 mapid, int gx, int gy);
         static bool ExistVMap(uint32 mapid, int gx, int gy);
+        static bool ShouldLogMissingTile(uint32 mapid, int gx, int gy);
 
         static void InitStateMachine();
         static void DeleteStateMachine();
