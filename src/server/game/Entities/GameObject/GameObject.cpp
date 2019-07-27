@@ -1110,7 +1110,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     if (!data)
         return false;
 
-    SQLTransaction trans = WorldDatabase.BeginTransaction();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
         [spawnId, trans](Map* map) -> void
@@ -1127,6 +1127,10 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     // delete data from memory
     sObjectMgr->DeleteGameObjectData(spawnId);
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    trans = WorldDatabase.BeginTransaction();
 
     // ... and the database
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
