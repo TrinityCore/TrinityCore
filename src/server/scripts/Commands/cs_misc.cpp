@@ -607,7 +607,7 @@ public:
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE));
 
             // in point where GM stay
-            SQLTransaction dummy;
+            CharacterDatabaseTransaction dummy;
             Player::SavePositionInDB(WorldLocation(handler->GetSession()->GetPlayer()->GetMapId(),
                 handler->GetSession()->GetPlayer()->GetPositionX(),
                 handler->GetSession()->GetPlayer()->GetPositionY(),
@@ -667,7 +667,7 @@ public:
         }
         else
         {
-            SQLTransaction trans(nullptr);
+            CharacterDatabaseTransaction trans(nullptr);
             Player::OfflineResurrect(targetGuid, trans);
         }
 
@@ -1007,7 +1007,7 @@ public:
             {
                 Field* fields = result->Fetch();
 
-                SQLTransaction dummy;
+                CharacterDatabaseTransaction dummy;
                 Player::SavePositionInDB(WorldLocation(fields[0].GetUInt16(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), 0.0f), fields[1].GetUInt16(), targetGUID, dummy);
                 return true;
             }

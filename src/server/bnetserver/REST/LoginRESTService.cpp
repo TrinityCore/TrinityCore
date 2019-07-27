@@ -392,7 +392,7 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
 
                 if (maxWrongPassword)
                 {
-                    SQLTransaction trans = LoginDatabase.BeginTransaction();
+                    LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
                     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
                     stmt->setUInt32(0, accountId);
                     trans->Append(stmt);

@@ -115,7 +115,7 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPackets::BlackMarket::BlackMa
         return;
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     sBlackMarketMgr->SendAuctionOutbidMail(entry, trans);
     entry->PlaceBid(blackMarketBidOnItem.BidAmount, player, trans);

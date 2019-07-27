@@ -132,7 +132,7 @@ void GuildFinderMgr::AddMembershipRequest(ObjectGuid const& guildGuid, Membershi
     _membershipRequestsByGuild[guildGuid][request.GetPlayerGUID()] = request;
     _membershipRequestsByPlayer[request.GetPlayerGUID()][guildGuid] = request;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GUILD_FINDER_APPLICANT);
     stmt->setUInt64(0, request.GetGuildGuid().GetCounter());
     stmt->setUInt64(1, request.GetPlayerGUID().GetCounter());
@@ -159,7 +159,7 @@ void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(ObjectGuid const& pla
     if (playerItr == _membershipRequestsByPlayer.end())
         return;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     for (auto& guildRequestPair : playerItr->second)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
@@ -203,7 +203,7 @@ void GuildFinderMgr::RemoveMembershipRequest(ObjectGuid const& playerId, ObjectG
             _membershipRequestsByPlayer.erase(playerItr);
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_FINDER_APPLICANT);
     stmt->setUInt64(0, guildId.GetCounter());
@@ -285,7 +285,7 @@ void GuildFinderMgr::SetGuildSettings(ObjectGuid const& guildGuid, LFGuildSettin
 {
     _guildSettings[guildGuid] = settings;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GUILD_FINDER_GUILD_SETTINGS);
     stmt->setUInt64(0, settings.GetGUID().GetCounter());
@@ -302,7 +302,7 @@ void GuildFinderMgr::SetGuildSettings(ObjectGuid const& guildGuid, LFGuildSettin
 
 void GuildFinderMgr::DeleteGuild(ObjectGuid const& guildId)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     auto guildItr = _membershipRequestsByGuild.find(guildId);
     if (guildItr != _membershipRequestsByGuild.end())
     {

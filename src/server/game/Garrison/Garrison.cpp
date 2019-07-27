@@ -141,7 +141,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
     return true;
 }
 
-void Garrison::SaveToDB(SQLTransaction trans)
+void Garrison::SaveToDB(CharacterDatabaseTransaction trans)
 {
     DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
 
@@ -204,7 +204,7 @@ void Garrison::SaveToDB(SQLTransaction trans)
     }
 }
 
-void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
+void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
     stmt->setUInt64(0, ownerGuid);
@@ -243,7 +243,7 @@ bool Garrison::Create(uint32 garrSiteId)
 
 void Garrison::Delete()
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
     CharacterDatabase.CommitTransaction(trans);
 

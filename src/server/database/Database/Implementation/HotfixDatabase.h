@@ -581,6 +581,4 @@ public:
     void DoPrepareStatements() override;
 };
 
-using HotfixDatabasePreparedStatement = PreparedStatement<HotfixDatabaseConnection>;
-
 #endif

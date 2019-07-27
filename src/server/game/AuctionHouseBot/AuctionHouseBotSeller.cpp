@@ -921,7 +921,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
     AllItemsArray allItems(MAX_AUCTION_QUALITY, std::vector<uint32>(MAX_ITEM_CLASS));
     // Main loop
     // getRandomArray will give what categories of items should be added (return true if there is at least 1 items missed)
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     while (GetItemsToSell(config, itemsToSell, allItems) && items > 0)
     {
         --items;
