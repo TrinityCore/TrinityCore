@@ -89,7 +89,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector<LootRequest> Loot;
+            Array<LootRequest, 1000> Loot;
         };
 
         class LootRemoved final : public ServerPacket

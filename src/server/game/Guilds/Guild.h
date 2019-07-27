@@ -368,8 +368,8 @@ class TC_GAME_API Guild
                 uint32 GetTotalReputation() const { return m_totalReputation; }
                 uint32 GetWeekReputation() const { return m_weekReputation; }
 
-                std::set<uint32> GetTrackedCriteriaIds() const { return m_trackedCriteriaIds; }
-                void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }
+                std::set<uint32> const& GetTrackedCriteriaIds() const { return m_trackedCriteriaIds; }
+                void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds = std::move(criteriaIds); }
                 bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds.find(criteriaId) != m_trackedCriteriaIds.end();  }
 
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
@@ -755,7 +755,7 @@ class TC_GAME_API Guild
         // Handle client commands
         void HandleRoster(WorldSession* session);
         void SendQueryResponse(WorldSession* session, ObjectGuid const& playerGuid);
-        void HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& achievementIds);
+        void HandleSetAchievementTracking(WorldSession* session, uint32 const* achievementIdsBegin, uint32 const* achievementIdsEnd);
         void HandleGetAchievementMembers(WorldSession* session, uint32 achievementId) const;
         void HandleSetMOTD(WorldSession* session, std::string const& motd);
         void HandleSetInfo(WorldSession* session, std::string const& info);
