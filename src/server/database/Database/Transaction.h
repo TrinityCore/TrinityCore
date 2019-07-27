@@ -38,7 +38,7 @@ class TC_DATABASE_API Transaction
         Transaction() : _cleanedUp(false) { }
         ~Transaction() { Cleanup(); }
 
-        void Append(PreparedStatement* statement);
+        void Append(PreparedStatementBase* statement);
         void Append(const char* sql);
         template<typename Format, typename... Args>
         void PAppend(Format&& sql, Args&&... args)
