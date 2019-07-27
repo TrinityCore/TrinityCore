@@ -243,7 +243,7 @@ bool CreatureAI::UpdateVictim()
     if (!me->HasReactState(REACT_PASSIVE))
     {
         if (Unit* victim = me->SelectVictim())
-            if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+            if (!me->IsMovementPreventedByCasting() && victim != me->GetVictim())
                 AttackStart(victim);
 
         return me->GetVictim() != nullptr;
