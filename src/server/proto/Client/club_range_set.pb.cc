@@ -85,7 +85,7 @@ void protobuf_AssignDesc_club_5frange_5fset_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMemberRangeSet, count_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMemberRangeSet, voice_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMemberRangeSet, stream_subscriptions_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMemberRangeSet, note_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMemberRangeSet, note_range_),
   };
   ClubMemberRangeSet_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -249,26 +249,27 @@ void protobuf_AddDesc_club_5frange_5fset_2eproto() {
     "onRangeSet\0228\n\006ticket\030\035 \001(\0132(.bgs.protoco"
     "l.club.v1.ClubTicketRangeSet\0222\n\003ban\030\036 \001("
     "\0132%.bgs.protocol.club.v1.ClubBanRangeSet"
-    "\"\336\001\n\022ClubMemberRangeSet\022-\n\005count\030\001 \001(\0132\036"
+    "\"\344\001\n\022ClubMemberRangeSet\022-\n\005count\030\001 \001(\0132\036"
     ".bgs.protocol.UnsignedIntRange\022-\n\005voice\030"
     "\003 \001(\0132\036.bgs.protocol.UnsignedIntRange\022<\n"
     "\024stream_subscriptions\030\005 \001(\0132\036.bgs.protoc"
-    "ol.UnsignedIntRange\022,\n\004note\030\007 \001(\0132\036.bgs."
-    "protocol.UnsignedIntRange\"\345\001\n\022ClubStream"
-    "RangeSet\022-\n\005count\030\001 \001(\0132\036.bgs.protocol.U"
-    "nsignedIntRange\0222\n\nname_range\030\003 \001(\0132\036.bg"
-    "s.protocol.UnsignedIntRange\0225\n\rsubject_r"
-    "ange\030\004 \001(\0132\036.bgs.protocol.UnsignedIntRan"
-    "ge\0225\n\rmessage_range\030\005 \001(\0132\036.bgs.protocol"
-    ".UnsignedIntRange\"G\n\026ClubInvitationRange"
-    "Set\022-\n\005count\030\001 \001(\0132\036.bgs.protocol.Unsign"
-    "edIntRange\"G\n\026ClubSuggestionRangeSet\022-\n\005"
-    "count\030\001 \001(\0132\036.bgs.protocol.UnsignedIntRa"
-    "nge\"C\n\022ClubTicketRangeSet\022-\n\005count\030\001 \001(\013"
-    "2\036.bgs.protocol.UnsignedIntRange\"v\n\017Club"
-    "BanRangeSet\022-\n\005count\030\001 \001(\0132\036.bgs.protoco"
-    "l.UnsignedIntRange\0224\n\014reason_range\030\003 \001(\013"
-    "2\036.bgs.protocol.UnsignedIntRangeB\002H\001", 1476);
+    "ol.UnsignedIntRange\0222\n\nnote_range\030\007 \001(\0132"
+    "\036.bgs.protocol.UnsignedIntRange\"\345\001\n\022Club"
+    "StreamRangeSet\022-\n\005count\030\001 \001(\0132\036.bgs.prot"
+    "ocol.UnsignedIntRange\0222\n\nname_range\030\003 \001("
+    "\0132\036.bgs.protocol.UnsignedIntRange\0225\n\rsub"
+    "ject_range\030\004 \001(\0132\036.bgs.protocol.Unsigned"
+    "IntRange\0225\n\rmessage_range\030\005 \001(\0132\036.bgs.pr"
+    "otocol.UnsignedIntRange\"G\n\026ClubInvitatio"
+    "nRangeSet\022-\n\005count\030\001 \001(\0132\036.bgs.protocol."
+    "UnsignedIntRange\"G\n\026ClubSuggestionRangeS"
+    "et\022-\n\005count\030\001 \001(\0132\036.bgs.protocol.Unsigne"
+    "dIntRange\"C\n\022ClubTicketRangeSet\022-\n\005count"
+    "\030\001 \001(\0132\036.bgs.protocol.UnsignedIntRange\"v"
+    "\n\017ClubBanRangeSet\022-\n\005count\030\001 \001(\0132\036.bgs.p"
+    "rotocol.UnsignedIntRange\0224\n\014reason_range"
+    "\030\003 \001(\0132\036.bgs.protocol.UnsignedIntRangeB\002"
+    "H\001", 1482);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_range_set.proto", &protobuf_RegisterTypes);
   ClubTypeRangeSet::default_instance_ = new ClubTypeRangeSet();
@@ -932,7 +933,7 @@ void ClubTypeRangeSet::Swap(ClubTypeRangeSet* other) {
 const int ClubMemberRangeSet::kCountFieldNumber;
 const int ClubMemberRangeSet::kVoiceFieldNumber;
 const int ClubMemberRangeSet::kStreamSubscriptionsFieldNumber;
-const int ClubMemberRangeSet::kNoteFieldNumber;
+const int ClubMemberRangeSet::kNoteRangeFieldNumber;
 #endif  // !_MSC_VER
 
 ClubMemberRangeSet::ClubMemberRangeSet()
@@ -945,7 +946,7 @@ void ClubMemberRangeSet::InitAsDefaultInstance() {
   count_ = const_cast< ::bgs::protocol::UnsignedIntRange*>(&::bgs::protocol::UnsignedIntRange::default_instance());
   voice_ = const_cast< ::bgs::protocol::UnsignedIntRange*>(&::bgs::protocol::UnsignedIntRange::default_instance());
   stream_subscriptions_ = const_cast< ::bgs::protocol::UnsignedIntRange*>(&::bgs::protocol::UnsignedIntRange::default_instance());
-  note_ = const_cast< ::bgs::protocol::UnsignedIntRange*>(&::bgs::protocol::UnsignedIntRange::default_instance());
+  note_range_ = const_cast< ::bgs::protocol::UnsignedIntRange*>(&::bgs::protocol::UnsignedIntRange::default_instance());
 }
 
 ClubMemberRangeSet::ClubMemberRangeSet(const ClubMemberRangeSet& from)
@@ -960,7 +961,7 @@ void ClubMemberRangeSet::SharedCtor() {
   count_ = NULL;
   voice_ = NULL;
   stream_subscriptions_ = NULL;
-  note_ = NULL;
+  note_range_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -974,7 +975,7 @@ void ClubMemberRangeSet::SharedDtor() {
     delete count_;
     delete voice_;
     delete stream_subscriptions_;
-    delete note_;
+    delete note_range_;
   }
 }
 
@@ -1010,8 +1011,8 @@ void ClubMemberRangeSet::Clear() {
     if (has_stream_subscriptions()) {
       if (stream_subscriptions_ != NULL) stream_subscriptions_->::bgs::protocol::UnsignedIntRange::Clear();
     }
-    if (has_note()) {
-      if (note_ != NULL) note_->::bgs::protocol::UnsignedIntRange::Clear();
+    if (has_note_range()) {
+      if (note_range_ != NULL) note_range_->::bgs::protocol::UnsignedIntRange::Clear();
     }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1062,16 +1063,16 @@ bool ClubMemberRangeSet::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(58)) goto parse_note;
+        if (input->ExpectTag(58)) goto parse_note_range;
         break;
       }
 
-      // optional .bgs.protocol.UnsignedIntRange note = 7;
+      // optional .bgs.protocol.UnsignedIntRange note_range = 7;
       case 7: {
         if (tag == 58) {
-         parse_note:
+         parse_note_range:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_note()));
+               input, mutable_note_range()));
         } else {
           goto handle_unusual;
         }
@@ -1122,10 +1123,10 @@ void ClubMemberRangeSet::SerializeWithCachedSizes(
       5, this->stream_subscriptions(), output);
   }
 
-  // optional .bgs.protocol.UnsignedIntRange note = 7;
-  if (has_note()) {
+  // optional .bgs.protocol.UnsignedIntRange note_range = 7;
+  if (has_note_range()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      7, this->note(), output);
+      7, this->note_range(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1159,11 +1160,11 @@ void ClubMemberRangeSet::SerializeWithCachedSizes(
         5, this->stream_subscriptions(), target);
   }
 
-  // optional .bgs.protocol.UnsignedIntRange note = 7;
-  if (has_note()) {
+  // optional .bgs.protocol.UnsignedIntRange note_range = 7;
+  if (has_note_range()) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        7, this->note(), target);
+        7, this->note_range(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1199,11 +1200,11 @@ int ClubMemberRangeSet::ByteSize() const {
           this->stream_subscriptions());
     }
 
-    // optional .bgs.protocol.UnsignedIntRange note = 7;
-    if (has_note()) {
+    // optional .bgs.protocol.UnsignedIntRange note_range = 7;
+    if (has_note_range()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->note());
+          this->note_range());
     }
 
   }
@@ -1242,8 +1243,8 @@ void ClubMemberRangeSet::MergeFrom(const ClubMemberRangeSet& from) {
     if (from.has_stream_subscriptions()) {
       mutable_stream_subscriptions()->::bgs::protocol::UnsignedIntRange::MergeFrom(from.stream_subscriptions());
     }
-    if (from.has_note()) {
-      mutable_note()->::bgs::protocol::UnsignedIntRange::MergeFrom(from.note());
+    if (from.has_note_range()) {
+      mutable_note_range()->::bgs::protocol::UnsignedIntRange::MergeFrom(from.note_range());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -1271,7 +1272,7 @@ void ClubMemberRangeSet::Swap(ClubMemberRangeSet* other) {
     std::swap(count_, other->count_);
     std::swap(voice_, other->voice_);
     std::swap(stream_subscriptions_, other->stream_subscriptions_);
-    std::swap(note_, other->note_);
+    std::swap(note_range_, other->note_range_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

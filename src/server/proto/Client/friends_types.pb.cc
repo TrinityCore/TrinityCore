@@ -99,15 +99,13 @@ void protobuf_AssignDesc_friends_5ftypes_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(FriendOfFriend));
   ReceivedInvitation_descriptor_ = file->message_type(2);
-  static const int ReceivedInvitation_offsets_[9] = {
+  static const int ReceivedInvitation_offsets_[7] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitation, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitation, inviter_identity_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitation, invitee_identity_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitation, inviter_name_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitation, invitee_name_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitation, invitation_message_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitation, creation_time_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitation, expiration_time_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitation, program_),
   };
   ReceivedInvitation_reflection_ =
@@ -287,41 +285,40 @@ void protobuf_AddDesc_friends_5ftypes_2eproto() {
     "\004\"\211\001\n\016FriendOfFriend\022*\n\naccount_id\030\001 \001(\013"
     "2\026.bgs.protocol.EntityId\022\020\n\004role\030\003 \003(\rB\002"
     "\020\001\022\022\n\nprivileges\030\004 \001(\004\022\021\n\tfull_name\030\006 \001("
-    "\t\022\022\n\nbattle_tag\030\007 \001(\t\"\224\002\n\022ReceivedInvita"
+    "\t\022\022\n\nbattle_tag\030\007 \001(\t\"\337\001\n\022ReceivedInvita"
     "tion\022\n\n\002id\030\001 \002(\006\0220\n\020inviter_identity\030\002 \002"
     "(\0132\026.bgs.protocol.Identity\0220\n\020invitee_id"
     "entity\030\003 \002(\0132\026.bgs.protocol.Identity\022\024\n\014"
     "inviter_name\030\004 \001(\t\022\024\n\014invitee_name\030\005 \001(\t"
-    "\022\032\n\022invitation_message\030\006 \001(\t\022\025\n\rcreation"
-    "_time\030\007 \001(\004\022\027\n\017expiration_time\030\010 \001(\004\022\017\n\007"
-    "program\030\t \001(\007*\005\010d\020\220N\"\303\001\n\020FriendInvitatio"
-    "n\022\020\n\004role\030\002 \003(\rB\002\020\001\022*\n\tattribute\030\003 \003(\0132\027"
-    ".bgs.protocol.Attribute2q\n\021friend_invita"
-    "tion\022+.bgs.protocol.friends.v1.ReceivedI"
-    "nvitation\030g \001(\0132).bgs.protocol.friends.v"
-    "1.FriendInvitation\"\223\001\n\016SentInvitation\022\n\n"
-    "\002id\030\001 \001(\006\022\023\n\013target_name\030\002 \001(\t\022\014\n\004role\030\003"
-    " \001(\r\022*\n\tattribute\030\004 \003(\0132\027.bgs.protocol.A"
-    "ttribute\022\025\n\rcreation_time\030\005 \001(\004\022\017\n\007progr"
-    "am\030\006 \001(\007\"\231\002\n\026FriendInvitationParams\022\024\n\014t"
-    "arget_email\030\001 \001(\t\022\031\n\021target_battle_tag\030\002"
-    " \001(\t\022\020\n\004role\030\006 \003(\rB\002\020\001\022*\n\tattribute\030\010 \003("
-    "\0132\027.bgs.protocol.Attribute\022\023\n\013target_nam"
-    "e\030\t \001(\t\022\023\n\007program\030\n \001(\007B\002\030\0012f\n\rfriend_p"
-    "arams\022\036.bgs.protocol.InvitationParams\030g "
-    "\001(\0132/.bgs.protocol.friends.v1.FriendInvi"
-    "tationParams\"\312\002\n\021SubscribeResponse\022\023\n\013ma"
-    "x_friends\030\001 \001(\r\022 \n\030max_received_invitati"
-    "ons\030\002 \001(\r\022\034\n\024max_sent_invitations\030\003 \001(\r\022"
-    " \n\004role\030\004 \003(\0132\022.bgs.protocol.Role\0220\n\007fri"
-    "ends\030\005 \003(\0132\037.bgs.protocol.friends.v1.Fri"
-    "end\022I\n\024received_invitations\030\007 \003(\0132+.bgs."
-    "protocol.friends.v1.ReceivedInvitation\022A"
-    "\n\020sent_invitations\030\010 \003(\0132\'.bgs.protocol."
-    "friends.v1.SentInvitation\"8\n\027AcceptInvit"
-    "ationOptions\022\014\n\004role\030\001 \001(\r\022\017\n\007program\030\002 "
-    "\001(\007B/\n\030bnet.protocol.friends.v1B\021Friends"
-    "TypesProtoH\001", 1812);
+    "\022\025\n\rcreation_time\030\007 \001(\004\022\017\n\007program\030\t \001(\007"
+    "*\005\010d\020\220N\"\303\001\n\020FriendInvitation\022\020\n\004role\030\002 \003"
+    "(\rB\002\020\001\022*\n\tattribute\030\003 \003(\0132\027.bgs.protocol"
+    ".Attribute2q\n\021friend_invitation\022+.bgs.pr"
+    "otocol.friends.v1.ReceivedInvitation\030g \001"
+    "(\0132).bgs.protocol.friends.v1.FriendInvit"
+    "ation\"\223\001\n\016SentInvitation\022\n\n\002id\030\001 \001(\006\022\023\n\013"
+    "target_name\030\002 \001(\t\022\014\n\004role\030\003 \001(\r\022*\n\tattri"
+    "bute\030\004 \003(\0132\027.bgs.protocol.Attribute\022\025\n\rc"
+    "reation_time\030\005 \001(\004\022\017\n\007program\030\006 \001(\007\"\231\002\n\026"
+    "FriendInvitationParams\022\024\n\014target_email\030\001"
+    " \001(\t\022\031\n\021target_battle_tag\030\002 \001(\t\022\020\n\004role\030"
+    "\006 \003(\rB\002\020\001\022*\n\tattribute\030\010 \003(\0132\027.bgs.proto"
+    "col.Attribute\022\023\n\013target_name\030\t \001(\t\022\023\n\007pr"
+    "ogram\030\n \001(\007B\002\030\0012f\n\rfriend_params\022\036.bgs.p"
+    "rotocol.InvitationParams\030g \001(\0132/.bgs.pro"
+    "tocol.friends.v1.FriendInvitationParams\""
+    "\326\002\n\021SubscribeResponse\022\027\n\013max_friends\030\001 \001"
+    "(\rB\002\030\001\022$\n\030max_received_invitations\030\002 \001(\r"
+    "B\002\030\001\022 \n\024max_sent_invitations\030\003 \001(\rB\002\030\001\022 "
+    "\n\004role\030\004 \003(\0132\022.bgs.protocol.Role\0220\n\007frie"
+    "nds\030\005 \003(\0132\037.bgs.protocol.friends.v1.Frie"
+    "nd\022I\n\024received_invitations\030\007 \003(\0132+.bgs.p"
+    "rotocol.friends.v1.ReceivedInvitation\022A\n"
+    "\020sent_invitations\030\010 \003(\0132\'.bgs.protocol.f"
+    "riends.v1.SentInvitation\"8\n\027AcceptInvita"
+    "tionOptions\022\014\n\004role\030\001 \001(\r\022\017\n\007program\030\002 \001"
+    "(\007B/\n\030bnet.protocol.friends.v1B\021FriendsT"
+    "ypesProtoH\001", 1771);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "friends_types.proto", &protobuf_RegisterTypes);
   Friend::default_instance_ = new Friend();
@@ -1286,9 +1283,7 @@ const int ReceivedInvitation::kInviterIdentityFieldNumber;
 const int ReceivedInvitation::kInviteeIdentityFieldNumber;
 const int ReceivedInvitation::kInviterNameFieldNumber;
 const int ReceivedInvitation::kInviteeNameFieldNumber;
-const int ReceivedInvitation::kInvitationMessageFieldNumber;
 const int ReceivedInvitation::kCreationTimeFieldNumber;
-const int ReceivedInvitation::kExpirationTimeFieldNumber;
 const int ReceivedInvitation::kProgramFieldNumber;
 #endif  // !_MSC_VER
 
@@ -1318,9 +1313,7 @@ void ReceivedInvitation::SharedCtor() {
   invitee_identity_ = NULL;
   inviter_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   invitee_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  invitation_message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   creation_time_ = GOOGLE_ULONGLONG(0);
-  expiration_time_ = GOOGLE_ULONGLONG(0);
   program_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1336,9 +1329,6 @@ void ReceivedInvitation::SharedDtor() {
   }
   if (invitee_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete invitee_name_;
-  }
-  if (invitation_message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete invitation_message_;
   }
   if (this != default_instance_) {
     delete inviter_identity_;
@@ -1379,8 +1369,8 @@ void ReceivedInvitation::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 255) {
-    ZR_(creation_time_, expiration_time_);
+  if (_has_bits_[0 / 32] & 127) {
+    ZR_(creation_time_, program_);
     id_ = GOOGLE_ULONGLONG(0);
     if (has_inviter_identity()) {
       if (inviter_identity_ != NULL) inviter_identity_->::bgs::protocol::Identity::Clear();
@@ -1398,13 +1388,7 @@ void ReceivedInvitation::Clear() {
         invitee_name_->clear();
       }
     }
-    if (has_invitation_message()) {
-      if (invitation_message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        invitation_message_->clear();
-      }
-    }
   }
-  program_ = 0u;
 
 #undef OFFSET_OF_FIELD_
 #undef ZR_
@@ -1493,23 +1477,6 @@ bool ReceivedInvitation::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(50)) goto parse_invitation_message;
-        break;
-      }
-
-      // optional string invitation_message = 6;
-      case 6: {
-        if (tag == 50) {
-         parse_invitation_message:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_invitation_message()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->invitation_message().data(), this->invitation_message().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "invitation_message");
-        } else {
-          goto handle_unusual;
-        }
         if (input->ExpectTag(56)) goto parse_creation_time;
         break;
       }
@@ -1522,21 +1489,6 @@ bool ReceivedInvitation::MergePartialFromCodedStream(
                    ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
                  input, &creation_time_)));
           set_has_creation_time();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(64)) goto parse_expiration_time;
-        break;
-      }
-
-      // optional uint64 expiration_time = 8;
-      case 8: {
-        if (tag == 64) {
-         parse_expiration_time:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &expiration_time_)));
-          set_has_expiration_time();
         } else {
           goto handle_unusual;
         }
@@ -1626,24 +1578,9 @@ void ReceivedInvitation::SerializeWithCachedSizes(
       5, this->invitee_name(), output);
   }
 
-  // optional string invitation_message = 6;
-  if (has_invitation_message()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->invitation_message().data(), this->invitation_message().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "invitation_message");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      6, this->invitation_message(), output);
-  }
-
   // optional uint64 creation_time = 7;
   if (has_creation_time()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(7, this->creation_time(), output);
-  }
-
-  // optional uint64 expiration_time = 8;
-  if (has_expiration_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(8, this->expiration_time(), output);
   }
 
   // optional fixed32 program = 9;
@@ -1706,25 +1643,9 @@ void ReceivedInvitation::SerializeWithCachedSizes(
         5, this->invitee_name(), target);
   }
 
-  // optional string invitation_message = 6;
-  if (has_invitation_message()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->invitation_message().data(), this->invitation_message().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "invitation_message");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        6, this->invitation_message(), target);
-  }
-
   // optional uint64 creation_time = 7;
   if (has_creation_time()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(7, this->creation_time(), target);
-  }
-
-  // optional uint64 expiration_time = 8;
-  if (has_expiration_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(8, this->expiration_time(), target);
   }
 
   // optional fixed32 program = 9;
@@ -1781,13 +1702,6 @@ int ReceivedInvitation::ByteSize() const {
           this->invitee_name());
     }
 
-    // optional string invitation_message = 6;
-    if (has_invitation_message()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->invitation_message());
-    }
-
     // optional uint64 creation_time = 7;
     if (has_creation_time()) {
       total_size += 1 +
@@ -1795,15 +1709,6 @@ int ReceivedInvitation::ByteSize() const {
           this->creation_time());
     }
 
-    // optional uint64 expiration_time = 8;
-    if (has_expiration_time()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->expiration_time());
-    }
-
-  }
-  if (_has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     // optional fixed32 program = 9;
     if (has_program()) {
       total_size += 1 + 4;
@@ -1853,17 +1758,9 @@ void ReceivedInvitation::MergeFrom(const ReceivedInvitation& from) {
     if (from.has_invitee_name()) {
       set_invitee_name(from.invitee_name());
     }
-    if (from.has_invitation_message()) {
-      set_invitation_message(from.invitation_message());
-    }
     if (from.has_creation_time()) {
       set_creation_time(from.creation_time());
     }
-    if (from.has_expiration_time()) {
-      set_expiration_time(from.expiration_time());
-    }
-  }
-  if (from._has_bits_[8 / 32] & (0xffu << (8 % 32))) {
     if (from.has_program()) {
       set_program(from.program());
     }
@@ -1904,9 +1801,7 @@ void ReceivedInvitation::Swap(ReceivedInvitation* other) {
     std::swap(invitee_identity_, other->invitee_identity_);
     std::swap(inviter_name_, other->inviter_name_);
     std::swap(invitee_name_, other->invitee_name_);
-    std::swap(invitation_message_, other->invitation_message_);
     std::swap(creation_time_, other->creation_time_);
-    std::swap(expiration_time_, other->expiration_time_);
     std::swap(program_, other->program_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -3276,7 +3171,7 @@ bool SubscribeResponse::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional uint32 max_friends = 1;
+      // optional uint32 max_friends = 1 [deprecated = true];
       case 1: {
         if (tag == 8) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
@@ -3290,7 +3185,7 @@ bool SubscribeResponse::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint32 max_received_invitations = 2;
+      // optional uint32 max_received_invitations = 2 [deprecated = true];
       case 2: {
         if (tag == 16) {
          parse_max_received_invitations:
@@ -3305,7 +3200,7 @@ bool SubscribeResponse::MergePartialFromCodedStream(
         break;
       }
 
-      // optional uint32 max_sent_invitations = 3;
+      // optional uint32 max_sent_invitations = 3 [deprecated = true];
       case 3: {
         if (tag == 24) {
          parse_max_sent_invitations:
@@ -3401,17 +3296,17 @@ failure:
 void SubscribeResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:bgs.protocol.friends.v1.SubscribeResponse)
-  // optional uint32 max_friends = 1;
+  // optional uint32 max_friends = 1 [deprecated = true];
   if (has_max_friends()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->max_friends(), output);
   }
 
-  // optional uint32 max_received_invitations = 2;
+  // optional uint32 max_received_invitations = 2 [deprecated = true];
   if (has_max_received_invitations()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->max_received_invitations(), output);
   }
 
-  // optional uint32 max_sent_invitations = 3;
+  // optional uint32 max_sent_invitations = 3 [deprecated = true];
   if (has_max_sent_invitations()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->max_sent_invitations(), output);
   }
@@ -3450,17 +3345,17 @@ void SubscribeResponse::SerializeWithCachedSizes(
 ::google::protobuf::uint8* SubscribeResponse::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.friends.v1.SubscribeResponse)
-  // optional uint32 max_friends = 1;
+  // optional uint32 max_friends = 1 [deprecated = true];
   if (has_max_friends()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->max_friends(), target);
   }
 
-  // optional uint32 max_received_invitations = 2;
+  // optional uint32 max_received_invitations = 2 [deprecated = true];
   if (has_max_received_invitations()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->max_received_invitations(), target);
   }
 
-  // optional uint32 max_sent_invitations = 3;
+  // optional uint32 max_sent_invitations = 3 [deprecated = true];
   if (has_max_sent_invitations()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->max_sent_invitations(), target);
   }
@@ -3505,21 +3400,21 @@ int SubscribeResponse::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional uint32 max_friends = 1;
+    // optional uint32 max_friends = 1 [deprecated = true];
     if (has_max_friends()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->max_friends());
     }
 
-    // optional uint32 max_received_invitations = 2;
+    // optional uint32 max_received_invitations = 2 [deprecated = true];
     if (has_max_received_invitations()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
           this->max_received_invitations());
     }
 
-    // optional uint32 max_sent_invitations = 3;
+    // optional uint32 max_sent_invitations = 3 [deprecated = true];
     if (has_max_sent_invitations()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
