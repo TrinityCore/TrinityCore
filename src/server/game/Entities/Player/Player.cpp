@@ -17540,7 +17540,7 @@ bool Player::IsLoading() const
     return GetSession()->PlayerLoading();
 }
 
-bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
+bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 {
     //        0     1        2     3     4      5       6      7   8      9     10    11         12         13           14              15              16              17              18         19         20           21
     //"SELECT guid, account, name, race, class, gender, level, xp, money, skin, face, hairStyle, hairColor, facialStyle, customDisplay1, customDisplay2, customDisplay3, inventorySlots, bankSlots, restState, playerFlags, playerFlagsEx, "

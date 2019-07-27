@@ -918,7 +918,7 @@ class TC_GAME_API WorldSession
         void SendAvailableHotfixes(int32 version);
 
         void InitializeSession();
-        void InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQueryHolder* holder);
+        void InitializeSessionCallback(LoginDatabaseQueryHolder* realmHolder, CharacterDatabaseQueryHolder* holder);
 
         rbac::RBACData* GetRBACData();
         bool HasPermission(uint32 permissionId);

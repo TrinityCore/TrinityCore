@@ -63,9 +63,17 @@ using HotfixDatabaseTransaction = SQLTransaction<HotfixDatabaseConnection>;
 using LoginDatabaseTransaction = SQLTransaction<LoginDatabaseConnection>;
 using WorldDatabaseTransaction = SQLTransaction<WorldDatabaseConnection>;
 
+class SQLQueryHolderBase;
+typedef std::future<SQLQueryHolderBase*> QueryResultHolderFuture;
+typedef std::promise<SQLQueryHolderBase*> QueryResultHolderPromise;
+
+template<typename T>
 class SQLQueryHolder;
-typedef std::future<SQLQueryHolder*> QueryResultHolderFuture;
-typedef std::promise<SQLQueryHolder*> QueryResultHolderPromise;
+
+using CharacterDatabaseQueryHolder = SQLQueryHolder<CharacterDatabaseConnection>;
+using HotfixDatabaseQueryHolder = SQLQueryHolder<HotfixDatabaseConnection>;
+using LoginDatabaseQueryHolder = SQLQueryHolder<LoginDatabaseConnection>;
+using WorldDatabaseQueryHolder = SQLQueryHolder<WorldDatabaseConnection>;
 
 // mysql
 typedef struct st_mysql MYSQL;
