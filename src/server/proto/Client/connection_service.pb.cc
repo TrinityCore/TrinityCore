@@ -363,7 +363,7 @@ void protobuf_AddDesc_connection_5fservice_2eproto() {
     "se\022\014\n\004time\030\001 \001(\006\022\017\n\007payload\030\002 \001(\014\"\'\n\021Dis"
     "connectRequest\022\022\n\nerror_code\030\001 \002(\r\"<\n\026Di"
     "sconnectNotification\022\022\n\nerror_code\030\001 \002(\r"
-    "\022\016\n\006reason\030\002 \001(\t\"\020\n\016EncryptRequest2\361\005\n\021C"
+    "\022\016\n\006reason\030\002 \001(\t\"\020\n\016EncryptRequest2\375\005\n\021C"
     "onnectionService\022j\n\007Connect\022*.bgs.protoc"
     "ol.connection.v1.ConnectRequest\032+.bgs.pr"
     "otocol.connection.v1.ConnectResponse\"\006\202\371"
@@ -381,10 +381,10 @@ void protobuf_AddDesc_connection_5fservice_2eproto() {
     "gs.protocol.NoData\"\t\210\002\001\202\371+\002\010\006\022e\n\021Request"
     "Disconnect\022-.bgs.protocol.connection.v1."
     "DisconnectRequest\032\031.bgs.protocol.NO_RESP"
-    "ONSE\"\006\202\371+\002\010\007\0328\202\371+,\n*bnet.protocol.connec"
-    "tion.ConnectionService\212\371+\004\010\001\020\001B=\n\033bnet.p"
-    "rotocol.connection.v1B\026ConnectionService"
-    "ProtoH\001\200\001\000\210\001\001", 2293);
+    "ONSE\"\006\202\371+\002\010\007\032D\202\371+8\n*bnet.protocol.connec"
+    "tion.ConnectionService*\nconnection\212\371+\004\010\001"
+    "\020\001B=\n\033bnet.protocol.connection.v1B\026Conne"
+    "ctionServiceProtoH\001\200\001\000\210\001\001", 2305);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "connection_service.proto", &protobuf_RegisterTypes);
   ConnectRequest::default_instance_ = new ConnectRequest();

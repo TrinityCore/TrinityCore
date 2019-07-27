@@ -25,9 +25,6 @@ namespace v1 {
 
 namespace {
 
-const ::google::protobuf::Descriptor* MemberId_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  MemberId_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Member_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Member_reflection_ = NULL;
@@ -52,6 +49,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* MemberDescription_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   MemberDescription_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RoleOptions_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RoleOptions_reflection_ = NULL;
 const ::google::protobuf::Descriptor* RoleAssignment_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   RoleAssignment_reflection_ = NULL;
@@ -80,23 +80,7 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "club_member.proto");
   GOOGLE_CHECK(file != NULL);
-  MemberId_descriptor_ = file->message_type(0);
-  static const int MemberId_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberId, account_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberId, unique_id_),
-  };
-  MemberId_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      MemberId_descriptor_,
-      MemberId::default_instance_,
-      MemberId_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberId, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberId, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(MemberId));
-  Member_descriptor_ = file->message_type(1);
+  Member_descriptor_ = file->message_type(0);
   static const int Member_offsets_[11] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Member, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Member, battle_tag_),
@@ -121,7 +105,7 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Member));
-  MemberResult_descriptor_ = file->message_type(2);
+  MemberResult_descriptor_ = file->message_type(1);
   static const int MemberResult_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberResult, member_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberResult, status_),
@@ -137,7 +121,7 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MemberResult));
-  RemoveMemberOptions_descriptor_ = file->message_type(3);
+  RemoveMemberOptions_descriptor_ = file->message_type(2);
   static const int RemoveMemberOptions_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RemoveMemberOptions, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RemoveMemberOptions, reason_),
@@ -153,7 +137,7 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RemoveMemberOptions));
-  MemberRemovedAssignment_descriptor_ = file->message_type(4);
+  MemberRemovedAssignment_descriptor_ = file->message_type(3);
   static const int MemberRemovedAssignment_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberRemovedAssignment, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberRemovedAssignment, reason_),
@@ -169,7 +153,7 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MemberRemovedAssignment));
-  MemberVoiceOptions_descriptor_ = file->message_type(5);
+  MemberVoiceOptions_descriptor_ = file->message_type(4);
   static const int MemberVoiceOptions_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberVoiceOptions, stream_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberVoiceOptions, joined_),
@@ -187,7 +171,7 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MemberVoiceOptions));
-  MemberVoiceState_descriptor_ = file->message_type(6);
+  MemberVoiceState_descriptor_ = file->message_type(5);
   static const int MemberVoiceState_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberVoiceState, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberVoiceState, stream_id_),
@@ -206,7 +190,7 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MemberVoiceState));
-  CreateMemberOptions_descriptor_ = file->message_type(7);
+  CreateMemberOptions_descriptor_ = file->message_type(6);
   static const int CreateMemberOptions_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMemberOptions, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CreateMemberOptions, attribute_),
@@ -222,7 +206,7 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(CreateMemberOptions));
-  MemberDescription_descriptor_ = file->message_type(8);
+  MemberDescription_descriptor_ = file->message_type(7);
   static const int MemberDescription_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberDescription, id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(MemberDescription, battle_tag_),
@@ -238,6 +222,22 @@ void protobuf_AssignDesc_club_5fmember_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(MemberDescription));
+  RoleOptions_descriptor_ = file->message_type(8);
+  static const int RoleOptions_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RoleOptions, member_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RoleOptions, role_),
+  };
+  RoleOptions_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RoleOptions_descriptor_,
+      RoleOptions::default_instance_,
+      RoleOptions_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RoleOptions, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RoleOptions, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RoleOptions));
   RoleAssignment_descriptor_ = file->message_type(9);
   static const int RoleAssignment_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RoleAssignment, member_id_),
@@ -354,8 +354,6 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    MemberId_descriptor_, &MemberId::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Member_descriptor_, &Member::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     MemberResult_descriptor_, &MemberResult::default_instance());
@@ -371,6 +369,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     CreateMemberOptions_descriptor_, &CreateMemberOptions::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     MemberDescription_descriptor_, &MemberDescription::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RoleOptions_descriptor_, &RoleOptions::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     RoleAssignment_descriptor_, &RoleAssignment::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -388,8 +388,6 @@ void protobuf_RegisterTypes(const ::std::string&) {
 }  // namespace
 
 void protobuf_ShutdownFile_club_5fmember_2eproto() {
-  delete MemberId::default_instance_;
-  delete MemberId_reflection_;
   delete Member::default_instance_;
   delete Member_reflection_;
   delete MemberResult::default_instance_;
@@ -406,6 +404,8 @@ void protobuf_ShutdownFile_club_5fmember_2eproto() {
   delete CreateMemberOptions_reflection_;
   delete MemberDescription::default_instance_;
   delete MemberDescription_reflection_;
+  delete RoleOptions::default_instance_;
+  delete RoleOptions_reflection_;
   delete RoleAssignment::default_instance_;
   delete RoleAssignment_reflection_;
   delete MemberAttributeAssignment::default_instance_;
@@ -426,75 +426,76 @@ void protobuf_AddDesc_club_5fmember_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fmember_5fid_2eproto();
   ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2fmessage_5foptions_2eproto();
   ::bgs::protocol::v2::protobuf_AddDesc_api_2fclient_2fv2_2fattribute_5ftypes_2eproto();
-  ::bgs::protocol::account::v1::protobuf_AddDesc_account_5ftypes_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fenum_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\021club_member.proto\022\024bgs.protocol.club.v"
-    "1\032\'global_extensions/message_options.pro"
-    "to\032#api/client/v2/attribute_types.proto\032"
-    "\023account_types.proto\032\017club_enum.proto\"]\n"
-    "\010MemberId\0226\n\naccount_id\030\001 \001(\0132\".bgs.prot"
-    "ocol.account.v1.AccountId\022\021\n\tunique_id\030\002"
-    " \001(\004:\006\202\371+\002\010\001\"\201\003\n\006Member\022*\n\002id\030\001 \001(\0132\036.bg"
-    "s.protocol.club.v1.MemberId\022\022\n\nbattle_ta"
-    "g\030\002 \001(\t\022\020\n\004role\030\003 \003(\rB\002\020\001\022-\n\tattribute\030\004"
-    " \003(\0132\032.bgs.protocol.v2.Attribute\022\021\n\tjoin"
-    "_time\030\005 \001(\004\022;\n\016presence_level\030\006 \001(\0162#.bg"
-    "s.protocol.club.v1.PresenceLevel\022\026\n\016mode"
-    "rator_mute\030\007 \001(\010\0229\n\rwhisper_level\030\010 \001(\0162"
-    "\".bgs.protocol.club.v1.WhisperLevel\022\014\n\004n"
-    "ote\030\t \001(\t\022\016\n\006active\0302 \001(\010\0225\n\005voice\0303 \001(\013"
-    "2&.bgs.protocol.club.v1.MemberVoiceState"
-    "\"Q\n\014MemberResult\0221\n\tmember_id\030\001 \001(\0132\036.bg"
-    "s.protocol.club.v1.MemberId\022\016\n\006status\030\002 "
-    "\001(\r\"z\n\023RemoveMemberOptions\022*\n\002id\030\001 \001(\0132\036"
-    ".bgs.protocol.club.v1.MemberId\0227\n\006reason"
-    "\030\002 \001(\0162\'.bgs.protocol.club.v1.ClubRemove"
-    "dReason\"~\n\027MemberRemovedAssignment\022*\n\002id"
-    "\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\0227"
-    "\n\006reason\030\002 \001(\0162\'.bgs.protocol.club.v1.Cl"
-    "ubRemovedReason\"\207\001\n\022MemberVoiceOptions\022\021"
-    "\n\tstream_id\030\001 \001(\004\022\016\n\006joined\030\002 \001(\010\022>\n\nmic"
-    "rophone\030\003 \001(\0162*.bgs.protocol.club.v1.Voi"
-    "ceMicrophoneState\022\016\n\006active\030\004 \001(\010\"\221\001\n\020Me"
-    "mberVoiceState\022\n\n\002id\030\001 \001(\t\022\021\n\tstream_id\030"
-    "\002 \001(\004\022\016\n\006joined\030\003 \001(\010\022>\n\nmicrophone\030\004 \001("
-    "\0162*.bgs.protocol.club.v1.VoiceMicrophone"
-    "State\022\016\n\006active\030\005 \001(\010\"p\n\023CreateMemberOpt"
-    "ions\022*\n\002id\030\001 \001(\0132\036.bgs.protocol.club.v1."
-    "MemberId\022-\n\tattribute\030\002 \003(\0132\032.bgs.protoc"
-    "ol.v2.Attribute\"S\n\021MemberDescription\022*\n\002"
-    "id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId"
-    "\022\022\n\nbattle_tag\030\002 \001(\t\"U\n\016RoleAssignment\0221"
+    "1\032\024club_member_id.proto\032\'global_extensio"
+    "ns/message_options.proto\032#api/client/v2/"
+    "attribute_types.proto\032\017club_enum.proto\032\017"
+    "rpc_types.proto\"\201\003\n\006Member\022*\n\002id\030\001 \001(\0132\036"
+    ".bgs.protocol.club.v1.MemberId\022\022\n\nbattle"
+    "_tag\030\002 \001(\t\022\020\n\004role\030\003 \003(\rB\002\020\001\022-\n\tattribut"
+    "e\030\004 \003(\0132\032.bgs.protocol.v2.Attribute\022\021\n\tj"
+    "oin_time\030\005 \001(\004\022;\n\016presence_level\030\006 \001(\0162#"
+    ".bgs.protocol.club.v1.PresenceLevel\022\026\n\016m"
+    "oderator_mute\030\007 \001(\010\0229\n\rwhisper_level\030\010 \001"
+    "(\0162\".bgs.protocol.club.v1.WhisperLevel\022\014"
+    "\n\004note\030\t \001(\t\022\016\n\006active\0302 \001(\010\0225\n\005voice\0303 "
+    "\001(\0132&.bgs.protocol.club.v1.MemberVoiceSt"
+    "ate\"Q\n\014MemberResult\0221\n\tmember_id\030\001 \001(\0132\036"
+    ".bgs.protocol.club.v1.MemberId\022\016\n\006status"
+    "\030\002 \001(\r\"z\n\023RemoveMemberOptions\022*\n\002id\030\001 \001("
+    "\0132\036.bgs.protocol.club.v1.MemberId\0227\n\006rea"
+    "son\030\002 \001(\0162\'.bgs.protocol.club.v1.ClubRem"
+    "ovedReason\"~\n\027MemberRemovedAssignment\022*\n"
+    "\002id\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberI"
+    "d\0227\n\006reason\030\002 \001(\0162\'.bgs.protocol.club.v1"
+    ".ClubRemovedReason\"\207\001\n\022MemberVoiceOption"
+    "s\022\021\n\tstream_id\030\001 \001(\004\022\016\n\006joined\030\002 \001(\010\022>\n\n"
+    "microphone\030\003 \001(\0162*.bgs.protocol.club.v1."
+    "VoiceMicrophoneState\022\016\n\006active\030\004 \001(\010\"\221\001\n"
+    "\020MemberVoiceState\022\n\n\002id\030\001 \001(\t\022\021\n\tstream_"
+    "id\030\002 \001(\004\022\016\n\006joined\030\003 \001(\010\022>\n\nmicrophone\030\004"
+    " \001(\0162*.bgs.protocol.club.v1.VoiceMicroph"
+    "oneState\022\016\n\006active\030\005 \001(\010\"p\n\023CreateMember"
+    "Options\022*\n\002id\030\001 \001(\0132\036.bgs.protocol.club."
+    "v1.MemberId\022-\n\tattribute\030\002 \003(\0132\032.bgs.pro"
+    "tocol.v2.Attribute\"S\n\021MemberDescription\022"
+    "*\n\002id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
+    "rId\022\022\n\nbattle_tag\030\002 \001(\t\"^\n\013RoleOptions\0221"
     "\n\tmember_id\030\001 \001(\0132\036.bgs.protocol.club.v1"
-    ".MemberId\022\020\n\004role\030\002 \003(\rB\002\020\001\"}\n\031MemberAtt"
-    "ributeAssignment\0221\n\tmember_id\030\001 \001(\0132\036.bg"
-    "s.protocol.club.v1.MemberId\022-\n\tattribute"
-    "\030\002 \003(\0132\032.bgs.protocol.v2.Attribute\"Q\n\026Su"
-    "bscriberStateOptions\0227\n\005voice\030\001 \001(\0132(.bg"
-    "s.protocol.club.v1.MemberVoiceOptions\"\225\001"
-    "\n\031SubscriberStateAssignment\0221\n\tmember_id"
-    "\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022\016"
-    "\n\006active\030\002 \001(\010\0225\n\005voice\030\003 \001(\0132&.bgs.prot"
-    "ocol.club.v1.MemberVoiceState\"\341\001\n\022Member"
-    "StateOptions\022-\n\tattribute\030\001 \003(\0132\032.bgs.pr"
-    "otocol.v2.Attribute\022;\n\016presence_level\030\002 "
-    "\001(\0162#.bgs.protocol.club.v1.PresenceLevel"
-    "\022\026\n\016moderator_mute\030\003 \001(\010\0229\n\rwhisper_leve"
-    "l\030\004 \001(\0162\".bgs.protocol.club.v1.WhisperLe"
-    "vel\022\014\n\004note\030\005 \001(\t\"\227\002\n\025MemberStateAssignm"
-    "ent\0221\n\tmember_id\030\001 \001(\0132\036.bgs.protocol.cl"
-    "ub.v1.MemberId\022-\n\tattribute\030\002 \003(\0132\032.bgs."
-    "protocol.v2.Attribute\022;\n\016presence_level\030"
-    "\003 \001(\0162#.bgs.protocol.club.v1.PresenceLev"
-    "el\022\026\n\016moderator_mute\030\004 \001(\010\0229\n\rwhisper_le"
-    "vel\030\005 \001(\0162\".bgs.protocol.club.v1.Whisper"
-    "Level\022\014\n\004note\030\006 \001(\tB\002H\001", 2423);
+    ".MemberId\022\034\n\004role\030\002 \003(\rB\016\020\001\212\371+\010*\006\n\004\010\001\020\001\""
+    "U\n\016RoleAssignment\0221\n\tmember_id\030\001 \001(\0132\036.b"
+    "gs.protocol.club.v1.MemberId\022\020\n\004role\030\002 \003"
+    "(\rB\002\020\001\"}\n\031MemberAttributeAssignment\0221\n\tm"
+    "ember_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Me"
+    "mberId\022-\n\tattribute\030\002 \003(\0132\032.bgs.protocol"
+    ".v2.Attribute\"Q\n\026SubscriberStateOptions\022"
+    "7\n\005voice\030\001 \001(\0132(.bgs.protocol.club.v1.Me"
+    "mberVoiceOptions\"\225\001\n\031SubscriberStateAssi"
+    "gnment\0221\n\tmember_id\030\001 \001(\0132\036.bgs.protocol"
+    ".club.v1.MemberId\022\016\n\006active\030\002 \001(\010\0225\n\005voi"
+    "ce\030\003 \001(\0132&.bgs.protocol.club.v1.MemberVo"
+    "iceState\"\341\001\n\022MemberStateOptions\022-\n\tattri"
+    "bute\030\001 \003(\0132\032.bgs.protocol.v2.Attribute\022;"
+    "\n\016presence_level\030\002 \001(\0162#.bgs.protocol.cl"
+    "ub.v1.PresenceLevel\022\026\n\016moderator_mute\030\003 "
+    "\001(\010\0229\n\rwhisper_level\030\004 \001(\0162\".bgs.protoco"
+    "l.club.v1.WhisperLevel\022\014\n\004note\030\005 \001(\t\"\227\002\n"
+    "\025MemberStateAssignment\0221\n\tmember_id\030\001 \001("
+    "\0132\036.bgs.protocol.club.v1.MemberId\022-\n\tatt"
+    "ribute\030\002 \003(\0132\032.bgs.protocol.v2.Attribute"
+    "\022;\n\016presence_level\030\003 \001(\0162#.bgs.protocol."
+    "club.v1.PresenceLevel\022\026\n\016moderator_mute\030"
+    "\004 \001(\010\0229\n\rwhisper_level\030\005 \001(\0162\".bgs.proto"
+    "col.club.v1.WhisperLevel\022\014\n\004note\030\006 \001(\tB\002"
+    "H\001P\000", 2444);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_member.proto", &protobuf_RegisterTypes);
-  MemberId::default_instance_ = new MemberId();
   Member::default_instance_ = new Member();
   MemberResult::default_instance_ = new MemberResult();
   RemoveMemberOptions::default_instance_ = new RemoveMemberOptions();
@@ -503,13 +504,13 @@ void protobuf_AddDesc_club_5fmember_2eproto() {
   MemberVoiceState::default_instance_ = new MemberVoiceState();
   CreateMemberOptions::default_instance_ = new CreateMemberOptions();
   MemberDescription::default_instance_ = new MemberDescription();
+  RoleOptions::default_instance_ = new RoleOptions();
   RoleAssignment::default_instance_ = new RoleAssignment();
   MemberAttributeAssignment::default_instance_ = new MemberAttributeAssignment();
   SubscriberStateOptions::default_instance_ = new SubscriberStateOptions();
   SubscriberStateAssignment::default_instance_ = new SubscriberStateAssignment();
   MemberStateOptions::default_instance_ = new MemberStateOptions();
   MemberStateAssignment::default_instance_ = new MemberStateAssignment();
-  MemberId::default_instance_->InitAsDefaultInstance();
   Member::default_instance_->InitAsDefaultInstance();
   MemberResult::default_instance_->InitAsDefaultInstance();
   RemoveMemberOptions::default_instance_->InitAsDefaultInstance();
@@ -518,6 +519,7 @@ void protobuf_AddDesc_club_5fmember_2eproto() {
   MemberVoiceState::default_instance_->InitAsDefaultInstance();
   CreateMemberOptions::default_instance_->InitAsDefaultInstance();
   MemberDescription::default_instance_->InitAsDefaultInstance();
+  RoleOptions::default_instance_->InitAsDefaultInstance();
   RoleAssignment::default_instance_->InitAsDefaultInstance();
   MemberAttributeAssignment::default_instance_->InitAsDefaultInstance();
   SubscriberStateOptions::default_instance_->InitAsDefaultInstance();
@@ -533,277 +535,6 @@ struct StaticDescriptorInitializer_club_5fmember_2eproto {
     protobuf_AddDesc_club_5fmember_2eproto();
   }
 } static_descriptor_initializer_club_5fmember_2eproto_;
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int MemberId::kAccountIdFieldNumber;
-const int MemberId::kUniqueIdFieldNumber;
-#endif  // !_MSC_VER
-
-MemberId::MemberId()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.club.v1.MemberId)
-}
-
-void MemberId::InitAsDefaultInstance() {
-  account_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
-}
-
-MemberId::MemberId(const MemberId& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.club.v1.MemberId)
-}
-
-void MemberId::SharedCtor() {
-  _cached_size_ = 0;
-  account_id_ = NULL;
-  unique_id_ = GOOGLE_ULONGLONG(0);
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-MemberId::~MemberId() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.club.v1.MemberId)
-  SharedDtor();
-}
-
-void MemberId::SharedDtor() {
-  if (this != default_instance_) {
-    delete account_id_;
-  }
-}
-
-void MemberId::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* MemberId::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return MemberId_descriptor_;
-}
-
-const MemberId& MemberId::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_club_5fmember_2eproto();
-  return *default_instance_;
-}
-
-MemberId* MemberId::default_instance_ = NULL;
-
-MemberId* MemberId::New() const {
-  return new MemberId;
-}
-
-void MemberId::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_account_id()) {
-      if (account_id_ != NULL) account_id_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    unique_id_ = GOOGLE_ULONGLONG(0);
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool MemberId::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.MemberId)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId account_id = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(16)) goto parse_unique_id;
-        break;
-      }
-
-      // optional uint64 unique_id = 2;
-      case 2: {
-        if (tag == 16) {
-         parse_unique_id:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &unique_id_)));
-          set_has_unique_id();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.MemberId)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.MemberId)
-  return false;
-#undef DO_
-}
-
-void MemberId::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.MemberId)
-  // optional .bgs.protocol.account.v1.AccountId account_id = 1;
-  if (has_account_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->account_id(), output);
-  }
-
-  // optional uint64 unique_id = 2;
-  if (has_unique_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(2, this->unique_id(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.MemberId)
-}
-
-::google::protobuf::uint8* MemberId::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.MemberId)
-  // optional .bgs.protocol.account.v1.AccountId account_id = 1;
-  if (has_account_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->account_id(), target);
-  }
-
-  // optional uint64 unique_id = 2;
-  if (has_unique_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(2, this->unique_id(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.MemberId)
-  return target;
-}
-
-int MemberId::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId account_id = 1;
-    if (has_account_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account_id());
-    }
-
-    // optional uint64 unique_id = 2;
-    if (has_unique_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->unique_id());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void MemberId::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const MemberId* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const MemberId*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void MemberId::MergeFrom(const MemberId& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_account_id()) {
-      mutable_account_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.account_id());
-    }
-    if (from.has_unique_id()) {
-      set_unique_id(from.unique_id());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void MemberId::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void MemberId::CopyFrom(const MemberId& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool MemberId::IsInitialized() const {
-
-  if (has_account_id()) {
-    if (!this->account_id().IsInitialized()) return false;
-  }
-  return true;
-}
-
-void MemberId::Swap(MemberId* other) {
-  if (other != this) {
-    std::swap(account_id_, other->account_id_);
-    std::swap(unique_id_, other->unique_id_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata MemberId::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = MemberId_descriptor_;
-  metadata.reflection = MemberId_reflection_;
-  return metadata;
-}
-
 
 // ===================================================================
 
@@ -3672,6 +3403,300 @@ void MemberDescription::Swap(MemberDescription* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = MemberDescription_descriptor_;
   metadata.reflection = MemberDescription_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RoleOptions::kMemberIdFieldNumber;
+const int RoleOptions::kRoleFieldNumber;
+#endif  // !_MSC_VER
+
+RoleOptions::RoleOptions()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.club.v1.RoleOptions)
+}
+
+void RoleOptions::InitAsDefaultInstance() {
+  member_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
+}
+
+RoleOptions::RoleOptions(const RoleOptions& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.club.v1.RoleOptions)
+}
+
+void RoleOptions::SharedCtor() {
+  _cached_size_ = 0;
+  member_id_ = NULL;
+  _role_cached_byte_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RoleOptions::~RoleOptions() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.club.v1.RoleOptions)
+  SharedDtor();
+}
+
+void RoleOptions::SharedDtor() {
+  if (this != default_instance_) {
+    delete member_id_;
+  }
+}
+
+void RoleOptions::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RoleOptions::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RoleOptions_descriptor_;
+}
+
+const RoleOptions& RoleOptions::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_club_5fmember_2eproto();
+  return *default_instance_;
+}
+
+RoleOptions* RoleOptions::default_instance_ = NULL;
+
+RoleOptions* RoleOptions::New() const {
+  return new RoleOptions;
+}
+
+void RoleOptions::Clear() {
+  if (has_member_id()) {
+    if (member_id_ != NULL) member_id_->::bgs::protocol::club::v1::MemberId::Clear();
+  }
+  role_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RoleOptions::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.RoleOptions)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_member_id()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_role;
+        break;
+      }
+
+      // repeated uint32 role = 2 [packed = true];
+      case 2: {
+        if (tag == 18) {
+         parse_role:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, this->mutable_role())));
+        } else if (tag == 16) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 1, 18, input, this->mutable_role())));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.RoleOptions)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.RoleOptions)
+  return false;
+#undef DO_
+}
+
+void RoleOptions::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.RoleOptions)
+  // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+  if (has_member_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->member_id(), output);
+  }
+
+  // repeated uint32 role = 2 [packed = true];
+  if (this->role_size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteTag(2, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    output->WriteVarint32(_role_cached_byte_size_);
+  }
+  for (int i = 0; i < this->role_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32NoTag(
+      this->role(i), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.RoleOptions)
+}
+
+::google::protobuf::uint8* RoleOptions::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.RoleOptions)
+  // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+  if (has_member_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->member_id(), target);
+  }
+
+  // repeated uint32 role = 2 [packed = true];
+  if (this->role_size() > 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
+      2,
+      ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
+      target);
+    target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
+      _role_cached_byte_size_, target);
+  }
+  for (int i = 0; i < this->role_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteUInt32NoTagToArray(this->role(i), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.RoleOptions)
+  return target;
+}
+
+int RoleOptions::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+    if (has_member_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->member_id());
+    }
+
+  }
+  // repeated uint32 role = 2 [packed = true];
+  {
+    int data_size = 0;
+    for (int i = 0; i < this->role_size(); i++) {
+      data_size += ::google::protobuf::internal::WireFormatLite::
+        UInt32Size(this->role(i));
+    }
+    if (data_size > 0) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(data_size);
+    }
+    GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+    _role_cached_byte_size_ = data_size;
+    GOOGLE_SAFE_CONCURRENT_WRITES_END();
+    total_size += data_size;
+  }
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RoleOptions::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RoleOptions* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RoleOptions*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RoleOptions::MergeFrom(const RoleOptions& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  role_.MergeFrom(from.role_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_member_id()) {
+      mutable_member_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.member_id());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RoleOptions::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RoleOptions::CopyFrom(const RoleOptions& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RoleOptions::IsInitialized() const {
+
+  if (has_member_id()) {
+    if (!this->member_id().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void RoleOptions::Swap(RoleOptions* other) {
+  if (other != this) {
+    std::swap(member_id_, other->member_id_);
+    role_.Swap(&other->role_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RoleOptions::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RoleOptions_descriptor_;
+  metadata.reflection = RoleOptions_reflection_;
   return metadata;
 }
 

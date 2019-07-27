@@ -111,11 +111,11 @@ void protobuf_AddDesc_entity_5ftypes_2eproto() {
     "al_extensions/field_options.proto\032\'globa"
     "l_extensions/message_options.proto\"=\n\010En"
     "tityId\022\024\n\004high\030\001 \002(\006B\006\202\371+\002\010\002\022\023\n\003low\030\002 \002("
-    "\006B\006\202\371+\002\010\002:\006\202\371+\002\010\001\"\177\n\010Identity\0226\n\naccount"
-    "_id\030\001 \001(\0132\026.bgs.protocol.EntityIdB\n\212\371+\006:"
-    "\004\010\001\020\001\022;\n\017game_account_id\030\002 \001(\0132\026.bgs.pro"
-    "tocol.EntityIdB\n\212\371+\006:\004\010\001\020\002B\036\n\rbnet.proto"
-    "colB\013EntityProtoH\001", 338);
+    "\006B\006\202\371+\002\010\002:\006\202\371+\002\010\001\"{\n\010Identity\0224\n\naccount"
+    "_id\030\001 \001(\0132\026.bgs.protocol.EntityIdB\010\212\371+\004:"
+    "\002\020\001\0229\n\017game_account_id\030\002 \001(\0132\026.bgs.proto"
+    "col.EntityIdB\010\212\371+\004:\002\020\002B\036\n\rbnet.protocolB"
+    "\013EntityProtoH\001", 334);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "entity_types.proto", &protobuf_RegisterTypes);
   EntityId::default_instance_ = new EntityId();

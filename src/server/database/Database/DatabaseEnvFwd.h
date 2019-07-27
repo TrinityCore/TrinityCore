@@ -28,10 +28,20 @@ typedef std::shared_ptr<ResultSet> QueryResult;
 typedef std::future<QueryResult> QueryResultFuture;
 typedef std::promise<QueryResult> QueryResultPromise;
 
+class CharacterDatabaseConnection;
+class HotfixDatabaseConnection;
+class LoginDatabaseConnection;
+class WorldDatabaseConnection;
+
 class PreparedStatementBase;
 
 template<typename T>
 class PreparedStatement;
+
+using CharacterDatabasePreparedStatement = PreparedStatement<CharacterDatabaseConnection>;
+using HotfixDatabasePreparedStatement = PreparedStatement<HotfixDatabaseConnection>;
+using LoginDatabasePreparedStatement = PreparedStatement<LoginDatabaseConnection>;
+using WorldDatabasePreparedStatement = PreparedStatement<WorldDatabaseConnection>;
 
 class PreparedResultSet;
 typedef std::shared_ptr<PreparedResultSet> PreparedQueryResult;
@@ -40,12 +50,30 @@ typedef std::promise<PreparedQueryResult> PreparedQueryResultPromise;
 
 class QueryCallback;
 
-class Transaction;
-typedef std::shared_ptr<Transaction> SQLTransaction;
+class TransactionBase;
 
+template<typename T>
+class Transaction;
+
+template<typename T>
+using SQLTransaction = std::shared_ptr<Transaction<T>>;
+
+using CharacterDatabaseTransaction = SQLTransaction<CharacterDatabaseConnection>;
+using HotfixDatabaseTransaction = SQLTransaction<HotfixDatabaseConnection>;
+using LoginDatabaseTransaction = SQLTransaction<LoginDatabaseConnection>;
+using WorldDatabaseTransaction = SQLTransaction<WorldDatabaseConnection>;
+
+class SQLQueryHolderBase;
+typedef std::future<SQLQueryHolderBase*> QueryResultHolderFuture;
+typedef std::promise<SQLQueryHolderBase*> QueryResultHolderPromise;
+
+template<typename T>
 class SQLQueryHolder;
-typedef std::future<SQLQueryHolder*> QueryResultHolderFuture;
-typedef std::promise<SQLQueryHolder*> QueryResultHolderPromise;
+
+using CharacterDatabaseQueryHolder = SQLQueryHolder<CharacterDatabaseConnection>;
+using HotfixDatabaseQueryHolder = SQLQueryHolder<HotfixDatabaseConnection>;
+using LoginDatabaseQueryHolder = SQLQueryHolder<LoginDatabaseConnection>;
+using WorldDatabaseQueryHolder = SQLQueryHolder<WorldDatabaseConnection>;
 
 // mysql
 typedef struct st_mysql MYSQL;
