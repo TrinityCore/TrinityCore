@@ -216,7 +216,7 @@ void PlayerAchievementMgr::DeleteFromDB(ObjectGuid const& guid)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
     stmt->setUInt64(0, guid.GetCounter());
     trans->Append(stmt);
 
@@ -272,7 +272,7 @@ void PlayerAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Pre
                 // Removing non-existing criteria data for all characters
                 TC_LOG_ERROR("criteria.achievement", "Non-existing achievement criteria %u data has been removed from the table `character_achievement_progress`.", id);
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
                 stmt->setUInt32(0, id);
                 CharacterDatabase.Execute(stmt);
 
@@ -299,7 +299,7 @@ void PlayerAchievementMgr::SaveToDB(SQLTransaction& trans)
             if (!iter->second.Changed)
                 continue;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
             stmt->setUInt32(0, iter->first);
             stmt->setUInt64(1, _owner->GetGUID().GetCounter());
             trans->Append(stmt);
@@ -321,7 +321,7 @@ void PlayerAchievementMgr::SaveToDB(SQLTransaction& trans)
             if (!iter->second.Changed)
                 continue;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
             stmt->setUInt64(0, _owner->GetGUID().GetCounter());
             stmt->setUInt32(1, iter->first);
             trans->Append(stmt);
@@ -662,7 +662,7 @@ void GuildAchievementMgr::DeleteFromDB(ObjectGuid const& guid)
 {
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GUILD_ACHIEVEMENTS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GUILD_ACHIEVEMENTS);
     stmt->setUInt64(0, guid.GetCounter());
     trans->Append(stmt);
 
@@ -716,7 +716,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
                 // we will remove not existed criteria for all guilds
                 TC_LOG_ERROR("criteria.achievement", "Non-existing achievement criteria %u data removed from table `guild_achievement_progress`.", id);
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
                 stmt->setUInt32(0, id);
                 CharacterDatabase.Execute(stmt);
                 continue;
@@ -736,7 +736,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
 
 void GuildAchievementMgr::SaveToDB(SQLTransaction& trans)
 {
-    PreparedStatement* stmt;
+    CharacterDatabasePreparedStatement* stmt;
     std::ostringstream guidstr;
     for (auto itr = _completedAchievements.begin(); itr != _completedAchievements.end(); ++itr)
     {
@@ -1095,7 +1095,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             // Remove non-existing achievements from all characters
             TC_LOG_ERROR("criteria.achievement", "Non-existing achievement %u data has been removed from the table `character_achievement`.", achievementId);
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
             stmt->setUInt32(0, achievementId);
             CharacterDatabase.Execute(stmt);
 
