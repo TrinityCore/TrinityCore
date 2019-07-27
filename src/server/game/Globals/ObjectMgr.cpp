@@ -41,6 +41,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "PoolMgr.h"
+#include "QueryPackets.h"
 #include "QuestDef.h"
 #include "Random.h"
 #include "ReputationMgr.h"
@@ -7681,7 +7682,7 @@ void ObjectMgr::LoadQuestPOI()
     //                                                0        1    2  3
     QueryResult points = WorldDatabase.Query("SELECT QuestID, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
 
-    std::vector<std::vector<std::vector<QuestPOIPoint>>> POIs;
+    std::vector<std::vector<std::vector<QuestPOIBlobPoint>>> POIs;
 
     if (points)
     {
@@ -7702,7 +7703,7 @@ void ObjectMgr::LoadQuestPOI()
             if (int32(POIs[QuestID].size()) <= Idx1 + 1)
                 POIs[QuestID].resize(Idx1 + 10);
 
-            QuestPOIPoint point(X, Y);
+            QuestPOIBlobPoint point(X, Y);
             POIs[QuestID][Idx1].push_back(point);
         } while (points->NextRow());
     }
@@ -7729,11 +7730,12 @@ void ObjectMgr::LoadQuestPOI()
         if (!sObjectMgr->GetQuestTemplate(questID))
             TC_LOG_ERROR("sql.sql", "`quest_poi` quest id (%u) Idx1 (%u) does not exist in `quest_template`", questID, idx1);
 
-        QuestPOI POI(blobIndex, objectiveIndex, questObjectiveID, questObjectID, mapID, uiMapID, priority, flags, worldEffectID, playerConditionID, spawnTrackingID, alwaysAllowMergingBlobs);
         if (questID < int32(POIs.size()) && idx1 < int32(POIs[questID].size()))
         {
-            POI.points = POIs[questID][idx1];
-            _questPOIStore[questID].push_back(POI);
+            QuestPOIData& poiData = _questPOIStore[questID];
+            poiData.QuestID = questID;
+            poiData.QuestPOIBlobDataStats.emplace_back(blobIndex, objectiveIndex, questObjectiveID, questObjectID, mapID, uiMapID, priority, flags,
+                worldEffectID, playerConditionID, spawnTrackingID, std::move(POIs[questID][idx1]), alwaysAllowMergingBlobs);
         }
         else
             TC_LOG_ERROR("sql.sql", "Table quest_poi references unknown quest points for quest %i POI id %i", questID, blobIndex);
@@ -10022,6 +10024,38 @@ void ObjectMgr::LoadCreatureQuestItems()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature quest items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
+{
+    // cache disabled
+    if (!sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+        return;
+
+    // Initialize Query data for creatures
+    if (mask & QUERY_DATA_CREATURES)
+        for (auto& creaturePair : _creatureTemplateStore)
+            creaturePair.second.InitializeQueryData();
+
+    // Initialize Query Data for gameobjects
+    if (mask & QUERY_DATA_GAMEOBJECTS)
+        for (auto& gameobjectPair : _gameObjectTemplateStore)
+            gameobjectPair.second.InitializeQueryData();
+
+    // Initialize Query Data for quests
+    if (mask & QUERY_DATA_QUESTS)
+        for (auto& questPair : _questTemplates)
+            questPair.second->InitializeQueryData();
+
+    // Initialize Quest POI data
+    if (mask & QUERY_DATA_POIS)
+        for (auto& poiPair : _questPOIStore)
+            poiPair.second.InitializeQueryData();
+}
+
+void QuestPOIData::InitializeQueryData()
+{
+    QueryDataBuffer << *this;
 }
 
 void ObjectMgr::LoadSceneTemplates()
