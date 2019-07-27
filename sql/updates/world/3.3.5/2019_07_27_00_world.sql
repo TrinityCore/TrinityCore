@@ -6,4 +6,4 @@ INSERT INTO `spell_ranks` (`first_spell_id`, `spell_id`, `rank`) VALUES
 (59887,59889,3),
 (59887,59890,4),
 (59887,59891,5);
-UPDATE `spell_proc` SET `SpellId`=-59891 WHERE `SpellId`=59891;
+UPDATE `spell_proc` SET `SpellId`=-59887 WHERE `SpellId`=59891;
