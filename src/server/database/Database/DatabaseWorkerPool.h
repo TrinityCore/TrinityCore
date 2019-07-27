@@ -160,7 +160,7 @@ class DatabaseWorkerPool
         //! return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
-        QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder* holder);
+        QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder<T>* holder);
 
         /**
             Transaction context methods.

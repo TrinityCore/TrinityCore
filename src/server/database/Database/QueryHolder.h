@@ -20,29 +20,41 @@
 
 #include "SQLOperation.h"
 
-class TC_DATABASE_API SQLQueryHolder
+class TC_DATABASE_API SQLQueryHolderBase
 {
     friend class SQLQueryHolderTask;
     private:
         std::vector<std::pair<PreparedStatementBase*, PreparedQueryResult>> m_queries;
     public:
-        SQLQueryHolder() { }
-        virtual ~SQLQueryHolder();
-        bool SetPreparedQuery(size_t index, PreparedStatementBase* stmt);
+        SQLQueryHolderBase() { }
+        virtual ~SQLQueryHolderBase();
         void SetSize(size_t size);
         PreparedQueryResult GetPreparedResult(size_t index);
         void SetPreparedResult(size_t index, PreparedResultSet* result);
+
+    protected:
+        bool SetPreparedQueryImpl(size_t index, PreparedStatementBase* stmt);
+};
+
+template<typename T>
+class SQLQueryHolder : public SQLQueryHolderBase
+{
+public:
+    bool SetPreparedQuery(size_t index, PreparedStatement<T>* stmt)
+    {
+        return SetPreparedQueryImpl(index, stmt);
+    }
 };
 
 class TC_DATABASE_API SQLQueryHolderTask : public SQLOperation
 {
     private:
-        SQLQueryHolder* m_holder;
+        SQLQueryHolderBase* m_holder;
         QueryResultHolderPromise m_result;
         bool m_executed;
 
     public:
-        SQLQueryHolderTask(SQLQueryHolder* holder)
+        SQLQueryHolderTask(SQLQueryHolderBase* holder)
             : m_holder(holder), m_executed(false) { }
 
         ~SQLQueryHolderTask();
