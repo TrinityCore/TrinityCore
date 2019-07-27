@@ -116,6 +116,4 @@ public:
     void DoPrepareStatements() override;
 };
 
-using WorldDatabasePreparedStatement = PreparedStatement<WorldDatabaseConnection>;
-
 #endif
