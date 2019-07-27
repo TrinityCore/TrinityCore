@@ -287,8 +287,6 @@ class TC_GAME_API PlayerMenu
         void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const;
         void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const;
 
-        static void AddQuestLevelToTitle(std::string &title, int32 level);
-
     private:
         GossipMenu _gossipMenu;
         QuestMenu  _questMenu;
