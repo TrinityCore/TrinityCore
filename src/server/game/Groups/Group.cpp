@@ -701,7 +701,7 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid)
 
     if (!isBGGroup() && !isBFGroup())
     {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         // Remove the groups permanent instance bindings
         for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
@@ -849,7 +849,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 
     if (!isBGGroup() && !isBFGroup())
     {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP);
         stmt->setUInt32(0, m_dbStoreId);

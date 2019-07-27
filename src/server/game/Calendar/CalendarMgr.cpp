@@ -146,11 +146,11 @@ void CalendarMgr::AddEvent(CalendarEvent* calendarEvent, CalendarSendEventType s
 
 void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite)
 {
-    SQLTransaction dummy;
+    CharacterDatabaseTransaction dummy;
     AddInvite(calendarEvent, invite, dummy);
 }
 
-void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, SQLTransaction& trans)
+void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, CharacterDatabaseTransaction& trans)
 {
     if (!calendarEvent->IsGuildAnnouncement())
         SendCalendarEventInvite(*invite);
@@ -188,7 +188,7 @@ void CalendarMgr::RemoveEvent(CalendarEvent* calendarEvent, ObjectGuid remover)
 
     SendCalendarEventRemovedAlert(*calendarEvent);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt;
     MailDraft mail(calendarEvent->BuildCalendarMailSubject(remover), calendarEvent->BuildCalendarMailBody());
 
@@ -234,7 +234,7 @@ void CalendarMgr::RemoveInvite(uint64 inviteId, uint64 eventId, ObjectGuid /*rem
     if (itr == _invites[eventId].end())
         return;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CALENDAR_INVITE);
     stmt->setUInt64(0, (*itr)->GetInviteId());
     trans->Append(stmt);
@@ -271,11 +271,11 @@ void CalendarMgr::UpdateEvent(CalendarEvent* calendarEvent)
 
 void CalendarMgr::UpdateInvite(CalendarInvite* invite)
 {
-    SQLTransaction dummy;
+    CharacterDatabaseTransaction dummy;
     UpdateInvite(invite, dummy);
 }
 
-void CalendarMgr::UpdateInvite(CalendarInvite* invite, SQLTransaction& trans)
+void CalendarMgr::UpdateInvite(CalendarInvite* invite, CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CALENDAR_INVITE);
     stmt->setUInt64(0, invite->GetInviteId());
