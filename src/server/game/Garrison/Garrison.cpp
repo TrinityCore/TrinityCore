@@ -145,7 +145,7 @@ void Garrison::SaveToDB(SQLTransaction trans)
 {
     DeleteFromDB(_owner->GetGUID().GetCounter(), trans);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_GARRISON);
     stmt->setUInt64(0, _owner->GetGUID().GetCounter());
     stmt->setUInt32(1, _siteLevel->ID);
     stmt->setUInt32(2, _followerActivationsRemainingToday);
@@ -206,7 +206,7 @@ void Garrison::SaveToDB(SQLTransaction trans)
 
 void Garrison::DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_GARRISON);
     stmt->setUInt64(0, ownerGuid);
     trans->Append(stmt);
 

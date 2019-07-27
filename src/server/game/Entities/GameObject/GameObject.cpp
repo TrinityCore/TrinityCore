@@ -966,7 +966,7 @@ void GameObject::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiff
 
     uint8 index = 0;
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
     stmt->setUInt64(0, m_spawnId);
     trans->Append(stmt);
 
@@ -1060,7 +1060,7 @@ void GameObject::DeleteFromDB()
     GetMap()->RemoveGORespawnTime(m_spawnId);
     sObjectMgr->DeleteGOData(m_spawnId);
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
 
     stmt->setUInt64(0, m_spawnId);
 
