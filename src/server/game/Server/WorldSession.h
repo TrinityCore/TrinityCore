@@ -370,7 +370,7 @@ class TC_GAME_API WorldSession
         void SendClientCacheVersion(uint32 version);
 
         void InitializeSession();
-        void InitializeSessionCallback(SQLQueryHolder* realmHolder);
+        void InitializeSessionCallback(CharacterDatabaseQueryHolder* realmHolder);
 
         rbac::RBACData* GetRBACData();
         bool HasPermission(uint32 permissionId);

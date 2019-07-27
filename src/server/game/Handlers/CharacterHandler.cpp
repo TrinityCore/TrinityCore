@@ -50,7 +50,7 @@
 #include "QueryHolder.h"
 #include "World.h"
 
-class LoginQueryHolder : public SQLQueryHolder
+class LoginQueryHolder : public CharacterDatabaseQueryHolder
 {
     private:
         uint32 m_accountId;
