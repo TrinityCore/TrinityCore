@@ -64,9 +64,8 @@ void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
       "club_membership_listener.proto");
   GOOGLE_CHECK(file != NULL);
   ClubAddedNotification_descriptor_ = file->message_type(0);
-  static const int ClubAddedNotification_offsets_[3] = {
+  static const int ClubAddedNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubAddedNotification, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubAddedNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubAddedNotification, membership_),
   };
   ClubAddedNotification_reflection_ =
@@ -81,9 +80,8 @@ void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubAddedNotification));
   ClubRemovedNotification_descriptor_ = file->message_type(1);
-  static const int ClubRemovedNotification_offsets_[5] = {
+  static const int ClubRemovedNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubRemovedNotification, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubRemovedNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubRemovedNotification, member_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubRemovedNotification, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubRemovedNotification, reason_),
@@ -100,9 +98,8 @@ void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubRemovedNotification));
   ReceivedInvitationAddedNotification_descriptor_ = file->message_type(2);
-  static const int ReceivedInvitationAddedNotification_offsets_[3] = {
+  static const int ReceivedInvitationAddedNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitationAddedNotification, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitationAddedNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitationAddedNotification, invitation_),
   };
   ReceivedInvitationAddedNotification_reflection_ =
@@ -117,9 +114,8 @@ void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReceivedInvitationAddedNotification));
   ReceivedInvitationRemovedNotification_descriptor_ = file->message_type(3);
-  static const int ReceivedInvitationRemovedNotification_offsets_[4] = {
+  static const int ReceivedInvitationRemovedNotification_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitationRemovedNotification, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitationRemovedNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitationRemovedNotification, invitation_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReceivedInvitationRemovedNotification, reason_),
   };
@@ -135,9 +131,8 @@ void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ReceivedInvitationRemovedNotification));
   SharedSettingsChangedNotification_descriptor_ = file->message_type(4);
-  static const int SharedSettingsChangedNotification_offsets_[3] = {
+  static const int SharedSettingsChangedNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SharedSettingsChangedNotification, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SharedSettingsChangedNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SharedSettingsChangedNotification, assignment_),
   };
   SharedSettingsChangedNotification_reflection_ =
@@ -152,9 +147,8 @@ void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(SharedSettingsChangedNotification));
   StreamMentionAddedNotification_descriptor_ = file->message_type(5);
-  static const int StreamMentionAddedNotification_offsets_[3] = {
+  static const int StreamMentionAddedNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionAddedNotification, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionAddedNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionAddedNotification, mention_),
   };
   StreamMentionAddedNotification_reflection_ =
@@ -169,9 +163,8 @@ void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamMentionAddedNotification));
   StreamMentionRemovedNotification_descriptor_ = file->message_type(6);
-  static const int StreamMentionRemovedNotification_offsets_[3] = {
+  static const int StreamMentionRemovedNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionRemovedNotification, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionRemovedNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionRemovedNotification, mention_id_),
   };
   StreamMentionRemovedNotification_reflection_ =
@@ -186,9 +179,8 @@ void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamMentionRemovedNotification));
   StreamMentionAdvanceViewTimeNotification_descriptor_ = file->message_type(7);
-  static const int StreamMentionAdvanceViewTimeNotification_offsets_[3] = {
+  static const int StreamMentionAdvanceViewTimeNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionAdvanceViewTimeNotification, agent_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionAdvanceViewTimeNotification, subscriber_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMentionAdvanceViewTimeNotification, view_time_),
   };
   StreamMentionAdvanceViewTimeNotification_reflection_ =
@@ -264,77 +256,67 @@ void protobuf_AddDesc_club_5fmembership_5flistener_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\036club_membership_listener.proto\022\037bgs.pr"
     "otocol.club.v1.membership\032\020club_types.pr"
-    "oto\"\311\001\n\025ClubAddedNotification\0220\n\010agent_i"
+    "oto\"\226\001\n\025ClubAddedNotification\0220\n\010agent_i"
     "d\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022"
-    "9\n\rsubscriber_id\030\002 \001(\0132\".bgs.protocol.ac"
-    "count.v1.AccountId\022C\n\nmembership\030\003 \001(\0132/"
-    ".bgs.protocol.club.v1.ClubMembershipDesc"
-    "ription\"\203\002\n\027ClubRemovedNotification\0220\n\010a"
-    "gent_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Mem"
-    "berId\0229\n\rsubscriber_id\030\002 \001(\0132\".bgs.proto"
-    "col.account.v1.AccountId\0221\n\tmember_id\030\003 "
-    "\001(\0132\036.bgs.protocol.club.v1.MemberId\022\017\n\007c"
-    "lub_id\030\004 \001(\004\0227\n\006reason\030\005 \001(\0162\'.bgs.proto"
-    "col.club.v1.ClubRemovedReason\"\314\001\n#Receiv"
-    "edInvitationAddedNotification\0220\n\010agent_i"
-    "d\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\022"
-    "9\n\rsubscriber_id\030\002 \001(\0132\".bgs.protocol.ac"
-    "count.v1.AccountId\0228\n\ninvitation\030\003 \001(\0132$"
-    ".bgs.protocol.club.v1.ClubInvitation\"\342\001\n"
-    "%ReceivedInvitationRemovedNotification\0220"
-    "\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.club.v1."
-    "MemberId\0229\n\rsubscriber_id\030\002 \001(\0132\".bgs.pr"
-    "otocol.account.v1.AccountId\022\025\n\rinvitatio"
-    "n_id\030\003 \001(\006\0225\n\006reason\030\004 \001(\0162%.bgs.protoco"
-    "l.InvitationRemovedReason\"\334\001\n!SharedSett"
-    "ingsChangedNotification\0224\n\010agent_id\030\001 \001("
-    "\0132\".bgs.protocol.account.v1.AccountId\0229\n"
-    "\rsubscriber_id\030\002 \001(\0132\".bgs.protocol.acco"
-    "unt.v1.AccountId\022F\n\nassignment\030\004 \001(\01322.b"
-    "gs.protocol.club.v1.ClubSharedSettingsAs"
-    "signment\"\303\001\n\036StreamMentionAddedNotificat"
-    "ion\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.clu"
-    "b.v1.MemberId\0229\n\rsubscriber_id\030\002 \001(\0132\".b"
-    "gs.protocol.account.v1.AccountId\0224\n\007ment"
-    "ion\030\003 \001(\0132#.bgs.protocol.club.v1.StreamM"
-    "ention\"\303\001\n StreamMentionRemovedNotificat"
-    "ion\0224\n\010agent_id\030\001 \001(\0132\".bgs.protocol.acc"
-    "ount.v1.AccountId\0229\n\rsubscriber_id\030\002 \001(\013"
-    "2\".bgs.protocol.account.v1.AccountId\022.\n\n"
-    "mention_id\030\003 \001(\0132\032.bgs.protocol.TimeSeri"
-    "esId\"\256\001\n(StreamMentionAdvanceViewTimeNot"
-    "ification\0224\n\010agent_id\030\001 \001(\0132\".bgs.protoc"
-    "ol.account.v1.AccountId\0229\n\rsubscriber_id"
-    "\030\002 \001(\0132\".bgs.protocol.account.v1.Account"
-    "Id\022\021\n\tview_time\030\003 \001(\0042\316\010\n\026ClubMembership"
-    "Listener\022h\n\013OnClubAdded\0226.bgs.protocol.c"
-    "lub.v1.membership.ClubAddedNotification\032"
-    "\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\001\022l\n\rOn"
-    "ClubRemoved\0228.bgs.protocol.club.v1.membe"
-    "rship.ClubRemovedNotification\032\031.bgs.prot"
-    "ocol.NO_RESPONSE\"\006\202\371+\002\010\002\022\204\001\n\031OnReceivedI"
-    "nvitationAdded\022D.bgs.protocol.club.v1.me"
-    "mbership.ReceivedInvitationAddedNotifica"
-    "tion\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\003\022"
-    "\210\001\n\033OnReceivedInvitationRemoved\022F.bgs.pr"
-    "otocol.club.v1.membership.ReceivedInvita"
-    "tionRemovedNotification\032\031.bgs.protocol.N"
-    "O_RESPONSE\"\006\202\371+\002\010\004\022\200\001\n\027OnSharedSettingsC"
-    "hanged\022B.bgs.protocol.club.v1.membership"
-    ".SharedSettingsChangedNotification\032\031.bgs"
-    ".protocol.NO_RESPONSE\"\006\202\371+\002\010\005\022z\n\024OnStrea"
-    "mMentionAdded\022\?.bgs.protocol.club.v1.mem"
-    "bership.StreamMentionAddedNotification\032\031"
-    ".bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\006\022~\n\026OnS"
-    "treamMentionRemoved\022A.bgs.protocol.club."
-    "v1.membership.StreamMentionRemovedNotifi"
-    "cation\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010"
-    "\007\022\216\001\n\036OnStreamMentionAdvanceViewTime\022I.b"
-    "gs.protocol.club.v1.membership.StreamMen"
-    "tionAdvanceViewTimeNotification\032\031.bgs.pr"
-    "otocol.NO_RESPONSE\"\006\202\371+\002\010\010\032:\202\371+.\n,bnet.p"
-    "rotocol.club.v1.ClubMembershipListener\212\371"
-    "+\004\010\001\030\001B\005H\001\200\001\000", 2893);
+    "C\n\nmembership\030\003 \001(\0132/.bgs.protocol.club."
+    "v1.ClubMembershipDescription:\006\202\371+\002\030\001\"\320\001\n"
+    "\027ClubRemovedNotification\0220\n\010agent_id\030\001 \001"
+    "(\0132\036.bgs.protocol.club.v1.MemberId\0221\n\tme"
+    "mber_id\030\003 \001(\0132\036.bgs.protocol.club.v1.Mem"
+    "berId\022\017\n\007club_id\030\004 \001(\004\0227\n\006reason\030\005 \001(\0162\'"
+    ".bgs.protocol.club.v1.ClubRemovedReason:"
+    "\006\202\371+\002\030\001\"\231\001\n#ReceivedInvitationAddedNotif"
+    "ication\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol"
+    ".club.v1.MemberId\0228\n\ninvitation\030\003 \001(\0132$."
+    "bgs.protocol.club.v1.ClubInvitation:\006\202\371+"
+    "\002\030\001\"\257\001\n%ReceivedInvitationRemovedNotific"
+    "ation\0220\n\010agent_id\030\001 \001(\0132\036.bgs.protocol.c"
+    "lub.v1.MemberId\022\025\n\rinvitation_id\030\003 \001(\006\0225"
+    "\n\006reason\030\004 \001(\0162%.bgs.protocol.Invitation"
+    "RemovedReason:\006\202\371+\002\030\001\"\251\001\n!SharedSettings"
+    "ChangedNotification\0224\n\010agent_id\030\001 \001(\0132\"."
+    "bgs.protocol.account.v1.AccountId\022F\n\nass"
+    "ignment\030\004 \001(\01322.bgs.protocol.club.v1.Clu"
+    "bSharedSettingsAssignment:\006\202\371+\002\030\001\"\220\001\n\036St"
+    "reamMentionAddedNotification\0220\n\010agent_id"
+    "\030\001 \001(\0132\036.bgs.protocol.club.v1.MemberId\0224"
+    "\n\007mention\030\003 \001(\0132#.bgs.protocol.club.v1.S"
+    "treamMention:\006\202\371+\002\030\001\"\220\001\n StreamMentionRe"
+    "movedNotification\0224\n\010agent_id\030\001 \001(\0132\".bg"
+    "s.protocol.account.v1.AccountId\022.\n\nmenti"
+    "on_id\030\003 \001(\0132\032.bgs.protocol.TimeSeriesId:"
+    "\006\202\371+\002\030\001\"{\n(StreamMentionAdvanceViewTimeN"
+    "otification\0224\n\010agent_id\030\001 \001(\0132\".bgs.prot"
+    "ocol.account.v1.AccountId\022\021\n\tview_time\030\003"
+    " \001(\004:\006\202\371+\002\030\0012\316\010\n\026ClubMembershipListener\022"
+    "h\n\013OnClubAdded\0226.bgs.protocol.club.v1.me"
+    "mbership.ClubAddedNotification\032\031.bgs.pro"
+    "tocol.NO_RESPONSE\"\006\202\371+\002\010\001\022l\n\rOnClubRemov"
+    "ed\0228.bgs.protocol.club.v1.membership.Clu"
+    "bRemovedNotification\032\031.bgs.protocol.NO_R"
+    "ESPONSE\"\006\202\371+\002\010\002\022\204\001\n\031OnReceivedInvitation"
+    "Added\022D.bgs.protocol.club.v1.membership."
+    "ReceivedInvitationAddedNotification\032\031.bg"
+    "s.protocol.NO_RESPONSE\"\006\202\371+\002\010\003\022\210\001\n\033OnRec"
+    "eivedInvitationRemoved\022F.bgs.protocol.cl"
+    "ub.v1.membership.ReceivedInvitationRemov"
+    "edNotification\032\031.bgs.protocol.NO_RESPONS"
+    "E\"\006\202\371+\002\010\004\022\200\001\n\027OnSharedSettingsChanged\022B."
+    "bgs.protocol.club.v1.membership.SharedSe"
+    "ttingsChangedNotification\032\031.bgs.protocol"
+    ".NO_RESPONSE\"\006\202\371+\002\010\005\022z\n\024OnStreamMentionA"
+    "dded\022\?.bgs.protocol.club.v1.membership.S"
+    "treamMentionAddedNotification\032\031.bgs.prot"
+    "ocol.NO_RESPONSE\"\006\202\371+\002\010\006\022~\n\026OnStreamMent"
+    "ionRemoved\022A.bgs.protocol.club.v1.member"
+    "ship.StreamMentionRemovedNotification\032\031."
+    "bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\007\022\216\001\n\036OnS"
+    "treamMentionAdvanceViewTime\022I.bgs.protoc"
+    "ol.club.v1.membership.StreamMentionAdvan"
+    "ceViewTimeNotification\032\031.bgs.protocol.NO"
+    "_RESPONSE\"\006\202\371+\002\010\010\032:\202\371+.\n,bnet.protocol.c"
+    "lub.v1.ClubMembershipListener\212\371+\004\010\001\030\001B\005H"
+    "\001\200\001\000", 2484);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_membership_listener.proto", &protobuf_RegisterTypes);
   ClubAddedNotification::default_instance_ = new ClubAddedNotification();
@@ -367,7 +349,6 @@ struct StaticDescriptorInitializer_club_5fmembership_5flistener_2eproto {
 
 #ifndef _MSC_VER
 const int ClubAddedNotification::kAgentIdFieldNumber;
-const int ClubAddedNotification::kSubscriberIdFieldNumber;
 const int ClubAddedNotification::kMembershipFieldNumber;
 #endif  // !_MSC_VER
 
@@ -379,7 +360,6 @@ ClubAddedNotification::ClubAddedNotification()
 
 void ClubAddedNotification::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
-  subscriber_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   membership_ = const_cast< ::bgs::protocol::club::v1::ClubMembershipDescription*>(&::bgs::protocol::club::v1::ClubMembershipDescription::default_instance());
 }
 
@@ -393,7 +373,6 @@ ClubAddedNotification::ClubAddedNotification(const ClubAddedNotification& from)
 void ClubAddedNotification::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
-  subscriber_id_ = NULL;
   membership_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -406,7 +385,6 @@ ClubAddedNotification::~ClubAddedNotification() {
 void ClubAddedNotification::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
-    delete subscriber_id_;
     delete membership_;
   }
 }
@@ -433,12 +411,9 @@ ClubAddedNotification* ClubAddedNotification::New() const {
 }
 
 void ClubAddedNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 3) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
-    }
-    if (has_subscriber_id()) {
-      if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
     if (has_membership()) {
       if (membership_ != NULL) membership_->::bgs::protocol::club::v1::ClubMembershipDescription::Clear();
@@ -463,19 +438,6 @@ bool ClubAddedNotification::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_subscriber_id;
-        break;
-      }
-
-      // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_subscriber_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_subscriber_id()));
         } else {
           goto handle_unusual;
         }
@@ -527,12 +489,6 @@ void ClubAddedNotification::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->subscriber_id(), output);
-  }
-
   // optional .bgs.protocol.club.v1.ClubMembershipDescription membership = 3;
   if (has_membership()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -554,13 +510,6 @@ void ClubAddedNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->subscriber_id(), target);
   }
 
   // optional .bgs.protocol.club.v1.ClubMembershipDescription membership = 3;
@@ -587,13 +536,6 @@ int ClubAddedNotification::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
-    }
-
-    // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-    if (has_subscriber_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->subscriber_id());
     }
 
     // optional .bgs.protocol.club.v1.ClubMembershipDescription membership = 3;
@@ -633,9 +575,6 @@ void ClubAddedNotification::MergeFrom(const ClubAddedNotification& from) {
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.agent_id());
     }
-    if (from.has_subscriber_id()) {
-      mutable_subscriber_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.subscriber_id());
-    }
     if (from.has_membership()) {
       mutable_membership()->::bgs::protocol::club::v1::ClubMembershipDescription::MergeFrom(from.membership());
     }
@@ -660,9 +599,6 @@ bool ClubAddedNotification::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
-  if (has_subscriber_id()) {
-    if (!this->subscriber_id().IsInitialized()) return false;
-  }
   if (has_membership()) {
     if (!this->membership().IsInitialized()) return false;
   }
@@ -672,7 +608,6 @@ bool ClubAddedNotification::IsInitialized() const {
 void ClubAddedNotification::Swap(ClubAddedNotification* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
-    std::swap(subscriber_id_, other->subscriber_id_);
     std::swap(membership_, other->membership_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -693,7 +628,6 @@ void ClubAddedNotification::Swap(ClubAddedNotification* other) {
 
 #ifndef _MSC_VER
 const int ClubRemovedNotification::kAgentIdFieldNumber;
-const int ClubRemovedNotification::kSubscriberIdFieldNumber;
 const int ClubRemovedNotification::kMemberIdFieldNumber;
 const int ClubRemovedNotification::kClubIdFieldNumber;
 const int ClubRemovedNotification::kReasonFieldNumber;
@@ -707,7 +641,6 @@ ClubRemovedNotification::ClubRemovedNotification()
 
 void ClubRemovedNotification::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
-  subscriber_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   member_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
 }
 
@@ -721,7 +654,6 @@ ClubRemovedNotification::ClubRemovedNotification(const ClubRemovedNotification& 
 void ClubRemovedNotification::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
-  subscriber_id_ = NULL;
   member_id_ = NULL;
   club_id_ = GOOGLE_ULONGLONG(0);
   reason_ = 0;
@@ -736,7 +668,6 @@ ClubRemovedNotification::~ClubRemovedNotification() {
 void ClubRemovedNotification::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
-    delete subscriber_id_;
     delete member_id_;
   }
 }
@@ -773,13 +704,10 @@ void ClubRemovedNotification::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 31) {
+  if (_has_bits_[0 / 32] & 15) {
     ZR_(club_id_, reason_);
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
-    }
-    if (has_subscriber_id()) {
-      if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
     if (has_member_id()) {
       if (member_id_ != NULL) member_id_->::bgs::protocol::club::v1::MemberId::Clear();
@@ -808,19 +736,6 @@ bool ClubRemovedNotification::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_subscriber_id;
-        break;
-      }
-
-      // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_subscriber_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_subscriber_id()));
         } else {
           goto handle_unusual;
         }
@@ -907,12 +822,6 @@ void ClubRemovedNotification::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->subscriber_id(), output);
-  }
-
   // optional .bgs.protocol.club.v1.MemberId member_id = 3;
   if (has_member_id()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -945,13 +854,6 @@ void ClubRemovedNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->subscriber_id(), target);
   }
 
   // optional .bgs.protocol.club.v1.MemberId member_id = 3;
@@ -989,13 +891,6 @@ int ClubRemovedNotification::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
-    }
-
-    // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-    if (has_subscriber_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->subscriber_id());
     }
 
     // optional .bgs.protocol.club.v1.MemberId member_id = 3;
@@ -1048,9 +943,6 @@ void ClubRemovedNotification::MergeFrom(const ClubRemovedNotification& from) {
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.agent_id());
     }
-    if (from.has_subscriber_id()) {
-      mutable_subscriber_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.subscriber_id());
-    }
     if (from.has_member_id()) {
       mutable_member_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.member_id());
     }
@@ -1081,9 +973,6 @@ bool ClubRemovedNotification::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
-  if (has_subscriber_id()) {
-    if (!this->subscriber_id().IsInitialized()) return false;
-  }
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
@@ -1093,7 +982,6 @@ bool ClubRemovedNotification::IsInitialized() const {
 void ClubRemovedNotification::Swap(ClubRemovedNotification* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
-    std::swap(subscriber_id_, other->subscriber_id_);
     std::swap(member_id_, other->member_id_);
     std::swap(club_id_, other->club_id_);
     std::swap(reason_, other->reason_);
@@ -1116,7 +1004,6 @@ void ClubRemovedNotification::Swap(ClubRemovedNotification* other) {
 
 #ifndef _MSC_VER
 const int ReceivedInvitationAddedNotification::kAgentIdFieldNumber;
-const int ReceivedInvitationAddedNotification::kSubscriberIdFieldNumber;
 const int ReceivedInvitationAddedNotification::kInvitationFieldNumber;
 #endif  // !_MSC_VER
 
@@ -1128,7 +1015,6 @@ ReceivedInvitationAddedNotification::ReceivedInvitationAddedNotification()
 
 void ReceivedInvitationAddedNotification::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
-  subscriber_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   invitation_ = const_cast< ::bgs::protocol::club::v1::ClubInvitation*>(&::bgs::protocol::club::v1::ClubInvitation::default_instance());
 }
 
@@ -1142,7 +1028,6 @@ ReceivedInvitationAddedNotification::ReceivedInvitationAddedNotification(const R
 void ReceivedInvitationAddedNotification::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
-  subscriber_id_ = NULL;
   invitation_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1155,7 +1040,6 @@ ReceivedInvitationAddedNotification::~ReceivedInvitationAddedNotification() {
 void ReceivedInvitationAddedNotification::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
-    delete subscriber_id_;
     delete invitation_;
   }
 }
@@ -1182,12 +1066,9 @@ ReceivedInvitationAddedNotification* ReceivedInvitationAddedNotification::New() 
 }
 
 void ReceivedInvitationAddedNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 3) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
-    }
-    if (has_subscriber_id()) {
-      if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
     if (has_invitation()) {
       if (invitation_ != NULL) invitation_->::bgs::protocol::club::v1::ClubInvitation::Clear();
@@ -1212,19 +1093,6 @@ bool ReceivedInvitationAddedNotification::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_subscriber_id;
-        break;
-      }
-
-      // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_subscriber_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_subscriber_id()));
         } else {
           goto handle_unusual;
         }
@@ -1276,12 +1144,6 @@ void ReceivedInvitationAddedNotification::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->subscriber_id(), output);
-  }
-
   // optional .bgs.protocol.club.v1.ClubInvitation invitation = 3;
   if (has_invitation()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -1303,13 +1165,6 @@ void ReceivedInvitationAddedNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->subscriber_id(), target);
   }
 
   // optional .bgs.protocol.club.v1.ClubInvitation invitation = 3;
@@ -1336,13 +1191,6 @@ int ReceivedInvitationAddedNotification::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
-    }
-
-    // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-    if (has_subscriber_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->subscriber_id());
     }
 
     // optional .bgs.protocol.club.v1.ClubInvitation invitation = 3;
@@ -1382,9 +1230,6 @@ void ReceivedInvitationAddedNotification::MergeFrom(const ReceivedInvitationAdde
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.agent_id());
     }
-    if (from.has_subscriber_id()) {
-      mutable_subscriber_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.subscriber_id());
-    }
     if (from.has_invitation()) {
       mutable_invitation()->::bgs::protocol::club::v1::ClubInvitation::MergeFrom(from.invitation());
     }
@@ -1409,9 +1254,6 @@ bool ReceivedInvitationAddedNotification::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
-  if (has_subscriber_id()) {
-    if (!this->subscriber_id().IsInitialized()) return false;
-  }
   if (has_invitation()) {
     if (!this->invitation().IsInitialized()) return false;
   }
@@ -1421,7 +1263,6 @@ bool ReceivedInvitationAddedNotification::IsInitialized() const {
 void ReceivedInvitationAddedNotification::Swap(ReceivedInvitationAddedNotification* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
-    std::swap(subscriber_id_, other->subscriber_id_);
     std::swap(invitation_, other->invitation_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -1442,7 +1283,6 @@ void ReceivedInvitationAddedNotification::Swap(ReceivedInvitationAddedNotificati
 
 #ifndef _MSC_VER
 const int ReceivedInvitationRemovedNotification::kAgentIdFieldNumber;
-const int ReceivedInvitationRemovedNotification::kSubscriberIdFieldNumber;
 const int ReceivedInvitationRemovedNotification::kInvitationIdFieldNumber;
 const int ReceivedInvitationRemovedNotification::kReasonFieldNumber;
 #endif  // !_MSC_VER
@@ -1455,7 +1295,6 @@ ReceivedInvitationRemovedNotification::ReceivedInvitationRemovedNotification()
 
 void ReceivedInvitationRemovedNotification::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
-  subscriber_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
 }
 
 ReceivedInvitationRemovedNotification::ReceivedInvitationRemovedNotification(const ReceivedInvitationRemovedNotification& from)
@@ -1468,7 +1307,6 @@ ReceivedInvitationRemovedNotification::ReceivedInvitationRemovedNotification(con
 void ReceivedInvitationRemovedNotification::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
-  subscriber_id_ = NULL;
   invitation_id_ = GOOGLE_ULONGLONG(0);
   reason_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -1482,7 +1320,6 @@ ReceivedInvitationRemovedNotification::~ReceivedInvitationRemovedNotification() 
 void ReceivedInvitationRemovedNotification::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
-    delete subscriber_id_;
   }
 }
 
@@ -1518,13 +1355,10 @@ void ReceivedInvitationRemovedNotification::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 15) {
+  if (_has_bits_[0 / 32] & 7) {
     ZR_(invitation_id_, reason_);
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
-    }
-    if (has_subscriber_id()) {
-      if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
   }
 
@@ -1550,19 +1384,6 @@ bool ReceivedInvitationRemovedNotification::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_subscriber_id;
-        break;
-      }
-
-      // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_subscriber_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_subscriber_id()));
         } else {
           goto handle_unusual;
         }
@@ -1636,12 +1457,6 @@ void ReceivedInvitationRemovedNotification::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->subscriber_id(), output);
-  }
-
   // optional fixed64 invitation_id = 3;
   if (has_invitation_id()) {
     ::google::protobuf::internal::WireFormatLite::WriteFixed64(3, this->invitation_id(), output);
@@ -1668,13 +1483,6 @@ void ReceivedInvitationRemovedNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->subscriber_id(), target);
   }
 
   // optional fixed64 invitation_id = 3;
@@ -1705,13 +1513,6 @@ int ReceivedInvitationRemovedNotification::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
-    }
-
-    // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-    if (has_subscriber_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->subscriber_id());
     }
 
     // optional fixed64 invitation_id = 3;
@@ -1755,9 +1556,6 @@ void ReceivedInvitationRemovedNotification::MergeFrom(const ReceivedInvitationRe
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.agent_id());
     }
-    if (from.has_subscriber_id()) {
-      mutable_subscriber_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.subscriber_id());
-    }
     if (from.has_invitation_id()) {
       set_invitation_id(from.invitation_id());
     }
@@ -1785,16 +1583,12 @@ bool ReceivedInvitationRemovedNotification::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
-  if (has_subscriber_id()) {
-    if (!this->subscriber_id().IsInitialized()) return false;
-  }
   return true;
 }
 
 void ReceivedInvitationRemovedNotification::Swap(ReceivedInvitationRemovedNotification* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
-    std::swap(subscriber_id_, other->subscriber_id_);
     std::swap(invitation_id_, other->invitation_id_);
     std::swap(reason_, other->reason_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
@@ -1816,7 +1610,6 @@ void ReceivedInvitationRemovedNotification::Swap(ReceivedInvitationRemovedNotifi
 
 #ifndef _MSC_VER
 const int SharedSettingsChangedNotification::kAgentIdFieldNumber;
-const int SharedSettingsChangedNotification::kSubscriberIdFieldNumber;
 const int SharedSettingsChangedNotification::kAssignmentFieldNumber;
 #endif  // !_MSC_VER
 
@@ -1828,7 +1621,6 @@ SharedSettingsChangedNotification::SharedSettingsChangedNotification()
 
 void SharedSettingsChangedNotification::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
-  subscriber_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   assignment_ = const_cast< ::bgs::protocol::club::v1::ClubSharedSettingsAssignment*>(&::bgs::protocol::club::v1::ClubSharedSettingsAssignment::default_instance());
 }
 
@@ -1842,7 +1634,6 @@ SharedSettingsChangedNotification::SharedSettingsChangedNotification(const Share
 void SharedSettingsChangedNotification::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
-  subscriber_id_ = NULL;
   assignment_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1855,7 +1646,6 @@ SharedSettingsChangedNotification::~SharedSettingsChangedNotification() {
 void SharedSettingsChangedNotification::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
-    delete subscriber_id_;
     delete assignment_;
   }
 }
@@ -1882,12 +1672,9 @@ SharedSettingsChangedNotification* SharedSettingsChangedNotification::New() cons
 }
 
 void SharedSettingsChangedNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 3) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    if (has_subscriber_id()) {
-      if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
     if (has_assignment()) {
       if (assignment_ != NULL) assignment_->::bgs::protocol::club::v1::ClubSharedSettingsAssignment::Clear();
@@ -1912,19 +1699,6 @@ bool SharedSettingsChangedNotification::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_subscriber_id;
-        break;
-      }
-
-      // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_subscriber_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_subscriber_id()));
         } else {
           goto handle_unusual;
         }
@@ -1976,12 +1750,6 @@ void SharedSettingsChangedNotification::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->subscriber_id(), output);
-  }
-
   // optional .bgs.protocol.club.v1.ClubSharedSettingsAssignment assignment = 4;
   if (has_assignment()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -2003,13 +1771,6 @@ void SharedSettingsChangedNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->subscriber_id(), target);
   }
 
   // optional .bgs.protocol.club.v1.ClubSharedSettingsAssignment assignment = 4;
@@ -2036,13 +1797,6 @@ int SharedSettingsChangedNotification::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
-    }
-
-    // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-    if (has_subscriber_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->subscriber_id());
     }
 
     // optional .bgs.protocol.club.v1.ClubSharedSettingsAssignment assignment = 4;
@@ -2082,9 +1836,6 @@ void SharedSettingsChangedNotification::MergeFrom(const SharedSettingsChangedNot
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
     }
-    if (from.has_subscriber_id()) {
-      mutable_subscriber_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.subscriber_id());
-    }
     if (from.has_assignment()) {
       mutable_assignment()->::bgs::protocol::club::v1::ClubSharedSettingsAssignment::MergeFrom(from.assignment());
     }
@@ -2109,16 +1860,12 @@ bool SharedSettingsChangedNotification::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
-  if (has_subscriber_id()) {
-    if (!this->subscriber_id().IsInitialized()) return false;
-  }
   return true;
 }
 
 void SharedSettingsChangedNotification::Swap(SharedSettingsChangedNotification* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
-    std::swap(subscriber_id_, other->subscriber_id_);
     std::swap(assignment_, other->assignment_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -2139,7 +1886,6 @@ void SharedSettingsChangedNotification::Swap(SharedSettingsChangedNotification* 
 
 #ifndef _MSC_VER
 const int StreamMentionAddedNotification::kAgentIdFieldNumber;
-const int StreamMentionAddedNotification::kSubscriberIdFieldNumber;
 const int StreamMentionAddedNotification::kMentionFieldNumber;
 #endif  // !_MSC_VER
 
@@ -2151,7 +1897,6 @@ StreamMentionAddedNotification::StreamMentionAddedNotification()
 
 void StreamMentionAddedNotification::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
-  subscriber_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   mention_ = const_cast< ::bgs::protocol::club::v1::StreamMention*>(&::bgs::protocol::club::v1::StreamMention::default_instance());
 }
 
@@ -2165,7 +1910,6 @@ StreamMentionAddedNotification::StreamMentionAddedNotification(const StreamMenti
 void StreamMentionAddedNotification::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
-  subscriber_id_ = NULL;
   mention_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -2178,7 +1922,6 @@ StreamMentionAddedNotification::~StreamMentionAddedNotification() {
 void StreamMentionAddedNotification::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
-    delete subscriber_id_;
     delete mention_;
   }
 }
@@ -2205,12 +1948,9 @@ StreamMentionAddedNotification* StreamMentionAddedNotification::New() const {
 }
 
 void StreamMentionAddedNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 3) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
-    }
-    if (has_subscriber_id()) {
-      if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
     if (has_mention()) {
       if (mention_ != NULL) mention_->::bgs::protocol::club::v1::StreamMention::Clear();
@@ -2235,19 +1975,6 @@ bool StreamMentionAddedNotification::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_subscriber_id;
-        break;
-      }
-
-      // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_subscriber_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_subscriber_id()));
         } else {
           goto handle_unusual;
         }
@@ -2299,12 +2026,6 @@ void StreamMentionAddedNotification::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->subscriber_id(), output);
-  }
-
   // optional .bgs.protocol.club.v1.StreamMention mention = 3;
   if (has_mention()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -2326,13 +2047,6 @@ void StreamMentionAddedNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->subscriber_id(), target);
   }
 
   // optional .bgs.protocol.club.v1.StreamMention mention = 3;
@@ -2359,13 +2073,6 @@ int StreamMentionAddedNotification::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
-    }
-
-    // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-    if (has_subscriber_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->subscriber_id());
     }
 
     // optional .bgs.protocol.club.v1.StreamMention mention = 3;
@@ -2405,9 +2112,6 @@ void StreamMentionAddedNotification::MergeFrom(const StreamMentionAddedNotificat
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.agent_id());
     }
-    if (from.has_subscriber_id()) {
-      mutable_subscriber_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.subscriber_id());
-    }
     if (from.has_mention()) {
       mutable_mention()->::bgs::protocol::club::v1::StreamMention::MergeFrom(from.mention());
     }
@@ -2432,9 +2136,6 @@ bool StreamMentionAddedNotification::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
-  if (has_subscriber_id()) {
-    if (!this->subscriber_id().IsInitialized()) return false;
-  }
   if (has_mention()) {
     if (!this->mention().IsInitialized()) return false;
   }
@@ -2444,7 +2145,6 @@ bool StreamMentionAddedNotification::IsInitialized() const {
 void StreamMentionAddedNotification::Swap(StreamMentionAddedNotification* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
-    std::swap(subscriber_id_, other->subscriber_id_);
     std::swap(mention_, other->mention_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -2465,7 +2165,6 @@ void StreamMentionAddedNotification::Swap(StreamMentionAddedNotification* other)
 
 #ifndef _MSC_VER
 const int StreamMentionRemovedNotification::kAgentIdFieldNumber;
-const int StreamMentionRemovedNotification::kSubscriberIdFieldNumber;
 const int StreamMentionRemovedNotification::kMentionIdFieldNumber;
 #endif  // !_MSC_VER
 
@@ -2477,7 +2176,6 @@ StreamMentionRemovedNotification::StreamMentionRemovedNotification()
 
 void StreamMentionRemovedNotification::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
-  subscriber_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
   mention_id_ = const_cast< ::bgs::protocol::TimeSeriesId*>(&::bgs::protocol::TimeSeriesId::default_instance());
 }
 
@@ -2491,7 +2189,6 @@ StreamMentionRemovedNotification::StreamMentionRemovedNotification(const StreamM
 void StreamMentionRemovedNotification::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
-  subscriber_id_ = NULL;
   mention_id_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -2504,7 +2201,6 @@ StreamMentionRemovedNotification::~StreamMentionRemovedNotification() {
 void StreamMentionRemovedNotification::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
-    delete subscriber_id_;
     delete mention_id_;
   }
 }
@@ -2531,12 +2227,9 @@ StreamMentionRemovedNotification* StreamMentionRemovedNotification::New() const 
 }
 
 void StreamMentionRemovedNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 3) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    if (has_subscriber_id()) {
-      if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
     if (has_mention_id()) {
       if (mention_id_ != NULL) mention_id_->::bgs::protocol::TimeSeriesId::Clear();
@@ -2561,19 +2254,6 @@ bool StreamMentionRemovedNotification::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_subscriber_id;
-        break;
-      }
-
-      // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_subscriber_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_subscriber_id()));
         } else {
           goto handle_unusual;
         }
@@ -2625,12 +2305,6 @@ void StreamMentionRemovedNotification::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->subscriber_id(), output);
-  }
-
   // optional .bgs.protocol.TimeSeriesId mention_id = 3;
   if (has_mention_id()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -2652,13 +2326,6 @@ void StreamMentionRemovedNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->subscriber_id(), target);
   }
 
   // optional .bgs.protocol.TimeSeriesId mention_id = 3;
@@ -2685,13 +2352,6 @@ int StreamMentionRemovedNotification::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
-    }
-
-    // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-    if (has_subscriber_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->subscriber_id());
     }
 
     // optional .bgs.protocol.TimeSeriesId mention_id = 3;
@@ -2731,9 +2391,6 @@ void StreamMentionRemovedNotification::MergeFrom(const StreamMentionRemovedNotif
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
     }
-    if (from.has_subscriber_id()) {
-      mutable_subscriber_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.subscriber_id());
-    }
     if (from.has_mention_id()) {
       mutable_mention_id()->::bgs::protocol::TimeSeriesId::MergeFrom(from.mention_id());
     }
@@ -2758,16 +2415,12 @@ bool StreamMentionRemovedNotification::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
-  if (has_subscriber_id()) {
-    if (!this->subscriber_id().IsInitialized()) return false;
-  }
   return true;
 }
 
 void StreamMentionRemovedNotification::Swap(StreamMentionRemovedNotification* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
-    std::swap(subscriber_id_, other->subscriber_id_);
     std::swap(mention_id_, other->mention_id_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -2788,7 +2441,6 @@ void StreamMentionRemovedNotification::Swap(StreamMentionRemovedNotification* ot
 
 #ifndef _MSC_VER
 const int StreamMentionAdvanceViewTimeNotification::kAgentIdFieldNumber;
-const int StreamMentionAdvanceViewTimeNotification::kSubscriberIdFieldNumber;
 const int StreamMentionAdvanceViewTimeNotification::kViewTimeFieldNumber;
 #endif  // !_MSC_VER
 
@@ -2800,7 +2452,6 @@ StreamMentionAdvanceViewTimeNotification::StreamMentionAdvanceViewTimeNotificati
 
 void StreamMentionAdvanceViewTimeNotification::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
-  subscriber_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
 }
 
 StreamMentionAdvanceViewTimeNotification::StreamMentionAdvanceViewTimeNotification(const StreamMentionAdvanceViewTimeNotification& from)
@@ -2813,7 +2464,6 @@ StreamMentionAdvanceViewTimeNotification::StreamMentionAdvanceViewTimeNotificati
 void StreamMentionAdvanceViewTimeNotification::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
-  subscriber_id_ = NULL;
   view_time_ = GOOGLE_ULONGLONG(0);
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -2826,7 +2476,6 @@ StreamMentionAdvanceViewTimeNotification::~StreamMentionAdvanceViewTimeNotificat
 void StreamMentionAdvanceViewTimeNotification::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
-    delete subscriber_id_;
   }
 }
 
@@ -2852,12 +2501,9 @@ StreamMentionAdvanceViewTimeNotification* StreamMentionAdvanceViewTimeNotificati
 }
 
 void StreamMentionAdvanceViewTimeNotification::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 3) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    if (has_subscriber_id()) {
-      if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
     view_time_ = GOOGLE_ULONGLONG(0);
   }
@@ -2880,19 +2526,6 @@ bool StreamMentionAdvanceViewTimeNotification::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_subscriber_id;
-        break;
-      }
-
-      // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_subscriber_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_subscriber_id()));
         } else {
           goto handle_unusual;
         }
@@ -2946,12 +2579,6 @@ void StreamMentionAdvanceViewTimeNotification::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->subscriber_id(), output);
-  }
-
   // optional uint64 view_time = 3;
   if (has_view_time()) {
     ::google::protobuf::internal::WireFormatLite::WriteUInt64(3, this->view_time(), output);
@@ -2972,13 +2599,6 @@ void StreamMentionAdvanceViewTimeNotification::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
-  }
-
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  if (has_subscriber_id()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->subscriber_id(), target);
   }
 
   // optional uint64 view_time = 3;
@@ -3003,13 +2623,6 @@ int StreamMentionAdvanceViewTimeNotification::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
-    }
-
-    // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-    if (has_subscriber_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->subscriber_id());
     }
 
     // optional uint64 view_time = 3;
@@ -3049,9 +2662,6 @@ void StreamMentionAdvanceViewTimeNotification::MergeFrom(const StreamMentionAdva
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
     }
-    if (from.has_subscriber_id()) {
-      mutable_subscriber_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.subscriber_id());
-    }
     if (from.has_view_time()) {
       set_view_time(from.view_time());
     }
@@ -3076,16 +2686,12 @@ bool StreamMentionAdvanceViewTimeNotification::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
-  if (has_subscriber_id()) {
-    if (!this->subscriber_id().IsInitialized()) return false;
-  }
   return true;
 }
 
 void StreamMentionAdvanceViewTimeNotification::Swap(StreamMentionAdvanceViewTimeNotification* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
-    std::swap(subscriber_id_, other->subscriber_id_);
     std::swap(view_time_, other->view_time_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

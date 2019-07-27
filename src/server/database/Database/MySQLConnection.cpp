@@ -372,7 +372,7 @@ void MySQLConnection::CommitTransaction()
     Execute("COMMIT");
 }
 
-int MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
+int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transaction)
 {
     std::vector<SQLElementData> const& queries = transaction->m_queries;
     if (queries.empty())

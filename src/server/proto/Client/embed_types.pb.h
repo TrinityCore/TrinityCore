@@ -37,6 +37,8 @@ void protobuf_ShutdownFile_embed_5ftypes_2eproto();
 
 class EmbedImage;
 class Provider;
+class Favicon;
+class EmbedHTML;
 class EmbedInfo;
 
 // ===================================================================
@@ -229,6 +231,194 @@ class TC_PROTO_API Provider : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class TC_PROTO_API Favicon : public ::google::protobuf::Message {
+ public:
+  Favicon();
+  virtual ~Favicon();
+
+  Favicon(const Favicon& from);
+
+  inline Favicon& operator=(const Favicon& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Favicon& default_instance();
+
+  void Swap(Favicon* other);
+
+  // implements Message ----------------------------------------------
+
+  Favicon* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const Favicon& from);
+  void MergeFrom(const Favicon& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string url = 1;
+  inline bool has_url() const;
+  inline void clear_url();
+  static const int kUrlFieldNumber = 1;
+  inline const ::std::string& url() const;
+  inline void set_url(const ::std::string& value);
+  inline void set_url(const char* value);
+  inline void set_url(const char* value, size_t size);
+  inline ::std::string* mutable_url();
+  inline ::std::string* release_url();
+  inline void set_allocated_url(::std::string* url);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.Favicon)
+ private:
+  inline void set_has_url();
+  inline void clear_has_url();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* url_;
+  friend void TC_PROTO_API protobuf_AddDesc_embed_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_embed_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_embed_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static Favicon* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API EmbedHTML : public ::google::protobuf::Message {
+ public:
+  EmbedHTML();
+  virtual ~EmbedHTML();
+
+  EmbedHTML(const EmbedHTML& from);
+
+  inline EmbedHTML& operator=(const EmbedHTML& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const EmbedHTML& default_instance();
+
+  void Swap(EmbedHTML* other);
+
+  // implements Message ----------------------------------------------
+
+  EmbedHTML* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const EmbedHTML& from);
+  void MergeFrom(const EmbedHTML& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string content = 1;
+  inline bool has_content() const;
+  inline void clear_content();
+  static const int kContentFieldNumber = 1;
+  inline const ::std::string& content() const;
+  inline void set_content(const ::std::string& value);
+  inline void set_content(const char* value);
+  inline void set_content(const char* value, size_t size);
+  inline ::std::string* mutable_content();
+  inline ::std::string* release_content();
+  inline void set_allocated_content(::std::string* content);
+
+  // optional uint32 width = 2;
+  inline bool has_width() const;
+  inline void clear_width();
+  static const int kWidthFieldNumber = 2;
+  inline ::google::protobuf::uint32 width() const;
+  inline void set_width(::google::protobuf::uint32 value);
+
+  // optional uint32 height = 3;
+  inline bool has_height() const;
+  inline void clear_height();
+  static const int kHeightFieldNumber = 3;
+  inline ::google::protobuf::uint32 height() const;
+  inline void set_height(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.EmbedHTML)
+ private:
+  inline void set_has_content();
+  inline void clear_has_content();
+  inline void set_has_width();
+  inline void clear_has_width();
+  inline void set_has_height();
+  inline void clear_has_height();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* content_;
+  ::google::protobuf::uint32 width_;
+  ::google::protobuf::uint32 height_;
+  friend void TC_PROTO_API protobuf_AddDesc_embed_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_embed_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_embed_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static EmbedHTML* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class TC_PROTO_API EmbedInfo : public ::google::protobuf::Message {
  public:
   EmbedInfo();
@@ -348,6 +538,24 @@ class TC_PROTO_API EmbedInfo : public ::google::protobuf::Message {
   inline ::std::string* release_description();
   inline void set_allocated_description(::std::string* description);
 
+  // optional .bgs.protocol.Favicon favicon = 7;
+  inline bool has_favicon() const;
+  inline void clear_favicon();
+  static const int kFaviconFieldNumber = 7;
+  inline const ::bgs::protocol::Favicon& favicon() const;
+  inline ::bgs::protocol::Favicon* mutable_favicon();
+  inline ::bgs::protocol::Favicon* release_favicon();
+  inline void set_allocated_favicon(::bgs::protocol::Favicon* favicon);
+
+  // optional .bgs.protocol.EmbedHTML html = 8;
+  inline bool has_html() const;
+  inline void clear_html();
+  static const int kHtmlFieldNumber = 8;
+  inline const ::bgs::protocol::EmbedHTML& html() const;
+  inline ::bgs::protocol::EmbedHTML* mutable_html();
+  inline ::bgs::protocol::EmbedHTML* release_html();
+  inline void set_allocated_html(::bgs::protocol::EmbedHTML* html);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.EmbedInfo)
  private:
   inline void set_has_title();
@@ -362,6 +570,10 @@ class TC_PROTO_API EmbedInfo : public ::google::protobuf::Message {
   inline void clear_has_provider();
   inline void set_has_description();
   inline void clear_has_description();
+  inline void set_has_favicon();
+  inline void clear_has_favicon();
+  inline void set_has_html();
+  inline void clear_has_html();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -373,6 +585,8 @@ class TC_PROTO_API EmbedInfo : public ::google::protobuf::Message {
   ::bgs::protocol::EmbedImage* thumbnail_;
   ::bgs::protocol::Provider* provider_;
   ::std::string* description_;
+  ::bgs::protocol::Favicon* favicon_;
+  ::bgs::protocol::EmbedHTML* html_;
   friend void TC_PROTO_API protobuf_AddDesc_embed_5ftypes_2eproto();
   friend void protobuf_AssignDesc_embed_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_embed_5ftypes_2eproto();
@@ -592,6 +806,214 @@ inline void Provider::set_allocated_name(::std::string* name) {
     name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.Provider.name)
+}
+
+// -------------------------------------------------------------------
+
+// Favicon
+
+// optional string url = 1;
+inline bool Favicon::has_url() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Favicon::set_has_url() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Favicon::clear_has_url() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Favicon::clear_url() {
+  if (url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    url_->clear();
+  }
+  clear_has_url();
+}
+inline const ::std::string& Favicon::url() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.Favicon.url)
+  return *url_;
+}
+inline void Favicon::set_url(const ::std::string& value) {
+  set_has_url();
+  if (url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    url_ = new ::std::string;
+  }
+  url_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.Favicon.url)
+}
+inline void Favicon::set_url(const char* value) {
+  set_has_url();
+  if (url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    url_ = new ::std::string;
+  }
+  url_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.Favicon.url)
+}
+inline void Favicon::set_url(const char* value, size_t size) {
+  set_has_url();
+  if (url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    url_ = new ::std::string;
+  }
+  url_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.Favicon.url)
+}
+inline ::std::string* Favicon::mutable_url() {
+  set_has_url();
+  if (url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    url_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.Favicon.url)
+  return url_;
+}
+inline ::std::string* Favicon::release_url() {
+  clear_has_url();
+  if (url_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = url_;
+    url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void Favicon::set_allocated_url(::std::string* url) {
+  if (url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete url_;
+  }
+  if (url) {
+    set_has_url();
+    url_ = url;
+  } else {
+    clear_has_url();
+    url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.Favicon.url)
+}
+
+// -------------------------------------------------------------------
+
+// EmbedHTML
+
+// optional string content = 1;
+inline bool EmbedHTML::has_content() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void EmbedHTML::set_has_content() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void EmbedHTML::clear_has_content() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void EmbedHTML::clear_content() {
+  if (content_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    content_->clear();
+  }
+  clear_has_content();
+}
+inline const ::std::string& EmbedHTML::content() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.EmbedHTML.content)
+  return *content_;
+}
+inline void EmbedHTML::set_content(const ::std::string& value) {
+  set_has_content();
+  if (content_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    content_ = new ::std::string;
+  }
+  content_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.EmbedHTML.content)
+}
+inline void EmbedHTML::set_content(const char* value) {
+  set_has_content();
+  if (content_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    content_ = new ::std::string;
+  }
+  content_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.EmbedHTML.content)
+}
+inline void EmbedHTML::set_content(const char* value, size_t size) {
+  set_has_content();
+  if (content_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    content_ = new ::std::string;
+  }
+  content_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.EmbedHTML.content)
+}
+inline ::std::string* EmbedHTML::mutable_content() {
+  set_has_content();
+  if (content_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    content_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.EmbedHTML.content)
+  return content_;
+}
+inline ::std::string* EmbedHTML::release_content() {
+  clear_has_content();
+  if (content_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = content_;
+    content_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void EmbedHTML::set_allocated_content(::std::string* content) {
+  if (content_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete content_;
+  }
+  if (content) {
+    set_has_content();
+    content_ = content;
+  } else {
+    clear_has_content();
+    content_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.EmbedHTML.content)
+}
+
+// optional uint32 width = 2;
+inline bool EmbedHTML::has_width() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void EmbedHTML::set_has_width() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void EmbedHTML::clear_has_width() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void EmbedHTML::clear_width() {
+  width_ = 0u;
+  clear_has_width();
+}
+inline ::google::protobuf::uint32 EmbedHTML::width() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.EmbedHTML.width)
+  return width_;
+}
+inline void EmbedHTML::set_width(::google::protobuf::uint32 value) {
+  set_has_width();
+  width_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.EmbedHTML.width)
+}
+
+// optional uint32 height = 3;
+inline bool EmbedHTML::has_height() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void EmbedHTML::set_has_height() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void EmbedHTML::clear_has_height() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void EmbedHTML::clear_height() {
+  height_ = 0u;
+  clear_has_height();
+}
+inline ::google::protobuf::uint32 EmbedHTML::height() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.EmbedHTML.height)
+  return height_;
+}
+inline void EmbedHTML::set_height(::google::protobuf::uint32 value) {
+  set_has_height();
+  height_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.EmbedHTML.height)
 }
 
 // -------------------------------------------------------------------
@@ -982,6 +1404,88 @@ inline void EmbedInfo::set_allocated_description(::std::string* description) {
     description_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.EmbedInfo.description)
+}
+
+// optional .bgs.protocol.Favicon favicon = 7;
+inline bool EmbedInfo::has_favicon() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void EmbedInfo::set_has_favicon() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void EmbedInfo::clear_has_favicon() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void EmbedInfo::clear_favicon() {
+  if (favicon_ != NULL) favicon_->::bgs::protocol::Favicon::Clear();
+  clear_has_favicon();
+}
+inline const ::bgs::protocol::Favicon& EmbedInfo::favicon() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.EmbedInfo.favicon)
+  return favicon_ != NULL ? *favicon_ : *default_instance_->favicon_;
+}
+inline ::bgs::protocol::Favicon* EmbedInfo::mutable_favicon() {
+  set_has_favicon();
+  if (favicon_ == NULL) favicon_ = new ::bgs::protocol::Favicon;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.EmbedInfo.favicon)
+  return favicon_;
+}
+inline ::bgs::protocol::Favicon* EmbedInfo::release_favicon() {
+  clear_has_favicon();
+  ::bgs::protocol::Favicon* temp = favicon_;
+  favicon_ = NULL;
+  return temp;
+}
+inline void EmbedInfo::set_allocated_favicon(::bgs::protocol::Favicon* favicon) {
+  delete favicon_;
+  favicon_ = favicon;
+  if (favicon) {
+    set_has_favicon();
+  } else {
+    clear_has_favicon();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.EmbedInfo.favicon)
+}
+
+// optional .bgs.protocol.EmbedHTML html = 8;
+inline bool EmbedInfo::has_html() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void EmbedInfo::set_has_html() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void EmbedInfo::clear_has_html() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void EmbedInfo::clear_html() {
+  if (html_ != NULL) html_->::bgs::protocol::EmbedHTML::Clear();
+  clear_has_html();
+}
+inline const ::bgs::protocol::EmbedHTML& EmbedInfo::html() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.EmbedInfo.html)
+  return html_ != NULL ? *html_ : *default_instance_->html_;
+}
+inline ::bgs::protocol::EmbedHTML* EmbedInfo::mutable_html() {
+  set_has_html();
+  if (html_ == NULL) html_ = new ::bgs::protocol::EmbedHTML;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.EmbedInfo.html)
+  return html_;
+}
+inline ::bgs::protocol::EmbedHTML* EmbedInfo::release_html() {
+  clear_has_html();
+  ::bgs::protocol::EmbedHTML* temp = html_;
+  html_ = NULL;
+  return temp;
+}
+inline void EmbedInfo::set_allocated_html(::bgs::protocol::EmbedHTML* html) {
+  delete html_;
+  html_ = html;
+  if (html) {
+    set_has_html();
+  } else {
+    clear_has_html();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.EmbedInfo.html)
 }
 
 

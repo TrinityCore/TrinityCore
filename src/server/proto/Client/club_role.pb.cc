@@ -45,7 +45,7 @@ void protobuf_AssignDesc_club_5frole_2eproto() {
       "club_role.proto");
   GOOGLE_CHECK(file != NULL);
   ClubPrivilegeSet_descriptor_ = file->message_type(0);
-  static const int ClubPrivilegeSet_offsets_[47] = {
+  static const int ClubPrivilegeSet_offsets_[48] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_destroy_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_attribute_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_set_name_),
@@ -93,6 +93,7 @@ void protobuf_AssignDesc_club_5frole_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_mention_all_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_mention_here_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_mention_member_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPrivilegeSet, can_mention_role_),
   };
   ClubPrivilegeSet_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -182,7 +183,7 @@ void protobuf_AddDesc_club_5frole_2eproto() {
   ::bgs::protocol::protobuf_AddDesc_role_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\017club_role.proto\022\024bgs.protocol.club.v1\032"
-    "\020role_types.proto\"\224\013\n\020ClubPrivilegeSet\022\023"
+    "\020role_types.proto\"\257\013\n\020ClubPrivilegeSet\022\023"
     "\n\013can_destroy\030\001 \001(\010\022\031\n\021can_set_attribute"
     "\030\n \001(\010\022\024\n\014can_set_name\030\013 \001(\010\022\033\n\023can_set_"
     "description\030\014 \001(\010\022\026\n\016can_set_avatar\030\r \001("
@@ -218,15 +219,16 @@ void protobuf_AddDesc_club_5frole_2eproto() {
     "t_own_message\030\267\001 \001(\010\022\030\n\017can_pin_message\030"
     "\270\001 \001(\010\022\030\n\017can_mention_all\030\271\001 \001(\010\022\031\n\020can_"
     "mention_here\030\272\001 \001(\010\022\033\n\022can_mention_membe"
-    "r\030\273\001 \001(\010\"\271\001\n\010ClubRole\022\n\n\002id\030\001 \001(\r\022&\n\005sta"
-    "te\030\002 \001(\0132\027.bgs.protocol.RoleState\0229\n\tpri"
-    "vilege\030\003 \001(\0132&.bgs.protocol.club.v1.Club"
-    "PrivilegeSet\022\"\n\032always_grant_stream_acce"
-    "ss\030\004 \001(\010\022\032\n\022allow_in_club_slot\030\005 \001(\010\"\224\001\n"
-    "\013ClubRoleSet\022,\n\004role\030\001 \003(\0132\036.bgs.protoco"
-    "l.club.v1.ClubRole\022\030\n\014default_role\030\005 \003(\r"
-    "B\002\020\001\022,\n$assignment_respects_relegation_c"
-    "hain\030\006 \001(\010\022\017\n\007subtype\030\007 \001(\tB\002H\001", 1831);
+    "r\030\273\001 \001(\010\022\031\n\020can_mention_role\030\274\001 \001(\010\"\271\001\n\010"
+    "ClubRole\022\n\n\002id\030\001 \001(\r\022&\n\005state\030\002 \001(\0132\027.bg"
+    "s.protocol.RoleState\0229\n\tprivilege\030\003 \001(\0132"
+    "&.bgs.protocol.club.v1.ClubPrivilegeSet\022"
+    "\"\n\032always_grant_stream_access\030\004 \001(\010\022\032\n\022a"
+    "llow_in_club_slot\030\005 \001(\010\"\224\001\n\013ClubRoleSet\022"
+    ",\n\004role\030\001 \003(\0132\036.bgs.protocol.club.v1.Clu"
+    "bRole\022\030\n\014default_role\030\005 \003(\rB\002\020\001\022,\n$assig"
+    "nment_respects_relegation_chain\030\006 \001(\010\022\017\n"
+    "\007subtype\030\007 \001(\tB\002H\001", 1858);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_role.proto", &protobuf_RegisterTypes);
   ClubPrivilegeSet::default_instance_ = new ClubPrivilegeSet();
@@ -295,6 +297,7 @@ const int ClubPrivilegeSet::kCanPinMessageFieldNumber;
 const int ClubPrivilegeSet::kCanMentionAllFieldNumber;
 const int ClubPrivilegeSet::kCanMentionHereFieldNumber;
 const int ClubPrivilegeSet::kCanMentionMemberFieldNumber;
+const int ClubPrivilegeSet::kCanMentionRoleFieldNumber;
 #endif  // !_MSC_VER
 
 ClubPrivilegeSet::ClubPrivilegeSet()
@@ -362,6 +365,7 @@ void ClubPrivilegeSet::SharedCtor() {
   can_mention_all_ = false;
   can_mention_here_ = false;
   can_mention_member_ = false;
+  can_mention_role_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -422,8 +426,8 @@ void ClubPrivilegeSet::Clear() {
   if (_has_bits_[32 / 32] & 255) {
     ZR_(can_destroy_stream_, can_create_message_);
   }
-  if (_has_bits_[40 / 32] & 32512) {
-    ZR_(can_destroy_own_message_, can_mention_member_);
+  if (_has_bits_[40 / 32] & 65280) {
+    ZR_(can_destroy_own_message_, can_mention_role_);
   }
 
 #undef OFFSET_OF_FIELD_
@@ -1143,6 +1147,21 @@ bool ClubPrivilegeSet::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(1504)) goto parse_can_mention_role;
+        break;
+      }
+
+      // optional bool can_mention_role = 188;
+      case 188: {
+        if (tag == 1504) {
+         parse_can_mention_role:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &can_mention_role_)));
+          set_has_can_mention_role();
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1407,6 +1426,11 @@ void ClubPrivilegeSet::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(187, this->can_mention_member(), output);
   }
 
+  // optional bool can_mention_role = 188;
+  if (has_can_mention_role()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(188, this->can_mention_role(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1650,6 +1674,11 @@ void ClubPrivilegeSet::SerializeWithCachedSizes(
   // optional bool can_mention_member = 187;
   if (has_can_mention_member()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(187, this->can_mention_member(), target);
+  }
+
+  // optional bool can_mention_role = 188;
+  if (has_can_mention_role()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(188, this->can_mention_role(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1909,6 +1938,11 @@ int ClubPrivilegeSet::ByteSize() const {
       total_size += 2 + 1;
     }
 
+    // optional bool can_mention_role = 188;
+    if (has_can_mention_role()) {
+      total_size += 2 + 1;
+    }
+
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -2087,6 +2121,9 @@ void ClubPrivilegeSet::MergeFrom(const ClubPrivilegeSet& from) {
     if (from.has_can_mention_member()) {
       set_can_mention_member(from.can_mention_member());
     }
+    if (from.has_can_mention_role()) {
+      set_can_mention_role(from.can_mention_role());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2157,6 +2194,7 @@ void ClubPrivilegeSet::Swap(ClubPrivilegeSet* other) {
     std::swap(can_mention_all_, other->can_mention_all_);
     std::swap(can_mention_here_, other->can_mention_here_);
     std::swap(can_mention_member_, other->can_mention_member_);
+    std::swap(can_mention_role_, other->can_mention_role_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     std::swap(_has_bits_[1], other->_has_bits_[1]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

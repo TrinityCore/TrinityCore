@@ -1189,6 +1189,15 @@ class TC_PROTO_API StreamMention : public ::google::protobuf::Message {
   inline ::bgs::protocol::club::v1::MemberId* release_member_id();
   inline void set_allocated_member_id(::bgs::protocol::club::v1::MemberId* member_id);
 
+  // optional .bgs.protocol.club.v1.StreamMessage message = 8;
+  inline bool has_message() const;
+  inline void clear_message();
+  static const int kMessageFieldNumber = 8;
+  inline const ::bgs::protocol::club::v1::StreamMessage& message() const;
+  inline ::bgs::protocol::club::v1::StreamMessage* mutable_message();
+  inline ::bgs::protocol::club::v1::StreamMessage* release_message();
+  inline void set_allocated_message(::bgs::protocol::club::v1::StreamMessage* message);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.StreamMention)
  private:
   inline void set_has_club_id();
@@ -1205,6 +1214,8 @@ class TC_PROTO_API StreamMention : public ::google::protobuf::Message {
   inline void clear_has_mention_id();
   inline void set_has_member_id();
   inline void clear_has_member_id();
+  inline void set_has_message();
+  inline void clear_has_message();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1216,6 +1227,7 @@ class TC_PROTO_API StreamMention : public ::google::protobuf::Message {
   ::bgs::protocol::club::v1::MemberDescription* author_;
   ::bgs::protocol::TimeSeriesId* mention_id_;
   ::bgs::protocol::club::v1::MemberId* member_id_;
+  ::bgs::protocol::club::v1::StreamMessage* message_;
   bool destroyed_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fstream_2eproto();
   friend void protobuf_AssignDesc_club_5fstream_2eproto();
@@ -3528,6 +3540,47 @@ inline void StreamMention::set_allocated_member_id(::bgs::protocol::club::v1::Me
     clear_has_member_id();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.StreamMention.member_id)
+}
+
+// optional .bgs.protocol.club.v1.StreamMessage message = 8;
+inline bool StreamMention::has_message() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void StreamMention::set_has_message() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void StreamMention::clear_has_message() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void StreamMention::clear_message() {
+  if (message_ != NULL) message_->::bgs::protocol::club::v1::StreamMessage::Clear();
+  clear_has_message();
+}
+inline const ::bgs::protocol::club::v1::StreamMessage& StreamMention::message() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.StreamMention.message)
+  return message_ != NULL ? *message_ : *default_instance_->message_;
+}
+inline ::bgs::protocol::club::v1::StreamMessage* StreamMention::mutable_message() {
+  set_has_message();
+  if (message_ == NULL) message_ = new ::bgs::protocol::club::v1::StreamMessage;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.StreamMention.message)
+  return message_;
+}
+inline ::bgs::protocol::club::v1::StreamMessage* StreamMention::release_message() {
+  clear_has_message();
+  ::bgs::protocol::club::v1::StreamMessage* temp = message_;
+  message_ = NULL;
+  return temp;
+}
+inline void StreamMention::set_allocated_message(::bgs::protocol::club::v1::StreamMessage* message) {
+  delete message_;
+  message_ = message;
+  if (message) {
+    set_has_message();
+  } else {
+    clear_has_message();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.StreamMention.message)
 }
 
 // -------------------------------------------------------------------

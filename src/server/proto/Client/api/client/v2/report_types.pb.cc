@@ -168,15 +168,15 @@ void protobuf_AddDesc_api_2fclient_2fv2_2freport_5ftypes_2eproto() {
     ".ReportItem*\215\001\n\tIssueType\022\023\n\017ISSUE_TYPE_"
     "SPAM\020\000\022\031\n\025ISSUE_TYPE_HARASSMENT\020\001\022 \n\034ISS"
     "UE_TYPE_OFFENSIVE_CONTENT\020\003\022\026\n\022ISSUE_TYP"
-    "E_HACKING\020\004\022\026\n\022ISSUE_TYPE_BOTTING\020\005*\252\001\n\n"
+    "E_HACKING\020\004\022\026\n\022ISSUE_TYPE_BOTTING\020\005*\301\001\n\n"
     "UserSource\022\025\n\021USER_SOURCE_OTHER\020\000\022\027\n\023USE"
     "R_SOURCE_WHISPER\020\001\022\027\n\023USER_SOURCE_PROFIL"
     "E\020\002\022\032\n\026USER_SOURCE_BATTLE_TAG\020\003\022\024\n\020USER_"
     "SOURCE_CHAT\020\004\022!\n\035USER_SOURCE_FRIEND_INVI"
-    "TATION\020\005*t\n\nClubSource\022\025\n\021CLUB_SOURCE_OT"
-    "HER\020\000\022\027\n\023CLUB_SOURCE_MESSAGE\020\001\022\031\n\025CLUB_S"
-    "OURCE_CLUB_NAME\020\002\022\033\n\027CLUB_SOURCE_STREAM_"
-    "NAME\020\003B\005H\001\200\001\000", 1053);
+    "TATION\020\005\022\025\n\021USER_SOURCE_VOICE\020\006*t\n\nClubS"
+    "ource\022\025\n\021CLUB_SOURCE_OTHER\020\000\022\027\n\023CLUB_SOU"
+    "RCE_MESSAGE\020\001\022\031\n\025CLUB_SOURCE_CLUB_NAME\020\002"
+    "\022\033\n\027CLUB_SOURCE_STREAM_NAME\020\003B\005H\001\200\001\000", 1076);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v2/report_types.proto", &protobuf_RegisterTypes);
   ReportItem::default_instance_ = new ReportItem();
@@ -224,6 +224,7 @@ bool UserSource_IsValid(int value) {
     case 3:
     case 4:
     case 5:
+    case 6:
       return true;
     default:
       return false;

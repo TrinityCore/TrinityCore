@@ -70,8 +70,9 @@ void protobuf_AssignDesc_club_5fmembership_5fservice_2eproto() {
       "club_membership_service.proto");
   GOOGLE_CHECK(file != NULL);
   SubscribeRequest_descriptor_ = file->message_type(0);
-  static const int SubscribeRequest_offsets_[1] = {
+  static const int SubscribeRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeRequest, agent_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscribeRequest, options_),
   };
   SubscribeRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -115,8 +116,9 @@ void protobuf_AssignDesc_club_5fmembership_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UnsubscribeRequest));
   GetStateRequest_descriptor_ = file->message_type(3);
-  static const int GetStateRequest_offsets_[1] = {
+  static const int GetStateRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStateRequest, agent_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStateRequest, options_),
   };
   GetStateRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -161,9 +163,10 @@ void protobuf_AssignDesc_club_5fmembership_5fservice_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UpdateClubSharedSettingsRequest));
   GetStreamMentionsRequest_descriptor_ = file->message_type(6);
-  static const int GetStreamMentionsRequest_offsets_[2] = {
+  static const int GetStreamMentionsRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamMentionsRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamMentionsRequest, options_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetStreamMentionsRequest, fetch_messages_),
   };
   GetStreamMentionsRequest_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -294,56 +297,61 @@ void protobuf_AddDesc_club_5fmembership_5fservice_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\035club_membership_service.proto\022\037bgs.pro"
     "tocol.club.v1.membership\032\020club_types.pro"
-    "to\032\021club_stream.proto\"H\n\020SubscribeReques"
-    "t\0224\n\010agent_id\030\001 \001(\0132\".bgs.protocol.accou"
-    "nt.v1.AccountId\"M\n\021SubscribeResponse\0228\n\005"
-    "state\030\001 \001(\0132).bgs.protocol.club.v1.ClubM"
-    "embershipState\"J\n\022UnsubscribeRequest\0224\n\010"
-    "agent_id\030\001 \001(\0132\".bgs.protocol.account.v1"
-    ".AccountId\"G\n\017GetStateRequest\0224\n\010agent_i"
-    "d\030\001 \001(\0132\".bgs.protocol.account.v1.Accoun"
-    "tId\"L\n\020GetStateResponse\0228\n\005state\030\001 \001(\0132)"
-    ".bgs.protocol.club.v1.ClubMembershipStat"
-    "e\"\231\001\n\037UpdateClubSharedSettingsRequest\0224\n"
-    "\010agent_id\030\001 \001(\0132\".bgs.protocol.account.v"
-    "1.AccountId\022@\n\007options\030\002 \001(\0132/.bgs.proto"
-    "col.club.v1.ClubSharedSettingsOptions\"\200\001"
-    "\n\030GetStreamMentionsRequest\0224\n\010agent_id\030\001"
-    " \001(\0132\".bgs.protocol.account.v1.AccountId"
-    "\022.\n\007options\030\002 \001(\0132\035.bgs.protocol.GetEven"
-    "tOptions\"g\n\031GetStreamMentionsResponse\0224\n"
-    "\007mention\030\001 \003(\0132#.bgs.protocol.club.v1.St"
-    "reamMention\022\024\n\014continuation\030\002 \001(\004\"\203\001\n\033Re"
-    "moveStreamMentionsRequest\0224\n\010agent_id\030\001 "
-    "\001(\0132\".bgs.protocol.account.v1.AccountId\022"
-    ".\n\nmention_id\030\002 \003(\0132\032.bgs.protocol.TimeS"
-    "eriesId\"[\n#AdvanceStreamMentionViewTimeR"
-    "equest\0224\n\010agent_id\030\001 \001(\0132\".bgs.protocol."
-    "account.v1.AccountId2\304\007\n\025ClubMembershipS"
-    "ervice\022z\n\tSubscribe\0221.bgs.protocol.club."
-    "v1.membership.SubscribeRequest\0322.bgs.pro"
-    "tocol.club.v1.membership.SubscribeRespon"
-    "se\"\006\202\371+\002\010\001\022`\n\013Unsubscribe\0223.bgs.protocol"
-    ".club.v1.membership.UnsubscribeRequest\032\024"
-    ".bgs.protocol.NoData\"\006\202\371+\002\010\002\022w\n\010GetState"
-    "\0220.bgs.protocol.club.v1.membership.GetSt"
-    "ateRequest\0321.bgs.protocol.club.v1.member"
-    "ship.GetStateResponse\"\006\202\371+\002\010\003\022z\n\030UpdateC"
-    "lubSharedSettings\022@.bgs.protocol.club.v1"
-    ".membership.UpdateClubSharedSettingsRequ"
-    "est\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\004\022\222\001\n\021Ge"
-    "tStreamMentions\0229.bgs.protocol.club.v1.m"
-    "embership.GetStreamMentionsRequest\032:.bgs"
-    ".protocol.club.v1.membership.GetStreamMe"
-    "ntionsResponse\"\006\202\371+\002\010\005\022r\n\024RemoveStreamMe"
-    "ntions\022<.bgs.protocol.club.v1.membership"
-    ".RemoveStreamMentionsRequest\032\024.bgs.proto"
-    "col.NoData\"\006\202\371+\002\010\006\022\202\001\n\034AdvanceStreamMent"
-    "ionViewTime\022D.bgs.protocol.club.v1.membe"
-    "rship.AdvanceStreamMentionViewTimeReques"
-    "t\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\007\032J\202\371+>\n+b"
-    "net.protocol.club.v1.ClubMembershipServi"
-    "ce*\017club_membership\212\371+\004\020\001\030\001B\005H\001\200\001\000", 2074);
+    "to\032\021club_stream.proto\"\217\001\n\020SubscribeReque"
+    "st\0224\n\010agent_id\030\001 \001(\0132\".bgs.protocol.acco"
+    "unt.v1.AccountId\022E\n\007options\030\002 \001(\01324.bgs."
+    "protocol.club.v1.ClubMembershipSubscribe"
+    "Options\"M\n\021SubscribeResponse\0228\n\005state\030\001 "
+    "\001(\0132).bgs.protocol.club.v1.ClubMembershi"
+    "pState\"J\n\022UnsubscribeRequest\0224\n\010agent_id"
+    "\030\001 \001(\0132\".bgs.protocol.account.v1.Account"
+    "Id\"\215\001\n\017GetStateRequest\0224\n\010agent_id\030\001 \001(\013"
+    "2\".bgs.protocol.account.v1.AccountId\022D\n\007"
+    "options\030\002 \001(\01323.bgs.protocol.club.v1.Clu"
+    "bMembershipGetStateOptions\"L\n\020GetStateRe"
+    "sponse\0228\n\005state\030\001 \001(\0132).bgs.protocol.clu"
+    "b.v1.ClubMembershipState\"\231\001\n\037UpdateClubS"
+    "haredSettingsRequest\0224\n\010agent_id\030\001 \001(\0132\""
+    ".bgs.protocol.account.v1.AccountId\022@\n\007op"
+    "tions\030\002 \001(\0132/.bgs.protocol.club.v1.ClubS"
+    "haredSettingsOptions\"\230\001\n\030GetStreamMentio"
+    "nsRequest\0224\n\010agent_id\030\001 \001(\0132\".bgs.protoc"
+    "ol.account.v1.AccountId\022.\n\007options\030\002 \001(\013"
+    "2\035.bgs.protocol.GetEventOptions\022\026\n\016fetch"
+    "_messages\030\003 \001(\010\"g\n\031GetStreamMentionsResp"
+    "onse\0224\n\007mention\030\001 \003(\0132#.bgs.protocol.clu"
+    "b.v1.StreamMention\022\024\n\014continuation\030\002 \001(\004"
+    "\"\203\001\n\033RemoveStreamMentionsRequest\0224\n\010agen"
+    "t_id\030\001 \001(\0132\".bgs.protocol.account.v1.Acc"
+    "ountId\022.\n\nmention_id\030\002 \003(\0132\032.bgs.protoco"
+    "l.TimeSeriesId\"[\n#AdvanceStreamMentionVi"
+    "ewTimeRequest\0224\n\010agent_id\030\001 \001(\0132\".bgs.pr"
+    "otocol.account.v1.AccountId2\304\007\n\025ClubMemb"
+    "ershipService\022z\n\tSubscribe\0221.bgs.protoco"
+    "l.club.v1.membership.SubscribeRequest\0322."
+    "bgs.protocol.club.v1.membership.Subscrib"
+    "eResponse\"\006\202\371+\002\010\001\022`\n\013Unsubscribe\0223.bgs.p"
+    "rotocol.club.v1.membership.UnsubscribeRe"
+    "quest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\002\022w\n\010G"
+    "etState\0220.bgs.protocol.club.v1.membershi"
+    "p.GetStateRequest\0321.bgs.protocol.club.v1"
+    ".membership.GetStateResponse\"\006\202\371+\002\010\003\022z\n\030"
+    "UpdateClubSharedSettings\022@.bgs.protocol."
+    "club.v1.membership.UpdateClubSharedSetti"
+    "ngsRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\004"
+    "\022\222\001\n\021GetStreamMentions\0229.bgs.protocol.cl"
+    "ub.v1.membership.GetStreamMentionsReques"
+    "t\032:.bgs.protocol.club.v1.membership.GetS"
+    "treamMentionsResponse\"\006\202\371+\002\010\005\022r\n\024RemoveS"
+    "treamMentions\022<.bgs.protocol.club.v1.mem"
+    "bership.RemoveStreamMentionsRequest\032\024.bg"
+    "s.protocol.NoData\"\006\202\371+\002\010\006\022\202\001\n\034AdvanceStr"
+    "eamMentionViewTime\022D.bgs.protocol.club.v"
+    "1.membership.AdvanceStreamMentionViewTim"
+    "eRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\007\032J"
+    "\202\371+>\n+bnet.protocol.club.v1.ClubMembersh"
+    "ipService*\017club_membership\212\371+\004\020\001\030\001B\005H\001\200\001"
+    "\000", 2241);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_membership_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
@@ -380,6 +388,7 @@ struct StaticDescriptorInitializer_club_5fmembership_5fservice_2eproto {
 
 #ifndef _MSC_VER
 const int SubscribeRequest::kAgentIdFieldNumber;
+const int SubscribeRequest::kOptionsFieldNumber;
 #endif  // !_MSC_VER
 
 SubscribeRequest::SubscribeRequest()
@@ -390,6 +399,7 @@ SubscribeRequest::SubscribeRequest()
 
 void SubscribeRequest::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
+  options_ = const_cast< ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions*>(&::bgs::protocol::club::v1::ClubMembershipSubscribeOptions::default_instance());
 }
 
 SubscribeRequest::SubscribeRequest(const SubscribeRequest& from)
@@ -402,6 +412,7 @@ SubscribeRequest::SubscribeRequest(const SubscribeRequest& from)
 void SubscribeRequest::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
+  options_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -413,6 +424,7 @@ SubscribeRequest::~SubscribeRequest() {
 void SubscribeRequest::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
+    delete options_;
   }
 }
 
@@ -438,8 +450,13 @@ SubscribeRequest* SubscribeRequest::New() const {
 }
 
 void SubscribeRequest::Clear() {
-  if (has_agent_id()) {
-    if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
+  if (_has_bits_[0 / 32] & 3) {
+    if (has_agent_id()) {
+      if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
+    }
+    if (has_options()) {
+      if (options_ != NULL) options_->::bgs::protocol::club::v1::ClubMembershipSubscribeOptions::Clear();
+    }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -460,6 +477,19 @@ bool SubscribeRequest::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_options;
+        break;
+      }
+
+      // optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_options:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_options()));
         } else {
           goto handle_unusual;
         }
@@ -498,6 +528,12 @@ void SubscribeRequest::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
+  // optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
+  if (has_options()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->options(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -513,6 +549,13 @@ void SubscribeRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
+  }
+
+  // optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
+  if (has_options()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->options(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -532,6 +575,13 @@ int SubscribeRequest::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
+    }
+
+    // optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
+    if (has_options()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->options());
     }
 
   }
@@ -564,6 +614,9 @@ void SubscribeRequest::MergeFrom(const SubscribeRequest& from) {
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
     }
+    if (from.has_options()) {
+      mutable_options()->::bgs::protocol::club::v1::ClubMembershipSubscribeOptions::MergeFrom(from.options());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -585,12 +638,16 @@ bool SubscribeRequest::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
+  if (has_options()) {
+    if (!this->options().IsInitialized()) return false;
+  }
   return true;
 }
 
 void SubscribeRequest::Swap(SubscribeRequest* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
+    std::swap(options_, other->options_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1070,6 +1127,7 @@ void UnsubscribeRequest::Swap(UnsubscribeRequest* other) {
 
 #ifndef _MSC_VER
 const int GetStateRequest::kAgentIdFieldNumber;
+const int GetStateRequest::kOptionsFieldNumber;
 #endif  // !_MSC_VER
 
 GetStateRequest::GetStateRequest()
@@ -1080,6 +1138,7 @@ GetStateRequest::GetStateRequest()
 
 void GetStateRequest::InitAsDefaultInstance() {
   agent_id_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
+  options_ = const_cast< ::bgs::protocol::club::v1::ClubMembershipGetStateOptions*>(&::bgs::protocol::club::v1::ClubMembershipGetStateOptions::default_instance());
 }
 
 GetStateRequest::GetStateRequest(const GetStateRequest& from)
@@ -1092,6 +1151,7 @@ GetStateRequest::GetStateRequest(const GetStateRequest& from)
 void GetStateRequest::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
+  options_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1103,6 +1163,7 @@ GetStateRequest::~GetStateRequest() {
 void GetStateRequest::SharedDtor() {
   if (this != default_instance_) {
     delete agent_id_;
+    delete options_;
   }
 }
 
@@ -1128,8 +1189,13 @@ GetStateRequest* GetStateRequest::New() const {
 }
 
 void GetStateRequest::Clear() {
-  if (has_agent_id()) {
-    if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
+  if (_has_bits_[0 / 32] & 3) {
+    if (has_agent_id()) {
+      if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
+    }
+    if (has_options()) {
+      if (options_ != NULL) options_->::bgs::protocol::club::v1::ClubMembershipGetStateOptions::Clear();
+    }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -1150,6 +1216,19 @@ bool GetStateRequest::MergePartialFromCodedStream(
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_agent_id()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_options;
+        break;
+      }
+
+      // optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_options:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_options()));
         } else {
           goto handle_unusual;
         }
@@ -1188,6 +1267,12 @@ void GetStateRequest::SerializeWithCachedSizes(
       1, this->agent_id(), output);
   }
 
+  // optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
+  if (has_options()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->options(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1203,6 +1288,13 @@ void GetStateRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         1, this->agent_id(), target);
+  }
+
+  // optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
+  if (has_options()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->options(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1222,6 +1314,13 @@ int GetStateRequest::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->agent_id());
+    }
+
+    // optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
+    if (has_options()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->options());
     }
 
   }
@@ -1254,6 +1353,9 @@ void GetStateRequest::MergeFrom(const GetStateRequest& from) {
     if (from.has_agent_id()) {
       mutable_agent_id()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.agent_id());
     }
+    if (from.has_options()) {
+      mutable_options()->::bgs::protocol::club::v1::ClubMembershipGetStateOptions::MergeFrom(from.options());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1275,12 +1377,16 @@ bool GetStateRequest::IsInitialized() const {
   if (has_agent_id()) {
     if (!this->agent_id().IsInitialized()) return false;
   }
+  if (has_options()) {
+    if (!this->options().IsInitialized()) return false;
+  }
   return true;
 }
 
 void GetStateRequest::Swap(GetStateRequest* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
+    std::swap(options_, other->options_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
@@ -1807,6 +1913,7 @@ void UpdateClubSharedSettingsRequest::Swap(UpdateClubSharedSettingsRequest* othe
 #ifndef _MSC_VER
 const int GetStreamMentionsRequest::kAgentIdFieldNumber;
 const int GetStreamMentionsRequest::kOptionsFieldNumber;
+const int GetStreamMentionsRequest::kFetchMessagesFieldNumber;
 #endif  // !_MSC_VER
 
 GetStreamMentionsRequest::GetStreamMentionsRequest()
@@ -1831,6 +1938,7 @@ void GetStreamMentionsRequest::SharedCtor() {
   _cached_size_ = 0;
   agent_id_ = NULL;
   options_ = NULL;
+  fetch_messages_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1868,13 +1976,14 @@ GetStreamMentionsRequest* GetStreamMentionsRequest::New() const {
 }
 
 void GetStreamMentionsRequest::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
+  if (_has_bits_[0 / 32] & 7) {
     if (has_agent_id()) {
       if (agent_id_ != NULL) agent_id_->::bgs::protocol::account::v1::AccountId::Clear();
     }
     if (has_options()) {
       if (options_ != NULL) options_->::bgs::protocol::GetEventOptions::Clear();
     }
+    fetch_messages_ = false;
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -1908,6 +2017,21 @@ bool GetStreamMentionsRequest::MergePartialFromCodedStream(
          parse_options:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                input, mutable_options()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(24)) goto parse_fetch_messages;
+        break;
+      }
+
+      // optional bool fetch_messages = 3;
+      case 3: {
+        if (tag == 24) {
+         parse_fetch_messages:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &fetch_messages_)));
+          set_has_fetch_messages();
         } else {
           goto handle_unusual;
         }
@@ -1952,6 +2076,11 @@ void GetStreamMentionsRequest::SerializeWithCachedSizes(
       2, this->options(), output);
   }
 
+  // optional bool fetch_messages = 3;
+  if (has_fetch_messages()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->fetch_messages(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1974,6 +2103,11 @@ void GetStreamMentionsRequest::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         2, this->options(), target);
+  }
+
+  // optional bool fetch_messages = 3;
+  if (has_fetch_messages()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->fetch_messages(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -2000,6 +2134,11 @@ int GetStreamMentionsRequest::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
           this->options());
+    }
+
+    // optional bool fetch_messages = 3;
+    if (has_fetch_messages()) {
+      total_size += 1 + 1;
     }
 
   }
@@ -2035,6 +2174,9 @@ void GetStreamMentionsRequest::MergeFrom(const GetStreamMentionsRequest& from) {
     if (from.has_options()) {
       mutable_options()->::bgs::protocol::GetEventOptions::MergeFrom(from.options());
     }
+    if (from.has_fetch_messages()) {
+      set_fetch_messages(from.fetch_messages());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -2063,6 +2205,7 @@ void GetStreamMentionsRequest::Swap(GetStreamMentionsRequest* other) {
   if (other != this) {
     std::swap(agent_id_, other->agent_id_);
     std::swap(options_, other->options_);
+    std::swap(fetch_messages_, other->fetch_messages_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

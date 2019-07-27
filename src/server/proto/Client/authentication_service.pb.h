@@ -720,6 +720,18 @@ class TC_PROTO_API LogonResult : public ::google::protobuf::Message {
   inline bool restricted_mode() const;
   inline void set_restricted_mode(bool value);
 
+  // optional string client_id = 11;
+  inline bool has_client_id() const;
+  inline void clear_client_id();
+  static const int kClientIdFieldNumber = 11;
+  inline const ::std::string& client_id() const;
+  inline void set_client_id(const ::std::string& value);
+  inline void set_client_id(const char* value);
+  inline void set_client_id(const char* value, size_t size);
+  inline ::std::string* mutable_client_id();
+  inline ::std::string* release_client_id();
+  inline void set_allocated_client_id(::std::string* client_id);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.authentication.v1.LogonResult)
  private:
   inline void set_has_error_code();
@@ -738,6 +750,8 @@ class TC_PROTO_API LogonResult : public ::google::protobuf::Message {
   inline void clear_has_session_key();
   inline void set_has_restricted_mode();
   inline void clear_has_restricted_mode();
+  inline void set_has_client_id();
+  inline void clear_has_client_id();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -752,6 +766,7 @@ class TC_PROTO_API LogonResult : public ::google::protobuf::Message {
   ::std::string* battle_tag_;
   ::std::string* geoip_country_;
   ::std::string* session_key_;
+  ::std::string* client_id_;
   bool restricted_mode_;
   friend void TC_PROTO_API protobuf_AddDesc_authentication_5fservice_2eproto();
   friend void protobuf_AssignDesc_authentication_5fservice_2eproto();
@@ -3671,6 +3686,82 @@ inline void LogonResult::set_restricted_mode(bool value) {
   set_has_restricted_mode();
   restricted_mode_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonResult.restricted_mode)
+}
+
+// optional string client_id = 11;
+inline bool LogonResult::has_client_id() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void LogonResult::set_has_client_id() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void LogonResult::clear_has_client_id() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void LogonResult::clear_client_id() {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_->clear();
+  }
+  clear_has_client_id();
+}
+inline const ::std::string& LogonResult::client_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.authentication.v1.LogonResult.client_id)
+  return *client_id_;
+}
+inline void LogonResult::set_client_id(const ::std::string& value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.authentication.v1.LogonResult.client_id)
+}
+inline void LogonResult::set_client_id(const char* value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.authentication.v1.LogonResult.client_id)
+}
+inline void LogonResult::set_client_id(const char* value, size_t size) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.authentication.v1.LogonResult.client_id)
+}
+inline ::std::string* LogonResult::mutable_client_id() {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.authentication.v1.LogonResult.client_id)
+  return client_id_;
+}
+inline ::std::string* LogonResult::release_client_id() {
+  clear_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = client_id_;
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void LogonResult::set_allocated_client_id(::std::string* client_id) {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete client_id_;
+  }
+  if (client_id) {
+    set_has_client_id();
+    client_id_ = client_id;
+  } else {
+    clear_has_client_id();
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.authentication.v1.LogonResult.client_id)
 }
 
 // -------------------------------------------------------------------
