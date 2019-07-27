@@ -159,12 +159,21 @@ class TC_PROTO_API BGSFieldOptions : public ::google::protobuf::Message {
   inline bool shard_key() const;
   inline void set_shard_key(bool value);
 
+  // optional bool fanout_key = 3;
+  inline bool has_fanout_key() const;
+  inline void clear_fanout_key();
+  static const int kFanoutKeyFieldNumber = 3;
+  inline bool fanout_key() const;
+  inline void set_fanout_key(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.BGSFieldOptions)
  private:
   inline void set_has_log();
   inline void clear_has_log();
   inline void set_has_shard_key();
   inline void clear_has_shard_key();
+  inline void set_has_fanout_key();
+  inline void clear_has_fanout_key();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -172,6 +181,7 @@ class TC_PROTO_API BGSFieldOptions : public ::google::protobuf::Message {
   mutable int _cached_size_;
   int log_;
   bool shard_key_;
+  bool fanout_key_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto();
   friend void protobuf_ShutdownFile_global_5fextensions_2ffield_5foptions_2eproto();
@@ -1150,6 +1160,30 @@ inline void BGSFieldOptions::set_shard_key(bool value) {
   set_has_shard_key();
   shard_key_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.BGSFieldOptions.shard_key)
+}
+
+// optional bool fanout_key = 3;
+inline bool BGSFieldOptions::has_fanout_key() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void BGSFieldOptions::set_has_fanout_key() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void BGSFieldOptions::clear_has_fanout_key() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void BGSFieldOptions::clear_fanout_key() {
+  fanout_key_ = false;
+  clear_has_fanout_key();
+}
+inline bool BGSFieldOptions::fanout_key() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSFieldOptions.fanout_key)
+  return fanout_key_;
+}
+inline void BGSFieldOptions::set_fanout_key(bool value) {
+  set_has_fanout_key();
+  fanout_key_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSFieldOptions.fanout_key)
 }
 
 // -------------------------------------------------------------------

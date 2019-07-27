@@ -212,8 +212,8 @@ public:
 
     bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
         PreparedQueryResult followers, PreparedQueryResult abilities);
-    void SaveToDB(SQLTransaction trans);
-    static void DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans);
+    void SaveToDB(CharacterDatabaseTransaction trans);
+    static void DeleteFromDB(ObjectGuid::LowType ownerGuid, CharacterDatabaseTransaction trans);
 
     bool Create(uint32 garrSiteId);
     void Delete();

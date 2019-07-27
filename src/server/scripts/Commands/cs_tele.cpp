@@ -148,7 +148,7 @@ public:
                     WorldLocation loc(fieldsDB[0].GetUInt16(), fieldsDB[2].GetFloat(), fieldsDB[3].GetFloat(), fieldsDB[4].GetFloat(), 0.0f);
                     uint32 zoneId = fieldsDB[1].GetUInt16();
 
-                    SQLTransaction dummy;
+                    CharacterDatabaseTransaction dummy;
                     Player::SavePositionInDB(loc, zoneId, target_guid, dummy);
                 }
             }
@@ -206,7 +206,7 @@ public:
 
             handler->PSendSysMessage(LANG_TELEPORTING_TO, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE), tele->name.c_str());
 
-            SQLTransaction dummy;
+            CharacterDatabaseTransaction dummy;
             Player::SavePositionInDB(WorldLocation(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation),
                 sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), tele->mapId, tele->position_x, tele->position_y, tele->position_z), target_guid, dummy);
         }

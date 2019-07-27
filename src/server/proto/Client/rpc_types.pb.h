@@ -45,6 +45,7 @@ class ProcessId;
 class ObjectAddress;
 class NoData;
 class ErrorInfo;
+class FanoutTarget;
 class Header;
 class KafkaHeader;
 
@@ -573,6 +574,105 @@ class TC_PROTO_API ErrorInfo : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class TC_PROTO_API FanoutTarget : public ::google::protobuf::Message {
+ public:
+  FanoutTarget();
+  virtual ~FanoutTarget();
+
+  FanoutTarget(const FanoutTarget& from);
+
+  inline FanoutTarget& operator=(const FanoutTarget& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const FanoutTarget& default_instance();
+
+  void Swap(FanoutTarget* other);
+
+  // implements Message ----------------------------------------------
+
+  FanoutTarget* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const FanoutTarget& from);
+  void MergeFrom(const FanoutTarget& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string client_id = 1;
+  inline bool has_client_id() const;
+  inline void clear_client_id();
+  static const int kClientIdFieldNumber = 1;
+  inline const ::std::string& client_id() const;
+  inline void set_client_id(const ::std::string& value);
+  inline void set_client_id(const char* value);
+  inline void set_client_id(const char* value, size_t size);
+  inline ::std::string* mutable_client_id();
+  inline ::std::string* release_client_id();
+  inline void set_allocated_client_id(::std::string* client_id);
+
+  // optional bytes key = 2;
+  inline bool has_key() const;
+  inline void clear_key();
+  static const int kKeyFieldNumber = 2;
+  inline const ::std::string& key() const;
+  inline void set_key(const ::std::string& value);
+  inline void set_key(const char* value);
+  inline void set_key(const void* value, size_t size);
+  inline ::std::string* mutable_key();
+  inline ::std::string* release_key();
+  inline void set_allocated_key(::std::string* key);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.FanoutTarget)
+ private:
+  inline void set_has_client_id();
+  inline void clear_has_client_id();
+  inline void set_has_key();
+  inline void clear_has_key();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* client_id_;
+  ::std::string* key_;
+  friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_rpc_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static FanoutTarget* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class TC_PROTO_API Header : public ::google::protobuf::Message {
  public:
   Header();
@@ -725,6 +825,34 @@ class TC_PROTO_API Header : public ::google::protobuf::Message {
   inline ::std::string* release_client_id();
   inline void set_allocated_client_id(::std::string* client_id);
 
+  // repeated .bgs.protocol.FanoutTarget fanout_target = 14;
+  inline int fanout_target_size() const;
+  inline void clear_fanout_target();
+  static const int kFanoutTargetFieldNumber = 14;
+  inline const ::bgs::protocol::FanoutTarget& fanout_target(int index) const;
+  inline ::bgs::protocol::FanoutTarget* mutable_fanout_target(int index);
+  inline ::bgs::protocol::FanoutTarget* add_fanout_target();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::FanoutTarget >&
+      fanout_target() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::FanoutTarget >*
+      mutable_fanout_target();
+
+  // repeated string client_id_fanout_target = 15;
+  inline int client_id_fanout_target_size() const;
+  inline void clear_client_id_fanout_target();
+  static const int kClientIdFanoutTargetFieldNumber = 15;
+  inline const ::std::string& client_id_fanout_target(int index) const;
+  inline ::std::string* mutable_client_id_fanout_target(int index);
+  inline void set_client_id_fanout_target(int index, const ::std::string& value);
+  inline void set_client_id_fanout_target(int index, const char* value);
+  inline void set_client_id_fanout_target(int index, const char* value, size_t size);
+  inline ::std::string* add_client_id_fanout_target();
+  inline void add_client_id_fanout_target(const ::std::string& value);
+  inline void add_client_id_fanout_target(const char* value);
+  inline void add_client_id_fanout_target(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& client_id_fanout_target() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_client_id_fanout_target();
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.Header)
  private:
   inline void set_has_service_id();
@@ -763,6 +891,8 @@ class TC_PROTO_API Header : public ::google::protobuf::Message {
   ::google::protobuf::uint64 timeout_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::ProcessId > forward_targets_;
   ::std::string* client_id_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::FanoutTarget > fanout_target_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> client_id_fanout_target_;
   ::google::protobuf::uint32 service_hash_;
   friend void TC_PROTO_API protobuf_AddDesc_rpc_5ftypes_2eproto();
   friend void protobuf_AssignDesc_rpc_5ftypes_2eproto();
@@ -1310,6 +1440,162 @@ inline void ErrorInfo::set_method_id(::google::protobuf::uint32 value) {
 
 // -------------------------------------------------------------------
 
+// FanoutTarget
+
+// optional string client_id = 1;
+inline bool FanoutTarget::has_client_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void FanoutTarget::set_has_client_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void FanoutTarget::clear_has_client_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void FanoutTarget::clear_client_id() {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_->clear();
+  }
+  clear_has_client_id();
+}
+inline const ::std::string& FanoutTarget::client_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.FanoutTarget.client_id)
+  return *client_id_;
+}
+inline void FanoutTarget::set_client_id(const ::std::string& value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.FanoutTarget.client_id)
+}
+inline void FanoutTarget::set_client_id(const char* value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.FanoutTarget.client_id)
+}
+inline void FanoutTarget::set_client_id(const char* value, size_t size) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.FanoutTarget.client_id)
+}
+inline ::std::string* FanoutTarget::mutable_client_id() {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.FanoutTarget.client_id)
+  return client_id_;
+}
+inline ::std::string* FanoutTarget::release_client_id() {
+  clear_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = client_id_;
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void FanoutTarget::set_allocated_client_id(::std::string* client_id) {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete client_id_;
+  }
+  if (client_id) {
+    set_has_client_id();
+    client_id_ = client_id;
+  } else {
+    clear_has_client_id();
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.FanoutTarget.client_id)
+}
+
+// optional bytes key = 2;
+inline bool FanoutTarget::has_key() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void FanoutTarget::set_has_key() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void FanoutTarget::clear_has_key() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void FanoutTarget::clear_key() {
+  if (key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_->clear();
+  }
+  clear_has_key();
+}
+inline const ::std::string& FanoutTarget::key() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.FanoutTarget.key)
+  return *key_;
+}
+inline void FanoutTarget::set_key(const ::std::string& value) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  key_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.FanoutTarget.key)
+}
+inline void FanoutTarget::set_key(const char* value) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  key_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.FanoutTarget.key)
+}
+inline void FanoutTarget::set_key(const void* value, size_t size) {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  key_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.FanoutTarget.key)
+}
+inline ::std::string* FanoutTarget::mutable_key() {
+  set_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    key_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.FanoutTarget.key)
+  return key_;
+}
+inline ::std::string* FanoutTarget::release_key() {
+  clear_has_key();
+  if (key_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = key_;
+    key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void FanoutTarget::set_allocated_key(::std::string* key) {
+  if (key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete key_;
+  }
+  if (key) {
+    set_has_key();
+    key_ = key;
+  } else {
+    clear_has_key();
+    key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.FanoutTarget.key)
+}
+
+// -------------------------------------------------------------------
+
 // Header
 
 // required uint32 service_id = 1;
@@ -1662,6 +1948,90 @@ inline void Header::set_allocated_client_id(::std::string* client_id) {
     client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.Header.client_id)
+}
+
+// repeated .bgs.protocol.FanoutTarget fanout_target = 14;
+inline int Header::fanout_target_size() const {
+  return fanout_target_.size();
+}
+inline void Header::clear_fanout_target() {
+  fanout_target_.Clear();
+}
+inline const ::bgs::protocol::FanoutTarget& Header::fanout_target(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.Header.fanout_target)
+  return fanout_target_.Get(index);
+}
+inline ::bgs::protocol::FanoutTarget* Header::mutable_fanout_target(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.Header.fanout_target)
+  return fanout_target_.Mutable(index);
+}
+inline ::bgs::protocol::FanoutTarget* Header::add_fanout_target() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.Header.fanout_target)
+  return fanout_target_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::FanoutTarget >&
+Header::fanout_target() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.Header.fanout_target)
+  return fanout_target_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::FanoutTarget >*
+Header::mutable_fanout_target() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.Header.fanout_target)
+  return &fanout_target_;
+}
+
+// repeated string client_id_fanout_target = 15;
+inline int Header::client_id_fanout_target_size() const {
+  return client_id_fanout_target_.size();
+}
+inline void Header::clear_client_id_fanout_target() {
+  client_id_fanout_target_.Clear();
+}
+inline const ::std::string& Header::client_id_fanout_target(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.Header.client_id_fanout_target)
+  return client_id_fanout_target_.Get(index);
+}
+inline ::std::string* Header::mutable_client_id_fanout_target(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.Header.client_id_fanout_target)
+  return client_id_fanout_target_.Mutable(index);
+}
+inline void Header::set_client_id_fanout_target(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:bgs.protocol.Header.client_id_fanout_target)
+  client_id_fanout_target_.Mutable(index)->assign(value);
+}
+inline void Header::set_client_id_fanout_target(int index, const char* value) {
+  client_id_fanout_target_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.Header.client_id_fanout_target)
+}
+inline void Header::set_client_id_fanout_target(int index, const char* value, size_t size) {
+  client_id_fanout_target_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.Header.client_id_fanout_target)
+}
+inline ::std::string* Header::add_client_id_fanout_target() {
+  return client_id_fanout_target_.Add();
+}
+inline void Header::add_client_id_fanout_target(const ::std::string& value) {
+  client_id_fanout_target_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:bgs.protocol.Header.client_id_fanout_target)
+}
+inline void Header::add_client_id_fanout_target(const char* value) {
+  client_id_fanout_target_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:bgs.protocol.Header.client_id_fanout_target)
+}
+inline void Header::add_client_id_fanout_target(const char* value, size_t size) {
+  client_id_fanout_target_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:bgs.protocol.Header.client_id_fanout_target)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+Header::client_id_fanout_target() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.Header.client_id_fanout_target)
+  return client_id_fanout_target_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+Header::mutable_client_id_fanout_target() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.Header.client_id_fanout_target)
+  return &client_id_fanout_target_;
 }
 
 // -------------------------------------------------------------------

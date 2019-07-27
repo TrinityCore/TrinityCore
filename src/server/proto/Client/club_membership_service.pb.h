@@ -118,16 +118,28 @@ class TC_PROTO_API SubscribeRequest : public ::google::protobuf::Message {
   inline ::bgs::protocol::account::v1::AccountId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::account::v1::AccountId* agent_id);
 
+  // optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
+  inline bool has_options() const;
+  inline void clear_options();
+  static const int kOptionsFieldNumber = 2;
+  inline const ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions& options() const;
+  inline ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions* mutable_options();
+  inline ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions* release_options();
+  inline void set_allocated_options(::bgs::protocol::club::v1::ClubMembershipSubscribeOptions* options);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.membership.SubscribeRequest)
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
+  inline void set_has_options();
+  inline void clear_has_options();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* agent_id_;
+  ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions* options_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5fservice_2eproto();
   friend void protobuf_AssignDesc_club_5fmembership_5fservice_2eproto();
   friend void protobuf_ShutdownFile_club_5fmembership_5fservice_2eproto();
@@ -361,16 +373,28 @@ class TC_PROTO_API GetStateRequest : public ::google::protobuf::Message {
   inline ::bgs::protocol::account::v1::AccountId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::account::v1::AccountId* agent_id);
 
+  // optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
+  inline bool has_options() const;
+  inline void clear_options();
+  static const int kOptionsFieldNumber = 2;
+  inline const ::bgs::protocol::club::v1::ClubMembershipGetStateOptions& options() const;
+  inline ::bgs::protocol::club::v1::ClubMembershipGetStateOptions* mutable_options();
+  inline ::bgs::protocol::club::v1::ClubMembershipGetStateOptions* release_options();
+  inline void set_allocated_options(::bgs::protocol::club::v1::ClubMembershipGetStateOptions* options);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.membership.GetStateRequest)
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
+  inline void set_has_options();
+  inline void clear_has_options();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* agent_id_;
+  ::bgs::protocol::club::v1::ClubMembershipGetStateOptions* options_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5fservice_2eproto();
   friend void protobuf_AssignDesc_club_5fmembership_5fservice_2eproto();
   friend void protobuf_ShutdownFile_club_5fmembership_5fservice_2eproto();
@@ -625,12 +649,21 @@ class TC_PROTO_API GetStreamMentionsRequest : public ::google::protobuf::Message
   inline ::bgs::protocol::GetEventOptions* release_options();
   inline void set_allocated_options(::bgs::protocol::GetEventOptions* options);
 
+  // optional bool fetch_messages = 3;
+  inline bool has_fetch_messages() const;
+  inline void clear_fetch_messages();
+  static const int kFetchMessagesFieldNumber = 3;
+  inline bool fetch_messages() const;
+  inline void set_fetch_messages(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.membership.GetStreamMentionsRequest)
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
   inline void set_has_options();
   inline void clear_has_options();
+  inline void set_has_fetch_messages();
+  inline void clear_has_fetch_messages();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -638,6 +671,7 @@ class TC_PROTO_API GetStreamMentionsRequest : public ::google::protobuf::Message
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* agent_id_;
   ::bgs::protocol::GetEventOptions* options_;
+  bool fetch_messages_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5fservice_2eproto();
   friend void protobuf_AssignDesc_club_5fmembership_5fservice_2eproto();
   friend void protobuf_ShutdownFile_club_5fmembership_5fservice_2eproto();
@@ -1002,6 +1036,47 @@ inline void SubscribeRequest::set_allocated_agent_id(::bgs::protocol::account::v
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.SubscribeRequest.agent_id)
 }
 
+// optional .bgs.protocol.club.v1.ClubMembershipSubscribeOptions options = 2;
+inline bool SubscribeRequest::has_options() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SubscribeRequest::set_has_options() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SubscribeRequest::clear_has_options() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SubscribeRequest::clear_options() {
+  if (options_ != NULL) options_->::bgs::protocol::club::v1::ClubMembershipSubscribeOptions::Clear();
+  clear_has_options();
+}
+inline const ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions& SubscribeRequest::options() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.SubscribeRequest.options)
+  return options_ != NULL ? *options_ : *default_instance_->options_;
+}
+inline ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions* SubscribeRequest::mutable_options() {
+  set_has_options();
+  if (options_ == NULL) options_ = new ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.SubscribeRequest.options)
+  return options_;
+}
+inline ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions* SubscribeRequest::release_options() {
+  clear_has_options();
+  ::bgs::protocol::club::v1::ClubMembershipSubscribeOptions* temp = options_;
+  options_ = NULL;
+  return temp;
+}
+inline void SubscribeRequest::set_allocated_options(::bgs::protocol::club::v1::ClubMembershipSubscribeOptions* options) {
+  delete options_;
+  options_ = options;
+  if (options) {
+    set_has_options();
+  } else {
+    clear_has_options();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.SubscribeRequest.options)
+}
+
 // -------------------------------------------------------------------
 
 // SubscribeResponse
@@ -1135,6 +1210,47 @@ inline void GetStateRequest::set_allocated_agent_id(::bgs::protocol::account::v1
     clear_has_agent_id();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.GetStateRequest.agent_id)
+}
+
+// optional .bgs.protocol.club.v1.ClubMembershipGetStateOptions options = 2;
+inline bool GetStateRequest::has_options() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void GetStateRequest::set_has_options() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void GetStateRequest::clear_has_options() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void GetStateRequest::clear_options() {
+  if (options_ != NULL) options_->::bgs::protocol::club::v1::ClubMembershipGetStateOptions::Clear();
+  clear_has_options();
+}
+inline const ::bgs::protocol::club::v1::ClubMembershipGetStateOptions& GetStateRequest::options() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.GetStateRequest.options)
+  return options_ != NULL ? *options_ : *default_instance_->options_;
+}
+inline ::bgs::protocol::club::v1::ClubMembershipGetStateOptions* GetStateRequest::mutable_options() {
+  set_has_options();
+  if (options_ == NULL) options_ = new ::bgs::protocol::club::v1::ClubMembershipGetStateOptions;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.GetStateRequest.options)
+  return options_;
+}
+inline ::bgs::protocol::club::v1::ClubMembershipGetStateOptions* GetStateRequest::release_options() {
+  clear_has_options();
+  ::bgs::protocol::club::v1::ClubMembershipGetStateOptions* temp = options_;
+  options_ = NULL;
+  return temp;
+}
+inline void GetStateRequest::set_allocated_options(::bgs::protocol::club::v1::ClubMembershipGetStateOptions* options) {
+  delete options_;
+  options_ = options;
+  if (options) {
+    set_has_options();
+  } else {
+    clear_has_options();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.GetStateRequest.options)
 }
 
 // -------------------------------------------------------------------
@@ -1352,6 +1468,30 @@ inline void GetStreamMentionsRequest::set_allocated_options(::bgs::protocol::Get
     clear_has_options();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.GetStreamMentionsRequest.options)
+}
+
+// optional bool fetch_messages = 3;
+inline bool GetStreamMentionsRequest::has_fetch_messages() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void GetStreamMentionsRequest::set_has_fetch_messages() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void GetStreamMentionsRequest::clear_has_fetch_messages() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void GetStreamMentionsRequest::clear_fetch_messages() {
+  fetch_messages_ = false;
+  clear_has_fetch_messages();
+}
+inline bool GetStreamMentionsRequest::fetch_messages() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.GetStreamMentionsRequest.fetch_messages)
+  return fetch_messages_;
+}
+inline void GetStreamMentionsRequest::set_fetch_messages(bool value) {
+  set_has_fetch_messages();
+  fetch_messages_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.membership.GetStreamMentionsRequest.fetch_messages)
 }
 
 // -------------------------------------------------------------------

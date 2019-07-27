@@ -25,6 +25,15 @@ namespace v1 {
 
 namespace {
 
+const ::google::protobuf::Descriptor* ClubMembershipFilter_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ClubMembershipFilter_reflection_ = NULL;
+const ::google::protobuf::Descriptor* ClubMembershipSubscribeOptions_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ClubMembershipSubscribeOptions_reflection_ = NULL;
+const ::google::protobuf::Descriptor* ClubMembershipGetStateOptions_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  ClubMembershipGetStateOptions_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ClubMembershipDescription_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ClubMembershipDescription_reflection_ = NULL;
@@ -53,7 +62,53 @@ void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "club_membership_types.proto");
   GOOGLE_CHECK(file != NULL);
-  ClubMembershipDescription_descriptor_ = file->message_type(0);
+  ClubMembershipFilter_descriptor_ = file->message_type(0);
+  static const int ClubMembershipFilter_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipFilter, member_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipFilter, type_),
+  };
+  ClubMembershipFilter_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ClubMembershipFilter_descriptor_,
+      ClubMembershipFilter::default_instance_,
+      ClubMembershipFilter_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipFilter, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipFilter, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ClubMembershipFilter));
+  ClubMembershipSubscribeOptions_descriptor_ = file->message_type(1);
+  static const int ClubMembershipSubscribeOptions_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipSubscribeOptions, filter_),
+  };
+  ClubMembershipSubscribeOptions_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ClubMembershipSubscribeOptions_descriptor_,
+      ClubMembershipSubscribeOptions::default_instance_,
+      ClubMembershipSubscribeOptions_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipSubscribeOptions, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipSubscribeOptions, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ClubMembershipSubscribeOptions));
+  ClubMembershipGetStateOptions_descriptor_ = file->message_type(2);
+  static const int ClubMembershipGetStateOptions_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipGetStateOptions, filter_),
+  };
+  ClubMembershipGetStateOptions_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      ClubMembershipGetStateOptions_descriptor_,
+      ClubMembershipGetStateOptions::default_instance_,
+      ClubMembershipGetStateOptions_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipGetStateOptions, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipGetStateOptions, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(ClubMembershipGetStateOptions));
+  ClubMembershipDescription_descriptor_ = file->message_type(3);
   static const int ClubMembershipDescription_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipDescription, member_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipDescription, club_),
@@ -69,7 +124,7 @@ void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubMembershipDescription));
-  ClubMembershipState_descriptor_ = file->message_type(1);
+  ClubMembershipState_descriptor_ = file->message_type(4);
   static const int ClubMembershipState_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipState, description_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubMembershipState, invitation_),
@@ -87,7 +142,7 @@ void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubMembershipState));
-  ClubPosition_descriptor_ = file->message_type(2);
+  ClubPosition_descriptor_ = file->message_type(5);
   static const int ClubPosition_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubPosition, club_id_),
   };
@@ -102,7 +157,7 @@ void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubPosition));
-  ClubSharedSettings_descriptor_ = file->message_type(3);
+  ClubSharedSettings_descriptor_ = file->message_type(6);
   static const int ClubSharedSettings_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubSharedSettings, club_position_),
   };
@@ -117,7 +172,7 @@ void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubSharedSettings));
-  ClubSharedSettingsOptions_descriptor_ = file->message_type(4);
+  ClubSharedSettingsOptions_descriptor_ = file->message_type(7);
   static const int ClubSharedSettingsOptions_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubSharedSettingsOptions, club_position_),
   };
@@ -132,7 +187,7 @@ void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClubSharedSettingsOptions));
-  ClubSharedSettingsAssignment_descriptor_ = file->message_type(5);
+  ClubSharedSettingsAssignment_descriptor_ = file->message_type(8);
   static const int ClubSharedSettingsAssignment_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClubSharedSettingsAssignment, club_position_),
   };
@@ -160,6 +215,12 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ClubMembershipFilter_descriptor_, &ClubMembershipFilter::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ClubMembershipSubscribeOptions_descriptor_, &ClubMembershipSubscribeOptions::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    ClubMembershipGetStateOptions_descriptor_, &ClubMembershipGetStateOptions::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ClubMembershipDescription_descriptor_, &ClubMembershipDescription::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ClubMembershipState_descriptor_, &ClubMembershipState::default_instance());
@@ -176,6 +237,12 @@ void protobuf_RegisterTypes(const ::std::string&) {
 }  // namespace
 
 void protobuf_ShutdownFile_club_5fmembership_5ftypes_2eproto() {
+  delete ClubMembershipFilter::default_instance_;
+  delete ClubMembershipFilter_reflection_;
+  delete ClubMembershipSubscribeOptions::default_instance_;
+  delete ClubMembershipSubscribeOptions_reflection_;
+  delete ClubMembershipGetStateOptions::default_instance_;
+  delete ClubMembershipGetStateOptions_reflection_;
   delete ClubMembershipDescription::default_instance_;
   delete ClubMembershipDescription_reflection_;
   delete ClubMembershipState::default_instance_;
@@ -200,36 +267,52 @@ void protobuf_AddDesc_club_5fmembership_5ftypes_2eproto() {
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5fmember_2eproto();
   ::bgs::protocol::club::v1::protobuf_AddDesc_club_5finvitation_2eproto();
   ::bgs::protocol::protobuf_AddDesc_event_5fview_5ftypes_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\033club_membership_types.proto\022\024bgs.proto"
     "col.club.v1\032\017club_core.proto\032\021club_membe"
     "r.proto\032\025club_invitation.proto\032\026event_vi"
-    "ew_types.proto\"\203\001\n\031ClubMembershipDescrip"
-    "tion\0221\n\tmember_id\030\001 \001(\0132\036.bgs.protocol.c"
-    "lub.v1.MemberId\0223\n\004club\030\002 \001(\0132%.bgs.prot"
-    "ocol.club.v1.ClubDescription\"\200\002\n\023ClubMem"
-    "bershipState\022D\n\013description\030\001 \003(\0132/.bgs."
-    "protocol.club.v1.ClubMembershipDescripti"
-    "on\0228\n\ninvitation\030\002 \003(\0132$.bgs.protocol.cl"
-    "ub.v1.ClubInvitation\0229\n\007setting\030\003 \001(\0132(."
-    "bgs.protocol.club.v1.ClubSharedSettings\022"
-    ".\n\014mention_view\030\004 \001(\0132\030.bgs.protocol.Vie"
-    "wMarker\"#\n\014ClubPosition\022\023\n\007club_id\030\001 \003(\004"
-    "B\002\020\001\"O\n\022ClubSharedSettings\0229\n\rclub_posit"
-    "ion\030\001 \001(\0132\".bgs.protocol.club.v1.ClubPos"
-    "ition\"V\n\031ClubSharedSettingsOptions\0229\n\rcl"
-    "ub_position\030\001 \001(\0132\".bgs.protocol.club.v1"
-    ".ClubPosition\"Y\n\034ClubSharedSettingsAssig"
-    "nment\0229\n\rclub_position\030\001 \001(\0132\".bgs.proto"
-    "col.club.v1.ClubPositionB\002H\001", 828);
+    "ew_types.proto\032\017rpc_types.proto\"}\n\024ClubM"
+    "embershipFilter\0221\n\tmember_id\030\001 \001(\0132\036.bgs"
+    ".protocol.club.v1.MemberId\0222\n\004type\030\002 \001(\013"
+    "2$.bgs.protocol.club.v1.UniqueClubType\"j"
+    "\n\036ClubMembershipSubscribeOptions\022H\n\006filt"
+    "er\030\001 \003(\0132*.bgs.protocol.club.v1.ClubMemb"
+    "ershipFilterB\014\212\371+\010*\006\n\004\010\000\020\031\"i\n\035ClubMember"
+    "shipGetStateOptions\022H\n\006filter\030\001 \003(\0132*.bg"
+    "s.protocol.club.v1.ClubMembershipFilterB"
+    "\014\212\371+\010*\006\n\004\010\000\020\031\"\203\001\n\031ClubMembershipDescript"
+    "ion\0221\n\tmember_id\030\001 \001(\0132\036.bgs.protocol.cl"
+    "ub.v1.MemberId\0223\n\004club\030\002 \001(\0132%.bgs.proto"
+    "col.club.v1.ClubDescription\"\200\002\n\023ClubMemb"
+    "ershipState\022D\n\013description\030\001 \003(\0132/.bgs.p"
+    "rotocol.club.v1.ClubMembershipDescriptio"
+    "n\0228\n\ninvitation\030\002 \003(\0132$.bgs.protocol.clu"
+    "b.v1.ClubInvitation\0229\n\007setting\030\003 \001(\0132(.b"
+    "gs.protocol.club.v1.ClubSharedSettings\022."
+    "\n\014mention_view\030\004 \001(\0132\030.bgs.protocol.View"
+    "Marker\"#\n\014ClubPosition\022\023\n\007club_id\030\001 \003(\004B"
+    "\002\020\001\"O\n\022ClubSharedSettings\0229\n\rclub_positi"
+    "on\030\001 \001(\0132\".bgs.protocol.club.v1.ClubPosi"
+    "tion\"V\n\031ClubSharedSettingsOptions\0229\n\rclu"
+    "b_position\030\001 \001(\0132\".bgs.protocol.club.v1."
+    "ClubPosition\"Y\n\034ClubSharedSettingsAssign"
+    "ment\0229\n\rclub_position\030\001 \001(\0132\".bgs.protoc"
+    "ol.club.v1.ClubPositionB\002H\001", 1187);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_membership_types.proto", &protobuf_RegisterTypes);
+  ClubMembershipFilter::default_instance_ = new ClubMembershipFilter();
+  ClubMembershipSubscribeOptions::default_instance_ = new ClubMembershipSubscribeOptions();
+  ClubMembershipGetStateOptions::default_instance_ = new ClubMembershipGetStateOptions();
   ClubMembershipDescription::default_instance_ = new ClubMembershipDescription();
   ClubMembershipState::default_instance_ = new ClubMembershipState();
   ClubPosition::default_instance_ = new ClubPosition();
   ClubSharedSettings::default_instance_ = new ClubSharedSettings();
   ClubSharedSettingsOptions::default_instance_ = new ClubSharedSettingsOptions();
   ClubSharedSettingsAssignment::default_instance_ = new ClubSharedSettingsAssignment();
+  ClubMembershipFilter::default_instance_->InitAsDefaultInstance();
+  ClubMembershipSubscribeOptions::default_instance_->InitAsDefaultInstance();
+  ClubMembershipGetStateOptions::default_instance_->InitAsDefaultInstance();
   ClubMembershipDescription::default_instance_->InitAsDefaultInstance();
   ClubMembershipState::default_instance_->InitAsDefaultInstance();
   ClubPosition::default_instance_->InitAsDefaultInstance();
@@ -245,6 +328,722 @@ struct StaticDescriptorInitializer_club_5fmembership_5ftypes_2eproto {
     protobuf_AddDesc_club_5fmembership_5ftypes_2eproto();
   }
 } static_descriptor_initializer_club_5fmembership_5ftypes_2eproto_;
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ClubMembershipFilter::kMemberIdFieldNumber;
+const int ClubMembershipFilter::kTypeFieldNumber;
+#endif  // !_MSC_VER
+
+ClubMembershipFilter::ClubMembershipFilter()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.club.v1.ClubMembershipFilter)
+}
+
+void ClubMembershipFilter::InitAsDefaultInstance() {
+  member_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
+  type_ = const_cast< ::bgs::protocol::club::v1::UniqueClubType*>(&::bgs::protocol::club::v1::UniqueClubType::default_instance());
+}
+
+ClubMembershipFilter::ClubMembershipFilter(const ClubMembershipFilter& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.club.v1.ClubMembershipFilter)
+}
+
+void ClubMembershipFilter::SharedCtor() {
+  _cached_size_ = 0;
+  member_id_ = NULL;
+  type_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ClubMembershipFilter::~ClubMembershipFilter() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.club.v1.ClubMembershipFilter)
+  SharedDtor();
+}
+
+void ClubMembershipFilter::SharedDtor() {
+  if (this != default_instance_) {
+    delete member_id_;
+    delete type_;
+  }
+}
+
+void ClubMembershipFilter::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ClubMembershipFilter::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ClubMembershipFilter_descriptor_;
+}
+
+const ClubMembershipFilter& ClubMembershipFilter::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_club_5fmembership_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+ClubMembershipFilter* ClubMembershipFilter::default_instance_ = NULL;
+
+ClubMembershipFilter* ClubMembershipFilter::New() const {
+  return new ClubMembershipFilter;
+}
+
+void ClubMembershipFilter::Clear() {
+  if (_has_bits_[0 / 32] & 3) {
+    if (has_member_id()) {
+      if (member_id_ != NULL) member_id_->::bgs::protocol::club::v1::MemberId::Clear();
+    }
+    if (has_type()) {
+      if (type_ != NULL) type_->::bgs::protocol::club::v1::UniqueClubType::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool ClubMembershipFilter::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.ClubMembershipFilter)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_member_id()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_type;
+        break;
+      }
+
+      // optional .bgs.protocol.club.v1.UniqueClubType type = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_type:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_type()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.ClubMembershipFilter)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.ClubMembershipFilter)
+  return false;
+#undef DO_
+}
+
+void ClubMembershipFilter::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.ClubMembershipFilter)
+  // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+  if (has_member_id()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->member_id(), output);
+  }
+
+  // optional .bgs.protocol.club.v1.UniqueClubType type = 2;
+  if (has_type()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->type(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.ClubMembershipFilter)
+}
+
+::google::protobuf::uint8* ClubMembershipFilter::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.ClubMembershipFilter)
+  // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+  if (has_member_id()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->member_id(), target);
+  }
+
+  // optional .bgs.protocol.club.v1.UniqueClubType type = 2;
+  if (has_type()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->type(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.ClubMembershipFilter)
+  return target;
+}
+
+int ClubMembershipFilter::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+    if (has_member_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->member_id());
+    }
+
+    // optional .bgs.protocol.club.v1.UniqueClubType type = 2;
+    if (has_type()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->type());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ClubMembershipFilter::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const ClubMembershipFilter* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const ClubMembershipFilter*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void ClubMembershipFilter::MergeFrom(const ClubMembershipFilter& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_member_id()) {
+      mutable_member_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.member_id());
+    }
+    if (from.has_type()) {
+      mutable_type()->::bgs::protocol::club::v1::UniqueClubType::MergeFrom(from.type());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void ClubMembershipFilter::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ClubMembershipFilter::CopyFrom(const ClubMembershipFilter& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ClubMembershipFilter::IsInitialized() const {
+
+  if (has_member_id()) {
+    if (!this->member_id().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void ClubMembershipFilter::Swap(ClubMembershipFilter* other) {
+  if (other != this) {
+    std::swap(member_id_, other->member_id_);
+    std::swap(type_, other->type_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata ClubMembershipFilter::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ClubMembershipFilter_descriptor_;
+  metadata.reflection = ClubMembershipFilter_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ClubMembershipSubscribeOptions::kFilterFieldNumber;
+#endif  // !_MSC_VER
+
+ClubMembershipSubscribeOptions::ClubMembershipSubscribeOptions()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+}
+
+void ClubMembershipSubscribeOptions::InitAsDefaultInstance() {
+}
+
+ClubMembershipSubscribeOptions::ClubMembershipSubscribeOptions(const ClubMembershipSubscribeOptions& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+}
+
+void ClubMembershipSubscribeOptions::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ClubMembershipSubscribeOptions::~ClubMembershipSubscribeOptions() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+  SharedDtor();
+}
+
+void ClubMembershipSubscribeOptions::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void ClubMembershipSubscribeOptions::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ClubMembershipSubscribeOptions::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ClubMembershipSubscribeOptions_descriptor_;
+}
+
+const ClubMembershipSubscribeOptions& ClubMembershipSubscribeOptions::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_club_5fmembership_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+ClubMembershipSubscribeOptions* ClubMembershipSubscribeOptions::default_instance_ = NULL;
+
+ClubMembershipSubscribeOptions* ClubMembershipSubscribeOptions::New() const {
+  return new ClubMembershipSubscribeOptions;
+}
+
+void ClubMembershipSubscribeOptions::Clear() {
+  filter_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool ClubMembershipSubscribeOptions::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+      case 1: {
+        if (tag == 10) {
+         parse_filter:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_filter()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(10)) goto parse_filter;
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+  return false;
+#undef DO_
+}
+
+void ClubMembershipSubscribeOptions::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+  // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+  for (int i = 0; i < this->filter_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->filter(i), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+}
+
+::google::protobuf::uint8* ClubMembershipSubscribeOptions::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+  // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+  for (int i = 0; i < this->filter_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->filter(i), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+  return target;
+}
+
+int ClubMembershipSubscribeOptions::ByteSize() const {
+  int total_size = 0;
+
+  // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+  total_size += 1 * this->filter_size();
+  for (int i = 0; i < this->filter_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->filter(i));
+  }
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ClubMembershipSubscribeOptions::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const ClubMembershipSubscribeOptions* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const ClubMembershipSubscribeOptions*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void ClubMembershipSubscribeOptions::MergeFrom(const ClubMembershipSubscribeOptions& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  filter_.MergeFrom(from.filter_);
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void ClubMembershipSubscribeOptions::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ClubMembershipSubscribeOptions::CopyFrom(const ClubMembershipSubscribeOptions& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ClubMembershipSubscribeOptions::IsInitialized() const {
+
+  if (!::google::protobuf::internal::AllAreInitialized(this->filter())) return false;
+  return true;
+}
+
+void ClubMembershipSubscribeOptions::Swap(ClubMembershipSubscribeOptions* other) {
+  if (other != this) {
+    filter_.Swap(&other->filter_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata ClubMembershipSubscribeOptions::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ClubMembershipSubscribeOptions_descriptor_;
+  metadata.reflection = ClubMembershipSubscribeOptions_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int ClubMembershipGetStateOptions::kFilterFieldNumber;
+#endif  // !_MSC_VER
+
+ClubMembershipGetStateOptions::ClubMembershipGetStateOptions()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+}
+
+void ClubMembershipGetStateOptions::InitAsDefaultInstance() {
+}
+
+ClubMembershipGetStateOptions::ClubMembershipGetStateOptions(const ClubMembershipGetStateOptions& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+}
+
+void ClubMembershipGetStateOptions::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+ClubMembershipGetStateOptions::~ClubMembershipGetStateOptions() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+  SharedDtor();
+}
+
+void ClubMembershipGetStateOptions::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void ClubMembershipGetStateOptions::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* ClubMembershipGetStateOptions::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return ClubMembershipGetStateOptions_descriptor_;
+}
+
+const ClubMembershipGetStateOptions& ClubMembershipGetStateOptions::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_club_5fmembership_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+ClubMembershipGetStateOptions* ClubMembershipGetStateOptions::default_instance_ = NULL;
+
+ClubMembershipGetStateOptions* ClubMembershipGetStateOptions::New() const {
+  return new ClubMembershipGetStateOptions;
+}
+
+void ClubMembershipGetStateOptions::Clear() {
+  filter_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool ClubMembershipGetStateOptions::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+      case 1: {
+        if (tag == 10) {
+         parse_filter:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_filter()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(10)) goto parse_filter;
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+  return false;
+#undef DO_
+}
+
+void ClubMembershipGetStateOptions::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+  // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+  for (int i = 0; i < this->filter_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->filter(i), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+}
+
+::google::protobuf::uint8* ClubMembershipGetStateOptions::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+  // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+  for (int i = 0; i < this->filter_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->filter(i), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+  return target;
+}
+
+int ClubMembershipGetStateOptions::ByteSize() const {
+  int total_size = 0;
+
+  // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+  total_size += 1 * this->filter_size();
+  for (int i = 0; i < this->filter_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->filter(i));
+  }
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void ClubMembershipGetStateOptions::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const ClubMembershipGetStateOptions* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const ClubMembershipGetStateOptions*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void ClubMembershipGetStateOptions::MergeFrom(const ClubMembershipGetStateOptions& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  filter_.MergeFrom(from.filter_);
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void ClubMembershipGetStateOptions::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void ClubMembershipGetStateOptions::CopyFrom(const ClubMembershipGetStateOptions& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool ClubMembershipGetStateOptions::IsInitialized() const {
+
+  if (!::google::protobuf::internal::AllAreInitialized(this->filter())) return false;
+  return true;
+}
+
+void ClubMembershipGetStateOptions::Swap(ClubMembershipGetStateOptions* other) {
+  if (other != this) {
+    filter_.Swap(&other->filter_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata ClubMembershipGetStateOptions::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = ClubMembershipGetStateOptions_descriptor_;
+  metadata.reflection = ClubMembershipGetStateOptions_reflection_;
+  return metadata;
+}
+
 
 // ===================================================================
 

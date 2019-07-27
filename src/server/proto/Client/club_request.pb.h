@@ -92,6 +92,7 @@ class GetBansResponse;
 class SubscribeStreamRequest;
 class UnsubscribeStreamRequest;
 class CreateStreamRequest;
+class CreateStreamResponse;
 class DestroyStreamRequest;
 class GetStreamRequest;
 class GetStreamResponse;
@@ -112,6 +113,8 @@ class AdvanceStreamMentionViewTimeRequest;
 class AdvanceActivityViewTimeRequest;
 class GetStreamHistoryRequest;
 class GetStreamHistoryResponse;
+class GetStreamMessageRequest;
+class GetStreamMessageResponse;
 class GetClubActivityRequest;
 class GetClubActivityResponse;
 class GetStreamVoiceTokenRequest;
@@ -2102,14 +2105,14 @@ class TC_PROTO_API AssignRoleRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 club_id() const;
   inline void set_club_id(::google::protobuf::uint64 value);
 
-  // optional .bgs.protocol.club.v1.RoleAssignment assignment = 3;
-  inline bool has_assignment() const;
-  inline void clear_assignment();
-  static const int kAssignmentFieldNumber = 3;
-  inline const ::bgs::protocol::club::v1::RoleAssignment& assignment() const;
-  inline ::bgs::protocol::club::v1::RoleAssignment* mutable_assignment();
-  inline ::bgs::protocol::club::v1::RoleAssignment* release_assignment();
-  inline void set_allocated_assignment(::bgs::protocol::club::v1::RoleAssignment* assignment);
+  // optional .bgs.protocol.club.v1.RoleOptions options = 3;
+  inline bool has_options() const;
+  inline void clear_options();
+  static const int kOptionsFieldNumber = 3;
+  inline const ::bgs::protocol::club::v1::RoleOptions& options() const;
+  inline ::bgs::protocol::club::v1::RoleOptions* mutable_options();
+  inline ::bgs::protocol::club::v1::RoleOptions* release_options();
+  inline void set_allocated_options(::bgs::protocol::club::v1::RoleOptions* options);
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.AssignRoleRequest)
  private:
@@ -2117,8 +2120,8 @@ class TC_PROTO_API AssignRoleRequest : public ::google::protobuf::Message {
   inline void clear_has_agent_id();
   inline void set_has_club_id();
   inline void clear_has_club_id();
-  inline void set_has_assignment();
-  inline void clear_has_assignment();
+  inline void set_has_options();
+  inline void clear_has_options();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -2126,7 +2129,7 @@ class TC_PROTO_API AssignRoleRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::club::v1::MemberId* agent_id_;
   ::google::protobuf::uint64 club_id_;
-  ::bgs::protocol::club::v1::RoleAssignment* assignment_;
+  ::bgs::protocol::club::v1::RoleOptions* options_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5frequest_2eproto();
   friend void protobuf_AssignDesc_club_5frequest_2eproto();
   friend void protobuf_ShutdownFile_club_5frequest_2eproto();
@@ -2205,14 +2208,14 @@ class TC_PROTO_API UnassignRoleRequest : public ::google::protobuf::Message {
   inline ::google::protobuf::uint64 club_id() const;
   inline void set_club_id(::google::protobuf::uint64 value);
 
-  // optional .bgs.protocol.club.v1.RoleAssignment assignment = 3;
-  inline bool has_assignment() const;
-  inline void clear_assignment();
-  static const int kAssignmentFieldNumber = 3;
-  inline const ::bgs::protocol::club::v1::RoleAssignment& assignment() const;
-  inline ::bgs::protocol::club::v1::RoleAssignment* mutable_assignment();
-  inline ::bgs::protocol::club::v1::RoleAssignment* release_assignment();
-  inline void set_allocated_assignment(::bgs::protocol::club::v1::RoleAssignment* assignment);
+  // optional .bgs.protocol.club.v1.RoleOptions options = 3;
+  inline bool has_options() const;
+  inline void clear_options();
+  static const int kOptionsFieldNumber = 3;
+  inline const ::bgs::protocol::club::v1::RoleOptions& options() const;
+  inline ::bgs::protocol::club::v1::RoleOptions* mutable_options();
+  inline ::bgs::protocol::club::v1::RoleOptions* release_options();
+  inline void set_allocated_options(::bgs::protocol::club::v1::RoleOptions* options);
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.UnassignRoleRequest)
  private:
@@ -2220,8 +2223,8 @@ class TC_PROTO_API UnassignRoleRequest : public ::google::protobuf::Message {
   inline void clear_has_agent_id();
   inline void set_has_club_id();
   inline void clear_has_club_id();
-  inline void set_has_assignment();
-  inline void clear_has_assignment();
+  inline void set_has_options();
+  inline void clear_has_options();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -2229,7 +2232,7 @@ class TC_PROTO_API UnassignRoleRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::club::v1::MemberId* agent_id_;
   ::google::protobuf::uint64 club_id_;
-  ::bgs::protocol::club::v1::RoleAssignment* assignment_;
+  ::bgs::protocol::club::v1::RoleOptions* options_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5frequest_2eproto();
   friend void protobuf_AssignDesc_club_5frequest_2eproto();
   friend void protobuf_ShutdownFile_club_5frequest_2eproto();
@@ -5350,6 +5353,95 @@ class TC_PROTO_API CreateStreamRequest : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class TC_PROTO_API CreateStreamResponse : public ::google::protobuf::Message {
+ public:
+  CreateStreamResponse();
+  virtual ~CreateStreamResponse();
+
+  CreateStreamResponse(const CreateStreamResponse& from);
+
+  inline CreateStreamResponse& operator=(const CreateStreamResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const CreateStreamResponse& default_instance();
+
+  void Swap(CreateStreamResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  CreateStreamResponse* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const CreateStreamResponse& from);
+  void MergeFrom(const CreateStreamResponse& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional uint64 club_id = 1;
+  inline bool has_club_id() const;
+  inline void clear_club_id();
+  static const int kClubIdFieldNumber = 1;
+  inline ::google::protobuf::uint64 club_id() const;
+  inline void set_club_id(::google::protobuf::uint64 value);
+
+  // optional uint64 stream_id = 2;
+  inline bool has_stream_id() const;
+  inline void clear_stream_id();
+  static const int kStreamIdFieldNumber = 2;
+  inline ::google::protobuf::uint64 stream_id() const;
+  inline void set_stream_id(::google::protobuf::uint64 value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.CreateStreamResponse)
+ private:
+  inline void set_has_club_id();
+  inline void clear_has_club_id();
+  inline void set_has_stream_id();
+  inline void clear_has_stream_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint64 club_id_;
+  ::google::protobuf::uint64 stream_id_;
+  friend void TC_PROTO_API protobuf_AddDesc_club_5frequest_2eproto();
+  friend void protobuf_AssignDesc_club_5frequest_2eproto();
+  friend void protobuf_ShutdownFile_club_5frequest_2eproto();
+
+  void InitAsDefaultInstance();
+  static CreateStreamResponse* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class TC_PROTO_API DestroyStreamRequest : public ::google::protobuf::Message {
  public:
   DestroyStreamRequest();
@@ -7378,6 +7470,200 @@ class TC_PROTO_API GetStreamHistoryResponse : public ::google::protobuf::Message
 
   void InitAsDefaultInstance();
   static GetStreamHistoryResponse* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API GetStreamMessageRequest : public ::google::protobuf::Message {
+ public:
+  GetStreamMessageRequest();
+  virtual ~GetStreamMessageRequest();
+
+  GetStreamMessageRequest(const GetStreamMessageRequest& from);
+
+  inline GetStreamMessageRequest& operator=(const GetStreamMessageRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetStreamMessageRequest& default_instance();
+
+  void Swap(GetStreamMessageRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  GetStreamMessageRequest* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GetStreamMessageRequest& from);
+  void MergeFrom(const GetStreamMessageRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.club.v1.MemberId agent_id = 1;
+  inline bool has_agent_id() const;
+  inline void clear_agent_id();
+  static const int kAgentIdFieldNumber = 1;
+  inline const ::bgs::protocol::club::v1::MemberId& agent_id() const;
+  inline ::bgs::protocol::club::v1::MemberId* mutable_agent_id();
+  inline ::bgs::protocol::club::v1::MemberId* release_agent_id();
+  inline void set_allocated_agent_id(::bgs::protocol::club::v1::MemberId* agent_id);
+
+  // optional uint64 club_id = 2;
+  inline bool has_club_id() const;
+  inline void clear_club_id();
+  static const int kClubIdFieldNumber = 2;
+  inline ::google::protobuf::uint64 club_id() const;
+  inline void set_club_id(::google::protobuf::uint64 value);
+
+  // optional uint64 stream_id = 3;
+  inline bool has_stream_id() const;
+  inline void clear_stream_id();
+  static const int kStreamIdFieldNumber = 3;
+  inline ::google::protobuf::uint64 stream_id() const;
+  inline void set_stream_id(::google::protobuf::uint64 value);
+
+  // optional .bgs.protocol.MessageId message_id = 4;
+  inline bool has_message_id() const;
+  inline void clear_message_id();
+  static const int kMessageIdFieldNumber = 4;
+  inline const ::bgs::protocol::MessageId& message_id() const;
+  inline ::bgs::protocol::MessageId* mutable_message_id();
+  inline ::bgs::protocol::MessageId* release_message_id();
+  inline void set_allocated_message_id(::bgs::protocol::MessageId* message_id);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.GetStreamMessageRequest)
+ private:
+  inline void set_has_agent_id();
+  inline void clear_has_agent_id();
+  inline void set_has_club_id();
+  inline void clear_has_club_id();
+  inline void set_has_stream_id();
+  inline void clear_has_stream_id();
+  inline void set_has_message_id();
+  inline void clear_has_message_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::club::v1::MemberId* agent_id_;
+  ::google::protobuf::uint64 club_id_;
+  ::google::protobuf::uint64 stream_id_;
+  ::bgs::protocol::MessageId* message_id_;
+  friend void TC_PROTO_API protobuf_AddDesc_club_5frequest_2eproto();
+  friend void protobuf_AssignDesc_club_5frequest_2eproto();
+  friend void protobuf_ShutdownFile_club_5frequest_2eproto();
+
+  void InitAsDefaultInstance();
+  static GetStreamMessageRequest* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API GetStreamMessageResponse : public ::google::protobuf::Message {
+ public:
+  GetStreamMessageResponse();
+  virtual ~GetStreamMessageResponse();
+
+  GetStreamMessageResponse(const GetStreamMessageResponse& from);
+
+  inline GetStreamMessageResponse& operator=(const GetStreamMessageResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GetStreamMessageResponse& default_instance();
+
+  void Swap(GetStreamMessageResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  GetStreamMessageResponse* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const GetStreamMessageResponse& from);
+  void MergeFrom(const GetStreamMessageResponse& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.club.v1.StreamMessage message = 1;
+  inline bool has_message() const;
+  inline void clear_message();
+  static const int kMessageFieldNumber = 1;
+  inline const ::bgs::protocol::club::v1::StreamMessage& message() const;
+  inline ::bgs::protocol::club::v1::StreamMessage* mutable_message();
+  inline ::bgs::protocol::club::v1::StreamMessage* release_message();
+  inline void set_allocated_message(::bgs::protocol::club::v1::StreamMessage* message);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.GetStreamMessageResponse)
+ private:
+  inline void set_has_message();
+  inline void clear_has_message();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::club::v1::StreamMessage* message_;
+  friend void TC_PROTO_API protobuf_AddDesc_club_5frequest_2eproto();
+  friend void protobuf_AssignDesc_club_5frequest_2eproto();
+  friend void protobuf_ShutdownFile_club_5frequest_2eproto();
+
+  void InitAsDefaultInstance();
+  static GetStreamMessageResponse* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -9670,45 +9956,45 @@ inline void AssignRoleRequest::set_club_id(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.AssignRoleRequest.club_id)
 }
 
-// optional .bgs.protocol.club.v1.RoleAssignment assignment = 3;
-inline bool AssignRoleRequest::has_assignment() const {
+// optional .bgs.protocol.club.v1.RoleOptions options = 3;
+inline bool AssignRoleRequest::has_options() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void AssignRoleRequest::set_has_assignment() {
+inline void AssignRoleRequest::set_has_options() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void AssignRoleRequest::clear_has_assignment() {
+inline void AssignRoleRequest::clear_has_options() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void AssignRoleRequest::clear_assignment() {
-  if (assignment_ != NULL) assignment_->::bgs::protocol::club::v1::RoleAssignment::Clear();
-  clear_has_assignment();
+inline void AssignRoleRequest::clear_options() {
+  if (options_ != NULL) options_->::bgs::protocol::club::v1::RoleOptions::Clear();
+  clear_has_options();
 }
-inline const ::bgs::protocol::club::v1::RoleAssignment& AssignRoleRequest::assignment() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.AssignRoleRequest.assignment)
-  return assignment_ != NULL ? *assignment_ : *default_instance_->assignment_;
+inline const ::bgs::protocol::club::v1::RoleOptions& AssignRoleRequest::options() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.AssignRoleRequest.options)
+  return options_ != NULL ? *options_ : *default_instance_->options_;
 }
-inline ::bgs::protocol::club::v1::RoleAssignment* AssignRoleRequest::mutable_assignment() {
-  set_has_assignment();
-  if (assignment_ == NULL) assignment_ = new ::bgs::protocol::club::v1::RoleAssignment;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.AssignRoleRequest.assignment)
-  return assignment_;
+inline ::bgs::protocol::club::v1::RoleOptions* AssignRoleRequest::mutable_options() {
+  set_has_options();
+  if (options_ == NULL) options_ = new ::bgs::protocol::club::v1::RoleOptions;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.AssignRoleRequest.options)
+  return options_;
 }
-inline ::bgs::protocol::club::v1::RoleAssignment* AssignRoleRequest::release_assignment() {
-  clear_has_assignment();
-  ::bgs::protocol::club::v1::RoleAssignment* temp = assignment_;
-  assignment_ = NULL;
+inline ::bgs::protocol::club::v1::RoleOptions* AssignRoleRequest::release_options() {
+  clear_has_options();
+  ::bgs::protocol::club::v1::RoleOptions* temp = options_;
+  options_ = NULL;
   return temp;
 }
-inline void AssignRoleRequest::set_allocated_assignment(::bgs::protocol::club::v1::RoleAssignment* assignment) {
-  delete assignment_;
-  assignment_ = assignment;
-  if (assignment) {
-    set_has_assignment();
+inline void AssignRoleRequest::set_allocated_options(::bgs::protocol::club::v1::RoleOptions* options) {
+  delete options_;
+  options_ = options;
+  if (options) {
+    set_has_options();
   } else {
-    clear_has_assignment();
+    clear_has_options();
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.AssignRoleRequest.assignment)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.AssignRoleRequest.options)
 }
 
 // -------------------------------------------------------------------
@@ -9780,45 +10066,45 @@ inline void UnassignRoleRequest::set_club_id(::google::protobuf::uint64 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.UnassignRoleRequest.club_id)
 }
 
-// optional .bgs.protocol.club.v1.RoleAssignment assignment = 3;
-inline bool UnassignRoleRequest::has_assignment() const {
+// optional .bgs.protocol.club.v1.RoleOptions options = 3;
+inline bool UnassignRoleRequest::has_options() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void UnassignRoleRequest::set_has_assignment() {
+inline void UnassignRoleRequest::set_has_options() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void UnassignRoleRequest::clear_has_assignment() {
+inline void UnassignRoleRequest::clear_has_options() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void UnassignRoleRequest::clear_assignment() {
-  if (assignment_ != NULL) assignment_->::bgs::protocol::club::v1::RoleAssignment::Clear();
-  clear_has_assignment();
+inline void UnassignRoleRequest::clear_options() {
+  if (options_ != NULL) options_->::bgs::protocol::club::v1::RoleOptions::Clear();
+  clear_has_options();
 }
-inline const ::bgs::protocol::club::v1::RoleAssignment& UnassignRoleRequest::assignment() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.UnassignRoleRequest.assignment)
-  return assignment_ != NULL ? *assignment_ : *default_instance_->assignment_;
+inline const ::bgs::protocol::club::v1::RoleOptions& UnassignRoleRequest::options() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.UnassignRoleRequest.options)
+  return options_ != NULL ? *options_ : *default_instance_->options_;
 }
-inline ::bgs::protocol::club::v1::RoleAssignment* UnassignRoleRequest::mutable_assignment() {
-  set_has_assignment();
-  if (assignment_ == NULL) assignment_ = new ::bgs::protocol::club::v1::RoleAssignment;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.UnassignRoleRequest.assignment)
-  return assignment_;
+inline ::bgs::protocol::club::v1::RoleOptions* UnassignRoleRequest::mutable_options() {
+  set_has_options();
+  if (options_ == NULL) options_ = new ::bgs::protocol::club::v1::RoleOptions;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.UnassignRoleRequest.options)
+  return options_;
 }
-inline ::bgs::protocol::club::v1::RoleAssignment* UnassignRoleRequest::release_assignment() {
-  clear_has_assignment();
-  ::bgs::protocol::club::v1::RoleAssignment* temp = assignment_;
-  assignment_ = NULL;
+inline ::bgs::protocol::club::v1::RoleOptions* UnassignRoleRequest::release_options() {
+  clear_has_options();
+  ::bgs::protocol::club::v1::RoleOptions* temp = options_;
+  options_ = NULL;
   return temp;
 }
-inline void UnassignRoleRequest::set_allocated_assignment(::bgs::protocol::club::v1::RoleAssignment* assignment) {
-  delete assignment_;
-  assignment_ = assignment;
-  if (assignment) {
-    set_has_assignment();
+inline void UnassignRoleRequest::set_allocated_options(::bgs::protocol::club::v1::RoleOptions* options) {
+  delete options_;
+  options_ = options;
+  if (options) {
+    set_has_options();
   } else {
-    clear_has_assignment();
+    clear_has_options();
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.UnassignRoleRequest.assignment)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.UnassignRoleRequest.options)
 }
 
 // -------------------------------------------------------------------
@@ -12658,6 +12944,58 @@ inline void CreateStreamRequest::set_allocated_options(::bgs::protocol::club::v1
 
 // -------------------------------------------------------------------
 
+// CreateStreamResponse
+
+// optional uint64 club_id = 1;
+inline bool CreateStreamResponse::has_club_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void CreateStreamResponse::set_has_club_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void CreateStreamResponse::clear_has_club_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void CreateStreamResponse::clear_club_id() {
+  club_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_club_id();
+}
+inline ::google::protobuf::uint64 CreateStreamResponse::club_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.CreateStreamResponse.club_id)
+  return club_id_;
+}
+inline void CreateStreamResponse::set_club_id(::google::protobuf::uint64 value) {
+  set_has_club_id();
+  club_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.CreateStreamResponse.club_id)
+}
+
+// optional uint64 stream_id = 2;
+inline bool CreateStreamResponse::has_stream_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void CreateStreamResponse::set_has_stream_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void CreateStreamResponse::clear_has_stream_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void CreateStreamResponse::clear_stream_id() {
+  stream_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_stream_id();
+}
+inline ::google::protobuf::uint64 CreateStreamResponse::stream_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.CreateStreamResponse.stream_id)
+  return stream_id_;
+}
+inline void CreateStreamResponse::set_stream_id(::google::protobuf::uint64 value) {
+  set_has_stream_id();
+  stream_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.CreateStreamResponse.stream_id)
+}
+
+// -------------------------------------------------------------------
+
 // DestroyStreamRequest
 
 // optional .bgs.protocol.club.v1.MemberId agent_id = 1;
@@ -14583,6 +14921,185 @@ inline void GetStreamHistoryResponse::set_continuation(::google::protobuf::uint6
   set_has_continuation();
   continuation_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.GetStreamHistoryResponse.continuation)
+}
+
+// -------------------------------------------------------------------
+
+// GetStreamMessageRequest
+
+// optional .bgs.protocol.club.v1.MemberId agent_id = 1;
+inline bool GetStreamMessageRequest::has_agent_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void GetStreamMessageRequest::set_has_agent_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void GetStreamMessageRequest::clear_has_agent_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void GetStreamMessageRequest::clear_agent_id() {
+  if (agent_id_ != NULL) agent_id_->::bgs::protocol::club::v1::MemberId::Clear();
+  clear_has_agent_id();
+}
+inline const ::bgs::protocol::club::v1::MemberId& GetStreamMessageRequest::agent_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.GetStreamMessageRequest.agent_id)
+  return agent_id_ != NULL ? *agent_id_ : *default_instance_->agent_id_;
+}
+inline ::bgs::protocol::club::v1::MemberId* GetStreamMessageRequest::mutable_agent_id() {
+  set_has_agent_id();
+  if (agent_id_ == NULL) agent_id_ = new ::bgs::protocol::club::v1::MemberId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.GetStreamMessageRequest.agent_id)
+  return agent_id_;
+}
+inline ::bgs::protocol::club::v1::MemberId* GetStreamMessageRequest::release_agent_id() {
+  clear_has_agent_id();
+  ::bgs::protocol::club::v1::MemberId* temp = agent_id_;
+  agent_id_ = NULL;
+  return temp;
+}
+inline void GetStreamMessageRequest::set_allocated_agent_id(::bgs::protocol::club::v1::MemberId* agent_id) {
+  delete agent_id_;
+  agent_id_ = agent_id;
+  if (agent_id) {
+    set_has_agent_id();
+  } else {
+    clear_has_agent_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.GetStreamMessageRequest.agent_id)
+}
+
+// optional uint64 club_id = 2;
+inline bool GetStreamMessageRequest::has_club_id() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void GetStreamMessageRequest::set_has_club_id() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void GetStreamMessageRequest::clear_has_club_id() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void GetStreamMessageRequest::clear_club_id() {
+  club_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_club_id();
+}
+inline ::google::protobuf::uint64 GetStreamMessageRequest::club_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.GetStreamMessageRequest.club_id)
+  return club_id_;
+}
+inline void GetStreamMessageRequest::set_club_id(::google::protobuf::uint64 value) {
+  set_has_club_id();
+  club_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.GetStreamMessageRequest.club_id)
+}
+
+// optional uint64 stream_id = 3;
+inline bool GetStreamMessageRequest::has_stream_id() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void GetStreamMessageRequest::set_has_stream_id() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void GetStreamMessageRequest::clear_has_stream_id() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void GetStreamMessageRequest::clear_stream_id() {
+  stream_id_ = GOOGLE_ULONGLONG(0);
+  clear_has_stream_id();
+}
+inline ::google::protobuf::uint64 GetStreamMessageRequest::stream_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.GetStreamMessageRequest.stream_id)
+  return stream_id_;
+}
+inline void GetStreamMessageRequest::set_stream_id(::google::protobuf::uint64 value) {
+  set_has_stream_id();
+  stream_id_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.GetStreamMessageRequest.stream_id)
+}
+
+// optional .bgs.protocol.MessageId message_id = 4;
+inline bool GetStreamMessageRequest::has_message_id() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void GetStreamMessageRequest::set_has_message_id() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void GetStreamMessageRequest::clear_has_message_id() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void GetStreamMessageRequest::clear_message_id() {
+  if (message_id_ != NULL) message_id_->::bgs::protocol::MessageId::Clear();
+  clear_has_message_id();
+}
+inline const ::bgs::protocol::MessageId& GetStreamMessageRequest::message_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.GetStreamMessageRequest.message_id)
+  return message_id_ != NULL ? *message_id_ : *default_instance_->message_id_;
+}
+inline ::bgs::protocol::MessageId* GetStreamMessageRequest::mutable_message_id() {
+  set_has_message_id();
+  if (message_id_ == NULL) message_id_ = new ::bgs::protocol::MessageId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.GetStreamMessageRequest.message_id)
+  return message_id_;
+}
+inline ::bgs::protocol::MessageId* GetStreamMessageRequest::release_message_id() {
+  clear_has_message_id();
+  ::bgs::protocol::MessageId* temp = message_id_;
+  message_id_ = NULL;
+  return temp;
+}
+inline void GetStreamMessageRequest::set_allocated_message_id(::bgs::protocol::MessageId* message_id) {
+  delete message_id_;
+  message_id_ = message_id;
+  if (message_id) {
+    set_has_message_id();
+  } else {
+    clear_has_message_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.GetStreamMessageRequest.message_id)
+}
+
+// -------------------------------------------------------------------
+
+// GetStreamMessageResponse
+
+// optional .bgs.protocol.club.v1.StreamMessage message = 1;
+inline bool GetStreamMessageResponse::has_message() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void GetStreamMessageResponse::set_has_message() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void GetStreamMessageResponse::clear_has_message() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void GetStreamMessageResponse::clear_message() {
+  if (message_ != NULL) message_->::bgs::protocol::club::v1::StreamMessage::Clear();
+  clear_has_message();
+}
+inline const ::bgs::protocol::club::v1::StreamMessage& GetStreamMessageResponse::message() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.GetStreamMessageResponse.message)
+  return message_ != NULL ? *message_ : *default_instance_->message_;
+}
+inline ::bgs::protocol::club::v1::StreamMessage* GetStreamMessageResponse::mutable_message() {
+  set_has_message();
+  if (message_ == NULL) message_ = new ::bgs::protocol::club::v1::StreamMessage;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.GetStreamMessageResponse.message)
+  return message_;
+}
+inline ::bgs::protocol::club::v1::StreamMessage* GetStreamMessageResponse::release_message() {
+  clear_has_message();
+  ::bgs::protocol::club::v1::StreamMessage* temp = message_;
+  message_ = NULL;
+  return temp;
+}
+inline void GetStreamMessageResponse::set_allocated_message(::bgs::protocol::club::v1::StreamMessage* message) {
+  delete message_;
+  message_ = message;
+  if (message) {
+    set_has_message();
+  } else {
+    clear_has_message();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.GetStreamMessageResponse.message)
 }
 
 // -------------------------------------------------------------------

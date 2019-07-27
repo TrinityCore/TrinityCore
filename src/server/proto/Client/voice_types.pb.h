@@ -60,11 +60,12 @@ inline bool VoiceJoinType_Parse(
 enum VoiceMuteReason {
   VOICE_MUTE_REASON_NONE = 0,
   VOICE_MUTE_REASON_PARENTAL_CONTROL_LISTEN_ONLY = 1,
-  VOICE_MUTE_REASON_REQUESTED = 2
+  VOICE_MUTE_REASON_REQUESTED = 2,
+  VOICE_MUTE_REASON_SQUELCHED = 3
 };
 TC_PROTO_API bool VoiceMuteReason_IsValid(int value);
 const VoiceMuteReason VoiceMuteReason_MIN = VOICE_MUTE_REASON_NONE;
-const VoiceMuteReason VoiceMuteReason_MAX = VOICE_MUTE_REASON_REQUESTED;
+const VoiceMuteReason VoiceMuteReason_MAX = VOICE_MUTE_REASON_SQUELCHED;
 const int VoiceMuteReason_ARRAYSIZE = VoiceMuteReason_MAX + 1;
 
 TC_PROTO_API const ::google::protobuf::EnumDescriptor* VoiceMuteReason_descriptor();

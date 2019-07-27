@@ -95,10 +95,11 @@ void protobuf_AddDesc_voice_5ftypes_2eproto() {
     "\033.bgs.protocol.VoiceJoinType\0222\n\013mute_rea"
     "son\030\005 \001(\0162\035.bgs.protocol.VoiceMuteReason"
     "*<\n\rVoiceJoinType\022\025\n\021VOICE_JOIN_NORMAL\020\000"
-    "\022\024\n\020VOICE_JOIN_MUTED\020\001*\202\001\n\017VoiceMuteReas"
+    "\022\024\n\020VOICE_JOIN_MUTED\020\001*\243\001\n\017VoiceMuteReas"
     "on\022\032\n\026VOICE_MUTE_REASON_NONE\020\000\0222\n.VOICE_"
     "MUTE_REASON_PARENTAL_CONTROL_LISTEN_ONLY"
-    "\020\001\022\037\n\033VOICE_MUTE_REASON_REQUESTED\020\002B\002H\001", 399);
+    "\020\001\022\037\n\033VOICE_MUTE_REASON_REQUESTED\020\002\022\037\n\033V"
+    "OICE_MUTE_REASON_SQUELCHED\020\003B\002H\001", 432);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "voice_types.proto", &protobuf_RegisterTypes);
   VoiceCredentials::default_instance_ = new VoiceCredentials();
@@ -135,6 +136,7 @@ bool VoiceMuteReason_IsValid(int value) {
     case 0:
     case 1:
     case 2:
+    case 3:
       return true;
     default:
       return false;
