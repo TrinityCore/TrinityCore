@@ -107,12 +107,21 @@ class TC_PROTO_API BGSMessageOptions : public ::google::protobuf::Message {
   inline bool custom_validator() const;
   inline void set_custom_validator(bool value);
 
+  // optional bool client_id_fanout = 3;
+  inline bool has_client_id_fanout() const;
+  inline void clear_client_id_fanout();
+  static const int kClientIdFanoutFieldNumber = 3;
+  inline bool client_id_fanout() const;
+  inline void set_client_id_fanout(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.BGSMessageOptions)
  private:
   inline void set_has_custom_select_shard();
   inline void clear_has_custom_select_shard();
   inline void set_has_custom_validator();
   inline void clear_has_custom_validator();
+  inline void set_has_client_id_fanout();
+  inline void clear_has_client_id_fanout();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -120,6 +129,7 @@ class TC_PROTO_API BGSMessageOptions : public ::google::protobuf::Message {
   mutable int _cached_size_;
   bool custom_select_shard_;
   bool custom_validator_;
+  bool client_id_fanout_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fmessage_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2fmessage_5foptions_2eproto();
   friend void protobuf_ShutdownFile_global_5fextensions_2fmessage_5foptions_2eproto();
@@ -187,6 +197,30 @@ inline void BGSMessageOptions::set_custom_validator(bool value) {
   set_has_custom_validator();
   custom_validator_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.BGSMessageOptions.custom_validator)
+}
+
+// optional bool client_id_fanout = 3;
+inline bool BGSMessageOptions::has_client_id_fanout() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void BGSMessageOptions::set_has_client_id_fanout() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void BGSMessageOptions::clear_has_client_id_fanout() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void BGSMessageOptions::clear_client_id_fanout() {
+  client_id_fanout_ = false;
+  clear_has_client_id_fanout();
+}
+inline bool BGSMessageOptions::client_id_fanout() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSMessageOptions.client_id_fanout)
+  return client_id_fanout_;
+}
+inline void BGSMessageOptions::set_client_id_fanout(bool value) {
+  set_has_client_id_fanout();
+  client_id_fanout_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSMessageOptions.client_id_fanout)
 }
 
 

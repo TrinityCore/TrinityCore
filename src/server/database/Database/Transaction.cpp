@@ -23,7 +23,7 @@
 std::mutex TransactionTask::_deadlockLock;
 
 //- Append a raw ad-hoc query to the transaction
-void Transaction::Append(const char* sql)
+void TransactionBase::Append(const char* sql)
 {
     SQLElementData data;
     data.type = SQL_ELEMENT_RAW;
@@ -32,7 +32,7 @@ void Transaction::Append(const char* sql)
 }
 
 //- Append a prepared statement to the transaction
-void Transaction::Append(PreparedStatement* stmt)
+void TransactionBase::AppendPreparedStatement(PreparedStatementBase* stmt)
 {
     SQLElementData data;
     data.type = SQL_ELEMENT_PREPARED;
@@ -40,7 +40,7 @@ void Transaction::Append(PreparedStatement* stmt)
     m_queries.push_back(data);
 }
 
-void Transaction::Cleanup()
+void TransactionBase::Cleanup()
 {
     // This might be called by explicit calls to Cleanup or by the auto-destructor
     if (_cleanedUp)

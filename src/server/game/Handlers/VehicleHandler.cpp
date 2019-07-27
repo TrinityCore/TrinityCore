@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "DB2Structure.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Vehicle.h"

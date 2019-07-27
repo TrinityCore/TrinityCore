@@ -50,6 +50,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* Member_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Member_reflection_ = NULL;
+const ::google::protobuf::Descriptor* SubscriberId_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  SubscriberId_reflection_ = NULL;
 
 }  // namespace
 
@@ -204,6 +207,23 @@ void protobuf_AssignDesc_channel_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Member));
+  SubscriberId_descriptor_ = file->message_type(8);
+  static const int SubscriberId_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscriberId, account_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscriberId, game_account_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscriberId, process_),
+  };
+  SubscriberId_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      SubscriberId_descriptor_,
+      SubscriberId::default_instance_,
+      SubscriberId_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscriberId, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SubscriberId, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(SubscriberId));
 }
 
 namespace {
@@ -232,6 +252,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
     MemberState_descriptor_, &MemberState::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Member_descriptor_, &Member::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    SubscriberId_descriptor_, &SubscriberId::default_instance());
 }
 
 }  // namespace
@@ -254,6 +276,8 @@ void protobuf_ShutdownFile_channel_5ftypes_2eproto() {
   delete MemberState_reflection_;
   delete Member::default_instance_;
   delete Member_reflection_;
+  delete SubscriberId::default_instance_;
+  delete SubscriberId_reflection_;
 }
 
 void protobuf_AddDesc_channel_5ftypes_2eproto() {
@@ -265,48 +289,54 @@ void protobuf_AddDesc_channel_5ftypes_2eproto() {
   ::bgs::protocol::channel::v1::protobuf_AddDesc_api_2fclient_2fv1_2fchannel_5fid_2eproto();
   ::bgs::protocol::protobuf_AddDesc_attribute_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_entity_5ftypes_2eproto();
+  ::bgs::protocol::account::v1::protobuf_AddDesc_account_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_invitation_5ftypes_2eproto();
   ::bgs::protocol::protobuf_AddDesc_rpc_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\023channel_types.proto\022\027bgs.protocol.chan"
     "nel.v1\032\036api/client/v1/channel_id.proto\032\025"
     "attribute_types.proto\032\022entity_types.prot"
-    "o\032\026invitation_types.proto\032\017rpc_types.pro"
-    "to\"<\n\007Message\022*\n\tattribute\030\001 \003(\0132\027.bgs.p"
-    "rotocol.Attribute*\005\010d\020\220N\"\333\001\n\023ListChannel"
-    "sOptions\022\026\n\013start_index\030\001 \001(\r:\0010\022\027\n\013max_"
-    "results\030\002 \001(\r:\00216\022\014\n\004name\030\003 \001(\t\022\017\n\007progr"
-    "am\030\004 \001(\007\022\016\n\006locale\030\005 \001(\007\022\025\n\rcapacity_ful"
-    "l\030\006 \001(\r\0227\n\020attribute_filter\030\007 \002(\0132\035.bgs."
-    "protocol.AttributeFilter\022\024\n\014channel_type"
-    "\030\010 \001(\t\"\217\001\n\022ChannelDescription\022*\n\nchannel"
-    "_id\030\001 \002(\0132\026.bgs.protocol.EntityId\022\027\n\017cur"
-    "rent_members\030\002 \001(\r\0224\n\005state\030\003 \001(\0132%.bgs."
-    "protocol.channel.v1.ChannelState\"\200\001\n\013Cha"
-    "nnelInfo\022@\n\013description\030\001 \002(\0132+.bgs.prot"
-    "ocol.channel.v1.ChannelDescription\022/\n\006me"
-    "mber\030\002 \003(\0132\037.bgs.protocol.channel.v1.Mem"
-    "ber\"\377\003\n\014ChannelState\022\023\n\013max_members\030\001 \001("
-    "\r\022\023\n\013min_members\030\002 \001(\r\022*\n\tattribute\030\003 \003("
-    "\0132\027.bgs.protocol.Attribute\022,\n\ninvitation"
-    "\030\004 \003(\0132\030.bgs.protocol.Invitation\022\016\n\006reas"
-    "on\030\006 \001(\r\022]\n\rprivacy_level\030\007 \001(\01622.bgs.pr"
-    "otocol.channel.v1.ChannelState.PrivacyLe"
-    "vel:\022PRIVACY_LEVEL_OPEN\022\014\n\004name\030\010 \001(\t\022\035\n"
-    "\014channel_type\030\n \001(\t:\007default\022\017\n\007program\030"
-    "\013 \001(\007\022#\n\025subscribe_to_presence\030\r \001(\010:\004tr"
-    "ue\"\221\001\n\014PrivacyLevel\022\026\n\022PRIVACY_LEVEL_OPE"
-    "N\020\001\022,\n(PRIVACY_LEVEL_OPEN_INVITATION_AND"
-    "_FRIEND\020\002\022!\n\035PRIVACY_LEVEL_OPEN_INVITATI"
-    "ON\020\003\022\030\n\024PRIVACY_LEVEL_CLOSED\020\004*\005\010d\020\220N\"\'\n"
-    "\021MemberAccountInfo\022\022\n\nbattle_tag\030\003 \001(\t\"\234"
-    "\001\n\013MemberState\022*\n\tattribute\030\001 \003(\0132\027.bgs."
-    "protocol.Attribute\022\020\n\004role\030\002 \003(\rB\002\020\001\022\025\n\n"
-    "privileges\030\003 \001(\004:\0010\0228\n\004info\030\004 \001(\0132*.bgs."
-    "protocol.channel.v1.MemberAccountInfo\"g\n"
-    "\006Member\022(\n\010identity\030\001 \002(\0132\026.bgs.protocol"
-    ".Identity\0223\n\005state\030\002 \002(\0132$.bgs.protocol."
-    "channel.v1.MemberStateB\002H\001P\000", 1548);
+    "o\032\023account_types.proto\032\026invitation_types"
+    ".proto\032\017rpc_types.proto\"<\n\007Message\022*\n\tat"
+    "tribute\030\001 \003(\0132\027.bgs.protocol.Attribute*\005"
+    "\010d\020\220N\"\333\001\n\023ListChannelsOptions\022\026\n\013start_i"
+    "ndex\030\001 \001(\r:\0010\022\027\n\013max_results\030\002 \001(\r:\00216\022\014"
+    "\n\004name\030\003 \001(\t\022\017\n\007program\030\004 \001(\007\022\016\n\006locale\030"
+    "\005 \001(\007\022\025\n\rcapacity_full\030\006 \001(\r\0227\n\020attribut"
+    "e_filter\030\007 \002(\0132\035.bgs.protocol.AttributeF"
+    "ilter\022\024\n\014channel_type\030\010 \001(\t\"\217\001\n\022ChannelD"
+    "escription\022*\n\nchannel_id\030\001 \002(\0132\026.bgs.pro"
+    "tocol.EntityId\022\027\n\017current_members\030\002 \001(\r\022"
+    "4\n\005state\030\003 \001(\0132%.bgs.protocol.channel.v1"
+    ".ChannelState\"\200\001\n\013ChannelInfo\022@\n\013descrip"
+    "tion\030\001 \002(\0132+.bgs.protocol.channel.v1.Cha"
+    "nnelDescription\022/\n\006member\030\002 \003(\0132\037.bgs.pr"
+    "otocol.channel.v1.Member\"\377\003\n\014ChannelStat"
+    "e\022\023\n\013max_members\030\001 \001(\r\022\023\n\013min_members\030\002 "
+    "\001(\r\022*\n\tattribute\030\003 \003(\0132\027.bgs.protocol.At"
+    "tribute\022,\n\ninvitation\030\004 \003(\0132\030.bgs.protoc"
+    "ol.Invitation\022\016\n\006reason\030\006 \001(\r\022]\n\rprivacy"
+    "_level\030\007 \001(\01622.bgs.protocol.channel.v1.C"
+    "hannelState.PrivacyLevel:\022PRIVACY_LEVEL_"
+    "OPEN\022\014\n\004name\030\010 \001(\t\022\035\n\014channel_type\030\n \001(\t"
+    ":\007default\022\017\n\007program\030\013 \001(\007\022#\n\025subscribe_"
+    "to_presence\030\r \001(\010:\004true\"\221\001\n\014PrivacyLevel"
+    "\022\026\n\022PRIVACY_LEVEL_OPEN\020\001\022,\n(PRIVACY_LEVE"
+    "L_OPEN_INVITATION_AND_FRIEND\020\002\022!\n\035PRIVAC"
+    "Y_LEVEL_OPEN_INVITATION\020\003\022\030\n\024PRIVACY_LEV"
+    "EL_CLOSED\020\004*\005\010d\020\220N\"\'\n\021MemberAccountInfo\022"
+    "\022\n\nbattle_tag\030\003 \001(\t\"\234\001\n\013MemberState\022*\n\ta"
+    "ttribute\030\001 \003(\0132\027.bgs.protocol.Attribute\022"
+    "\020\n\004role\030\002 \003(\rB\002\020\001\022\025\n\nprivileges\030\003 \001(\004:\0010"
+    "\0228\n\004info\030\004 \001(\0132*.bgs.protocol.channel.v1"
+    ".MemberAccountInfo\"g\n\006Member\022(\n\010identity"
+    "\030\001 \002(\0132\026.bgs.protocol.Identity\0223\n\005state\030"
+    "\002 \002(\0132$.bgs.protocol.channel.v1.MemberSt"
+    "ate\"\273\001\n\014SubscriberId\0227\n\007account\030\001 \001(\0132\"."
+    "bgs.protocol.account.v1.AccountIdB\002\030\001\022@\n"
+    "\014game_account\030\002 \001(\0132*.bgs.protocol.accou"
+    "nt.v1.GameAccountHandle\022(\n\007process\030\003 \001(\013"
+    "2\027.bgs.protocol.ProcessId:\006\202\371+\002\020\001B\002H\001P\000", 1759);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "channel_types.proto", &protobuf_RegisterTypes);
   Message::default_instance_ = new Message();
@@ -319,6 +349,7 @@ void protobuf_AddDesc_channel_5ftypes_2eproto() {
   MemberAccountInfo::default_instance_ = new MemberAccountInfo();
   MemberState::default_instance_ = new MemberState();
   Member::default_instance_ = new Member();
+  SubscriberId::default_instance_ = new SubscriberId();
   Message::default_instance_->InitAsDefaultInstance();
   ListChannelsOptions::default_instance_->InitAsDefaultInstance();
   ChannelDescription::default_instance_->InitAsDefaultInstance();
@@ -327,6 +358,7 @@ void protobuf_AddDesc_channel_5ftypes_2eproto() {
   MemberAccountInfo::default_instance_->InitAsDefaultInstance();
   MemberState::default_instance_->InitAsDefaultInstance();
   Member::default_instance_->InitAsDefaultInstance();
+  SubscriberId::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_channel_5ftypes_2eproto);
 }
 
@@ -3298,6 +3330,332 @@ void Member::Swap(Member* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = Member_descriptor_;
   metadata.reflection = Member_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int SubscriberId::kAccountFieldNumber;
+const int SubscriberId::kGameAccountFieldNumber;
+const int SubscriberId::kProcessFieldNumber;
+#endif  // !_MSC_VER
+
+SubscriberId::SubscriberId()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.channel.v1.SubscriberId)
+}
+
+void SubscriberId::InitAsDefaultInstance() {
+  account_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
+  game_account_ = const_cast< ::bgs::protocol::account::v1::GameAccountHandle*>(&::bgs::protocol::account::v1::GameAccountHandle::default_instance());
+  process_ = const_cast< ::bgs::protocol::ProcessId*>(&::bgs::protocol::ProcessId::default_instance());
+}
+
+SubscriberId::SubscriberId(const SubscriberId& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.channel.v1.SubscriberId)
+}
+
+void SubscriberId::SharedCtor() {
+  _cached_size_ = 0;
+  account_ = NULL;
+  game_account_ = NULL;
+  process_ = NULL;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+SubscriberId::~SubscriberId() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.channel.v1.SubscriberId)
+  SharedDtor();
+}
+
+void SubscriberId::SharedDtor() {
+  if (this != default_instance_) {
+    delete account_;
+    delete game_account_;
+    delete process_;
+  }
+}
+
+void SubscriberId::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* SubscriberId::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return SubscriberId_descriptor_;
+}
+
+const SubscriberId& SubscriberId::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_channel_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+SubscriberId* SubscriberId::default_instance_ = NULL;
+
+SubscriberId* SubscriberId::New() const {
+  return new SubscriberId;
+}
+
+void SubscriberId::Clear() {
+  if (_has_bits_[0 / 32] & 7) {
+    if (has_account()) {
+      if (account_ != NULL) account_->::bgs::protocol::account::v1::AccountId::Clear();
+    }
+    if (has_game_account()) {
+      if (game_account_ != NULL) game_account_->::bgs::protocol::account::v1::GameAccountHandle::Clear();
+    }
+    if (has_process()) {
+      if (process_ != NULL) process_->::bgs::protocol::ProcessId::Clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool SubscriberId::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.channel.v1.SubscriberId)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional .bgs.protocol.account.v1.AccountId account = 1 [deprecated = true];
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_account()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_game_account;
+        break;
+      }
+
+      // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_game_account:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_game_account()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(26)) goto parse_process;
+        break;
+      }
+
+      // optional .bgs.protocol.ProcessId process = 3;
+      case 3: {
+        if (tag == 26) {
+         parse_process:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_process()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.channel.v1.SubscriberId)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.channel.v1.SubscriberId)
+  return false;
+#undef DO_
+}
+
+void SubscriberId::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.channel.v1.SubscriberId)
+  // optional .bgs.protocol.account.v1.AccountId account = 1 [deprecated = true];
+  if (has_account()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->account(), output);
+  }
+
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 2;
+  if (has_game_account()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->game_account(), output);
+  }
+
+  // optional .bgs.protocol.ProcessId process = 3;
+  if (has_process()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, this->process(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.channel.v1.SubscriberId)
+}
+
+::google::protobuf::uint8* SubscriberId::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.channel.v1.SubscriberId)
+  // optional .bgs.protocol.account.v1.AccountId account = 1 [deprecated = true];
+  if (has_account()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->account(), target);
+  }
+
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 2;
+  if (has_game_account()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        2, this->game_account(), target);
+  }
+
+  // optional .bgs.protocol.ProcessId process = 3;
+  if (has_process()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        3, this->process(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.channel.v1.SubscriberId)
+  return target;
+}
+
+int SubscriberId::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional .bgs.protocol.account.v1.AccountId account = 1 [deprecated = true];
+    if (has_account()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->account());
+    }
+
+    // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 2;
+    if (has_game_account()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->game_account());
+    }
+
+    // optional .bgs.protocol.ProcessId process = 3;
+    if (has_process()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->process());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void SubscriberId::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const SubscriberId* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const SubscriberId*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void SubscriberId::MergeFrom(const SubscriberId& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_account()) {
+      mutable_account()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.account());
+    }
+    if (from.has_game_account()) {
+      mutable_game_account()->::bgs::protocol::account::v1::GameAccountHandle::MergeFrom(from.game_account());
+    }
+    if (from.has_process()) {
+      mutable_process()->::bgs::protocol::ProcessId::MergeFrom(from.process());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void SubscriberId::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void SubscriberId::CopyFrom(const SubscriberId& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool SubscriberId::IsInitialized() const {
+
+  if (has_account()) {
+    if (!this->account().IsInitialized()) return false;
+  }
+  if (has_game_account()) {
+    if (!this->game_account().IsInitialized()) return false;
+  }
+  if (has_process()) {
+    if (!this->process().IsInitialized()) return false;
+  }
+  return true;
+}
+
+void SubscriberId::Swap(SubscriberId* other) {
+  if (other != this) {
+    std::swap(account_, other->account_);
+    std::swap(game_account_, other->game_account_);
+    std::swap(process_, other->process_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata SubscriberId::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = SubscriberId_descriptor_;
+  metadata.reflection = SubscriberId_reflection_;
   return metadata;
 }
 

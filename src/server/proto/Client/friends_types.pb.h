@@ -427,31 +427,12 @@ class TC_PROTO_API ReceivedInvitation : public ::google::protobuf::Message {
   inline ::std::string* release_invitee_name();
   inline void set_allocated_invitee_name(::std::string* invitee_name);
 
-  // optional string invitation_message = 6;
-  inline bool has_invitation_message() const;
-  inline void clear_invitation_message();
-  static const int kInvitationMessageFieldNumber = 6;
-  inline const ::std::string& invitation_message() const;
-  inline void set_invitation_message(const ::std::string& value);
-  inline void set_invitation_message(const char* value);
-  inline void set_invitation_message(const char* value, size_t size);
-  inline ::std::string* mutable_invitation_message();
-  inline ::std::string* release_invitation_message();
-  inline void set_allocated_invitation_message(::std::string* invitation_message);
-
   // optional uint64 creation_time = 7;
   inline bool has_creation_time() const;
   inline void clear_creation_time();
   static const int kCreationTimeFieldNumber = 7;
   inline ::google::protobuf::uint64 creation_time() const;
   inline void set_creation_time(::google::protobuf::uint64 value);
-
-  // optional uint64 expiration_time = 8;
-  inline bool has_expiration_time() const;
-  inline void clear_expiration_time();
-  static const int kExpirationTimeFieldNumber = 8;
-  inline ::google::protobuf::uint64 expiration_time() const;
-  inline void set_expiration_time(::google::protobuf::uint64 value);
 
   // optional fixed32 program = 9;
   inline bool has_program() const;
@@ -473,12 +454,8 @@ class TC_PROTO_API ReceivedInvitation : public ::google::protobuf::Message {
   inline void clear_has_inviter_name();
   inline void set_has_invitee_name();
   inline void clear_has_invitee_name();
-  inline void set_has_invitation_message();
-  inline void clear_has_invitation_message();
   inline void set_has_creation_time();
   inline void clear_has_creation_time();
-  inline void set_has_expiration_time();
-  inline void clear_has_expiration_time();
   inline void set_has_program();
   inline void clear_has_program();
 
@@ -493,9 +470,7 @@ class TC_PROTO_API ReceivedInvitation : public ::google::protobuf::Message {
   ::bgs::protocol::Identity* invitee_identity_;
   ::std::string* inviter_name_;
   ::std::string* invitee_name_;
-  ::std::string* invitation_message_;
   ::google::protobuf::uint64 creation_time_;
-  ::google::protobuf::uint64 expiration_time_;
   ::google::protobuf::uint32 program_;
   friend void TC_PROTO_API protobuf_AddDesc_friends_5ftypes_2eproto();
   friend void protobuf_AssignDesc_friends_5ftypes_2eproto();
@@ -951,26 +926,26 @@ class TC_PROTO_API SubscribeResponse : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional uint32 max_friends = 1;
-  inline bool has_max_friends() const;
-  inline void clear_max_friends();
+  // optional uint32 max_friends = 1 [deprecated = true];
+  inline bool has_max_friends() const PROTOBUF_DEPRECATED;
+  inline void clear_max_friends() PROTOBUF_DEPRECATED;
   static const int kMaxFriendsFieldNumber = 1;
-  inline ::google::protobuf::uint32 max_friends() const;
-  inline void set_max_friends(::google::protobuf::uint32 value);
+  inline ::google::protobuf::uint32 max_friends() const PROTOBUF_DEPRECATED;
+  inline void set_max_friends(::google::protobuf::uint32 value) PROTOBUF_DEPRECATED;
 
-  // optional uint32 max_received_invitations = 2;
-  inline bool has_max_received_invitations() const;
-  inline void clear_max_received_invitations();
+  // optional uint32 max_received_invitations = 2 [deprecated = true];
+  inline bool has_max_received_invitations() const PROTOBUF_DEPRECATED;
+  inline void clear_max_received_invitations() PROTOBUF_DEPRECATED;
   static const int kMaxReceivedInvitationsFieldNumber = 2;
-  inline ::google::protobuf::uint32 max_received_invitations() const;
-  inline void set_max_received_invitations(::google::protobuf::uint32 value);
+  inline ::google::protobuf::uint32 max_received_invitations() const PROTOBUF_DEPRECATED;
+  inline void set_max_received_invitations(::google::protobuf::uint32 value) PROTOBUF_DEPRECATED;
 
-  // optional uint32 max_sent_invitations = 3;
-  inline bool has_max_sent_invitations() const;
-  inline void clear_max_sent_invitations();
+  // optional uint32 max_sent_invitations = 3 [deprecated = true];
+  inline bool has_max_sent_invitations() const PROTOBUF_DEPRECATED;
+  inline void clear_max_sent_invitations() PROTOBUF_DEPRECATED;
   static const int kMaxSentInvitationsFieldNumber = 3;
-  inline ::google::protobuf::uint32 max_sent_invitations() const;
-  inline void set_max_sent_invitations(::google::protobuf::uint32 value);
+  inline ::google::protobuf::uint32 max_sent_invitations() const PROTOBUF_DEPRECATED;
+  inline void set_max_sent_invitations(::google::protobuf::uint32 value) PROTOBUF_DEPRECATED;
 
   // repeated .bgs.protocol.Role role = 4;
   inline int role_size() const;
@@ -1832,91 +1807,15 @@ inline void ReceivedInvitation::set_allocated_invitee_name(::std::string* invite
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.ReceivedInvitation.invitee_name)
 }
 
-// optional string invitation_message = 6;
-inline bool ReceivedInvitation::has_invitation_message() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
-}
-inline void ReceivedInvitation::set_has_invitation_message() {
-  _has_bits_[0] |= 0x00000020u;
-}
-inline void ReceivedInvitation::clear_has_invitation_message() {
-  _has_bits_[0] &= ~0x00000020u;
-}
-inline void ReceivedInvitation::clear_invitation_message() {
-  if (invitation_message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    invitation_message_->clear();
-  }
-  clear_has_invitation_message();
-}
-inline const ::std::string& ReceivedInvitation::invitation_message() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.ReceivedInvitation.invitation_message)
-  return *invitation_message_;
-}
-inline void ReceivedInvitation::set_invitation_message(const ::std::string& value) {
-  set_has_invitation_message();
-  if (invitation_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    invitation_message_ = new ::std::string;
-  }
-  invitation_message_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.ReceivedInvitation.invitation_message)
-}
-inline void ReceivedInvitation::set_invitation_message(const char* value) {
-  set_has_invitation_message();
-  if (invitation_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    invitation_message_ = new ::std::string;
-  }
-  invitation_message_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.friends.v1.ReceivedInvitation.invitation_message)
-}
-inline void ReceivedInvitation::set_invitation_message(const char* value, size_t size) {
-  set_has_invitation_message();
-  if (invitation_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    invitation_message_ = new ::std::string;
-  }
-  invitation_message_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.friends.v1.ReceivedInvitation.invitation_message)
-}
-inline ::std::string* ReceivedInvitation::mutable_invitation_message() {
-  set_has_invitation_message();
-  if (invitation_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    invitation_message_ = new ::std::string;
-  }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.friends.v1.ReceivedInvitation.invitation_message)
-  return invitation_message_;
-}
-inline ::std::string* ReceivedInvitation::release_invitation_message() {
-  clear_has_invitation_message();
-  if (invitation_message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    return NULL;
-  } else {
-    ::std::string* temp = invitation_message_;
-    invitation_message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-    return temp;
-  }
-}
-inline void ReceivedInvitation::set_allocated_invitation_message(::std::string* invitation_message) {
-  if (invitation_message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete invitation_message_;
-  }
-  if (invitation_message) {
-    set_has_invitation_message();
-    invitation_message_ = invitation_message;
-  } else {
-    clear_has_invitation_message();
-    invitation_message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.friends.v1.ReceivedInvitation.invitation_message)
-}
-
 // optional uint64 creation_time = 7;
 inline bool ReceivedInvitation::has_creation_time() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
+  return (_has_bits_[0] & 0x00000020u) != 0;
 }
 inline void ReceivedInvitation::set_has_creation_time() {
-  _has_bits_[0] |= 0x00000040u;
+  _has_bits_[0] |= 0x00000020u;
 }
 inline void ReceivedInvitation::clear_has_creation_time() {
-  _has_bits_[0] &= ~0x00000040u;
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void ReceivedInvitation::clear_creation_time() {
   creation_time_ = GOOGLE_ULONGLONG(0);
@@ -1932,39 +1831,15 @@ inline void ReceivedInvitation::set_creation_time(::google::protobuf::uint64 val
   // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.ReceivedInvitation.creation_time)
 }
 
-// optional uint64 expiration_time = 8;
-inline bool ReceivedInvitation::has_expiration_time() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
-}
-inline void ReceivedInvitation::set_has_expiration_time() {
-  _has_bits_[0] |= 0x00000080u;
-}
-inline void ReceivedInvitation::clear_has_expiration_time() {
-  _has_bits_[0] &= ~0x00000080u;
-}
-inline void ReceivedInvitation::clear_expiration_time() {
-  expiration_time_ = GOOGLE_ULONGLONG(0);
-  clear_has_expiration_time();
-}
-inline ::google::protobuf::uint64 ReceivedInvitation::expiration_time() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.friends.v1.ReceivedInvitation.expiration_time)
-  return expiration_time_;
-}
-inline void ReceivedInvitation::set_expiration_time(::google::protobuf::uint64 value) {
-  set_has_expiration_time();
-  expiration_time_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.ReceivedInvitation.expiration_time)
-}
-
 // optional fixed32 program = 9;
 inline bool ReceivedInvitation::has_program() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
+  return (_has_bits_[0] & 0x00000040u) != 0;
 }
 inline void ReceivedInvitation::set_has_program() {
-  _has_bits_[0] |= 0x00000100u;
+  _has_bits_[0] |= 0x00000040u;
 }
 inline void ReceivedInvitation::clear_has_program() {
-  _has_bits_[0] &= ~0x00000100u;
+  _has_bits_[0] &= ~0x00000040u;
 }
 inline void ReceivedInvitation::clear_program() {
   program_ = 0u;
@@ -2570,7 +2445,7 @@ inline void FriendInvitationParams::set_program(::google::protobuf::uint32 value
 
 // SubscribeResponse
 
-// optional uint32 max_friends = 1;
+// optional uint32 max_friends = 1 [deprecated = true];
 inline bool SubscribeResponse::has_max_friends() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -2594,7 +2469,7 @@ inline void SubscribeResponse::set_max_friends(::google::protobuf::uint32 value)
   // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SubscribeResponse.max_friends)
 }
 
-// optional uint32 max_received_invitations = 2;
+// optional uint32 max_received_invitations = 2 [deprecated = true];
 inline bool SubscribeResponse::has_max_received_invitations() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -2618,7 +2493,7 @@ inline void SubscribeResponse::set_max_received_invitations(::google::protobuf::
   // @@protoc_insertion_point(field_set:bgs.protocol.friends.v1.SubscribeResponse.max_received_invitations)
 }
 
-// optional uint32 max_sent_invitations = 3;
+// optional uint32 max_sent_invitations = 3 [deprecated = true];
 inline bool SubscribeResponse::has_max_sent_invitations() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
