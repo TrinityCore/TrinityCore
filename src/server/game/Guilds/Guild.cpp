@@ -1417,7 +1417,7 @@ void Guild::SendGuildRankInfo(WorldSession* session) const
     TC_LOG_DEBUG("guild", "SMSG_GUILD_RANK [%s]", session->GetPlayerInfo().c_str());
 }
 
-void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& achievementIds)
+void Guild::HandleSetAchievementTracking(WorldSession* session, uint32 const* achievementIdsBegin, uint32 const* achievementIdsEnd)
 {
     Player* player = session->GetPlayer();
 
@@ -1425,10 +1425,14 @@ void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32>
     {
         std::set<uint32> criteriaIds;
 
-        for (uint32 achievementId : achievementIds)
+        for (uint32 const* achievementIdItr = achievementIdsBegin; achievementIdItr != achievementIdsEnd; ++achievementIdItr)
         {
+            uint32 achievementId = *achievementIdItr;
             if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId))
             {
+                if (!(achievement->Flags & ACHIEVEMENT_FLAG_GUILD) || m_achievementMgr.HasAchieved(achievementId))
+                    continue;
+
                 if (CriteriaTree const* tree = sCriteriaMgr->GetCriteriaTree(achievement->CriteriaTree))
                 {
                     CriteriaMgr::WalkCriteriaTree(tree, [&criteriaIds](CriteriaTree const* node)
@@ -1440,7 +1444,7 @@ void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32>
             }
         }
 
-        member->SetTrackedCriteriaIds(criteriaIds);
+        member->SetTrackedCriteriaIds(std::move(criteriaIds));
         m_achievementMgr.SendAllTrackedCriterias(player, member->GetTrackedCriteriaIds());
     }
 }
