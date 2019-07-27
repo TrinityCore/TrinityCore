@@ -95,7 +95,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
 void Corpse::SaveToDB()
 {
     // prevent DB data inconsistence problems and duplicates
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     DeleteFromDB(trans);
 
     uint16 index = 0;
@@ -122,12 +122,12 @@ void Corpse::SaveToDB()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Corpse::DeleteFromDB(SQLTransaction& trans)
+void Corpse::DeleteFromDB(CharacterDatabaseTransaction& trans)
 {
     DeleteFromDB(GetOwnerGUID(), trans);
 }
 
-void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans)
+void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
     stmt->setUInt32(0, ownerGuid.GetCounter());

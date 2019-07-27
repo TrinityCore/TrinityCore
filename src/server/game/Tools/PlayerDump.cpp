@@ -820,7 +820,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     // for logs
     size_t lineNumber = 0;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     while (!feof(fin.get()))
     {
         if (!fgets(buf, BUFFER_SIZE, fin.get()))

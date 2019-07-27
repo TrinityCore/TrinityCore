@@ -3026,7 +3026,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
     return true;
 }
 
-void Map::Respawn(RespawnInfo* info, SQLTransaction dbTrans)
+void Map::Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans)
 {
     info->respawnTime = GameTime::GetGameTime();
     SaveRespawnInfoDB(*info, dbTrans);
@@ -3120,7 +3120,7 @@ void Map::UnloadAllRespawnInfos() // delete everything from memory
     _gameObjectRespawnTimesBySpawnId.clear();
 }
 
-void Map::DeleteRespawnInfo(RespawnInfo* info, SQLTransaction dbTrans)
+void Map::DeleteRespawnInfo(RespawnInfo* info, CharacterDatabaseTransaction dbTrans)
 {
     // Delete from all relevant containers to ensure consistency
     ASSERT(info);
@@ -4303,7 +4303,7 @@ void Map::UpdateIteratorBack(Player* player)
         m_mapRefIter = m_mapRefIter->nocheck_prev();
 }
 
-void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 gridId, SQLTransaction dbTrans, bool startup)
+void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 gridId, CharacterDatabaseTransaction dbTrans, bool startup)
 {
     SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(type, spawnId);
     if (!data)
@@ -4336,7 +4336,7 @@ void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uin
         SaveRespawnInfoDB(ri, dbTrans);
 }
 
-void Map::SaveRespawnInfoDB(RespawnInfo const& info, SQLTransaction dbTrans)
+void Map::SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransaction dbTrans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_RESPAWN);
     stmt->setUInt16(0, info.type);
@@ -4486,7 +4486,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
     RemoveCorpse(corpse);
 
     // remove corpse from DB
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     corpse->DeleteFromDB(trans);
     CharacterDatabase.CommitTransaction(trans);
 

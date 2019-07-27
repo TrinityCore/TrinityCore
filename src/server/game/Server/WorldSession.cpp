@@ -845,7 +845,7 @@ void WorldSession::SendTutorialsData()
     SendPacket(&data);
 }
 
-void WorldSession::SaveTutorialsData(SQLTransaction &trans)
+void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction &trans)
 {
     if (!(m_TutorialsChanged & TUTORIALS_FLAG_CHANGED))
         return;

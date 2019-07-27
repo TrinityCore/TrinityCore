@@ -857,7 +857,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
     }
     else
     {
-        SQLTransaction trans(nullptr);
+        CharacterDatabaseTransaction trans(nullptr);
         Player::OfflineResurrect(guid, trans);
     }
 

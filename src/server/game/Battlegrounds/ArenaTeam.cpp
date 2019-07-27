@@ -386,7 +386,7 @@ void ArenaTeam::Disband(WorldSession* session)
     }
 
     // Update database
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARENA_TEAM);
     stmt->setUInt32(0, TeamId);
@@ -409,7 +409,7 @@ void ArenaTeam::Disband()
         DelMember(Members.front().Guid, false);
 
     // Update database
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ARENA_TEAM);
     stmt->setUInt32(0, TeamId);
@@ -914,7 +914,7 @@ void ArenaTeam::SaveToDB()
     // Save team and member stats to db
     // Called after a match has ended or when calculating arena_points
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_STATS);
     stmt->setUInt16(0, Stats.Rating);

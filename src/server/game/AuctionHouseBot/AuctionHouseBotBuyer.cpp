@@ -391,7 +391,7 @@ void AuctionBotBuyer::BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctio
 {
     TC_LOG_DEBUG("ahbot", "AHBot: Entry %u bought at %.2fg", auction->Id, float(auction->buyout) / GOLD);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Send mail to previous bidder if any
     if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))
@@ -422,7 +422,7 @@ void AuctionBotBuyer::PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice)
 {
     TC_LOG_DEBUG("ahbot", "AHBot: Bid placed to entry %u, %.2fg", auction->Id, float(bidPrice) / GOLD);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Send mail to previous bidder if any
     if (auction->bidder && !sAuctionBotConfig->IsBotChar(auction->bidder))

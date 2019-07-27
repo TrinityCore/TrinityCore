@@ -282,7 +282,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     // PET_SAVE_NOT_IN_SLOT(100) = not stable slot (summoning))
     if (fields[7].GetUInt8())
     {
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
         stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
@@ -410,7 +410,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
     uint32 curhealth = GetHealth();
     uint32 curmana = GetPower(POWER_MANA);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     // save auras before possibly removing them
     _SaveAuras(trans);
 
@@ -486,7 +486,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
 void Pet::DeleteFromDB(ObjectGuid::LowType guidlow)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_ID);
     stmt->setUInt32(0, guidlow);
@@ -1136,7 +1136,7 @@ void Pet::_LoadSpells()
     }
 }
 
-void Pet::_SaveSpells(SQLTransaction& trans)
+void Pet::_SaveSpells(CharacterDatabaseTransaction& trans)
 {
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
@@ -1266,7 +1266,7 @@ void Pet::_LoadAuras(uint32 timediff)
     }
 }
 
-void Pet::_SaveAuras(SQLTransaction& trans)
+void Pet::_SaveAuras(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_AURAS);
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());
