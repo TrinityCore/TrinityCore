@@ -59,7 +59,7 @@
 #include "WorldPacket.h"
 #include "boost/asio/ip/address.hpp"
 
-class LoginQueryHolder : public SQLQueryHolder
+class LoginQueryHolder : public CharacterDatabaseQueryHolder
 {
     private:
         uint32 m_accountId;
