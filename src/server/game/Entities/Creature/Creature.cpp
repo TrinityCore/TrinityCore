@@ -629,6 +629,21 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     return true;
 }
 
+void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
+{
+    if (newPhaseMask == GetPhaseMask())
+        return;
+
+    Unit::SetPhaseMask(newPhaseMask, update);
+
+    if (Vehicle* vehicle = GetVehicleKit())
+    {
+        for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); seat++)
+            if (Unit* passenger = ObjectAccessor::GetUnit(*this, seat->second.Passenger.Guid))
+                passenger->SetPhaseMask(newPhaseMask, update);
+    }
+}
+
 void Creature::Update(uint32 diff)
 {
     if (IsAIEnabled() && m_triggerJustAppeared && m_deathState != DEAD)
