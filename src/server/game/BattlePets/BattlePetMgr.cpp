@@ -239,7 +239,7 @@ void BattlePetMgr::LoadFromDB(PreparedQueryResult pets, PreparedQueryResult slot
 
 void BattlePetMgr::SaveToDB(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = nullptr;
+    LoginDatabasePreparedStatement* stmt = nullptr;
 
     for (auto itr = _pets.begin(); itr != _pets.end();)
     {
