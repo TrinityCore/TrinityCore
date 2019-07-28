@@ -48,6 +48,14 @@ namespace WorldPackets
             uint8 Index = 0;
         };
 
+        struct AzeriteEssenceData
+        {
+            uint32 Index = 0;
+            uint32 AzeriteEssenceID = 0;
+            uint32 Rank = 0;
+            bool SlotUnlocked = false;
+        };
+
         struct InspectItemData
         {
             InspectItemData(::Item const* item, uint8 index);
@@ -59,6 +67,7 @@ namespace WorldPackets
             std::vector<InspectEnchantData> Enchants;
             std::vector<Item::ItemGemData> Gems;
             std::vector<int32> AzeritePowers;
+            std::vector<AzeriteEssenceData> AzeriteEssences;
         };
 
         struct PlayerModelDisplayInfo
