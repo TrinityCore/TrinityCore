@@ -95,6 +95,7 @@ enum DeathKnightSpells
     SPELL_DK_SCENT_OF_BLOOD                     = 50422,
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
     SPELL_DK_SHADOW_INFUSION                    = 91342,
+    SPELL_DK_UNHOLY_BLIGHT_PERIODIC             = 50536,
     SPELL_DK_UNHOLY_PRESENCE                    = 48265,
     SPELL_DK_PESTILENCE_REDUCED_DOTS            = 76243,
     SPELL_DK_PESTILENCE_VISUAL                  = 91939,
@@ -1810,6 +1811,29 @@ class spell_dk_ghoul_taunt : public SpellScript
     }
 };
 
+// 49194 - Unholy Blight
+class spell_dk_unoly_blight : public AuraScript
+{
+    PrepareAuraScript(spell_dk_unoly_blight);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_UNHOLY_BLIGHT_PERIODIC });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 1);
+        GetTarget()->CastCustomSpell(SPELL_DK_UNHOLY_BLIGHT_PERIODIC, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dk_unoly_blight::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterAuraScript(spell_dk_anti_magic_shell);
@@ -1854,6 +1878,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterAuraScript(spell_dk_shadow_infusion);
     RegisterSpellScript(spell_dk_scourge_strike);
     RegisterAuraScript(spell_dk_threat_of_thassarian);
+    RegisterAuraScript(spell_dk_unoly_blight);
     RegisterAuraScript(spell_dk_unholy_command);
     RegisterAuraScript(spell_dk_vampiric_blood);
     RegisterAuraScript(spell_dk_will_of_the_necropolis);
