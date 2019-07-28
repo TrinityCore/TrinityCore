@@ -188,7 +188,7 @@ void ThreatManager::Initialize()
 
 void ThreatManager::Update(uint32 tdiff)
 {
-    if (!CanHaveThreatList() || IsThreatListEmpty())
+    if (!CanHaveThreatList() || IsThreatListEmpty(true))
         return;
     if (_updateTimer <= tdiff)
     {
