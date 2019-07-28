@@ -1656,26 +1656,18 @@ void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 m
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
         return;
 
-    // prepare spirit state
     if (apply)
     {
-        if (target->GetTypeId() == TYPEID_PLAYER)
-        {
-            // set stand state (expected in this form)
-            if (!target->IsStandState())
-                target->SetStandState(UNIT_STAND_STATE_STAND);
-        }
-
-        target->SetHealth(1);
+        target->RemoveAllAurasOnDeath();
+        target->CastSpell(target, SPELL_UNTRANSFORM_HERO, true);
+        target->CastSpell(target, SPELL_SPIRIT_OF_REDEMPTION_IMMUNITY, true);
+        target->SetFullHealth();
     }
-    // die at aura end
-    else if (target->IsAlive())
-        // call functions which may have additional effects after chainging state of unit
+    else
         target->setDeathState(JUST_DIED);
 }
 

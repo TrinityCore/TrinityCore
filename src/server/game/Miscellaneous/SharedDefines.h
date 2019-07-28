@@ -325,6 +325,12 @@ enum WorgenRacialSpells
     SPELL_ALTERED_FORM_RACIAL       = 97709
 };
 
+enum SpiritOfRedemptionSpells
+{
+    SPELL_SPIRIT_OF_REDEMPTION_IMMUNITY = 62371,
+    SPELL_UNTRANSFORM_HERO              = 25100
+};
+
 const uint32 ItemQualityColors[MAX_ITEM_QUALITY] =
 {
     0xff9d9d9d,        //GREY

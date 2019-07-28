@@ -86,6 +86,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION_TRIGGERED     = 27827,
     SPELL_PRIEST_STRENGTH_OF_SOUL_R1                = 89488,
     SPELL_PRIEST_STRENGTH_OF_SOUL_TRIGGERED_R1      = 96266,
     SPELL_PRIEST_STRENGTH_OF_SOUL_TRIGGERED_R2      = 96267,
@@ -1587,6 +1588,39 @@ class spell_pri_atonement_heal : public SpellScript
     }
 };
 
+class spell_pri_spirit_of_redemption : public AuraScript
+{
+    PrepareAuraScript(spell_pri_spirit_of_redemption);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION_TRIGGERED });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        amount = -1;
+    }
+
+    void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        Unit* target = GetTarget();
+        uint32 damage = dmgInfo.GetDamage();
+
+        if (damage >= target->GetHealth() && target->GetAuraEffectsByType(SPELL_AURA_SPIRIT_OF_REDEMPTION).empty())
+        {
+            absorbAmount = damage;
+            target->CastSpell(target, SPELL_PRIEST_SPIRIT_OF_REDEMPTION_TRIGGERED, true, nullptr, aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_spirit_of_redemption::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_spirit_of_redemption::Absorb, EFFECT_0);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_archangel);
@@ -1625,6 +1659,7 @@ void AddSC_priest_spell_scripts()
     RegisterAuraScript(spell_pri_shadow_orb_power);
     RegisterAuraScript(spell_pri_strength_of_soul);
     RegisterSpellScript(spell_pri_strength_of_soul_script);
+    RegisterAuraScript(spell_pri_spirit_of_redemption);
     RegisterAuraScript(spell_pri_renew);
     RegisterSpellScript(spell_pri_shadow_word_death);
     RegisterAuraScript(spell_pri_shadowform);
