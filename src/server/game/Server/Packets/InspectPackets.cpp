@@ -32,12 +32,23 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectEnchantDa
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::AzeriteEssenceData const& azeriteEssenceData)
+{
+    data << uint32(azeriteEssenceData.Index);
+    data << uint32(azeriteEssenceData.AzeriteEssenceID);
+    data << uint32(azeriteEssenceData.Rank);
+    data.WriteBit(azeriteEssenceData.SlotUnlocked);
+    data.FlushBits();
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectItemData const& itemData)
 {
     data << itemData.CreatorGUID;
     data << uint8(itemData.Index);
     data << uint32(itemData.AzeritePowers.size());
-    data << uint32(itemData.Essences.size());
+    data << uint32(itemData.AzeriteEssences.size());
 
     if (!itemData.AzeritePowers.empty())
         data.append(itemData.AzeritePowers.data(), itemData.AzeritePowers.size());
@@ -48,14 +59,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectItemData 
     data.WriteBits(itemData.Gems.size(), 2);
     data.FlushBits();
 
-    for (size_t i = 0; i < itemData.Enchants.size(); ++i)
-        data << itemData.Enchants[i];
+    for (WorldPackets::Inspect::AzeriteEssenceData const& azeriteEssenceData : itemData.AzeriteEssences)
+        data << azeriteEssenceData;
 
-    for (auto const& gem : itemData.Gems)
+    for (WorldPackets::Inspect::InspectEnchantData const& enchantData : itemData.Enchants)
+        data << enchantData;
+
+    for (WorldPackets::Item::ItemGemData const& gem : itemData.Gems)
         data << gem;
-
-    if (!itemData.Essences.empty())
-        data.append(itemData.Essences.data(), itemData.Essences.size());
 
     return data;
 }
