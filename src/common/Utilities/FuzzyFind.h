@@ -18,6 +18,10 @@
 #ifndef TRINITY_FUZZYFIND_H
 #define TRINITY_FUZZYFIND_H
 
+#include "advstd.h"
+#include <map>
+#include <string>
+
 namespace Trinity
 {
     namespace Containers
