@@ -48,6 +48,14 @@ namespace WorldPackets
             uint8 Index = 0;
         };
 
+        struct InspectEssenceData
+        {
+            uint32 Index = 0;
+            uint32 EssenceId = 0;
+            uint32 EssenceLevel = 0;
+            uint8 Unk820 = 0;
+        }
+
         struct InspectItemData
         {
             InspectItemData(::Item const* item, uint8 index);
@@ -59,6 +67,7 @@ namespace WorldPackets
             std::vector<InspectEnchantData> Enchants;
             std::vector<Item::ItemGemData> Gems;
             std::vector<int32> AzeritePowers;
+            std::vector<InspectEssenceData> Essences;
         };
 
         struct PlayerModelDisplayInfo

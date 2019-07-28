@@ -37,6 +37,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectItemData 
     data << itemData.CreatorGUID;
     data << uint8(itemData.Index);
     data << uint32(itemData.AzeritePowers.size());
+    data << uint32(itemData.Essences.size());
+
     if (!itemData.AzeritePowers.empty())
         data.append(itemData.AzeritePowers.data(), itemData.AzeritePowers.size());
 
@@ -46,11 +48,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectItemData 
     data.WriteBits(itemData.Gems.size(), 2);
     data.FlushBits();
 
+    for (size_t i = 0; i < itemData.Enchants.size(); ++i)
+        data << itemData.Enchants[i];
+
     for (auto const& gem : itemData.Gems)
         data << gem;
 
-    for (size_t i = 0; i < itemData.Enchants.size(); ++i)
-        data << itemData.Enchants[i];
+    if (!itemData.Essences.empty())
+        data.append(itemData.Essences.data(), itemData.Essences.size());
 
     return data;
 }
