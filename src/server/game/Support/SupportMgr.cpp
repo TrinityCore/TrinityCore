@@ -225,7 +225,7 @@ void ComplaintTicket::LoadChatLineFromDB(Field* fields)
 
 void ComplaintTicket::SaveToDB() const
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     uint8 idx = 0;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_COMPLAINT);
@@ -718,7 +718,7 @@ TC_GAME_API void SupportMgr::ResetTickets<ComplaintTicket>()
 
     _lastComplaintId = 0;
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     trans->Append(CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GM_COMPLAINTS));
     trans->Append(CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GM_COMPLAINT_CHATLOGS));
     CharacterDatabase.CommitTransaction(trans);

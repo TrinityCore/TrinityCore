@@ -115,15 +115,6 @@ class TC_PROTO_API ClubAddedNotification : public ::google::protobuf::Message {
   inline ::bgs::protocol::club::v1::MemberId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::club::v1::MemberId* agent_id);
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  inline bool has_subscriber_id() const;
-  inline void clear_subscriber_id();
-  static const int kSubscriberIdFieldNumber = 2;
-  inline const ::bgs::protocol::account::v1::AccountId& subscriber_id() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_subscriber_id();
-  inline ::bgs::protocol::account::v1::AccountId* release_subscriber_id();
-  inline void set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id);
-
   // optional .bgs.protocol.club.v1.ClubMembershipDescription membership = 3;
   inline bool has_membership() const;
   inline void clear_membership();
@@ -137,8 +128,6 @@ class TC_PROTO_API ClubAddedNotification : public ::google::protobuf::Message {
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
-  inline void set_has_subscriber_id();
-  inline void clear_has_subscriber_id();
   inline void set_has_membership();
   inline void clear_has_membership();
 
@@ -147,7 +136,6 @@ class TC_PROTO_API ClubAddedNotification : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::club::v1::MemberId* agent_id_;
-  ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::bgs::protocol::club::v1::ClubMembershipDescription* membership_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   friend void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto();
@@ -220,15 +208,6 @@ class TC_PROTO_API ClubRemovedNotification : public ::google::protobuf::Message 
   inline ::bgs::protocol::club::v1::MemberId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::club::v1::MemberId* agent_id);
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  inline bool has_subscriber_id() const;
-  inline void clear_subscriber_id();
-  static const int kSubscriberIdFieldNumber = 2;
-  inline const ::bgs::protocol::account::v1::AccountId& subscriber_id() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_subscriber_id();
-  inline ::bgs::protocol::account::v1::AccountId* release_subscriber_id();
-  inline void set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id);
-
   // optional .bgs.protocol.club.v1.MemberId member_id = 3;
   inline bool has_member_id() const;
   inline void clear_member_id();
@@ -256,8 +235,6 @@ class TC_PROTO_API ClubRemovedNotification : public ::google::protobuf::Message 
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
-  inline void set_has_subscriber_id();
-  inline void clear_has_subscriber_id();
   inline void set_has_member_id();
   inline void clear_has_member_id();
   inline void set_has_club_id();
@@ -270,7 +247,6 @@ class TC_PROTO_API ClubRemovedNotification : public ::google::protobuf::Message 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::club::v1::MemberId* agent_id_;
-  ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::bgs::protocol::club::v1::MemberId* member_id_;
   ::google::protobuf::uint64 club_id_;
   int reason_;
@@ -345,15 +321,6 @@ class TC_PROTO_API ReceivedInvitationAddedNotification : public ::google::protob
   inline ::bgs::protocol::club::v1::MemberId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::club::v1::MemberId* agent_id);
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  inline bool has_subscriber_id() const;
-  inline void clear_subscriber_id();
-  static const int kSubscriberIdFieldNumber = 2;
-  inline const ::bgs::protocol::account::v1::AccountId& subscriber_id() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_subscriber_id();
-  inline ::bgs::protocol::account::v1::AccountId* release_subscriber_id();
-  inline void set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id);
-
   // optional .bgs.protocol.club.v1.ClubInvitation invitation = 3;
   inline bool has_invitation() const;
   inline void clear_invitation();
@@ -367,8 +334,6 @@ class TC_PROTO_API ReceivedInvitationAddedNotification : public ::google::protob
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
-  inline void set_has_subscriber_id();
-  inline void clear_has_subscriber_id();
   inline void set_has_invitation();
   inline void clear_has_invitation();
 
@@ -377,7 +342,6 @@ class TC_PROTO_API ReceivedInvitationAddedNotification : public ::google::protob
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::club::v1::MemberId* agent_id_;
-  ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::bgs::protocol::club::v1::ClubInvitation* invitation_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   friend void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto();
@@ -450,15 +414,6 @@ class TC_PROTO_API ReceivedInvitationRemovedNotification : public ::google::prot
   inline ::bgs::protocol::club::v1::MemberId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::club::v1::MemberId* agent_id);
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  inline bool has_subscriber_id() const;
-  inline void clear_subscriber_id();
-  static const int kSubscriberIdFieldNumber = 2;
-  inline const ::bgs::protocol::account::v1::AccountId& subscriber_id() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_subscriber_id();
-  inline ::bgs::protocol::account::v1::AccountId* release_subscriber_id();
-  inline void set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id);
-
   // optional fixed64 invitation_id = 3;
   inline bool has_invitation_id() const;
   inline void clear_invitation_id();
@@ -477,8 +432,6 @@ class TC_PROTO_API ReceivedInvitationRemovedNotification : public ::google::prot
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
-  inline void set_has_subscriber_id();
-  inline void clear_has_subscriber_id();
   inline void set_has_invitation_id();
   inline void clear_has_invitation_id();
   inline void set_has_reason();
@@ -489,7 +442,6 @@ class TC_PROTO_API ReceivedInvitationRemovedNotification : public ::google::prot
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::club::v1::MemberId* agent_id_;
-  ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::google::protobuf::uint64 invitation_id_;
   int reason_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
@@ -563,15 +515,6 @@ class TC_PROTO_API SharedSettingsChangedNotification : public ::google::protobuf
   inline ::bgs::protocol::account::v1::AccountId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::account::v1::AccountId* agent_id);
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  inline bool has_subscriber_id() const;
-  inline void clear_subscriber_id();
-  static const int kSubscriberIdFieldNumber = 2;
-  inline const ::bgs::protocol::account::v1::AccountId& subscriber_id() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_subscriber_id();
-  inline ::bgs::protocol::account::v1::AccountId* release_subscriber_id();
-  inline void set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id);
-
   // optional .bgs.protocol.club.v1.ClubSharedSettingsAssignment assignment = 4;
   inline bool has_assignment() const;
   inline void clear_assignment();
@@ -585,8 +528,6 @@ class TC_PROTO_API SharedSettingsChangedNotification : public ::google::protobuf
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
-  inline void set_has_subscriber_id();
-  inline void clear_has_subscriber_id();
   inline void set_has_assignment();
   inline void clear_has_assignment();
 
@@ -595,7 +536,6 @@ class TC_PROTO_API SharedSettingsChangedNotification : public ::google::protobuf
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* agent_id_;
-  ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::bgs::protocol::club::v1::ClubSharedSettingsAssignment* assignment_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   friend void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto();
@@ -668,15 +608,6 @@ class TC_PROTO_API StreamMentionAddedNotification : public ::google::protobuf::M
   inline ::bgs::protocol::club::v1::MemberId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::club::v1::MemberId* agent_id);
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  inline bool has_subscriber_id() const;
-  inline void clear_subscriber_id();
-  static const int kSubscriberIdFieldNumber = 2;
-  inline const ::bgs::protocol::account::v1::AccountId& subscriber_id() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_subscriber_id();
-  inline ::bgs::protocol::account::v1::AccountId* release_subscriber_id();
-  inline void set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id);
-
   // optional .bgs.protocol.club.v1.StreamMention mention = 3;
   inline bool has_mention() const;
   inline void clear_mention();
@@ -690,8 +621,6 @@ class TC_PROTO_API StreamMentionAddedNotification : public ::google::protobuf::M
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
-  inline void set_has_subscriber_id();
-  inline void clear_has_subscriber_id();
   inline void set_has_mention();
   inline void clear_has_mention();
 
@@ -700,7 +629,6 @@ class TC_PROTO_API StreamMentionAddedNotification : public ::google::protobuf::M
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::club::v1::MemberId* agent_id_;
-  ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::bgs::protocol::club::v1::StreamMention* mention_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   friend void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto();
@@ -773,15 +701,6 @@ class TC_PROTO_API StreamMentionRemovedNotification : public ::google::protobuf:
   inline ::bgs::protocol::account::v1::AccountId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::account::v1::AccountId* agent_id);
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  inline bool has_subscriber_id() const;
-  inline void clear_subscriber_id();
-  static const int kSubscriberIdFieldNumber = 2;
-  inline const ::bgs::protocol::account::v1::AccountId& subscriber_id() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_subscriber_id();
-  inline ::bgs::protocol::account::v1::AccountId* release_subscriber_id();
-  inline void set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id);
-
   // optional .bgs.protocol.TimeSeriesId mention_id = 3;
   inline bool has_mention_id() const;
   inline void clear_mention_id();
@@ -795,8 +714,6 @@ class TC_PROTO_API StreamMentionRemovedNotification : public ::google::protobuf:
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
-  inline void set_has_subscriber_id();
-  inline void clear_has_subscriber_id();
   inline void set_has_mention_id();
   inline void clear_has_mention_id();
 
@@ -805,7 +722,6 @@ class TC_PROTO_API StreamMentionRemovedNotification : public ::google::protobuf:
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* agent_id_;
-  ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::bgs::protocol::TimeSeriesId* mention_id_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   friend void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto();
@@ -878,15 +794,6 @@ class TC_PROTO_API StreamMentionAdvanceViewTimeNotification : public ::google::p
   inline ::bgs::protocol::account::v1::AccountId* release_agent_id();
   inline void set_allocated_agent_id(::bgs::protocol::account::v1::AccountId* agent_id);
 
-  // optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-  inline bool has_subscriber_id() const;
-  inline void clear_subscriber_id();
-  static const int kSubscriberIdFieldNumber = 2;
-  inline const ::bgs::protocol::account::v1::AccountId& subscriber_id() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_subscriber_id();
-  inline ::bgs::protocol::account::v1::AccountId* release_subscriber_id();
-  inline void set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id);
-
   // optional uint64 view_time = 3;
   inline bool has_view_time() const;
   inline void clear_view_time();
@@ -898,8 +805,6 @@ class TC_PROTO_API StreamMentionAdvanceViewTimeNotification : public ::google::p
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
-  inline void set_has_subscriber_id();
-  inline void clear_has_subscriber_id();
   inline void set_has_view_time();
   inline void clear_has_view_time();
 
@@ -908,7 +813,6 @@ class TC_PROTO_API StreamMentionAdvanceViewTimeNotification : public ::google::p
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* agent_id_;
-  ::bgs::protocol::account::v1::AccountId* subscriber_id_;
   ::google::protobuf::uint64 view_time_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5flistener_2eproto();
   friend void protobuf_AssignDesc_club_5fmembership_5flistener_2eproto();
@@ -1009,56 +913,15 @@ inline void ClubAddedNotification::set_allocated_agent_id(::bgs::protocol::club:
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.ClubAddedNotification.agent_id)
 }
 
-// optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-inline bool ClubAddedNotification::has_subscriber_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void ClubAddedNotification::set_has_subscriber_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void ClubAddedNotification::clear_has_subscriber_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void ClubAddedNotification::clear_subscriber_id() {
-  if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_subscriber_id();
-}
-inline const ::bgs::protocol::account::v1::AccountId& ClubAddedNotification::subscriber_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.ClubAddedNotification.subscriber_id)
-  return subscriber_id_ != NULL ? *subscriber_id_ : *default_instance_->subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* ClubAddedNotification::mutable_subscriber_id() {
-  set_has_subscriber_id();
-  if (subscriber_id_ == NULL) subscriber_id_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.ClubAddedNotification.subscriber_id)
-  return subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* ClubAddedNotification::release_subscriber_id() {
-  clear_has_subscriber_id();
-  ::bgs::protocol::account::v1::AccountId* temp = subscriber_id_;
-  subscriber_id_ = NULL;
-  return temp;
-}
-inline void ClubAddedNotification::set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id) {
-  delete subscriber_id_;
-  subscriber_id_ = subscriber_id;
-  if (subscriber_id) {
-    set_has_subscriber_id();
-  } else {
-    clear_has_subscriber_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.ClubAddedNotification.subscriber_id)
-}
-
 // optional .bgs.protocol.club.v1.ClubMembershipDescription membership = 3;
 inline bool ClubAddedNotification::has_membership() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void ClubAddedNotification::set_has_membership() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void ClubAddedNotification::clear_has_membership() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void ClubAddedNotification::clear_membership() {
   if (membership_ != NULL) membership_->::bgs::protocol::club::v1::ClubMembershipDescription::Clear();
@@ -1136,56 +999,15 @@ inline void ClubRemovedNotification::set_allocated_agent_id(::bgs::protocol::clu
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.ClubRemovedNotification.agent_id)
 }
 
-// optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-inline bool ClubRemovedNotification::has_subscriber_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void ClubRemovedNotification::set_has_subscriber_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void ClubRemovedNotification::clear_has_subscriber_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void ClubRemovedNotification::clear_subscriber_id() {
-  if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_subscriber_id();
-}
-inline const ::bgs::protocol::account::v1::AccountId& ClubRemovedNotification::subscriber_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.ClubRemovedNotification.subscriber_id)
-  return subscriber_id_ != NULL ? *subscriber_id_ : *default_instance_->subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* ClubRemovedNotification::mutable_subscriber_id() {
-  set_has_subscriber_id();
-  if (subscriber_id_ == NULL) subscriber_id_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.ClubRemovedNotification.subscriber_id)
-  return subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* ClubRemovedNotification::release_subscriber_id() {
-  clear_has_subscriber_id();
-  ::bgs::protocol::account::v1::AccountId* temp = subscriber_id_;
-  subscriber_id_ = NULL;
-  return temp;
-}
-inline void ClubRemovedNotification::set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id) {
-  delete subscriber_id_;
-  subscriber_id_ = subscriber_id;
-  if (subscriber_id) {
-    set_has_subscriber_id();
-  } else {
-    clear_has_subscriber_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.ClubRemovedNotification.subscriber_id)
-}
-
 // optional .bgs.protocol.club.v1.MemberId member_id = 3;
 inline bool ClubRemovedNotification::has_member_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void ClubRemovedNotification::set_has_member_id() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void ClubRemovedNotification::clear_has_member_id() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void ClubRemovedNotification::clear_member_id() {
   if (member_id_ != NULL) member_id_->::bgs::protocol::club::v1::MemberId::Clear();
@@ -1220,13 +1042,13 @@ inline void ClubRemovedNotification::set_allocated_member_id(::bgs::protocol::cl
 
 // optional uint64 club_id = 4;
 inline bool ClubRemovedNotification::has_club_id() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void ClubRemovedNotification::set_has_club_id() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void ClubRemovedNotification::clear_has_club_id() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void ClubRemovedNotification::clear_club_id() {
   club_id_ = GOOGLE_ULONGLONG(0);
@@ -1244,13 +1066,13 @@ inline void ClubRemovedNotification::set_club_id(::google::protobuf::uint64 valu
 
 // optional .bgs.protocol.club.v1.ClubRemovedReason reason = 5;
 inline bool ClubRemovedNotification::has_reason() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
 inline void ClubRemovedNotification::set_has_reason() {
-  _has_bits_[0] |= 0x00000010u;
+  _has_bits_[0] |= 0x00000008u;
 }
 inline void ClubRemovedNotification::clear_has_reason() {
-  _has_bits_[0] &= ~0x00000010u;
+  _has_bits_[0] &= ~0x00000008u;
 }
 inline void ClubRemovedNotification::clear_reason() {
   reason_ = 0;
@@ -1312,56 +1134,15 @@ inline void ReceivedInvitationAddedNotification::set_allocated_agent_id(::bgs::p
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.ReceivedInvitationAddedNotification.agent_id)
 }
 
-// optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-inline bool ReceivedInvitationAddedNotification::has_subscriber_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void ReceivedInvitationAddedNotification::set_has_subscriber_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void ReceivedInvitationAddedNotification::clear_has_subscriber_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void ReceivedInvitationAddedNotification::clear_subscriber_id() {
-  if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_subscriber_id();
-}
-inline const ::bgs::protocol::account::v1::AccountId& ReceivedInvitationAddedNotification::subscriber_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.ReceivedInvitationAddedNotification.subscriber_id)
-  return subscriber_id_ != NULL ? *subscriber_id_ : *default_instance_->subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* ReceivedInvitationAddedNotification::mutable_subscriber_id() {
-  set_has_subscriber_id();
-  if (subscriber_id_ == NULL) subscriber_id_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.ReceivedInvitationAddedNotification.subscriber_id)
-  return subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* ReceivedInvitationAddedNotification::release_subscriber_id() {
-  clear_has_subscriber_id();
-  ::bgs::protocol::account::v1::AccountId* temp = subscriber_id_;
-  subscriber_id_ = NULL;
-  return temp;
-}
-inline void ReceivedInvitationAddedNotification::set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id) {
-  delete subscriber_id_;
-  subscriber_id_ = subscriber_id;
-  if (subscriber_id) {
-    set_has_subscriber_id();
-  } else {
-    clear_has_subscriber_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.ReceivedInvitationAddedNotification.subscriber_id)
-}
-
 // optional .bgs.protocol.club.v1.ClubInvitation invitation = 3;
 inline bool ReceivedInvitationAddedNotification::has_invitation() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void ReceivedInvitationAddedNotification::set_has_invitation() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void ReceivedInvitationAddedNotification::clear_has_invitation() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void ReceivedInvitationAddedNotification::clear_invitation() {
   if (invitation_ != NULL) invitation_->::bgs::protocol::club::v1::ClubInvitation::Clear();
@@ -1439,56 +1220,15 @@ inline void ReceivedInvitationRemovedNotification::set_allocated_agent_id(::bgs:
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.ReceivedInvitationRemovedNotification.agent_id)
 }
 
-// optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-inline bool ReceivedInvitationRemovedNotification::has_subscriber_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void ReceivedInvitationRemovedNotification::set_has_subscriber_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void ReceivedInvitationRemovedNotification::clear_has_subscriber_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void ReceivedInvitationRemovedNotification::clear_subscriber_id() {
-  if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_subscriber_id();
-}
-inline const ::bgs::protocol::account::v1::AccountId& ReceivedInvitationRemovedNotification::subscriber_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.ReceivedInvitationRemovedNotification.subscriber_id)
-  return subscriber_id_ != NULL ? *subscriber_id_ : *default_instance_->subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* ReceivedInvitationRemovedNotification::mutable_subscriber_id() {
-  set_has_subscriber_id();
-  if (subscriber_id_ == NULL) subscriber_id_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.ReceivedInvitationRemovedNotification.subscriber_id)
-  return subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* ReceivedInvitationRemovedNotification::release_subscriber_id() {
-  clear_has_subscriber_id();
-  ::bgs::protocol::account::v1::AccountId* temp = subscriber_id_;
-  subscriber_id_ = NULL;
-  return temp;
-}
-inline void ReceivedInvitationRemovedNotification::set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id) {
-  delete subscriber_id_;
-  subscriber_id_ = subscriber_id;
-  if (subscriber_id) {
-    set_has_subscriber_id();
-  } else {
-    clear_has_subscriber_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.ReceivedInvitationRemovedNotification.subscriber_id)
-}
-
 // optional fixed64 invitation_id = 3;
 inline bool ReceivedInvitationRemovedNotification::has_invitation_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void ReceivedInvitationRemovedNotification::set_has_invitation_id() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void ReceivedInvitationRemovedNotification::clear_has_invitation_id() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void ReceivedInvitationRemovedNotification::clear_invitation_id() {
   invitation_id_ = GOOGLE_ULONGLONG(0);
@@ -1506,13 +1246,13 @@ inline void ReceivedInvitationRemovedNotification::set_invitation_id(::google::p
 
 // optional .bgs.protocol.InvitationRemovedReason reason = 4;
 inline bool ReceivedInvitationRemovedNotification::has_reason() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
 inline void ReceivedInvitationRemovedNotification::set_has_reason() {
-  _has_bits_[0] |= 0x00000008u;
+  _has_bits_[0] |= 0x00000004u;
 }
 inline void ReceivedInvitationRemovedNotification::clear_has_reason() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000004u;
 }
 inline void ReceivedInvitationRemovedNotification::clear_reason() {
   reason_ = 0;
@@ -1574,56 +1314,15 @@ inline void SharedSettingsChangedNotification::set_allocated_agent_id(::bgs::pro
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.SharedSettingsChangedNotification.agent_id)
 }
 
-// optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-inline bool SharedSettingsChangedNotification::has_subscriber_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void SharedSettingsChangedNotification::set_has_subscriber_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void SharedSettingsChangedNotification::clear_has_subscriber_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void SharedSettingsChangedNotification::clear_subscriber_id() {
-  if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_subscriber_id();
-}
-inline const ::bgs::protocol::account::v1::AccountId& SharedSettingsChangedNotification::subscriber_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.SharedSettingsChangedNotification.subscriber_id)
-  return subscriber_id_ != NULL ? *subscriber_id_ : *default_instance_->subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* SharedSettingsChangedNotification::mutable_subscriber_id() {
-  set_has_subscriber_id();
-  if (subscriber_id_ == NULL) subscriber_id_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.SharedSettingsChangedNotification.subscriber_id)
-  return subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* SharedSettingsChangedNotification::release_subscriber_id() {
-  clear_has_subscriber_id();
-  ::bgs::protocol::account::v1::AccountId* temp = subscriber_id_;
-  subscriber_id_ = NULL;
-  return temp;
-}
-inline void SharedSettingsChangedNotification::set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id) {
-  delete subscriber_id_;
-  subscriber_id_ = subscriber_id;
-  if (subscriber_id) {
-    set_has_subscriber_id();
-  } else {
-    clear_has_subscriber_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.SharedSettingsChangedNotification.subscriber_id)
-}
-
 // optional .bgs.protocol.club.v1.ClubSharedSettingsAssignment assignment = 4;
 inline bool SharedSettingsChangedNotification::has_assignment() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void SharedSettingsChangedNotification::set_has_assignment() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void SharedSettingsChangedNotification::clear_has_assignment() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void SharedSettingsChangedNotification::clear_assignment() {
   if (assignment_ != NULL) assignment_->::bgs::protocol::club::v1::ClubSharedSettingsAssignment::Clear();
@@ -1701,56 +1400,15 @@ inline void StreamMentionAddedNotification::set_allocated_agent_id(::bgs::protoc
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.StreamMentionAddedNotification.agent_id)
 }
 
-// optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-inline bool StreamMentionAddedNotification::has_subscriber_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void StreamMentionAddedNotification::set_has_subscriber_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void StreamMentionAddedNotification::clear_has_subscriber_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void StreamMentionAddedNotification::clear_subscriber_id() {
-  if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_subscriber_id();
-}
-inline const ::bgs::protocol::account::v1::AccountId& StreamMentionAddedNotification::subscriber_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.StreamMentionAddedNotification.subscriber_id)
-  return subscriber_id_ != NULL ? *subscriber_id_ : *default_instance_->subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionAddedNotification::mutable_subscriber_id() {
-  set_has_subscriber_id();
-  if (subscriber_id_ == NULL) subscriber_id_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.StreamMentionAddedNotification.subscriber_id)
-  return subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionAddedNotification::release_subscriber_id() {
-  clear_has_subscriber_id();
-  ::bgs::protocol::account::v1::AccountId* temp = subscriber_id_;
-  subscriber_id_ = NULL;
-  return temp;
-}
-inline void StreamMentionAddedNotification::set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id) {
-  delete subscriber_id_;
-  subscriber_id_ = subscriber_id;
-  if (subscriber_id) {
-    set_has_subscriber_id();
-  } else {
-    clear_has_subscriber_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.StreamMentionAddedNotification.subscriber_id)
-}
-
 // optional .bgs.protocol.club.v1.StreamMention mention = 3;
 inline bool StreamMentionAddedNotification::has_mention() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void StreamMentionAddedNotification::set_has_mention() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void StreamMentionAddedNotification::clear_has_mention() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void StreamMentionAddedNotification::clear_mention() {
   if (mention_ != NULL) mention_->::bgs::protocol::club::v1::StreamMention::Clear();
@@ -1828,56 +1486,15 @@ inline void StreamMentionRemovedNotification::set_allocated_agent_id(::bgs::prot
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.StreamMentionRemovedNotification.agent_id)
 }
 
-// optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-inline bool StreamMentionRemovedNotification::has_subscriber_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void StreamMentionRemovedNotification::set_has_subscriber_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void StreamMentionRemovedNotification::clear_has_subscriber_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void StreamMentionRemovedNotification::clear_subscriber_id() {
-  if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_subscriber_id();
-}
-inline const ::bgs::protocol::account::v1::AccountId& StreamMentionRemovedNotification::subscriber_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.StreamMentionRemovedNotification.subscriber_id)
-  return subscriber_id_ != NULL ? *subscriber_id_ : *default_instance_->subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionRemovedNotification::mutable_subscriber_id() {
-  set_has_subscriber_id();
-  if (subscriber_id_ == NULL) subscriber_id_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.StreamMentionRemovedNotification.subscriber_id)
-  return subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionRemovedNotification::release_subscriber_id() {
-  clear_has_subscriber_id();
-  ::bgs::protocol::account::v1::AccountId* temp = subscriber_id_;
-  subscriber_id_ = NULL;
-  return temp;
-}
-inline void StreamMentionRemovedNotification::set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id) {
-  delete subscriber_id_;
-  subscriber_id_ = subscriber_id;
-  if (subscriber_id) {
-    set_has_subscriber_id();
-  } else {
-    clear_has_subscriber_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.StreamMentionRemovedNotification.subscriber_id)
-}
-
 // optional .bgs.protocol.TimeSeriesId mention_id = 3;
 inline bool StreamMentionRemovedNotification::has_mention_id() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void StreamMentionRemovedNotification::set_has_mention_id() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void StreamMentionRemovedNotification::clear_has_mention_id() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void StreamMentionRemovedNotification::clear_mention_id() {
   if (mention_id_ != NULL) mention_id_->::bgs::protocol::TimeSeriesId::Clear();
@@ -1955,56 +1572,15 @@ inline void StreamMentionAdvanceViewTimeNotification::set_allocated_agent_id(::b
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.StreamMentionAdvanceViewTimeNotification.agent_id)
 }
 
-// optional .bgs.protocol.account.v1.AccountId subscriber_id = 2;
-inline bool StreamMentionAdvanceViewTimeNotification::has_subscriber_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void StreamMentionAdvanceViewTimeNotification::set_has_subscriber_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void StreamMentionAdvanceViewTimeNotification::clear_has_subscriber_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void StreamMentionAdvanceViewTimeNotification::clear_subscriber_id() {
-  if (subscriber_id_ != NULL) subscriber_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_subscriber_id();
-}
-inline const ::bgs::protocol::account::v1::AccountId& StreamMentionAdvanceViewTimeNotification::subscriber_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.membership.StreamMentionAdvanceViewTimeNotification.subscriber_id)
-  return subscriber_id_ != NULL ? *subscriber_id_ : *default_instance_->subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionAdvanceViewTimeNotification::mutable_subscriber_id() {
-  set_has_subscriber_id();
-  if (subscriber_id_ == NULL) subscriber_id_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.membership.StreamMentionAdvanceViewTimeNotification.subscriber_id)
-  return subscriber_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* StreamMentionAdvanceViewTimeNotification::release_subscriber_id() {
-  clear_has_subscriber_id();
-  ::bgs::protocol::account::v1::AccountId* temp = subscriber_id_;
-  subscriber_id_ = NULL;
-  return temp;
-}
-inline void StreamMentionAdvanceViewTimeNotification::set_allocated_subscriber_id(::bgs::protocol::account::v1::AccountId* subscriber_id) {
-  delete subscriber_id_;
-  subscriber_id_ = subscriber_id;
-  if (subscriber_id) {
-    set_has_subscriber_id();
-  } else {
-    clear_has_subscriber_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.membership.StreamMentionAdvanceViewTimeNotification.subscriber_id)
-}
-
 // optional uint64 view_time = 3;
 inline bool StreamMentionAdvanceViewTimeNotification::has_view_time() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
+  return (_has_bits_[0] & 0x00000002u) != 0;
 }
 inline void StreamMentionAdvanceViewTimeNotification::set_has_view_time() {
-  _has_bits_[0] |= 0x00000004u;
+  _has_bits_[0] |= 0x00000002u;
 }
 inline void StreamMentionAdvanceViewTimeNotification::clear_has_view_time() {
-  _has_bits_[0] &= ~0x00000004u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void StreamMentionAdvanceViewTimeNotification::clear_view_time() {
   view_time_ = GOOGLE_ULONGLONG(0);

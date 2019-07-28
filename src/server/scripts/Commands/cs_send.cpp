@@ -83,7 +83,7 @@ public:
         MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : UI64LIT(0), MAIL_STATIONERY_GM);
 
         /// @todo Fix poor design
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(subject, text)
             .SendMailTo(trans, MailReceiver(target, targetGuid.GetCounter()), sender);
 
@@ -184,7 +184,7 @@ public:
         // fill mail
         MailDraft draft(subject, text);
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         for (ItemPairs::const_iterator itr = items.begin(); itr != items.end(); ++itr)
         {
@@ -241,7 +241,7 @@ public:
         // from console show nonexisting sender
         MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : UI64LIT(0), MAIL_STATIONERY_GM);
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         MailDraft(subject, text)
             .AddMoney(money)

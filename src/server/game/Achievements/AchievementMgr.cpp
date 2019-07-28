@@ -214,7 +214,7 @@ void PlayerAchievementMgr::Reset()
 
 void PlayerAchievementMgr::DeleteFromDB(ObjectGuid const& guid)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT);
     stmt->setUInt64(0, guid.GetCounter());
@@ -290,7 +290,7 @@ void PlayerAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Pre
     }
 }
 
-void PlayerAchievementMgr::SaveToDB(SQLTransaction& trans)
+void PlayerAchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
 {
     if (!_completedAchievements.empty())
     {
@@ -530,7 +530,7 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
             draft = MailDraft(subject, text);
         }
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         Item* item = reward->ItemId ? Item::CreateItem(reward->ItemId, 1, _owner) : NULL;
         if (item)
@@ -660,7 +660,7 @@ void GuildAchievementMgr::Reset()
 
 void GuildAchievementMgr::DeleteFromDB(ObjectGuid const& guid)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GUILD_ACHIEVEMENTS);
     stmt->setUInt64(0, guid.GetCounter());
@@ -734,7 +734,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
     }
 }
 
-void GuildAchievementMgr::SaveToDB(SQLTransaction& trans)
+void GuildAchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
 {
     CharacterDatabasePreparedStatement* stmt;
     std::ostringstream guidstr;

@@ -21,7 +21,7 @@
 #include "Log.h"
 #include "QueryResult.h"
 
-bool SQLQueryHolder::SetPreparedQuery(size_t index, PreparedStatementBase* stmt)
+bool SQLQueryHolderBase::SetPreparedQueryImpl(size_t index, PreparedStatementBase* stmt)
 {
     if (m_queries.size() <= index)
     {
@@ -33,7 +33,7 @@ bool SQLQueryHolder::SetPreparedQuery(size_t index, PreparedStatementBase* stmt)
     return true;
 }
 
-PreparedQueryResult SQLQueryHolder::GetPreparedResult(size_t index)
+PreparedQueryResult SQLQueryHolderBase::GetPreparedResult(size_t index)
 {
     // Don't call to this function if the index is of a prepared statement
     if (index < m_queries.size())
@@ -42,7 +42,7 @@ PreparedQueryResult SQLQueryHolder::GetPreparedResult(size_t index)
         return PreparedQueryResult(nullptr);
 }
 
-void SQLQueryHolder::SetPreparedResult(size_t index, PreparedResultSet* result)
+void SQLQueryHolderBase::SetPreparedResult(size_t index, PreparedResultSet* result)
 {
     if (result && !result->GetRowCount())
     {
@@ -55,7 +55,7 @@ void SQLQueryHolder::SetPreparedResult(size_t index, PreparedResultSet* result)
         m_queries[index].second = PreparedQueryResult(result);
 }
 
-SQLQueryHolder::~SQLQueryHolder()
+SQLQueryHolderBase::~SQLQueryHolderBase()
 {
     for (size_t i = 0; i < m_queries.size(); i++)
     {
@@ -65,7 +65,7 @@ SQLQueryHolder::~SQLQueryHolder()
     }
 }
 
-void SQLQueryHolder::SetSize(size_t size)
+void SQLQueryHolderBase::SetSize(size_t size)
 {
     /// to optimize push_back, reserve the number of queries about to be executed
     m_queries.resize(size);

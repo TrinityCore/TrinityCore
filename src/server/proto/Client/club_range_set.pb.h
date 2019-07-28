@@ -317,14 +317,14 @@ class TC_PROTO_API ClubMemberRangeSet : public ::google::protobuf::Message {
   inline ::bgs::protocol::UnsignedIntRange* release_stream_subscriptions();
   inline void set_allocated_stream_subscriptions(::bgs::protocol::UnsignedIntRange* stream_subscriptions);
 
-  // optional .bgs.protocol.UnsignedIntRange note = 7;
-  inline bool has_note() const;
-  inline void clear_note();
-  static const int kNoteFieldNumber = 7;
-  inline const ::bgs::protocol::UnsignedIntRange& note() const;
-  inline ::bgs::protocol::UnsignedIntRange* mutable_note();
-  inline ::bgs::protocol::UnsignedIntRange* release_note();
-  inline void set_allocated_note(::bgs::protocol::UnsignedIntRange* note);
+  // optional .bgs.protocol.UnsignedIntRange note_range = 7;
+  inline bool has_note_range() const;
+  inline void clear_note_range();
+  static const int kNoteRangeFieldNumber = 7;
+  inline const ::bgs::protocol::UnsignedIntRange& note_range() const;
+  inline ::bgs::protocol::UnsignedIntRange* mutable_note_range();
+  inline ::bgs::protocol::UnsignedIntRange* release_note_range();
+  inline void set_allocated_note_range(::bgs::protocol::UnsignedIntRange* note_range);
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubMemberRangeSet)
  private:
@@ -334,8 +334,8 @@ class TC_PROTO_API ClubMemberRangeSet : public ::google::protobuf::Message {
   inline void clear_has_voice();
   inline void set_has_stream_subscriptions();
   inline void clear_has_stream_subscriptions();
-  inline void set_has_note();
-  inline void clear_has_note();
+  inline void set_has_note_range();
+  inline void clear_has_note_range();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -344,7 +344,7 @@ class TC_PROTO_API ClubMemberRangeSet : public ::google::protobuf::Message {
   ::bgs::protocol::UnsignedIntRange* count_;
   ::bgs::protocol::UnsignedIntRange* voice_;
   ::bgs::protocol::UnsignedIntRange* stream_subscriptions_;
-  ::bgs::protocol::UnsignedIntRange* note_;
+  ::bgs::protocol::UnsignedIntRange* note_range_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5frange_5fset_2eproto();
   friend void protobuf_AssignDesc_club_5frange_5fset_2eproto();
   friend void protobuf_ShutdownFile_club_5frange_5fset_2eproto();
@@ -1352,45 +1352,45 @@ inline void ClubMemberRangeSet::set_allocated_stream_subscriptions(::bgs::protoc
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubMemberRangeSet.stream_subscriptions)
 }
 
-// optional .bgs.protocol.UnsignedIntRange note = 7;
-inline bool ClubMemberRangeSet::has_note() const {
+// optional .bgs.protocol.UnsignedIntRange note_range = 7;
+inline bool ClubMemberRangeSet::has_note_range() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
-inline void ClubMemberRangeSet::set_has_note() {
+inline void ClubMemberRangeSet::set_has_note_range() {
   _has_bits_[0] |= 0x00000008u;
 }
-inline void ClubMemberRangeSet::clear_has_note() {
+inline void ClubMemberRangeSet::clear_has_note_range() {
   _has_bits_[0] &= ~0x00000008u;
 }
-inline void ClubMemberRangeSet::clear_note() {
-  if (note_ != NULL) note_->::bgs::protocol::UnsignedIntRange::Clear();
-  clear_has_note();
+inline void ClubMemberRangeSet::clear_note_range() {
+  if (note_range_ != NULL) note_range_->::bgs::protocol::UnsignedIntRange::Clear();
+  clear_has_note_range();
 }
-inline const ::bgs::protocol::UnsignedIntRange& ClubMemberRangeSet::note() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubMemberRangeSet.note)
-  return note_ != NULL ? *note_ : *default_instance_->note_;
+inline const ::bgs::protocol::UnsignedIntRange& ClubMemberRangeSet::note_range() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubMemberRangeSet.note_range)
+  return note_range_ != NULL ? *note_range_ : *default_instance_->note_range_;
 }
-inline ::bgs::protocol::UnsignedIntRange* ClubMemberRangeSet::mutable_note() {
-  set_has_note();
-  if (note_ == NULL) note_ = new ::bgs::protocol::UnsignedIntRange;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubMemberRangeSet.note)
-  return note_;
+inline ::bgs::protocol::UnsignedIntRange* ClubMemberRangeSet::mutable_note_range() {
+  set_has_note_range();
+  if (note_range_ == NULL) note_range_ = new ::bgs::protocol::UnsignedIntRange;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubMemberRangeSet.note_range)
+  return note_range_;
 }
-inline ::bgs::protocol::UnsignedIntRange* ClubMemberRangeSet::release_note() {
-  clear_has_note();
-  ::bgs::protocol::UnsignedIntRange* temp = note_;
-  note_ = NULL;
+inline ::bgs::protocol::UnsignedIntRange* ClubMemberRangeSet::release_note_range() {
+  clear_has_note_range();
+  ::bgs::protocol::UnsignedIntRange* temp = note_range_;
+  note_range_ = NULL;
   return temp;
 }
-inline void ClubMemberRangeSet::set_allocated_note(::bgs::protocol::UnsignedIntRange* note) {
-  delete note_;
-  note_ = note;
-  if (note) {
-    set_has_note();
+inline void ClubMemberRangeSet::set_allocated_note_range(::bgs::protocol::UnsignedIntRange* note_range) {
+  delete note_range_;
+  note_range_ = note_range;
+  if (note_range) {
+    set_has_note_range();
   } else {
-    clear_has_note();
+    clear_has_note_range();
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubMemberRangeSet.note)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubMemberRangeSet.note_range)
 }
 
 // -------------------------------------------------------------------

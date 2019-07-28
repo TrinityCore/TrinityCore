@@ -245,7 +245,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(StreamMessage));
   StreamMention_descriptor_ = file->message_type(9);
-  static const int StreamMention_offsets_[7] = {
+  static const int StreamMention_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMention, club_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMention, stream_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMention, message_id_),
@@ -253,6 +253,7 @@ void protobuf_AssignDesc_club_5fstream_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMention, destroyed_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMention, mention_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMention, member_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StreamMention, message_),
   };
   StreamMention_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -525,37 +526,39 @@ void protobuf_AddDesc_club_5fstream_2eproto() {
     "gs.protocol.club.v1.ContentChain\022:\n\tdest"
     "royer\030\017 \001(\0132\'.bgs.protocol.club.v1.Membe"
     "rDescription\022\021\n\tdestroyed\030\020 \001(\010\022\024\n\014destr"
-    "oy_time\030\021 \001(\004\"\217\002\n\rStreamMention\022\017\n\007club_"
+    "oy_time\030\021 \001(\004\"\305\002\n\rStreamMention\022\017\n\007club_"
     "id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022+\n\nmessage_i"
     "d\030\003 \001(\0132\027.bgs.protocol.MessageId\0227\n\006auth"
     "or\030\004 \001(\0132\'.bgs.protocol.club.v1.MemberDe"
     "scription\022\021\n\tdestroyed\030\005 \001(\010\022.\n\nmention_"
     "id\030\006 \001(\0132\032.bgs.protocol.TimeSeriesId\0221\n\t"
     "member_id\030\007 \001(\0132\036.bgs.protocol.club.v1.M"
-    "emberId\"Z\n\nStreamView\022\017\n\007club_id\030\001 \001(\004\022\021"
-    "\n\tstream_id\030\002 \001(\004\022(\n\006marker\030\003 \001(\0132\030.bgs."
-    "protocol.ViewMarker\"=\n\025StreamAdvanceView"
-    "Time\022\021\n\tstream_id\030\001 \001(\004\022\021\n\tview_time\030\002 \001"
-    "(\004\"8\n\017StreamEventTime\022\021\n\tstream_id\030\001 \001(\004"
-    "\022\022\n\nevent_time\030\002 \001(\004\"a\n\021StreamMentionVie"
-    "w\022\017\n\007club_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022(\n"
-    "\006marker\030\003 \001(\0132\030.bgs.protocol.ViewMarker\""
-    "\323\001\n\022StreamStateOptions\022-\n\tattribute\030\001 \003("
-    "\0132\032.bgs.protocol.v2.Attribute\022\014\n\004name\030\002 "
-    "\001(\t\022\017\n\007subject\030\003 \001(\t\0222\n\006access\030\004 \001(\0132\".b"
-    "gs.protocol.club.v1.StreamAccess\022;\n\013voic"
-    "e_level\030\005 \001(\0162&.bgs.protocol.club.v1.Str"
-    "eamVoiceLevel\"\216\002\n\025StreamStateAssignment\022"
-    "\021\n\tstream_id\030\001 \001(\004\022-\n\tattribute\030\002 \003(\0132\032."
-    "bgs.protocol.v2.Attribute\022\014\n\004name\030\003 \001(\t\022"
-    "\017\n\007subject\030\004 \001(\t\0222\n\006access\030\005 \001(\0132\".bgs.p"
-    "rotocol.club.v1.StreamAccess\022#\n\033stream_s"
-    "ubscription_removed\030\006 \001(\010\022;\n\013voice_level"
-    "\030\007 \001(\0162&.bgs.protocol.club.v1.StreamVoic"
-    "eLevel\"\213\001\n\025StreamTypingIndicator\0221\n\tauth"
-    "or_id\030\001 \001(\0132\036.bgs.protocol.club.v1.Membe"
-    "rId\0220\n\tindicator\030\002 \001(\0162\035.bgs.protocol.Ty"
-    "pingIndicator\022\r\n\005epoch\030\003 \001(\004B\002H\001", 2672);
+    "emberId\0224\n\007message\030\010 \001(\0132#.bgs.protocol."
+    "club.v1.StreamMessage\"Z\n\nStreamView\022\017\n\007c"
+    "lub_id\030\001 \001(\004\022\021\n\tstream_id\030\002 \001(\004\022(\n\006marke"
+    "r\030\003 \001(\0132\030.bgs.protocol.ViewMarker\"=\n\025Str"
+    "eamAdvanceViewTime\022\021\n\tstream_id\030\001 \001(\004\022\021\n"
+    "\tview_time\030\002 \001(\004\"8\n\017StreamEventTime\022\021\n\ts"
+    "tream_id\030\001 \001(\004\022\022\n\nevent_time\030\002 \001(\004\"a\n\021St"
+    "reamMentionView\022\017\n\007club_id\030\001 \001(\004\022\021\n\tstre"
+    "am_id\030\002 \001(\004\022(\n\006marker\030\003 \001(\0132\030.bgs.protoc"
+    "ol.ViewMarker\"\323\001\n\022StreamStateOptions\022-\n\t"
+    "attribute\030\001 \003(\0132\032.bgs.protocol.v2.Attrib"
+    "ute\022\014\n\004name\030\002 \001(\t\022\017\n\007subject\030\003 \001(\t\0222\n\006ac"
+    "cess\030\004 \001(\0132\".bgs.protocol.club.v1.Stream"
+    "Access\022;\n\013voice_level\030\005 \001(\0162&.bgs.protoc"
+    "ol.club.v1.StreamVoiceLevel\"\216\002\n\025StreamSt"
+    "ateAssignment\022\021\n\tstream_id\030\001 \001(\004\022-\n\tattr"
+    "ibute\030\002 \003(\0132\032.bgs.protocol.v2.Attribute\022"
+    "\014\n\004name\030\003 \001(\t\022\017\n\007subject\030\004 \001(\t\0222\n\006access"
+    "\030\005 \001(\0132\".bgs.protocol.club.v1.StreamAcce"
+    "ss\022#\n\033stream_subscription_removed\030\006 \001(\010\022"
+    ";\n\013voice_level\030\007 \001(\0162&.bgs.protocol.club"
+    ".v1.StreamVoiceLevel\"\213\001\n\025StreamTypingInd"
+    "icator\0221\n\tauthor_id\030\001 \001(\0132\036.bgs.protocol"
+    ".club.v1.MemberId\0220\n\tindicator\030\002 \001(\0162\035.b"
+    "gs.protocol.TypingIndicator\022\r\n\005epoch\030\003 \001"
+    "(\004B\002H\001", 2726);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "club_stream.proto", &protobuf_RegisterTypes);
   StreamPosition::default_instance_ = new StreamPosition();
@@ -3800,6 +3803,7 @@ const int StreamMention::kAuthorFieldNumber;
 const int StreamMention::kDestroyedFieldNumber;
 const int StreamMention::kMentionIdFieldNumber;
 const int StreamMention::kMemberIdFieldNumber;
+const int StreamMention::kMessageFieldNumber;
 #endif  // !_MSC_VER
 
 StreamMention::StreamMention()
@@ -3813,6 +3817,7 @@ void StreamMention::InitAsDefaultInstance() {
   author_ = const_cast< ::bgs::protocol::club::v1::MemberDescription*>(&::bgs::protocol::club::v1::MemberDescription::default_instance());
   mention_id_ = const_cast< ::bgs::protocol::TimeSeriesId*>(&::bgs::protocol::TimeSeriesId::default_instance());
   member_id_ = const_cast< ::bgs::protocol::club::v1::MemberId*>(&::bgs::protocol::club::v1::MemberId::default_instance());
+  message_ = const_cast< ::bgs::protocol::club::v1::StreamMessage*>(&::bgs::protocol::club::v1::StreamMessage::default_instance());
 }
 
 StreamMention::StreamMention(const StreamMention& from)
@@ -3831,6 +3836,7 @@ void StreamMention::SharedCtor() {
   destroyed_ = false;
   mention_id_ = NULL;
   member_id_ = NULL;
+  message_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -3845,6 +3851,7 @@ void StreamMention::SharedDtor() {
     delete author_;
     delete mention_id_;
     delete member_id_;
+    delete message_;
   }
 }
 
@@ -3880,7 +3887,7 @@ void StreamMention::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  if (_has_bits_[0 / 32] & 127) {
+  if (_has_bits_[0 / 32] & 255) {
     ZR_(club_id_, stream_id_);
     if (has_message_id()) {
       if (message_id_ != NULL) message_id_->::bgs::protocol::MessageId::Clear();
@@ -3894,6 +3901,9 @@ void StreamMention::Clear() {
     }
     if (has_member_id()) {
       if (member_id_ != NULL) member_id_->::bgs::protocol::club::v1::MemberId::Clear();
+    }
+    if (has_message()) {
+      if (message_ != NULL) message_->::bgs::protocol::club::v1::StreamMessage::Clear();
     }
   }
 
@@ -4006,6 +4016,19 @@ bool StreamMention::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(66)) goto parse_message;
+        break;
+      }
+
+      // optional .bgs.protocol.club.v1.StreamMessage message = 8;
+      case 8: {
+        if (tag == 66) {
+         parse_message:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_message()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -4074,6 +4097,12 @@ void StreamMention::SerializeWithCachedSizes(
       7, this->member_id(), output);
   }
 
+  // optional .bgs.protocol.club.v1.StreamMessage message = 8;
+  if (has_message()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      8, this->message(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -4125,6 +4154,13 @@ void StreamMention::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         7, this->member_id(), target);
+  }
+
+  // optional .bgs.protocol.club.v1.StreamMessage message = 8;
+  if (has_message()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        8, this->message(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -4186,6 +4222,13 @@ int StreamMention::ByteSize() const {
           this->member_id());
     }
 
+    // optional .bgs.protocol.club.v1.StreamMessage message = 8;
+    if (has_message()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->message());
+    }
+
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -4234,6 +4277,9 @@ void StreamMention::MergeFrom(const StreamMention& from) {
     if (from.has_member_id()) {
       mutable_member_id()->::bgs::protocol::club::v1::MemberId::MergeFrom(from.member_id());
     }
+    if (from.has_message()) {
+      mutable_message()->::bgs::protocol::club::v1::StreamMessage::MergeFrom(from.message());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -4258,6 +4304,9 @@ bool StreamMention::IsInitialized() const {
   if (has_member_id()) {
     if (!this->member_id().IsInitialized()) return false;
   }
+  if (has_message()) {
+    if (!this->message().IsInitialized()) return false;
+  }
   return true;
 }
 
@@ -4270,6 +4319,7 @@ void StreamMention::Swap(StreamMention* other) {
     std::swap(destroyed_, other->destroyed_);
     std::swap(mention_id_, other->mention_id_);
     std::swap(member_id_, other->member_id_);
+    std::swap(message_, other->message_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

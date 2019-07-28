@@ -160,30 +160,30 @@ class DatabaseWorkerPool
         //! return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
-        QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder* holder);
+        QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder<T>* holder);
 
         /**
             Transaction context methods.
         */
 
         //! Begins an automanaged transaction pointer that will automatically rollback if not commited. (Autocommit=0)
-        SQLTransaction BeginTransaction();
+        SQLTransaction<T> BeginTransaction();
 
         //! Enqueues a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.
-        void CommitTransaction(SQLTransaction transaction);
+        void CommitTransaction(SQLTransaction<T> transaction);
 
         //! Directly executes a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.
-        void DirectCommitTransaction(SQLTransaction& transaction);
+        void DirectCommitTransaction(SQLTransaction<T>& transaction);
 
         //! Method used to execute ad-hoc statements in a diverse context.
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
-        void ExecuteOrAppend(SQLTransaction& trans, const char* sql);
+        void ExecuteOrAppend(SQLTransaction<T>& trans, const char* sql);
 
         //! Method used to execute prepared statements in a diverse context.
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
-        void ExecuteOrAppend(SQLTransaction& trans, PreparedStatement<T>* stmt);
+        void ExecuteOrAppend(SQLTransaction<T>& trans, PreparedStatement<T>* stmt);
 
         /**
             Other
