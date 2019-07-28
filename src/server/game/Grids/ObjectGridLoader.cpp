@@ -247,10 +247,7 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
     {
         iter->GetSource()->RemoveAllDynObjects();
         if (iter->GetSource()->IsInCombat())
-        {
             iter->GetSource()->CombatStop();
-            iter->GetSource()->AI()->EnterEvadeMode();
-        }
     }
 }
 
