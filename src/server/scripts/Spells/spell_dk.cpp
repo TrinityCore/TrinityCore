@@ -293,39 +293,24 @@ class spell_dk_death_and_decay : public AuraScript
     }
 };
 
+// 47541 - Death Coil
 class spell_dk_death_coil : public SpellScript
 {
     PrepareSpellScript(spell_dk_death_coil);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
-        return ValidateSpellInfo({ SPELL_DK_DEATH_COIL_DAMAGE, SPELL_DK_DEATH_COIL_HEAL });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        int32 damage = GetEffectValue();
-        Unit* caster = GetCaster();
-        if (Unit* target = GetHitUnit())
-        {
-            if (caster->IsFriendlyTo(target))
+        return ValidateSpellInfo(
             {
-                int32 bp = int32(damage * 1.5f);
-                caster->CastCustomSpell(target, SPELL_DK_DEATH_COIL_HEAL, &bp, nullptr, nullptr, true);
-            }
-            else
-            {
-                if (AuraEffect const* auraEffect = caster->GetAuraEffect(SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART, EFFECT_1))
-                    damage += auraEffect->GetBaseAmount();
-                caster->CastCustomSpell(target, SPELL_DK_DEATH_COIL_DAMAGE, &damage, nullptr, nullptr, true);
-            }
-        }
+                SPELL_DK_DEATH_COIL_DAMAGE,
+                SPELL_DK_DEATH_COIL_HEAL
+            });
     }
 
     SpellCastResult CheckCast()
     {
         Unit* caster = GetCaster();
-        if (Unit* target = GetExplTargetUnit())
+        if (Unit * target = GetExplTargetUnit())
         {
             if (!caster->IsFriendlyTo(target) && !caster->isInFront(target))
                 return SPELL_FAILED_UNIT_NOT_INFRONT;
@@ -337,6 +322,30 @@ class spell_dk_death_coil : public SpellScript
             return SPELL_FAILED_BAD_TARGETS;
 
         return SPELL_CAST_OK;
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetHitUnit();
+        int32 bp = GetEffectValue();
+        bp += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 23);
+
+        if (caster->IsFriendlyTo(target))
+        {
+            bp *= 3.5f;
+            caster->CastCustomSpell(SPELL_DK_DEATH_COIL_HEAL, SPELLVALUE_BASE_POINT0, bp, target, true);
+        }
+        else
+        {
+            if (AuraEffect const* auraEffect = caster->GetAuraEffect(SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART, EFFECT_1))
+                bp += auraEffect->GetBaseAmount();
+
+            caster->CastCustomSpell(SPELL_DK_DEATH_COIL_DAMAGE, SPELLVALUE_BASE_POINT0, bp, target, true);
+        }
     }
 
     void Register() override
