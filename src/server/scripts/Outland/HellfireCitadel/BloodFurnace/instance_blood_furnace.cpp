@@ -209,6 +209,7 @@ class instance_blood_furnace : public InstanceMapScript
             void ResetPrisoners(GuidSet& prisoners)
             {
                 for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end();)
+                {
                     if (Creature * prisoner = instance->GetCreature(*i))
                     {
                         if (!prisoner->IsAlive())
@@ -218,6 +219,9 @@ class instance_blood_furnace : public InstanceMapScript
 
                         ResetPrisoner(prisoner);
                     }
+                    else
+                        ++i;
+                }
             }
 
             void ResetPrisoner(Creature* prisoner)
