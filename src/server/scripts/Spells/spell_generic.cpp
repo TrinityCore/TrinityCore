@@ -2654,10 +2654,7 @@ class spell_gen_proc_below_pct_damaged : public SpellScriptLoader
 
                 int32 pct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
 
-                if (eventInfo.GetActionTarget()->HealthBelowPctDamaged(pct, damageInfo->GetDamage()))
-                    return true;
-
-                return false;
+                return eventInfo.GetActionTarget()->HealthBelowPctDamaged(pct, damageInfo->GetDamage());
             }
 
             void Register() override
@@ -3646,9 +3643,7 @@ class spell_gen_eject_passenger : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Effects[EFFECT_0].CalcValue() < 1)
-            return false;
-        return true;
+        return spellInfo->Effects[EFFECT_0].CalcValue() >= 1;
     }
 
     void EjectPassenger(SpellEffIndex /*effIndex*/)
@@ -4137,12 +4132,10 @@ public:
 
     bool operator()(Unit* u) const
     {
-        if (_unit->GetDistance2d(u) < _distance &&
-            (u->GetEntry() == NPC_APEXIS_FLAYER || u->GetEntry() == NPC_SHARD_HIDE_BOAR || u->GetEntry() == NPC_AETHER_RAY) &&
-            !u->HasAura(SPELL_CORRUPTING_PLAGUE))
-            return true;
-
-        return false;
+        return _unit->GetDistance2d(u) < _distance &&
+               (u->GetEntry() == NPC_APEXIS_FLAYER || u->GetEntry() == NPC_SHARD_HIDE_BOAR ||
+                u->GetEntry() == NPC_AETHER_RAY) &&
+               !u->HasAura(SPELL_CORRUPTING_PLAGUE);
     }
 
 private:
@@ -4195,12 +4188,10 @@ public:
 
     bool operator()(Unit* u) const
     {
-        if (_unit->GetDistance2d(u) < _distance &&
-            (u->GetEntry() == NPC_APEXIS_FLAYER || u->GetEntry() == NPC_SHARD_HIDE_BOAR || u->GetEntry() == NPC_AETHER_RAY || u->GetEntry() == NPC_DAGGERTAIL_LIZARD) &&
-            !u->HasAura(SPELL_STASIS_FIELD))
-            return true;
-
-        return false;
+        return _unit->GetDistance2d(u) < _distance &&
+               (u->GetEntry() == NPC_APEXIS_FLAYER || u->GetEntry() == NPC_SHARD_HIDE_BOAR ||
+                u->GetEntry() == NPC_AETHER_RAY || u->GetEntry() == NPC_DAGGERTAIL_LIZARD) &&
+               !u->HasAura(SPELL_STASIS_FIELD);
     }
 
 private:
