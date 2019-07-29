@@ -3136,9 +3136,12 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData>
         if (_lastLiquid && _lastLiquid->SpellId)
             RemoveAurasDueToSpell(_lastLiquid->SpellId);
         Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
+
+        // Set _lastLiquid before casting liquid spell to avoid infinite loops
+        _lastLiquid = curLiquid;
+
         if (curLiquid && curLiquid->SpellId && (!player || !player->IsGameMaster()))
             CastSpell(this, curLiquid->SpellId, true);
-        _lastLiquid = curLiquid;
     }
 }
 
