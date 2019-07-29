@@ -25,6 +25,54 @@ namespace Trinity
 namespace Impl
 {
 
+/***************************************************************\
+|* data for enum 'Classes' in 'SharedDefines.h' auto-generated *|
+\***************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<Classes>::ToString(Classes value)
+{
+    switch (value)
+    {
+        case CLASS_WARRIOR: return { "CLASS_WARRIOR", "Warrior", "" };
+        case CLASS_PALADIN: return { "CLASS_PALADIN", "Paladin", "" };
+        case CLASS_HUNTER: return { "CLASS_HUNTER", "Hunter", "" };
+        case CLASS_ROGUE: return { "CLASS_ROGUE", "Rogue", "" };
+        case CLASS_PRIEST: return { "CLASS_PRIEST", "Priest", "" };
+        case CLASS_DEATH_KNIGHT: return { "CLASS_DEATH_KNIGHT", "Death Knight", "" };
+        case CLASS_SHAMAN: return { "CLASS_SHAMAN", "Shaman", "" };
+        case CLASS_MAGE: return { "CLASS_MAGE", "Mage", "" };
+        case CLASS_WARLOCK: return { "CLASS_WARLOCK", "Warlock", "" };
+        case CLASS_MONK: return { "CLASS_MONK", "Monk", "" };
+        case CLASS_DRUID: return { "CLASS_DRUID", "Druid", "" };
+        case CLASS_DEMON_HUNTER: return { "CLASS_DEMON_HUNTER", "Demon Hunter", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<Classes>::Count() { return 12; }
+
+template <>
+TC_API_EXPORT Classes EnumUtils<Classes>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return CLASS_WARRIOR;
+        case 1: return CLASS_PALADIN;
+        case 2: return CLASS_HUNTER;
+        case 3: return CLASS_ROGUE;
+        case 4: return CLASS_PRIEST;
+        case 5: return CLASS_DEATH_KNIGHT;
+        case 6: return CLASS_SHAMAN;
+        case 7: return CLASS_MAGE;
+        case 8: return CLASS_WARLOCK;
+        case 9: return CLASS_MONK;
+        case 10: return CLASS_DRUID;
+        case 11: return CLASS_DEMON_HUNTER;
+        default: throw std::out_of_range("index");
+    }
+}
+
 /**************************************************************\
 |* data for enum 'Powers' in 'SharedDefines.h' auto-generated *|
 \**************************************************************/

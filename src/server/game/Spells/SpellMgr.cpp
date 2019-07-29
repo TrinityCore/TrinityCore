@@ -4591,7 +4591,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
     });
-    
+
     // Spore - Spore Visual
     ApplySpellFix({ 42525 }, [](SpellInfo* spellInfo)
     {
@@ -4848,7 +4848,6 @@ uint32 SpellMgr::GetModelForTotem(uint32 spellId, uint8 race) const
     if (itr != mSpellTotemModel.end())
         return itr->second;
 
-    TC_LOG_ERROR("spells", "Spell %u with RaceID (%u) have no totem model data defined, set to default model.", spellId, race);
     return 0;
 }
 
