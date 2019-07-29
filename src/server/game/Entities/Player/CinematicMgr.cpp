@@ -46,7 +46,7 @@ CinematicMgr::~CinematicMgr()
 void CinematicMgr::NextCinematicCamera()
 {
     // Sanity check for active camera set
-    if (!m_activeCinematic || m_activeCinematicCameraIndex >= int32(Trinity::Containers::Size(m_activeCinematic->Camera)))
+    if (!m_activeCinematic || m_activeCinematicCameraIndex >= int32(advstd::size(m_activeCinematic->Camera)))
         return;
 
     uint32 cinematicCameraId = m_activeCinematic->Camera[++m_activeCinematicCameraIndex];
