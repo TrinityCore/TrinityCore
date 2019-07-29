@@ -25,6 +25,94 @@ namespace Trinity
 namespace Impl
 {
 
+/*************************************************************\
+|* data for enum 'Races' in 'SharedDefines.h' auto-generated *|
+\*************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<Races>::ToString(Races value)
+{
+    switch (value)
+    {
+        case RACE_HUMAN: return { "RACE_HUMAN", "Human", "" };
+        case RACE_ORC: return { "RACE_ORC", "Orc", "" };
+        case RACE_DWARF: return { "RACE_DWARF", "Dwarf", "" };
+        case RACE_NIGHTELF: return { "RACE_NIGHTELF", "Night Elf", "" };
+        case RACE_UNDEAD_PLAYER: return { "RACE_UNDEAD_PLAYER", "Undead", "" };
+        case RACE_TAUREN: return { "RACE_TAUREN", "Tauren", "" };
+        case RACE_GNOME: return { "RACE_GNOME", "Gnome", "" };
+        case RACE_TROLL: return { "RACE_TROLL", "Troll", "" };
+        case RACE_BLOODELF: return { "RACE_BLOODELF", "Blood Elf", "" };
+        case RACE_DRAENEI: return { "RACE_DRAENEI", "RACE_DRAENEI", "RACE_FEL_ORC            = 12," };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<Races>::Count() { return 10; }
+
+template <>
+TC_API_EXPORT Races EnumUtils<Races>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return RACE_HUMAN;
+        case 1: return RACE_ORC;
+        case 2: return RACE_DWARF;
+        case 3: return RACE_NIGHTELF;
+        case 4: return RACE_UNDEAD_PLAYER;
+        case 5: return RACE_TAUREN;
+        case 6: return RACE_GNOME;
+        case 7: return RACE_TROLL;
+        case 8: return RACE_BLOODELF;
+        case 9: return RACE_DRAENEI;
+        default: throw std::out_of_range("index");
+    }
+}
+
+/***************************************************************\
+|* data for enum 'Classes' in 'SharedDefines.h' auto-generated *|
+\***************************************************************/
+template <>
+TC_API_EXPORT EnumText EnumUtils<Classes>::ToString(Classes value)
+{
+    switch (value)
+    {
+        case CLASS_WARRIOR: return { "CLASS_WARRIOR", "Warrior", "" };
+        case CLASS_PALADIN: return { "CLASS_PALADIN", "Paladin", "" };
+        case CLASS_HUNTER: return { "CLASS_HUNTER", "Hunter", "" };
+        case CLASS_ROGUE: return { "CLASS_ROGUE", "Rogue", "" };
+        case CLASS_PRIEST: return { "CLASS_PRIEST", "Priest", "" };
+        case CLASS_DEATH_KNIGHT: return { "CLASS_DEATH_KNIGHT", "Death Knight", "" };
+        case CLASS_SHAMAN: return { "CLASS_SHAMAN", "Shaman", "" };
+        case CLASS_MAGE: return { "CLASS_MAGE", "Mage", "" };
+        case CLASS_WARLOCK: return { "CLASS_WARLOCK", "Warlock", "" };
+        case CLASS_DRUID: return { "CLASS_DRUID", "Druid", "" };
+        default: throw std::out_of_range("value");
+    }
+}
+
+template <>
+TC_API_EXPORT size_t EnumUtils<Classes>::Count() { return 10; }
+
+template <>
+TC_API_EXPORT Classes EnumUtils<Classes>::FromIndex(size_t index)
+{
+    switch (index)
+    {
+        case 0: return CLASS_WARRIOR;
+        case 1: return CLASS_PALADIN;
+        case 2: return CLASS_HUNTER;
+        case 3: return CLASS_ROGUE;
+        case 4: return CLASS_PRIEST;
+        case 5: return CLASS_DEATH_KNIGHT;
+        case 6: return CLASS_SHAMAN;
+        case 7: return CLASS_MAGE;
+        case 8: return CLASS_WARLOCK;
+        case 9: return CLASS_DRUID;
+        default: throw std::out_of_range("index");
+    }
+}
+
 /**************************************************************\
 |* data for enum 'Powers' in 'SharedDefines.h' auto-generated *|
 \**************************************************************/

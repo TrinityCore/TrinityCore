@@ -79,20 +79,21 @@ enum Gender
 };
 
 // Race value is index in ChrRaces.dbc
+// EnumUtils: DESCRIBE THIS
 enum Races
 {
-    RACE_NONE               = 0,
-    RACE_HUMAN              = 1,
-    RACE_ORC                = 2,
-    RACE_DWARF              = 3,
-    RACE_NIGHTELF           = 4,
-    RACE_UNDEAD_PLAYER      = 5,
-    RACE_TAUREN             = 6,
-    RACE_GNOME              = 7,
-    RACE_TROLL              = 8,
+    RACE_NONE               = 0,  // SKIP
+    RACE_HUMAN              = 1,  // TITLE Human
+    RACE_ORC                = 2,  // TITLE Orc
+    RACE_DWARF              = 3,  // TITLE Dwarf
+    RACE_NIGHTELF           = 4,  // TITLE Night Elf
+    RACE_UNDEAD_PLAYER      = 5,  // TITLE Undead
+    RACE_TAUREN             = 6,  // TITLE Tauren
+    RACE_GNOME              = 7,  // TITLE Gnome
+    RACE_TROLL              = 8,  // TITLE Troll
     //RACE_GOBLIN             = 9,
-    RACE_BLOODELF           = 10,
-    RACE_DRAENEI            = 11
+    RACE_BLOODELF           = 10, // TITLE Blood Elf
+    RACE_DRAENEI            = 11  // TITLE Draenei
     //RACE_FEL_ORC            = 12,
     //RACE_NAGA               = 13,
     //RACE_BROKEN             = 14,
@@ -121,20 +122,21 @@ enum Races
 #define RACEMASK_HORDE RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE
 
 // Class value is index in ChrClasses.dbc
+// EnumUtils: DESCRIBE THIS
 enum Classes
 {
-    CLASS_NONE          = 0,
-    CLASS_WARRIOR       = 1,
-    CLASS_PALADIN       = 2,
-    CLASS_HUNTER        = 3,
-    CLASS_ROGUE         = 4,
-    CLASS_PRIEST        = 5,
-    CLASS_DEATH_KNIGHT  = 6,
-    CLASS_SHAMAN        = 7,
-    CLASS_MAGE          = 8,
-    CLASS_WARLOCK       = 9,
+    CLASS_NONE          = 0, // SKIP
+    CLASS_WARRIOR       = 1, // TITLE Warrior
+    CLASS_PALADIN       = 2, // TITLE Paladin
+    CLASS_HUNTER        = 3, // TITLE Hunter
+    CLASS_ROGUE         = 4, // TITLE Rogue
+    CLASS_PRIEST        = 5, // TITLE Priest
+    CLASS_DEATH_KNIGHT  = 6, // TITLE Death Knight
+    CLASS_SHAMAN        = 7, // TITLE Shaman
+    CLASS_MAGE          = 8, // TITLE Mage
+    CLASS_WARLOCK       = 9, // TITLE Warlock
     //CLASS_UNK           = 10,
-    CLASS_DRUID         = 11
+    CLASS_DRUID         = 11 // TITLE Druid
 };
 
 // max+1 for player class
