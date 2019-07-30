@@ -579,7 +579,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         }
     }
 
-    return int32(value);
+    return uint32(floor(value + 0.5f));
 }
 
 int32 SpellEffectInfo::CalcBaseValue(int32 value) const
