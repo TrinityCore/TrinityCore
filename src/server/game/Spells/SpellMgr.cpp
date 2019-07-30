@@ -5442,6 +5442,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
     });
 
+    // Light of Dawn
+    ApplySpellFix({ 85222 }, [](SpellInfo* spellInfo)
+    {
+       spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];

@@ -1914,21 +1914,21 @@ class spell_pal_light_of_dawn: public SpellScript
         if (!caster)
             return;
 
-        int32 heal = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster, nullptr, GetHitUnit());
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetSpellInfo()->Id, SPELLMOD_DAMAGE, heal);
-
-        heal += caster->SpellHealingBonusDone(GetHitUnit(), GetSpellInfo(), heal, HEAL, EFFECT_1);
+        int32 heal = GetHitHeal();
         heal += heal * caster->GetPower(POWER_HOLY_POWER);
 
-        // For some reason there is a 2nd effect that is being calculated correctly so we will use its data
-        PreventHitEffect(EFFECT_1);
         SetHitHeal(heal);
+    }
+
+    void BlockHeal(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pal_light_of_dawn::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_pal_light_of_dawn::BlockHeal, EFFECT_1, SPELL_EFFECT_HEAL);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pal_light_of_dawn::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ALLY);
     }
 };
