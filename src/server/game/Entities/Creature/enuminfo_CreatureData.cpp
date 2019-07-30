@@ -65,12 +65,14 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING: return { "CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING", "CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING", "creature ignore pathfinding" };
         case CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK: return { "CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK", "CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK", "creature is immune to knockback effects" };
         case CREATURE_FLAG_EXTRA_UNUSED_31: return { "CREATURE_FLAG_EXTRA_UNUSED_31", "CREATURE_FLAG_EXTRA_UNUSED_31", "" };
+        case CREATURE_FLAG_EXTRA_UNUSED: return { "CREATURE_FLAG_EXTRA_UNUSED", "CREATURE_FLAG_EXTRA_UNUSED", "" };
+        case CREATURE_FLAG_EXTRA_UNUSED_23: return { "CREATURE_FLAG_EXTRA_UNUSED_23", "CREATURE_FLAG_EXTRA_UNUSED_23", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<CreatureFlagsExtra>::Count() { return 32; }
+TC_API_EXPORT size_t EnumUtils<CreatureFlagsExtra>::Count() { return 34; }
 
 template <>
 TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t index)
@@ -109,6 +111,8 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         case 29: return CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING;
         case 30: return CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK;
         case 31: return CREATURE_FLAG_EXTRA_UNUSED_31;
+        case 32: return CREATURE_FLAG_EXTRA_UNUSED;
+        case 33: return CREATURE_FLAG_EXTRA_UNUSED_23;
         default: throw std::out_of_range("index");
     }
 }
