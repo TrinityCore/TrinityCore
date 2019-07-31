@@ -745,6 +745,25 @@ public:
     };
 };
 
+enum DevourHumanoid
+{
+    SPELL_DEVOUR_HUMANOID = 53111
+};
+class spell_death_knight_devour_humanoid : public SpellScript
+{
+    PrepareSpellScript(spell_death_knight_devour_humanoid);
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_DEVOUR_HUMANOID, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_death_knight_devour_humanoid::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_the_scarlet_enclave_c2()
 {
     new npc_crusade_persuaded();
@@ -752,4 +771,5 @@ void AddSC_the_scarlet_enclave_c2()
     new npc_koltira_deathweaver();
     new npc_high_inquisitor_valroth();
     new npc_a_special_surprise();
+    RegisterSpellScript(spell_death_knight_devour_humanoid);
 }
