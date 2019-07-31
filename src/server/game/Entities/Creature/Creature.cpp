@@ -767,6 +767,9 @@ void Creature::Update(uint32 diff)
             if (m_deathState != CORPSE)
                 break;
 
+            if (IsEngaged())
+                Unit::AIUpdateTick(diff);
+
             if (m_groupLootTimer && !lootingGroupLowGUID.IsEmpty())
             {
                 if (m_groupLootTimer <= diff)
@@ -854,8 +857,6 @@ void Creature::Update(uint32 diff)
                 }
             }
 
-
-            // do not allow the AI to be changed during update
             Unit::AIUpdateTick(diff);
 
             // creature can be dead after UpdateAI call
@@ -3433,7 +3434,7 @@ void Creature::AtDisengage()
     Unit::AtDisengage();
 
     ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
-    if (HasDynamicFlag(UNIT_DYNFLAG_TAPPED))
+    if (IsAlive() && HasDynamicFlag(UNIT_DYNFLAG_TAPPED))
         SetDynamicFlags(GetCreatureTemplate()->dynamicflags);
 
     if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
