@@ -222,7 +222,10 @@ enum TrinityStrings
     // 179-185 used in master branch
     LANG_TRANSPORT_POSITION               = 186,
     LANG_PARTIAL_GROUP_SUMMON             = 187,
-    // Room for more level 1                188-199 not used
+    LANG_2FA_SECRET_TOO_LONG              = 188,
+    LANG_2FA_SECRET_INVALID               = 189,
+    LANG_2FA_SECRET_SET_COMPLETE          = 190,
+    // Room for more level 1                191-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                     = 200,

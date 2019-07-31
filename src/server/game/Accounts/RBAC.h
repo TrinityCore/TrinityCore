@@ -286,7 +286,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_ACCOUNT_2FA                            = 378,
     RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP                      = 379,
     RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE                     = 380,
-    // unused 381-386
+    RBAC_PERM_COMMAND_ACCOUNT_SET_2FA                        = 381,
+    // unused 382-386
     RBAC_PERM_COMMAND_GOBJECT                                = 387,
     RBAC_PERM_COMMAND_GOBJECT_ACTIVATE                       = 388,
     RBAC_PERM_COMMAND_GOBJECT_ADD                            = 389,
