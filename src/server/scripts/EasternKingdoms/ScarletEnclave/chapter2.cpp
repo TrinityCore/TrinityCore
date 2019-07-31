@@ -746,22 +746,13 @@ public:
     };
 };
 
-enum DevourHumanoid
-{
-    SPELL_DEVOUR_HUMANOID = 53111
-};
 class spell_death_knight_devour_humanoid : public SpellScript
 {
     PrepareSpellScript(spell_death_knight_devour_humanoid);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DEVOUR_HUMANOID });
-    }
-
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_DEVOUR_HUMANOID, true);
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectValue(), true);
     }
 
     void Register() override
