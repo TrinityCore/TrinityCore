@@ -78,6 +78,7 @@ void AddSC_boss_magmaw();
 void AddSC_boss_omnotron_defense_system();
 void AddSC_boss_atramedes();
 void AddSC_boss_chimaeron();
+void AddSC_boss_maloriak();
 void AddSC_blackwing_descent();
 void AddSC_instance_deadmines();             //Deadmines
 void AddSC_boss_glubtok();
@@ -307,6 +308,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_omnotron_defense_system();
     AddSC_boss_atramedes();
     AddSC_boss_chimaeron();
+    AddSC_boss_maloriak();
     AddSC_blackwing_descent();
     AddSC_instance_deadmines();             //Deadmines
     AddSC_boss_glubtok();

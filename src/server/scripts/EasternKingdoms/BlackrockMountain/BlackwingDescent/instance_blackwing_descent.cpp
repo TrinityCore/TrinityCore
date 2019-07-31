@@ -28,6 +28,7 @@ ObjectData const creatureData[] =
     { BOSS_OMNOTRON,                        DATA_OMNOTRON_DEFENSE_SYSTEM        },
     { BOSS_ATRAMEDES,                       DATA_ATRAMEDES                      },
     { BOSS_CHIMAERON,                       DATA_CHIMAERON                      },
+    { BOSS_MALORIAK,                        DATA_MALORIAK                       },
     { NPC_ELECTRON,                         DATA_ELECTRON                       },
     { NPC_MAGMATRON,                        DATA_MAGMATRON                      },
     { NPC_TOXITRON,                         DATA_TOXITRON                       },
@@ -39,14 +40,16 @@ ObjectData const creatureData[] =
     { NPC_BILE_O_TRON_800,                  DATA_BILE_O_TRON_800                },
     { NPC_FINKLE_EINHORN,                   DATA_FINKLE_EINHORN                 },
     { NPC_LORD_VICTOR_NEFARIUS_CHIMAERON,   DATA_LORD_VICTOR_NEFARIUS_CHIMAERON },
+    { NPC_CAULDRON_TRIGGER,                 DATA_CAULDRON_TRIGGER               },
     { 0,                                    0                                   } // END
 };
 
 ObjectData const gameobjectData[] =
 {
-    { GO_ANCIENT_BELL,          DATA_ANCIENT_BELL       },
-    { GO_ATHENAEUM_DOOR,        DATA_ATHENAEUM_DOOR     },
-    { 0,                        0                       }  // END
+    { GO_ANCIENT_BELL,                              DATA_ANCIENT_BELL   },
+    { GO_ATHENAEUM_DOOR,                            DATA_ATHENAEUM_DOOR },
+    { GO_DOODAD_BLACKROCKV2_LABROOM_CAULDRON_01,    DATA_CAULDRON       },
+    { 0,                                            0                   }  // END
 };
 
 DoorData const doorData[] =

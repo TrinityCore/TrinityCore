@@ -36,7 +36,6 @@ enum BWDDataTypes
     DATA_NEFARIANS_END              = 5,
 
     /*Events*/
-
     DATA_DEAD_DWARF_SPIRITS,
     DATA_ANCIENT_BELL,
     DATA_COLUMN_OF_LIGHT,
@@ -62,7 +61,11 @@ enum BWDDataTypes
     /*Chimaeron*/
     DATA_BILE_O_TRON_800,
     DATA_FINKLE_EINHORN,
-    DATA_LORD_VICTOR_NEFARIUS_CHIMAERON
+    DATA_LORD_VICTOR_NEFARIUS_CHIMAERON,
+
+    /*Maloriak*/
+    DATA_CAULDRON_TRIGGER,
+    DATA_CAULDRON
 };
 
 enum BWDCreatureIds
@@ -115,6 +118,9 @@ enum BWDCreatureIds
     NPC_BILE_O_TRON_800                 = 44418,
     NPC_LORD_VICTOR_NEFARIUS_CHIMAERON  = 48964,
 
+    /*Maloriak*/
+    NPC_CAULDRON_TRIGGER                = 41505,
+
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST            = 43125,
     NPC_SPIRIT_OF_ANVILRAGE             = 43128,
@@ -129,9 +135,10 @@ enum BWDCreatureIds
 
 enum BWDGameObjectIds
 {
-    GO_INNER_CHAMBER_DOOR   = 205830,
-    GO_ANCIENT_BELL         = 204276,
-    GO_ATHENAEUM_DOOR       = 208291,
+    GO_INNER_CHAMBER_DOOR                       = 205830,
+    GO_ANCIENT_BELL                             = 204276,
+    GO_ATHENAEUM_DOOR                           = 208291,
+    GO_DOODAD_BLACKROCKV2_LABROOM_CAULDRON_01   = 203306
 };
 
 enum BWDMisc
