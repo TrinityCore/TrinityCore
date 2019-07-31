@@ -92,7 +92,7 @@ public:
             me->SetStandState(UNIT_STAND_STATE_SIT);
             me->RemoveAllAuras();
             me->CombatStop(true);
-            me->GetThreatManager().NotifyDisengaged();
+            EngagementOver();
             UnkorUnfriendly_Timer = 60000;
         }
 

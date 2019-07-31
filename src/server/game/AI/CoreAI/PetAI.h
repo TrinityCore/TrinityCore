@@ -45,6 +45,8 @@ class TC_GAME_API PetAI : public CreatureAI
         void OwnerAttacked(Unit* target) override;
         void DamageTaken(Unit* attacker, uint32& /*damage*/) override { AttackStart(attacker); }
         void ReceiveEmote(Player* player, uint32 textEmote) override;
+        void JustEnteredCombat(Unit* who) override { EngagementStart(who); }
+        void JustExitedCombat() override { EngagementOver(); }
 
         // The following aren't used by the PetAI but need to be defined to override
         // default CreatureAI functions which interfere with the PetAI

@@ -27,6 +27,7 @@ EndScriptData */
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "Language.h"

@@ -271,7 +271,7 @@ void AuthSession::SendPacket(ByteBuffer& packet)
 
     if (!packet.empty())
     {
-        MessageBuffer buffer;
+        MessageBuffer buffer(packet.size());
         buffer.Write(packet.contents(), packet.size());
         QueuePacket(std::move(buffer));
     }

@@ -97,8 +97,9 @@ void EscortAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     me->RemoveAllAuras();
     me->CombatStop(true);
-    me->GetThreatManager().NotifyDisengaged();
     me->SetLootRecipient(nullptr);
+    
+    EngagementOver();
 
     if (HasEscortState(STATE_ESCORT_ESCORTING))
     {
@@ -229,7 +230,7 @@ void EscortAI::UpdateAI(uint32 diff)
                     if (!isEscort)
                       me->DespawnOrUnsummon(0, 1s);
                     else
-                      me->GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, me->GetSpawnId(), true);
+                      me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, me->GetSpawnId());
                 }
                 else
                     me->DespawnOrUnsummon();

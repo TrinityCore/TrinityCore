@@ -548,8 +548,8 @@ void SmartAI::JustReachedHome()
             if (me->GetWaypointPath())
                 me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
         }
-        else
-            me->ResumeMovement();
+
+        me->ResumeMovement();
     }
     else if (formation->IsFormed())
         me->GetMotionMaster()->MoveIdle(); // wait the order of leader
@@ -795,7 +795,7 @@ void SmartAI::SetCombatMove(bool on)
         {
             if (!me->HasReactState(REACT_PASSIVE) && me->GetVictim() && !me->GetMotionMaster()->HasMovementGenerator([](MovementGenerator const* movement) -> bool
             {
-                return movement->Mode == MOTION_MODE_DEFAULT && movement->Priority == MOTION_PRIORITY_NORMAL;
+                return movement->GetMovementGeneratorType() == CHASE_MOTION_TYPE && movement->Mode == MOTION_MODE_DEFAULT && movement->Priority == MOTION_PRIORITY_NORMAL;
             }))
             {
                 SetRun(_run);

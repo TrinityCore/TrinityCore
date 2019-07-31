@@ -715,23 +715,6 @@ enum ReactiveType
     MAX_REACTIVE
 };
 
-#define SUMMON_SLOT_PET     0
-#define SUMMON_SLOT_TOTEM   1
-#define MAX_TOTEM_SLOT      5
-#define SUMMON_SLOT_MINIPET 5
-#define SUMMON_SLOT_QUEST   6
-#define MAX_SUMMON_SLOT     7
-
-#define MAX_GAMEOBJECT_SLOT 4
-
-enum PlayerTotemType
-{
-    SUMMON_TYPE_TOTEM_FIRE  = 63,
-    SUMMON_TYPE_TOTEM_EARTH = 81,
-    SUMMON_TYPE_TOTEM_WATER = 82,
-    SUMMON_TYPE_TOTEM_AIR   = 83
-};
-
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
 #define MAX_PLAYER_STEALTH_DETECT_RANGE 30.0f               // max distance for detection targets by player
@@ -1027,10 +1010,10 @@ class TC_GAME_API Unit : public WorldObject
 
         /// ====================== THREAT & COMBAT ====================
         bool CanHaveThreatList() const { return m_threatManager.CanHaveThreatList(); }
-        // This value can be different from IsInCombat:
+        // This value can be different from IsInCombat, for example:
         // - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
         // - when the creature has no targets left, but the AI has not yet ceased engaged logic
-        bool IsEngaged() const { return m_isEngaged; }
+        virtual bool IsEngaged() const { return IsInCombat(); }
         bool IsEngagedBy(Unit const* who) const { return CanHaveThreatList() ? IsThreatenedBy(who) : IsInCombatWith(who); }
         void EngageWithTarget(Unit* who); // Adds target to threat list if applicable, otherwise just sets combat state
         // Combat handling
@@ -1605,7 +1588,6 @@ class TC_GAME_API Unit : public WorldObject
         void SetCantProc(bool apply);
 
         uint32 GetModelForForm(ShapeshiftForm form, uint32 spellId) const;
-        uint32 GetModelForTotem(PlayerTotemType totemType);
 
         friend class VehicleJoinEvent;
         ObjectGuid LastCharmerGUID;
@@ -1769,11 +1751,12 @@ class TC_GAME_API Unit : public WorldObject
         void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
         virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
 
+        // notifiers
         virtual void AtEnterCombat() { }
         virtual void AtExitCombat();
 
-        virtual void AtEngage(Unit* /*target*/) { m_isEngaged = true; }
-        virtual void AtDisengage() { m_isEngaged = false; }
+        virtual void AtEngage(Unit* /*target*/) {}
+        virtual void AtDisengage() {}
 
     private:
 
@@ -1800,7 +1783,6 @@ class TC_GAME_API Unit : public WorldObject
         DiminishingReturn m_Diminishing[DIMINISHING_MAX];
 
         // Threat+combat management
-        bool m_isEngaged;
         friend class CombatManager;
         CombatManager m_combatManager;
         friend class ThreatManager;

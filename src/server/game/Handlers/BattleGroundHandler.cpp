@@ -138,9 +138,18 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
             GetPlayer()->SendDirectMessage(&data);
             return;
         }
+        
+        // check RBAC permissions
+        if (!_player->CanJoinToBattleground(bg))
+        {
+            WorldPacket data;
+            sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_BATTLEGROUND_JOIN_TIMED_OUT);
+            GetPlayer()->SendDirectMessage(&data);
+            return;
+        }
 
         // check Deserter debuff
-        if (!_player->CanJoinToBattleground(bg))
+        if (_player->IsDeserter())
         {
             WorldPacket data;
             sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS);
@@ -419,7 +428,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     if (action == 1 && ginfo.ArenaType == 0)
     {
         //if player is trying to enter battleground (not arena!) and he has deserter debuff, we must just remove him from queue
-        if (!_player->CanJoinToBattleground(bg))
+        if (_player->IsDeserter())
         {
             //send bg command result to show nice message
             WorldPacket data2;
@@ -669,6 +678,14 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
             // player is using dungeon finder or raid finder
             WorldPacket data;
             sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_LFG_CANT_USE_BATTLEGROUND);
+            _player->SendDirectMessage(&data);
+            return;
+        }
+        
+        if (!_player->CanJoinToBattleground(bg))
+        {
+            WorldPacket data;
+            sBattlegroundMgr->BuildGroupJoinedBattlegroundPacket(&data, ERR_BATTLEGROUND_JOIN_FAILED);
             _player->SendDirectMessage(&data);
             return;
         }

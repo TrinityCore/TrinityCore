@@ -201,7 +201,12 @@ public:
     }
 
     /** Returns length of the whole spline. */
-    length_type length() const { return lengths[index_hi];}
+    length_type length() const
+    {
+        if (lengths.empty())
+            return 0;
+        return lengths[index_hi];
+    }
     /** Returns length between given nodes. */
     length_type length(index_type first, index_type last) const { return lengths[last]-lengths[first];}
     length_type length(index_type Idx) const { return lengths[Idx];}

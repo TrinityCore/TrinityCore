@@ -93,6 +93,11 @@ enum PriestMisc
     PRIEST_LIGHTWELL_NPC_6                          = 31883
 };
 
+enum MiscSpells
+{
+    SPELL_MAGE_ARCANE_POWER                         = 12042
+};
+
 class PowerCheck
 {
     public:
@@ -1544,6 +1549,26 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
         }
 };
 
+// 10060 - Power Infusion
+class spell_pri_power_infusion : public SpellScript
+{
+    PrepareSpellScript(spell_pri_power_infusion);
+
+    SpellCastResult CheckCast()
+    {
+        if (Unit* target = GetExplTargetUnit())
+            if (target->HasAura(SPELL_MAGE_ARCANE_POWER))
+                return SPELL_FAILED_AURA_BOUNCED;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pri_power_infusion::CheckCast);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_aq_3p_bonus();
@@ -1576,4 +1601,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_t3_4p_bonus();
     new spell_pri_t5_heal_2p_bonus();
     new spell_pri_t10_heal_2p_bonus();
+    RegisterSpellScript(spell_pri_power_infusion);
 }
