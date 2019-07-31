@@ -413,10 +413,10 @@ bool AuctionHouseMgr::PendingAuctionAdd(Player* player, AuctionEntry* aEntry, It
         // Get deposit so far
         uint64 totalDeposit = 0;
         for (AuctionEntry const* thisAuction : *thisAH)
-            totalDeposit += GetAuctionDeposit(thisAuction->auctionHouseEntry, thisAuction->etime, item, thisAuction->itemCount);
+            totalDeposit += thisAuction->deposit;
 
         // Add this deposit
-        totalDeposit += GetAuctionDeposit(aEntry->auctionHouseEntry, aEntry->etime, item, aEntry->itemCount);
+        totalDeposit += aEntry->deposit;
 
         if (!player->HasEnoughMoney(totalDeposit))
             return false;
@@ -447,40 +447,34 @@ void AuctionHouseMgr::PendingAuctionProcess(Player* player)
 
     PlayerAuctions* thisAH = iterMap->second.first;
 
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-
-    uint32 totalItems = 0;
-    for (auto itrAH = thisAH->begin(); itrAH != thisAH->end(); ++itrAH)
-    {
-        AuctionEntry* AH = (*itrAH);
-        totalItems += AH->itemCount;
-    }
-
     uint64 totaldeposit = 0;
-    auto itr = (*thisAH->begin());
-
-    if (Item* item = GetAItem(itr->itemGUIDLow))
-         totaldeposit = GetAuctionDeposit(itr->auctionHouseEntry, itr->etime, item, totalItems);
-
-    uint64 depositremain = totaldeposit;
-    for (auto itrAH = thisAH->begin(); itrAH != thisAH->end(); ++itrAH)
+    auto itrAH = thisAH->begin();
+    for (; itrAH != thisAH->end(); ++itrAH)
     {
         AuctionEntry* AH = (*itrAH);
+        if (!player->HasEnoughMoney(totaldeposit + AH->deposit))
+            break;
 
-        if (next(itrAH) == thisAH->end())
-            AH->deposit = depositremain;
-        else
-        {
-            AH->deposit = totaldeposit / thisAH->size();
-            depositremain -= AH->deposit;
-        }
-
-        AH->DeleteFromDB(trans);
-
-        AH->SaveToDB(trans);
+        totaldeposit += AH->deposit;
     }
 
-    CharacterDatabase.CommitTransaction(trans);
+    // expire auctions we cannot afford
+    if (itrAH != thisAH->end())
+    {
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+        do
+        {
+            AuctionEntry* AH = (*itrAH);
+            AH->expire_time = GameTime::GetGameTime();
+            AH->DeleteFromDB(trans);
+            AH->SaveToDB(trans);
+            ++itrAH;
+        } while (itrAH != thisAH->end());
+
+        CharacterDatabase.CommitTransaction(trans);
+    }
+
     pendingAuctionMap.erase(player->GetGUID());
     delete thisAH;
     player->ModifyMoney(-int64(totaldeposit));
