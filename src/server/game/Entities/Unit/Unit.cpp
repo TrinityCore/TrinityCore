@@ -11669,8 +11669,6 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
         if (!creature->IsPet())
         {
-            creature->GetThreatManager().ClearAllThreat();
-
             // must be after setDeathState which resets dynamic flags
             if (!creature->loot.isLooted())
                 creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);

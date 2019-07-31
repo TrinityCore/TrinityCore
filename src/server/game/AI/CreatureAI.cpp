@@ -234,6 +234,12 @@ bool CreatureAI::UpdateVictim()
     if (!IsEngaged())
         return false;
 
+    if (!me->IsAlive())
+    {
+        EngagementOver();
+        return false;
+    }
+
     if (!me->HasReactState(REACT_PASSIVE))
     {
         if (Unit* victim = me->SelectVictim())
