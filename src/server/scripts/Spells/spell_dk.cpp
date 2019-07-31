@@ -332,7 +332,7 @@ class spell_dk_death_coil : public SpellScript
             return;
 
         Unit* target = GetHitUnit();
-        int32 bp = GetEffectValue();
+        int32 bp = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster, nullptr, GetHitUnit());
         bp += CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), 23);
 
         if (caster->IsFriendlyTo(target))

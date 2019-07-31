@@ -5436,12 +5436,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
     });
 
-    // Death Coil
-    ApplySpellFix({ 47541 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-    });
-
     // Light of Dawn
     ApplySpellFix({ 85222 }, [](SpellInfo* spellInfo)
     {
