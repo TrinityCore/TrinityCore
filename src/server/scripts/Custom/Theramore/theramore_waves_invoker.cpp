@@ -10,6 +10,8 @@
 
 constexpr uint8 NUMBER_OF_WAVES = 10;
 
+const Position JainaHomePos = { -3658.39f, -4372.87f, 9.35f, 0.69f };
+
 enum Invoker
 {
     // Events
@@ -91,7 +93,7 @@ class KalecgosFlightEvent : public BasicEvent
     bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
     {
         if (roll_chance_i(20))
-            owner->PlayDistanceSound(RAND(28141, 28142));
+            owner->AI()->Talk(RAND(SAY_KALECGOS_1, SAY_KALECGOS_2));
 
         owner->CastSpell(owner, SPELL_FROST_BREEZE, spellArgs);
         owner->GetThreatManager().RemoveMeFromThreatLists();
@@ -289,7 +291,7 @@ class theramore_waves_invoker : public CreatureScript
                     case WAVE_09:
                     case WAVE_10:
                         HordeMembersInvoker(waves, horderMembers);
-                        waves = RAND(WAVE_CITADEL, WAVE_DOCKS);
+                        waves = RAND(WAVE_DOORS, WAVE_CITADEL, WAVE_DOCKS);
                         events.ScheduleEvent(++wavesInvoker, 1s);
                         break;
 
@@ -330,7 +332,9 @@ class theramore_waves_invoker : public CreatureScript
                     case WAVE_EXIT:
                         for (Player* player : players)
                             player->CompleteQuest(QUEST_PREPARE_FOR_WAR);
-                        jaina->AI()->SetData(EVENT_STOP_KALECGOS, 1);
+                        jaina->NearTeleportTo(JainaHomePos);
+                        jaina->SetHomePosition(JainaHomePos);
+                        jaina->AI()->SetData(EVENT_STOP_KALECGOS, 1U);
                         jaina->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         kalecgos->DespawnOrUnsummon();
                         break;
@@ -378,7 +382,7 @@ class theramore_waves_invoker : public CreatureScript
                 {
                     if (waveId == WAVE_DOORS)
                     {
-                        Position dest = GetRandomPosition(jaina->GetPosition(), 5.f);
+                        Position dest = GetRandomPosition(JainaHomePos, 5.f);
                         temp->GetMotionMaster()->MovePoint(0, dest, false);
                     }
 
@@ -392,24 +396,30 @@ class theramore_waves_invoker : public CreatureScript
         void SendJainaWarning(uint8 spawnNumber)
         {
             uint8 groupId = -1;
+            Position position;
             switch (spawnNumber)
             {
                 // Portes
                 case WAVE_DOORS:
+                    position = JainaHomePos;
                     groupId = JAINA_SAY_WAVE_DOORS;
                     break;
 
                 // Citadelle
                 case WAVE_CITADEL:
+                    position = { -3668.74f, -4511.64f, 10.09f, 1.54f };
                     groupId = JAINA_SAY_WAVE_CITADEL;
                     break;
 
                 // Docks
                 case WAVE_DOCKS:
+                    position = { -3826.84f, -4539.05f, 9.21f };
                     groupId = JAINA_SAY_WAVE_DOCKS;
                     break;
             }
 
+            jaina->NearTeleportTo(position);
+            jaina->SetHomePosition(position);
             jaina->AI()->Talk(JAINA_SAY_WAVE_ALERT);
             jaina->AI()->Talk(groupId);
         }

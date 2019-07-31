@@ -158,6 +158,7 @@ class npc_jaina_theramore : public CreatureScript
 
         void Initialize()
         {
+            fireballTimer = 0;
             sayInCombatTimer = 0;
             blizzardTimer = 0;
             playerShaker = false;
@@ -302,7 +303,7 @@ class npc_jaina_theramore : public CreatureScript
 
                 case EVENT_START_BATTLE:
                 {
-                    debug = value ? true : false;
+                    debug = value == 2 ? true : false;
 
                     tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
                     kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
@@ -356,6 +357,7 @@ class npc_jaina_theramore : public CreatureScript
         {
             me->RemoveAllAuras();
 
+            fireballTimer = 0;
             sayInCombatTimer = 2000;
             blizzardTimer = urand(3500, 5000);
         }
@@ -1458,22 +1460,30 @@ class npc_jaina_theramore : public CreatureScript
             {
                 if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    me->PlayDistanceSound(RAND(28138, 28139));
+                    me->AI()->Talk(RAND(SAY_BLIZZARD_1, SAY_BLIZZARD_2));
                     DoCast(pTarget, SPELL_BLIZZARD);
                 }
                 blizzardTimer = urand(6000, 15000);
             }
             else blizzardTimer -= diff;
 
+            // Boule de feu
+            if (fireballTimer <= diff)
+            {
+                DoCastVictim(SPELL_FIREBALL);
+                fireballTimer = 980;
+            }
+            else fireballTimer -= diff;
+
             // Parle en combat
             if (sayInCombatTimer <= diff)
             {
-                me->PlayDistanceSound(28140);
+                me->AI()->Talk(RAND(SAY_CASTING_1, SAY_CASTING_2, SAY_CASTING_3));
                 sayInCombatTimer = urand(24000, 65000);
             }
             else sayInCombatTimer -= diff;
 
-            DoSpellAttackIfReady(SPELL_FIREBALL);
+            DoMeleeAttackIfReady();
         }
 
         private:
@@ -1497,7 +1507,7 @@ class npc_jaina_theramore : public CreatureScript
         uint8 firesCount;
         uint8 npcCount;
 
-        uint32 sayInCombatTimer, blizzardTimer;
+        uint32 sayInCombatTimer, blizzardTimer, fireballTimer;
 
         void Relocate(Creature * c, float x, float y, float z, float orientation)
         {

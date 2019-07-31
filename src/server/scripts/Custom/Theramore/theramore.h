@@ -329,7 +329,16 @@ enum Text
     SAY_END_8           = 63,
     SAY_END_9           = 6,
     SAY_END_10          = 64,
-    SAY_END_11          = 7
+    SAY_END_11          = 7,
+
+    SAY_CASTING_1       = 65,
+    SAY_CASTING_2       = 68,
+    SAY_CASTING_3       = 69,
+    SAY_BLIZZARD_1      = 66,
+    SAY_BLIZZARD_2      = 67,
+
+    SAY_KALECGOS_1      = 1,
+    SAY_KALECGOS_2      = 2
 };
 
 const float FireLocation[35][4] =

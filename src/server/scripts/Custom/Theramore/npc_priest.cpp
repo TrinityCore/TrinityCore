@@ -46,6 +46,8 @@ class npc_priest : public CreatureScript
         npc_priestAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
+
+            SetCombatMovement(false);
         }
 
         void Initialize()
@@ -70,6 +72,10 @@ class npc_priest : public CreatureScript
 
         void JustDied(Unit* /*killer*/) override
         {
+            // Que pour Medic Helaina
+            if (me->GetEntry() != 100014)
+                return;
+
             if (Creature * spiritHealder = DoSummon(NPC_SPIRIT_HEALER, me->GetPosition(), 13000, TEMPSUMMON_TIMED_DESPAWN))
             {
                 if (Creature * fx = DoSummon(NPC_INVISIBLE_STALKER, me->GetPosition(), 13000, TEMPSUMMON_TIMED_DESPAWN))
@@ -129,20 +135,20 @@ class npc_priest : public CreatureScript
 
                     case CASTING_POWER_WORD_SHIELD:
                     {
-                        Unit* target = DoSelectLowestHpFriendly(40.0f);
+                        Unit* target = DoSelectLowestHpFriendly(20.0f);
                         if (target && !target->HasAura(SPELL_WEAKENED_SOUL))
                         {
                             DoCast(target, SPELL_POWER_WORD_SHIELD);
                             DoCast(target, SPELL_WEAKENED_SOUL);
                         }
-                        events.RescheduleEvent(CASTING_POWER_WORD_SHIELD, 2s);
+                        events.RescheduleEvent(CASTING_POWER_WORD_SHIELD, 3s);
                         break;
                     }
 
                     case CASTING_HEAL:
-                        if (Unit * target = DoSelectLowestHpFriendly(40.0f))
+                        if (Unit * target = DoSelectLowestHpFriendly(30.0f))
                             DoCast(target, RAND(SPELL_REJUVENATION, SPELL_FLASH_HEAL));
-                        events.RescheduleEvent(CASTING_HEAL, 3s);
+                        events.RescheduleEvent(CASTING_HEAL, 8s);
                         break;
                 }
 
