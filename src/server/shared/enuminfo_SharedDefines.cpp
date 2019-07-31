@@ -42,7 +42,7 @@ TC_API_EXPORT EnumText EnumUtils<Races>::ToString(Races value)
         case RACE_GNOME: return { "RACE_GNOME", "Gnome", "" };
         case RACE_TROLL: return { "RACE_TROLL", "Troll", "" };
         case RACE_BLOODELF: return { "RACE_BLOODELF", "Blood Elf", "" };
-        case RACE_DRAENEI: return { "RACE_DRAENEI", "RACE_DRAENEI", "RACE_FEL_ORC            = 12," };
+        case RACE_DRAENEI: return { "RACE_DRAENEI", "Draenei", "" };
         default: throw std::out_of_range("value");
     }
 }

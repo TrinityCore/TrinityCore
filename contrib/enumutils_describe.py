@@ -27,10 +27,10 @@ if not getcwd().endswith('src'):
     exit(1)
 
 EnumPattern = compile(r'//\s*EnumUtils: DESCRIBE THIS\s+enum\s+([0-9A-Za-z]+)[^\n]*\s*{([^}]+)};')
-EnumValuesPattern = compile(r'\s+[^,]+[^\n]*')
+EnumValuesPattern = compile(r'\s+.+?(,|$)[^\n]*')
 EnumValueNamePattern = compile(r'^\s*([a-zA-Z0-9_]+)', flags=MULTILINE)
 EnumValueSkipLinePattern = compile(r'^\s*//')
-EnumValueCommentPattern = compile(r'//[ \t]*([^\n]+)$')
+EnumValueCommentPattern = compile(r'//,?[ \t]*([^\n]+)$')
 CommentMatchFormat = compile(r'^(((TITLE +(.+?))|(DESCRIPTION +(.+?))) *){1,2}$')
 CommentSkipFormat = compile(r'^SKIP *$')
 
