@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 
 //How to win friends and influence enemies
 // texts signed for creature 28939 but used for 28939, 28940, 28610
@@ -752,6 +753,11 @@ enum DevourHumanoid
 class spell_death_knight_devour_humanoid : public SpellScript
 {
     PrepareSpellScript(spell_death_knight_devour_humanoid);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DEVOUR_HUMANOID });
+    }
 
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
