@@ -229,9 +229,9 @@ enum TrinityStrings
     //                                      185 not used
     LANG_TRANSPORT_POSITION               = 186,
     LANG_PARTIAL_GROUP_SUMMON             = 187,
-    LANG_2FA_SECRET_TOO_LONG              = 188, // 3.3.5 RESERVED
-    LANG_2FA_SECRET_INVALID               = 189, // 3.3.5 RESERVED
-    LANG_2FA_SECRET_SET_COMPLETE          = 190, // 3.3.5 RESERVED
+    LANG_2FA_SECRET_TOO_LONG              = 188,
+    LANG_2FA_SECRET_INVALID               = 189,
+    LANG_2FA_SECRET_SET_COMPLETE          = 190,
     LANG_SUBCMDS_LIST_ENTRY               = 191, // 3.3.5 RESERVED
     LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS      = 192, // 3.3.5 RESERVED
     LANG_SUBCMD_INVALID                   = 193, // 3.3.5 RESERVED

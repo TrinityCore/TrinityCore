@@ -286,8 +286,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_ACCOUNT_2FA                            = 378,
     RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP                      = 379,
     RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE                     = 380,
-    // unused 381-386
-    //                                                       = 381, // DEPRECATED: DON'T REUSE
+    RBAC_PERM_COMMAND_ACCOUNT_SET_2FA                        = 381,
     //                                                       = 382, // DEPRECATED: DON'T REUSE
     //                                                       = 383, // DEPRECATED: DON'T REUSE
     //                                                       = 384, // DEPRECATED: DON'T REUSE
