@@ -31,7 +31,6 @@ enum Spells
     // Maloriak
     SPELL_ARCANE_STORM                  = 77896,
     SPELL_REMEDY                        = 77912,
-
     SPELL_THROW_RED_BOTTLE              = 77925,
     SPELL_THROW_BLUE_BOTTLE             = 77932,
     SPELL_THROW_GREEN_BOTTLE            = 77937,
@@ -47,13 +46,28 @@ enum Spells
     SPELL_THROW_GREEN_BOTTLE_TRIGGERED  = 77938,
     SPELL_THROW_BLACK_BOTTLE_TRIGGERED  = 92837,
     SPELL_RELEASE_ABERRATIONS           = 77569,
+    SPELL_SCORCHING_BLAST               = 77679,
+    SPELL_BITING_CHILL                  = 77760,
+    SPELL_FLASH_FREEZE_TARGETING        = 97693,
 
     // Cauldron Trigger
     SPELL_DEBILITATING_SLIME_CAST       = 77602,
     SPELL_DEBILITATING_SLIME_KNOCKBACK  = 77948,
     SPELL_DEBILITATING_SLIME_DEBUFF     = 77615,
 
+    // Flash Freeze
+    SPELL_FLASH_FREEZE_VISUAL           = 77712,
+    SPELL_SHATTER                       = 77715,
+
+    // Player
+    SPELL_FLASH_FREEZE_SUMMON           = 77711,
+    SPELL_FLASH_FREEZE_DUMMY            = 77716,
+    SPELL_FLASH_FREEZE_STUN_NORMAL      = 77699
+
 };
+
+#define SPELL_FLASH_FREEZE_STUN RAID_MODE<uint32>(77699, 92978, 92979, 92980)
+#define SPELL_CONSUMING_FLAMES RAID_MODE<uint32>(77786, 92971, 92972, 92973)
 
 enum Events
 {
@@ -68,6 +82,10 @@ enum Events
     EVENT_IMBUED_BUFF,
     EVENT_EXPLODE_CAULDRON,
     EVENT_ATTACK_PLAYERS,
+    EVENT_CONSUMING_FLAMES,
+    EVENT_SCORCHING_BLAST,
+    EVENT_BITING_CHILL,
+    EVENT_FLASH_FREEZE
 };
 
 enum Actions
@@ -129,7 +147,7 @@ std::unordered_map<uint8, VialData> vialData =
 struct boss_maloriak : public BossAI
 {
     boss_maloriak(Creature* creature) : BossAI(creature, DATA_MALORIAK),
-        _currentVial(urand(VIAL_RED, VIAL_BLUE)), _usedVialsCount(0) { }
+        _currentVial(urand(VIAL_RED, VIAL_BLUE)), _usedVialsCount(0), _releasedAberrationsCount(0) { }
 
     void Reset() override
     {
@@ -149,8 +167,21 @@ struct boss_maloriak : public BossAI
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FLASH_FREEZE_STUN);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BITING_CHILL);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONSUMING_FLAMES);
         summons.DespawnAll();
         _DespawnAtEvade();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        // Talk(SAY_DEATH);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FLASH_FREEZE_STUN);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BITING_CHILL);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONSUMING_FLAMES);
+        _JustDied();
     }
 
     void OnSpellCastInterrupt(SpellInfo const* spell) override
@@ -219,6 +250,19 @@ struct boss_maloriak : public BossAI
                     events.ScheduleEvent(EVENT_REMEDY, 33s + 500ms);
                     events.ScheduleEvent(EVENT_RELEASE_ABERRATIONS, 15s);
                 }
+
+                if (_currentVial == VIAL_RED)
+                {
+                    events.ScheduleEvent(EVENT_CONSUMING_FLAMES, 7s + 500ms);
+                    events.ScheduleEvent(EVENT_SCORCHING_BLAST, 22s);
+                }
+                else if (_currentVial == VIAL_BLUE)
+                {
+                    events.ScheduleEvent(EVENT_BITING_CHILL, 13s + 500ms);
+                    events.ScheduleEvent(EVENT_FLASH_FREEZE, 22s);
+                }
+
+                events.ScheduleEvent(EVENT_FACE_TO_CAULDRON, 40s);
                 break;
             default:
                 break;
@@ -252,9 +296,13 @@ struct boss_maloriak : public BossAI
                     DoCastSelf(SPELL_REMEDY);
                     break;
                 case EVENT_RELEASE_ABERRATIONS:
-                    me->MakeInterruptable(true);
-                    DoCastAOE(SPELL_RELEASE_ABERRATIONS);
-                    events.Repeat(24s + 500ms);
+                    if (_releasedAberrationsCount < 6)
+                    {
+                        me->MakeInterruptable(true);
+                        DoCastAOE(SPELL_RELEASE_ABERRATIONS);
+                        events.Repeat(24s + 500ms);
+                        _releasedAberrationsCount++;
+                    }
                     break;
                 case EVENT_FACE_TO_CAULDRON:
                     events.Reset();
@@ -267,8 +315,6 @@ struct boss_maloriak : public BossAI
                         _currentVial = _usedVialsCount < 2 ? _currentVial == VIAL_BLUE ? VIAL_RED : VIAL_BLUE : VIAL_GREEN;
                         Talk(vialData[_currentVial].SayTextId);
                         _usedVialsCount = _usedVialsCount < 2 ? _usedVialsCount + 1 : 0;
-
-                        events.Repeat(50s);
                         events.ScheduleEvent(EVENT_THROW_VIAL, 1s + 300ms);
                     }
                     break;
@@ -301,6 +347,24 @@ struct boss_maloriak : public BossAI
                 case EVENT_ATTACK_PLAYERS:
                     me->SetReactState(REACT_AGGRESSIVE);
                     break;
+                case EVENT_CONSUMING_FLAMES:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                        DoCast(target, SPELL_CONSUMING_FLAMES);
+                    events.Repeat(17s);
+                    break;
+                case EVENT_SCORCHING_BLAST:
+                    DoCastSelf(SPELL_SCORCHING_BLAST);
+                    events.Repeat(17s);
+                    break;
+                case EVENT_BITING_CHILL:
+                   if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                        DoCast(target, SPELL_BITING_CHILL);
+                    events.Repeat(11s);
+                    break;
+                case EVENT_FLASH_FREEZE:
+                    DoCastAOE(SPELL_FLASH_FREEZE_TARGETING);
+                    events.Repeat(17s);
+                    break;
                 default:
                     break;
             }
@@ -311,6 +375,28 @@ struct boss_maloriak : public BossAI
 private:
     uint8 _currentVial;
     uint8 _usedVialsCount;
+    uint8 _releasedAberrationsCount;
+};
+
+struct npc_maloriak_flash_freeze : public NullCreatureAI
+{
+    npc_maloriak_flash_freeze(Creature* creature) : NullCreatureAI(creature) { }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_FLASH_FREEZE_VISUAL);
+        Creature* creature = me;
+        me->m_Events.AddEventAtOffset([creature]() { creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); }, 1s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Unit* owner = me->ToTempSummon() ? me->ToTempSummon()->GetSummoner() : nullptr)
+            owner->CastSpell(owner, SPELL_FLASH_FREEZE_DUMMY, true);
+
+        DoCastAOE(SPELL_SHATTER, true);
+        me->DespawnOrUnsummon(4s);
+    }
 };
 
 class spell_maloriak_throw_bottle : public SpellScript
@@ -333,7 +419,7 @@ class spell_maloriak_throw_bottle_triggered : public SpellScript
 {
     PrepareSpellScript(spell_maloriak_throw_bottle_triggered);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
             {
@@ -378,9 +464,116 @@ class spell_maloriak_throw_bottle_triggered : public SpellScript
     }
 };
 
+
+class spell_maloriak_consuming_flames: public AuraScript
+{
+    PrepareAuraScript(spell_maloriak_consuming_flames);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetSpellInfo() && eventInfo.GetDamageInfo();
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        AuraEffect* effect = GetEffect(EFFECT_0);
+        effect->SetAmount(effect->GetAmount() + CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 50));
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_maloriak_consuming_flames::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+class spell_maloriak_flash_freeze_targeting : public SpellScript
+{
+    PrepareSpellScript(spell_maloriak_flash_freeze_targeting);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLASH_FREEZE_SUMMON });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.size() <= 1)
+            return;
+
+        targets.remove_if(Trinity::Predicates::IsVictimOf(GetCaster()));
+
+        if (targets.empty())
+            return;
+
+        targets.remove_if([](WorldObject* obj)
+        {
+            Unit const* target = obj->ToUnit();
+            if (!target)
+                return true;
+
+            for (Unit* attacker : target->getAttackers())
+                if (attacker->GetEntry() == NPC_ABERRATION && attacker->GetVictim() == target)
+                    return true;
+
+            return false;
+        });
+
+        if (!targets.empty())
+            Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleDummyEffect(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+            GetHitUnit()->CastSpell(GetHitUnit(), SPELL_FLASH_FREEZE_SUMMON, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_maloriak_flash_freeze_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_maloriak_flash_freeze_targeting::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_flash_freeze_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_flash_freeze_dummy);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Unit* caster = GetCaster();
+        targets.remove_if([caster](WorldObject* obj)
+        {
+            Unit* target = obj->ToUnit();
+            if (!target)
+                return true;
+
+            return target->isDead() || !target->ToTempSummon() || target->ToTempSummon()->GetSummoner() != caster;
+        });
+
+        if (!targets.empty())
+            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_FLASH_FREEZE_STUN_NORMAL, caster));
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_flash_freeze_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
 void AddSC_boss_maloriak()
 {
     RegisterBlackwingDescentCreatureAI(boss_maloriak);
+    RegisterBlackwingDescentCreatureAI(npc_maloriak_flash_freeze);
     RegisterSpellScript(spell_maloriak_throw_bottle);
     RegisterSpellScript(spell_maloriak_throw_bottle_triggered);
+    RegisterAuraScript(spell_maloriak_consuming_flames);
+    RegisterSpellScript(spell_maloriak_flash_freeze_targeting);
+    RegisterSpellScript(spell_flash_freeze_dummy);
 }

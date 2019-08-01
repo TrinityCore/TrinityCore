@@ -163,6 +163,10 @@ class instance_blackwing_descent : public InstanceMapScript
                         if (Creature* atramedes = GetCreature(DATA_ATRAMEDES))
                             atramedes->AI()->JustSummoned(creature);
                         break;
+                    case NPC_FLASH_FREEZE:
+                        if (Creature * maloriak = GetCreature(DATA_MALORIAK))
+                            maloriak->AI()->JustSummoned(creature);
+                        break;
                     default:
                         break;
                 }

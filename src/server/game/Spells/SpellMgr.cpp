@@ -5398,6 +5398,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
     });
 
+    // Biting Chill
+    ApplySpellFix({ 77760 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(0);
+    });
+
     // END OF BLACKWING DESCENT SPELLS
 
     // Living Bomb

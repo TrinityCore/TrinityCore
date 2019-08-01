@@ -120,6 +120,8 @@ enum BWDCreatureIds
 
     /*Maloriak*/
     NPC_CAULDRON_TRIGGER                = 41505,
+    NPC_ABERRATION                      = 41440,
+    NPC_FLASH_FREEZE                    = 41576,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST            = 43125,
