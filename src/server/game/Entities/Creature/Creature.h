@@ -355,7 +355,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
-        bool IsEscortNPC(bool onlyIfActive = true);
+        bool IsEscorted() const;
 
         bool CanGiveExperience() const;
 
