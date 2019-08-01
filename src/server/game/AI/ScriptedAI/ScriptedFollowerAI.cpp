@@ -24,6 +24,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "World.h"
 
 float constexpr MAX_PLAYER_DISTANCE = 100.0f;
 
