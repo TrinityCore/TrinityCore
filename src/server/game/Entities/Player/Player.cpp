@@ -20259,7 +20259,7 @@ void Player::UpdateSpeakTime()
 
 bool Player::CanSpeak() const
 {
-    return  GetSession()->m_muteTime <= time (nullptr);
+    return  GetSession()->m_muteTime <= GameTime::GetGameTime();
 }
 
 /*********************************************************/
