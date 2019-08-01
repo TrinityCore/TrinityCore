@@ -8666,7 +8666,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
         m_AELootView[loot->GetGUID()] = guid;
 
         if (loot_type == LOOT_CORPSE && !guid.IsItem())
-            SetUnitFlags(UNIT_FLAG_LOOTING);
+            AddUnitFlag(UNIT_FLAG_LOOTING);
     }
     else
         SendLootError(loot->GetGUID(), guid, LOOT_ERROR_DIDNT_KILL);
