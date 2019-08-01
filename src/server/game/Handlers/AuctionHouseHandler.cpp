@@ -317,7 +317,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             _player->GetName().c_str(), _player->GetGUID().GetCounter(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUID().GetCounter(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
-        if (!sAuctionMgr->PendingAuctionAdd(_player, AH, item))
+        if (!sAuctionMgr->PendingAuctionAdd(_player, AH))
         {
             SendAuctionCommandResult(AH->Id, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
             return;
@@ -374,7 +374,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             _player->GetName().c_str(), _player->GetGUID().GetCounter(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUID().GetCounter(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
-        if (!sAuctionMgr->PendingAuctionAdd(_player, AH, newItem))
+        if (!sAuctionMgr->PendingAuctionAdd(_player, AH))
         {
             SendAuctionCommandResult(AH->Id, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
             return;
