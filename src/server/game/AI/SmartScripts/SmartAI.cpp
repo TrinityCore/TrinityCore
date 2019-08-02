@@ -343,6 +343,13 @@ void SmartAI::UpdatePath(uint32 diff)
 
 void SmartAI::UpdateAI(uint32 diff)
 {
+    if (!me->IsAlive())
+    {
+        if (IsEngaged())
+            EngagementOver();
+        return;
+    }
+
     CheckConditions(diff);
     GetScript()->OnUpdate(diff);
     UpdatePath(diff);
