@@ -172,6 +172,7 @@ void CharacterCache::UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 sl
     if (itr == _characterCacheStore.end())
         return;
 
+    ASSERT(slot < 3);
     itr->second.ArenaTeamId[slot] = arenaTeamId;
 }
 
@@ -271,5 +272,7 @@ uint32 CharacterCache::GetCharacterArenaTeamIdByGuid(ObjectGuid guid, uint8 type
     if (itr == _characterCacheStore.end())
         return 0;
 
-    return itr->second.ArenaTeamId[ArenaTeam::GetSlotByType(type)];
+    uint8 slot = ArenaTeam::GetSlotByType(type);
+    ASSERT(slot < 3);
+    return itr->second.ArenaTeamId[slot];
 }

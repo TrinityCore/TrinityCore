@@ -740,7 +740,7 @@ namespace Trinity
 
             bool operator()(GameObject* go)
             {
-                if (go->GetEntry() == i_entry && i_obj.IsWithinDistInMap(go, i_range))
+                if (go->isSpawned() && go->GetEntry() == i_entry && go->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDistInMap(go, i_range))
                 {
                     i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
                     return true;
@@ -776,7 +776,7 @@ namespace Trinity
         private:
             WorldObject const& i_obj;
             GameobjectTypes i_type;
-            float  i_range;
+            float i_range;
 
             // prevent clone this object
             NearestGameObjectTypeInObjectRangeCheck(NearestGameObjectTypeInObjectRangeCheck const&) = delete;
@@ -1263,7 +1263,7 @@ namespace Trinity
         private:
             Creature* const i_obj;
             Unit* const i_enemy;
-            float  i_range;
+            float i_range;
 
             // prevent clone this object
             NearestAssistCreatureInCreatureRangeCheck(NearestAssistCreatureInCreatureRangeCheck const&) = delete;
@@ -1278,7 +1278,7 @@ namespace Trinity
 
             bool operator()(Creature* u)
             {
-                if (u->getDeathState() != DEAD && u->GetEntry() == i_entry && u->IsAlive() == i_alive && i_obj.IsWithinDistInMap(u, i_range))
+                if (u->getDeathState() != DEAD && u->GetEntry() == i_entry && u->IsAlive() == i_alive && u->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDistInMap(u, i_range))
                 {
                     i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
                     return true;
@@ -1400,14 +1400,25 @@ namespace Trinity
     class AllCreaturesOfEntryInRange
     {
         public:
-            AllCreaturesOfEntryInRange(WorldObject const* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
+            AllCreaturesOfEntryInRange(WorldObject const* object, uint32 entry, float maxRange = 0.0f) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
 
             bool operator()(Unit* unit) const
             {
-                if ((!m_uiEntry || unit->GetEntry() == m_uiEntry) && m_pObject->IsWithinDist(unit, m_fRange, false))
-                    return true;
+                if (m_uiEntry)
+                {
+                    if (unit->GetEntry() != m_uiEntry)
+                        return false;
+                }
 
-                return false;
+                if (m_fRange)
+                {
+                    if (m_fRange > 0.0f && !m_pObject->IsWithinDist(unit, m_fRange, false))
+                        return false;
+                    if (m_fRange < 0.0f && m_pObject->IsWithinDist(unit, m_fRange, false))
+                        return false;
+                }
+
+                return true;
             }
 
         private:

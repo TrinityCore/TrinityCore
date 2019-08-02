@@ -79,6 +79,9 @@ namespace advstd
     // C++17 std::is_arithmetic_v
     forward_1v(is_arithmetic, bool);
 
+    // C++17 std::is_move_assignable_v
+    forward_1v(is_move_assignable, bool);
+
 #undef forward_1v
 #undef forward_2v
 

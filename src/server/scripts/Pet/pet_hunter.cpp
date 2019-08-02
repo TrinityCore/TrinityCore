@@ -65,11 +65,11 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override { }
 
-            void Reset() override
+            void JustAppeared() override
             {
                 _isViper = me->GetEntry() == NPC_HUNTER_VIPER ? true : false;
 
-                me->SetMaxHealth(uint32(107 * (me->getLevel() - 40) * 0.025f));
+                me->SetMaxHealth(uint32(107 * (me->GetLevel() - 40) * 0.025f));
                 // Add delta to make them not all hit the same time
                 me->SetAttackTime(BASE_ATTACK, me->GetAttackTime(BASE_ATTACK) + urandms(0,6));
 

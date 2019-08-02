@@ -134,7 +134,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool isElite() const;
         bool isWorldBoss() const;
 
-        uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
+        uint8 GetLevelForTarget(WorldObject const* target) const override; // overwrite Unit::GetLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
@@ -200,7 +200,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SaveToDB();
                                                             // overriden in Pet
         virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
-        virtual void DeleteFromDB();                        // overriden in Pet
+        static bool DeleteFromDB(ObjectGuid::LowType spawnId);
 
         Loot loot;
         void StartPickPocketRefillTimer();
@@ -252,7 +252,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t GetRespawnTimeEx() const;
         void SetRespawnTime(uint32 respawn);
         void Respawn(bool force = false);
-        void SaveRespawnTime(uint32 forceDelay = 0, bool savetodb = true) override;
+        void SaveRespawnTime(uint32 forceDelay = 0);
 
         uint32 GetRespawnDelay() const { return m_respawnDelay; }
         void SetRespawnDelay(uint32 delay) { m_respawnDelay = delay; }
@@ -341,7 +341,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid guid) override;
         void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Creature for forced (client displayed) target reacquisition in the next ::Update call
-        void DoNotReacquireTarget() { m_shouldReacquireTarget = false; m_suppressedTarget = ObjectGuid::Empty; m_suppressedOrientation = 0.0f; }
+        void DoNotReacquireTarget() { m_shouldReacquireTarget = false; m_suppressedTarget = ObjectGuid::Empty; SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty); m_suppressedOrientation = 0.0f; }
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false) override;
         void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
@@ -355,12 +355,13 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
-        bool IsEscortNPC(bool onlyIfActive = true);
+        bool IsEscorted() const;
 
         bool CanGiveExperience() const;
 
-        void AtEnterCombat() override;
-        void AtExitCombat() override;
+        bool IsEngaged() const override;
+        void AtEngage(Unit* target) override;
+        void AtDisengage() override;
 
         std::string GetDebugInfo() const override;
 

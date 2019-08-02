@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
+#include "DBCStructure.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
@@ -36,7 +37,7 @@
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
-CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), _moveInLOSLocked(false)
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), _isEngaged(false), _moveInLOSLocked(false)
 {
 }
 
@@ -151,6 +152,63 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
 }
 
+// adapted from logic in Spell:EffectSummonType before commit 8499434
+static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
+{
+    // Summons without SummonProperties are generally scripted summons that don't belong to any owner
+    if (!properties)
+        return false;
+
+    switch (properties->Category)
+    {
+        case SUMMON_CATEGORY_PET:
+            return true;
+        case SUMMON_CATEGORY_WILD:
+        case SUMMON_CATEGORY_ALLY:
+        case SUMMON_CATEGORY_UNK:
+            if (properties->Flags & 512)
+                return true;
+            switch (properties->Type)
+            {
+                case SUMMON_TYPE_PET:
+                case SUMMON_TYPE_GUARDIAN:
+                case SUMMON_TYPE_GUARDIAN2:
+                case SUMMON_TYPE_MINION:
+                case SUMMON_TYPE_MINIPET:
+                    return true;
+                default:
+                    return false;
+            }
+        default:
+            return false;
+    }
+}
+
+void CreatureAI::JustAppeared()
+{
+    if (!IsEngaged())
+    {
+        if (TempSummon* summon = me->ToTempSummon())
+        {
+            // Only apply this to specific types of summons
+            if (!summon->GetVehicle() && ShouldFollowOnSpawn(summon->m_Properties))
+            {
+                if (Unit* owner = summon->GetCharmerOrOwner())
+                {
+                    summon->GetMotionMaster()->Clear();
+                    summon->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, summon->GetFollowAngle());
+                }
+            }
+        }
+    }
+}
+
+void CreatureAI::JustEnteredCombat(Unit* who)
+{
+    if (!IsEngaged() && !me->CanHaveThreatList())
+        EngagementStart(who);
+}
+
 void CreatureAI::EnterEvadeMode(EvadeReason why)
 {
     if (!_EnterEvadeMode(why))
@@ -179,8 +237,14 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
 
 bool CreatureAI::UpdateVictim()
 {
-    if (!me->IsEngaged())
+    if (!IsEngaged())
         return false;
+
+    if (!me->IsAlive())
+    {
+        EngagementOver();
+        return false;
+    }
 
     if (!me->HasReactState(REACT_PASSIVE))
     {
@@ -201,15 +265,43 @@ bool CreatureAI::UpdateVictim()
     return true;
 }
 
+void CreatureAI::EngagementStart(Unit* who)
+{
+    if (_isEngaged)
+    {
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::EngagementStart called even though creature is already engaged. Creature debug info:\n%s", me->GetDebugInfo().c_str());
+        return;
+    }
+    _isEngaged = true;
+
+    me->AtEngage(who);
+}
+
+void CreatureAI::EngagementOver()
+{
+    if (!_isEngaged)
+    {
+        TC_LOG_ERROR("scripts.ai", "CreatureAI::EngagementOver called even though creature is not currently engaged. Creature debug info:\n%s", me->GetDebugInfo().c_str());
+        return;
+    }
+    _isEngaged = false;
+
+    me->AtDisengage();
+}
+
 bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 {
-    if (!me->IsAlive())
+    if (!IsEngaged())
         return false;
+
+    if (!me->IsAlive())
+    {
+        EngagementOver();
+        return false;
+    }
 
     me->RemoveAurasOnEvade();
 
-    // sometimes bosses stuck in combat?
-    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->LoadCreaturesAddon();
     me->SetLootRecipient(nullptr);
@@ -217,9 +309,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
     me->DoNotReacquireTarget();
-
-    if (me->IsInEvadeMode())
-        return false;
+    EngagementOver();
 
     return true;
 }

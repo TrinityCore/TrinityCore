@@ -358,6 +358,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (193,197),
 (194,1),
 (194,2),
+(194,9),
 (194,11),
 (194,13),
 (194,14),
@@ -770,6 +771,11 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,871),
 (196,872),
 (196,873),
+(196,875),
+(196,876),
+(196,877),
+(196,878),
+(196,879),
 (197,232),
 (197,236),
 (197,237),
@@ -998,6 +1004,8 @@ INSERT INTO `rbac_permissions` VALUES
 (5,'Join Arenas'),
 (6,'Join Dungeon Finder'),
 (7,'Skip idle connection check'),
+(8,'Cannot earn achievements'),
+(9,'Cannot earn realm first achievements'),
 (11,'Log GM trades'),
 (13,'Skip Instance required bosses check'),
 (14,'Skip character creation team mask check'),
@@ -1647,7 +1655,12 @@ INSERT INTO `rbac_permissions` VALUES
 (871,'Command: debug instancespawn'),
 (872,'Command: server debug'),
 (873,'Command: reload creature_movement_override'),
-(874,'Command: debug asan');
+(874,'Command: debug asan'),
+(875,'Command: lookup map id'),
+(876,'Command: lookup item id'),
+(877,'Command: lookup quest id'),
+(878,'Command: debug questreset'),
+(879,'Command: debug poolstatus');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1777,10 +1790,17 @@ INSERT INTO `updates` VALUES
 ('2018_09_06_00_auth.sql','309D21E0DF82ED8921F77EAFDE741F38AC32BB13','ARCHIVED','2018-09-06 00:00:00',0),
 ('2018_09_17_00_auth.sql','4DB671F0A4FA1A93AF28FB6426AF13DE72C7DA3D','ARCHIVED','2018-09-17 00:00:00',0),
 ('2018_12_30_00_auth.sql','680F4F9194FC37592041C2DB5B2B7006B14E836D','ARCHIVED','2018-12-30 00:00:00',0),
-('2019_03_19_00_auth.sql','03BA8CFC60ACD5B874840A3E50F11CD2643730A0','ARCHIVED','2019-03-19 07:17:45',5),
-('2019_04_15_00_auth.sql','EC67389946A24BFAA226B9DFCFEDB3BA095B4C42','ARCHIVED','2019-04-15 06:16:09',5),
-('2019_04_27_00_auth.sql','84B1EB9CC9B09BAF55E6295D202EC57D99B1B60E','ARCHIVED','2019-04-27 18:07:18',0),
-('2019_05_15_00_auth.sql','8A7B96E66D689DA63380654142FF60A1EE938697','ARCHIVED','2019-05-15 06:13:20',5);
+('2019_03_19_00_auth.sql','03BA8CFC60ACD5B874840A3E50F11CD2643730A0','ARCHIVED','2019-03-19 00:00:00',0),
+('2019_04_15_00_auth.sql','EC67389946A24BFAA226B9DFCFEDB3BA095B4C42','ARCHIVED','2019-04-15 00:00:00',0),
+('2019_04_27_00_auth.sql','84B1EB9CC9B09BAF55E6295D202EC57D99B1B60E','ARCHIVED','2019-04-27 00:00:00',0),
+('2019_05_15_00_auth.sql','8A7B96E66D689DA63380654142FF60A1EE938697','ARCHIVED','2019-05-15 00:00:00',0),
+('2019_06_06_00_auth.sql','6DE8159E04BEE7BA0A4A81D72D160EB74934B6A5','ARCHIVED','2019-06-06 00:00:00',0),
+('2019_06_15_00_auth.sql','456B92D99FFD2E7B6CBF64F4C68555A42B24B298','ARCHIVED','2019-06-15 00:00:00',0),
+('2019_06_16_00_auth.sql','B14AED4D3387B56FF8C8161D3671750AEEAE0F2E','ARCHIVED','2019-06-16 00:00:00',0),
+('2019_06_21_00_auth.sql','C519239830204B68E710F698BC0C9E89B6D5FD24','ARCHIVED','2019-06-21 00:00:00',0),
+('2019_07_15_00_auth.sql','64B491CD197A4466D7F739D67DD30C9502FF393A','ARCHIVED','2019-07-15 00:00:00',0),
+('2019_07_16_00_auth.sql','36CB53A9EBD64BFDCF7030083E36E534F1753773','ARCHIVED','2019-07-16 00:00:00',0),
+('2019_07_17_00_auth.sql','4F983F039904894ACC483BE885676C5F0A18F06B','ARCHIVED','2019-07-17 00:00:00',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1836,6 +1856,42 @@ LOCK TABLES `uptime` WRITE;
 /*!40000 ALTER TABLE `uptime` DISABLE KEYS */;
 /*!40000 ALTER TABLE `uptime` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Temporary table structure for view `vw_log_history`
+--
+
+DROP TABLE IF EXISTS `vw_log_history`;
+/*!50001 DROP VIEW IF EXISTS `vw_log_history`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `vw_log_history` AS SELECT 
+ 1 AS `First Logged`,
+ 1 AS `Last Logged`,
+ 1 AS `Occurrences`,
+ 1 AS `Realm`,
+ 1 AS `type`,
+ 1 AS `level`,
+ 1 AS `string`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `vw_log_history`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vw_log_history`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 */
+/*!50001 VIEW `vw_log_history` AS (select from_unixtime(min(`logs`.`time`)) AS `First Logged`,from_unixtime(max(`logs`.`time`)) AS `Last Logged`,count(0) AS `Occurrences`,`realmlist`.`name` AS `Realm`,`logs`.`type` AS `type`,`logs`.`level` AS `level`,`logs`.`string` AS `string` from (`logs` left join `realmlist` on((`logs`.`realm` = `realmlist`.`id`))) group by `logs`.`string`,`logs`.`type`,`logs`.`realm`) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -1846,4 +1902,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-15  6:13:21
+-- Dump completed on 2019-07-15  5:57:44

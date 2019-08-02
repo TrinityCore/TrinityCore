@@ -45,12 +45,15 @@ class TC_GAME_API PetAI : public CreatureAI
         void OwnerAttacked(Unit* target) override;
         void DamageTaken(Unit* attacker, uint32& /*damage*/) override { AttackStart(attacker); }
         void ReceiveEmote(Player* player, uint32 textEmote) override;
+        void JustEnteredCombat(Unit* who) override { EngagementStart(who); }
+        void JustExitedCombat() override { EngagementOver(); }
 
         // The following aren't used by the PetAI but need to be defined to override
         // default CreatureAI functions which interfere with the PetAI
 
         void MoveInLineOfSight(Unit* /*who*/) override { } // CreatureAI interferes with returning pets
         void MoveInLineOfSight_Safe(Unit* /*who*/) { } // CreatureAI interferes with returning pets
+        void JustAppeared() override { } // we will control following manually
         void EnterEvadeMode(EvadeReason /*why*/) override { } // For fleeing, pets don't use this type of Evade mechanic
 
     private:

@@ -54,7 +54,7 @@ LootItem::LootItem(LootStoreItem const& li)
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-bool LootItem::AllowedForPlayer(Player const* player) const
+bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter) const
 {
     // DB conditions check
     if (!sConditionMgr->IsObjectMeetToConditions(const_cast<Player*>(player), conditions))
@@ -64,15 +64,29 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!pProto)
         return false;
 
-    // not show loot for players without profession or those who already know the recipe
-    if ((pProto->Flags & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
-        return false;
-
     // not show loot for not own team
     if ((pProto->Flags2 & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
         return false;
 
     if ((pProto->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
+        return false;
+
+    // Master looter can see certain items even if the character can't loot them
+    if (!isGivenByMasterLooter && player->GetGroup() && player->GetGroup()->GetMasterLooterGuid() == player->GetGUID())
+    {
+        // check quest requirements
+        if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && (needs_quest || pProto->StartQuest))
+            return false;
+
+        return true;
+    }
+
+    // Don't allow loot for players without profession or those who already know the recipe
+    if ((pProto->Flags & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
+        return false;
+
+    // Don't allow to loot soulbound recipes that the player has already learned
+    if (pProto->Class == ITEM_CLASS_RECIPE && pProto->Bonding == BIND_WHEN_PICKED_UP && pProto->Spells[1].SpellId != 0 && player->HasSpell(pProto->Spells[1].SpellId))
         return false;
 
     // check quest requirements
@@ -144,6 +158,24 @@ void Loot::AddItem(LootStoreItem const& item)
         lootItems.push_back(generatedLoot);
         count -= proto->GetMaxStackSize();
 
+        // In some cases, a dropped item should be visible/lootable only for some players in group
+        bool canSeeItemInLootWindow = false;
+        if (Player* player = ObjectAccessor::FindPlayer(lootOwnerGUID))
+        {
+            if (Group* group = player->GetGroup())
+            {
+                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                    if (Player* member = itr->GetSource())
+                        if (generatedLoot.AllowedForPlayer(member))
+                            canSeeItemInLootWindow = true;
+            }
+            else if (generatedLoot.AllowedForPlayer(player))
+                canSeeItemInLootWindow = true;
+        }
+
+        if (!canSeeItemInLootWindow)
+            continue;
+
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
         // non-ffa conditionals are counted in FillNonQuestNonFFAConditionalLoot()
@@ -158,6 +190,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     // Must be provided
     if (!lootOwner)
         return false;
+
+    lootOwnerGUID = lootOwner->GetGUID();
 
     LootTemplate const* tab = store.GetLootFor(lootId);
 

@@ -18,12 +18,13 @@
 
 #include "Totem.h"
 #include "Group.h"
-#include "Opcodes.h"
+#include "Log.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
-#include "WorldPacket.h"
+#include "TotemPackets.h"
 
 Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false)
 {
@@ -54,19 +55,25 @@ void Totem::Update(uint32 time)
 void Totem::InitStats(uint32 duration)
 {
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
-    if (GetOwner()->GetTypeId() == TYPEID_PLAYER
-            && m_Properties->Slot >= SUMMON_SLOT_TOTEM
-            && m_Properties->Slot < MAX_TOTEM_SLOT)
+    if (Player* owner = GetOwner()->ToPlayer())
     {
-        WorldPacket data(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4);
-        data << uint8(m_Properties->Slot - 1);
-        data << uint64(GetGUID());
-        data << uint32(duration);
-        data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
-        GetOwner()->ToPlayer()->SendDirectMessage(&data);
+        uint32 slot = m_Properties->Slot;
+        if (slot >= SUMMON_SLOT_TOTEM_FIRE && slot < MAX_TOTEM_SLOT)
+        {
+            WorldPackets::Totem::TotemCreated data;
+            data.Totem = GetGUID();
+            data.Slot = slot - SUMMON_SLOT_TOTEM_FIRE;
+            data.Duration = duration;
+            data.SpellID = GetUInt32Value(UNIT_CREATED_BY_SPELL);
+            owner->SendDirectMessage(data.Write());
+        }
 
         // set display id depending on caster's race
-        SetDisplayId(GetOwner()->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
+        if (uint32 totemDisplayId = sObjectMgr->GetModelForTotem(SummonSlot(slot), Races(owner->GetRace())))
+            SetDisplayId(totemDisplayId);
+        else
+            TC_LOG_ERROR("misc", "Totem with entry %u, owned by player guidlow %u (%u %s %s) in slot %u, created by spell %u, does not have a specialized model. Set to default.",
+                         GetEntry(), owner->GetGUID().GetCounter(), owner->GetLevel(), EnumUtils::ToTitle(Races(owner->GetRace())), EnumUtils::ToTitle(Classes(owner->GetClass())), slot, GetUInt32Value(UNIT_CREATED_BY_SPELL));
     }
 
     Minion::InitStats(duration);
@@ -81,7 +88,7 @@ void Totem::InitStats(uint32 duration)
 
     m_duration = duration;
 
-    SetLevel(GetOwner()->getLevel());
+    SetLevel(GetOwner()->GetLevel());
 }
 
 void Totem::InitSummon()
@@ -108,7 +115,7 @@ void Totem::UnSummon(uint32 msTime)
     RemoveAurasDueToSpell(GetSpell(), GetGUID());
 
     // clear owner's totem slot
-    for (uint8 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+    for (uint8 i = SUMMON_SLOT_TOTEM_FIRE; i < MAX_TOTEM_SLOT; ++i)
     {
         if (GetOwner()->m_SummonSlot[i] == GetGUID())
         {

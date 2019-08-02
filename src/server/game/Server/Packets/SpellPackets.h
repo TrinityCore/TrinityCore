@@ -22,6 +22,7 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
+#include "SharedDefines.h"
 
 namespace WorldPackets
 {
@@ -79,10 +80,10 @@ namespace WorldPackets
         {
             ObjectGuid CasterGUID;
             ObjectGuid CasterUnit;
-            uint8 CastID               = 0;
-            uint32 SpellID             = 0;
-            uint32 CastFlags           = 0;
-            uint32 CastTime            = 0;
+            uint8 CastID = 0;
+            uint32 SpellID = 0;
+            uint32 CastFlags = 0;
+            uint32 CastTime = 0;
             mutable Optional<std::vector<ObjectGuid>> HitTargets;
             mutable Optional<std::vector<SpellMissStatus>> MissStatus;
             SpellTargetData Target;
@@ -111,6 +112,23 @@ namespace WorldPackets
                 WorldPacket const* Write() override;
 
                 SpellCastData Cast;
+        };
+
+        struct ResyncRune
+        {
+            uint8 RuneType = 0;
+            uint8 Cooldown = 0;
+        };
+
+        class ResyncRunes final : public ServerPacket
+        {
+        public:
+            ResyncRunes() : ServerPacket(SMSG_RESYNC_RUNES, 4 + 2 * MAX_RUNES) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Count = 0;
+            std::vector<ResyncRune> Runes;
         };
     }
 }

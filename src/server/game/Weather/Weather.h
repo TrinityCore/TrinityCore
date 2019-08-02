@@ -75,6 +75,7 @@ class TC_GAME_API Weather
         bool UpdateWeather();
 
         void SendWeatherUpdateToPlayer(Player* player);
+        static void SendFineWeatherUpdateToPlayer(Player* player);
         void SetWeather(WeatherType type, float grade);
 
         /// For which zone is this weather?

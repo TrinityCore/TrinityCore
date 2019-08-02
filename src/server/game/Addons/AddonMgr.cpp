@@ -66,7 +66,7 @@ void LoadFromDB()
         TC_LOG_INFO("server.loading", ">> Loaded 0 known addons. DB table `addons` is empty!");
 
     oldMSTime = getMSTime();
-    result = CharacterDatabase.Query("SELECT id, name, version, UNIX_TIMESTAMP(timestamp) FROM banned_addons");
+    result = CharacterDatabase.Query("SELECT id, name, version, UNIX_TIMESTAMP(timestamp) FROM banned_addons ORDER BY timestamp");
     if (result)
     {
         uint32 count = 0;
@@ -96,18 +96,16 @@ void LoadFromDB()
     }
 }
 
-void SaveAddon(AddonInfo const& addon)
+void SaveAddon(std::string const& name, uint32 publicKeyCrc)
 {
-    std::string name = addon.Name;
-
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ADDON);
 
     stmt->setString(0, name);
-    stmt->setUInt32(1, addon.CRC);
+    stmt->setUInt32(1, publicKeyCrc);
 
     CharacterDatabase.Execute(stmt);
 
-    m_knownAddons.push_back(SavedAddon(addon.Name, addon.CRC));
+    m_knownAddons.emplace_back(name, publicKeyCrc);
 }
 
 SavedAddon const* GetAddonInfo(const std::string& name)

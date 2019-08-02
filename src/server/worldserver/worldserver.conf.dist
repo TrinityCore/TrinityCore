@@ -262,14 +262,6 @@ Compression = 1
 PlayerLimit = 0
 
 #
-#    SaveRespawnTimeImmediately
-#        Description: Save respawn time for creatures at death and gameobjects at use/open.
-#        Default:     1 - (Enabled, Save respawn time immediately)
-#                     0 - (Disabled, Save respawn time at grid unloading)
-
-SaveRespawnTimeImmediately = 1
-
-#
 #    MaxOverspeedPings
 #        Description: Maximum overspeed ping count before character is disconnected.
 #        Default:     2  - (Enabled, Minimum value)
@@ -1638,13 +1630,13 @@ WorldBossLevelDiff = 3
 #    Corpse.Decay.RAREELITE
 #    Corpse.Decay.WORLDBOSS
 #        Description: Time (in seconds) until creature corpse will decay if not looted or skinned.
-#        Default:     60   - (1 Minute, Corpse.Decay.NORMAL)
+#        Default:     300  - (5 Minutes, Corpse.Decay.NORMAL)
 #                     300  - (5 Minutes, Corpse.Decay.RARE)
 #                     300  - (5 Minutes, Corpse.Decay.ELITE)
 #                     300  - (5 Minutes, Corpse.Decay.RAREELITE)
 #                     3600 - (1 Hour, Corpse.Decay.WORLDBOSS)
 
-Corpse.Decay.NORMAL    = 60
+Corpse.Decay.NORMAL    = 300
 Corpse.Decay.RARE      = 300
 Corpse.Decay.ELITE     = 300
 Corpse.Decay.RAREELITE = 300
@@ -1978,6 +1970,13 @@ PartyLevelReq = 1
 #                     1 - (Enabled)
 
 PreserveCustomChannels = 1
+
+#
+#    PreserveCustomChannelInterval
+#        Description: Interval (in minutes) at which custom channel data is saved to the database
+#        Default:     5 minutes
+
+PreserveCustomChannelInterval = 5
 
 #
 #    PreserveCustomChannelDuration
@@ -2754,6 +2753,14 @@ Arena.MaxRatingDifference = 150
 Arena.RatingDiscardTimer = 600000
 
 #
+#    Arena.PreviousOpponentsDiscardTimer
+#        Description: Time (in milliseconds) after which the previous opponents will be ignored.
+#        Default:     120000 - (Enabled, 2 minutes - Blizzlike)
+#                     0      - (Disabled)
+
+Arena.PreviousOpponentsDiscardTimer = 120000
+
+#
 #    Arena.RatedUpdateTimer
 #        Description: Time (in milliseconds) between checks for match-ups in rated arena.
 #        Default:     5000 - (5 seconds)
@@ -3206,7 +3213,7 @@ PlayerStart.String = ""
 
 #
 #     LevelReq.Trade
-#        Description: Level requirement for characters to be able to trade.
+#        Description: Level requirement for characters to be able to initiate a trade.
 #        Default:     1
 
 LevelReq.Trade = 1
@@ -3935,6 +3942,7 @@ Logger.mmaps=3,Server
 #Logger.scripts.ai.followerai=3,Console Server
 #Logger.scripts.ai.petai=3,Console Server
 #Logger.scripts.ai.sai=3,Console Server
+#Logger.scripts.cos=3,Console Server
 #Logger.server.authserver=3,Console Server
 #Logger.spells=3,Console Server
 #Logger.spells.aura.effect=3,Console Server

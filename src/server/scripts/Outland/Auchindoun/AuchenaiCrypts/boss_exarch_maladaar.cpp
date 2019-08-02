@@ -284,7 +284,7 @@ public:
 
                         soulmodel = target->GetDisplayId();
                         soulholder = target->GetGUID();
-                        soulclass = target->getClass();
+                        soulclass = target->GetClass();
 
                         DoCast(target, SPELL_STOLEN_SOUL);
                         me->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);

@@ -259,8 +259,8 @@ class GuildBankRightsAndSlots
         int8 GetRights() const { return rights; }
 
     private:
-        uint8  tabId;
-        uint8  rights;
+        uint8 tabId;
+        uint8 rights;
         uint32 slots;
 };
 
@@ -381,7 +381,7 @@ class TC_GAME_API Guild
                 GuildEventLogTypes m_eventType;
                 ObjectGuid::LowType m_playerGuid1;
                 ObjectGuid::LowType m_playerGuid2;
-                uint8  m_newRank;
+                uint8 m_newRank;
         };
 
         // Bank event log entry

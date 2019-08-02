@@ -18,6 +18,7 @@
 #ifndef TRINITY_CONTAINERS_H
 #define TRINITY_CONTAINERS_H
 
+#include "advstd.h"
 #include "Define.h"
 #include "Random.h"
 #include <algorithm>
@@ -70,29 +71,16 @@ namespace Trinity
 
     namespace Containers
     {
-        // replace with std::size in C++17
-        template<class C>
-        constexpr inline std::size_t Size(C const& container)
-        {
-            return container.size();
-        }
-
-        template<class T, std::size_t size>
-        constexpr inline std::size_t Size(T const(&)[size]) noexcept
-        {
-            return size;
-        }
-
         // resizes <container> to have at most <requestedSize> elements
         // if it has more than <requestedSize> elements, the elements to keep are selected randomly
         template<class C>
         void RandomResize(C& container, std::size_t requestedSize)
         {
             static_assert(std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<typename C::iterator>::iterator_category>::value, "Invalid container passed to Trinity::Containers::RandomResize");
-            if (Size(container) <= requestedSize)
+            if (advstd::size(container) <= requestedSize)
                 return;
             auto keepIt = std::begin(container), curIt = std::begin(container);
-            uint32 elementsToKeep = requestedSize, elementsToProcess = Size(container);
+            uint32 elementsToKeep = requestedSize, elementsToProcess = advstd::size(container);
             while (elementsToProcess)
             {
                 // this element has chance (elementsToKeep / elementsToProcess) of being kept
@@ -131,7 +119,7 @@ namespace Trinity
         inline auto SelectRandomContainerElement(C const& container) -> typename std::add_const<decltype(*std::begin(container))>::type&
         {
             auto it = std::begin(container);
-            std::advance(it, urand(0, uint32(Size(container)) - 1));
+            std::advance(it, urand(0, uint32(advstd::size(container)) - 1));
             return *it;
         }
 
@@ -164,7 +152,7 @@ namespace Trinity
         auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::begin(container))
         {
             std::vector<double> weights;
-            weights.reserve(Size(container));
+            weights.reserve(advstd::size(container));
             double weightSum = 0.0;
             for (auto& val : container)
             {
@@ -173,7 +161,7 @@ namespace Trinity
                 weightSum += weight;
             }
             if (weightSum <= 0.0)
-                weights.assign(Size(container), 1.0);
+                weights.assign(advstd::size(container), 1.0);
 
             return SelectRandomWeightedContainerElement(container, weights);
         }
@@ -239,6 +227,34 @@ namespace Trinity
                     itr = multimap.erase(itr);
                 else
                     ++itr;
+            }
+        }
+
+        template <typename Container, typename Predicate>
+        std::enable_if_t<advstd::is_move_assignable_v<decltype(*std::declval<Container>().begin())>, void> EraseIf(Container& c, Predicate p)
+        {
+            auto wpos = c.begin();
+            for (auto rpos = c.begin(), end = c.end(); rpos != end; ++rpos)
+            {
+                if (!p(*rpos))
+                {
+                    if (rpos != wpos)
+                        std::swap(*rpos, *wpos);
+                    ++wpos;
+                }
+            }
+            c.erase(wpos, c.end());
+        }
+
+        template <typename Container, typename Predicate>
+        std::enable_if_t<!advstd::is_move_assignable_v<decltype(*std::declval<Container>().begin())>, void> EraseIf(Container& c, Predicate p)
+        {
+            for (auto it = c.begin(); it != c.end();)
+            {
+                if (p(*it))
+                    it = c.erase(it);
+                else
+                    ++it;
             }
         }
     }

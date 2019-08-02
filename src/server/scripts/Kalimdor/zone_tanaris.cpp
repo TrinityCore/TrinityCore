@@ -279,8 +279,7 @@ enum Tooga
     QUEST_TOOGA                 = 1560,
     NPC_TORTA                   = 6015,
 
-    POINT_ID_TO_WATER           = 1,
-    FACTION_TOOG_ESCORTEE       = 113
+    POINT_ID_TO_WATER           = 1
 };
 
 Position const ToWaterLoc = {-7032.664551f, -4906.199219f, -1.606446f, 0.0f};
@@ -327,7 +326,7 @@ public:
                 if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                 {
                     Player* player = GetLeaderForFollower();
-                    if (player && player->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
+                    if (player)
                         player->GroupEventHappens(QUEST_TOOGA, me);
 
                     TortaGUID = who->GetGUID();
@@ -340,10 +339,7 @@ public:
         {
             FollowerAI::MovementInform(MotionType, PointId);
 
-            if (MotionType != POINT_MOTION_TYPE)
-                return;
-
-            if (PointId == POINT_ID_TO_WATER)
+            if ((MotionType == POINT_MOTION_TYPE) && (PointId == POINT_ID_TO_WATER))
                 SetFollowComplete();
         }
 
@@ -417,7 +413,7 @@ public:
         void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_TOOGA)
-                StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
+                StartFollow(player, FACTION_ESCORTEE_N_NEUTRAL_PASSIVE, QUEST_TOOGA);
         }
     };
 

@@ -1800,8 +1800,8 @@ class npc_terenas_menethil : public CreatureScript
                 if (!me->IsAlive())
                     return;
 
-                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(false);
+                EngagementOver();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override

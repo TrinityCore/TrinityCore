@@ -18,7 +18,9 @@
 
 #include "ChannelMgr.h"
 #include "Channel.h"
+#include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "Log.h"
 #include "Player.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -32,7 +34,78 @@ ChannelMgr::~ChannelMgr()
         delete itr->second;
 }
 
-ChannelMgr* ChannelMgr::forTeam(uint32 team)
+/*static*/ void ChannelMgr::LoadFromDB()
+{
+    if (!sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 custom chat channels. Custom channel saving is disabled.");
+        return;
+    }
+
+    uint32 oldMSTime = getMSTime();
+    if (uint32 days = sWorld->getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION))
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CHANNELS);
+        stmt->setUInt32(0, days * DAY);
+        CharacterDatabase.Execute(stmt);
+    }
+
+    QueryResult result = CharacterDatabase.Query("SELECT name, team, announce, ownership, password, bannedList FROM channels");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 custom chat channels. DB table `channels` is empty.");
+        return;
+    }
+
+    std::vector<std::pair<std::string, uint32>> toDelete;
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        std::string dbName = fields[0].GetString(); // may be different - channel names are case insensitive
+        uint32 team = fields[1].GetUInt32();
+        bool dbAnnounce = fields[2].GetBool();
+        bool dbOwnership = fields[3].GetBool();
+        std::string dbPass = fields[4].GetString();
+        std::string dbBanned = fields[5].GetString();
+
+        std::wstring channelName;
+        if (!Utf8toWStr(dbName, channelName))
+        {
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid utf8 sequence? Deleted.", dbName.c_str());
+            toDelete.push_back({ dbName, team });
+            continue;
+        }
+
+        ChannelMgr* mgr = forTeam(team);
+        if (!mgr)
+        {
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid team %u. Deleted.", dbName.c_str(), team);
+            toDelete.push_back({ dbName, team });
+            continue;
+        }
+
+        Channel* channel = new Channel(dbName, team, dbBanned);
+        channel->SetAnnounce(dbAnnounce);
+        channel->SetOwnership(dbOwnership);
+        channel->SetPassword(dbPass);
+        ASSERT_NOTNULL(forTeam(team))->_customChannels.emplace(channelName, channel);
+
+        ++count;
+    } while (result->NextRow());
+
+    for (auto pair : toDelete)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL);
+        stmt->setString(0, pair.first);
+        stmt->setUInt32(1, pair.second);
+        CharacterDatabase.Execute(stmt);
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u custom chat channels in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+/*static*/ ChannelMgr* ChannelMgr::forTeam(uint32 team)
 {
     static ChannelMgr allianceChannelMgr(ALLIANCE);
     static ChannelMgr hordeChannelMgr(HORDE);
@@ -72,40 +145,61 @@ Channel* ChannelMgr::GetChannelForPlayerByNamePart(std::string const& namePart, 
     return nullptr;
 }
 
-Channel* ChannelMgr::GetJoinChannel(uint32 channelId, std::string const& name, AreaTableEntry const* zoneEntry /*= nullptr*/)
+void ChannelMgr::SaveToDB()
 {
-    if (channelId) // builtin
-    {
-        ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
-        uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
-        if (channelEntry->flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
-            zoneId = 0;
+    for (auto pair : _customChannels)
+        pair.second->UpdateChannelInDB();
+}
 
-        std::pair<uint32, uint32> key = std::make_pair(channelId, zoneId);
+Channel* ChannelMgr::GetSystemChannel(uint32 channelId, AreaTableEntry const* zoneEntry)
+{
+    ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
+    uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
+    if (channelEntry->flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
+        zoneId = 0;
 
-        auto itr = _channels.find(key);
-        if (itr != _channels.end())
-            return itr->second;
+    std::pair<uint32, uint32> key = std::make_pair(channelId, zoneId);
 
-        Channel* newChannel = new Channel(channelId, _team, zoneEntry);
-        _channels[key] = newChannel;
-        return newChannel;
-    }
-    else // custom
-    {
-        std::wstring channelName;
-        if (!Utf8toWStr(name, channelName))
-            return nullptr;
+    auto itr = _channels.find(key);
+    if (itr != _channels.end())
+        return itr->second;
 
-        wstrToLower(channelName);
-        auto itr = _customChannels.find(channelName);
-        if (itr != _customChannels.end())
-            return itr->second;
+    Channel* newChannel = new Channel(channelId, _team, zoneEntry);
+    _channels[key] = newChannel;
+    return newChannel;
+}
 
-        Channel* newChannel = new Channel(name, _team);
-        _customChannels[channelName] = newChannel;
-        return newChannel;
-    }
+Channel* ChannelMgr::CreateCustomChannel(std::string const& name)
+{
+    std::wstring channelName;
+    if (!Utf8toWStr(name, channelName))
+        return nullptr;
+
+    wstrToLower(channelName);
+
+    Channel*& c = _customChannels[channelName];
+    if (c)
+        return nullptr;
+
+    Channel* newChannel = new Channel(name, _team);
+    newChannel->SetDirty();
+
+    c = newChannel;
+    return newChannel;
+}
+
+Channel* ChannelMgr::GetCustomChannel(std::string const& name) const
+{
+    std::wstring channelName;
+    if (!Utf8toWStr(name, channelName))
+        return nullptr;
+
+    wstrToLower(channelName);
+    auto itr = _customChannels.find(channelName);
+    if (itr != _customChannels.end())
+        return itr->second;
+
+    return nullptr;
 }
 
 Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Player* player, bool pkt /*= true*/, AreaTableEntry const* zoneEntry /*= nullptr*/) const
