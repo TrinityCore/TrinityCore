@@ -22016,6 +22016,13 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
     }
 }
 
+void Player::SendTameFailure(PetTameResult result)
+{
+    WorldPackets::Pet::PetTameFailure petTameFailure;
+    petTameFailure.Result = AsUnderlyingType(result);
+    SendDirectMessage(petTameFailure.Write());
+}
+
 void Player::AddPetAura(PetAura const* petSpell)
 {
     m_petAuras.insert(petSpell);
@@ -28505,12 +28512,19 @@ Guild const* Player::GetGuild() const
     return guildId ? sGuildMgr->GetGuildById(guildId) : nullptr;
 }
 
-Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
+Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration, bool aliveOnly)
 {
     Pet* pet = new Pet(this, petType);
 
     if (petType == SUMMON_PET && pet->LoadPetFromDB(this, entry))
     {
+        if (aliveOnly && !pet->IsAlive())
+        {
+            pet->DespawnOrUnsummon();
+            SendTameFailure(PetTameResult::Dead);
+            return nullptr;
+        }
+
         if (duration > 0)
             pet->SetDuration(duration);
 
