@@ -80,7 +80,7 @@ ChannelMgr::~ChannelMgr()
         ChannelMgr* mgr = forTeam(team);
         if (!mgr)
         {
-            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid team %u. Deleted.", dbName.c_str());
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid team %u. Deleted.", dbName.c_str(), team);
             toDelete.push_back({ dbName, team });
             continue;
         }
