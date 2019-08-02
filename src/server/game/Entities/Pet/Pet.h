@@ -149,6 +149,8 @@ class TC_GAME_API Pet : public Guardian
 
         std::string GetDebugInfo() const override;
 
+		bool IsMovementPreventedByCasting() const override;
+
     protected:
         uint32  m_happinessTimer;
         PetType m_petType;

@@ -1994,3 +1994,22 @@ std::string Pet::GetDebugInfo() const
         << "PetType: " << std::to_string(getPetType());
     return sstr.str();
 }
+
+bool Pet::IsMovementPreventedByCasting() const
+{
+    // first check if currently a movement allowed channel is active and we're not casting
+    if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+    {
+        if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
+            if (spell->GetSpellInfo()->IsMoveAllowedChannel())
+                return false;
+    }
+
+    if (const_cast<Pet*>(this)->IsFocusing(nullptr, true))
+        return true;
+
+    if (HasUnitState(UNIT_STATE_CASTING))
+        return true;
+
+    return false;
+}

@@ -55,6 +55,7 @@ class TC_GAME_API PetAI : public CreatureAI
         void MoveInLineOfSight_Safe(Unit* /*who*/) { } // CreatureAI interferes with returning pets
         void JustAppeared() override { } // we will control following manually
         void EnterEvadeMode(EvadeReason /*why*/) override { } // For fleeing, pets don't use this type of Evade mechanic
+        void Follow();
 
     private:
         bool NeedToStop();

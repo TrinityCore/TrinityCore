@@ -459,14 +459,19 @@ void PetAI::MovementInform(uint32 type, uint32 id)
             // otherwise we're probably chasing a creature
             if (me->GetCharmerOrOwner() && me->GetCharmInfo() && id == me->GetCharmerOrOwner()->GetGUID().GetCounter() && me->GetCharmInfo()->IsReturning())
             {
-                ClearCharmInfoFlags();
-                me->GetCharmInfo()->SetIsFollowing(true);
+                Follow();
             }
             break;
         }
         default:
             break;
     }
+}
+
+void PetAI::Follow()
+{
+    ClearCharmInfoFlags();
+    me->GetCharmInfo()->SetIsFollowing(true);
 }
 
 bool PetAI::CanAttack(Unit* target)
