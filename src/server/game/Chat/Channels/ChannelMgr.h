@@ -38,12 +38,14 @@ class TC_GAME_API ChannelMgr
         ~ChannelMgr();
 
     public:
+        static void LoadFromDB();
         static ChannelMgr* forTeam(uint32 team);
         static Channel* GetChannelForPlayerByNamePart(std::string const& namePart, Player* playerSearcher);
 
+        void SaveToDB();
         Channel* GetSystemChannel(uint32 channelId, AreaTableEntry const* zoneEntry = nullptr);
         Channel* CreateCustomChannel(std::string const& name);
-        Channel* GetCustomChannel(std::string const& name);
+        Channel* GetCustomChannel(std::string const& name) const;
         Channel* GetChannel(uint32 channelId, std::string const& name, Player* player, bool pkt = true, AreaTableEntry const* zoneEntry = nullptr) const;
         void LeftChannel(std::string const& name);
         void LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry);

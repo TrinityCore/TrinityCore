@@ -3539,6 +3539,23 @@ enum MailResponseResult
     MAIL_ERR_ITEM_HAS_EXPIRED          = 21
 };
 
+enum PetTameFailure
+{
+    PETTAME_INVALIDCREATURE         = 1,
+    PETTAME_TOOMANY                 = 2,
+    PETTAME_CREATUREALREADYOWNED    = 3,
+    PETTAME_NOTTAMEABLE             = 4,
+    PETTAME_ANOTHERSUMMONACTIVE     = 5,
+    PETTAME_UNITSCANTTAME           = 6,
+    PETTAME_NOPETAVAILABLE          = 7,
+    PETTAME_INTERNALERROR           = 8,
+    PETTAME_TOOHIGHLEVEL            = 9,
+    PETTAME_DEAD                    = 10,
+    PETTAME_NOTDEAD                 = 11,
+    PETTAME_CANTCONTROLEXOTIC       = 12,
+    PETTAME_UNKNOWNERROR            = 13
+};
+
 // EnumUtils: DESCRIBE THIS
 enum SpellFamilyNames
 {

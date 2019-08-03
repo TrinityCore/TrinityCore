@@ -1962,6 +1962,13 @@ PartyLevelReq = 1
 PreserveCustomChannels = 1
 
 #
+#    PreserveCustomChannelInterval
+#        Description: Interval (in minutes) at which custom channel data is saved to the database
+#        Default:     5 minutes
+
+PreserveCustomChannelInterval = 5
+
+#
 #    PreserveCustomChannelDuration
 #        Description: Time (in days) that needs to pass before the customs chat channels get
 #                     cleaned up from the database. Only channels with ownership handout enabled

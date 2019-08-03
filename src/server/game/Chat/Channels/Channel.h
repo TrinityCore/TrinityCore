@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
+#include <ctime>
 #include <map>
 #include <unordered_set>
 
@@ -164,6 +165,10 @@ class TC_GAME_API Channel
         bool IsAnnounce() const { return _announceEnabled; }
         void SetAnnounce(bool announce) { _announceEnabled = announce; }
 
+        // will be saved to DB on next channel save interval
+        void SetDirty() { _isDirty = true; }
+        void UpdateChannelInDB();
+
         void SetPassword(std::string const& password) { _channelPassword = password; }
         bool CheckPassword(std::string const& password) const { return _channelPassword.empty() || (_channelPassword == password); }
 
@@ -205,7 +210,6 @@ class TC_GAME_API Channel
         void JoinNotify(ObjectGuid guid) const;                                       // invisible notify
         void LeaveNotify(ObjectGuid guid) const;                                      // invisible notify
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }
-        static void CleanOldChannelsInDB();
 
     private:
 
@@ -218,11 +222,9 @@ class TC_GAME_API Channel
         template<class Builder>
         void SendToOne(Builder& builder, ObjectGuid who) const;
 
-        bool IsOn(ObjectGuid who) const { return _playersStore.count(who) != 0; }
-        bool IsBanned(ObjectGuid guid) const { return _bannedStore.count(guid) != 0; }
-
-        void UpdateChannelInDB() const;
-        void UpdateChannelUseageInDB() const;
+        bool IsOn(ObjectGuid who) const { return _playersStore.find(who) != _playersStore.end(); }
+        bool IsBanned(ObjectGuid guid) const { return _bannedStore.find(guid) != _bannedStore.end(); }
+        
 
         uint8 GetPlayerFlags(ObjectGuid guid) const
         {
@@ -236,9 +238,11 @@ class TC_GAME_API Channel
         typedef std::map<ObjectGuid, PlayerInfo> PlayerContainer;
         typedef GuidUnorderedSet BannedContainer;
 
+        bool _isDirty; // whether the channel needs to be saved to DB
+        time_t _nextActivityUpdateTime;
+
         bool _announceEnabled;          //< Whether we should broadcast a packet whenever a player joins/exits the channel
         bool _ownershipEnabled;         //< Whether the channel has to maintain an owner
-        bool _persistentChannel;        //< Whether the channel is saved to DB
         bool _isOwnerInvisible;         //< Whether the channel is owned by invisible GM, ownership should change to first player that joins channel
 
         uint8 _channelFlags;
