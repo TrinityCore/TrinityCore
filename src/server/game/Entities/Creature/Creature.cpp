@@ -2116,7 +2116,7 @@ void Creature::setDeathState(DeathState s)
 
         SaveRespawnTime();
 
-        ReleaseFocus(nullptr, false); // remove spellcast focus
+        ReleaseSpellFocus(nullptr, false); // remove spellcast focus
         DoNotReacquireTarget(); // cancel delayed re-target
         SetTarget(ObjectGuid::Empty); // drop target - dead mobs shouldn't ever target things
 
@@ -3200,7 +3200,7 @@ void Creature::SetTarget(ObjectGuid const& guid)
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), guid);
 }
 
-void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
+void Creature::SetSpellFocusTarget(Spell const* focusSpell, WorldObject const* target)
 {
     // already focused
     if (m_focusSpell)
@@ -3282,7 +3282,7 @@ bool Creature::HandleSpellFocus(Spell const* focusSpell, bool withDelay)
 {
     if (!IsAlive()) // dead creatures cannot focus
     {
-        ReleaseFocus(nullptr, false);
+        ReleaseSpellFocus(nullptr, false);
         return false;
     }
 
@@ -3303,7 +3303,7 @@ bool Creature::HandleSpellFocus(Spell const* focusSpell, bool withDelay)
     return true;
 }
 
-void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
+void Creature::ReleaseSpellFocus(Spell const* focusSpell, bool withDelay)
 {
     if (!m_focusSpell)
         return;
