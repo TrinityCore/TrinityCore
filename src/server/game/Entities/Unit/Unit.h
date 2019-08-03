@@ -1358,6 +1358,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetCurrentSpellCastTime(uint32 spell_id) const;
 
         virtual bool HandleSpellFocus(Spell const* /*focusSpell*/ = nullptr, bool /*withDelay*/ = false) { return false; }
+        virtual bool HasSpellFocusTarget() const { return false; }
         virtual bool IsMovementPreventedByCasting() const;
 
         SpellHistory* GetSpellHistory() { return m_spellHistory; }

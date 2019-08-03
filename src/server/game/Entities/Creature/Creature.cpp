@@ -3184,7 +3184,7 @@ bool Creature::IsMovementPreventedByCasting() const
                 return false;
     }
 
-    if (const_cast<Creature*>(this)->HandleSpellFocus(nullptr, true))
+    if (HasSpellFocusTarget())
         return true;
 
     if (HasUnitState(UNIT_STATE_CASTING))
