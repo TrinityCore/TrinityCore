@@ -340,6 +340,7 @@ class boss_lord_marrowgar : public CreatureScript
                         _boneSpikeImmune.clear();
                         break;
                     case ACTION_TALK_ENTER_ZONE:
+                        if (me->IsAlive())
                             Talk(SAY_ENTER_ZONE);
                         break;
                     default:

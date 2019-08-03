@@ -24,6 +24,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "World.h"
 
 float constexpr MAX_PLAYER_DISTANCE = 100.0f;
 
@@ -32,37 +33,11 @@ enum Points
     POINT_COMBAT_START = 0xFFFFFF
 };
 
-FollowerAI::FollowerAI(Creature* creature) : ScriptedAI(creature), _updateFollowTimer(2500), _followState(STATE_FOLLOW_NONE), _questForFollow(nullptr) { }
-
-void FollowerAI::MovementInform(uint32 type, uint32 id)
-{
-    if (type != POINT_MOTION_TYPE || !HasFollowState(STATE_FOLLOW_INPROGRESS))
-        return;
-
-    if (id == POINT_COMBAT_START)
-    {
-        if (GetLeaderForFollower())
-        {
-            if (!HasFollowState(STATE_FOLLOW_PAUSED))
-                AddFollowState(STATE_FOLLOW_RETURNING);
-        }
-        else
-            me->DespawnOrUnsummon();
-    }
-}
-
-void FollowerAI::AttackStart(Unit* who)
-{
-    ScriptedAI::AttackStart(who);
-}
+FollowerAI::FollowerAI(Creature* creature) : ScriptedAI(creature), _updateFollowTimer(2500), _followState(STATE_FOLLOW_NONE), _questForFollow(0) { }
 
 void FollowerAI::MoveInLineOfSight(Unit* who)
 {
-    // TODO: what in the world is this?
-    if (me->HasReactState(REACT_AGGRESSIVE) && !me->HasUnitState(UNIT_STATE_STUNNED) && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me))
-        return;
-
-    if (HasFollowState(STATE_FOLLOW_INPROGRESS) && AssistPlayerInCombatAgainst(who))
+    if (HasFollowState(STATE_FOLLOW_INPROGRESS) && !ShouldAssistPlayerInCombatAgainst(who))
         return;
 
     ScriptedAI::MoveInLineOfSight(who);
@@ -81,53 +56,32 @@ void FollowerAI::JustDied(Unit* /*killer*/)
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
                 if (Player* member = groupRef->GetSource())
                     if (member->IsInMap(player))
-                        member->FailQuest(_questForFollow->GetQuestId());
+                        member->FailQuest(_questForFollow);
         }
         else
-            player->FailQuest(_questForFollow->GetQuestId());
+            player->FailQuest(_questForFollow);
     }
 }
 
-void FollowerAI::JustAppeared()
+void FollowerAI::JustReachedHome()
 {
-    _followState = STATE_FOLLOW_NONE;
-
-    if (!IsCombatMovementAllowed())
-        SetCombatMovement(true);
-
-    if (me->GetFaction() != me->GetCreatureTemplate()->faction)
-        me->SetFaction(me->GetCreatureTemplate()->faction);
-
-    Reset();
-}
-
-void FollowerAI::EnterEvadeMode(EvadeReason /*why*/)
-{
-    if (!me->IsAlive())
-    {
-        EngagementOver();
+    if (!HasFollowState(STATE_FOLLOW_INPROGRESS))
         return;
-    }
 
-    me->RemoveAllAuras();
-    me->CombatStop(true);
-    me->SetLootRecipient(nullptr);
-    me->SetCannotReachTarget(false);
-    me->DoNotReacquireTarget();
-    
-    EngagementOver();
-
-    if (HasFollowState(STATE_FOLLOW_INPROGRESS))
+    if (Player* player = GetLeaderForFollower())
     {
-        TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::EnterEvadeMode: left combat, returning to CombatStartPosition. (%s)", me->GetGUID().ToString().c_str());
-
-        if (me->HasUnitState(UNIT_STATE_CHASE))
-            me->GetMotionMaster()->Remove(CHASE_MOTION_TYPE);
+        if (HasFollowState(STATE_FOLLOW_PAUSED))
+            return;
+        me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
     }
     else
-        me->GetMotionMaster()->MoveTargetedHome();
+        me->DespawnOrUnsummon();
+}
 
-    Reset();
+void FollowerAI::OwnerAttackedBy(Unit* other)
+{
+    if (!me->HasReactState(REACT_PASSIVE) && ShouldAssistPlayerInCombatAgainst(other))
+        me->EngageWithTarget(other);
 }
 
 void FollowerAI::UpdateAI(uint32 uiDiff)
@@ -144,27 +98,23 @@ void FollowerAI::UpdateAI(uint32 uiDiff)
             }
 
             bool maxRangeExceeded = true;
-
+            bool questAbandoned = (_questForFollow != 0);
             if (Player* player = GetLeaderForFollower())
             {
-                if (HasFollowState(STATE_FOLLOW_RETURNING))
-                {
-                    TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::UpdateAI: is returning to leader. (%s)", me->GetGUID().ToString().c_str());
-
-                    RemoveFollowState(STATE_FOLLOW_RETURNING);
-                    me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                    return;
-                }
-
                 if (Group* group = player->GetGroup())
                 {
-                    for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                    for (GroupReference* groupRef = group->GetFirstMember(); groupRef && (maxRangeExceeded || questAbandoned); groupRef = groupRef->next())
                     {
                         Player* member = groupRef->GetSource();
-                        if (member && me->IsWithinDistInMap(member, MAX_PLAYER_DISTANCE))
-                        {
+                        if (!member)
+                            continue;
+                        if (maxRangeExceeded && me->IsWithinDistInMap(member, MAX_PLAYER_DISTANCE))
                             maxRangeExceeded = false;
-                            break;
+                        if (questAbandoned)
+                        {
+                            QuestStatus status = member->GetQuestStatus(_questForFollow);
+                            if ((status == QUEST_STATUS_COMPLETE) || (status == QUEST_STATUS_INCOMPLETE))
+                                questAbandoned = false;
                         }
                     }
                 }
@@ -172,10 +122,16 @@ void FollowerAI::UpdateAI(uint32 uiDiff)
                 {
                     if (me->IsWithinDistInMap(player, MAX_PLAYER_DISTANCE))
                         maxRangeExceeded = false;
+                    if (questAbandoned)
+                    {
+                        QuestStatus status = player->GetQuestStatus(_questForFollow);
+                        if ((status == QUEST_STATUS_COMPLETE) || (status == QUEST_STATUS_INCOMPLETE))
+                            questAbandoned = false;
+                    }
                 }
             }
 
-            if (maxRangeExceeded)
+            if (maxRangeExceeded || questAbandoned)
             {
                 TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::UpdateAI: failed because player/group was to far away or not found (%s)", me->GetGUID().ToString().c_str());
                 me->DespawnOrUnsummon();
@@ -199,8 +155,17 @@ void FollowerAI::UpdateFollowerAI(uint32 /*uiDiff*/)
     DoMeleeAttackIfReady();
 }
 
-void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, Quest const* quest)
+void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, uint32 quest)
 {
+    if (Map* map = me->GetMap())
+    {
+        if (CreatureData const* cdata = me->GetCreatureData())
+        {
+            if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
+                me->SaveRespawnTime(me->GetRespawnDelay());
+        }
+    }
+
     if (me->IsEngaged())
     {
         TC_LOG_DEBUG("scripts.ai.followerai", "FollowerAI::StartFollow: attempt to StartFollow while in combat. (%s)", me->GetGUID().ToString().c_str());
@@ -301,20 +266,13 @@ Player* FollowerAI::GetLeaderForFollower()
 // This part provides assistance to a player that are attacked by who, even if out of normal aggro range
 // It will cause me to attack who that are attacking _any_ player (which has been confirmed may happen also on offi)
 // The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
-bool FollowerAI::AssistPlayerInCombatAgainst(Unit* who)
+bool FollowerAI::ShouldAssistPlayerInCombatAgainst(Unit* who) const
 {
     if (!who || !who->GetVictim())
         return false;
 
-    if (me->HasReactState(REACT_PASSIVE))
-        return false;
-
     // experimental (unknown) flag not present
     if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST))
-        return false;
-
-    // not a player
-    if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
     if (!who->isInAccessiblePlaceFor(me))
@@ -336,11 +294,8 @@ bool FollowerAI::AssistPlayerInCombatAgainst(Unit* who)
         return false;
 
     // too far away and no free sight
-    if (me->IsWithinDistInMap(who, MAX_PLAYER_DISTANCE) && me->IsWithinLOSInMap(who))
-    {
-        me->EngageWithTarget(who);
-        return true;
-    }
+    if (!me->IsWithinDistInMap(who, MAX_PLAYER_DISTANCE) || !me->IsWithinLOSInMap(who))
+        return false;
 
-    return false;
+    return true;
 }

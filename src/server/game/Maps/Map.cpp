@@ -2964,7 +2964,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
                     if (!creature->IsAlive())
                         continue;
                     // escort NPCs are allowed to respawn as long as all other instances are already escorting
-                    if (isEscort && creature->IsEscortNPC(true))
+                    if (isEscort && creature->IsEscorted())
                         continue;
                     doDelete = true;
                     break;
