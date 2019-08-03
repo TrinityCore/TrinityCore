@@ -11657,6 +11657,22 @@ Unit* Unit::GetVehicleBase() const
     return m_vehicle ? m_vehicle->GetBase() : nullptr;
 }
 
+Unit* Unit::GetVehicleRoot() const
+{
+    Unit* vehicleRoot = GetVehicleBase();
+
+    if (!vehicleRoot)
+        return nullptr;
+
+    for (;;)
+    {
+        if (!vehicleRoot->GetVehicleBase())
+            return vehicleRoot;
+
+        vehicleRoot = vehicleRoot->GetVehicleBase();
+    }
+}
+
 Creature* Unit::GetVehicleCreatureBase() const
 {
     if (Unit* veh = GetVehicleBase())

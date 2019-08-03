@@ -22489,10 +22489,13 @@ void Player::SetPhaseMask(uint32 newPhaseMask, bool update)
     if (newPhaseMask == GetPhaseMask())
         return;
 
-    Unit::SetPhaseMask(newPhaseMask, update);
+    Unit::SetPhaseMask(newPhaseMask, false);
 
-    if (Unit * vehicle = GetVehicleBase())
+    if (Unit* vehicle = GetVehicleRoot())
         vehicle->SetPhaseMask(newPhaseMask, update);
+
+    if (update)
+        UpdateObjectVisibility();
 }
 
 void Player::InitPrimaryProfessions()
