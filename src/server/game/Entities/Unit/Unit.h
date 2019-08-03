@@ -1503,8 +1503,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const;
         uint32 GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const override;
 
-        virtual bool HandleSpellFocus(Spell const* /*focusSpell*/ = nullptr, bool /*withDelay*/ = false) { return false; }
-        virtual bool HasSpellFocusTarget() const { return false; }
+        virtual bool HasSpellFocus(Spell const* /*focusSpell*/ = nullptr) const { return false; }
         virtual bool IsMovementPreventedByCasting() const;
         bool CanCastSpellWhileMoving(SpellInfo const* spellInfo) const;
 

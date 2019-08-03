@@ -3167,9 +3167,9 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
         if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat()))
         {
             if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-                m_caster->ToCreature()->SetSpellFocusTarget(this, m_targets.GetObjectTarget());
+                m_caster->ToCreature()->SetSpellFocus(this, m_targets.GetObjectTarget());
             else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-                m_caster->ToCreature()->SetSpellFocusTarget(this, nullptr);
+                m_caster->ToCreature()->SetSpellFocus(this, nullptr);
         }
     }
 
@@ -4778,8 +4778,8 @@ void Spell::SendChannelStart(uint32 duration)
         if (m_UniqueTargetInfo.size() == 1 && m_UniqueGOTargetInfo.empty())
             if(target.TargetGUID != unitCaster->GetGUID())
                 if (Creature* creatureCaster = unitCaster->ToCreature())
-                    if (!creatureCaster->HandleSpellFocus(this))
-                        creatureCaster->SetSpellFocusTarget(this, ObjectAccessor::GetWorldObject(*creatureCaster, target.TargetGUID));
+                    if (!creatureCaster->HasSpellFocus(this))
+                        creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, target.TargetGUID));
     }
 
     for (GOTargetInfo const& target : m_UniqueGOTargetInfo)
