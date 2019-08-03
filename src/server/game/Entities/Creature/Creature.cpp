@@ -634,7 +634,7 @@ void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
     if (newPhaseMask == GetPhaseMask())
         return;
 
-    Unit::SetPhaseMask(newPhaseMask, update);
+    Unit::SetPhaseMask(newPhaseMask, false);
 
     if (Vehicle* vehicle = GetVehicleKit())
     {
@@ -642,6 +642,9 @@ void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
             if (Unit* passenger = ObjectAccessor::GetUnit(*this, seat->second.Passenger.Guid))
                 passenger->SetPhaseMask(newPhaseMask, update);
     }
+
+    if (update)
+        UpdateObjectVisibility();
 }
 
 void Creature::Update(uint32 diff)
