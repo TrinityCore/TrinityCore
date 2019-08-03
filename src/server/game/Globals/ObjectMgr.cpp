@@ -148,6 +148,8 @@ bool normalizePlayerName(std::string& name)
         return false;
 
     wstrToLower(tmp);
+    if (!tmp.empty())
+        tmp[0] = wcharToUpper(tmp[0]);
 
     if (!WStrToUtf8(tmp, name))
         return false;
