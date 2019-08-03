@@ -25,9 +25,12 @@
 
 struct QuestPool
 {
+    using Member = std::vector<uint32>;
+    using Members = std::vector<Member>;
+
     uint32 poolId;
     uint32 numActive;
-    std::vector<std::vector<uint32>> members;
+    Members members;
     std::unordered_set<uint32> activeQuests;
 };
 

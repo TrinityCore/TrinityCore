@@ -588,44 +588,46 @@ typedef std::multimap<uint32, uint32> QuestRelations; // unit/go -> quest
 
 struct QuestRelationResult
 {
-    struct Iterator
-    {
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = QuestRelations::mapped_type;
-        using pointer = value_type const*;
-        using reference = value_type const&;
-        using difference_type = void;
-
-        Iterator(QuestRelations::const_iterator it, QuestRelations::const_iterator end, bool onlyActive)
-            : _it(it), _end(end), _onlyActive(onlyActive)
+    public:
+        struct Iterator
         {
-            skip();
-        }
+            public:
+                using iterator_category = std::forward_iterator_tag;
+                using value_type = QuestRelations::mapped_type;
+                using pointer = value_type const*;
+                using reference = value_type const&;
+                using difference_type = void;
 
-        bool operator==(Iterator const& other) const { return _it == other._it; }
-        bool operator!=(Iterator const& other) const { return _it != other._it; }
+                Iterator(QuestRelations::const_iterator it, QuestRelations::const_iterator end, bool onlyActive)
+                    : _it(it), _end(end), _onlyActive(onlyActive)
+                {
+                    skip();
+                }
 
-        Iterator& operator++() { ++_it; skip(); return *this; }
-        Iterator operator++(int) { Iterator t = *this; ++*this; return t; }
+                bool operator==(Iterator const& other) const { return _it == other._it; }
+                bool operator!=(Iterator const& other) const { return _it != other._it; }
 
-        value_type operator*() const { return _it->second; }
+                Iterator& operator++() { ++_it; skip(); return *this; }
+                Iterator operator++(int) { Iterator t = *this; ++*this; return t; }
 
-        private:
-            void skip() { if (_onlyActive) _skip(); }
-            void _skip();
+                value_type operator*() const { return _it->second; }
 
-            QuestRelations::const_iterator _it, _end;
-            bool _onlyActive;
-    };
+            private:
+                void skip() { if (_onlyActive) _skip(); }
+                void _skip();
 
-    QuestRelationResult() : _onlyActive(false) {}
-    QuestRelationResult(std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> range, bool onlyActive)
-        : _begin(range.first), _end(range.second), _onlyActive(onlyActive) {}
+                QuestRelations::const_iterator _it, _end;
+                bool _onlyActive;
+        };
 
-    Iterator begin() const { return { _begin, _end, _onlyActive }; }
-    Iterator end() const { return { _end, _end, _onlyActive }; }
+        QuestRelationResult() : _onlyActive(false) {}
+        QuestRelationResult(std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> range, bool onlyActive)
+            : _begin(range.first), _end(range.second), _onlyActive(onlyActive) {}
 
-    bool HasQuest(uint32 questId) const;
+        Iterator begin() const { return { _begin, _end, _onlyActive }; }
+        Iterator end() const { return { _end, _end, _onlyActive }; }
+
+        bool HasQuest(uint32 questId) const;
 
     private:
         QuestRelations::const_iterator _begin, _end;

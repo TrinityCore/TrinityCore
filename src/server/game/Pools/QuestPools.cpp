@@ -119,7 +119,7 @@ void QuestPoolMgr::LoadFromDB()
                 pair.first->back().numActive = numActive;
             }
 
-            auto& members = (*pair.first)[pair.second].members;
+            QuestPool::Members& members = (*pair.first)[pair.second].members;
             if (!(poolIndex < members.size()))
                 members.resize(poolIndex+1);
             members[poolIndex].push_back(questId);
@@ -162,6 +162,7 @@ void QuestPoolMgr::LoadFromDB()
     }
 
     // post-processing and sanity checks
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
     for (auto pair : lookup)
     {
         if (!pair.second.first)
@@ -180,7 +181,7 @@ void QuestPoolMgr::LoadFromDB()
             uint32 activeCount = 0;
             for (size_t i = pool.members.size(); (i--);)
             {
-                auto const& member = pool.members[i];
+                QuestPool::Member& member = pool.members[i];
                 if (member.empty())
                 {
                     TC_LOG_ERROR("sql.sql", "Table `quest_pool_members` contains no entries at index %zu for quest pool %u. Index removed.", i, pool.poolId);
@@ -232,13 +233,11 @@ void QuestPoolMgr::LoadFromDB()
 
         if (doRegenerate)
         {
-            SQLTransaction t = CharacterDatabase.BeginTransaction();
             RegeneratePool(pool);
-            SaveToDB(pool, t);
-            CharacterDatabase.CommitTransaction(t);
+            SaveToDB(pool, trans);
         }
 
-        for (auto const& member : pool.members)
+        for (QuestPool::Member const& member : pool.members)
         {
             for (uint32 quest : member)
             {
@@ -252,6 +251,7 @@ void QuestPoolMgr::LoadFromDB()
             }
         }
     }
+    CharacterDatabase.CommitTransaction(trans);
 
     TC_LOG_INFO("server.loading", ">> Loaded %zu daily, %zu weekly and %zu monthly quest pools in %u ms", _dailyPools.size(), _weeklyPools.size(), _monthlyPools.size(), GetMSTimeDiffToNow(oldMSTime));
 }
