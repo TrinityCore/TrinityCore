@@ -53,6 +53,7 @@ class Player;
 class TempSummon;
 class Transport;
 class Unit;
+class Weather;
 class WorldObject;
 class WorldPacket;
 struct MapDifficulty;
@@ -62,6 +63,8 @@ struct ScriptAction;
 struct ScriptInfo;
 struct SummonPropertiesEntry;
 enum Difficulty : uint8;
+enum WeatherState : uint32;
+
 namespace Trinity { struct ObjectUpdater; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
 
@@ -259,11 +262,11 @@ enum LevelRequirementVsMode
 
 struct ZoneDynamicInfo
 {
-    ZoneDynamicInfo() : MusicId(0), WeatherId(0), WeatherGrade(0.0f),
-        OverrideLightId(0), LightFadeInTime(0) { }
+    ZoneDynamicInfo();
 
     uint32 MusicId;
-    uint32 WeatherId;
+    std::unique_ptr<Weather> DefaultWeather;
+    WeatherState WeatherId;
     float WeatherGrade;
     uint32 OverrideLightId;
     uint32 LightFadeInTime;
@@ -468,7 +471,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
         void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
 
-        void SendToPlayers(WorldPacket* data) const;
+        void SendToPlayers(WorldPacket const* data) const;
 
         typedef MapRefManager PlayerList;
         PlayerList const& GetPlayers() const { return m_mapRefManager; }
@@ -490,7 +493,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void UpdateIteratorBack(Player* player);
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, Unit* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, WorldObject* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
         Player* GetPlayer(ObjectGuid const& guid);
         Corpse* GetCorpse(ObjectGuid const& guid);
@@ -594,10 +597,13 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
-        void SendZoneDynamicInfo(Player* player);
+        void SendZoneDynamicInfo(uint32 zoneId, Player* player) const;
+        void SendZoneWeather(uint32 zoneId, Player* player) const;
+        void SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player) const;
 
         void SetZoneMusic(uint32 zoneId, uint32 musicId);
-        void SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade);
+        Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
+        void SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade);
         void SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime);
 
         void UpdateAreaDependentAuras();
@@ -753,8 +759,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // if return value is false and info->respawnTime is nonzero, it is guaranteed to be greater than time(NULL)
         bool CheckRespawn(RespawnInfo* info);
         void DoRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 gridId);
-        void Respawn(RespawnInfo* info, bool force = false, SQLTransaction dbTrans = nullptr);
-        void Respawn(std::vector<RespawnInfo*>& respawnData, bool force = false, SQLTransaction dbTrans = nullptr);
+        void Respawn(RespawnInfo* info, SQLTransaction dbTrans = nullptr);
+        void Respawn(std::vector<RespawnInfo*>& respawnData, SQLTransaction dbTrans = nullptr);
         void AddRespawnInfo(RespawnInfo& info, bool replace = false);
         void DeleteRespawnInfo();
         void DeleteRespawnInfo(RespawnInfo* info);
@@ -780,11 +786,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
     public:
         void GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types, uint32 zoneId = 0) const;
         RespawnInfo* GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
-        void ForceRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId)
-        {
-            if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
-                Respawn(info, true);
-        }
         void RemoveRespawnTime(RespawnInfo* info, bool doRespawn = false, SQLTransaction dbTrans = nullptr);
         void RemoveRespawnTime(std::vector<RespawnInfo*>& respawnData, bool doRespawn = false, SQLTransaction dbTrans = nullptr);
         void RemoveRespawnTime(SpawnObjectTypeMask types = SPAWN_TYPEMASK_ALL, uint32 zoneId = 0, bool doRespawn = false, SQLTransaction dbTrans = nullptr)
@@ -860,6 +861,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_map<uint32, uint32> _zonePlayerCountMap;
 
         ZoneDynamicInfoMap _zoneDynamicInfo;
+        IntervalTimer _weatherUpdateTimer;
         uint32 _defaultLight;
 
         template<HighGuid high>

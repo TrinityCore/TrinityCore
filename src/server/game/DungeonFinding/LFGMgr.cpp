@@ -1085,6 +1085,11 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
                 break;
         }
 
+        // Store the number of players that were present in group when joining RFD, used for achievement purposes
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(pguid))
+            if (Group* group = player->GetGroup())
+                PlayersStore[pguid].SetNumberOfPartyMembersAtJoin(group->GetMembersCount());
+
         SetState(pguid, LFG_STATE_DUNGEON);
     }
 
@@ -1454,9 +1459,16 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
 
         // Update achievements
         if (dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+        {
+            uint8 lfdRandomPlayers = 0;
+            if (uint8 numParty = PlayersStore[guid].GetNumberOfPartyMembersAtJoin())
+                lfdRandomPlayers = 5 - numParty;
+            else
+                lfdRandomPlayers = 4;
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, lfdRandomPlayers);
+        }
 
-        LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());
+        LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->GetLevel());
         if (!reward)
             continue;
 
@@ -1633,7 +1645,7 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
         return lock;
     }
 
-    uint8 level = player->getLevel();
+    uint8 level = player->GetLevel();
     uint8 expansion = player->GetSession()->Expansion();
     LfgDungeonSet const& dungeons = GetDungeonsByRandom(0);
     bool denyJoin = !player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER);

@@ -249,7 +249,6 @@ enum UnitState : uint32
     UNIT_STATE_UNATTACKABLE        = UNIT_STATE_IN_FLIGHT,
     UNIT_STATE_MOVING              = UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE,
     UNIT_STATE_CONTROLLED          = UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING,
-    UNIT_STATE_CANT_CLIENT_CONTROL = UNIT_STATE_CHARMED | UNIT_STATE_FLEEING | UNIT_STATE_CONFUSED | UNIT_STATE_POSSESSED,
     UNIT_STATE_LOST_CONTROL        = UNIT_STATE_CONTROLLED | UNIT_STATE_POSSESSED | UNIT_STATE_JUMPING | UNIT_STATE_CHARGING,
     UNIT_STATE_CANNOT_AUTOATTACK   = UNIT_STATE_CONTROLLED | UNIT_STATE_CHARGING | UNIT_STATE_CASTING,
     UNIT_STATE_SIGHTLESS           = UNIT_STATE_LOST_CONTROL | UNIT_STATE_EVADE,
@@ -847,14 +846,19 @@ class TC_GAME_API Unit : public WorldObject
         bool IsTotem() const    { return (m_unitTypeMask & UNIT_MASK_TOTEM) != 0; }
         bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
 
-        uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
-        uint8 getLevelForTarget(WorldObject const* /*target*/) const override { return getLevel(); }
-        void SetLevel(uint8 lvl);
-        uint8 getRace() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE); }
-        uint32 getRaceMask() const { return 1 << (getRace()-1); }
-        uint8 getClass() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS); }
-        uint32 getClassMask() const { return 1 << (getClass()-1); }
-        uint8 getGender() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER); }
+        uint8 GetLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
+        uint8 GetLevelForTarget(WorldObject const* /*target*/) const override { return GetLevel(); }
+        void SetLevel(uint8 lvl, bool sendUpdate = true);
+        uint8 GetRace() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE); }
+        void SetRace(uint8 race) { SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE, race); }
+        uint32 GetRaceMask() const { return 1 << (GetRace() - 1); }
+        uint8 GetClass() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS); }
+        void SetClass(uint8 unitClass) { SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_CLASS, unitClass); }
+        uint32 GetClassMask() const { return 1 << (GetClass() - 1); }
+        uint8 GetGender() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER); }
+        void SetGender(uint8 gender) { SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, gender); }
+        virtual uint8 GetNativeGender() const { return GetGender(); }
+        virtual void SetNativeGender(uint8 gender) { SetGender(gender); }
 
         float GetStat(Stats stat) const { return float(GetUInt32Value(UNIT_FIELD_STAT0+stat)); }
         void SetStat(Stats stat, int32 val) { SetStatInt32Value(UNIT_FIELD_STAT0+stat, val); }
@@ -885,7 +889,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetHealthGain(int32 dVal);
 
         Powers GetPowerType() const { return Powers(GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_POWER_TYPE)); }
-        void SetPowerType(Powers power);
+        void SetPowerType(Powers power, bool sendUpdate = true);
         void UpdateDisplayPower();
         uint32 GetPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_POWER1   +power); }
         uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1+power); }
@@ -924,15 +928,15 @@ class TC_GAME_API Unit : public WorldObject
         bool IsStandState() const;
         void SetStandState(uint8 state);
 
-        void  SetStandFlags(uint8 flags) { SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_VIS_FLAG, flags); }
-        void  RemoveStandFlags(uint8 flags) { RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_VIS_FLAG, flags); }
+        void SetStandFlags(uint8 flags) { SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_VIS_FLAG, flags); }
+        void RemoveStandFlags(uint8 flags) { RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_VIS_FLAG, flags); }
 
         bool IsMounted() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT); }
         uint32 GetMountID() const { return GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID); }
         void Mount(uint32 mount, uint32 vehicleId = 0, uint32 creatureEntry = 0);
         void Dismount();
 
-        uint32 GetMaxSkillValueForLevel(Unit const* target = nullptr) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
+        uint32 GetMaxSkillValueForLevel(Unit const* target = nullptr) const { return (target ? GetLevelForTarget(target) : GetLevel()) * 5; }
         static void DealDamageMods(Unit const* victim, uint32& damage, uint32* absorb);
         static uint32 DealDamage(Unit* attacker, Unit* victim, uint32 damage, CleanDamage const* cleanDamage = nullptr, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = nullptr, bool durabilityLoss = true);
         static void Kill(Unit* attacker, Unit* victim, bool durabilityLoss = true);
@@ -1023,16 +1027,16 @@ class TC_GAME_API Unit : public WorldObject
 
         /// ====================== THREAT & COMBAT ====================
         bool CanHaveThreatList() const { return m_threatManager.CanHaveThreatList(); }
-        // For NPCs with threat list: Whether there are any enemies on our threat list
-        // For other units: Whether we're in combat
-        // This value is different from IsInCombat when a projectile spell is midair (combat on launch - threat+aggro on impact)
-        bool IsEngaged() const { return CanHaveThreatList() ? m_threatManager.IsEngaged() : IsInCombat(); }
+        // This value can be different from IsInCombat:
+        // - when a projectile spell is midair against a creature (combat on launch - threat+aggro on impact)
+        // - when the creature has no targets left, but the AI has not yet ceased engaged logic
+        bool IsEngaged() const { return m_isEngaged; }
         bool IsEngagedBy(Unit const* who) const { return CanHaveThreatList() ? IsThreatenedBy(who) : IsInCombatWith(who); }
         void EngageWithTarget(Unit* who); // Adds target to threat list if applicable, otherwise just sets combat state
         // Combat handling
         CombatManager& GetCombatManager() { return m_combatManager; }
         CombatManager const& GetCombatManager() const { return m_combatManager; }
-        void AttackedTarget(Unit* target, bool canInitialAggro);
+        void AtTargetAttacked(Unit* target, bool canInitialAggro);
 
         bool IsImmuneToAll() const { return IsImmuneToPC() && IsImmuneToNPC(); }
         void SetImmuneToAll(bool apply, bool keepCombat);
@@ -1142,7 +1146,7 @@ class TC_GAME_API Unit : public WorldObject
         DeathState getDeathState() const { return m_deathState; }
         virtual void setDeathState(DeathState s);           // overwrited in Creature/Player/Pet
 
-        ObjectGuid GetOwnerGUID() const override { return  GetGuidValue(UNIT_FIELD_SUMMONEDBY); }
+        ObjectGuid GetOwnerGUID() const override { return GetGuidValue(UNIT_FIELD_SUMMONEDBY); }
         void SetOwnerGUID(ObjectGuid owner);
         ObjectGuid GetCreatorGUID() const { return GetGuidValue(UNIT_FIELD_CREATEDBY); }
         void SetCreatorGUID(ObjectGuid creator) { SetGuidValue(UNIT_FIELD_CREATEDBY, creator); }
@@ -1190,14 +1194,14 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
+
+        // all of these are for DIRECT CLIENT CONTROL only
+        void SetMovedUnit(Unit* target);
         // returns the unit that this player IS CONTROLLING
-        Unit* GetUnitBeingMoved() const;
-        // returns the player that this player IS CONTROLLING
-        Player* GetPlayerBeingMoved() const;
+        Unit* GetUnitBeingMoved() const { return m_unitMovedByMe; }
         // returns the player that this unit is BEING CONTROLLED BY
         Player* GetPlayerMovingMe() const { return m_playerMovingMe; }
-        // only set for direct client control (possess effects, vehicles and similar)
-        Player* m_playerMovingMe;
+
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* player);
         void RemovePlayerFromVision(Player* player);
@@ -1488,11 +1492,11 @@ class TC_GAME_API Unit : public WorldObject
         bool IsMagnet() const;
         Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = nullptr);
 
-        int32  SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
+        int32 SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
         uint32 SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint8 effIndex, Optional<float> const& donePctTotal, uint32 stack = 1) const;
-        float  SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype) const;
+        float SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype) const;
         uint32 SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype) const;
-        int32  SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const;
+        int32 SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const;
         uint32 SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, uint8 effIndex, Optional<float> const& donePctTotal, uint32 stack = 1) const;
         float SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const;
         uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype) const;
@@ -1500,10 +1504,10 @@ class TC_GAME_API Unit : public WorldObject
         uint32 MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
         uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
 
-        bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
-        bool   isBlockCritical();
-        float  SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK, bool isPeriodic = false) const;
-        float  SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, float doneChance, WeaponAttackType attackType = BASE_ATTACK, bool isPeriodic = false) const;
+        bool isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);
+        bool isBlockCritical();
+        float SpellCritChanceDone(SpellInfo const* spellInfo, SpellSchoolMask schoolMask, WeaponAttackType attackType = BASE_ATTACK, bool isPeriodic = false) const;
+        float SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, float doneChance, WeaponAttackType attackType = BASE_ATTACK, bool isPeriodic = false) const;
         static uint32 SpellCriticalDamageBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim);
         static uint32 SpellCriticalHealingBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim);
 
@@ -1529,7 +1533,7 @@ class TC_GAME_API Unit : public WorldObject
         static void CalcAbsorbResist(DamageInfo& damageInfo);
         static void CalcHealAbsorb(HealInfo& healInfo);
 
-        void  UpdateSpeed(UnitMoveType mtype);
+        void UpdateSpeed(UnitMoveType mtype);
         float GetSpeed(UnitMoveType mtype) const;
         float GetSpeedRate(UnitMoveType mtype) const { return m_speed_rate[mtype]; }
         void SetSpeed(UnitMoveType mtype, float newValue);
@@ -1739,6 +1743,8 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_speed_rate[MAX_MOVE_TYPE];
 
+        Unit* m_unitMovedByMe;    // only ever set for players, and only for direct client control
+        Player* m_playerMovingMe; // only set for direct client control (possess effects, vehicles and similar)
         Unit* m_charmer; // Unit that is charming ME
         Unit* m_charmed; // Unit that is being charmed BY ME
         CharmInfo* m_charmInfo;
@@ -1766,6 +1772,9 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtEnterCombat() { }
         virtual void AtExitCombat();
 
+        virtual void AtEngage(Unit* /*target*/) { m_isEngaged = true; }
+        virtual void AtDisengage() { m_isEngaged = false; }
+
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
@@ -1789,7 +1798,9 @@ class TC_GAME_API Unit : public WorldObject
         TimeTrackerSmall m_movesplineTimer;
 
         DiminishingReturn m_Diminishing[DIMINISHING_MAX];
-        // Manage all Units that are threatened by us
+
+        // Threat+combat management
+        bool m_isEngaged;
         friend class CombatManager;
         CombatManager m_combatManager;
         friend class ThreatManager;

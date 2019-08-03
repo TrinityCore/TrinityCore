@@ -78,11 +78,11 @@ class DuelResetScript : public PlayerScript
                     loser->RestoreHealthAfterDuel();
 
                     // check if player1 class uses mana
-                    if (winner->GetPowerType() == POWER_MANA || winner->getClass() == CLASS_DRUID)
+                    if (winner->GetPowerType() == POWER_MANA || winner->GetClass() == CLASS_DRUID)
                         winner->RestoreManaAfterDuel();
 
                     // check if player2 class uses mana
-                    if (loser->GetPowerType() == POWER_MANA || loser->getClass() == CLASS_DRUID)
+                    if (loser->GetPowerType() == POWER_MANA || loser->GetClass() == CLASS_DRUID)
                         loser->RestoreManaAfterDuel();
                 }
             }

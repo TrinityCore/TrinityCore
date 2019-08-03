@@ -25,7 +25,6 @@ EndScriptData */
 
 /* ContentData
 npc_maghar_captive
-npc_creditmarker_visit_with_ancestors
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -219,70 +218,28 @@ public:
 };
 
 /*######
-## npc_creditmarker_visist_with_ancestors
-######*/
-
-class npc_creditmarker_visit_with_ancestors : public CreatureScript
-{
-public:
-    npc_creditmarker_visit_with_ancestors() : CreatureScript("npc_creditmarker_visit_with_ancestors") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_creditmarker_visit_with_ancestorsAI(creature);
-    }
-
-    struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
-    {
-        npc_creditmarker_visit_with_ancestorsAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            Player* player = who->ToPlayer();
-            if (player && player->GetQuestStatus(10085) == QUEST_STATUS_INCOMPLETE)
-            {
-                uint32 creditMarkerId = me->GetEntry();
-                if (creditMarkerId >= 18840 && creditMarkerId <= 18843)
-                {
-                    // 18840: Sunspring, 18841: Laughing, 18842: Garadar, 18843: Bleeding
-                    if (!player->GetReqKillOrCastCurrentCount(10085, creditMarkerId))
-                        player->KilledMonsterCredit(creditMarkerId, me->GetGUID());
-                }
-            }
-        }
-    };
-};
-
-/*######
 ## go_corkis_prison and npc_corki
 ######*/
 
 enum CorkiData
 {
-  // first quest
-  QUEST_HELP                                    = 9923,
-  NPC_CORKI                                     = 18445,
-  NPC_CORKI_CREDIT_1                            = 18369,
-  GO_CORKIS_PRISON                              = 182349,
-  CORKI_SAY_THANKS                              = 0,
-  // 2nd quest
-  QUEST_CORKIS_GONE_MISSING_AGAIN               = 9924,
-  NPC_CORKI_2                                   = 20812,
-  GO_CORKIS_PRISON_2                            = 182350,
-  CORKI_SAY_PROMISE                             = 0,
-  // 3rd quest
-  QUEST_CHOWAR_THE_PILLAGER                     = 9955,
-  NPC_CORKI_3                                   = 18369,
-  NPC_CORKI_CREDIT_3                            = 18444,
-  GO_CORKIS_PRISON_3                            = 182521,
-  CORKI_SAY_LAST                                = 0
+    // first quest
+    QUEST_HELP                                    = 9923,
+    NPC_CORKI                                     = 18445,
+    NPC_CORKI_CREDIT_1                            = 18369,
+    GO_CORKIS_PRISON                              = 182349,
+    CORKI_SAY_THANKS                              = 0,
+    // 2nd quest
+    QUEST_CORKIS_GONE_MISSING_AGAIN               = 9924,
+    NPC_CORKI_2                                   = 20812,
+    GO_CORKIS_PRISON_2                            = 182350,
+    CORKI_SAY_PROMISE                             = 0,
+    // 3rd quest
+    QUEST_CHOWAR_THE_PILLAGER                     = 9955,
+    NPC_CORKI_3                                   = 18369,
+    NPC_CORKI_CREDIT_3                            = 18444,
+    GO_CORKIS_PRISON_3                            = 182521,
+    CORKI_SAY_LAST                                = 0
 };
 
 class go_corkis_prison : public GameObjectScript
@@ -339,63 +296,63 @@ public:
 class npc_corki : public CreatureScript
 {
 public:
-  npc_corki() : CreatureScript("npc_corki") { }
+    npc_corki() : CreatureScript("npc_corki") { }
 
-  CreatureAI* GetAI(Creature* creature) const override
-  {
-      return new npc_corkiAI(creature);
-  }
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_corkiAI(creature);
+    }
 
-  struct npc_corkiAI : public ScriptedAI
-  {
-      npc_corkiAI(Creature* creature) : ScriptedAI(creature)
-      {
-          Initialize();
-      }
+    struct npc_corkiAI : public ScriptedAI
+    {
+        npc_corkiAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-      void Initialize()
-      {
-          Say_Timer = 5000;
-          ReleasedFromCage = false;
-      }
+        void Initialize()
+        {
+            Say_Timer = 5000;
+            ReleasedFromCage = false;
+        }
 
-      uint32 Say_Timer;
-      bool ReleasedFromCage;
+        uint32 Say_Timer;
+        bool ReleasedFromCage;
 
-      void Reset() override
-      {
-          Initialize();
-      }
+        void Reset() override
+        {
+            Initialize();
+        }
 
-      void UpdateAI(uint32 diff) override
-      {
-          if (ReleasedFromCage)
-          {
-              if (Say_Timer <= diff)
-              {
-                  me->DespawnOrUnsummon();
-                  ReleasedFromCage = false;
-              }
-              else
-                  Say_Timer -= diff;
-          }
-      }
+        void UpdateAI(uint32 diff) override
+        {
+            if (ReleasedFromCage)
+            {
+                if (Say_Timer <= diff)
+                {
+                    me->DespawnOrUnsummon();
+                    ReleasedFromCage = false;
+                }
+                else
+                    Say_Timer -= diff;
+            }
+        }
 
-      void MovementInform(uint32 type, uint32 id) override
-      {
-          if (type == POINT_MOTION_TYPE && id == 1)
-          {
-              Say_Timer = 5000;
-              ReleasedFromCage = true;
-              if (me->GetEntry() == NPC_CORKI)
-                  Talk(CORKI_SAY_THANKS);
-              if (me->GetEntry() == NPC_CORKI_2)
-                  Talk(CORKI_SAY_PROMISE);
-              if (me->GetEntry() == NPC_CORKI_3)
-                  Talk(CORKI_SAY_LAST);
-          }
-      };
-  };
+        void MovementInform(uint32 type, uint32 id) override
+        {
+            if (type == POINT_MOTION_TYPE && id == 1)
+            {
+                Say_Timer = 5000;
+                ReleasedFromCage = true;
+                if (me->GetEntry() == NPC_CORKI)
+                    Talk(CORKI_SAY_THANKS);
+                if (me->GetEntry() == NPC_CORKI_2)
+                    Talk(CORKI_SAY_PROMISE);
+                if (me->GetEntry() == NPC_CORKI_3)
+                    Talk(CORKI_SAY_LAST);
+            }
+        };
+    };
 };
 
 /*#####
@@ -924,7 +881,6 @@ public:
 void AddSC_nagrand()
 {
     new npc_maghar_captive();
-    new npc_creditmarker_visit_with_ancestors();
     new npc_corki();
     new go_corkis_prison();
     new npc_kurenai_captive();

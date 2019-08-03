@@ -90,7 +90,7 @@ public:
 
                     me->UpdateEntry(NPC_TAMED_KODO);
                     me->CombatStop();
-                    me->GetThreatManager().ClearAllThreat();
+                    me->GetThreatManager().NotifyDisengaged();
                     me->SetFaction(FACTION_FRIENDLY);
                     me->SetSpeedRate(MOVE_RUN, 0.6f);
                     me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());

@@ -44,12 +44,6 @@ bool SmartAI::IsAIControlled() const
 
 void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 1*/)
 {
-    if (me->IsInCombat()) // no wp movement in combat
-    {
-        TC_LOG_ERROR("scripts.ai.sai", "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement (%u) while in combat, ignoring.", me->GetEntry(), pathId);
-        return;
-    }
-
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         StopPath();
 
@@ -123,7 +117,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
-        TC_LOG_ERROR("scripts.ai.sai", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint (current waypoint: %u) movement while already paused, ignoring.", me->GetEntry(), _currentWaypointNode);
+        TC_LOG_ERROR("scripts.ai.sai", "SmartAI::PausePath: Creature wanted to pause waypoint (current waypoint: %u) movement while already paused, ignoring. (%s)", _currentWaypointNode, me->GetGUID().ToString().c_str());
         return;
     }
 
@@ -521,12 +515,6 @@ void SmartAI::InitializeAI()
 
     me->SetVisible(true);
 
-    if (!me->isDead())
-    {
-        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-        GetScript()->OnReset();
-    }
-
     _followGUID.Clear(); // do not reset follower on Reset(), we need it after combat evade
     _followDistance = 0;
     _followAngle = 0;
@@ -534,6 +522,17 @@ void SmartAI::InitializeAI()
     _followArrivedTimer = 1000;
     _followArrivedEntry = 0;
     _followCreditType = 0;
+}
+
+void SmartAI::JustAppeared()
+{
+    CreatureAI::JustAppeared();
+
+    if (me->isDead())
+        return;
+
+    GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
+    GetScript()->OnReset();
 }
 
 void SmartAI::JustReachedHome()
@@ -610,9 +609,19 @@ void SmartAI::SpellHit(Unit* unit, SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, unit, 0, 0, false, spellInfo);
 }
 
+void SmartAI::SpellHitByGameObject(GameObject* object, SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, nullptr, 0, 0, false, spellInfo, object);
+}
+
 void SmartAI::SpellHitTarget(Unit* target, SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, spellInfo);
+}
+
+void SmartAI::SpellHitTargetGameObject(GameObject* target, SpellInfo const* spellInfo)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, nullptr, 0, 0, false, spellInfo, target);
 }
 
 void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
@@ -636,9 +645,9 @@ void SmartAI::ReceiveEmote(Player* player, uint32 textEmote)
     GetScript()->ProcessEventsFor(SMART_EVENT_RECEIVE_EMOTE, player, textEmote);
 }
 
-void SmartAI::IsSummonedBy(Unit* summoner)
+void SmartAI::IsSummonedBy(WorldObject* summoner)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_JUST_SUMMONED, summoner);
+    GetScript()->ProcessEventsFor(SMART_EVENT_JUST_SUMMONED, summoner->ToUnit(), 0, 0, false, nullptr, summoner->ToGameObject());
 }
 
 void SmartAI::DamageDealt(Unit* doneTo, uint32& damage, DamageEffectType /*damagetype*/)
@@ -648,7 +657,7 @@ void SmartAI::DamageDealt(Unit* doneTo, uint32& damage, DamageEffectType /*damag
 
 void SmartAI::SummonedCreatureDespawn(Creature* unit)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMON_DESPAWNED, unit);
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMON_DESPAWNED, unit, unit->GetEntry());
 }
 
 void SmartAI::CorpseRemoved(uint32& respawnDelay)
@@ -1079,6 +1088,16 @@ void SmartGameObjectAI::EventInform(uint32 eventId)
 void SmartGameObjectAI::SpellHit(Unit* unit, SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, unit, 0, 0, false, spellInfo);
+}
+
+void SmartGameObjectAI::JustSummoned(Creature* creature)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMONED_UNIT, creature);
+}
+
+void SmartGameObjectAI::SummonedCreatureDespawn(Creature* unit)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_SUMMON_DESPAWNED, unit, unit->GetEntry());
 }
 
 class SmartTrigger : public AreaTriggerScript

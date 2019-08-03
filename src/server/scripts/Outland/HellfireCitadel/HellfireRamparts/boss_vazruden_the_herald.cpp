@@ -94,7 +94,7 @@ class boss_nazan : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override { }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->GetEntry() == NPC_VAZRUDEN_HERALD)
                     VazrudenGUID = summoner->GetGUID();
@@ -104,7 +104,7 @@ class boss_nazan : public CreatureScript
             {
                 if (summoned && summoned->GetEntry() == NPC_LIQUID_FIRE)
                 {
-                    summoned->SetLevel(me->getLevel());
+                    summoned->SetLevel(me->GetLevel());
                     summoned->SetFaction(me->GetFaction());
                     summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SUMMON_LIQUID_FIRE, SPELL_SUMMON_LIQUID_FIRE_H), true);
                     summoned->CastSpell(summoned, SPELL_FIRE_NOVA_VISUAL, true);

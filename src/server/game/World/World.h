@@ -71,7 +71,6 @@ enum WorldTimers
 {
     WUPDATE_AUCTIONS,
     WUPDATE_AUCTIONS_PENDING,
-    WUPDATE_WEATHERS,
     WUPDATE_UPTIME,
     WUPDATE_CORPSES,
     WUPDATE_EVENTS,
@@ -315,6 +314,7 @@ enum WorldIntConfigs
     CONFIG_BATTLEGROUND_REPORT_AFK,
     CONFIG_ARENA_MAX_RATING_DIFFERENCE,
     CONFIG_ARENA_RATING_DISCARD_TIMER,
+    CONFIG_ARENA_PREV_OPPONENTS_DISCARD_TIMER,
     CONFIG_ARENA_RATED_UPDATE_TIMER,
     CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS,
     CONFIG_ARENA_SEASON_ID,
@@ -764,8 +764,8 @@ class TC_GAME_API World
         void UpdateAreaDependentAuras();
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
-        void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
-        void   ResetEventSeasonalQuests(uint16 event_id);
+        void SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
+        void ResetEventSeasonalQuests(uint16 event_id);
 
         void ReloadRBAC();
 

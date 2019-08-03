@@ -271,7 +271,7 @@ void Battlefield::InvitePlayerToWar(Player* player)
     }
 
     // If the player does not match minimal level requirements for the battlefield, kick him
-    if (player->getLevel() < m_MinLevel)
+    if (player->GetLevel() < m_MinLevel)
     {
         if (m_PlayersWillBeKick[player->GetTeamId()].count(player->GetGUID()) == 0)
             m_PlayersWillBeKick[player->GetTeamId()][player->GetGUID()] = GameTime::GetGameTime() + 10;
@@ -697,7 +697,7 @@ void BfGraveyard::Resurrect()
         if (!player)
             continue;
 
-        // Check  if the player is in world and on the good graveyard
+        // Check if the player is in world and on the good graveyard
         if (player->IsInWorld())
             if (Creature* spirit = m_Bf->GetCreature(m_SpiritGuide[m_ControlTeam]))
                 spirit->CastSpell(spirit, SPELL_SPIRIT_HEAL, true);

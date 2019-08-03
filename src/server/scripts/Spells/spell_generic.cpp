@@ -414,7 +414,7 @@ class spell_gen_aura_service_uniform : public AuraScript
         Unit* target = GetTarget();
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
-            if (target->getGender() == GENDER_MALE)
+            if (target->GetNativeGender() == GENDER_MALE)
                 target->SetDisplayId(MODEL_GOBLIN_MALE);
             else
                 target->SetDisplayId(MODEL_GOBLIN_FEMALE);
@@ -1222,7 +1222,7 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
             {
                 if (Player* player = GetHitPlayer())
                 {
-                    uint8 gender = player->getGender();
+                    uint8 gender = player->GetNativeGender();
 
                     uint32 spellId = GetSpellInfo()->Id;
 
@@ -1455,7 +1455,7 @@ class spell_gen_defend : public AuraScript
     {
         if (Unit* caster = GetCaster())
             if (TempSummon* vehicle = caster->ToTempSummon())
-                if (Unit* rider = vehicle->GetSummoner())
+                if (Unit* rider = vehicle->GetSummonerUnit())
                     rider->RemoveAurasDueToSpell(GetId());
     }
 
@@ -1676,7 +1676,7 @@ class spell_ethereal_pet_aura : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        uint32 levelDiff = std::abs(GetTarget()->getLevel() - eventInfo.GetProcTarget()->getLevel());
+        uint32 levelDiff = std::abs(GetTarget()->GetLevel() - eventInfo.GetProcTarget()->GetLevel());
         return levelDiff <= 9;
     }
 
@@ -1988,14 +1988,14 @@ class spell_gen_magic_rooster : public SpellScript
             target->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
             uint32 spellId = SPELL_MAGIC_ROOSTER_NORMAL;
-            switch (target->getRace())
+            switch (target->GetRace())
             {
                 case RACE_DRAENEI:
-                    if (target->getGender() == GENDER_MALE)
+                    if (target->GetNativeGender() == GENDER_MALE)
                         spellId = SPELL_MAGIC_ROOSTER_DRAENEI_MALE;
                     break;
                 case RACE_TAUREN:
-                    if (target->getGender() == GENDER_MALE)
+                    if (target->GetNativeGender() == GENDER_MALE)
                         spellId = SPELL_MAGIC_ROOSTER_TAUREN_MALE;
                     break;
                 default:
@@ -2638,7 +2638,7 @@ class spell_gen_orc_disguise : public SpellScript
         Unit* caster = GetCaster();
         if (Player* target = GetHitPlayer())
         {
-            uint8 gender = target->getGender();
+            uint8 gender = target->GetNativeGender();
             if (!gender)
                 caster->CastSpell(target, SPELL_ORC_DISGUISE_MALE, true);
             else
@@ -2788,7 +2788,7 @@ class spell_gen_pet_summoned : public SpellScript
         Player* player = GetCaster()->ToPlayer();
         if (player->GetLastPetNumber())
         {
-            PetType newPetType = (player->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
+            PetType newPetType = (player->GetClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
             Pet* newPet = new Pet(player, newPetType);
             if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
             {
@@ -2820,6 +2820,11 @@ class spell_gen_pet_summoned : public SpellScript
     }
 };
 
+enum ProfessionResearch
+{
+    SPELL_NORTHREND_INSCRIPTION_RESEARCH = 61177
+};
+
 class spell_gen_profession_research : public SpellScript
 {
     PrepareSpellScript(spell_gen_profession_research);
@@ -2831,7 +2836,9 @@ class spell_gen_profession_research : public SpellScript
 
     SpellCastResult CheckRequirement()
     {
-        if (HasDiscoveredAllSpells(GetSpellInfo()->Id, GetCaster()->ToPlayer()))
+        Player* player = GetCaster()->ToPlayer();
+
+        if (HasDiscoveredAllSpells(GetSpellInfo()->Id, player))
         {
             SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NOTHING_TO_DISCOVER);
             return SPELL_FAILED_CUSTOM_ERROR;
@@ -2845,11 +2852,15 @@ class spell_gen_profession_research : public SpellScript
         Player* caster = GetCaster()->ToPlayer();
         uint32 spellId = GetSpellInfo()->Id;
 
-        // learn random explicit discovery recipe (if any)
+        // Learn random explicit discovery recipe (if any)
+        // Players will now learn 3 recipes the very first time they perform Northrend Inscription Research (3.3.0 patch notes)
+        if (spellId == SPELL_NORTHREND_INSCRIPTION_RESEARCH && !HasDiscoveredAnySpell(spellId, caster))
+            for (int i = 0; i < 2; ++i)
+                if (uint32 discoveredSpellId = GetExplicitDiscoverySpell(spellId, caster))
+                    caster->LearnSpell(discoveredSpellId, false);
+
         if (uint32 discoveredSpellId = GetExplicitDiscoverySpell(spellId, caster))
             caster->LearnSpell(discoveredSpellId, false);
-
-        caster->UpdateCraftSkill(spellId);
     }
 
     void Register() override
@@ -3343,6 +3354,38 @@ class spell_gen_tournament_pennant : public AuraScript
     }
 };
 
+enum Teleporting
+{
+    AREA_VIOLET_CITADEL_SPIRE   = 4637,
+
+    SPELL_TELEPORT_SPIRE_DOWN   = 59316,
+    SPELL_TELEPORT_SPIRE_UP     = 59314
+};
+
+class spell_gen_teleporting : public SpellScript
+{
+    PrepareSpellScript(spell_gen_teleporting);
+
+    void HandleScript(SpellEffIndex /* effIndex */)
+    {
+        Unit* target = GetHitUnit();
+        if (target->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        // return from top
+        if (target->ToPlayer()->GetAreaId() == AREA_VIOLET_CITADEL_SPIRE)
+            target->CastSpell(target, SPELL_TELEPORT_SPIRE_DOWN, true);
+            // teleport atop
+        else
+            target->CastSpell(target, SPELL_TELEPORT_SPIRE_UP, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_teleporting::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum PvPTrinketTriggeredSpells
 {
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER         = 72752,
@@ -3694,7 +3737,7 @@ class spell_gen_gm_freeze : public AuraScript
             player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             // if player class = hunter || warlock remove pet if alive
-            if ((player->getClass() == CLASS_HUNTER) || (player->getClass() == CLASS_WARLOCK))
+            if ((player->GetClass() == CLASS_HUNTER) || (player->GetClass() == CLASS_WARLOCK))
             {
                 if (Pet* pet = player->GetPet())
                 {
@@ -3713,7 +3756,7 @@ class spell_gen_gm_freeze : public AuraScript
         if (Player* player = GetTarget()->ToPlayer())
         {
             // Reset player faction + allow combat + allow duels
-            player->setFactionForRace(player->getRace());
+            player->SetFactionForRace(player->GetRace());
             player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             // save player
             player->SaveToDB();
@@ -4182,6 +4225,64 @@ class spell_corrupting_plague_aura : public AuraScript
     }
 };
 
+enum StasisFieldEntrys
+{
+    NPC_DAGGERTAIL_LIZARD    = 22255,
+    SPELL_STASIS_FIELD       = 40307
+};
+
+// 40307 - Stasis Field
+class StasisFieldSearcher
+{
+public:
+    StasisFieldSearcher(Unit* obj, float distance) : _unit(obj), _distance(distance)  { }
+
+    bool operator()(Unit* u) const
+    {
+        if (_unit->GetDistance2d(u) < _distance &&
+            (u->GetEntry() == NPC_APEXIS_FLAYER || u->GetEntry() == NPC_SHARD_HIDE_BOAR || u->GetEntry() == NPC_AETHER_RAY || u->GetEntry() == NPC_DAGGERTAIL_LIZARD) &&
+            !u->HasAura(SPELL_STASIS_FIELD))
+            return true;
+
+        return false;
+    }
+
+private:
+    Unit* _unit;
+    float _distance;
+};
+
+// 40306 - Stasis Field
+class spell_stasis_field_aura : public AuraScript
+{
+    PrepareAuraScript(spell_stasis_field_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STASIS_FIELD });
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* owner = GetTarget();
+
+        std::list<Creature*> targets;
+        StasisFieldSearcher creature_check(owner, 15.0f);
+        Trinity::CreatureListSearcher<StasisFieldSearcher> creature_searcher(owner, targets, creature_check);
+        Cell::VisitGridObjects(owner, creature_searcher, 15.0f);
+
+        if (!targets.empty())
+            return;
+
+        PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_stasis_field_aura::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 enum SiegeTankControl
 {
     SPELL_SIEGE_TANK_CONTROL = 47963
@@ -4242,6 +4343,28 @@ class spell_freezing_circle : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_freezing_circle::HandleDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// Used for some spells cast by vehicles or charmed creatures that do not send a cooldown event on their own
+class spell_gen_charmed_unit_spell_cooldown : public SpellScript
+{
+    PrepareSpellScript(spell_gen_charmed_unit_spell_cooldown);
+
+    void HandleCast()
+    {
+        Unit* caster = GetCaster();
+        if (Player* owner = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            WorldPacket data;
+            caster->GetSpellHistory()->BuildCooldownPacket(data, SPELL_COOLDOWN_FLAG_NONE, GetSpellInfo()->Id, GetSpellInfo()->RecoveryTime);
+            owner->SendDirectMessage(&data);
+        }
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_gen_charmed_unit_spell_cooldown::HandleCast);
     }
 };
 
@@ -4350,6 +4473,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_throw_shield);
     RegisterSpellScript(spell_gen_tournament_duel);
     RegisterAuraScript(spell_gen_tournament_pennant);
+    RegisterSpellScript(spell_gen_teleporting);
     new spell_pvp_trinket_wotf_shared_cd<SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER>("spell_pvp_trinket_shared_cd");
     new spell_pvp_trinket_wotf_shared_cd<SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF>("spell_wotf_shared_cd");
     RegisterAuraScript(spell_gen_turkey_marker);
@@ -4368,6 +4492,8 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_clear_debuffs);
     RegisterAuraScript(spell_gen_pony_mount_check);
     RegisterAuraScript(spell_corrupting_plague_aura);
+    RegisterAuraScript(spell_stasis_field_aura);
     RegisterAuraScript(spell_gen_vehicle_control_link);
     RegisterSpellScript(spell_freezing_circle);
+    RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
 }

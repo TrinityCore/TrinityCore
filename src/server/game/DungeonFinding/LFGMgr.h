@@ -455,7 +455,7 @@ class TC_GAME_API LFGMgr
         LfgCachedDungeonContainer CachedDungeonMapStore;   /// Stores all dungeons by groupType
         // Reward System
         LfgRewardContainer RewardMapStore;                 /// Stores rewards for random dungeons
-        LFGDungeonContainer  LfgDungeonStore;
+        LFGDungeonContainer LfgDungeonStore;
         // Rolecheck - Proposal - Vote Kicks
         LfgRoleCheckContainer RoleChecksStore;             /// Current Role checks
         LfgProposalContainer ProposalsStore;               /// Current Proposals

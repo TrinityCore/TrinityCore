@@ -147,10 +147,13 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
     if (owner->m_taxi.empty())
     {
         // update z position to ground and orientation for landing point
-        // this prevent cheating with landing  point at lags
+        // this prevent cheating with landing point at lags
         // when client side flight end early in comparison server side
         owner->StopMoving();
-        owner->SetFallInformation(0, owner->GetPositionZ());
+        float mapHeight = owner->GetMap()->GetHeight(_path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, _path[GetCurrentNode()]->LocZ);
+        owner->SetFallInformation(0, mapHeight);
+        // When the player reaches the last flight point, teleport to destination at map height
+        owner->TeleportTo(_path[GetCurrentNode()]->MapID, _path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, mapHeight, owner->GetOrientation());
     }
 
     owner->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
@@ -235,6 +238,8 @@ void FlightPathMovementGenerator::SetCurrentNodeAfterTeleport()
 
 void FlightPathMovementGenerator::DoEventIfAny(Player* owner, TaxiPathNodeEntry const* node, bool departure)
 {
+    ASSERT(node);
+
     if (uint32 eventid = departure ? node->DepartureEventID : node->ArrivalEventID)
     {
         TC_LOG_DEBUG("maps.script", "FlightPathMovementGenerator::DoEventIfAny: taxi %s event %u of node %u of path %u for player %s", departure ? "departure" : "arrival", eventid, node->NodeIndex, node->PathID, owner->GetName().c_str());
@@ -272,4 +277,28 @@ void FlightPathMovementGenerator::PreloadEndGrid()
     }
     else
         TC_LOG_DEBUG("movement.flightpath", "FlightPathMovementGenerator::PreloadEndGrid: unable to determine map to preload flightmaster grid");
+}
+
+uint32 FlightPathMovementGenerator::GetPathId(size_t index) const
+{
+    if (index >= _path.size())
+        return 0;
+
+    return _path[index]->PathID;
+}
+
+std::string FlightPathMovementGenerator::GetDebugInfo() const
+{
+    std::stringstream sstr;
+    sstr << std::boolalpha
+        << PathMovementBase::GetDebugInfo() << "\n"
+        << MovementGeneratorMedium::GetDebugInfo() << "\n"
+        << "Start Path Id: " << GetPathId(0)
+        << " Path Size: " << _path.size()
+        << " HasArrived: " << HasArrived()
+        << " End Grid X: " << _endGridX
+        << " End Grid Y: " << _endGridY
+        << " End Map Id: " << _endMapId
+        << " Preloaded Target Node: " << _preloadTargetNode;
+    return sstr.str();
 }

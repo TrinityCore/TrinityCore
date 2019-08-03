@@ -55,6 +55,22 @@ enum Expansions
     MAX_EXPANSIONS                     = 3
 };
 
+inline uint32 GetMaxLevelForExpansion(uint32 expansion)
+{
+    switch (expansion)
+    {
+        case EXPANSION_CLASSIC:
+            return 60;
+        case EXPANSION_THE_BURNING_CRUSADE:
+            return 70;
+        case EXPANSION_WRATH_OF_THE_LICH_KING:
+            return 80;
+        default:
+            break;
+    }
+    return 0;
+}
+
 enum Gender
 {
     GENDER_MALE                        = 0,
@@ -274,6 +290,8 @@ enum Powers : int8
     MAX_POWERS                          = 7,  // SKIP
     POWER_ALL                           = 127 // SKIP
 };
+
+#define MAX_RUNES 6
 
 // EnumUtils: DESCRIBE THIS
 enum SpellSchools

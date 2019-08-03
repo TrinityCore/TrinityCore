@@ -626,9 +626,9 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
 void Guild::Member::SetStats(Player* player)
 {
     m_name      = player->GetName();
-    m_level     = player->getLevel();
-    m_class     = player->getClass();
-    m_gender    = player->getGender();
+    m_level     = player->GetLevel();
+    m_class     = player->GetClass();
+    m_gender    = player->GetNativeGender();
     m_zoneId    = player->GetZoneId();
     m_accountId = player->GetSession()->GetAccountId();
 }
@@ -1030,6 +1030,8 @@ Item* Guild::BankMoveItemData::StoreItem(SQLTransaction& trans, Item* pItem)
     {
         ItemPosCount pos(*itr);
         ++itr;
+
+        ASSERT(pItem);
 
         TC_LOG_DEBUG("guild", "GUILD STORAGE: StoreItem tab = %u, slot = %u, item = %u, count = %u",
             m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());
@@ -2943,7 +2945,7 @@ void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, char const*
 {
     uint8 count = !param3 ? (!param2 ? (!param1 ? 0 : 1) : 2) : 3;
 
-    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + count + (guid ? 8 : 0));
+    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + count + (8));
     data << uint8(guildEvent);
     data << uint8(count);
 

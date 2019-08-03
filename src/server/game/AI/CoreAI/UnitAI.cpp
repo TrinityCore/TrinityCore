@@ -111,12 +111,6 @@ void UnitAI::SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAg
     SelectTargetList(targetList, num, targetType, offset, DefaultTargetSelector(me, dist, playerOnly, withTank, aura));
 }
 
-float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
-{
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    return spellInfo ? spellInfo->GetMaxRange(positive) : 0;
-}
-
 SpellCastResult UnitAI::DoCast(uint32 spellId)
 {
     Unit* target = nullptr;
@@ -183,6 +177,12 @@ SpellCastResult UnitAI::DoCastVictim(uint32 spellId, CastSpellExtraArgs const& a
         return DoCast(victim, spellId, args);
 
     return SPELL_FAILED_BAD_TARGETS;
+}
+
+float UnitAI::DoGetSpellMaxRange(uint32 spellId, bool positive)
+{
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    return spellInfo ? spellInfo->GetMaxRange(positive) : 0;
 }
 
 #define UPDATE_TARGET(a) {if (AIInfo->target<a) AIInfo->target=a;}

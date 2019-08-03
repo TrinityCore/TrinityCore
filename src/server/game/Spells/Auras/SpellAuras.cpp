@@ -234,7 +234,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
     Aura const* aura = GetBase();
     data << uint32(aura->GetId());
     uint32 flags = _flags;
-    if (aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_HIDE_DURATION))
+    if (aura->GetType() != DYNOBJ_AURA_TYPE && aura->GetMaxDuration() > 0 && !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
     data << uint8(flags);
     data << uint8(aura->GetCasterLevel());
@@ -438,7 +438,7 @@ m_procCooldown(std::chrono::steady_clock::time_point::min())
     _casterInfo.Level = m_spellInfo->SpellLevel;
     if (createInfo.Caster)
     {
-        _casterInfo.Level = createInfo.Caster->getLevel();
+        _casterInfo.Level = createInfo.Caster->GetLevel();
         _casterInfo.ApplyResilience = createInfo.Caster->CanApplyResilience();
         SaveCasterInfo(createInfo.Caster);
     }
@@ -681,30 +681,25 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
         if (addUnit && !itr->first->IsHighestExclusiveAura(this, true))
             addUnit = false;
 
+        // Dynobj auras don't hit flying targets
+        if (GetType() == DYNOBJ_AURA_TYPE && itr->first->IsInFlight())
+            addUnit = false;
+
+        // Do not apply aura if it cannot stack with existing auras
         if (addUnit)
         {
-            // persistent area aura does not hit flying targets
-            if (GetType() == DYNOBJ_AURA_TYPE)
+            // Allow to remove by stack when aura is going to be applied on owner
+            if (itr->first != GetOwner())
             {
-                if (itr->first->IsInFlight())
-                    addUnit = false;
-            }
-            // unit auras can not stack with each other
-            else // (GetType() == UNIT_AURA_TYPE)
-            {
-                // Allow to remove by stack when aura is going to be applied on owner
-                if (itr->first != GetOwner())
+                // check if not stacking aura already on target
+                // this one prevents unwanted usefull buff loss because of stacking and prevents overriding auras periodicaly by 2 near area aura owners
+                for (Unit::AuraApplicationMap::iterator iter = itr->first->GetAppliedAuras().begin(); iter != itr->first->GetAppliedAuras().end(); ++iter)
                 {
-                    // check if not stacking aura already on target
-                    // this one prevents unwanted usefull buff loss because of stacking and prevents overriding auras periodicaly by 2 near area aura owners
-                    for (Unit::AuraApplicationMap::iterator iter = itr->first->GetAppliedAuras().begin(); iter != itr->first->GetAppliedAuras().end(); ++iter)
+                    Aura const* aura = iter->second->GetBase();
+                    if (!CanStackWith(aura))
                     {
-                        Aura const* aura = iter->second->GetBase();
-                        if (!CanStackWith(aura))
-                        {
-                            addUnit = false;
-                            break;
-                        }
+                        addUnit = false;
+                        break;
                     }
                 }
             }
@@ -831,7 +826,7 @@ void Aura::Update(uint32 diff, Unit* caster)
                 m_timeCla -= diff;
             else if (caster)
             {
-                if (int32 manaPerSecond = m_spellInfo->ManaPerSecond + m_spellInfo->ManaPerSecondPerLevel * caster->getLevel())
+                if (int32 manaPerSecond = m_spellInfo->ManaPerSecond + m_spellInfo->ManaPerSecondPerLevel * caster->GetLevel())
                 {
                     m_timeCla += 1000 - diff;
 
@@ -1153,6 +1148,8 @@ bool Aura::CanBeSaved() const
         case 44413: // Incanter's Absorption
         case 40075: // Fel Flak Fire
         case 55849: // Power Spark
+        case 73822: // Hellscream's Warsong
+        case 73828: // Strength of Wrynn
             return false;
     }
 
@@ -1738,7 +1735,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                     if (target->GetTypeId() != TYPEID_PLAYER)
                         break;
-                    if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
+                    if (target->ToPlayer()->GetClass() != CLASS_DEATH_KNIGHT)
                         break;
 
                      // aura removed - remove death runes
@@ -1857,12 +1854,16 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     if (this == existingAura)
         return true;
 
-    // Dynobj auras always stack
-    if (GetType() == DYNOBJ_AURA_TYPE || existingAura->GetType() == DYNOBJ_AURA_TYPE)
-        return true;
-
-    SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();
     bool sameCaster = GetCasterGUID() == existingAura->GetCasterGUID();
+    SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();
+
+    // Dynobj auras do not stack when they come from the same spell cast by the same caster
+    if (GetType() == DYNOBJ_AURA_TYPE || existingAura->GetType() == DYNOBJ_AURA_TYPE)
+    {
+        if (sameCaster && m_spellInfo->Id == existingSpellInfo->Id)
+            return false;
+        return true;
+    }
 
     // passive auras don't stack with another rank of the spell cast by same caster
     if (IsPassive() && sameCaster && (m_spellInfo->IsDifferentRankOf(existingSpellInfo) || (m_spellInfo->Id == existingSpellInfo->Id && m_castItemGuid.IsEmpty())))
@@ -2150,8 +2151,8 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
     }
 
     // proc chance is reduced by an additional 3.333% per level past 60
-    if ((procEntry.AttributesMask & PROC_ATTR_REDUCE_PROC_60) && eventInfo.GetActor()->getLevel() > 60)
-        chance = std::max(0.f, (1.f - ((eventInfo.GetActor()->getLevel() - 60) * 1.f / 30.f)) * chance);
+    if ((procEntry.AttributesMask & PROC_ATTR_REDUCE_PROC_60) && eventInfo.GetActor()->GetLevel() > 60)
+        chance = std::max(0.f, (1.f - ((eventInfo.GetActor()->GetLevel() - 60) * 1.f / 30.f)) * chance);
 
     return chance;
 }
@@ -2714,6 +2715,7 @@ DynObjAura::DynObjAura(AuraCreateInfo const& createInfo)
     LoadScripts();
     ASSERT(GetDynobjOwner());
     ASSERT(GetDynobjOwner()->IsInWorld());
+    ASSERT(createInfo.Caster);
     ASSERT(GetDynobjOwner()->GetMap() == createInfo.Caster->GetMap());
     _InitEffects(createInfo._auraEffectMask, createInfo.Caster, createInfo.BaseAmount);
     GetDynobjOwner()->SetAura(this);

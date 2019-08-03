@@ -145,7 +145,7 @@ public:
                 Initialize();
         }
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        void IsSummonedBy(WorldObject* /*summoner*/) override
         {
             std::list<Player*> playerOnQuestList;
             Trinity::AnyPlayerInObjectRangeCheck checker(me, 5.0f);

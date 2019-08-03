@@ -548,16 +548,13 @@ void WorldSession::LogoutPlayer(bool save)
         ///- If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
         _player->UninviteFromGroup();
 
-        // remove player from the group if he is:
-        // a) in group; b) not in raid group; c) logging out normally (not being kicked or disconnected)
-        if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
-            _player->RemoveFromGroup();
-
         //! Send update to group and reset stored max enchanting level
-        if (_player->GetGroup())
+        if (Group* group = _player->GetGroup())
         {
-            _player->GetGroup()->SendUpdate();
-            _player->GetGroup()->ResetMaxEnchantingLevel();
+            group->SendUpdate();
+            group->ResetMaxEnchantingLevel();
+            if (group->GetLeaderGUID() == _player->GetGUID())
+                group->StartLeaderOfflineTimer();
         }
 
         //! Broadcast a logout message to the player's friends
@@ -575,7 +572,7 @@ void WorldSession::LogoutPlayer(bool save)
         // calls to GetMap in this case may cause crashes
         _player->CleanupsBeforeDelete();
         TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Logout Character:[%s] (GUID: %u) Level: %d",
-            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().GetCounter(), _player->getLevel());
+            GetAccountId(), GetRemoteAddress().c_str(), _player->GetName().c_str(), _player->GetGUID().GetCounter(), _player->GetLevel());
         if (Map* _map = _player->FindMap())
             _map->RemovePlayerFromMap(_player, true);
 
@@ -739,7 +736,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 
         if ((mask & (1 << type)) == 0)
         {
-            TC_LOG_ERROR("misc", "Table `%s` have non appropriate for table  account data type (%u), ignore.",
+            TC_LOG_ERROR("misc", "Table `%s` have non appropriate for table account data type (%u), ignore.",
                 mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
             continue;
         }
@@ -937,8 +934,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     */
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
-        !GetPlayer()->m_unitMovedByMe->HasAuraType(SPELL_AURA_FLY) &&
-        !GetPlayer()->m_unitMovedByMe->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
+        !GetPlayer()->GetUnitBeingMoved()->HasAuraType(SPELL_AURA_FLY) &&
+        !GetPlayer()->GetUnitBeingMoved()->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
         MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 
     //! Cannot fly and fall at the same time

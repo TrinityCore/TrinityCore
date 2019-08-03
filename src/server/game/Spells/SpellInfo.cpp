@@ -211,7 +211,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
     return targetMask;
 }
 
-SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_TARGETS] =
+SpellImplicitTargetInfo::StaticData SpellImplicitTargetInfo::_data[TOTAL_SPELL_TARGETS] =
 {
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        //
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 1 TARGET_UNIT_CASTER
@@ -408,7 +408,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     // base amount modification based on spell lvl vs caster lvl
     if (casterUnit && basePointsPerLevel != 0.0f)
     {
-        int32 level = int32(casterUnit->getLevel());
+        int32 level = int32(casterUnit->GetLevel());
         if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
             level = int32(_spellInfo->MaxLevel);
         else if (level < int32(_spellInfo->BaseLevel))
@@ -451,7 +451,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     {
         // amount multiplication based on caster's level
         if (!casterUnit->IsControlledByPlayer() &&
-            _spellInfo->SpellLevel && _spellInfo->SpellLevel != casterUnit->getLevel() &&
+            _spellInfo->SpellLevel && _spellInfo->SpellLevel != casterUnit->GetLevel() &&
             !basePointsPerLevel && _spellInfo->HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
         {
             bool canEffectScale = false;
@@ -495,7 +495,7 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
             if (canEffectScale)
             {
                 GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(_spellInfo->SpellLevel - 1);
-                GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(casterUnit->getLevel() - 1);
+                GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(casterUnit->GetLevel() - 1);
                 if (spellScaler && casterScaler)
                     value *= casterScaler->ratio / spellScaler->ratio;
             }
@@ -545,7 +545,7 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, Spell* spel
     if (caster)
     {
         if (Unit* casterUnit = caster->ToUnit())
-            radius += RadiusEntry->RadiusPerLevel * casterUnit->getLevel();
+            radius += RadiusEntry->RadiusPerLevel * casterUnit->GetLevel();
 
         radius = std::min(radius, RadiusEntry->RadiusMax);
 
@@ -595,7 +595,7 @@ SpellTargetObjectTypes SpellEffectInfo::GetUsedTargetObjectType() const
     return _data[Effect].UsedTargetObjectType;
 }
 
-SpellEffectInfo::StaticData  SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
+SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
 {
     // implicit target type           used target object type
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 0
@@ -1573,7 +1573,6 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         case 2584:                                          // Waiting to Resurrect
         case 22011:                                         // Spirit Heal Channel
         case 22012:                                         // Spirit Heal
-        case 24171:                                         // Resurrection Impact Visual
         case 42792:                                         // Recently Dropped Flag
         case 43681:                                         // Inactive
         case 44535:                                         // Spirit Heal (mana)
@@ -3222,7 +3221,7 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
         if (HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
         {
             GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(SpellLevel - 1);
-            GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(unitCaster->getLevel() - 1);
+            GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(unitCaster->GetLevel() - 1);
             if (spellScaler && casterScaler)
                 powerCost *= casterScaler->ratio / spellScaler->ratio;
         }

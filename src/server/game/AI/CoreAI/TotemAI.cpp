@@ -17,13 +17,14 @@
  */
 
 #include "TotemAI.h"
-#include "Totem.h"
+#include "CellImpl.h"
 #include "Creature.h"
-#include "ObjectAccessor.h"
-#include "SpellMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "CellImpl.h"
+#include "ObjectAccessor.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "Totem.h"
 
 int32 TotemAI::Permissible(Creature const* creature)
 {
@@ -33,9 +34,9 @@ int32 TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* c) : CreatureAI(c), _victimGUID()
+TotemAI::TotemAI(Creature* creature) : CreatureAI(creature), _victimGUID()
 {
-    ASSERT(c->IsTotem());
+    ASSERT(creature->IsTotem(), "TotemAI: AI assigned to a no-totem creature (%s)!", creature->GetGUID().ToString().c_str());
 }
 
 void TotemAI::MoveInLineOfSight(Unit* /*who*/) { }
@@ -67,9 +68,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     Unit* victim = _victimGUID ? ObjectAccessor::GetUnit(*me, _victimGUID) : nullptr;
 
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-    if (!victim ||
-        !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
-        me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
+    if (!victim || !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) || me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
     {
         victim = nullptr;
         Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), max_range);
@@ -94,13 +93,15 @@ void TotemAI::AttackStart(Unit* /*victim*/)
 {
     // Sentry totem sends ping on attack
     if (me->GetEntry() == SENTRY_TOTEM_ENTRY)
+    {
         if (Unit* owner = me->GetOwner())
             if (Player* player = owner->ToPlayer())
             {
-                WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
+                WorldPacket data(MSG_MINIMAP_PING, (8 + 4 + 4));
                 data << me->GetGUID();
                 data << me->GetPositionX();
                 data << me->GetPositionY();
                 player->SendDirectMessage(&data);
             }
+    }
 }

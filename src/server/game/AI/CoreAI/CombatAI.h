@@ -26,7 +26,7 @@ class Creature;
 class TC_GAME_API AggressorAI : public CreatureAI
 {
     public:
-        explicit AggressorAI(Creature* c) : CreatureAI(c) { }
+        explicit AggressorAI(Creature* creature) : CreatureAI(creature) { }
 
         void UpdateAI(uint32) override;
         static int32 Permissible(Creature const* creature);
@@ -37,7 +37,7 @@ typedef std::vector<uint32> SpellVector;
 class TC_GAME_API CombatAI : public CreatureAI
 {
     public:
-        explicit CombatAI(Creature* c) : CreatureAI(c) { }
+        explicit CombatAI(Creature* creature) : CreatureAI(creature) { }
 
         void InitializeAI() override;
         void Reset() override;
@@ -56,7 +56,7 @@ class TC_GAME_API CombatAI : public CreatureAI
 class TC_GAME_API CasterAI : public CombatAI
 {
     public:
-        explicit CasterAI(Creature* c) : CombatAI(c) { _attackDistance = MELEE_RANGE; }
+        explicit CasterAI(Creature* creature) : CombatAI(creature) { _attackDistance = MELEE_RANGE; }
         void InitializeAI() override;
         void AttackStart(Unit* victim) override { AttackStartCaster(victim, _attackDistance); }
         void UpdateAI(uint32 diff) override;
@@ -68,7 +68,7 @@ class TC_GAME_API CasterAI : public CombatAI
 struct TC_GAME_API ArcherAI : public CreatureAI
 {
     public:
-        explicit ArcherAI(Creature* c);
+        explicit ArcherAI(Creature* creature);
         void AttackStart(Unit* who) override;
         void UpdateAI(uint32 diff) override;
 
@@ -81,7 +81,7 @@ struct TC_GAME_API ArcherAI : public CreatureAI
 struct TC_GAME_API TurretAI : public CreatureAI
 {
     public:
-        explicit TurretAI(Creature* c);
+        explicit TurretAI(Creature* creature);
         bool CanAIAttack(Unit const* who) const override;
         void AttackStart(Unit* who) override;
         void UpdateAI(uint32 diff) override;

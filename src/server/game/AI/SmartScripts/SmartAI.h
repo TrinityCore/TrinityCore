@@ -25,25 +25,22 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
-enum SmartEscortState
+enum SmartEscortState : uint8
 {
-    SMART_ESCORT_NONE       = 0x000,                        //nothing in progress
-    SMART_ESCORT_ESCORTING  = 0x001,                        //escort is in progress
-    SMART_ESCORT_RETURNING  = 0x002,                        //escort is returning after being in combat
-    SMART_ESCORT_PAUSED     = 0x004                         //will not proceed with waypoints before state is removed
+    SMART_ESCORT_NONE       = 0x00, // nothing in progress
+    SMART_ESCORT_ESCORTING  = 0x01, // escort is in progress
+    SMART_ESCORT_RETURNING  = 0x02, // escort is returning after being in combat
+    SMART_ESCORT_PAUSED     = 0x04  // will not proceed with waypoints before state is removed
 };
 
-enum SmartEscortVars
-{
-    SMART_ESCORT_MAX_PLAYER_DIST        = 60,
-    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2
-};
+static float constexpr SMART_ESCORT_MAX_PLAYER_DIST = 60.f;
+static float constexpr SMART_MAX_AID_DIST = SMART_ESCORT_MAX_PLAYER_DIST / 2.f;
 
 class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
         ~SmartAI() { }
-        explicit SmartAI(Creature* c);
+        explicit SmartAI(Creature* creature);
 
         // core related
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
@@ -58,9 +55,9 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
-        bool HasEscortState(uint32 uiEscortState) const { return (_escortState & uiEscortState) != 0; }
-        void AddEscortState(uint32 uiEscortState) { _escortState |= uiEscortState; }
-        void RemoveEscortState(uint32 uiEscortState) { _escortState &= ~uiEscortState; }
+        bool HasEscortState(uint32 escortState) const { return (_escortState & escortState) != 0; }
+        void AddEscortState(uint32 escortState) { _escortState |= escortState; }
+        void RemoveEscortState(uint32 escortState) { _escortState &= ~escortState; }
         void SetAutoAttack(bool on) { _canAutoAttack = on; }
         void SetCombatMove(bool on);
         bool CanCombatMove() { return _canCombatMove; }
@@ -102,9 +99,11 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Called when hit by a spell
         void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
+        void SpellHitByGameObject(GameObject* object, SpellInfo const* spellInfo) override;
 
         // Called when spell hits a target
         void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override;
+        void SpellHitTargetGameObject(GameObject* object, SpellInfo const* spellInfo) override;
 
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage) override;
@@ -122,7 +121,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void MovementInform(uint32 MovementType, uint32 Data) override;
 
         // Called when creature is summoned by another unit
-        void IsSummonedBy(Unit* summoner) override;
+        void IsSummonedBy(WorldObject* summoner) override;
 
         // Called at any Damage to any victim (before damage apply)
         void DamageDealt(Unit* doneTo, uint32& damage, DamageEffectType /*damagetype*/) override;
@@ -136,8 +135,11 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Called when a Player/Creature enters the creature (vehicle)
         void PassengerBoarded(Unit* who, int8 seatId, bool apply) override;
 
-        // Called when gets initialized, when creature is added to world
+        // Called when gets initialized
         void InitializeAI() override;
+
+        // Called once creature is fully added to world
+        void JustAppeared() override;
 
         // Called when creature gets charmed by another unit
         void OnCharmed(bool isNew) override;
@@ -245,7 +247,7 @@ class TC_GAME_API SmartAI : public CreatureAI
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), _gossipReturn(false) { }
+        SmartGameObjectAI(GameObject* go) : GameObjectAI(go), _gossipReturn(false) { }
         ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff) override;
@@ -268,6 +270,12 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void OnLootStateChanged(uint32 state, Unit* unit) override;
         void EventInform(uint32 eventId) override;
         void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
+
+        // Called when the gameobject summon successfully other creature
+        void JustSummoned(Creature* creature) override;
+
+        // Called when a summoned creature dissapears (UnSommoned)
+        void SummonedCreatureDespawn(Creature* unit) override;
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
 

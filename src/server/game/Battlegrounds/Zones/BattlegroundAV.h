@@ -89,7 +89,7 @@ enum BG_AV_Sounds
     ally wins
 8192:
     ally tower destroy(only iceblood - found a bug^^)
-    ally tower  defend
+    ally tower defend
     horde tower defend
 8213
 horde:

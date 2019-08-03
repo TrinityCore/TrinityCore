@@ -818,7 +818,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             if (e.action.fleeAssist.withEmote)
             {
-                Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST, me->getGender());
+                Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST, me->GetGender());
                 sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
             }
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_FLEE_FOR_ASSIST: Creature %u DoFleeToGetAssistance", me->GetGUID().GetCounter());
@@ -863,13 +863,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 if (e.action.removeAura.spell)
                 {
+                    ObjectGuid casterGUID;
+                    if (e.action.removeAura.onlyOwnedAuras)
+                    {
+                        if (!me)
+                            break;
+                        casterGUID = me->GetGUID();
+                    }
+
                     if (e.action.removeAura.charges)
                     {
-                        if (Aura* aur = target->ToUnit()->GetAura(e.action.removeAura.spell))
+                        if (Aura* aur = target->ToUnit()->GetAura(e.action.removeAura.spell, casterGUID))
                             aur->ModCharges(-static_cast<int32>(e.action.removeAura.charges), AURA_REMOVE_BY_EXPIRE);
                     }
                     else
-                        target->ToUnit()->RemoveAurasDueToSpell(e.action.removeAura.spell);
+                        target->ToUnit()->RemoveAurasDueToSpell(e.action.removeAura.spell, casterGUID);
                 }
                 else
                     target->ToUnit()->RemoveAllAuras();
@@ -1023,7 +1031,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* target : targets)
                 if (IsCreature(target))
-                    target->ToCreature()->UpdateEntry(e.action.updateTemplate.creature, target->ToCreature()->GetCreatureData(), e.action.updateTemplate.updateLevel != 0);
+                    target->ToCreature()->UpdateEntry(e.action.updateTemplate.creature, nullptr, e.action.updateTemplate.updateLevel != 0);
             break;
         }
         case SMART_ACTION_DIE:
@@ -1051,7 +1059,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 me->CallForHelp(float(e.action.callHelp.range));
                 if (e.action.callHelp.withEmote)
                 {
-                    Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP, me->getGender());
+                    Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_CALL_FOR_HELP, me->GetGender());
                     sCreatureTextMgr->SendChatPacket(me, builder, CHAT_MSG_MONSTER_EMOTE);
                 }
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_FOR_HELP: Creature %u", me->GetGUID().GetCounter());
@@ -1144,7 +1152,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* cTarget = target->ToCreature())
                 {
                     CreatureAI* ai = cTarget->AI();
-                    if (IsSmart(cTarget))
+                    if (IsSmart(cTarget, true))
                         ENSURE_AI(SmartAI, ai)->SetData(e.action.setData.field, e.action.setData.data, me);
                     else
                         ai->SetData(e.action.setData.field, e.action.setData.data);
@@ -1152,7 +1160,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 else if (GameObject* oTarget = target->ToGameObject())
                 {
                     GameObjectAI* ai = oTarget->AI();
-                    if (IsSmart(oTarget))
+                    if (IsSmart(oTarget, true))
                         ENSURE_AI(SmartGameObjectAI, ai)->SetData(e.action.setData.field, e.action.setData.data, me);
                     else
                         ai->SetData(e.action.setData.field, e.action.setData.data);
@@ -2708,13 +2716,13 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
 
                 if (!charmerOrOwnerGuid)
                     if (TempSummon* tempSummon = me->ToTempSummon())
-                        if (Unit* summoner = tempSummon->GetSummoner())
+                        if (WorldObject* summoner = tempSummon->GetSummoner())
                             charmerOrOwnerGuid = summoner->GetGUID();
 
                 if (!charmerOrOwnerGuid)
                     charmerOrOwnerGuid = me->GetCreatorGUID();
 
-                if (Unit* owner = ObjectAccessor::GetUnit(*me, charmerOrOwnerGuid))
+                if (WorldObject* owner = ObjectAccessor::GetWorldObject(*me, charmerOrOwnerGuid))
                     targets.push_back(owner);
             }
             else if (go)
@@ -2726,7 +2734,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             // Get owner of owner
             if (e.target.owner.useCharmerOrOwner && !targets.empty())
             {
-                Unit* owner = targets.front()->ToUnit();
+                WorldObject* owner = targets.front();
                 targets.clear();
 
                 if (Unit* base = ObjectAccessor::GetUnit(*owner, owner->GetCharmerOrOwnerGUID()))
@@ -2832,7 +2840,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 return;
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax);
             break;
-        case SMART_EVENT_HEALT_PCT:
+        case SMART_EVENT_HEALTH_PCT:
         {
             if (!me || !me->IsEngaged() || !me->GetMaxHealth())
                 return;
@@ -2992,8 +3000,26 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessAction(e, unit, var0, var1, bvar, spell, gob);
             break;
         case SMART_EVENT_GOSSIP_HELLO:
-            if (e.event.gossipHello.noReportUse && var0)
-                return;
+            switch (e.event.gossipHello.filter)
+            {
+                case 0:
+                    // no filter set, always execute action
+                    break;
+                case 1:
+                    // OnGossipHello only filter set, skip action if OnReportUse
+                    if (var0)
+                        return;
+                    break;
+                case 2:
+                    // OnReportUse only filter set, skip action if OnGossipHello
+                    if (!var0)
+                        return;
+                    break;
+                default:
+                    // Ignore any other value
+                    break;
+            }
+
             ProcessAction(e, unit, var0, var1, bvar, spell, gob);
             break;
         case SMART_EVENT_IS_BEHIND_TARGET:
@@ -3162,6 +3188,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         {
             if (e.event.quest.quest && var0 != e.event.quest.quest)
                 return;
+            RecalcTimer(e, e.event.quest.cooldownMin, e.event.quest.cooldownMax);
             ProcessAction(e, unit, var0);
             break;
         }
@@ -3438,7 +3465,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
             case SMART_EVENT_UPDATE:
             case SMART_EVENT_UPDATE_OOC:
             case SMART_EVENT_UPDATE_IC:
-            case SMART_EVENT_HEALT_PCT:
+            case SMART_EVENT_HEALTH_PCT:
             case SMART_EVENT_TARGET_HEALTH_PCT:
             case SMART_EVENT_MANA_PCT:
             case SMART_EVENT_TARGET_MANA_PCT:
@@ -3774,6 +3801,10 @@ void SmartScript::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* i
         TC_LOG_ERROR("scripts.ai", "Entry %d SourceType %u Event %u Action %u is trying to overwrite timed action list from a timed action, this is not allowed!.", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
         return;
     }
+
+    // Do NOT allow to start a new actionlist if a previous one is already running, unless explicitly allowed. We need to always finish the current actionlist
+    if (!e.action.timedActionList.allowOverride && !mTimedActionList.empty())
+        return;
 
     mTimedActionList.clear();
     mTimedActionList = sSmartScriptMgr->GetScript(entry, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);

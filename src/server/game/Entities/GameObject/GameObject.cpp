@@ -30,6 +30,8 @@
 #include "GroupMgr.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "Map.h"
+#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -117,6 +119,8 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_respawnTime = 0;
     m_respawnDelayTime = 300;
     m_despawnDelay = 0;
+    m_despawnRespawnTime = 0s;
+    m_restockTime = 0;
     m_lootState = GO_NOT_READY;
     m_spawnedByDefault = true;
     m_usetimes = 0;
@@ -509,6 +513,14 @@ void GameObject::Update(uint32 diff)
                     }
                     return;
                 }
+                case GAMEOBJECT_TYPE_CHEST:
+                    if (m_restockTime > GameTime::GetGameTime())
+                        return;
+                    // If there is no restock timer, or if the restock timer passed, the chest becomes ready to loot
+                    m_restockTime = 0;
+                    m_lootState = GO_READY;
+                    AddToObjectUpdateIfNeeded();
+                    break;
                 default:
                     m_lootState = GO_READY;                         // for other GOis same switched without delay to GO_READY
                     break;
@@ -693,6 +705,14 @@ void GameObject::Update(uint32 diff)
                         }
                         else m_groupLootTimer -= diff;
                     }
+
+                    // Non-consumable chest was partially looted and restock time passed, restock all loot now
+                    if (GetGOInfo()->chest.consumable == 0 && GameTime::GetGameTime() >= m_restockTime)
+                    {
+                        m_restockTime = 0;
+                        m_lootState = GO_READY;
+                        AddToObjectUpdateIfNeeded();
+                    }
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
                 {
@@ -754,7 +774,9 @@ void GameObject::Update(uint32 diff)
                     m_usetimes = 0;
                 }
 
-                SetGoState(GO_STATE_READY);
+                // Only goobers with a lock id or a reset time may reset their go state
+                if (GetGOInfo()->GetLockId() || GetGOInfo()->GetAutoCloseTime())
+                    SetGoState(GO_STATE_READY);
 
                 //any return here in case battleground traps
                 if (GameObjectOverride const* goOverride = GetGameObjectOverride())
@@ -764,21 +786,26 @@ void GameObject::Update(uint32 diff)
 
             loot.clear();
 
-            //! If this is summoned by a spell with ie. SPELL_EFFECT_SUMMON_OBJECT_WILD, with or without owner, we check respawn criteria based on spell
-            //! The GetOwnerGUID() check is mostly for compatibility with hacky scripts - 99% of the time summoning should be done trough spells.
-            if (GetSpellId() || GetOwnerGUID())
+            // Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
+            bool isSummonedAndExpired = (GetOwner() || GetSpellId()) && m_respawnTime == 0;
+            if ((GetGoType() == GAMEOBJECT_TYPE_CHEST || GetGoType() == GAMEOBJECT_TYPE_GOOBER) && !GetGOInfo()->IsDespawnAtAction() && !isSummonedAndExpired)
             {
-                //Don't delete spell spawned chests, which are not consumed on loot
-                if (m_respawnTime > 0 && GetGoType() == GAMEOBJECT_TYPE_CHEST && !GetGOInfo()->IsDespawnAtAction())
+                if (GetGoType() == GAMEOBJECT_TYPE_CHEST && GetGOInfo()->chest.chestRestockTime > 0)
                 {
-                    UpdateObjectVisibility();
-                    SetLootState(GO_READY);
+                    // Start restock timer when the chest is fully looted
+                    m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
+                    SetLootState(GO_NOT_READY);
+                    AddToObjectUpdateIfNeeded();
                 }
                 else
-                {
-                    SetRespawnTime(0);
-                    Delete();
-                }
+                    SetLootState(GO_READY);
+                UpdateObjectVisibility();
+                return;
+            }
+            else if (GetOwnerGUID() || GetSpellId())
+            {
+                SetRespawnTime(0);
+                Delete();
                 return;
             }
 
@@ -1086,51 +1113,71 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     return true;
 }
 
-void GameObject::DeleteFromDB()
+/*static*/ bool GameObject::DeleteFromDB(ObjectGuid::LowType spawnId)
 {
-    GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId);
-    sObjectMgr->DeleteGameObjectData(m_spawnId);
+    GameObjectData const* data = sObjectMgr->GetGameObjectData(spawnId);
+    if (!data)
+        return false;
 
     SQLTransaction trans = WorldDatabase.BeginTransaction();
 
+    sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
+        [spawnId, trans](Map* map) -> void
+        {
+            // despawn all active objects, and remove their respawns
+            std::vector<GameObject*> toUnload;
+            for (auto const& pair : Trinity::Containers::MapEqualRange(map->GetGameObjectBySpawnIdStore(), spawnId))
+                toUnload.push_back(pair.second);
+            for (GameObject* obj : toUnload)
+                map->AddObjectToRemoveList(obj);
+            map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, spawnId, false, trans);
+        }
+    );
+
+    // delete data from memory
+    sObjectMgr->DeleteGameObjectData(spawnId);
+
+    // ... and the database
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_SPAWNGROUP_MEMBER);
     stmt->setUInt8(0, uint8(SPAWN_TYPE_GAMEOBJECT));
-    stmt->setUInt32(1, m_spawnId);
+    stmt->setUInt32(1, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_EVENT_GAMEOBJECT);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_GO);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_CREATURE);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_GO_TO_GO);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_LINKED_RESPAWN_MASTER);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, LINKED_RESPAWN_CREATURE_TO_GO);
     trans->Append(stmt);
 
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT_ADDON);
-    stmt->setUInt32(0, m_spawnId);
+    stmt->setUInt32(0, spawnId);
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
+
+    return true;
 }
 
 /*********************************************************/
@@ -1252,10 +1299,10 @@ bool GameObject::IsInvisibleDueToDespawn() const
     return false;
 }
 
-uint8 GameObject::getLevelForTarget(WorldObject const* target) const
+uint8 GameObject::GetLevelForTarget(WorldObject const* target) const
 {
     if (Unit* owner = GetOwner())
-        return owner->getLevelForTarget(target);
+        return owner->GetLevelForTarget(target);
 
     return 1;
 }
@@ -1306,6 +1353,10 @@ bool GameObject::ActivateToQuest(Player* target) const
         }
         case GAMEOBJECT_TYPE_CHEST:
         {
+            // Chests become inactive while not ready to be looted
+            if (getLootState() == GO_NOT_READY)
+                return false;
+
             // scan GO chest with loot including quest items
             if (LootTemplates_Gameobject.HaveQuestLootForPlayer(GetGOInfo()->GetLootId(), target))
             {
@@ -1428,6 +1479,9 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
+        if (m_goInfo->CannotBeUsedUnderImmunity() && playerUser->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE))
+            return;
+
         if (!m_goInfo->IsUsableMounted())
             playerUser->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
@@ -1870,10 +1924,10 @@ void GameObject::Use(Unit* user)
                 return;
 
             //required lvl checks!
-            uint8 level = player->getLevel();
+            uint8 level = player->GetLevel();
             if (level < info->meetingstone.minLevel)
                 return;
-            level = targetPlayer->getLevel();
+            level = targetPlayer->GetLevel();
             if (level < info->meetingstone.minLevel)
                 return;
 
@@ -2301,6 +2355,10 @@ void GameObject::SetLootState(LootState state, Unit* unit)
         m_lootStateUnitGUID.Clear();
 
     AI()->OnLootStateChanged(state, unit);
+
+    // Start restock timer if the chest is partially looted or not looted at all
+    if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED && GetGOInfo()->chest.chestRestockTime > 0 && m_restockTime == 0)
+        m_restockTime = GameTime::GetGameTime() + GetGOInfo()->chest.chestRestockTime;
 
     if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
         return;

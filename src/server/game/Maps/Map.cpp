@@ -32,6 +32,7 @@
 #include "Log.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
 #include "MMapFactory.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -43,6 +44,8 @@
 #include "Transport.h"
 #include "Vehicle.h"
 #include "VMapFactory.h"
+#include "Weather.h"
+#include "WeatherMgr.h"
 #include "World.h"
 #include <unordered_set>
 #include <vector>
@@ -61,6 +64,10 @@ static uint16 const holetab_v[4] = { 0x000F, 0x00F0, 0x0F00, 0xF000 };
 #define MAX_CREATURE_ATTACK_RADIUS  (45.0f * sWorld->getRate(RATE_CREATURE_AGGRO))
 
 GridState* si_GridStates[MAX_GRID_STATE];
+
+
+ZoneDynamicInfo::ZoneDynamicInfo() : MusicId(0), DefaultWeather(nullptr), WeatherId(WEATHER_STATE_FINE),
+    WeatherGrade(0.0f), OverrideLightId(0), LightFadeInTime(0) { }
 
 Map::~Map()
 {
@@ -281,6 +288,8 @@ i_scriptLock(false), _respawnCheckTimer(0), _defaultLight(GetDefaultMapLight(id)
 
     //lets initialize visibility distance for map
     Map::InitVisibilityDistance();
+
+    _weatherUpdateTimer.SetInterval(time_t(1 * IN_MILLISECONDS));
 
     sScriptMgr->OnCreateMap(this);
 }
@@ -583,7 +592,6 @@ bool Map::AddPlayerToMap(Player* player)
 
     SendInitSelf(player);
     SendInitTransports(player);
-    SendZoneDynamicInfo(player);
 
     player->m_clientGUIDs.clear();
     player->UpdateObjectVisibility(false);
@@ -850,6 +858,16 @@ void Map::Update(uint32 t_diff)
         i_scriptLock = true;
         ScriptsProcess();
         i_scriptLock = false;
+    }
+
+    _weatherUpdateTimer.Update(t_diff);
+    if (_weatherUpdateTimer.Passed())
+    {
+        for (auto&& zoneInfo : _zoneDynamicInfo)
+            if (zoneInfo.second.DefaultWeather && !zoneInfo.second.DefaultWeather->Update(_weatherUpdateTimer.GetInterval()))
+                zoneInfo.second.DefaultWeather.reset();
+
+        _weatherUpdateTimer.Reset();
     }
 
     MoveAllCreaturesInMoveList();
@@ -3039,9 +3057,9 @@ void Map::DoRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 gr
     }
 }
 
-void Map::Respawn(RespawnInfo* info, bool force, SQLTransaction dbTrans)
+void Map::Respawn(RespawnInfo* info, SQLTransaction dbTrans)
 {
-    if (!force && !CheckRespawn(info))
+    if (!CheckRespawn(info))
     {
         if (info->respawnTime)
             SaveRespawnTime(info->type, info->spawnId, info->entry, info->respawnTime, info->zoneId, info->gridId, true, true, dbTrans);
@@ -3058,11 +3076,11 @@ void Map::Respawn(RespawnInfo* info, bool force, SQLTransaction dbTrans)
     DoRespawn(type, spawnId, gridId);
 }
 
-void Map::Respawn(std::vector<RespawnInfo*>& respawnData, bool force, SQLTransaction dbTrans)
+void Map::Respawn(std::vector<RespawnInfo*>& respawnData, SQLTransaction dbTrans)
 {
     SQLTransaction trans = dbTrans ? dbTrans : CharacterDatabase.BeginTransaction();
     for (RespawnInfo* info : respawnData)
-        Respawn(info, force, trans);
+        Respawn(info, trans);
     if (!dbTrans)
         CharacterDatabase.CommitTransaction(trans);
 }
@@ -3144,22 +3162,11 @@ void Map::DeleteRespawnInfo(RespawnInfo* info)
 
 void Map::RemoveRespawnTime(RespawnInfo* info, bool doRespawn, SQLTransaction dbTrans)
 {
-    PreparedStatement* stmt;
-    switch (info->type)
-    {
-        case SPAWN_TYPE_CREATURE:
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN);
-            break;
-        case SPAWN_TYPE_GAMEOBJECT:
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN);
-            break;
-        default:
-            ASSERT(false, "Invalid respawninfo type %u for spawnid %u map %u", uint32(info->type), info->spawnId, GetId());
-            return;
-    }
-    stmt->setUInt32(0, info->spawnId);
-    stmt->setUInt16(1, GetId());
-    stmt->setUInt32(2, GetInstanceId());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESPAWN);
+    stmt->setUInt16(0, info->type);
+    stmt->setUInt32(1, info->spawnId);
+    stmt->setUInt16(2, GetId());
+    stmt->setUInt32(3, GetInstanceId());
     CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
 
     if (doRespawn)
@@ -3277,9 +3284,9 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
                     continue;
 
         time_t respawnTime = GetRespawnTime(data->type, data->spawnId);
-        if (respawnTime && respawnTime > GameTime::GetGameTime())
+        if (respawnTime)
         {
-            if (!force && !ignoreRespawn)
+            if (!force && !ignoreRespawn && (respawnTime > GameTime::GetGameTime()))
                 continue;
 
             // we need to remove the respawn time, otherwise we'd end up double spawning
@@ -3546,7 +3553,7 @@ uint32 Map::GetPlayersCountExceptGMs() const
     return count;
 }
 
-void Map::SendToPlayers(WorldPacket* data) const
+void Map::SendToPlayers(WorldPacket const* data) const
 {
     for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
         itr->GetSource()->SendDirectMessage(data);
@@ -3860,10 +3867,16 @@ void InstanceMap::Update(uint32 t_diff)
 void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
 {
     TC_LOG_DEBUG("maps", "MAP: Removing player '%s' from instance '%u' of map '%s' before relocating to another map", player->GetName().c_str(), GetInstanceId(), GetMapName());
-    //if last player set unload timer
+
+    if (i_data)
+        i_data->OnPlayerLeave(player);
+
+    // if last player set unload timer
     if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
+
     Map::RemovePlayerFromMap(player, remove);
+
     // for normal instances schedule the reset after all players have left
     SetResetSchedule(true);
     sInstanceSaveMgr->UnloadInstanceSave(GetInstanceId());
@@ -4320,17 +4333,18 @@ void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uin
 void Map::SaveRespawnTimeDB(SpawnObjectType type, ObjectGuid::LowType spawnId, time_t respawnTime, SQLTransaction dbTrans)
 {
     // Just here for support of compatibility mode
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement((type == SPAWN_TYPE_GAMEOBJECT) ? CHAR_REP_GO_RESPAWN : CHAR_REP_CREATURE_RESPAWN);
-    stmt->setUInt32(0, spawnId);
-    stmt->setUInt64(1, uint64(respawnTime));
-    stmt->setUInt16(2, GetId());
-    stmt->setUInt32(3, GetInstanceId());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_RESPAWN);
+    stmt->setUInt16(0, type);
+    stmt->setUInt32(1, spawnId);
+    stmt->setUInt64(2, uint64(respawnTime));
+    stmt->setUInt16(3, GetId());
+    stmt->setUInt32(4, GetInstanceId());
     CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
 }
 
 void Map::LoadRespawnTimes()
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CREATURE_RESPAWNS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RESPAWNS);
     stmt->setUInt16(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
@@ -4338,41 +4352,22 @@ void Map::LoadRespawnTimes()
         do
         {
             Field* fields = result->Fetch();
-            ObjectGuid::LowType loguid = fields[0].GetUInt32();
-            uint64 respawnTime = fields[1].GetUInt64();
+            SpawnObjectType type = SpawnObjectType(fields[0].GetUInt16());
+            ObjectGuid::LowType spawnId = fields[1].GetUInt32();
+            uint64 respawnTime = fields[2].GetUInt64();
 
-            if (CreatureData const* cdata = sObjectMgr->GetCreatureData(loguid))
-                SaveRespawnTime(SPAWN_TYPE_CREATURE, loguid, cdata->id, time_t(respawnTime), GetZoneId(cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
-
-        } while (result->NextRow());
-    }
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GO_RESPAWNS);
-    stmt->setUInt16(0, GetId());
-    stmt->setUInt32(1, GetInstanceId());
-    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            ObjectGuid::LowType loguid = fields[0].GetUInt32();
-            uint64 respawnTime = fields[1].GetUInt64();
-
-            if (GameObjectData const* godata = sObjectMgr->GetGameObjectData(loguid))
-                SaveRespawnTime(SPAWN_TYPE_GAMEOBJECT, loguid, godata->id, time_t(respawnTime), GetZoneId(godata->spawnPoint), Trinity::ComputeGridCoord(godata->spawnPoint.GetPositionX(), godata->spawnPoint.GetPositionY()).GetId(), false);
+            if (SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId))
+                SaveRespawnTime(type, spawnId, data->id, time_t(respawnTime), GetZoneId(data->spawnPoint), Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId(), false);
+            else
+                TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u,%u) - spawn does not exist, ignoring", respawnTime, uint32(type), spawnId);
 
         } while (result->NextRow());
     }
 }
 
-void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)
+/*static*/ void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE);
-    stmt->setUInt16(0, mapId);
-    stmt->setUInt32(1, instanceId);
-    CharacterDatabase.Execute(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GO_RESPAWN_BY_INSTANCE);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_RESPAWNS);
     stmt->setUInt16(0, mapId);
     stmt->setUInt32(1, instanceId);
     CharacterDatabase.Execute(stmt);
@@ -4547,10 +4542,9 @@ void Map::RemoveOldCorpses()
     }
 }
 
-void Map::SendZoneDynamicInfo(Player* player)
+void Map::SendZoneDynamicInfo(uint32 zoneId, Player* player) const
 {
-    uint32 zoneId = GetZoneId(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
-    ZoneDynamicInfoMap::const_iterator itr = _zoneDynamicInfo.find(zoneId);
+    auto itr = _zoneDynamicInfo.find(zoneId);
     if (itr == _zoneDynamicInfo.end())
         return;
 
@@ -4561,14 +4555,7 @@ void Map::SendZoneDynamicInfo(Player* player)
         player->SendDirectMessage(&data);
     }
 
-    if (uint32 weather = itr->second.WeatherId)
-    {
-        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-        data << uint32(weather);
-        data << float(itr->second.WeatherGrade);
-        data << uint8(0);
-        player->SendDirectMessage(&data);
-    }
+    SendZoneWeather(itr->second, player);
 
     if (uint32 overrideLight = itr->second.OverrideLightId)
     {
@@ -4580,11 +4567,32 @@ void Map::SendZoneDynamicInfo(Player* player)
     }
 }
 
+void Map::SendZoneWeather(uint32 zoneId, Player* player) const
+{
+    auto itr = _zoneDynamicInfo.find(zoneId);
+    if (itr == _zoneDynamicInfo.end())
+        return;
+
+    SendZoneWeather(itr->second, player);
+}
+
+void Map::SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player) const
+{
+    if (WeatherState weatherId = zoneDynamicInfo.WeatherId)
+    {
+        WorldPackets::Misc::Weather weather(weatherId, zoneDynamicInfo.WeatherGrade);
+        player->SendDirectMessage(weather.Write());
+    }
+    else if (zoneDynamicInfo.DefaultWeather)
+    {
+        zoneDynamicInfo.DefaultWeather->SendWeatherUpdateToPlayer(player);
+    }
+    else
+        Weather::SendFineWeatherUpdateToPlayer(player);
+}
+
 void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
 {
-    if (_zoneDynamicInfo.find(zoneId) == _zoneDynamicInfo.end())
-        _zoneDynamicInfo.insert(ZoneDynamicInfoMap::value_type(zoneId, ZoneDynamicInfo()));
-
     _zoneDynamicInfo[zoneId].MusicId = musicId;
 
     Map::PlayerList const& players = GetPlayers();
@@ -4600,40 +4608,49 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
     }
 }
 
-void Map::SetZoneWeather(uint32 zoneId, uint32 weatherId, float weatherGrade)
+Weather* Map::GetOrGenerateZoneDefaultWeather(uint32 zoneId)
 {
-    if (_zoneDynamicInfo.find(zoneId) == _zoneDynamicInfo.end())
-        _zoneDynamicInfo.insert(ZoneDynamicInfoMap::value_type(zoneId, ZoneDynamicInfo()));
+    WeatherData const* weatherData = WeatherMgr::GetWeatherData(zoneId);
+    if (!weatherData)
+        return nullptr;
 
+    ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
+    if (!info.DefaultWeather)
+    {
+        info.DefaultWeather = Trinity::make_unique<Weather>(zoneId, weatherData);
+        info.DefaultWeather->ReGenerate();
+        info.DefaultWeather->UpdateWeather();
+    }
+
+    return info.DefaultWeather.get();
+}
+
+void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade)
+{
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
     info.WeatherId = weatherId;
     info.WeatherGrade = weatherGrade;
-    Map::PlayerList const& players = GetPlayers();
 
+    Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())
     {
-        WorldPacket data(SMSG_WEATHER, 4 + 4 + 1);
-        data << uint32(weatherId);
-        data << float(weatherGrade);
-        data << uint8(0);
+        WorldPackets::Misc::Weather weather(weatherId, weatherGrade);
+        weather.Write();
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
                 if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(&data);
+                    player->SendDirectMessage(weather.GetRawPacket());
     }
 }
 
 void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime)
 {
-    if (_zoneDynamicInfo.find(zoneId) == _zoneDynamicInfo.end())
-        _zoneDynamicInfo.insert(ZoneDynamicInfoMap::value_type(zoneId, ZoneDynamicInfo()));
-
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
     info.OverrideLightId = lightId;
     info.LightFadeInTime = fadeInTime;
-    Map::PlayerList const& players = GetPlayers();
 
+    Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())
     {
         WorldPacket data(SMSG_OVERRIDE_LIGHT, 4 + 4 + 1);

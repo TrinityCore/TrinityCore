@@ -466,7 +466,7 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
     else
     {
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime();     // start toggle-off
+            GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime() + 300;     // start toggle-off
     }
 
     //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
@@ -1387,7 +1387,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
 
     recvData.read_skip<float>();                           // unk2
 
-    _player->m_unitMovedByMe->m_movementInfo.flags = movementInfo.GetMovementFlags();
+    _player->GetUnitBeingMoved()->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
 
 void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData */)
