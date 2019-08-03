@@ -340,18 +340,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid guid) override;
-        void MustReacquireTarget() { _shouldReacquireSpellFocusTarget = true; } // flags the Creature for forced (client displayed) target reacquisition in the next ::Update call
-        void DoNotReacquireTarget()
-        {
-            _shouldReacquireSpellFocusTarget = false;
-            _suppressedSpellFocusTarget = ObjectGuid::Empty;
-            SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
-            _suppressedSpellFocusOrientation = 0.0f;
-        }
-        void SetSpellFocusTarget(Spell const* focusSpell, WorldObject const* target);
-        bool HandleSpellFocus(Spell const* focusSpell = nullptr, bool withDelay = false) override;
+        void ReacquireSpellFocusTarget();
+        void DoNotReacquireSpellFocusTarget() { _spellFocusInfo.delay = 0; }
+        void SetSpellFocus(Spell const* focusSpell, WorldObject const* target);
+        bool HasSpellFocus(Spell const* focusSpell = nullptr) const override;
         void ReleaseSpellFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
-        bool HasSpellFocusTarget() const override { return IsAlive() && (_focusSpell || _spellFocusDelay); }
 
         bool IsMovementPreventedByCasting() const override;
 
@@ -438,11 +431,13 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool m_respawnCompatibilityMode;
 
         /* Spell focus system */
-        Spell const* _focusSpell; // Locks the target during spell cast for proper facing
-        uint32 _spellFocusDelay;
-        bool _shouldReacquireSpellFocusTarget;
-        ObjectGuid _suppressedSpellFocusTarget; // Stores the creature's "real" target while casting
-        float _suppressedSpellFocusOrientation; // Stores the creature's "real" orientation while casting
+        struct
+        {
+            Spell const* spell = nullptr;
+            uint32 delay = 0;         // ms until the creature's target should snap back (0 = no snapback scheduled)
+            ObjectGuid target;        // the creature's "real" target while casting
+            float orientation = 0.0f; // the creature's "real" orientation while casting
+        } _spellFocusInfo;
 
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;

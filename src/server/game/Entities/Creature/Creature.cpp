@@ -250,7 +250,7 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_grou
     m_corpseRemoveTime(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTime(2500), m_combatPulseTime(0), m_combatPulseDelay(0), m_reactState(REACT_AGGRESSIVE),
     m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
     m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
-    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _focusSpell(nullptr), _spellFocusDelay(0), _shouldReacquireSpellFocusTarget(false), _suppressedSpellFocusOrientation(0.0f), _lastDamagedTime(0),
+    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _lastDamagedTime(0),
     _regenerateHealth(true), _regenerateHealthLock(false)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
@@ -734,22 +734,12 @@ void Creature::Update(uint32 diff)
                 break;
 
             GetThreatManager().Update(diff);
-
-            if (_shouldReacquireSpellFocusTarget && !HandleSpellFocus(nullptr, true))
+            if (_spellFocusInfo.delay)
             {
-                SetTarget(_suppressedSpellFocusTarget);
-
-                if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
-                {
-                    if (_suppressedSpellFocusTarget)
-                    {
-                        if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, _suppressedSpellFocusTarget))
-                            SetFacingToObject(objTarget, false);
-                    }
-                    else
-                        SetFacingTo(_suppressedSpellFocusOrientation, false);
-                }
-                _shouldReacquireSpellFocusTarget = false;
+                if (_spellFocusInfo.delay <= diff)
+                    ReacquireSpellFocusTarget();
+                else
+                    _spellFocusInfo.delay -= 0;
             }
 
             // periodic check to see if the creature has passed an evade boundary
@@ -1120,7 +1110,7 @@ Unit* Creature::SelectVictim()
 
     if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
     {
-        if (!HandleSpellFocus(nullptr, true))
+        if (!HasSpellFocus())
             SetInFront(target);
         return target;
     }
@@ -1952,8 +1942,8 @@ void Creature::setDeathState(DeathState s)
         SaveRespawnTime();
 
         ReleaseSpellFocus(nullptr, false); // remove spellcast focus
-        DoNotReacquireTarget(); // cancel delayed re-target
-        SetTarget(ObjectGuid::Empty); // drop target - dead mobs shouldn't ever target things
+        DoNotReacquireSpellFocusTarget();  // cancel delayed re-target
+        SetTarget(ObjectGuid::Empty);      // drop target - dead mobs shouldn't ever target things
 
         SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
@@ -3032,16 +3022,16 @@ void Creature::SetDisplayId(uint32 modelId)
 
 void Creature::SetTarget(ObjectGuid guid)
 {
-    if (HandleSpellFocus(nullptr, true))
-        _suppressedSpellFocusTarget = guid;
+    if (HasSpellFocus())
+        _spellFocusInfo.target = guid;
     else
         SetGuidValue(UNIT_FIELD_TARGET, guid);
 }
 
-void Creature::SetSpellFocusTarget(Spell const* focusSpell, WorldObject const* target)
+void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
 {
     // already focused
-    if (_focusSpell)
+    if (_spellFocusInfo.spell)
         return;
 
     // Prevent dead/feigning death creatures from setting a focus target, so they won't turn
@@ -3066,14 +3056,17 @@ void Creature::SetSpellFocusTarget(Spell const* focusSpell, WorldObject const* t
         return;
 
     // store pre-cast values for target and orientation (used to later restore)
-    if (!HandleSpellFocus(nullptr, true))
+    if (!_spellFocusInfo.delay)
     { // only overwrite these fields if we aren't transitioning from one spell focus to another
-        _suppressedSpellFocusTarget = GetGuidValue(UNIT_FIELD_TARGET);
-        _suppressedSpellFocusOrientation = GetOrientation();
+        _spellFocusInfo.target = GetGuidValue(UNIT_FIELD_TARGET);
+        _spellFocusInfo.orientation = GetOrientation();
     }
+    else // don't automatically reacquire target for the previous spellcast
+        _spellFocusInfo.delay = 0;
 
-    _focusSpell = focusSpell;
+    _spellFocusInfo.spell = focusSpell;
 
+    bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
     // set target, then force send update packet to players if it changed to provide appropriate facing
     ObjectGuid newTarget = target ? target->GetGUID() : ObjectGuid::Empty;
     if (GetGuidValue(UNIT_FIELD_TARGET) != newTarget)
@@ -3086,7 +3079,7 @@ void Creature::SetSpellFocusTarget(Spell const* focusSpell, WorldObject const* t
                 spellInfo->SpellVisual[1]
             ) && (
                 !focusSpell->GetCastTime() || // if the spell is instant cast
-                spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST) // client gets confused if we attempt to turn at the regularly scheduled update packet
+                noTurnDuringCast // client gets confused if we attempt to turn at the regularly scheduled update packet
             )
         )
         {
@@ -3100,8 +3093,6 @@ void Creature::SetSpellFocusTarget(Spell const* focusSpell, WorldObject const* t
             }
         }
     }
-
-    bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
 
     if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
     {
@@ -3117,61 +3108,65 @@ void Creature::SetSpellFocusTarget(Spell const* focusSpell, WorldObject const* t
         AddUnitState(UNIT_STATE_FOCUSING);
 }
 
-bool Creature::HandleSpellFocus(Spell const* focusSpell, bool withDelay)
+bool Creature::HasSpellFocus(Spell const* focusSpell) const
 {
     if (!IsAlive()) // dead creatures cannot focus
     {
-        ReleaseSpellFocus(nullptr, false);
-        return false;
-    }
-
-    if (focusSpell && (focusSpell != _focusSpell))
-        return false;
-
-    if (!_focusSpell)
-    {
-        if (!withDelay || !_spellFocusDelay)
-            return false;
-        if (GetMSTimeDiffToNow(_spellFocusDelay) > 1000) // @todo figure out if we can get rid of this magic number somehow
+        if (_spellFocusInfo.spell || _spellFocusInfo.delay)
         {
-            _spellFocusDelay = 0; // save checks in the future
-            return false;
+            TC_LOG_WARN("entities.unit", "Creature '%s' (entry %u) has spell focus (spell id %u, delay %ums) despite being dead.",
+                        GetName().c_str(), GetEntry(), _spellFocusInfo.spell ? _spellFocusInfo.spell->GetSpellInfo()->Id : 0, _spellFocusInfo.delay);
         }
+        return false;
     }
 
-    return true;
+    if (focusSpell)
+        return (focusSpell == _spellFocusInfo.spell);
+    else
+        return (_spellFocusInfo.spell || _spellFocusInfo.delay);
 }
 
 void Creature::ReleaseSpellFocus(Spell const* focusSpell, bool withDelay)
 {
-    if (!_focusSpell)
+    if (!_spellFocusInfo.spell)
         return;
 
     // focused to something else
-    if (focusSpell && focusSpell != _focusSpell)
+    if (focusSpell && focusSpell != _spellFocusInfo.spell)
         return;
 
-    if (IsPet() && !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN)) // player pets do not use delay system
+    if (_spellFocusInfo.spell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
+        ClearUnitState(UNIT_STATE_FOCUSING);
+
+    if (IsPet()) // player pets do not use delay system
     {
-        SetGuidValue(UNIT_FIELD_TARGET, _suppressedSpellFocusTarget);
-        if (_suppressedSpellFocusTarget)
+        if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+            ReacquireSpellFocusTarget();
+    }
+    else // don't allow re-target right away to prevent visual bugs
+        _spellFocusInfo.delay = withDelay ? 1000 : 1;
+
+    _spellFocusInfo.spell = nullptr;
+}
+
+void Creature::ReacquireSpellFocusTarget()
+{
+    if (!HasSpellFocus())
+        return;
+
+    SetTarget(_spellFocusInfo.target);
+
+    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+    {
+        if (_spellFocusInfo.target)
         {
-            if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, _suppressedSpellFocusTarget))
+            if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, _spellFocusInfo.target))
                 SetFacingToObject(objTarget, false);
         }
         else
-            SetFacingTo(_suppressedSpellFocusOrientation, false);
+            SetFacingTo(_spellFocusInfo.orientation, false);
     }
-    else
-        // tell the creature that it should reacquire its actual target after the delay expires (this is handled in ::Update)
-        // player pets don't need to do this, as they automatically reacquire their target on focus release
-        MustReacquireTarget();
-
-    if (_focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-        ClearUnitState(UNIT_STATE_FOCUSING);
-
-    _focusSpell = nullptr;
-    _spellFocusDelay = (!IsPet() && withDelay) ? GameTime::GetGameTimeMS() : 0; // don't allow re-target right away to prevent visual bugs
+    _spellFocusInfo.delay = 0;
 }
 
 bool Creature::IsMovementPreventedByCasting() const
@@ -3184,7 +3179,7 @@ bool Creature::IsMovementPreventedByCasting() const
                 return false;
     }
 
-    if (HasSpellFocusTarget())
+    if (HasSpellFocus())
         return true;
 
     if (HasUnitState(UNIT_STATE_CASTING))
