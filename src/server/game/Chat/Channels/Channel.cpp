@@ -22,6 +22,7 @@
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Language.h"
@@ -33,9 +34,10 @@
 #include "World.h"
 
 Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zoneEntry /*= nullptr*/) :
+    _isDirty(false),
+    _nextActivityUpdateTime(0),
     _announceEnabled(false),                                        // no join/leave announces
     _ownershipEnabled(false),                                       // no ownership handout
-    _persistentChannel(false),
     _isOwnerInvisible(false),
     _channelFlags(CHANNEL_FLAG_GENERAL),                            // for all built-in channels
     _channelId(channelId),
@@ -59,9 +61,10 @@ Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zo
 }
 
 Channel::Channel(std::string const& name, uint32 team /*= 0*/, std::string const& banList) :
+    _isDirty(false),
+    _nextActivityUpdateTime(0),
     _announceEnabled(true),
     _ownershipEnabled(true),
-    _persistentChannel(sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS)),
     _isOwnerInvisible(false),
     _channelFlags(CHANNEL_FLAG_CUSTOM),
     _channelId(0),
@@ -108,9 +111,10 @@ std::string Channel::GetName(LocaleConstant locale /*= DEFAULT_LOCALE*/) const
     return result;
 }
 
-void Channel::UpdateChannelInDB() const
+void Channel::UpdateChannelInDB()
 {
-    if (_persistentChannel)
+    time_t const now = GameTime::GetGameTime();
+    if (_isDirty)
     {
         std::ostringstream banlist;
         for (BannedContainer::const_iterator iter = _bannedStore.begin(); iter != _bannedStore.end(); ++iter)
@@ -119,36 +123,29 @@ void Channel::UpdateChannelInDB() const
         std::string banListStr = banlist.str();
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL);
-        stmt->setBool(0, _announceEnabled);
-        stmt->setBool(1, _ownershipEnabled);
-        stmt->setString(2, _channelPassword);
-        stmt->setString(3, banListStr);
-        stmt->setString(4, _channelName);
-        stmt->setUInt32(5, _channelTeam);
+        stmt->setString(0, _channelName);
+        stmt->setUInt32(1, _channelTeam);
+        stmt->setBool(2, _announceEnabled);
+        stmt->setBool(3, _ownershipEnabled);
+        stmt->setString(4, _channelPassword);
+        stmt->setString(5, banListStr);
         CharacterDatabase.Execute(stmt);
-
-        TC_LOG_DEBUG("chat.system", "Channel(%s) updated in database", _channelName.c_str());
     }
-}
-
-void Channel::UpdateChannelUseageInDB() const
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_USAGE);
-    stmt->setString(0, _channelName);
-    stmt->setUInt32(1, _channelTeam);
-    CharacterDatabase.Execute(stmt);
-}
-
-void Channel::CleanOldChannelsInDB()
-{
-    if (sWorld->getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION) > 0)
+    else if (_nextActivityUpdateTime <= now)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CHANNELS);
-        stmt->setUInt32(0, sWorld->getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION) * DAY);
-        CharacterDatabase.Execute(stmt);
-
-        TC_LOG_DEBUG("chat.system", "Cleaned out unused custom chat channels.");
+        if (!_playersStore.empty())
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_USAGE);
+            stmt->setString(0, _channelName);
+            stmt->setUInt32(1, _channelTeam);
+            CharacterDatabase.Execute(stmt);
+        }
     }
+    else
+        return;
+
+    _isDirty = false;
+    _nextActivityUpdateTime = now + urand(1 * MINUTE, 6 * MINUTE) * std::max(1u, sWorld->getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_INTERVAL));
 }
 
 void Channel::JoinChannel(Player* player, std::string const& pass)
@@ -203,6 +200,8 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     }
 
     bool newChannel = _playersStore.empty();
+    if (newChannel)
+        _nextActivityUpdateTime = 0; // force activity update on next channel tick
 
     PlayerInfo& pinfo = _playersStore[guid];
     pinfo.flags = MEMBER_FLAG_NONE;
@@ -217,9 +216,6 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     // Custom channel handling
     if (!IsConstant())
     {
-        // Update last_used timestamp in db
-        UpdateChannelUseageInDB();
-
         // If the channel has no owner yet and ownership is allowed, set the new owner.
         // or if the owner was a GM with .gm visible off
         // don't do this if the new player is, too, an invis GM, unless the channel was empty
@@ -271,9 +267,6 @@ void Channel::LeaveChannel(Player* player, bool send)
 
     if (!IsConstant())
     {
-        // Update last_used timestamp in db
-        UpdateChannelUseageInDB();
-
         // If the channel owner left and there are players still inside, pick a new owner
         // do not pick invisible gm owner unless there are only invisible gms in that channel (rare)
         if (changeowner && _ownershipEnabled && !_playersStore.empty())
@@ -344,7 +337,7 @@ void Channel::KickOrBan(Player const* player, std::string const& badname, bool b
     if (ban && !IsBanned(victim))
     {
         _bannedStore.insert(victim);
-        UpdateChannelInDB();
+        _isDirty = true;
 
         if (!player->GetSession()->HasPermission(rbac::RBAC_PERM_SILENTLY_JOIN_CHANNEL))
         {
@@ -409,7 +402,7 @@ void Channel::UnBan(Player const* player, std::string const& badname)
     ChannelNameBuilder<PlayerUnbannedAppend> builder(this, appender);
     SendToAll(builder);
 
-    UpdateChannelInDB();
+    _isDirty = true;
 }
 
 void Channel::Password(Player const* player, std::string const& pass)
@@ -440,7 +433,7 @@ void Channel::Password(Player const* player, std::string const& pass)
     ChannelNameBuilder<PasswordChangedAppend> builder(this, appender);
     SendToAll(builder);
 
-    UpdateChannelInDB();
+    _isDirty = true;
 }
 
 void Channel::SetMode(Player const* player, std::string const& p2n, bool mod, bool set)
@@ -681,7 +674,7 @@ void Channel::Announce(Player const* player)
         SendToAll(builder);
     }
 
-    UpdateChannelInDB();
+    _isDirty = true;
 }
 
 void Channel::Say(ObjectGuid guid, std::string const& what, uint32 lang) const
@@ -813,7 +806,7 @@ void Channel::SetOwner(ObjectGuid guid, bool exclaim)
             SendToAll(ownerBuilder);
         }
 
-        UpdateChannelInDB();
+        _isDirty = true;
     }
 }
 

@@ -1733,8 +1733,6 @@ uint32 ObjectMgr::GetModelForTotem(SummonSlot totemSlot, Races race) const
     auto itr = _playerTotemModel.find(std::make_pair(totemSlot, race));
     if (itr != _playerTotemModel.end())
         return itr->second;
-
-    TC_LOG_ERROR("misc", "TotemSlot %u with RaceID (%u) have no totem model data defined, set to default model.", totemSlot, race);
     return 0;
 }
 

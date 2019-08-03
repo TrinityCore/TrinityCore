@@ -34,7 +34,78 @@ ChannelMgr::~ChannelMgr()
         delete itr->second;
 }
 
-ChannelMgr* ChannelMgr::forTeam(uint32 team)
+/*static*/ void ChannelMgr::LoadFromDB()
+{
+    if (!sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 custom chat channels. Custom channel saving is disabled.");
+        return;
+    }
+
+    uint32 oldMSTime = getMSTime();
+    if (uint32 days = sWorld->getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION))
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CHANNELS);
+        stmt->setUInt32(0, days * DAY);
+        CharacterDatabase.Execute(stmt);
+    }
+
+    QueryResult result = CharacterDatabase.Query("SELECT name, team, announce, ownership, password, bannedList FROM channels");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 custom chat channels. DB table `channels` is empty.");
+        return;
+    }
+
+    std::vector<std::pair<std::string, uint32>> toDelete;
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        std::string dbName = fields[0].GetString(); // may be different - channel names are case insensitive
+        uint32 team = fields[1].GetUInt32();
+        bool dbAnnounce = fields[2].GetBool();
+        bool dbOwnership = fields[3].GetBool();
+        std::string dbPass = fields[4].GetString();
+        std::string dbBanned = fields[5].GetString();
+
+        std::wstring channelName;
+        if (!Utf8toWStr(dbName, channelName))
+        {
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid utf8 sequence? Deleted.", dbName.c_str());
+            toDelete.push_back({ dbName, team });
+            continue;
+        }
+
+        ChannelMgr* mgr = forTeam(team);
+        if (!mgr)
+        {
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid team %u. Deleted.", dbName.c_str(), team);
+            toDelete.push_back({ dbName, team });
+            continue;
+        }
+
+        Channel* channel = new Channel(dbName, team, dbBanned);
+        channel->SetAnnounce(dbAnnounce);
+        channel->SetOwnership(dbOwnership);
+        channel->SetPassword(dbPass);
+        ASSERT_NOTNULL(forTeam(team))->_customChannels.emplace(channelName, channel);
+
+        ++count;
+    } while (result->NextRow());
+
+    for (auto pair : toDelete)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHANNEL);
+        stmt->setString(0, pair.first);
+        stmt->setUInt32(1, pair.second);
+        CharacterDatabase.Execute(stmt);
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u custom chat channels in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+/*static*/ ChannelMgr* ChannelMgr::forTeam(uint32 team)
 {
     static ChannelMgr allianceChannelMgr(ALLIANCE);
     static ChannelMgr hordeChannelMgr(HORDE);
@@ -74,6 +145,12 @@ Channel* ChannelMgr::GetChannelForPlayerByNamePart(std::string const& namePart, 
     return nullptr;
 }
 
+void ChannelMgr::SaveToDB()
+{
+    for (auto pair : _customChannels)
+        pair.second->UpdateChannelInDB();
+}
+
 Channel* ChannelMgr::GetSystemChannel(uint32 channelId, AreaTableEntry const* zoneEntry)
 {
     ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
@@ -105,21 +182,13 @@ Channel* ChannelMgr::CreateCustomChannel(std::string const& name)
         return nullptr;
 
     Channel* newChannel = new Channel(name, _team);
-
-    if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
-    {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL);
-        stmt->setString(0, name);
-        stmt->setUInt32(1, _team);
-        CharacterDatabase.Execute(stmt);
-        TC_LOG_DEBUG("chat.system", "Channel(%s) saved in database", name.c_str());
-    }
+    newChannel->SetDirty();
 
     c = newChannel;
     return newChannel;
 }
 
-Channel* ChannelMgr::GetCustomChannel(std::string const& name)
+Channel* ChannelMgr::GetCustomChannel(std::string const& name) const
 {
     std::wstring channelName;
     if (!Utf8toWStr(name, channelName))
@@ -129,28 +198,6 @@ Channel* ChannelMgr::GetCustomChannel(std::string const& name)
     auto itr = _customChannels.find(channelName);
     if (itr != _customChannels.end())
         return itr->second;
-    else if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
-    {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHANNEL);
-        stmt->setString(0, name);
-        stmt->setUInt32(1, _team);
-        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
-        {
-            Field* fields = result->Fetch();
-            std::string dbName = fields[0].GetString(); // may be different - channel names are case insensitive
-            bool dbAnnounce = fields[1].GetBool();
-            bool dbOwnership = fields[2].GetBool();
-            std::string dbPass = fields[3].GetString();
-            std::string dbBanned = fields[4].GetString();
-
-            Channel* channel = new Channel(dbName, _team, dbBanned);
-            channel->SetAnnounce(dbAnnounce);
-            channel->SetOwnership(dbOwnership);
-            channel->SetPassword(dbPass);
-            _customChannels.emplace(channelName, channel);
-            return channel;
-        }
-    }
 
     return nullptr;
 }

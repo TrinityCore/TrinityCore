@@ -340,7 +340,7 @@ public:
             if (quest->GetQuestId() == QUEST_A_LITTLE_HELP)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                StartFollow(player, FACTION_ESCORTEE_N_NEUTRAL_PASSIVE, quest);
+                StartFollow(player, FACTION_ESCORTEE_N_NEUTRAL_PASSIVE, QUEST_A_LITTLE_HELP);
             }
         }
     };

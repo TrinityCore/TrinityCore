@@ -240,6 +240,12 @@ bool CreatureAI::UpdateVictim()
     if (!IsEngaged())
         return false;
 
+    if (!me->IsAlive())
+    {
+        EngagementOver();
+        return false;
+    }
+
     if (!me->HasReactState(REACT_PASSIVE))
     {
         if (Unit* victim = me->SelectVictim())
@@ -285,7 +291,7 @@ void CreatureAI::EngagementOver()
 
 bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 {
-    if (me->IsInEvadeMode())
+    if (!IsEngaged())
         return false;
 
     if (!me->IsAlive())
