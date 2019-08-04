@@ -533,7 +533,7 @@ class spell_mage_empowered_fire : public SpellScriptLoader
                 Unit* target = GetTarget();
                 CastSpellExtraArgs args(aurEff);
                 uint8 percent = sSpellMgr->AssertSpellInfo(SPELL_MAGE_EMPOWERED_FIRE_PROC)->Effects[EFFECT_0].CalcValue();
-                args.SpellValueOverrides.AddBP0(CalculatePct(target->GetCreateMana(), percent));
+                args.AddSpellBP0(CalculatePct(target->GetCreateMana(), percent));
                 target->CastSpell(target, SPELL_MAGE_EMPOWERED_FIRE_PROC, args);
             }
 
