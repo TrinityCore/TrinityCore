@@ -22484,6 +22484,20 @@ void Player::UpdateVisibilityForPlayer()
     notifier.SendToSelf();   // send gathered data
 }
 
+void Player::SetPhaseMask(uint32 newPhaseMask, bool update)
+{
+    if (newPhaseMask == GetPhaseMask())
+        return;
+
+    Unit::SetPhaseMask(newPhaseMask, false);
+
+    if (Unit* vehicle = GetVehicleRoot())
+        vehicle->SetPhaseMask(newPhaseMask, update);
+
+    if (update)
+        UpdateObjectVisibility();
+}
+
 void Player::InitPrimaryProfessions()
 {
     SetFreePrimaryProfessions(sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL));
