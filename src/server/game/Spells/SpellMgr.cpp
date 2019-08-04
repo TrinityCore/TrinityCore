@@ -5405,6 +5405,32 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(0);
     });
 
+    // Growth Catalyst
+    ApplySpellFix({
+        77987,
+        101440,
+        101441,
+        101442
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+        spellInfo->Effects[EFFECT_1].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+        spellInfo->Effects[EFFECT_2].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS);
+    });
+
+    // Release Aberrations
+    ApplySpellFix({ 77569 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx8 |= SPELL_ATTR8_CANT_MISS;
+    });
+
+    // Release All Minions
+    ApplySpellFix({ 77991 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx8 |= SPELL_ATTR8_CANT_MISS;
+    });
+
     // END OF BLACKWING DESCENT SPELLS
 
     // Living Bomb

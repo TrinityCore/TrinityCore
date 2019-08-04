@@ -46,6 +46,7 @@ enum Spells
     SPELL_THROW_GREEN_BOTTLE_TRIGGERED  = 77938,
     SPELL_THROW_BLACK_BOTTLE_TRIGGERED  = 92837,
     SPELL_RELEASE_ABERRATIONS           = 77569,
+    SPELL_RELEASE_ALL_MINIONS           = 77991,
     SPELL_SCORCHING_BLAST               = 77679,
     SPELL_BITING_CHILL                  = 77760,
     SPELL_FLASH_FREEZE_TARGETING        = 97693,
@@ -58,6 +59,10 @@ enum Spells
     // Flash Freeze
     SPELL_FLASH_FREEZE_VISUAL           = 77712,
     SPELL_SHATTER                       = 77715,
+
+    // Experiments
+    SPELL_DROWNED_STATE                 = 77564,
+    SPELL_GROWTH_CATALYST               = 77987,
 
     // Player
     SPELL_FLASH_FREEZE_SUMMON           = 77711,
@@ -85,17 +90,25 @@ enum Events
     EVENT_CONSUMING_FLAMES,
     EVENT_SCORCHING_BLAST,
     EVENT_BITING_CHILL,
-    EVENT_FLASH_FREEZE
+    EVENT_FLASH_FREEZE,
+
+    // Experiments
+    EVENT_LEAP_OUT_OF_CHAMBER,
 };
 
 enum Actions
 {
-    ACTION_SCHEDULE_EVENTS_FOR_PHASE = 1
+    ACTION_SCHEDULE_EVENTS_FOR_PHASE    = 1,
+    ACTION_RELEASE_EXPERIMENT           = 1
 };
 
 enum MovePoints
 {
-    POINT_CAULDRON = 1
+    // Maloriak
+    POINT_CAULDRON  = 1,
+
+    // Experiments
+    POINT_GROUND    = 1
 };
 
 enum Texts
@@ -137,6 +150,12 @@ struct VialData
     uint32 ImbuedSpellId;
 };
 
+enum Misc
+{
+    SUMMON_GROUP_EXPERIMENTS    = 0,
+    SPAWN_GROUP_GROWTH_CHAMBERS = 401
+};
+
 std::unordered_map<uint8, VialData> vialData =
 {
     { VIAL_RED,    { SAY_RED_VIAL,   SAY_ANNOUNCE_RED_VIAL,      SPELL_THROW_RED_BOTTLE,     SPELL_DRINK_RED_BOTTLE,    SPELL_FIRE_IMBUED   }},
@@ -155,6 +174,12 @@ struct boss_maloriak : public BossAI
         me->MakeInterruptable(false);
     }
 
+    void JustAppeared() override
+    {
+        instance->instance->SpawnGroupSpawn(SPAWN_GROUP_GROWTH_CHAMBERS, true);
+        me->SummonCreatureGroup(SUMMON_GROUP_EXPERIMENTS);
+    }
+
     void JustEngagedWith(Unit* /*who*/) override
     {
         _JustEngagedWith();
@@ -167,10 +192,7 @@ struct boss_maloriak : public BossAI
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FLASH_FREEZE_STUN);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BITING_CHILL);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONSUMING_FLAMES);
-        summons.DespawnAll();
+        CleanupEncounter();
         _DespawnAtEvade();
     }
 
@@ -178,9 +200,7 @@ struct boss_maloriak : public BossAI
     {
         // Talk(SAY_DEATH);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FLASH_FREEZE_STUN);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BITING_CHILL);
-        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONSUMING_FLAMES);
+        CleanupEncounter();
         _JustDied();
     }
 
@@ -376,6 +396,15 @@ private:
     uint8 _currentVial;
     uint8 _usedVialsCount;
     uint8 _releasedAberrationsCount;
+
+    void CleanupEncounter()
+    {
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FLASH_FREEZE_STUN);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BITING_CHILL);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_CONSUMING_FLAMES);
+        instance->instance->SpawnGroupDespawn(SPAWN_GROUP_GROWTH_CHAMBERS);
+        summons.DespawnAll();
+    }
 };
 
 struct npc_maloriak_flash_freeze : public NullCreatureAI
@@ -391,12 +420,128 @@ struct npc_maloriak_flash_freeze : public NullCreatureAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Unit* owner = me->ToTempSummon() ? me->ToTempSummon()->GetSummoner() : nullptr)
-            owner->CastSpell(owner, SPELL_FLASH_FREEZE_DUMMY, true);
+        if (TempSummon* summon = me->ToTempSummon())
+            if (Unit* owner = summon->GetSummoner())
+                owner->CastSpell(owner, SPELL_FLASH_FREEZE_DUMMY, true);
 
         DoCastAOE(SPELL_SHATTER, true);
         me->DespawnOrUnsummon(4s);
     }
+};
+
+struct npc_maloriak_experiment : public ScriptedAI
+{
+    npc_maloriak_experiment(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->DespawnOrUnsummon(5s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_RELEASE_EXPERIMENT:
+            {
+                me->RemoveAurasDueToSpell(SPELL_DROWNED_STATE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+                // The chambers have super weird spawn points so FindNearestGameObject wont work here.
+                std::list<GameObject*> gameObjectList;
+                uint32 entry = me->GetEntry() == NPC_ABERRATION ? GO_GROWTH_CHAMBER : GO_LARGE_GROWTH_CHAMBER;
+                me->GetGameObjectListWithEntryInGrid(gameObjectList, entry, 2.0f);
+                float z = me->GetPositionZ();
+
+                if (me->GetEntry() == NPC_ABERRATION)
+                {
+                    gameObjectList.remove_if([z](GameObject const* go)
+                    {
+                        if (go->GetPositionZ() > z)
+                            return true;
+
+                        if (std::abs(go->GetPositionZ() - z) > 7.0f)
+                            return true;
+
+                        return false;
+                    });
+                }
+
+                if (gameObjectList.empty())
+                    break;
+
+                for (GameObject* chamber : gameObjectList)
+                {
+                    chamber->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                    chamber->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                }
+
+                _events.ScheduleEvent(EVENT_LEAP_OUT_OF_CHAMBER, 1s + 700ms);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void MovementInform(uint32 motionType, uint32 pointId) override
+    {
+        if (motionType != EFFECT_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_GROUND:
+                me->SetDisableGravity(false);
+                me->SendSetPlayHoverAnim(false);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetReactState(REACT_AGGRESSIVE);
+                DoZoneInCombat();
+                DoCastSelf(SPELL_GROWTH_CATALYST);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        // No return here. Maloriak handles the despawn.
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LEAP_OUT_OF_CHAMBER:
+                {
+                    Position pos = me->GetPosition();
+                    pos.m_positionX += cos(me->GetOrientation()) * 11.64f;
+                    pos.m_positionY += sin(me->GetOrientation()) * 11.64f;
+                    pos.m_positionZ = me->GetMapHeight(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ());
+                    me->GetMotionMaster()->MoveJump(pos, 21.0f, 15.0f, POINT_GROUND);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
 };
 
 class spell_maloriak_throw_bottle : public SpellScript
@@ -463,7 +608,6 @@ class spell_maloriak_throw_bottle_triggered : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_maloriak_throw_bottle_triggered::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
-
 
 class spell_maloriak_consuming_flames: public AuraScript
 {
@@ -538,16 +682,24 @@ class spell_maloriak_flash_freeze_targeting : public SpellScript
     }
 };
 
-class spell_flash_freeze_dummy : public SpellScript
+class spell_maloriak_flash_freeze_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_flash_freeze_dummy);
+    PrepareSpellScript(spell_maloriak_flash_freeze_dummy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLASH_FREEZE_STUN_NORMAL });
+    }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        if (targets.empty())
-            return;
-
         Unit* caster = GetCaster();
+        if (targets.empty())
+        {
+            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_FLASH_FREEZE_STUN_NORMAL, caster));
+            return;
+        }
+
         targets.remove_if([caster](WorldObject* obj)
         {
             Unit* target = obj->ToUnit();
@@ -557,13 +709,57 @@ class spell_flash_freeze_dummy : public SpellScript
             return target->isDead() || !target->ToTempSummon() || target->ToTempSummon()->GetSummoner() != caster;
         });
 
-        if (!targets.empty())
-            caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_FLASH_FREEZE_STUN_NORMAL, caster));
+       if (targets.empty())
+           caster->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_FLASH_FREEZE_STUN_NORMAL, caster));
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_flash_freeze_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_maloriak_flash_freeze_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
+class spell_maloriak_release_experiments : public SpellScript
+{
+    PrepareSpellScript(spell_maloriak_release_experiments);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_RELEASE_ABERRATIONS,
+                SPELL_RELEASE_ALL_MINIONS
+            });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Unit* caster = GetCaster();
+        targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_DROWNED_STATE));
+
+        if (!targets.empty() && GetSpellInfo()->Id == SPELL_RELEASE_ABERRATIONS)
+            Trinity::Containers::RandomResize(targets, 3);
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* target = GetHitCreature())
+            if (target->IsAIEnabled)
+                target->AI()->DoAction(ACTION_RELEASE_EXPERIMENT);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_maloriak_release_experiments::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_maloriak_release_experiments::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        if (m_scriptSpellId == SPELL_RELEASE_ALL_MINIONS)
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_maloriak_release_experiments::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+            OnEffectHitTarget += SpellEffectFn(spell_maloriak_release_experiments::HandleDummyEffect, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
     }
 };
 
@@ -571,9 +767,11 @@ void AddSC_boss_maloriak()
 {
     RegisterBlackwingDescentCreatureAI(boss_maloriak);
     RegisterBlackwingDescentCreatureAI(npc_maloriak_flash_freeze);
+    RegisterBlackwingDescentCreatureAI(npc_maloriak_experiment);
     RegisterSpellScript(spell_maloriak_throw_bottle);
     RegisterSpellScript(spell_maloriak_throw_bottle_triggered);
     RegisterAuraScript(spell_maloriak_consuming_flames);
     RegisterSpellScript(spell_maloriak_flash_freeze_targeting);
-    RegisterSpellScript(spell_flash_freeze_dummy);
+    RegisterSpellScript(spell_maloriak_flash_freeze_dummy);
+    RegisterSpellScript(spell_maloriak_release_experiments);
 }

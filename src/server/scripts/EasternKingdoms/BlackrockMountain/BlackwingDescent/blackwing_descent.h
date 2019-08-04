@@ -121,6 +121,7 @@ enum BWDCreatureIds
     /*Maloriak*/
     NPC_CAULDRON_TRIGGER                = 41505,
     NPC_ABERRATION                      = 41440,
+    NPC_PRIME_SUBJECT                   = 41841,
     NPC_FLASH_FREEZE                    = 41576,
 
     /*Events*/
@@ -140,7 +141,9 @@ enum BWDGameObjectIds
     GO_INNER_CHAMBER_DOOR                       = 205830,
     GO_ANCIENT_BELL                             = 204276,
     GO_ATHENAEUM_DOOR                           = 208291,
-    GO_DOODAD_BLACKROCKV2_LABROOM_CAULDRON_01   = 203306
+    GO_DOODAD_BLACKROCKV2_LABROOM_CAULDRON_01   = 203306,
+    GO_GROWTH_CHAMBER                           = 206704,
+    GO_LARGE_GROWTH_CHAMBER                     = 206705
 };
 
 enum BWDMisc
