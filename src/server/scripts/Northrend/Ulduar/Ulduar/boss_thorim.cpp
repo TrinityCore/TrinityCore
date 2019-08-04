@@ -1821,7 +1821,7 @@ class spell_thorim_lightning_charge : public SpellScriptLoader
             {
                 /// @workaround: focus target is not working because spell is triggered and instant
                 if (Creature* creature = GetCaster()->ToCreature())
-                    creature->FocusTarget(GetSpell(), GetExplTargetWorldObject());
+                    creature->SetSpellFocus(GetSpell(), GetExplTargetWorldObject());
             }
 
             void HandleCharge()

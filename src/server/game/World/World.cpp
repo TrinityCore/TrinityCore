@@ -2286,7 +2286,7 @@ void World::Update(uint32 diff)
         sWhoListStorageMgr->Update();
     }
 
-    if (m_timers[WUPDATE_CHANNEL_SAVE].Passed())
+    if (IsStopped() || m_timers[WUPDATE_CHANNEL_SAVE].Passed())
     {
         m_timers[WUPDATE_CHANNEL_SAVE].Reset();
 
@@ -2966,7 +2966,7 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 /// Cancel a planned server shutdown
 uint32 World::ShutdownCancel()
 {
-    // nothing cancel or too later
+    // nothing cancel or too late
     if (!m_ShutdownTimer || m_stopEvent)
         return 0;
 
