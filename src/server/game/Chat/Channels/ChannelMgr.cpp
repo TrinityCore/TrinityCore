@@ -62,7 +62,7 @@ ChannelMgr::~ChannelMgr()
     do
     {
         Field* fields = result->Fetch();
-        std::string dbName = fields[0].GetString(); // may be different - channel names are case insensitive
+        std::string dbName = fields[0].GetString();
         uint32 team = fields[1].GetUInt32();
         bool dbAnnounce = fields[2].GetBool();
         bool dbOwnership = fields[3].GetBool();
