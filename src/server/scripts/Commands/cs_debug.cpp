@@ -38,6 +38,8 @@ EndScriptData */
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PoolMgr.h"
+#include "QuestPools.h"
 #include "RBAC.h"
 #include "SpellMgr.h"
 #include "Transport.h"
@@ -1718,21 +1720,20 @@ public:
         else
             return false;
 
-        time_t const now = GameTime::GetGameTime();
         if (daily)
         {
-            sWorld->m_NextDailyQuestReset = now;
-            handler->SendSysMessage("Daily quest reset scheduled for next tick.");
+            sWorld->ResetDailyQuests();
+            handler->PSendSysMessage("Daily quests have been reset. Next scheduled reset: %s", TimeToHumanReadable(sWorld->getWorldState(WS_DAILY_QUEST_RESET_TIME)).c_str());
         }
         if (weekly)
         {
-            sWorld->m_NextWeeklyQuestReset = now;
-            handler->SendSysMessage("Weekly quest reset scheduled for next tick.");
+            sWorld->ResetWeeklyQuests();
+            handler->PSendSysMessage("Weekly quests have been reset. Next scheduled reset: %s", TimeToHumanReadable(sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME)).c_str());
         }
         if (monthly)
         {
-            sWorld->m_NextMonthlyQuestReset = now;
-            handler->SendSysMessage("Monthly quest reset scheduled for next tick.");
+            sWorld->ResetMonthlyQuests();
+            handler->PSendSysMessage("Monthly quests have been reset. Next scheduled reset: %s", TimeToHumanReadable(sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME)).c_str());
         }
 
         return true;

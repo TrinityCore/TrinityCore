@@ -1036,6 +1036,15 @@ Quests.IgnoreAutoComplete = 0
 Quests.DailyResetTime = 3
 
 #
+#    Quests.WeeklyResetWDay
+#        Description: Day of the week when weekly quest reset occurs.
+#        Range:       0 (Sunday) to 6 (Saturday)
+#        Default:     3 - (Wednesday)
+#
+
+Quests.WeeklyResetWDay = 3
+
+#
 #    Guild.EventLogRecordsCount
 #        Description: Number of log entries for guild events that are stored per guild. Old entries
 #                     will be overwritten if the number of log entries exceed the configured value.

@@ -24,6 +24,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "QuestPackets.h"
+#include "QuestPools.h"
 #include "World.h"
 
 Quest::Quest(Field* questRecord)
@@ -225,6 +226,14 @@ uint32 Quest::GetXPReward(Player const* player) const
     }
 
     return 0;
+}
+
+/*static*/ bool Quest::IsTakingQuestEnabled(uint32 questId)
+{
+    if (!sQuestPoolMgr->IsQuestActive(questId))
+        return false;
+
+    return true;
 }
 
 int32 Quest::GetRewOrReqMoney(Player const* player) const
