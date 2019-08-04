@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QuestPackets.h"
+#include "QuestPools.h"
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -306,6 +307,14 @@ uint32 Quest::XPValue(Player const* player) const
     }
 
     return 0;
+}
+
+/*static*/ bool Quest::IsTakingQuestEnabled(uint32 questId)
+{
+    if (!sQuestPoolMgr->IsQuestActive(questId))
+        return false;
+
+    return true;
 }
 
 uint32 Quest::MoneyValue(Player const* player) const

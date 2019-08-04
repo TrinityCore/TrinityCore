@@ -21,7 +21,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "PoolMgr.h"
+#include "QuestPools.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -511,7 +511,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 uint8 addIndexOther = uint8(addIndex ^ 1);
 
                 // Summon first add, replace it with Darnavan if weekly quest is active
-                if (_waveCounter || !sPoolMgr->IsSpawnedObject<Quest>(QUEST_DEPROGRAMMING))
+                if (_waveCounter || !sQuestPoolMgr->IsQuestActive(QUEST_DEPROGRAMMING))
                     Summon(SummonEntries[addIndex], SummonPositions[addIndex * 3]);
                 else
                     Summon(NPC_DARNAVAN, SummonPositions[addIndex * 3]);

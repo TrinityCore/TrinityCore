@@ -33,6 +33,7 @@
 #include "PoolMgr.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
+#include "QuestPools.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
@@ -641,7 +642,7 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
     }
 
     // in pool and not currently available (wintergrasp weekly, dalaran weekly) - can't share
-    if (sPoolMgr->IsPartOfAPool<Quest>(packet.QuestID) && !sPoolMgr->IsSpawnedObject<Quest>(packet.QuestID))
+    if (!sQuestPoolMgr->IsQuestActive(packet.QuestID))
     {
         sender->SendPushToPartyResponse(sender, QuestPushReason::NotDaily);
         return;
