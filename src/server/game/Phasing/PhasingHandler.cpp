@@ -23,11 +23,13 @@
 #include "Language.h"
 #include "Map.h"
 #include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PartyPackets.h"
 #include "PhaseShift.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
+#include "Vehicle.h"
 #include <sstream>
 
 namespace
@@ -52,13 +54,19 @@ template<typename Func>
 inline void ForAllControlled(Unit* unit, Func&& func)
 {
     for (Unit* controlled : unit->m_Controlled)
-        if (controlled->GetTypeId() != TYPEID_PLAYER)
+        if (controlled->GetTypeId() != TYPEID_PLAYER
+            && !controlled->GetVehicle())                   // Player inside nested vehicle should not phase the root vehicle and its accessories (only direct root vehicle control does)
             func(controlled);
 
     for (ObjectGuid summonGuid : unit->m_SummonSlot)
         if (!summonGuid.IsEmpty())
             if (Creature* summon = unit->GetMap()->GetCreature(summonGuid))
                 func(summon);
+
+    if (Vehicle const* vehicle = unit->GetVehicleKit())
+        for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); ++seat)
+            if (Unit* passenger = ObjectAccessor::GetUnit(*unit, seat->second.Passenger.Guid))
+                func(passenger);
 }
 }
 
