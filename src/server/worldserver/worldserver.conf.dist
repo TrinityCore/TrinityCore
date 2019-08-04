@@ -1039,7 +1039,7 @@ Quests.DailyResetTime = 3
 #    Quests.WeeklyResetWDay
 #        Description: Day of the week when weekly quest reset occurs.
 #        Range:       0 (Sunday) to 6 (Saturday)
-#        Default:     3 - (Wednesday, Blizzlike)
+#        Default:     3 - (Wednesday)
 #
 
 Quests.WeeklyResetWDay = 3
