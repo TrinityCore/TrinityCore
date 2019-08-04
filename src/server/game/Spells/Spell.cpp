@@ -3161,6 +3161,8 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
                 m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
             else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST) && !m_spellInfo->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET))
                 m_caster->ToCreature()->FocusTarget(this, nullptr);
+            else
+                m_caster->ToCreature()->FocusTarget(this, nullptr);
         }
     }
 
