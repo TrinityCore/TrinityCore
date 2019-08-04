@@ -739,7 +739,7 @@ void Creature::Update(uint32 diff)
                 if (_spellFocusInfo.delay <= diff)
                     ReacquireSpellFocusTarget();
                 else
-                    _spellFocusInfo.delay -= 0;
+                    _spellFocusInfo.delay -= diff;
             }
 
             // periodic check to see if the creature has passed an evade boundary
