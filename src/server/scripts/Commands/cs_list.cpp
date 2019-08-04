@@ -656,7 +656,7 @@ public:
         for (auto const& pair : sObjectMgr->GetAllCreatureData())
         {
             SpawnData const& data = pair.second;
-            if (data.spawnPoint.GetMapId() != mapId)
+            if (data.mapId != mapId)
                 continue;
             CreatureTemplate const* cTemp = sObjectMgr->GetCreatureTemplate(data.id);
             if (!cTemp)
@@ -667,7 +667,7 @@ public:
         for (auto const& pair : sObjectMgr->GetAllGameObjectData())
         {
             SpawnData const& data = pair.second;
-            if (data.spawnPoint.GetMapId() != mapId)
+            if (data.mapId != mapId)
                 continue;
             GameObjectTemplate const* goTemp = sObjectMgr->GetGameObjectTemplate(data.id);
             if (!goTemp)
@@ -707,15 +707,13 @@ public:
             for (RespawnInfo* ri : respawns)
             {
                 SpawnData const* data = sObjectMgr->GetSpawnData(ri->type, ri->spawnId);
-                if (!data)
-                    continue;
-                if (range && !player->IsInDist(data->spawnPoint, range))
+                if (range && (!data || !player->IsInDist(data->spawnPoint, range)))
                     continue;
                 uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
                 uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
 
                 std::string respawnTime = ri->respawnTime > GameTime::GetGameTime() ? secsToTimeString(uint64(ri->respawnTime - GameTime::GetGameTime()), true) : stringOverdue;
-                handler->PSendSysMessage("%u | %u | [%02u,%02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, locale), ri->zoneId, respawnTime.c_str(), map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? "" : " (inactive)");
+                handler->PSendSysMessage("%u | %u | [%02u,%02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, locale), ri->zoneId, respawnTime.c_str(), (data && map->IsSpawnGroupActive(data->spawnGroupData->groupId)) ? "" : " (inactive)");
             }
         }
         return true;

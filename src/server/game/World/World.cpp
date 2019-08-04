@@ -1562,9 +1562,6 @@ void World::SetInitialWorldSettings()
         exit(1);
     }
 
-    ///- Initialize pool manager
-    sPoolMgr->Initialize();
-
     ///- Initialize game event manager
     sGameEventMgr->Initialize();
 
@@ -1791,9 +1788,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Gameobject Data...");
     sObjectMgr->LoadGameObjects();
 
-    TC_LOG_INFO("server.loading", "Loading Spawn Group Data...");
-    sObjectMgr->LoadSpawnGroups();
-
     TC_LOG_INFO("server.loading", "Loading GameObject Addon Data...");
     sObjectMgr->LoadGameObjectAddons();                          // must be after LoadGameObjects()
 
@@ -1828,7 +1822,11 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadQuestGreetings();                           // must be loaded after creature_template, gameobject_template tables
 
     TC_LOG_INFO("server.loading", "Loading Objects Pooling Data...");
-    sPoolMgr->LoadFromDB();
+    sPoolMgr->LoadFromDB();                                     // must be after creature/gameobject
+
+    TC_LOG_INFO("server.loading", "Loading Spawn Group Data...");
+    sObjectMgr->LoadSpawnGroups();                              // must be after LoadCreatures(), LoadGameObjects() and PoolMgr::LoadFromDB()
+
     TC_LOG_INFO("server.loading", "Loading Quest Pooling Data...");
     sQuestPoolMgr->LoadFromDB();                                // must be after quest templates
 

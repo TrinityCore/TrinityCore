@@ -295,7 +295,6 @@ public:
         ObjectGuid::LowType guidLow;
         uint32 id, phase;
         uint16 mapId;
-        uint32 poolId;
 
         do
         {
@@ -308,10 +307,8 @@ public:
             o =       fields[5].GetFloat();
             mapId =   fields[6].GetUInt16();
             phase =   fields[7].GetUInt32();
-            poolId =  sPoolMgr->IsPartOfAPool<GameObject>(guidLow);
-            if (!poolId || sPoolMgr->IsSpawnedObject<GameObject>(guidLow))
-                found = true;
-        } while (result->NextRow() && !found);
+            found = true;
+        } while (!found && result->NextRow());
 
         if (!found)
         {

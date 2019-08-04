@@ -20,21 +20,30 @@
 
 #include "Position.h"
 
+class Creature;
+class GameObject;
+class Pool;
+struct PoolTemplate;
+
 // EnumUtils: DESCRIBE THIS
 enum SpawnObjectType
 {
     SPAWN_TYPE_CREATURE = 0,   // TITLE Creature
     SPAWN_TYPE_GAMEOBJECT = 1, // TITLE Gameobject
+    NUM_SPAWN_TYPES_WITH_DATA, // SKIP
 
-    SPAWN_TYPE_MAX             // SKIP
+    SPAWN_TYPE_POOL = 2,       // TITLE Pool
+    NUM_SPAWN_TYPES            // SKIP
 };
 
 enum SpawnObjectTypeMask
 {
     SPAWN_TYPEMASK_CREATURE = (1 << SPAWN_TYPE_CREATURE),
     SPAWN_TYPEMASK_GAMEOBJECT = (1 << SPAWN_TYPE_GAMEOBJECT),
+    SPAWN_TYPEMASK_POOL = (1 << SPAWN_TYPE_POOL),
 
-    SPAWN_TYPEMASK_ALL = (1 << SPAWN_TYPE_MAX)-1
+    SPAWN_TYPEMASK_WITH_DATA = (1 << NUM_SPAWN_TYPES_WITH_DATA)-1,
+    SPAWN_TYPEMASK_ALL = (1 << NUM_SPAWN_TYPES)-1
 };
 
 enum SpawnGroupFlags
@@ -57,21 +66,53 @@ struct SpawnGroupTemplateData
     SpawnGroupFlags flags;
 };
 
-struct SpawnData
+struct SpawnPoolMemberReference
 {
+    SpawnPoolMemberReference() : data(0), myIndex(0) {}
+    SpawnPoolMemberReference(PoolTemplate const* d, uint32 i) : data(d), myIndex(i) {}
+    explicit operator bool() const { return !!data; }
+    PoolTemplate const* data;
+    uint32 myIndex;
+};
+
+namespace Trinity { namespace Impl {
+    template <typename T>
+    struct SpawnObjectTypeForImpl { static_assert(!std::is_same<T,T>::value, "This type does not have an associated spawn type!"); };
+    template <> struct SpawnObjectTypeForImpl<Creature> { static constexpr SpawnObjectType value = SPAWN_TYPE_CREATURE; };
+    template <> struct SpawnObjectTypeForImpl<GameObject> { static constexpr SpawnObjectType value = SPAWN_TYPE_GAMEOBJECT; };
+    template <> struct SpawnObjectTypeForImpl<Pool> { static constexpr SpawnObjectType value = SPAWN_TYPE_POOL; };
+}}
+
+struct SpawnMetadata
+{
+    static constexpr bool TypeInMask(SpawnObjectType type, SpawnObjectTypeMask mask) { return ((1 << type) & mask); }
+    static constexpr bool TypeHasData(SpawnObjectType type) { return (type < NUM_SPAWN_TYPES_WITH_DATA); }
+    static constexpr bool TypeIsValid(SpawnObjectType type) { return (type < NUM_SPAWN_TYPES); }
+    template <typename T>
+    static constexpr SpawnObjectType TypeFor = Trinity::Impl::SpawnObjectTypeForImpl<T>::value;
+
     SpawnObjectType const type;
     uint32 spawnId = 0;
+    uint32 mapId = MAPID_INVALID;
+    bool dbData = true;
+    SpawnGroupTemplateData const* spawnGroupData = nullptr;
+    SpawnPoolMemberReference spawnPool;
+
+    protected:
+    SpawnMetadata(SpawnObjectType t) : type(t) {}
+};
+
+struct SpawnData : public SpawnMetadata
+{
     uint32 id = 0; // entry in respective _template table
-    WorldLocation spawnPoint;
+    Position spawnPoint;
     uint32 phaseMask = 0;
     int32 spawntimesecs = 0;
     uint8 spawnMask = 0;
-    SpawnGroupTemplateData const* spawnGroupData = nullptr;
     uint32 scriptId = 0;
-    bool dbData = true;
 
     protected:
-    SpawnData(SpawnObjectType t) : type(t) {}
+    SpawnData(SpawnObjectType t) : SpawnMetadata(t) {}
 };
 
 enum LinkedRespawnType

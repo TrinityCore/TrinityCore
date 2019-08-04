@@ -173,7 +173,7 @@ class TC_GAME_API GameEventMgr
         GameEventModelEquipMap mGameEventModelEquip;
         //GameEventGuidMap  mGameEventCreatureGuids;
         //GameEventGuidMap  mGameEventGameobjectGuids;
-        GameEventIdMap    mGameEventPoolIds;
+        std::unordered_multimap<int16, uint32> mGameEventSpawnGroups;
         GameEventDataMap  mGameEvent;
         GameEventBitmask  mGameEventBattlegroundHolidays;
         QuestIdToEventConditionMap mQuestToEventConditions;

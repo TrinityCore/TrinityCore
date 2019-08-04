@@ -77,13 +77,15 @@ public:
         return commandTable;
     }
 
-    static bool DoTeleport(ChatHandler* handler, WorldLocation loc)
+    static bool DoTeleport(ChatHandler* handler, Position pos, uint32 mapId = MAPID_INVALID)
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        if (!MapManager::IsValidMapCoord(loc) || sObjectMgr->IsTransportMap(loc.GetMapId()))
+        if (mapId == MAPID_INVALID)
+            mapId = player->GetMapId();
+        if (!MapManager::IsValidMapCoord(mapId, pos) || sObjectMgr->IsTransportMap(mapId))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, loc.GetPositionX(), loc.GetPositionY(), loc.GetMapId());
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, pos.GetPositionX(), pos.GetPositionY(), mapId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -94,7 +96,7 @@ public:
         else
             player->SaveRecallPosition(); // save only in non-flight case
 
-        player->TeleportTo(loc);
+        player->TeleportTo({ mapId, pos });
         return true;
     }
 
@@ -108,7 +110,7 @@ public:
             return false;
         }
 
-        return DoTeleport(handler, spawnpoint->spawnPoint);
+        return DoTeleport(handler, spawnpoint->spawnPoint, spawnpoint->mapId);
     }
 
     static bool HandleGoCreatureCIdCommand(ChatHandler* handler, Variant<Hyperlink<creature_entry>, uint32> cId)
@@ -135,7 +137,7 @@ public:
             return false;
         }
 
-        return DoTeleport(handler, spawnpoint->spawnPoint);
+        return DoTeleport(handler, spawnpoint->spawnPoint, spawnpoint->mapId);
     }
 
     static bool HandleGoGameObjectSpawnIdCommand(ChatHandler* handler, uint32 spawnId)
@@ -148,7 +150,7 @@ public:
             return false;
         }
 
-        return DoTeleport(handler, spawnpoint->spawnPoint);
+        return DoTeleport(handler, spawnpoint->spawnPoint, spawnpoint->mapId);
     }
 
     static bool HandleGoGameObjectGOIdCommand(ChatHandler* handler, uint32 goId)
@@ -175,7 +177,7 @@ public:
             return false;
         }
 
-        return DoTeleport(handler, spawnpoint->spawnPoint);
+        return DoTeleport(handler, spawnpoint->spawnPoint, spawnpoint->mapId);
     }
 
     static bool HandleGoGraveyardCommand(ChatHandler* handler, uint32 gyId)
@@ -245,7 +247,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        return DoTeleport(handler, { node->map_id, { node->x, node->y, node->z } });
+        return DoTeleport(handler, { node->x, node->y, node->z }, node->map_id);
     }
 
     static bool HandleGoAreaTriggerCommand(ChatHandler* handler, Variant<Hyperlink<areatrigger>, uint32> areaTriggerId)
@@ -257,7 +259,7 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        return DoTeleport(handler, { at->mapid, { at->x, at->y, at->z } });
+        return DoTeleport(handler, { at->x, at->y, at->z }, at->mapid);
     }
 
     //teleport at coordinates
@@ -355,7 +357,7 @@ public:
             z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
         }
 
-        return DoTeleport(handler, { mapId, { x, y, *z, o.get_value_or(0.0f) } });
+        return DoTeleport(handler, { x, y, *z, o.get_value_or(0.0f) }, mapId);
     }
 
     static bool HandleGoTicketCommand(ChatHandler* handler, uint32 ticketId)
@@ -381,7 +383,7 @@ public:
 
     static bool HandleGoOffsetCommand(ChatHandler* handler, float dX, Optional<float> dY, Optional<float> dZ, Optional<float> dO)
     {
-        WorldLocation loc = handler->GetSession()->GetPlayer()->GetWorldLocation();
+        Position loc = handler->GetSession()->GetPlayer()->GetPosition();
         loc.RelocateOffset({ dX, dY.get_value_or(0.0f), dZ.get_value_or(0.0f), dO.get_value_or(0.0f) });
 
         return DoTeleport(handler, loc);

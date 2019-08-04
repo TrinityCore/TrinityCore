@@ -596,12 +596,7 @@ void GameObject::Update(uint32 diff)
                         if (AI())
                             AI()->Reset();
 
-                        // Respawn timer
-                        uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
-                        if (poolid)
-                            sPoolMgr->UpdatePool<GameObject>(poolid, GetSpawnId());
-                        else
-                            GetMap()->AddToMap(this);
+                        GetMap()->AddToMap(this);
                     }
                 }
             }
@@ -840,15 +835,13 @@ void GameObject::Update(uint32 diff)
                 GetMap()->ApplyDynamicModeRespawnScaling(this, this->m_spawnId, respawnDelay, scalingMode);
             m_respawnTime = GameTime::GetGameTime() + respawnDelay;
 
-            // if option not set then object will be saved at grid unload
-            // Otherwise just save respawn time to map object memory
             SaveRespawnTime();
 
             if (m_respawnCompatibilityMode)
                 DestroyForNearbyPlayers();
             else
                 AddObjectToRemoveList();
-
+            
             break;
         }
     }
@@ -918,11 +911,7 @@ void GameObject::Delete()
     if (GameObjectOverride const* goOverride = GetGameObjectOverride())
         SetUInt32Value(GAMEOBJECT_FLAGS, goOverride->Flags);
 
-    uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<GameObject>(GetSpawnId()) : 0;
-    if (poolid)
-        sPoolMgr->UpdatePool<GameObject>(poolid, GetSpawnId());
-    else
-        AddObjectToRemoveList();
+    AddObjectToRemoveList();
 }
 
 void GameObject::getFishLoot(Loot* fishloot, Player* loot_owner)
@@ -995,7 +984,8 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         data.spawnId = m_spawnId;
     ASSERT(data.spawnId == m_spawnId);
     data.id = GetEntry();
-    data.spawnPoint.WorldRelocate(this);
+    data.mapId = GetMapId();
+    data.spawnPoint.Relocate(this);
     data.phaseMask = phaseMask;
     data.rotation = m_localRotation;
     data.spawntimesecs = m_spawnedByDefault ? m_respawnDelayTime : -(int32)m_respawnDelayTime;
@@ -1112,7 +1102,7 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
+    sMapMgr->DoForAllMapsWithMapId(data->mapId,
         [spawnId, trans](Map* map) -> void
         {
             // despawn all active objects, and remove their respawns

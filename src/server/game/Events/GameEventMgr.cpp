@@ -18,6 +18,7 @@
 
 #include "GameEventMgr.h"
 #include "BattlegroundMgr.h"
+#include "Creature.h"
 #include "CreatureAI.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
@@ -29,6 +30,7 @@
 #include "ObjectMgr.h"
 #include "PoolMgr.h"
 #include "Player.h"
+#include "SpawnData.h"
 #include "World.h"
 #include "WorldStatePackets.h"
 
@@ -413,9 +415,11 @@ void GameEventMgr::LoadFromDB()
                     continue;
                 }
 
-                // Log error for pooled object, but still spawn it
-                if (uint32 poolId = sPoolMgr->IsPartOfAPool(SPAWN_TYPE_CREATURE, guid))
-                    TC_LOG_ERROR("sql.sql", "`game_event_creature`: game event id (%i) contains creature (%u) which is part of a pool (%u). This should be spawned in game_event_pool", event_id, guid, poolId);
+                if (data->spawnPool)
+                {
+                    TC_LOG_ERROR("sql.sql", "`game_event_creature`: game event id (%i) contains creature (%u) which is part of a pool. This should be spawned in game_event_pool - skipped.", event_id, guid);
+                    continue;
+                }
 
                 GuidList& crelist = mGameEventCreatureGuids[internal_event_id];
                 crelist.push_back(guid);
@@ -463,9 +467,11 @@ void GameEventMgr::LoadFromDB()
                     continue;
                 }
 
-                // Log error for pooled object, but still spawn it
-                if (uint32 poolId = sPoolMgr->IsPartOfAPool(SPAWN_TYPE_GAMEOBJECT, guid))
-                    TC_LOG_ERROR("sql.sql", "`game_event_gameobject`: game event id (%i) contains game object (%u) which is part of a pool (%u). This should be spawned in game_event_pool", event_id, guid, poolId);
+                if (data->spawnPool)
+                {
+                    TC_LOG_ERROR("sql.sql", "`game_event_gameobject`: game event id (%i) contains game object (%u) which is part of a pool. This should be spawned in game_event_pool - skipped.", event_id, guid);
+                    continue;
+                }
 
                 GuidList& golist = mGameEventGameobjectGuids[internal_event_id];
                 golist.push_back(guid);
@@ -901,48 +907,47 @@ void GameEventMgr::LoadFromDB()
         }
     }
 
-    TC_LOG_INFO("server.loading", "Loading Game Event Pool Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Spawn Group data...");
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                               0                         1
-        QueryResult result = WorldDatabase.Query("SELECT pool_template.entry, game_event_pool.eventEntry FROM pool_template"
-                                                 " JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry");
+        QueryResult result = WorldDatabase.Query("SELECT event, groupId FROM game_event_spawn_group");
 
         if (!result)
-            TC_LOG_INFO("server.loading", ">> Loaded 0 pools for game events. DB table `game_event_pool` is empty.");
+            TC_LOG_INFO("server.loading", ">> Loaded 0 game event spawn groups. DB table `game_event_spawn_group` is empty.");
         else
         {
-            uint32 count = 0;
             do
             {
                 Field* fields = result->Fetch();
 
-                uint32 entry   = fields[0].GetUInt32();
-                int16 event_id = fields[1].GetInt8();
+                int16 eventId = fields[0].GetInt8();
+                uint32 groupId = fields[1].GetUInt32();
 
-                int32 internal_event_id = mGameEvent.size() + event_id - 1;
+                int32 const nEvents(mGameEvent.size());
 
-                if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
+                if (eventId <= -nEvents || eventId >= nEvents)
                 {
-                    TC_LOG_ERROR("sql.sql", "`game_event_pool`: game event id (%i) is out of range compared to max event id in `game_event`.", event_id);
+                    TC_LOG_ERROR("sql.sql", "Table `game_event_spawn_group` has event id %d which is out of bounds (%d to %d). Skipped.", eventId, -nEvents, nEvents);
+                    continue;
+                }
+                SpawnGroupTemplateData const* groupTemplate = sObjectMgr->GetSpawnGroupData(groupId);
+                if (!groupTemplate || groupTemplate->mapId == MAPID_INVALID)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `game_event_spawn_group` has non-existant spawn group %u. Skipped.", groupId);
+                    continue;
+                }
+                MapEntry const* entry = ASSERT_NOTNULL(sMapStore.LookupEntry(groupTemplate->mapId));
+                if (entry->Instanceable())
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `game_event_spawn_group` has spawn group %u on instance map %u. This is unsupported - skipped.", groupId, groupTemplate->mapId);
                     continue;
                 }
 
-                if (!sPoolMgr->CheckPool(entry))
-                {
-                    TC_LOG_ERROR("sql.sql", "Pool Id (%u) has all creatures or gameobjects with explicit chance sum <> 100 and no equal chance defined. The pool system cannot pick one to spawn.", entry);
-                    continue;
-                }
+                mGameEventSpawnGroups.emplace(eventId, groupId);
+            } while (result->NextRow());
 
-                IdList& poollist = mGameEventPoolIds[internal_event_id];
-                poollist.push_back(entry);
-
-                ++count;
-            }
-            while (result->NextRow());
-
-            TC_LOG_INFO("server.loading", ">> Loaded %u pools for game events in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+            TC_LOG_INFO("server.loading", ">> Loaded %u spawn group relations for game events in %u ms.", mGameEventSpawnGroups.size(), GetMSTimeDiffToNow(oldMSTime));
         }
     }
 }
@@ -1024,7 +1029,6 @@ void GameEventMgr::Initialize()
         mGameEventGameObjectQuests.resize(maxEventId);
         mGameEventVendors.resize(maxEventId);
         mGameEventBattlegroundHolidays.resize(maxEventId, 0);
-        mGameEventPoolIds.resize(maxEventId * 2 - 1);
         mGameEventNPCFlags.resize(maxEventId);
         mGameEventModelEquip.resize(maxEventId);
     }
@@ -1200,7 +1204,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
     for (NPCFlagList::iterator itr = mGameEventNPCFlags[event_id].begin(); itr != mGameEventNPCFlags[event_id].end(); ++itr)
         // get the creature data from the low guid to get the entry, to be able to find out the whole guid
         if (CreatureData const* data = sObjectMgr->GetCreatureData(itr->first))
-            creaturesByMap[data->spawnPoint.GetMapId()].insert(itr->first);
+            creaturesByMap[data->mapId].insert(itr->first);
 
     for (auto const& p : creaturesByMap)
     {
@@ -1263,7 +1267,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddCreatureToGrid(*itr, data);
 
             // Spawn if necessary (loaded grids only)
-            Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
+            Map* map = sMapMgr->CreateBaseMap(data->mapId);
             map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
             // We use spawn coords to spawn
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
@@ -1291,7 +1295,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddGameobjectToGrid(*itr, data);
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
-            Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
+            Map* map = sMapMgr->CreateBaseMap(data->mapId);
             map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
             // We use current coords to unspawn, not spawn coords since creature can have changed grid
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
@@ -1310,15 +1314,12 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
         }
     }
 
-    if (internal_event_id >= int32(mGameEventPoolIds.size()))
+    for (auto pair : Trinity::Containers::MapEqualRange(mGameEventSpawnGroups, event_id))
     {
-        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventSpawn attempted access to out of range mGameEventPoolIds element %u (size: %zu).",
-            internal_event_id, mGameEventPoolIds.size());
-        return;
+        SpawnGroupTemplateData const* spawnGroup = ASSERT_NOTNULL(sObjectMgr->GetSpawnGroupData(pair.second));
+        Map* map = ASSERT_NOTNULL(sMapMgr->CreateBaseMap(spawnGroup->mapId));
+        map->SpawnGroupSpawn(pair.second);
     }
-
-    for (IdList::iterator itr = mGameEventPoolIds[internal_event_id].begin(); itr != mGameEventPoolIds[internal_event_id].end(); ++itr)
-        sPoolMgr->SpawnPool(*itr);
 }
 
 void GameEventMgr::GameEventUnspawn(int16 event_id)
@@ -1342,7 +1343,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveCreatureFromGrid(*itr, data);
 
-            sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr](Map* map)
+            sMapMgr->DoForAllMapsWithMapId(data->mapId, [&itr](Map* map)
             {
                 map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
                 auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(*itr);
@@ -1373,7 +1374,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveGameobjectFromGrid(*itr, data);
 
-            sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr](Map* map)
+            sMapMgr->DoForAllMapsWithMapId(data->mapId, [&itr](Map* map)
             {
                 map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
                 auto gameobjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(*itr);
@@ -1386,15 +1387,12 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
             });
         }
     }
-    if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
-    {
-        TC_LOG_ERROR("gameevent", "GameEventMgr::GameEventUnspawn attempted access to out of range mGameEventPoolIds element %u (size: %zu).", internal_event_id, mGameEventPoolIds.size());
-        return;
-    }
 
-    for (IdList::iterator itr = mGameEventPoolIds[internal_event_id].begin(); itr != mGameEventPoolIds[internal_event_id].end(); ++itr)
+    for (auto pair : Trinity::Containers::MapEqualRange(mGameEventSpawnGroups, event_id))
     {
-        sPoolMgr->DespawnPool(*itr);
+        SpawnGroupTemplateData const* spawnGroup = ASSERT_NOTNULL(sObjectMgr->GetSpawnGroupData(pair.second));
+        if (Map* map = sMapMgr->FindBaseNonInstanceMap(spawnGroup->mapId))
+            map->SpawnGroupDespawn(pair.second);
     }
 }
 
@@ -1408,7 +1406,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             continue;
 
         // Update if spawned
-        sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr, activate](Map* map)
+        sMapMgr->DoForAllMapsWithMapId(data->mapId, [&itr, activate](Map* map)
 
         {
             auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(itr->first);

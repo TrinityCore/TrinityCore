@@ -38,6 +38,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Pool.h"
 #include "PoolMgr.h"
 #include "QuestPools.h"
 #include "RBAC.h"
@@ -120,7 +121,8 @@ public:
             { "dummy",         rbac::RBAC_PERM_COMMAND_DEBUG_DUMMY,         false, &HandleDebugDummyCommand,            "" },
             { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
             { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
-            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" }
+            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" },
+            { "poolstatus",    rbac::RBAC_PERM_COMMAND_DEBUG_POOLSTATUS,    true,  &HandleDebugPoolStatusCommand,       "" }
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1737,6 +1739,102 @@ public:
         }
 
         return true;
+    }
+
+    static void recurseSpawnPool(ChatHandler* handler, Map const* map, PoolTemplate const* poolData, Pool const* pool, std::string prefix)
+    {
+        for (PoolTemplate::Member const& member : poolData->members)
+        {
+            uint32 nSpawns = pool->GetCurrentSpawnsOf(member.index);
+            if (!nSpawns)
+                continue;
+            switch (member.type)
+            {
+                case SPAWN_TYPE_CREATURE:
+                {
+                    CreatureTemplate const* data = ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(ASSERT_NOTNULL(sObjectMgr->GetCreatureData(member.spawnId))->id));
+                    handler->PSendSysMessage("%s|- %s (NPC: entry %u, spawnId %u)", prefix.c_str(), data->Name.c_str(), data->Entry, member.spawnId);
+                    break;
+                }
+                case SPAWN_TYPE_GAMEOBJECT:
+                {
+                    GameObjectTemplate const* data = ASSERT_NOTNULL(sObjectMgr->GetGameObjectTemplate(ASSERT_NOTNULL(sObjectMgr->GetGameObjectData(member.spawnId))->id));
+                    handler->PSendSysMessage("%s|- %s (GO: entry %u, spawnId %u)", prefix.c_str(), data->name.c_str(), data->entry, member.spawnId);
+                    break;
+                }
+                case SPAWN_TYPE_POOL:
+                {
+                    PoolTemplate const* childData = ASSERT_NOTNULL(sPoolMgr->GetPoolTemplate(member.spawnId));
+                    Pool const* childPool = ASSERT_NOTNULL(map->GetPool(childData->spawnId));
+                    handler->PSendSysMessage("%s|- Pool #%u [%u/%u active]", prefix.c_str(), childData->spawnId, childPool->GetCurrentSpawns(), childPool->GetMaxSpawns());
+                    if (nSpawns != childPool->GetCurrentSpawns())
+                        handler->PSendSysMessage("%s   (desync? Parent %u thinks it has %u actives)", prefix.c_str(), poolData->spawnId, nSpawns);
+                    recurseSpawnPool(handler, map, childData, childPool, prefix + "  ");
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+    static bool HandleDebugPoolStatusCommand(ChatHandler* handler, Optional<uint32> poolSpawnId)
+    {
+        Player const* const player = handler->GetSession()->GetPlayer();
+        if (!player)
+            return false;
+
+        Map const* const map = player->GetMap();
+        if (!map)
+            return false;
+
+        if (poolSpawnId)
+        {
+            if (QuestPool const* qPool = sQuestPoolMgr->FindQuestPool(*poolSpawnId))
+            {
+                handler->PSendSysMessage("Quest pool %u active quests: (%u members active)", qPool->entry, qPool->numSpawns);
+                for (uint32 qId : qPool->activeSpawns)
+                    handler->PSendSysMessage(" |- %s [#%u]", ASSERT_NOTNULL(sObjectMgr->GetQuestTemplate(qId))->GetTitle().c_str(), qId);
+                return true;
+            }
+
+            PoolTemplate const* poolData = sPoolMgr->GetPoolTemplate(*poolSpawnId);
+            if (!poolData)
+            {
+                handler->PSendSysMessage("No pool with spawnId %u exists.", *poolSpawnId);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (poolData->mapId != map->GetId())
+            {
+                handler->PSendSysMessage("Found pool with spawnId %u, but it is not on your current map - it is on map %u.", poolData->spawnId, poolData->mapId);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            Pool const* pool = map->GetPool(poolData->spawnId);
+            if (!pool)
+            {
+                handler->PSendSysMessage("Spawn pool %u status: pool not allocated on current instance - desync?", poolData->spawnId);
+                return true;
+            }
+
+            handler->PSendSysMessage("Spawn pool %u status: (%u/%u spawned)%s", poolData->spawnId, pool->GetCurrentSpawns(), pool->GetMaxSpawns(), map->IsSpawnGroupActive(poolData->spawnGroupData->groupId) ? "" : " [GROUP INACTIVE]");
+            recurseSpawnPool(handler, map, poolData, pool, " ");
+            return true;
+        }
+        else
+        {
+            auto datas = sPoolMgr->GetMapPools(map->GetId());
+            handler->PSendSysMessage("%u spawn pools found on current map %u:", datas.size(), map->GetId());
+            for (PoolTemplate const* data : datas)
+            {
+                Pool const* pool = ASSERT_NOTNULL(map->GetPool(data->spawnId));
+                handler->PSendSysMessage(" |- Pool #%u [%u/%u active]", data->spawnId, pool->GetCurrentSpawns(), pool->GetMaxSpawns());
+                recurseSpawnPool(handler, map, data, pool, "   ");
+            }
+            return true;
+        }
     }
 
     static bool HandleDebugNearGraveyard(ChatHandler* handler, char const* args)

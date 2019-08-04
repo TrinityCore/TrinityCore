@@ -286,8 +286,14 @@ i_scriptLock(false), _respawnCheckTimer(0), _defaultLight(GetDefaultMapLight(id)
 
     _zonePlayerCountMap.clear();
 
-    //lets initialize visibility distance for map
     Map::InitVisibilityDistance();
+    
+    // instantiate all the pools
+    for (PoolTemplate const* data : sPoolMgr->GetMapPools(GetId()))
+    {
+        auto pair = _pools.emplace(std::piecewise_construct, std::make_tuple(data->spawnId), std::make_tuple(data, this));
+        ASSERT(pair.second, "Failed to instantiate pool for template with spawnid %u", data->spawnId);
+    }
 
     _weatherUpdateTimer.SetInterval(time_t(1 * IN_MILLISECONDS));
 
@@ -2934,57 +2940,56 @@ void Map::SendObjectUpdates()
 //  -) set info->respawnTime to a new respawn time, which must be strictly GREATER than the current time (GameTime::GetGameTime())
 bool Map::CheckRespawn(RespawnInfo* info)
 {
-    SpawnData const* data = sObjectMgr->GetSpawnData(info->type, info->spawnId);
-    ASSERT(data, "Invalid respawn info with type %u, spawnID %u in respawn queue.", info->type, info->spawnId);
+    SpawnMetadata const* metadata = sObjectMgr->GetSpawnMetadata(info->type, info->spawnId);
+    ASSERT(metadata, "Invalid respawn info with type %u, spawnID %u in respawn queue.", info->type, info->spawnId);
 
-    // First, check if this creature's spawn group is inactive
-    if (!IsSpawnGroupActive(data->spawnGroupData->groupId))
+    // First, check if this spawn's group is inactive
+    if (!IsSpawnGroupActive(metadata->spawnGroupData->groupId))
     {
         info->respawnTime = 0;
         return false;
     }
 
-    uint32 poolId = info->spawnId ? sPoolMgr->IsPartOfAPool(info->type, info->spawnId) : 0;
-    // Next, check if there's already an instance of this object that would block the respawn
-    // Only do this for unpooled spawns
-    if (!poolId)
-    {
-        bool doDelete = false;
-        switch (info->type)
-        {
-            case SPAWN_TYPE_CREATURE:
-            {
-                // escort check for creatures only (if the world config boolean is set)
-                bool const isEscort = (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && data->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC);
+    if (!SpawnData::TypeHasData(info->type))
+        return true;
 
-                auto range = _creatureBySpawnIdStore.equal_range(info->spawnId);
-                for (auto it = range.first; it != range.second; ++it)
-                {
-                    Creature* creature = it->second;
-                    if (!creature->IsAlive())
-                        continue;
-                    // escort NPCs are allowed to respawn as long as all other instances are already escorting
+    SpawnData const* data = static_cast<SpawnData const*>(metadata);
+    // Next, check if there's already an instance of this object that would block the respawn
+    bool doDelete = false;
+    switch (info->type)
+    {
+        case SPAWN_TYPE_CREATURE:
+        {
+            // escort check for creatures only (if the world config boolean is set)
+            bool const isEscort = (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && data->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC);
+
+            auto range = _creatureBySpawnIdStore.equal_range(info->spawnId);
+            for (auto it = range.first; it != range.second; ++it)
+            {
+                Creature* creature = it->second;
+                if (!creature->IsAlive())
+                    continue;
+                // escort NPCs are allowed to respawn as long as all other instances are already escorting
                     if (isEscort && creature->IsEscorted())
-                        continue;
-                    doDelete = true;
-                    break;
-                }
+                    continue;
+                doDelete = true;
                 break;
             }
-            case SPAWN_TYPE_GAMEOBJECT:
-                // gameobject check is simpler - they cannot be dead or escorting
-                if (_gameobjectBySpawnIdStore.find(info->spawnId) != _gameobjectBySpawnIdStore.end())
-                    doDelete = true;
-                break;
-            default:
-                ASSERT(false, "Invalid spawn type %u with spawnId %u on map %u", uint32(info->type), info->spawnId, GetId());
-                return true;
+            break;
         }
-        if (doDelete)
-        {
-            info->respawnTime = 0;
-            return false;
-        }
+        case SPAWN_TYPE_GAMEOBJECT:
+            // gameobject check is simpler, since they cannot be dead or escorting
+            if (_gameobjectBySpawnIdStore.find(info->spawnId) != _gameobjectBySpawnIdStore.end())
+                doDelete = true;
+            break;
+        default:
+            ASSERT(false, "Invalid spawn type %u with spawnId %u on map %u", uint32(info->type), info->spawnId, GetId());
+            return true;
+    }
+    if (doDelete)
+    {
+        info->respawnTime = 0;
+        return false;
     }
 
     // next, check linked respawn time
@@ -3003,21 +3008,194 @@ bool Map::CheckRespawn(RespawnInfo* info)
         return false;
     }
 
-    // now, check if we're part of a pool
-    if (poolId)
+    // everything ok, let's spawn
+    return true;
+}
+
+void Map::Respawn(RespawnInfo* info, SQLTransaction dbTrans)
+{
+    info->respawnTime = GameTime::GetGameTime();
+    SaveRespawnInfoDB(*info, dbTrans);
+}
+
+size_t Map::DespawnAll(SpawnObjectType type, ObjectGuid::LowType spawnId)
+{
+    if (type == SPAWN_TYPE_POOL)
     {
-        // ok, part of a pool - hand off to pool logic to handle this, we're just going to remove the respawn and call it a day
-        if (info->type == SPAWN_TYPE_GAMEOBJECT)
-            sPoolMgr->UpdatePool<GameObject>(poolId, info->spawnId);
-        else if (info->type == SPAWN_TYPE_CREATURE)
-            sPoolMgr->UpdatePool<Creature>(poolId, info->spawnId);
-        else
-            ASSERT(false, "Invalid spawn type %u (spawnid %u) on map %u", uint32(info->type), info->spawnId, GetId());
-        info->respawnTime = 0;
+        PoolTemplate const* poolData = sPoolMgr->GetPoolTemplate(spawnId);
+        if (!poolData)
+            return 0;
+        size_t c = 0;
+        for (PoolTemplate::Member const& member : poolData->members)
+        {
+            c += DespawnAll(member.type, member.spawnId);
+            ASSERT_NOTNULL(GetPool(poolData->spawnId))->_currentSpawns.clear();
+        }
+        return c;
+    }
+
+    std::vector<WorldObject*> toUnload;
+    switch (type)
+    {
+        case SPAWN_TYPE_CREATURE:
+            for (auto const& pair : Trinity::Containers::MapEqualRange(GetCreatureBySpawnIdStore(), spawnId))
+                toUnload.push_back(pair.second);
+            break;
+        case SPAWN_TYPE_GAMEOBJECT:
+            for (auto const& pair : Trinity::Containers::MapEqualRange(GetGameObjectBySpawnIdStore(), spawnId))
+                toUnload.push_back(pair.second);
+        default:
+            break;
+    }
+
+    for (WorldObject* o : toUnload)
+        AddObjectToRemoveList(o);
+
+    return toUnload.size();
+}
+
+bool Map::AddRespawnInfo(RespawnInfo const& info)
+{
+    if (!info.spawnId)
+    {
+        TC_LOG_ERROR("maps", "Attempt to insert respawn info for zero spawn id (type %u)", uint32(info.type));
         return false;
     }
 
-    // everything ok, let's spawn
+    RespawnInfoMap& bySpawnIdMap = GetRespawnMapForType(info.type);
+
+    // check if we already have the maximum possible number of respawns scheduled
+    if (SpawnData::TypeHasData(info.type))
+    {
+        auto it = bySpawnIdMap.find(info.spawnId);
+        if (it != bySpawnIdMap.end()) // spawnid already has a respawn scheduled
+        {
+            RespawnInfo* const existing = it->second;
+            if (info.respawnTime <= existing->respawnTime) // delete existing in this case
+                DeleteRespawnInfo(existing);
+            else
+                return false;
+        }
+        ASSERT(bySpawnIdMap.find(info.spawnId) == bySpawnIdMap.end(), "Insertion of respawn info with id (%u,%u) into spawn id map failed - state desync.", uint32(info.type), info.spawnId);
+    }
+    else if (info.type == SPAWN_TYPE_POOL)
+    {
+        Pool const* pool = ASSERT_NOTNULL(GetPool(info.spawnId));
+        ASSERT(pool->IsTopLevel(), "Inserting respawn info for spawn id (%u,%u), which is a non-toplevel pool", uint32(info.type), info.spawnId);
+        uint32 const cur = pool->GetCurrentSpawns() + bySpawnIdMap.count(info.spawnId);
+        uint32 const max = pool->GetMaxSpawns();
+        ASSERT(cur <= max, "Pool %u has %u current spawns (%u incl. scheduled respawns), but can only have %u spawns at any given time", info.spawnId, pool->GetCurrentSpawns(), cur, max);
+        if (cur == max)
+        { // find the latest respawn, and replace it if the new respawn is sooner
+            auto itPair = bySpawnIdMap.equal_range(info.spawnId);
+            RespawnInfo* existing = nullptr;
+            for (auto it = itPair.first; it != itPair.second; ++it)
+            {
+                if ((info.respawnTime < it->second->respawnTime) && (!existing || (existing->respawnTime < it->second->respawnTime)))
+                    existing = it->second;
+            }
+            if (existing) // we have a later info, replace it
+                DeleteRespawnInfo(existing);
+            else // no later info, don't insert new one
+                return false;
+        }
+        ASSERT((pool->GetCurrentSpawns() + bySpawnIdMap.count(info.spawnId)) < max, "Insertion of respawn info with id (%u,%u) into spawn id map failed - state desync.", uint32(info.type), info.spawnId);
+    }
+    else
+        ASSERT(false, "Invalid respawn info for spawn id (%u,%u) being inserted", uint32(info.type), info.spawnId);
+
+    RespawnInfo * ri = new RespawnInfo(info);
+    ri->handle = _respawnTimes.push(ri);
+    bySpawnIdMap.emplace(ri->spawnId, ri);
+    return true;
+}
+
+static void PushRespawnInfoFrom(std::vector<RespawnInfo*>& data, RespawnInfoMap const& map, uint32 zoneId)
+{
+    for (auto const& pair : map)
+        if (!zoneId || pair.second->zoneId == zoneId)
+            data.push_back(pair.second);
+}
+void Map::GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types, uint32 zoneId) const
+{
+    if (types & SPAWN_TYPEMASK_CREATURE)
+        PushRespawnInfoFrom(respawnData, _creatureRespawnTimesBySpawnId, zoneId);
+    if (types & SPAWN_TYPEMASK_GAMEOBJECT)
+        PushRespawnInfoFrom(respawnData, _gameObjectRespawnTimesBySpawnId, zoneId);
+    if (types & SPAWN_TYPEMASK_POOL)
+        PushRespawnInfoFrom(respawnData, _poolRespawnTimesBySpawnId, 0);
+}
+
+RespawnInfo* Map::GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const
+{
+    RespawnInfoMap const& map = GetRespawnMapForType(type);
+    auto it = map.find(spawnId);
+    if (it == map.end())
+        return nullptr;
+    return it->second;
+}
+
+void Map::UnloadAllRespawnInfos() // delete everything from memory
+{
+    for (RespawnInfo* info : _respawnTimes)
+        delete info;
+    _respawnTimes.clear();
+    _creatureRespawnTimesBySpawnId.clear();
+    _gameObjectRespawnTimesBySpawnId.clear();
+    _poolRespawnTimesBySpawnId.clear();
+}
+
+void Map::DeleteRespawnInfo(RespawnInfo* info, SQLTransaction dbTrans)
+{
+    // Delete from all relevant containers to ensure consistency
+    ASSERT(info);
+
+    // spawnid store
+    auto& spawnMap = GetRespawnMapForType(info->type);
+    auto range = spawnMap.equal_range(info->spawnId);
+    auto it = std::find_if(range.first, range.second, [info](RespawnInfoMap::value_type const& pair) { return (pair.second == info); });
+    ASSERT(it != range.second, "Respawn stores inconsistent for map %u, spawnid %u (type %u)", GetId(), info->spawnId, uint32(info->type));
+    spawnMap.erase(it);
+
+    // respawn heap
+    _respawnTimes.erase(info->handle);
+
+    // database
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESPAWN);
+    stmt->setUInt16(0, info->type);
+    stmt->setUInt32(1, info->spawnId);
+    stmt->setUInt16(2, GetId());
+    stmt->setUInt32(3, GetInstanceId());
+    CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
+
+    // then cleanup the object
+    delete info;
+}
+
+bool Map::ReplaceFromPool(RespawnInfo* info)
+{
+    if (info->type != SPAWN_TYPE_POOL)
+        return false;
+
+    GetRespawnMapForType(info->type).erase(info->spawnId);
+
+    auto pair = ASSERT_NOTNULL(GetPool(info->spawnId))->SelectMemberToSpawn();
+    info->type = pair.first;
+    info->spawnId = pair.second;
+    auto& bySpawnId = GetRespawnMapForType(info->type);
+    if (SpawnData::TypeHasData(info->type))
+    {
+        ASSERT(bySpawnId.find(info->spawnId) == bySpawnId.end(), "Pool spawn would create duplicate respawn for (%u,%u)", uint32(info->type), info->spawnId);
+
+        SpawnData const* spawnData = ASSERT_NOTNULL(sObjectMgr->GetSpawnData(info->type, info->spawnId));
+        info->entry = spawnData->id;
+        info->zoneId = GetZoneId(spawnData->spawnPoint);
+        info->gridId = Trinity::ComputeGridCoord(spawnData->spawnPoint.GetPositionX(), spawnData->spawnPoint.GetPositionY()).GetId();
+    }
+
+    bySpawnId.emplace(info->spawnId, info);
+    _respawnTimes.update(info->handle);
+
     return true;
 }
 
@@ -3047,108 +3225,6 @@ void Map::DoRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 gr
     }
 }
 
-void Map::Respawn(RespawnInfo* info, SQLTransaction dbTrans)
-{
-    if (!CheckRespawn(info))
-    {
-        if (info->respawnTime)
-        {
-            _respawnTimes.decrease(info->handle);
-            SaveRespawnInfoDB(*info, dbTrans);
-        }
-        else
-            DeleteRespawnInfo(info, dbTrans);
-        return;
-    }
-
-    // remove the actual respawn record first - since this deletes it, we save what we need
-    SpawnObjectType const type = info->type;
-    uint32 const gridId = info->gridId;
-    ObjectGuid::LowType const spawnId = info->spawnId;
-    DeleteRespawnInfo(info, dbTrans);
-    DoRespawn(type, spawnId, gridId);
-}
-
-bool Map::AddRespawnInfo(RespawnInfo const& info)
-{
-    ASSERT(info.spawnId, "Attempt to schedule respawn with zero spawnid (type %u)", uint32(info.type));
-
-    RespawnInfoMap& bySpawnIdMap = GetRespawnMapForType(info.type);
-
-    auto it = bySpawnIdMap.find(info.spawnId);
-    if (it != bySpawnIdMap.end()) // spawnid already has a respawn scheduled
-    {
-        RespawnInfo* const existing = it->second;
-        if (info.respawnTime < existing->respawnTime) // delete existing in this case
-            DeleteRespawnInfo(existing);
-        else
-            return false;
-    }
-
-    // if we get to this point, we should insert the respawninfo (there either was no prior entry, or it was deleted already)
-    RespawnInfo * ri = new RespawnInfo(info);
-    ri->handle = _respawnTimes.push(ri);
-    bool success = bySpawnIdMap.emplace(ri->spawnId, ri).second;
-    ASSERT(success, "Insertion of respawn info with id (%u,%u) into spawn id map failed - state desync.", uint32(ri->type), ri->spawnId);
-    return true;
-}
-
-static void PushRespawnInfoFrom(std::vector<RespawnInfo*>& data, RespawnInfoMap const& map, uint32 zoneId)
-{
-    for (auto const& pair : map)
-        if (!zoneId || pair.second->zoneId == zoneId)
-            data.push_back(pair.second);
-}
-void Map::GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types, uint32 zoneId) const
-{
-    if (types & SPAWN_TYPEMASK_CREATURE)
-        PushRespawnInfoFrom(respawnData, _creatureRespawnTimesBySpawnId, zoneId);
-    if (types & SPAWN_TYPEMASK_GAMEOBJECT)
-        PushRespawnInfoFrom(respawnData, _gameObjectRespawnTimesBySpawnId, zoneId);
-}
-
-RespawnInfo* Map::GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const
-{
-    RespawnInfoMap const& map = GetRespawnMapForType(type);
-    auto it = map.find(spawnId);
-    if (it == map.end())
-        return nullptr;
-    return it->second;
-}
-
-void Map::UnloadAllRespawnInfos() // delete everything from memory
-{
-    for (RespawnInfo* info : _respawnTimes)
-        delete info;
-    _respawnTimes.clear();
-    _creatureRespawnTimesBySpawnId.clear();
-    _gameObjectRespawnTimesBySpawnId.clear();
-}
-
-void Map::DeleteRespawnInfo(RespawnInfo* info, SQLTransaction dbTrans)
-{
-    // Delete from all relevant containers to ensure consistency
-    ASSERT(info);
-
-    // spawnid store
-    size_t const n = GetRespawnMapForType(info->type).erase(info->spawnId);
-    ASSERT(n == 1, "Respawn stores inconsistent for map %u, spawnid %u (type %u)", GetId(), info->spawnId, uint32(info->type));
-
-    // respawn heap
-    _respawnTimes.erase(info->handle);
-
-    // database
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESPAWN);
-    stmt->setUInt16(0, info->type);
-    stmt->setUInt32(1, info->spawnId);
-    stmt->setUInt16(2, GetId());
-    stmt->setUInt32(3, GetInstanceId());
-    CharacterDatabase.ExecuteOrAppend(dbTrans, stmt);
-
-    // then cleanup the object
-    delete info;
-}
-
 void Map::ProcessRespawns()
 {
     time_t now = GameTime::GetGameTime();
@@ -3159,7 +3235,11 @@ void Map::ProcessRespawns()
             break;
         if (CheckRespawn(next)) // see if we're allowed to respawn
         {
-            // ok, respawn
+            // if this is a pool spawn, update it to the selected child and iterate
+            if (ReplaceFromPool(next))
+                continue;
+
+            // otherwise, respawn the unit
             _respawnTimes.pop();
             GetRespawnMapForType(next->type).erase(next->spawnId);
             DoRespawn(next->type, next->spawnId, next->gridId);
@@ -3201,8 +3281,14 @@ void Map::ApplyDynamicModeRespawnScaling(WorldObject const* obj, ObjectGuid::Low
             return;
     }
 
-    SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId);
-    if (!data || !data->spawnGroupData || !(data->spawnGroupData->flags & SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE))
+    SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(type, spawnId);
+    if (!data)
+        return;
+
+    while (data->spawnPool)
+        data = data->spawnPool.data;
+
+    if (!(data->spawnGroupData->flags & SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE))
         return;
 
     auto it = _zonePlayerCountMap.find(obj->GetZoneId());
@@ -3219,6 +3305,41 @@ void Map::ApplyDynamicModeRespawnScaling(WorldObject const* obj, ObjectGuid::Low
         return;
 
     respawnDelay = std::max<uint32>(ceil(respawnDelay * adjustFactor), timeMinimum);
+}
+
+bool Map::ShouldBeSpawnedOnGridLoad(SpawnObjectType type, ObjectGuid::LowType spawnId) const
+{
+    ASSERT(SpawnData::TypeHasData(type));
+
+    // check if the object is on its respawn timer
+    if (GetRespawnTime(type, spawnId))
+        return false;
+
+    SpawnMetadata const* spawnData = ASSERT_NOTNULL(sObjectMgr->GetSpawnMetadata(type, spawnId));
+
+    // check if the object is part of a pool, and resolve to toplevel for further checks
+    // ANYTHING BELOW THIS CHECK USES THE TOPLEVEL POOL IF APPLICABLE, NOT THE ACTUAL SPAWN
+    if (auto parent = spawnData->spawnPool)
+    {
+        Pool const* pool = ASSERT_NOTNULL(GetPool(parent.data->spawnId));
+        if (!pool->GetCurrentSpawnsOf(parent.myIndex))
+            return false;
+
+        type = SPAWN_TYPE_POOL;
+        spawnData = parent.data;
+        while (spawnData->spawnPool)
+            spawnData = spawnData->spawnPool.data;
+    }
+
+    // ANYTHING BELOW THIS LINE USES TOPLEVEL POOL ID IF APPLICABLE - NOT ACTUAL SPAWNID
+
+    // check if the object is part of a spawn group
+    SpawnGroupTemplateData const* spawnGroup = ASSERT_NOTNULL(spawnData->spawnGroupData);
+    if (!(spawnGroup->flags & SPAWNGROUP_FLAG_SYSTEM))
+        if (!IsSpawnGroupActive(spawnGroup->groupId))
+            return false;
+
+    return true;
 }
 
 SpawnGroupTemplateData const* Map::GetSpawnGroupData(uint32 groupId) const
@@ -3239,31 +3360,53 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
     }
 
     SetSpawnGroupActive(groupId, true); // start processing respawns for the group
-    for (auto& pair : sObjectMgr->GetSpawnDataForGroup(groupId))
-    {
-        SpawnData const* data = pair.second;
-        ASSERT(groupData->mapId == data->spawnPoint.GetMapId());
-        // Check if there's already an instance spawned
-        if (!force)
-            if (WorldObject* obj = GetWorldObjectBySpawnId(data->type, data->spawnId))
-                if ((data->type != SPAWN_TYPE_CREATURE) || obj->ToCreature()->IsAlive())
-                    continue;
 
-        time_t respawnTime = GetRespawnTime(data->type, data->spawnId);
-        if (respawnTime)
+    std::vector<SpawnData const*> toSpawn;
+    for (auto& pair : sObjectMgr->GetSpawnMetadataForGroup(groupId))
+    {
+        SpawnMetadata const* data = pair.second;
+        ASSERT(groupData->mapId == data->mapId);
+
+        if (force || ignoreRespawn)
+            RemoveRespawnTime(data->type, data->spawnId);
+
+        uint32 nRespawnTimers = GetRespawnMapForType(data->type).count(data->spawnId);
+        if (SpawnData::TypeHasData(data->type))
         {
-            if (!force && !ignoreRespawn && (respawnTime > GameTime::GetGameTime()))
+            // has a respawn timer
+            if (nRespawnTimers)
                 continue;
 
-            // we need to remove the respawn time, otherwise we'd end up double spawning
-            RemoveRespawnTime(data->type, data->spawnId);
-        }
+            // has a spawn already active
+            if (!force)
+                if (WorldObject* obj = GetWorldObjectBySpawnId(data->type, data->spawnId))
+                    if ((data->type != SPAWN_TYPE_CREATURE) || obj->ToCreature()->IsAlive())
+                        continue;
 
+            toSpawn.push_back(static_cast<SpawnData const*>(data));
+        }
+        else if (data->type == SPAWN_TYPE_POOL)
+        {
+            Pool* pool = ASSERT_NOTNULL(GetPool(data->spawnId));
+            int32 missing = pool->GetMaxSpawns() - (pool->GetCurrentSpawns() + nRespawnTimers);
+            ASSERT(missing >= 0);
+            do
+            {
+                auto pair = pool->SelectMemberToSpawn();
+                while (pair.first == SPAWN_TYPE_POOL)
+                    pair = ASSERT_NOTNULL(GetPool(pair.second))->SelectMemberToSpawn();
+                toSpawn.push_back(ASSERT_NOTNULL(sObjectMgr->GetSpawnData(pair.first, pair.second)));
+            } while (--missing);
+        }
+    }
+
+    for (SpawnData const* data : toSpawn)
+    {
         // don't spawn if the grid isn't loaded (will be handled in grid loader)
         if (!IsGridLoaded(data->spawnPoint))
             continue;
 
-        // Everything OK, now do the actual (re)spawn
+        // now do the actual (re)spawn
         switch (data->type)
         {
             case SPAWN_TYPE_CREATURE:
@@ -3301,41 +3444,16 @@ bool Map::SpawnGroupDespawn(uint32 groupId, bool deleteRespawnTimes, size_t* cou
         return false;
     }
 
-    std::vector<WorldObject*> toUnload; // unload after iterating, otherwise iterator invalidation
-    for (auto const& pair : sObjectMgr->GetSpawnDataForGroup(groupId))
+    for (auto const& pair : sObjectMgr->GetSpawnMetadataForGroup(groupId))
     {
-        SpawnData const* data = pair.second;
-        ASSERT(groupData->mapId == data->spawnPoint.GetMapId());
+        SpawnMetadata const* data = pair.second;
+        ASSERT(groupData->mapId == data->mapId);
         if (deleteRespawnTimes)
             RemoveRespawnTime(data->type, data->spawnId);
-        switch (data->type)
-        {
-            case SPAWN_TYPE_CREATURE:
-            {
-                auto bounds = GetCreatureBySpawnIdStore().equal_range(data->spawnId);
-                for (auto it = bounds.first; it != bounds.second; ++it)
-                    toUnload.emplace_back(it->second);
-                break;
-            }
-            case SPAWN_TYPE_GAMEOBJECT:
-            {
-                auto bounds = GetGameObjectBySpawnIdStore().equal_range(data->spawnId);
-                for (auto it = bounds.first; it != bounds.second; ++it)
-                    toUnload.emplace_back(it->second);
-                break;
-            }
-            default:
-                ASSERT(false, "Invalid spawn type %u in spawn data with spawnId %u.", uint32(data->type), data->spawnId);
-                return false;
-        }
+        size_t c = DespawnAll(data->type, data->spawnId);
+        if (count)
+            *count += c;
     }
-
-    if (count)
-        *count = toUnload.size();
-
-    // now do the actual despawning
-    for (WorldObject* obj : toUnload)
-        obj->AddObjectToRemoveList();
     SetSpawnGroupActive(groupId, false); // stop processing respawns for the group, too
     return true;
 }
@@ -4276,19 +4394,35 @@ void Map::UpdateIteratorBack(Player* player)
 
 void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 zoneId, uint32 gridId, SQLTransaction dbTrans, bool startup)
 {
-    if (!spawnId)
+    SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(type, spawnId);
+    if (!data)
+    {
+        TC_LOG_ERROR("maps", "Map %u attempt to save respawn time for nonexistant spawnid (%u,%u).", GetId(), type, spawnId);
         return;
+    }
+
+    // find the containing pool
+    while (data->spawnPool)
+    {
+        Pool* pool = ASSERT_NOTNULL(GetPool(data->spawnPool.data->spawnId));
+        if (!startup)
+            pool->NotifyMemberGone(data->type, data->spawnId);
+
+        data = data->spawnPool.data;
+        zoneId = 0;
+        gridId = 0;
+    }
 
     if (!respawnTime)
     {
         // Delete only
-        RemoveRespawnTime(type, spawnId, dbTrans);
+        RemoveRespawnTime(data->type, data->spawnId, dbTrans);
         return;
     }
 
     RespawnInfo ri;
-    ri.type = type;
-    ri.spawnId = spawnId;
+    ri.type = data->type;
+    ri.spawnId = data->spawnId;
     ri.entry = entry;
     ri.respawnTime = respawnTime;
     ri.gridId = gridId;
@@ -4329,12 +4463,16 @@ void Map::LoadRespawnTimes()
             ObjectGuid::LowType spawnId = fields[1].GetUInt32();
             uint64 respawnTime = fields[2].GetUInt64();
 
-            if (type < SPAWN_TYPE_MAX)
+            if (SpawnData::TypeHasData(type))
             {
                 if (SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId))
                     SaveRespawnTime(type, spawnId, data->id, time_t(respawnTime), GetZoneId(data->spawnPoint), Trinity::ComputeGridCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY()).GetId(), nullptr, true);
                 else
                     TC_LOG_ERROR("maps", "Loading saved respawn time of %" PRIu64 " for spawnid (%u,%u) - spawn does not exist, ignoring", respawnTime, uint32(type), spawnId);
+            }
+            else if (SpawnData::TypeIsValid(type))
+            {
+                SaveRespawnTime(type, spawnId, 0, time_t(respawnTime), 0, 0, nullptr, true);
             }
             else
             {
@@ -4342,6 +4480,28 @@ void Map::LoadRespawnTimes()
             }
 
         } while (result->NextRow());
+    }
+}
+
+void Map::InitPools()
+{
+    // spawn any toplevel pools as appropriate
+    for (auto& pair : _pools)
+    {
+        Pool& pool = pair.second;
+        if (!pool.IsTopLevel())
+            continue;
+
+        if (!IsSpawnGroupActive(pool._template.spawnGroupData->groupId))
+            continue;
+
+        uint32 c = _poolRespawnTimesBySpawnId.count(pair.first);
+        for (uint32 max = pool.GetMaxSpawns(); c < max; ++c)
+        {
+            auto toSpawn = pool.SelectMemberToSpawn();
+            while (toSpawn.first == SPAWN_TYPE_POOL) // actual object spawning will happen in grid loaders
+                toSpawn = ASSERT_NOTNULL(GetPool(toSpawn.second))->SelectMemberToSpawn();
+        }
     }
 }
 
