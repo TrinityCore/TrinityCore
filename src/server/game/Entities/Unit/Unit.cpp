@@ -3173,7 +3173,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
         ObjectGuid castItemGUID = createInfo.CastItemGUID;
 
         // find current aura from spell and change it's stackamount, or refresh it's duration
-        if (Aura* foundAura = GetOwnedAura(createInfo.GetSpellInfo()->Id, createInfo.CasterGUID, createInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_ENCHANT_PROC) ? castItemGUID : ObjectGuid::Empty))
+        if (Aura* foundAura = GetOwnedAura(createInfo.GetSpellInfo()->Id, createInfo.GetSpellInfo()->IsStackableOnOneSlotWithDifferentCasters() ? ObjectGuid::Empty : createInfo.CasterGUID, createInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_ENCHANT_PROC) ? castItemGUID : ObjectGuid::Empty))
         {
             // effect masks do not match
             // extremely rare case
