@@ -72,7 +72,6 @@ class GameAccountStateTagged;
 class AuthorizedData;
 class IgrId;
 class IgrAddress;
-class AccountRestriction;
 
 enum PrivacyInfo_GameInfoPrivacy {
   PrivacyInfo_GameInfoPrivacy_PRIVACY_ME = 0,
@@ -118,29 +117,6 @@ inline bool IdentityVerificationStatus_Parse(
     const ::std::string& name, IdentityVerificationStatus* value) {
   return ::google::protobuf::internal::ParseNamedEnum<IdentityVerificationStatus>(
     IdentityVerificationStatus_descriptor(), name, value);
-}
-enum RestrictionType {
-  UNKNOWN = 0,
-  GAME_ACCOUNT_BANNED = 1,
-  GAME_ACCOUNT_SUSPENDED = 2,
-  ACCOUNT_LOCKED = 3,
-  ACCOUNT_SQUELCHED = 4,
-  CLUB_MEMBERSHIP_LOCKED = 5
-};
-TC_PROTO_API bool RestrictionType_IsValid(int value);
-const RestrictionType RestrictionType_MIN = UNKNOWN;
-const RestrictionType RestrictionType_MAX = CLUB_MEMBERSHIP_LOCKED;
-const int RestrictionType_ARRAYSIZE = RestrictionType_MAX + 1;
-
-TC_PROTO_API const ::google::protobuf::EnumDescriptor* RestrictionType_descriptor();
-inline const ::std::string& RestrictionType_Name(RestrictionType value) {
-  return ::google::protobuf::internal::NameOfEnum(
-    RestrictionType_descriptor(), value);
-}
-inline bool RestrictionType_Parse(
-    const ::std::string& name, RestrictionType* value) {
-  return ::google::protobuf::internal::ParseNamedEnum<RestrictionType>(
-    RestrictionType_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -613,23 +589,12 @@ class TC_PROTO_API Identity : public ::google::protobuf::Message {
   inline ::bgs::protocol::account::v1::GameAccountHandle* release_game_account();
   inline void set_allocated_game_account(::bgs::protocol::account::v1::GameAccountHandle* game_account);
 
-  // optional .bgs.protocol.ProcessId process = 3;
-  inline bool has_process() const;
-  inline void clear_process();
-  static const int kProcessFieldNumber = 3;
-  inline const ::bgs::protocol::ProcessId& process() const;
-  inline ::bgs::protocol::ProcessId* mutable_process();
-  inline ::bgs::protocol::ProcessId* release_process();
-  inline void set_allocated_process(::bgs::protocol::ProcessId* process);
-
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.Identity)
  private:
   inline void set_has_account();
   inline void clear_has_account();
   inline void set_has_game_account();
   inline void clear_has_game_account();
-  inline void set_has_process();
-  inline void clear_has_process();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -637,7 +602,6 @@ class TC_PROTO_API Identity : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::AccountId* account_;
   ::bgs::protocol::account::v1::GameAccountHandle* game_account_;
-  ::bgs::protocol::ProcessId* process_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
@@ -1648,24 +1612,19 @@ class TC_PROTO_API AccountLevelInfo : public ::google::protobuf::Message {
   inline bool test_account() const;
   inline void set_test_account(bool value);
 
-  // repeated .bgs.protocol.account.v1.AccountRestriction restriction = 16;
-  inline int restriction_size() const;
-  inline void clear_restriction();
-  static const int kRestrictionFieldNumber = 16;
-  inline const ::bgs::protocol::account::v1::AccountRestriction& restriction(int index) const;
-  inline ::bgs::protocol::account::v1::AccountRestriction* mutable_restriction(int index);
-  inline ::bgs::protocol::account::v1::AccountRestriction* add_restriction();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::AccountRestriction >&
-      restriction() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::AccountRestriction >*
-      mutable_restriction();
-
   // optional bool is_sms_protected = 17;
   inline bool has_is_sms_protected() const;
   inline void clear_is_sms_protected();
   static const int kIsSmsProtectedFieldNumber = 17;
   inline bool is_sms_protected() const;
   inline void set_is_sms_protected(bool value);
+
+  // optional uint32 ratings_board_minimum_age = 18;
+  inline bool has_ratings_board_minimum_age() const;
+  inline void clear_ratings_board_minimum_age();
+  static const int kRatingsBoardMinimumAgeFieldNumber = 18;
+  inline ::google::protobuf::uint32 ratings_board_minimum_age() const;
+  inline void set_ratings_board_minimum_age(::google::protobuf::uint32 value);
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.AccountLevelInfo)
  private:
@@ -1695,6 +1654,8 @@ class TC_PROTO_API AccountLevelInfo : public ::google::protobuf::Message {
   inline void clear_has_test_account();
   inline void set_has_is_sms_protected();
   inline void clear_has_is_sms_protected();
+  inline void set_has_ratings_board_minimum_age();
+  inline void clear_has_ratings_board_minimum_age();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -1712,9 +1673,9 @@ class TC_PROTO_API AccountLevelInfo : public ::google::protobuf::Message {
   bool headless_account_;
   int identity_check_status_;
   ::std::string* email_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::AccountRestriction > restriction_;
   bool test_account_;
   bool is_sms_protected_;
+  ::google::protobuf::uint32 ratings_board_minimum_age_;
   friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
   friend void protobuf_AssignDesc_account_5ftypes_2eproto();
   friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
@@ -3877,138 +3838,6 @@ class TC_PROTO_API IgrAddress : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static IgrAddress* default_instance_;
 };
-// -------------------------------------------------------------------
-
-class TC_PROTO_API AccountRestriction : public ::google::protobuf::Message {
- public:
-  AccountRestriction();
-  virtual ~AccountRestriction();
-
-  AccountRestriction(const AccountRestriction& from);
-
-  inline AccountRestriction& operator=(const AccountRestriction& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const AccountRestriction& default_instance();
-
-  void Swap(AccountRestriction* other);
-
-  // implements Message ----------------------------------------------
-
-  AccountRestriction* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const AccountRestriction& from);
-  void MergeFrom(const AccountRestriction& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional uint32 restriction_id = 1;
-  inline bool has_restriction_id() const;
-  inline void clear_restriction_id();
-  static const int kRestrictionIdFieldNumber = 1;
-  inline ::google::protobuf::uint32 restriction_id() const;
-  inline void set_restriction_id(::google::protobuf::uint32 value);
-
-  // optional fixed32 program = 2;
-  inline bool has_program() const;
-  inline void clear_program();
-  static const int kProgramFieldNumber = 2;
-  inline ::google::protobuf::uint32 program() const;
-  inline void set_program(::google::protobuf::uint32 value);
-
-  // optional .bgs.protocol.account.v1.RestrictionType type = 3;
-  inline bool has_type() const;
-  inline void clear_type();
-  static const int kTypeFieldNumber = 3;
-  inline ::bgs::protocol::account::v1::RestrictionType type() const;
-  inline void set_type(::bgs::protocol::account::v1::RestrictionType value);
-
-  // repeated fixed32 platform = 4;
-  inline int platform_size() const;
-  inline void clear_platform();
-  static const int kPlatformFieldNumber = 4;
-  inline ::google::protobuf::uint32 platform(int index) const;
-  inline void set_platform(int index, ::google::protobuf::uint32 value);
-  inline void add_platform(::google::protobuf::uint32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      platform() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_platform();
-
-  // optional uint64 expire_time = 5;
-  inline bool has_expire_time() const;
-  inline void clear_expire_time();
-  static const int kExpireTimeFieldNumber = 5;
-  inline ::google::protobuf::uint64 expire_time() const;
-  inline void set_expire_time(::google::protobuf::uint64 value);
-
-  // optional uint64 created_time = 6;
-  inline bool has_created_time() const;
-  inline void clear_created_time();
-  static const int kCreatedTimeFieldNumber = 6;
-  inline ::google::protobuf::uint64 created_time() const;
-  inline void set_created_time(::google::protobuf::uint64 value);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.account.v1.AccountRestriction)
- private:
-  inline void set_has_restriction_id();
-  inline void clear_has_restriction_id();
-  inline void set_has_program();
-  inline void clear_has_program();
-  inline void set_has_type();
-  inline void clear_has_type();
-  inline void set_has_expire_time();
-  inline void clear_has_expire_time();
-  inline void set_has_created_time();
-  inline void clear_has_created_time();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::google::protobuf::uint32 restriction_id_;
-  ::google::protobuf::uint32 program_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > platform_;
-  ::google::protobuf::uint64 expire_time_;
-  ::google::protobuf::uint64 created_time_;
-  int type_;
-  friend void TC_PROTO_API protobuf_AddDesc_account_5ftypes_2eproto();
-  friend void protobuf_AssignDesc_account_5ftypes_2eproto();
-  friend void protobuf_ShutdownFile_account_5ftypes_2eproto();
-
-  void InitAsDefaultInstance();
-  static AccountRestriction* default_instance_;
-};
 // ===================================================================
 
 
@@ -4500,47 +4329,6 @@ inline void Identity::set_allocated_game_account(::bgs::protocol::account::v1::G
     clear_has_game_account();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.Identity.game_account)
-}
-
-// optional .bgs.protocol.ProcessId process = 3;
-inline bool Identity::has_process() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void Identity::set_has_process() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void Identity::clear_has_process() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void Identity::clear_process() {
-  if (process_ != NULL) process_->::bgs::protocol::ProcessId::Clear();
-  clear_has_process();
-}
-inline const ::bgs::protocol::ProcessId& Identity::process() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.Identity.process)
-  return process_ != NULL ? *process_ : *default_instance_->process_;
-}
-inline ::bgs::protocol::ProcessId* Identity::mutable_process() {
-  set_has_process();
-  if (process_ == NULL) process_ = new ::bgs::protocol::ProcessId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.Identity.process)
-  return process_;
-}
-inline ::bgs::protocol::ProcessId* Identity::release_process() {
-  clear_has_process();
-  ::bgs::protocol::ProcessId* temp = process_;
-  process_ = NULL;
-  return temp;
-}
-inline void Identity::set_allocated_process(::bgs::protocol::ProcessId* process) {
-  delete process_;
-  process_ = process;
-  if (process) {
-    set_has_process();
-  } else {
-    clear_has_process();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.account.v1.Identity.process)
 }
 
 // -------------------------------------------------------------------
@@ -5997,45 +5785,15 @@ inline void AccountLevelInfo::set_test_account(bool value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountLevelInfo.test_account)
 }
 
-// repeated .bgs.protocol.account.v1.AccountRestriction restriction = 16;
-inline int AccountLevelInfo::restriction_size() const {
-  return restriction_.size();
-}
-inline void AccountLevelInfo::clear_restriction() {
-  restriction_.Clear();
-}
-inline const ::bgs::protocol::account::v1::AccountRestriction& AccountLevelInfo::restriction(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountLevelInfo.restriction)
-  return restriction_.Get(index);
-}
-inline ::bgs::protocol::account::v1::AccountRestriction* AccountLevelInfo::mutable_restriction(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.account.v1.AccountLevelInfo.restriction)
-  return restriction_.Mutable(index);
-}
-inline ::bgs::protocol::account::v1::AccountRestriction* AccountLevelInfo::add_restriction() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.account.v1.AccountLevelInfo.restriction)
-  return restriction_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::AccountRestriction >&
-AccountLevelInfo::restriction() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.account.v1.AccountLevelInfo.restriction)
-  return restriction_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::account::v1::AccountRestriction >*
-AccountLevelInfo::mutable_restriction() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.account.v1.AccountLevelInfo.restriction)
-  return &restriction_;
-}
-
 // optional bool is_sms_protected = 17;
 inline bool AccountLevelInfo::has_is_sms_protected() const {
-  return (_has_bits_[0] & 0x00004000u) != 0;
+  return (_has_bits_[0] & 0x00002000u) != 0;
 }
 inline void AccountLevelInfo::set_has_is_sms_protected() {
-  _has_bits_[0] |= 0x00004000u;
+  _has_bits_[0] |= 0x00002000u;
 }
 inline void AccountLevelInfo::clear_has_is_sms_protected() {
-  _has_bits_[0] &= ~0x00004000u;
+  _has_bits_[0] &= ~0x00002000u;
 }
 inline void AccountLevelInfo::clear_is_sms_protected() {
   is_sms_protected_ = false;
@@ -6049,6 +5807,30 @@ inline void AccountLevelInfo::set_is_sms_protected(bool value) {
   set_has_is_sms_protected();
   is_sms_protected_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountLevelInfo.is_sms_protected)
+}
+
+// optional uint32 ratings_board_minimum_age = 18;
+inline bool AccountLevelInfo::has_ratings_board_minimum_age() const {
+  return (_has_bits_[0] & 0x00004000u) != 0;
+}
+inline void AccountLevelInfo::set_has_ratings_board_minimum_age() {
+  _has_bits_[0] |= 0x00004000u;
+}
+inline void AccountLevelInfo::clear_has_ratings_board_minimum_age() {
+  _has_bits_[0] &= ~0x00004000u;
+}
+inline void AccountLevelInfo::clear_ratings_board_minimum_age() {
+  ratings_board_minimum_age_ = 0u;
+  clear_has_ratings_board_minimum_age();
+}
+inline ::google::protobuf::uint32 AccountLevelInfo::ratings_board_minimum_age() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountLevelInfo.ratings_board_minimum_age)
+  return ratings_board_minimum_age_;
+}
+inline void AccountLevelInfo::set_ratings_board_minimum_age(::google::protobuf::uint32 value) {
+  set_has_ratings_board_minimum_age();
+  ratings_board_minimum_age_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountLevelInfo.ratings_board_minimum_age)
 }
 
 // -------------------------------------------------------------------
@@ -8531,161 +8313,6 @@ inline void IgrAddress::set_region(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.IgrAddress.region)
 }
 
-// -------------------------------------------------------------------
-
-// AccountRestriction
-
-// optional uint32 restriction_id = 1;
-inline bool AccountRestriction::has_restriction_id() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void AccountRestriction::set_has_restriction_id() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void AccountRestriction::clear_has_restriction_id() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void AccountRestriction::clear_restriction_id() {
-  restriction_id_ = 0u;
-  clear_has_restriction_id();
-}
-inline ::google::protobuf::uint32 AccountRestriction::restriction_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountRestriction.restriction_id)
-  return restriction_id_;
-}
-inline void AccountRestriction::set_restriction_id(::google::protobuf::uint32 value) {
-  set_has_restriction_id();
-  restriction_id_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountRestriction.restriction_id)
-}
-
-// optional fixed32 program = 2;
-inline bool AccountRestriction::has_program() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void AccountRestriction::set_has_program() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void AccountRestriction::clear_has_program() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void AccountRestriction::clear_program() {
-  program_ = 0u;
-  clear_has_program();
-}
-inline ::google::protobuf::uint32 AccountRestriction::program() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountRestriction.program)
-  return program_;
-}
-inline void AccountRestriction::set_program(::google::protobuf::uint32 value) {
-  set_has_program();
-  program_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountRestriction.program)
-}
-
-// optional .bgs.protocol.account.v1.RestrictionType type = 3;
-inline bool AccountRestriction::has_type() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void AccountRestriction::set_has_type() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void AccountRestriction::clear_has_type() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void AccountRestriction::clear_type() {
-  type_ = 0;
-  clear_has_type();
-}
-inline ::bgs::protocol::account::v1::RestrictionType AccountRestriction::type() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountRestriction.type)
-  return static_cast< ::bgs::protocol::account::v1::RestrictionType >(type_);
-}
-inline void AccountRestriction::set_type(::bgs::protocol::account::v1::RestrictionType value) {
-  assert(::bgs::protocol::account::v1::RestrictionType_IsValid(value));
-  set_has_type();
-  type_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountRestriction.type)
-}
-
-// repeated fixed32 platform = 4;
-inline int AccountRestriction::platform_size() const {
-  return platform_.size();
-}
-inline void AccountRestriction::clear_platform() {
-  platform_.Clear();
-}
-inline ::google::protobuf::uint32 AccountRestriction::platform(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountRestriction.platform)
-  return platform_.Get(index);
-}
-inline void AccountRestriction::set_platform(int index, ::google::protobuf::uint32 value) {
-  platform_.Set(index, value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountRestriction.platform)
-}
-inline void AccountRestriction::add_platform(::google::protobuf::uint32 value) {
-  platform_.Add(value);
-  // @@protoc_insertion_point(field_add:bgs.protocol.account.v1.AccountRestriction.platform)
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-AccountRestriction::platform() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.account.v1.AccountRestriction.platform)
-  return platform_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-AccountRestriction::mutable_platform() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.account.v1.AccountRestriction.platform)
-  return &platform_;
-}
-
-// optional uint64 expire_time = 5;
-inline bool AccountRestriction::has_expire_time() const {
-  return (_has_bits_[0] & 0x00000010u) != 0;
-}
-inline void AccountRestriction::set_has_expire_time() {
-  _has_bits_[0] |= 0x00000010u;
-}
-inline void AccountRestriction::clear_has_expire_time() {
-  _has_bits_[0] &= ~0x00000010u;
-}
-inline void AccountRestriction::clear_expire_time() {
-  expire_time_ = GOOGLE_ULONGLONG(0);
-  clear_has_expire_time();
-}
-inline ::google::protobuf::uint64 AccountRestriction::expire_time() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountRestriction.expire_time)
-  return expire_time_;
-}
-inline void AccountRestriction::set_expire_time(::google::protobuf::uint64 value) {
-  set_has_expire_time();
-  expire_time_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountRestriction.expire_time)
-}
-
-// optional uint64 created_time = 6;
-inline bool AccountRestriction::has_created_time() const {
-  return (_has_bits_[0] & 0x00000020u) != 0;
-}
-inline void AccountRestriction::set_has_created_time() {
-  _has_bits_[0] |= 0x00000020u;
-}
-inline void AccountRestriction::clear_has_created_time() {
-  _has_bits_[0] &= ~0x00000020u;
-}
-inline void AccountRestriction::clear_created_time() {
-  created_time_ = GOOGLE_ULONGLONG(0);
-  clear_has_created_time();
-}
-inline ::google::protobuf::uint64 AccountRestriction::created_time() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.account.v1.AccountRestriction.created_time)
-  return created_time_;
-}
-inline void AccountRestriction::set_created_time(::google::protobuf::uint64 value) {
-  set_has_created_time();
-  created_time_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.account.v1.AccountRestriction.created_time)
-}
-
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -8707,11 +8334,6 @@ template <> struct is_proto_enum< ::bgs::protocol::account::v1::IdentityVerifica
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::account::v1::IdentityVerificationStatus>() {
   return ::bgs::protocol::account::v1::IdentityVerificationStatus_descriptor();
-}
-template <> struct is_proto_enum< ::bgs::protocol::account::v1::RestrictionType> : ::google::protobuf::internal::true_type {};
-template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::account::v1::RestrictionType>() {
-  return ::bgs::protocol::account::v1::RestrictionType_descriptor();
 }
 
 }  // namespace google

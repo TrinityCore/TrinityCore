@@ -20,6 +20,7 @@
 #include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHousePackets.h"
+#include "CharacterCache.h"
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
@@ -267,13 +268,19 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: %s %s is selling item %s %s to auctioneer " UI64FMTD " with count %u with initial bid " UI64FMTD " with buyout " UI64FMTD " and with time %u (in sec) in auctionhouse %u",
             _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), item->GetGUID().ToString().c_str(), item->GetTemplate()->GetDefaultLocaleName(), AH->auctioneer, item->GetCount(), packet.MinBid, packet.BuyoutPrice, auctionTime, AH->GetHouseId());
+
+        // Add to pending auctions, or fail with insufficient funds error
+        if (!sAuctionMgr->PendingAuctionAdd(_player, AH, item))
+        {
+            SendAuctionCommandResult(AH, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+            return;
+        }
+
         sAuctionMgr->AddAItem(item);
         auctionHouse->AddAuction(AH);
-        sAuctionMgr->PendingAuctionAdd(_player, AH);
-
         _player->MoveItemFromInventory(item->GetBagSlot(), item->GetSlot(), true);
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         item->DeleteFromInventoryDB(trans);
         item->SaveToDB(trans);
 
@@ -318,9 +325,16 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: %s %s is selling %s %s to auctioneer " UI64FMTD " with count %u with initial bid " UI64FMTD " with buyout " UI64FMTD " and with time %u (in sec) in auctionhouse %u",
             _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), newItem->GetGUID().ToString().c_str(), newItem->GetTemplate()->GetDefaultLocaleName(), AH->auctioneer, newItem->GetCount(), packet.MinBid, packet.BuyoutPrice, auctionTime, AH->GetHouseId());
+
+        // Add to pending auctions, or fail with insufficient funds error
+        if (!sAuctionMgr->PendingAuctionAdd(_player, AH, newItem))
+        {
+            SendAuctionCommandResult(AH, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+            return;
+        }
+
         sAuctionMgr->AddAItem(newItem);
         auctionHouse->AddAuction(AH);
-        sAuctionMgr->PendingAuctionAdd(_player, AH);
 
         for (std::size_t i = 0; i < packet.Items.size(); ++i)
         {
@@ -331,7 +345,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
             {
                 _player->MoveItemFromInventory(item2->GetBagSlot(), item2->GetSlot(), true);
 
-                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
                 item2->DeleteFromInventoryDB(trans);
                 item2->DeleteFromDB(trans);
                 CharacterDatabase.CommitTransaction(trans);
@@ -344,13 +358,13 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
                 _player->ItemRemovedQuestCheck(item2->GetEntry(), packet.Items[i].UseCount);
                 item2->SendUpdateToPlayer(_player);
 
-                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
                 item2->SaveToDB(trans);
                 CharacterDatabase.CommitTransaction(trans);
             }
         }
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         newItem->SaveToDB(trans);
         AH->SaveToDB(trans);
         _player->SaveInventoryAndGoldToDB(trans);
@@ -394,7 +408,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     // impossible have online own another character (use this for speedup check in case online owner)
     ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
     Player* auction_owner = ObjectAccessor::FindPlayer(ownerGuid);
-    if (!auction_owner && ObjectMgr::GetPlayerAccountIdByGUID(ownerGuid) == player->GetSession()->GetAccountId())
+    if (!auction_owner && sCharacterCache->GetCharacterAccountIdByGuid(ownerGuid) == player->GetSession()->GetAccountId())
     {
         //you cannot bid your another character auction:
         SendAuctionCommandResult(NULL, AUCTION_PLACE_BID, ERR_AUCTION_BID_OWN);
@@ -421,7 +435,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
         return;
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     if (packet.BidAmount < auction->buyout || auction->buyout == 0)
     {
@@ -443,7 +457,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
         auction->bid = packet.BidAmount;
         GetPlayer()->UpdateCriteria(CRITERIA_TYPE_HIGHEST_AUCTION_BID, packet.BidAmount);
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
         stmt->setUInt64(0, auction->bidder);
         stmt->setUInt64(1, auction->bid);
         stmt->setUInt32(2, auction->Id);
@@ -508,7 +522,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     AuctionEntry* auction = auctionHouse->GetAuction(packet.AuctionItemID);
     Player* player = GetPlayer();
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (auction && auction->owner == player->GetGUID().GetCounter())
     {
         Item* item = sAuctionMgr->GetAItem(auction->itemGUIDLow);

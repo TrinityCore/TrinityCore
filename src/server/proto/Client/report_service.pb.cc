@@ -117,20 +117,20 @@ void protobuf_AddDesc_report_5fservice_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\024report_service.proto\022\026bgs.protocol.rep"
     "ort.v1\032\023account_types.proto\032\022report_type"
-    "s.proto\032\017rpc_types.proto\"T\n\021SendReportRe"
+    "s.proto\032\017rpc_types.proto\"\\\n\021SendReportRe"
     "quest\022.\n\006report\030\001 \002(\0132\036.bgs.protocol.rep"
-    "ort.v1.Report\022\017\n\007program\030\002 \001(\r\"\235\001\n\023Submi"
-    "tReportRequest\022<\n\010agent_id\030\001 \001(\0132*.bgs.p"
-    "rotocol.account.v1.GameAccountHandle\0227\n\013"
-    "report_type\030\002 \001(\0132\".bgs.protocol.report."
-    "v1.ReportType\022\017\n\007program\030\003 \001(\r2\371\001\n\rRepor"
-    "tService\022U\n\nSendReport\022).bgs.protocol.re"
-    "port.v1.SendReportRequest\032\024.bgs.protocol"
-    ".NoData\"\006\202\371+\002\010\001\022Y\n\014SubmitReport\022+.bgs.pr"
-    "otocol.report.v1.SubmitReportRequest\032\024.b"
-    "gs.protocol.NoData\"\006\202\371+\002\010\002\0326\202\371+,\n\"bnet.p"
-    "rotocol.report.ReportService*\006report\212\371+\002"
-    "\020\001B\005H\001\200\001\000", 609);
+    "ort.v1.Report\022\017\n\007program\030\002 \001(\r:\006\202\371+\002\020\001\"\245"
+    "\001\n\023SubmitReportRequest\022<\n\010agent_id\030\001 \001(\013"
+    "2*.bgs.protocol.account.v1.GameAccountHa"
+    "ndle\0227\n\013report_type\030\002 \001(\0132\".bgs.protocol"
+    ".report.v1.ReportType\022\017\n\007program\030\003 \001(\r:\006"
+    "\202\371+\002\020\0012\371\001\n\rReportService\022U\n\nSendReport\022)"
+    ".bgs.protocol.report.v1.SendReportReques"
+    "t\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\001\022Y\n\014Submi"
+    "tReport\022+.bgs.protocol.report.v1.SubmitR"
+    "eportRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002"
+    "\010\002\0326\202\371+,\n\"bnet.protocol.report.ReportSer"
+    "vice*\006report\212\371+\002\020\001B\005H\001\200\001\000", 625);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "report_service.proto", &protobuf_RegisterTypes);
   SendReportRequest::default_instance_ = new SendReportRequest();

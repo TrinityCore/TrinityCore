@@ -93,6 +93,7 @@ void WorldSession::HandleMoveWorldportAck()
         z += GetPlayer()->m_unitData->HoverHeight;
 
     GetPlayer()->Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
+    GetPlayer()->SetFallInformation(0, GetPlayer()->GetPositionZ());
 
     GetPlayer()->ResetMap();
     GetPlayer()->SetMap(newMap);
@@ -264,6 +265,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
     WorldLocation const& dest = plMover->GetTeleportDest();
 
     plMover->UpdatePosition(dest, true);
+    plMover->SetFallInformation(0, GetPlayer()->GetPositionZ());
 
     uint32 newzone, newarea;
     plMover->GetZoneAndAreaId(newzone, newarea);
@@ -327,9 +329,13 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
     /* handle special cases */
     if (!movementInfo.transport.guid.IsEmpty())
     {
+        // We were teleported, skip packets that were broadcast before teleport
+        if (movementInfo.pos.GetExactDist2d(mover) > SIZE_OF_GRIDS)
+            return;
+
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
-        if (movementInfo.transport.pos.GetPositionX() > 50 || movementInfo.transport.pos.GetPositionY() > 50 || movementInfo.transport.pos.GetPositionZ() > 50)
+        if (fabs(movementInfo.transport.pos.GetPositionX()) > 75.0f || fabs(movementInfo.transport.pos.GetPositionY()) > 75.0f || fabs(movementInfo.transport.pos.GetPositionZ()) > 75.0f)
         {
             return;
         }

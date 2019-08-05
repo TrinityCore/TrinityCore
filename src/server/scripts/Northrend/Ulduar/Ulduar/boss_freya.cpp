@@ -248,7 +248,7 @@ class npc_iron_roots : public CreatureScript
                     target->RemoveAurasDueToSpell(SPELL_ROOTS_FREYA);
                 }
 
-                me->RemoveCorpse(false);
+                me->DespawnOrUnsummon();
             }
 
         private:

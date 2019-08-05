@@ -24,10 +24,11 @@
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "club_member_id.pb.h"  // IWYU pragma: export
 #include "global_extensions/message_options.pb.h"
 #include "api/client/v2/attribute_types.pb.h"
-#include "account_types.pb.h"
 #include "club_enum.pb.h"
+#include "rpc_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -41,7 +42,6 @@ void TC_PROTO_API protobuf_AddDesc_club_5fmember_2eproto();
 void protobuf_AssignDesc_club_5fmember_2eproto();
 void protobuf_ShutdownFile_club_5fmember_2eproto();
 
-class MemberId;
 class Member;
 class MemberResult;
 class RemoveMemberOptions;
@@ -50,6 +50,7 @@ class MemberVoiceOptions;
 class MemberVoiceState;
 class CreateMemberOptions;
 class MemberDescription;
+class RoleOptions;
 class RoleAssignment;
 class MemberAttributeAssignment;
 class SubscriberStateOptions;
@@ -58,97 +59,6 @@ class MemberStateOptions;
 class MemberStateAssignment;
 
 // ===================================================================
-
-class TC_PROTO_API MemberId : public ::google::protobuf::Message {
- public:
-  MemberId();
-  virtual ~MemberId();
-
-  MemberId(const MemberId& from);
-
-  inline MemberId& operator=(const MemberId& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const MemberId& default_instance();
-
-  void Swap(MemberId* other);
-
-  // implements Message ----------------------------------------------
-
-  MemberId* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const MemberId& from);
-  void MergeFrom(const MemberId& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // optional .bgs.protocol.account.v1.AccountId account_id = 1;
-  inline bool has_account_id() const;
-  inline void clear_account_id();
-  static const int kAccountIdFieldNumber = 1;
-  inline const ::bgs::protocol::account::v1::AccountId& account_id() const;
-  inline ::bgs::protocol::account::v1::AccountId* mutable_account_id();
-  inline ::bgs::protocol::account::v1::AccountId* release_account_id();
-  inline void set_allocated_account_id(::bgs::protocol::account::v1::AccountId* account_id);
-
-  // optional uint64 unique_id = 2;
-  inline bool has_unique_id() const;
-  inline void clear_unique_id();
-  static const int kUniqueIdFieldNumber = 2;
-  inline ::google::protobuf::uint64 unique_id() const;
-  inline void set_unique_id(::google::protobuf::uint64 value);
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.MemberId)
- private:
-  inline void set_has_account_id();
-  inline void clear_has_account_id();
-  inline void set_has_unique_id();
-  inline void clear_has_unique_id();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::bgs::protocol::account::v1::AccountId* account_id_;
-  ::google::protobuf::uint64 unique_id_;
-  friend void TC_PROTO_API protobuf_AddDesc_club_5fmember_2eproto();
-  friend void protobuf_AssignDesc_club_5fmember_2eproto();
-  friend void protobuf_ShutdownFile_club_5fmember_2eproto();
-
-  void InitAsDefaultInstance();
-  static MemberId* default_instance_;
-};
-// -------------------------------------------------------------------
 
 class TC_PROTO_API Member : public ::google::protobuf::Message {
  public:
@@ -1046,6 +956,101 @@ class TC_PROTO_API MemberDescription : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class TC_PROTO_API RoleOptions : public ::google::protobuf::Message {
+ public:
+  RoleOptions();
+  virtual ~RoleOptions();
+
+  RoleOptions(const RoleOptions& from);
+
+  inline RoleOptions& operator=(const RoleOptions& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RoleOptions& default_instance();
+
+  void Swap(RoleOptions* other);
+
+  // implements Message ----------------------------------------------
+
+  RoleOptions* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RoleOptions& from);
+  void MergeFrom(const RoleOptions& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+  inline bool has_member_id() const;
+  inline void clear_member_id();
+  static const int kMemberIdFieldNumber = 1;
+  inline const ::bgs::protocol::club::v1::MemberId& member_id() const;
+  inline ::bgs::protocol::club::v1::MemberId* mutable_member_id();
+  inline ::bgs::protocol::club::v1::MemberId* release_member_id();
+  inline void set_allocated_member_id(::bgs::protocol::club::v1::MemberId* member_id);
+
+  // repeated uint32 role = 2 [packed = true];
+  inline int role_size() const;
+  inline void clear_role();
+  static const int kRoleFieldNumber = 2;
+  inline ::google::protobuf::uint32 role(int index) const;
+  inline void set_role(int index, ::google::protobuf::uint32 value);
+  inline void add_role(::google::protobuf::uint32 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
+      role() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
+      mutable_role();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.RoleOptions)
+ private:
+  inline void set_has_member_id();
+  inline void clear_has_member_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::club::v1::MemberId* member_id_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > role_;
+  mutable int _role_cached_byte_size_;
+  friend void TC_PROTO_API protobuf_AddDesc_club_5fmember_2eproto();
+  friend void protobuf_AssignDesc_club_5fmember_2eproto();
+  friend void protobuf_ShutdownFile_club_5fmember_2eproto();
+
+  void InitAsDefaultInstance();
+  static RoleOptions* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class TC_PROTO_API RoleAssignment : public ::google::protobuf::Message {
  public:
   RoleAssignment();
@@ -1690,75 +1695,6 @@ class TC_PROTO_API MemberStateAssignment : public ::google::protobuf::Message {
 
 
 // ===================================================================
-
-// MemberId
-
-// optional .bgs.protocol.account.v1.AccountId account_id = 1;
-inline bool MemberId::has_account_id() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void MemberId::set_has_account_id() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void MemberId::clear_has_account_id() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void MemberId::clear_account_id() {
-  if (account_id_ != NULL) account_id_->::bgs::protocol::account::v1::AccountId::Clear();
-  clear_has_account_id();
-}
-inline const ::bgs::protocol::account::v1::AccountId& MemberId::account_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.MemberId.account_id)
-  return account_id_ != NULL ? *account_id_ : *default_instance_->account_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* MemberId::mutable_account_id() {
-  set_has_account_id();
-  if (account_id_ == NULL) account_id_ = new ::bgs::protocol::account::v1::AccountId;
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.MemberId.account_id)
-  return account_id_;
-}
-inline ::bgs::protocol::account::v1::AccountId* MemberId::release_account_id() {
-  clear_has_account_id();
-  ::bgs::protocol::account::v1::AccountId* temp = account_id_;
-  account_id_ = NULL;
-  return temp;
-}
-inline void MemberId::set_allocated_account_id(::bgs::protocol::account::v1::AccountId* account_id) {
-  delete account_id_;
-  account_id_ = account_id;
-  if (account_id) {
-    set_has_account_id();
-  } else {
-    clear_has_account_id();
-  }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.MemberId.account_id)
-}
-
-// optional uint64 unique_id = 2;
-inline bool MemberId::has_unique_id() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void MemberId::set_has_unique_id() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void MemberId::clear_has_unique_id() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void MemberId::clear_unique_id() {
-  unique_id_ = GOOGLE_ULONGLONG(0);
-  clear_has_unique_id();
-}
-inline ::google::protobuf::uint64 MemberId::unique_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.MemberId.unique_id)
-  return unique_id_;
-}
-inline void MemberId::set_unique_id(::google::protobuf::uint64 value) {
-  set_has_unique_id();
-  unique_id_ = value;
-  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.MemberId.unique_id)
-}
-
-// -------------------------------------------------------------------
 
 // Member
 
@@ -2859,6 +2795,81 @@ inline void MemberDescription::set_allocated_battle_tag(::std::string* battle_ta
     battle_tag_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.MemberDescription.battle_tag)
+}
+
+// -------------------------------------------------------------------
+
+// RoleOptions
+
+// optional .bgs.protocol.club.v1.MemberId member_id = 1;
+inline bool RoleOptions::has_member_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void RoleOptions::set_has_member_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void RoleOptions::clear_has_member_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void RoleOptions::clear_member_id() {
+  if (member_id_ != NULL) member_id_->::bgs::protocol::club::v1::MemberId::Clear();
+  clear_has_member_id();
+}
+inline const ::bgs::protocol::club::v1::MemberId& RoleOptions::member_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.RoleOptions.member_id)
+  return member_id_ != NULL ? *member_id_ : *default_instance_->member_id_;
+}
+inline ::bgs::protocol::club::v1::MemberId* RoleOptions::mutable_member_id() {
+  set_has_member_id();
+  if (member_id_ == NULL) member_id_ = new ::bgs::protocol::club::v1::MemberId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.RoleOptions.member_id)
+  return member_id_;
+}
+inline ::bgs::protocol::club::v1::MemberId* RoleOptions::release_member_id() {
+  clear_has_member_id();
+  ::bgs::protocol::club::v1::MemberId* temp = member_id_;
+  member_id_ = NULL;
+  return temp;
+}
+inline void RoleOptions::set_allocated_member_id(::bgs::protocol::club::v1::MemberId* member_id) {
+  delete member_id_;
+  member_id_ = member_id;
+  if (member_id) {
+    set_has_member_id();
+  } else {
+    clear_has_member_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.RoleOptions.member_id)
+}
+
+// repeated uint32 role = 2 [packed = true];
+inline int RoleOptions::role_size() const {
+  return role_.size();
+}
+inline void RoleOptions::clear_role() {
+  role_.Clear();
+}
+inline ::google::protobuf::uint32 RoleOptions::role(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.RoleOptions.role)
+  return role_.Get(index);
+}
+inline void RoleOptions::set_role(int index, ::google::protobuf::uint32 value) {
+  role_.Set(index, value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.RoleOptions.role)
+}
+inline void RoleOptions::add_role(::google::protobuf::uint32 value) {
+  role_.Add(value);
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.RoleOptions.role)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
+RoleOptions::role() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.RoleOptions.role)
+  return role_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
+RoleOptions::mutable_role() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.RoleOptions.role)
+  return &role_;
 }
 
 // -------------------------------------------------------------------

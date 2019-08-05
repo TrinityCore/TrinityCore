@@ -859,9 +859,9 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
         return;
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GIFT);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_GIFT);
     stmt->setUInt64(0, item->GetOwnerGUID().GetCounter());
     stmt->setUInt64(1, item->GetGUID().GetCounter());
     stmt->setUInt32(2, item->GetEntry());

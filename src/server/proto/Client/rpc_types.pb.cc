@@ -41,6 +41,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* ErrorInfo_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ErrorInfo_reflection_ = NULL;
+const ::google::protobuf::Descriptor* FanoutTarget_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  FanoutTarget_reflection_ = NULL;
 const ::google::protobuf::Descriptor* Header_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Header_reflection_ = NULL;
@@ -151,8 +154,24 @@ void protobuf_AssignDesc_rpc_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ErrorInfo));
-  Header_descriptor_ = file->message_type(6);
-  static const int Header_offsets_[12] = {
+  FanoutTarget_descriptor_ = file->message_type(6);
+  static const int FanoutTarget_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FanoutTarget, client_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FanoutTarget, key_),
+  };
+  FanoutTarget_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      FanoutTarget_descriptor_,
+      FanoutTarget::default_instance_,
+      FanoutTarget_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FanoutTarget, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(FanoutTarget, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(FanoutTarget));
+  Header_descriptor_ = file->message_type(7);
+  static const int Header_offsets_[14] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, service_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, method_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, token_),
@@ -165,6 +184,8 @@ void protobuf_AssignDesc_rpc_5ftypes_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, forward_targets_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, service_hash_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, client_id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, fanout_target_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Header, client_id_fanout_target_),
   };
   Header_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -177,7 +198,7 @@ void protobuf_AssignDesc_rpc_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Header));
-  KafkaHeader_descriptor_ = file->message_type(7);
+  KafkaHeader_descriptor_ = file->message_type(8);
   static const int KafkaHeader_offsets_[10] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, service_hash_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(KafkaHeader, method_id_),
@@ -226,6 +247,8 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ErrorInfo_descriptor_, &ErrorInfo::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    FanoutTarget_descriptor_, &FanoutTarget::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Header_descriptor_, &Header::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     KafkaHeader_descriptor_, &KafkaHeader::default_instance());
@@ -246,6 +269,8 @@ void protobuf_ShutdownFile_rpc_5ftypes_2eproto() {
   delete NoData_reflection_;
   delete ErrorInfo::default_instance_;
   delete ErrorInfo_reflection_;
+  delete FanoutTarget::default_instance_;
+  delete FanoutTarget_reflection_;
   delete Header::default_instance_;
   delete Header_reflection_;
   delete KafkaHeader::default_instance_;
@@ -275,21 +300,25 @@ void protobuf_AddDesc_rpc_5ftypes_2eproto() {
     "\n\tobject_id\030\002 \001(\004:\0010\"\010\n\006NoData\"y\n\tErrorI"
     "nfo\0223\n\016object_address\030\001 \002(\0132\033.bgs.protoc"
     "ol.ObjectAddress\022\016\n\006status\030\002 \002(\r\022\024\n\014serv"
-    "ice_hash\030\003 \002(\r\022\021\n\tmethod_id\030\004 \002(\r\"\241\002\n\006He"
-    "ader\022\022\n\nservice_id\030\001 \002(\r\022\021\n\tmethod_id\030\002 "
-    "\001(\r\022\r\n\005token\030\003 \002(\r\022\024\n\tobject_id\030\004 \001(\004:\0010"
-    "\022\017\n\004size\030\005 \001(\r:\0010\022\021\n\006status\030\006 \001(\r:\0010\022&\n\005"
-    "error\030\007 \003(\0132\027.bgs.protocol.ErrorInfo\022\017\n\007"
-    "timeout\030\010 \001(\004\022\023\n\013is_response\030\t \001(\010\0220\n\017fo"
-    "rward_targets\030\n \003(\0132\027.bgs.protocol.Proce"
-    "ssId\022\024\n\014service_hash\030\013 \001(\007\022\021\n\tclient_id\030"
-    "\r \001(\t\"\352\001\n\013KafkaHeader\022\024\n\014service_hash\030\001 "
-    "\001(\007\022\021\n\tmethod_id\030\002 \001(\r\022\r\n\005token\030\003 \001(\r\022\024\n"
-    "\tobject_id\030\004 \001(\004:\0010\022\017\n\004size\030\005 \001(\r:\0010\022\021\n\006"
-    "status\030\006 \001(\r:\0010\022\017\n\007timeout\030\007 \001(\004\022/\n\016forw"
-    "ard_target\030\010 \001(\0132\027.bgs.protocol.ProcessI"
-    "d\022\024\n\014return_topic\030\t \001(\t\022\021\n\tclient_id\030\013 \001"
-    "(\tB\033\n\rbnet.protocolB\010RpcProtoH\001P\000P\001P\002P\003", 1079);
+    "ice_hash\030\003 \002(\r\022\021\n\tmethod_id\030\004 \002(\r\".\n\014Fan"
+    "outTarget\022\021\n\tclient_id\030\001 \001(\t\022\013\n\003key\030\002 \001("
+    "\014\"\365\002\n\006Header\022\022\n\nservice_id\030\001 \002(\r\022\021\n\tmeth"
+    "od_id\030\002 \001(\r\022\r\n\005token\030\003 \002(\r\022\024\n\tobject_id\030"
+    "\004 \001(\004:\0010\022\017\n\004size\030\005 \001(\r:\0010\022\021\n\006status\030\006 \001("
+    "\r:\0010\022&\n\005error\030\007 \003(\0132\027.bgs.protocol.Error"
+    "Info\022\017\n\007timeout\030\010 \001(\004\022\023\n\013is_response\030\t \001"
+    "(\010\0220\n\017forward_targets\030\n \003(\0132\027.bgs.protoc"
+    "ol.ProcessId\022\024\n\014service_hash\030\013 \001(\007\022\021\n\tcl"
+    "ient_id\030\r \001(\t\0221\n\rfanout_target\030\016 \003(\0132\032.b"
+    "gs.protocol.FanoutTarget\022\037\n\027client_id_fa"
+    "nout_target\030\017 \003(\t\"\352\001\n\013KafkaHeader\022\024\n\014ser"
+    "vice_hash\030\001 \001(\007\022\021\n\tmethod_id\030\002 \001(\r\022\r\n\005to"
+    "ken\030\003 \001(\r\022\024\n\tobject_id\030\004 \001(\004:\0010\022\017\n\004size\030"
+    "\005 \001(\r:\0010\022\021\n\006status\030\006 \001(\r:\0010\022\017\n\007timeout\030\007"
+    " \001(\004\022/\n\016forward_target\030\010 \001(\0132\027.bgs.proto"
+    "col.ProcessId\022\024\n\014return_topic\030\t \001(\t\022\021\n\tc"
+    "lient_id\030\013 \001(\tB\033\n\rbnet.protocolB\010RpcProt"
+    "oH\001P\000P\001P\002P\003", 1211);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "rpc_types.proto", &protobuf_RegisterTypes);
   NO_RESPONSE::default_instance_ = new NO_RESPONSE();
@@ -298,6 +327,7 @@ void protobuf_AddDesc_rpc_5ftypes_2eproto() {
   ObjectAddress::default_instance_ = new ObjectAddress();
   NoData::default_instance_ = new NoData();
   ErrorInfo::default_instance_ = new ErrorInfo();
+  FanoutTarget::default_instance_ = new FanoutTarget();
   Header::default_instance_ = new Header();
   KafkaHeader::default_instance_ = new KafkaHeader();
   NO_RESPONSE::default_instance_->InitAsDefaultInstance();
@@ -306,6 +336,7 @@ void protobuf_AddDesc_rpc_5ftypes_2eproto() {
   ObjectAddress::default_instance_->InitAsDefaultInstance();
   NoData::default_instance_->InitAsDefaultInstance();
   ErrorInfo::default_instance_->InitAsDefaultInstance();
+  FanoutTarget::default_instance_->InitAsDefaultInstance();
   Header::default_instance_->InitAsDefaultInstance();
   KafkaHeader::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_rpc_5ftypes_2eproto);
@@ -1863,6 +1894,298 @@ void ErrorInfo::Swap(ErrorInfo* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int FanoutTarget::kClientIdFieldNumber;
+const int FanoutTarget::kKeyFieldNumber;
+#endif  // !_MSC_VER
+
+FanoutTarget::FanoutTarget()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.FanoutTarget)
+}
+
+void FanoutTarget::InitAsDefaultInstance() {
+}
+
+FanoutTarget::FanoutTarget(const FanoutTarget& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.FanoutTarget)
+}
+
+void FanoutTarget::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  key_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+FanoutTarget::~FanoutTarget() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.FanoutTarget)
+  SharedDtor();
+}
+
+void FanoutTarget::SharedDtor() {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete client_id_;
+  }
+  if (key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete key_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void FanoutTarget::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* FanoutTarget::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return FanoutTarget_descriptor_;
+}
+
+const FanoutTarget& FanoutTarget::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_rpc_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+FanoutTarget* FanoutTarget::default_instance_ = NULL;
+
+FanoutTarget* FanoutTarget::New() const {
+  return new FanoutTarget;
+}
+
+void FanoutTarget::Clear() {
+  if (_has_bits_[0 / 32] & 3) {
+    if (has_client_id()) {
+      if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        client_id_->clear();
+      }
+    }
+    if (has_key()) {
+      if (key_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        key_->clear();
+      }
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool FanoutTarget::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.FanoutTarget)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string client_id = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_client_id()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->client_id().data(), this->client_id().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "client_id");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(18)) goto parse_key;
+        break;
+      }
+
+      // optional bytes key = 2;
+      case 2: {
+        if (tag == 18) {
+         parse_key:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_key()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.FanoutTarget)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.FanoutTarget)
+  return false;
+#undef DO_
+}
+
+void FanoutTarget::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.FanoutTarget)
+  // optional string client_id = 1;
+  if (has_client_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->client_id().data(), this->client_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "client_id");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->client_id(), output);
+  }
+
+  // optional bytes key = 2;
+  if (has_key()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+      2, this->key(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.FanoutTarget)
+}
+
+::google::protobuf::uint8* FanoutTarget::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.FanoutTarget)
+  // optional string client_id = 1;
+  if (has_client_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->client_id().data(), this->client_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "client_id");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->client_id(), target);
+  }
+
+  // optional bytes key = 2;
+  if (has_key()) {
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+        2, this->key(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.FanoutTarget)
+  return target;
+}
+
+int FanoutTarget::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string client_id = 1;
+    if (has_client_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->client_id());
+    }
+
+    // optional bytes key = 2;
+    if (has_key()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::BytesSize(
+          this->key());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void FanoutTarget::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const FanoutTarget* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const FanoutTarget*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void FanoutTarget::MergeFrom(const FanoutTarget& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_client_id()) {
+      set_client_id(from.client_id());
+    }
+    if (from.has_key()) {
+      set_key(from.key());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void FanoutTarget::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void FanoutTarget::CopyFrom(const FanoutTarget& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool FanoutTarget::IsInitialized() const {
+
+  return true;
+}
+
+void FanoutTarget::Swap(FanoutTarget* other) {
+  if (other != this) {
+    std::swap(client_id_, other->client_id_);
+    std::swap(key_, other->key_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata FanoutTarget::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = FanoutTarget_descriptor_;
+  metadata.reflection = FanoutTarget_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int Header::kServiceIdFieldNumber;
 const int Header::kMethodIdFieldNumber;
 const int Header::kTokenFieldNumber;
@@ -1875,6 +2198,8 @@ const int Header::kIsResponseFieldNumber;
 const int Header::kForwardTargetsFieldNumber;
 const int Header::kServiceHashFieldNumber;
 const int Header::kClientIdFieldNumber;
+const int Header::kFanoutTargetFieldNumber;
+const int Header::kClientIdFanoutTargetFieldNumber;
 #endif  // !_MSC_VER
 
 Header::Header()
@@ -1974,6 +2299,8 @@ void Header::Clear() {
 
   error_.Clear();
   forward_targets_.Clear();
+  fanout_target_.Clear();
+  client_id_fanout_target_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -2163,6 +2490,39 @@ bool Header::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(114)) goto parse_fanout_target;
+        break;
+      }
+
+      // repeated .bgs.protocol.FanoutTarget fanout_target = 14;
+      case 14: {
+        if (tag == 114) {
+         parse_fanout_target:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_fanout_target()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(114)) goto parse_fanout_target;
+        if (input->ExpectTag(122)) goto parse_client_id_fanout_target;
+        break;
+      }
+
+      // repeated string client_id_fanout_target = 15;
+      case 15: {
+        if (tag == 122) {
+         parse_client_id_fanout_target:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_client_id_fanout_target()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->client_id_fanout_target(this->client_id_fanout_target_size() - 1).data(),
+            this->client_id_fanout_target(this->client_id_fanout_target_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "client_id_fanout_target");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(122)) goto parse_client_id_fanout_target;
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -2259,6 +2619,22 @@ void Header::SerializeWithCachedSizes(
       13, this->client_id(), output);
   }
 
+  // repeated .bgs.protocol.FanoutTarget fanout_target = 14;
+  for (int i = 0; i < this->fanout_target_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      14, this->fanout_target(i), output);
+  }
+
+  // repeated string client_id_fanout_target = 15;
+  for (int i = 0; i < this->client_id_fanout_target_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    this->client_id_fanout_target(i).data(), this->client_id_fanout_target(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE,
+    "client_id_fanout_target");
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      15, this->client_id_fanout_target(i), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -2337,6 +2713,23 @@ void Header::SerializeWithCachedSizes(
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
         13, this->client_id(), target);
+  }
+
+  // repeated .bgs.protocol.FanoutTarget fanout_target = 14;
+  for (int i = 0; i < this->fanout_target_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        14, this->fanout_target(i), target);
+  }
+
+  // repeated string client_id_fanout_target = 15;
+  for (int i = 0; i < this->client_id_fanout_target_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->client_id_fanout_target(i).data(), this->client_id_fanout_target(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "client_id_fanout_target");
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(15, this->client_id_fanout_target(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -2436,6 +2829,21 @@ int Header::ByteSize() const {
         this->forward_targets(i));
   }
 
+  // repeated .bgs.protocol.FanoutTarget fanout_target = 14;
+  total_size += 1 * this->fanout_target_size();
+  for (int i = 0; i < this->fanout_target_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->fanout_target(i));
+  }
+
+  // repeated string client_id_fanout_target = 15;
+  total_size += 1 * this->client_id_fanout_target_size();
+  for (int i = 0; i < this->client_id_fanout_target_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->client_id_fanout_target(i));
+  }
+
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -2463,6 +2871,8 @@ void Header::MergeFrom(const Header& from) {
   GOOGLE_CHECK_NE(&from, this);
   error_.MergeFrom(from.error_);
   forward_targets_.MergeFrom(from.forward_targets_);
+  fanout_target_.MergeFrom(from.fanout_target_);
+  client_id_fanout_target_.MergeFrom(from.client_id_fanout_target_);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
     if (from.has_service_id()) {
       set_service_id(from.service_id());
@@ -2534,6 +2944,8 @@ void Header::Swap(Header* other) {
     forward_targets_.Swap(&other->forward_targets_);
     std::swap(service_hash_, other->service_hash_);
     std::swap(client_id_, other->client_id_);
+    fanout_target_.Swap(&other->fanout_target_);
+    client_id_fanout_target_.Swap(&other->client_id_fanout_target_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

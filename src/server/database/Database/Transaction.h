@@ -26,7 +26,7 @@
 #include <vector>
 
 /*! Transactions, high level class. */
-class TC_DATABASE_API Transaction
+class TC_DATABASE_API TransactionBase
 {
     friend class TransactionTask;
     friend class MySQLConnection;
@@ -35,10 +35,9 @@ class TC_DATABASE_API Transaction
     friend class DatabaseWorkerPool;
 
     public:
-        Transaction() : _cleanedUp(false) { }
-        ~Transaction() { Cleanup(); }
+        TransactionBase() : _cleanedUp(false) { }
+        virtual ~TransactionBase() { Cleanup(); }
 
-        void Append(PreparedStatement* statement);
         void Append(const char* sql);
         template<typename Format, typename... Args>
         void PAppend(Format&& sql, Args&&... args)
@@ -49,12 +48,23 @@ class TC_DATABASE_API Transaction
         std::size_t GetSize() const { return m_queries.size(); }
 
     protected:
+        void AppendPreparedStatement(PreparedStatementBase* statement);
         void Cleanup();
         std::vector<SQLElementData> m_queries;
 
     private:
         bool _cleanedUp;
+};
 
+template<typename T>
+class Transaction : public TransactionBase
+{
+public:
+    using TransactionBase::Append;
+    void Append(PreparedStatement<T>* statement)
+    {
+        AppendPreparedStatement(statement);
+    }
 };
 
 /*! Low level class*/
@@ -64,13 +74,13 @@ class TC_DATABASE_API TransactionTask : public SQLOperation
     friend class DatabaseWorker;
 
     public:
-        TransactionTask(SQLTransaction trans) : m_trans(trans) { }
+        TransactionTask(std::shared_ptr<TransactionBase> trans) : m_trans(trans) { }
         ~TransactionTask() { }
 
     protected:
         bool Execute() override;
 
-        SQLTransaction m_trans;
+        std::shared_ptr<TransactionBase> m_trans;
         static std::mutex _deadlockLock;
 };
 

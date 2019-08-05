@@ -123,9 +123,9 @@ void CollectionMgr::LoadAccountToys(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
-void CollectionMgr::SaveAccountToys(SQLTransaction& trans)
+void CollectionMgr::SaveAccountToys(LoginDatabaseTransaction& trans)
 {
-    PreparedStatement* stmt = nullptr;
+    LoginDatabasePreparedStatement* stmt = nullptr;
     for (auto const& toy : _toys)
     {
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_TOYS);
@@ -201,9 +201,9 @@ void CollectionMgr::LoadAccountHeirlooms(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
-void CollectionMgr::SaveAccountHeirlooms(SQLTransaction& trans)
+void CollectionMgr::SaveAccountHeirlooms(LoginDatabaseTransaction& trans)
 {
-    PreparedStatement* stmt = nullptr;
+    LoginDatabasePreparedStatement* stmt = nullptr;
     for (auto const& heirloom : _heirlooms)
     {
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_HEIRLOOMS);
@@ -395,11 +395,11 @@ void CollectionMgr::LoadAccountMounts(PreparedQueryResult result)
     } while (result->NextRow());
 }
 
-void CollectionMgr::SaveAccountMounts(SQLTransaction& trans)
+void CollectionMgr::SaveAccountMounts(LoginDatabaseTransaction& trans)
 {
     for (auto const& mount : _mounts)
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_MOUNTS);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_ACCOUNT_MOUNTS);
         stmt->setUInt32(0, _owner->GetBattlenetAccountId());
         stmt->setUInt32(1, mount.first);
         stmt->setUInt8(2, mount.second);
@@ -551,14 +551,14 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
     }
 }
 
-void CollectionMgr::SaveAccountItemAppearances(SQLTransaction& trans)
+void CollectionMgr::SaveAccountItemAppearances(LoginDatabaseTransaction& trans)
 {
     uint16 blockIndex = 0;
     boost::to_block_range(*_appearances, DynamicBitsetBlockOutputIterator([this, &blockIndex, trans](uint32 blockValue)
     {
         if (blockValue) // this table is only appended/bits are set (never cleared) so don't save empty blocks
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ITEM_APPEARANCES);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ITEM_APPEARANCES);
             stmt->setUInt32(0, _owner->GetBattlenetAccountId());
             stmt->setUInt16(1, blockIndex);
             stmt->setUInt32(2, blockValue);
@@ -568,7 +568,7 @@ void CollectionMgr::SaveAccountItemAppearances(SQLTransaction& trans)
         ++blockIndex;
     }));
 
-    PreparedStatement* stmt;
+    LoginDatabasePreparedStatement* stmt;
     for (auto itr = _favoriteAppearances.begin(); itr != _favoriteAppearances.end();)
     {
         switch (itr->second)

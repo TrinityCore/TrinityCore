@@ -79,9 +79,10 @@ void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto() {
       "global_extensions/field_options.proto");
   GOOGLE_CHECK(file != NULL);
   BGSFieldOptions_descriptor_ = file->message_type(0);
-  static const int BGSFieldOptions_offsets_[2] = {
+  static const int BGSFieldOptions_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSFieldOptions, log_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSFieldOptions, shard_key_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BGSFieldOptions, fanout_key_),
   };
   BGSFieldOptions_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -307,50 +308,51 @@ void protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n%global_extensions/field_options.proto\022"
     "\014bgs.protocol\032 google/protobuf/descripto"
-    "r.proto\032\035global_extensions/range.proto\"J"
+    "r.proto\032\035global_extensions/range.proto\"^"
     "\n\017BGSFieldOptions\022$\n\003log\030\001 \001(\0162\027.bgs.pro"
-    "tocol.LogOption\022\021\n\tshard_key\030\002 \001(\010\"\252\003\n\020F"
-    "ieldRestriction\0226\n\006signed\030\001 \001(\0132$.bgs.pr"
-    "otocol.SignedFieldRestrictionH\000\022:\n\010unsig"
-    "ned\030\002 \001(\0132&.bgs.protocol.UnsignedFieldRe"
-    "strictionH\000\0224\n\005float\030\003 \001(\0132#.bgs.protoco"
-    "l.FloatFieldRestrictionH\000\0226\n\006string\030\004 \001("
-    "\0132$.bgs.protocol.StringFieldRestrictionH"
-    "\000\022:\n\010repeated\030\005 \001(\0132&.bgs.protocol.Repea"
-    "tedFieldRestrictionH\000\0228\n\007message\030\006 \001(\0132%"
-    ".bgs.protocol.MessageFieldRestrictionH\000\022"
-    "6\n\tentity_id\030\007 \001(\0132!.bgs.protocol.Entity"
-    "IdRestrictionH\000B\006\n\004type\"\372\002\n\030RepeatedFiel"
-    "dRestriction\022,\n\004size\030\001 \001(\0132\036.bgs.protoco"
-    "l.UnsignedIntRange\022\016\n\006unique\030\002 \001(\010\0226\n\006si"
-    "gned\030\003 \001(\0132$.bgs.protocol.SignedFieldRes"
-    "trictionH\000\022:\n\010unsigned\030\004 \001(\0132&.bgs.proto"
-    "col.UnsignedFieldRestrictionH\000\0224\n\005float\030"
-    "\005 \001(\0132#.bgs.protocol.FloatFieldRestricti"
-    "onH\000\0226\n\006string\030\006 \001(\0132$.bgs.protocol.Stri"
-    "ngFieldRestrictionH\000\0226\n\tentity_id\030\007 \001(\0132"
-    "!.bgs.protocol.EntityIdRestrictionH\000B\006\n\004"
-    "type\"W\n\026SignedFieldRestriction\022,\n\006limits"
-    "\030\001 \001(\0132\034.bgs.protocol.SignedIntRange\022\017\n\007"
-    "exclude\030\002 \003(\022\"[\n\030UnsignedFieldRestrictio"
-    "n\022.\n\006limits\030\001 \001(\0132\036.bgs.protocol.Unsigne"
-    "dIntRange\022\017\n\007exclude\030\002 \003(\004\"R\n\025FloatField"
-    "Restriction\022(\n\006limits\030\001 \001(\0132\030.bgs.protoc"
-    "ol.FloatRange\022\017\n\007exclude\030\002 \003(\002\"W\n\026String"
-    "FieldRestriction\022,\n\004size\030\001 \001(\0132\036.bgs.pro"
-    "tocol.UnsignedIntRange\022\017\n\007exclude\030\002 \003(\t\""
-    "\302\001\n\023EntityIdRestriction\022\016\n\006needed\030\001 \001(\010\022"
-    "4\n\004kind\030\002 \001(\0162&.bgs.protocol.EntityIdRes"
-    "triction.Kind\"e\n\004Kind\022\007\n\003ANY\020\000\022\013\n\007ACCOUN"
-    "T\020\001\022\020\n\014GAME_ACCOUNT\020\002\022\033\n\027ACCOUNT_OR_GAME"
-    "_ACCOUNT\020\003\022\013\n\007SERVICE\020\004\022\013\n\007CHANNEL\020\005\")\n\027"
-    "MessageFieldRestriction\022\016\n\006needed\030\001 \001(\010*"
-    " \n\tLogOption\022\n\n\006HIDDEN\020\001\022\007\n\003HEX\020\002:U\n\rfie"
-    "ld_options\022\035.google.protobuf.FieldOption"
-    "s\030\220\277\005 \001(\0132\035.bgs.protocol.BGSFieldOptions"
-    ":N\n\005valid\022\035.google.protobuf.FieldOptions"
-    "\030\221\277\005 \001(\0132\036.bgs.protocol.FieldRestriction"
-    "B$\n\rbnet.protocolB\021FieldOptionsProtoH\001", 1838);
+    "tocol.LogOption\022\021\n\tshard_key\030\002 \001(\010\022\022\n\nfa"
+    "nout_key\030\003 \001(\010\"\252\003\n\020FieldRestriction\0226\n\006s"
+    "igned\030\001 \001(\0132$.bgs.protocol.SignedFieldRe"
+    "strictionH\000\022:\n\010unsigned\030\002 \001(\0132&.bgs.prot"
+    "ocol.UnsignedFieldRestrictionH\000\0224\n\005float"
+    "\030\003 \001(\0132#.bgs.protocol.FloatFieldRestrict"
+    "ionH\000\0226\n\006string\030\004 \001(\0132$.bgs.protocol.Str"
+    "ingFieldRestrictionH\000\022:\n\010repeated\030\005 \001(\0132"
+    "&.bgs.protocol.RepeatedFieldRestrictionH"
+    "\000\0228\n\007message\030\006 \001(\0132%.bgs.protocol.Messag"
+    "eFieldRestrictionH\000\0226\n\tentity_id\030\007 \001(\0132!"
+    ".bgs.protocol.EntityIdRestrictionH\000B\006\n\004t"
+    "ype\"\372\002\n\030RepeatedFieldRestriction\022,\n\004size"
+    "\030\001 \001(\0132\036.bgs.protocol.UnsignedIntRange\022\016"
+    "\n\006unique\030\002 \001(\010\0226\n\006signed\030\003 \001(\0132$.bgs.pro"
+    "tocol.SignedFieldRestrictionH\000\022:\n\010unsign"
+    "ed\030\004 \001(\0132&.bgs.protocol.UnsignedFieldRes"
+    "trictionH\000\0224\n\005float\030\005 \001(\0132#.bgs.protocol"
+    ".FloatFieldRestrictionH\000\0226\n\006string\030\006 \001(\013"
+    "2$.bgs.protocol.StringFieldRestrictionH\000"
+    "\0226\n\tentity_id\030\007 \001(\0132!.bgs.protocol.Entit"
+    "yIdRestrictionH\000B\006\n\004type\"W\n\026SignedFieldR"
+    "estriction\022,\n\006limits\030\001 \001(\0132\034.bgs.protoco"
+    "l.SignedIntRange\022\017\n\007exclude\030\002 \003(\022\"[\n\030Uns"
+    "ignedFieldRestriction\022.\n\006limits\030\001 \001(\0132\036."
+    "bgs.protocol.UnsignedIntRange\022\017\n\007exclude"
+    "\030\002 \003(\004\"R\n\025FloatFieldRestriction\022(\n\006limit"
+    "s\030\001 \001(\0132\030.bgs.protocol.FloatRange\022\017\n\007exc"
+    "lude\030\002 \003(\002\"W\n\026StringFieldRestriction\022,\n\004"
+    "size\030\001 \001(\0132\036.bgs.protocol.UnsignedIntRan"
+    "ge\022\017\n\007exclude\030\002 \003(\t\"\302\001\n\023EntityIdRestrict"
+    "ion\022\016\n\006needed\030\001 \001(\010\0224\n\004kind\030\002 \001(\0162&.bgs."
+    "protocol.EntityIdRestriction.Kind\"e\n\004Kin"
+    "d\022\007\n\003ANY\020\000\022\013\n\007ACCOUNT\020\001\022\020\n\014GAME_ACCOUNT\020"
+    "\002\022\033\n\027ACCOUNT_OR_GAME_ACCOUNT\020\003\022\013\n\007SERVIC"
+    "E\020\004\022\013\n\007CHANNEL\020\005\")\n\027MessageFieldRestrict"
+    "ion\022\016\n\006needed\030\001 \001(\010* \n\tLogOption\022\n\n\006HIDD"
+    "EN\020\001\022\007\n\003HEX\020\002:U\n\rfield_options\022\035.google."
+    "protobuf.FieldOptions\030\220\277\005 \001(\0132\035.bgs.prot"
+    "ocol.BGSFieldOptions:N\n\005valid\022\035.google.p"
+    "rotobuf.FieldOptions\030\221\277\005 \001(\0132\036.bgs.proto"
+    "col.FieldRestrictionB$\n\rbnet.protocolB\021F"
+    "ieldOptionsProtoH\001", 1858);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "global_extensions/field_options.proto", &protobuf_RegisterTypes);
   BGSFieldOptions::default_instance_ = new BGSFieldOptions();
@@ -410,6 +412,7 @@ bool LogOption_IsValid(int value) {
 #ifndef _MSC_VER
 const int BGSFieldOptions::kLogFieldNumber;
 const int BGSFieldOptions::kShardKeyFieldNumber;
+const int BGSFieldOptions::kFanoutKeyFieldNumber;
 #endif  // !_MSC_VER
 
 BGSFieldOptions::BGSFieldOptions()
@@ -432,6 +435,7 @@ void BGSFieldOptions::SharedCtor() {
   _cached_size_ = 0;
   log_ = 1;
   shard_key_ = false;
+  fanout_key_ = false;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -467,10 +471,24 @@ BGSFieldOptions* BGSFieldOptions::New() const {
 }
 
 void BGSFieldOptions::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<BGSFieldOptions*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 7) {
+    ZR_(shard_key_, fanout_key_);
     log_ = 1;
-    shard_key_ = false;
   }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -515,6 +533,21 @@ bool BGSFieldOptions::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(24)) goto parse_fanout_key;
+        break;
+      }
+
+      // optional bool fanout_key = 3;
+      case 3: {
+        if (tag == 24) {
+         parse_fanout_key:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &fanout_key_)));
+          set_has_fanout_key();
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -555,6 +588,11 @@ void BGSFieldOptions::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteBool(2, this->shard_key(), output);
   }
 
+  // optional bool fanout_key = 3;
+  if (has_fanout_key()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(3, this->fanout_key(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -574,6 +612,11 @@ void BGSFieldOptions::SerializeWithCachedSizes(
   // optional bool shard_key = 2;
   if (has_shard_key()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(2, this->shard_key(), target);
+  }
+
+  // optional bool fanout_key = 3;
+  if (has_fanout_key()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(3, this->fanout_key(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -596,6 +639,11 @@ int BGSFieldOptions::ByteSize() const {
 
     // optional bool shard_key = 2;
     if (has_shard_key()) {
+      total_size += 1 + 1;
+    }
+
+    // optional bool fanout_key = 3;
+    if (has_fanout_key()) {
       total_size += 1 + 1;
     }
 
@@ -632,6 +680,9 @@ void BGSFieldOptions::MergeFrom(const BGSFieldOptions& from) {
     if (from.has_shard_key()) {
       set_shard_key(from.shard_key());
     }
+    if (from.has_fanout_key()) {
+      set_fanout_key(from.fanout_key());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -657,6 +708,7 @@ void BGSFieldOptions::Swap(BGSFieldOptions* other) {
   if (other != this) {
     std::swap(log_, other->log_);
     std::swap(shard_key_, other->shard_key_);
+    std::swap(fanout_key_, other->fanout_key_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

@@ -162,7 +162,7 @@ QueryResult DatabaseWorkerPool<T>::Query(const char* sql, T* connection /*= null
 }
 
 template <class T>
-PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement* stmt)
+PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement<T>* stmt)
 {
     auto connection = GetFreeConnection();
     PreparedResultSet* ret = connection->Query(stmt);
@@ -191,7 +191,7 @@ QueryCallback DatabaseWorkerPool<T>::AsyncQuery(const char* sql)
 }
 
 template <class T>
-QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement* stmt)
+QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement<T>* stmt)
 {
     PreparedStatementTask* task = new PreparedStatementTask(stmt, true);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
@@ -201,7 +201,7 @@ QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement* stmt)
 }
 
 template <class T>
-QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder* holder)
+QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder<T>* holder)
 {
     SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
@@ -211,13 +211,13 @@ QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder* 
 }
 
 template <class T>
-SQLTransaction DatabaseWorkerPool<T>::BeginTransaction()
+SQLTransaction<T> DatabaseWorkerPool<T>::BeginTransaction()
 {
-    return std::make_shared<Transaction>();
+    return std::make_shared<Transaction<T>>();
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction transaction)
+void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction<T> transaction)
 {
 #ifdef TRINITY_DEBUG
     //! Only analyze transaction weaknesses in Debug mode.
@@ -240,7 +240,7 @@ void DatabaseWorkerPool<T>::CommitTransaction(SQLTransaction transaction)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction& transaction)
+void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction<T>& transaction)
 {
     T* connection = GetFreeConnection();
     int errorCode = connection->ExecuteTransaction(transaction);
@@ -269,9 +269,9 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction& transaction)
 }
 
 template <class T>
-PreparedStatement* DatabaseWorkerPool<T>::GetPreparedStatement(PreparedStatementIndex index)
+PreparedStatement<T>* DatabaseWorkerPool<T>::GetPreparedStatement(PreparedStatementIndex index)
 {
-    return new PreparedStatement(index);
+    return new PreparedStatement<T>(index);
 }
 
 template <class T>
@@ -397,7 +397,7 @@ void DatabaseWorkerPool<T>::Execute(const char* sql)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::Execute(PreparedStatement* stmt)
+void DatabaseWorkerPool<T>::Execute(PreparedStatement<T>* stmt)
 {
     PreparedStatementTask* task = new PreparedStatementTask(stmt);
     Enqueue(task);
@@ -415,7 +415,7 @@ void DatabaseWorkerPool<T>::DirectExecute(const char* sql)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement* stmt)
+void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement<T>* stmt)
 {
     T* connection = GetFreeConnection();
     connection->Execute(stmt);
@@ -426,7 +426,7 @@ void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement* stmt)
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, const char* sql)
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, const char* sql)
 {
     if (!trans)
         Execute(sql);
@@ -435,7 +435,7 @@ void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, const char* s
 }
 
 template <class T>
-void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, PreparedStatement* stmt)
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, PreparedStatement<T>* stmt)
 {
     if (!trans)
         Execute(stmt);

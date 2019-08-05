@@ -73,11 +73,12 @@ enum UserSource {
   USER_SOURCE_PROFILE = 2,
   USER_SOURCE_BATTLE_TAG = 3,
   USER_SOURCE_CHAT = 4,
-  USER_SOURCE_FRIEND_INVITATION = 5
+  USER_SOURCE_FRIEND_INVITATION = 5,
+  USER_SOURCE_VOICE = 6
 };
 TC_PROTO_API bool UserSource_IsValid(int value);
 const UserSource UserSource_MIN = USER_SOURCE_OTHER;
-const UserSource UserSource_MAX = USER_SOURCE_FRIEND_INVITATION;
+const UserSource UserSource_MAX = USER_SOURCE_VOICE;
 const int UserSource_ARRAYSIZE = UserSource_MAX + 1;
 
 TC_PROTO_API const ::google::protobuf::EnumDescriptor* UserSource_descriptor();

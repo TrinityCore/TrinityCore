@@ -870,7 +870,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_VOICE_CHAT_LOGIN,                                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_VOID_STORAGE_TRANSFER,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleVoidStorageTransfer);
     DEFINE_HANDLER(CMSG_WARDEN_DATA,                                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleWardenData);
-    DEFINE_HANDLER(CMSG_WHO,                                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWhoOpcode);
+    DEFINE_HANDLER(CMSG_WHO,                                                STATUS_LOGGEDIN,  PROCESS_THREADSAFE, &WorldSession::HandleWhoOpcode);
     DEFINE_HANDLER(CMSG_WHO_IS,                                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWhoIsOpcode);
     DEFINE_HANDLER(CMSG_WORLD_PORT_RESPONSE,                                STATUS_TRANSFER,  PROCESS_THREADUNSAFE, &WorldSession::HandleMoveWorldportAckOpcode);
     DEFINE_HANDLER(CMSG_WRAP_ITEM,                                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleWrapItem);
