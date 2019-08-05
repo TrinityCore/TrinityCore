@@ -548,6 +548,7 @@ struct boss_maloriak : public BossAI
                     break;
                 case EVENT_UNSTABLE_MIX:
                     DoCastSelf(SPELL_UNSTABLE_MIX);
+                    me->ClearUnitState(UNIT_STATE_ROOT);
                     me->SetReactState(REACT_AGGRESSIVE);
                     events.ScheduleEvent(EVENT_MAGMA_JETS, 3s + 500ms, 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_ACID_NOVA, 8s + 400ms, 0, PHASE_TWO);
@@ -570,7 +571,7 @@ struct boss_maloriak : public BossAI
                 case EVENT_ENGULFING_DARKNESS:
                     if (me->GetReactState() == REACT_PASSIVE)
                     {
-                        me->ClearUnitState(UNIT_STATE_ROOT);
+                        me->AddUnitState(UNIT_STATE_ROOT);
                         me->SetReactState(REACT_AGGRESSIVE);
                     }
                     DoCastSelf(SPELL_ENGULFING_DARKNESS);
