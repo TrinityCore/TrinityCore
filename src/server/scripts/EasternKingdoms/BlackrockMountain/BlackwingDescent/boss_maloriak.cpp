@@ -570,7 +570,7 @@ struct boss_maloriak : public BossAI
                 case EVENT_ENGULFING_DARKNESS:
                     if (me->GetReactState() == REACT_PASSIVE)
                     {
-                        me->AddUnitState(UNIT_STATE_ROOT);
+                        me->ClearUnitState(UNIT_STATE_ROOT);
                         me->SetReactState(REACT_AGGRESSIVE);
                     }
                     DoCastSelf(SPELL_ENGULFING_DARKNESS);
