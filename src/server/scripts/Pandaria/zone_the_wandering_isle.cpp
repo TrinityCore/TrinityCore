@@ -52,52 +52,41 @@ public:
     }
 };
 
-class spell_summon_troublemaker : public SpellScriptLoader
+class spell_summon_troublemaker : public SpellScript
 {
-public:
-    spell_summon_troublemaker() : SpellScriptLoader("spell_summon_troublemaker") { }
+    PrepareSpellScript(spell_summon_troublemaker);
 
-    class spell_summon_troublemaker_SpellScript : public SpellScript
+    void HandleSummon(SpellEffIndex effIndex)
     {
-        PrepareSpellScript(spell_summon_troublemaker_SpellScript);
+        PreventHitDefaultEffect(effIndex);
+        uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
+        SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
+        int32 duration = GetSpellInfo()->GetDuration();
 
-        void HandleSummon(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-            uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
-            SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
-            int32 duration = GetSpellInfo()->GetDuration();
+        if (!entry || !properties || !duration)
+            return;
 
-            if (!entry || !properties || !duration)
-                return;
+        int32 radius;
+        if (urand(0, 2) == 0)
+            radius = urand(0, 6);
+        else
+            radius = 7;
+        float angle = M_PI * (urand(0, 7) / 7.f);
+        float x = 1181.75f + radius * sin(angle);
+        float y = 3444.5f + radius * cos(angle);
+        float z = 102.9385f;
 
-            int32 radius;
-            if (urand(0, 2) == 0)
-                radius = urand(0, 6);
-            else
-                radius = 7;
-            float angle = M_PI * (urand(0, 7) / 7.f);
-            float x = 1181.75f + radius * sin(angle);
-            float y = 3444.5f + radius * cos(angle);
-            float z = 102.9385f;
+        GetHitDest()->Relocate(x, y, z);
 
-            GetHitDest()->Relocate(x, y, z);
+        Position const spawnPosition = { x, y, z, 3.285759f };
 
-            Position const spawnPosition = { x, y, z, 3.285759f };
+        if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, spawnPosition, properties, duration, GetCaster()))
+            summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+    }
 
-            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, spawnPosition, properties, duration, GetCaster()))
-                summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_summon_troublemaker_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_summon_troublemaker_SpellScript();
+        OnEffectHit += SpellEffectFn(spell_summon_troublemaker::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
@@ -107,68 +96,46 @@ enum MeditationTimerSpells
     SPELL_CAVE_OF_SCROLLS_COMP_TIMER_AURA   = 128598
 };
 
-class spell_meditation_timer_bar : public SpellScriptLoader
+class spell_meditation_timer_bar : public AuraScript
 {
-public:
-    spell_meditation_timer_bar() : SpellScriptLoader("spell_meditation_timer_bar") { }
+    PrepareAuraScript(spell_meditation_timer_bar);
 
-    class spell_meditation_timer_bar_AuraScript : public AuraScript
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
-        PrepareAuraScript(spell_meditation_timer_bar_AuraScript);
-
-        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+        if (Unit* target = GetTarget())
         {
-            if (Unit* target = GetTarget())
-            {
-                target->ModifyPower(POWER_ALTERNATE_POWER, 1);
+            target->ModifyPower(POWER_ALTERNATE_POWER, 1);
 
-                if (target->GetPowerPct(POWER_ALTERNATE_POWER) == 100)
-                {
-                    target->CastSpell(GetTarget(), SPELL_CAVE_OF_SCROLLS_CREDIT, true);
-                    target->CastSpell(GetTarget(), SPELL_CAVE_OF_SCROLLS_COMP_TIMER_AURA, true);
-                    target->RemoveAura(GetId());
-                    target->ClearInCombat();
-                }
+            if (target->GetPowerPct(POWER_ALTERNATE_POWER) == 100)
+            {
+                target->CastSpell(GetTarget(), SPELL_CAVE_OF_SCROLLS_CREDIT, true);
+                target->CastSpell(GetTarget(), SPELL_CAVE_OF_SCROLLS_COMP_TIMER_AURA, true);
+                target->RemoveAura(GetId());
+                target->ClearInCombat();
             }
         }
+    }
 
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_meditation_timer_bar_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_meditation_timer_bar_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_meditation_timer_bar::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
-class spell_cave_of_scrolls_comp_timer_aura : public SpellScriptLoader
+class spell_cave_of_scrolls_comp_timer_aura : public AuraScript
 {
-public:
-    spell_cave_of_scrolls_comp_timer_aura() : SpellScriptLoader("spell_cave_of_scrolls_comp_timer_aura") { }
+    PrepareAuraScript(spell_cave_of_scrolls_comp_timer_aura);
 
-    class spell_cave_of_scrolls_comp_timer_aura_AuraScript : public AuraScript
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_cave_of_scrolls_comp_timer_aura_AuraScript);
+        if (Unit* target = GetTarget())
+            if (Creature* creature = target->FindNearestCreature(54567, 40.0f, true))
+                creature->AI()->Talk(1, target);
+    }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                if (Creature* creature = target->FindNearestCreature(54567, 40.0f, true))
-                    creature->AI()->Talk(1, target);
-        }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_cave_of_scrolls_comp_timer_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_cave_of_scrolls_comp_timer_aura_AuraScript();
+        OnEffectRemove += AuraEffectRemoveFn(spell_cave_of_scrolls_comp_timer_aura::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -187,48 +154,66 @@ public:
     }
 };
 
-class spell_summon_living_air : public SpellScriptLoader
+class spell_summon_living_air : public SpellScript
 {
-public:
-    spell_summon_living_air() : SpellScriptLoader("spell_summon_living_air") { }
+    PrepareSpellScript(spell_summon_living_air);
 
-    class spell_summon_living_air_SpellScript : public SpellScript
+    void HandleSummon(SpellEffIndex effIndex)
     {
-        PrepareSpellScript(spell_summon_living_air_SpellScript);
+        PreventHitDefaultEffect(effIndex);
+        uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
+        SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
+        int32 duration = GetSpellInfo()->GetDuration();
 
-        void HandleSummon(SpellEffIndex effIndex)
+        if (!entry || !properties || !duration)
+            return;
+
+        Position const spawnPosition[6] =
         {
-            PreventHitDefaultEffect(effIndex);
-            uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
-            SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
-            int32 duration = GetSpellInfo()->GetDuration();
-
-            if (!entry || !properties || !duration)
-                return;
-
-            Position const spawnPosition[6] =
-            {
-                { 1237.073f, 3697.739f, 93.62743f },
-                { 1230.608f, 3701.063f, 93.94895f },
-                { 1229.429f, 3732.776f, 92.22045f },
-                { 1223.438f, 3700.607f, 93.93437f },
-                { 1239.606f, 3732.907f, 94.10403f },
-                { 1224.92f, 3727.201f, 92.4472f }
-            };
+            { 1237.073f, 3697.739f, 93.62743f },
+            { 1230.608f, 3701.063f, 93.94895f },
+            { 1229.429f, 3732.776f, 92.22045f },
+            { 1223.438f, 3700.607f, 93.93437f },
+            { 1239.606f, 3732.907f, 94.10403f },
+            { 1224.92f, 3727.201f, 92.4472f }
+        };
             
-            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, spawnPosition[urand(0, 5)], properties, duration, GetCaster()))
-                summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
-        }
+        if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, spawnPosition[urand(0, 5)], properties, duration, GetCaster()))
+            summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
+    }
 
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_summon_living_air_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_summon_living_air_SpellScript();
+        OnEffectHit += SpellEffectFn(spell_summon_living_air::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+    }
+};
+
+enum LightChallengersTorchSpells
+{
+    SPELL_UPDATE_ZONE_AURAS     = 93425,
+    SPELL_SEE_FLICKERING_FLAME  = 108694
+};
+
+class spell_light_challengers_torch : public AuraScript
+{
+    PrepareAuraScript(spell_light_challengers_torch);
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit * target = GetTarget())
+            target->CastSpell(target, SPELL_UPDATE_ZONE_AURAS, true);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit * target = GetTarget())
+            target->RemoveAura(SPELL_SEE_FLICKERING_FLAME);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_light_challengers_torch::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_light_challengers_torch::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -265,45 +250,34 @@ enum FanTheFlamesNPCs
     NPC_HUO = 57779
 };
 
-class spell_fan_the_flames : public SpellScriptLoader
+class spell_fan_the_flames : public AuraScript
 {
-public:
-    spell_fan_the_flames() : SpellScriptLoader("spell_fan_the_flames") { }
+    PrepareAuraScript(spell_fan_the_flames);
 
-    class spell_fan_the_flames_AuraScript : public AuraScript
+    uint32 counter = 0;
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        PrepareAuraScript(spell_fan_the_flames_AuraScript);
+        Unit* caster = GetCaster();
 
-        uint32 counter = 0;
+        counter++;
 
-        void HandlePeriodic(AuraEffect const* /*aurEff*/)
+        if (Unit* target = GetTarget()->FindNearestCreature(NPC_HUO, GetSpellInfo()->GetMaxRange(), true))
         {
-            Unit* caster = GetCaster();
-
-            counter++;
-
-            if (Unit* target = GetTarget()->FindNearestCreature(NPC_HUO, GetSpellInfo()->GetMaxRange(), true))
-            {
-                if (counter == 1 || counter == 4 || counter == 6)
-                    caster->CastSpell(target, SPELL_THROW_WOOD, true);
-                if (counter == 8 || counter == 10 || counter == 13 || counter == 15)
-                    caster->CastSpell(target, SPELL_BLOW_AIR, true);
-                if (counter == 12 || counter == 14)
-                    caster->CastSpell(target, SPELL_BLOW_AIR_BIG, true);
-                if (counter == 16)
-                    caster->CastSpell(target, SPELL_BLOW_AIR_BIGGER, true);
-            }
+            if (counter == 1 || counter == 4 || counter == 6)
+                caster->CastSpell(target, SPELL_THROW_WOOD, true);
+            if (counter == 8 || counter == 10 || counter == 13 || counter == 15)
+                caster->CastSpell(target, SPELL_BLOW_AIR, true);
+            if (counter == 12 || counter == 14)
+                caster->CastSpell(target, SPELL_BLOW_AIR_BIG, true);
+            if (counter == 16)
+                caster->CastSpell(target, SPELL_BLOW_AIR_BIGGER, true);
         }
+    }
 
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_fan_the_flames_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_fan_the_flames_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_fan_the_flames::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -565,7 +539,7 @@ public:
                 _events.Reset();
                 me->RemoveAllAuras();
                 me->setFaction(35);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetUnitFlags(UnitFlags(UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_PC));
                 me->AttackStop();
                 attacker->AttackStop();
                 me->_ExitVehicle();
@@ -691,43 +665,32 @@ public:
     }
 };
 
-class spell_rock_jump_a : public SpellScriptLoader
+class spell_rock_jump_a : public SpellScript
 {
-public:
-    spell_rock_jump_a() : SpellScriptLoader("spell_rock_jump_a") { }
+    PrepareSpellScript(spell_rock_jump_a);
 
-    class spell_rock_jump_a_SpellScript : public SpellScript
+    void HandleJumpDest(SpellEffIndex effIndex)
     {
-        PrepareSpellScript(spell_rock_jump_a_SpellScript);
+        PreventHitDefaultEffect(effIndex);
 
-        void HandleJumpDest(SpellEffIndex effIndex)
+        if (Unit* caster = GetCaster())
         {
-            PreventHitDefaultEffect(effIndex);
-
-            if (Unit* caster = GetCaster())
+            if (caster->GetPositionZ() > 92.0f)
             {
-                if (caster->GetPositionZ() > 92.0f)
-                {
-                    Position const jumpPos = { 1077.019f, 2844.103f, 95.27103f };
-                    caster->GetMotionMaster()->MoveJump(jumpPos, GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
-                }
-                else
-                {
-                    if (GameObject* go = caster->FindNearestGameObject(209576, 8.0f))
-                        caster->GetMotionMaster()->MoveJump(go->GetPosition(), GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
-                }
+                Position const jumpPos = { 1077.019f, 2844.103f, 95.27103f };
+                caster->GetMotionMaster()->MoveJump(jumpPos, GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
+            }
+            else
+            {
+                if (GameObject* go = caster->FindNearestGameObject(209576, 8.0f))
+                    caster->GetMotionMaster()->MoveJump(go->GetPosition(), GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
             }
         }
+    }
 
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_rock_jump_a_SpellScript::HandleJumpDest, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_rock_jump_a_SpellScript();
+        OnEffectHit += SpellEffectFn(spell_rock_jump_a::HandleJumpDest, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
     }
 };
 
@@ -855,127 +818,105 @@ public:
     }
 };
 
-class spell_shu_jump_to_rock : public SpellScriptLoader
+class spell_shu_jump_to_rock : public SpellScript
 {
-public:
-    spell_shu_jump_to_rock() : SpellScriptLoader("spell_shu_jump_to_rock") { }
+    PrepareSpellScript(spell_shu_jump_to_rock);
 
-    class spell_shu_jump_to_rock_SpellScript : public SpellScript
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_shu_jump_to_rock_SpellScript);
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
+        if (Unit* caster = GetCaster())
         {
-            if (Unit* caster = GetCaster())
+            Position jumpPos;
+
+            switch (GetSpellInfo()->Id)
             {
-                Position jumpPos;
-
-                switch (GetSpellInfo()->Id)
-                {
-                    case SPELL_JUMP_FRONT_RIGHT:
-                        jumpPos = { 1111.13f, 2850.21f, 94.6873f };
-                        break;
-                    case SPELL_JUMP_FRONT_LEFT:
-                        jumpPos = { 1100.83f, 2881.36f, 94.0386f };
-                        break;
-                    case SPELL_JUMP_BACK_RIGHT:
-                        jumpPos = { 1127.26f, 2859.8f, 97.2817f };
-                        break;
-                    case SPELL_JUMP_BACK_LEFT:
-                        jumpPos = { 1120.16f, 2882.66f, 96.345f };
-                        break;
-                }
-
-                caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
+                case SPELL_JUMP_FRONT_RIGHT:
+                    jumpPos = { 1111.13f, 2850.21f, 94.6873f };
+                    break;
+                case SPELL_JUMP_FRONT_LEFT:
+                    jumpPos = { 1100.83f, 2881.36f, 94.0386f };
+                    break;
+                case SPELL_JUMP_BACK_RIGHT:
+                    jumpPos = { 1127.26f, 2859.8f, 97.2817f };
+                    break;
+                case SPELL_JUMP_BACK_LEFT:
+                    jumpPos = { 1120.16f, 2882.66f, 96.345f };
+                    break;
             }
-        }
 
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_shu_jump_to_rock_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            caster->GetMotionMaster()->MoveJump(jumpPos, 12, 15);
         }
-    };
+    }
 
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_shu_jump_to_rock_SpellScript();
+        OnEffectHit += SpellEffectFn(spell_shu_jump_to_rock::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
-class spell_summon_water_spout : public SpellScriptLoader
+class spell_summon_water_spout : public SpellScript
 {
-public:
-    spell_summon_water_spout() : SpellScriptLoader("spell_summon_water_spout") { }
+    PrepareSpellScript(spell_summon_water_spout);
 
-    class spell_summon_water_spout_SpellScript : public SpellScript
+    void HandleSummon(SpellEffIndex effIndex)
     {
-        PrepareSpellScript(spell_summon_water_spout_SpellScript);
+        PreventHitDefaultEffect(effIndex);
+        uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
+        SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
+        int32 duration = GetSpellInfo()->GetDuration();
 
-        void HandleSummon(SpellEffIndex effIndex)
+        if (!entry || !properties || !duration)
+            return;
+
+        Position const spawnPosition[4][7] =
         {
-            PreventHitDefaultEffect(effIndex);
-            uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
-            SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
-            int32 duration = GetSpellInfo()->GetDuration();
-
-            if (!entry || !properties || !duration)
-                return;
-
-            Position const spawnPosition[4][7] =
             {
-                {
-                    { 1117.516f, 2848.437f, 92.14017f },
-                    { 1105.92f, 2853.432f, 92.14017f },
-                    { 1105.231f, 2847.766f, 92.14017f },
-                    { 1114.819f, 2844.094f, 92.14017f },
-                    { 1110.618f, 2856.7f, 92.14017f },
-                    { 1109.559f, 2843.255f, 92.14017f },
-                    { 1116.04f, 2854.104f, 92.14017f }
-                },
-                {
-                    { 1106.743f, 2879.544f, 92.14017f },
-                    { 1105.793f, 2885.37f, 92.14017f },
-                    { 1098.16f, 2874.628f, 92.14017f },
-                    { 1104.28f, 2875.759f, 92.14017f },
-                    { 1095.38f, 2885.097f, 92.14017f },
-                    { 1100.078f, 2888.365f, 92.14017f },
-                    { 1094.693f, 2879.431f, 92.14017f }
-                },
-                {
-                    { 1132.911f, 2864.381f, 92.14017f },
-                    { 1125.672f, 2851.84f, 92.14017f },
-                    { 1121.057f, 2856.08f, 92.14017f },
-                    { 1134.373f, 2858.654f, 92.14017f },
-                    { 1126.556f, 2867.097f, 92.14017f },
-                    { 1120.064f, 2863.003f, 92.14017f },
-                    { 1131.856f, 2852.781f, 92.14017f }
-                },
-                {
-                    { 1118.22f, 2875.427f, 92.14017f },
-                    { 1113.274f, 2879.232f, 92.14017f },
-                    { 1125.439f, 2887.632f, 92.14017f },
-                    { 1118.766f, 2890.419f, 92.14017f },
-                    { 1113.783f, 2886.404f, 92.14017f },
-                    { 1123.7f, 2876.575f, 92.14017f },
-                    { 1126.358f, 2881.005f, 92.14017f }
-                }
-            };
+                { 1117.516f, 2848.437f, 92.14017f },
+                { 1105.92f, 2853.432f, 92.14017f },
+                { 1105.231f, 2847.766f, 92.14017f },
+                { 1114.819f, 2844.094f, 92.14017f },
+                { 1110.618f, 2856.7f, 92.14017f },
+                { 1109.559f, 2843.255f, 92.14017f },
+                { 1116.04f, 2854.104f, 92.14017f }
+            },
+            {
+                { 1106.743f, 2879.544f, 92.14017f },
+                { 1105.793f, 2885.37f, 92.14017f },
+                { 1098.16f, 2874.628f, 92.14017f },
+                { 1104.28f, 2875.759f, 92.14017f },
+                { 1095.38f, 2885.097f, 92.14017f },
+                { 1100.078f, 2888.365f, 92.14017f },
+                { 1094.693f, 2879.431f, 92.14017f }
+            },
+            {
+                { 1132.911f, 2864.381f, 92.14017f },
+                { 1125.672f, 2851.84f, 92.14017f },
+                { 1121.057f, 2856.08f, 92.14017f },
+                { 1134.373f, 2858.654f, 92.14017f },
+                { 1126.556f, 2867.097f, 92.14017f },
+                { 1120.064f, 2863.003f, 92.14017f },
+                { 1131.856f, 2852.781f, 92.14017f }
+            },
+            {
+                { 1118.22f, 2875.427f, 92.14017f },
+                { 1113.274f, 2879.232f, 92.14017f },
+                { 1125.439f, 2887.632f, 92.14017f },
+                { 1118.766f, 2890.419f, 92.14017f },
+                { 1113.783f, 2886.404f, 92.14017f },
+                { 1123.7f, 2876.575f, 92.14017f },
+                { 1126.358f, 2881.005f, 92.14017f }
+            }
+        };
 
-            uint32 stone = GetCaster()->ToCreature()->AI()->GetData(DATA_JUMP_POSITION);
+        uint32 stone = GetCaster()->ToCreature()->AI()->GetData(DATA_JUMP_POSITION);
             
-            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, spawnPosition[stone][urand(0, 6)], properties, duration, GetCaster()))
-                summon->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
-        }
+        if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, spawnPosition[stone][urand(0, 6)], properties, duration, GetCaster()))
+            summon->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
+    }
 
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_summon_water_spout_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_summon_water_spout_SpellScript();
+        OnEffectHit += SpellEffectFn(spell_summon_water_spout::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
@@ -985,92 +926,59 @@ enum WaterSpoutQuestCreditSpells
     SPELL_SUMMON_SPIRIT_OF_WATER    = 103538
 };
 
-class spell_water_spout_quest_credit : public SpellScriptLoader
+class spell_water_spout_quest_credit : public SpellScript
 {
-public:
-    spell_water_spout_quest_credit() : SpellScriptLoader("spell_water_spout_quest_credit") { }
+    PrepareSpellScript(spell_water_spout_quest_credit);
 
-    class spell_water_spout_quest_credit_SpellScript : public SpellScript
+    void HandleScript()
     {
-        PrepareSpellScript(spell_water_spout_quest_credit_SpellScript);
-
-        void HandleScript()
+        if (Player* target = GetHitPlayer())
         {
-            if (Player* target = GetHitPlayer())
+            if (target->GetQuestStatus(29679) == QUEST_STATUS_COMPLETE)
             {
-                if (target->GetQuestStatus(29679) == QUEST_STATUS_COMPLETE)
-                {
-                    target->AddAura(SPELL_AYSA_CONGRATS_TIMER, target);
-                    target->CastSpell(target, SPELL_SUMMON_SPIRIT_OF_WATER, true);
-                }
+                target->AddAura(SPELL_AYSA_CONGRATS_TIMER, target);
+                target->CastSpell(target, SPELL_SUMMON_SPIRIT_OF_WATER, true);
             }
         }
+    }
 
-        void Register() override
-        {
-            AfterHit += SpellHitFn(spell_water_spout_quest_credit_SpellScript::HandleScript);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_water_spout_quest_credit_SpellScript();
+        AfterHit += SpellHitFn(spell_water_spout_quest_credit::HandleScript);
     }
 };
 
-class spell_aysa_congrats_timer : public SpellScriptLoader
+class spell_aysa_congrats_timer : public AuraScript
 {
-public:
-    spell_aysa_congrats_timer() : SpellScriptLoader("spell_aysa_congrats_timer") { }
+    PrepareAuraScript(spell_aysa_congrats_timer);
 
-    class spell_aysa_congrats_timer_AuraScript : public AuraScript
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_aysa_congrats_timer_AuraScript);
+        if (Unit* target = GetTarget())
+            if (Creature* creature = target->FindNearestCreature(54975, target->GetVisibilityRange(), true))
+                creature->AI()->Talk(0, target);
+    }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                if (Creature* creature = target->FindNearestCreature(54975, target->GetVisibilityRange(), true))
-                    creature->AI()->Talk(0, target);
-        }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_aysa_congrats_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_aysa_congrats_timer_AuraScript();
+        OnEffectRemove += AuraEffectRemoveFn(spell_aysa_congrats_timer::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-class spell_aysa_congrats_trigger_aura : public SpellScriptLoader
+class spell_aysa_congrats_trigger_aura : public AuraScript
 {
-public:
-    spell_aysa_congrats_trigger_aura() : SpellScriptLoader("spell_aysa_congrats_trigger_aura") { }
+    PrepareAuraScript(spell_aysa_congrats_trigger_aura);
 
-    class spell_aysa_congrats_trigger_aura_AuraScript : public AuraScript
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_aysa_congrats_trigger_aura_AuraScript);
+        if (Unit* target = GetTarget())
+            if (Creature* creature = target->FindNearestCreature(54975, target->GetVisibilityRange(), true))
+                creature->AI()->Talk(1, target);
+    }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                if (Creature* creature = target->FindNearestCreature(54975, target->GetVisibilityRange(), true))
-                    creature->AI()->Talk(1, target);
-        }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_aysa_congrats_trigger_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_aysa_congrats_trigger_aura_AuraScript();
+        OnEffectRemove += AuraEffectRemoveFn(spell_aysa_congrats_trigger_aura::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1108,46 +1016,35 @@ enum MonkeyWisdomTexts
     TEXT_MONKEY_WISDOM_8    = 54080
 };
 
-class spell_monkey_wisdom_text : public SpellScriptLoader
+class spell_monkey_wisdom_text : public SpellScript
 {
-public:
-    spell_monkey_wisdom_text() : SpellScriptLoader("spell_monkey_wisdom_text") { }
+    PrepareSpellScript(spell_monkey_wisdom_text);
 
-    class spell_monkey_wisdom_text_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_monkey_wisdom_text_SpellScript);
+        if (!sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_2) ||
+            !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_3) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_4) ||
+            !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_5) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_6) ||
+            !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_7) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_8))
+            return false;
+        return true;
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_2) ||
-                !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_3) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_4) ||
-                !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_5) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_6) ||
-                !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_7) || !sBroadcastTextStore.LookupEntry(TEXT_MONKEY_WISDOM_8))
-                return false;
-            return true;
-        }
-
-        bool Load() override
-        {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            uint32 randomText = urand(0, 7);
-
-            GetCaster()->Talk(TEXT_MONKEY_WISDOM + randomText, CHAT_MSG_RAID_BOSS_WHISPER, 0.0f, GetHitPlayer());
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_monkey_wisdom_text_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    bool Load() override
     {
-        return new spell_monkey_wisdom_text_SpellScript();
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        uint32 randomText = urand(0, 7);
+
+        GetCaster()->Talk(TEXT_MONKEY_WISDOM + randomText, CHAT_MSG_RAID_BOSS_WHISPER, 0.0f, GetHitPlayer());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_monkey_wisdom_text::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1156,32 +1053,21 @@ enum RukRukOoksplosions
     SPELL_OOKSPLOSIONS_TRIGGERED    = 125885
 };
 
-class spell_ruk_ruk_ooksplosions : public SpellScriptLoader
+class spell_ruk_ruk_ooksplosions : public AuraScript
 {
-public:
-    spell_ruk_ruk_ooksplosions() : SpellScriptLoader("spell_ruk_ruk_ooksplosions") { }
+    PrepareAuraScript(spell_ruk_ruk_ooksplosions);
 
-    class spell_ruk_ruk_ooksplosions_AuraScript : public AuraScript
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
-        PrepareAuraScript(spell_ruk_ruk_ooksplosions_AuraScript);
+        Unit* caster = GetCaster();
+        float x, y, z;
+        caster->GetClosePoint(x, y, z, caster->GetObjectSize() / 2, frand(0, 3), frand(0, 2 * float(M_PI)));
+        caster->CastSpell(x, y, z, SPELL_OOKSPLOSIONS_TRIGGERED, true);
+    }
 
-        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-        {
-            Unit* caster = GetCaster();
-            float x, y, z;
-            caster->GetClosePoint(x, y, z, caster->GetObjectSize() / 2, frand(0, 3), frand(0, 2 * float(M_PI)));
-            caster->CastSpell(x, y, z, SPELL_OOKSPLOSIONS_TRIGGERED, true);
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_ruk_ruk_ooksplosions_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_ruk_ruk_ooksplosions_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ruk_ruk_ooksplosions::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1617,31 +1503,20 @@ enum SpellMasterShangFinalEscortNPCs
     NPC_MASTER_SHANG    = 55672
 };
 
-class spell_master_shang_final_escort_say : public SpellScriptLoader
+class spell_master_shang_final_escort_say : public AuraScript
 {
-public:
-    spell_master_shang_final_escort_say() : SpellScriptLoader("spell_master_shang_final_escort_say") { }
+    PrepareAuraScript(spell_master_shang_final_escort_say);
 
-    class spell_master_shang_final_escort_say_AuraScript : public AuraScript
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_master_shang_final_escort_say_AuraScript);
+        if (Unit* target = GetTarget())
+            if (Creature* creature = target->FindNearestCreature(NPC_MASTER_SHANG, target->GetVisibilityRange(), true))
+                creature->AI()->Talk(0, target);
+    }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                if (Creature* creature = target->FindNearestCreature(NPC_MASTER_SHANG, target->GetVisibilityRange(), true))
-                    creature->AI()->Talk(0, target);
-        }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_master_shang_final_escort_say_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_master_shang_final_escort_say_AuraScript();
+        OnEffectRemove += AuraEffectRemoveFn(spell_master_shang_final_escort_say::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1731,32 +1606,21 @@ public:
     }
 };
 
-class spell_injured_sailor_feign_death : public SpellScriptLoader
+class spell_injured_sailor_feign_death : public AuraScript
 {
-public:
-    spell_injured_sailor_feign_death() : SpellScriptLoader("spell_injured_sailor_feign_death") { }
+    PrepareAuraScript(spell_injured_sailor_feign_death);
 
-    class spell_injured_sailor_feign_death_AuraScript : public AuraScript
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_injured_sailor_feign_death_AuraScript);
+        Unit* target = GetTarget();
+        target->SetUnitFlags(UNIT_FLAG_UNK_29);
+        target->SetUnitFlags2(UNIT_FLAG2_FEIGN_DEATH);
+        target->SetHealth(target->CountPctFromMaxHealth(25));
+    }
 
-        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
-            target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
-            target->SetHealth(target->CountPctFromMaxHealth(25));
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_injured_sailor_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_injured_sailor_feign_death_AuraScript();
+        OnEffectApply += AuraEffectApplyFn(spell_injured_sailor_feign_death::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1767,47 +1631,36 @@ enum RescueInjuredSailor
     NPC_RESCUED_SAILOR              = 56236
 };
 
-class spell_rescue_injured_sailor : public SpellScriptLoader
+class spell_rescue_injured_sailor : public SpellScript
 {
-public:
-    spell_rescue_injured_sailor() : SpellScriptLoader("spell_rescue_injured_sailor") { }
+    PrepareSpellScript(spell_rescue_injured_sailor);
 
-    class spell_rescue_injured_sailor_SpellScript : public SpellScript
+    bool Load() override
     {
-        PrepareSpellScript(spell_rescue_injured_sailor_SpellScript);
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
 
-        bool Load() override
-        {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        void HandleDummy(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-            Player* player = GetCaster()->ToPlayer();
-
-            if (player->getGender() == GENDER_MALE)
-                player->CastSpell(player, SPELL_RESCUE_SAILOR_MALE_CAST, true);
-            else
-                player->CastSpell(player, SPELL_RESCUE_SAILOR_FEMALE_CAST, true);
-        }
-
-        void HandleSummon(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-            GetCaster()->GetMap()->SummonCreature(NPC_RESCUED_SAILOR, GetCaster()->GetPosition(), 0, 240000, GetCaster());
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_rescue_injured_sailor_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            OnEffectHit += SpellEffectFn(spell_rescue_injured_sailor_SpellScript::HandleSummon, EFFECT_1, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleDummy(SpellEffIndex effIndex)
     {
-        return new spell_rescue_injured_sailor_SpellScript();
+        PreventHitDefaultEffect(effIndex);
+        Player* player = GetCaster()->ToPlayer();
+
+        if (player->getGender() == GENDER_MALE)
+            player->CastSpell(player, SPELL_RESCUE_SAILOR_MALE_CAST, true);
+        else
+            player->CastSpell(player, SPELL_RESCUE_SAILOR_FEMALE_CAST, true);
+    }
+
+    void HandleSummon(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        GetCaster()->GetMap()->SummonCreature(NPC_RESCUED_SAILOR, GetCaster()->GetPosition(), 0, 240000, GetCaster());
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_rescue_injured_sailor::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_rescue_injured_sailor::HandleSummon, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1998,31 +1851,20 @@ public:
     }
 };
 
-class spell_tempered_fury : public SpellScriptLoader
+class spell_tempered_fury : public SpellScript
 {
-public:
-    spell_tempered_fury() : SpellScriptLoader("spell_tempered_fury") { }
+    PrepareSpellScript(spell_tempered_fury);
 
-    class spell_tempered_fury_SpellScript : public SpellScript
+    void HandleJumpDest(SpellEffIndex effIndex)
     {
-        PrepareSpellScript(spell_tempered_fury_SpellScript);
+        PreventHitDefaultEffect(effIndex);
+        Position const jumpPos = GetHitDest()->GetPosition();
+        GetCaster()->GetMotionMaster()->MoveJump(jumpPos, 20, 0);
+    }
 
-        void HandleJumpDest(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-            Position const jumpPos = GetHitDest()->GetPosition();
-            GetCaster()->GetMotionMaster()->MoveJump(jumpPos, 20, 0);
-        }
-
-        void Register() override
-        {
-            OnEffectLaunch += SpellEffectFn(spell_tempered_fury_SpellScript::HandleJumpDest, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_tempered_fury_SpellScript();
+        OnEffectLaunch += SpellEffectFn(spell_tempered_fury::HandleJumpDest, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
     }
 };
 
@@ -2199,57 +2041,46 @@ public:
     }
 };
 
-class spell_summon_deep_sea_aggressor : public SpellScriptLoader
+class spell_summon_deep_sea_aggressor : public SpellScript
 {
-public:
-    spell_summon_deep_sea_aggressor() : SpellScriptLoader("spell_summon_deep_sea_aggressor") { }
+    PrepareSpellScript(spell_summon_deep_sea_aggressor);
 
-    class spell_summon_deep_sea_aggressor_SpellScript : public SpellScript
+    void HandleSummon(SpellEffIndex effIndex)
     {
-        PrepareSpellScript(spell_summon_deep_sea_aggressor_SpellScript);
+        PreventHitDefaultEffect(effIndex);
+        uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
+        SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
+        int32 duration = GetSpellInfo()->GetDuration();
 
-        void HandleSummon(SpellEffIndex effIndex)
+        if (!entry || !properties || !duration)
+            return;
+
+        Position const spawnPosition[15] =
         {
-            PreventHitDefaultEffect(effIndex);
-            uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
-            SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
-            int32 duration = GetSpellInfo()->GetDuration();
+            { 313.9983f, 3973.418f, 86.55342f },
+            { 249.4063f, 3972.389f, 75.72471f },
+            { 316.1406f, 3979.06f, 85.13287f },
+            { 252.6632f, 4008.125f, 78.23856f },
+            { 266.5712f, 4014.581f, 79.36336f },
+            { 269.8854f, 4017.54f, 79.76926f },
+            { 271.9392f, 4018.929f, 79.99733f },
+            { 309.474f, 3964.438f, 87.50405f },
+            { 247.1337f, 3968.642f, 75.44573f },
+            { 292.3837f, 3925.203f, 87.69834f },
+            { 254.1892f, 3982.678f, 71.8816f },
+            { 276.5608f, 4034.241f, 75.90926f },
+            { 287.4236f, 3935.447f, 85.55875f },
+            { 256.0226f, 3963.012f, 74.87388f },
+            { 301.6267f, 3923.195f, 87.80573f }
+        };
 
-            if (!entry || !properties || !duration)
-                return;
+        if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, spawnPosition[urand(0, 14)], properties, duration, GetCaster()))
+            summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+    }
 
-            Position const spawnPosition[15] =
-            {
-                { 313.9983f, 3973.418f, 86.55342f },
-                { 249.4063f, 3972.389f, 75.72471f },
-                { 316.1406f, 3979.06f, 85.13287f },
-                { 252.6632f, 4008.125f, 78.23856f },
-                { 266.5712f, 4014.581f, 79.36336f },
-                { 269.8854f, 4017.54f, 79.76926f },
-                { 271.9392f, 4018.929f, 79.99733f },
-                { 309.474f, 3964.438f, 87.50405f },
-                { 247.1337f, 3968.642f, 75.44573f },
-                { 292.3837f, 3925.203f, 87.69834f },
-                { 254.1892f, 3982.678f, 71.8816f },
-                { 276.5608f, 4034.241f, 75.90926f },
-                { 287.4236f, 3935.447f, 85.55875f },
-                { 256.0226f, 3963.012f, 74.87388f },
-                { 301.6267f, 3923.195f, 87.80573f }
-            };
-
-            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, spawnPosition[urand(0, 14)], properties, duration, GetCaster()))
-                summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_summon_deep_sea_aggressor_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_summon_deep_sea_aggressor_SpellScript();
+        OnEffectHit += SpellEffectFn(spell_summon_deep_sea_aggressor::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
@@ -2342,39 +2173,28 @@ enum HealingShenzinSuSpells
     SPELL_HEALING_SHENZIN_SU_CREDIT = 108898
 };
 
-class spell_healing_shenzin_su : public SpellScriptLoader
+class spell_healing_shenzin_su : public AuraScript
 {
-public:
-    spell_healing_shenzin_su() : SpellScriptLoader("spell_healing_shenzin_su") { }
+    PrepareAuraScript(spell_healing_shenzin_su);
 
-    class spell_healing_shenzin_su_AuraScript : public AuraScript
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
-        PrepareAuraScript(spell_healing_shenzin_su_AuraScript);
-
-        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+        if (Unit* target = GetTarget())
         {
-            if (Unit* target = GetTarget())
-            {
-                // somehow get worldstate value, so the alternate power bar can fill based on active healers
-                target->ModifyPower(POWER_ALTERNATE_POWER, 700);
+            // somehow get worldstate value, so the alternate power bar can fill based on active healers
+            target->ModifyPower(POWER_ALTERNATE_POWER, 700);
 
-                if (target->GetPowerPct(POWER_ALTERNATE_POWER) == 100)
-                {
-                    target->CastSpell(GetTarget(), SPELL_HEALING_SHENZIN_SU_CREDIT, true);
-                    target->RemoveAura(GetId());
-                }
+            if (target->GetPowerPct(POWER_ALTERNATE_POWER) == 100)
+            {
+                target->CastSpell(GetTarget(), SPELL_HEALING_SHENZIN_SU_CREDIT, true);
+                target->RemoveAura(GetId());
             }
         }
+    }
 
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_healing_shenzin_su_AuraScript::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_healing_shenzin_su_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_healing_shenzin_su::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -2383,31 +2203,20 @@ enum TurtleHealedPhaseTimerSpells
     SPELL_TURTLE_HEALED_PHASE_UPDATE    = 118232
 };
 
-class spell_turtle_healed_phase_timer : public SpellScriptLoader
+class spell_turtle_healed_phase_timer : public AuraScript
 {
-public:
-    spell_turtle_healed_phase_timer() : SpellScriptLoader("spell_turtle_healed_phase_timer") { }
+    PrepareAuraScript(spell_turtle_healed_phase_timer);
 
-    class spell_turtle_healed_phase_timer_AuraScript : public AuraScript
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_turtle_healed_phase_timer_AuraScript);
+        if (Unit* target = GetTarget())
+            if (target->IsPlayer())
+                target->CastSpell(GetTarget(), SPELL_TURTLE_HEALED_PHASE_UPDATE, true);
+    }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                if (target->IsPlayer())
-                    target->CastSpell(GetTarget(), SPELL_TURTLE_HEALED_PHASE_UPDATE, true);
-        }
-
-        void Register() override
-        {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_turtle_healed_phase_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_turtle_healed_phase_timer_AuraScript();
+        AfterEffectRemove += AuraEffectRemoveFn(spell_turtle_healed_phase_timer::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2417,95 +2226,62 @@ enum AllyHordeArgumentNPCs
     NPC_DELORA_LIONHEART    = 60889
 };
 
-class spell_ally_horde_argument : public SpellScriptLoader
+class spell_ally_horde_argument : public AuraScript
 {
-public:
-    spell_ally_horde_argument() : SpellScriptLoader("spell_ally_horde_argument") { }
+    PrepareAuraScript(spell_ally_horde_argument);
 
-    class spell_ally_horde_argument_AuraScript : public AuraScript
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_ally_horde_argument_AuraScript);
+        if (Unit* target = GetTarget())
+            if (Creature* creature = target->FindNearestCreature(NPC_KORGA_STRONGMANE, 40.0f, true))
+                creature->AI()->Talk(0, target);
+    }
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                if (Creature* creature = target->FindNearestCreature(NPC_KORGA_STRONGMANE, 40.0f, true))
-                    creature->AI()->Talk(0, target);
-        }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                if (Creature* creature = target->FindNearestCreature(NPC_DELORA_LIONHEART, 40.0f, true))
-                    creature->AI()->Talk(0, target);
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_ally_horde_argument_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_ally_horde_argument_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        return new spell_ally_horde_argument_AuraScript();
+        if (Unit* target = GetTarget())
+            if (Creature* creature = target->FindNearestCreature(NPC_DELORA_LIONHEART, 40.0f, true))
+                creature->AI()->Talk(0, target);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_ally_horde_argument::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_ally_horde_argument::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-class spell_pandaren_faction_choice : public SpellScriptLoader
+class spell_pandaren_faction_choice : public SpellScript
 {
-public:
-    spell_pandaren_faction_choice() : SpellScriptLoader("spell_pandaren_faction_choice") { }
+    PrepareSpellScript(spell_pandaren_faction_choice);
 
-    class spell_pandaren_faction_choice_SpellScript : public SpellScript
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_pandaren_faction_choice_SpellScript);
+        if (Unit* caster = GetCaster())
+            if (caster->IsPlayer())
+                caster->ToPlayer()->ShowNeutralPlayerFactionSelectUI();
+    }
 
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* caster = GetCaster())
-                if (caster->IsPlayer())
-                    caster->ToPlayer()->ShowNeutralPlayerFactionSelectUI();
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_pandaren_faction_choice_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_pandaren_faction_choice_SpellScript();
+        OnEffectHit += SpellEffectFn(spell_pandaren_faction_choice::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
-class spell_faction_choice_trigger : public SpellScriptLoader
+class spell_faction_choice_trigger : public AuraScript
 {
-public:
-    spell_faction_choice_trigger() : SpellScriptLoader("spell_faction_choice_trigger") { }
+    PrepareAuraScript(spell_faction_choice_trigger);
 
-    class spell_faction_choice_trigger_AuraScript : public AuraScript
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_faction_choice_trigger_AuraScript);
+        if (Unit* target = GetTarget())
+            if (target->IsPlayer())
+                target->CastSpell(target, GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints, true);
+    }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                if (target->IsPlayer())
-                    target->CastSpell(target, GetSpellInfo()->GetEffect(EFFECT_0)->BasePoints, true);
-        }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_faction_choice_trigger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_faction_choice_trigger_AuraScript();
+        OnEffectRemove += AuraEffectRemoveFn(spell_faction_choice_trigger::OnRemove, EFFECT_0, SPELL_AURA_SCREEN_EFFECT, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2514,77 +2290,67 @@ enum BalloonExitTimerSpells
     SPELL_BALOON_EXIT_MOVIE = 132212
 };
 
-class spell_balloon_exit_timer : public SpellScriptLoader
+class spell_balloon_exit_timer : public AuraScript
 {
-public:
-    spell_balloon_exit_timer() : SpellScriptLoader("spell_balloon_exit_timer") { }
+    PrepareAuraScript(spell_balloon_exit_timer);
 
-    class spell_balloon_exit_timer_AuraScript : public AuraScript
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        PrepareAuraScript(spell_balloon_exit_timer_AuraScript);
+        if (Unit* target = GetTarget())
+            if (target->IsPlayer())
+                target->CastSpell(target, SPELL_BALOON_EXIT_MOVIE, true);
+    }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                if (target->IsPlayer())
-                    target->CastSpell(target, SPELL_BALOON_EXIT_MOVIE, true);
-        }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_balloon_exit_timer_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_balloon_exit_timer_AuraScript();
+        OnEffectRemove += AuraEffectRemoveFn(spell_balloon_exit_timer::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 void AddSC_the_wandering_isle()
 {
     new at_cave_of_meditation();
-    new spell_summon_troublemaker();
-    new spell_meditation_timer_bar();
-    new spell_cave_of_scrolls_comp_timer_aura();
+    RegisterSpellScript(spell_summon_troublemaker);
+    RegisterAuraScript(spell_meditation_timer_bar);
+    RegisterAuraScript(spell_cave_of_scrolls_comp_timer_aura);
     new q_the_way_of_the_tushui();
-    new spell_summon_living_air();
+    RegisterSpellScript(spell_summon_living_air);
+    RegisterAuraScript(spell_light_challengers_torch);
     new q_only_the_worthy_shall_pass();
-    new spell_fan_the_flames();
+    RegisterAuraScript(spell_fan_the_flames);
     new q_passion_of_shenzin_su();
     new at_singing_pools_transform();
     new npc_balance_pole();
     new npc_tushui_monk_on_pole();
     new at_singing_pools_training_bell();
-    new spell_rock_jump_a();
+    RegisterSpellScript(spell_rock_jump_a);
     new npc_shu_playing();
-    new spell_shu_jump_to_rock();
-    new spell_summon_water_spout();
-    new spell_water_spout_quest_credit();
-    new spell_aysa_congrats_timer();
-    new spell_aysa_congrats_trigger_aura();
+    RegisterSpellScript(spell_shu_jump_to_rock);
+    RegisterSpellScript(spell_summon_water_spout);
+    RegisterSpellScript(spell_water_spout_quest_credit);
+    RegisterAuraScript(spell_aysa_congrats_timer);
+    RegisterAuraScript(spell_aysa_congrats_trigger_aura);
     new at_temple_of_five_dawns_summon_zhaoren();
-    new spell_monkey_wisdom_text();
-    new spell_ruk_ruk_ooksplosions();
+    RegisterSpellScript(spell_monkey_wisdom_text);
+    RegisterAuraScript(spell_ruk_ruk_ooksplosions);
     new npc_ruk_ruk();
     new npc_ruk_ruk_rocket();
     new npc_zhaoren();
-    new spell_master_shang_final_escort_say();
+    RegisterAuraScript(spell_master_shang_final_escort_say);
     new npc_shen_zin_shu_bunny();
-    new spell_injured_sailor_feign_death();
-    new spell_rescue_injured_sailor();
+    RegisterAuraScript(spell_injured_sailor_feign_death);
+    RegisterSpellScript(spell_rescue_injured_sailor);
     new at_wreck_of_the_skyseeker_injured_sailor();
     new npc_aysa_vordraka_fight();
-    new spell_tempered_fury();
+    RegisterSpellScript(spell_tempered_fury);
     new npc_vordraka();
-    new spell_summon_deep_sea_aggressor();
+    RegisterSpellScript(spell_summon_deep_sea_aggressor);
     new areatrigger_healing_sphere();
     new npc_healers_active_bunny();
-    new spell_healing_shenzin_su();
-    new spell_turtle_healed_phase_timer();
-    new spell_ally_horde_argument();
-    new spell_pandaren_faction_choice();
-    new spell_faction_choice_trigger();
-    new spell_balloon_exit_timer();
+    RegisterAuraScript(spell_healing_shenzin_su);
+    RegisterAuraScript(spell_turtle_healed_phase_timer);
+    RegisterAuraScript(spell_ally_horde_argument);
+    RegisterSpellScript(spell_pandaren_faction_choice);
+    RegisterAuraScript(spell_faction_choice_trigger);
+    RegisterAuraScript(spell_balloon_exit_timer);
 }
