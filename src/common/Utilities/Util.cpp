@@ -102,7 +102,7 @@ time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
     time_t midnightLocal = mktime(&timeLocal);
     time_t hourLocal = midnightLocal + hour * HOUR;
 
-    if (onlyAfterTime && hourLocal < time)
+    if (onlyAfterTime && hourLocal <= time)
         hourLocal += DAY;
 
     return hourLocal;
