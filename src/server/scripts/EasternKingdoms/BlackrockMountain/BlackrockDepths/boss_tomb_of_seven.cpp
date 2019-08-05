@@ -120,7 +120,7 @@ enum DoomrelText
     GOSSIP_SELECT_DOOMREL                                  = 1828,
     GOSSIP_MENU_ID_CONTINUE                                = 1,
 
-    GOSSIP_ITEM_CHALENGE                                   = 1947,
+    GOSSIP_MENU_CHALLENGE                                  = 1947,
     GOSSIP_MENU_ID_CHALLENGE                               = 0
 };
 enum DoomrelEvents
@@ -256,7 +256,7 @@ class boss_doomrel : public CreatureScript
 
             bool GossipHello(Player* player) override
             {
-                AddGossipItemFor(player, GOSSIP_ITEM_CHALENGE, GOSSIP_MENU_ID_CHALLENGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_MENU_CHALLENGE, GOSSIP_MENU_ID_CHALLENGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, 2601, me->GetGUID());
 
                 return true;
