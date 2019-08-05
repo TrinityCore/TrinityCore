@@ -844,6 +844,7 @@ struct npc_maloriak_vile_swill : public ScriptedAI
     void JustAppeared() override
     {
         DoZoneInCombat();
+        me->ApplySpellImmune(0, IMMUNITY_ID, sSpellMgr->GetSpellIdForDifficulty(SPELL_GROWTH_CATALYST, me), true);
         _events.ScheduleEvent(EVENT_DARK_SLUDGE, 6s);
     }
 
