@@ -65,7 +65,8 @@ enum BWDDataTypes
 
     /*Maloriak*/
     DATA_CAULDRON_TRIGGER,
-    DATA_CAULDRON
+    DATA_CAULDRON,
+    DATA_LORD_VICTOR_NEFARIUS_MALORIAK
 };
 
 enum BWDCreatureIds
@@ -123,6 +124,9 @@ enum BWDCreatureIds
     NPC_ABERRATION                      = 41440,
     NPC_PRIME_SUBJECT                   = 41841,
     NPC_FLASH_FREEZE                    = 41576,
+    NPC_ABSOLUTE_ZERO                   = 41961,
+    NPC_LORD_VICTOR_NEFARIUS_MALORIAK   = 49799,
+    NPC_VILE_SWILL                      = 49811,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST            = 43125,

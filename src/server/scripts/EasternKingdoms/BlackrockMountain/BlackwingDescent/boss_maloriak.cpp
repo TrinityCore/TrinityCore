@@ -18,6 +18,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "CommonPredicates.h"
+#include "DBCStores.h"
 #include "GridNotifiers.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
@@ -44,12 +45,20 @@ enum Spells
     SPELL_THROW_RED_BOTTLE_TRIGGERED    = 77928,
     SPELL_THROW_BLUE_BOTTLE_TRIGGERED   = 77934,
     SPELL_THROW_GREEN_BOTTLE_TRIGGERED  = 77938,
-    SPELL_THROW_BLACK_BOTTLE_TRIGGERED  = 92837,
     SPELL_RELEASE_ABERRATIONS           = 77569,
     SPELL_RELEASE_ALL_MINIONS           = 77991,
     SPELL_SCORCHING_BLAST               = 77679,
     SPELL_BITING_CHILL                  = 77760,
     SPELL_FLASH_FREEZE_TARGETING        = 97693,
+    SPELL_DRINK_ALL_BOTTLES             = 95662,
+    SPELL_UNSTABLE_MIX                  = 95663,
+    SPELL_MAGMA_JETS_SCRIPT_EFFECT      = 93022,
+    SPELL_MAGMA_JETS_SUMMON             = 78194,
+    SPELL_ACID_NOVA                     = 78225,
+    SPELL_ABSOLUTE_ZERO                 = 78223,
+    SPELL_ENGULFING_DARKNESS            = 92754,
+    SPELL_VILE_SWILL                    = 92720,
+    SPELL_VILE_SWILL_SUMMON             = 92724,
 
     // Cauldron Trigger
     SPELL_DEBILITATING_SLIME_CAST       = 77602,
@@ -63,6 +72,23 @@ enum Spells
     // Experiments
     SPELL_DROWNED_STATE                 = 77564,
     SPELL_GROWTH_CATALYST               = 77987,
+
+    // Magma Jet
+    SPELL_MAGMA_JETS_SUMMON_FIRE        = 78094,
+    SPELL_MAGMA_JETS_ERUPTION           = 78095,
+
+    // Absolute Zero
+    SPELL_ABSOLUTE_ZERO_TRANSFORM       = 78201,
+    SPELL_ABSOLUTE_ZERO_EXPLOSION       = 78208,
+
+    // Lord Victor Nefarius
+    SPELL_TELEPORT_VISUAL_ONLY          = 41232,
+    SPELL_THROW_BLACK_BOTTLE            = 92831,
+    SPELL_THROW_BLACK_BOTTLE_TRIGGERED  = 92837,
+    SPELL_MASTER_ADVENTURER_AWARD       = 89798,
+
+    // Vile Swill
+    SPELL_DARK_SLUDGE                   = 92929,
 
     // Player
     SPELL_FLASH_FREEZE_SUMMON           = 77711,
@@ -91,24 +117,61 @@ enum Events
     EVENT_SCORCHING_BLAST,
     EVENT_BITING_CHILL,
     EVENT_FLASH_FREEZE,
+    EVENT_ENTER_PHASE_TWO,
+    EVENT_DRINK_ALL_BOTTLES,
+    EVENT_UNSTABLE_MIX,
+    EVENT_MAGMA_JETS,
+    EVENT_ACID_NOVA,
+    EVENT_ABSOLUTE_ZERO,
+    EVENT_MOVE_AWAY_FROM_CAULDRON,
+    EVENT_ENGULFING_DARKNESS,
+    EVENT_VILE_SWILL,
 
     // Experiments
     EVENT_LEAP_OUT_OF_CHAMBER,
+
+    // Lord Victor Nefarius
+    EVENT_MOCK_MALORIAK,
+    EVENT_THROW_BLACK_BOTTLE,
+    EVENT_LAND,
+    EVENT_SAY_MALORIAK_DEAD,
+    EVENT_MASTER_ADVENTURER_AWARD,
+    EVENT_TELEPORT_AWAY,
+
+    // Vile Swill
+    EVENT_DARK_SLUDGE
+};
+
+enum Phases
+{
+    PHASE_ONE = 1,
+    PHASE_TWO = 2
 };
 
 enum Actions
 {
+    // Maloriak
     ACTION_SCHEDULE_EVENTS_FOR_PHASE    = 1,
-    ACTION_RELEASE_EXPERIMENT           = 1
+
+    // Experiments
+    ACTION_RELEASE_EXPERIMENT           = 1,
+
+    // Lord Victor Nefarius
+    ACTION_THROW_BLACK_BOTTLE           = 1,
+    ACTION_MALORIAK_DEAD                = 2
 };
 
 enum MovePoints
 {
     // Maloriak
+    POINT_NONE      = 0,
     POINT_CAULDRON  = 1,
 
     // Experiments
-    POINT_GROUND    = 1
+    POINT_GROUND    = 1,
+
+    // Lord Victor Nefarius
+    POINT_LAND      = 1
 };
 
 enum Texts
@@ -122,13 +185,23 @@ enum Texts
     SAY_GREEN_VIAL          = 5,
     SAY_ANNOUNCE_GREEN_VIAL = 6,
     SAY_RELEASE_ABERRATIONS = 7,
+    SAY_RELEASE_ALL_MINIONS = 8,
+    SAY_SLAY                = 9,
+    SAY_DEATH               = 10,
+
+    // Lord Victor Nefarius
+    SAY_MOCK_MALORIAK       = 0,
+    SAY_THROW_BLACK_BOTTLE  = 1,
+    SAY_ANNOUNCE_BLACK_VIAL = 2,
+    SAY_MALORIAK_DEAD       = 3
 };
 
 enum Vials
 {
     VIAL_RED    = 0,
     VIAL_BLUE   = 1,
-    VIAL_GREEN  = 2
+    VIAL_GREEN  = 2,
+    VIAL_BLACK  = 3
 };
 
 enum GameObjectCustomAnim
@@ -139,7 +212,9 @@ enum GameObjectCustomAnim
     CUSTOM_ANIM_BLACK_CAULDRON  = 3
 };
 
-Position const CauldronMovePosition = { -106.6782f, -475.4438f, 73.45684f };
+Position const CauldronMovePosition             = { -106.6782f, -475.4438f, 73.45684f };
+Position const LordVictorNefariusSummonPosition = { -105.9514f, -494.0278f, 89.33157f, 1.605703f };
+Position const LordVictorNefariusLandPosition   = { -105.9514f, -494.0278f, 73.44659f };
 
 struct VialData
 {
@@ -152,21 +227,24 @@ struct VialData
 
 enum Misc
 {
-    SUMMON_GROUP_EXPERIMENTS    = 0,
-    SPAWN_GROUP_GROWTH_CHAMBERS = 401
+    SUMMON_GROUP_EXPERIMENTS            = 0,
+    SPAWN_GROUP_GROWTH_CHAMBERS         = 401,
+    AI_ANIM_KIT_ID_LORD_VICTOR_NEFARIUS = 1173,
+    TITLE_ADVENTURER_AWARD              = 188
 };
 
 std::unordered_map<uint8, VialData> vialData =
 {
-    { VIAL_RED,    { SAY_RED_VIAL,   SAY_ANNOUNCE_RED_VIAL,      SPELL_THROW_RED_BOTTLE,     SPELL_DRINK_RED_BOTTLE,    SPELL_FIRE_IMBUED   }},
-    { VIAL_BLUE,   { SAY_BLUE_VIAL,  SAY_ANNOUNCE_BLUE_VIAL,     SPELL_THROW_BLUE_BOTTLE,    SPELL_DRINK_BLUE_BOTTLE,   SPELL_FROST_IMBUED  }},
-    { VIAL_GREEN,  { SAY_GREEN_VIAL, SAY_ANNOUNCE_GREEN_VIAL,    SPELL_THROW_GREEN_BOTTLE,   0,                         SPELL_SLIME_IMBUED  }},
+    { VIAL_RED,    { SAY_RED_VIAL,      SAY_ANNOUNCE_RED_VIAL,      SPELL_THROW_RED_BOTTLE,     SPELL_DRINK_RED_BOTTLE,    SPELL_FIRE_IMBUED   }},
+    { VIAL_BLUE,   { SAY_BLUE_VIAL,     SAY_ANNOUNCE_BLUE_VIAL,     SPELL_THROW_BLUE_BOTTLE,    SPELL_DRINK_BLUE_BOTTLE,   SPELL_FROST_IMBUED  }},
+    { VIAL_GREEN,  { SAY_GREEN_VIAL,    SAY_ANNOUNCE_GREEN_VIAL,    SPELL_THROW_GREEN_BOTTLE,   0,                         SPELL_SLIME_IMBUED  }},
+    { VIAL_BLACK,  { 0,                 0,                          0,                          SPELL_DRINK_BLACK_BOTTLE,  SPELL_SHADOW_IMBUED  }},
 };
 
 struct boss_maloriak : public BossAI
 {
     boss_maloriak(Creature* creature) : BossAI(creature, DATA_MALORIAK),
-        _currentVial(urand(VIAL_RED, VIAL_BLUE)), _usedVialsCount(0), _releasedAberrationsCount(0) { }
+        _currentVial(0), _usedVialsCount(0), _vialsPerCycle(IsHeroic() ? 3 : 2), _releasedAberrationsCount(0) { }
 
     void Reset() override
     {
@@ -185,23 +263,56 @@ struct boss_maloriak : public BossAI
         _JustEngagedWith();
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-        events.ScheduleEvent(EVENT_FACE_TO_CAULDRON, 15s + 500ms);
+        events.SetPhase(PHASE_ONE);
+        events.ScheduleEvent(EVENT_FACE_TO_CAULDRON, 15s + 500ms, 0, PHASE_ONE);
+
+        if (IsHeroic())
+            DoSummon(NPC_LORD_VICTOR_NEFARIUS_MALORIAK, LordVictorNefariusSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        if (Creature* nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_MALORIAK))
+            nefarius->DespawnOrUnsummon();
         CleanupEncounter();
         _DespawnAtEvade();
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        // Talk(SAY_DEATH);
+        Talk(SAY_DEATH);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         CleanupEncounter();
         _JustDied();
+
+        if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_MALORIAK))
+            if (nefarius->IsAIEnabled)
+                nefarius->AI()->DoAction(ACTION_MALORIAK_DEAD);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY, victim);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        switch (summon->GetEntry())
+        {
+            case NPC_LORD_VICTOR_NEFARIUS_MALORIAK:
+                break;
+            case NPC_ABSOLUTE_ZERO:
+                summon->GetMotionMaster()->MoveRandom(10.0f);
+                summon->CastSpell(summon, SPELL_ABSOLUTE_ZERO_TRANSFORM);
+                summons.Summon(summon);
+                break;
+            default:
+                summons.Summon(summon);
+                break;
+        }
     }
 
     void OnSpellCastInterrupt(SpellInfo const* spell) override
@@ -253,39 +364,54 @@ struct boss_maloriak : public BossAI
         switch (action)
         {
             case ACTION_SCHEDULE_EVENTS_FOR_PHASE:
-                events.ScheduleEvent(EVENT_ATTACK_PLAYERS, _currentVial != VIAL_GREEN ? 1ms : 4s);
+                if (_currentVial != VIAL_BLACK)
+                    events.ScheduleEvent(EVENT_ATTACK_PLAYERS, _currentVial != VIAL_GREEN ? 1ms : 4s);
+                events.ScheduleEvent(EVENT_FACE_TO_CAULDRON, _currentVial == VIAL_BLACK ? 1min + 30s : 40s, 0, PHASE_ONE);
 
-                if (_currentVial == VIAL_RED || _currentVial == VIAL_BLUE)
+                switch (_currentVial)
                 {
-                    events.ScheduleEvent(EVENT_ARCANE_STORM, 14s + 500ms);
-                    events.ScheduleEvent(EVENT_REMEDY, 21s + 500ms);
-                    events.ScheduleEvent(EVENT_RELEASE_ABERRATIONS, 11s);
-                }
-                else if (_currentVial == VIAL_GREEN)
-                {
-                    if (Creature* cauldron = instance->GetCreature(DATA_CAULDRON_TRIGGER))
-                        cauldron->CastSpell(cauldron, SPELL_DEBILITATING_SLIME_DEBUFF);
+                    case VIAL_RED:
+                        events.ScheduleEvent(EVENT_ARCANE_STORM, 15s + 500ms, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_REMEDY, 20s + 500ms, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_RELEASE_ABERRATIONS, 11s, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_CONSUMING_FLAMES, 7s, 8s, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_SCORCHING_BLAST, 19s, 22s, 0, PHASE_ONE);
+                        break;
+                    case VIAL_BLUE:
+                        events.ScheduleEvent(EVENT_ARCANE_STORM, 6s, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_REMEDY, 21s + 500ms, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_RELEASE_ABERRATIONS, 14s + 500ms, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_BITING_CHILL, 13s, 14s, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_FLASH_FREEZE, 17s, 0, PHASE_ONE);
+                        break;
+                    case VIAL_GREEN:
+                        if (Creature* cauldron = instance->GetCreature(DATA_CAULDRON_TRIGGER))
+                            cauldron->CastSpell(cauldron, SPELL_DEBILITATING_SLIME_DEBUFF);
 
-                    events.ScheduleEvent(EVENT_ARCANE_STORM, 8s);
-                    events.ScheduleEvent(EVENT_REMEDY, 33s + 500ms);
-                    events.ScheduleEvent(EVENT_RELEASE_ABERRATIONS, 15s);
+                        events.ScheduleEvent(EVENT_ARCANE_STORM, 5s, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_REMEDY, 7s + 500ms, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_RELEASE_ABERRATIONS, 9s, 0, PHASE_ONE);
+                        break;
+                    case VIAL_BLACK:
+                        me->GetMotionMaster()->MovePoint(POINT_NONE, me->GetHomePosition());
+                        events.ScheduleEvent(EVENT_VILE_SWILL, 2s, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_ENGULFING_DARKNESS, 8s, 0, PHASE_ONE);
+                        break;
+                    default:
+                        break;
                 }
-
-                if (_currentVial == VIAL_RED)
-                {
-                    events.ScheduleEvent(EVENT_CONSUMING_FLAMES, 7s + 500ms);
-                    events.ScheduleEvent(EVENT_SCORCHING_BLAST, 22s);
-                }
-                else if (_currentVial == VIAL_BLUE)
-                {
-                    events.ScheduleEvent(EVENT_BITING_CHILL, 13s + 500ms);
-                    events.ScheduleEvent(EVENT_FLASH_FREEZE, 22s);
-                }
-
-                events.ScheduleEvent(EVENT_FACE_TO_CAULDRON, 40s);
                 break;
             default:
                 break;
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(25, damage) && !events.IsInPhase(PHASE_TWO))
+        {
+            events.SetPhase(PHASE_TWO);
+            events.ScheduleEvent(EVENT_ENTER_PHASE_TWO, 1ms, 0, PHASE_TWO);
         }
     }
 
@@ -309,18 +435,19 @@ struct boss_maloriak : public BossAI
                     DoCastSelf(SPELL_ARCANE_STORM);
                     Creature* maloriak = me;
                     me->m_Events.AddEventAtOffset([maloriak]() { maloriak->MakeInterruptable(false); }, 6s + 500ms);
-                    events.Repeat(13s + 500ms);
+                    events.Repeat(15s + 500ms, 17s);
                     break;
                 }
                 case EVENT_REMEDY:
                     DoCastSelf(SPELL_REMEDY);
+                    events.Repeat(24s);
                     break;
                 case EVENT_RELEASE_ABERRATIONS:
                     if (_releasedAberrationsCount < 6)
                     {
                         me->MakeInterruptable(true);
                         DoCastAOE(SPELL_RELEASE_ABERRATIONS);
-                        events.Repeat(24s + 500ms);
+                        events.Repeat(17s, 18s);
                         _releasedAberrationsCount++;
                     }
                     break;
@@ -330,17 +457,37 @@ struct boss_maloriak : public BossAI
                     {
                         me->AttackStop();
                         me->SetReactState(REACT_PASSIVE);
+                        me->ClearUnitState(UNIT_STATE_ROOT);
                         me->SetFacingToObject(cauldron);
 
-                        _currentVial = _usedVialsCount < 2 ? _currentVial == VIAL_BLUE ? VIAL_RED : VIAL_BLUE : VIAL_GREEN;
-                        Talk(vialData[_currentVial].SayTextId);
-                        _usedVialsCount = _usedVialsCount < 2 ? _usedVialsCount + 1 : 0;
-                        events.ScheduleEvent(EVENT_THROW_VIAL, 1s + 300ms);
+                        if (!_usedVialsCount && IsHeroic())
+                            _currentVial = VIAL_BLACK;
+                        else
+                        {
+                            if ((_currentVial == VIAL_BLACK || _currentVial == VIAL_GREEN) && _usedVialsCount < _vialsPerCycle)
+                                _currentVial = urand(VIAL_RED, VIAL_BLUE);
+                            else if (_usedVialsCount == _vialsPerCycle)
+                                _currentVial = VIAL_GREEN;
+                            else
+                                _currentVial = _currentVial == VIAL_BLUE ? VIAL_RED : VIAL_BLUE;
+                        }
+
+                        if (_currentVial != VIAL_BLACK)
+                            Talk(vialData[_currentVial].SayTextId);
+                        else if (Creature * nefarius = instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_MALORIAK))
+                            if (nefarius->IsAIEnabled)
+                                nefarius->AI()->DoAction(ACTION_THROW_BLACK_BOTTLE);
+
+                        _usedVialsCount = _usedVialsCount < _vialsPerCycle ? _usedVialsCount + 1 : 0;
+                        events.ScheduleEvent(EVENT_THROW_VIAL, 1s + 300ms, 0, PHASE_ONE);
                     }
                     break;
                 case EVENT_THROW_VIAL:
-                    DoCastSelf(vialData[_currentVial].ThrowSpellId);
-                    Talk(vialData[_currentVial].AnnounceTextId);
+                    if (_currentVial != VIAL_BLACK)
+                    {
+                        DoCastSelf(vialData[_currentVial].ThrowSpellId);
+                        Talk(vialData[_currentVial].AnnounceTextId);
+                    }
                     events.ScheduleEvent(EVENT_MOVE_TO_CAULDRON, 1s);
                     break;
                 case EVENT_MOVE_TO_CAULDRON:
@@ -370,7 +517,7 @@ struct boss_maloriak : public BossAI
                 case EVENT_CONSUMING_FLAMES:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
                         DoCast(target, SPELL_CONSUMING_FLAMES);
-                    events.Repeat(17s);
+                    events.Repeat(14s + 500ms);
                     break;
                 case EVENT_SCORCHING_BLAST:
                     DoCastSelf(SPELL_SCORCHING_BLAST);
@@ -383,7 +530,54 @@ struct boss_maloriak : public BossAI
                     break;
                 case EVENT_FLASH_FREEZE:
                     DoCastAOE(SPELL_FLASH_FREEZE_TARGETING);
-                    events.Repeat(17s);
+                    events.Repeat(19s);
+                    break;
+                case EVENT_ENTER_PHASE_TWO:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    Talk(SAY_RELEASE_ALL_MINIONS);
+                    DoCastSelf(SPELL_RELEASE_ALL_MINIONS);
+                    events.ScheduleEvent(EVENT_DRINK_ALL_BOTTLES, 5s, 0, PHASE_TWO);
+                    break;
+                case EVENT_DRINK_ALL_BOTTLES:
+                    for (uint8 i = 0; i < VIAL_BLACK; i++)
+                        me->RemoveAurasDueToSpell(vialData[i].ImbuedSpellId);
+
+                    DoCastSelf(SPELL_DRINK_ALL_BOTTLES);
+                    events.ScheduleEvent(EVENT_UNSTABLE_MIX, 2s + 300ms, 0, PHASE_TWO);
+                    break;
+                case EVENT_UNSTABLE_MIX:
+                    DoCastSelf(SPELL_UNSTABLE_MIX);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_MAGMA_JETS, 3s + 500ms, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_ACID_NOVA, 8s + 400ms, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_ABSOLUTE_ZERO, 8s + 400ms, 0, PHASE_TWO);
+                    break;
+                case EVENT_MAGMA_JETS:
+                    //DoCastAOE(SPELL_MAGMA_JETS_SCRIPT_EFFECT); // seems like an old changed mechanic spell. No purpose atm.
+                    DoCastSelf(SPELL_MAGMA_JETS_SUMMON);
+                    events.Repeat(6s);
+                    break;
+                case EVENT_ACID_NOVA:
+                    DoCastAOE(SPELL_ACID_NOVA);
+                    events.Repeat(20s);
+                    break;
+                case EVENT_ABSOLUTE_ZERO:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                        DoCast(target, SPELL_ABSOLUTE_ZERO);
+                    events.Repeat(7s);
+                    break;
+                case EVENT_ENGULFING_DARKNESS:
+                    if (me->GetReactState() == REACT_PASSIVE)
+                    {
+                        me->AddUnitState(UNIT_STATE_ROOT);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                    }
+                    DoCastSelf(SPELL_ENGULFING_DARKNESS);
+                    events.Repeat(12s + 500ms);
+                    break;
+                case EVENT_VILE_SWILL:
+                    DoCastSelf(SPELL_VILE_SWILL);
                     break;
                 default:
                     break;
@@ -395,6 +589,7 @@ struct boss_maloriak : public BossAI
 private:
     uint8 _currentVial;
     uint8 _usedVialsCount;
+    uint8 _vialsPerCycle;
     uint8 _releasedAberrationsCount;
 
     void CleanupEncounter()
@@ -413,6 +608,7 @@ struct npc_maloriak_flash_freeze : public NullCreatureAI
 
     void JustAppeared() override
     {
+        me->ApplySpellImmune(0, IMMUNITY_ID, sSpellMgr->GetSpellIdForDifficulty(SPELL_GROWTH_CATALYST, me), true);
         DoCastSelf(SPELL_FLASH_FREEZE_VISUAL);
         Creature* creature = me;
         me->m_Events.AddEventAtOffset([creature]() { creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); }, 1s);
@@ -533,6 +729,145 @@ struct npc_maloriak_experiment : public ScriptedAI
                     me->GetMotionMaster()->MoveJump(pos, 21.0f, 15.0f, POINT_GROUND);
                     break;
                 }
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+};
+
+struct npc_maloriak_magma_jet : public NullCreatureAI
+{
+    npc_maloriak_magma_jet(Creature* creature) : NullCreatureAI(creature) { }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summon->CastSpell(summon, SPELL_MAGMA_JETS_ERUPTION);
+        summon->DespawnOrUnsummon(30s);
+    }
+};
+
+struct npc_maloriak_lord_victor_nefarius : public NullCreatureAI
+{
+    npc_maloriak_lord_victor_nefarius(Creature* creature) : NullCreatureAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->SetHover(true);
+        DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
+        _events.ScheduleEvent(EVENT_MOCK_MALORIAK, 7s + 200ms);
+    }
+
+    void MovementInform(uint32 motionType, uint32 pointId) override
+    {
+        if (motionType != POINT_MOTION_TYPE && motionType != EFFECT_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_LAND:
+                me->SetDisableGravity(false);
+                me->SetHover(false);
+                _events.ScheduleEvent(EVENT_SAY_MALORIAK_DEAD, 2s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_THROW_BLACK_BOTTLE:
+                Talk(SAY_THROW_BLACK_BOTTLE);
+                _events.ScheduleEvent(EVENT_THROW_BLACK_BOTTLE, 2s + 400ms);
+                break;
+            case ACTION_MALORIAK_DEAD:
+                me->SetAIAnimKitId(AI_ANIM_KIT_ID_LORD_VICTOR_NEFARIUS);
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_LAND, 3s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MOCK_MALORIAK:
+                    Talk(SAY_MOCK_MALORIAK);
+                    break;
+                case EVENT_THROW_BLACK_BOTTLE:
+                    Talk(SAY_ANNOUNCE_BLACK_VIAL);
+                    DoCastAOE(SPELL_THROW_BLACK_BOTTLE, true);
+                    break;
+                case EVENT_LAND:
+                    me->GetMotionMaster()->MoveLand(POINT_LAND, LordVictorNefariusLandPosition);
+                    break;
+                case EVENT_SAY_MALORIAK_DEAD:
+                    Talk(SAY_MALORIAK_DEAD);
+                    _events.ScheduleEvent(EVENT_MASTER_ADVENTURER_AWARD, 7s);
+                    break;
+                case EVENT_MASTER_ADVENTURER_AWARD:
+                    DoCastAOE(SPELL_MASTER_ADVENTURER_AWARD);
+                    _events.ScheduleEvent(EVENT_TELEPORT_AWAY, 2s + 500ms);
+                    break;
+                case EVENT_TELEPORT_AWAY:
+                    DoCastSelf(SPELL_TELEPORT_VISUAL_ONLY);
+                    me->DespawnOrUnsummon(1s + 200ms);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_maloriak_vile_swill : public ScriptedAI
+{
+    npc_maloriak_vile_swill(Creature* creature) : ScriptedAI(creature) {  }
+
+    void JustAppeared() override
+    {
+        DoZoneInCombat();
+        _events.ScheduleEvent(EVENT_DARK_SLUDGE, 6s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->DespawnOrUnsummon(5s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_DARK_SLUDGE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, true))
+                        DoCast(target, SPELL_DARK_SLUDGE);
+                    _events.Repeat(6s);
+                    break;
                 default:
                     break;
             }
@@ -763,15 +1098,174 @@ class spell_maloriak_release_experiments : public SpellScript
     }
 };
 
+class spell_maloriak_magma_jets_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_maloriak_magma_jets_periodic);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGMA_JETS_SUMMON_FIRE });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+
+        uint8 ticks = aurEff->GetTickNumber();
+        float dist = 3.0f * ticks;
+        float x = target->GetPositionX() + cos(target->GetOrientation()) * dist;
+        float y = target->GetPositionY() + sin(target->GetOrientation()) * dist;
+        float z = target->GetMapHeight(x, y, target->GetPositionZ() + 5.0f);
+        if (target->IsWithinLOS(x, y, z))
+            target->CastSpell(x, y, z, SPELL_MAGMA_JETS_SUMMON_FIRE, true);
+        else
+            Remove();
+    }
+
+    void Register()
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_maloriak_magma_jets_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+class spell_maloriak_absolute_zero : public SpellScript
+{
+    PrepareSpellScript(spell_maloriak_absolute_zero);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ABSOLUTE_ZERO_EXPLOSION });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Unit* caster = GetCaster();
+        caster->RemoveAllAuras();
+        caster->CastSpell(caster, SPELL_ABSOLUTE_ZERO_EXPLOSION);
+        if (Creature * creature = caster->ToCreature())
+            creature->DespawnOrUnsummon(3s);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_maloriak_absolute_zero::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+class spell_maloriak_vile_swill: public AuraScript
+{
+    PrepareAuraScript(spell_maloriak_vile_swill);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VILE_SWILL_SUMMON });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+        Position const destination = target->GetRandomPoint(target->GetPosition(), 11.0f);
+        target->CastSpell(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ(), SPELL_VILE_SWILL_SUMMON, true);
+    }
+
+    void Register()
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_maloriak_vile_swill::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+class spell_maloriak_vile_swill_summon: public AuraScript
+{
+    PrepareAuraScript(spell_maloriak_vile_swill_summon);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        int32 summonSpellId = GetSpellInfo()->Effects[EFFECT_0].TriggerSpell;
+        Creature* target = GetTarget()->ToCreature();
+        if (!target)
+            return;
+
+        target->m_Events.AddEventAtOffset([target, summonSpellId]()
+        {
+            target->CastSpell(target, summonSpellId, true);
+            target->SetObjectScale(0.1f);
+            target->m_Events.AddEventAtOffset([target]()
+            {
+                target->RemoveAllAuras();
+                target->DespawnOrUnsummon(4s + 300ms);
+            }, 1s + 200ms);
+        }, 2s);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_maloriak_vile_swill_summon::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_maloriak_master_adventurer_award : public AuraScript
+{
+    PrepareAuraScript(spell_maloriak_master_adventurer_award);
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        if (!player)
+            return;
+
+        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(TITLE_ADVENTURER_AWARD);
+        if (!titleInfo)
+            return;
+
+        player->SetTitle(titleInfo);
+        player->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        if (!player)
+            return;
+
+        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(TITLE_ADVENTURER_AWARD);
+        if (!titleInfo)
+            return;
+
+        player->SetTitle(titleInfo, false);
+
+        if (!player->HasTitle(player->GetInt32Value(PLAYER_CHOSEN_TITLE)))
+            player->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_maloriak_master_adventurer_award::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_maloriak_master_adventurer_award::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_boss_maloriak()
 {
     RegisterBlackwingDescentCreatureAI(boss_maloriak);
     RegisterBlackwingDescentCreatureAI(npc_maloriak_flash_freeze);
     RegisterBlackwingDescentCreatureAI(npc_maloriak_experiment);
+    RegisterBlackwingDescentCreatureAI(npc_maloriak_magma_jet);
+    RegisterBlackwingDescentCreatureAI(npc_maloriak_lord_victor_nefarius);
+    RegisterBlackwingDescentCreatureAI(npc_maloriak_vile_swill);
     RegisterSpellScript(spell_maloriak_throw_bottle);
     RegisterSpellScript(spell_maloriak_throw_bottle_triggered);
     RegisterAuraScript(spell_maloriak_consuming_flames);
     RegisterSpellScript(spell_maloriak_flash_freeze_targeting);
     RegisterSpellScript(spell_maloriak_flash_freeze_dummy);
     RegisterSpellScript(spell_maloriak_release_experiments);
+    RegisterAuraScript(spell_maloriak_magma_jets_periodic);
+    RegisterSpellScript(spell_maloriak_absolute_zero);
+    RegisterAuraScript(spell_maloriak_vile_swill);
+    RegisterAuraScript(spell_maloriak_vile_swill_summon);
+    RegisterAuraScript(spell_maloriak_master_adventurer_award);
 }

@@ -5431,7 +5431,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx8 |= SPELL_ATTR8_CANT_MISS;
     });
 
-    // END OF BLACKWING DESCENT SPELLS
+    // Debilitating Slime
+    ApplySpellFix({ 77615 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+    });
+
+    // ENDOF BLACKWING DESCENT SPELLS
 
     // Living Bomb
     ApplySpellFix({ 44457 }, [](SpellInfo* spellInfo)

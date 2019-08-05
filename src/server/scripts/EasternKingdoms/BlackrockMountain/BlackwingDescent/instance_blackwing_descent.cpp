@@ -41,6 +41,7 @@ ObjectData const creatureData[] =
     { NPC_FINKLE_EINHORN,                   DATA_FINKLE_EINHORN                 },
     { NPC_LORD_VICTOR_NEFARIUS_CHIMAERON,   DATA_LORD_VICTOR_NEFARIUS_CHIMAERON },
     { NPC_CAULDRON_TRIGGER,                 DATA_CAULDRON_TRIGGER               },
+    { NPC_LORD_VICTOR_NEFARIUS_MALORIAK,    DATA_LORD_VICTOR_NEFARIUS_MALORIAK  },
     { 0,                                    0                                   } // END
 };
 
@@ -164,6 +165,7 @@ class instance_blackwing_descent : public InstanceMapScript
                             atramedes->AI()->JustSummoned(creature);
                         break;
                     case NPC_FLASH_FREEZE:
+                    case NPC_VILE_SWILL:
                         if (Creature * maloriak = GetCreature(DATA_MALORIAK))
                             maloriak->AI()->JustSummoned(creature);
                         break;
