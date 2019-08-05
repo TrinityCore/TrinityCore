@@ -1237,7 +1237,7 @@ class spell_maloriak_master_adventurer_award : public AuraScript
         if (!titleInfo)
             return;
 
-        player->SetTitle(titleInfo, false);
+        player->SetTitle(titleInfo, true);
 
         if (!player->HasTitle(player->GetInt32Value(PLAYER_CHOSEN_TITLE)))
             player->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
