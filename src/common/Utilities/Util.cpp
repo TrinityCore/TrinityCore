@@ -209,6 +209,15 @@ std::string TimeToTimestampStr(time_t t)
     return std::string(buf);
 }
 
+std::string TimeToHumanReadable(time_t t)
+{
+    tm time;
+    localtime_r(&t, &time);
+    char buf[30];
+    strftime(buf, 30, "%c", &time);
+    return std::string(buf);
+}
+
 /// Check if the string is a valid ip address representation
 bool IsIPAddress(char const* ipaddress)
 {

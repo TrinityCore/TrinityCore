@@ -629,6 +629,24 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     return true;
 }
 
+void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
+{
+    if (newPhaseMask == GetPhaseMask())
+        return;
+
+    Unit::SetPhaseMask(newPhaseMask, false);
+
+    if (Vehicle* vehicle = GetVehicleKit())
+    {
+        for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); seat++)
+            if (Unit* passenger = ObjectAccessor::GetUnit(*this, seat->second.Passenger.Guid))
+                passenger->SetPhaseMask(newPhaseMask, update);
+    }
+
+    if (update)
+        UpdateObjectVisibility();
+}
+
 void Creature::Update(uint32 diff)
 {
     if (IsAIEnabled() && m_triggerJustAppeared && m_deathState != DEAD)
@@ -739,7 +757,7 @@ void Creature::Update(uint32 diff)
                 if (_spellFocusInfo.delay <= diff)
                     ReacquireSpellFocusTarget();
                 else
-                    _spellFocusInfo.delay -= 0;
+                    _spellFocusInfo.delay -= diff;
             }
 
             // periodic check to see if the creature has passed an evade boundary
@@ -1701,24 +1719,12 @@ void Creature::LoadTemplateRoot()
 
 bool Creature::hasQuest(uint32 quest_id) const
 {
-    QuestRelationBounds qr = sObjectMgr->GetCreatureQuestRelationBounds(GetEntry());
-    for (QuestRelations::const_iterator itr = qr.first; itr != qr.second; ++itr)
-    {
-        if (itr->second == quest_id)
-            return true;
-    }
-    return false;
+    return sObjectMgr->GetCreatureQuestRelations(GetEntry()).HasQuest(quest_id);
 }
 
 bool Creature::hasInvolvedQuest(uint32 quest_id) const
 {
-    QuestRelationBounds qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(GetEntry());
-    for (QuestRelations::const_iterator itr = qir.first; itr != qir.second; ++itr)
-    {
-        if (itr->second == quest_id)
-            return true;
-    }
-    return false;
+    return sObjectMgr->GetCreatureQuestInvolvedRelations(GetEntry()).HasQuest(quest_id);
 }
 
 /*static*/ bool Creature::DeleteFromDB(ObjectGuid::LowType spawnId)
