@@ -478,6 +478,7 @@ public:
         if (matches.empty())
         {
             handler->SendSysMessage(LANG_COMMAND_NO_INSTANCES_MATCH);
+            handler->SetSentErrorMessage(true);
             return false;
         }
         auto it = matches.rbegin();
@@ -512,28 +513,33 @@ public:
             player->SaveRecallPosition();
 
         // try going to entrance
-        AreaTriggerStruct const* exit = sObjectMgr->GetGoBackTrigger(mapid);
-        if (!exit)
-            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_EXIT, mapid, scriptname.c_str());
-
-        if (exit && player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
+        if (AreaTriggerStruct const* exit = sObjectMgr->GetGoBackTrigger(mapid))
         {
-            handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_GATE, mapid, scriptname.c_str());
-            return true;
+            if (player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
+            {
+                handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_GATE, mapid, scriptname);
+                return true;
+            }
+            else
+                handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_GATE_FAILED, mapid, scriptname, exit->target_mapId);
         }
+        else
+            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_EXIT, mapid, scriptname);
 
         // try going to start
-        AreaTriggerStruct const* entrance = sObjectMgr->GetMapEntranceTrigger(mapid);
-        if (!entrance)
-            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_ENTRANCE, mapid, scriptname.c_str());
-
-        if (entrance && player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
+        if (AreaTriggerStruct const* entrance = sObjectMgr->GetMapEntranceTrigger(mapid))
         {
-            handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_START, mapid, scriptname.c_str());
-            return true;
+            if (player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
+            {
+                handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_START, mapid, scriptname);
+                return true;
+            }
+            else
+                handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_START_FAILED, mapid, scriptname);
         }
+        else
+            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_ENTRANCE, mapid, scriptname);
 
-        handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_FAILED, mapid, scriptname.c_str(), exit ? exit->target_mapId : uint32(-1));
         handler->SetSentErrorMessage(true);
         return false;
     }
