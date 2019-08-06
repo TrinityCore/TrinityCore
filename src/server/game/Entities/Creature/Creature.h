@@ -342,7 +342,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid guid) override;
         void ReacquireSpellFocusTarget();
-        void DoNotReacquireSpellFocusTarget() { _spellFocusInfo.delay = 0; }
+        void DoNotReacquireSpellFocusTarget() { _spellFocusInfo.Delay = 0; }
         void SetSpellFocus(Spell const* focusSpell, WorldObject const* target);
         bool HasSpellFocus(Spell const* focusSpell = nullptr) const override;
         void ReleaseSpellFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
@@ -434,10 +434,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         /* Spell focus system */
         struct
         {
-            Spell const* spell = nullptr;
-            uint32 delay = 0;         // ms until the creature's target should snap back (0 = no snapback scheduled)
-            ObjectGuid target;        // the creature's "real" target while casting
-            float orientation = 0.0f; // the creature's "real" orientation while casting
+            ::Spell const* Spell = nullptr;
+            uint32 Delay = 0;         // ms until the creature's target should snap back (0 = no snapback scheduled)
+            ObjectGuid Target;        // the creature's "real" target while casting
+            float Orientation = 0.0f; // the creature's "real" orientation while casting
         } _spellFocusInfo;
 
         time_t _lastDamagedTime; // Part of Evade mechanics
