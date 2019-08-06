@@ -920,8 +920,9 @@ enum TrinityStrings
     LANG_COMMAND_INSTANCE_NO_EXIT         = 1194,
     LANG_COMMAND_WENT_TO_INSTANCE_GATE    = 1195,
     LANG_COMMAND_WENT_TO_INSTANCE_START   = 1196,
-    LANG_COMMAND_GO_INSTANCE_FAILED       = 1197,
-    // Room for more level 3                1197-1199 not used
+    LANG_COMMAND_GO_INSTANCE_GATE_FAILED  = 1197,
+    LANG_COMMAND_GO_INSTANCE_START_FAILED = 1198,
+    // Room for more level 3                1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST              = 1200,
