@@ -21,27 +21,25 @@
 #include <limits>
 #include <openssl/rand.h>
 
-using namespace Trinity::Crypto;
-
-AES::AES(bool encrypting) : _encrypting(encrypting), _ctx(EVP_CIPHER_CTX_new())
+Trinity::Crypto::AES::AES(bool encrypting) : _encrypting(encrypting), _ctx(EVP_CIPHER_CTX_new())
 {
     EVP_CIPHER_CTX_init(_ctx);
     int status = EVP_CipherInit_ex(_ctx, EVP_aes_128_gcm(), nullptr, nullptr, nullptr, _encrypting ? 1 : 0);
     ASSERT(status);
 }
 
-AES::~AES()
+Trinity::Crypto::AES::~AES()
 {
     EVP_CIPHER_CTX_free(_ctx);
 }
 
-void AES::Init(AES::Key const& key)
+void Trinity::Crypto::AES::Init(Trinity::Crypto::AES::Key const& key)
 {
     int status = EVP_CipherInit_ex(_ctx, nullptr, nullptr, key.data(), nullptr, -1);
     ASSERT(status);
 }
 
-bool AES::Process(AES::IV const& iv, uint8* data, std::size_t length, AES::Tag& tag)
+bool Trinity::Crypto::AES::Process(Trinity::Crypto::AES::IV const& iv, uint8* data, std::size_t length, Trinity::Crypto::AES::Tag& tag)
 {
     ASSERT(length <= std::numeric_limits<int>::max());
     int len = static_cast<int>(length);
