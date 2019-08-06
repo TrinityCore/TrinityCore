@@ -1,5 +1,5 @@
 -- 
-DELETE FROM `rbac_permissions` WHERE `id` BETWEEN 378 AND 380;
+DELETE FROM `rbac_permissions` WHERE `id` BETWEEN 378 AND 381;
 INSERT INTO `rbac_permissions` (`id`,`name`) VALUES
 (378, 'Command: account 2fa'),
 (379, 'Command: account 2fa setup'),
