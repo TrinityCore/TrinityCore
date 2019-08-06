@@ -524,21 +524,49 @@ void SelectedAzeriteEssences::WriteCreate(ByteBuffer& data, EnumClassFlag<Update
     {
         data << uint32(AzeriteEssenceID[i]);
     }
-    data << uint32(Field_0);
+    data << uint32(SpecializationID);
     data.WriteBits(Enabled, 1);
     data.FlushBits();
 }
 
 void SelectedAzeriteEssences::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
 {
+    UpdateMask<7> const& changesMask = _changesMask;
+    data.WriteBits(changesMask.GetBlocksMask(0), 1);
+    if (changesMask.GetBlock(0))
+        data.WriteBits(changesMask.GetBlock(0), 32);
+
     data.FlushBits();
-    data << uint32(Field_0);
-    data.WriteBits(Enabled, 1);
-    for (std::size_t i = 0; i < 3; ++i)
+    if (changesMask[0])
     {
-        data << uint32(AzeriteEssenceID[i]);
+        if (changesMask[1])
+        {
+            data << uint32(SpecializationID);
+        }
+        if (changesMask[2])
+        {
+            data.WriteBits(Enabled, 1);
+        }
+    }
+    if (changesMask[3])
+    {
+        for (std::size_t i = 0; i < 3; ++i)
+        {
+            if (changesMask[4 + i])
+            {
+                data << uint32(AzeriteEssenceID[i]);
+            }
+        }
     }
     data.FlushBits();
+}
+
+void SelectedAzeriteEssences::ClearChangesMask()
+{
+    Base::ClearChangesMask(SpecializationID);
+    Base::ClearChangesMask(Enabled);
+    Base::ClearChangesMask(AzeriteEssenceID);
+    _changesMask.ResetAll();
 }
 
 void AzeriteItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
@@ -593,11 +621,11 @@ void AzeriteItemData::WriteUpdate(ByteBuffer& data, UpdateMask<9> const& changes
         }
         if (changesMask[2])
         {
-            UnlockedEssenceMilestones.WriteUpdateMask(data);
+            SelectedEssences.WriteUpdateMask(data);
         }
         if (changesMask[3])
         {
-            SelectedEssences.WriteUpdateMask(data);
+            UnlockedEssenceMilestones.WriteUpdateMask(data);
         }
     }
     data.FlushBits();
@@ -613,7 +641,7 @@ void AzeriteItemData::WriteUpdate(ByteBuffer& data, UpdateMask<9> const& changes
                 }
             }
         }
-        if (changesMask[2])
+        if (changesMask[3])
         {
             for (std::size_t i = 0; i < UnlockedEssenceMilestones.size(); ++i)
             {
@@ -623,7 +651,7 @@ void AzeriteItemData::WriteUpdate(ByteBuffer& data, UpdateMask<9> const& changes
                 }
             }
         }
-        if (changesMask[3])
+        if (changesMask[2])
         {
             for (std::size_t i = 0; i < SelectedEssences.size(); ++i)
             {
@@ -2634,15 +2662,15 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFl
         }
         if (changesMask[17])
         {
-            SpellPctModByLabel.WriteUpdateMask(data);
+            CharacterRestrictions.WriteUpdateMask(data);
         }
         if (changesMask[18])
         {
-            SpellFlatModByLabel.WriteUpdateMask(data);
+            SpellPctModByLabel.WriteUpdateMask(data);
         }
         if (changesMask[19])
         {
-            CharacterRestrictions.WriteUpdateMask(data);
+            SpellFlatModByLabel.WriteUpdateMask(data);
         }
     }
     if (changesMask[20])
@@ -2794,7 +2822,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFl
                 }
             }
         }
-        if (changesMask[17])
+        if (changesMask[18])
         {
             for (std::size_t i = 0; i < SpellPctModByLabel.size(); ++i)
             {
@@ -2804,7 +2832,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFl
                 }
             }
         }
-        if (changesMask[18])
+        if (changesMask[19])
         {
             for (std::size_t i = 0; i < SpellFlatModByLabel.size(); ++i)
             {
@@ -2814,7 +2842,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFl
                 }
             }
         }
-        if (changesMask[19])
+        if (changesMask[17])
         {
             for (std::size_t i = 0; i < CharacterRestrictions.size(); ++i)
             {
@@ -3798,15 +3826,47 @@ void ScaleCurve::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fi
 
 void ScaleCurve::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
 {
-    data.WriteBit(OverrideActive);
-    data.FlushBits();
-    data << uint32(StartTimeOffset);
-    data << uint32(ParameterCurve);
-    for (std::size_t i = 0; i < 2; ++i)
+    UpdateMask<7> const& changesMask = _changesMask;
+    data.WriteBits(changesMask.GetBlocksMask(0), 1);
+    if (changesMask.GetBlock(0))
+        data.WriteBits(changesMask.GetBlock(0), 32);
+
+    if (changesMask[0])
     {
-        data << Points[i];
+        if (changesMask[1])
+        {
+            data.WriteBit(OverrideActive);
+    data.FlushBits();
+        }
+        if (changesMask[2])
+        {
+            data << uint32(StartTimeOffset);
+        }
+        if (changesMask[3])
+        {
+            data << uint32(ParameterCurve);
+        }
+    }
+    if (changesMask[4])
+    {
+        for (std::size_t i = 0; i < 2; ++i)
+        {
+            if (changesMask[5 + i])
+            {
+                data << Points[i];
+            }
+        }
     }
     data.FlushBits();
+}
+
+void ScaleCurve::ClearChangesMask()
+{
+    Base::ClearChangesMask(OverrideActive);
+    Base::ClearChangesMask(StartTimeOffset);
+    Base::ClearChangesMask(ParameterCurve);
+    Base::ClearChangesMask(Points);
+    _changesMask.ResetAll();
 }
 
 void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
