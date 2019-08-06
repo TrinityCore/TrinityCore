@@ -115,7 +115,14 @@ enum DoomrelSpells
     SPELL_DEMONARMOR                                       = 13787,
     SPELL_SUMMON_VOIDWALKERS                               = 15092
 };
+enum DoomrelText
+{
+    GOSSIP_SELECT_DOOMREL                                  = 1828,
+    GOSSIP_MENU_ID_CONTINUE                                = 1,
 
+    GOSSIP_MENU_CHALLENGE                                  = 1947,
+    GOSSIP_MENU_ID_CHALLENGE                               = 0
+};
 enum DoomrelEvents
 {
     EVENT_SHADOW_BOLT_VOLLEY                               = 1,
@@ -124,9 +131,6 @@ enum DoomrelEvents
     EVENT_DEMONARMOR                                       = 4,
     EVENT_SUMMON_VOIDWALKERS                               = 5
 };
-
-#define GOSSIP_ITEM_CHALLENGE   "Your bondage is at an end, Doom'rel. I challenge you!"
-#define GOSSIP_SELECT_DOOMREL   "[PH] Continue..."
 
 class boss_doomrel : public CreatureScript
 {
@@ -234,7 +238,7 @@ class boss_doomrel : public CreatureScript
                 switch (action)
                 {
                     case GOSSIP_ACTION_INFO_DEF + 1:
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_SELECT_DOOMREL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        AddGossipItemFor(player, GOSSIP_SELECT_DOOMREL, GOSSIP_MENU_ID_CONTINUE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                         SendGossipMenuFor(player, 2605, me->GetGUID());
                         break;
                     case GOSSIP_ACTION_INFO_DEF + 2:
@@ -252,7 +256,7 @@ class boss_doomrel : public CreatureScript
 
             bool GossipHello(Player* player) override
             {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHALLENGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_MENU_CHALLENGE, GOSSIP_MENU_ID_CHALLENGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, 2601, me->GetGUID());
 
                 return true;

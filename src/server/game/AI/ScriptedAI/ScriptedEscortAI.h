@@ -56,7 +56,7 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void SetEscortPaused(bool on);
         void SetPauseTimer(uint32 Timer) { _pauseTimer = Timer; }
         bool HasEscortState(uint32 escortState) { return (_escortState & escortState) != 0; }
-        virtual bool IsEscorted() const override { return (_escortState & STATE_ESCORT_ESCORTING); }
+        bool IsEscorted() const override { return !_playerGUID.IsEmpty(); }
         void SetMaxPlayerDistance(float newMax) { _maxPlayerDistance = newMax; }
         float GetMaxPlayerDistance() const { return _maxPlayerDistance; }
         void SetDespawnAtEnd(bool despawn) { _despawnAtEnd = despawn; }
@@ -64,7 +64,6 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         bool IsActiveAttacker() const { return _activeAttacker; } // obsolete
         void SetActiveAttacker(bool enable) { _activeAttacker = enable; }
         ObjectGuid GetEventStarterGUID() const { return _playerGUID; }
-        virtual bool IsEscortNPC(bool isEscorting) const override;
 
     protected:
         Player* GetPlayerForEscort();

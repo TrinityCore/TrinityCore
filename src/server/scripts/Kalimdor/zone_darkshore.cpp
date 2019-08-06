@@ -161,7 +161,7 @@ public:
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 Talk(SAY_KER_START, player);
-                StartFollow(player, FACTION_ESCORTEE_N_NEUTRAL_PASSIVE, quest);
+                StartFollow(player, FACTION_ESCORTEE_N_NEUTRAL_PASSIVE, QUEST_SLEEPER_AWAKENED);
             }
         }
     };

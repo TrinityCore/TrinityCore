@@ -254,6 +254,14 @@ class boss_professor_putricide : public CreatureScript
                 }
             }
 
+            void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
+            {
+                if (why == EVADE_REASON_BOUNDARY && (events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)))
+                    return;
+
+                BossAI::EnterEvadeMode(why);
+            }
+
             void JustEngagedWith(Unit* who) override
             {
                 if (events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT))
@@ -443,7 +451,6 @@ class boss_professor_putricide : public CreatureScript
                         events.ScheduleEvent(EVENT_FESTERGUT_DIES, 4s, 0, PHASE_FESTERGUT);
                         break;
                     case ACTION_ROTFACE_COMBAT:
-                    {
                         SetPhase(PHASE_ROTFACE);
                         me->SetSpeedRate(MOVE_RUN, _baseSpeed*2.0f);
                         me->GetMotionMaster()->MovePoint(POINT_ROTFACE, rotfaceWatchPos);
@@ -475,7 +482,6 @@ class boss_professor_putricide : public CreatureScript
                             }
                         }
                         break;
-                    }
                     case ACTION_ROTFACE_OOZE:
                         Talk(SAY_ROTFACE_OOZE_FLOOD);
                         if (Creature* dummy = ObjectAccessor::GetCreature(*me, _oozeFloodDummyGUIDs[_oozeFloodStage]))
@@ -710,6 +716,19 @@ class boss_professor_putricide : public CreatureScript
             {
                 _phase = newPhase;
                 events.SetPhase(newPhase);
+
+                switch (newPhase)
+                {
+                    case PHASE_FESTERGUT:
+                        SetBoundary(instance->GetBossBoundary(DATA_FESTERGUT));
+                        break;
+                    case PHASE_ROTFACE:
+                        SetBoundary(instance->GetBossBoundary(DATA_ROTFACE));
+                        break;
+                    default:
+                        SetBoundary(instance->GetBossBoundary(DATA_PROFESSOR_PUTRICIDE));
+                        break;
+                }
             }
 
             ObjectGuid _oozeFloodDummyGUIDs[4];

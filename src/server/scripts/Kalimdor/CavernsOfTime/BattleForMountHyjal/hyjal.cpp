@@ -59,7 +59,6 @@ class npc_jaina_proudmoore : public CreatureScript
             npc_jaina_proudmooreAI(Creature* creature) : hyjalAI(creature)
             {
                 Reset();
-                EnterEvadeMode();
 
                 Spells[0].SpellId = SPELL_BLIZZARD;
                 Spells[0].Cooldown = urand(15000, 35000);
@@ -137,7 +136,6 @@ class npc_thrall : public CreatureScript
             npc_thrallAI(Creature* creature) : hyjalAI(creature)
             {
                 Reset();
-                EnterEvadeMode();
 
                 Spells[0].SpellId = SPELL_CHAIN_LIGHTNING;
                 Spells[0].Cooldown = urand(3000, 8000);
@@ -152,7 +150,7 @@ class npc_thrall : public CreatureScript
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
-                DeSpawnVeins();//despawn the alliance veins
+                DeSpawnVeins(); //despawn the alliance veins
                 switch (action)
                 {
                     case GOSSIP_ACTION_INFO_DEF + 1:
@@ -217,7 +215,6 @@ class npc_tyrande_whisperwind : public CreatureScript
             npc_tyrande_whisperwindAI(Creature* creature) : hyjalAI(creature)
             {
                 Reset();
-                EnterEvadeMode();
             }
 
             bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override

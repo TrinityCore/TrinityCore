@@ -487,7 +487,11 @@ bool PetAI::CanAttack(Unit* target)
         return false;
     }
 
-    ASSERT(me->GetCharmInfo());
+    if (!me->GetCharmInfo())
+    {
+        TC_LOG_ERROR("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::CanAttack(). Debug info: %s", GetDebugInfo().c_str());
+        return false;
+    }
 
     // Passive - passive pets can attack if told to
     if (me->HasReactState(REACT_PASSIVE))
