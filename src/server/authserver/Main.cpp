@@ -37,6 +37,8 @@
 #include "MySQLThreading.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
+#include "SecretMgr.h"
+#include "SharedDefines.h"
 #include "Util.h"
 #include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
@@ -79,6 +81,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
 
 int main(int argc, char** argv)
 {
+    Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_AUTHSERVER;
     signal(SIGABRT, &Trinity::AbortHandler);
 
     auto configFile = fs::absolute(_TRINITY_REALM_CONFIG);
@@ -138,6 +141,8 @@ int main(int argc, char** argv)
     // Initialize the database connection
     if (!StartDB())
         return 1;
+
+    sSecretMgr->Initialize();
 
     // Load IP Location Database
     sIPLocation->Load();

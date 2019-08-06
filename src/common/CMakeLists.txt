@@ -63,6 +63,7 @@ target_link_libraries(common
     process
     trinity-core-interface
   PUBLIC
+    argon2
     boost
     fmt
     g3dlib
