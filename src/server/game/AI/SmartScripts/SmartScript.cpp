@@ -2601,8 +2601,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         (*itr)->ToCreature()->SetMeleeAnimKitId(e.action.animKit.animKit);
                     else if (e.action.animKit.type == 3)
                         (*itr)->ToCreature()->SetMovementAnimKitId(e.action.animKit.animKit);
-                    else if (e.action.animKit.type == 4)
-                        (*itr)->ToCreature()->SendPlaySpellVisualKit(e.action.animKit.animKit, 0, 0);
+                    else
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartScript: Invalid type for SMART_ACTION_PLAY_ANIMKIT, skipping");
+                        break;
+                    }
 
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_ANIMKIT: target: %s (%s), AnimKit: %u, Type: %u",
                         (*itr)->GetName().c_str(), (*itr)->GetGUID().ToString().c_str(), e.action.animKit.animKit, e.action.animKit.type);
@@ -2634,6 +2637,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : *targets)
                 if (Player* playerTarget = target->ToPlayer())
                     playerTarget->GetSceneMgr().CancelSceneBySceneId(e.action.scene.sceneId);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (IsCreature(*itr))
+                {
+                    (*itr)->ToCreature()->SendPlaySpellVisualKit(e.action.spellVisualKit.spellVisualKitId, 0, 0);
+
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_SPELL_VISUAL_KIT: target: %s (%s), SpellVisualKit: %u",
+                        (*itr)->GetName().c_str(), (*itr)->GetGUID().ToString().c_str(), e.action.spellVisualKit.spellVisualKitId);
+                }
+            }
 
             delete targets;
             break;

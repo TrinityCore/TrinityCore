@@ -67,10 +67,10 @@ class spell_summon_troublemaker : public SpellScript
             return;
 
         int32 radius;
-        if (urand(0, 2) == 0)
-            radius = urand(0, 6);
+        if (urand(0, 4) == 0)
+            radius = 0;
         else
-            radius = 7;
+            radius = urand(1, 7);
         float angle = M_PI * (urand(0, 7) / 7.f);
         float x = 1181.75f + radius * sin(angle);
         float y = 3444.5f + radius * cos(angle);
@@ -363,14 +363,22 @@ public:
                 switch (areaTrigger->ID)
                 {
                     case 6986:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6987)))
+                            if (player->HasAura(SPELL_CURSE_OF_THE_FROG))
+                                player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
+                        break;
                     case 6987:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6986)) && !player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6987)))
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6986)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_FROG))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
                         break;
                     case 6988:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6989)))
+                            if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
+                                player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
+                        break;
                     case 6989:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6988)) && !player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6989)))
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6988)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
                         break;
@@ -379,14 +387,22 @@ public:
                             player->RemoveAura(SPELL_CURSE_OF_THE_CROCODILE);
                         break;
                     case 6991:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6992)))
+                            if (player->HasAura(SPELL_CURSE_OF_THE_CRANE))
+                                player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
+                        break;
                     case 6992:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6991)) && !player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(6992)))
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6991)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_CRANE))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
                         break;
                     case 7011:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(7012)))
+                            if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE))
+                                player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
+                        break;
                     case 7012:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(7011)) && !player->IsInAreaTriggerRadius(sAreaTriggerStore.LookupEntry(7012)))
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(7011)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
                         break;

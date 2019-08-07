@@ -570,7 +570,8 @@ enum SMART_ACTION
     SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
     // 131 - 135 : 3.3.5 reserved
     SMART_ACTION_PLAY_CINEMATIC                     = 135,    // reserved for future uses
-    SMART_ACTION_END                                = 136
+    SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 136,    // spellVisualKitId
+    SMART_ACTION_END                                = 137
 };
 
 struct SmartAction
@@ -1104,6 +1105,11 @@ struct SmartAction
         {
             uint32 sceneId;
         } scene;
+
+        struct
+        {
+            uint32 spellVisualKitId;
+        } spellVisualKit;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
