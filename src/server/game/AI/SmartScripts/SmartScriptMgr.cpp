@@ -975,8 +975,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_PLAY_ANIMKIT:
-			if (e.action.animKit.animKit && !IsAnimKitValid(e, e.action.animKit.animKit))
-				return false;
+            if (e.action.animKit.animKit && !IsAnimKitValid(e, e.action.animKit.animKit))
+                return false;
 
             if (e.action.animKit.type > 3)
             {
