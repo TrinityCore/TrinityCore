@@ -406,7 +406,7 @@ public:
                     ++count;
 
             if (count)
-                matches.emplace(count, decltype(matches)::mapped_type({ pair.first, mapName, scriptName.c_str() }));
+                matches.emplace(count, decltype(matches)::mapped_type(pair.first, mapName, scriptName.c_str()));
         }
         if (matches.empty())
         {
