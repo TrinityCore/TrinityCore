@@ -129,8 +129,8 @@ class spell_dru_bear_form_passive : public AuraScript
     {
         return ValidateSpellInfo(
                 {
-                        SPELL_DRUID_ENRAGE,
-                        SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS
+                    SPELL_DRUID_ENRAGE,
+                    SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS
                 });
     }
 
@@ -507,7 +507,7 @@ class spell_dru_glyph_of_innervate : public AuraScript
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_GLYPH_OF_INNERVATE_REGEN);
         int32 amount = CalculatePct(static_cast<int32>(caster->GetCreatePowerValue(POWER_MANA)), aurEff->GetAmount());
 
-                ASSERT(spellInfo->GetMaxTicks() > 0);
+        ASSERT(spellInfo->GetMaxTicks() > 0);
         amount /= spellInfo->GetMaxTicks();
 
         CastSpellExtraArgs args(aurEff);
@@ -1079,10 +1079,10 @@ class spell_dru_revitalize : public AuraScript
     {
         return ValidateSpellInfo(
                 {
-                        SPELL_DRUID_REVITALIZE_ENERGIZE_MANA,
-                        SPELL_DRUID_REVITALIZE_ENERGIZE_RAGE,
-                        SPELL_DRUID_REVITALIZE_ENERGIZE_ENERGY,
-                        SPELL_DRUID_REVITALIZE_ENERGIZE_RP
+                    SPELL_DRUID_REVITALIZE_ENERGIZE_MANA,
+                    SPELL_DRUID_REVITALIZE_ENERGIZE_RAGE,
+                    SPELL_DRUID_REVITALIZE_ENERGIZE_ENERGY,
+                    SPELL_DRUID_REVITALIZE_ENERGIZE_RP
                 });
     }
 
@@ -1435,9 +1435,9 @@ class spell_dru_t3_2p_bonus : public AuraScript
     {
         return ValidateSpellInfo(
                 {
-                        SPELL_DRUID_T3_PROC_ENERGIZE_MANA,
-                        SPELL_DRUID_T3_PROC_ENERGIZE_RAGE,
-                        SPELL_DRUID_T3_PROC_ENERGIZE_ENERGY
+                    SPELL_DRUID_T3_PROC_ENERGIZE_MANA,
+                    SPELL_DRUID_T3_PROC_ENERGIZE_RAGE,
+                    SPELL_DRUID_T3_PROC_ENERGIZE_ENERGY
                 });
     }
 
@@ -1617,8 +1617,8 @@ class spell_dru_t9_feral_relic : public AuraScript
     {
         return ValidateSpellInfo(
                 {
-                        SPELL_DRUID_T9_FERAL_RELIC_BEAR,
-                        SPELL_DRUID_T9_FERAL_RELIC_CAT
+                    SPELL_DRUID_T9_FERAL_RELIC_BEAR,
+                    SPELL_DRUID_T9_FERAL_RELIC_CAT
                 });
     }
 
