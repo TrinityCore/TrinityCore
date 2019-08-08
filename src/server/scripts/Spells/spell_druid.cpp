@@ -1078,12 +1078,12 @@ class spell_dru_revitalize : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-                {
-                    SPELL_DRUID_REVITALIZE_ENERGIZE_MANA,
-                    SPELL_DRUID_REVITALIZE_ENERGIZE_RAGE,
-                    SPELL_DRUID_REVITALIZE_ENERGIZE_ENERGY,
-                    SPELL_DRUID_REVITALIZE_ENERGIZE_RP
-                });
+        {
+            SPELL_DRUID_REVITALIZE_ENERGIZE_MANA,
+            SPELL_DRUID_REVITALIZE_ENERGIZE_RAGE,
+            SPELL_DRUID_REVITALIZE_ENERGIZE_ENERGY,
+            SPELL_DRUID_REVITALIZE_ENERGIZE_RP
+        });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1434,11 +1434,11 @@ class spell_dru_t3_2p_bonus : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-                {
-                    SPELL_DRUID_T3_PROC_ENERGIZE_MANA,
-                    SPELL_DRUID_T3_PROC_ENERGIZE_RAGE,
-                    SPELL_DRUID_T3_PROC_ENERGIZE_ENERGY
-                });
+        {
+            SPELL_DRUID_T3_PROC_ENERGIZE_MANA,
+            SPELL_DRUID_T3_PROC_ENERGIZE_RAGE,
+            SPELL_DRUID_T3_PROC_ENERGIZE_ENERGY
+        });
     }
 
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -1561,11 +1561,12 @@ class spell_dru_item_t6_trinket : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({
-                                         SPELL_DRUID_BLESSING_OF_REMULOS,
-                                         SPELL_DRUID_BLESSING_OF_ELUNE,
-                                         SPELL_DRUID_BLESSING_OF_CENARIUS
-                                 });
+        return ValidateSpellInfo(
+        {
+            SPELL_DRUID_BLESSING_OF_REMULOS,
+            SPELL_DRUID_BLESSING_OF_ELUNE,
+            SPELL_DRUID_BLESSING_OF_CENARIUS
+        });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
