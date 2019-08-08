@@ -1694,7 +1694,7 @@ class spell_dru_t10_balance_4p_bonus : public AuraScript
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_LANGUISH);
         int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
 
-                ASSERT(spellInfo->GetMaxTicks() > 0);
+        ASSERT(spellInfo->GetMaxTicks() > 0);
         amount /= spellInfo->GetMaxTicks();
 
         CastSpellExtraArgs args(aurEff);
