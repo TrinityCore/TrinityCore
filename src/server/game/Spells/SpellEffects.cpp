@@ -1115,13 +1115,6 @@ void Spell::EffectHeal()
 
         addhealth += damageAmount;
     }
-    // Runic Healing Injector (heal increased by 25% for engineers - 3.2.0 patch change)
-    else if (m_spellInfo->Id == 67489)
-    {
-        if (Player* player = unitCaster->ToPlayer())
-            if (player->HasSkill(SKILL_ENGINEERING))
-                AddPct(addhealth, 25);
-    }
     // Death Pact - return pct of max health to caster
     else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
         addhealth = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, int32(unitCaster->CountPctFromMaxHealth(damage)), HEAL, *effectInfo);
