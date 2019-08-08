@@ -167,7 +167,7 @@ static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
 uint32 const MAX_MONEY_AMOUNT = static_cast<uint32>(std::numeric_limits<int32>::max());
 
-Player::Player(WorldSession* session): Unit(true)
+Player::Player(WorldSession* session): Unit(true), _socialLinks(nullptr), _followers(nullptr)
 {
     m_speakTime = 0;
     m_speakCount = 0;
@@ -210,8 +210,6 @@ Player::Player(WorldSession* session): Unit(true)
     m_nextSave = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
 
     memset(m_items, 0, sizeof(Item*)*PLAYER_SLOTS_COUNT);
-
-    m_social = nullptr;
 
     // group is initialized in the reference constructor
     SetGroupInvite(nullptr);
@@ -4238,21 +4236,8 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                 } while (resultPets->NextRow());
             }
 
-            // Delete char from social list of online chars
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_SOCIAL);
-            stmt->setUInt32(0, guid);
-
-            if (PreparedQueryResult resultFriends = CharacterDatabase.Query(stmt))
-            {
-                do
-                {
-                    if (Player* playerFriend = ObjectAccessor::FindPlayer(ObjectGuid(HighGuid::Player, 0, (*resultFriends)[0].GetUInt32())))
-                    {
-                        playerFriend->GetSocial()->RemoveFromSocialList(playerguid, SOCIAL_FLAG_ALL);
-                        sSocialMgr->SendFriendStatus(playerFriend, FRIEND_REMOVED, playerguid);
-                    }
-                } while (resultFriends->NextRow());
-            }
+            // Delete char from social lists
+            sSocialMgr->EraseAllSocialLinks(playerguid, trans);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER);
             stmt->setUInt32(0, guid);
@@ -4336,14 +4321,6 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             }
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_BY_OWNER);
-            stmt->setUInt32(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_FRIEND);
-            stmt->setUInt32(0, guid);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_GUID);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
@@ -17702,7 +17679,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     // unread mails and next delivery time, actual mails not loaded
     _LoadMailInit(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE));
 
-    m_social = sSocialMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST), GetGUID());
+    InitSocials();
+    sSocialMgr->LoadPlayerFromDB(this, holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SOCIAL_LIST));
 
     // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
     // note: PLAYER__FIELD_KNOWN_TITLES updated at quest status loaded
@@ -19522,6 +19500,7 @@ void Player::SaveToDB(bool create /*=false*/)
     GetSession()->SaveTutorialsData(trans);                 // changed only while character in game
     _SaveGlyphs(trans);
     _SaveInstanceTimeRestrictions(trans);
+    sSocialMgr->SavePlayerToDB(this, trans);
 
     // check if stats should only be saved on logout
     // save stats can be out of transaction
@@ -22562,7 +22541,7 @@ void Player::SetGroup(Group* group, int8 subgroup)
 void Player::SendInitialPacketsBeforeAddToMap()
 {
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
-    GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
+    sSocialMgr->SendSocialLinks(this, SOCIAL_FLAG_ALL);
 
     // guild bank list wtf?
 
@@ -24407,6 +24386,24 @@ uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 n
         cost += bsc->cost * 0.75f;                          // +5/6 of price
 
     return uint32(cost);
+}
+
+void Player::InitSocials()
+{
+    _socialLinks = &sSocialMgr->GetSocialLinksFor(GetGUID());
+    _followers = &sSocialMgr->GetFollowersFor(GetGUID());
+}
+
+bool Player::HasFriend(ObjectGuid target) const
+{
+    auto it = GetSocialLinks().find(target);
+    return (it != GetSocialLinks().end()) && (it->second.Flags & SOCIAL_FLAG_FRIEND);
+}
+
+bool Player::HasIgnore(ObjectGuid target) const
+{
+    auto it = GetSocialLinks().find(target);
+    return (it != GetSocialLinks().end()) && (it->second.Flags & SOCIAL_FLAG_IGNORED);
 }
 
 void Player::InitGlyphsForLevel()
@@ -26787,12 +26784,6 @@ uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
         SendDirectMessage(&data);
 
     return roll;
-}
-
-void Player::RemoveSocial()
-{
-    sSocialMgr->RemovePlayerSocial(GetGUID());
-    m_social = nullptr;
 }
 
 std::string Player::GetDebugInfo() const

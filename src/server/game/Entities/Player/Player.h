@@ -23,6 +23,7 @@
 #include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "EquipmentSet.h"
+#include "GossipDef.h"
 #include "GroupReference.h"
 #include "ItemDefines.h"
 #include "ItemEnchantmentMgr.h"
@@ -32,6 +33,7 @@
 #include "QuestDef.h"
 #include <memory>
 #include <queue>
+#include <unordered_map>
 #include <unordered_set>
 
 struct AccessRequirement;
@@ -50,6 +52,7 @@ struct Loot;
 struct Mail;
 struct ScalingStatDistributionEntry;
 struct ScalingStatValuesEntry;
+struct SocialLink;
 struct TrainerSpell;
 struct VendorItem;
 
@@ -69,8 +72,6 @@ class OutdoorPvP;
 class Pet;
 class PetAura;
 class PlayerAI;
-class PlayerMenu;
-class PlayerSocial;
 class ReputationMgr;
 class SpellCastTargets;
 class TradeData;
@@ -937,8 +938,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin = nullptr) const;
 
-        PlayerSocial* GetSocial() { return m_social; }
-        void RemoveSocial();
+        bool HasFriend(ObjectGuid target) const;
+        bool HasIgnore(ObjectGuid target) const;
+        std::unordered_map<ObjectGuid, SocialLink> const& GetSocialLinks() const { return *_socialLinks; }
+        std::unordered_map<ObjectGuid, SocialLink const*> const& GetFollowers() const { return *_followers; }
 
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(GetRace(), GetClass(), GetLevel()); }
@@ -2386,7 +2389,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_questRewardTalentCount;
 
         // Social
-        PlayerSocial* m_social;
+        void InitSocials();
+        std::unordered_map<ObjectGuid, SocialLink> const* _socialLinks;
+        std::unordered_map<ObjectGuid, SocialLink const*> const* _followers;
 
         // Groups
         GroupReference m_group;
