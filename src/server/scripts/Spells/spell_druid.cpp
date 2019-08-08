@@ -186,7 +186,7 @@ class spell_dru_dash : public AuraScript
 {
     PrepareAuraScript(spell_dru_dash);
 
-    void CalculateAmount(AuraEffect const*  /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateAmount(AuraEffect const*  /*aurEff*/, int32 &amount, bool & /*canBeRecalculated*/)
     {
         // do not set speed if not in cat form
         if (GetUnitOwner()->GetShapeshiftForm() != FORM_CAT)
@@ -639,7 +639,7 @@ class spell_dru_glyph_of_starfire : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({SPELL_DRUID_INCREASED_MOONFIRE_DURATION, SPELL_DRUID_NATURES_SPLENDOR});
+        return ValidateSpellInfo({ SPELL_DRUID_INCREASED_MOONFIRE_DURATION, SPELL_DRUID_NATURES_SPLENDOR });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -762,7 +762,7 @@ class spell_dru_insect_swarm : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_insect_swarm::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_insect_swarm::CalculateAmount, EFFECT_0,SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
@@ -880,7 +880,7 @@ class spell_dru_living_seed : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_LIVING_SEED_PROC });
+        return ValidateSpellInfo({SPELL_DRUID_LIVING_SEED_PROC});
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -909,7 +909,7 @@ class spell_dru_living_seed_proc : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_LIVING_SEED_HEAL });
+        return ValidateSpellInfo({SPELL_DRUID_LIVING_SEED_HEAL});
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
