@@ -103,8 +103,6 @@ void WorldSession::HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packe
 
         if (packet.ZoneChannelID)
             cMgr->LeftChannel(packet.ZoneChannelID, zone);
-        else
-            cMgr->LeftChannel(packet.ChannelName);
     }
 }
 

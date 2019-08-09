@@ -239,25 +239,6 @@ Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Playe
     return result;
 }
 
-void ChannelMgr::LeftChannel(std::string const& name)
-{
-    std::wstring channelName;
-    if (!Utf8toWStr(name, channelName))
-        return;
-
-    wstrToLower(channelName);
-    auto itr = _customChannels.find(channelName);
-    if (itr == _customChannels.end())
-        return;
-
-    Channel* channel = itr->second;
-    if (!channel->GetNumPlayers())
-    {
-        _customChannels.erase(itr);
-        delete channel;
-    }
-}
-
 void ChannelMgr::LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry)
 {
     auto itr = _channels.find(CreateBuiltinChannelGuid(channelId, zoneEntry));
