@@ -264,7 +264,7 @@ struct TApmFile
     LPBYTE CaptureArrayOfEntries(LPBYTE pbArrayOfEntries, LPBYTE pbApmEnd)
     {
         // Allocate array of entries
-        pApmEntries = CASC_ALLOC(APM_ENTRY, EntryCount);
+        pApmEntries = CASC_ALLOC<APM_ENTRY>(EntryCount);
         if(pApmEntries != NULL)
         {
             // The newest format
@@ -310,12 +310,9 @@ struct TApmFile
     LPBYTE CapturePackageEntries(LPBYTE pbArrayOfEntries, LPBYTE pbApmEnd)
     {
         // Allocate array of entries
-        pApmPackages = CASC_ALLOC(APM_PACKAGE_ENTRY, PackageCount);
+        pApmPackages = CASC_ALLOC_ZERO<APM_PACKAGE_ENTRY>(PackageCount);
         if(pApmPackages != NULL)
         {
-            // Zero the entire array
-            memset(pApmPackages, 0, PackageCount * sizeof(APM_PACKAGE_ENTRY));
-
             // The newest format
             if(BuildNumber > 45104 && BuildNumber != 45214)
             {
@@ -426,12 +423,12 @@ struct TRootHandler_OW : public TFileTreeRoot
         return false;
     }
 
-    int LoadApmFile(TCascStorage * hs, CONTENT_KEY & CKey, const char * szFileName)
+    DWORD LoadApmFile(TCascStorage * hs, CONTENT_KEY & CKey, const char * szFileName)
     {
         TApmFile ApmFile;
         LPBYTE pbApmData;
         DWORD cbApmData = 0;
-        int nError = ERROR_BAD_FORMAT;
+        DWORD dwErrCode = ERROR_BAD_FORMAT;
 
         pbApmData = LoadInternalFileToMemory(hs, CKey.Value, CASC_OPEN_BY_CKEY, &cbApmData);
         if(pbApmData != NULL)
@@ -456,16 +453,15 @@ struct TRootHandler_OW : public TFileTreeRoot
             CASC_FREE(pbApmData);
         }
 
-        return nError;
+        return dwErrCode;
     }
 
-    static int LoadCmfFile(TCascStorage * hs, CONTENT_KEY & CKey, const char * szFileName)
+    static DWORD LoadCmfFile(TCascStorage * hs, CONTENT_KEY & CKey, const char * szFileName)
     {
         TCmfFile CmfFile;
         LPBYTE pbCmfData;
         DWORD cbCmfData = 0;
-        
-        int nError = ERROR_BAD_FORMAT;
+        DWORD dwErrCode = ERROR_BAD_FORMAT;
 
         pbCmfData = LoadInternalFileToMemory(hs, CKey.Value, CASC_OPEN_BY_CKEY, &cbCmfData);
         if(pbCmfData != NULL)
@@ -484,7 +480,7 @@ struct TRootHandler_OW : public TFileTreeRoot
             CASC_FREE(pbCmfData);
         }
 
-        return nError;
+        return dwErrCode;
     }
 */
     int Load(TCascStorage * hs, CASC_CSV & Csv, size_t nFileNameIndex, size_t nCKeyIndex)
@@ -525,7 +521,7 @@ struct TRootHandler_OW : public TFileTreeRoot
         }
 /*
         // Load all CMF+APM files
-        if(nError == ERROR_SUCCESS)
+        if(dwErrCode == ERROR_SUCCESS)
         {
             for(size_t i = 0; i < nApmFiles; i++)
             {
@@ -548,8 +544,8 @@ struct TRootHandler_OW : public TFileTreeRoot
                     break;
 
                 // Create the map of CMF entries
-                nError = LoadCmfFile(hs, pFileNode2->CKey, szCmfFile);
-                if(nError != ERROR_SUCCESS)
+                dwErrCode = LoadCmfFile(hs, pFileNode2->CKey, szCmfFile);
+                if(dwErrCode != ERROR_SUCCESS)
                     break;
 
             }
@@ -563,16 +559,16 @@ struct TRootHandler_OW : public TFileTreeRoot
 // Public functions
 
 // TODO: There is way more files in the Overwatch CASC storage than present in the ROOT file.
-int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
+DWORD RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
 {
     TRootHandler_OW * pRootHandler = NULL;
     CASC_CSV Csv(0, true);
     size_t Indices[2];
-    int nError;
+    DWORD dwErrCode;
 
     // Load the ROOT file
-    nError = Csv.Load(pbRootFile, cbRootFile);
-    if(nError == ERROR_SUCCESS)
+    dwErrCode = Csv.Load(pbRootFile, cbRootFile);
+    if(dwErrCode == ERROR_SUCCESS)
     {
         // Retrieve the indices of the file name and MD5 columns
         Indices[0] = Csv.GetColumnIndex("FILENAME");
@@ -585,8 +581,8 @@ int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRo
             if (pRootHandler != NULL)
             {
                 // Load the root directory. If load failed, we free the object
-                nError = pRootHandler->Load(hs, Csv, Indices[0], Indices[1]);
-                if (nError != ERROR_SUCCESS)
+                dwErrCode = pRootHandler->Load(hs, Csv, Indices[0], Indices[1]);
+                if (dwErrCode != ERROR_SUCCESS)
                 {
                     delete pRootHandler;
                     pRootHandler = NULL;
@@ -595,11 +591,11 @@ int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRo
         }
         else
         {
-            nError = ERROR_BAD_FORMAT;
+            dwErrCode = ERROR_BAD_FORMAT;
         }
     }
 
     // Assign the root directory (or NULL) and return error
     hs->pRootHandler = pRootHandler;
-    return nError;
+    return dwErrCode;
 }

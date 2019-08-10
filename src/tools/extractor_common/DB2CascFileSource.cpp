@@ -32,29 +32,23 @@ bool DB2CascFileSource::IsOpen() const
 
 bool DB2CascFileSource::Read(void* buffer, std::size_t numBytes)
 {
-    DWORD bytesRead = 0;
+    uint32 bytesRead = 0;
     return CASC::ReadFile(_fileHandle, buffer, numBytes, &bytesRead) && numBytes == bytesRead;
 }
 
-std::size_t DB2CascFileSource::GetPosition() const
+int64 DB2CascFileSource::GetPosition() const
 {
     return CASC::GetFilePointer(_fileHandle);
 }
 
-bool DB2CascFileSource::SetPosition(std::size_t position)
+bool DB2CascFileSource::SetPosition(int64 position)
 {
     return CASC::SetFilePointer(_fileHandle, position);
 }
 
-std::size_t DB2CascFileSource::GetFileSize() const
+int64 DB2CascFileSource::GetFileSize() const
 {
-    DWORD sizeLow = 0;
-    DWORD sizeHigh = 0;
-    sizeLow = CASC::GetFileSize(_fileHandle, &sizeHigh);
-    if (sizeLow == CASC_INVALID_SIZE)
-        return std::size_t(-1);
-
-    return std::size_t(uint64(sizeLow) | (uint64(sizeHigh) << 32));
+    return CASC::GetFileSize(_fileHandle);
 }
 
 CASC::FileHandle const& DB2CascFileSource::GetHandle() const

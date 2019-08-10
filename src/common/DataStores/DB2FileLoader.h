@@ -101,11 +101,11 @@ struct TC_COMMON_API DB2FileSource
     virtual bool Read(void* buffer, std::size_t numBytes) = 0;
 
     // Returns current read position in file
-    virtual std::size_t GetPosition() const = 0;
+    virtual int64 GetPosition() const = 0;
 
-    virtual bool SetPosition(std::size_t position) = 0;
+    virtual bool SetPosition(int64 position) = 0;
 
-    virtual std::size_t GetFileSize() const = 0;
+    virtual int64 GetFileSize() const = 0;
 
     virtual char const* GetFileName() const = 0;
 };

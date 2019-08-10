@@ -19,7 +19,7 @@
 #include <CascLib.h>
 #include <boost/filesystem/operations.hpp>
 
-char const* CASC::HumanReadableCASCError(DWORD error)
+char const* CASC::HumanReadableCASCError(uint32 error)
 {
     switch (error)
     {
@@ -55,7 +55,7 @@ void CASC::FileDeleter::operator()(HANDLE handle)
         ::CascCloseFile(handle);
 }
 
-CASC::StorageHandle CASC::OpenStorage(boost::filesystem::path const& path, DWORD localeMask, char const* product)
+CASC::StorageHandle CASC::OpenStorage(boost::filesystem::path const& path, uint32 localeMask, char const* product)
 {
     std::string strPath = path.string();
     CASC_OPEN_STORAGE_ARGS args = {};
@@ -87,16 +87,16 @@ namespace CASC
     }
 }
 
-DWORD CASC::GetBuildNumber(StorageHandle const& storage)
+uint32 CASC::GetBuildNumber(StorageHandle const& storage)
 {
     CASC_STORAGE_PRODUCT product;
     if (GetStorageInfo(storage, CascStorageProduct, &product))
-        return product.dwBuildNumber;
+        return product.BuildNumber;
 
     return 0;
 }
 
-DWORD CASC::GetInstalledLocalesMask(StorageHandle const& storage)
+uint32 CASC::GetInstalledLocalesMask(StorageHandle const& storage)
 {
     DWORD locales;
     if (GetStorageInfo(storage, CascStorageInstalledLocales, &locales))
@@ -105,12 +105,12 @@ DWORD CASC::GetInstalledLocalesMask(StorageHandle const& storage)
     return 0;
 }
 
-bool CASC::HasTactKey(StorageHandle const& storage, ULONGLONG keyLookup)
+bool CASC::HasTactKey(StorageHandle const& storage, uint64 keyLookup)
 {
     return CascFindEncryptionKey(storage.get(), keyLookup) != nullptr;
 }
 
-CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors /*= false*/, bool zerofillEncryptedParts /*= false*/)
+CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, char const* fileName, uint32 localeMask, bool printErrors /*= false*/, bool zerofillEncryptedParts /*= false*/)
 {
     DWORD openFlags = CASC_OPEN_BY_NAME;
     if (zerofillEncryptedParts)
@@ -131,7 +131,7 @@ CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, char const* fileNa
     return FileHandle(handle);
 }
 
-CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, DWORD fileDataId, DWORD localeMask, bool printErrors /*= false*/, bool zerofillEncryptedParts /*= false*/)
+CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, uint32 fileDataId, uint32 localeMask, bool printErrors /*= false*/, bool zerofillEncryptedParts /*= false*/)
 {
     DWORD openFlags = CASC_OPEN_BY_FILEID;
     if (zerofillEncryptedParts)
@@ -152,24 +152,39 @@ CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, DWORD fileDataId, 
     return FileHandle(handle);
 }
 
-DWORD CASC::GetFileSize(FileHandle const& file, PDWORD fileSizeHigh)
+int64 CASC::GetFileSize(FileHandle const& file)
 {
-    return ::CascGetFileSize(file.get(), fileSizeHigh);
+    ULONGLONG size;
+    if (!::CascGetFileSize64(file.get(), &size))
+        return -1;
+
+    return int64(size);
 }
 
-DWORD CASC::GetFilePointer(FileHandle const& file)
+int64 CASC::GetFilePointer(FileHandle const& file)
 {
-    return ::CascSetFilePointer(file.get(), 0, nullptr, FILE_CURRENT);
+    ULONGLONG position;
+    if (!::CascSetFilePointer64(file.get(), 0, &position, FILE_CURRENT))
+        return -1;
+
+    return int64(position);
 }
 
-bool CASC::SetFilePointer(FileHandle const& file, LONGLONG position)
+bool CASC::SetFilePointer(FileHandle const& file, int64 position)
 {
     LONG parts[2];
     memcpy(parts, &position, sizeof(parts));
-    return ::CascSetFilePointer(file.get(), parts[0], &parts[1], FILE_BEGIN) != CASC_INVALID_POS;
+    return ::CascSetFilePointer64(file.get(), position, nullptr, FILE_BEGIN);
 }
 
-bool CASC::ReadFile(FileHandle const& file, void* buffer, DWORD bytes, PDWORD bytesRead)
+bool CASC::ReadFile(FileHandle const& file, void* buffer, uint32 bytes, uint32* bytesRead)
 {
-    return ::CascReadFile(file.get(), buffer, bytes, bytesRead);
+    DWORD bytesReadDWORD;
+    if (!::CascReadFile(file.get(), buffer, bytes, &bytesReadDWORD))
+        return false;
+
+    if (bytesRead)
+        *bytesRead = bytesReadDWORD;
+
+    return true;
 }

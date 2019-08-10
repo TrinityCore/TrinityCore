@@ -247,10 +247,10 @@ struct TEncryptedStream : public TBlockStream
 //-----------------------------------------------------------------------------
 // Public functions for file stream
 
-TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
-TFileStream * FileStream_OpenFile(const TCHAR * szFileName, DWORD dwStreamFlags);
+TFileStream * FileStream_CreateFile(LPCTSTR szFileName, DWORD dwStreamFlags);
+TFileStream * FileStream_OpenFile(LPCTSTR szFileName, DWORD dwStreamFlags);
 const TCHAR * FileStream_GetFileName(TFileStream * pStream);
-size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider);
+size_t FileStream_Prefix(LPCTSTR szFileName, DWORD * pdwProvider);
 
 bool FileStream_SetCallback(TFileStream * pStream, STREAM_DOWNLOAD_CALLBACK pfnCallback, void * pvUserData);
 

@@ -36,7 +36,7 @@ static PLISTFILE_CACHE ListFile_CreateCache(DWORD dwFileSize)
     PLISTFILE_CACHE pCache;
 
     // Allocate cache for one file block
-    pCache = (PLISTFILE_CACHE)CASC_ALLOC(BYTE, sizeof(LISTFILE_CACHE) + dwFileSize);
+    pCache = (PLISTFILE_CACHE)CASC_ALLOC<BYTE>(sizeof(LISTFILE_CACHE) + dwFileSize);
     if(pCache != NULL)
     {
         // Set the initial pointers
@@ -254,7 +254,7 @@ size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PD
     PLISTFILE_CACHE pCache = (PLISTFILE_CACHE)pvListFile;
     const char * szTemp;
     size_t nLength = 0;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Check for parameters
     for(;;)
@@ -266,12 +266,12 @@ size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PD
         if(pCache->Flags & LISTFILE_FLAG_USES_FILEDATAID)
         {
             // Retrieve the data ID from the current position
-            nError = ListFile_GetFileDataId(pCache, &FileDataId);
-            if(nError == ERROR_NO_MORE_FILES)
+            dwErrCode = ListFile_GetFileDataId(pCache, &FileDataId);
+            if(dwErrCode == ERROR_NO_MORE_FILES)
                 break;
             
             // If there was an error, skip the current line
-            if(nError != ERROR_SUCCESS || FileDataId == CASC_INVALID_ID)
+            if(dwErrCode != ERROR_SUCCESS || FileDataId == CASC_INVALID_ID)
             {
                 ListFile_GetNextLine(pvListFile, &szTemp, &szTemp);
                 continue;
@@ -282,7 +282,7 @@ size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PD
         nLength = ListFile_GetNextLine(pvListFile, szBuffer, nMaxChars);
         if(nLength == 0)
         {
-            nError = GetLastError();
+            dwErrCode = GetLastError();
             break;
         }
 
@@ -291,8 +291,8 @@ size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PD
         return nLength;
     }
 
-    if(nError != ERROR_SUCCESS)
-        SetLastError(nError);
+    if(dwErrCode != ERROR_SUCCESS)
+        SetLastError(dwErrCode);
     return nLength;
 }
 
