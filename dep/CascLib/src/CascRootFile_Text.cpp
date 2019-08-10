@@ -49,16 +49,16 @@ struct TRootHandler_SC1 : public TFileTreeRoot
         return bResult;
     }
 
-    int Load(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
+    DWORD Load(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
     {
         PCASC_CKEY_ENTRY pCKeyEntry;
         CASC_CSV Csv(0, false);
         BYTE CKey[MD5_HASH_SIZE];
-        int nError;
+        DWORD dwErrCode;
 
         // Parse the ROOT file first in order to see whether we have the correct format
-        nError = Csv.Load(pbRootFile, cbRootFile);
-        if(nError == ERROR_SUCCESS)
+        dwErrCode = Csv.Load(pbRootFile, cbRootFile);
+        if(dwErrCode == ERROR_SUCCESS)
         {
             // Parse all lines
             while(Csv.LoadNextLine())
@@ -79,7 +79,7 @@ struct TRootHandler_SC1 : public TFileTreeRoot
             }
         }
 
-        return nError;
+        return dwErrCode;
     }
 };
 
@@ -93,10 +93,10 @@ struct TRootHandler_SC1 : public TFileTreeRoot
 // locales/zhCN/Assets/sound/terran/ghost/tghdth01.wav|6637ed776bd22089e083b8b0b2c0374c
 //
 
-int RootHandler_CreateStarcraft1(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
+DWORD RootHandler_CreateStarcraft1(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile)
 {
     TRootHandler_SC1 * pRootHandler = NULL;
-    int nError = ERROR_BAD_FORMAT;
+    DWORD dwErrCode = ERROR_BAD_FORMAT;
 
     // Verify whether this looks like a Starcraft I root file
     if(TRootHandler_SC1::IsRootFile(pbRootFile, cbRootFile))
@@ -106,8 +106,8 @@ int RootHandler_CreateStarcraft1(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbR
         if(pRootHandler != NULL)
         {
             // Load the root directory. If load failed, we free the object
-            nError = pRootHandler->Load(hs, pbRootFile, cbRootFile);
-            if(nError != ERROR_SUCCESS)
+            dwErrCode = pRootHandler->Load(hs, pbRootFile, cbRootFile);
+            if(dwErrCode != ERROR_SUCCESS)
             {
                 delete pRootHandler;
                 pRootHandler = NULL;
@@ -117,5 +117,5 @@ int RootHandler_CreateStarcraft1(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbR
 
     // Assign the root directory (or NULL) and return error
     hs->pRootHandler = pRootHandler;
-    return nError;
+    return dwErrCode;
 }

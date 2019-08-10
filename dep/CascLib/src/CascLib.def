@@ -13,13 +13,17 @@ EXPORTS
     CascOpenOnlineStorage
     CascGetStorageInfo
     CascAddEncryptionKey
+    CascAddStringEncryptionKey
     CascFindEncryptionKey
     CascCloseStorage
 
     CascOpenFile
+    CascOpenLocalFile
     CascGetFileInfo
     CascGetFileSize
+    CascGetFileSize64
     CascSetFilePointer
+    CascSetFilePointer64
     CascReadFile
     CascCloseFile
 
@@ -29,4 +33,3 @@ EXPORTS
 
     GetLastError=Kernel32.GetLastError
     SetLastError=Kernel32.SetLastError
-    
