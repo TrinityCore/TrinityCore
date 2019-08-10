@@ -1755,7 +1755,7 @@ bool DB2FileLoader::LoadHeaders(DB2FileSource* source, DB2FileLoadInfo const* lo
 
     if (loadInfo && !(_header.Flags & 0x1))
     {
-        std::size_t expectedFileSize =
+        int64 expectedFileSize =
             sizeof(DB2Header) +
             sizeof(DB2SectionHeader) * _header.SectionCount +
             sizeof(DB2FieldEntry) * _header.FieldCount +

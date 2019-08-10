@@ -30,28 +30,7 @@ inline void SET_NODE_INT32(void * node, size_t offset, DWORD value)
     
     PtrValue[0] = value;
 }
-/*
-static bool CompareFileNode(void * pvObject, void * pvUserData)
-{
-    PCASC_COMPARE_CONTEXT pCtx = (PCASC_COMPARE_CONTEXT)pvUserData;
-    PCASC_FILE_TREE pFileTree = (PCASC_FILE_TREE)pCtx->pThis;
-    PCASC_FILE_NODE pFileNode = (PCASC_FILE_NODE)pvObject;
-    char szFullPath[MAX_PATH];
 
-    // First of all, the name hash must match
-    if(pFileNode->FileNameHash == pCtx->FileNameHash)
-    {
-        // Then also compare the full path name
-        pFileTree->PathAt(szFullPath, _countof(szFullPath), pFileNode);
-        if(!_stricmp(szFullPath, pCtx->szFileName))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-*/
 //-----------------------------------------------------------------------------
 // Protected functions
 
@@ -224,11 +203,11 @@ bool CASC_FILE_TREE::RebuildNameMaps()
 //-----------------------------------------------------------------------------
 // Public functions
 
-int CASC_FILE_TREE::Create(DWORD Flags)
+DWORD CASC_FILE_TREE::Create(DWORD Flags)
 {
     PCASC_FILE_NODE pRootNode;
     size_t FileNodeSize = FIELD_OFFSET(CASC_FILE_NODE, ExtraValues);
-    int nError;
+    DWORD dwErrCode;
 
     // Initialize the file tree
     memset(this, 0, sizeof(CASC_FILE_TREE));
@@ -242,9 +221,9 @@ int CASC_FILE_TREE::Create(DWORD Flags)
         FileNodeSize += sizeof(DWORD);
 
         // Create the array for FileDataId -> CASC_FILE_NODE
-        nError = FileDataIds.Create<PCASC_FILE_NODE>(START_ITEM_COUNT);
-        if(nError != ERROR_SUCCESS)
-            return nError;
+        dwErrCode = FileDataIds.Create<PCASC_FILE_NODE>(START_ITEM_COUNT);
+        if(dwErrCode != ERROR_SUCCESS)
+            return dwErrCode;
     }
 
     // Shall we use the locale ID in the tree node?
@@ -264,12 +243,12 @@ int CASC_FILE_TREE::Create(DWORD Flags)
     FileNodeSize = ALIGN_TO_SIZE(FileNodeSize, 8);
 
     // Initialize the dynamic array
-    nError = NodeTable.Create(FileNodeSize, START_ITEM_COUNT);
-    if(nError == ERROR_SUCCESS)
+    dwErrCode = NodeTable.Create(FileNodeSize, START_ITEM_COUNT);
+    if(dwErrCode == ERROR_SUCCESS)
     {
         // Create the dynamic array that will hold the node names
-        nError = NameTable.Create<char>(START_ITEM_COUNT);
-        if(nError == ERROR_SUCCESS)
+        dwErrCode = NameTable.Create<char>(START_ITEM_COUNT);
+        if(dwErrCode == ERROR_SUCCESS)
         {
             // Insert the first "root" node, without name
             pRootNode = (PCASC_FILE_NODE)NodeTable.Insert(1);
@@ -287,8 +266,8 @@ int CASC_FILE_TREE::Create(DWORD Flags)
 
     // Create both maps
     if(!RebuildNameMaps())
-        nError = ERROR_NOT_ENOUGH_MEMORY;
-    return nError;
+        dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
+    return dwErrCode;
 }
 
 void CASC_FILE_TREE::Free()
@@ -307,21 +286,26 @@ void CASC_FILE_TREE::Free()
 
 PCASC_FILE_NODE CASC_FILE_TREE::InsertByName(PCASC_CKEY_ENTRY pCKeyEntry, const char * szFileName, DWORD FileDataId, DWORD LocaleFlags, DWORD ContentFlags)
 {
-    CASC_COMPARE_CONTEXT CmpCtx;
     PCASC_FILE_NODE pFileNode;
+    ULONGLONG FileNameHash;
 
     // Sanity checks
     assert(szFileName != NULL && szFileName[0] != 0);
     assert(pCKeyEntry != NULL);
 
+    //char szCKey[MD5_STRING_SIZE+1];
+    //char szEKey[MD5_STRING_SIZE+1];
+    //StringFromBinary(pCKeyEntry->CKey, MD5_HASH_SIZE, szCKey);
+    //StringFromBinary(pCKeyEntry->EKey, MD5_HASH_SIZE, szEKey);
+    //printf("%s\t%s\t%s\n", szCKey, szEKey, szFileName);
+
+    //BREAK_ON_XKEY3(pCKeyEntry->EKey, 0x03, 0xDC, 0x7D);
+
     // Calculate the file name hash
-    CmpCtx.FileNameHash = CalcFileNameHash(szFileName);
-//  CmpCtx.szFileName = szFileName;
-//  CmpCtx.pThis = this;
+    FileNameHash = CalcFileNameHash(szFileName);
 
     // Do nothing if the file name is there already.
-//  pFileNode = (PCASC_FILE_NODE)NameMap.FindObjectEx(CompareFileNode, &CmpCtx);
-    pFileNode = (PCASC_FILE_NODE)NameMap.FindObject(&CmpCtx.FileNameHash);
+    pFileNode = (PCASC_FILE_NODE)NameMap.FindObject(&FileNameHash);
     if(pFileNode == NULL)
     {
         // Insert new item
@@ -329,7 +313,7 @@ PCASC_FILE_NODE CASC_FILE_TREE::InsertByName(PCASC_CKEY_ENTRY pCKeyEntry, const 
         if(pFileNode != NULL)
         {
             // Supply the name hash
-            pFileNode->FileNameHash = CmpCtx.FileNameHash;
+            pFileNode->FileNameHash = FileNameHash;
 
             // Set the file data id and the extra values
             SetExtras(pFileNode, FileDataId, LocaleFlags, ContentFlags);
@@ -340,12 +324,13 @@ PCASC_FILE_NODE CASC_FILE_TREE::InsertByName(PCASC_CKEY_ENTRY pCKeyEntry, const 
             // Also make sure that it's in the file data id table, if the table is initialized
             InsertToIdTable(pFileNode);
 
-            // Set the file name of the new file node. This also increments the number of references
+            // Set the file name of the new file node
             SetNodeFileName(pFileNode, szFileName);
 
             // If we created a new node, we need to increment the reference count
             assert(pCKeyEntry->RefCount != 0xFFFF);
             pCKeyEntry->RefCount++;
+            FileNodes++;
         }
     }
 
@@ -492,8 +477,6 @@ PCASC_FILE_NODE CASC_FILE_TREE::Find(const char * szFullPath, DWORD FileDataId, 
     if(pFileNode != NULL && pFindData != NULL)
     {
         GetExtras(pFileNode, &pFindData->dwFileDataId, &pFindData->dwLocaleFlags, &pFindData->dwContentFlags);
-        pFindData->bCanOpenByName   = (pFileNode->FileNameHash != 0);
-        pFindData->bCanOpenByDataId = (FileDataIdOffset != 0);
     }
 
     return pFileNode;
@@ -543,7 +526,85 @@ bool CASC_FILE_TREE::SetNodeFileName(PCASC_FILE_NODE pFileNode, const char * szF
 {
     ULONGLONG FileNameHash = 0;
     PCASC_FILE_NODE pFolderNode = NULL;
-    const char * szNodeBegin = szFileName;
+    CASC_PATH<char> PathBuffer;
+    LPCSTR szNodeBegin = szFileName;
+    size_t nFileNode = NodeTable.IndexOf(pFileNode);
+    size_t i;
+    DWORD Parent = 0;
+
+    // Sanity checks
+    assert(szFileName != NULL && szFileName[0] != 0);
+
+    // Traverse the entire path. For each subfolder, we insert an appropriate fake entry
+    for(i = 0; szFileName[i] != 0; i++)
+    {
+        char chOneChar = szFileName[i];
+
+        // Is there a path separator?
+        // Note: Warcraft III paths may contain "mount points".
+        // Example: "frFR-War3Local.mpq:Maps/FrozenThrone/Campaign/NightElfX06Interlude.w3x:war3map.j"
+        if(chOneChar == '\\' || chOneChar == '/' || chOneChar == ':')
+        {
+            // Calculate hash of the file name up to the end of the node name
+            FileNameHash = CalcNormNameHash(PathBuffer, i);
+
+            // If the entry is not there yet, create new one
+            if((pFolderNode = Find(FileNameHash)) == NULL)
+            {
+                // Insert new entry to the tree
+                pFolderNode = InsertNew();
+                if(pFolderNode == NULL)
+                    return false;
+
+                // Populate the file entry
+                pFolderNode->FileNameHash = FileNameHash;
+                pFolderNode->Parent = Parent;
+                pFolderNode->Flags |= (chOneChar == ':') ? (CFN_FLAG_FOLDER | CFN_FLAG_MOUNT_POINT) : CFN_FLAG_FOLDER;
+                FolderNodes++;
+
+                // Set the node sub name to the node
+                SetNodePlainName(pFolderNode, szNodeBegin, szFileName + i);
+
+                // Insert the entry to the name map
+                InsertToHashTable(pFolderNode);
+            }
+
+            // Move the parent to the current node
+            Parent = (DWORD)NodeTable.IndexOf(pFolderNode);
+
+            // Move the begin of the node after the separator
+            szNodeBegin = szFileName + i + 1;
+        }
+
+        // Copy the next character, even if it was slash/backslash before
+        PathBuffer.AppendChar(AsciiToUpperTable_BkSlash[chOneChar]);
+    }
+
+    // If anything left, this is gonna be our node name
+    if(szNodeBegin < szFileName + i)
+    {
+        // We need to reset the file node pointer, as the file node table might have changed
+        pFileNode = (PCASC_FILE_NODE)NodeTable.ItemAt(nFileNode);
+        
+        // Write the plain file name to the node
+        SetNodePlainName(pFileNode, szNodeBegin, szFileName + i);
+        pFileNode->Parent = Parent;
+
+        // Also insert the node to the hash table so CascOpenFile can find it
+        if(pFileNode->FileNameHash == 0)
+        {
+            pFileNode->FileNameHash = CalcNormNameHash(PathBuffer, i);
+            InsertToHashTable(pFileNode);
+        }
+    }
+    return true;
+}
+/*
+bool CASC_FILE_TREE::SetNodeFileName(PCASC_FILE_NODE pFileNode, const char * szFileName)
+{
+    ULONGLONG FileNameHash = 0;
+    PCASC_FILE_NODE pFolderNode = NULL;
+    LPCSTR szNodeBegin = szFileName;
     char szPathBuffer[MAX_PATH+1];
     size_t nFileNode = NodeTable.IndexOf(pFileNode);
     size_t i;
@@ -551,7 +612,6 @@ bool CASC_FILE_TREE::SetNodeFileName(PCASC_FILE_NODE pFileNode, const char * szF
 
     // Sanity checks
     assert(szFileName != NULL && szFileName[0] != 0);
-    assert(pFileNode->pCKeyEntry != NULL);
 
     // Traverse the entire path. For each subfolder, we insert an appropriate fake entry
     for(i = 0; szFileName[i] != 0; i++)
@@ -577,8 +637,8 @@ bool CASC_FILE_TREE::SetNodeFileName(PCASC_FILE_NODE pFileNode, const char * szF
                 // Populate the file entry
                 pFolderNode->FileNameHash = FileNameHash;
                 pFolderNode->Parent = Parent;
-                pFolderNode->Flags |= (chOneChar == ':') ? CFN_FLAG_MOUNT_POINT : 0;
-                pFolderNode->Flags |= CFN_FLAG_FOLDER;
+                pFolderNode->Flags |= (chOneChar == ':') ? (CFN_FLAG_FOLDER | CFN_FLAG_MOUNT_POINT) : CFN_FLAG_FOLDER;
+                FolderNodes++;
 
                 // Set the node sub name to the node
                 SetNodePlainName(pFolderNode, szNodeBegin, szFileName + i);
@@ -604,12 +664,20 @@ bool CASC_FILE_TREE::SetNodeFileName(PCASC_FILE_NODE pFileNode, const char * szF
         // We need to reset the file node pointer, as the file node table might have changed
         pFileNode = (PCASC_FILE_NODE)NodeTable.ItemAt(nFileNode);
         
+        // Write the plain file name to the node
         SetNodePlainName(pFileNode, szNodeBegin, szFileName + i);
         pFileNode->Parent = Parent;
+
+        // Also insert the node to the hash table so CascOpenFile can find it
+        if(pFileNode->FileNameHash == 0)
+        {
+            pFileNode->FileNameHash = CalcNormNameHash(szPathBuffer, i);
+            InsertToHashTable(pFileNode);
+        }
     }
     return true;
 }
-
+*/
 size_t CASC_FILE_TREE::GetMaxFileIndex()
 {
     if(FileDataIds.IsInitialized())

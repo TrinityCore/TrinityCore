@@ -9,8 +9,10 @@ set(HEADER_FILES
     src/common/Directory.h
     src/common/FileStream.h
     src/common/FileTree.h
+    src/common/IndexMap.h
     src/common/ListFile.h
     src/common/Map.h
+    src/common/Path.h
     src/common/RootHandler.h
     src/jenkins/lookup.h
 )
@@ -24,7 +26,6 @@ set(SRC_FILES
     src/common/ListFile.cpp
     src/common/RootHandler.cpp
     src/jenkins/lookup3.c
-    src/CascCommon.cpp
     src/CascDecompress.cpp
     src/CascDecrypt.cpp
     src/CascDumpData.cpp

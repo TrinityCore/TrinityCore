@@ -41,13 +41,13 @@ bool ChunkedFile::loadFile(CASC::StorageHandle const& mpq, std::string const& fi
     if (!file)
         return false;
 
-    DWORD fileSize = CASC::GetFileSize(file, nullptr);
-    if (fileSize == CASC_INVALID_SIZE)
+    int64 fileSize = CASC::GetFileSize(file);
+    if (fileSize == -1)
         return false;
 
-    data_size = fileSize;
+    data_size = uint32(fileSize);
     data = new uint8[data_size];
-    DWORD bytesRead = 0;
+    uint32 bytesRead = 0;
     if (!CASC::ReadFile(file, data, data_size, &bytesRead) || bytesRead != data_size)
         return false;
 
@@ -68,13 +68,13 @@ bool ChunkedFile::loadFile(CASC::StorageHandle const& mpq, uint32 fileDataId, st
     if (!file)
         return false;
 
-    DWORD fileSize = CASC::GetFileSize(file, nullptr);
-    if (fileSize == CASC_INVALID_SIZE)
+    int64 fileSize = CASC::GetFileSize(file);
+    if (fileSize == -1)
         return false;
 
     data_size = fileSize;
     data = new uint8[data_size];
-    DWORD bytesRead = 0;
+    uint32 bytesRead = 0;
     if (!CASC::ReadFile(file, data, data_size, &bytesRead) || bytesRead != data_size)
         return false;
 

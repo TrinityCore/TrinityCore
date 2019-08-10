@@ -43,7 +43,7 @@ class CASC_ARRAY
     int Create(size_t ItemSize, size_t ItemCountMax)
     {
         // Create the array
-        if ((m_pItemArray = CASC_ALLOC(BYTE, ItemSize * ItemCountMax)) == NULL)
+        if ((m_pItemArray = CASC_ALLOC<BYTE>(ItemSize * ItemCountMax)) == NULL)
             return ERROR_NOT_ENOUGH_MEMORY;
 
         m_ItemCountMax = ItemCountMax;
@@ -53,12 +53,12 @@ class CASC_ARRAY
     }
 
     // Inserts one or more items; returns pointer to the first inserted item
-    void * Insert(size_t NewItemCount)
+    void * Insert(size_t NewItemCount, bool bEnlargeAllowed = true)
     {
         void * pNewItems;
 
         // Try to enlarge the buffer, if needed
-        if (!EnlargeArray(m_ItemCount + NewItemCount))
+        if (!EnlargeArray(m_ItemCount + NewItemCount, bEnlargeAllowed))
             return NULL;
         pNewItems = m_pItemArray + (m_ItemCount * m_ItemSize);
 
@@ -70,9 +70,9 @@ class CASC_ARRAY
     }
 
     // Inserts one or more items; returns pointer to the first inserted item
-    void * Insert(const void * NewItems, size_t NewItemCount)
+    void * Insert(const void * NewItems, size_t NewItemCount, bool bEnlargeAllowed = true)
     {
-        void * pNewItem = Insert(NewItemCount);
+        void * pNewItem = Insert(NewItemCount, bEnlargeAllowed);
 
         // Copy the item(s) to the array, if any
         if (pNewItem && NewItems)
@@ -99,7 +99,7 @@ class CASC_ARRAY
         LPBYTE pbNewItem;
 
         // Make sure we have array large enough
-        if(!EnlargeArray(ItemIndex + 1))
+        if(!EnlargeArray(ItemIndex + 1, true))
             return NULL;
         
         // Get the items range
@@ -169,7 +169,7 @@ class CASC_ARRAY
 
     protected:
 
-    bool EnlargeArray(size_t NewItemCount)
+    bool EnlargeArray(size_t NewItemCount, bool bEnlargeAllowed)
     {
         LPBYTE NewItemArray;
         size_t ItemCountMax;
@@ -181,6 +181,10 @@ class CASC_ARRAY
         // Shall we enlarge the table?
         if (NewItemCount > m_ItemCountMax)
         {
+            // Deny enlarge if not allowed
+            if(bEnlargeAllowed == false)
+                return false;
+
             // Calculate new table size
             ItemCountMax = m_ItemCountMax;
             while (ItemCountMax < NewItemCount)

@@ -94,7 +94,7 @@ struct FILE_INDEX_FOOTER
     BYTE PageSizeKB;                                // Length, in kilobytes, of the index page
     BYTE OffsetBytes;                               // Normally 4 for archive indices, 6 for group indices, and 0 for loose file indices
     BYTE SizeBytes;                                 // Normally 4
-    BYTE EKeySizeBytes;                             // Normally 16
+    BYTE EKeyLength;                                // Normally 16
     BYTE FooterHashBytes;                           // Normally 8, <= 0x10
     BYTE ElementCount[4];                           // BigEndian in _old_ versions (e.g. 18179)
     BYTE FooterHash[CHKSUM_LENGTH];
