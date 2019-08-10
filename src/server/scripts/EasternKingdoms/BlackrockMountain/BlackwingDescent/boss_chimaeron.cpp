@@ -277,6 +277,7 @@ struct boss_chimaeron : public BossAI
                         if (finkle->IsAIEnabled)
                             finkle->AI()->Talk(SAY_BILE_O_TRON_KNOCKED_OUT, me);
 
+                    me->StopMoving();
                     DoCastSelf(SPELL_FEUD);
                     _knockOutChance = 40;
                 }
