@@ -3787,6 +3787,27 @@ enum LineOfSightChecks
     LINEOFSIGHT_ALL_CHECKS      = (LINEOFSIGHT_CHECK_VMAP | LINEOFSIGHT_CHECK_GOBJECT)
 };
 
+enum ServerProcessTypes
+{
+    SERVER_PROCESS_AUTHSERVER = 0,
+    SERVER_PROCESS_WORLDSERVER = 1,
+
+    NUM_SERVER_PROCESS_TYPES
+};
+
+namespace Trinity
+{
+namespace Impl
+{
+    struct TC_SHARED_API CurrentServerProcessHolder
+    {
+        static ServerProcessTypes type() { return _type; }
+        static ServerProcessTypes _type;
+    };
+}
+}
+#define THIS_SERVER_PROCESS (Trinity::Impl::CurrentServerProcessHolder::type())
+
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 #endif
