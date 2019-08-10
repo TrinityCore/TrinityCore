@@ -292,7 +292,7 @@ class boss_urom : public CreatureScript
             {
                 me->RemoveAllAuras();
                 me->CombatStop(false);
-                me->GetThreatManager().NotifyDisengaged();
+                EngagementOver();
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override

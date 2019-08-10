@@ -33,7 +33,7 @@
 enum MageSpells
 {
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
-    SPELL_MAGE_BURNOUT                           = 29077,
+    SPELL_MAGE_BURNOUT                           = 44450,
     SPELL_MAGE_COLD_SNAP                         = 11958,
     SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
@@ -532,7 +532,8 @@ class spell_mage_empowered_fire : public SpellScriptLoader
 
                 Unit* target = GetTarget();
                 CastSpellExtraArgs args(aurEff);
-                args.AddSpellBP0(CalculatePct(target->GetCreateMana(), aurEff->GetAmount()));
+                uint8 percent = sSpellMgr->AssertSpellInfo(SPELL_MAGE_EMPOWERED_FIRE_PROC)->Effects[EFFECT_0].CalcValue();
+                args.AddSpellBP0(CalculatePct(target->GetCreateMana(), percent));
                 target->CastSpell(target, SPELL_MAGE_EMPOWERED_FIRE_PROC, args);
             }
 

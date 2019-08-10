@@ -1215,6 +1215,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SUMMON_CREATURE:
         {
+            if (!GetBaseObject())
+                break;
+
             float x, y, z, o;
             for (WorldObject* target : targets)
             {

@@ -3066,9 +3066,9 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
         if (!(m_spellInfo->IsNextMeleeSwingSpell() || IsAutoRepeat()))
         {
             if (m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
-                m_caster->ToCreature()->FocusTarget(this, m_targets.GetObjectTarget());
+                m_caster->ToCreature()->SetSpellFocus(this, m_targets.GetObjectTarget());
             else if (m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
-                m_caster->ToCreature()->FocusTarget(this, nullptr);
+                m_caster->ToCreature()->SetSpellFocus(this, nullptr);
         }
     }
 
@@ -3314,7 +3314,7 @@ void Spell::_cast(bool skipCheck)
     }
 
     // if the spell allows the creature to turn while casting, then adjust server-side orientation to face the target now
-    // client-side orientation is handled by the client itself, as the cast target is targeted due to Creature::FocusTarget
+    // client-side orientation is handled by the client itself, as the cast target is targeted due to Creature::SetSpellFocusTarget
     if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED))
         if (!m_spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST))
             if (WorldObject* objTarget = m_targets.GetObjectTarget())
@@ -3382,7 +3382,7 @@ void Spell::_cast(bool skipCheck)
 
     if (!m_spellInfo->IsChanneled())
         if (Creature* creatureCaster = m_caster->ToCreature())
-            creatureCaster->ReleaseFocus(this);
+            creatureCaster->ReleaseSpellFocus(this);
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->HasAttribute(SPELL_ATTR4_UNK4))
@@ -3803,7 +3803,7 @@ void Spell::finish(bool ok)
     }
 
     if (Creature* creatureCaster = unitCaster->ToCreature())
-        creatureCaster->ReleaseFocus(this);
+        creatureCaster->ReleaseSpellFocus(this);
 
     if (!ok)
         return;
@@ -3816,7 +3816,10 @@ void Spell::finish(bool ok)
         if (spellInfo && spellInfo->SpellIconID == 2056)
         {
             TC_LOG_DEBUG("spells", "Statue %d is unsummoned in spell %d finish", unitCaster->GetGUID().GetCounter(), m_spellInfo->Id);
-            unitCaster->setDeathState(JUST_DIED);
+            // Avoid infinite loops with setDeathState(JUST_DIED) being called over and over
+            // It might make sense to do this check in Unit::setDeathState() and all overloaded functions
+            if(unitCaster->getDeathState() != JUST_DIED)
+                unitCaster->setDeathState(JUST_DIED);
             return;
         }
     }
@@ -4551,8 +4554,8 @@ void Spell::SendChannelStart(uint32 duration)
 
         if (channelTarget != unitCaster->GetGUID())
             if (Creature* creatureCaster = unitCaster->ToCreature())
-                if (!creatureCaster->IsFocusing(this))
-                    creatureCaster->FocusTarget(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
+                if (!creatureCaster->HasSpellFocus(this))
+                    creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
     }
 
     unitCaster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
@@ -7009,8 +7012,7 @@ void Spell::Delayed() // only called in DealDamage()
     int32 delaytime = 500;                                  // spellcasting delay is normally 500ms
 
     int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
-    if (Player* player = playerCaster->GetSpellModOwner())
-        player->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
+    playerCaster->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
     delayReduce += playerCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
@@ -7055,8 +7057,7 @@ void Spell::DelayedChannel()
     int32 delaytime = CalculatePct(duration, 25); // channeling delay is normally 25% of its time per hit
 
     int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
-    if (Player* player = playerCaster->GetSpellModOwner())
-        player->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
+    playerCaster->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
     delayReduce += playerCaster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;

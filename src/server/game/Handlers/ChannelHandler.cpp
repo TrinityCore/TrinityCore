@@ -117,8 +117,6 @@ void WorldSession::HandleLeaveChannel(WorldPacket& recvPacket)
 
         if (channelId)
             cMgr->LeftChannel(channelId, zone);
-        else
-            cMgr->LeftChannel(channelName);
     }
 }
 

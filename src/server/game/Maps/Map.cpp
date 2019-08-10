@@ -2967,7 +2967,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
                     if (!creature->IsAlive())
                         continue;
                     // escort NPCs are allowed to respawn as long as all other instances are already escorting
-                    if (isEscort && creature->IsEscortNPC(true))
+                    if (isEscort && creature->IsEscorted())
                         continue;
                     doDelete = true;
                     break;
@@ -4562,13 +4562,13 @@ void Map::SendZoneDynamicInfo(uint32 zoneId, Player* player) const
 
     SendZoneWeather(itr->second, player);
 
-    if (uint32 overrideLight = itr->second.OverrideLightId)
+    if (uint32 overrideLightId = itr->second.OverrideLightId)
     {
-        WorldPacket data(SMSG_OVERRIDE_LIGHT, 4 + 4 + 1);
-        data << uint32(_defaultLight);
-        data << uint32(overrideLight);
-        data << uint32(itr->second.LightFadeInTime);
-        player->SendDirectMessage(&data);
+        WorldPackets::Misc::OverrideLight overrideLight;
+        overrideLight.AreaLightID = _defaultLight;
+        overrideLight.OverrideLightID = overrideLightId;
+        overrideLight.TransitionMilliseconds = itr->second.LightFadeInTime;
+        player->SendDirectMessage(overrideLight.Write());
     }
 }
 
@@ -4658,15 +4658,16 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime)
     Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())
     {
-        WorldPacket data(SMSG_OVERRIDE_LIGHT, 4 + 4 + 1);
-        data << uint32(_defaultLight);
-        data << uint32(lightId);
-        data << uint32(fadeInTime);
+        WorldPackets::Misc::OverrideLight overrideLight;
+        overrideLight.AreaLightID = _defaultLight;
+        overrideLight.OverrideLightID = lightId;
+        overrideLight.TransitionMilliseconds = fadeInTime;
+        overrideLight.Write();
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             if (Player* player = itr->GetSource())
                 if (player->GetZoneId() == zoneId)
-                    player->SendDirectMessage(&data);
+                    player->SendDirectMessage(overrideLight.GetRawPacket());
     }
 }
 

@@ -354,7 +354,7 @@ public:
             {
                 if (GameObject* pOrb = GetOrb(i))
                 {
-                    if (pOrb->GetFaction() == 35)
+                    if (pOrb->GetFaction() == FACTION_FRIENDLY)
                     {
                         pOrb->CastSpell(me, SPELL_RING_OF_BLUE_FLAMES);
                         pOrb->setActive(true);
@@ -380,7 +380,7 @@ class go_orb_of_the_blue_flight : public GameObjectScript
 
             bool GossipHello(Player* player) override
             {
-                if (me->GetFaction() == 35)
+                if (me->GetFaction() == FACTION_FRIENDLY)
                 {
                     player->SummonCreature(NPC_POWER_OF_THE_BLUE_DRAGONFLIGHT, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
                     player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);

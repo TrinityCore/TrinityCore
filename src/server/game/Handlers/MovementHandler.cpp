@@ -434,6 +434,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 }
             }
         }
+        else
+            plrMover->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_IS_OUT_OF_BOUNDS);
     }
 }
 

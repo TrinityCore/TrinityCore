@@ -22,6 +22,7 @@
 #include "QueryPackets.h"
 #include "QuestPackets.h"
 #include "SpellPackets.h"
+#include "TotemPackets.h"
 #include "WorldStatePackets.h"
 
 #endif // AllPackets_h__

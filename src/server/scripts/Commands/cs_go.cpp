@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
 #include "MapManager.h"
@@ -67,7 +68,8 @@ public:
             { "xyz",                rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoXYZCommand,                         "" },
             { "ticket",             rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoTicketCommand,                      "" },
             { "offset",             rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoOffsetCommand,                      "" },
-            { "instance",           rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoInstanceCommand,                    "" }
+            { "instance",           rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoInstanceCommand,                    "" },
+            { "boss",               rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoBossCommand,                        "" }
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -389,49 +391,46 @@ public:
 
     static bool HandleGoInstanceCommand(ChatHandler* handler, std::vector<std::string> const& labels)
     {
-        uint32 mapid = 0;
+        if (labels.empty())
+            return false;
 
-        std::multimap<uint32, std::pair<uint16, std::string>> matches;
+        // #matched labels -> (mapid, scriptname)
+        std::multimap<uint32, std::tuple<uint16, char const*, char const*>> matches;
         for (auto const& pair : sObjectMgr->GetInstanceTemplates())
         {
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
+            char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->name[handler->GetSessionDbcLocale()];
             for (auto const& label : labels)
                 if (StringContainsStringI(scriptName, label))
                     ++count;
 
             if (count)
-                matches.emplace(count, decltype(matches)::mapped_type({ pair.first, scriptName }));
+                matches.emplace(count, decltype(matches)::mapped_type(pair.first, mapName, scriptName.c_str()));
         }
         if (matches.empty())
         {
             handler->SendSysMessage(LANG_COMMAND_NO_INSTANCES_MATCH);
+            handler->SetSentErrorMessage(true);
             return false;
         }
-        auto it = matches.rbegin();
-        uint32 maxCount = it->first;
-        mapid = it->second.first;
-        if (++it != matches.rend() && it->first == maxCount)
+
+        auto it = matches.crbegin(), end = matches.crend();
+        uint32 const maxCount = it->first;
+        if ((++it) != end && it->first == maxCount)
         {
             handler->SendSysMessage(LANG_COMMAND_MULTIPLE_INSTANCES_MATCH);
             --it;
             do
-                handler->PSendSysMessage(LANG_COMMAND_MULTIPLE_INSTANCES_ENTRY, it->second.first, it->second.second);
-            while (++it != matches.rend() && it->first == maxCount);
+                handler->PSendSysMessage(LANG_COMMAND_MULTIPLE_INSTANCES_ENTRY, std::get<1>(it->second), std::get<0>(it->second), std::get<2>(it->second));
+            while (((++it) != end) && (it->first == maxCount));
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        ASSERT(mapid);
-
-        InstanceTemplate const* temp = sObjectMgr->GetInstanceTemplate(mapid);
-        if (!temp)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_MAP_NOT_INSTANCE, mapid);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-        std::string const& scriptname = sObjectMgr->GetScriptName(temp->ScriptId);
+        it = matches.crbegin();
+        uint32 const mapId = std::get<0>(it->second);
+        char const* const mapName = std::get<1>(it->second);
 
         Player* player = handler->GetSession()->GetPlayer();
         if (player->IsInFlight())
@@ -440,30 +439,141 @@ public:
             player->SaveRecallPosition();
 
         // try going to entrance
-        AreaTrigger const* exit = sObjectMgr->GetGoBackTrigger(mapid);
-        if (!exit)
-            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_EXIT, mapid, scriptname);
-
-        if (exit && player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
+        if (AreaTrigger const* exit = sObjectMgr->GetGoBackTrigger(mapId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_GATE, mapid, scriptname);
-            return true;
+            if (player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
+            {
+                handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_GATE, mapName, mapId);
+                return true;
+            }
+            else
+            {
+                uint32 const parentMapId = exit->target_mapId;
+                char const* const parentMapName = ASSERT_NOTNULL(sMapStore.LookupEntry(parentMapId))->name[handler->GetSessionDbcLocale()];
+                handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_GATE_FAILED, mapName, mapId, parentMapName, parentMapId);
+            }
         }
+        else
+            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_EXIT, mapName, mapId);
 
         // try going to start
-        AreaTrigger const* entrance = sObjectMgr->GetMapEntranceTrigger(mapid);
-        if (!entrance)
-            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_ENTRANCE, mapid, scriptname);
-
-        if (entrance && player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
+        if (AreaTrigger const* entrance = sObjectMgr->GetMapEntranceTrigger(mapId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_START, mapid, scriptname);
-            return true;
+            if (player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
+            {
+                handler->PSendSysMessage(LANG_COMMAND_WENT_TO_INSTANCE_START, mapName, mapId);
+                return true;
+            }
+            else
+                handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_START_FAILED, mapName, mapId);
         }
+        else
+            handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_ENTRANCE, mapName, mapId);
 
-        handler->PSendSysMessage(LANG_COMMAND_GO_INSTANCE_FAILED, mapid, scriptname, exit ? exit->target_mapId : uint32(-1));
         handler->SetSentErrorMessage(true);
         return false;
+    }
+
+    static bool HandleGoBossCommand(ChatHandler* handler, std::vector<std::string> const& needles)
+    {
+        if (needles.empty())
+            return false;
+
+        std::multimap<uint32, CreatureTemplate const*> matches;
+        std::unordered_map<uint32, std::vector<CreatureData const*>> spawnLookup;
+
+        // find all boss flagged mobs that match our needles
+        for (auto const& pair : sObjectMgr->GetCreatureTemplates())
+        {
+            CreatureTemplate const& data = pair.second;
+            if (!(data.flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS))
+                continue;
+
+            uint32 count = 0;
+            std::string const& scriptName = sObjectMgr->GetScriptName(data.ScriptID);
+            for (auto const& label : needles)
+                if (StringContainsStringI(scriptName, label) || StringContainsStringI(data.Name, label))
+                    ++count;
+
+            if (count)
+            {
+                matches.emplace(count, &data);
+                (void)spawnLookup[data.Entry]; // inserts default-constructed vector
+            }
+        }
+
+        if (!matches.empty())
+        {
+            // find the spawn points of any matches
+            for (auto const& pair : sObjectMgr->GetAllCreatureData())
+            {
+                CreatureData const& data = pair.second;
+                auto it = spawnLookup.find(data.id);
+                if (it != spawnLookup.end())
+                    it->second.push_back(&data);
+            }
+
+            // remove any matches without spawns
+            Trinity::Containers::EraseIf(matches, [&spawnLookup](decltype(matches)::value_type const& pair) { return spawnLookup[pair.second->Entry].empty(); });
+        }
+
+        // check if we even have any matches left
+        if (matches.empty())
+        {
+            handler->SendSysMessage(LANG_COMMAND_NO_BOSSES_MATCH);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // see if we have multiple equal matches left
+        auto it = matches.crbegin(), end = matches.crend();
+        uint32 const maxCount = it->first;
+        if ((++it) != end && it->first == maxCount)
+        {
+            handler->SendSysMessage(LANG_COMMAND_MULTIPLE_BOSSES_MATCH);
+            --it;
+            do
+                handler->PSendSysMessage(LANG_COMMAND_MULTIPLE_BOSSES_ENTRY, it->second->Entry, it->second->Name.c_str(), sObjectMgr->GetScriptName(it->second->ScriptID).c_str());
+            while (((++it) != end) && (it->first == maxCount));
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        CreatureTemplate const* const boss = matches.crbegin()->second;
+        std::vector<CreatureData const*> const& spawns = spawnLookup[boss->Entry];
+        ASSERT(!spawns.empty());
+
+        if (spawns.size() > 1)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_BOSS_MULTIPLE_SPAWNS, boss->Name.c_str(), boss->Entry);
+            for (CreatureData const* spawn : spawns)
+            {
+                uint32 const mapId = spawn->spawnPoint.GetMapId();
+                MapEntry const* const map = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId));
+                handler->PSendSysMessage(LANG_COMMAND_BOSS_MULTIPLE_SPAWN_ETY, spawn->spawnId, mapId, map->name[handler->GetSessionDbcLocale()], spawn->spawnPoint.GetPosition().ToString().c_str());
+            }
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* player = handler->GetSession()->GetPlayer();
+        if (player->IsInFlight())
+            player->FinishTaxiFlight();
+        else
+            player->SaveRecallPosition();
+
+        CreatureData const* const spawn = spawns.front();
+        uint32 const mapId = spawn->spawnPoint.GetMapId();
+        if (!player->TeleportTo(spawn->spawnPoint))
+        {
+            char const* const mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(mapId))->name[handler->GetSessionDbcLocale()];
+            handler->PSendSysMessage(LANG_COMMAND_GO_BOSS_FAILED, spawn->spawnId, boss->Name.c_str(), boss->Entry, mapName);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        handler->PSendSysMessage(LANG_COMMAND_WENT_TO_BOSS, boss->Name.c_str(), boss->Entry, spawn->spawnId);
+        return true;
     }
 };
 
