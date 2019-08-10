@@ -9117,41 +9117,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 packet.Worldstates.emplace_back(3610, 0x0);           // 9 show
             }
             break;
-        case 4384:                                          // Strand of the Ancients
-            if (bg && bg->GetTypeID(true) == BATTLEGROUND_SA)
-                bg->FillInitialWorldStates(packet);
-            else
-            {
-                // 1-3 A defend, 4-6 H defend, 7-9 unk defend, 1 - ok, 2 - half destroyed, 3 - destroyed
-                packet.Worldstates.emplace_back(0xf09, 0x0);       // 7  3849 Gate of Temple
-                packet.Worldstates.emplace_back(0xe36, 0x0);       // 8  3638 Gate of Yellow Moon
-                packet.Worldstates.emplace_back(0xe27, 0x0);       // 9  3623 Gate of Green Emerald
-                packet.Worldstates.emplace_back(0xe24, 0x0);       // 10 3620 Gate of Blue Sapphire
-                packet.Worldstates.emplace_back(0xe21, 0x0);       // 11 3617 Gate of Red Sun
-                packet.Worldstates.emplace_back(0xe1e, 0x0);       // 12 3614 Gate of Purple Ametyst
-
-                packet.Worldstates.emplace_back(0xdf3, 0x0);       // 13 3571 bonus timer (1 - on, 0 - off)
-                packet.Worldstates.emplace_back(0xded, 0x0);       // 14 3565 Horde Attacker
-                packet.Worldstates.emplace_back(0xdec, 0x0);       // 15 3564 Alliance Attacker
-                // End Round (timer), better explain this by example, eg. ends in 19:59 -> A:BC
-                packet.Worldstates.emplace_back(0xde9, 0x0);       // 16 3561 C
-                packet.Worldstates.emplace_back(0xde8, 0x0);       // 17 3560 B
-                packet.Worldstates.emplace_back(0xde7, 0x0);       // 18 3559 A
-                packet.Worldstates.emplace_back(0xe35, 0x0);       // 19 3637 East g - Horde control
-                packet.Worldstates.emplace_back(0xe34, 0x0);       // 20 3636 West g - Horde control
-                packet.Worldstates.emplace_back(0xe33, 0x0);       // 21 3635 South g - Horde control
-                packet.Worldstates.emplace_back(0xe32, 0x0);       // 22 3634 East g - Alliance control
-                packet.Worldstates.emplace_back(0xe31, 0x0);       // 23 3633 West g - Alliance control
-                packet.Worldstates.emplace_back(0xe30, 0x0);       // 24 3632 South g - Alliance control
-                packet.Worldstates.emplace_back(0xe2f, 0x0);       // 25 3631 Chamber of Ancients - Horde control
-                packet.Worldstates.emplace_back(0xe2e, 0x0);       // 26 3630 Chamber of Ancients - Alliance control
-                packet.Worldstates.emplace_back(0xe2d, 0x0);       // 27 3629 Beach1 - Horde control
-                packet.Worldstates.emplace_back(0xe2c, 0x0);       // 28 3628 Beach2 - Horde control
-                packet.Worldstates.emplace_back(0xe2b, 0x0);       // 29 3627 Beach1 - Alliance control
-                packet.Worldstates.emplace_back(0xe2a, 0x0);       // 30 3626 Beach2 - Alliance control
-                // and many unks...
-            }
-            break;
         case 4406:                                          // Ring of Valor
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_RV)
                 bg->FillInitialWorldStates(packet);
