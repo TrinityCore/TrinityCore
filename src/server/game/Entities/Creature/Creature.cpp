@@ -3162,7 +3162,7 @@ void Creature::ReacquireSpellFocusTarget()
 
     SetTarget(_spellFocusInfo.Target);
 
-    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
+    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN) && !IsMovementPreventedByCasting())
     {
         if (_spellFocusInfo.Target)
         {
