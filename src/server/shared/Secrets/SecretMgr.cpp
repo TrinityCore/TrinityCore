@@ -15,20 +15,18 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "SecretMgr.h"
 #include "AES.h"
 #include "Argon2.h"
 #include "Config.h"
-#include "CryptoGenerics.hpp"
+#include "CryptoGenerics.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "Log.h"
 #include "SharedDefines.h"
 #include <functional>
 #include <unordered_map>
-
-using namespace Trinity::Crypto;
 
 #define SECRET_FLAG_FOR(key, val, server) server ## _ ## key = (val ## ull << (16*SERVER_PROCESS_ ## server))
 #define SECRET_FLAG(key, val) SECRET_FLAG_ ## key = val, SECRET_FLAG_FOR(key, val, AUTHSERVER), SECRET_FLAG_FOR(key, val, WORLDSERVER)
@@ -124,7 +122,7 @@ void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std
     // verify digest
     if (
         ((!oldDigest) != (!currentValue)) || // there is an old digest, but no current secret (or vice versa)
-        (oldDigest && !Argon2::Verify(currentValue->AsHexStr(), *oldDigest)) // there is an old digest, and the current secret does not match it
+        (oldDigest && !Trinity::Crypto::Argon2::Verify(currentValue->AsHexStr(), *oldDigest)) // there is an old digest, and the current secret does not match it
         )
     {
         if (info.owner != THIS_SERVER_PROCESS)
@@ -141,7 +139,7 @@ void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std
         if (oldDigest && info.oldKey) // there is an old digest, so there might be an old secret (if possible)
         {
             oldSecret = GetHexFromConfig(info.oldKey, info.bits);
-            if (oldSecret && !Argon2::Verify(oldSecret->AsHexStr(), *oldDigest))
+            if (oldSecret && !Trinity::Crypto::Argon2::Verify(oldSecret->AsHexStr(), *oldDigest))
             {
                 TC_LOG_MESSAGE_BODY("server.loading", errorLevel, "Invalid value for '%s' specified - this is not actually the secret previously used in your auth DB.", info.oldKey);
                 _secrets[i].state = Secret::LOAD_FAILED;
@@ -193,13 +191,13 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
                     if (!oldSecret)
                         return Trinity::StringFormat("Cannot decrypt old TOTP tokens - add config key '%s' to authserver.conf!", secret_info[i].oldKey);
 
-                    bool success = AEDecrypt<AES>(totpSecret, oldSecret->AsByteArray<AES::KEY_SIZE_BYTES>());
+                    bool success = Trinity::Crypto::AEDecrypt<Trinity::Crypto::AES>(totpSecret, oldSecret->AsByteArray<Trinity::Crypto::AES::KEY_SIZE_BYTES>());
                     if (!success)
                         return Trinity::StringFormat("Cannot decrypt old TOTP tokens - value of '%s' is incorrect for some users!", secret_info[i].oldKey);
                 }
 
                 if (newSecret)
-                    AEEncryptWithRandomIV<AES>(totpSecret, newSecret->AsByteArray<AES::KEY_SIZE_BYTES>());
+                    Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(totpSecret, newSecret->AsByteArray<Trinity::Crypto::AES::KEY_SIZE_BYTES>());
 
                 PreparedStatement* updateStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
                 updateStmt->setBinary(0, totpSecret);
@@ -224,7 +222,7 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
     {
         BigNumber salt;
         salt.SetRand(128);
-        Optional<std::string> hash = Argon2::Hash(newSecret->AsHexStr(), salt);
+        Optional<std::string> hash = Trinity::Crypto::Argon2::Hash(newSecret->AsHexStr(), salt);
         if (!hash)
             return std::string("Failed to hash new secret");
 

@@ -16,7 +16,7 @@
  */
 
 #include "Base32.h"
-#include "BaseEncoding.hpp"
+#include "BaseEncoding.h"
 #include "Errors.h"
 
 struct B32Impl

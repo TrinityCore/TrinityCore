@@ -17,11 +17,9 @@
 
 #include "AES.h"
 #include "Errors.h"
-#include <array>
 #include <limits>
-#include <openssl/rand.h>
 
-Trinity::Crypto::AES::AES(bool encrypting) : _encrypting(encrypting), _ctx(EVP_CIPHER_CTX_new())
+Trinity::Crypto::AES::AES(bool encrypting) : _ctx(EVP_CIPHER_CTX_new()), _encrypting(encrypting)
 {
     EVP_CIPHER_CTX_init(_ctx);
     int status = EVP_CipherInit_ex(_ctx, EVP_aes_128_gcm(), nullptr, nullptr, nullptr, _encrypting ? 1 : 0);
@@ -33,13 +31,13 @@ Trinity::Crypto::AES::~AES()
     EVP_CIPHER_CTX_free(_ctx);
 }
 
-void Trinity::Crypto::AES::Init(Trinity::Crypto::AES::Key const& key)
+void Trinity::Crypto::AES::Init(Key const& key)
 {
     int status = EVP_CipherInit_ex(_ctx, nullptr, nullptr, key.data(), nullptr, -1);
     ASSERT(status);
 }
 
-bool Trinity::Crypto::AES::Process(Trinity::Crypto::AES::IV const& iv, uint8* data, std::size_t length, Trinity::Crypto::AES::Tag& tag)
+bool Trinity::Crypto::AES::Process(IV const& iv, uint8* data, std::size_t length, Tag& tag)
 {
     ASSERT(length <= std::numeric_limits<int>::max());
     int len = static_cast<int>(length);
@@ -49,13 +47,15 @@ bool Trinity::Crypto::AES::Process(Trinity::Crypto::AES::IV const& iv, uint8* da
     int outLen;
     if (!EVP_CipherUpdate(_ctx, data, &outLen, data, len))
         return false;
+
     len -= outLen;
 
-    if (!_encrypting && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_SET_TAG, TAG_SIZE_BYTES, tag))
+    if (!_encrypting && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_SET_TAG, sizeof(tag), tag))
         return false;
 
     if (!EVP_CipherFinal_ex(_ctx, data + outLen, &outLen))
         return false;
+
     ASSERT(len == outLen);
 
     if (_encrypting && !EVP_CIPHER_CTX_ctrl(_ctx, EVP_CTRL_GCM_GET_TAG, sizeof(tag), tag))

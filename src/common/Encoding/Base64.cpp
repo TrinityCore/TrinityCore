@@ -16,7 +16,7 @@
  */
 
 #include "Base64.h"
-#include "BaseEncoding.hpp"
+#include "BaseEncoding.h"
 #include "Errors.h"
 
 struct B64Impl

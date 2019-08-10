@@ -26,7 +26,7 @@ EndScriptData */
 #include "AES.h"
 #include "Base32.h"
 #include "Chat.h"
-#include "CryptoGenerics.hpp"
+#include "CryptoGenerics.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"
 #include "IPLocation.h"

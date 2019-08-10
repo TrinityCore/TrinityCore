@@ -20,7 +20,7 @@
 #include "AES.h"
 #include "AuthCodes.h"
 #include "Config.h"
-#include "CryptoGenerics.hpp"
+#include "CryptoGenerics.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "IPLocation.h"
@@ -315,8 +315,6 @@ bool AuthSession::HandleLogonChallenge()
 
 void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
 {
-    using namespace Trinity::Crypto;
-
     ByteBuffer pkt;
     pkt << uint8(AUTH_LOGON_CHALLENGE);
     pkt << uint8(0x00);
@@ -393,7 +391,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         _totpSecret = fields[9].GetBinary();
         if (auto const& secret = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY))
         {
-            bool success = AEDecrypt<AES>(*_totpSecret, *secret);
+            bool success = Trinity::Crypto::AEDecrypt<Trinity::Crypto::AES>(*_totpSecret, *secret);
             if (!success)
             {
                 pkt << uint8(WOW_FAIL_DB_BUSY);
