@@ -43,42 +43,42 @@ class TC_COMMON_API BigNumber
 
         BigNumber& operator=(BigNumber const& bn);
 
-        BigNumber operator+=(BigNumber const& bn);
+        BigNumber& operator+=(BigNumber const& bn);
         BigNumber operator+(BigNumber const& bn) const
         {
             BigNumber t(*this);
             return t += bn;
         }
 
-        BigNumber operator-=(BigNumber const& bn);
+        BigNumber& operator-=(BigNumber const& bn);
         BigNumber operator-(BigNumber const& bn) const
         {
             BigNumber t(*this);
             return t -= bn;
         }
 
-        BigNumber operator*=(BigNumber const& bn);
+        BigNumber& operator*=(BigNumber const& bn);
         BigNumber operator*(BigNumber const& bn) const
         {
             BigNumber t(*this);
             return t *= bn;
         }
 
-        BigNumber operator/=(BigNumber const& bn);
+        BigNumber& operator/=(BigNumber const& bn);
         BigNumber operator/(BigNumber const& bn) const
         {
             BigNumber t(*this);
             return t /= bn;
         }
 
-        BigNumber operator%=(BigNumber const& bn);
+        BigNumber& operator%=(BigNumber const& bn);
         BigNumber operator%(BigNumber const& bn) const
         {
             BigNumber t(*this);
             return t %= bn;
         }
 
-        BigNumber operator<<=(int n);
+        BigNumber& operator<<=(int n);
         BigNumber operator<<(int n) const
         {
             BigNumber t(*this);
@@ -95,10 +95,10 @@ class TC_COMMON_API BigNumber
         bool IsZero() const;
         bool IsNegative() const;
 
-        BigNumber ModExp(BigNumber const& bn1, BigNumber const& bn2);
-        BigNumber Exp(BigNumber const&);
+        BigNumber ModExp(BigNumber const& bn1, BigNumber const& bn2) const;
+        BigNumber Exp(BigNumber const&) const;
 
-        int32 GetNumBytes(void) const;
+        int32 GetNumBytes() const;
 
         struct bignum_st *BN() { return _bn; }
 

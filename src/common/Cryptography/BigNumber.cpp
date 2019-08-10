@@ -86,19 +86,19 @@ BigNumber& BigNumber::operator=(BigNumber const& bn)
     return *this;
 }
 
-BigNumber BigNumber::operator+=(BigNumber const& bn)
+BigNumber& BigNumber::operator+=(BigNumber const& bn)
 {
     BN_add(_bn, _bn, bn._bn);
     return *this;
 }
 
-BigNumber BigNumber::operator-=(BigNumber const& bn)
+BigNumber& BigNumber::operator-=(BigNumber const& bn)
 {
     BN_sub(_bn, _bn, bn._bn);
     return *this;
 }
 
-BigNumber BigNumber::operator*=(BigNumber const& bn)
+BigNumber& BigNumber::operator*=(BigNumber const& bn)
 {
     BN_CTX *bnctx;
 
@@ -109,7 +109,7 @@ BigNumber BigNumber::operator*=(BigNumber const& bn)
     return *this;
 }
 
-BigNumber BigNumber::operator/=(BigNumber const& bn)
+BigNumber& BigNumber::operator/=(BigNumber const& bn)
 {
     BN_CTX *bnctx;
 
@@ -120,7 +120,7 @@ BigNumber BigNumber::operator/=(BigNumber const& bn)
     return *this;
 }
 
-BigNumber BigNumber::operator%=(BigNumber const& bn)
+BigNumber& BigNumber::operator%=(BigNumber const& bn)
 {
     BN_CTX *bnctx;
 
@@ -131,7 +131,7 @@ BigNumber BigNumber::operator%=(BigNumber const& bn)
     return *this;
 }
 
-BigNumber BigNumber::operator<<=(int n)
+BigNumber& BigNumber::operator<<=(int n)
 {
     BN_lshift(_bn, _bn, n);
     return *this;
@@ -142,7 +142,7 @@ int BigNumber::CompareTo(BigNumber const& bn) const
     return BN_cmp(_bn, bn._bn);
 }
 
-BigNumber BigNumber::Exp(BigNumber const& bn)
+BigNumber BigNumber::Exp(BigNumber const& bn) const
 {
     BigNumber ret;
     BN_CTX *bnctx;
@@ -154,7 +154,7 @@ BigNumber BigNumber::Exp(BigNumber const& bn)
     return ret;
 }
 
-BigNumber BigNumber::ModExp(BigNumber const& bn1, BigNumber const& bn2)
+BigNumber BigNumber::ModExp(BigNumber const& bn1, BigNumber const& bn2) const
 {
     BigNumber ret;
     BN_CTX *bnctx;
@@ -166,7 +166,7 @@ BigNumber BigNumber::ModExp(BigNumber const& bn1, BigNumber const& bn2)
     return ret;
 }
 
-int32 BigNumber::GetNumBytes(void) const
+int32 BigNumber::GetNumBytes() const
 {
     return BN_num_bytes(_bn);
 }
