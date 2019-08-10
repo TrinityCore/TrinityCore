@@ -45,6 +45,8 @@
 #include "ScriptLoader.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
+#include "SecretMgr.h"
+#include "SharedDefines.h"
 #include "TCSoap.h"
 #include "World.h"
 #include "WorldSocket.h"
@@ -256,6 +258,7 @@ extern int main(int argc, char** argv)
     });
 
     // Initialize the World
+    sSecretMgr->Initialize(SECRET_OWNER_WORLDSERVER);
     sWorld->SetInitialWorldSettings();
 
     std::shared_ptr<void> mapManagementHandle(nullptr, [](void*)
