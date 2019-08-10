@@ -14,6 +14,7 @@ http://rochet2.github.io/
 #include "Language.h"
 #include "Map.h"
 #include "MapManager.h"
+#include "MotionMaster.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
