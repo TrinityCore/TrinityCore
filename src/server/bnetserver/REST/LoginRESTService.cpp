@@ -255,7 +255,7 @@ int32 LoginRESTService::HandleGetGameAccounts(std::shared_ptr<AsyncRequest> requ
         return 401;
 
     request->SetCallback(Trinity::make_unique<QueryCallback>(LoginDatabase.AsyncQuery([&] {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT_LIST);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT_LIST);
         stmt->setString(0, request->GetClient()->userid);
         return stmt;
     }())
@@ -341,7 +341,7 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
     Utf8ToUpperOnlyLatin(login);
     Utf8ToUpperOnlyLatin(password);
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_AUTHENTICATION);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_AUTHENTICATION);
     stmt->setString(0, login);
 
     std::string sentPasswordHash = CalculateShaPassHash(login, password);
@@ -369,7 +369,7 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
                     loginTicket = "TC-" + ByteArrayToHexStr(ticket.AsByteArray(20).get(), 20);
                 }
 
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_AUTHENTICATION);
+                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_AUTHENTICATION);
                 stmt->setString(0, loginTicket);
                 stmt->setUInt32(1, time(nullptr) + _loginTicketDuration);
                 stmt->setUInt32(2, accountId);
@@ -392,8 +392,8 @@ int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
 
                 if (maxWrongPassword)
                 {
-                    SQLTransaction trans = LoginDatabase.BeginTransaction();
-                    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
+                    LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
+                    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_FAILED_LOGINS);
                     stmt->setUInt32(0, accountId);
                     trans->Append(stmt);
 
@@ -446,7 +446,7 @@ int32 LoginRESTService::HandlePostRefreshLoginTicket(std::shared_ptr<AsyncReques
         return 401;
 
     request->SetCallback(Trinity::make_unique<QueryCallback>(LoginDatabase.AsyncQuery([&] {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_EXISTING_AUTHENTICATION);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_EXISTING_AUTHENTICATION);
         stmt->setString(0, request->GetClient()->userid);
         return stmt;
     }())
@@ -461,7 +461,7 @@ int32 LoginRESTService::HandlePostRefreshLoginTicket(std::shared_ptr<AsyncReques
             {
                 loginRefreshResult.set_login_ticket_expiry(now + _loginTicketDuration);
 
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_EXISTING_AUTHENTICATION);
+                LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_EXISTING_AUTHENTICATION);
                 stmt->setUInt32(0, uint32(now + _loginTicketDuration));
                 stmt->setString(1, request->GetClient()->userid);
                 LoginDatabase.Execute(stmt);

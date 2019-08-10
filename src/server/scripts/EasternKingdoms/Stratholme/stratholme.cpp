@@ -65,7 +65,7 @@ public:
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* pGroupie = itr->GetSource();
-                if (!pGroupie)
+                if (!pGroupie || !pGroupie->IsInMap(player))
                     continue;
 
                 if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&

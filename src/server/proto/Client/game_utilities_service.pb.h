@@ -58,6 +58,9 @@ class GetAchievementsFileRequest;
 class GetAchievementsFileResponse;
 class GetAllValuesForAttributeRequest;
 class GetAllValuesForAttributeResponse;
+class RegisterUtilitiesRequest;
+class RegisterUtilitiesResponse;
+class UnregisterUtilitiesRequest;
 
 // ===================================================================
 
@@ -1326,6 +1329,251 @@ class TC_PROTO_API GetAllValuesForAttributeResponse : public ::google::protobuf:
   void InitAsDefaultInstance();
   static GetAllValuesForAttributeResponse* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API RegisterUtilitiesRequest : public ::google::protobuf::Message {
+ public:
+  RegisterUtilitiesRequest();
+  virtual ~RegisterUtilitiesRequest();
+
+  RegisterUtilitiesRequest(const RegisterUtilitiesRequest& from);
+
+  inline RegisterUtilitiesRequest& operator=(const RegisterUtilitiesRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RegisterUtilitiesRequest& default_instance();
+
+  void Swap(RegisterUtilitiesRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  RegisterUtilitiesRequest* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RegisterUtilitiesRequest& from);
+  void MergeFrom(const RegisterUtilitiesRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .bgs.protocol.Attribute attribute = 1;
+  inline int attribute_size() const;
+  inline void clear_attribute();
+  static const int kAttributeFieldNumber = 1;
+  inline const ::bgs::protocol::Attribute& attribute(int index) const;
+  inline ::bgs::protocol::Attribute* mutable_attribute(int index);
+  inline ::bgs::protocol::Attribute* add_attribute();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >&
+      attribute() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >*
+      mutable_attribute();
+
+  // optional fixed32 program = 2;
+  inline bool has_program() const;
+  inline void clear_program();
+  static const int kProgramFieldNumber = 2;
+  inline ::google::protobuf::uint32 program() const;
+  inline void set_program(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+ private:
+  inline void set_has_program();
+  inline void clear_has_program();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute > attribute_;
+  ::google::protobuf::uint32 program_;
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static RegisterUtilitiesRequest* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API RegisterUtilitiesResponse : public ::google::protobuf::Message {
+ public:
+  RegisterUtilitiesResponse();
+  virtual ~RegisterUtilitiesResponse();
+
+  RegisterUtilitiesResponse(const RegisterUtilitiesResponse& from);
+
+  inline RegisterUtilitiesResponse& operator=(const RegisterUtilitiesResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const RegisterUtilitiesResponse& default_instance();
+
+  void Swap(RegisterUtilitiesResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  RegisterUtilitiesResponse* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const RegisterUtilitiesResponse& from);
+  void MergeFrom(const RegisterUtilitiesResponse& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string client_id = 1;
+  inline bool has_client_id() const;
+  inline void clear_client_id();
+  static const int kClientIdFieldNumber = 1;
+  inline const ::std::string& client_id() const;
+  inline void set_client_id(const ::std::string& value);
+  inline void set_client_id(const char* value);
+  inline void set_client_id(const char* value, size_t size);
+  inline ::std::string* mutable_client_id();
+  inline ::std::string* release_client_id();
+  inline void set_allocated_client_id(::std::string* client_id);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+ private:
+  inline void set_has_client_id();
+  inline void clear_has_client_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* client_id_;
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static RegisterUtilitiesResponse* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API UnregisterUtilitiesRequest : public ::google::protobuf::Message {
+ public:
+  UnregisterUtilitiesRequest();
+  virtual ~UnregisterUtilitiesRequest();
+
+  UnregisterUtilitiesRequest(const UnregisterUtilitiesRequest& from);
+
+  inline UnregisterUtilitiesRequest& operator=(const UnregisterUtilitiesRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const UnregisterUtilitiesRequest& default_instance();
+
+  void Swap(UnregisterUtilitiesRequest* other);
+
+  // implements Message ----------------------------------------------
+
+  UnregisterUtilitiesRequest* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const UnregisterUtilitiesRequest& from);
+  void MergeFrom(const UnregisterUtilitiesRequest& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static UnregisterUtilitiesRequest* default_instance_;
+};
 // ===================================================================
 
 class TC_PROTO_API GameUtilitiesService : public ServiceBase
@@ -1350,6 +1598,8 @@ class TC_PROTO_API GameUtilitiesService : public ServiceBase
   void OnGameAccountOffline(::bgs::protocol::game_utilities::v1::GameAccountOfflineNotification const* request);
   void GetAchievementsFile(::bgs::protocol::game_utilities::v1::GetAchievementsFileRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetAchievementsFileResponse const*)> responseCallback);
   void GetAllValuesForAttribute(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse const*)> responseCallback);
+  void RegisterUtilities(::bgs::protocol::game_utilities::v1::RegisterUtilitiesRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::RegisterUtilitiesResponse const*)> responseCallback);
+  void UnregisterUtilities(::bgs::protocol::game_utilities::v1::UnregisterUtilitiesRequest const* request);
   // server methods --------------------------------------------------
 
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
@@ -1363,6 +1613,8 @@ class TC_PROTO_API GameUtilitiesService : public ServiceBase
   virtual uint32 HandleOnGameAccountOffline(::bgs::protocol::game_utilities::v1::GameAccountOfflineNotification const* request);
   virtual uint32 HandleGetAchievementsFile(::bgs::protocol::game_utilities::v1::GetAchievementsFileRequest const* request, ::bgs::protocol::game_utilities::v1::GetAchievementsFileResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleGetAllValuesForAttribute(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeRequest const* request, ::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleRegisterUtilities(::bgs::protocol::game_utilities::v1::RegisterUtilitiesRequest const* request, ::bgs::protocol::game_utilities::v1::RegisterUtilitiesResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUnregisterUtilities(::bgs::protocol::game_utilities::v1::UnregisterUtilitiesRequest const* request);
 
  private:
   uint32 service_hash_;
@@ -2631,6 +2883,148 @@ GetAllValuesForAttributeResponse::mutable_attribute_value() {
   // @@protoc_insertion_point(field_mutable_list:bgs.protocol.game_utilities.v1.GetAllValuesForAttributeResponse.attribute_value)
   return &attribute_value_;
 }
+
+// -------------------------------------------------------------------
+
+// RegisterUtilitiesRequest
+
+// repeated .bgs.protocol.Attribute attribute = 1;
+inline int RegisterUtilitiesRequest::attribute_size() const {
+  return attribute_.size();
+}
+inline void RegisterUtilitiesRequest::clear_attribute() {
+  attribute_.Clear();
+}
+inline const ::bgs::protocol::Attribute& RegisterUtilitiesRequest::attribute(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest.attribute)
+  return attribute_.Get(index);
+}
+inline ::bgs::protocol::Attribute* RegisterUtilitiesRequest::mutable_attribute(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest.attribute)
+  return attribute_.Mutable(index);
+}
+inline ::bgs::protocol::Attribute* RegisterUtilitiesRequest::add_attribute() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest.attribute)
+  return attribute_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >&
+RegisterUtilitiesRequest::attribute() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest.attribute)
+  return attribute_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::Attribute >*
+RegisterUtilitiesRequest::mutable_attribute() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest.attribute)
+  return &attribute_;
+}
+
+// optional fixed32 program = 2;
+inline bool RegisterUtilitiesRequest::has_program() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void RegisterUtilitiesRequest::set_has_program() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void RegisterUtilitiesRequest::clear_has_program() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void RegisterUtilitiesRequest::clear_program() {
+  program_ = 0u;
+  clear_has_program();
+}
+inline ::google::protobuf::uint32 RegisterUtilitiesRequest::program() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest.program)
+  return program_;
+}
+inline void RegisterUtilitiesRequest::set_program(::google::protobuf::uint32 value) {
+  set_has_program();
+  program_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest.program)
+}
+
+// -------------------------------------------------------------------
+
+// RegisterUtilitiesResponse
+
+// optional string client_id = 1;
+inline bool RegisterUtilitiesResponse::has_client_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void RegisterUtilitiesResponse::set_has_client_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void RegisterUtilitiesResponse::clear_has_client_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void RegisterUtilitiesResponse::clear_client_id() {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_->clear();
+  }
+  clear_has_client_id();
+}
+inline const ::std::string& RegisterUtilitiesResponse::client_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+  return *client_id_;
+}
+inline void RegisterUtilitiesResponse::set_client_id(const ::std::string& value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+}
+inline void RegisterUtilitiesResponse::set_client_id(const char* value) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+}
+inline void RegisterUtilitiesResponse::set_client_id(const char* value, size_t size) {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  client_id_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+}
+inline ::std::string* RegisterUtilitiesResponse::mutable_client_id() {
+  set_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    client_id_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+  return client_id_;
+}
+inline ::std::string* RegisterUtilitiesResponse::release_client_id() {
+  clear_has_client_id();
+  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = client_id_;
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void RegisterUtilitiesResponse::set_allocated_client_id(::std::string* client_id) {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete client_id_;
+  }
+  if (client_id) {
+    set_has_client_id();
+    client_id_ = client_id;
+  } else {
+    clear_has_client_id();
+    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+}
+
+// -------------------------------------------------------------------
+
+// UnregisterUtilitiesRequest
 
 
 // @@protoc_insertion_point(namespace_scope)

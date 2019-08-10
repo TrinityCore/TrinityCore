@@ -95,7 +95,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
 
     TC_LOG_DEBUG("realmlist", "Updating Realm List...");
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
+    LoginDatabasePreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     std::map<Battlenet::RealmHandle, std::string> existingRealms;
@@ -403,7 +403,7 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::
         memcpy(&keyData[0], clientSecret.data(), 32);
         memcpy(&keyData[32], serverSecret.AsByteArray(32).get(), 32);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
         stmt->setString(0, ByteArrayToHexStr(keyData.data(), keyData.size()));
         stmt->setString(1, clientAddress.to_string());
         stmt->setUInt8(2, locale);

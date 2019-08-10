@@ -83,8 +83,8 @@ enum ConditionTypes
     CONDITION_QUEST_COMPLETE           = 28,                   // quest_id         0              0                  true if player has quest_id with all objectives complete, but not yet rewarded
     CONDITION_NEAR_CREATURE            = 29,                   // creature entry   distance       dead (0/1)         true if there is a creature of entry in range
     CONDITION_NEAR_GAMEOBJECT          = 30,                   // gameobject entry distance       0                  true if there is a gameobject of entry in range
-    CONDITION_OBJECT_ENTRY_GUID        = 31,                   // TypeID           entry          guid               true if object is type TypeID and the entry is 0 or matches entry of the object or matches guid of the object
-    CONDITION_TYPE_MASK                = 32,                   // TypeMask         0              0                  true if object is type object's TypeMask matches provided TypeMask
+    CONDITION_OBJECT_ENTRY_GUID_LEGACY = 31,                   // LEGACY_TypeID    entry          guid               true if object is type TypeID and the entry is 0 or matches entry of the object or matches guid of the object
+    CONDITION_TYPE_MASK_LEGACY         = 32,                   // LEGACY_TypeMask  0              0                  true if object is type object's TypeMask matches provided TypeMask
     CONDITION_RELATION_TO              = 33,                   // ConditionTarget  RelationType   0                  true if object is in given relation with object specified by ConditionTarget
     CONDITION_REACTION_TO              = 34,                   // ConditionTarget  rankMask       0                  true if object's reaction matches rankMask object specified by ConditionTarget
     CONDITION_DISTANCE_TO              = 35,                   // ConditionTarget  distance       ComparisonType     true if object and ConditionTarget are within distance given by parameters
@@ -102,6 +102,8 @@ enum ConditionTypes
     CONDITION_QUESTSTATE               = 47,                   // quest_id         state_mask     0                  true if player is in any of the provided quest states for the quest (1 = not taken, 2 = completed, 8 = in progress, 32 = failed, 64 = rewarded)
     CONDITION_QUEST_OBJECTIVE_COMPLETE = 48,                   // ID               0              0                  true if player has ID objective complete, but quest not yet rewarded
     CONDITION_DIFFICULTY_ID            = 49,                   // Difficulty       0              0                  true is map has difficulty id
+    CONDITION_OBJECT_ENTRY_GUID        = 51,                   // TypeID           entry          guid               true if object is type TypeID and the entry is 0 or matches entry of the object or matches guid of the object
+    CONDITION_TYPE_MASK                = 52,                   // TypeMask         0              0                  true if object is type object's TypeMask matches provided TypeMask
     CONDITION_MAX
 };
 

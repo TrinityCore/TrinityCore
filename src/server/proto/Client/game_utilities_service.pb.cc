@@ -66,6 +66,15 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* GetAllValuesForAttributeResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   GetAllValuesForAttributeResponse_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RegisterUtilitiesRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RegisterUtilitiesRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RegisterUtilitiesResponse_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RegisterUtilitiesResponse_reflection_ = NULL;
+const ::google::protobuf::Descriptor* UnregisterUtilitiesRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  UnregisterUtilitiesRequest_reflection_ = NULL;
 const ::google::protobuf::ServiceDescriptor* GameUtilitiesService_descriptor_ = NULL;
 
 }  // namespace
@@ -289,6 +298,51 @@ void protobuf_AssignDesc_game_5futilities_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetAllValuesForAttributeResponse));
+  RegisterUtilitiesRequest_descriptor_ = file->message_type(13);
+  static const int RegisterUtilitiesRequest_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RegisterUtilitiesRequest, attribute_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RegisterUtilitiesRequest, program_),
+  };
+  RegisterUtilitiesRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RegisterUtilitiesRequest_descriptor_,
+      RegisterUtilitiesRequest::default_instance_,
+      RegisterUtilitiesRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RegisterUtilitiesRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RegisterUtilitiesRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RegisterUtilitiesRequest));
+  RegisterUtilitiesResponse_descriptor_ = file->message_type(14);
+  static const int RegisterUtilitiesResponse_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RegisterUtilitiesResponse, client_id_),
+  };
+  RegisterUtilitiesResponse_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RegisterUtilitiesResponse_descriptor_,
+      RegisterUtilitiesResponse::default_instance_,
+      RegisterUtilitiesResponse_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RegisterUtilitiesResponse, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RegisterUtilitiesResponse, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RegisterUtilitiesResponse));
+  UnregisterUtilitiesRequest_descriptor_ = file->message_type(15);
+  static const int UnregisterUtilitiesRequest_offsets_[1] = {
+  };
+  UnregisterUtilitiesRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      UnregisterUtilitiesRequest_descriptor_,
+      UnregisterUtilitiesRequest::default_instance_,
+      UnregisterUtilitiesRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnregisterUtilitiesRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnregisterUtilitiesRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(UnregisterUtilitiesRequest));
   GameUtilitiesService_descriptor_ = file->service(0);
 }
 
@@ -328,6 +382,12 @@ void protobuf_RegisterTypes(const ::std::string&) {
     GetAllValuesForAttributeRequest_descriptor_, &GetAllValuesForAttributeRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     GetAllValuesForAttributeResponse_descriptor_, &GetAllValuesForAttributeResponse::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RegisterUtilitiesRequest_descriptor_, &RegisterUtilitiesRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RegisterUtilitiesResponse_descriptor_, &RegisterUtilitiesResponse::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    UnregisterUtilitiesRequest_descriptor_, &UnregisterUtilitiesRequest::default_instance());
 }
 
 }  // namespace
@@ -359,6 +419,12 @@ void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto() {
   delete GetAllValuesForAttributeRequest_reflection_;
   delete GetAllValuesForAttributeResponse::default_instance_;
   delete GetAllValuesForAttributeResponse_reflection_;
+  delete RegisterUtilitiesRequest::default_instance_;
+  delete RegisterUtilitiesRequest_reflection_;
+  delete RegisterUtilitiesResponse::default_instance_;
+  delete RegisterUtilitiesResponse_reflection_;
+  delete UnregisterUtilitiesRequest::default_instance_;
+  delete UnregisterUtilitiesRequest_reflection_;
 }
 
 void protobuf_AddDesc_game_5futilities_5fservice_2eproto() {
@@ -417,38 +483,49 @@ void protobuf_AddDesc_game_5futilities_5fservice_2eproto() {
     "(\t\022(\n\010agent_id\030\002 \001(\0132\026.bgs.protocol.Enti"
     "tyId\022\017\n\007program\030\005 \001(\007\"R\n GetAllValuesFor"
     "AttributeResponse\022.\n\017attribute_value\030\001 \003"
-    "(\0132\025.bgs.protocol.Variant2\220\t\n\024GameUtilit"
-    "iesService\022}\n\024ProcessClientRequest\022-.bgs"
-    ".protocol.game_utilities.v1.ClientReques"
-    "t\032..bgs.protocol.game_utilities.v1.Clien"
-    "tResponse\"\006\202\371+\002\010\001\022u\n\026PresenceChannelCrea"
-    "ted\022=.bgs.protocol.game_utilities.v1.Pre"
-    "senceChannelCreatedRequest\032\024.bgs.protoco"
-    "l.NoData\"\006\202\371+\002\010\002\022\223\001\n\022GetPlayerVariables\022"
-    "9.bgs.protocol.game_utilities.v1.GetPlay"
-    "erVariablesRequest\032:.bgs.protocol.game_u"
-    "tilities.v1.GetPlayerVariablesResponse\"\006"
-    "\202\371+\002\010\003\022}\n\024ProcessServerRequest\022-.bgs.pro"
-    "tocol.game_utilities.v1.ServerRequest\032.."
-    "bgs.protocol.game_utilities.v1.ServerRes"
-    "ponse\"\006\202\371+\002\010\006\022w\n\023OnGameAccountOnline\022=.b"
-    "gs.protocol.game_utilities.v1.GameAccoun"
-    "tOnlineNotification\032\031.bgs.protocol.NO_RE"
-    "SPONSE\"\006\202\371+\002\010\007\022y\n\024OnGameAccountOffline\022>"
-    ".bgs.protocol.game_utilities.v1.GameAcco"
-    "untOfflineNotification\032\031.bgs.protocol.NO"
-    "_RESPONSE\"\006\202\371+\002\010\010\022\226\001\n\023GetAchievementsFil"
-    "e\022:.bgs.protocol.game_utilities.v1.GetAc"
-    "hievementsFileRequest\032;.bgs.protocol.gam"
-    "e_utilities.v1.GetAchievementsFileRespon"
-    "se\"\006\202\371+\002\010\t\022\245\001\n\030GetAllValuesForAttribute\022"
-    "\?.bgs.protocol.game_utilities.v1.GetAllV"
-    "aluesForAttributeRequest\032@.bgs.protocol."
-    "game_utilities.v1.GetAllValuesForAttribu"
-    "teResponse\"\006\202\371+\002\010\n\0328\202\371+,\n*bnet.protocol."
-    "game_utilities.GameUtilities\212\371+\004\010\001\020\001BD\n\037"
-    "bnet.protocol.game_utilities.v1B\031GameUti"
-    "litiesServiceProtoH\001\200\001\000\210\001\001", 3026);
+    "(\0132\025.bgs.protocol.Variant\"W\n\030RegisterUti"
+    "litiesRequest\022*\n\tattribute\030\001 \003(\0132\027.bgs.p"
+    "rotocol.Attribute\022\017\n\007program\030\002 \001(\007\".\n\031Re"
+    "gisterUtilitiesResponse\022\021\n\tclient_id\030\001 \001"
+    "(\t\"\034\n\032UnregisterUtilitiesRequest2\251\013\n\024Gam"
+    "eUtilitiesService\022}\n\024ProcessClientReques"
+    "t\022-.bgs.protocol.game_utilities.v1.Clien"
+    "tRequest\032..bgs.protocol.game_utilities.v"
+    "1.ClientResponse\"\006\202\371+\002\010\001\022u\n\026PresenceChan"
+    "nelCreated\022=.bgs.protocol.game_utilities"
+    ".v1.PresenceChannelCreatedRequest\032\024.bgs."
+    "protocol.NoData\"\006\202\371+\002\010\002\022\223\001\n\022GetPlayerVar"
+    "iables\0229.bgs.protocol.game_utilities.v1."
+    "GetPlayerVariablesRequest\032:.bgs.protocol"
+    ".game_utilities.v1.GetPlayerVariablesRes"
+    "ponse\"\006\202\371+\002\010\003\022}\n\024ProcessServerRequest\022-."
+    "bgs.protocol.game_utilities.v1.ServerReq"
+    "uest\032..bgs.protocol.game_utilities.v1.Se"
+    "rverResponse\"\006\202\371+\002\010\006\022w\n\023OnGameAccountOnl"
+    "ine\022=.bgs.protocol.game_utilities.v1.Gam"
+    "eAccountOnlineNotification\032\031.bgs.protoco"
+    "l.NO_RESPONSE\"\006\202\371+\002\010\007\022y\n\024OnGameAccountOf"
+    "fline\022>.bgs.protocol.game_utilities.v1.G"
+    "ameAccountOfflineNotification\032\031.bgs.prot"
+    "ocol.NO_RESPONSE\"\006\202\371+\002\010\010\022\226\001\n\023GetAchievem"
+    "entsFile\022:.bgs.protocol.game_utilities.v"
+    "1.GetAchievementsFileRequest\032;.bgs.proto"
+    "col.game_utilities.v1.GetAchievementsFil"
+    "eResponse\"\006\202\371+\002\010\t\022\245\001\n\030GetAllValuesForAtt"
+    "ribute\022\?.bgs.protocol.game_utilities.v1."
+    "GetAllValuesForAttributeRequest\032@.bgs.pr"
+    "otocol.game_utilities.v1.GetAllValuesFor"
+    "AttributeResponse\"\006\202\371+\002\010\n\022\220\001\n\021RegisterUt"
+    "ilities\0228.bgs.protocol.game_utilities.v1"
+    ".RegisterUtilitiesRequest\0329.bgs.protocol"
+    ".game_utilities.v1.RegisterUtilitiesResp"
+    "onse\"\006\202\371+\002\010\013\022t\n\023UnregisterUtilities\022:.bg"
+    "s.protocol.game_utilities.v1.UnregisterU"
+    "tilitiesRequest\032\031.bgs.protocol.NO_RESPON"
+    "SE\"\006\202\371+\002\010\014\032H\202\371+<\n*bnet.protocol.game_uti"
+    "lities.GameUtilities*\016game_utilities\212\371+\004"
+    "\010\001\020\001BD\n\037bnet.protocol.game_utilities.v1B"
+    "\031GameUtilitiesServiceProtoH\001\200\001\000\210\001\001", 3474);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "game_utilities_service.proto", &protobuf_RegisterTypes);
   ClientRequest::default_instance_ = new ClientRequest();
@@ -464,6 +541,9 @@ void protobuf_AddDesc_game_5futilities_5fservice_2eproto() {
   GetAchievementsFileResponse::default_instance_ = new GetAchievementsFileResponse();
   GetAllValuesForAttributeRequest::default_instance_ = new GetAllValuesForAttributeRequest();
   GetAllValuesForAttributeResponse::default_instance_ = new GetAllValuesForAttributeResponse();
+  RegisterUtilitiesRequest::default_instance_ = new RegisterUtilitiesRequest();
+  RegisterUtilitiesResponse::default_instance_ = new RegisterUtilitiesResponse();
+  UnregisterUtilitiesRequest::default_instance_ = new UnregisterUtilitiesRequest();
   ClientRequest::default_instance_->InitAsDefaultInstance();
   ClientResponse::default_instance_->InitAsDefaultInstance();
   ServerRequest::default_instance_->InitAsDefaultInstance();
@@ -477,6 +557,9 @@ void protobuf_AddDesc_game_5futilities_5fservice_2eproto() {
   GetAchievementsFileResponse::default_instance_->InitAsDefaultInstance();
   GetAllValuesForAttributeRequest::default_instance_->InitAsDefaultInstance();
   GetAllValuesForAttributeResponse::default_instance_->InitAsDefaultInstance();
+  RegisterUtilitiesRequest::default_instance_->InitAsDefaultInstance();
+  RegisterUtilitiesResponse::default_instance_->InitAsDefaultInstance();
+  UnregisterUtilitiesRequest::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_game_5futilities_5fservice_2eproto);
 }
 
@@ -4242,6 +4325,684 @@ void GetAllValuesForAttributeResponse::Swap(GetAllValuesForAttributeResponse* ot
 
 // ===================================================================
 
+#ifndef _MSC_VER
+const int RegisterUtilitiesRequest::kAttributeFieldNumber;
+const int RegisterUtilitiesRequest::kProgramFieldNumber;
+#endif  // !_MSC_VER
+
+RegisterUtilitiesRequest::RegisterUtilitiesRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+}
+
+void RegisterUtilitiesRequest::InitAsDefaultInstance() {
+}
+
+RegisterUtilitiesRequest::RegisterUtilitiesRequest(const RegisterUtilitiesRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+}
+
+void RegisterUtilitiesRequest::SharedCtor() {
+  _cached_size_ = 0;
+  program_ = 0u;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RegisterUtilitiesRequest::~RegisterUtilitiesRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+  SharedDtor();
+}
+
+void RegisterUtilitiesRequest::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void RegisterUtilitiesRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RegisterUtilitiesRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RegisterUtilitiesRequest_descriptor_;
+}
+
+const RegisterUtilitiesRequest& RegisterUtilitiesRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  return *default_instance_;
+}
+
+RegisterUtilitiesRequest* RegisterUtilitiesRequest::default_instance_ = NULL;
+
+RegisterUtilitiesRequest* RegisterUtilitiesRequest::New() const {
+  return new RegisterUtilitiesRequest;
+}
+
+void RegisterUtilitiesRequest::Clear() {
+  program_ = 0u;
+  attribute_.Clear();
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RegisterUtilitiesRequest::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // repeated .bgs.protocol.Attribute attribute = 1;
+      case 1: {
+        if (tag == 10) {
+         parse_attribute:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+                input, add_attribute()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(10)) goto parse_attribute;
+        if (input->ExpectTag(21)) goto parse_program;
+        break;
+      }
+
+      // optional fixed32 program = 2;
+      case 2: {
+        if (tag == 21) {
+         parse_program:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
+                 input, &program_)));
+          set_has_program();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+  return false;
+#undef DO_
+}
+
+void RegisterUtilitiesRequest::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+  // repeated .bgs.protocol.Attribute attribute = 1;
+  for (int i = 0; i < this->attribute_size(); i++) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->attribute(i), output);
+  }
+
+  // optional fixed32 program = 2;
+  if (has_program()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFixed32(2, this->program(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+}
+
+::google::protobuf::uint8* RegisterUtilitiesRequest::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+  // repeated .bgs.protocol.Attribute attribute = 1;
+  for (int i = 0; i < this->attribute_size(); i++) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        1, this->attribute(i), target);
+  }
+
+  // optional fixed32 program = 2;
+  if (has_program()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFixed32ToArray(2, this->program(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest)
+  return target;
+}
+
+int RegisterUtilitiesRequest::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[1 / 32] & (0xffu << (1 % 32))) {
+    // optional fixed32 program = 2;
+    if (has_program()) {
+      total_size += 1 + 4;
+    }
+
+  }
+  // repeated .bgs.protocol.Attribute attribute = 1;
+  total_size += 1 * this->attribute_size();
+  for (int i = 0; i < this->attribute_size(); i++) {
+    total_size +=
+      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+        this->attribute(i));
+  }
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RegisterUtilitiesRequest::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RegisterUtilitiesRequest* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RegisterUtilitiesRequest*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RegisterUtilitiesRequest::MergeFrom(const RegisterUtilitiesRequest& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  attribute_.MergeFrom(from.attribute_);
+  if (from._has_bits_[1 / 32] & (0xffu << (1 % 32))) {
+    if (from.has_program()) {
+      set_program(from.program());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RegisterUtilitiesRequest::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RegisterUtilitiesRequest::CopyFrom(const RegisterUtilitiesRequest& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RegisterUtilitiesRequest::IsInitialized() const {
+
+  if (!::google::protobuf::internal::AllAreInitialized(this->attribute())) return false;
+  return true;
+}
+
+void RegisterUtilitiesRequest::Swap(RegisterUtilitiesRequest* other) {
+  if (other != this) {
+    attribute_.Swap(&other->attribute_);
+    std::swap(program_, other->program_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RegisterUtilitiesRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RegisterUtilitiesRequest_descriptor_;
+  metadata.reflection = RegisterUtilitiesRequest_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RegisterUtilitiesResponse::kClientIdFieldNumber;
+#endif  // !_MSC_VER
+
+RegisterUtilitiesResponse::RegisterUtilitiesResponse()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+}
+
+void RegisterUtilitiesResponse::InitAsDefaultInstance() {
+}
+
+RegisterUtilitiesResponse::RegisterUtilitiesResponse(const RegisterUtilitiesResponse& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+}
+
+void RegisterUtilitiesResponse::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RegisterUtilitiesResponse::~RegisterUtilitiesResponse() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+  SharedDtor();
+}
+
+void RegisterUtilitiesResponse::SharedDtor() {
+  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete client_id_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void RegisterUtilitiesResponse::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RegisterUtilitiesResponse::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RegisterUtilitiesResponse_descriptor_;
+}
+
+const RegisterUtilitiesResponse& RegisterUtilitiesResponse::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  return *default_instance_;
+}
+
+RegisterUtilitiesResponse* RegisterUtilitiesResponse::default_instance_ = NULL;
+
+RegisterUtilitiesResponse* RegisterUtilitiesResponse::New() const {
+  return new RegisterUtilitiesResponse;
+}
+
+void RegisterUtilitiesResponse::Clear() {
+  if (has_client_id()) {
+    if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+      client_id_->clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool RegisterUtilitiesResponse::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string client_id = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_client_id()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->client_id().data(), this->client_id().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "client_id");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+  return false;
+#undef DO_
+}
+
+void RegisterUtilitiesResponse::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+  // optional string client_id = 1;
+  if (has_client_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->client_id().data(), this->client_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "client_id");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->client_id(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+}
+
+::google::protobuf::uint8* RegisterUtilitiesResponse::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+  // optional string client_id = 1;
+  if (has_client_id()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->client_id().data(), this->client_id().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "client_id");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->client_id(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
+  return target;
+}
+
+int RegisterUtilitiesResponse::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string client_id = 1;
+    if (has_client_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->client_id());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void RegisterUtilitiesResponse::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const RegisterUtilitiesResponse* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const RegisterUtilitiesResponse*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void RegisterUtilitiesResponse::MergeFrom(const RegisterUtilitiesResponse& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_client_id()) {
+      set_client_id(from.client_id());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void RegisterUtilitiesResponse::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void RegisterUtilitiesResponse::CopyFrom(const RegisterUtilitiesResponse& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool RegisterUtilitiesResponse::IsInitialized() const {
+
+  return true;
+}
+
+void RegisterUtilitiesResponse::Swap(RegisterUtilitiesResponse* other) {
+  if (other != this) {
+    std::swap(client_id_, other->client_id_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata RegisterUtilitiesResponse::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RegisterUtilitiesResponse_descriptor_;
+  metadata.reflection = RegisterUtilitiesResponse_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+#endif  // !_MSC_VER
+
+UnregisterUtilitiesRequest::UnregisterUtilitiesRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+}
+
+void UnregisterUtilitiesRequest::InitAsDefaultInstance() {
+}
+
+UnregisterUtilitiesRequest::UnregisterUtilitiesRequest(const UnregisterUtilitiesRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+}
+
+void UnregisterUtilitiesRequest::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+UnregisterUtilitiesRequest::~UnregisterUtilitiesRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+  SharedDtor();
+}
+
+void UnregisterUtilitiesRequest::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void UnregisterUtilitiesRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* UnregisterUtilitiesRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return UnregisterUtilitiesRequest_descriptor_;
+}
+
+const UnregisterUtilitiesRequest& UnregisterUtilitiesRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_game_5futilities_5fservice_2eproto();
+  return *default_instance_;
+}
+
+UnregisterUtilitiesRequest* UnregisterUtilitiesRequest::default_instance_ = NULL;
+
+UnregisterUtilitiesRequest* UnregisterUtilitiesRequest::New() const {
+  return new UnregisterUtilitiesRequest;
+}
+
+void UnregisterUtilitiesRequest::Clear() {
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool UnregisterUtilitiesRequest::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+  handle_unusual:
+    if (tag == 0 ||
+        ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+        ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+      goto success;
+    }
+    DO_(::google::protobuf::internal::WireFormat::SkipField(
+          input, tag, mutable_unknown_fields()));
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+  return false;
+#undef DO_
+}
+
+void UnregisterUtilitiesRequest::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+}
+
+::google::protobuf::uint8* UnregisterUtilitiesRequest::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest)
+  return target;
+}
+
+int UnregisterUtilitiesRequest::ByteSize() const {
+  int total_size = 0;
+
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void UnregisterUtilitiesRequest::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const UnregisterUtilitiesRequest* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const UnregisterUtilitiesRequest*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void UnregisterUtilitiesRequest::MergeFrom(const UnregisterUtilitiesRequest& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void UnregisterUtilitiesRequest::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void UnregisterUtilitiesRequest::CopyFrom(const UnregisterUtilitiesRequest& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool UnregisterUtilitiesRequest::IsInitialized() const {
+
+  return true;
+}
+
+void UnregisterUtilitiesRequest::Swap(UnregisterUtilitiesRequest* other) {
+  if (other != this) {
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata UnregisterUtilitiesRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = UnregisterUtilitiesRequest_descriptor_;
+  metadata.reflection = UnregisterUtilitiesRequest_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
 GameUtilitiesService::GameUtilitiesService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
@@ -4329,6 +5090,23 @@ void GameUtilitiesService::GetAllValuesForAttribute(::bgs::protocol::game_utilit
       responseCallback(&response);
   };
   SendRequest(service_hash_, 10, request, std::move(callback));
+}
+
+void GameUtilitiesService::RegisterUtilities(::bgs::protocol::game_utilities::v1::RegisterUtilitiesRequest const* request, std::function<void(::bgs::protocol::game_utilities::v1::RegisterUtilitiesResponse const*)> responseCallback) {
+  TC_LOG_DEBUG("service.protobuf", "%s Server called client method GameUtilitiesService.RegisterUtilities(bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest{ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
+    ::bgs::protocol::game_utilities::v1::RegisterUtilitiesResponse response;
+    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
+      responseCallback(&response);
+  };
+  SendRequest(service_hash_, 11, request, std::move(callback));
+}
+
+void GameUtilitiesService::UnregisterUtilities(::bgs::protocol::game_utilities::v1::UnregisterUtilitiesRequest const* request) {
+  TC_LOG_DEBUG("service.protobuf", "%s Server called client method GameUtilitiesService.UnregisterUtilities(bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest{ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  SendRequest(service_hash_, 12, request);
 }
 
 void GameUtilitiesService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
@@ -4517,6 +5295,46 @@ void GameUtilitiesService::CallServerMethod(uint32 token, uint32 methodId, Messa
         continuation(this, status, &response);
       break;
     }
+    case 11: {
+      ::bgs::protocol::game_utilities::v1::RegisterUtilitiesRequest request;
+      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for GameUtilitiesService.RegisterUtilities server method call.", GetCallerInfo().c_str());
+        SendResponse(service_hash_, 11, token, ERROR_RPC_MALFORMED_REQUEST);
+        return;
+      }
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method GameUtilitiesService.RegisterUtilities(bgs.protocol.game_utilities.v1.RegisterUtilitiesRequest{ %s }).",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      {
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::game_utilities::v1::RegisterUtilitiesResponse::descriptor());
+        GameUtilitiesService* self = static_cast<GameUtilitiesService*>(service);
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method GameUtilitiesService.RegisterUtilities() returned bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse{ %s } status %u.",
+          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
+        if (!status)
+          self->SendResponse(self->service_hash_, 11, token, response);
+        else
+          self->SendResponse(self->service_hash_, 11, token, status);
+      };
+      ::bgs::protocol::game_utilities::v1::RegisterUtilitiesResponse response;
+      uint32 status = HandleRegisterUtilities(&request, &response, continuation);
+      if (continuation)
+        continuation(this, status, &response);
+      break;
+    }
+    case 12: {
+      ::bgs::protocol::game_utilities::v1::UnregisterUtilitiesRequest request;
+      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for GameUtilitiesService.UnregisterUtilities server method call.", GetCallerInfo().c_str());
+        SendResponse(service_hash_, 12, token, ERROR_RPC_MALFORMED_REQUEST);
+        return;
+      }
+      uint32 status = HandleUnregisterUtilities(&request);
+      TC_LOG_DEBUG("service.protobuf", "%s Client called server method GameUtilitiesService.UnregisterUtilities(bgs.protocol.game_utilities.v1.UnregisterUtilitiesRequest{ %s }) status %u.",
+        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
+      if (status)
+        SendResponse(service_hash_, 12, token, status);
+      break;
+    }
     default:
       TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
@@ -4568,6 +5386,18 @@ uint32 GameUtilitiesService::HandleGetAchievementsFile(::bgs::protocol::game_uti
 
 uint32 GameUtilitiesService::HandleGetAllValuesForAttribute(::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeRequest const* request, ::bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method GameUtilitiesService.GetAllValuesForAttribute({ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+uint32 GameUtilitiesService::HandleRegisterUtilities(::bgs::protocol::game_utilities::v1::RegisterUtilitiesRequest const* request, ::bgs::protocol::game_utilities::v1::RegisterUtilitiesResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
+  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method GameUtilitiesService.RegisterUtilities({ %s })",
+    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+uint32 GameUtilitiesService::HandleUnregisterUtilities(::bgs::protocol::game_utilities::v1::UnregisterUtilitiesRequest const* request) {
+  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method GameUtilitiesService.UnregisterUtilities({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }

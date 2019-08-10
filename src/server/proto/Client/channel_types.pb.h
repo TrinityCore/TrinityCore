@@ -28,6 +28,7 @@
 #include "api/client/v1/channel_id.pb.h"  // IWYU pragma: export
 #include "attribute_types.pb.h"
 #include "entity_types.pb.h"
+#include "account_types.pb.h"
 #include "invitation_types.pb.h"
 #include "rpc_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
@@ -51,6 +52,7 @@ class ChannelState;
 class MemberAccountInfo;
 class MemberState;
 class Member;
+class SubscriberId;
 
 enum ChannelState_PrivacyLevel {
   ChannelState_PrivacyLevel_PRIVACY_LEVEL_OPEN = 1,
@@ -1025,6 +1027,111 @@ class TC_PROTO_API Member : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static Member* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API SubscriberId : public ::google::protobuf::Message {
+ public:
+  SubscriberId();
+  virtual ~SubscriberId();
+
+  SubscriberId(const SubscriberId& from);
+
+  inline SubscriberId& operator=(const SubscriberId& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SubscriberId& default_instance();
+
+  void Swap(SubscriberId* other);
+
+  // implements Message ----------------------------------------------
+
+  SubscriberId* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const SubscriberId& from);
+  void MergeFrom(const SubscriberId& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.account.v1.AccountId account = 1 [deprecated = true];
+  inline bool has_account() const PROTOBUF_DEPRECATED;
+  inline void clear_account() PROTOBUF_DEPRECATED;
+  static const int kAccountFieldNumber = 1;
+  inline const ::bgs::protocol::account::v1::AccountId& account() const PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::account::v1::AccountId* mutable_account() PROTOBUF_DEPRECATED;
+  inline ::bgs::protocol::account::v1::AccountId* release_account() PROTOBUF_DEPRECATED;
+  inline void set_allocated_account(::bgs::protocol::account::v1::AccountId* account) PROTOBUF_DEPRECATED;
+
+  // optional .bgs.protocol.account.v1.GameAccountHandle game_account = 2;
+  inline bool has_game_account() const;
+  inline void clear_game_account();
+  static const int kGameAccountFieldNumber = 2;
+  inline const ::bgs::protocol::account::v1::GameAccountHandle& game_account() const;
+  inline ::bgs::protocol::account::v1::GameAccountHandle* mutable_game_account();
+  inline ::bgs::protocol::account::v1::GameAccountHandle* release_game_account();
+  inline void set_allocated_game_account(::bgs::protocol::account::v1::GameAccountHandle* game_account);
+
+  // optional .bgs.protocol.ProcessId process = 3;
+  inline bool has_process() const;
+  inline void clear_process();
+  static const int kProcessFieldNumber = 3;
+  inline const ::bgs::protocol::ProcessId& process() const;
+  inline ::bgs::protocol::ProcessId* mutable_process();
+  inline ::bgs::protocol::ProcessId* release_process();
+  inline void set_allocated_process(::bgs::protocol::ProcessId* process);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.SubscriberId)
+ private:
+  inline void set_has_account();
+  inline void clear_has_account();
+  inline void set_has_game_account();
+  inline void clear_has_game_account();
+  inline void set_has_process();
+  inline void clear_has_process();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::account::v1::AccountId* account_;
+  ::bgs::protocol::account::v1::GameAccountHandle* game_account_;
+  ::bgs::protocol::ProcessId* process_;
+  friend void TC_PROTO_API protobuf_AddDesc_channel_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_channel_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_channel_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static SubscriberId* default_instance_;
 };
 // ===================================================================
 
@@ -2222,6 +2329,133 @@ inline void Member::set_allocated_state(::bgs::protocol::channel::v1::MemberStat
     clear_has_state();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.Member.state)
+}
+
+// -------------------------------------------------------------------
+
+// SubscriberId
+
+// optional .bgs.protocol.account.v1.AccountId account = 1 [deprecated = true];
+inline bool SubscriberId::has_account() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void SubscriberId::set_has_account() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void SubscriberId::clear_has_account() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void SubscriberId::clear_account() {
+  if (account_ != NULL) account_->::bgs::protocol::account::v1::AccountId::Clear();
+  clear_has_account();
+}
+inline const ::bgs::protocol::account::v1::AccountId& SubscriberId::account() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.SubscriberId.account)
+  return account_ != NULL ? *account_ : *default_instance_->account_;
+}
+inline ::bgs::protocol::account::v1::AccountId* SubscriberId::mutable_account() {
+  set_has_account();
+  if (account_ == NULL) account_ = new ::bgs::protocol::account::v1::AccountId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.SubscriberId.account)
+  return account_;
+}
+inline ::bgs::protocol::account::v1::AccountId* SubscriberId::release_account() {
+  clear_has_account();
+  ::bgs::protocol::account::v1::AccountId* temp = account_;
+  account_ = NULL;
+  return temp;
+}
+inline void SubscriberId::set_allocated_account(::bgs::protocol::account::v1::AccountId* account) {
+  delete account_;
+  account_ = account;
+  if (account) {
+    set_has_account();
+  } else {
+    clear_has_account();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.SubscriberId.account)
+}
+
+// optional .bgs.protocol.account.v1.GameAccountHandle game_account = 2;
+inline bool SubscriberId::has_game_account() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SubscriberId::set_has_game_account() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SubscriberId::clear_has_game_account() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SubscriberId::clear_game_account() {
+  if (game_account_ != NULL) game_account_->::bgs::protocol::account::v1::GameAccountHandle::Clear();
+  clear_has_game_account();
+}
+inline const ::bgs::protocol::account::v1::GameAccountHandle& SubscriberId::game_account() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.SubscriberId.game_account)
+  return game_account_ != NULL ? *game_account_ : *default_instance_->game_account_;
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* SubscriberId::mutable_game_account() {
+  set_has_game_account();
+  if (game_account_ == NULL) game_account_ = new ::bgs::protocol::account::v1::GameAccountHandle;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.SubscriberId.game_account)
+  return game_account_;
+}
+inline ::bgs::protocol::account::v1::GameAccountHandle* SubscriberId::release_game_account() {
+  clear_has_game_account();
+  ::bgs::protocol::account::v1::GameAccountHandle* temp = game_account_;
+  game_account_ = NULL;
+  return temp;
+}
+inline void SubscriberId::set_allocated_game_account(::bgs::protocol::account::v1::GameAccountHandle* game_account) {
+  delete game_account_;
+  game_account_ = game_account;
+  if (game_account) {
+    set_has_game_account();
+  } else {
+    clear_has_game_account();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.SubscriberId.game_account)
+}
+
+// optional .bgs.protocol.ProcessId process = 3;
+inline bool SubscriberId::has_process() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void SubscriberId::set_has_process() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void SubscriberId::clear_has_process() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void SubscriberId::clear_process() {
+  if (process_ != NULL) process_->::bgs::protocol::ProcessId::Clear();
+  clear_has_process();
+}
+inline const ::bgs::protocol::ProcessId& SubscriberId::process() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.SubscriberId.process)
+  return process_ != NULL ? *process_ : *default_instance_->process_;
+}
+inline ::bgs::protocol::ProcessId* SubscriberId::mutable_process() {
+  set_has_process();
+  if (process_ == NULL) process_ = new ::bgs::protocol::ProcessId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.channel.v1.SubscriberId.process)
+  return process_;
+}
+inline ::bgs::protocol::ProcessId* SubscriberId::release_process() {
+  clear_has_process();
+  ::bgs::protocol::ProcessId* temp = process_;
+  process_ = NULL;
+  return temp;
+}
+inline void SubscriberId::set_allocated_process(::bgs::protocol::ProcessId* process) {
+  delete process_;
+  process_ = process;
+  if (process) {
+    set_has_process();
+  } else {
+    clear_has_process();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.channel.v1.SubscriberId.process)
 }
 
 

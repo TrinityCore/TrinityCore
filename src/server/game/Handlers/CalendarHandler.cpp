@@ -38,6 +38,7 @@ Copied events should probably have a new owner
 #include "WorldSession.h"
 #include "CalendarMgr.h"
 #include "CalendarPackets.h"
+#include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -154,7 +155,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEve
     }
     else
     {
-        SQLTransaction trans;
+        CharacterDatabaseTransaction trans;
         if (calendarAddEvent.EventInfo.Invites.size() > 1)
             trans = CharacterDatabase.BeginTransaction();
 
@@ -223,7 +224,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPackets::Calendar::CalendarCopyE
         sCalendarMgr->AddEvent(newEvent, CALENDAR_SENDTYPE_COPY);
 
         CalendarInviteStore invites = sCalendarMgr->GetEventInvites(calendarCopyEvent.EventID);
-        SQLTransaction trans;
+        CharacterDatabaseTransaction trans;
         if (invites.size() > 1)
             trans = CharacterDatabase.BeginTransaction();
 
@@ -246,6 +247,9 @@ void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarEve
     uint32 inviteeTeam = 0;
     ObjectGuid::LowType inviteeGuildId = UI64LIT(0);
 
+    if (!normalizePlayerName(calendarEventInvite.Name))
+        return;
+
     if (Player* player = ObjectAccessor::FindConnectedPlayerByName(calendarEventInvite.Name))
     {
         // Invitee is online
@@ -255,15 +259,16 @@ void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarEve
     }
     else
     {
-        // Invitee offline, get data from database
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
-        stmt->setString(0, calendarEventInvite.Name);
-        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        // Invitee offline, get data from storage
+        ObjectGuid guid = sCharacterCache->GetCharacterGuidByName(calendarEventInvite.Name);
+        if (!guid.IsEmpty())
         {
-            Field* fields = result->Fetch();
-            inviteeGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
-            inviteeTeam = Player::TeamForRace(fields[1].GetUInt8());
-            inviteeGuildId = Player::GetGuildIdFromDB(inviteeGuid);
+            if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid))
+            {
+                inviteeGuid = guid;
+                inviteeTeam = Player::TeamForRace(characterInfo->Race);
+                inviteeGuildId = characterInfo->GuildId;
+            }
         }
     }
 

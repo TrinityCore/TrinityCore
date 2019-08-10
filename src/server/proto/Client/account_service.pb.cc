@@ -93,9 +93,6 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* GetAuthorizedDataResponse_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   GetAuthorizedDataResponse_reflection_ = NULL;
-const ::google::protobuf::Descriptor* UpdateParentalControlsAndCAISRequest_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  UpdateParentalControlsAndCAISRequest_reflection_ = NULL;
 const ::google::protobuf::Descriptor* AccountStateNotification_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   AccountStateNotification_reflection_ = NULL;
@@ -471,27 +468,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GetAuthorizedDataResponse));
-  UpdateParentalControlsAndCAISRequest_descriptor_ = file->message_type(22);
-  static const int UpdateParentalControlsAndCAISRequest_offsets_[6] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, account_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, parental_control_info_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, cais_id_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, session_start_time_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, start_time_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, end_time_),
-  };
-  UpdateParentalControlsAndCAISRequest_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      UpdateParentalControlsAndCAISRequest_descriptor_,
-      UpdateParentalControlsAndCAISRequest::default_instance_,
-      UpdateParentalControlsAndCAISRequest_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UpdateParentalControlsAndCAISRequest, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(UpdateParentalControlsAndCAISRequest));
-  AccountStateNotification_descriptor_ = file->message_type(23);
+  AccountStateNotification_descriptor_ = file->message_type(22);
   static const int AccountStateNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountStateNotification, account_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AccountStateNotification, subscriber_id_),
@@ -509,7 +486,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AccountStateNotification));
-  GameAccountStateNotification_descriptor_ = file->message_type(24);
+  GameAccountStateNotification_descriptor_ = file->message_type(23);
   static const int GameAccountStateNotification_offsets_[4] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountStateNotification, game_account_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountStateNotification, subscriber_id_),
@@ -527,7 +504,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GameAccountStateNotification));
-  GameAccountNotification_descriptor_ = file->message_type(25);
+  GameAccountNotification_descriptor_ = file->message_type(24);
   static const int GameAccountNotification_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountNotification, game_accounts_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountNotification, subscriber_id_),
@@ -544,7 +521,7 @@ void protobuf_AssignDesc_account_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GameAccountNotification));
-  GameAccountSessionNotification_descriptor_ = file->message_type(26);
+  GameAccountSessionNotification_descriptor_ = file->message_type(25);
   static const int GameAccountSessionNotification_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSessionNotification, game_account_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GameAccountSessionNotification, session_info_),
@@ -619,8 +596,6 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     GetAuthorizedDataResponse_descriptor_, &GetAuthorizedDataResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    UpdateParentalControlsAndCAISRequest_descriptor_, &UpdateParentalControlsAndCAISRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     AccountStateNotification_descriptor_, &AccountStateNotification::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     GameAccountStateNotification_descriptor_, &GameAccountStateNotification::default_instance());
@@ -677,8 +652,6 @@ void protobuf_ShutdownFile_account_5fservice_2eproto() {
   delete GetAuthorizedDataRequest_reflection_;
   delete GetAuthorizedDataResponse::default_instance_;
   delete GetAuthorizedDataResponse_reflection_;
-  delete UpdateParentalControlsAndCAISRequest::default_instance_;
-  delete UpdateParentalControlsAndCAISRequest_reflection_;
   delete AccountStateNotification::default_instance_;
   delete AccountStateNotification_reflection_;
   delete GameAccountStateNotification::default_instance_;
@@ -764,86 +737,80 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
     " \001(\0132\026.bgs.protocol.EntityId\022\013\n\003tag\030\002 \003("
     "\t\022\032\n\022privileged_network\030\003 \001(\010\"R\n\031GetAuth"
     "orizedDataResponse\0225\n\004data\030\001 \003(\0132\'.bgs.p"
-    "rotocol.account.v1.AuthorizedData\"\373\001\n$Up"
-    "dateParentalControlsAndCAISRequest\0223\n\007ac"
-    "count\030\001 \001(\0132\".bgs.protocol.account.v1.Ac"
-    "countId\022K\n\025parental_control_info\030\002 \001(\0132,"
-    ".bgs.protocol.account.v1.ParentalControl"
-    "Info\022\017\n\007cais_id\030\003 \001(\t\022\032\n\022session_start_t"
-    "ime\030\004 \001(\004\022\022\n\nstart_time\030\005 \001(\004\022\020\n\010end_tim"
-    "e\030\006 \001(\004\"\324\001\n\030AccountStateNotification\022<\n\r"
-    "account_state\030\001 \001(\0132%.bgs.protocol.accou"
-    "nt.v1.AccountState\022\031\n\rsubscriber_id\030\002 \001("
-    "\004B\002\030\001\022\?\n\014account_tags\030\003 \001(\0132).bgs.protoc"
-    "ol.account.v1.AccountFieldTags\022\036\n\026subscr"
-    "iption_completed\030\004 \001(\010\"\352\001\n\034GameAccountSt"
-    "ateNotification\022E\n\022game_account_state\030\001 "
-    "\001(\0132).bgs.protocol.account.v1.GameAccoun"
-    "tState\022\031\n\rsubscriber_id\030\002 \001(\004B\002\030\001\022H\n\021gam"
-    "e_account_tags\030\003 \001(\0132-.bgs.protocol.acco"
-    "unt.v1.GameAccountFieldTags\022\036\n\026subscript"
-    "ion_completed\030\004 \001(\010\"\262\001\n\027GameAccountNotif"
-    "ication\022\?\n\rgame_accounts\030\001 \003(\0132(.bgs.pro"
-    "tocol.account.v1.GameAccountList\022\025\n\rsubs"
-    "criber_id\030\002 \001(\004\022\?\n\014account_tags\030\003 \001(\0132)."
-    "bgs.protocol.account.v1.AccountFieldTags"
-    "\"\250\001\n\036GameAccountSessionNotification\022@\n\014g"
-    "ame_account\030\001 \001(\0132*.bgs.protocol.account"
-    ".v1.GameAccountHandle\022D\n\014session_info\030\002 "
-    "\001(\0132..bgs.protocol.account.v1.GameSessio"
-    "nUpdateInfo2\240\014\n\016AccountService\022y\n\016Resolv"
-    "eAccount\022..bgs.protocol.account.v1.Resol"
-    "veAccountRequest\032/.bgs.protocol.account."
-    "v1.ResolveAccountResponse\"\006\202\371+\002\010\r\022]\n\014IsI"
-    "grAddress\022,.bgs.protocol.account.v1.IsIg"
-    "rAddressRequest\032\024.bgs.protocol.NoData\"\t\210"
-    "\002\001\202\371+\002\010\017\022|\n\tSubscribe\0222.bgs.protocol.acc"
-    "ount.v1.SubscriptionUpdateRequest\0323.bgs."
-    "protocol.account.v1.SubscriptionUpdateRe"
-    "sponse\"\006\202\371+\002\010\031\022_\n\013Unsubscribe\0222.bgs.prot"
-    "ocol.account.v1.SubscriptionUpdateReques"
-    "t\032\024.bgs.protocol.NoData\"\006\202\371+\002\010\032\022|\n\017GetAc"
-    "countState\022/.bgs.protocol.account.v1.Get"
-    "AccountStateRequest\0320.bgs.protocol.accou"
-    "nt.v1.GetAccountStateResponse\"\006\202\371+\002\010\036\022\210\001"
-    "\n\023GetGameAccountState\0223.bgs.protocol.acc"
-    "ount.v1.GetGameAccountStateRequest\0324.bgs"
-    ".protocol.account.v1.GetGameAccountState"
-    "Response\"\006\202\371+\002\010\037\022p\n\013GetLicenses\022+.bgs.pr"
-    "otocol.account.v1.GetLicensesRequest\032,.b"
-    "gs.protocol.account.v1.GetLicensesRespon"
-    "se\"\006\202\371+\002\010 \022\227\001\n\030GetGameTimeRemainingInfo\022"
-    "8.bgs.protocol.account.v1.GetGameTimeRem"
-    "ainingInfoRequest\0329.bgs.protocol.account"
-    ".v1.GetGameTimeRemainingInfoResponse\"\006\202\371"
-    "+\002\010!\022\205\001\n\022GetGameSessionInfo\0222.bgs.protoc"
-    "ol.account.v1.GetGameSessionInfoRequest\032"
-    "3.bgs.protocol.account.v1.GetGameSession"
-    "InfoResponse\"\006\202\371+\002\010\"\022p\n\013GetCAISInfo\022+.bg"
-    "s.protocol.account.v1.GetCAISInfoRequest"
-    "\032,.bgs.protocol.account.v1.GetCAISInfoRe"
-    "sponse\"\006\202\371+\002\010#\022\202\001\n\021GetAuthorizedData\0221.b"
-    "gs.protocol.account.v1.GetAuthorizedData"
-    "Request\0322.bgs.protocol.account.v1.GetAut"
-    "horizedDataResponse\"\006\202\371+\002\010%\022\216\001\n\025GetSigne"
-    "dAccountState\0225.bgs.protocol.account.v1."
-    "GetSignedAccountStateRequest\0326.bgs.proto"
-    "col.account.v1.GetSignedAccountStateResp"
-    "onse\"\006\202\371+\002\010,\0320\202\371+&\n$bnet.protocol.accoun"
-    "t.AccountService\212\371+\002\020\0012\220\004\n\017AccountListen"
-    "er\022m\n\025OnAccountStateUpdated\0221.bgs.protoc"
-    "ol.account.v1.AccountStateNotification\032\031"
-    ".bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\001\022u\n\031OnG"
-    "ameAccountStateUpdated\0225.bgs.protocol.ac"
-    "count.v1.GameAccountStateNotification\032\031."
-    "bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\002\022o\n\025OnGa"
-    "meAccountsUpdated\0220.bgs.protocol.account"
-    ".v1.GameAccountNotification\032\031.bgs.protoc"
-    "ol.NO_RESPONSE\"\t\210\002\001\202\371+\002\010\003\022u\n\024OnGameSessi"
-    "onUpdated\0227.bgs.protocol.account.v1.Game"
-    "AccountSessionNotification\032\031.bgs.protoco"
-    "l.NO_RESPONSE\"\t\210\002\001\202\371+\002\010\004\032/\202\371+%\n#bnet.pro"
-    "tocol.account.AccountNotify\212\371+\002\010\001B\005H\001\200\001\000", 5800);
+    "rotocol.account.v1.AuthorizedData\"\324\001\n\030Ac"
+    "countStateNotification\022<\n\raccount_state\030"
+    "\001 \001(\0132%.bgs.protocol.account.v1.AccountS"
+    "tate\022\031\n\rsubscriber_id\030\002 \001(\004B\002\030\001\022\?\n\014accou"
+    "nt_tags\030\003 \001(\0132).bgs.protocol.account.v1."
+    "AccountFieldTags\022\036\n\026subscription_complet"
+    "ed\030\004 \001(\010\"\352\001\n\034GameAccountStateNotificatio"
+    "n\022E\n\022game_account_state\030\001 \001(\0132).bgs.prot"
+    "ocol.account.v1.GameAccountState\022\031\n\rsubs"
+    "criber_id\030\002 \001(\004B\002\030\001\022H\n\021game_account_tags"
+    "\030\003 \001(\0132-.bgs.protocol.account.v1.GameAcc"
+    "ountFieldTags\022\036\n\026subscription_completed\030"
+    "\004 \001(\010\"\262\001\n\027GameAccountNotification\022\?\n\rgam"
+    "e_accounts\030\001 \003(\0132(.bgs.protocol.account."
+    "v1.GameAccountList\022\025\n\rsubscriber_id\030\002 \001("
+    "\004\022\?\n\014account_tags\030\003 \001(\0132).bgs.protocol.a"
+    "ccount.v1.AccountFieldTags\"\250\001\n\036GameAccou"
+    "ntSessionNotification\022@\n\014game_account\030\001 "
+    "\001(\0132*.bgs.protocol.account.v1.GameAccoun"
+    "tHandle\022D\n\014session_info\030\002 \001(\0132..bgs.prot"
+    "ocol.account.v1.GameSessionUpdateInfo2\251\014"
+    "\n\016AccountService\022y\n\016ResolveAccount\022..bgs"
+    ".protocol.account.v1.ResolveAccountReque"
+    "st\032/.bgs.protocol.account.v1.ResolveAcco"
+    "untResponse\"\006\202\371+\002\010\r\022]\n\014IsIgrAddress\022,.bg"
+    "s.protocol.account.v1.IsIgrAddressReques"
+    "t\032\024.bgs.protocol.NoData\"\t\210\002\001\202\371+\002\010\017\022|\n\tSu"
+    "bscribe\0222.bgs.protocol.account.v1.Subscr"
+    "iptionUpdateRequest\0323.bgs.protocol.accou"
+    "nt.v1.SubscriptionUpdateResponse\"\006\202\371+\002\010\031"
+    "\022_\n\013Unsubscribe\0222.bgs.protocol.account.v"
+    "1.SubscriptionUpdateRequest\032\024.bgs.protoc"
+    "ol.NoData\"\006\202\371+\002\010\032\022|\n\017GetAccountState\022/.b"
+    "gs.protocol.account.v1.GetAccountStateRe"
+    "quest\0320.bgs.protocol.account.v1.GetAccou"
+    "ntStateResponse\"\006\202\371+\002\010\036\022\210\001\n\023GetGameAccou"
+    "ntState\0223.bgs.protocol.account.v1.GetGam"
+    "eAccountStateRequest\0324.bgs.protocol.acco"
+    "unt.v1.GetGameAccountStateResponse\"\006\202\371+\002"
+    "\010\037\022p\n\013GetLicenses\022+.bgs.protocol.account"
+    ".v1.GetLicensesRequest\032,.bgs.protocol.ac"
+    "count.v1.GetLicensesResponse\"\006\202\371+\002\010 \022\227\001\n"
+    "\030GetGameTimeRemainingInfo\0228.bgs.protocol"
+    ".account.v1.GetGameTimeRemainingInfoRequ"
+    "est\0329.bgs.protocol.account.v1.GetGameTim"
+    "eRemainingInfoResponse\"\006\202\371+\002\010!\022\205\001\n\022GetGa"
+    "meSessionInfo\0222.bgs.protocol.account.v1."
+    "GetGameSessionInfoRequest\0323.bgs.protocol"
+    ".account.v1.GetGameSessionInfoResponse\"\006"
+    "\202\371+\002\010\"\022p\n\013GetCAISInfo\022+.bgs.protocol.acc"
+    "ount.v1.GetCAISInfoRequest\032,.bgs.protoco"
+    "l.account.v1.GetCAISInfoResponse\"\006\202\371+\002\010#"
+    "\022\202\001\n\021GetAuthorizedData\0221.bgs.protocol.ac"
+    "count.v1.GetAuthorizedDataRequest\0322.bgs."
+    "protocol.account.v1.GetAuthorizedDataRes"
+    "ponse\"\006\202\371+\002\010%\022\216\001\n\025GetSignedAccountState\022"
+    "5.bgs.protocol.account.v1.GetSignedAccou"
+    "ntStateRequest\0326.bgs.protocol.account.v1"
+    ".GetSignedAccountStateResponse\"\006\202\371+\002\010,\0329"
+    "\202\371+/\n$bnet.protocol.account.AccountServi"
+    "ce*\007account\212\371+\002\020\0012\220\004\n\017AccountListener\022m\n"
+    "\025OnAccountStateUpdated\0221.bgs.protocol.ac"
+    "count.v1.AccountStateNotification\032\031.bgs."
+    "protocol.NO_RESPONSE\"\006\202\371+\002\010\001\022u\n\031OnGameAc"
+    "countStateUpdated\0225.bgs.protocol.account"
+    ".v1.GameAccountStateNotification\032\031.bgs.p"
+    "rotocol.NO_RESPONSE\"\006\202\371+\002\010\002\022o\n\025OnGameAcc"
+    "ountsUpdated\0220.bgs.protocol.account.v1.G"
+    "ameAccountNotification\032\031.bgs.protocol.NO"
+    "_RESPONSE\"\t\210\002\001\202\371+\002\010\003\022u\n\024OnGameSessionUpd"
+    "ated\0227.bgs.protocol.account.v1.GameAccou"
+    "ntSessionNotification\032\031.bgs.protocol.NO_"
+    "RESPONSE\"\t\210\002\001\202\371+\002\010\004\032/\202\371+%\n#bnet.protocol"
+    ".account.AccountNotify\212\371+\002\010\001B\005H\001\200\001\000", 5555);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "account_service.proto", &protobuf_RegisterTypes);
   ResolveAccountRequest::default_instance_ = new ResolveAccountRequest();
@@ -868,7 +835,6 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
   GetCAISInfoResponse::default_instance_ = new GetCAISInfoResponse();
   GetAuthorizedDataRequest::default_instance_ = new GetAuthorizedDataRequest();
   GetAuthorizedDataResponse::default_instance_ = new GetAuthorizedDataResponse();
-  UpdateParentalControlsAndCAISRequest::default_instance_ = new UpdateParentalControlsAndCAISRequest();
   AccountStateNotification::default_instance_ = new AccountStateNotification();
   GameAccountStateNotification::default_instance_ = new GameAccountStateNotification();
   GameAccountNotification::default_instance_ = new GameAccountNotification();
@@ -895,7 +861,6 @@ void protobuf_AddDesc_account_5fservice_2eproto() {
   GetCAISInfoResponse::default_instance_->InitAsDefaultInstance();
   GetAuthorizedDataRequest::default_instance_->InitAsDefaultInstance();
   GetAuthorizedDataResponse::default_instance_->InitAsDefaultInstance();
-  UpdateParentalControlsAndCAISRequest::default_instance_->InitAsDefaultInstance();
   AccountStateNotification::default_instance_->InitAsDefaultInstance();
   GameAccountStateNotification::default_instance_->InitAsDefaultInstance();
   GameAccountNotification::default_instance_->InitAsDefaultInstance();
@@ -6862,471 +6827,6 @@ void GetAuthorizedDataResponse::Swap(GetAuthorizedDataResponse* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = GetAuthorizedDataResponse_descriptor_;
   metadata.reflection = GetAuthorizedDataResponse_reflection_;
-  return metadata;
-}
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int UpdateParentalControlsAndCAISRequest::kAccountFieldNumber;
-const int UpdateParentalControlsAndCAISRequest::kParentalControlInfoFieldNumber;
-const int UpdateParentalControlsAndCAISRequest::kCaisIdFieldNumber;
-const int UpdateParentalControlsAndCAISRequest::kSessionStartTimeFieldNumber;
-const int UpdateParentalControlsAndCAISRequest::kStartTimeFieldNumber;
-const int UpdateParentalControlsAndCAISRequest::kEndTimeFieldNumber;
-#endif  // !_MSC_VER
-
-UpdateParentalControlsAndCAISRequest::UpdateParentalControlsAndCAISRequest()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-}
-
-void UpdateParentalControlsAndCAISRequest::InitAsDefaultInstance() {
-  account_ = const_cast< ::bgs::protocol::account::v1::AccountId*>(&::bgs::protocol::account::v1::AccountId::default_instance());
-  parental_control_info_ = const_cast< ::bgs::protocol::account::v1::ParentalControlInfo*>(&::bgs::protocol::account::v1::ParentalControlInfo::default_instance());
-}
-
-UpdateParentalControlsAndCAISRequest::UpdateParentalControlsAndCAISRequest(const UpdateParentalControlsAndCAISRequest& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-}
-
-void UpdateParentalControlsAndCAISRequest::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  account_ = NULL;
-  parental_control_info_ = NULL;
-  cais_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  session_start_time_ = GOOGLE_ULONGLONG(0);
-  start_time_ = GOOGLE_ULONGLONG(0);
-  end_time_ = GOOGLE_ULONGLONG(0);
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-UpdateParentalControlsAndCAISRequest::~UpdateParentalControlsAndCAISRequest() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-  SharedDtor();
-}
-
-void UpdateParentalControlsAndCAISRequest::SharedDtor() {
-  if (cais_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete cais_id_;
-  }
-  if (this != default_instance_) {
-    delete account_;
-    delete parental_control_info_;
-  }
-}
-
-void UpdateParentalControlsAndCAISRequest::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* UpdateParentalControlsAndCAISRequest::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return UpdateParentalControlsAndCAISRequest_descriptor_;
-}
-
-const UpdateParentalControlsAndCAISRequest& UpdateParentalControlsAndCAISRequest::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_account_5fservice_2eproto();
-  return *default_instance_;
-}
-
-UpdateParentalControlsAndCAISRequest* UpdateParentalControlsAndCAISRequest::default_instance_ = NULL;
-
-UpdateParentalControlsAndCAISRequest* UpdateParentalControlsAndCAISRequest::New() const {
-  return new UpdateParentalControlsAndCAISRequest;
-}
-
-void UpdateParentalControlsAndCAISRequest::Clear() {
-#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
-  &reinterpret_cast<UpdateParentalControlsAndCAISRequest*>(16)->f) - \
-   reinterpret_cast<char*>(16))
-
-#define ZR_(first, last) do {                              \
-    size_t f = OFFSET_OF_FIELD_(first);                    \
-    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
-    ::memset(&first, 0, n);                                \
-  } while (0)
-
-  if (_has_bits_[0 / 32] & 63) {
-    ZR_(session_start_time_, end_time_);
-    if (has_account()) {
-      if (account_ != NULL) account_->::bgs::protocol::account::v1::AccountId::Clear();
-    }
-    if (has_parental_control_info()) {
-      if (parental_control_info_ != NULL) parental_control_info_->::bgs::protocol::account::v1::ParentalControlInfo::Clear();
-    }
-    if (has_cais_id()) {
-      if (cais_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        cais_id_->clear();
-      }
-    }
-  }
-
-#undef OFFSET_OF_FIELD_
-#undef ZR_
-
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool UpdateParentalControlsAndCAISRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional .bgs.protocol.account.v1.AccountId account = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_account()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_parental_control_info;
-        break;
-      }
-
-      // optional .bgs.protocol.account.v1.ParentalControlInfo parental_control_info = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_parental_control_info:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-               input, mutable_parental_control_info()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(26)) goto parse_cais_id;
-        break;
-      }
-
-      // optional string cais_id = 3;
-      case 3: {
-        if (tag == 26) {
-         parse_cais_id:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_cais_id()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->cais_id().data(), this->cais_id().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "cais_id");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(32)) goto parse_session_start_time;
-        break;
-      }
-
-      // optional uint64 session_start_time = 4;
-      case 4: {
-        if (tag == 32) {
-         parse_session_start_time:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &session_start_time_)));
-          set_has_session_start_time();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(40)) goto parse_start_time;
-        break;
-      }
-
-      // optional uint64 start_time = 5;
-      case 5: {
-        if (tag == 40) {
-         parse_start_time:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &start_time_)));
-          set_has_start_time();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(48)) goto parse_end_time;
-        break;
-      }
-
-      // optional uint64 end_time = 6;
-      case 6: {
-        if (tag == 48) {
-         parse_end_time:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint64, ::google::protobuf::internal::WireFormatLite::TYPE_UINT64>(
-                 input, &end_time_)));
-          set_has_end_time();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-  return false;
-#undef DO_
-}
-
-void UpdateParentalControlsAndCAISRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-  // optional .bgs.protocol.account.v1.AccountId account = 1;
-  if (has_account()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->account(), output);
-  }
-
-  // optional .bgs.protocol.account.v1.ParentalControlInfo parental_control_info = 2;
-  if (has_parental_control_info()) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->parental_control_info(), output);
-  }
-
-  // optional string cais_id = 3;
-  if (has_cais_id()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->cais_id().data(), this->cais_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "cais_id");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      3, this->cais_id(), output);
-  }
-
-  // optional uint64 session_start_time = 4;
-  if (has_session_start_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(4, this->session_start_time(), output);
-  }
-
-  // optional uint64 start_time = 5;
-  if (has_start_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(5, this->start_time(), output);
-  }
-
-  // optional uint64 end_time = 6;
-  if (has_end_time()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt64(6, this->end_time(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-}
-
-::google::protobuf::uint8* UpdateParentalControlsAndCAISRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-  // optional .bgs.protocol.account.v1.AccountId account = 1;
-  if (has_account()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->account(), target);
-  }
-
-  // optional .bgs.protocol.account.v1.ParentalControlInfo parental_control_info = 2;
-  if (has_parental_control_info()) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        2, this->parental_control_info(), target);
-  }
-
-  // optional string cais_id = 3;
-  if (has_cais_id()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->cais_id().data(), this->cais_id().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "cais_id");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        3, this->cais_id(), target);
-  }
-
-  // optional uint64 session_start_time = 4;
-  if (has_session_start_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(4, this->session_start_time(), target);
-  }
-
-  // optional uint64 start_time = 5;
-  if (has_start_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(5, this->start_time(), target);
-  }
-
-  // optional uint64 end_time = 6;
-  if (has_end_time()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt64ToArray(6, this->end_time(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.account.v1.UpdateParentalControlsAndCAISRequest)
-  return target;
-}
-
-int UpdateParentalControlsAndCAISRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional .bgs.protocol.account.v1.AccountId account = 1;
-    if (has_account()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->account());
-    }
-
-    // optional .bgs.protocol.account.v1.ParentalControlInfo parental_control_info = 2;
-    if (has_parental_control_info()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-          this->parental_control_info());
-    }
-
-    // optional string cais_id = 3;
-    if (has_cais_id()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->cais_id());
-    }
-
-    // optional uint64 session_start_time = 4;
-    if (has_session_start_time()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->session_start_time());
-    }
-
-    // optional uint64 start_time = 5;
-    if (has_start_time()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->start_time());
-    }
-
-    // optional uint64 end_time = 6;
-    if (has_end_time()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt64Size(
-          this->end_time());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void UpdateParentalControlsAndCAISRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const UpdateParentalControlsAndCAISRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const UpdateParentalControlsAndCAISRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void UpdateParentalControlsAndCAISRequest::MergeFrom(const UpdateParentalControlsAndCAISRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_account()) {
-      mutable_account()->::bgs::protocol::account::v1::AccountId::MergeFrom(from.account());
-    }
-    if (from.has_parental_control_info()) {
-      mutable_parental_control_info()->::bgs::protocol::account::v1::ParentalControlInfo::MergeFrom(from.parental_control_info());
-    }
-    if (from.has_cais_id()) {
-      set_cais_id(from.cais_id());
-    }
-    if (from.has_session_start_time()) {
-      set_session_start_time(from.session_start_time());
-    }
-    if (from.has_start_time()) {
-      set_start_time(from.start_time());
-    }
-    if (from.has_end_time()) {
-      set_end_time(from.end_time());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void UpdateParentalControlsAndCAISRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void UpdateParentalControlsAndCAISRequest::CopyFrom(const UpdateParentalControlsAndCAISRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool UpdateParentalControlsAndCAISRequest::IsInitialized() const {
-
-  if (has_account()) {
-    if (!this->account().IsInitialized()) return false;
-  }
-  return true;
-}
-
-void UpdateParentalControlsAndCAISRequest::Swap(UpdateParentalControlsAndCAISRequest* other) {
-  if (other != this) {
-    std::swap(account_, other->account_);
-    std::swap(parental_control_info_, other->parental_control_info_);
-    std::swap(cais_id_, other->cais_id_);
-    std::swap(session_start_time_, other->session_start_time_);
-    std::swap(start_time_, other->start_time_);
-    std::swap(end_time_, other->end_time_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata UpdateParentalControlsAndCAISRequest::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = UpdateParentalControlsAndCAISRequest_descriptor_;
-  metadata.reflection = UpdateParentalControlsAndCAISRequest_reflection_;
   return metadata;
 }
 
