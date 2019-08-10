@@ -185,10 +185,10 @@ CASC_CSV::~CASC_CSV()
     m_szCsvFile = NULL;
 }
 
-int CASC_CSV::Load(const TCHAR * szFileName)
+DWORD CASC_CSV::Load(const TCHAR * szFileName)
 {
     DWORD cbFileData = 0;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     m_szCsvFile = (char *)LoadFileToMemory(szFileName, &cbFileData);
     if (m_szCsvFile != NULL)
@@ -199,19 +199,19 @@ int CASC_CSV::Load(const TCHAR * szFileName)
         m_nCsvFile = cbFileData;
 
         // Parse the data
-        nError = ParseCsvData() ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+        dwErrCode = ParseCsvData() ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
     }
     else
     {
-        nError = GetLastError();
+        dwErrCode = GetLastError();
     }
 
-    return nError;
+    return dwErrCode;
 }
 
-int CASC_CSV::Load(LPBYTE pbData, size_t cbData)
+DWORD CASC_CSV::Load(LPBYTE pbData, size_t cbData)
 {
-    int nError = ERROR_NOT_ENOUGH_MEMORY;
+    DWORD dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
 
     m_szCsvFile = new char[cbData + 1];
     if (m_szCsvFile != NULL)
@@ -223,10 +223,10 @@ int CASC_CSV::Load(LPBYTE pbData, size_t cbData)
         m_nCsvFile = cbData;
 
         // Parse the data
-        nError = ParseCsvData() ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
+        dwErrCode = ParseCsvData() ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
     }
 
-    return nError;
+    return dwErrCode;
 }
 
 bool CASC_CSV::LoadNextLine()
