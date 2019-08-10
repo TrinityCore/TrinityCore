@@ -1020,7 +1020,7 @@ struct npc_conclave_of_wind_ravenous_creeper : public ScriptedAI
     {
         me->SetLastDamagedTime(0);
         me->SetCannotReachTarget(false);
-        me->DoNotReacquireTarget();
+        me->DoNotReacquireSpellFocusTarget();
         me->GetMotionMaster()->MoveTargetedHome();
     }
 

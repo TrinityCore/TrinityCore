@@ -438,7 +438,7 @@ struct boss_magmaw : public BossAI
                         {
                             me->AttackStop();
                             me->SetReactState(REACT_PASSIVE);
-                            me->ReleaseFocus(nullptr, false);
+                            me->ReleaseSpellFocus(nullptr, false);
                             me->SetFacingToObject(stalker, true);
                             events.ScheduleEvent(EVENT_MASSIVE_CRASH, 5s);
                         }

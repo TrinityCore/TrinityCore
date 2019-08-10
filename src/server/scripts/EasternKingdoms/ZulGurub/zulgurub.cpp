@@ -359,7 +359,7 @@ struct npc_zulgurub_tiki_lord_mu_loa : public ScriptedAI
     {
         _EnterEvadeMode();
         _events.Reset();
-        me->ReleaseFocus(nullptr, false);
+        me->ReleaseSpellFocus(nullptr, false);
         me->GetMotionMaster()->MoveTargetedHome();
     }
 

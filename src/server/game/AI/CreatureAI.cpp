@@ -216,7 +216,7 @@ void CreatureAI::SetGazeOn(Unit* target)
 {
     if (me->IsValidAttackTarget(target))
     {
-        if (!me->IsFocusing(nullptr, true) && target != me->GetVictim())
+        if (!me->HasSpellFocus() && target != me->GetVictim())
             AttackStart(target);
         me->SetReactState(REACT_PASSIVE);
     }
@@ -236,7 +236,7 @@ bool CreatureAI::UpdateVictimWithGaze()
     }
 
     if (Unit* victim = me->SelectVictim())
-        if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+        if (!me->HasSpellFocus() && victim != me->GetVictim())
             AttackStart(victim);
 
     return me->GetVictim() != nullptr;
@@ -250,7 +250,7 @@ bool CreatureAI::UpdateVictim()
     if (!me->HasReactState(REACT_PASSIVE))
     {
         if (Unit* victim = me->SelectVictim())
-            if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+            if (!me->HasSpellFocus() && victim != me->GetVictim())
                 AttackStart(victim);
 
         return me->GetVictim() != nullptr;
@@ -278,7 +278,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
-    me->DoNotReacquireTarget();
+    me->DoNotReacquireSpellFocusTarget();
 
     if (me->IsInEvadeMode())
         return false;
