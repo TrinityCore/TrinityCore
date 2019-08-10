@@ -3209,6 +3209,28 @@ class spell_item_rocket_boots : public SpellScript
     }
 };
 
+class spell_item_runic_healing_injector : public SpellScript
+{
+    PrepareSpellScript(spell_item_runic_healing_injector);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleHeal(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+            if (caster->HasSkill(SKILL_ENGINEERING))
+                SetHitHeal(GetHitHeal() * 1.25f);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_runic_healing_injector::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
 enum PygmyOil
 {
     SPELL_PYGMY_OIL_PYGMY_AURA      = 53806,
@@ -4332,6 +4354,7 @@ void AddSC_item_spell_scripts()
     RegisterAuraScript(spell_item_nitro_boosts_backfire);
     RegisterSpellScript(spell_item_teach_language);
     RegisterSpellScript(spell_item_rocket_boots);
+    RegisterSpellScript(spell_item_runic_healing_injector);
     RegisterSpellScript(spell_item_pygmy_oil);
     RegisterSpellScript(spell_item_unusual_compass);
     RegisterSpellScript(spell_item_chicken_cover);

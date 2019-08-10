@@ -974,14 +974,14 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_INSTANCE_UNLOAD_DELAY] = sConfigMgr->GetIntDefault("Instance.UnloadDelay", 30 * MINUTE * IN_MILLISECONDS);
     
     m_int_configs[CONFIG_DAILY_QUEST_RESET_TIME_HOUR] = sConfigMgr->GetIntDefault("Quests.DailyResetTime", 3);
-    if (m_int_configs[CONFIG_DAILY_QUEST_RESET_TIME_HOUR] < 0 || m_int_configs[CONFIG_DAILY_QUEST_RESET_TIME_HOUR] > 23)
+    if (m_int_configs[CONFIG_DAILY_QUEST_RESET_TIME_HOUR] > 23)
     {
         TC_LOG_ERROR("server.loading", "Quests.DailyResetTime (%i) must be in range 0..23. Set to 3.", m_int_configs[CONFIG_DAILY_QUEST_RESET_TIME_HOUR]);
         m_int_configs[CONFIG_DAILY_QUEST_RESET_TIME_HOUR] = 3;
     }
     
     m_int_configs[CONFIG_WEEKLY_QUEST_RESET_TIME_WDAY] = sConfigMgr->GetIntDefault("Quests.WeeklyResetWDay", 3);
-    if (m_int_configs[CONFIG_WEEKLY_QUEST_RESET_TIME_WDAY] < 0 || m_int_configs[CONFIG_WEEKLY_QUEST_RESET_TIME_WDAY] > 6)
+    if (m_int_configs[CONFIG_WEEKLY_QUEST_RESET_TIME_WDAY] > 6)
     {
         TC_LOG_ERROR("server.loading", "Quests.WeeklyResetDay (%i) must be in range 0..6. Set to 3 (Wednesday).", m_int_configs[CONFIG_WEEKLY_QUEST_RESET_TIME_WDAY]);
         m_int_configs[CONFIG_WEEKLY_QUEST_RESET_TIME_WDAY] = 3;
@@ -2914,14 +2914,9 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode, const std:
     m_ShutdownMask = options;
     m_ExitCode = exitcode;
 
-    ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
+    ///- If the shutdown time is 0, evaluate shutdown on next tick (no message)
     if (time == 0)
-    {
-        if (!(options & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
-            m_stopEvent = true;                             // exist code already set
-        else
-            m_ShutdownTimer = 1;                            //So that the session count is re-evaluated at next world tick
-    }
+        m_ShutdownTimer = 1;
     ///- Else set the shutdown timer and warn users
     else
     {

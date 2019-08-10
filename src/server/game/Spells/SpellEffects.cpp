@@ -1242,13 +1242,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
         addhealth += damageAmount;
     }
-    // Runic Healing Injector (heal increased by 25% for engineers - 3.2.0 patch change)
-    else if (m_spellInfo->Id == 67489)
-    {
-        if (Player* player = unitCaster->ToPlayer())
-            if (player->HasSkill(SKILL_ENGINEERING))
-                AddPct(addhealth, 25);
-    }
     // Swiftmend - consumes Regrowth or Rejuvenation
     else if (m_spellInfo->TargetAuraState == AURA_STATE_SWIFTMEND && unitTarget->HasAuraState(AURA_STATE_SWIFTMEND, m_spellInfo, unitCaster))
     {
