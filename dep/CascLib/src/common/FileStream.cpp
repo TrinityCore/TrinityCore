@@ -615,7 +615,7 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
     HINTERNET hRequest;
     DWORD dwTemp = 0;
     bool bFileAvailable = false;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Check alternate ports
     if(dwStreamFlags & STREAM_FLAG_USE_PORT_1119)
@@ -625,10 +625,10 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
 
     // Don't download if we are not connected to the internet
     if(!InternetGetConnectedState(&dwTemp, 0))
-        nError = GetLastError();
+        dwErrCode = GetLastError();
 
     // Initiate the connection to the internet
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         pStream->Base.Http.hInternet = InternetOpen(_T("agent/2.17.2.6700"),
                                                     INTERNET_OPEN_TYPE_PRECONFIG,
@@ -636,11 +636,11 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                                                     NULL,
                                                     0);
         if(pStream->Base.Http.hInternet == NULL)
-            nError = GetLastError();
+            dwErrCode = GetLastError();
     }
 
     // Connect to the server
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         TCHAR szServerName[MAX_PATH];
         DWORD dwFlags = INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_NO_UI | INTERNET_FLAG_NO_CACHE_WRITE;
@@ -656,11 +656,11 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                                                       dwFlags,
                                                       0);
         if(pStream->Base.Http.hConnect == NULL)
-            nError = GetLastError();
+            dwErrCode = GetLastError();
     }
 
     // Now try to query the file size
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         // Open HTTP request to the file
         hRequest = HttpOpenRequest(pStream->Base.Http.hConnect, _T("GET"), szFileName, NULL, NULL, NULL, INTERNET_FLAG_NO_CACHE_WRITE, 0);
@@ -702,7 +702,7 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                 }
                 else
                 {
-                    nError = ERROR_FILE_NOT_FOUND;
+                    dwErrCode = ERROR_FILE_NOT_FOUND;
                 }
             }
             InternetCloseHandle(hRequest);
@@ -714,7 +714,7 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
     if(bFileAvailable == false)
     {
         pStream->BaseClose(pStream);
-        SetLastError(nError);
+        SetLastError(dwErrCode);
         return false;
     }
 
@@ -889,7 +889,7 @@ static bool BlockStream_Read(
     BlockBufferOffset = (DWORD)(ByteOffset & (BlockSize - 1));
 
     // Allocate buffer for reading blocks
-    TransferBuffer = BlockBuffer = CASC_ALLOC(BYTE, (BlockCount * BlockSize));
+    TransferBuffer = BlockBuffer = CASC_ALLOC<BYTE>(BlockCount * BlockSize);
     if(TransferBuffer == NULL)
     {
         SetLastError(ERROR_NOT_ENOUGH_MEMORY);
@@ -1054,7 +1054,7 @@ static TFileStream * AllocateFileStream(
     }
 
     // Allocate the stream structure for the given stream type
-    pStream = (TFileStream *)CASC_ALLOC(BYTE, StreamSize + FileNameSize + sizeof(TCHAR));
+    pStream = (TFileStream *)CASC_ALLOC<BYTE>(StreamSize + FileNameSize + sizeof(TCHAR));
     if(pStream != NULL)
     {
         // Zero the entire structure
@@ -1137,7 +1137,7 @@ static bool FlatStream_LoadBitmap(TBlockStream * pStream)
                 if(ByteOffset + BitmapSize + sizeof(FILE_BITMAP_FOOTER) == pStream->Base.File.FileSize)
                 {
                     // Allocate space for the bitmap
-                    FileBitmap = CASC_ALLOC(BYTE, BitmapSize);
+                    FileBitmap = CASC_ALLOC<BYTE>(BitmapSize);
                     if(FileBitmap != NULL)
                     {
                         // Load the bitmap bits
@@ -1349,12 +1349,11 @@ static bool FlatStream_CreateMirror(TBlockStream * pStream)
     }
 
     // Allocate the bitmap array
-    FileBitmap = CASC_ALLOC(BYTE, dwBitmapSize);
+    FileBitmap = CASC_ALLOC_ZERO<BYTE>(dwBitmapSize);
     if(FileBitmap == NULL)
         return false;
 
     // Initialize the bitmap
-    memset(FileBitmap, 0, dwBitmapSize);
     pStream->FileBitmap = FileBitmap;
     pStream->BitmapSize = dwBitmapSize;
     pStream->BlockSize  = DEFAULT_BLOCK_SIZE;
@@ -1521,7 +1520,7 @@ static bool PartStream_LoadBitmap(TBlockStream * pStream)
                 if((ByteOffset + BitmapSize) < pStream->Base.File.FileSize)
                 {
                     // Allocate space for the array of PART_FILE_MAP_ENTRY
-                    FileBitmap = CASC_ALLOC(PART_FILE_MAP_ENTRY, BlockCount);
+                    FileBitmap = CASC_ALLOC<PART_FILE_MAP_ENTRY>(BlockCount);
                     if(FileBitmap != NULL)
                     {
                         // Load the block map
@@ -1771,12 +1770,11 @@ static bool PartStream_CreateMirror(TBlockStream * pStream)
     }
 
     // Allocate the bitmap array
-    FileBitmap = CASC_ALLOC(BYTE, dwBitmapSize);
+    FileBitmap = CASC_ALLOC_ZERO<BYTE>(dwBitmapSize);
     if(FileBitmap == NULL)
         return false;
 
     // Initialize the bitmap
-    memset(FileBitmap, 0, dwBitmapSize);
     pStream->FileBitmap = FileBitmap;
     pStream->BitmapSize = dwBitmapSize;
     pStream->BlockSize  = DEFAULT_BLOCK_SIZE;
@@ -2268,7 +2266,7 @@ static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamF
     pStream->BlockRead     = (BLOCK_READ)Block4Stream_BlockRead;
 
     // Allocate work space for numeric names
-    szNameBuff = CASC_ALLOC(TCHAR, nNameLength + 4);
+    szNameBuff = CASC_ALLOC<TCHAR>(nNameLength + 4);
     if(szNameBuff != NULL)
     {
         // Set the base flags
@@ -2283,7 +2281,7 @@ static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamF
                 break;
 
             // If the open succeeded, we re-allocate the base provider array
-            NewBaseArray = CASC_ALLOC(TBaseProviderData, dwBaseFiles + 1);
+            NewBaseArray = CASC_ALLOC<TBaseProviderData>(dwBaseFiles + 1);
             if(NewBaseArray == NULL)
             {
                 SetLastError(ERROR_NOT_ENOUGH_MEMORY);
@@ -2369,7 +2367,7 @@ static TFileStream * Block4Stream_Open(const TCHAR * szFileName, DWORD dwStreamF
  */
 
 TFileStream * FileStream_CreateFile(
-    const TCHAR * szFileName,
+    LPCTSTR szFileName,
     DWORD dwStreamFlags)
 {
     TFileStream * pStream;
@@ -2424,7 +2422,7 @@ TFileStream * FileStream_CreateFile(
  */
 
 TFileStream * FileStream_OpenFile(
-    const TCHAR * szFileName,
+    LPCTSTR szFileName,
     DWORD dwStreamFlags)
 {
     DWORD dwProvider = dwStreamFlags & STREAM_PROVIDERS_MASK;
@@ -2473,7 +2471,7 @@ const TCHAR * FileStream_GetFileName(TFileStream * pStream)
  * \a pdwStreamProvider Pointer to a DWORD variable that receives stream provider (STREAM_PROVIDER_XXX)
  */
 
-size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider)
+size_t FileStream_Prefix(LPCTSTR szFileName, DWORD * pdwProvider)
 {
     size_t nPrefixLength1 = 0;
     size_t nPrefixLength2 = 0;
@@ -2592,14 +2590,6 @@ bool FileStream_SetCallback(TFileStream * pStream, STREAM_DOWNLOAD_CALLBACK pfnC
  */
 bool FileStream_Read(TFileStream * pStream, ULONGLONG * pByteOffset, void * pvBuffer, DWORD dwBytesToRead)
 {
-    //FILE * fp = fopen("E:\\Loading.txt", "at");
-    //if(fp != NULL)
-    //{
-    //    ULONGLONG ByteOffset = (pByteOffset != NULL) ? pByteOffset[0] : 0;
-    //    fprintf(fp, "%-32ws\t%08X\t%08X\n", GetPlainFileName(pStream->szFileName), (ULONG)ByteOffset, dwBytesToRead);
-    //    fclose(fp);
-    //}
-
     assert(pStream->StreamRead != NULL);
     return pStream->StreamRead(pStream, pByteOffset, pvBuffer, dwBytesToRead);
 }
