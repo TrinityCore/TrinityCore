@@ -57,25 +57,17 @@ CASCFile::CASCFile(CASC::StorageHandle const& casc, uint32 fileDataId, std::stri
 
 void CASCFile::init(CASC::FileHandle const& file, const char* description)
 {
-    DWORD fileSizeHigh = 0;
-    DWORD fileSize = CASC::GetFileSize(file, &fileSizeHigh);
-    if (fileSize == CASC_INVALID_SIZE)
+    int64 fileSize = CASC::GetFileSize(file);
+    if (fileSize == -1)
     {
         fprintf(stderr, "Can't open %s, failed to get size: %s!\n", description, CASC::HumanReadableCASCError(GetLastError()));
         eof = true;
         return;
     }
 
-    if (fileSizeHigh)
-    {
-        fprintf(stderr, "Can't open %s, file larger than 2GB", description);
-        eof = true;
-        return;
-    }
-
     size = fileSize;
 
-    DWORD read = 0;
+    uint32 read = 0;
     buffer = new char[size];
     if (!CASC::ReadFile(file, buffer, size, &read) || size != read)
     {

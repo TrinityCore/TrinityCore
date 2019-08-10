@@ -87,6 +87,7 @@
   #include <errno.h>
   #include <stddef.h>
   #include <string.h>
+  #include <ctype.h>
   #include <cassert>
 
   // Support for PowerPC on Max OS X
@@ -161,6 +162,8 @@
   typedef int            LONG;
   typedef unsigned int   DWORD;
   typedef long long      LONGLONG;
+  typedef signed long long LONGLONG;
+  typedef signed long long *PLONGLONG;
   typedef unsigned long long ULONGLONG;
   typedef unsigned long long *PULONGLONG;
   typedef void         * HANDLE;
@@ -302,6 +305,27 @@
     #define    BSWAP_ARRAY32_UNSIGNED(a,b)      ConvertUInt32Buffer((a),(b))
     #define    BSWAP_ARRAY64_UNSIGNED(a,b)      ConvertUInt64Buffer((a),(b))
 #endif
+
+//-----------------------------------------------------------------------------
+// Interlocked operations
+
+inline DWORD CascInterlockedIncrement(PDWORD PtrValue)
+{
+#ifdef PLATFORM_WINDOWS
+    return (DWORD)InterlockedIncrement((LONG *)(PtrValue));
+#else
+    return ++PtrValue[0];
+#endif
+}
+
+inline DWORD CascInterlockedDecrement(PDWORD PtrValue)
+{
+#ifdef PLATFORM_WINDOWS
+    return (DWORD)InterlockedIncrement((LONG *)(PtrValue));
+#else
+    return --PtrValue[0];
+#endif
+}
 
 //-----------------------------------------------------------------------------
 // Forbidden functions, do not use
