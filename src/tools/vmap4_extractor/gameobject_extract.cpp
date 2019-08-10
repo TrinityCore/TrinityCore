@@ -77,7 +77,7 @@ bool GetHeaderMagic(std::string const& fileName, uint32* magic)
     if (!file)
         return false;
 
-    DWORD bytesRead = 0;
+    uint32 bytesRead = 0;
     if (!CASC::ReadFile(file, magic, 4, &bytesRead) || bytesRead != 4)
         return false;
 
