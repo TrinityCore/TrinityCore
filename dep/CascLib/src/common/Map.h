@@ -129,13 +129,8 @@ class CASC_MAP
             return ERROR_NOT_ENOUGH_MEMORY;
 
         // Allocate new map for the objects
-        m_HashTable = (void **)CASC_ALLOC(void *, m_HashTableSize);
-        if(m_HashTable == NULL)
-            return ERROR_NOT_ENOUGH_MEMORY;
-
-        // Initialize the map object
-        memset(m_HashTable, 0, m_HashTableSize * sizeof(void *));
-        return ERROR_SUCCESS;
+        m_HashTable = (void **)CASC_ALLOC_ZERO<void *>(m_HashTableSize);
+        return (m_HashTable != NULL) ? ERROR_SUCCESS : ERROR_NOT_ENOUGH_MEMORY;
     }
 
     void * FindObject(void * pvKey, PDWORD PtrIndex = NULL)

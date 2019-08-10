@@ -15,12 +15,12 @@
 //-----------------------------------------------------------------------------
 // Public functions
 
-int CascDecompress(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer)
+DWORD CascDecompress(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, DWORD cbInBuffer)
 {
     z_stream z;                        // Stream information for zlib
+    DWORD dwErrCode = ERROR_FILE_CORRUPT;
     uInt cbOutBuffer = *pcbOutBuffer;
     int nResult;
-    int nError = ERROR_FILE_CORRUPT;
 
     // Fill the stream structure for zlib
     z.next_in   = pbInBuffer;
@@ -44,7 +44,7 @@ int CascDecompress(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, D
         {
             // Give the size of the uncompressed data
             cbOutBuffer = z.total_out;
-            nError = ERROR_SUCCESS;
+            dwErrCode = ERROR_SUCCESS;
         }
 
         inflateEnd(&z);
@@ -52,5 +52,5 @@ int CascDecompress(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer, D
 
     // Give the caller the number of bytes needed
     pcbOutBuffer[0] = cbOutBuffer;
-    return nError;
+    return dwErrCode;
 }

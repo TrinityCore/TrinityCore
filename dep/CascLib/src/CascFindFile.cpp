@@ -24,49 +24,52 @@ static void ResetFindData(PCASC_FIND_DATA pFindData)
     pFindData->szFileName[0] = 0;
     pFindData->szPlainName = pFindData->szFileName;
     pFindData->TagBitMask = 0;
+    pFindData->FileSize = CASC_INVALID_SIZE64;
     pFindData->dwFileDataId = CASC_INVALID_ID;
-    pFindData->dwFileSize = CASC_INVALID_SIZE;
     pFindData->dwLocaleFlags = CASC_INVALID_ID;
     pFindData->dwContentFlags = CASC_INVALID_ID;
+    pFindData->dwSpanCount = 1;
     pFindData->NameType = CascNameFull;
     pFindData->bFileAvailable = false;
-    pFindData->bCanOpenByName = false;
-    pFindData->bCanOpenByDataId = false;
-    pFindData->bCanOpenByCKey = false;
-    pFindData->bCanOpenByEKey = false;
 }
 
-static void SupplyFakeFileName(PCASC_FIND_DATA pFindData)
+static void SupplyFakeFileName(PCASC_FIND_DATA pFindData, PCASC_CKEY_ENTRY pCKeyEntry)
 {
-    // If the file can be open by file data id, create fake file name
-    if(pFindData->bCanOpenByDataId)
+    // If there is a file data ID, create fake file name
+    if(pFindData->dwFileDataId != CASC_INVALID_ID)
     {
         CascStrPrintf(pFindData->szFileName, _countof(pFindData->szFileName), "FILE%08X.dat", pFindData->dwFileDataId);
         pFindData->NameType = CascNameDataId;
         return;
     }
 
-    // If the file can be open by CKey, convert the CKey to file name
-    if(pFindData->bCanOpenByCKey)
+    // If there is a CKey, convert the CKey to file name
+    if(pCKeyEntry->Flags & CASC_CE_HAS_CKEY)
     {
         StringFromBinary(pFindData->CKey, MD5_HASH_SIZE, pFindData->szFileName);
         pFindData->NameType = CascNameCKey;
         return;
     }
 
-    // CKey should be always present
-    StringFromBinary(pFindData->EKey, MD5_HASH_SIZE, pFindData->szFileName);
-    pFindData->NameType = CascNameEKey;
-    assert(pFindData->bCanOpenByEKey != false);
+    // EKey should be always present
+    if(pCKeyEntry->Flags & CASC_CE_HAS_EKEY)
+    {
+        StringFromBinary(pFindData->EKey, MD5_HASH_SIZE, pFindData->szFileName);
+        pFindData->NameType = CascNameEKey;
+        return;
+    }
+
+    assert(false);
 }
 
 static bool CopyCKeyEntryToFindData(PCASC_FIND_DATA pFindData, PCASC_CKEY_ENTRY pCKeyEntry)
 {
+    ULONGLONG ContentSize = 0;
+    ULONGLONG EncodedSize = 0;
+
     // Supply both keys
     CopyMemory16(pFindData->CKey, pCKeyEntry->CKey);
     CopyMemory16(pFindData->EKey, pCKeyEntry->EKey);
-    pFindData->bCanOpenByCKey = (pCKeyEntry->Flags & CASC_CE_HAS_CKEY) ? true : false;
-    pFindData->bCanOpenByEKey = (pCKeyEntry->Flags & CASC_CE_HAS_EKEY) ? true : false;
 
     // Supply the tag mask
     pFindData->TagBitMask = pCKeyEntry->TagBitMask;
@@ -77,15 +80,21 @@ static bool CopyCKeyEntryToFindData(PCASC_FIND_DATA pFindData, PCASC_CKEY_ENTRY 
 
     // If we retrieved the file size directly from the root provider, use it
     // Otherwise, supply EncodedSize or ContentSize, whichever is available (but ContentSize > EncodedSize)
-    if(pFindData->dwFileSize == CASC_INVALID_SIZE)
-        pFindData->dwFileSize = pCKeyEntry->ContentSize;
+    pFindData->dwSpanCount = GetFileSpanInfo(pCKeyEntry, &ContentSize, &EncodedSize);
+    if(pFindData->FileSize == CASC_INVALID_SIZE64)
+    {
+        if(ContentSize != CASC_INVALID_SIZE64)
+            pFindData->FileSize = ContentSize;
+        else 
+            pFindData->FileSize = EncodedSize;
+    }
 
     // Set flag indicating that the file is locally available
     pFindData->bFileAvailable = (pCKeyEntry->Flags & CASC_CE_FILE_IS_LOCAL);
 
     // Supply a fake file name, if there is none supplied by the root handler
     if(pFindData->szFileName[0] == 0)
-        SupplyFakeFileName(pFindData);
+        SupplyFakeFileName(pFindData, pCKeyEntry);
     return true;
 }
 
@@ -127,9 +136,12 @@ static bool DoStorageSearch_CKey(TCascSearch * pSearch, PCASC_FIND_DATA pFindDat
     // Check for CKeys that haven't been found yet
     while(pSearch->nFileIndex < nTotalItems)
     {
-        // Locate the n-th CKey entry. If this entry is not referenced by the root handler, we include it in the search result
+        // Locate the n-th CKey entry.
         pCKeyEntry = (PCASC_CKEY_ENTRY)hs->CKeyArray.ItemAt(pSearch->nFileIndex++);
-        if((pCKeyEntry->Flags & CASC_CE_FOLDER_ENTRY) == 0 && pCKeyEntry->RefCount == 0)
+//      BREAK_ON_XKEY3(pCKeyEntry->CKey, 0x2B, 0xfc, 0xe4);
+
+        // Only report files that are unreferenced by the ROOT handler
+        if(pCKeyEntry->IsFile() && pCKeyEntry->RefCount == 0)
         {
             return CopyCKeyEntryToFindData(pFindData, pCKeyEntry);
         }
@@ -189,31 +201,31 @@ HANDLE WINAPI CascFindFirstFile(
 {
     TCascStorage * hs;
     TCascSearch * pSearch = NULL;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Check parameters
     if((hs = TCascStorage::IsValid(hStorage)) == NULL)
-        nError = ERROR_INVALID_HANDLE;
+        dwErrCode = ERROR_INVALID_HANDLE;
     if(szMask == NULL || pFindData == NULL)
-        nError = ERROR_INVALID_PARAMETER;
+        dwErrCode = ERROR_INVALID_PARAMETER;
 
     // Init the search structure and search handle
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         // Allocate the search handle
         pSearch = new TCascSearch(hs, szListFile, szMask);
         if(pSearch == NULL)
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+            dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
     }
 
     // Perform search
-    if(nError == ERROR_SUCCESS)
+    if(dwErrCode == ERROR_SUCCESS)
     {
         if(!DoStorageSearch(pSearch, pFindData))
-            nError = ERROR_NO_MORE_FILES;
+            dwErrCode = ERROR_NO_MORE_FILES;
     }
 
-    if(nError != ERROR_SUCCESS)
+    if(dwErrCode != ERROR_SUCCESS)
     {
         delete pSearch;
         pSearch = (TCascSearch *)INVALID_HANDLE_VALUE;
