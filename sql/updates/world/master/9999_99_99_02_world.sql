@@ -1,4 +1,4 @@
 
-DELETE FROM `battleground_template` WHERE `ID`=757;
+DELETE FROM `battleground_template` WHERE `ID`=719;
 INSERT INTO `battleground_template` (`ID`, `MinPlayersPerTeam`, `MaxPlayersPerTeam`, `MinLvl`, `MaxLvl`, `AllianceStartLoc`, `HordeStartLoc`, `StartMaxDist`, `Weight`, `ScriptName`, `Comment`) VALUES
-(757, 0, 5, 90, 120, 4534, 4535, 0, 1, '', 'The Tiger\'s Peak');
+(719, 0, 5, 90, 120, 4136, 4137, 10, 1,'', 'Tol\'viron Arena');

@@ -9127,6 +9127,26 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 packet.Worldstates.emplace_back(0xe1a, 0x0);           // 9 show
             }
             break;
+        case 6732:                                                     // The Tiger's Peak
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TTP)
+                bg->FillInitialWorldStates(packet);
+            else
+            {
+                packet.Worldstates.emplace_back(0xE10, 0x0);           // 7 gold
+                packet.Worldstates.emplace_back(0xE11, 0x0);           // 8 green
+                packet.Worldstates.emplace_back(0xE1A, 0x0);           // 9 show
+            }
+            break;
+        case 6296:                                                     // Tol'viron Arena
+            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TVA)
+                bg->FillInitialWorldStates(packet);
+            else
+            {
+                packet.Worldstates.emplace_back(0xE10, 0x0);           // 7 gold
+                packet.Worldstates.emplace_back(0xE11, 0x0);           // 8 green
+                packet.Worldstates.emplace_back(0xE1A, 0x0);           // 9 show
+            }
+            break;
         case 4710:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_IC)
                 bg->FillInitialWorldStates(packet);
@@ -9261,17 +9281,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 5449:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_BFG)
                 bg->FillInitialWorldStates(packet);
-            break;
-        // The Tiger's Peak
-        case 6732:
-            if (bg && bg->GetTypeID(true) == BATTLEGROUND_TTP)
-                bg->FillInitialWorldStates(packet);
-            else
-            {
-                packet.Worldstates.emplace_back(0xE10, 0x0);           // 7 gold
-                packet.Worldstates.emplace_back(0xE11, 0x0);           // 8 green
-                packet.Worldstates.emplace_back(0xE1A, 0x0);           // 9 show
-            }
             break;
         // Tol Barad Peninsula
         case 5389:
