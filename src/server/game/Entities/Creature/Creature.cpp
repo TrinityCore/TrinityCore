@@ -3300,10 +3300,9 @@ void Creature::ReleaseSpellFocus(Spell const* focusSpell, bool withDelay)
 
 void Creature::ReacquireSpellFocusTarget()
 {
-    if (!HasSpellFocus())
-        return;
+    ASSERT(HasSpellFocus());
 
-    SetTarget(_spellFocusInfo.Target);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), _spellFocusInfo.Target);
 
     if (!HasUnitFlag2(UNIT_FLAG2_DISABLE_TURN))
     {
