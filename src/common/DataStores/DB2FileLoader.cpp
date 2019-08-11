@@ -165,7 +165,7 @@ public:
     virtual void SkipEncryptedSection(uint32 section) = 0;
     virtual bool LoadTableData(DB2FileSource* source, uint32 section) = 0;
     virtual bool LoadCatalogData(DB2FileSource* source, uint32 section) = 0;
-    virtual void SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<DB2IndexData> parentIndexes) = 0;
+    virtual void SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<std::vector<DB2IndexData>> parentIndexes) = 0;
     virtual char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) = 0;
     virtual char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale) = 0;
     virtual void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) = 0;
@@ -205,7 +205,7 @@ public:
     void SkipEncryptedSection(uint32 /*section*/) override { }
     bool LoadTableData(DB2FileSource* source, uint32 section) override;
     bool LoadCatalogData(DB2FileSource* /*source*/, uint32 /*section*/) override { return true; }
-    void SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<DB2IndexData> parentIndexes) override;
+    void SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<std::vector<DB2IndexData>> parentIndexes) override;
     char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool) override;
     char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale) override;
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) override;
@@ -249,7 +249,7 @@ private:
     std::unique_ptr<std::unordered_map<uint32, uint32>[]> _commonValues;
     std::vector<uint32> _idTable;
     std::vector<DB2RecordCopy> _copyTable;
-    std::vector<DB2IndexData> _parentIndexes;
+    std::vector<std::vector<DB2IndexData>> _parentIndexes;
 };
 
 class DB2FileLoaderSparseImpl final : public DB2FileLoaderImpl
@@ -264,10 +264,10 @@ public:
     void SkipEncryptedSection(uint32 section) override;
     bool LoadTableData(DB2FileSource* /*source*/, uint32 /*section*/) override { return true; }
     bool LoadCatalogData(DB2FileSource* source, uint32 section) override;
-    void SetAdditionalData(std::vector<uint32> /*idTable*/, std::vector<DB2RecordCopy> /*copyTable*/, std::vector<DB2IndexData> /*parentIndexes*/) override;
+    void SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<std::vector<DB2IndexData>> parentIndexes) override;
     char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool) override;
     char* AutoProduceStrings(char** indexTable, uint32 indexTableSize, uint32 locale) override;
-    void AutoProduceRecordCopies(uint32 /*records*/, char** /*indexTable*/, char* /*dataTable*/) override;
+    void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) override;
     DB2Record GetRecord(uint32 recordNumber) const override;
     DB2RecordCopy GetRecordCopy(uint32 copyNumber) const override;
     uint32 GetRecordCount() const override;
@@ -312,7 +312,7 @@ private:
     std::vector<uint32> _catalogIds;
     std::vector<DB2CatalogEntry> _catalog;
     std::vector<DB2RecordCopy> _copyTable;
-    std::vector<DB2IndexData> _parentIndexes;
+    std::vector<std::vector<DB2IndexData>> _parentIndexes;
 };
 
 DB2FileLoaderRegularImpl::DB2FileLoaderRegularImpl(char const* fileName, DB2FileLoadInfo const* loadInfo, DB2Header const* header) :
@@ -359,7 +359,7 @@ bool DB2FileLoaderRegularImpl::LoadTableData(DB2FileSource* source, uint32 secti
     return true;
 }
 
-void DB2FileLoaderRegularImpl::SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<DB2IndexData> parentIndexes)
+void DB2FileLoaderRegularImpl::SetAdditionalData(std::vector<uint32> idTable, std::vector<DB2RecordCopy> copyTable, std::vector<std::vector<DB2IndexData>> parentIndexes)
 {
     _idTable = std::move(idTable);
     _copyTable = std::move(copyTable);
@@ -674,26 +674,32 @@ void DB2FileLoaderRegularImpl::FillParentLookup(char* dataTable)
 {
     int32 parentIdOffset = _loadInfo->Meta->GetParentIndexFieldOffset();
     uint32 recordSize = _loadInfo->Meta->GetRecordSize();
-    for (std::size_t i = 0; i < _parentIndexes[0].Entries.size(); ++i)
+    uint32 recordIndexOffset = 0;
+    for (uint32 i = 0; i < _header->SectionCount; ++i)
     {
-        uint32 parentId = _parentIndexes[0].Entries[i].ParentId;
-        char* recordData = &dataTable[_parentIndexes[0].Entries[i].RecordIndex * recordSize];
-
-        switch (_loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type)
+        DB2SectionHeader const& section = GetSection(i);
+        for (std::size_t j = 0; j < _parentIndexes[i][0].Entries.size(); ++j)
         {
-            case FT_SHORT:
-                *reinterpret_cast<uint16*>(&recordData[parentIdOffset]) = uint16(parentId);
-                break;
-            case FT_BYTE:
-                *reinterpret_cast<uint8*>(&recordData[parentIdOffset]) = uint8(parentId);
-                break;
-            case FT_INT:
-                *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
-                break;
-            default:
-                ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
-                break;
+            uint32 parentId = _parentIndexes[i][0].Entries[j].ParentId;
+            char* recordData = &dataTable[(_parentIndexes[i][0].Entries[j].RecordIndex + recordIndexOffset) * recordSize];
+
+            switch (_loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type)
+            {
+                case FT_SHORT:
+                    *reinterpret_cast<uint16*>(&recordData[parentIdOffset]) = uint16(parentId);
+                    break;
+                case FT_BYTE:
+                    *reinterpret_cast<uint8*>(&recordData[parentIdOffset]) = uint8(parentId);
+                    break;
+                case FT_INT:
+                    *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
+                    break;
+                default:
+                    ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
+                    break;
+            }
         }
+        recordIndexOffset += section.RecordCount;
     }
 }
 
@@ -1031,7 +1037,7 @@ bool DB2FileLoaderSparseImpl::LoadCatalogData(DB2FileSource* source, uint32 sect
     return true;
 }
 
-void DB2FileLoaderSparseImpl::SetAdditionalData(std::vector<uint32> /*idTable*/, std::vector<DB2RecordCopy> /*copyTable*/, std::vector<DB2IndexData> parentIndexes)
+void DB2FileLoaderSparseImpl::SetAdditionalData(std::vector<uint32> /*idTable*/, std::vector<DB2RecordCopy> /*copyTable*/, std::vector<std::vector<DB2IndexData>> parentIndexes)
 {
     _parentIndexes = std::move(parentIndexes);
     _recordBuffer = Trinity::make_unique<uint8[]>(_maxRecordSize);
@@ -1373,26 +1379,32 @@ void DB2FileLoaderSparseImpl::FillParentLookup(char* dataTable)
 {
     int32 parentIdOffset = _loadInfo->Meta->GetParentIndexFieldOffset();
     uint32 recordSize = _loadInfo->Meta->GetRecordSize();
-    for (std::size_t i = 0; i < _parentIndexes[0].Entries.size(); ++i)
+    uint32 recordIndexOffset = 0;
+    for (uint32 i = 0; i < _header->SectionCount; ++i)
     {
-        uint32 parentId = _parentIndexes[0].Entries[i].ParentId;
-        char* recordData = &dataTable[_parentIndexes[0].Entries[i].RecordIndex * recordSize];
-
-        switch (_loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type)
+        DB2SectionHeader const& section = GetSection(i);
+        for (std::size_t j = 0; j < _parentIndexes[i][0].Entries.size(); ++j)
         {
-            case FT_SHORT:
-                *reinterpret_cast<uint16*>(&recordData[parentIdOffset]) = uint16(parentId);
-                break;
-            case FT_BYTE:
-                *reinterpret_cast<uint8*>(&recordData[parentIdOffset]) = uint8(parentId);
-                break;
-            case FT_INT:
-                *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
-                break;
-            default:
-                ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
-                break;
+            uint32 parentId = _parentIndexes[i][0].Entries[j].ParentId;
+            char* recordData = &dataTable[(_parentIndexes[i][0].Entries[j].RecordIndex + recordIndexOffset) * recordSize];
+
+            switch (_loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type)
+            {
+                case FT_SHORT:
+                    *reinterpret_cast<uint16*>(&recordData[parentIdOffset]) = uint16(parentId);
+                    break;
+                case FT_BYTE:
+                    *reinterpret_cast<uint8*>(&recordData[parentIdOffset]) = uint8(parentId);
+                    break;
+                case FT_INT:
+                    *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
+                    break;
+                default:
+                    ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
+                    break;
+            }
         }
+        recordIndexOffset += section.RecordCount;
     }
 }
 
@@ -1857,7 +1869,7 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
 
     std::vector<uint32> idTable;
     std::vector<DB2RecordCopy> copyTable;
-    std::vector<DB2IndexData> parentIndexes;
+    std::vector<std::vector<DB2IndexData>> parentIndexes;
     if (loadInfo && !loadInfo->Meta->HasIndexFieldInData() && _header.RecordCount)
         idTable.reserve(_header.RecordCount);
 
@@ -1905,8 +1917,10 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
 
         if (_header.ParentLookupCount)
         {
-            parentIndexes.resize(_header.ParentLookupCount);
-            for (uint32 i = 0; i < _header.ParentLookupCount; ++i)
+            parentIndexes.emplace_back();
+            std::vector<DB2IndexData>& parentIndexesForSection = parentIndexes.back();
+            parentIndexesForSection.resize(_header.ParentLookupCount);
+            for (uint32 j = 0; j < _header.ParentLookupCount; ++j)
             {
                 DB2IndexDataInfo indexInfo;
                 if (!source->Read(&indexInfo, sizeof(DB2IndexDataInfo)))
@@ -1915,9 +1929,8 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
                 if (!indexInfo.NumEntries)
                     continue;
 
-                std::size_t oldSize = parentIndexes[i].Entries.size();
-                parentIndexes[i].Entries.resize(oldSize + indexInfo.NumEntries);
-                if (!source->Read(&parentIndexes[i].Entries[oldSize], sizeof(DB2IndexEntry) * indexInfo.NumEntries))
+                parentIndexesForSection[j].Entries.resize(indexInfo.NumEntries);
+                if (!source->Read(parentIndexesForSection[j].Entries.data(), sizeof(DB2IndexEntry) * indexInfo.NumEntries))
                     return false;
             }
         }
