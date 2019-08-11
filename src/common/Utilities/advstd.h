@@ -86,11 +86,45 @@ namespace advstd
 #undef forward_2v
 
     // C++17 std::size
-    template <class C>
-    constexpr auto size(const C& c) -> decltype(c.size()) { return c.size(); }
+    template <typename C>
+    constexpr auto size(const C& c) { return c.size(); }
 
-    template <class T, std::size_t N>
+    template <typename T, std::size_t N>
     constexpr std::size_t size(const T(&)[N]) noexcept { return N; }
+
+    // C++17 std::data
+    template <typename C>
+    constexpr auto data(C& c) { return c.data(); }
+
+    template <typename C>
+    constexpr auto data(C const& c) { return c.data(); }
+
+    template <typename T, std::size_t N>
+    constexpr T* data(T(&a)[N]) noexcept { return a; }
+
+    template <typename T, std::size_t N>
+    constexpr T const* data(const T(&a)[N]) noexcept { return a; }
+
+    template <typename T>
+    constexpr T const* data(std::initializer_list<T> l) noexcept { return l.begin(); }
+
+    // C++17 std::gcd
+    template <typename T1, typename T2>
+    constexpr std::enable_if_t<advstd::is_unsigned_v<T1> && advstd::is_unsigned_v<T2>, std::common_type_t<T1, T2>> gcd(T1 m, T2 n)
+    {
+        if (m < n)
+            return gcd(n, m);
+        if (!n)
+            return m;
+        return gcd(n, m%n);
+    }
+
+    // C++17 std::lcm
+    template <typename T1, typename T2>
+    constexpr std::enable_if_t<advstd::is_unsigned_v<T1> && advstd::is_unsigned_v<T2>, std::common_type_t<T1, T2>> lcm(T1 m, T2 n)
+    {
+        return (m/gcd(m, n))*n;
+    }
 
     // C++20 std::remove_cvref_t
     template <class T>

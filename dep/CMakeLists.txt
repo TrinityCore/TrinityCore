@@ -29,6 +29,7 @@ if (SERVERS)
   add_subdirectory(readline)
   add_subdirectory(gsoap)
   add_subdirectory(efsw)
+  add_subdirectory(argon2)
 endif()
 
 if (TOOLS)
