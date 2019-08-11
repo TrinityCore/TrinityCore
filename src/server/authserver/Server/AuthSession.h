@@ -19,10 +19,11 @@
 #ifndef __AUTHSESSION_H__
 #define __AUTHSESSION_H__
 
-#include "Common.h"
-#include "ByteBuffer.h"
-#include "Socket.h"
 #include "BigNumber.h"
+#include "ByteBuffer.h"
+#include "Common.h"
+#include "Optional.h"
+#include "Socket.h"
 #include "QueryResult.h"
 #include "QueryCallbackProcessor.h"
 #include <memory>
@@ -56,7 +57,6 @@ struct AccountInfo
     bool IsBanned = false;
     bool IsPermanenetlyBanned = false;
     AccountTypes SecurityLevel = SEC_PLAYER;
-    std::string TokenKey;
 };
 
 class AuthSession : public Socket<AuthSession>
@@ -99,7 +99,7 @@ private:
 
     AuthStatus _status;
     AccountInfo _accountInfo;
-    std::string _tokenKey;
+    Optional<std::vector<uint8>> _totpSecret;
     std::string _localizationName;
     std::string _os;
     std::string _ipCountry;

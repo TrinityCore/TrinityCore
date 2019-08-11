@@ -11,6 +11,7 @@
 #    PERFORMANCE SETTINGS
 #    SERVER LOGGING
 #    SERVER SETTINGS
+#    CRYPTOGRAPHY
 #    UPDATE SETTINGS
 #    HOTSWAP SETTINGS
 #    WARDEN SETTINGS
@@ -1291,6 +1292,25 @@ BirthdayTime = 1222964635
 #
 
 CacheDataQueries = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+# CRYPTOGRAPHY
+#
+#    TOTPMasterSecret
+#        Description: The key used by authserver to decrypt TOTP secrets from database storage.
+#                     You only need to set this here if you plan to use the in-game 2FA
+#                     management commands (.account 2fa), otherwise this can be left blank.
+#
+#                     The server will auto-detect if this does not match your authserver setting,
+#                     in which case any commands reliant on the secret will be disabled.
+#
+#        Default:     <blank>
+#
+
+TOTPMasterSecret =
 
 #
 ###################################################################################################
