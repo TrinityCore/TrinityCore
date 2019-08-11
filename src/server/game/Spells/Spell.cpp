@@ -4679,6 +4679,10 @@ void Spell::SendChannelStart(uint32 duration)
         }
     }
 
+    // There must always be a caster
+    if (!channelTarget)
+        channelTarget = m_caster->GetGUID();
+
     uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
     uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
     uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();
@@ -4733,10 +4737,9 @@ void Spell::SendChannelStart(uint32 duration)
     {
         m_caster->SetChannelObjectGuid(channelTarget);
 
-        if (channelTarget != m_caster->GetGUID())
-            if (Creature* creatureCaster = m_caster->ToCreature())
-                if (!creatureCaster->HasSpellFocus(this))
-                    creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
+        if (Creature* creatureCaster = m_caster->ToCreature())
+            if (!creatureCaster->HasSpellFocus(this))
+               creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
     }
 
     m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);

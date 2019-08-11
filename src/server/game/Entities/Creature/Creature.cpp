@@ -2951,11 +2951,11 @@ void Creature::SetTarget(ObjectGuid guid)
 
 void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
 {
-    // already focused
-    if (_spellFocusInfo.spell)
+    // Pointer validation and checking for a already existing focus
+    if (_spellFocusInfo.spell || !focusSpell)
         return;
 
-    // Prevent dead/feigning death creatures from setting a focus target, so they won't turn
+    // Prevent dead / feign death creatures from setting a focus target
     if (!IsAlive() || HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH) || HasAuraType(SPELL_AURA_FEIGN_DEATH))
         return;
 
@@ -2973,7 +2973,8 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
         return;
 
-    if ((!target || target == this) && !focusSpell->GetCastTime()) // instant cast, untargeted (or self-targeted) spell doesn't need any facing updates
+    // instant non-channeled casts and non-target spells don't need facing updates
+    if (!target && (!focusSpell->GetCastTime() && !spellInfo->IsChanneled()))
         return;
 
     // store pre-cast values for target and orientation (used to later restore)
@@ -3072,12 +3073,11 @@ void Creature::ReleaseSpellFocus(Spell const* focusSpell, bool withDelay)
 
 void Creature::ReacquireSpellFocusTarget()
 {
-    if (!HasSpellFocus())
-        return;
+    ASSERT(HasSpellFocus());
 
-    SetTarget(_spellFocusInfo.target);
+    SetGuidValue(UNIT_FIELD_TARGET, _spellFocusInfo.target);
 
-    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN) && !IsMovementPreventedByCasting())
+    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
     {
         if (_spellFocusInfo.target)
         {
@@ -3088,6 +3088,12 @@ void Creature::ReacquireSpellFocusTarget()
             SetFacingTo(_spellFocusInfo.orientation, false);
     }
     _spellFocusInfo.delay = 0;
+}
+
+void Creature::DoNotReacquireSpellFocusTarget()
+{
+    _spellFocusInfo.delay = 0;
+    _spellFocusInfo.spell = nullptr;
 }
 
 bool Creature::IsMovementPreventedByCasting() const
