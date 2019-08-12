@@ -3481,7 +3481,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40 yards
     });
 
-
     //
     // BLACK TEMPLE SPELLS
     //
