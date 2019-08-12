@@ -3116,7 +3116,7 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
 
 bool Creature::HasSpellFocus(Spell const* focusSpell) const
 {
-    if (!IsAlive()) // dead creatures cannot focus
+    if (isDead()) // dead creatures cannot focus
     {
         if (_spellFocusInfo.Spell || _spellFocusInfo.Delay)
         {
