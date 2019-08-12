@@ -242,32 +242,49 @@ void InstanceScript::UpdateSpawnGroups()
 {
     if (!_instanceSpawnGroups)
         return;
-    enum states { BLOCK, SPAWN, FORCEBLOCK };
-    std::unordered_map<uint32, states> newStates;
+    enum states : uint8
+    {
+        BLOCK           = 0x0,
+        SPAWN           = 0x1,
+        FORCEBLOCK      = 0x2,
+        FORCEDESPAWN    = 0x4
+    };
+
+    std::unordered_map<uint32, uint8> newStates;
     for (auto it = _instanceSpawnGroups->begin(), end = _instanceSpawnGroups->end(); it != end; ++it)
     {
         InstanceSpawnGroupInfo const& info = *it;
-        states& curValue = newStates[info.SpawnGroupId]; // makes sure there's a BLOCK value in the map
+        uint8& curValue = newStates[info.SpawnGroupId]; // makes sure there's a BLOCK value in the map
         if (curValue == FORCEBLOCK) // nothing will change this
             continue;
         if (!((1 << GetBossState(info.BossStateId)) & info.BossStates))
             continue;
         if (info.Flags & InstanceSpawnGroupInfo::FLAG_BLOCK_SPAWN)
-            curValue = FORCEBLOCK;
-        else if (info.Flags & InstanceSpawnGroupInfo::FLAG_ACTIVATE_SPAWN)
-            curValue = SPAWN;
+            curValue |= FORCEBLOCK;
+        if (info.Flags & InstanceSpawnGroupInfo::FLAG_ACTIVATE_SPAWN)
+            curValue |= SPAWN;
+        if (info.Flags & InstanceSpawnGroupInfo::FLAG_FORCE_DESPAWN)
+            curValue |= FORCEDESPAWN;
     }
     for (auto const& pair : newStates)
     {
         uint32 const groupId = pair.first;
-        bool const doSpawn = (pair.second == SPAWN);
-        if (instance->IsSpawnGroupActive(groupId) == doSpawn)
-            continue; // nothing to do here
-        // if we should spawn group, then spawn it...
-        if (doSpawn)
+        uint8 state = pair.second;
+        // Spawn group is already active, skip
+        if (instance->IsSpawnGroupActive(groupId) == (state & SPAWN))
+            continue;
+
+        // Spawn group shall be spawned, spawn it
+        if (state & SPAWN)
             instance->SpawnGroupSpawn(groupId);
-        else // otherwise, set it as inactive so it no longer respawns (but don't despawn it)
+
+        // Spawn group shall be disabled, disable it
+        if (state & FORCEBLOCK)
             instance->SetSpawnGroupInactive(groupId);
+
+        // Spawn group shall be despawned, despawn it
+        if (state & FORCEDESPAWN)
+            instance->SpawnGroupDespawn(groupId);
     }
 }
 
@@ -349,10 +366,10 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             return false;
         }
 
-		else
-		{
-			if (bossInfo->state == state)
-				return false;
+        else
+        {
+            if (bossInfo->state == state)
+                return false;
 
             if (bossInfo->state == DONE)
             {
@@ -360,11 +377,11 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
                 return false;
             }
 
-			if (state == DONE)
-				for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-					if (Creature* minion = instance->GetCreature(*i))
-						if (minion->isWorldBoss() && minion->IsAlive())
-							return false;
+            if (state == DONE)
+                for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+                    if (Creature * minion = instance->GetCreature(*i))
+                        if (minion->isWorldBoss() && minion->IsAlive())
+                            return false;
 
             if (instance->IsRaid())
             {

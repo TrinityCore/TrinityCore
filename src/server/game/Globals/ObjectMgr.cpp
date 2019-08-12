@@ -2708,6 +2708,13 @@ void ObjectMgr::LoadInstanceSpawnGroups()
             info.BossStates = states;
 
         uint8 const flags = fields[4].GetUInt8();
+
+        if ((flags & (InstanceSpawnGroupInfo::FLAG_BLOCK_SPAWN | InstanceSpawnGroupInfo::FLAG_ACTIVATE_SPAWN)))
+        {
+            info.Flags = flags & InstanceSpawnGroupInfo::FLAG_BLOCK_SPAWN;
+            TC_LOG_ERROR("sql.sql", "Instance spawn group (%u,%u) FLAG_ACTIVATE_SPAWN and FLAG_BLOCK_SPAWN may not be used together in a single entry - truncated to %u.", instanceMapId, spawnGroupId, info.Flags);
+        }
+
         if (flags & ~InstanceSpawnGroupInfo::FLAG_ALL)
         {
             info.Flags = flags & InstanceSpawnGroupInfo::FLAG_ALL;
