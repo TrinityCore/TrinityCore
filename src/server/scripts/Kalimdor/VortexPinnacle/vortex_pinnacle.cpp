@@ -145,7 +145,7 @@ public:
         void IsSummonedBy(Unit* summoner) override
         {
             if (Creature* creature = summoner->ToCreature())
-                ertan = (creature->GetEntry() == NPC_GRAND_VIZIER_ERTAN);
+                ertan = (creature->GetEntry() == BOSS_GRAND_VIZIER_ERTAN);
         }
 
         void MoveInLineOfSight(Unit* who) override

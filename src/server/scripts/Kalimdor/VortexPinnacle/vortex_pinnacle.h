@@ -48,12 +48,16 @@ enum DataTypes
     DATA_SLIPSTREAM_11,
 };
 
-enum Misc
+enum VPCreatureIds
 {
     // Bosses
-    NPC_GRAND_VIZIER_ERTAN      = 43878,
-    NPC_ALTAIRUS                = 43873,
-    NPC_ASAAD                   = 43875,
+    BOSS_GRAND_VIZIER_ERTAN     = 43878,
+    BOSS_ALTAIRUS               = 43873,
+    BOSS_ASAAD                  = 43875,
+
+    // Encounter Related Data
+    /*Grandvizier Ertan*/
+    NPC_ERTANS_VORTEX           = 46007,
 
     NPC_INVISIBLE_STALKER       = 42844,
     NPC_AIR_CURRENT             = 47305,
