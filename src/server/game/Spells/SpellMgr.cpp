@@ -4586,6 +4586,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->ProcChance = 10;
     });
 
+    // Survey Sinkholes
+    ApplySpellFix({ 45853 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40 yards
+    });
+
     // Baron Rivendare (Stratholme) - Unholy Aura
     ApplySpellFix({ 17466, 17467 }, [](SpellInfo* spellInfo)
     {
