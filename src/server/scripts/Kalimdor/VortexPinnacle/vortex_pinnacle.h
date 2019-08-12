@@ -59,28 +59,38 @@ enum VPCreatureIds
     /*Grandvizier Ertan*/
     NPC_ERTANS_VORTEX           = 46007,
 
+    /*Altairus*/
     NPC_INVISIBLE_STALKER       = 42844,
     NPC_AIR_CURRENT             = 47305,
     NPC_TWISTER                 = 47342,
+
+    /*Instance Events*/
     NPC_SLIPSTREAM              = 45455,
     NPC_SLIPSTREAM_LANDING_ZONE = 45504,
     NPC_HOWLING_GALE            = 45572,
+    NPC_ZEPHYR                  = 45991,
 
     // Grounding Field
-    NPC_GROUNDING_FIELD         = 47085,
+    NPC_GROUNDING_FIELD         = 47085
+};
+
+enum VPSpells
+{
     SPELL_BEAM_A                = 87721,
     SPELL_BEAM_B                = 87722,
-    SPELL_BEAM_C                = 87723,
+    SPELL_BEAM_C                = 87723
+};
+
+enum VPActions
+{
     ACTION_GROUNDING_FIELD_TOP  = 1,
+    ACTION_SKYFALL_STAR_DEAD    = 2
+};
 
-    // Skyfall
-    ACTION_SKYFALL_STAR_DEAD    = 2,
-
-    // Zephyr
-    NPC_ZEPHYR                  = 45991,
-    EVENT_SUMMON_ZEPHYRS        = 1,
-    PATH_ZEPHYR_SOUTH           = 4599100,
-    PATH_ZEPHYR_NORTH           = 4599101,
+enum VPMisc
+{
+    PATH_ZEPHYR_SOUTH   = 4599100,
+    PATH_ZEPHYR_NORTH   = 4599101
 };
 
 template <class AI, class T>

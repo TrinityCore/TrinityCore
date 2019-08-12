@@ -64,7 +64,7 @@ Slipstream const SlipstreamData[Slipstreams] =
     { NPC_SLIPSTREAM, 1306, { -382.441f, 42.31597f, 625.0833f, 0.0f }, DATA_SLIPSTREAM_11, DATA_ALTAIRUS },
 };
 
-Position const SouthZephyrSummonLocation = { -1070.639f, 432.2814f, 647.0389f, 6.15166f };
+Position const SouthZephyrSummonLocation = { -1072.87f,  432.4446f, 646.7279f, 6.157519f  };
 Position const NorthZephyrSummonLocation = { -781.4438f, 491.1446f, 698.0991f, 0.3193802f };
 
 Position const FirstPrismGroundingFieldTop = { -1008.997f, 474.3663f, 708.1033f, 0.0f };
@@ -91,6 +91,11 @@ ObjectData const creatureData[] =
     { 0,                        0                       } // END
 };
 
+enum Events
+{
+    EVENT_SUMMON_ZEPHYRS = 1
+};
+
 class instance_vortex_pinnacle : public InstanceMapScript
 {
     public:
@@ -108,7 +113,7 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 SummonGroundingFieldPrism(FirstPrismGroundingFieldTop, FirstPrismGroundingFieldPoints);
                 SummonGroundingFieldPrism(SecondPrismGroundingFieldTop, SecondPrismGroundingFieldPoints);
 
-                events.ScheduleEvent(EVENT_SUMMON_ZEPHYRS, 0);
+                events.ScheduleEvent(EVENT_SUMMON_ZEPHYRS, 1s);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -116,7 +121,7 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                     case NPC_HOWLING_GALE:
-                        creature->SetReactState(REACT_PASSIVE);
+                        creature->SetDisplayId(creature->GetCreatureTemplate()->Modelid2);
                         break;
                     case NPC_AIR_CURRENT:
                         airCurrentGUIDs.push_back(creature->GetGUID());
@@ -157,12 +162,12 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 {
                     switch (eventId)
                     {
-                        case EVENT_SUMMON_ZEPHYRS: // Summon Zephyrs every 10 seconds. There is no sniff data about trigger npc or spells that would handle summoning.
-                            if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, SouthZephyrSummonLocation))
+                        case EVENT_SUMMON_ZEPHYRS:
+                            if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, SouthZephyrSummonLocation, nullptr, 18 * IN_MILLISECONDS))
                                 zephyr->GetMotionMaster()->MovePath(PATH_ZEPHYR_SOUTH, false);
-                            if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, NorthZephyrSummonLocation))
+                            if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, NorthZephyrSummonLocation, nullptr, 18 * IN_MILLISECONDS))
                                 zephyr->GetMotionMaster()->MovePath(PATH_ZEPHYR_NORTH, false);
-                            events.ScheduleEvent(EVENT_SUMMON_ZEPHYRS, 10000);
+                            events.Repeat(10s);
                             break;
                         default:
                             break;

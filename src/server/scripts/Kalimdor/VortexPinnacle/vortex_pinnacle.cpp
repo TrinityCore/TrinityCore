@@ -19,7 +19,9 @@
 #include "AreaBoundary.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "vortex_pinnacle.h"
@@ -46,10 +48,10 @@ enum Spells
     SPELL_CHILLING_BLAST                            = 88194,
 
     // Howling Gale
-    SPELL_HOWLING_GALE_VISUAL                       = 85086,
-    SPELL_HOWLING_GALE_KNOCKBACK                    = 85159,
-    SPELL_HOWLING_GALE_VISUAL_2                     = 85137,
-    SPELL_HOWLING_GALE_KNOCKBACK_2                  = 85085,
+    SPELL_HOWLING_GALE_VISUAL_STRONG                = 85086,
+    SPELL_HOWLING_GALE_KNOCKBACK_STRONG             = 85159,
+    SPELL_HOWLING_GALE_VISUAL_WEAK                  = 85137,
+    SPELL_HOWLING_GALE_KNOCKBACK_WEAK               = 85085,
 
     // Slipstream (spells Slipstream npcs cast on passenger to make it enter next Slipstream)
     SPELL_SLIPSTREAM_SPELLCLICK                     = 84965, // spellclick
@@ -188,6 +190,17 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return GetVortexPinnacleAI<npc_lurking_tempestAI>(creature);
+    }
+};
+
+struct npc_vp_howling_gale : public NullCreatureAI
+{
+    npc_vp_howling_gale(Creature* creature) : NullCreatureAI(creature) { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        me->DeleteThreatList();
+        me->CombatStop(false);
     }
 };
 
@@ -782,6 +795,36 @@ public:
     }
 };
 
+// 85084 - Howling Gale
+class spell_vp_howling_gale : public AuraScript
+{
+    PrepareAuraScript(spell_vp_howling_gale);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HOWLING_GALE_VISUAL_STRONG,
+                SPELL_HOWLING_GALE_KNOCKBACK_STRONG,
+                SPELL_HOWLING_GALE_VISUAL_WEAK,
+                SPELL_HOWLING_GALE_KNOCKBACK_WEAK
+            });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetTarget();
+        bool weakOrb = GetAura()->IsProcOnCooldown(std::chrono::steady_clock::now());
+        caster->CastSpell(caster, weakOrb ? SPELL_HOWLING_GALE_VISUAL_WEAK : SPELL_HOWLING_GALE_VISUAL_STRONG);
+        caster->CastSpell(caster, weakOrb ? SPELL_HOWLING_GALE_KNOCKBACK_WEAK : SPELL_HOWLING_GALE_KNOCKBACK_STRONG);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_vp_howling_gale::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 84978, 84989, 85395, 85396, 85017 - Slipstream
 // TO-DO: Fix passenger entering vehicle from another vehicle, passenger's vehicle enters vehicle instead... need core fix or we must handle it in this spellscript?
 class spell_slipstream : public SpellScriptLoader
@@ -841,68 +884,6 @@ public:
     SpellScript* GetSpellScript() const override
     {
         return new spell_slipstream_SpellScript();
-    }
-};
-
-
-// 85084 - Howling Gale
-class spell_howling_gale : public SpellScriptLoader
-{
-public:
-    spell_howling_gale() : SpellScriptLoader("spell_howling_gale") { }
-
-    class spell_howling_gale_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_howling_gale_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo(
-                {
-                    SPELL_HOWLING_GALE_VISUAL,
-                    SPELL_HOWLING_GALE_KNOCKBACK,
-                    SPELL_HOWLING_GALE_VISUAL_2,
-                    SPELL_HOWLING_GALE_KNOCKBACK_2
-                });
-        }
-
-        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-        {
-            PreventDefaultAction();
-
-            tickCountdown = 20; // 10 seconds
-            proced = true;
-        }
-
-        void HandlePeriodic(AuraEffect const* /*aurEff*/)
-        {
-            if (tickCountdown > 0)
-                tickCountdown -= 1;
-            else
-            {
-                Unit* caster = GetUnitOwner();
-                if (!caster)
-                    return;
-
-                // After Howling Gale has been damaged, different spells are cast.
-                caster->CastSpell(caster, !proced ? SPELL_HOWLING_GALE_VISUAL : SPELL_HOWLING_GALE_VISUAL_2);
-                caster->CastSpell(caster, !proced ? SPELL_HOWLING_GALE_KNOCKBACK : SPELL_HOWLING_GALE_KNOCKBACK_2);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_howling_gale_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_howling_gale_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-
-        uint32 tickCountdown = 0;
-        bool proced = false;
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_howling_gale_AuraScript();
     }
 };
 
@@ -1026,6 +1007,7 @@ public:
 void AddSC_vortex_pinnacle()
 {
     new npc_lurking_tempest();
+    RegisterVortexPinnacleCreatureAI(npc_vp_howling_gale);
     new npc_slipstream();
     new npc_slipstream_landing_zone();
     new npc_young_storm_dragon();
@@ -1037,8 +1019,8 @@ void AddSC_vortex_pinnacle()
     new spell_feign_death();
     new spell_lurk_ressurect();
     new spell_lurk_search_victim();
+    RegisterAuraScript(spell_vp_howling_gale);
     new spell_slipstream();
-    new spell_howling_gale();
     new spell_grounding_field();
     new spell_skyfall();
     new spell_arcane_barrage();
