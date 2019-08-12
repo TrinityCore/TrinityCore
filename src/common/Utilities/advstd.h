@@ -113,10 +113,10 @@ namespace advstd
     constexpr std::enable_if_t<advstd::is_unsigned_v<T1> && advstd::is_unsigned_v<T2>, std::common_type_t<T1, T2>> gcd(T1 _m, T2 _n)
     {
         using T = std::common_type_t<T1, T2>;
-        T n=_n, m=_m, o;
+        T n=_n, m=_m;
         while (n)
         {
-            o = m;
+            T o = m;
             m = n;
             n = o%n;
         }
