@@ -85,9 +85,10 @@ Position const SecondPrismGroundingFieldPoints[PrismGroundingFieldPoints] =
 
 ObjectData const creatureData[] =
 {
-    { NPC_ALTAIRUS,     DATA_ALTAIRUS       },
-    { NPC_ASAAD,        DATA_ASAAD          },
-    { 0,                0                   } // END
+    { NPC_GRAND_VIZIER_ERTAN,   DATA_GRAND_VIZIER_ERTAN },
+    { NPC_ALTAIRUS,             DATA_ALTAIRUS           },
+    { NPC_ASAAD,                DATA_ASAAD              },
+    { 0,                        0                       } // END
 };
 
 class instance_vortex_pinnacle : public InstanceMapScript
