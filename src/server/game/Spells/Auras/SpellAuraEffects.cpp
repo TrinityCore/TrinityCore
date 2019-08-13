@@ -1668,7 +1668,10 @@ void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 m
         target->SetFullHealth();
     }
     else
+    {
         target->setDeathState(JUST_DIED);
+        target->RemoveAurasDueToSpell(SPELL_SPIRIT_OF_REDEMPTION_IMMUNITY);
+    }
 }
 
 void AuraEffect::HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool apply) const
