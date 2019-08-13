@@ -5418,6 +5418,77 @@ MovementStatusElements const MoveGravityEnable[] =
     MSEEnd,
 };
 
+MovementStatusElements const MoveUpdateFlightBackSpeed[] =
+{
+    MSEPositionY,
+    MSEExtraElement,
+    MSEPositionX,
+    MSEPositionZ,
+    MSEHasGuidByte6,
+    MSEHasGuidByte4,
+    MSEHasPitch,
+    MSEHasGuidByte7,
+    MSEHasGuidByte1,
+    MSEHasTransportData,
+    MSEHasTransportTime3,
+    MSEHasTransportGuidByte4,
+    MSEHasTransportGuidByte7,
+    MSEHasTransportGuidByte6,
+    MSEHasTransportGuidByte0,
+    MSEOneBit, // has_transport_time 
+    MSEHasTransportGuidByte2,
+    MSEHasTransportGuidByte3,
+    MSEHasTransportGuidByte5,
+    MSEHasTransportTime2,
+    MSEHasTransportGuidByte1,
+    MSEHasGuidByte5,
+    MSEHasGuidByte0,
+    MSEHasTimestamp,
+    MSEHasMovementFlags,
+    MSEMovementFlags,
+    MSEHasGuidByte3,
+    MSEHasMovementFlags2,
+    MSEZeroBit, // height_change_failed
+    MSEHasSplineElevation,
+    MSEMovementFlags2,
+    MSEHasGuidByte2,
+    MSEHasFallData,
+    MSEHasOrientation,
+    MSEHasFallDirection,
+    MSEFallCosAngle,
+    MSEFallSinAngle,
+    MSEFallVerticalSpeed,
+    MSEFallTime,
+    MSEFallHorizontalSpeed,
+    MSETransportPositionX,
+    MSETransportTime,
+    MSETransportOrientation,
+    MSETransportGuidByte5,
+    MSETransportPositionZ,
+    MSETransportVehicleId,
+    MSETransportGuidByte7,
+    MSETransportGuidByte1,
+    MSETransportGuidByte3,
+    MSETransportGuidByte6,
+    MSETransportGuidByte0,
+    MSETransportGuidByte2,
+    MSETransportPositionY,
+    MSETransportGuidByte4,
+    MSEGuidByte1,
+    MSEGuidByte4,
+    MSEOrientation,
+    MSEGuidByte5,
+    MSETimestamp,
+    MSESplineElevation,
+    MSEGuidByte6,
+    MSEPitch,
+    MSEGuidByte3,
+    MSEGuidByte2,
+    MSEGuidByte0,
+    MSEGuidByte7,
+    MSEEnd
+};
+
 void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
 {
     MovementStatusElements const element = _elements[_index++];
@@ -5761,6 +5832,8 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
             return MoveGravityDisable;
         case SMSG_MOVE_GRAVITY_ENABLE:
             return MoveGravityEnable;
+        case SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED:
+            return MoveUpdateFlightBackSpeed;
         default:
             break;
     }
