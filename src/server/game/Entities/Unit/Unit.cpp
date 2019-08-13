@@ -6798,6 +6798,7 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 // Health at 25% or less (25% stored at effect 2 of the spell)
                 if (victim->HealthBelowPct(CalculateSpellDamage(this, (*i)->GetSpellInfo(), EFFECT_2)))
                     AddPct(DoneTotalMod, (*i)->GetAmount());
+                break;
             }
             case 6916: // Death's Embrace heal effect
             case 6925:
