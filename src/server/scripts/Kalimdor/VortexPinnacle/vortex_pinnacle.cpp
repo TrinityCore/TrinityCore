@@ -19,8 +19,10 @@
 #include "AreaBoundary.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "MoveSplineInit.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -313,90 +315,76 @@ public:
 };
 
 // 45919 - Young Storm Dragon
-class npc_young_storm_dragon : public CreatureScript
+struct npc_vp_young_storm_dragon : public ScriptedAI
 {
-public:
-    npc_young_storm_dragon() : CreatureScript("npc_young_storm_dragon") { }
+    npc_vp_young_storm_dragon(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_young_storm_dragonAI : public ScriptedAI
+    void Reset() override
     {
-        npc_young_storm_dragonAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            me->SetCanFly(false);
-            me->SetDisableGravity(false);
-            me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-
-            events.Reset();
-            events.ScheduleEvent(EVENT_HEALING_WELL, 1);
-            events.ScheduleEvent(EVENT_TAKEOFF, 3000);
-            events.ScheduleEvent(EVENT_ATTACK, 6000);
-        }
-
-        void JustEngagedWith(Unit* /*target*/) override
-        {
-            me->SetReactState(REACT_PASSIVE);
-
-            me->GetMotionMaster()->MovementExpired();
-            me->GetMotionMaster()->Clear(true);
-            me->StopMoving();
-            //me->GetMotionMaster()->MoveIdle();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_TAKEOFF:
-                    {
-                        me->SetCanFly(true);
-                        me->SetDisableGravity(true);
-                        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                        Position pos = me->GetPosition();
-                        pos.m_positionZ += 10.0f;
-                        me->GetMotionMaster()->MoveTakeoff(0, pos);
-                        break;
-                    }
-                    case EVENT_ATTACK:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        events.RescheduleEvent(EVENT_CHILLING_BLAST, 14000);
-                        events.RescheduleEvent(EVENT_HEALING_WELL, 15000);
-                        break;
-                    case EVENT_CHILLING_BLAST:
-                        DoCastVictim(SPELL_CHILLING_BLAST);
-                        events.ScheduleEvent(EVENT_CHILLING_BLAST, 14000);
-                        break;
-                    case EVENT_HEALING_WELL:
-                        DoCast(me, SPELL_HEALING_WELL);
-                        events.ScheduleEvent(EVENT_HEALING_WELL, 15000);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetVortexPinnacleAI<npc_young_storm_dragonAI>(creature);
+        me->SetReactState(REACT_PASSIVE);
+        _events.Reset();
     }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        _EnterEvadeMode();
+        me->SetHover(false);
+        me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
+        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+        ScriptedAI::EnterEvadeMode(why);
+    }
+
+    void JustEngagedWith(Unit* /*target*/) override
+    {
+        _events.ScheduleEvent(EVENT_HEALING_WELL, 1ms);
+        _events.ScheduleEvent(EVENT_TAKEOFF, 2s + 800ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TAKEOFF:
+                {
+                    me->SendMovementSetSplineAnim(Movement::AnimType::ToFly);
+                    me->SetHover(true);
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                    _events.ScheduleEvent(EVENT_ATTACK, 3s);
+                    break;
+                }
+                case EVENT_ATTACK:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    _events.RescheduleEvent(EVENT_CHILLING_BLAST, 14s);
+                    _events.RescheduleEvent(EVENT_HEALING_WELL, 15s);
+                    break;
+                case EVENT_CHILLING_BLAST:
+                    DoCastVictim(SPELL_CHILLING_BLAST);
+                    _events.Repeat(14s);
+                    break;
+                case EVENT_HEALING_WELL:
+                    DoCast(me, SPELL_HEALING_WELL);
+                    _events.Repeat(15s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
 };
 
 // 47085 - Grounding Field
@@ -1004,13 +992,30 @@ public:
     }
 };
 
+// 88201 - Healing Well
+class spell_vp_healing_well : public SpellScript
+{
+    PrepareSpellScript(spell_vp_healing_well);
+
+    void SetDest(SpellDestination& dest)
+    {
+        float offset = GetCaster()->GetFloorZ() - GetCaster()->GetPositionZ();
+        dest.RelocateOffset({ 0.0f, 0.0f, offset, 0.0f });
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_vp_healing_well::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+    }
+};
+
 void AddSC_vortex_pinnacle()
 {
     new npc_lurking_tempest();
     RegisterVortexPinnacleCreatureAI(npc_vp_howling_gale);
     new npc_slipstream();
     new npc_slipstream_landing_zone();
-    new npc_young_storm_dragon();
+    RegisterVortexPinnacleCreatureAI(npc_vp_young_storm_dragon);
     new npc_grounding_field();
     new npc_skyfall();
     new npc_skyfall_star();
@@ -1024,4 +1029,5 @@ void AddSC_vortex_pinnacle()
     new spell_grounding_field();
     new spell_skyfall();
     new spell_arcane_barrage();
+    RegisterSpellScript(spell_vp_healing_well);
 }
