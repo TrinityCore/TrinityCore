@@ -110,13 +110,17 @@ namespace advstd
 
     // C++17 std::gcd
     template <typename T1, typename T2>
-    constexpr std::enable_if_t<advstd::is_unsigned_v<T1> && advstd::is_unsigned_v<T2>, std::common_type_t<T1, T2>> gcd(T1 m, T2 n)
+    constexpr std::enable_if_t<advstd::is_unsigned_v<T1> && advstd::is_unsigned_v<T2>, std::common_type_t<T1, T2>> gcd(T1 _m, T2 _n)
     {
-        if (m < n)
-            return gcd(n, m);
-        if (!n)
-            return m;
-        return gcd(n, m%n);
+        using T = std::common_type_t<T1, T2>;
+        T n=_n, m=_m;
+        while (n)
+        {
+            T o = m;
+            m = n;
+            n = o%n;
+        }
+        return m;
     }
 
     // C++17 std::lcm
