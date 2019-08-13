@@ -321,7 +321,7 @@ struct npc_vp_young_storm_dragon : public ScriptedAI
 
     void Reset() override
     {
-        me->SetReactState(REACT_PASSIVE);
+        me->SetReactState(REACT_AGGRESSIVE);
         _events.Reset();
     }
 
@@ -336,6 +336,8 @@ struct npc_vp_young_storm_dragon : public ScriptedAI
 
     void JustEngagedWith(Unit* /*target*/) override
     {
+        me->AttackStop();
+        me->SetReactState(REACT_PASSIVE);
         _events.ScheduleEvent(EVENT_HEALING_WELL, 1ms);
         _events.ScheduleEvent(EVENT_TAKEOFF, 2s + 800ms);
     }
