@@ -1156,39 +1156,28 @@ class spell_warl_shadow_trance_proc : public SpellScriptLoader
         }
 };
 
-// -7235 - Shadow Ward
-class spell_warl_shadow_ward : public SpellScriptLoader
+// 6229 - Shadow Ward
+class spell_warl_shadow_ward : public AuraScript
 {
-    public:
-        spell_warl_shadow_ward() : SpellScriptLoader("spell_warl_shadow_ward") { }
+    PrepareAuraScript(spell_warl_shadow_ward);
 
-        class spell_warl_shadow_ward_AuraScript : public AuraScript
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+        if (Unit * caster = GetCaster())
         {
-            PrepareAuraScript(spell_warl_shadow_ward_AuraScript);
+            // +80.7% from sp bonus
+            float bonus = 0.807f;
+            bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
 
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-            {
-                canBeRecalculated = false;
-                if (Unit* caster = GetCaster())
-                {
-                    // +80.68% from sp bonus
-                    float bonus = 0.8068f;
-                    bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-
-                    amount += int32(bonus);
-                }
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_shadow_ward_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warl_shadow_ward_AuraScript();
+            amount += int32(bonus);
         }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_shadow_ward::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
 };
 
 // -30293 - Soul Leech
@@ -1813,7 +1802,7 @@ void AddSC_warlock_spell_scripts()
     RegisterAuraScript(spell_warl_seed_of_corruption);
     RegisterSpellScript(spell_warl_seed_of_corruption_aoe);
     new spell_warl_shadow_trance_proc();
-    new spell_warl_shadow_ward();
+    RegisterAuraScript(spell_warl_shadow_ward);
     RegisterAuraScript(spell_warl_soulburn);
     RegisterAuraScript(spell_warl_soul_harvest);
     new spell_warl_soul_leech();
