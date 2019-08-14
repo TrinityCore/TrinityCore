@@ -2290,7 +2290,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         {
             auto successItr = std::find_if(successList.begin(), successList.end(), [&itr](DispelableAura& dispelAura) -> bool
             {
-                if (dispelAura.GetAura()->GetId() == itr->GetAura()->GetId())
+                if (dispelAura.GetAura()->GetId() == itr->GetAura()->GetId() && dispelAura.GetAura()->GetCaster() == itr->GetAura()->GetCaster())
                     return true;
 
                 return false;
