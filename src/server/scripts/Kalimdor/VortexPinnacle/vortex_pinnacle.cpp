@@ -565,6 +565,32 @@ public:
     }
 };
 
+enum CatchFall
+{
+    SPELL_CATCH_FALL_SUMMON     = 89522,
+    SPELL_CATCH_FALL_TRIGGERED  = 89525,
+    SPELL_SLIPSTREAM_DUMMY      = 85063
+};
+
+struct npc_vp_catch_fall : public NullCreatureAI
+{
+    npc_vp_catch_fall(Creature* creature) : NullCreatureAI(creature) { }
+
+    void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+    {
+        if (apply)
+            who->m_Events.AddEventAtOffset([who]()
+            {
+                if (Creature* vehicle = who->GetVehicleCreatureBase())
+                    vehicle->CastSpell(who, SPELL_CATCH_FALL_TRIGGERED, true);
+            }, 6s);
+        else
+            me->DespawnOrUnsummon(400ms);
+
+        who->SetDisableGravity(apply, true);
+    }
+};
+
 // 85294 - Lurk Search
 class spell_lurk_search : public SpellScriptLoader
 {
@@ -999,6 +1025,65 @@ class spell_vp_healing_well : public SpellScript
     }
 };
 
+Position const EntranceTeleportPos = { -361.0174f,  -6.359375f, 632.7807f, 0.0f };
+Position const AltairusTeleportPos = { -906.08f,    -176.514f,  664.5053f, 0.0f };
+Position const AsaadTeleportPos    = { -1193.67f,   472.835f,   634.8653f, 0.0f };
+
+class spell_vp_catch_fall : public SpellScript
+{
+    PrepareSpellScript(spell_vp_catch_fall);
+
+    void SetDest(SpellDestination& dest)
+    {
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        Creature* slipstream = GetCaster()->FindNearestCreature(NPC_SLIPSTREAM, 300.0f);
+        if (!slipstream || !instance)
+        {
+            dest.Relocate(EntranceTeleportPos);
+            return;
+        }
+
+        ObjectGuid guid = slipstream->GetGUID();
+        if (guid == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_1) ||
+            guid == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_2) ||
+            guid == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_3) ||
+            guid == instance->GetGuidData(DATA_SLIPSTREAM_ENTRANCE_1) ||
+            guid == instance->GetGuidData(DATA_SLIPSTREAM_ENTRANCE_2))
+            dest.Relocate(EntranceTeleportPos);
+        else if (guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_1) ||
+            guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_2) ||
+            guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_3) ||
+            guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_4) ||
+            guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_5))
+            dest.Relocate(AltairusTeleportPos);
+        else if (guid == instance->GetGuidData(DATA_SLIPSTREAM_ASAAD_1))
+            dest.Relocate(AsaadTeleportPos);
+        else // Safeguard to prevent any fall to death case
+            dest.Relocate(EntranceTeleportPos);
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_vp_catch_fall::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
+};
+
+class at_vp_catch_fall : public AreaTriggerScript
+{
+    public:
+        at_vp_catch_fall() : AreaTriggerScript("at_vp_catch_fall") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (player->HasAura(SPELL_SLIPSTREAM_DUMMY))
+                return false;
+
+            player->CastSpell(player, SPELL_CATCH_FALL_SUMMON, true);
+
+            return true;
+        }
+};
+
 void AddSC_vortex_pinnacle()
 {
     new npc_lurking_tempest();
@@ -1006,6 +1091,7 @@ void AddSC_vortex_pinnacle()
     RegisterVortexPinnacleCreatureAI(npc_slipstream);
     RegisterVortexPinnacleCreatureAI(npc_slipstream_landing_zone);
     RegisterVortexPinnacleCreatureAI(npc_vp_young_storm_dragon);
+    RegisterVortexPinnacleCreatureAI(npc_vp_catch_fall);
     new npc_grounding_field();
     new npc_skyfall();
     new npc_skyfall_star();
@@ -1020,4 +1106,6 @@ void AddSC_vortex_pinnacle()
     new spell_skyfall();
     new spell_arcane_barrage();
     RegisterSpellScript(spell_vp_healing_well);
+    RegisterSpellScript(spell_vp_catch_fall);
+    new at_vp_catch_fall();
 }
