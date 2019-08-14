@@ -43,6 +43,7 @@ SET @SPAWNGROUP := 404;
 DELETE FROM `spawn_group` WHERE `groupId`= @SPAWNGROUP;
 INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
 (@SPAWNGROUP, 0, 368223),
+(@SPAWNGROUP, 0, 368230),
 (@SPAWNGROUP, 0, 368222),
 (@SPAWNGROUP, 0, 368221),
 (@SPAWNGROUP, 0, 368220),
