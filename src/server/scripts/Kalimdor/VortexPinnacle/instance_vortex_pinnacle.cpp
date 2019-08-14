@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
 #include "CreatureAI.h"
 #include "EventMap.h"
 #include "InstanceScript.h"
@@ -96,6 +97,13 @@ enum Events
     EVENT_SUMMON_ZEPHYRS = 1
 };
 
+BossBoundaryData const boundaries =
+{
+    { DATA_GRAND_VIZIER_ERTAN, new CircleBoundary(Position(-719.430f,   4.329f), 60.0f) },
+    { DATA_ALTAIRUS,           new CircleBoundary(Position(-1215.796f, 64.425f), 50.0f) },
+    { DATA_ASAAD,              new CircleBoundary(Position(-622.729f, 503.509f), 45.0f) }
+};
+
 class instance_vortex_pinnacle : public InstanceMapScript
 {
     public:
@@ -108,6 +116,7 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadObjectData(creatureData, nullptr);
+                LoadBossBoundaries(boundaries);
 
                 CheckSlipstreams();
                 SummonGroundingFieldPrism(FirstPrismGroundingFieldTop, FirstPrismGroundingFieldPoints);
