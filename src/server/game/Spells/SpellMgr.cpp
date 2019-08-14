@@ -4281,6 +4281,16 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].Amplitude = 2000;
     });
 
+    // Slipstream
+    ApplySpellFix({
+        89499,
+        89501,
+    }, [](SpellInfo* spellInfo)
+    {
+        // The target creatures are too far away to be targeted by the core so we have to take their spawn positions instead
+        spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
+    });
+
     // Summon Skyfall Star
     ApplySpellFix({ 96260 }, [](SpellInfo* spellInfo)
     {

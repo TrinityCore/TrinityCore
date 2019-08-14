@@ -33,36 +33,33 @@
 2 - Asaad
 */
 
-struct Slipstream
+struct SlipstreamVehicleData
 {
-    uint32 entry;
-    uint32 vehicleId;
-    Position position;
-    uint32 data;
-    uint32 bossData; // boss that has to die/be dead for Slipstream to spawn
+    uint32 VehicleId;
+    uint32 GuidDataId;
+    Position const SpawnPosition;
 };
 
-Slipstream const SlipstreamData[Slipstreams] =
+std::vector<SlipstreamVehicleData> SlipStreamInfo =
 {
-    // Grand Vizier Ertan Slipstreams
-    { NPC_SLIPSTREAM, 1111, { -775.517f, -70.9323f, 640.3123f, 0.0f }, DATA_SLIPSTREAM_1, DATA_GRAND_VIZIER_ERTAN },
-    { NPC_SLIPSTREAM, 1112, { -848.227f, -68.724f, 654.2203f, 0.0f }, DATA_SLIPSTREAM_2, DATA_GRAND_VIZIER_ERTAN },
-    { NPC_SLIPSTREAM, 1113, { -844.885f, -205.135f, 660.7083f, 0.0f }, DATA_SLIPSTREAM_3, DATA_GRAND_VIZIER_ERTAN },
-    // Grand Vizier Ertan Slipstream Landing Zone
-    { NPC_SLIPSTREAM_LANDING_ZONE, 1114, { -906.08f, -176.514f, 664.5053f, 2.86234f }, 0, DATA_GRAND_VIZIER_ERTAN },
-    // Altairus Slipstreams
-    { NPC_SLIPSTREAM, 1111, { -1190.88f, 125.203f, 737.6243f, 0.0f }, DATA_SLIPSTREAM_4, DATA_ALTAIRUS },
-    { NPC_SLIPSTREAM, 1112, { -1138.55f, 178.524f, 711.4943f, 0.0f }, DATA_SLIPSTREAM_5, DATA_ALTAIRUS },
-    { NPC_SLIPSTREAM, 1149, { -1245.21f, 230.986f, 690.6083f, 0.0f }, DATA_SLIPSTREAM_6, DATA_ALTAIRUS },
-    { NPC_SLIPSTREAM, 1150, { -1282.07f, 344.856f, 660.9873f, 0.0f }, DATA_SLIPSTREAM_7, DATA_ALTAIRUS },
-    { NPC_SLIPSTREAM, 1113, { -1229.64f, 412.26f, 641.2933f, 0.0f }, DATA_SLIPSTREAM_8, DATA_ALTAIRUS },
-    // Altairus Slipstream Landing Zone
-    { NPC_SLIPSTREAM_LANDING_ZONE, 1114, { -1193.67f, 472.835f, 634.8653f, 0.5061455f }, 0, DATA_ALTAIRUS },
-    // Asaad Slipstream
-    { NPC_SLIPSTREAM, 1551, { -746.9566f, 529.1406f, 644.8316f, 0.0f }, DATA_SLIPSTREAM_9, DATA_ASAAD },
-    // Entrance Slipstreams
-    { NPC_SLIPSTREAM, 1305, { -310.4583f, -29.74479f, 625.0833f, 0.0f }, DATA_SLIPSTREAM_10, DATA_GRAND_VIZIER_ERTAN },
-    { NPC_SLIPSTREAM, 1306, { -382.441f, 42.31597f, 625.0833f, 0.0f }, DATA_SLIPSTREAM_11, DATA_ALTAIRUS },
+    // Grandvizier Ertan Slipstream Link
+    { 1111, DATA_SLIPSTREAM_ERTAN_1, { -775.517f, -70.9323f, 640.3123f, 0.0f } },
+    { 1112, DATA_SLIPSTREAM_ERTAN_2, { -848.227f, -68.724f,  654.2203f, 0.0f } },
+    { 1113, DATA_SLIPSTREAM_ERTAN_3, { -844.885f, -205.135f, 660.7083f, 0.0f } },
+
+    // Altairus Slipstream Link
+    { 1111, DATA_SLIPSTREAM_ALTAIRUS_1, { -1190.88f, 125.203f, 737.6243f, 0.0f } },
+    { 1112, DATA_SLIPSTREAM_ALTAIRUS_2, { -1138.55f, 178.524f, 711.4943f, 0.0f } },
+    { 1149, DATA_SLIPSTREAM_ALTAIRUS_3, { -1245.21f, 230.986f, 690.6083f, 0.0f } },
+    { 1150, DATA_SLIPSTREAM_ALTAIRUS_4, { -1282.07f, 344.856f, 660.9873f, 0.0f } },
+    { 1113, DATA_SLIPSTREAM_ALTAIRUS_5, { -1229.64f, 412.26f,  641.2933f, 0.0f } },
+
+    // Asaad Slipstream Link
+    { 1551, DATA_SLIPSTREAM_ASAAD_1, { -746.9566f, 529.1406f, 644.8316f, 0.0f } },
+
+    // Entrance Slipstream Link
+    { 1305, DATA_SLIPSTREAM_ENTRANCE_1, { -310.4583f, -29.74479f, 625.0833f, 0.0f } },
+    { 1306, DATA_SLIPSTREAM_ENTRANCE_2, { -382.441f,  42.31597f,  625.0833f, 0.0f } }
 };
 
 Position const SouthZephyrSummonLocation = { -1072.87f,  432.4446f, 646.7279f, 6.157519f  };
@@ -118,7 +115,6 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 LoadObjectData(creatureData, nullptr);
                 LoadBossBoundaries(boundaries);
 
-                CheckSlipstreams();
                 SummonGroundingFieldPrism(FirstPrismGroundingFieldTop, FirstPrismGroundingFieldPoints);
                 SummonGroundingFieldPrism(SecondPrismGroundingFieldTop, SecondPrismGroundingFieldPoints);
 
@@ -127,6 +123,8 @@ class instance_vortex_pinnacle : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_HOWLING_GALE:
@@ -135,21 +133,46 @@ class instance_vortex_pinnacle : public InstanceMapScript
                     case NPC_AIR_CURRENT:
                         airCurrentGUIDs.push_back(creature->GetGUID());
                         break;
+                    case NPC_SLIPSTREAM:
+                        for (SlipstreamVehicleData info : SlipStreamInfo)
+                        {
+                            if (creature->GetExactDist2d(info.SpawnPosition) < 1.0f)
+                            {
+                                /*
+                                    Get rid of the old vehicleId and install a new vehicle kit based on the real one.
+                                    We have to keep a vehicleId in the creature_template entry so the update_object packet
+                                    will send a initial vehicle id so the clientside visuals wont break.
+                                */
+                                if (creature->GetVehicleKit())
+                                    creature->RemoveVehicleKit();
+
+                                creature->CreateVehicleKit(info.VehicleId, creature->GetEntry());
+                                if (info.GuidDataId != DATA_SLIPSTREAM_ERTAN_1 && info.GuidDataId != DATA_SLIPSTREAM_ALTAIRUS_1 &&
+                                    info.GuidDataId != DATA_SLIPSTREAM_ASAAD_1 && info.GuidDataId != DATA_SLIPSTREAM_ENTRANCE_1 &&
+                                    info.GuidDataId != DATA_SLIPSTREAM_ENTRANCE_2)
+                                    creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                                else
+                                {
+                                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                    creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                                    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, creature->GetPackGUID().size() + 4);
+                                    data << creature->GetPackGUID();
+                                    data << uint32(info.VehicleId);
+                                    creature->SendMessageToSet(&data, true);
+                                }
+                                AddObject(creature, info.GuidDataId, true);
+                                break;
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
-
-                InstanceScript::OnCreatureCreate(creature);
             }
-
 
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 InstanceScript::SetBossState(type, state);
-
-                // Spawn Slipstreams
-                if (state == DONE)
-                    SummonSlipstreams(type);
 
                 if (type == DATA_ALTAIRUS && (state == DONE || state == FAIL))
                 {
@@ -172,10 +195,12 @@ class instance_vortex_pinnacle : public InstanceMapScript
                     switch (eventId)
                     {
                         case EVENT_SUMMON_ZEPHYRS:
-                            if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, SouthZephyrSummonLocation, nullptr, 18 * IN_MILLISECONDS))
-                                zephyr->GetMotionMaster()->MovePath(PATH_ZEPHYR_SOUTH, false);
-                            if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, NorthZephyrSummonLocation, nullptr, 18 * IN_MILLISECONDS))
-                                zephyr->GetMotionMaster()->MovePath(PATH_ZEPHYR_NORTH, false);
+                            if (instance->IsGridLoaded(SouthZephyrSummonLocation))
+                                if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, SouthZephyrSummonLocation, nullptr, 18 * IN_MILLISECONDS))
+                                    zephyr->GetMotionMaster()->MovePath(PATH_ZEPHYR_SOUTH, false);
+                            if (instance->IsGridLoaded(NorthZephyrSummonLocation))
+                                if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, NorthZephyrSummonLocation, nullptr, 18 * IN_MILLISECONDS))
+                                    zephyr->GetMotionMaster()->MovePath(PATH_ZEPHYR_NORTH, false);
                             events.Repeat(10s);
                             break;
                         default:
@@ -185,46 +210,6 @@ class instance_vortex_pinnacle : public InstanceMapScript
             }
 
         private:
-            // Check which Slipstreams can be spawned on script init
-            void CheckSlipstreams()
-            {
-                if (GetBossState(DATA_GRAND_VIZIER_ERTAN) == DONE)
-                    SummonSlipstreams(DATA_GRAND_VIZIER_ERTAN);
-                if (GetBossState(DATA_ALTAIRUS) == DONE)
-                    SummonSlipstreams(DATA_ALTAIRUS);
-                if (GetBossState(DATA_ASAAD) == DONE)
-                    SummonSlipstreams(DATA_ASAAD);
-            }
-
-            // Spawns Slipstreams belonging bossType
-            void SummonSlipstreams(uint32 bossType)
-            {
-                for (uint8 i = 0; i < Slipstreams; ++i)
-                {
-                    if (SlipstreamData[i].bossData != bossType)
-                        continue;
-
-                    TempSummon* summon = instance->SummonCreature(SlipstreamData[i].entry, SlipstreamData[i].position);
-                    if (!summon)
-                        continue;
-
-                    AddObject(summon, SlipstreamData[i].data, true);
-
-                    if (SlipstreamData[i].data == DATA_SLIPSTREAM_1 || SlipstreamData[i].data == DATA_SLIPSTREAM_4 ||
-                        SlipstreamData[i].data == DATA_SLIPSTREAM_10 || SlipstreamData[i].data == DATA_SLIPSTREAM_11)
-                    {
-                        summon->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        summon->setActive(true);
-                    }
-
-                    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, summon->GetPackGUID().size() + 4);
-                    data << summon->GetPackGUID();
-                    data << uint32(SlipstreamData[i].vehicleId);
-                    summon->SendMessageToSet(&data, true);
-                }
-            }
-
             // Spawns Grounding Field prism
             void SummonGroundingFieldPrism(Position positionTop, const Position positionPoints[PrismGroundingFieldPoints])
             {

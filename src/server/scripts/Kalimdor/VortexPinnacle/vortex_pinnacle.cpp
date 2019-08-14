@@ -24,8 +24,10 @@
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "Vehicle.h"
 #include "vortex_pinnacle.h"
 
 enum Texts
@@ -54,19 +56,6 @@ enum Spells
     SPELL_HOWLING_GALE_KNOCKBACK_STRONG             = 85159,
     SPELL_HOWLING_GALE_VISUAL_WEAK                  = 85137,
     SPELL_HOWLING_GALE_KNOCKBACK_WEAK               = 85085,
-
-    // Slipstream (spells Slipstream npcs cast on passenger to make it enter next Slipstream)
-    SPELL_SLIPSTREAM_SPELLCLICK                     = 84965, // spellclick
-    SPELL_SLIPSTREAM_FIRST                          = 84980, // Cast on passenger by Slipstream 1 and 4.
-    SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA     = 84978, // Triggered by SPELL_SLIPSTREAM_FIRST. Targets closest NPC_SLIPSTREAM.
-    SPELL_SLIPSTREAM_SECOND                         = 84988, // Cast on passenger by Slipstream 2 and 5.
-    SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA    = 84989, // Triggered by SPELL_SLIPSTREAM_SECOND.  Targets second closest NPC_SLIPSTREAM.
-    SPELL_SLIPSTREAM_THIRD                          = 85394, // Cast on passenger by Slipstream 6.
-    SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA     = 85395, // Triggered by SPELL_SLIPSTREAM_THIRD.  Unknown how it targets next NPC_SLIPSTREAM.
-    SPELL_SLIPSTREAM_FOURTH                         = 85397, // Cast on passenger by Slipstream 7.
-    SPELL_SLIPSTREAM_FOURTH_CONTROL_VEHICLE_AURA    = 85396, // Triggered by SPELL_SLIPSTREAM_FORTH. Unknown how it targets next NPC_SLIPSTREAM.
-    SPELL_SLIPSTREAM_LAST                           = 85016, // Cast on passenger by Slipstream 3 and 8.
-    SPELL_SLIPSTREAM_LAST_CONTROL_VEHICLE_AURA      = 85017, // Triggered by SPELL_SLIPSTREAM_LAST. Targets NPC_SLIPSTREAM_LANDING_ZONE.
 
     // No one sniffed using Slipstreams at entrance, I guess they take you to Slipstream Landing Zone directly, but need spell IDs.
     // Possible spell IDs named 'Slipstream': 87742 Jet Stream??, 89498, 89500, 95911
@@ -206,10 +195,29 @@ struct npc_vp_howling_gale : public NullCreatureAI
     }
 };
 
-// 45455 - Slipstream
-struct npc_slipstream : public ScriptedAI
+enum Slipstreams
 {
-    npc_slipstream(Creature* creature) : ScriptedAI(creature)
+    // Spells
+    SPELL_SLIPSTREAM_ENTER                          = 84965,
+    SPELL_SLIPSTREAM_FIRST                          = 84980,
+    SPELL_SLIPSTREAM_SECOND                         = 84988,
+    SPELL_SLIPSTREAM_THIRD                          = 85394,
+    SPELL_SLIPSTREAM_FOURTH                         = 85397,
+    SPELL_SLIPSTREAM_LAST                           = 85016,
+    SPELL_SLIPSTREAM_ASAAD                          = 95911,
+    SPELL_SLIPSTREAM_SHORTCUT_ALTAIRUS              = 89498,
+    SPELL_SLIPSTREAM_SHORTCUT_ASAAD                 = 89500,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST          = 84978,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND         = 84989,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD          = 85395,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH         = 85396,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_LAST           = 85017
+};
+
+// 45455 - Slipstream
+struct npc_slipstream : public NullCreatureAI
+{
+    npc_slipstream(Creature* creature) : NullCreatureAI(creature), _instance(me->GetInstanceScript()), _guid(me->GetGUID())
     {
         Initialize();
     }
@@ -219,30 +227,56 @@ struct npc_slipstream : public ScriptedAI
         me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
     }
 
+    void OnSpellClick(Unit* clicker, bool& result)
+    {
+        if (!clicker)
+            return;
+
+        if (_instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_1) == _guid || _instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_1) == _guid)
+            DoCast(clicker, SPELL_SLIPSTREAM_FIRST);
+        else if (_instance->GetGuidData(DATA_SLIPSTREAM_ASAAD_1) == _guid)
+            DoCast(clicker, SPELL_SLIPSTREAM_ASAAD);
+        else if (_instance->GetGuidData(DATA_SLIPSTREAM_ENTRANCE_1) == _guid)
+            DoCast(clicker, SPELL_SLIPSTREAM_SHORTCUT_ALTAIRUS);
+        else if (_instance->GetGuidData(DATA_SLIPSTREAM_ENTRANCE_2) == _guid)
+            DoCast(clicker, SPELL_SLIPSTREAM_SHORTCUT_ASAAD);
+
+        clicker->CastSpell(me, SPELL_SLIPSTREAM_ENTER);
+        result = true;
+    }
+
     void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
     {
         if (!apply)
             return;
 
-        if (me->HasAura(SPELL_SLIPSTREAM_SPELLCLICK))
-            DoCast(who, SPELL_SLIPSTREAM_FIRST, true);
-        else if (me->HasAura(SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA))
-            DoCast(who, SPELL_SLIPSTREAM_SECOND, true);
-        else if (me->HasAura(SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA))
+        for (AuraEffect const* effect : me->GetAuraEffectsByType(SPELL_AURA_CONTROL_VEHICLE))
         {
-            if (InstanceScript * instance = me->GetInstanceScript())
+            switch (effect->GetSpellInfo()->Id)
             {
-                if (instance->GetCreature(DATA_SLIPSTREAM_3) == me)
-                    DoCast(who, SPELL_SLIPSTREAM_LAST, true);
-                else
-                    DoCast(who, SPELL_SLIPSTREAM_THIRD, true);
+                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST:
+                    DoCast(who, SPELL_SLIPSTREAM_SECOND);
+                    break;
+                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND:
+                    if (_instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_3) == _guid)
+                        DoCast(who, SPELL_SLIPSTREAM_LAST);
+                    else
+                        DoCast(who, SPELL_SLIPSTREAM_THIRD);
+                    break;
+                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD:
+                    DoCast(who, SPELL_SLIPSTREAM_FOURTH);
+                    break;
+                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH:
+                    DoCast(who, SPELL_SLIPSTREAM_LAST);
+                    break;
+                default:
+                    break;
             }
         }
-        else if (me->HasAura(SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA))
-            DoCast(who, SPELL_SLIPSTREAM_FOURTH, true);
-        else if (me->HasAura(SPELL_SLIPSTREAM_FOURTH_CONTROL_VEHICLE_AURA))
-            DoCast(who, SPELL_SLIPSTREAM_LAST, true);
     }
+private:
+    InstanceScript* _instance;
+    ObjectGuid _guid;
 };
 
 // 45504 - Slipstream Landing Zone (can be converted to SAI later, whatever masters say)
@@ -783,64 +817,51 @@ class spell_vp_howling_gale : public AuraScript
 };
 
 // 84978, 84989, 85395, 85396, 85017 - Slipstream
-// TO-DO: Fix passenger entering vehicle from another vehicle, passenger's vehicle enters vehicle instead... need core fix or we must handle it in this spellscript?
-class spell_slipstream : public SpellScriptLoader
+class spell_slipstream : public SpellScript
 {
-public:
-    spell_slipstream() : SpellScriptLoader("spell_slipstream") { }
+    PrepareSpellScript(spell_slipstream);
 
-    class spell_slipstream_SpellScript : public SpellScript
+    void SetTarget(WorldObject*& target)
     {
-        PrepareSpellScript(spell_slipstream_SpellScript);
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
 
-        void SetTarget(WorldObject*& target)
+        Creature* slipstream = GetCaster()->GetVehicleCreatureBase();
+        if (!slipstream)
+            return;
+
+        switch (GetSpellInfo()->Id)
         {
-            InstanceScript* instance = GetCaster()->GetInstanceScript();
-            if (!instance)
-                return;
-
-            Creature* slipstream = GetCaster()->GetVehicleCreatureBase();
-            if (!slipstream)
-                return;
-
-            switch (GetSpellInfo()->Id)
-            {
-                case SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA:
-                    if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_1))
-                        target = instance->GetCreature(DATA_SLIPSTREAM_2);
-                    else if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_4))
-                        target = instance->GetCreature(DATA_SLIPSTREAM_5);
-                    break;
-                case SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA:
-                    if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_2))
-                        target = instance->GetCreature(DATA_SLIPSTREAM_3);
-                    else if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_5))
-                        target = instance->GetCreature(DATA_SLIPSTREAM_6);
-                    break;
-                case SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA:
-                    target = instance->GetCreature(DATA_SLIPSTREAM_7);
-                    break;
-                case SPELL_SLIPSTREAM_FOURTH_CONTROL_VEHICLE_AURA:
-                    target = instance->GetCreature(DATA_SLIPSTREAM_8);
-                    break;
-                case SPELL_SLIPSTREAM_LAST_CONTROL_VEHICLE_AURA:
-                    if (Creature* landingZone = slipstream->FindNearestCreature(NPC_SLIPSTREAM_LANDING_ZONE, 100.0f))
-                        target = landingZone;
-                    break;
-                default:
-                    break;
-            }
+            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST:
+                if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_1))
+                    target = instance->GetCreature(DATA_SLIPSTREAM_ERTAN_2);
+                else if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_1))
+                    target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_2);
+                break;
+            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND:
+                if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_2))
+                    target = instance->GetCreature(DATA_SLIPSTREAM_ERTAN_3);
+                else if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_2))
+                    target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_3);
+                break;
+            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD:
+                target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_4);
+                break;
+            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH:
+                target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_5);
+                break;
+            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_LAST:
+                if (Creature * landingZone = slipstream->FindNearestCreature(NPC_SLIPSTREAM_LANDING_ZONE, 100.0f))
+                    target = landingZone;
+                break;
+            default:
+                break;
         }
-
-        void Register() override
-        {
-            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_slipstream_SpellScript::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    }
+    void Register() override
     {
-        return new spell_slipstream_SpellScript();
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_slipstream::SetTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
     }
 };
 
@@ -994,7 +1015,7 @@ void AddSC_vortex_pinnacle()
     new spell_lurk_ressurect();
     new spell_lurk_search_victim();
     RegisterAuraScript(spell_vp_howling_gale);
-    new spell_slipstream();
+    RegisterSpellScript(spell_slipstream);
     new spell_grounding_field();
     new spell_skyfall();
     new spell_arcane_barrage();
