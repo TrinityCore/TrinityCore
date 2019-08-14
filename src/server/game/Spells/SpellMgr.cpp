@@ -4291,6 +4291,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
     });
 
+    // Catch Fall
+    ApplySpellFix({ 89526 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_DEST_DB);
+    });
+
+    // Catch Fall
+    ApplySpellFix({ 89522 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_CASTER);
+    });
+
     // Summon Skyfall Star
     ApplySpellFix({ 96260 }, [](SpellInfo* spellInfo)
     {

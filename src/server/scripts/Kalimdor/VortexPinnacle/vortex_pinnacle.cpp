@@ -1035,36 +1035,14 @@ class spell_vp_catch_fall : public SpellScript
 
     void SetDest(SpellDestination& dest)
     {
-        InstanceScript* instance = GetCaster()->GetInstanceScript();
-        Creature* slipstream = GetCaster()->FindNearestCreature(NPC_SLIPSTREAM, 300.0f);
-        if (!slipstream || !instance)
-        {
-            dest.Relocate(EntranceTeleportPos);
-            return;
-        }
+        float zOffset = 650.0f - GetCaster()->GetPositionZ();
 
-        ObjectGuid guid = slipstream->GetGUID();
-        if (guid == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_1) ||
-            guid == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_2) ||
-            guid == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_3) ||
-            guid == instance->GetGuidData(DATA_SLIPSTREAM_ENTRANCE_1) ||
-            guid == instance->GetGuidData(DATA_SLIPSTREAM_ENTRANCE_2))
-            dest.Relocate(EntranceTeleportPos);
-        else if (guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_1) ||
-            guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_2) ||
-            guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_3) ||
-            guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_4) ||
-            guid == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_5))
-            dest.Relocate(AltairusTeleportPos);
-        else if (guid == instance->GetGuidData(DATA_SLIPSTREAM_ASAAD_1))
-            dest.Relocate(AsaadTeleportPos);
-        else // Safeguard to prevent any fall to death case
-            dest.Relocate(EntranceTeleportPos);
+        dest.RelocateOffset({ 0.0f, 0.0f, zOffset, 0.0f });
     }
 
     void Register()
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_vp_catch_fall::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_vp_catch_fall::SetDest, EFFECT_0, TARGET_DEST_CASTER);
     }
 };
 
