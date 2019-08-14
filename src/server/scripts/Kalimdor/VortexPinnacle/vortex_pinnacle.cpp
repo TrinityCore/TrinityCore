@@ -207,111 +207,78 @@ struct npc_vp_howling_gale : public NullCreatureAI
 };
 
 // 45455 - Slipstream
-class npc_slipstream : public CreatureScript
+struct npc_slipstream : public ScriptedAI
 {
-public:
-    npc_slipstream() : CreatureScript("npc_slipstream") { }
-
-    struct npc_slipstreamAI : public ScriptedAI
+    npc_slipstream(Creature* creature) : ScriptedAI(creature)
     {
-        npc_slipstreamAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
+        Initialize();
+    }
 
-        void Initialize()
-        {
-            me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
-        }
-
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
-        {
-            if (!apply)
-                return;
-
-            if (me->HasAura(SPELL_SLIPSTREAM_SPELLCLICK))
-            {
-                DoCast(who, SPELL_SLIPSTREAM_FIRST, true);
-                who->SetDisableGravity(true, true);
-            }
-            else if (me->HasAura(SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA))
-                DoCast(who, SPELL_SLIPSTREAM_SECOND, true);
-            else if (me->HasAura(SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA))
-            {
-                if (InstanceScript* instance = me->GetInstanceScript())
-                {
-                    if (instance->GetCreature(DATA_SLIPSTREAM_3) == me)
-                        DoCast(who, SPELL_SLIPSTREAM_LAST, true);
-                    else
-                        DoCast(who, SPELL_SLIPSTREAM_THIRD, true);
-                }
-            }
-            else if (me->HasAura(SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA))
-                DoCast(who, SPELL_SLIPSTREAM_FOURTH, true);
-            else if (me->HasAura(SPELL_SLIPSTREAM_FOURTH_CONTROL_VEHICLE_AURA))
-                DoCast(who, SPELL_SLIPSTREAM_LAST, true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void Initialize()
     {
-        return GetVortexPinnacleAI<npc_slipstreamAI>(creature);
+        me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
+    }
+
+    void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+    {
+        if (!apply)
+            return;
+
+        if (me->HasAura(SPELL_SLIPSTREAM_SPELLCLICK))
+            DoCast(who, SPELL_SLIPSTREAM_FIRST, true);
+        else if (me->HasAura(SPELL_SLIPSTREAM_FIRST_CONTROL_VEHICLE_AURA))
+            DoCast(who, SPELL_SLIPSTREAM_SECOND, true);
+        else if (me->HasAura(SPELL_SLIPSTREAM_SECOND_CONTROL_VEHICLE_AURA))
+        {
+            if (InstanceScript * instance = me->GetInstanceScript())
+            {
+                if (instance->GetCreature(DATA_SLIPSTREAM_3) == me)
+                    DoCast(who, SPELL_SLIPSTREAM_LAST, true);
+                else
+                    DoCast(who, SPELL_SLIPSTREAM_THIRD, true);
+            }
+        }
+        else if (me->HasAura(SPELL_SLIPSTREAM_THIRD_CONTROL_VEHICLE_AURA))
+            DoCast(who, SPELL_SLIPSTREAM_FOURTH, true);
+        else if (me->HasAura(SPELL_SLIPSTREAM_FOURTH_CONTROL_VEHICLE_AURA))
+            DoCast(who, SPELL_SLIPSTREAM_LAST, true);
     }
 };
 
 // 45504 - Slipstream Landing Zone (can be converted to SAI later, whatever masters say)
-class npc_slipstream_landing_zone : public CreatureScript
+struct npc_slipstream_landing_zone : public ScriptedAI
 {
-public:
-    npc_slipstream_landing_zone() : CreatureScript("npc_slipstream_landing_zone") { }
-
-    struct npc_slipstream_landing_zoneAI : public ScriptedAI
+    npc_slipstream_landing_zone(Creature* creature) : ScriptedAI(creature)
     {
-        npc_slipstream_landing_zoneAI(Creature* creature) : ScriptedAI(creature)
-        {
-            me->SetDisableGravity(true);
-            me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
-        }
-
-        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
-        {
-            if (!who)
-                return;
-
-            if (apply)
-            {
-                who->SetDisableGravity(true, true);
-                _events.ScheduleEvent(EVENT_EJECT_ALL_PASSENGERS, 1s + 500ms);
-            }
-            else
-                who->SetDisableGravity(false, true);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_EJECT_ALL_PASSENGERS:
-                        DoCast(me, SPELL_GENERIC_EJECT_ALL_PASSENGERS);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-    private:
-        EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetVortexPinnacleAI<npc_slipstream_landing_zoneAI>(creature);
+        me->SetDisableGravity(true);
+        me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
     }
+
+    void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
+    {
+        if (who && apply)
+            _events.ScheduleEvent(EVENT_EJECT_ALL_PASSENGERS, 1s + 500ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_EJECT_ALL_PASSENGERS:
+                    DoCast(me, SPELL_GENERIC_EJECT_ALL_PASSENGERS);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
 };
 
 // 45919 - Young Storm Dragon
@@ -1015,8 +982,8 @@ void AddSC_vortex_pinnacle()
 {
     new npc_lurking_tempest();
     RegisterVortexPinnacleCreatureAI(npc_vp_howling_gale);
-    new npc_slipstream();
-    new npc_slipstream_landing_zone();
+    RegisterVortexPinnacleCreatureAI(npc_slipstream);
+    RegisterVortexPinnacleCreatureAI(npc_slipstream_landing_zone);
     RegisterVortexPinnacleCreatureAI(npc_vp_young_storm_dragon);
     new npc_grounding_field();
     new npc_skyfall();
