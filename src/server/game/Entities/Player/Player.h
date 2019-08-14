@@ -1699,6 +1699,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetLastMoveServerTimestamp(uint32 timestamp) { lastMoveServerTimestamp = timestamp; }
         uint32 GetLastMoveClientTimestamp() const { return lastMoveClientTimestamp; }
         uint32 GetLastMoveServerTimestamp() const { return lastMoveServerTimestamp; }
+
+        std::string GetDescriptionACForLogs(uint8 type, float param1 = 0.f, float param2 = 0.f) const;
+        std::string GetPositionACForLogs() const;
         // END AntiCheat system
 
         void RemoveGhoul();

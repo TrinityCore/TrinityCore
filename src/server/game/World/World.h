@@ -783,6 +783,9 @@ class TC_GAME_API World
         bool IsGuidWarning() { return _guidWarn; }
         bool IsGuidAlert() { return _guidAlert; }
 
+        void SetACMapExcludes(const std::string& mapIdExcludes);
+        bool isMapDisabledForAC(uint32 mapid) const { return excludeACMapsId.count(mapid); }
+
     protected:
         void _UpdateGameTime();
 
@@ -891,6 +894,7 @@ class TC_GAME_API World
         bool _guidAlert;
         uint32 _warnDiff;
         time_t _warnShutdownTime;
+        std::unordered_set<uint32> excludeACMapsId;
 };
 
 TC_GAME_API extern Realm realm;

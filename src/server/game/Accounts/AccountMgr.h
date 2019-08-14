@@ -81,6 +81,8 @@ class TC_GAME_API AccountMgr
         static bool IsConsoleAccount(uint32 gmlevel);
         static bool HasPermission(uint32 accountId, uint32 permission, uint32 realmId);
 
+        static void RecordAntiCheatLog(uint32 accountId, std::string const& name, std::string const& description, std::string const& position, uint32 realmid);
+
         void UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId);
 
         void LoadRBAC();

@@ -504,6 +504,17 @@ void AccountMgr::LoadRBAC()
     TC_LOG_INFO("server.loading", ">> Loaded %u permission definitions, %u linked permissions and %u default permissions in %u ms", count1, count2, count3, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void AccountMgr::RecordAntiCheatLog(uint32 accountId, std::string const& name, std::string const& description, std::string const& position, uint32 realmid)
+{
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ANTICHEAT);
+    stmt->setUInt32(0, accountId);
+    stmt->setString(1, name);
+    stmt->setString(2, description);
+    stmt->setString(3, position);
+    stmt->setInt32(4, realmid);
+    LoginDatabase.Execute(stmt);
+}
+
 void AccountMgr::UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId)
 {
     if (rbac && securityLevel == rbac->GetSecurityLevel())

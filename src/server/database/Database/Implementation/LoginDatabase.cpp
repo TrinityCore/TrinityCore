@@ -115,6 +115,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_INS_ACCOUNT_MUTE, "INSERT INTO account_muted VALUES (?, UNIX_TIMESTAMP(), ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_MUTE_INFO, "SELECT mutedate, mutetime, mutereason, mutedby FROM account_muted WHERE guid = ? ORDER BY mutedate ASC", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_DEL_ACCOUNT_MUTED, "DELETE FROM account_muted WHERE guid = ?", CONNECTION_ASYNC);
+    // Anticheat system
+    PrepareStatement(LOGIN_INS_ACCOUNT_ANTICHEAT, "INSERT INTO anticheat_logs (account, player, description, position, realmId) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 }
 
 LoginDatabaseConnection::LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)
