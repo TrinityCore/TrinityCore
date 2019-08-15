@@ -49,6 +49,7 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_TAP                          = 45529,
     SPELL_DK_BUTCHERY                           = 50163,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
+    SPELL_DK_DARK_TRANSFORMATION                = 63560,
     SPELL_DK_DARK_TRANSFORMATION_DUMMY          = 93426,
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
     SPELL_DK_DEATH_COIL                         = 47541,
@@ -1230,17 +1231,27 @@ class spell_dk_shadow_infusion : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcSpell()->GetSpellInfo()->Id == SPELL_DK_DEATH_COIL;
+        if (eventInfo.GetSpellInfo()->Id != SPELL_DK_DEATH_COIL)
+            return false;
+
+        Player* petOwner = GetTarget()->ToPlayer();
+        if (!petOwner)
+            return false;
+
+        if (Pet* pet = petOwner->GetPet())
+            if (pet->HasAura(SPELL_DK_DARK_TRANSFORMATION))
+                return false;
+
+        return true;
     }
 
     void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        if (Unit* caster = GetCaster())
-            if (Player* petOwner = caster->ToPlayer())
-                if (Pet* pet = petOwner->GetPet())
-                    if (Aura* aura = pet->GetAura(SPELL_DK_SHADOW_INFUSION))
-                        if (aura->GetStackAmount() == 4)
-                            caster->CastSpell(caster, SPELL_DK_DARK_TRANSFORMATION_DUMMY, true);
+        Player* petOwner = GetTarget()->ToPlayer();
+        if (Pet* pet = petOwner->GetPet())
+            if (Aura* aura = pet->GetAura(SPELL_DK_SHADOW_INFUSION))
+                if (aura->GetStackAmount() >= 4)
+                    petOwner->CastSpell(petOwner, SPELL_DK_DARK_TRANSFORMATION_DUMMY, true);
     }
 
     void Register() override
