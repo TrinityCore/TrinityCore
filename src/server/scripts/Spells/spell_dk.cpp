@@ -1674,12 +1674,9 @@ class spell_dk_disease : public AuraScript
         if (!caster)
             return;
 
-        printf("amount = %i \n", amount);
         // Formular: ${$m1*1.15+$AP*0.055*1.15}
         AddPct(amount, 15);
-        printf("new amount = %i \n", amount);
         amount += ((caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f) * 1.15f);
-        printf("final amount = %i \n", amount);
     }
 
     void HandleResilientInfection(DispelInfo* /*dispelInfo*/)
