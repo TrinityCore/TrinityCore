@@ -1035,7 +1035,13 @@ class spell_vp_catch_fall : public SpellScript
 
     void SetDest(SpellDestination& dest)
     {
-        float zOffset = 650.0f - GetCaster()->GetPositionZ();
+        float z = GetCaster()->GetPositionZ();
+        float zOffset = 644.926f - z;
+
+        if (z > 680.0f)
+            zOffset = 733.072f - z;
+        else if (z > 640.0f)
+            zOffset = 649.714f - z;
 
         dest.RelocateOffset({ 0.0f, 0.0f, zOffset, 0.0f });
     }
