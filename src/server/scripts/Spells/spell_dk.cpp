@@ -1668,6 +1668,20 @@ class spell_dk_disease : public AuraScript
             });
     }
 
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32 &amount, bool & /*canBeRecalculated*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        printf("amount = %i \n", amount);
+        // Formular: ${$m1*1.15+$AP*0.055*1.15}
+        AddPct(amount, 15);
+        printf("new amount = %i \n", amount);
+        amount += ((caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f) * 1.15f);
+        printf("final amount = %i \n", amount);
+    }
+
     void HandleResilientInfection(DispelInfo* /*dispelInfo*/)
     {
         Unit* caster = GetCaster();
@@ -1687,6 +1701,7 @@ class spell_dk_disease : public AuraScript
 
     void Register() override
     {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_disease::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
         AfterDispel += AuraDispelFn(spell_dk_disease::HandleResilientInfection);
     }
 };
