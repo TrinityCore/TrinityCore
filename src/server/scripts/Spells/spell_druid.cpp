@@ -1030,66 +1030,50 @@ public:
 };
 
 // 52610 - Savage Roar
-class spell_dru_savage_roar : public SpellScriptLoader
+class spell_dru_savage_roar : public SpellScript
 {
-public:
-    spell_dru_savage_roar() : SpellScriptLoader("spell_dru_savage_roar") { }
+    PrepareSpellScript(spell_dru_savage_roar);
 
-    class spell_dru_savage_roar_SpellScript : public SpellScript
+    SpellCastResult CheckCast()
     {
-        PrepareSpellScript(spell_dru_savage_roar_SpellScript);
+        Unit* caster = GetCaster();
+        if (caster->GetShapeshiftForm() != FORM_CAT_FORM)
+            return SPELL_FAILED_ONLY_SHAPESHIFT;
 
-        SpellCastResult CheckCast()
-        {
-            Unit* caster = GetCaster();
-            if (caster->GetShapeshiftForm() != FORM_CAT_FORM)
-                return SPELL_FAILED_ONLY_SHAPESHIFT;
-
-            return SPELL_CAST_OK;
-        }
-
-        void Register() override
-        {
-            OnCheckCast += SpellCheckCastFn(spell_dru_savage_roar_SpellScript::CheckCast);
-        }
-    };
-
-    class spell_dru_savage_roar_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_savage_roar_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_DRUID_SAVAGE_ROAR });
-        }
-
-        void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, CastSpellExtraArgs(aurEff)
-                .SetOriginalCaster(GetCasterGUID()));
-        }
-
-        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR);
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_dru_savage_roar_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_dru_savage_roar_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dru_savage_roar_SpellScript();
+        return SPELL_CAST_OK;
     }
 
-    AuraScript* GetAuraScript() const override
+    void Register() override
     {
-        return new spell_dru_savage_roar_AuraScript();
+        OnCheckCast += SpellCheckCastFn(spell_dru_savage_roar::CheckCast);
+    }
+};
+
+class spell_dru_savage_roar_aura : public AuraScript
+{
+    PrepareAuraScript(spell_dru_savage_roar_aura);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_SAVAGE_ROAR });
+    }
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, CastSpellExtraArgs(aurEff)
+            .SetOriginalCaster(GetCasterGUID()));
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_savage_roar_aura::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_savage_roar_aura::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1251,43 +1235,32 @@ public:
 };
 
 // 61336 - Survival Instincts
-class spell_dru_survival_instincts : public SpellScriptLoader
+class spell_dru_survival_instincts : public AuraScript
 {
-public:
-    spell_dru_survival_instincts() : SpellScriptLoader("spell_dru_survival_instincts") { }
+    PrepareAuraScript(spell_dru_survival_instincts);
 
-    class spell_dru_survival_instincts_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spell*/) override
     {
-        PrepareAuraScript(spell_dru_survival_instincts_AuraScript);
+        return ValidateSpellInfo({ SPELL_DRUID_SURVIVAL_INSTINCTS });
+    }
 
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            return ValidateSpellInfo({ SPELL_DRUID_SURVIVAL_INSTINCTS });
-        }
-
-        void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            CastSpellExtraArgs args(aurEff);
-            args.AddSpellMod(SPELLVALUE_BASE_POINT0, target->CountPctFromMaxHealth(aurEff->GetAmount()));
-            target->CastSpell(target, SPELL_DRUID_SURVIVAL_INSTINCTS, args);
-        }
-
-        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_SURVIVAL_INSTINCTS);
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_dru_survival_instincts_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_dru_survival_instincts_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        return new spell_dru_survival_instincts_AuraScript();
+        Unit* target = GetTarget();
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, target->CountPctFromMaxHealth(aurEff->GetAmount()));
+        target->CastSpell(target, SPELL_DRUID_SURVIVAL_INSTINCTS, args);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_SURVIVAL_INSTINCTS);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_survival_instincts::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_survival_instincts::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
     }
 };
 
@@ -1852,93 +1825,77 @@ class spell_dru_tiger_dash_aura : public AuraScript
 };
 
 // 48438 - Wild Growth
-class spell_dru_wild_growth : public SpellScriptLoader
+class spell_dru_wild_growth : public SpellScript
 {
-public:
-    spell_dru_wild_growth() : SpellScriptLoader("spell_dru_wild_growth") { }
+    PrepareSpellScript(spell_dru_wild_growth);
 
-    class spell_dru_wild_growth_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        PrepareSpellScript(spell_dru_wild_growth_SpellScript);
-
-        bool Validate(SpellInfo const* spellInfo) override
-        {
-            if (spellInfo->GetEffects().size() <= EFFECT_2 || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
-                return false;
-            return true;
-        }
-
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            targets.remove_if(RaidCheck(GetCaster()));
-
-            uint32 const maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
-
-            if (targets.size() > maxTargets)
-            {
-                targets.sort(Trinity::HealthPctOrderPred());
-                targets.resize(maxTargets);
-            }
-
-            _targets = targets;
-        }
-
-        void SetTargets(std::list<WorldObject*>& targets)
-        {
-            targets = _targets;
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::SetTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
-        }
-
-        std::list<WorldObject*> _targets;
-    };
-
-    class spell_dru_wild_growth_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_wild_growth_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_DRUID_RESTORATION_T10_2P_BONUS });
-        }
-
-        void HandleTickUpdate(AuraEffect* aurEff)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            // calculate from base damage, not from aurEff->GetAmount() (already modified)
-            float damage = caster->CalculateSpellDamage(GetUnitOwner(), aurEff->GetSpellEffectInfo());
-
-            // Wild Growth = first tick gains a 6% bonus, reduced by 2% each tick
-            float reduction = 2.f;
-            if (AuraEffect* bonus = caster->GetAuraEffect(SPELL_DRUID_RESTORATION_T10_2P_BONUS, EFFECT_0))
-                reduction -= CalculatePct(reduction, bonus->GetAmount());
-            reduction *= (aurEff->GetTickNumber() - 1);
-
-            AddPct(damage, 6.f - reduction);
-            aurEff->SetAmount(int32(damage));
-        }
-
-        void Register() override
-        {
-            OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dru_wild_growth_AuraScript::HandleTickUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dru_wild_growth_SpellScript();
+        if (spellInfo->GetEffects().size() <= EFFECT_2 || spellInfo->GetEffect(EFFECT_2).IsEffect() || spellInfo->GetEffect(EFFECT_2).CalcValue() <= 0)
+            return false;
+        return true;
     }
 
-    AuraScript* GetAuraScript() const override
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        return new spell_dru_wild_growth_AuraScript();
+        targets.remove_if(RaidCheck(GetCaster()));
+
+        uint32 const maxTargets = uint32(GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+
+        if (targets.size() > maxTargets)
+        {
+            targets.sort(Trinity::HealthPctOrderPred());
+            targets.resize(maxTargets);
+        }
+
+        _targets = targets;
+    }
+
+    void SetTargets(std::list<WorldObject*>& targets)
+    {
+        targets = _targets;
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth::SetTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+
+    std::list<WorldObject*> _targets;
+};
+
+class spell_dru_wild_growth_aura : public AuraScript
+{
+    PrepareAuraScript(spell_dru_wild_growth_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_RESTORATION_T10_2P_BONUS });
+    }
+
+    void HandleTickUpdate(AuraEffect* aurEff)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        // calculate from base damage, not from aurEff->GetAmount() (already modified)
+        float damage = caster->CalculateSpellDamage(GetUnitOwner(), aurEff->GetSpellEffectInfo());
+
+        // Wild Growth = first tick gains a 6% bonus, reduced by 2% each tick
+        float reduction = 2.f;
+        if (AuraEffect* bonus = caster->GetAuraEffect(SPELL_DRUID_RESTORATION_T10_2P_BONUS, EFFECT_0))
+            reduction -= CalculatePct(reduction, bonus->GetAmount());
+        reduction *= (aurEff->GetTickNumber() - 1);
+
+        AddPct(damage, 6.f - reduction);
+        aurEff->SetAmount(int32(damage));
+    }
+
+    void Register() override
+    {
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dru_wild_growth_aura::HandleTickUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -1971,13 +1928,13 @@ void AddSC_druid_spell_scripts()
     new spell_dru_predatory_strikes();
     RegisterSpellScript(spell_dru_prowl);
     new spell_dru_rip();
-    new spell_dru_savage_roar();
+    RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
     RegisterSpellScript(spell_dru_skull_bash);
     new spell_dru_stampede();
     RegisterSpellScript(spell_dru_stampeding_roar);
     new spell_dru_starfall_dummy();
     new spell_dru_sunfire();
-    new spell_dru_survival_instincts();
+    RegisterAuraScript(spell_dru_survival_instincts);
     new spell_dru_swift_flight_passive();
     new spell_dru_t3_6p_bonus();
     new spell_dru_t3_8p_bonus();
@@ -1990,5 +1947,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_travel_form();
     new spell_dru_travel_form_dummy();
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
-    new spell_dru_wild_growth();
+    RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
 }
