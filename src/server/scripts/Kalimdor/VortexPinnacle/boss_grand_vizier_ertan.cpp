@@ -70,7 +70,7 @@ enum Points
 
 #define MAX_VORTEX_POINTS 8
 
-const Position ErtansVortexPoints[MAX_VORTEX_POINTS] =
+Position const ErtansVortexPoints[MAX_VORTEX_POINTS] =
 {
     { -744.889f,  3.98611f, 635.6728f }, // South
     { -737.552f,  21.592f,  635.6728f }, // South-West
@@ -79,10 +79,10 @@ const Position ErtansVortexPoints[MAX_VORTEX_POINTS] =
     { -694.911f,  4.16493f, 635.6728f }, // North
     { -702.212f, -13.6806f, 635.6728f }, // North-East
     { -719.934f, -20.9497f, 635.6728f }, // East
-    { -737.649f, -13.5347f, 635.6728f }, // South-East
+    { -737.649f, -13.5347f, 635.6728f } // South-East
 };
 
-const Position ErtansVortexMiddlePoints[MAX_VORTEX_POINTS] =
+Position const ErtansVortexMiddlePoints[MAX_VORTEX_POINTS] =
 {
     { -724.3819f,  2.915083f,   635.6728f }, // South
     { -724.0161f,  6.648534f,   635.6728f }, // South-West
@@ -91,7 +91,7 @@ const Position ErtansVortexMiddlePoints[MAX_VORTEX_POINTS] =
     { -714.6548f,  5.146466f,   635.6728f }, // North
     { -715.2417f,  1.857746f,   635.6728f }, // North-East
     { -718.2345f, -0.4830246f,  635.6728f }, // East
-    { -721.9816f, -0.05864143f, 635.6728f }, // South-East
+    { -721.9816f, -0.05864143f, 635.6728f } // South-East
 };
 
 struct boss_grand_vizier_ertan : public BossAI
@@ -106,7 +106,7 @@ struct boss_grand_vizier_ertan : public BossAI
         Talk(SAY_AGGRO);
 
         for (uint8 i = 0; i < MAX_VORTEX_POINTS; i++)
-            if (Creature * ertansVortex = me->SummonCreature(NPC_ERTANS_VORTEX, ErtansVortexPoints[i]))
+            if (Creature * ertansVortex = DoSummon(NPC_ERTANS_VORTEX, ErtansVortexPoints[i], 0, TEMPSUMMON_MANUAL_DESPAWN))
                 ertansVortex->GetMotionMaster()->MovePoint(POINT_ROTATE + i, ErtansVortexPoints[i + 1  < MAX_VORTEX_POINTS ? i + 1 : 0]);
 
         events.ScheduleEvent(EVENT_STORMS_EDGE, 24s);
