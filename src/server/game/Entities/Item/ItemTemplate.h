@@ -243,31 +243,53 @@ enum ItemFlags2 : uint32
 
 enum ItemFlags3
 {
-    ITEM_FLAG3_DONT_DESTROY_ON_QUEST_ACCEPT                 = 0x00000001,
-    ITEM_FLAG3_ITEM_CAN_BE_UPGRADED                         = 0x00000002,
-    ITEM_FLAG3_UPGRADE_FROM_ITEM_OVERRIDES_DROP_UPGRADE     = 0x00000004,
-    ITEM_FLAG3_ALWAYS_FFA_IN_LOOT                           = 0x00000008,
-    ITEM_FLAG3_HIDE_UPGRADE_LEVELS_IF_NOT_UPGRADED          = 0x00000010,
-    ITEM_FLAG3_UPDATE_INTERACTIONS                          = 0x00000020,
-    ITEM_FLAG3_UPDATE_DOESNT_LEAVE_PROGRESSIVE_WIN_HISTORY  = 0x00000040,
-    ITEM_FLAG3_IGNORE_ITEM_HISTORY_TRACKER                  = 0x00000080,
-    ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP                 = 0x00000100,
-    ITEM_FLAG3_DISPLAY_AS_HEIRLOOM                          = 0x00000200, // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
-    ITEM_FLAG3_SKIP_USE_CHECK_ON_PICKUP                     = 0x00000400,
-    ITEM_FLAG3_OBSOLETE                                     = 0x00000800,
-    ITEM_FLAG3_DONT_DISPLAY_IN_GUILD_NEWS                   = 0x00001000, // Item is not included in the guild news panel
-    ITEM_FLAG3_PVP_TOURNAMENT_GEAR                          = 0x00002000,
-    ITEM_FLAG3_REQUIRES_STACK_CHANGE_LOG                    = 0x00004000,
-    ITEM_FLAG3_UNUSED_FLAG                                  = 0x00008000,
-    ITEM_FLAG3_HIDE_NAME_SUFFIX                             = 0x00010000,
-    ITEM_FLAG3_PUSH_LOOT                                    = 0x00020000,
-    ITEM_FLAG3_DONT_REPORT_LOOT_LOG_TO_PARTY                = 0x00040000,
-    ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD                      = 0x00080000,
-    ITEM_FLAG3_OBLITERATABLE                                = 0x00100000,
-    ITEM_FLAG3_ACTS_AS_TRANSMOG_HIDDEN_VISUAL_OPTION        = 0x00200000,
-    ITEM_FLAG3_EXPIRE_ON_WEEKLY_RESET                       = 0x00400000,
-    ITEM_FLAG3_DOESNT_SHOW_UP_IN_TRANSMOG_UNTIL_COLLECTED   = 0x00800000,
-    ITEM_FLAG3_CAN_STORE_ENCHANTS                           = 0x01000000
+    ITEM_FLAG3_DONT_DESTROY_ON_QUEST_ACCEPT                         = 0x00000001,
+    ITEM_FLAG3_ITEM_CAN_BE_UPGRADED                                 = 0x00000002,
+    ITEM_FLAG3_UPGRADE_FROM_ITEM_OVERRIDES_DROP_UPGRADE             = 0x00000004,
+    ITEM_FLAG3_ALWAYS_FFA_IN_LOOT                                   = 0x00000008,
+    ITEM_FLAG3_HIDE_UPGRADE_LEVELS_IF_NOT_UPGRADED                  = 0x00000010,
+    ITEM_FLAG3_UPDATE_INTERACTIONS                                  = 0x00000020,
+    ITEM_FLAG3_UPDATE_DOESNT_LEAVE_PROGRESSIVE_WIN_HISTORY          = 0x00000040,
+    ITEM_FLAG3_IGNORE_ITEM_HISTORY_TRACKER                          = 0x00000080,
+    ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP                         = 0x00000100,
+    ITEM_FLAG3_DISPLAY_AS_HEIRLOOM                                  = 0x00000200, // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
+    ITEM_FLAG3_SKIP_USE_CHECK_ON_PICKUP                             = 0x00000400,
+    ITEM_FLAG3_OBSOLETE                                             = 0x00000800,
+    ITEM_FLAG3_DONT_DISPLAY_IN_GUILD_NEWS                           = 0x00001000, // Item is not included in the guild news panel
+    ITEM_FLAG3_PVP_TOURNAMENT_GEAR                                  = 0x00002000,
+    ITEM_FLAG3_REQUIRES_STACK_CHANGE_LOG                            = 0x00004000,
+    ITEM_FLAG3_UNUSED_FLAG                                          = 0x00008000,
+    ITEM_FLAG3_HIDE_NAME_SUFFIX                                     = 0x00010000,
+    ITEM_FLAG3_PUSH_LOOT                                            = 0x00020000,
+    ITEM_FLAG3_DONT_REPORT_LOOT_LOG_TO_PARTY                        = 0x00040000,
+    ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD                              = 0x00080000,
+    ITEM_FLAG3_OBLITERATABLE                                        = 0x00100000,
+    ITEM_FLAG3_ACTS_AS_TRANSMOG_HIDDEN_VISUAL_OPTION                = 0x00200000,
+    ITEM_FLAG3_EXPIRE_ON_WEEKLY_RESET                               = 0x00400000,
+    ITEM_FLAG3_DOESNT_SHOW_UP_IN_TRANSMOG_UNTIL_COLLECTED           = 0x00800000,
+    ITEM_FLAG3_CAN_STORE_ENCHANTS                                   = 0x01000000,
+    ITEM_FLAG3_HIDE_QUEST_ITEM_FROM_OBJECT_TOOLTIP                  = 0x02000000,
+    ITEM_FLAG3_DO_NOT_TOAST                                         = 0x04000000,
+    ITEM_FLAG3_IGNORE_CREATION_CONTEXT_FOR_PROGRESSIVE_WIN_HISTORY  = 0x08000000,
+    ITEM_FLAG3_FORCE_ALL_SPECS_FOR_ITEM_HISTORY                     = 0x10000000,
+    ITEM_FLAG3_SAVE_ON_CONSUME                                      = 0x20000000,
+    ITEM_FLAG3_CONTAINER_SAVES_PLAYER_DATA                          = 0x40000000,
+    ITEM_FLAG3_NO_VOID_STORAGE                                      = 0x80000000
+};
+
+enum ItemFlags4
+{
+    ITEM_FLAG4_HANDLE_ON_USE_EFFECT_IMMEDIATELY                 = 0x00000001,
+    ITEM_FLAG4_ALWAYS_SHOW_ITEM_LEVEL_IN_TOOLTIP                = 0x00000002,
+    ITEM_FLAG4_SHOWS_GENERATION_WITH_RANDOM_STATS               = 0x00000004,
+    ITEM_FLAG4_ACTIVATE_ON_EQUIP_EFFECTS_WHEN_TRANSMOGRIFIED    = 0x00000008,
+    ITEM_FLAG4_ENFORCE_TRANSMOG_WITH_CHILD_ITEM                 = 0x00000010,
+    ITEM_FLAG4_SCRAPABLE                                        = 0x00000020,
+    ITEM_FLAG4_BYPASS_REP_REQUIREMENTS_FOR_TRANSMOG             = 0x00000040,
+    ITEM_FLAG4_DISPLAY_ONLY_ON_DEFINED_RACES                    = 0x00000080,
+    ITEM_FLAG4_REGULATED_COMMODITY                              = 0x00000100,
+    ITEM_FLAG4_CREATE_LOOT_IMMEDIATELY                          = 0x00000200,
+    ITEM_FLAG4_GENERATE_LOOT_SPEC_ITEM                          = 0x00000400
 };
 
 enum ItemFlagsCustom
