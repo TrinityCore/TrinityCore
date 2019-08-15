@@ -89,7 +89,7 @@ ChannelMgr::~ChannelMgr()
         channel->SetAnnounce(dbAnnounce);
         channel->SetOwnership(dbOwnership);
         channel->SetPassword(dbPass);
-        ASSERT_NOTNULL(forTeam(team))->_customChannels.emplace(channelName, channel);
+        mgr->_customChannels.emplace(channelName, channel);
 
         ++count;
     } while (result->NextRow());
@@ -247,25 +247,6 @@ Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Playe
     }
 
     return ret;
-}
-
-void ChannelMgr::LeftChannel(std::string const& name)
-{
-    std::wstring channelName;
-    if (!Utf8toWStr(name, channelName))
-        return;
-
-    wstrToLower(channelName);
-    auto itr = _customChannels.find(channelName);
-    if (itr == _customChannels.end())
-        return;
-
-    Channel* channel = itr->second;
-    if (!channel->GetNumPlayers())
-    {
-        _customChannels.erase(itr);
-        delete channel;
-    }
 }
 
 void ChannelMgr::LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry)
