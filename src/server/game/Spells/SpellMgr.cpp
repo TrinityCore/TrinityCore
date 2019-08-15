@@ -4309,6 +4309,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // Combat Range
     });
 
+    // Arcane Barrage
+    ApplySpellFix({
+        87854,
+        92756,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // ENDOF THE VORTEX PINNACLE SPELLS
 
     //

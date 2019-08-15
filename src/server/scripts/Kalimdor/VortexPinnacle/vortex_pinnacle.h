@@ -69,6 +69,8 @@ enum VPCreatureIds
     NPC_SLIPSTREAM_LANDING_ZONE = 45504,
     NPC_HOWLING_GALE            = 45572,
     NPC_ZEPHYR                  = 45991,
+    NPC_SKYFALL                 = 45981,
+    NPC_SKYFALL_STAR            = 52019,
 
     // Grounding Field
     NPC_GROUNDING_FIELD         = 47085

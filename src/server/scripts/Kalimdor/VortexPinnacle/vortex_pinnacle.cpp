@@ -38,49 +38,38 @@ enum Texts
 enum Spells
 {
     // Lurking Tempest
-    SPELL_LIGHTNING_BOLT                            = 89105,
-    SPELL_LURK                                      = 85467, // dummy aura while not playing dead
-    SPELL_LURK_SEARCH                               = 85294, // periodically triggers either SPELL_LURK_CHECK or SPELL_FEIGN_DEATH_CHECK
-    SPELL_LURK_CHECK                                = 85291,
-    SPELL_FEIGN_DEATH                               = 85267,
-    SPELL_FEIGN_DEATH_CHECK                         = 86493,
-    SPELL_LURK_RESSURECT                            = 85281, // 1250 ms duration, on remove SPELL_LURK (85467) is cast
-    SPELL_LURK_FIND_VICTIM                          = 86456,
+    SPELL_LIGHTNING_BOLT = 89105,
+    SPELL_LURK = 85467, // dummy aura while not playing dead
+    SPELL_LURK_SEARCH = 85294, // periodically triggers either SPELL_LURK_CHECK or SPELL_FEIGN_DEATH_CHECK
+    SPELL_LURK_CHECK = 85291,
+    SPELL_FEIGN_DEATH = 85267,
+    SPELL_FEIGN_DEATH_CHECK = 86493,
+    SPELL_LURK_RESSURECT = 85281, // 1250 ms duration, on remove SPELL_LURK (85467) is cast
+    SPELL_LURK_FIND_VICTIM = 86456,
 
     // Young Storm Dragon
-    SPELL_HEALING_WELL                              = 88201,
-    SPELL_CHILLING_BLAST                            = 88194,
+    SPELL_HEALING_WELL = 88201,
+    SPELL_CHILLING_BLAST = 88194,
 
     // Howling Gale
-    SPELL_HOWLING_GALE_VISUAL_STRONG                = 85086,
-    SPELL_HOWLING_GALE_KNOCKBACK_STRONG             = 85159,
-    SPELL_HOWLING_GALE_VISUAL_WEAK                  = 85137,
-    SPELL_HOWLING_GALE_KNOCKBACK_WEAK               = 85085,
-
-    // No one sniffed using Slipstreams at entrance, I guess they take you to Slipstream Landing Zone directly, but need spell IDs.
-    // Possible spell IDs named 'Slipstream': 87742 Jet Stream??, 89498, 89500, 95911
-    //  SPELL_SLIPSTREAM_LEFT = 0,
-    //  SPELL_SLIPSTREAM_RIGHT = 0,
+    SPELL_HOWLING_GALE_VISUAL_STRONG = 85086,
+    SPELL_HOWLING_GALE_KNOCKBACK_STRONG = 85159,
+    SPELL_HOWLING_GALE_VISUAL_WEAK = 85137,
+    SPELL_HOWLING_GALE_KNOCKBACK_WEAK = 85085,
 
     // Slipstream Landing Zone
-    SPELL_GENERIC_EJECT_ALL_PASSENGERS              = 79737, // Generic Eject All Passengers - Always Allow
+    SPELL_GENERIC_EJECT_ALL_PASSENGERS = 79737, // Generic Eject All Passengers - Always Allow
 
     // Grounding Field
-    SPELL_PRISM_BEAMS                               = 87724,
-    SPELL_GROUNDING_FIELD                           = 87725,
+    SPELL_PRISM_BEAMS = 87724,
+    SPELL_GROUNDING_FIELD = 87725,
 
     // Skyfall npc
-    SPELL_SKYFALL_VISUAL                            = 85719,
-    SPELL_SKYFALL                                   = 87850,
+    SPELL_SKYFALL_VISUAL = 85719,
+    SPELL_SKYFALL = 87850,
 
     // Skyfall Star npc
-    SPELL_ARCANE_BARRAGE                            = 87845,
-};
-
-enum NPCs
-{
-    NPC_SKYFALL                                     = 45981,
-    NPC_SKYFALL_STAR                                = 52019,
+    SPELL_ARCANE_BARRAGE = 87845
 };
 
 enum Events
@@ -106,8 +95,7 @@ enum Events
 enum Points
 {
     POINT_NONE,
-
-    POINT_RANDOM,
+    POINT_RANDOM
 };
 
 // TO-DO:
@@ -115,73 +103,56 @@ enum Points
 //       SummonGroundingFieldPrism() void (instance_vortex_pinnacle.cpp), same like Slipstream which acts just fine.
 
 // 45704 - Lurking Tempest
-class npc_lurking_tempest : public CreatureScript
+struct npc_lurking_tempest : public ScriptedAI
 {
-public:
-    npc_lurking_tempest() : CreatureScript("npc_lurking_tempest") { }
+    npc_lurking_tempest(Creature* creature) : ScriptedAI(creature), _summonedByErtan(false) { }
 
-    struct npc_lurking_tempestAI : public ScriptedAI
+    void Reset() override
     {
-        npc_lurking_tempestAI(Creature* creature) : ScriptedAI(creature)
-        {
-            ertan = false;
-            SetCombatMovement(false);
-        }
-
-        void Reset() override
-        {
-            // Should have, but gets stuck in evade mode...
-            //me->AddUnitState(UNIT_STATE_ROOT);
-            DoCast(me, SPELL_LURK);
-        }
-
-        void IsSummonedBy(Unit* summoner) override
-        {
-            if (Creature* creature = summoner->ToCreature())
-                ertan = (creature->GetEntry() == BOSS_GRAND_VIZIER_ERTAN);
-        }
-
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (!me->IsInCombat() && me->IsWithinDist(who, ertan ? 100.0f : 45.0f) && me->IsValidAttackTarget(who))
-                AttackStart(who);
-        }
-
-        void JustEngagedWith(Unit* /*target*/) override
-        {
-            DoCast(me, SPELL_LURK_SEARCH);
-        }
-
-        void SpellHit(Unit* /*unit*/, SpellInfo const* spellInfo) override
-        {
-            if (spellInfo->Id == SPELL_FEIGN_DEATH)
-                Talk(SAY_FEIGN_DEATH);
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            if (!me->HasAura(SPELL_LURK) || !UpdateVictim())
-                return;
-
-            // Just stop combat when target is far away.
-            if (!ertan && !me->IsWithinDistInMap(me->GetVictim(), 45.0f))
-            {
-                me->DeleteThreatList();
-                me->CombatStop(true);
-                return;
-            }
-
-            DoSpellAttackIfReady(SPELL_LIGHTNING_BOLT);
-        }
-
-    private:
-        bool ertan; // Is it summoned by Grand Vizier Ertan?
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetVortexPinnacleAI<npc_lurking_tempestAI>(creature);
+        SetCombatMovement(false);
+        DoCast(me, SPELL_LURK);
     }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        _summonedByErtan = true;
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!me->IsInCombat() && me->IsWithinDist(who, _summonedByErtan ? 100.0f : 45.0f) && me->IsValidAttackTarget(who))
+            AttackStart(who);
+    }
+
+    void JustEngagedWith(Unit* /*target*/) override
+    {
+        DoCast(me, SPELL_LURK_SEARCH);
+    }
+
+    void SpellHit(Unit* /*unit*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_FEIGN_DEATH)
+            Talk(SAY_FEIGN_DEATH);
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!me->HasAura(SPELL_LURK) || !UpdateVictim())
+            return;
+
+        // Just stop combat when target is far away.
+        if (!_summonedByErtan && !me->IsWithinDistInMap(me->GetVictim(), 45.0f))
+        {
+            me->DeleteThreatList();
+            me->CombatStop(true);
+            return;
+        }
+
+        DoSpellAttackIfReady(SPELL_LIGHTNING_BOLT);
+    }
+
+private:
+    bool _summonedByErtan; // Is it summoned by Grand Vizier Ertan?
 };
 
 struct npc_vp_howling_gale : public NullCreatureAI
@@ -198,20 +169,20 @@ struct npc_vp_howling_gale : public NullCreatureAI
 enum Slipstreams
 {
     // Spells
-    SPELL_SLIPSTREAM_ENTER                          = 84965,
-    SPELL_SLIPSTREAM_FIRST                          = 84980,
-    SPELL_SLIPSTREAM_SECOND                         = 84988,
-    SPELL_SLIPSTREAM_THIRD                          = 85394,
-    SPELL_SLIPSTREAM_FOURTH                         = 85397,
-    SPELL_SLIPSTREAM_LAST                           = 85016,
-    SPELL_SLIPSTREAM_ASAAD                          = 95911,
-    SPELL_SLIPSTREAM_SHORTCUT_ALTAIRUS              = 89498,
-    SPELL_SLIPSTREAM_SHORTCUT_ASAAD                 = 89500,
-    SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST          = 84978,
-    SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND         = 84989,
-    SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD          = 85395,
-    SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH         = 85396,
-    SPELL_SLIPSTREAM_CONTROL_VEHICLE_LAST           = 85017
+    SPELL_SLIPSTREAM_ENTER = 84965,
+    SPELL_SLIPSTREAM_FIRST = 84980,
+    SPELL_SLIPSTREAM_SECOND = 84988,
+    SPELL_SLIPSTREAM_THIRD = 85394,
+    SPELL_SLIPSTREAM_FOURTH = 85397,
+    SPELL_SLIPSTREAM_LAST = 85016,
+    SPELL_SLIPSTREAM_ASAAD = 95911,
+    SPELL_SLIPSTREAM_SHORTCUT_ALTAIRUS = 89498,
+    SPELL_SLIPSTREAM_SHORTCUT_ASAAD = 89500,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST = 84978,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND = 84989,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD = 85395,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH = 85396,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_LAST = 85017
 };
 
 // 45455 - Slipstream
@@ -254,23 +225,23 @@ struct npc_slipstream : public NullCreatureAI
         {
             switch (effect->GetSpellInfo()->Id)
             {
-                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST:
-                    DoCast(who, SPELL_SLIPSTREAM_SECOND);
-                    break;
-                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND:
-                    if (_instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_3) == _guid)
-                        DoCast(who, SPELL_SLIPSTREAM_LAST);
-                    else
-                        DoCast(who, SPELL_SLIPSTREAM_THIRD);
-                    break;
-                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD:
-                    DoCast(who, SPELL_SLIPSTREAM_FOURTH);
-                    break;
-                case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH:
+            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST:
+                DoCast(who, SPELL_SLIPSTREAM_SECOND);
+                break;
+            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND:
+                if (_instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_3) == _guid)
                     DoCast(who, SPELL_SLIPSTREAM_LAST);
-                    break;
-                default:
-                    break;
+                else
+                    DoCast(who, SPELL_SLIPSTREAM_THIRD);
+                break;
+            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD:
+                DoCast(who, SPELL_SLIPSTREAM_FOURTH);
+                break;
+            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH:
+                DoCast(who, SPELL_SLIPSTREAM_LAST);
+                break;
+            default:
+                break;
             }
         }
     }
@@ -302,11 +273,11 @@ struct npc_slipstream_landing_zone : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_EJECT_ALL_PASSENGERS:
-                    DoCast(me, SPELL_GENERIC_EJECT_ALL_PASSENGERS);
-                    break;
-                default:
-                    break;
+            case EVENT_EJECT_ALL_PASSENGERS:
+                DoCast(me, SPELL_GENERIC_EJECT_ALL_PASSENGERS);
+                break;
+            default:
+                break;
             }
         }
     }
@@ -357,29 +328,29 @@ struct npc_vp_young_storm_dragon : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_TAKEOFF:
-                {
-                    me->SendMovementSetSplineAnim(Movement::AnimType::ToFly);
-                    me->SetHover(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
-                    _events.ScheduleEvent(EVENT_ATTACK, 3s);
-                    break;
-                }
-                case EVENT_ATTACK:
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    _events.RescheduleEvent(EVENT_CHILLING_BLAST, 14s);
-                    _events.RescheduleEvent(EVENT_HEALING_WELL, 15s);
-                    break;
-                case EVENT_CHILLING_BLAST:
-                    DoCastVictim(SPELL_CHILLING_BLAST);
-                    _events.Repeat(14s);
-                    break;
-                case EVENT_HEALING_WELL:
-                    DoCast(me, SPELL_HEALING_WELL);
-                    _events.Repeat(15s);
-                    break;
-                default:
-                    break;
+            case EVENT_TAKEOFF:
+            {
+                me->SendMovementSetSplineAnim(Movement::AnimType::ToFly);
+                me->SetHover(true);
+                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_HOVER);
+                _events.ScheduleEvent(EVENT_ATTACK, 3s);
+                break;
+            }
+            case EVENT_ATTACK:
+                me->SetReactState(REACT_AGGRESSIVE);
+                _events.RescheduleEvent(EVENT_CHILLING_BLAST, 14s);
+                _events.RescheduleEvent(EVENT_HEALING_WELL, 15s);
+                break;
+            case EVENT_CHILLING_BLAST:
+                DoCastVictim(SPELL_CHILLING_BLAST);
+                _events.Repeat(14s);
+                break;
+            case EVENT_HEALING_WELL:
+                DoCast(me, SPELL_HEALING_WELL);
+                _events.Repeat(15s);
+                break;
+            default:
+                break;
             }
         }
 
@@ -391,185 +362,132 @@ private:
 };
 
 // 47085 - Grounding Field
-class npc_grounding_field : public CreatureScript
+struct npc_grounding_field : public ScriptedAI
 {
-public:
-    npc_grounding_field() : CreatureScript("npc_grounding_field") { }
+    npc_grounding_field(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_grounding_fieldAI : public ScriptedAI
+    void DoAction(int32 action) override
     {
-        npc_grounding_fieldAI(Creature* creature) : ScriptedAI(creature)
+        if (action != ACTION_GROUNDING_FIELD_TOP)
+            return;
+
+        DoCast(me, SPELL_GROUNDING_FIELD);
+        _events.ScheduleEvent(EVENT_CAST_PRISM_BEAMS, 5s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            me->SetDisableGravity(true);
-        }
-
-        void DoAction(int32 action) override
-        {
-            if (action != ACTION_GROUNDING_FIELD_TOP)
-                return;
-
-            DoCast(me, SPELL_GROUNDING_FIELD);
-            events.ScheduleEvent(EVENT_CAST_PRISM_BEAMS, 5000);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (events.Empty())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
-                {
-                    case EVENT_CAST_PRISM_BEAMS:
-                        me->CastStop();
-                        DoCast(me, SPELL_PRISM_BEAMS);
-                        events.ScheduleEvent(EVENT_CAST_PRISM_BEAMS, 5000);
-                        break;
-                    default:
-                        break;
-                }
+                case EVENT_CAST_PRISM_BEAMS:
+                    me->CastStop();
+                    DoCast(me, SPELL_PRISM_BEAMS);
+                    _events.Repeat(5s);
+                    break;
+                default:
+                    break;
             }
         }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetVortexPinnacleAI<npc_grounding_fieldAI>(creature);
     }
+private:
+    EventMap _events;
 };
 
 // 45981 - Skyfall
-// TO-DO: Script despawn.
-class npc_skyfall : public CreatureScript
+struct npc_skyfall : public ScriptedAI
 {
-public:
-    npc_skyfall() : CreatureScript("npc_skyfall") { }
+    npc_skyfall(Creature* creature) : ScriptedAI(creature), _deadStarsCounter(0) { }
 
-    struct npc_skyfallAI : public ScriptedAI
+    void Reset() override
     {
-        npc_skyfallAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            _deadStarsCounter = 0;
-            me->SetDisableGravity(true);
-        }
-
-        void Reset() override
-        {
-            me->AddUnitState(UNIT_STATE_ROOT);
-            me->SetReactState(REACT_AGGRESSIVE);
-            DoCast(me, SPELL_SKYFALL_VISUAL);
-        }
-
-        void JustEngagedWith(Unit* /*target*/) override
-        {
-            me->SetReactState(REACT_PASSIVE);
-            DoCast(me, SPELL_SKYFALL);
-        }
-
-        void DoAction(int32 action) override
-        {
-            if (action == ACTION_SKYFALL_STAR_DEAD)
-            {
-                _deadStarsCounter++;
-                if (_deadStarsCounter == 8)
-                    me->DespawnOrUnsummon();
-            }
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-        }
-
-        uint8 _deadStarsCounter;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetVortexPinnacleAI<npc_skyfallAI>(creature);
+        me->SetReactState(REACT_AGGRESSIVE);
+        DoCastSelf(SPELL_SKYFALL_VISUAL);
     }
+
+    void JustEngagedWith(Unit* /*target*/) override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        DoCastSelf(SPELL_SKYFALL);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_SKYFALL_STAR_DEAD)
+        {
+            _deadStarsCounter++;
+            if (_deadStarsCounter == 8)
+                me->DespawnOrUnsummon();
+        }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+    }
+private:
+    uint8 _deadStarsCounter;
 };
 
 // 45932 - Skyfall Star
-class npc_skyfall_star : public CreatureScript
+struct npc_skyfall_star : public CreatureAI
 {
-public:
-    npc_skyfall_star() : CreatureScript("npc_skyfall_star") { }
+    npc_skyfall_star(Creature* creature) : CreatureAI(creature) {  }
 
-    struct npc_skyfall_starAI : public CreatureAI
+    void Reset() override
     {
-        npc_skyfall_starAI(Creature* creature) : CreatureAI(creature)
-        {
-            me->SetDisableGravity(true);
-        }
+        me->SetReactState(REACT_AGGRESSIVE);
+        _events.Reset();
+    }
 
-        void Reset() override
-        {
-            me->SetReactState(REACT_AGGRESSIVE);
-        }
+    void JustEngagedWith(Unit* /*target*/) override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        DoCast(me, SPELL_ARCANE_BARRAGE);
+        _events.ScheduleEvent(EVENT_FLY_RANDOM, 1ms);
+    }
 
-        void JustEngagedWith(Unit* /*target*/) override
-        {
-            me->SetReactState(REACT_PASSIVE);
-            DoCast(me, SPELL_ARCANE_BARRAGE);
-            events.ScheduleEvent(EVENT_FLY_RANDOM, 0);
-        }
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature * skyfall = me->FindNearestCreature(NPC_SKYFALL, 100.0f, true))
+            skyfall->AI()->DoAction(ACTION_SKYFALL_STAR_DEAD);
+        me->DespawnOrUnsummon();
+    }
 
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Creature* skyfall = me->FindNearestCreature(NPC_SKYFALL, 100.0f, true))
-                skyfall->AI()->DoAction(ACTION_SKYFALL_STAR_DEAD);
-            me->DespawnOrUnsummon();
-        }
-
-        void MovementInform(uint32 movementType, uint32 pointId) override
-        {
-            if (movementType == POINT_MOTION_TYPE || pointId == POINT_RANDOM)
-                events.ScheduleEvent(EVENT_FLY_RANDOM, 1000);
-        };
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim() || events.Empty())
-                return;
-
-            events.Update(diff);
-
-            uint32 eventId = events.ExecuteEvent();
-            if (!eventId || eventId != EVENT_FLY_RANDOM)
-                return;
-
-            // Fly to random near position.
-            Position pos = me->GetRandomNearPosition(10.0f);
-            pos.m_positionZ += frand(4.0f, 6.0f);
-            me->GetMotionMaster()->MovePoint(POINT_RANDOM, pos);
-        }
-
-    private:
-        EventMap events;
+    void MovementInform(uint32 movementType, uint32 pointId) override
+    {
+        if (movementType == POINT_MOTION_TYPE || pointId == POINT_RANDOM)
+            _events.ScheduleEvent(EVENT_FLY_RANDOM, 1s);
     };
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void UpdateAI(uint32 diff) override
     {
-        return GetVortexPinnacleAI<npc_skyfall_starAI>(creature);
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        uint32 eventId = _events.ExecuteEvent();
+        if (!eventId || eventId != EVENT_FLY_RANDOM)
+            return;
+
+        // Fly to random near position.
+        Position pos = me->GetRandomNearPosition(10.0f);
+        pos.m_positionZ += frand(4.0f, 6.0f);
+        me->GetMotionMaster()->MovePoint(POINT_RANDOM, pos);
     }
+
+private:
+    EventMap _events;
 };
 
 enum CatchFall
 {
-    SPELL_CATCH_FALL_SUMMON     = 89522,
-    SPELL_CATCH_FALL_TRIGGERED  = 89525,
-    SPELL_SLIPSTREAM_DUMMY      = 85063
+    SPELL_CATCH_FALL_SUMMON = 89522,
+    SPELL_CATCH_FALL_TRIGGERED = 89525,
+    SPELL_SLIPSTREAM_DUMMY = 85063
 };
 
 struct npc_vp_catch_fall : public NullCreatureAI
@@ -580,10 +498,10 @@ struct npc_vp_catch_fall : public NullCreatureAI
     {
         if (apply)
             who->m_Events.AddEventAtOffset([who]()
-            {
-                if (Creature* vehicle = who->GetVehicleCreatureBase())
-                    vehicle->CastSpell(who, SPELL_CATCH_FALL_TRIGGERED, true);
-            }, 6s);
+                {
+                    if (Creature * vehicle = who->GetVehicleCreatureBase())
+                        vehicle->CastSpell(who, SPELL_CATCH_FALL_TRIGGERED, true);
+                }, 6s);
         else
             me->DespawnOrUnsummon(400ms);
 
@@ -592,44 +510,37 @@ struct npc_vp_catch_fall : public NullCreatureAI
 };
 
 // 85294 - Lurk Search
-class spell_lurk_search : public SpellScriptLoader
+class spell_lurk_search : public AuraScript
 {
-public:
-    spell_lurk_search() : SpellScriptLoader("spell_lurk_search") { }
+    PrepareAuraScript(spell_lurk_search);
 
-    class spell_lurk_search_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_lurk_search_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_LURK_CHECK, SPELL_FEIGN_DEATH_CHECK });
-        }
-
-        void HandlePeriodic(AuraEffect const* /*aurEff*/)
-        {
-            Creature* owner = GetOwner()->ToCreature();
-            if (!owner)
-                return;
-
-            if (owner->HasAura(SPELL_LURK))
+        return ValidateSpellInfo(
             {
-                if (owner->IsInCombat())
-                    owner->CastSpell(owner, SPELL_LURK_CHECK, true);
-            }
-            else if (owner->HasAura(SPELL_FEIGN_DEATH))
-                owner->CastSpell(owner, SPELL_FEIGN_DEATH_CHECK, true);
-        }
+                SPELL_LURK_CHECK,
+                SPELL_FEIGN_DEATH_CHECK
+            });
+    }
 
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_lurk_search_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        return new spell_lurk_search_AuraScript();
+        Creature* owner = GetOwner()->ToCreature();
+        if (!owner)
+            return;
+
+        if (owner->HasAura(SPELL_LURK))
+        {
+            if (owner->IsInCombat())
+                owner->CastSpell(owner, SPELL_LURK_CHECK, true);
+        }
+        else if (owner->HasAura(SPELL_FEIGN_DEATH))
+            owner->CastSpell(owner, SPELL_FEIGN_DEATH_CHECK, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_lurk_search::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -649,166 +560,138 @@ private:
     Unit* caster;
 };
 
-class spell_lurk_search_check : public SpellScriptLoader
+class spell_lurk_search_check : public SpellScript
 {
-public:
-    spell_lurk_search_check() : SpellScriptLoader("spell_lurk_search_check") { }
+    PrepareSpellScript(spell_lurk_search_check);
 
-    class spell_lurk_search_check_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_lurk_search_check_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_FEIGN_DEATH, SPELL_LURK_RESSURECT });
-        }
-
-        void FilterTargets(std::list<WorldObject*>& unitList)
-        {
-            unitList.remove_if(PlayerOrPetOrientationCheck(GetCaster()));
-            countFacingUnits = unitList.size();
-        }
-
-        void OnLaunch(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-
-            switch (GetSpellInfo()->Id)
+        return ValidateSpellInfo(
             {
-                case SPELL_LURK_CHECK:
-                    if (countFacingUnits && !caster->HasAura(SPELL_FEIGN_DEATH))
-                        caster->CastSpell(caster, SPELL_FEIGN_DEATH, true);
-                    break;
-                case SPELL_FEIGN_DEATH_CHECK:
-                    if (!countFacingUnits)
-                        caster->CastSpell(caster, SPELL_LURK_RESSURECT, true);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lurk_search_check_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            OnEffectLaunch += SpellEffectFn(spell_lurk_search_check_SpellScript::OnLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-
-        uint32 countFacingUnits = 0;
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_lurk_search_check_SpellScript();
+                SPELL_FEIGN_DEATH,
+                SPELL_LURK_RESSURECT
+            });
     }
+
+    void FilterTargets(std::list<WorldObject*>& unitList)
+    {
+        unitList.remove_if(PlayerOrPetOrientationCheck(GetCaster()));
+        countFacingUnits = unitList.size();
+    }
+
+    void OnLaunch(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_LURK_CHECK:
+                if (countFacingUnits && !caster->HasAura(SPELL_FEIGN_DEATH))
+                    caster->CastSpell(caster, SPELL_FEIGN_DEATH, true);
+                break;
+            case SPELL_FEIGN_DEATH_CHECK:
+                if (!countFacingUnits)
+                    caster->CastSpell(caster, SPELL_LURK_RESSURECT, true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_lurk_search_check::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectLaunch += SpellEffectFn(spell_lurk_search_check::OnLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+private:
+    uint32 countFacingUnits = 0;
 };
 
 // 85267 - Feign Death
-class spell_feign_death : public SpellScriptLoader
+class spell_feign_death : public SpellScript
 {
-public:
-    spell_feign_death() : SpellScriptLoader("spell_feign_death") { }
+    PrepareSpellScript(spell_feign_death);
 
-    class spell_feign_death_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_feign_death_SpellScript);
+        return ValidateSpellInfo({ SPELL_LURK });
+    }
 
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            Creature* creature = GetHitUnit()->ToCreature();
-            if (!creature)
-                return;
-
-            creature->RemoveAurasDueToSpell(SPELL_LURK);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_feign_death_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        return new spell_feign_death_SpellScript();
+        Creature* creature = GetHitUnit()->ToCreature();
+        if (!creature)
+            return;
+
+        creature->RemoveAurasDueToSpell(SPELL_LURK);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_feign_death::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
 // 85281 - Lurk Ressurect
-class spell_lurk_ressurect : public SpellScriptLoader
+class spell_lurk_ressurect : public AuraScript
 {
-public:
-    spell_lurk_ressurect() : SpellScriptLoader("spell_lurk_ressurect") { }
+    PrepareAuraScript(spell_lurk_ressurect);
 
-    class spell_lurk_ressurect_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_lurk_ressurect_AuraScript);
+        return ValidateSpellInfo(
+            {
+                SPELL_LURK,
+                SPELL_FEIGN_DEATH,
+                SPELL_LURK_SEARCH,
+                SPELL_LURK_FIND_VICTIM
+            });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_LURK, SPELL_LURK_SEARCH });
-        }
-
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Creature* owner = GetOwner()->ToCreature();
-            if (!owner)
-                return;
-
-            owner->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
-            owner->RemoveAurasDueToSpell(SPELL_LURK_SEARCH);
-
-            owner->DeleteThreatList();
-            owner->CombatStop(true);
-
-            owner->CastSpell(owner, SPELL_LURK_FIND_VICTIM, true);
-        }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Creature* owner = GetOwner()->ToCreature())
-                owner->CastSpell(owner, SPELL_LURK, true);
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_lurk_ressurect_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_lurk_ressurect_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        return new spell_lurk_ressurect_AuraScript();
+        Creature* owner = GetOwner()->ToCreature();
+        if (!owner)
+            return;
+
+        owner->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
+        owner->RemoveAurasDueToSpell(SPELL_LURK_SEARCH);
+
+        owner->DeleteThreatList();
+        owner->CombatStop(true);
+
+        owner->CastSpell(owner, SPELL_LURK_FIND_VICTIM, true);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature * owner = GetOwner()->ToCreature())
+            owner->CastSpell(owner, SPELL_LURK, true);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_lurk_ressurect::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_lurk_ressurect::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 86456 - Lurk Search
-class spell_lurk_search_victim : public SpellScriptLoader
+class spell_lurk_search_victim : public SpellScript
 {
-public:
-    spell_lurk_search_victim() : SpellScriptLoader("spell_lurk_search_victim") { }
+    PrepareSpellScript(spell_lurk_search_victim);
 
-    class spell_lurk_search_victim_SpellScript : public SpellScript
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_lurk_search_victim_SpellScript);
+        GetCaster()->AddThreat(GetHitUnit(), 0.0f);
+        GetCaster()->SetInCombatWith(GetHitUnit());
+        GetHitUnit()->SetInCombatWith(GetCaster());
+    }
 
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            GetCaster()->AddThreat(GetHitUnit(), 0.0f);
-            GetCaster()->SetInCombatWith(GetHitUnit());
-            GetHitUnit()->SetInCombatWith(GetCaster());
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_lurk_search_victim_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void Register() override
     {
-        return new spell_lurk_search_victim_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_lurk_search_victim::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -859,30 +742,30 @@ class spell_slipstream : public SpellScript
 
         switch (GetSpellInfo()->Id)
         {
-            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST:
-                if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_1))
-                    target = instance->GetCreature(DATA_SLIPSTREAM_ERTAN_2);
-                else if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_1))
-                    target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_2);
-                break;
-            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND:
-                if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_2))
-                    target = instance->GetCreature(DATA_SLIPSTREAM_ERTAN_3);
-                else if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_2))
-                    target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_3);
-                break;
-            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD:
-                target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_4);
-                break;
-            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH:
-                target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_5);
-                break;
-            case SPELL_SLIPSTREAM_CONTROL_VEHICLE_LAST:
-                if (Creature * landingZone = slipstream->FindNearestCreature(NPC_SLIPSTREAM_LANDING_ZONE, 100.0f))
-                    target = landingZone;
-                break;
-            default:
-                break;
+        case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST:
+            if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_1))
+                target = instance->GetCreature(DATA_SLIPSTREAM_ERTAN_2);
+            else if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_1))
+                target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_2);
+            break;
+        case SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND:
+            if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ERTAN_2))
+                target = instance->GetCreature(DATA_SLIPSTREAM_ERTAN_3);
+            else if (slipstream->GetGUID() == instance->GetGuidData(DATA_SLIPSTREAM_ALTAIRUS_2))
+                target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_3);
+            break;
+        case SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD:
+            target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_4);
+            break;
+        case SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH:
+            target = instance->GetCreature(DATA_SLIPSTREAM_ALTAIRUS_5);
+            break;
+        case SPELL_SLIPSTREAM_CONTROL_VEHICLE_LAST:
+            if (Creature * landingZone = slipstream->FindNearestCreature(NPC_SLIPSTREAM_LANDING_ZONE, 100.0f))
+                target = landingZone;
+            break;
+        default:
+            break;
         }
     }
     void Register() override
@@ -892,119 +775,67 @@ class spell_slipstream : public SpellScript
 };
 
 // 87726 - Grounding Field
-class spell_grounding_field : public SpellScriptLoader
+class spell_grounding_field : public SpellScript
 {
-public:
-    spell_grounding_field() : SpellScriptLoader("spell_grounding_field") { }
+    PrepareSpellScript(spell_grounding_field);
 
-    class spell_grounding_field_SpellScript : public SpellScript
+    void GetNearbyGroundFields()
     {
-        PrepareSpellScript(spell_grounding_field_SpellScript);
+        std::list<Creature*> groundingFields;
+        GetCaster()->GetCreatureListWithEntryInGrid(groundingFields, NPC_GROUNDING_FIELD, 60.0f);
 
-        bool Load() override
+        if (groundingFields.size() < 3)
+            prevent = true;
+
+        int count = 0;
+        for (Creature* groundingField : groundingFields)
         {
-            prevent = false;
-            return true;
+            if (GetCaster()->GetGUID() == groundingField->GetGUID())
+                continue;
+
+            GroundFieldPositions[count++] = groundingField->GetPosition();
+            if (count == 3)
+                break;
         }
+    }
 
-        void GetNearbyGroundFields()
-        {
-            std::list<Creature*> groundingFields;
-            GetCaster()->GetCreatureListWithEntryInGrid(groundingFields, NPC_GROUNDING_FIELD, 60.0f);
-
-            if (groundingFields.size() < 3)
-                prevent = true;
-
-            int count = 0;
-            for (Creature* groundingField : groundingFields)
-            {
-                if (GetCaster()->GetGUID() == groundingField->GetGUID())
-                    continue;
-
-                GroundFieldPositions[count++] = groundingField->GetPosition();
-                if (count == 3)
-                    break;
-            }
-        }
-
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            TriangleBoundary triangle(GroundFieldPositions[0], GroundFieldPositions[1], GroundFieldPositions[2], true);
-            targets.remove_if([&](WorldObject* target)
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        TriangleBoundary triangle(GroundFieldPositions[0], GroundFieldPositions[1], GroundFieldPositions[2], true);
+        targets.remove_if([&](WorldObject* target)
             {
                 return triangle.IsWithinBoundary(target);
             });
-        }
-
-        void Register() override
-        {
-            BeforeCast += SpellCastFn(spell_grounding_field_SpellScript::GetNearbyGroundFields);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_grounding_field_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        }
-
-    private:
-        bool prevent;
-        Position GroundFieldPositions[3];
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_grounding_field_SpellScript();
     }
+
+    void Register() override
+    {
+        BeforeCast += SpellCastFn(spell_grounding_field::GetNearbyGroundFields);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_grounding_field::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+private:
+    bool prevent = false;
+    Position GroundFieldPositions[3];
 };
 
 // 87850 - Skyfall
-class spell_skyfall : public SpellScriptLoader
+class spell_skyfall : public SpellScript
 {
-public:
-    spell_skyfall() : SpellScriptLoader("spell_skyfall") { }
+    PrepareSpellScript(spell_skyfall);
 
-    class spell_skyfall_SpellScript : public SpellScript
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        PrepareSpellScript(spell_skyfall_SpellScript);
+        Unit* caster = GetCaster();
+        if (!caster || !caster->GetVictim())
+            return;
 
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Creature* creature = GetHitCreature())
-                creature->CombatStart(GetCaster()->GetVictim());
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_skyfall_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_skyfall_SpellScript();
+        if (Creature* creature = GetHitCreature())
+            creature->CombatStart(caster->GetVictim());
     }
-};
 
-// 87854 - Arcane Barrage
-class spell_arcane_barrage : public SpellScriptLoader
-{
-public:
-    spell_arcane_barrage() : SpellScriptLoader("spell_arcane_barrage") { }
-
-    class spell_arcane_barrage_SpellScript : public SpellScript
+    void Register() override
     {
-        PrepareSpellScript(spell_arcane_barrage_SpellScript);
-
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            Trinity::Containers::RandomResize(targets, 1);
-        }
-
-        void Register()
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_arcane_barrage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_arcane_barrage_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_skyfall::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1027,7 +858,7 @@ class spell_vp_healing_well : public SpellScript
 
 Position const EntranceTeleportPos = { -361.0174f,  -6.359375f, 632.7807f, 0.0f };
 Position const AltairusTeleportPos = { -906.08f,    -176.514f,  664.5053f, 0.0f };
-Position const AsaadTeleportPos    = { -1193.67f,   472.835f,   634.8653f, 0.0f };
+Position const AsaadTeleportPos = { -1193.67f,   472.835f,   634.8653f, 0.0f };
 
 class spell_vp_catch_fall : public SpellScript
 {
@@ -1054,41 +885,40 @@ class spell_vp_catch_fall : public SpellScript
 
 class at_vp_catch_fall : public AreaTriggerScript
 {
-    public:
-        at_vp_catch_fall() : AreaTriggerScript("at_vp_catch_fall") { }
+public:
+    at_vp_catch_fall() : AreaTriggerScript("at_vp_catch_fall") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
-        {
-            if (player->HasAura(SPELL_SLIPSTREAM_DUMMY))
-                return false;
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+    {
+        if (player->HasAura(SPELL_SLIPSTREAM_DUMMY))
+            return false;
 
-            player->CastSpell(player, SPELL_CATCH_FALL_SUMMON, true);
+        player->CastSpell(player, SPELL_CATCH_FALL_SUMMON, true);
 
-            return true;
-        }
+        return true;
+    }
 };
 
 void AddSC_vortex_pinnacle()
 {
-    new npc_lurking_tempest();
+    RegisterVortexPinnacleCreatureAI(npc_lurking_tempest);
     RegisterVortexPinnacleCreatureAI(npc_vp_howling_gale);
     RegisterVortexPinnacleCreatureAI(npc_slipstream);
     RegisterVortexPinnacleCreatureAI(npc_slipstream_landing_zone);
     RegisterVortexPinnacleCreatureAI(npc_vp_young_storm_dragon);
     RegisterVortexPinnacleCreatureAI(npc_vp_catch_fall);
-    new npc_grounding_field();
-    new npc_skyfall();
-    new npc_skyfall_star();
-    new spell_lurk_search();
-    new spell_lurk_search_check();
-    new spell_feign_death();
-    new spell_lurk_ressurect();
-    new spell_lurk_search_victim();
+    RegisterVortexPinnacleCreatureAI(npc_grounding_field);
+    RegisterVortexPinnacleCreatureAI(npc_skyfall);
+    RegisterVortexPinnacleCreatureAI(npc_skyfall_star);
+    RegisterAuraScript(spell_lurk_search);
+    RegisterSpellScript(spell_lurk_search_check);
+    RegisterSpellScript(spell_feign_death);
+    RegisterAuraScript(spell_lurk_ressurect);
+    RegisterSpellScript(spell_lurk_search_victim);
     RegisterAuraScript(spell_vp_howling_gale);
     RegisterSpellScript(spell_slipstream);
-    new spell_grounding_field();
-    new spell_skyfall();
-    new spell_arcane_barrage();
+    RegisterSpellScript(spell_grounding_field);
+    RegisterSpellScript(spell_skyfall);
     RegisterSpellScript(spell_vp_healing_well);
     RegisterSpellScript(spell_vp_catch_fall);
     new at_vp_catch_fall();

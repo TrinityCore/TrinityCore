@@ -68,9 +68,9 @@ enum Points
     POINT_ROTATE    = 1
 };
 
-#define MAX_VORTEX_POINTS 8
+static constexpr uint8 MaxVortexPoints = 8;
 
-Position const ErtansVortexPoints[MAX_VORTEX_POINTS] =
+Position const ErtansVortexPoints[MaxVortexPoints] =
 {
     { -744.889f,  3.98611f, 635.6728f }, // South
     { -737.552f,  21.592f,  635.6728f }, // South-West
@@ -82,7 +82,7 @@ Position const ErtansVortexPoints[MAX_VORTEX_POINTS] =
     { -737.649f, -13.5347f, 635.6728f } // South-East
 };
 
-Position const ErtansVortexMiddlePoints[MAX_VORTEX_POINTS] =
+Position const ErtansVortexMiddlePoints[MaxVortexPoints] =
 {
     { -724.3819f,  2.915083f,   635.6728f }, // South
     { -724.0161f,  6.648534f,   635.6728f }, // South-West
@@ -105,9 +105,9 @@ struct boss_grand_vizier_ertan : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         Talk(SAY_AGGRO);
 
-        for (uint8 i = 0; i < MAX_VORTEX_POINTS; i++)
+        for (uint8 i = 0; i < MaxVortexPoints; i++)
             if (Creature * ertansVortex = DoSummon(NPC_ERTANS_VORTEX, ErtansVortexPoints[i], 0, TEMPSUMMON_MANUAL_DESPAWN))
-                ertansVortex->GetMotionMaster()->MovePoint(POINT_ROTATE + i, ErtansVortexPoints[i + 1  < MAX_VORTEX_POINTS ? i + 1 : 0]);
+                ertansVortex->GetMotionMaster()->MovePoint(POINT_ROTATE + i, ErtansVortexPoints[i + 1  < MaxVortexPoints ? i + 1 : 0]);
 
         events.ScheduleEvent(EVENT_STORMS_EDGE, 24s);
         events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 1ms);
@@ -199,7 +199,7 @@ struct npc_ertan_ertans_vortex : public NullCreatureAI
         if (movementType != POINT_MOTION_TYPE || pointId == POINT_NONE)
             return;
 
-        _nextPointId = pointId < MAX_VORTEX_POINTS ? pointId : 0;
+        _nextPointId = pointId < MaxVortexPoints ? pointId : 0;
         _events.ScheduleEvent(EVENT_MOVE_POINT, 1ms);
     };
 
