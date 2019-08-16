@@ -36,7 +36,6 @@
 enum DeathKnightSpells
 {
     SPELL_DK_ANTI_MAGIC_SHELL_TALENT            = 51052,
-    SPELL_DK_BLACK_ICE_R1                       = 49140,
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
     SPELL_DK_BLOOD_GORGED_HEAL                  = 50454,
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
@@ -1079,55 +1078,43 @@ class spell_dk_scent_of_blood : public AuraScript
     }
 };
 
-// 55090 - Scourge Strike (55265, 55270, 55271)
+// 55090 - Scourge Strike
 class spell_dk_scourge_strike : public SpellScript
 {
     PrepareSpellScript(spell_dk_scourge_strike);
 
-    bool Load() override
-    {
-        multiplier = 1.0f;
-        return true;
-    }
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DK_SCOURGE_STRIKE_TRIGGERED });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (Unit* unitTarget = GetHitUnit())
-        {
-            multiplier = (GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()) / 100.f);
-            // Death Knight T8 Melee 4P Bonus
-            if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_ITEM_T8_MELEE_4P_BONUS, EFFECT_0))
-                AddPct(multiplier, aurEff->GetAmount());
-        }
+        return ValidateSpellInfo(
+            {
+                SPELL_DK_SCOURGE_STRIKE_TRIGGERED,
+                SPELL_DK_ITEM_T8_MELEE_4P_BONUS
+            });
     }
 
     void HandleAfterHit()
     {
         Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         if (Unit* unitTarget = GetHitUnit())
         {
-            int32 bp = GetHitDamage() * multiplier;
+            multiplier = GetSpellInfo()->Effects[EFFECT_2].CalcValue();
+            if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_ITEM_T8_MELEE_4P_BONUS, EFFECT_0))
+                AddPct(multiplier, aurEff->GetAmount());
 
-            if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_DK_BLACK_ICE_R1, EFFECT_0))
-                AddPct(bp, aurEff->GetAmount());
-
+            int32 bp = CalculatePct(GetHitDamage(), multiplier) * unitTarget->GetDiseasesByCaster(caster->GetGUID());
             caster->CastCustomSpell(unitTarget, SPELL_DK_SCOURGE_STRIKE_TRIGGERED, &bp, nullptr, nullptr, true);
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dk_scourge_strike::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
         AfterHit += SpellHitFn(spell_dk_scourge_strike::HandleAfterHit);
     }
 private:
-    float multiplier;
+    float multiplier = 1.0f;
 };
 
 // 55233 - Vampiric Blood
