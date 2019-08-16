@@ -15952,13 +15952,13 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
 
 void Player::SendQuestUpdate(uint32 questId)
 {
-    uint32 zone = 0, area = 0;
-    GetZoneAndAreaId(zone, area);
-
     SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(questId);
 
     if (saBounds.first != saBounds.second)
     {
+        uint32 zone = 0, area = 0;
+        GetZoneAndAreaId(zone, area);
+
         for (SpellAreaForQuestMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         {
             if (!itr->second->IsFitToRequirements(this, zone, area))
