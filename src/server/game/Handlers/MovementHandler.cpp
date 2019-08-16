@@ -608,16 +608,8 @@ void WorldSession::HandleGravityAckMessage(WorldPacket& recvData)
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "CMSG_MOVE_HOVER_ACK");
-
-    ObjectGuid guid;                                        // guid - unused
-    recvData >> guid.ReadAsPacked();
-
-    recvData.read_skip<uint32>();                           // unk
-
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
-
-    recvData.read_skip<uint32>();                           // unk2
 }
 
 void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
