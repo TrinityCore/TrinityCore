@@ -15956,17 +15956,27 @@ void Player::SendQuestUpdate(uint32 questId)
 
     if (saBounds.first != saBounds.second)
     {
-        uint32 zone = 0, area = 0;
+        bool dontRemoveAura = false;
+        uint32 zone = 0, area = 0, auraRemove = 0;
         GetZoneAndAreaId(zone, area);
 
         for (SpellAreaForQuestMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         {
             if (!itr->second->IsFitToRequirements(this, zone, area))
-                RemoveAurasDueToSpell(itr->second->spellId);
+                auraRemove = itr->second->spellId;
             else if (itr->second->autocast)
+            {
+                dontRemoveAura = true; // We don't want to remove this aura anymore because the player is inside the required area of a certain quest
+                                       // Another quest could have the same spell aura and because it doesn't fit the requirements (could not be in that area) it will try to remove the aura
+                                       // And that aura is required for another quest so we should not remove this aura
+
                 if (!HasAura(itr->second->spellId))
                     CastSpell(this, itr->second->spellId, true);
+            }
         }
+
+        if (auraRemove && !dontRemoveAura)
+            RemoveAurasDueToSpell(auraRemove);
     }
 
     UpdateVisibleGameobjectsOrSpellClicks();
