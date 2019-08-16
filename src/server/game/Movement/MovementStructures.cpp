@@ -4157,15 +4157,15 @@ MovementStatusElements const MovementWaterWalkAck[] =
     MSETransportGuidByte6,
     MSETransportGuidByte4,
     MSESplineElevation,
-    MSEFallSinAngle,
-    MSEFallHorizontalSpeed,
     MSEFallCosAngle,
+    MSEFallHorizontalSpeed,
+    MSEFallSinAngle,
     MSEFallVerticalSpeed,
     MSEFallTime,
     MSEOrientation,
     MSETimestamp,
     MSEPitch,
-    MSEEnd,
+    MSEEnd
 };
 
 MovementStatusElements const MovementUpdateKnockBack[] =
