@@ -38,38 +38,38 @@ enum Texts
 enum Spells
 {
     // Lurking Tempest
-    SPELL_LIGHTNING_BOLT = 89105,
-    SPELL_LURK = 85467, // dummy aura while not playing dead
-    SPELL_LURK_SEARCH = 85294, // periodically triggers either SPELL_LURK_CHECK or SPELL_FEIGN_DEATH_CHECK
-    SPELL_LURK_CHECK = 85291,
-    SPELL_FEIGN_DEATH = 85267,
-    SPELL_FEIGN_DEATH_CHECK = 86493,
-    SPELL_LURK_RESSURECT = 85281, // 1250 ms duration, on remove SPELL_LURK (85467) is cast
-    SPELL_LURK_FIND_VICTIM = 86456,
+    SPELL_LIGHTNING_BOLT                = 89105,
+    SPELL_LURK                          = 85467, // dummy aura while not playing dead
+    SPELL_LURK_SEARCH                   = 85294, // periodically triggers either SPELL_LURK_CHECK or SPELL_FEIGN_DEATH_CHECK
+    SPELL_LURK_CHECK                    = 85291,
+    SPELL_FEIGN_DEATH                   = 85267,
+    SPELL_FEIGN_DEATH_CHECK             = 86493,
+    SPELL_LURK_RESSURECT                = 85281, // 1250 ms duration, on remove SPELL_LURK (85467) is cast
+    SPELL_LURK_FIND_VICTIM              = 86456,
 
     // Young Storm Dragon
-    SPELL_HEALING_WELL = 88201,
-    SPELL_CHILLING_BLAST = 88194,
+    SPELL_HEALING_WELL                  = 88201,
+    SPELL_CHILLING_BLAST                = 88194,
 
     // Howling Gale
-    SPELL_HOWLING_GALE_VISUAL_STRONG = 85086,
+    SPELL_HOWLING_GALE_VISUAL_STRONG    = 85086,
     SPELL_HOWLING_GALE_KNOCKBACK_STRONG = 85159,
-    SPELL_HOWLING_GALE_VISUAL_WEAK = 85137,
-    SPELL_HOWLING_GALE_KNOCKBACK_WEAK = 85085,
+    SPELL_HOWLING_GALE_VISUAL_WEAK      = 85137,
+    SPELL_HOWLING_GALE_KNOCKBACK_WEAK   = 85085,
 
     // Slipstream Landing Zone
-    SPELL_GENERIC_EJECT_ALL_PASSENGERS = 79737, // Generic Eject All Passengers - Always Allow
+    SPELL_GENERIC_EJECT_ALL_PASSENGERS  = 79737, // Generic Eject All Passengers - Always Allow
 
     // Grounding Field
-    SPELL_PRISM_BEAMS = 87724,
-    SPELL_GROUNDING_FIELD = 87725,
+    SPELL_PRISM_BEAMS                   = 87724,
+    SPELL_GROUNDING_FIELD               = 87725,
 
     // Skyfall npc
-    SPELL_SKYFALL_VISUAL = 85719,
-    SPELL_SKYFALL = 87850,
+    SPELL_SKYFALL_VISUAL                = 85719,
+    SPELL_SKYFALL                       = 87850,
 
     // Skyfall Star npc
-    SPELL_ARCANE_BARRAGE = 87845
+    SPELL_ARCANE_BARRAGE                = 87845
 };
 
 enum Events
