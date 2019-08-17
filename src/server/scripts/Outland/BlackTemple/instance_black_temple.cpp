@@ -81,9 +81,10 @@ ObjectData const creatureData[] =
 
 ObjectData const gameObjectData[] =
 {
-    { GO_ILLIDAN_GATE,          DATA_GO_ILLIDAN_GATE       },
-    { GO_DEN_OF_MORTAL_DOOR,    DATA_GO_DEN_OF_MORTAL_DOOR },
-    { 0,                        0                          } //END
+    { GO_ILLIDAN_GATE,                DATA_GO_ILLIDAN_GATE          },
+    { GO_DEN_OF_MORTAL_DOOR,          DATA_GO_DEN_OF_MORTAL_DOOR    },
+    { GO_ILLIDAN_MUSIC_CONTROLLER,    DATA_ILLIDAN_MUSIC_CONTROLLER },
+    { 0,                              0                             } //END
 };
 
 class instance_black_temple : public InstanceMapScript

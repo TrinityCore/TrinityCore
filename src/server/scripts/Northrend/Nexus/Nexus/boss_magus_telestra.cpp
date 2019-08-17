@@ -18,6 +18,7 @@
 
 #include "ScriptMgr.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "nexus.h"
@@ -171,7 +172,7 @@ public:
                 while (time[i] != 0)
                     ++i;
 
-                time[i] = sWorld->GetGameTime();
+                time[i] = GameTime::GetGameTime();
                 if (i == 2 && (time[2] - time[1] < 5) && (time[1] - time[0] < 5))
                     ++splitPersonality;
             }
