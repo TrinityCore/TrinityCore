@@ -15968,9 +15968,9 @@ void Player::SendQuestUpdate(uint32 questId)
                 aurasToCast.insert(itr->second->spellId);
         }
 
-        // If an aura "fits" the requirements, it will be inside aurasToCast container
-        // If an aura "doesn't" fit the requirements, it may prevent same auras which "fits" the requirements so
-        // We will erase auras that exist in aurasToCast from aurasToRemove to handle spell using by multiple quests
+        // Auras matching the requirements will be inside the aurasToCast container.
+        // Auras not matching the requirements may prevent using auras matching the requirements.
+        // aurasToCast will erase conflicting auras in aurasToRemove container to handle spells used by multiple quests.
 
         for (auto itr = aurasToRemove.begin(); itr != aurasToRemove.end();)
         {
