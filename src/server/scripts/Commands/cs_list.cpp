@@ -34,6 +34,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "SpellAuraEffects.h"
@@ -684,10 +685,11 @@ public:
         AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(zoneId);
         return zoneEntry ? zoneEntry->AreaName[locale] : "<unknown zone>";
     }
+
     static bool HandleListRespawnsCommand(ChatHandler* handler, char const* args)
     {
         Player const* player = handler->GetSession()->GetPlayer();
-        Map const* map = player->GetMap();
+        Map* map = player->GetMap();
         uint32 range = 0;
         if (*args)
             range = atoi((char*)args);
@@ -696,27 +698,40 @@ public:
         char const* stringOverdue = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_OVERDUE, locale);
 
         uint32 zoneId = player->GetZoneId();
+        char const* zoneName = GetZoneName(zoneId, locale);
         for (SpawnObjectType type : EnumUtils::Iterate<SpawnObjectType>())
         {
             if (range)
                 handler->PSendSysMessage(LANG_LIST_RESPAWNS_RANGE, EnumUtils::ToTitle(type), range);
             else
-                handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, EnumUtils::ToTitle(type), GetZoneName(zoneId, locale), zoneId);
+                handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, EnumUtils::ToTitle(type), zoneName, zoneId);
+
             handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
             std::vector<RespawnInfo*> respawns;
-            map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type), range ? 0 : zoneId);
-            for (RespawnInfo* ri : respawns)
+            map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type));
+            for (RespawnInfo const* ri : respawns)
             {
                 SpawnData const* data = sObjectMgr->GetSpawnData(ri->type, ri->spawnId);
                 if (!data)
                     continue;
-                if (range && !player->IsInDist(data->spawnPoint, range))
-                    continue;
+
+                uint32 respawnZoneId = map->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), data->spawnPoint);
+                if (range)
+                {
+                    if (!player->IsInDist(data->spawnPoint, range))
+                        continue;
+                }
+                else
+                {
+                    if (zoneId != respawnZoneId)
+                        continue;
+                }
+
                 uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
                 uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
 
                 std::string respawnTime = ri->respawnTime > GameTime::GetGameTime() ? secsToTimeString(uint64(ri->respawnTime - GameTime::GetGameTime()), true) : stringOverdue;
-                handler->PSendSysMessage(UI64FMTD " | %u | [%02u,%02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, locale), ri->zoneId, respawnTime.c_str(), map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? "" : " (inactive)");
+                handler->PSendSysMessage(UI64FMTD " | %u | [%02u,%02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(respawnZoneId, locale), respawnZoneId, respawnTime.c_str(), map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? "" : " (inactive)");
             }
         }
         return true;
