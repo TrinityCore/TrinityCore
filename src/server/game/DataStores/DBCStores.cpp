@@ -1305,6 +1305,23 @@ EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uin
     return itr != sEmotesTextSoundMap.end() ? itr->second : nullptr;
 }
 
+uint32 GetParentSpellCategoryId(uint32 childCategory)
+{
+    // Weekly profession reset linking
+    switch (childCategory)
+    {
+        case 1278: // Dream of Skywall
+        case 1279: // Dream of Azshara
+        case 1280: // Dream of Ragnaros
+        case 1281: // Dream of Deepholm
+        case 1282: // Dream of Hyjal
+            return 1328;
+        default:
+            return 0;
+    }
+    return 0;
+}
+
 bool IsInArea(uint32 objectAreaId, uint32 areaId)
 {
     do

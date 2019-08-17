@@ -2151,7 +2151,7 @@ struct SpellCategoryEntry
 {
     uint32 Id;
     uint32 Flags;
-    // uint32 unk;
+    uint32 UsesPerWeek;
     // char* Name;
 };
 

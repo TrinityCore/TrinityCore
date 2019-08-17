@@ -350,7 +350,15 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
 
             SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.AssertEntry(categoryId);
             if (categoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET)
-                categoryCooldown = int32(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - Clock::now()).count());
+            {
+                uint32 parentCategoryId = GetParentSpellCategoryId(categoryEntry->Id);
+                SpellCategoryEntry const* parentCategory = sSpellCategoryStore.LookupEntry(parentCategoryId);
+
+                if (parentCategory && parentCategory->UsesPerWeek)
+                    categoryCooldown = WEEK * IN_MILLISECONDS;
+                else
+                    categoryCooldown = int32(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - Clock::now()).count());
+            }
         }
 
         // replace negative cooldowns by 0
