@@ -22,6 +22,7 @@
 #include "Optional.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
+#include "WorldPacket.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -387,6 +388,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
+    WorldPacket QueryData[TOTAL_LOCALES];
     CreatureModel const* GetModelByIdx(uint32 idx) const;
     CreatureModel const* GetRandomValidModel() const;
     CreatureModel const* GetFirstValidModel() const;
@@ -420,6 +422,9 @@ struct TC_GAME_API CreatureTemplate
         // if can tame exotic then can tame any tameable
         return canTameExotic || !IsExotic();
     }
+
+    void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
 
     static int32 DifficultyIDToDifficultyEntryIndex(uint32 difficulty)
     {

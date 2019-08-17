@@ -351,41 +351,52 @@ void WorldPackets::Query::QuestPOIQuery::Read()
         _worldPacket >> MissingQuestPOIs[i];
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, QuestPOIData const& questPOIData)
+{
+    data << int32(questPOIData.QuestID);
+    data << int32(questPOIData.QuestPOIBlobDataStats.size());
+
+    for (QuestPOIBlobData const& questPOIBlobData : questPOIData.QuestPOIBlobDataStats)
+    {
+        data << int32(questPOIBlobData.BlobIndex);
+        data << int32(questPOIBlobData.ObjectiveIndex);
+        data << int32(questPOIBlobData.QuestObjectiveID);
+        data << int32(questPOIBlobData.QuestObjectID);
+        data << int32(questPOIBlobData.MapID);
+        data << int32(questPOIBlobData.UiMapID);
+        data << int32(questPOIBlobData.Priority);
+        data << int32(questPOIBlobData.Flags);
+        data << int32(questPOIBlobData.WorldEffectID);
+        data << int32(questPOIBlobData.PlayerConditionID);
+        data << int32(questPOIBlobData.SpawnTrackingID);
+        data << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
+
+        for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.QuestPOIBlobPointStats)
+        {
+            data << int32(questPOIBlobPoint.X);
+            data << int32(questPOIBlobPoint.Y);
+        }
+
+        data.WriteBit(questPOIBlobData.AlwaysAllowMergingBlobs);
+        data.FlushBits();
+    }
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Query::QuestPOIQueryResponse::Write()
 {
     _worldPacket << int32(QuestPOIDataStats.size());
     _worldPacket << int32(QuestPOIDataStats.size());
 
-    for (QuestPOIData const& questPOIData : QuestPOIDataStats)
+    bool useCache = sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES);
+
+    for (QuestPOIData const* questPOIData : QuestPOIDataStats)
     {
-        _worldPacket << int32(questPOIData.QuestID);
-
-        _worldPacket << int32(questPOIData.QuestPOIBlobDataStats.size());
-
-        for (QuestPOIBlobData const& questPOIBlobData : questPOIData.QuestPOIBlobDataStats)
-        {
-            _worldPacket << int32(questPOIBlobData.BlobIndex);
-            _worldPacket << int32(questPOIBlobData.ObjectiveIndex);
-            _worldPacket << int32(questPOIBlobData.QuestObjectiveID);
-            _worldPacket << int32(questPOIBlobData.QuestObjectID);
-            _worldPacket << int32(questPOIBlobData.MapID);
-            _worldPacket << int32(questPOIBlobData.UiMapID);
-            _worldPacket << int32(questPOIBlobData.Priority);
-            _worldPacket << int32(questPOIBlobData.Flags);
-            _worldPacket << int32(questPOIBlobData.WorldEffectID);
-            _worldPacket << int32(questPOIBlobData.PlayerConditionID);
-            _worldPacket << int32(questPOIBlobData.SpawnTrackingID);
-            _worldPacket << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
-
-            for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.QuestPOIBlobPointStats)
-            {
-                _worldPacket << int32(questPOIBlobPoint.X);
-                _worldPacket << int32(questPOIBlobPoint.Y);
-            }
-
-            _worldPacket.WriteBit(questPOIBlobData.AlwaysAllowMergingBlobs);
-            _worldPacket.FlushBits();
-        }
+        if (useCache)
+            _worldPacket.append(questPOIData->QueryDataBuffer);
+        else
+            _worldPacket << *questPOIData;
     }
 
     return &_worldPacket;
