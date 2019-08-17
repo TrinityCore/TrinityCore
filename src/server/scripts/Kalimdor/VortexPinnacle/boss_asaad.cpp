@@ -59,7 +59,6 @@ enum Spells
 
 enum NPCs
 {
-    NPC_SKYFALL_STAR                = 52019,
     NPC_STORM_TARGET                = 46387,
     NPC_UNSTABLE_GROUNDING_FIELD    = 46492
 };
