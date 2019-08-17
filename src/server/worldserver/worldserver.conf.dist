@@ -1247,6 +1247,17 @@ Account.PasswordChangeSecurity = 0
 BirthdayTime = 1222964635
 
 #
+#   CacheDataQueries
+#        Description: Server caches data queries at startup. 
+#                     Can be disabled if not enough memory is available.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+#
+
+ CacheDataQueries = 1
+ 
+#
 #   FeatureSystem.BpayStore.Enabled
 #        Description: Not yet implemented
 #        Default:     0 - (Disabled)
