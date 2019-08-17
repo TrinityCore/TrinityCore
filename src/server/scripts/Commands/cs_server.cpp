@@ -27,6 +27,7 @@ EndScriptData */
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
+#include "GameTime.h"
 #include "GitRevision.h"
 #include "Language.h"
 #include "Log.h"
@@ -34,6 +35,7 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 #include "Realm.h"
+#include "UpdateTime.h"
 #include "Util.h"
 #include "VMapFactory.h"
 #include "World.h"
@@ -256,8 +258,8 @@ public:
         uint32 queuedClientsNum     = sWorld->GetQueuedSessionCount();
         uint32 maxActiveClientsNum  = sWorld->GetMaxActiveSessionCount();
         uint32 maxQueuedClientsNum  = sWorld->GetMaxQueuedSessionCount();
-        std::string uptime          = secsToTimeString(sWorld->GetUptime());
-        uint32 updateTime           = sWorld->GetUpdateTime();
+        std::string uptime          = secsToTimeString(GameTime::GetUptime());
+        uint32 updateTime           = sWorldUpdateTime.GetLastUpdateTime();
 
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
         handler->PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
@@ -455,7 +457,7 @@ public:
         if (newTime < 0)
             return false;
 
-        sWorld->SetRecordDiffInterval(newTime);
+        sWorldUpdateTime.SetRecordUpdateTimeInterval(newTime);
         printf("Record diff every %i ms\n", newTime);
 
         return true;
