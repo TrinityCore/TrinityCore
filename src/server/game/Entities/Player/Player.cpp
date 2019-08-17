@@ -15956,27 +15956,46 @@ void Player::SendQuestUpdate(uint32 questId)
 
     if (saBounds.first != saBounds.second)
     {
-        bool dontRemoveAura = false;
-        uint32 zone = 0, area = 0, auraRemove = 0;
+        std::set<uint32> aurasToRemove, aurasToCast;
+        uint32 zone = 0, area = 0;
         GetZoneAndAreaId(zone, area);
 
         for (SpellAreaForQuestMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         {
             if (!itr->second->IsFitToRequirements(this, zone, area))
-                auraRemove = itr->second->spellId;
+                aurasToRemove.insert(itr->second->spellId);
             else if (itr->second->autocast)
-            {
-                dontRemoveAura = true; // We don't want to remove this aura anymore because the player is inside the required area of a certain quest
-                                       // Another quest could have the same spell aura and because it doesn't fit the requirements (could not be in that area) it will try to remove the aura
-                                       // And that aura is required for another quest so we should not remove this aura
-
-                if (!HasAura(itr->second->spellId))
-                    CastSpell(this, itr->second->spellId, true);
-            }
+                aurasToCast.insert(itr->second->spellId);
         }
 
-        if (auraRemove && !dontRemoveAura)
-            RemoveAurasDueToSpell(auraRemove);
+        // If an aura "fits" the requirements, it will be inside aurasToCast container
+        // If an aura "doesn't" fit the requirements, it may prevent same auras which "fits" the requirements so
+        // We will erase auras that exist in aurasToCast from aurasToRemove to handle spell using by multiple quests
+
+        for (auto itr = aurasToRemove.begin(); itr != aurasToRemove.end();)
+        {
+            bool auraRemoved = false;
+
+            for (const auto i : aurasToCast)
+            {
+                if (*itr == i)
+                {
+                    itr = aurasToRemove.erase(itr);
+                    auraRemoved = true;
+                    break;
+                }
+            }
+
+            if (!auraRemoved)
+                ++itr;
+        }
+
+        for (auto spellId : aurasToCast)
+            if (!HasAura(spellId))
+                CastSpell(this, spellId, true);
+
+        for (auto spellId : aurasToRemove)
+            RemoveAurasDueToSpell(spellId);
     }
 
     UpdateVisibleGameobjectsOrSpellClicks();
