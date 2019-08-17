@@ -706,7 +706,7 @@ public:
 
             handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
             std::vector<RespawnInfo*> respawns;
-            map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type), range ? 0 : zoneId);
+            map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type));
             for (RespawnInfo const* ri : respawns)
             {
                 SpawnData const* data = sObjectMgr->GetSpawnData(ri->type, ri->spawnId);
