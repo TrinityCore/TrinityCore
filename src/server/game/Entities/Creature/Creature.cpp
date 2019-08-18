@@ -2396,6 +2396,7 @@ void Creature::SaveRespawnTime(uint32 forceDelay, bool savetodb)
         ri.spawnId = m_spawnId;
         ri.respawnTime = m_respawnTime;
         GetMap()->SaveRespawnInfoDB(ri);
+        return;
     }
 
     time_t thisRespawnTime = forceDelay ? GameTime::GetGameTime() + forceDelay : m_respawnTime;
