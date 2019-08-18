@@ -34,10 +34,10 @@ enum SKDataTypes
     DATA_APOTHECARY_HUMMEL      = 6
 };
 
-template<typename AI>
-inline AI* GetShadowfangKeepAI(Creature* creature)
+template<typename AI, typename T>
+inline AI* GetShadowfangKeepAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SFKScriptName);
+    return GetInstanceAI<AI>(obj, SFKScriptName);
 }
 
 #endif

@@ -15,16 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "LFGMgr.h"
-#include "Player.h"
-#include "Group.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "shadowfang_keep.h"
 #include "GridNotifiersImpl.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "LFGMgr.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum ApothecarySpells
 {

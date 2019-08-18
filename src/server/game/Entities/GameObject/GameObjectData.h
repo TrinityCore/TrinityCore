@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DBCEnums.h"
 #include "SharedDefines.h"
+#include "WorldPacket.h"
 #include <string>
 #include <vector>
 
