@@ -502,6 +502,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         // Set map height as grid height
         for (int y = 0; y <= ADT_CELL_SIZE; y++)
         {
+            // edge V9s are overlapping between cells (i * ADT_CELL_SIZE is correct, otherwise we would be missing a row/column of V8s between)
             int cy = mcnk->iy * ADT_CELL_SIZE + y;
             for (int x = 0; x <= ADT_CELL_SIZE; x++)
             {
@@ -527,6 +528,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
             // get V9 height map
             for (int y = 0; y <= ADT_CELL_SIZE; y++)
             {
+                // edge V9s are overlapping between cells (i * ADT_CELL_SIZE is correct, otherwise we would be missing a row/column of V8s between)
                 int cy = mcnk->iy * ADT_CELL_SIZE + y;
                 for (int x = 0; x <= ADT_CELL_SIZE; x++)
                 {
