@@ -1150,7 +1150,7 @@ class spell_dk_will_of_the_necropolis : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return GetTarget()->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage());
+        return eventInfo.GetDamageInfo() && GetTarget()->HealthBelowPctDamaged(30, eventInfo.GetDamageInfo()->GetDamage());
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
