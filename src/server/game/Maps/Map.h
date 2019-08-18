@@ -788,8 +788,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // if return value is false and info->respawnTime is nonzero, it is guaranteed to be greater than time(NULL)
         bool CheckRespawn(RespawnInfo* info);
         void DoRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 gridId);
-        void Respawn(RespawnInfo* info, bool force = false, SQLTransaction dbTrans = nullptr);
-        void Respawn(std::vector<RespawnInfo*>& respawnData, bool force = false, SQLTransaction dbTrans = nullptr);
+        void Respawn(RespawnInfo* info, SQLTransaction dbTrans = nullptr);
+        void Respawn(std::vector<RespawnInfo*>& respawnData, SQLTransaction dbTrans = nullptr);
         void AddRespawnInfo(RespawnInfo& info, bool replace = false);
         void DeleteRespawnInfo();
         void DeleteRespawnInfo(RespawnInfo* info);
@@ -815,11 +815,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
     public:
         void GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types) const;
         RespawnInfo* GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
-        void ForceRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId)
-        {
-            if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
-                Respawn(info, true);
-        }
         void RemoveRespawnTime(RespawnInfo* info, bool doRespawn = false, SQLTransaction dbTrans = nullptr);
         void RemoveRespawnTime(std::vector<RespawnInfo*>& respawnData, bool doRespawn = false, SQLTransaction dbTrans = nullptr);
         void RemoveRespawnTime(SpawnObjectTypeMask types = SPAWN_TYPEMASK_ALL, bool doRespawn = false, SQLTransaction dbTrans = nullptr)

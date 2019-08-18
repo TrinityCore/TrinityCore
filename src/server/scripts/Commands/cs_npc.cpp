@@ -558,8 +558,7 @@ public:
 
     static bool HandleNpcDeleteCommand(ChatHandler* handler, char const* args)
     {
-        Creature* creature = nullptr;
-
+        ObjectGuid::LowType spawnId;
         if (*args)
         {
             // number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
@@ -567,37 +566,39 @@ public:
             if (!cId)
                 return false;
 
-            ObjectGuid::LowType lowguid = atoul(cId);
-            if (!lowguid)
+            spawnId = atoul(cId);
+            if (!spawnId)
                 return false;
-            // force respawn to make sure we find something
-            handler->GetSession()->GetPlayer()->GetMap()->ForceRespawn(SPAWN_TYPE_CREATURE, lowguid);
-            // then try to find it
-            creature = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
         }
         else
-            creature = handler->getSelectedCreature();
-
-        if (!creature || creature->IsPet() || creature->IsTotem())
         {
-            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            Creature* creature = handler->getSelectedCreature();
+            if (!creature || creature->IsPet() || creature->IsTotem())
+            {
+                handler->SendSysMessage(LANG_SELECT_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            if (TempSummon* summon = creature->ToTempSummon())
+            {
+                summon->UnSummon();
+                handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
+                return true;
+            }
+            spawnId = creature->GetSpawnId();
+        }
+
+        if (Creature::DeleteFromDB(spawnId))
+        {
+            handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
+            return true;
+        }
+        else
+        {
+            handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, spawnId);
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        if (TempSummon* summon = creature->ToTempSummon())
-            summon->UnSummon();
-        else
-        {
-            // Delete the creature
-            creature->CombatStop();
-            creature->DeleteFromDB();
-            creature->AddObjectToRemoveList();
-        }
-
-        handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
-
-        return true;
     }
 
     //del item from vendor list
