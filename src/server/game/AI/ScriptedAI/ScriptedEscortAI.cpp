@@ -242,7 +242,7 @@ void EscortAI::UpdateAI(uint32 diff)
                 if (_instantRespawn && !isEscort)
                     me->DespawnOrUnsummon(0, Seconds(1));
                 else if (_instantRespawn && isEscort)
-                    me->GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, me->GetSpawnId(), true);
+                    me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, me->GetSpawnId());
                 else
                     me->DespawnOrUnsummon();
 
