@@ -282,6 +282,7 @@ class spell_gal_darah_impaling_charge : public SpellScriptLoader
         }
 };
 
+// 55220 - Stampede (Rhino Spirit Charge)
 // 59823 - Stampede (Rhino Spirit Charge)
 class spell_gal_darah_stampede_charge : public SpellScriptLoader
 {
