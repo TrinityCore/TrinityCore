@@ -746,11 +746,12 @@ class spell_dru_item_t6_trinket : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({
+        return ValidateSpellInfo(
+        {
             SPELL_DRUID_BLESSING_OF_REMULOS,
             SPELL_DRUID_BLESSING_OF_ELUNE,
             SPELL_DRUID_BLESSING_OF_CENARIUS
-            });
+        });
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
