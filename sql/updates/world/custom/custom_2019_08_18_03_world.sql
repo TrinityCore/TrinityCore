@@ -1,0 +1,31 @@
+DELETE FROM `spell_proc` WHERE `SpellId` IN  (96976, 97138, 96910, 97126);
+SET @PROC_FLAG := 0 | 0x00000154;
+SET @TYPE_MASK := 0 | 0x1;
+SET @PHASE_MASK := 0 | 0x2;
+SET @HIT_MASK := 0;
+
+INSERT INTO `spell_proc` (`SpellId`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `Cooldown`) VALUES
+(96976, @PROC_FLAG, @TYPE_MASK, @PHASE_MASK, @HIT_MASK, 105000),
+(97138, @PROC_FLAG, @TYPE_MASK, @PHASE_MASK, @HIT_MASK, 105000),
+(96910, @PROC_FLAG, @TYPE_MASK, @PHASE_MASK, @HIT_MASK, 60000),
+(97126, @PROC_FLAG, @TYPE_MASK, @PHASE_MASK, @HIT_MASK, 60000);
+
+DELETE FROM `spell_proc` WHERE `SpellId` IN  (96967, 97137);
+SET @PROC_FLAG := 0 | 0x00044000;
+SET @TYPE_MASK := 0 | 0x2;
+SET @PHASE_MASK := 0 | 0x2;
+SET @HIT_MASK := 0;
+
+INSERT INTO `spell_proc` (`SpellId`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `Cooldown`) VALUES
+(96967, @PROC_FLAG, @TYPE_MASK, @PHASE_MASK, @HIT_MASK, 45000),
+(97137, @PROC_FLAG, @TYPE_MASK, @PHASE_MASK, @HIT_MASK, 45000);
+
+DELETE FROM `spell_proc` WHERE `SpellId` IN  (96947, 97130);
+SET @PROC_FLAG := 0 | 0x00000028;
+SET @TYPE_MASK := 0 | 0;
+SET @PHASE_MASK := 0 | 0;
+SET @HIT_MASK := 0;
+
+INSERT INTO `spell_proc` (`SpellId`, `ProcFlags`, `SpellTypeMask`, `SpellPhaseMask`, `HitMask`, `Cooldown`) VALUES
+(96947, @PROC_FLAG, @TYPE_MASK, @PHASE_MASK, @HIT_MASK, 60000),
+(97130, @PROC_FLAG, @TYPE_MASK, @PHASE_MASK, @HIT_MASK, 60000);
