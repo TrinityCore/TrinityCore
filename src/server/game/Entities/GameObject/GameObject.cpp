@@ -1078,7 +1078,7 @@ void GameObject::SaveRespawnTime(uint32 forceDelay, bool savetodb)
         }
 
         uint32 thisRespawnTime = forceDelay ? time(nullptr) + forceDelay : m_respawnTime;
-        GetMap()->SaveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, GetEntry(), thisRespawnTime, GetZoneId(), Trinity::ComputeGridCoord(GetPositionX(), GetPositionY()).GetId(), m_goData->dbData ? savetodb : false);
+        GetMap()->SaveRespawnTime(SPAWN_TYPE_GAMEOBJECT, m_spawnId, GetEntry(), thisRespawnTime, Trinity::ComputeGridCoord(GetPositionX(), GetPositionY()).GetId(), m_goData->dbData ? savetodb : false);
     }
 }
 

@@ -33,6 +33,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "SpellAuraEffects.h"
@@ -699,24 +700,37 @@ public:
         char const* stringGameobject = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_GAMEOBJECTS, locale);
 
         uint32 zoneId = player->GetZoneId();
+        char const* zoneName = GetZoneName(zoneId, locale);
         if (range)
             handler->PSendSysMessage(LANG_LIST_RESPAWNS_RANGE, stringCreature, range);
         else
-            handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, stringCreature, GetZoneName(zoneId, handler->GetSessionDbcLocale()), zoneId);
+            handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, stringCreature, zoneName, zoneId);
         handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
-        map->GetRespawnInfo(respawns, SPAWN_TYPEMASK_CREATURE, range ? 0 : zoneId);
-        for (RespawnInfo* ri : respawns)
+        map->GetRespawnInfo(respawns, SPAWN_TYPEMASK_CREATURE);
+
+        for (RespawnInfo const* ri : respawns)
         {
             CreatureData const* data = sObjectMgr->GetCreatureData(ri->spawnId);
             if (!data)
                 continue;
-            if (range && !player->IsInDist(data->spawnPoint, range))
-                continue;
+
+            uint32 respawnZoneId = map->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), data->spawnPoint);
+            if (range)
+            {
+                if (!player->IsInDist(data->spawnPoint, range))
+                    continue;
+            }
+            else
+            {
+                if (zoneId != respawnZoneId)
+                    continue;
+            }
+
             uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
             uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
 
             std::string respawnTime = ri->respawnTime > time(nullptr) ? secsToTimeString(uint64(ri->respawnTime - time(nullptr)), true) : stringOverdue;
-            handler->PSendSysMessage("%u | %u | [%02u,%02u] | %s (%u) | %s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, handler->GetSessionDbcLocale()), ri->zoneId, map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? respawnTime.c_str() : "inactive");
+            handler->PSendSysMessage("%u | %u | [%02u,%02u] | %s (%u) | %s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(respawnZoneId, locale), respawnZoneId, map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? respawnTime.c_str() : "inactive");
         }
 
         respawns.clear();
@@ -725,19 +739,30 @@ public:
         else
             handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, stringGameobject, GetZoneName(zoneId, handler->GetSessionDbcLocale()), zoneId);
         handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
-        map->GetRespawnInfo(respawns, SPAWN_TYPEMASK_GAMEOBJECT, range ? 0 : zoneId);
-        for (RespawnInfo* ri : respawns)
+        map->GetRespawnInfo(respawns, SPAWN_TYPEMASK_GAMEOBJECT);
+        for (RespawnInfo const* ri : respawns)
         {
             GameObjectData const* data = sObjectMgr->GetGameObjectData(ri->spawnId);
             if (!data)
                 continue;
-            if (range && !player->IsInDist(data->spawnPoint, range))
-                continue;
+
+            uint32 respawnZoneId = map->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), data->spawnPoint);
+            if (range)
+            {
+                if (!player->IsInDist(data->spawnPoint, range))
+                    continue;
+            }
+            else
+            {
+                if (zoneId != respawnZoneId)
+                    continue;
+            }
+
             uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
             uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
 
             std::string respawnTime = ri->respawnTime > time(nullptr) ? secsToTimeString(uint64(ri->respawnTime - time(nullptr)), true) : stringOverdue;
-            handler->PSendSysMessage("%u | %u | [% 02u, % 02u] | %s (%u) | %s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, handler->GetSessionDbcLocale()), ri->zoneId, map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? respawnTime.c_str() : "inactive");
+            handler->PSendSysMessage("%u | %u | [% 02u, % 02u] | %s (%u) | %s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(respawnZoneId, locale), respawnZoneId, map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? respawnTime.c_str() : "inactive");
         }
         return true;
     }

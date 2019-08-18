@@ -3178,7 +3178,7 @@ void Map::Respawn(RespawnInfo* info, bool force, SQLTransaction dbTrans)
     if (!force && !CheckRespawn(info))
     {
         if (info->respawnTime)
-            SaveRespawnTime(info->type, info->spawnId, info->entry, info->respawnTime, info->zoneId, info->gridId, true, true, dbTrans);
+            SaveRespawnTime(info->type, info->spawnId, info->entry, info->respawnTime, info->gridId, true, true, dbTrans);
         else
             RemoveRespawnTime(info);
         return;
@@ -3228,18 +3228,19 @@ void Map::AddRespawnInfo(RespawnInfo& info, bool replace)
     ASSERT(success, "Insertion of respawn info with id (%u,%u) into spawn id map failed - state desync.", uint32(ri->type), ri->spawnId);
 }
 
-static void PushRespawnInfoFrom(std::vector<RespawnInfo*>& data, RespawnInfoMap const& map, uint32 zoneId)
+static void PushRespawnInfoFrom(std::vector<RespawnInfo*>& data, RespawnInfoMap const& map)
 {
+    data.reserve(data.size() + map.size());
     for (auto const& pair : map)
-        if (!zoneId || pair.second->zoneId == zoneId)
-            data.push_back(pair.second);
+        data.push_back(pair.second);
 }
-void Map::GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types, uint32 zoneId) const
+
+void Map::GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types) const
 {
     if (types & SPAWN_TYPEMASK_CREATURE)
-        PushRespawnInfoFrom(respawnData, _creatureRespawnTimesBySpawnId, zoneId);
+        PushRespawnInfoFrom(respawnData, _creatureRespawnTimesBySpawnId);
     if (types & SPAWN_TYPEMASK_GAMEOBJECT)
-        PushRespawnInfoFrom(respawnData, _gameObjectRespawnTimesBySpawnId, zoneId);
+        PushRespawnInfoFrom(respawnData, _gameObjectRespawnTimesBySpawnId);
 }
 
 RespawnInfo* Map::GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const
@@ -3313,7 +3314,7 @@ void Map::RemoveRespawnTime(std::vector<RespawnInfo*>& respawnData, bool doRespa
 
 void Map::ProcessRespawns()
 {
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     while (!_respawnTimes.empty())
     {
         RespawnInfo* next = _respawnTimes.top();
@@ -4435,7 +4436,7 @@ void Map::UpdateIteratorBack(Player* player)
         m_mapRefIter = m_mapRefIter->nocheck_prev();
 }
 
-void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 zoneId, uint32 gridId, bool writeDB, bool replace, SQLTransaction dbTrans)
+void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 gridId, bool writeDB, bool replace, SQLTransaction dbTrans)
 {
     if (!respawnTime)
     {
@@ -4450,7 +4451,6 @@ void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uin
     ri.entry = entry;
     ri.respawnTime = respawnTime;
     ri.gridId = gridId;
-    ri.zoneId = zoneId;
     AddRespawnInfo(ri, replace);
 
     if (writeDB)
@@ -4482,7 +4482,7 @@ void Map::LoadRespawnTimes()
             uint64 respawnTime = fields[1].GetUInt64();
 
             if (CreatureData const* cdata = sObjectMgr->GetCreatureData(loguid))
-                SaveRespawnTime(SPAWN_TYPE_CREATURE, loguid, cdata->id, time_t(respawnTime), GetZoneId(PhasingHandler::GetEmptyPhaseShift(), cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
+                SaveRespawnTime(SPAWN_TYPE_CREATURE, loguid, cdata->id, time_t(respawnTime), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
 
         } while (result->NextRow());
     }
