@@ -128,10 +128,10 @@ class spell_dru_bear_form_passive : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-                {
-                    SPELL_DRUID_ENRAGE,
-                    SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS
-                });
+        {
+            SPELL_DRUID_ENRAGE,
+            SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS
+        });
     }
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
@@ -207,10 +207,10 @@ class spell_dru_eclipse : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-                {
-                        SPELL_DRUID_ECLIPSE_LUNAR_PROC,
-                        SPELL_DRUID_ECLIPSE_SOLAR_PROC
-                });
+        {
+            SPELL_DRUID_ECLIPSE_LUNAR_PROC,
+            SPELL_DRUID_ECLIPSE_SOLAR_PROC
+        });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -282,12 +282,12 @@ class spell_dru_enrage : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-                {
-                        SPELL_DRUID_KING_OF_THE_JUNGLE,
-                        SPELL_DRUID_ENRAGE_MOD_DAMAGE,
-                        SPELL_DRUID_ENRAGED_DEFENSE,
-                        SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS
-                });
+        {
+            SPELL_DRUID_KING_OF_THE_JUNGLE,
+            SPELL_DRUID_ENRAGE_MOD_DAMAGE,
+            SPELL_DRUID_ENRAGED_DEFENSE,
+            SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS
+        });
     }
 
     void RecalculateBaseArmor()
@@ -345,13 +345,13 @@ class spell_dru_forms_trinket : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-                {
-                        SPELL_DRUID_FORMS_TRINKET_BEAR,
-                        SPELL_DRUID_FORMS_TRINKET_CAT,
-                        SPELL_DRUID_FORMS_TRINKET_MOONKIN,
-                        SPELL_DRUID_FORMS_TRINKET_NONE,
-                        SPELL_DRUID_FORMS_TRINKET_TREE
-                });
+        {
+            SPELL_DRUID_FORMS_TRINKET_BEAR,
+            SPELL_DRUID_FORMS_TRINKET_CAT,
+            SPELL_DRUID_FORMS_TRINKET_MOONKIN,
+            SPELL_DRUID_FORMS_TRINKET_NONE,
+            SPELL_DRUID_FORMS_TRINKET_TREE
+        });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -591,10 +591,10 @@ class spell_dru_glyph_of_shred : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-                {
-                        SPELL_DRUID_GLYPH_OF_RIP,
-                        SPELL_DRUID_RIP_DURATION_LACERATE_DMG
-                });
+        {
+            SPELL_DRUID_GLYPH_OF_RIP,
+            SPELL_DRUID_RIP_DURATION_LACERATE_DMG
+        });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -804,7 +804,7 @@ class spell_dru_leader_of_the_pack : public AuraScript
             return;
 
         AuraEffect const* impLotpMana = caster->GetAuraEffectOfRankedSpell(SPELL_DRUID_IMP_LEADER_OF_THE_PACK_R1, EFFECT_0, aurEff->GetCasterGUID());
-                ASSERT(impLotpMana);
+        ASSERT(impLotpMana);
 
         CastSpellExtraArgs args2(aurEff);
         args2.AddSpellBP0(CalculatePct(caster->GetMaxPower(POWER_MANA), impLotpMana->GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
@@ -880,7 +880,7 @@ class spell_dru_living_seed : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({SPELL_DRUID_LIVING_SEED_PROC});
+        return ValidateSpellInfo({ SPELL_DRUID_LIVING_SEED_PROC });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -909,7 +909,7 @@ class spell_dru_living_seed_proc : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({SPELL_DRUID_LIVING_SEED_HEAL});
+        return ValidateSpellInfo({ SPELL_DRUID_LIVING_SEED_HEAL });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1584,10 +1584,10 @@ class spell_dru_t9_feral_relic : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-                {
-                    SPELL_DRUID_T9_FERAL_RELIC_BEAR,
-                    SPELL_DRUID_T9_FERAL_RELIC_CAT
-                });
+        {
+            SPELL_DRUID_T9_FERAL_RELIC_BEAR,
+            SPELL_DRUID_T9_FERAL_RELIC_CAT
+        });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
