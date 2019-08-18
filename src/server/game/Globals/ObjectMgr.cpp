@@ -1965,8 +1965,8 @@ void ObjectMgr::LoadCreatures()
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, spawndist, "
     //   11               12         13       14            15         16         17          18          19                20                   21                     22
         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.phaseUseFlags, "
-    //   23                24                   25                       26,              27
-        "creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.zoneId, creature.ScriptName "
+    //   23                24                   25                       26
+        "creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -2026,8 +2026,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseId        = fields[23].GetUInt32();
         data.phaseGroup     = fields[24].GetUInt32();
         data.terrainSwapMap = fields[25].GetInt32();
-        data.zoneId         = fields[26].GetUInt32();
-        data.scriptId = GetScriptId(fields[27].GetString());
+        data.scriptId = GetScriptId(fields[26].GetString());
         data.spawnGroupData = &_spawnGroupDataStore[0];
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.spawnPoint.GetMapId());
@@ -2149,21 +2148,16 @@ void ObjectMgr::LoadCreatures()
             }
         }
 
-        if (data.zoneId && !sAreaTableStore.LookupEntry(data.zoneId))
-        {
-            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with `zoneId` %u which does not exist in AreaTable.dbc. Set to 0. Recommend to calculate the Zone ID during startup.", guid, data.id, data.zoneId);
-            data.zoneId = 0;
-        }
-
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
         {
+            uint32 zoneId = 0;
             uint32 areaId = 0;
             PhasingHandler::InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
-            sMapMgr->GetZoneAndAreaId(phaseShift, data.zoneId, areaId, data.spawnPoint);
+            sMapMgr->GetZoneAndAreaId(phaseShift, zoneId, areaId, data.spawnPoint);
 
             PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_ZONE_AREA_DATA);
 
-            stmt->setUInt32(0, data.zoneId);
+            stmt->setUInt32(0, zoneId);
             stmt->setUInt32(1, areaId);
             stmt->setUInt64(2, guid);
 
@@ -2318,8 +2312,8 @@ void ObjectMgr::LoadGameObjects()
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
     //   7          8          9          10         11             12            13     14         15         16          17
         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, phaseMask, eventEntry, pool_entry, "
-    //   18             19       20          21              22      23
-        "phaseUseFlags, phaseid, phasegroup, terrainSwapMap, zoneId, ScriptName "
+    //   18             19       20          21              22
+        "phaseUseFlags, phaseid, phasegroup, terrainSwapMap, ScriptName "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
         "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
 
@@ -2471,14 +2465,7 @@ void ObjectMgr::LoadGameObjects()
             }
         }
 
-        data.zoneId = fields[22].GetUInt32();
-        if (data.zoneId && !sAreaTableStore.LookupEntry(data.zoneId))
-        {
-            TC_LOG_ERROR("sql.sql", "Table `gameobject` have gameobject (GUID: %u Entry: %u) with `zoneId` %u which does not exist in AreaTable.dbc. Set to 0. Recommend to calculate the Zone ID during startup.", guid, data.id, data.zoneId);
-            data.zoneId = 0;
-        }
-
-        data.scriptId = GetScriptId(fields[23].GetString());
+        data.scriptId = GetScriptId(fields[22].GetString());
 
         if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
         {
@@ -2518,13 +2505,14 @@ void ObjectMgr::LoadGameObjects()
 
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_GAMEOBJECT_ZONE_AREA_DATA))
         {
+            uint32 zoneId = 0;
             uint32 areaId = 0;
             PhasingHandler::InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
-            sMapMgr->GetZoneAndAreaId(phaseShift, data.zoneId, areaId, data.spawnPoint);
+            sMapMgr->GetZoneAndAreaId(phaseShift, zoneId, areaId, data.spawnPoint);
 
             PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA);
 
-            stmt->setUInt32(0, data.zoneId);
+            stmt->setUInt32(0, zoneId);
             stmt->setUInt32(1, areaId);
             stmt->setUInt64(2, guid);
 
