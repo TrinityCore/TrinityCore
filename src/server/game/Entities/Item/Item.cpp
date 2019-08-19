@@ -261,7 +261,6 @@ Item::Item()
     m_container = nullptr;
     m_lootGenerated = false;
     mb_in_trade = false;
-    m_lastPlayedTimeUpdate = time(nullptr);
 
     m_refundRecipient = 0;
     m_paidMoney = 0;
@@ -293,7 +292,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
         SetSpellCharges(i, itemProto->Spells[i].SpellCharges);
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->Duration);
-    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
+    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, owner ? owner->GetTotalPlayedTime() : 0);
     return true;
 }
 
@@ -413,8 +412,8 @@ void Item::SaveToDB(SQLTransaction& trans)
 
 bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
 {
-    //                                                    0                1      2         3        4      5             6                 7           8           9    10
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //                                          0            1                2      3         4        5      6             7                 8           9             10
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, creationTime, text FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -1093,42 +1092,23 @@ void Item::SetNotRefundable(Player* owner, bool changestate /*= true*/, SQLTrans
 
 void Item::UpdatePlayedTime(Player* owner)
 {
-    /*  Here we update our played time
-        We simply add a number to the current played time,
-        based on the time elapsed since the last update hereof.
-    */
-    // Get current played time
-    uint32 current_playtime = GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME);
-    // Calculate time elapsed since last played time update
-    time_t curtime = time(nullptr);
-    uint32 elapsed = uint32(curtime - m_lastPlayedTimeUpdate);
-    uint32 new_playtime = current_playtime + elapsed;
     // Check if the refund timer has expired yet
-    if (new_playtime <= 2*HOUR)
-    {
-        // No? Proceed.
-        // Update the data field
-        SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, new_playtime);
-        // Flag as changed to get saved to DB
-        SetState(ITEM_CHANGED, owner);
-        // Speaks for itself
-        m_lastPlayedTimeUpdate = curtime;
+    if (GetPlayedTime(owner) <= 2 * HOUR)
         return;
-    }
-    // Yes
+
+    // Flag as changed to get saved to DB
+    SetState(ITEM_CHANGED, owner);
     SetNotRefundable(owner);
 }
 
-uint32 Item::GetPlayedTime()
+uint32 Item::GetPlayedTime(Player const* owner) const
 {
-    time_t curtime = time(nullptr);
-    uint32 elapsed = uint32(curtime - m_lastPlayedTimeUpdate);
-    return GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) + elapsed;
+    return owner->GetTotalPlayedTime() - GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME);
 }
 
-bool Item::IsRefundExpired()
+bool Item::IsRefundExpired(Player const* owner) const
 {
-    return (GetPlayedTime() > 2*HOUR);
+    return (GetPlayedTime(owner) > 2 * HOUR);
 }
 
 void Item::SetSoulboundTradeable(GuidSet const& allowedLooters)

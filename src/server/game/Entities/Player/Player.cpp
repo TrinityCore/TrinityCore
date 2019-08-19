@@ -18664,10 +18664,10 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
             }
             else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE))
             {
-                if (item->GetPlayedTime() > (2 * HOUR))
+                if (item->GetPlayedTime(this) > (2 * HOUR))
                 {
                     TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with expired refund time (%u). Deleting refund data and removing refundable flag.",
-                        GetGUID().GetCounter(), GetName().c_str(), item->GetGUID().GetCounter(), item->GetEntry(), item->GetPlayedTime());
+                        GetGUID().GetCounter(), GetName().c_str(), item->GetGUID().GetCounter(), item->GetEntry(), item->GetPlayedTime(this));
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_REFUND_INSTANCE);
                     stmt->setUInt32(0, item->GetGUID().GetCounter());
@@ -27508,8 +27508,8 @@ void Player::SendRefundInfo(Item* item)
     data.FlushBits();
 
     data.WriteByteSeq(guid[7]);
-    data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)                             // item cost data
+    data << uint32(2 * HOUR * IN_MILLISECONDS - item->GetPlayedTime(this) * IN_MILLISECONDS); // Refund Time Left
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)                                       // item cost data
     {
         data << uint32(iece->RequiredItemCount[i]);
         data << uint32(iece->RequiredItem[i]);
@@ -27629,7 +27629,7 @@ void Player::RefundItem(Item* item)
         return;
     }
 
-    if (item->IsRefundExpired())    // item refund has expired
+    if (item->IsRefundExpired(this))    // item refund has expired
     {
         item->SetNotRefundable(this);
         SendItemRefundResult(item, nullptr, 10);

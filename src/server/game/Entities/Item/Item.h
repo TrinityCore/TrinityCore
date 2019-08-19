@@ -189,8 +189,8 @@ class TC_GAME_API Item : public Object
         uint32 GetPaidExtendedCost() const { return m_paidExtendedCost; }
 
         void UpdatePlayedTime(Player* owner);
-        uint32 GetPlayedTime();
-        bool IsRefundExpired();
+        uint32 GetPlayedTime(Player const* owner) const;
+        bool IsRefundExpired(Player const* owner) const;
 
         // Soulbound trade system
         void SetSoulboundTradeable(GuidSet const& allowedLooters);
@@ -228,7 +228,6 @@ class TC_GAME_API Item : public Object
         ItemUpdateState uState;
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
-        time_t m_lastPlayedTimeUpdate;
         ObjectGuid::LowType m_refundRecipient;
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
