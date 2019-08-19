@@ -11,6 +11,7 @@
 #    PERFORMANCE SETTINGS
 #    SERVER LOGGING
 #    SERVER SETTINGS
+#    CRYPTOGRAPHY
 #    UPDATE SETTINGS
 #    HOTSWAP SETTINGS
 #    WARDEN SETTINGS
@@ -1046,6 +1047,15 @@ Quests.IgnoreAutoComplete = 0
 Quests.DailyResetTime = 3
 
 #
+#    Quests.WeeklyResetWDay
+#        Description: Day of the week when weekly quest reset occurs.
+#        Range:       0 (Sunday) to 6 (Saturday)
+#        Default:     3 - (Wednesday)
+#
+
+Quests.WeeklyResetWDay = 3
+
+#
 #    Guild.EventLogRecordsCount
 #        Description: Number of log entries for guild events that are stored per guild. Old entries
 #                     will be overwritten if the number of log entries exceed the configured value.
@@ -1292,6 +1302,25 @@ BirthdayTime = 1222964635
 #
 
 CacheDataQueries = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+# CRYPTOGRAPHY
+#
+#    TOTPMasterSecret
+#        Description: The key used by authserver to decrypt TOTP secrets from database storage.
+#                     You only need to set this here if you plan to use the in-game 2FA
+#                     management commands (.account 2fa), otherwise this can be left blank.
+#
+#                     The server will auto-detect if this does not match your authserver setting,
+#                     in which case any commands reliant on the secret will be disabled.
+#
+#        Default:     <blank>
+#
+
+TOTPMasterSecret =
 
 #
 ###################################################################################################

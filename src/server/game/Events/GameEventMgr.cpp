@@ -1521,7 +1521,7 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
     QuestRelList::iterator itr;
     for (itr = mGameEventCreatureQuests[event_id].begin(); itr != mGameEventCreatureQuests[event_id].end(); ++itr)
     {
-        QuestRelations* CreatureQuestMap = sObjectMgr->GetCreatureQuestRelationMap();
+        QuestRelations* CreatureQuestMap = sObjectMgr->GetCreatureQuestRelationMapHACK();
         if (activate)                                           // Add the pair(id, quest) to the multimap
             CreatureQuestMap->insert(QuestRelations::value_type(itr->first, itr->second));
         else
@@ -1546,7 +1546,7 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
     }
     for (itr = mGameEventGameObjectQuests[event_id].begin(); itr != mGameEventGameObjectQuests[event_id].end(); ++itr)
     {
-        QuestRelations* GameObjectQuestMap = sObjectMgr->GetGOQuestRelationMap();
+        QuestRelations* GameObjectQuestMap = sObjectMgr->GetGOQuestRelationMapHACK();
         if (activate)                                           // Add the pair(id, quest) to the multimap
             GameObjectQuestMap->insert(QuestRelations::value_type(itr->first, itr->second));
         else

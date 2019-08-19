@@ -1242,13 +1242,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
 
         addhealth += damageAmount;
     }
-    // Runic Healing Injector (heal increased by 25% for engineers - 3.2.0 patch change)
-    else if (m_spellInfo->Id == 67489)
-    {
-        if (Player* player = unitCaster->ToPlayer())
-            if (player->HasSkill(SKILL_ENGINEERING))
-                AddPct(addhealth, 25);
-    }
     // Swiftmend - consumes Regrowth or Rejuvenation
     else if (m_spellInfo->TargetAuraState == AURA_STATE_SWIFTMEND && unitTarget->HasAuraState(AURA_STATE_SWIFTMEND, m_spellInfo, unitCaster))
     {
@@ -2297,7 +2290,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         {
             auto successItr = std::find_if(successList.begin(), successList.end(), [&itr](DispelableAura& dispelAura) -> bool
             {
-                if (dispelAura.GetAura()->GetId() == itr->GetAura()->GetId())
+                if (dispelAura.GetAura()->GetId() == itr->GetAura()->GetId() && dispelAura.GetAura()->GetCaster() == itr->GetAura()->GetCaster())
                     return true;
 
                 return false;

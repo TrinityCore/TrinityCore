@@ -35,6 +35,7 @@
 #include "SharedDefines.h"
 #include "Trainer.h"
 #include "VehicleDefines.h"
+#include <iterator>
 #include <map>
 #include <unordered_map>
 
@@ -584,9 +585,54 @@ typedef std::unordered_map<uint32, QuestGreetingLocale> QuestGreetingLocaleConta
 typedef std::unordered_map<uint32, TrinityString> TrinityStringContainer;
 
 typedef std::multimap<uint32, uint32> QuestRelations; // unit/go -> quest
-typedef std::multimap<uint32, uint32> QuestRelationsReverse; // quest -> unit/go
-typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> QuestRelationBounds;
-typedef std::pair<QuestRelationsReverse::const_iterator, QuestRelationsReverse::const_iterator> QuestRelationReverseBounds;
+
+struct QuestRelationResult
+{
+    public:
+        struct Iterator
+        {
+            public:
+                using iterator_category = std::forward_iterator_tag;
+                using value_type = QuestRelations::mapped_type;
+                using pointer = value_type const*;
+                using reference = value_type const&;
+                using difference_type = void;
+
+                Iterator(QuestRelations::const_iterator it, QuestRelations::const_iterator end, bool onlyActive)
+                    : _it(it), _end(end), _onlyActive(onlyActive)
+                {
+                    skip();
+                }
+
+                bool operator==(Iterator const& other) const { return _it == other._it; }
+                bool operator!=(Iterator const& other) const { return _it != other._it; }
+
+                Iterator& operator++() { ++_it; skip(); return *this; }
+                Iterator operator++(int) { Iterator t = *this; ++*this; return t; }
+
+                value_type operator*() const { return _it->second; }
+
+            private:
+                void skip() { if (_onlyActive) _skip(); }
+                void _skip();
+
+                QuestRelations::const_iterator _it, _end;
+                bool _onlyActive;
+        };
+
+        QuestRelationResult() : _onlyActive(false) {}
+        QuestRelationResult(std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> range, bool onlyActive)
+            : _begin(range.first), _end(range.second), _onlyActive(onlyActive) {}
+
+        Iterator begin() const { return { _begin, _end, _onlyActive }; }
+        Iterator end() const { return { _end, _end, _onlyActive }; }
+
+        bool HasQuest(uint32 questId) const;
+
+    private:
+        QuestRelations::const_iterator _begin, _end;
+        bool _onlyActive;
+};
 
 struct PlayerCreateInfoItem
 {
@@ -1084,45 +1130,12 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureQuestStarters();
         void LoadCreatureQuestEnders();
 
-        QuestRelations* GetGOQuestRelationMap()
-        {
-            return &_goQuestRelations;
-        }
-
-        QuestRelationBounds GetGOQuestRelationBounds(uint32 go_entry) const
-        {
-            return _goQuestRelations.equal_range(go_entry);
-        }
-
-        QuestRelationBounds GetGOQuestInvolvedRelationBounds(uint32 go_entry) const
-        {
-            return _goQuestInvolvedRelations.equal_range(go_entry);
-        }
-
-        QuestRelationReverseBounds GetGOQuestInvolvedRelationReverseBounds(uint32 questId) const
-        {
-            return _goQuestInvolvedRelationsReverse.equal_range(questId);
-        }
-
-        QuestRelations* GetCreatureQuestRelationMap()
-        {
-            return &_creatureQuestRelations;
-        }
-
-        QuestRelationBounds GetCreatureQuestRelationBounds(uint32 creature_entry) const
-        {
-            return _creatureQuestRelations.equal_range(creature_entry);
-        }
-
-        QuestRelationBounds GetCreatureQuestInvolvedRelationBounds(uint32 creature_entry) const
-        {
-            return _creatureQuestInvolvedRelations.equal_range(creature_entry);
-        }
-
-        QuestRelationReverseBounds GetCreatureQuestInvolvedRelationReverseBounds(uint32 questId) const
-        {
-            return _creatureQuestInvolvedRelationsReverse.equal_range(questId);
-        }
+        QuestRelations* GetGOQuestRelationMapHACK() { return &_goQuestRelations; }
+        QuestRelationResult GetGOQuestRelations(uint32 entry) const { return GetQuestRelationsFrom(_goQuestRelations, entry, true); }
+        QuestRelationResult GetGOQuestInvolvedRelations(uint32 entry) const { return GetQuestRelationsFrom(_goQuestInvolvedRelations, entry, false); }
+        QuestRelations* GetCreatureQuestRelationMapHACK() { return &_creatureQuestRelations; }
+        QuestRelationResult GetCreatureQuestRelations(uint32 entry) const { return GetQuestRelationsFrom(_creatureQuestRelations, entry, true); }
+        QuestRelationResult GetCreatureQuestInvolvedRelations(uint32 entry) const { return GetQuestRelationsFrom(_creatureQuestInvolvedRelations, entry, false); }
 
         ExclusiveQuestGroupsBounds GetExclusiveQuestGroupBounds(int32 exclusiveGroupId) const
         {
@@ -1580,10 +1593,8 @@ class TC_GAME_API ObjectMgr
 
         QuestRelations _goQuestRelations;
         QuestRelations _goQuestInvolvedRelations;
-        QuestRelationsReverse _goQuestInvolvedRelationsReverse;
         QuestRelations _creatureQuestRelations;
         QuestRelations _creatureQuestInvolvedRelations;
-        QuestRelationsReverse _creatureQuestInvolvedRelationsReverse;
 
         ExclusiveQuestGroups _exclusiveQuestGroups;
 
@@ -1609,7 +1620,8 @@ class TC_GAME_API ObjectMgr
 
     private:
         void LoadScripts(ScriptsType type);
-        void LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go);
+        void LoadQuestRelationsHelper(QuestRelations& map, std::string const& table);
+        QuestRelationResult GetQuestRelationsFrom(QuestRelations const& map, uint32 key, bool onlyActive) const { return { map.equal_range(key), onlyActive }; }
         void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
         MailLevelRewardContainer _mailLevelRewardStore;

@@ -143,17 +143,15 @@ bool normalizePlayerName(std::string& name)
     if (name.empty())
         return false;
 
-    wchar_t wstr_buf[MAX_INTERNAL_PLAYER_NAME+1];
-    size_t wstr_len = MAX_INTERNAL_PLAYER_NAME;
-
-    if (!Utf8toWStr(name, &wstr_buf[0], wstr_len))
+    std::wstring tmp;
+    if (!Utf8toWStr(name, tmp))
         return false;
 
-    wstr_buf[0] = wcharToUpper(wstr_buf[0]);
-    for (size_t i = 1; i < wstr_len; ++i)
-        wstr_buf[i] = wcharToLower(wstr_buf[i]);
+    wstrToLower(tmp);
+    if (!tmp.empty())
+        tmp[0] = wcharToUpper(tmp[0]);
 
-    if (!WStrToUtf8(wstr_buf, wstr_len, name))
+    if (!WStrToUtf8(tmp, name))
         return false;
 
     return true;
@@ -8294,7 +8292,7 @@ void ObjectMgr::DeleteGameObjectData(ObjectGuid::LowType guid)
     _gameObjectDataStore.erase(guid);
 }
 
-void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go)
+void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const& table)
 {
     uint32 oldMSTime = getMSTime();
 
@@ -8302,7 +8300,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReve
 
     uint32 count = 0;
 
-    QueryResult result = WorldDatabase.PQuery("SELECT id, quest, pool_entry FROM %s qr LEFT JOIN pool_quest pq ON qr.quest = pq.entry", table.c_str());
+    QueryResult result = WorldDatabase.PQuery("SELECT id, quest FROM %s", table.c_str());
 
     if (!result)
     {
@@ -8310,15 +8308,10 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReve
         return;
     }
 
-    PooledQuestRelation* poolRelationMap = go ? &sPoolMgr->mQuestGORelation : &sPoolMgr->mQuestCreatureRelation;
-    if (starter)
-        poolRelationMap->clear();
-
     do
     {
         uint32 id     = result->Fetch()[0].GetUInt32();
         uint32 quest  = result->Fetch()[1].GetUInt32();
-        uint32 poolId = result->Fetch()[2].GetUInt32();
 
         if (!_questTemplates.count(quest))
         {
@@ -8326,15 +8319,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReve
             continue;
         }
 
-        if (!poolId || !starter)
-        {
-            map.insert(QuestRelations::value_type(id, quest));
-            if (reverseMap)
-                reverseMap->insert(QuestRelationsReverse::value_type(quest, id));
-        }
-        else
-            poolRelationMap->insert(PooledQuestRelation::value_type(quest, id));
-
+        map.insert(QuestRelations::value_type(id, quest));
         ++count;
     } while (result->NextRow());
 
@@ -8343,7 +8328,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReve
 
 void ObjectMgr::LoadGameobjectQuestStarters()
 {
-    LoadQuestRelationsHelper(_goQuestRelations, nullptr, "gameobject_queststarter", true, true);
+    LoadQuestRelationsHelper(_goQuestRelations, "gameobject_queststarter");
 
     for (QuestRelations::iterator itr = _goQuestRelations.begin(); itr != _goQuestRelations.end(); ++itr)
     {
@@ -8357,7 +8342,7 @@ void ObjectMgr::LoadGameobjectQuestStarters()
 
 void ObjectMgr::LoadGameobjectQuestEnders()
 {
-    LoadQuestRelationsHelper(_goQuestInvolvedRelations, &_goQuestInvolvedRelationsReverse, "gameobject_questender", false, true);
+    LoadQuestRelationsHelper(_goQuestInvolvedRelations, "gameobject_questender");
 
     for (QuestRelations::iterator itr = _goQuestInvolvedRelations.begin(); itr != _goQuestInvolvedRelations.end(); ++itr)
     {
@@ -8371,7 +8356,7 @@ void ObjectMgr::LoadGameobjectQuestEnders()
 
 void ObjectMgr::LoadCreatureQuestStarters()
 {
-    LoadQuestRelationsHelper(_creatureQuestRelations, nullptr, "creature_queststarter", true, false);
+    LoadQuestRelationsHelper(_creatureQuestRelations, "creature_queststarter");
 
     for (QuestRelations::iterator itr = _creatureQuestRelations.begin(); itr != _creatureQuestRelations.end(); ++itr)
     {
@@ -8385,7 +8370,7 @@ void ObjectMgr::LoadCreatureQuestStarters()
 
 void ObjectMgr::LoadCreatureQuestEnders()
 {
-    LoadQuestRelationsHelper(_creatureQuestInvolvedRelations, &_creatureQuestInvolvedRelationsReverse, "creature_questender", false, false);
+    LoadQuestRelationsHelper(_creatureQuestInvolvedRelations, "creature_questender");
 
     for (QuestRelations::iterator itr = _creatureQuestInvolvedRelations.begin(); itr != _creatureQuestInvolvedRelations.end(); ++itr)
     {
@@ -8395,6 +8380,17 @@ void ObjectMgr::LoadCreatureQuestEnders()
         else if (!(cInfo->npcflag & UNIT_NPC_FLAG_QUESTGIVER))
             TC_LOG_ERROR("sql.sql", "Table `creature_questender` has creature entry (%u) for quest %u, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", itr->first, itr->second);
     }
+}
+
+void QuestRelationResult::Iterator::_skip()
+{
+    while ((_it != _end) && !Quest::IsTakingQuestEnabled(_it->second))
+        ++_it;
+}
+
+bool QuestRelationResult::HasQuest(uint32 questId) const
+{
+    return (std::find_if(_begin, _end, [questId](QuestRelations::value_type const& pair) { return (pair.second == questId); }) != _end) && (!_onlyActive || Quest::IsTakingQuestEnabled(questId));
 }
 
 void ObjectMgr::LoadReservedPlayersNames()
