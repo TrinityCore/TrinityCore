@@ -4678,6 +4678,147 @@ public:
     }
 };
 
+enum EggShell
+{
+    SPELL_EGG_SHELL_NORMAL          = 91296,
+    SPELL_EGG_SHELL_PERIODIC_NORMAL = 91306,
+    SPELL_EGG_SHELL_CANCEL_NORMAL   = 91305,
+    SPELL_EGG_SHELL_PERIODIC_HEROIC = 91311,
+    SPELL_EGG_SHELL_CANCEL_HEROIC   = 91310
+};
+
+// 91296, 91308 - Egg Shell
+class spell_item_egg_shell : public AuraScript
+{
+    PrepareAuraScript(spell_item_egg_shell);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_EGG_SHELL_NORMAL,
+                SPELL_EGG_SHELL_PERIODIC_NORMAL,
+                SPELL_EGG_SHELL_CANCEL_NORMAL,
+                SPELL_EGG_SHELL_PERIODIC_HEROIC,
+                SPELL_EGG_SHELL_CANCEL_HEROIC
+            });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Id == SPELL_EGG_SHELL_NORMAL ? SPELL_EGG_SHELL_PERIODIC_NORMAL : SPELL_EGG_SHELL_PERIODIC_HEROIC, true, nullptr, aurEff);
+    }
+
+    void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
+            GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Id == SPELL_EGG_SHELL_NORMAL ? SPELL_EGG_SHELL_PERIODIC_NORMAL : SPELL_EGG_SHELL_PERIODIC_HEROIC, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_egg_shell::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_item_egg_shell::HandleEffectRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_item_song_of_sorrow : public AuraScript
+{
+    PrepareAuraScript(spell_item_song_of_sorrow);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return false;
+
+        int32 pct = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
+
+        if (!damageInfo->GetVictim()->HealthBelowPctDamaged(pct, damageInfo->GetDamage()))
+            return false;
+
+        uint32 spellId = GetSpellInfo()->Effects[EFFECT_0].TriggerSpell;
+        return !GetTarget()->GetSpellHistory()->HasCooldown(spellId) && !GetTarget()->HasAura(spellId);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_item_song_of_sorrow::CheckProc);
+    }
+};
+
+class spell_item_crescendo_of_suffering : public AuraScript
+{
+    PrepareAuraScript(spell_item_crescendo_of_suffering);
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->GetSpellHistory()->AddCooldown(GetSpellInfo()->Id, 0, 10s);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_item_crescendo_of_suffering::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_DONE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+enum ConsumeCharges
+{
+    SPELL_HEARTS_REVELATION         = 91027,
+    SPELL_HEARTS_REVELATION_HEROIC  = 92325,
+    SPELL_RAW_FURY                  = 91832
+};
+
+class spell_item_consume_charges : public SpellScriptLoader
+{
+    public:
+        spell_item_consume_charges(char const* ScriptName, uint32 SpellId) : SpellScriptLoader(ScriptName), _spellId(SpellId) { }
+
+        class spell_item_consume_charges_SpellScript : public SpellScript
+        {
+            friend class spell_item_consume_charges;
+            spell_item_consume_charges_SpellScript(uint32 SpellId) : SpellScript(), _spellId(SpellId) { }
+
+            PrepareSpellScript(spell_item_consume_charges_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ _spellId });
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (Aura* aura = GetCaster()->GetAura(_spellId, GetCaster()->GetGUID()))
+                    if (aura->GetStackAmount() == aura->GetSpellInfo()->StackAmount)
+                        return SPELL_CAST_OK;
+
+                return SPELL_FAILED_CASTER_AURASTATE;
+            }
+
+            void HandleStackConsumption()
+            {
+                if (Unit* caster = GetCaster())
+                    caster->RemoveAurasDueToSpell(_spellId, caster->GetGUID());
+            }
+
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_consume_charges_SpellScript::CheckCast);
+                AfterCast += SpellCastFn(spell_item_consume_charges_SpellScript::HandleStackConsumption);
+            }
+
+            uint32 _spellId;
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_consume_charges_SpellScript(_spellId);
+        }
+
+    private:
+        uint32 _spellId;
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4797,4 +4938,10 @@ void AddSC_item_spell_scripts()
 
     new spell_item_mad_alchemists_potion();
     new spell_item_crazy_alchemists_potion();
+    RegisterAuraScript(spell_item_egg_shell);
+    RegisterAuraScript(spell_item_song_of_sorrow);
+    RegisterAuraScript(spell_item_crescendo_of_suffering);
+    new spell_item_consume_charges("spell_item_hearts_judgement", SPELL_HEARTS_REVELATION);
+    new spell_item_consume_charges("spell_item_hearts_judgement_heroic", SPELL_HEARTS_REVELATION_HEROIC);
+    new spell_item_consume_charges("spell_item_forged_fury", SPELL_RAW_FURY);
 }
