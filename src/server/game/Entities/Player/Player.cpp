@@ -27508,7 +27508,7 @@ void Player::SendRefundInfo(Item* item)
     data.FlushBits();
 
     data.WriteByteSeq(guid[7]);
-    data << uint32(2 * HOUR * IN_MILLISECONDS - item->GetPlayedTime(this) * IN_MILLISECONDS); // Refund Time Left
+    data << uint32(std::max<uint32>(0, 2 * HOUR * IN_MILLISECONDS - item->GetPlayedTime(this) * IN_MILLISECONDS)); // Refund Time Left
     for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)                                       // item cost data
     {
         data << uint32(iece->RequiredItemCount[i]);
