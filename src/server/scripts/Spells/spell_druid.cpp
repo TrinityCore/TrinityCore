@@ -962,8 +962,7 @@ private:
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_moonkin_form_passive::CalculateAmount, EFFECT_0,
-                                                     SPELL_AURA_SCHOOL_ABSORB);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_moonkin_form_passive::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_moonkin_form_passive::Absorb, EFFECT_0);
     }
 };
@@ -976,10 +975,10 @@ class spell_dru_omen_of_clarity : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-                {
-                        SPELL_DRUID_BALANCE_T10_BONUS,
-                        SPELL_DRUID_BALANCE_T10_BONUS_PROC
-                });
+        {
+            SPELL_DRUID_BALANCE_T10_BONUS,
+            SPELL_DRUID_BALANCE_T10_BONUS_PROC
+        });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
