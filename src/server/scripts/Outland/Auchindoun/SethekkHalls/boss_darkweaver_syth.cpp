@@ -64,6 +64,12 @@ enum Events
     EVENT_CHAIN_LIGHTNING       = 5
 };
 
+enum Lakka
+{
+    NPC_LAKKA         = 18956,
+    SAY_LAKKA_FREE    = 1
+};
+
 class boss_darkweaver_syth : public CreatureScript
 {
 public:
@@ -105,6 +111,9 @@ public:
         {
             _JustDied();
             Talk(SAY_DEATH);
+
+            if (Creature* lakka = me->FindNearestCreature(NPC_LAKKA, 500.0f, true))
+                lakka->AI()->Talk(SAY_LAKKA_FREE);
         }
 
         void KilledUnit(Unit* who) override

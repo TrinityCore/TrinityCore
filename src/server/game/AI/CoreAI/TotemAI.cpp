@@ -34,16 +34,9 @@ int32 TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* creature) : CreatureAI(creature), _victimGUID()
+TotemAI::TotemAI(Creature* creature) : NullCreatureAI(creature), _victimGUID()
 {
-    ASSERT(creature->IsTotem(), "TotemAI: AI assigned to a no-totem creature (%s)!", creature->GetGUID().ToString().c_str());
-}
-
-void TotemAI::MoveInLineOfSight(Unit* /*who*/) { }
-
-void TotemAI::EnterEvadeMode(EvadeReason /*why*/)
-{
-    me->CombatStop(true);
+    ASSERT(creature->IsTotem(), "TotemAI: AI assigned to a non-totem creature (%s)!", creature->GetGUID().ToString().c_str());
 }
 
 void TotemAI::UpdateAI(uint32 /*diff*/)

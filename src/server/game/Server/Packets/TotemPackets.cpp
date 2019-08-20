@@ -15,15 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _TOTP_H
-#define _TOTP_H
+#include "TotemPackets.h"
 
-#include "openssl/hmac.h"
-#include "openssl/evp.h"
-
-namespace TOTP
+void WorldPackets::Totem::TotemDestroyed::Read()
 {
-    unsigned int GenerateToken(char const* b32key);
+    _worldPacket >> Slot;
 }
 
-#endif
+WorldPacket const* WorldPackets::Totem::TotemCreated::Write()
+{
+    _worldPacket << Slot;
+    _worldPacket << Totem;
+    _worldPacket << Duration;
+    _worldPacket << SpellID;
+
+    return &_worldPacket;
+}

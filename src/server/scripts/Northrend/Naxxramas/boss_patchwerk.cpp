@@ -122,7 +122,7 @@ public:
                         ThreatReference* secondThreat = nullptr;
                         ThreatReference* thirdThreat = nullptr;
 
-                        ThreatManager const& mgr = me->GetThreatManager();
+                        ThreatManager& mgr = me->GetThreatManager();
                         Unit* currentVictim = mgr.GetCurrentVictim();
                         auto list = mgr.GetModifiableThreatList();
                         auto it = list.begin(), end = list.end();

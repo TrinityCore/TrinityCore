@@ -215,6 +215,9 @@ class TC_GAME_API Quest
         bool HasSpecialFlag(uint32 flag) const { return (_specialFlags & flag) != 0; }
         void SetSpecialFlag(uint32 flag) { _specialFlags |= flag; }
 
+        // whether the quest is globally enabled (spawned by pool, game event active etc.)
+        static bool IsTakingQuestEnabled(uint32 questId);
+
         // table data accessors:
         uint32 GetQuestId() const { return _id; }
         uint32 GetQuestMethod() const { return _method; }

@@ -117,9 +117,15 @@ enum TrinityStrings
     LANG_GOINFO_SIZE                      = 84,
     LANG_GOINFO_ADDON                     = 85,
     LANG_GOINFO_MODEL                     = 86,
-    // Free 87 - 95
-
-
+    LANG_UNKNOWN_ERROR                    = 87,
+    LANG_2FA_COMMANDS_NOT_SETUP           = 88,
+    LANG_2FA_ALREADY_SETUP                = 89,
+    LANG_2FA_INVALID_TOKEN                = 90,
+    LANG_2FA_SECRET_SUGGESTION            = 91,
+    LANG_2FA_SETUP_COMPLETE               = 92,
+    LANG_2FA_NOT_SETUP                    = 93,
+    LANG_2FA_REMOVE_NEED_TOKEN            = 94,
+    LANG_2FA_REMOVE_COMPLETE              = 95,
     LANG_GUILD_RENAME_ALREADY_EXISTS      = 96,
     LANG_GUILD_RENAME_DONE                = 97,
     LANG_RENAME_PLAYER_ALREADY_EXISTS     = 98,
@@ -216,7 +222,10 @@ enum TrinityStrings
     // 179-185 used in master branch
     LANG_TRANSPORT_POSITION               = 186,
     LANG_PARTIAL_GROUP_SUMMON             = 187,
-    // Room for more level 1                188-199 not used
+    LANG_2FA_SECRET_TOO_LONG              = 188,
+    LANG_2FA_SECRET_INVALID               = 189,
+    LANG_2FA_SECRET_SET_COMPLETE          = 190,
+    // Room for more level 1                191-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                     = 200,
@@ -906,13 +915,14 @@ enum TrinityStrings
     LANG_COMMAND_NO_INSTANCES_MATCH       = 1189,
     LANG_COMMAND_MULTIPLE_INSTANCES_MATCH = 1190,
     LANG_COMMAND_MULTIPLE_INSTANCES_ENTRY = 1191,
-    LANG_COMMAND_MAP_NOT_INSTANCE         = 1192,
+    //                                      1192 unused
     LANG_COMMAND_INSTANCE_NO_ENTRANCE     = 1193,
     LANG_COMMAND_INSTANCE_NO_EXIT         = 1194,
     LANG_COMMAND_WENT_TO_INSTANCE_GATE    = 1195,
     LANG_COMMAND_WENT_TO_INSTANCE_START   = 1196,
-    LANG_COMMAND_GO_INSTANCE_FAILED       = 1197,
-    // Room for more level 3                1197-1199 not used
+    LANG_COMMAND_GO_INSTANCE_GATE_FAILED  = 1197,
+    LANG_COMMAND_GO_INSTANCE_START_FAILED = 1198,
+    // Room for more level 3                1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST              = 1200,
@@ -921,7 +931,15 @@ enum TrinityStrings
     LANG_DEBUG_AREATRIGGER_OFF            = 1203,
     LANG_DEBUG_AREATRIGGER_REACHED        = 1204,
 
-    // 1205-1998 - free
+    LANG_COMMAND_NO_BOSSES_MATCH          = 1205,
+    LANG_COMMAND_MULTIPLE_BOSSES_MATCH    = 1206,
+    LANG_COMMAND_MULTIPLE_BOSSES_ENTRY    = 1207,
+    LANG_COMMAND_BOSS_MULTIPLE_SPAWNS     = 1208,
+    LANG_COMMAND_BOSS_MULTIPLE_SPAWN_ETY  = 1209,
+    LANG_COMMAND_GO_BOSS_FAILED           = 1210,
+    LANG_COMMAND_WENT_TO_BOSS             = 1211,
+
+    // 1212-1998 - free
     LANG_DO_NOT_USE_6X_DEBUG_AREATRIGGER_LEFT = 1999,
     // Ticket Strings 2000-2030
     LANG_COMMAND_TICKETNEW                = 2000,
@@ -1047,8 +1065,8 @@ enum TrinityStrings
     LANG_LIST_RESPAWNS_ZONE               = 5078,
     LANG_LIST_RESPAWNS_LISTHEADER         = 5079,
     LANG_LIST_RESPAWNS_OVERDUE            = 5080,
-    LANG_LIST_RESPAWNS_CREATURES          = 5081,
-    LANG_LIST_RESPAWNS_GAMEOBJECTS        = 5082,
+    // unused 5081
+    // unused 5082
     LANG_OBJECTINFO_AITYPE                = 5083,
 
     // Room for more Trinity strings        5084-6603

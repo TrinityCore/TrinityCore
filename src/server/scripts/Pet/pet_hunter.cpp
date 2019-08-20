@@ -65,7 +65,7 @@ class npc_pet_hunter_snake_trap : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override { }
 
-            void Reset() override
+            void JustAppeared() override
             {
                 _isViper = me->GetEntry() == NPC_HUNTER_VIPER ? true : false;
 

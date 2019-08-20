@@ -190,73 +190,6 @@ public:
 };
 
 /*#####
-# item_pile_fake_furs
-#####*/
-
-enum PileFakeFur
-{
-    GO_CARIBOU_TRAP_1                                      = 187982,
-    GO_CARIBOU_TRAP_2                                      = 187995,
-    GO_CARIBOU_TRAP_3                                      = 187996,
-    GO_CARIBOU_TRAP_4                                      = 187997,
-    GO_CARIBOU_TRAP_5                                      = 187998,
-    GO_CARIBOU_TRAP_6                                      = 187999,
-    GO_CARIBOU_TRAP_7                                      = 188000,
-    GO_CARIBOU_TRAP_8                                      = 188001,
-    GO_CARIBOU_TRAP_9                                      = 188002,
-    GO_CARIBOU_TRAP_10                                     = 188003,
-    GO_CARIBOU_TRAP_11                                     = 188004,
-    GO_CARIBOU_TRAP_12                                     = 188005,
-    GO_CARIBOU_TRAP_13                                     = 188006,
-    GO_CARIBOU_TRAP_14                                     = 188007,
-    GO_CARIBOU_TRAP_15                                     = 188008,
-    GO_HIGH_QUALITY_FUR                                    = 187983,
-    NPC_NESINGWARY_TRAPPER                                 = 25835
-};
-
-#define CaribouTrapsNum 15
-const uint32 CaribouTraps[CaribouTrapsNum] =
-{
-    GO_CARIBOU_TRAP_1, GO_CARIBOU_TRAP_2, GO_CARIBOU_TRAP_3, GO_CARIBOU_TRAP_4, GO_CARIBOU_TRAP_5,
-    GO_CARIBOU_TRAP_6, GO_CARIBOU_TRAP_7, GO_CARIBOU_TRAP_8, GO_CARIBOU_TRAP_9, GO_CARIBOU_TRAP_10,
-    GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
-};
-
-class item_pile_fake_furs : public ItemScript
-{
-public:
-    item_pile_fake_furs() : ItemScript("item_pile_fake_furs") { }
-
-    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const & /*targets*/) override
-    {
-        GameObject* go = nullptr;
-        for (uint8 i = 0; i < CaribouTrapsNum; ++i)
-        {
-            go = player->FindNearestGameObject(CaribouTraps[i], 5.0f);
-            if (go)
-                break;
-        }
-
-        if (!go)
-            return false;
-
-        if (go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || go->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
-            return true;
-
-        float x, y, z;
-        go->GetClosePoint(x, y, z, go->GetCombatReach() / 3, 7.0f);
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, QuaternionData(), 1);
-        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
-        {
-            summon->SetVisible(false);
-            summon->SetReactState(REACT_PASSIVE);
-            summon->SetImmuneToPC(true);
-        }
-        return false;
-    }
-};
-
-/*#####
 # item_petrov_cluster_bombs
 #####*/
 
@@ -421,7 +354,6 @@ void AddSC_item_scripts()
     new item_incendiary_explosives();
     new item_mysterious_egg();
     new item_disgusting_jar();
-    new item_pile_fake_furs();
     new item_petrov_cluster_bombs();
     new item_dehta_trap_smasher();
     new item_captured_frog();

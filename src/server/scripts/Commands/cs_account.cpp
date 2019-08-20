@@ -23,7 +23,10 @@ Category: commandscripts
 EndScriptData */
 
 #include "AccountMgr.h"
+#include "AES.h"
+#include "Base32.h"
 #include "Chat.h"
+#include "CryptoGenerics.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"
 #include "IPLocation.h"
@@ -31,8 +34,12 @@ EndScriptData */
 #include "Log.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SecretMgr.h"
+#include "TOTP.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <unordered_map>
+#include <openssl/rand.h>
 
 using namespace Trinity::ChatCommands;
 
@@ -54,6 +61,12 @@ public:
             { "sec",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC,         true,  nullptr,                "", accountSetSecTable },
             { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL,     true,  &HandleAccountSetGmLevelCommand,   ""       },
             { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,    true,  &HandleAccountSetPasswordCommand,  ""       },
+            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,         true,  &HandleAccountSet2FACommand,       ""       },
+        };
+        static std::vector<ChatCommand> account2FACommandTable =
+        {
+            { "setup",          rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,       false,  &HandleAccount2FASetupCommand,     ""      },
+            { "remove",         rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,      false,  &HandleAccount2FARemoveCommand,     ""     },
         };
         static std::vector<ChatCommand> accountLockCommandTable =
         {
@@ -62,6 +75,7 @@ public:
         };
         static std::vector<ChatCommand> accountCommandTable =
         {
+            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA,             false, nullptr,           "", account2FACommandTable  },
             { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,           false, &HandleAccountAddonCommand,        ""       },
             { "create",         rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,          true,  &HandleAccountCreateCommand,       ""       },
             { "delete",         rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,          true,  &HandleAccountDeleteCommand,       ""       },
@@ -77,6 +91,138 @@ public:
             { "account",        rbac::RBAC_PERM_COMMAND_ACCOUNT,                 true,  nullptr,              "",  accountCommandTable },
         };
         return commandTable;
+    }
+
+    static bool HandleAccount2FASetupCommand(ChatHandler* handler, Optional<uint32> token)
+    {
+        auto const& masterKey = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY);
+        if (!masterKey.IsAvailable())
+        {
+            handler->SendSysMessage(LANG_2FA_COMMANDS_NOT_SETUP);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 const accountId = handler->GetSession()->GetAccountId();
+
+        { // check if 2FA already enabled
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+            stmt->setUInt32(0, accountId);
+            PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+            if (!result)
+            {
+                TC_LOG_ERROR("misc", "Account %u not found in login database when processing .account 2fa setup command.", accountId);
+                handler->SendSysMessage(LANG_UNKNOWN_ERROR);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!result->Fetch()->IsNull())
+            {
+                handler->SendSysMessage(LANG_2FA_ALREADY_SETUP);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+
+        // store random suggested secrets
+        static std::unordered_map<uint32, Trinity::Crypto::TOTP::Secret> suggestions;
+        auto pair = suggestions.emplace(std::piecewise_construct, std::make_tuple(accountId), std::make_tuple(Trinity::Crypto::TOTP::RECOMMENDED_SECRET_LENGTH)); // std::vector 1-argument size_t constructor invokes resize
+        if (pair.second) // no suggestion yet, generate random secret
+            RAND_bytes(pair.first->second.data(), pair.first->second.size());
+
+        if (!pair.second && token) // suggestion already existed and token specified - validate
+        {
+            if (Trinity::Crypto::TOTP::ValidateToken(pair.first->second, *token))
+            {
+                if (masterKey)
+                    Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(pair.first->second, *masterKey);
+
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                stmt->setBinary(0, pair.first->second);
+                stmt->setUInt32(1, accountId);
+                LoginDatabase.Execute(stmt);
+                suggestions.erase(pair.first);
+                handler->SendSysMessage(LANG_2FA_SETUP_COMPLETE);
+                return true;
+            }
+            else
+                handler->SendSysMessage(LANG_2FA_INVALID_TOKEN);
+        }
+
+        // new suggestion, or no token specified, output TOTP parameters
+        handler->PSendSysMessage(LANG_2FA_SECRET_SUGGESTION, Trinity::Encoding::Base32::Encode(pair.first->second));
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    static bool HandleAccount2FARemoveCommand(ChatHandler* handler, Optional<uint32> token)
+    {
+        auto const& masterKey = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY);
+        if (!masterKey.IsAvailable())
+        {
+            handler->SendSysMessage(LANG_2FA_COMMANDS_NOT_SETUP);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 const accountId = handler->GetSession()->GetAccountId();
+        Trinity::Crypto::TOTP::Secret secret;
+        { // get current TOTP secret
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET);
+            stmt->setUInt32(0, accountId);
+            PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+            if (!result)
+            {
+                TC_LOG_ERROR("misc", "Account %u not found in login database when processing .account 2fa setup command.", accountId);
+                handler->SendSysMessage(LANG_UNKNOWN_ERROR);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            Field* field = result->Fetch();
+            if (field->IsNull())
+            { // 2FA not enabled
+                handler->SendSysMessage(LANG_2FA_NOT_SETUP);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            secret = field->GetBinary();
+        }
+
+        if (token)
+        {
+            if (masterKey)
+            {
+                bool success = Trinity::Crypto::AEDecrypt<Trinity::Crypto::AES>(secret, *masterKey);
+                if (!success)
+                {
+                    TC_LOG_ERROR("misc", "Account %u has invalid ciphertext in TOTP token.", accountId);
+                    handler->SendSysMessage(LANG_UNKNOWN_ERROR);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+            }
+
+            if (Trinity::Crypto::TOTP::ValidateToken(secret, *token))
+            {
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                stmt->setNull(0);
+                stmt->setUInt32(1, accountId);
+                LoginDatabase.Execute(stmt);
+                handler->SendSysMessage(LANG_2FA_REMOVE_COMPLETE);
+                return true;
+            }
+            else
+                handler->SendSysMessage(LANG_2FA_INVALID_TOKEN);
+        }
+
+        handler->SendSysMessage(LANG_2FA_REMOVE_NEED_TOKEN);
+        handler->SetSentErrorMessage(true);
+        return false;
     }
 
     static bool HandleAccountAddonCommand(ChatHandler* handler, uint8 expansion)
@@ -656,6 +802,69 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
         }
+        return true;
+    }
+
+    static bool HandleAccountSet2FACommand(ChatHandler* handler, std::string accountName, std::string secret)
+    {
+        if (!Utf8ToUpperOnlyLatin(accountName))
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 targetAccountId = AccountMgr::GetId(accountName);
+        if (!targetAccountId)
+        {
+            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (handler->HasLowerSecurityAccount(nullptr, targetAccountId, true))
+            return false;
+
+        if (secret == "off")
+        {
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+            stmt->setNull(0);
+            stmt->setUInt32(1, targetAccountId);
+            LoginDatabase.Execute(stmt);
+            handler->PSendSysMessage(LANG_2FA_REMOVE_COMPLETE);
+            return true;
+        }
+
+        auto const& masterKey = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY);
+        if (!masterKey.IsAvailable())
+        {
+            handler->SendSysMessage(LANG_2FA_COMMANDS_NOT_SETUP);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        
+        Optional<std::vector<uint8>> decoded = Trinity::Encoding::Base32::Decode(secret);
+        if (!decoded)
+        {
+            handler->SendSysMessage(LANG_2FA_SECRET_INVALID);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        if (128 < (decoded->size() + Trinity::Crypto::AES::IV_SIZE_BYTES + Trinity::Crypto::AES::TAG_SIZE_BYTES))
+        {
+            handler->SendSysMessage(LANG_2FA_SECRET_TOO_LONG);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (masterKey)
+            Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(*decoded, *masterKey);
+
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+        stmt->setBinary(0, *decoded);
+        stmt->setUInt32(1, targetAccountId);
+        LoginDatabase.Execute(stmt);
+        handler->PSendSysMessage(LANG_2FA_SECRET_SET_COMPLETE, accountName.c_str());
         return true;
     }
 
