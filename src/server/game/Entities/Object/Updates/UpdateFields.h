@@ -143,21 +143,22 @@ struct UnlockedAzeriteEssence : public IsUpdateFieldStructureTag
     void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
 };
 
-struct SelectedAzeriteEssences : public IsUpdateFieldStructureTag
+struct SelectedAzeriteEssences : public IsUpdateFieldStructureTag, public HasChangesMask<7>
 {
-    uint32 Field_0;
-    uint32 Enabled;
-    uint32 AzeriteEssenceID[3];
+    UpdateField<uint32, 0, 1> SpecializationID;
+    UpdateField<uint32, 0, 2> Enabled;
+    UpdateFieldArray<uint32, 3, 3, 4> AzeriteEssenceID;
 
     void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
 struct AzeriteItemData : public IsUpdateFieldStructureTag, public HasChangesMask<9>
 {
     DynamicUpdateField<UnlockedAzeriteEssence, 0, 1> UnlockedEssences;
-    DynamicUpdateField<uint32, 0, 2> UnlockedEssenceMilestones;
-    DynamicUpdateField<SelectedAzeriteEssences, 0, 3> SelectedEssences;
+    DynamicUpdateField<uint32, 0, 3> UnlockedEssenceMilestones;
+    DynamicUpdateField<SelectedAzeriteEssences, 0, 2> SelectedEssences;
     UpdateField<uint64, 0, 4> Xp;
     UpdateField<uint32, 0, 5> Level;
     UpdateField<uint32, 0, 6> AuraLevel;
@@ -512,9 +513,9 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     DynamicUpdateField<uint32, 0, 14> Transmog;
     DynamicUpdateField<int32, 0, 15> ConditionalTransmog;
     DynamicUpdateField<int32, 0, 16> SelfResSpells;
-    DynamicUpdateField<SpellPctModByLabel, 0, 17> SpellPctModByLabel;
-    DynamicUpdateField<SpellFlatModByLabel, 0, 18> SpellFlatModByLabel;
-    DynamicUpdateField<CharacterRestriction, 0, 19> CharacterRestrictions;
+    DynamicUpdateField<SpellPctModByLabel, 0, 18> SpellPctModByLabel;
+    DynamicUpdateField<SpellFlatModByLabel, 0, 19> SpellFlatModByLabel;
+    DynamicUpdateField<CharacterRestriction, 0, 17> CharacterRestrictions;
     UpdateField<ObjectGuid, 0, 22> FarsightObject;
     UpdateField<ObjectGuid, 0, 23> SummonedBattlePetGUID;
     UpdateField<uint64, 0, 24> Coinage;
@@ -684,15 +685,16 @@ struct CorpseData : public IsUpdateFieldStructureTag, public HasChangesMask<40>
     void ClearChangesMask();
 };
 
-struct ScaleCurve : public IsUpdateFieldStructureTag
+struct ScaleCurve : public IsUpdateFieldStructureTag, public HasChangesMask<7>
 {
-    bool OverrideActive;
-    uint32 StartTimeOffset;
-    uint32 ParameterCurve;
-    TaggedPosition<Position::XY> Points[2];
+    UpdateField<bool, 0, 1> OverrideActive;
+    UpdateField<uint32, 0, 2> StartTimeOffset;
+    UpdateField<uint32, 0, 3> ParameterCurve;
+    UpdateFieldArray<TaggedPosition<Position::XY>, 2, 4, 5> Points;
 
     void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
 struct AreaTriggerData : public IsUpdateFieldStructureTag, public HasChangesMask<14>

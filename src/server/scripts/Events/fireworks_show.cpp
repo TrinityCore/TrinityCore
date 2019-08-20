@@ -20,6 +20,7 @@
 #include "EventMap.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "CreatureAIImpl.h"
 #include "GameEventMgr.h"
 #include "World.h"
@@ -796,7 +797,7 @@ public:
         {
             _events.Update(diff);
 
-            time_t time = sWorld->GetGameTime();
+            time_t time = GameTime::GetGameTime();
             tm localTm;
             localtime_r(&time, &localTm);
 

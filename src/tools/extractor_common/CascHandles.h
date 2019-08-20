@@ -18,6 +18,7 @@
 #ifndef CascHandles_h__
 #define CascHandles_h__
 
+#include "Define.h"
 #include <CascPort.h>
 #include <memory>
 
@@ -46,19 +47,19 @@ namespace CASC
     typedef std::unique_ptr<HANDLE, StorageDeleter> StorageHandle;
     typedef std::unique_ptr<HANDLE, FileDeleter> FileHandle;
 
-    char const* HumanReadableCASCError(DWORD error);
+    char const* HumanReadableCASCError(uint32 error);
 
-    StorageHandle OpenStorage(boost::filesystem::path const& path, DWORD localeMask, char const* product);
-    DWORD GetBuildNumber(StorageHandle const& storage);
-    DWORD GetInstalledLocalesMask(StorageHandle const& storage);
-    bool HasTactKey(StorageHandle const& storage, ULONGLONG keyLookup);
+    StorageHandle OpenStorage(boost::filesystem::path const& path, uint32 localeMask, char const* product);
+    uint32 GetBuildNumber(StorageHandle const& storage);
+    uint32 GetInstalledLocalesMask(StorageHandle const& storage);
+    bool HasTactKey(StorageHandle const& storage, uint64 keyLookup);
 
-    FileHandle OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors = false, bool zerofillEncryptedParts = false);
-    FileHandle OpenFile(StorageHandle const& storage, DWORD fileDataId, DWORD localeMask, bool printErrors = false, bool zerofillEncryptedParts = false);
-    DWORD GetFileSize(FileHandle const& file, PDWORD fileSizeHigh);
-    DWORD GetFilePointer(FileHandle const& file);
-    bool SetFilePointer(FileHandle const& file, LONGLONG position);
-    bool ReadFile(FileHandle const& file, void* buffer, DWORD bytes, PDWORD bytesRead);
+    FileHandle OpenFile(StorageHandle const& storage, char const* fileName, uint32 localeMask, bool printErrors = false, bool zerofillEncryptedParts = false);
+    FileHandle OpenFile(StorageHandle const& storage, uint32 fileDataId, uint32 localeMask, bool printErrors = false, bool zerofillEncryptedParts = false);
+    int64 GetFileSize(FileHandle const& file);
+    int64 GetFilePointer(FileHandle const& file);
+    bool SetFilePointer(FileHandle const& file, int64 position);
+    bool ReadFile(FileHandle const& file, void* buffer, uint32 bytes, uint32* bytesRead);
 }
 
 #endif // CascHandles_h__

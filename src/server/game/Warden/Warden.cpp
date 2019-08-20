@@ -22,6 +22,7 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
+#include "GameTime.h"
 #include "World.h"
 #include "Util.h"
 #include "Warden.h"
@@ -96,7 +97,7 @@ void Warden::Update()
 {
     if (_initialized)
     {
-        uint32 currentTimestamp = getMSTime();
+        uint32 currentTimestamp = GameTime::GetGameTimeMS();
         uint32 diff = currentTimestamp - _previousTimestamp;
         _previousTimestamp = currentTimestamp;
 

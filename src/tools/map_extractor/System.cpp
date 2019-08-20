@@ -1161,9 +1161,8 @@ void ExtractMaps(uint32 build)
 
 bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filename)
 {
-    DWORD fileSize, fileSizeHigh;
-    fileSize = CASC::GetFileSize(fileInArchive, &fileSizeHigh);
-    if (fileSize == CASC_INVALID_SIZE)
+    int64 fileSize = CASC::GetFileSize(fileInArchive);
+    if (fileSize == -1)
     {
         printf("Can't read file size of '%s'\n", filename.c_str());
         return false;
@@ -1177,12 +1176,12 @@ bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filen
     }
 
     char  buffer[0x10000];
-    DWORD readBytes;
+    uint32 readBytes;
 
     do
     {
         readBytes = 0;
-        if (!CASC::ReadFile(fileInArchive, buffer, std::min<DWORD>(fileSize, sizeof(buffer)), &readBytes))
+        if (!CASC::ReadFile(fileInArchive, buffer, std::min<uint32>(fileSize, sizeof(buffer)), &readBytes))
         {
             printf("Can't read file '%s'\n", filename.c_str());
             fclose(output);
@@ -1213,8 +1212,8 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
         return false;
     }
 
-    std::size_t fileSize = source.GetFileSize();
-    if (fileSize == std::size_t(-1))
+    int64 fileSize = source.GetFileSize();
+    if (fileSize == -1)
     {
         printf("Can't read file size of '%s'\n", cascFileName);
         return false;
@@ -1237,7 +1236,7 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
 
     DB2Header header = db2.GetHeader();
 
-    std::size_t posAfterHeaders = 0;
+    int64 posAfterHeaders = 0;
     posAfterHeaders += fwrite(&header, 1, sizeof(header), output);
 
     // erase TactId from header if key is known
@@ -1251,14 +1250,14 @@ bool ExtractDB2File(uint32 fileDataId, char const* cascFileName, int locale, boo
     }
 
     char buffer[0x10000];
-    DWORD readBatchSize = 0x10000;
-    DWORD readBytes;
+    uint32 readBatchSize = 0x10000;
+    uint32 readBytes;
     source.SetPosition(posAfterHeaders);
 
     do
     {
         readBytes = 0;
-        if (!CASC::ReadFile(source.GetHandle(), buffer, std::min<DWORD>(fileSize, readBatchSize), &readBytes))
+        if (!CASC::ReadFile(source.GetHandle(), buffer, std::min<uint32>(fileSize, readBatchSize), &readBytes))
         {
             printf("Can't read file '%s'\n", outputFileName.c_str());
             fclose(output);

@@ -236,7 +236,7 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
         return false;\
     }
     CHECK(path.size() > 1);
-    CHECK(velocity > 0.01f);
+    CHECK(velocity >= 0.01f);
     CHECK(time_perc >= 0.f && time_perc <= 1.f);
     CHECK(_checkPathLengths());
     if (spellEffectExtra)

@@ -1279,8 +1279,8 @@ void SpellMgr::LoadSpellProcs()
 
     //                                                     0           1                2                 3                 4                 5                 6
     QueryResult result = WorldDatabase.Query("SELECT SpellId, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, SpellFamilyMask3, "
-    //           7              8               9       10              11              12      13        14      15
-        "ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
+    //           7              8               9       10              11                  12              13      14        15       16
+        "ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, DisableEffectsMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
 
     uint32 count = 0;
     if (result)
@@ -1330,10 +1330,11 @@ void SpellMgr::LoadSpellProcs()
             baseProcEntry.SpellPhaseMask     = fields[9].GetUInt32();
             baseProcEntry.HitMask            = fields[10].GetUInt32();
             baseProcEntry.AttributesMask     = fields[11].GetUInt32();
-            baseProcEntry.ProcsPerMinute     = fields[12].GetFloat();
-            baseProcEntry.Chance             = fields[13].GetFloat();
-            baseProcEntry.Cooldown           = Milliseconds(fields[14].GetUInt32());
-            baseProcEntry.Charges            = fields[15].GetUInt8();
+            baseProcEntry.DisableEffectsMask = fields[12].GetUInt32();
+            baseProcEntry.ProcsPerMinute     = fields[13].GetFloat();
+            baseProcEntry.Chance             = fields[14].GetFloat();
+            baseProcEntry.Cooldown           = Milliseconds(fields[15].GetUInt32());
+            baseProcEntry.Charges            = fields[16].GetUInt8();
 
             while (spellInfo)
             {
@@ -1599,6 +1600,7 @@ void SpellMgr::LoadSpellProcs()
         }
 
         procEntry.AttributesMask  = 0;
+        procEntry.DisableEffectsMask = 0;
         if (spellInfo->ProcFlags & PROC_FLAG_KILL)
             procEntry.AttributesMask |= PROC_ATTR_REQ_EXP_OR_HONOR;
         if (addTriggerFlag)
@@ -1789,8 +1791,8 @@ void SpellMgr::LoadSpellEnchantProcData()
 
     mSpellEnchantProcEventMap.clear();                             // need for reload case
 
-    //                                                  0         1           2         3
-    QueryResult result = WorldDatabase.Query("SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
+    //                                                       0       1               2        3               4
+    QueryResult result = WorldDatabase.Query("SELECT EnchantID, Chance, ProcsPerMinute, HitMask, AttributesMask FROM spell_enchant_proc_data");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell enchant proc event conditions. DB table `spell_enchant_proc_data` is empty.");
@@ -1813,9 +1815,10 @@ void SpellMgr::LoadSpellEnchantProcData()
 
         SpellEnchantProcEntry spe;
 
-        spe.customChance = fields[1].GetUInt32();
-        spe.PPMChance = fields[2].GetFloat();
-        spe.procEx = fields[3].GetUInt32();
+        spe.Chance = fields[1].GetFloat();
+        spe.ProcsPerMinute = fields[2].GetFloat();
+        spe.HitMask = fields[3].GetUInt32();
+        spe.AttributesMask = fields[4].GetUInt32();
 
         mSpellEnchantProcEventMap[enchantId] = spe;
 
@@ -2704,6 +2707,17 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo();
+    });
+
+    ApplySpellFix({
+        56690, // Thrust Spear
+        60586, // Mighty Spear Thrust
+        60776, // Claw Swipe
+        60881, // Fatal Strike
+        60864  // Jaws of Death
+        }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
     });
 
     // Howl of Azgalor
@@ -3678,6 +3692,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 if (G3D::fuzzyEq(spellInfo->ConeAngle, 0.f))
                     spellInfo->ConeAngle = 90.f;
         }
+
+        // disable proc for magnet auras, they're handled differently
+        if (spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_SPELL_MAGNET))
+            spellInfo->ProcFlags = 0;
 
         if (spellInfo->ActiveIconFileDataId == 135754)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;

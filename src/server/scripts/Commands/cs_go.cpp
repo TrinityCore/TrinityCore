@@ -336,14 +336,14 @@ public:
         float x, y, z;
         uint32 mapId;
 
-        if (QuestPOIVector const* poiData = sObjectMgr->GetQuestPOIVector(questID))
+        if (QuestPOIData const* poiData = sObjectMgr->GetQuestPOIData(questID))
         {
-            auto data = poiData->front();
+            auto data = poiData->QuestPOIBlobDataStats.front();
 
             mapId = data.MapID;
 
-            x = data.points.front().X;
-            y = data.points.front().Y;
+            x = data.QuestPOIBlobPointStats.front().X;
+            y = data.QuestPOIBlobPointStats.front().Y;
         }
         else
         {
