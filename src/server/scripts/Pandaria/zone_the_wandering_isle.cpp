@@ -66,21 +66,12 @@ class spell_summon_troublemaker : public SpellScript
         if (!entry || !properties || !duration)
             return;
 
-        int32 radius;
-        if (urand(0, 4) == 0)
-            radius = 0;
-        else
-            radius = urand(1, 7);
-        float angle = M_PI * (urand(0, 7) / 7.f);
-        float x = 1181.75f + radius * sin(angle);
-        float y = 3444.5f + radius * cos(angle);
-        float z = 102.9385f;
+        Position pos = { 1181.75f, 3444.5f, 102.9385f, 3.285759f };
+        int32 radius = urand(0, 4) == 0 ? 0 : urand(1, 7);
+        float angle = M_PI + M_PI * (urand(0, 7) / 7.f);
+        pos.RelocateOffset({ radius * sin(angle), radius * cos(angle), 0.f, 0.f });
 
-        GetHitDest()->Relocate(x, y, z);
-
-        Position const spawnPosition = { x, y, z, 3.285759f };
-
-        if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, spawnPosition, properties, duration, GetCaster()))
+        if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, pos, properties, duration, GetCaster()))
             summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
     }
 
@@ -1712,7 +1703,8 @@ enum AysaVordrakaFightEvents
 {
     EVENT_TEMPERED_FURY         = 1,
     EVENT_COMBAT_ROLL           = 2,
-    EVENT_UPDATE_PHASES         = 3
+    EVENT_VORDRAKA_DEATH        = 3,
+    EVENT_UPDATE_PHASES         = 4
 };
 
 enum AysaVordrakaFightSpells
@@ -1725,10 +1717,7 @@ enum AysaVordrakaFightSpells
 
 enum AysaVordrakaFightData
 {
-    DATA_AYSA_TALK_INTRO        = 1,
-    DATA_AYSA_TALK_SMASH        = 2,
-    DATA_SUMMON_AGGRESSORS      = 3,
-    DATA_VORDRAKA_DEATH         = 4,
+    DATA_VORDRAKA_DEATH         = 1
 };
 
 enum AysaVordrakaFightTexts
@@ -1736,8 +1725,8 @@ enum AysaVordrakaFightTexts
     TEXT_INTRO                  = 0,
     TEXT_SMASH                  = 1,
     TEXT_REINFORCEMENTS         = 2,
-    TEXT_LOW_HP                 = 3,
-    TEXT_DEATH                  = 4
+    TEXT_VORDRAKA_LOW_HP        = 3,
+    TEXT_VORDRAKA_DEATH         = 4
 };
 
 enum AysaVordrakaFightMisc
@@ -1790,27 +1779,6 @@ public:
             }
         }
 
-        void SetData(uint32 id, uint32 /*value*/) override
-        {
-            switch (id)
-            {
-                case DATA_AYSA_TALK_INTRO:
-                    Talk(TEXT_INTRO);
-                    break;
-                case DATA_AYSA_TALK_SMASH:
-                    Talk(TEXT_SMASH);
-                    break;
-                case DATA_SUMMON_AGGRESSORS:
-                    Talk(TEXT_REINFORCEMENTS);
-                    break;
-                case DATA_VORDRAKA_DEATH:
-                    Talk(TEXT_DEATH);
-                    EnterEvadeMode();
-                    _events.CancelEvent(EVENT_TEMPERED_FURY);
-                    break;
-            }
-        }
-
         void JustReachedHome() override
         {
             _events.ScheduleEvent(EVENT_UPDATE_PHASES, 5000);
@@ -1838,6 +1806,11 @@ public:
                         // todo: cast combat roll only if it won't kick Vordraka outside of ship boundaries
                         DoCastVictim(SPELL_COMBAT_ROLL);
                         _events.ScheduleEvent(EVENT_TEMPERED_FURY, urand(5000, 7000));
+                        break;
+                    case EVENT_VORDRAKA_DEATH:
+                        Talk(TEXT_VORDRAKA_DEATH);
+                        EnterEvadeMode();
+                        _events.CancelEvent(EVENT_TEMPERED_FURY);
                         break;
                     case EVENT_UPDATE_PHASES:
                         std::list<Player*> players;
@@ -1921,6 +1894,7 @@ public:
             _playerParticipating = false;
             _secondSmash = false;
             _smashAnnounced = false;
+            _vordrakaLowHp = false;
             _aggressorSummoned = 0;
         }
 
@@ -1952,8 +1926,17 @@ public:
             {
                 if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER_VORDRAKA, me->GetVisibilityRange(), true))
                 {
-                    creature->AI()->SetData(DATA_AYSA_TALK_INTRO, DATA_AYSA_TALK_INTRO);
+                    creature->AI()->Talk(TEXT_INTRO);
                     _playerParticipating = true;
+                }
+            }
+
+            if (HealthBelowPct(20) && !_vordrakaLowHp)
+            {
+                if (Creature * creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER_VORDRAKA, me->GetVisibilityRange(), true))
+                {
+                    creature->AI()->Talk(TEXT_VORDRAKA_LOW_HP);
+                    _vordrakaLowHp = true;
                 }
             }
 
@@ -1976,7 +1959,7 @@ public:
                 (*itr)->ToCreature()->DespawnOrUnsummon(0);
 
             if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER_VORDRAKA, me->GetVisibilityRange(), true))
-                creature->AI()->SetData(DATA_VORDRAKA_DEATH, DATA_VORDRAKA_DEATH);
+                creature->AI()->DoAction(EVENT_VORDRAKA_DEATH);
 
             std::list<Player*> playersVisibility;
             me->GetPlayerListInGrid(playersVisibility, me->GetVisibilityRange());
@@ -2019,7 +2002,7 @@ public:
                             {
                                 if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER_VORDRAKA, me->GetVisibilityRange(), true))
                                 {
-                                    creature->AI()->SetData(DATA_AYSA_TALK_SMASH, DATA_AYSA_TALK_SMASH);
+                                    creature->AI()->Talk(TEXT_SMASH);
                                     _smashAnnounced = true;
                                 }
                             }
@@ -2034,7 +2017,7 @@ public:
                         DoCast(me, SPELL_FORCECAST_AGGRESSOR, true);
                         if (_aggressorSummoned == 0)
                             if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER_VORDRAKA, me->GetVisibilityRange(), true))
-                                creature->AI()->SetData(DATA_SUMMON_AGGRESSORS, DATA_SUMMON_AGGRESSORS);
+                                creature->AI()->Talk(TEXT_REINFORCEMENTS);
                         _aggressorSummoned++;
                         break;
                 }
@@ -2048,6 +2031,7 @@ public:
         bool _playerParticipating;
         bool _secondSmash;
         bool _smashAnnounced;
+        bool _vordrakaLowHp;
         uint8 _aggressorSummoned;
     };
 

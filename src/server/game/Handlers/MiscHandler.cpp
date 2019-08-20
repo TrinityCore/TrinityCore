@@ -1146,6 +1146,12 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 
 void WorldSession::HandleSelectFactionOpcode(WorldPackets::Misc::FactionSelect& selectFaction)
 {
+    enum FactionSelection
+    {
+        JOIN_HORDE      = 0,
+        JOIN_ALLIANCE   = 1
+    };
+
     if (_player->getRace() != RACE_PANDAREN_NEUTRAL)
         return;
 

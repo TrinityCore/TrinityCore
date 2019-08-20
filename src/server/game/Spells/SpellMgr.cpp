@@ -3599,11 +3599,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(1);
     });
 
-	// Flame Spout
-	ApplySpellFix({ 114685 }, [](SpellInfo* spellInfo)
-	{
-		const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
-	});
+    // Flame Spout
+    ApplySpellFix({ 114685 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
+    });
 
     // Ride Vehicle
     ApplySpellFix({ 102717 }, [](SpellInfo* spellInfo)
