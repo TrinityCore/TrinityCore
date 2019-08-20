@@ -28,6 +28,7 @@ enum Spells
     SPELL_IMPALING_CHARGE_CONTROL_VEHICLE   = 54958,
     SPELL_STOMP                             = 55292,
     SPELL_PUNCTURE                          = 55276,
+    SPELL_PUNCTURE_HEROIC                   = 59826,
     SPELL_STAMPEDE                          = 55218,
     SPELL_WHIRLING_SLASH                    = 55250,
     SPELL_ENRAGE                            = 55285,
@@ -109,6 +110,7 @@ class boss_gal_darah : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
+                _EnterEvadeMode();
                 summons.DespawnAll();
                 _DespawnAtEvade();
             }
@@ -161,6 +163,7 @@ class boss_gal_darah : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+                instance->DoRemoveAurasDueToSpellOnPlayers(IsHeroic() ? SPELL_PUNCTURE_HEROIC : SPELL_PUNCTURE);
             }
 
             void KilledUnit(Unit* victim) override
