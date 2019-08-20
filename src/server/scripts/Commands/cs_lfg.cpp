@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -83,7 +84,7 @@ public:
 
         ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(uint64(atoull(args)));
 
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
+        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, nameTarget))
         {
             playerTarget = ObjectAccessor::FindPlayer(parseGUID);
             guidTarget = parseGUID;
@@ -97,7 +98,7 @@ public:
             groupTarget = playerTarget->GetGroup();
         else
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
             stmt->setUInt64(0, guidTarget.GetCounter());
             PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
             if (resultGroup)

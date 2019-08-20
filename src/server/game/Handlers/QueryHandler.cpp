@@ -68,112 +68,52 @@ void WorldSession::SendQueryTimeResponse()
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packet)
 {
-    WorldPackets::Query::QueryCreatureResponse response;
-
-    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(packet.CreatureID);
-
-    response.CreatureID = packet.CreatureID;
-
-    if (creatureInfo)
+    if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(packet.CreatureID))
     {
-        response.Allow = true;
-
-        WorldPackets::Query::CreatureStats& stats = response.Stats;
-
-        stats.Leader = creatureInfo->RacialLeader;
-
-        stats.Name[0] = creatureInfo->Name;
-        stats.NameAlt[0] = creatureInfo->FemaleName;
-
-        stats.Flags[0] = creatureInfo->type_flags;
-        stats.Flags[1] = creatureInfo->type_flags2;
-
-        stats.CreatureType = creatureInfo->type;
-        stats.CreatureFamily = creatureInfo->family;
-        stats.Classification = creatureInfo->rank;
-
-        for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
-            stats.ProxyCreatureID[i] = creatureInfo->KillCredit[i];
-
-        std::transform(creatureInfo->Models.begin(), creatureInfo->Models.end(), std::back_inserter(stats.Display.CreatureDisplay),
-            [&stats](CreatureModel const& model) -> WorldPackets::Query::CreatureXDisplay
+        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE '%s' - Entry: %u.", ci->Name.c_str(), packet.CreatureID);
+        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+            SendPacket(&ci->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
+        else
         {
-            stats.Display.TotalProbability += model.Probability;
-            return { model.CreatureDisplayID, model.DisplayScale, model.Probability };
-        });
-
-        stats.HpMulti = creatureInfo->ModHealth;
-        stats.EnergyMulti = creatureInfo->ModMana;
-
-        stats.CreatureMovementInfoID = creatureInfo->movementId;
-        stats.RequiredExpansion = creatureInfo->RequiredExpansion;
-        stats.HealthScalingExpansion = creatureInfo->HealthScalingExpansion;
-        stats.VignetteID = creatureInfo->VignetteID;
-        stats.Class = creatureInfo->unit_class;
-        stats.FadeRegionRadius = creatureInfo->FadeRegionRadius;
-        stats.WidgetSetID = creatureInfo->WidgetSetID;
-        stats.WidgetSetUnitConditionID = creatureInfo->WidgetSetUnitConditionID;
-
-        stats.Title = creatureInfo->SubName;
-        stats.TitleAlt = creatureInfo->TitleAlt;
-        stats.CursorName = creatureInfo->IconName;
-
-        if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
-            stats.QuestItems.insert(stats.QuestItems.begin(), items->begin(), items->end());
-
-        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant != LOCALE_enUS)
-            if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(packet.CreatureID))
-            {
-                ObjectMgr::GetLocaleString(creatureLocale->Name, localeConstant, stats.Name[0]);
-                ObjectMgr::GetLocaleString(creatureLocale->NameAlt, localeConstant, stats.NameAlt[0]);
-                ObjectMgr::GetLocaleString(creatureLocale->Title, localeConstant, stats.Title);
-                ObjectMgr::GetLocaleString(creatureLocale->TitleAlt, localeConstant, stats.TitleAlt);
-            }
+            WorldPacket response = ci->BuildQueryData(GetSessionDbLocaleIndex());
+            SendPacket(&response);
+        }
+        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
     }
+    else
+    {
+        TC_LOG_DEBUG("network", "WORLD: CMSG_QUERY_CREATURE - NO CREATURE INFO! (ENTRY: %u)", packet.CreatureID);
 
-    SendPacket(response.Write());
+        WorldPackets::Query::QueryCreatureResponse response;
+        response.CreatureID = packet.CreatureID;
+        SendPacket(response.Write());
+        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUERY_CREATURE_RESPONSE");
+    }
 }
 
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet)
 {
-    WorldPackets::Query::QueryGameObjectResponse response;
-    response.GameObjectID = packet.GameObjectID;
-
-    if (GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(packet.GameObjectID))
+    if (GameObjectTemplate const* info = sObjectMgr->GetGameObjectTemplate(packet.GameObjectID))
     {
-        response.Allow = true;
-        WorldPackets::Query::GameObjectStats& stats = response.Stats;
-
-        stats.Type = gameObjectInfo->type;
-        stats.DisplayID = gameObjectInfo->displayId;
-
-        stats.Name[0] = gameObjectInfo->name;
-        stats.IconName = gameObjectInfo->IconName;
-        stats.CastBarCaption = gameObjectInfo->castBarCaption;
-        stats.UnkString = gameObjectInfo->unk1;
-
-        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant != LOCALE_enUS)
-            if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(packet.GameObjectID))
-            {
-                ObjectMgr::GetLocaleString(gameObjectLocale->Name, localeConstant, stats.Name[0]);
-                ObjectMgr::GetLocaleString(gameObjectLocale->CastBarCaption, localeConstant, stats.CastBarCaption);
-                ObjectMgr::GetLocaleString(gameObjectLocale->Unk1, localeConstant, stats.UnkString);
-            }
-
-        stats.Size = gameObjectInfo->size;
-
-        if (std::vector<uint32> const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID))
-            for (int32 item : *items)
-                stats.QuestItems.push_back(item);
-
-        memcpy(stats.Data, gameObjectInfo->raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
-        stats.RequiredLevel = gameObjectInfo->RequiredLevel;
+        if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+            SendPacket(&info->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
+        else
+        {
+            WorldPacket response = info->BuildQueryData(GetSessionDbLocaleIndex());
+            SendPacket(&response);
+        }
+        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }
+    else
+    {
+        TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (ENTRY: %u)", packet.GameObjectID);
 
-    SendPacket(response.Write());
+        WorldPackets::Query::QueryGameObjectResponse response;
+        response.GameObjectID = packet.GameObjectID;
+        SendPacket(response.Write());
+        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
+    }
 }
 
 void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& queryCorpseLocation)
@@ -344,60 +284,10 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
 
     WorldPackets::Query::QuestPOIQueryResponse response;
 
-    for (auto itr = questIds.begin(); itr != questIds.end(); ++itr)
-    {
-        int32 QuestID = *itr;
-
-        bool questOk = false;
-
-        uint16 questSlot = _player->FindQuestSlot(uint32(QuestID));
-
-        if (questSlot != MAX_QUEST_LOG_SIZE)
-            questOk = _player->GetQuestSlotQuestId(questSlot) == uint32(QuestID);
-
-        if (questOk)
-        {
-            QuestPOIVector const* poiData = sObjectMgr->GetQuestPOIVector(QuestID);
-            if (poiData)
-            {
-                WorldPackets::Query::QuestPOIData questPOIData;
-
-                questPOIData.QuestID = QuestID;
-
-                for (auto data = poiData->begin(); data != poiData->end(); ++data)
-                {
-                    WorldPackets::Query::QuestPOIBlobData questPOIBlobData;
-
-                    questPOIBlobData.BlobIndex          = data->BlobIndex;
-                    questPOIBlobData.ObjectiveIndex     = data->ObjectiveIndex;
-                    questPOIBlobData.QuestObjectiveID   = data->QuestObjectiveID;
-                    questPOIBlobData.QuestObjectID      = data->QuestObjectID;
-                    questPOIBlobData.MapID              = data->MapID;
-                    questPOIBlobData.UiMapID            = data->UiMapID;
-                    questPOIBlobData.Priority           = data->Priority;
-                    questPOIBlobData.Flags              = data->Flags;
-                    questPOIBlobData.WorldEffectID      = data->WorldEffectID;
-                    questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
-                    questPOIBlobData.SpawnTrackingID    = data->SpawnTrackingID;
-                    questPOIBlobData.AlwaysAllowMergingBlobs = data->AlwaysAllowMergingBlobs;
-
-                    for (QuestPOIPoint const& point : data->points)
-                    {
-                        WorldPackets::Query::QuestPOIBlobPoint questPOIBlobPoint;
-
-                        questPOIBlobPoint.X = point.X;
-                        questPOIBlobPoint.Y = point.Y;
-
-                        questPOIBlobData.QuestPOIBlobPointStats.push_back(questPOIBlobPoint);
-                    }
-
-                    questPOIData.QuestPOIBlobDataStats.push_back(questPOIBlobData);
-                }
-
-                response.QuestPOIDataStats.push_back(questPOIData);
-            }
-        }
-    }
+    for (uint32 questId : questIds)
+        if (_player->FindQuestSlot(questId) != MAX_QUEST_LOG_SIZE)
+            if (QuestPOIData const* poiData = sObjectMgr->GetQuestPOIData(questId))
+                response.QuestPOIDataStats.push_back(poiData);
 
     SendPacket(response.Write());
 }

@@ -290,7 +290,10 @@ void Transport::RemovePassenger(WorldObject* passenger)
         TC_LOG_DEBUG("entities.transport", "Object %s removed from transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
         if (Player* plr = passenger->ToPlayer())
+        {
             sScriptMgr->OnRemovePassenger(this, plr);
+            plr->SetFallInformation(0, plr->GetPositionZ());
+        }
     }
 }
 
@@ -720,8 +723,11 @@ void Transport::UpdatePassengerPositions(PassengerSet& passengers)
             }
             case TYPEID_PLAYER:
                 //relocate only passengers in world and skip any player that might be still logging in/teleporting
-                if (passenger->IsInWorld())
+                if (passenger->IsInWorld() && !passenger->ToPlayer()->IsBeingTeleported())
+                {
                     GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
+                    passenger->ToPlayer()->SetFallInformation(0, passenger->GetPositionZ());
+                }
                 break;
             case TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);

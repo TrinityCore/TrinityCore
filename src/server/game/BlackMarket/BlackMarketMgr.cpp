@@ -18,6 +18,7 @@
 #include "BlackMarketMgr.h"
 #include "AccountMgr.h"
 #include "BlackMarketPackets.h"
+#include "CharacterCache.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
@@ -101,7 +102,7 @@ void BlackMarketMgr::LoadAuctions()
         _auctions.clear();
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BLACKMARKET_AUCTIONS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BLACKMARKET_AUCTIONS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
@@ -111,7 +112,7 @@ void BlackMarketMgr::LoadAuctions()
 
     _lastUpdate = time(nullptr); //Set update time before loading
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     do
     {
         Field* fields = result->Fetch();
@@ -141,7 +142,7 @@ void BlackMarketMgr::LoadAuctions()
 
 void BlackMarketMgr::Update(bool updateTime)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     time_t now = time(nullptr);
     for (BlackMarketEntryMap::iterator itr = _auctions.begin(); itr != _auctions.end(); ++itr)
     {
@@ -162,7 +163,7 @@ void BlackMarketMgr::Update(bool updateTime)
 
 void BlackMarketMgr::RefreshAuctions()
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     // Delete completed auctions
     for (BlackMarketEntryMap::iterator itr = _auctions.begin(); itr != _auctions.end();)
     {
@@ -257,7 +258,7 @@ void BlackMarketMgr::AddTemplate(BlackMarketTemplate* templ)
     _templates[templ->MarketID] = templ;
 }
 
-void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, SQLTransaction& trans)
+void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDatabaseTransaction& trans)
 {
     // Mail already sent
     if (entry->GetMailSent())
@@ -278,13 +279,13 @@ void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, SQLTransaction&
     }
     else
     {
-        bidderAccId = ObjectMgr::GetPlayerAccountIdByGUID(bidderGuid);
+        bidderAccId = sCharacterCache->GetCharacterAccountIdByGuid(bidderGuid);
         if (!bidderAccId) // Account exists
             return;
 
         logGmTrade = AccountMgr::HasPermission(bidderAccId, rbac::RBAC_PERM_LOG_GM_TRADE, realm.Id.Realm);
 
-        if (logGmTrade && !ObjectMgr::GetPlayerNameByGUID(bidderGuid, bidderName))
+        if (logGmTrade && !sCharacterCache->GetCharacterNameByGuid(bidderGuid, bidderName))
             bidderName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
     }
 
@@ -317,14 +318,14 @@ void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, SQLTransaction&
     entry->MailSent();
 }
 
-void BlackMarketMgr::SendAuctionOutbidMail(BlackMarketEntry* entry, SQLTransaction& trans)
+void BlackMarketMgr::SendAuctionOutbidMail(BlackMarketEntry* entry, CharacterDatabaseTransaction& trans)
 {
     ObjectGuid oldBidder_guid = ObjectGuid::Create<HighGuid::Player>(entry->GetBidder());
     Player* oldBidder = ObjectAccessor::FindConnectedPlayer(oldBidder_guid);
 
     uint32 oldBidder_accId = 0;
     if (!oldBidder)
-        oldBidder_accId = ObjectMgr::GetPlayerAccountIdByGUID(oldBidder_guid);
+        oldBidder_accId = sCharacterCache->GetCharacterAccountIdByGuid(oldBidder_guid);
 
     // old bidder exist
     if (!oldBidder && !oldBidder_accId)
@@ -435,7 +436,7 @@ bool BlackMarketEntry::LoadFromDB(Field* fields)
     _bidder = fields[4].GetUInt64();
 
     // Either no bidder or existing player
-    if (_bidder && !sObjectMgr->GetPlayerAccountIdByGUID(ObjectGuid::Create<HighGuid::Player>(_bidder))) // Probably a better way to check if player exists
+    if (_bidder && !sCharacterCache->GetCharacterAccountIdByGuid(ObjectGuid::Create<HighGuid::Player>(_bidder))) // Probably a better way to check if player exists
     {
         TC_LOG_ERROR("misc", "Black market auction %i does not have a valid bidder (GUID: " UI64FMTD " ).", _marketId, _bidder);
         return false;
@@ -444,9 +445,9 @@ bool BlackMarketEntry::LoadFromDB(Field* fields)
     return true;
 }
 
-void BlackMarketEntry::SaveToDB(SQLTransaction& trans) const
+void BlackMarketEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BLACKMARKET_AUCTIONS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_BLACKMARKET_AUCTIONS);
 
     stmt->setInt32(0, _marketId);
     stmt->setUInt64(1, _currentBid);
@@ -457,9 +458,9 @@ void BlackMarketEntry::SaveToDB(SQLTransaction& trans) const
     trans->Append(stmt);
 }
 
-void BlackMarketEntry::DeleteFromDB(SQLTransaction& trans) const
+void BlackMarketEntry::DeleteFromDB(CharacterDatabaseTransaction& trans) const
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BLACKMARKET_AUCTIONS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BLACKMARKET_AUCTIONS);
     stmt->setInt32(0, _marketId);
     trans->Append(stmt);
 }
@@ -478,7 +479,7 @@ bool BlackMarketEntry::ValidateBid(uint64 bid) const
     return true;
 }
 
-void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, SQLTransaction& trans)   //Updated
+void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, CharacterDatabaseTransaction& trans)   //Updated
 {
     if (bid < _currentBid)
         return;
@@ -494,7 +495,7 @@ void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, SQLTransaction& tran
     player->ModifyMoney(-static_cast<int64>(bid));
 
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BLACKMARKET_AUCTIONS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BLACKMARKET_AUCTIONS);
 
     stmt->setUInt64(0, _currentBid);
     stmt->setInt32(1, GetExpirationTime());

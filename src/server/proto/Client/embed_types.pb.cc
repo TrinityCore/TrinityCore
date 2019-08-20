@@ -29,6 +29,12 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* Provider_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   Provider_reflection_ = NULL;
+const ::google::protobuf::Descriptor* Favicon_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  Favicon_reflection_ = NULL;
+const ::google::protobuf::Descriptor* EmbedHTML_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  EmbedHTML_reflection_ = NULL;
 const ::google::protobuf::Descriptor* EmbedInfo_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   EmbedInfo_reflection_ = NULL;
@@ -74,14 +80,48 @@ void protobuf_AssignDesc_embed_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(Provider));
-  EmbedInfo_descriptor_ = file->message_type(2);
-  static const int EmbedInfo_offsets_[6] = {
+  Favicon_descriptor_ = file->message_type(2);
+  static const int Favicon_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Favicon, url_),
+  };
+  Favicon_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      Favicon_descriptor_,
+      Favicon::default_instance_,
+      Favicon_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Favicon, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(Favicon, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(Favicon));
+  EmbedHTML_descriptor_ = file->message_type(3);
+  static const int EmbedHTML_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedHTML, content_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedHTML, width_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedHTML, height_),
+  };
+  EmbedHTML_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      EmbedHTML_descriptor_,
+      EmbedHTML::default_instance_,
+      EmbedHTML_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedHTML, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedHTML, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(EmbedHTML));
+  EmbedInfo_descriptor_ = file->message_type(4);
+  static const int EmbedInfo_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedInfo, title_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedInfo, type_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedInfo, original_url_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedInfo, thumbnail_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedInfo, provider_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedInfo, description_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedInfo, favicon_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(EmbedInfo, html_),
   };
   EmbedInfo_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -111,6 +151,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     Provider_descriptor_, &Provider::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    Favicon_descriptor_, &Favicon::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    EmbedHTML_descriptor_, &EmbedHTML::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     EmbedInfo_descriptor_, &EmbedInfo::default_instance());
 }
 
@@ -121,6 +165,10 @@ void protobuf_ShutdownFile_embed_5ftypes_2eproto() {
   delete EmbedImage_reflection_;
   delete Provider::default_instance_;
   delete Provider_reflection_;
+  delete Favicon::default_instance_;
+  delete Favicon_reflection_;
+  delete EmbedHTML::default_instance_;
+  delete EmbedHTML_reflection_;
   delete EmbedInfo::default_instance_;
   delete EmbedInfo_reflection_;
 }
@@ -134,19 +182,27 @@ void protobuf_AddDesc_embed_5ftypes_2eproto() {
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\021embed_types.proto\022\014bgs.protocol\"8\n\nEmb"
     "edImage\022\013\n\003url\030\001 \001(\t\022\r\n\005width\030\002 \001(\r\022\016\n\006h"
-    "eight\030\003 \001(\r\"\030\n\010Provider\022\014\n\004name\030\001 \001(\t\"\252\001"
-    "\n\tEmbedInfo\022\r\n\005title\030\001 \001(\t\022\014\n\004type\030\002 \001(\t"
-    "\022\024\n\014original_url\030\003 \001(\t\022+\n\tthumbnail\030\004 \001("
-    "\0132\030.bgs.protocol.EmbedImage\022(\n\010provider\030"
-    "\005 \001(\0132\026.bgs.protocol.Provider\022\023\n\013descrip"
-    "tion\030\006 \001(\tB\002H\001", 294);
+    "eight\030\003 \001(\r\"\030\n\010Provider\022\014\n\004name\030\001 \001(\t\"\026\n"
+    "\007Favicon\022\013\n\003url\030\001 \001(\t\";\n\tEmbedHTML\022\017\n\007co"
+    "ntent\030\001 \001(\t\022\r\n\005width\030\002 \001(\r\022\016\n\006height\030\003 \001"
+    "(\r\"\371\001\n\tEmbedInfo\022\r\n\005title\030\001 \001(\t\022\014\n\004type\030"
+    "\002 \001(\t\022\024\n\014original_url\030\003 \001(\t\022+\n\tthumbnail"
+    "\030\004 \001(\0132\030.bgs.protocol.EmbedImage\022(\n\010prov"
+    "ider\030\005 \001(\0132\026.bgs.protocol.Provider\022\023\n\013de"
+    "scription\030\006 \001(\t\022&\n\007favicon\030\007 \001(\0132\025.bgs.p"
+    "rotocol.Favicon\022%\n\004html\030\010 \001(\0132\027.bgs.prot"
+    "ocol.EmbedHTMLB\002H\001", 458);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "embed_types.proto", &protobuf_RegisterTypes);
   EmbedImage::default_instance_ = new EmbedImage();
   Provider::default_instance_ = new Provider();
+  Favicon::default_instance_ = new Favicon();
+  EmbedHTML::default_instance_ = new EmbedHTML();
   EmbedInfo::default_instance_ = new EmbedInfo();
   EmbedImage::default_instance_->InitAsDefaultInstance();
   Provider::default_instance_->InitAsDefaultInstance();
+  Favicon::default_instance_->InitAsDefaultInstance();
+  EmbedHTML::default_instance_->InitAsDefaultInstance();
   EmbedInfo::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_embed_5ftypes_2eproto);
 }
@@ -740,12 +796,593 @@ void Provider::Swap(Provider* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int Favicon::kUrlFieldNumber;
+#endif  // !_MSC_VER
+
+Favicon::Favicon()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.Favicon)
+}
+
+void Favicon::InitAsDefaultInstance() {
+}
+
+Favicon::Favicon(const Favicon& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.Favicon)
+}
+
+void Favicon::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+Favicon::~Favicon() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.Favicon)
+  SharedDtor();
+}
+
+void Favicon::SharedDtor() {
+  if (url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete url_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void Favicon::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* Favicon::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return Favicon_descriptor_;
+}
+
+const Favicon& Favicon::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_embed_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+Favicon* Favicon::default_instance_ = NULL;
+
+Favicon* Favicon::New() const {
+  return new Favicon;
+}
+
+void Favicon::Clear() {
+  if (has_url()) {
+    if (url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+      url_->clear();
+    }
+  }
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool Favicon::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.Favicon)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string url = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_url()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->url().data(), this->url().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "url");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.Favicon)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.Favicon)
+  return false;
+#undef DO_
+}
+
+void Favicon::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.Favicon)
+  // optional string url = 1;
+  if (has_url()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->url().data(), this->url().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "url");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->url(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.Favicon)
+}
+
+::google::protobuf::uint8* Favicon::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.Favicon)
+  // optional string url = 1;
+  if (has_url()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->url().data(), this->url().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "url");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->url(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.Favicon)
+  return target;
+}
+
+int Favicon::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string url = 1;
+    if (has_url()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->url());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void Favicon::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const Favicon* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const Favicon*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void Favicon::MergeFrom(const Favicon& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_url()) {
+      set_url(from.url());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void Favicon::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Favicon::CopyFrom(const Favicon& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Favicon::IsInitialized() const {
+
+  return true;
+}
+
+void Favicon::Swap(Favicon* other) {
+  if (other != this) {
+    std::swap(url_, other->url_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata Favicon::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = Favicon_descriptor_;
+  metadata.reflection = Favicon_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int EmbedHTML::kContentFieldNumber;
+const int EmbedHTML::kWidthFieldNumber;
+const int EmbedHTML::kHeightFieldNumber;
+#endif  // !_MSC_VER
+
+EmbedHTML::EmbedHTML()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.EmbedHTML)
+}
+
+void EmbedHTML::InitAsDefaultInstance() {
+}
+
+EmbedHTML::EmbedHTML(const EmbedHTML& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.EmbedHTML)
+}
+
+void EmbedHTML::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  content_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  width_ = 0u;
+  height_ = 0u;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+EmbedHTML::~EmbedHTML() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.EmbedHTML)
+  SharedDtor();
+}
+
+void EmbedHTML::SharedDtor() {
+  if (content_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete content_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void EmbedHTML::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* EmbedHTML::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return EmbedHTML_descriptor_;
+}
+
+const EmbedHTML& EmbedHTML::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_embed_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+EmbedHTML* EmbedHTML::default_instance_ = NULL;
+
+EmbedHTML* EmbedHTML::New() const {
+  return new EmbedHTML;
+}
+
+void EmbedHTML::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<EmbedHTML*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 7) {
+    ZR_(width_, height_);
+    if (has_content()) {
+      if (content_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        content_->clear();
+      }
+    }
+  }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+  mutable_unknown_fields()->Clear();
+}
+
+bool EmbedHTML::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:bgs.protocol.EmbedHTML)
+  for (;;) {
+    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // optional string content = 1;
+      case 1: {
+        if (tag == 10) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_content()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->content().data(), this->content().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "content");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(16)) goto parse_width;
+        break;
+      }
+
+      // optional uint32 width = 2;
+      case 2: {
+        if (tag == 16) {
+         parse_width:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &width_)));
+          set_has_width();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(24)) goto parse_height;
+        break;
+      }
+
+      // optional uint32 height = 3;
+      case 3: {
+        if (tag == 24) {
+         parse_height:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &height_)));
+          set_has_height();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectAtEnd()) goto success;
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0 ||
+            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
+            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:bgs.protocol.EmbedHTML)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:bgs.protocol.EmbedHTML)
+  return false;
+#undef DO_
+}
+
+void EmbedHTML::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:bgs.protocol.EmbedHTML)
+  // optional string content = 1;
+  if (has_content()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->content().data(), this->content().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "content");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      1, this->content(), output);
+  }
+
+  // optional uint32 width = 2;
+  if (has_width()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->width(), output);
+  }
+
+  // optional uint32 height = 3;
+  if (has_height()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(3, this->height(), output);
+  }
+
+  if (!unknown_fields().empty()) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        unknown_fields(), output);
+  }
+  // @@protoc_insertion_point(serialize_end:bgs.protocol.EmbedHTML)
+}
+
+::google::protobuf::uint8* EmbedHTML::SerializeWithCachedSizesToArray(
+    ::google::protobuf::uint8* target) const {
+  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.EmbedHTML)
+  // optional string content = 1;
+  if (has_content()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->content().data(), this->content().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "content");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        1, this->content(), target);
+  }
+
+  // optional uint32 width = 2;
+  if (has_width()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->width(), target);
+  }
+
+  // optional uint32 height = 3;
+  if (has_height()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(3, this->height(), target);
+  }
+
+  if (!unknown_fields().empty()) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        unknown_fields(), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.EmbedHTML)
+  return target;
+}
+
+int EmbedHTML::ByteSize() const {
+  int total_size = 0;
+
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // optional string content = 1;
+    if (has_content()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->content());
+    }
+
+    // optional uint32 width = 2;
+    if (has_width()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->width());
+    }
+
+    // optional uint32 height = 3;
+    if (has_height()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->height());
+    }
+
+  }
+  if (!unknown_fields().empty()) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        unknown_fields());
+  }
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = total_size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+  return total_size;
+}
+
+void EmbedHTML::MergeFrom(const ::google::protobuf::Message& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  const EmbedHTML* source =
+    ::google::protobuf::internal::dynamic_cast_if_available<const EmbedHTML*>(
+      &from);
+  if (source == NULL) {
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+    MergeFrom(*source);
+  }
+}
+
+void EmbedHTML::MergeFrom(const EmbedHTML& from) {
+  GOOGLE_CHECK_NE(&from, this);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_content()) {
+      set_content(from.content());
+    }
+    if (from.has_width()) {
+      set_width(from.width());
+    }
+    if (from.has_height()) {
+      set_height(from.height());
+    }
+  }
+  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
+}
+
+void EmbedHTML::CopyFrom(const ::google::protobuf::Message& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void EmbedHTML::CopyFrom(const EmbedHTML& from) {
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool EmbedHTML::IsInitialized() const {
+
+  return true;
+}
+
+void EmbedHTML::Swap(EmbedHTML* other) {
+  if (other != this) {
+    std::swap(content_, other->content_);
+    std::swap(width_, other->width_);
+    std::swap(height_, other->height_);
+    std::swap(_has_bits_[0], other->_has_bits_[0]);
+    _unknown_fields_.Swap(&other->_unknown_fields_);
+    std::swap(_cached_size_, other->_cached_size_);
+  }
+}
+
+::google::protobuf::Metadata EmbedHTML::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = EmbedHTML_descriptor_;
+  metadata.reflection = EmbedHTML_reflection_;
+  return metadata;
+}
+
+
+// ===================================================================
+
+#ifndef _MSC_VER
 const int EmbedInfo::kTitleFieldNumber;
 const int EmbedInfo::kTypeFieldNumber;
 const int EmbedInfo::kOriginalUrlFieldNumber;
 const int EmbedInfo::kThumbnailFieldNumber;
 const int EmbedInfo::kProviderFieldNumber;
 const int EmbedInfo::kDescriptionFieldNumber;
+const int EmbedInfo::kFaviconFieldNumber;
+const int EmbedInfo::kHtmlFieldNumber;
 #endif  // !_MSC_VER
 
 EmbedInfo::EmbedInfo()
@@ -757,6 +1394,8 @@ EmbedInfo::EmbedInfo()
 void EmbedInfo::InitAsDefaultInstance() {
   thumbnail_ = const_cast< ::bgs::protocol::EmbedImage*>(&::bgs::protocol::EmbedImage::default_instance());
   provider_ = const_cast< ::bgs::protocol::Provider*>(&::bgs::protocol::Provider::default_instance());
+  favicon_ = const_cast< ::bgs::protocol::Favicon*>(&::bgs::protocol::Favicon::default_instance());
+  html_ = const_cast< ::bgs::protocol::EmbedHTML*>(&::bgs::protocol::EmbedHTML::default_instance());
 }
 
 EmbedInfo::EmbedInfo(const EmbedInfo& from)
@@ -775,6 +1414,8 @@ void EmbedInfo::SharedCtor() {
   thumbnail_ = NULL;
   provider_ = NULL;
   description_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  favicon_ = NULL;
+  html_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -799,6 +1440,8 @@ void EmbedInfo::SharedDtor() {
   if (this != default_instance_) {
     delete thumbnail_;
     delete provider_;
+    delete favicon_;
+    delete html_;
   }
 }
 
@@ -824,7 +1467,7 @@ EmbedInfo* EmbedInfo::New() const {
 }
 
 void EmbedInfo::Clear() {
-  if (_has_bits_[0 / 32] & 63) {
+  if (_has_bits_[0 / 32] & 255) {
     if (has_title()) {
       if (title_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         title_->clear();
@@ -850,6 +1493,12 @@ void EmbedInfo::Clear() {
       if (description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         description_->clear();
       }
+    }
+    if (has_favicon()) {
+      if (favicon_ != NULL) favicon_->::bgs::protocol::Favicon::Clear();
+    }
+    if (has_html()) {
+      if (html_ != NULL) html_->::bgs::protocol::EmbedHTML::Clear();
     }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -955,6 +1604,32 @@ bool EmbedInfo::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(58)) goto parse_favicon;
+        break;
+      }
+
+      // optional .bgs.protocol.Favicon favicon = 7;
+      case 7: {
+        if (tag == 58) {
+         parse_favicon:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_favicon()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(66)) goto parse_html;
+        break;
+      }
+
+      // optional .bgs.protocol.EmbedHTML html = 8;
+      case 8: {
+        if (tag == 66) {
+         parse_html:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
+               input, mutable_html()));
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1036,6 +1711,18 @@ void EmbedInfo::SerializeWithCachedSizes(
       6, this->description(), output);
   }
 
+  // optional .bgs.protocol.Favicon favicon = 7;
+  if (has_favicon()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, this->favicon(), output);
+  }
+
+  // optional .bgs.protocol.EmbedHTML html = 8;
+  if (has_html()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      8, this->html(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1104,6 +1791,20 @@ void EmbedInfo::SerializeWithCachedSizes(
         6, this->description(), target);
   }
 
+  // optional .bgs.protocol.Favicon favicon = 7;
+  if (has_favicon()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        7, this->favicon(), target);
+  }
+
+  // optional .bgs.protocol.EmbedHTML html = 8;
+  if (has_html()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteMessageNoVirtualToArray(
+        8, this->html(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -1158,6 +1859,20 @@ int EmbedInfo::ByteSize() const {
           this->description());
     }
 
+    // optional .bgs.protocol.Favicon favicon = 7;
+    if (has_favicon()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->favicon());
+    }
+
+    // optional .bgs.protocol.EmbedHTML html = 8;
+    if (has_html()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
+          this->html());
+    }
+
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -1203,6 +1918,12 @@ void EmbedInfo::MergeFrom(const EmbedInfo& from) {
     if (from.has_description()) {
       set_description(from.description());
     }
+    if (from.has_favicon()) {
+      mutable_favicon()->::bgs::protocol::Favicon::MergeFrom(from.favicon());
+    }
+    if (from.has_html()) {
+      mutable_html()->::bgs::protocol::EmbedHTML::MergeFrom(from.html());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -1232,6 +1953,8 @@ void EmbedInfo::Swap(EmbedInfo* other) {
     std::swap(thumbnail_, other->thumbnail_);
     std::swap(provider_, other->provider_);
     std::swap(description_, other->description_);
+    std::swap(favicon_, other->favicon_);
+    std::swap(html_, other->html_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

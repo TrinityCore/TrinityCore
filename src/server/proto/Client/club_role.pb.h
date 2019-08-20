@@ -426,6 +426,13 @@ class TC_PROTO_API ClubPrivilegeSet : public ::google::protobuf::Message {
   inline bool can_mention_member() const;
   inline void set_can_mention_member(bool value);
 
+  // optional bool can_mention_role = 188;
+  inline bool has_can_mention_role() const;
+  inline void clear_can_mention_role();
+  static const int kCanMentionRoleFieldNumber = 188;
+  inline bool can_mention_role() const;
+  inline void set_can_mention_role(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubPrivilegeSet)
  private:
   inline void set_has_can_destroy();
@@ -522,6 +529,8 @@ class TC_PROTO_API ClubPrivilegeSet : public ::google::protobuf::Message {
   inline void clear_has_can_mention_here();
   inline void set_has_can_mention_member();
   inline void clear_has_can_mention_member();
+  inline void set_has_can_mention_role();
+  inline void clear_has_can_mention_role();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -573,6 +582,7 @@ class TC_PROTO_API ClubPrivilegeSet : public ::google::protobuf::Message {
   bool can_mention_all_;
   bool can_mention_here_;
   bool can_mention_member_;
+  bool can_mention_role_;
   mutable int _cached_size_;
   friend void TC_PROTO_API protobuf_AddDesc_club_5frole_2eproto();
   friend void protobuf_AssignDesc_club_5frole_2eproto();
@@ -1961,6 +1971,30 @@ inline void ClubPrivilegeSet::set_can_mention_member(bool value) {
   set_has_can_mention_member();
   can_mention_member_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubPrivilegeSet.can_mention_member)
+}
+
+// optional bool can_mention_role = 188;
+inline bool ClubPrivilegeSet::has_can_mention_role() const {
+  return (_has_bits_[1] & 0x00008000u) != 0;
+}
+inline void ClubPrivilegeSet::set_has_can_mention_role() {
+  _has_bits_[1] |= 0x00008000u;
+}
+inline void ClubPrivilegeSet::clear_has_can_mention_role() {
+  _has_bits_[1] &= ~0x00008000u;
+}
+inline void ClubPrivilegeSet::clear_can_mention_role() {
+  can_mention_role_ = false;
+  clear_has_can_mention_role();
+}
+inline bool ClubPrivilegeSet::can_mention_role() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubPrivilegeSet.can_mention_role)
+  return can_mention_role_;
+}
+inline void ClubPrivilegeSet::set_can_mention_role(bool value) {
+  set_has_can_mention_role();
+  can_mention_role_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.club.v1.ClubPrivilegeSet.can_mention_role)
 }
 
 // -------------------------------------------------------------------

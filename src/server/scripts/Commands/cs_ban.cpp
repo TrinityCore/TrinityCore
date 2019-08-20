@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
@@ -300,23 +301,31 @@ public:
         if (!*args)
             return false;
 
-        Player* target = ObjectAccessor::FindPlayerByName(args);
-        ObjectGuid targetGuid;
         std::string name(args);
+        if (!normalizePlayerName(name))
+        {
+            handler->SendSysMessage(LANG_BANINFO_NOCHARACTER);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* target = ObjectAccessor::FindPlayerByName(name);
+        ObjectGuid targetGuid;
 
         if (!target)
         {
-            targetGuid = ObjectMgr::GetPlayerGUIDByName(name);
+            targetGuid = sCharacterCache->GetCharacterGuidByName(name);
             if (targetGuid.IsEmpty())
             {
-                handler->PSendSysMessage(LANG_BANINFO_NOCHARACTER);
+                handler->SendSysMessage(LANG_BANINFO_NOCHARACTER);
+                handler->SetSentErrorMessage(true);
                 return false;
             }
         }
         else
             targetGuid = target->GetGUID();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BANINFO);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BANINFO);
         stmt->setUInt64(0, targetGuid.GetCounter());
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (!result)
@@ -377,7 +386,7 @@ public:
 
     static bool HandleBanListAccountCommand(ChatHandler* handler, char const* args)
     {
-        PreparedStatement* stmt = NULL;
+        LoginDatabasePreparedStatement* stmt = NULL;
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS);
         LoginDatabase.Execute(stmt);
@@ -499,7 +508,7 @@ public:
             return false;
 
         std::string filter(filterStr);
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME_FILTER);
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME_FILTER);
         stmt->setString(0, filter);
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
         if (!result)
@@ -516,7 +525,7 @@ public:
             do
             {
                 Field* fields = result->Fetch();
-                PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BANNED_NAME);
+                CharacterDatabasePreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BANNED_NAME);
                 stmt2->setUInt64(0, fields[0].GetUInt64());
                 PreparedQueryResult banResult = CharacterDatabase.Query(stmt2);
                 if (banResult)
@@ -538,7 +547,7 @@ public:
 
                 std::string char_name = fields[1].GetString();
 
-                PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BANINFO_LIST);
+                CharacterDatabasePreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_BANINFO_LIST);
                 stmt2->setUInt64(0, fields[0].GetUInt64());
                 PreparedQueryResult banInfo = CharacterDatabase.Query(stmt2);
                 if (banInfo)
@@ -579,7 +588,7 @@ public:
 
     static bool HandleBanListIPCommand(ChatHandler* handler, char const* args)
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS);
         LoginDatabase.Execute(stmt);
 
         char* filterStr = strtok((char*)args, " ");

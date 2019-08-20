@@ -22,6 +22,7 @@
 #include "Optional.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
+#include "WorldPacket.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -286,6 +287,7 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ | CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
 
 const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
+const uint32 PET_FOCUS_REGEN_INTERVAL = 4 * IN_MILLISECONDS;
 const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
 
 const uint8 MAX_KILL_CREDIT = 2;
@@ -386,6 +388,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
+    WorldPacket QueryData[TOTAL_LOCALES];
     CreatureModel const* GetModelByIdx(uint32 idx) const;
     CreatureModel const* GetRandomValidModel() const;
     CreatureModel const* GetFirstValidModel() const;
@@ -419,6 +422,9 @@ struct TC_GAME_API CreatureTemplate
         // if can tame exotic then can tame any tameable
         return canTameExotic || !IsExotic();
     }
+
+    void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
 
     static int32 DifficultyIDToDifficultyEntryIndex(uint32 difficulty)
     {

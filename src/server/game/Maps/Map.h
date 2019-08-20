@@ -446,10 +446,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void UpdateIteratorBack(Player* player);
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = NULL, uint32 duration = 0, Unit* summoner = NULL, uint32 spellId = 0, uint32 vehId = 0, bool visibleOnlyBySummoner = false);
-        void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, Unit* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0, bool visibleOnlyBySummoner = false);
+        void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
         AreaTrigger* GetAreaTrigger(ObjectGuid const& guid);
         Conversation* GetConversation(ObjectGuid const& guid);
+        Player* GetPlayer(ObjectGuid const& guid);
         Corpse* GetCorpse(ObjectGuid const& guid);
         Creature* GetCreature(ObjectGuid const& guid);
         DynamicObject* GetDynamicObject(ObjectGuid const& guid);

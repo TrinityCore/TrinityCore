@@ -71,7 +71,7 @@ void InstanceScript::SaveToDB()
     if (data.empty())
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_INSTANCE_DATA);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_INSTANCE_DATA);
     stmt->setUInt32(0, GetCompletedEncounterMask());
     stmt->setString(1, data);
     stmt->setUInt32(2, _entranceId);
@@ -749,7 +749,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
                 if (Group* grp = player->GetGroup())
                     if (grp->isLFGGroup())
                     {
-                        sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId);
+                        sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
                         return;
                     }
         }

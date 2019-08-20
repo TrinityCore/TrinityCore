@@ -436,8 +436,9 @@ void WorldSession::HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildM
 void WorldSession::HandleGuildSetAchievementTracking(WorldPackets::Guild::GuildSetAchievementTracking& packet)
 {
     if (Guild* guild = GetPlayer()->GetGuild())
-        guild->HandleSetAchievementTracking(this, packet.AchievementIDs);
+        guild->HandleSetAchievementTracking(this, packet.AchievementIDs.data(), packet.AchievementIDs.data() + packet.AchievementIDs.size());
 }
+
 void WorldSession::HandleGuildGetAchievementMembers(WorldPackets::Achievement::GuildGetAchievementMembers& getAchievementMembers)
 {
     if (Guild* guild = GetPlayer()->GetGuild())

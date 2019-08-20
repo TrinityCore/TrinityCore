@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
@@ -276,7 +277,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))
                 {
-                    cBoss->DespawnOrUnsummon(0);
+                    cBoss->DespawnOrUnsummon();
                     cBoss->SetRespawnTime(15);
                 }
                 else
@@ -339,7 +340,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             }
 
             Talk(SAY_DEATH);
-            _timeDied = getMSTime();
+            _timeDied = GameTime::GetGameTimeMS();
             for (Horseman boss : horsemen)
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))

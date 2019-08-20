@@ -51,8 +51,6 @@ struct TC_DATABASE_API MySQLConnectionInfo
     std::string port_or_socket;
 };
 
-typedef std::map<uint32 /*index*/, std::pair<std::string /*query*/, ConnectionFlags /*sync/async*/> > PreparedStatementMap;
-
 class TC_DATABASE_API MySQLConnection
 {
     template <class T> friend class DatabaseWorkerPool;
@@ -70,16 +68,16 @@ class TC_DATABASE_API MySQLConnection
 
     public:
         bool Execute(const char* sql);
-        bool Execute(PreparedStatement* stmt);
+        bool Execute(PreparedStatementBase* stmt);
         ResultSet* Query(const char* sql);
-        PreparedResultSet* Query(PreparedStatement* stmt);
+        PreparedResultSet* Query(PreparedStatementBase* stmt);
         bool _Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount);
-        bool _Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount);
+        bool _Query(PreparedStatementBase* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount);
 
         void BeginTransaction();
         void RollbackTransaction();
         void CommitTransaction();
-        int ExecuteTransaction(SQLTransaction& transaction);
+        int ExecuteTransaction(std::shared_ptr<TransactionBase> transaction);
 
         void Ping();
 
@@ -95,13 +93,14 @@ class TC_DATABASE_API MySQLConnection
 
         MYSQL* GetHandle()  { return m_Mysql; }
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);
-        void PrepareStatement(uint32 index, const char* sql, ConnectionFlags flags);
+        void PrepareStatement(uint32 index, std::string const& sql, ConnectionFlags flags);
 
         virtual void DoPrepareStatements() = 0;
 
     protected:
-        std::vector<std::unique_ptr<MySQLPreparedStatement>> m_stmts; //! PreparedStatements storage
-        PreparedStatementMap                 m_queries;       //! Query storage
+        typedef std::vector<std::unique_ptr<MySQLPreparedStatement>> PreparedStatementContainer;
+
+        PreparedStatementContainer           m_stmts;         //! PreparedStatements storage
         bool                                 m_reconnecting;  //! Are we reconnecting?
         bool                                 m_prepareError;  //! Was there any error while preparing statements?
 

@@ -123,11 +123,7 @@ public:
                 return;
 
             if (id == 0)
-            {
-                me->setDeathState(JUST_DIED);
-                me->RemoveCorpse();
-                me->SetHealth(0);
-            }
+                me->DespawnOrUnsummon(1);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
@@ -155,7 +151,8 @@ public:
                         EnterEvadeMode();
                         me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         IsNihil = true;
-                    }else
+                    }
+                    else
                         AttackStart(caster);
                 }
             }

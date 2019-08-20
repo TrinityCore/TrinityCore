@@ -1005,7 +1005,8 @@ bool Aura::CanBeSaved() const
     if (IsPassive())
         return false;
 
-    if (GetCasterGUID() != GetOwner()->GetGUID())
+    // Check if aura is single target, not only spell info
+    if (GetCasterGUID() != GetOwner()->GetGUID() || IsSingleTarget())
         if (GetSpellInfo()->IsSingleTarget())
             return false;
 
@@ -1015,6 +1016,18 @@ bool Aura::CanBeSaved() const
 
     // Can't save vehicle auras, it requires both caster & target to be in world
     if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
+        return false;
+
+    // do not save bind sight auras
+    if (HasEffectType(SPELL_AURA_BIND_SIGHT))
+        return false;
+
+    // no charming auras (taking direct control)
+    if (HasEffectType(SPELL_AURA_MOD_POSSESS) || HasEffectType(SPELL_AURA_MOD_POSSESS_PET))
+        return false;
+
+    // no charming auras can be saved
+    if (HasEffectType(SPELL_AURA_MOD_CHARM) || HasEffectType(SPELL_AURA_AOE_CHARM))
         return false;
 
     // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
@@ -1656,7 +1669,7 @@ void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInf
     SetLastProcSuccessTime(now);
 }
 
-uint32 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const
+uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const
 {
     SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId());
     // only auras with spell proc entry can trigger proc
@@ -1715,10 +1728,10 @@ uint32 Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& even
 
     // At least one effect has to pass checks to proc aura
     uint32 procEffectMask = 0;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (aurApp->HasEffect(i))
-            if (GetEffect(i)->CheckEffectProc(aurApp, eventInfo))
-                procEffectMask |= (1 << i);
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (procEffectMask & (1u << i))
+            if ((procEntry->DisableEffectsMask & (1u << i)) || !GetEffect(i)->CheckEffectProc(aurApp, eventInfo))
+                procEffectMask &= ~(1u << i);
 
     if (!procEffectMask)
         return 0;
@@ -1798,6 +1811,11 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(GetId(), SPELLMOD_CHANCE_OF_SUCCESS, chance);
     }
+
+    // proc chance is reduced by an additional 3.333% per level past 60
+    if ((procEntry.AttributesMask & PROC_ATTR_REDUCE_PROC_60) && eventInfo.GetActor()->getLevel() > 60)
+        chance = std::max(0.f, (1.f - ((eventInfo.GetActor()->getLevel() - 60) * 1.f / 30.f)) * chance);
+
     return chance;
 }
 
@@ -1832,7 +1850,7 @@ float Aura::CalcPPMProcChance(Unit* actor) const
     float ppm = m_spellInfo->CalcProcPPM(actor, m_castItemLevel);
     float averageProcInterval = 60.0f / ppm;
 
-    std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point currentTime = GameTime::GetGameTimeSteadyPoint();
     float secondsSinceLastAttempt = std::min(std::chrono::duration_cast<FSeconds>(currentTime - m_lastProcAttemptTime).count(), 10.0f);
     float secondsSinceLastProc = std::min(std::chrono::duration_cast<FSeconds>(currentTime - m_lastProcSuccessTime).count(), 1000.0f);
 

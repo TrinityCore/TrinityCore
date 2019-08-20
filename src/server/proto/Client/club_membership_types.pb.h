@@ -28,6 +28,7 @@
 #include "club_member.pb.h"
 #include "club_invitation.pb.h"
 #include "event_view_types.pb.h"
+#include "rpc_types.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)
 
@@ -41,6 +42,9 @@ void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5ftypes_2eproto();
 void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto();
 void protobuf_ShutdownFile_club_5fmembership_5ftypes_2eproto();
 
+class ClubMembershipFilter;
+class ClubMembershipSubscribeOptions;
+class ClubMembershipGetStateOptions;
 class ClubMembershipDescription;
 class ClubMembershipState;
 class ClubPosition;
@@ -49,6 +53,263 @@ class ClubSharedSettingsOptions;
 class ClubSharedSettingsAssignment;
 
 // ===================================================================
+
+class TC_PROTO_API ClubMembershipFilter : public ::google::protobuf::Message {
+ public:
+  ClubMembershipFilter();
+  virtual ~ClubMembershipFilter();
+
+  ClubMembershipFilter(const ClubMembershipFilter& from);
+
+  inline ClubMembershipFilter& operator=(const ClubMembershipFilter& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ClubMembershipFilter& default_instance();
+
+  void Swap(ClubMembershipFilter* other);
+
+  // implements Message ----------------------------------------------
+
+  ClubMembershipFilter* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ClubMembershipFilter& from);
+  void MergeFrom(const ClubMembershipFilter& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.club.v1.MemberId member_id = 1;
+  inline bool has_member_id() const;
+  inline void clear_member_id();
+  static const int kMemberIdFieldNumber = 1;
+  inline const ::bgs::protocol::club::v1::MemberId& member_id() const;
+  inline ::bgs::protocol::club::v1::MemberId* mutable_member_id();
+  inline ::bgs::protocol::club::v1::MemberId* release_member_id();
+  inline void set_allocated_member_id(::bgs::protocol::club::v1::MemberId* member_id);
+
+  // optional .bgs.protocol.club.v1.UniqueClubType type = 2;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 2;
+  inline const ::bgs::protocol::club::v1::UniqueClubType& type() const;
+  inline ::bgs::protocol::club::v1::UniqueClubType* mutable_type();
+  inline ::bgs::protocol::club::v1::UniqueClubType* release_type();
+  inline void set_allocated_type(::bgs::protocol::club::v1::UniqueClubType* type);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubMembershipFilter)
+ private:
+  inline void set_has_member_id();
+  inline void clear_has_member_id();
+  inline void set_has_type();
+  inline void clear_has_type();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::club::v1::MemberId* member_id_;
+  ::bgs::protocol::club::v1::UniqueClubType* type_;
+  friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_club_5fmembership_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static ClubMembershipFilter* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API ClubMembershipSubscribeOptions : public ::google::protobuf::Message {
+ public:
+  ClubMembershipSubscribeOptions();
+  virtual ~ClubMembershipSubscribeOptions();
+
+  ClubMembershipSubscribeOptions(const ClubMembershipSubscribeOptions& from);
+
+  inline ClubMembershipSubscribeOptions& operator=(const ClubMembershipSubscribeOptions& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ClubMembershipSubscribeOptions& default_instance();
+
+  void Swap(ClubMembershipSubscribeOptions* other);
+
+  // implements Message ----------------------------------------------
+
+  ClubMembershipSubscribeOptions* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ClubMembershipSubscribeOptions& from);
+  void MergeFrom(const ClubMembershipSubscribeOptions& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+  inline int filter_size() const;
+  inline void clear_filter();
+  static const int kFilterFieldNumber = 1;
+  inline const ::bgs::protocol::club::v1::ClubMembershipFilter& filter(int index) const;
+  inline ::bgs::protocol::club::v1::ClubMembershipFilter* mutable_filter(int index);
+  inline ::bgs::protocol::club::v1::ClubMembershipFilter* add_filter();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter >&
+      filter() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter >*
+      mutable_filter();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubMembershipSubscribeOptions)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter > filter_;
+  friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_club_5fmembership_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static ClubMembershipSubscribeOptions* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API ClubMembershipGetStateOptions : public ::google::protobuf::Message {
+ public:
+  ClubMembershipGetStateOptions();
+  virtual ~ClubMembershipGetStateOptions();
+
+  ClubMembershipGetStateOptions(const ClubMembershipGetStateOptions& from);
+
+  inline ClubMembershipGetStateOptions& operator=(const ClubMembershipGetStateOptions& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ClubMembershipGetStateOptions& default_instance();
+
+  void Swap(ClubMembershipGetStateOptions* other);
+
+  // implements Message ----------------------------------------------
+
+  ClubMembershipGetStateOptions* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ClubMembershipGetStateOptions& from);
+  void MergeFrom(const ClubMembershipGetStateOptions& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+  inline int filter_size() const;
+  inline void clear_filter();
+  static const int kFilterFieldNumber = 1;
+  inline const ::bgs::protocol::club::v1::ClubMembershipFilter& filter(int index) const;
+  inline ::bgs::protocol::club::v1::ClubMembershipFilter* mutable_filter(int index);
+  inline ::bgs::protocol::club::v1::ClubMembershipFilter* add_filter();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter >&
+      filter() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter >*
+      mutable_filter();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.club.v1.ClubMembershipGetStateOptions)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter > filter_;
+  friend void TC_PROTO_API protobuf_AddDesc_club_5fmembership_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_club_5fmembership_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_club_5fmembership_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static ClubMembershipGetStateOptions* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class TC_PROTO_API ClubMembershipDescription : public ::google::protobuf::Message {
  public:
@@ -593,6 +854,160 @@ class TC_PROTO_API ClubSharedSettingsAssignment : public ::google::protobuf::Mes
 
 
 // ===================================================================
+
+// ClubMembershipFilter
+
+// optional .bgs.protocol.club.v1.MemberId member_id = 1;
+inline bool ClubMembershipFilter::has_member_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void ClubMembershipFilter::set_has_member_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void ClubMembershipFilter::clear_has_member_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void ClubMembershipFilter::clear_member_id() {
+  if (member_id_ != NULL) member_id_->::bgs::protocol::club::v1::MemberId::Clear();
+  clear_has_member_id();
+}
+inline const ::bgs::protocol::club::v1::MemberId& ClubMembershipFilter::member_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubMembershipFilter.member_id)
+  return member_id_ != NULL ? *member_id_ : *default_instance_->member_id_;
+}
+inline ::bgs::protocol::club::v1::MemberId* ClubMembershipFilter::mutable_member_id() {
+  set_has_member_id();
+  if (member_id_ == NULL) member_id_ = new ::bgs::protocol::club::v1::MemberId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubMembershipFilter.member_id)
+  return member_id_;
+}
+inline ::bgs::protocol::club::v1::MemberId* ClubMembershipFilter::release_member_id() {
+  clear_has_member_id();
+  ::bgs::protocol::club::v1::MemberId* temp = member_id_;
+  member_id_ = NULL;
+  return temp;
+}
+inline void ClubMembershipFilter::set_allocated_member_id(::bgs::protocol::club::v1::MemberId* member_id) {
+  delete member_id_;
+  member_id_ = member_id;
+  if (member_id) {
+    set_has_member_id();
+  } else {
+    clear_has_member_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubMembershipFilter.member_id)
+}
+
+// optional .bgs.protocol.club.v1.UniqueClubType type = 2;
+inline bool ClubMembershipFilter::has_type() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void ClubMembershipFilter::set_has_type() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void ClubMembershipFilter::clear_has_type() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void ClubMembershipFilter::clear_type() {
+  if (type_ != NULL) type_->::bgs::protocol::club::v1::UniqueClubType::Clear();
+  clear_has_type();
+}
+inline const ::bgs::protocol::club::v1::UniqueClubType& ClubMembershipFilter::type() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubMembershipFilter.type)
+  return type_ != NULL ? *type_ : *default_instance_->type_;
+}
+inline ::bgs::protocol::club::v1::UniqueClubType* ClubMembershipFilter::mutable_type() {
+  set_has_type();
+  if (type_ == NULL) type_ = new ::bgs::protocol::club::v1::UniqueClubType;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubMembershipFilter.type)
+  return type_;
+}
+inline ::bgs::protocol::club::v1::UniqueClubType* ClubMembershipFilter::release_type() {
+  clear_has_type();
+  ::bgs::protocol::club::v1::UniqueClubType* temp = type_;
+  type_ = NULL;
+  return temp;
+}
+inline void ClubMembershipFilter::set_allocated_type(::bgs::protocol::club::v1::UniqueClubType* type) {
+  delete type_;
+  type_ = type;
+  if (type) {
+    set_has_type();
+  } else {
+    clear_has_type();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.club.v1.ClubMembershipFilter.type)
+}
+
+// -------------------------------------------------------------------
+
+// ClubMembershipSubscribeOptions
+
+// repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+inline int ClubMembershipSubscribeOptions::filter_size() const {
+  return filter_.size();
+}
+inline void ClubMembershipSubscribeOptions::clear_filter() {
+  filter_.Clear();
+}
+inline const ::bgs::protocol::club::v1::ClubMembershipFilter& ClubMembershipSubscribeOptions::filter(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubMembershipSubscribeOptions.filter)
+  return filter_.Get(index);
+}
+inline ::bgs::protocol::club::v1::ClubMembershipFilter* ClubMembershipSubscribeOptions::mutable_filter(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubMembershipSubscribeOptions.filter)
+  return filter_.Mutable(index);
+}
+inline ::bgs::protocol::club::v1::ClubMembershipFilter* ClubMembershipSubscribeOptions::add_filter() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.ClubMembershipSubscribeOptions.filter)
+  return filter_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter >&
+ClubMembershipSubscribeOptions::filter() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.ClubMembershipSubscribeOptions.filter)
+  return filter_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter >*
+ClubMembershipSubscribeOptions::mutable_filter() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.ClubMembershipSubscribeOptions.filter)
+  return &filter_;
+}
+
+// -------------------------------------------------------------------
+
+// ClubMembershipGetStateOptions
+
+// repeated .bgs.protocol.club.v1.ClubMembershipFilter filter = 1;
+inline int ClubMembershipGetStateOptions::filter_size() const {
+  return filter_.size();
+}
+inline void ClubMembershipGetStateOptions::clear_filter() {
+  filter_.Clear();
+}
+inline const ::bgs::protocol::club::v1::ClubMembershipFilter& ClubMembershipGetStateOptions::filter(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.club.v1.ClubMembershipGetStateOptions.filter)
+  return filter_.Get(index);
+}
+inline ::bgs::protocol::club::v1::ClubMembershipFilter* ClubMembershipGetStateOptions::mutable_filter(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.club.v1.ClubMembershipGetStateOptions.filter)
+  return filter_.Mutable(index);
+}
+inline ::bgs::protocol::club::v1::ClubMembershipFilter* ClubMembershipGetStateOptions::add_filter() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.club.v1.ClubMembershipGetStateOptions.filter)
+  return filter_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter >&
+ClubMembershipGetStateOptions::filter() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.club.v1.ClubMembershipGetStateOptions.filter)
+  return filter_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::club::v1::ClubMembershipFilter >*
+ClubMembershipGetStateOptions::mutable_filter() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.club.v1.ClubMembershipGetStateOptions.filter)
+  return &filter_;
+}
+
+// -------------------------------------------------------------------
 
 // ClubMembershipDescription
 

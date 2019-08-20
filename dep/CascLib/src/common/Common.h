@@ -39,13 +39,19 @@ typedef struct _CONTENT_KEY
 
 } CONTENT_KEY, *PCONTENT_KEY, ENCODED_KEY, *PENCODED_KEY;
 
-// Helper structure for merging file paths
-typedef struct _PATH_BUFFER
+//-----------------------------------------------------------------------------
+// EKey entry, captured from index files of all types. This structure
+// is somewhat less memory consuming than CASC_CKEY_ENTRY
+
+typedef struct _CASC_EKEY_ENTRY
 {
-    char * szBegin;
-    char * szPtr;
-    char * szEnd;
-} PATH_BUFFER, *PPATH_BUFFER;
+    BYTE EKey[MD5_HASH_SIZE];                       // Encoded key. Length depends on TCascStorage::EKeyLength
+    ULONGLONG StorageOffset;                        // Offset of the encoded file in archive.
+                                                    // Lower (TCascStorage::FileOffsetBits) bits are archive offset.
+                                                    // Upper bits are archive index
+    DWORD EncodedSize;                              // Encoded size
+    DWORD Alignment;                                // Alignment to 8-byte boundary. Reserved for future use
+} CASC_EKEY_ENTRY, *PCASC_EKEY_ENTRY;
 
 //-----------------------------------------------------------------------------
 // Basic structure used by all CascLib objects to describe a single entry
@@ -59,7 +65,12 @@ typedef struct _PATH_BUFFER
 #define CASC_CE_HAS_EKEY_PARTIAL   0x00000008       // The EKey is only partial, padded by zeros. Always used with CASC_CE_HAS_EKEY
 #define CASC_CE_IN_ENCODING        0x00000010       // Present in the ENCODING manifest
 #define CASC_CE_IN_DOWNLOAD        0x00000020       // Present in the DOWNLOAD manifest
-#define CASC_CE_FOLDER_ENTRY       0x00000040       // This CKey entry is a folder
+#define CASC_CE_IN_BUILD           0x00000040       // Present in the BUILD (text) manifest
+#define CASC_CE_IN_ARCHIVE         0x00000080       // File is stored in an archive (for online storages)
+#define CASC_CE_FOLDER_ENTRY       0x00000100       // This CKey entry is a folder
+#define CASC_CE_FILE_SPAN          0x00000200       // This CKey entry is a follow-up file span
+#define CASC_CE_FILE_PATCH         0x00000400       // The file is in PATCH subfolder in remote storage
+#define CASC_CE_PLAIN_DATA         0x00000800       // The file data is not BLTE encoded, but in plain format
 
 // In-memory representation of a single entry. 
 struct CASC_CKEY_ENTRY
@@ -75,19 +86,36 @@ struct CASC_CKEY_ENTRY
         StorageOffset = CASC_INVALID_OFFS64;
         EncodedSize = CASC_INVALID_SIZE;
         ContentSize = CASC_INVALID_SIZE;
+        SpanCount = 1;
+    }
+
+    bool IsFile()
+    {
+        // Must not be a folder entry
+        if((Flags & CASC_CE_FOLDER_ENTRY) == 0)
+        {
+            // There can be entries that are both file span or the standalone file
+            // * zone/zm_red.xpak - { zone/zm_red.xpak_1, zone/zm_red.xpak_2, ..., zone/zm_red.xpak_6 }
+            if(RefCount != 0)
+                return true;
+
+            // To include the file, it must either be present in ENCODING, DOWNLOAD or in BUILD file
+            if(((Flags & CASC_CE_FILE_SPAN) == 0) && (Flags & (CASC_CE_IN_ENCODING | CASC_CE_IN_DOWNLOAD | CASC_CE_IN_BUILD)))
+                return true;
+        }
+        return false;
     }
 
     BYTE CKey[MD5_HASH_SIZE];                       // Content key of the full length
     BYTE EKey[MD5_HASH_SIZE];                       // Encoded key of the full length
     ULONGLONG StorageOffset;                        // Linear offset over the entire storage. 0 if not present
     ULONGLONG TagBitMask;                           // Bitmap for the tags. 0 ig tags are not supported
-    DWORD EncodedSize;                              // Encoded size of the file. 0 if not supported
-    DWORD ContentSize;                              // Content size of the file. 0 if not supported
+    DWORD ContentSize;                              // Content size of the file
+    DWORD EncodedSize;                              // Encoded size of the file
     DWORD Flags;                                    // See CASC_CE_XXX
     USHORT RefCount;                                // This is the number of file names referencing this entry
+    BYTE SpanCount;                                 // Number of spans for the file
     BYTE Priority;                                  // Download priority
-    BYTE Alignment;
-
 };
 typedef CASC_CKEY_ENTRY *PCASC_CKEY_ENTRY;
 
@@ -112,7 +140,22 @@ extern unsigned char IntToHexChar[];
 //
 
 #define CASC_REALLOC(type, ptr, count) (type *)realloc(ptr, (count) * sizeof(type))
-#define CASC_ALLOC(type, count)        (type *)malloc((count) * sizeof(type))
+
+template <typename T>
+T * CASC_ALLOC(size_t nCount)
+{
+    return (T *)malloc(nCount * sizeof(T));
+}
+
+template <typename T>
+T * CASC_ALLOC_ZERO(size_t nCount)
+{
+    T * ptr = CASC_ALLOC<T>(nCount);
+
+    if(ptr != NULL)
+        memset(ptr, 0, sizeof(T) * nCount);
+    return ptr;
+}
 
 template <typename T>
 void CASC_FREE(T *& ptr)
@@ -241,12 +284,14 @@ inline void CopyMemory16(void * Target, void * Source)
 }
 
 //-----------------------------------------------------------------------------
-// Linear data stream manipulation
+// Capturing various integral values
 
+LPBYTE CaptureInteger16_BE(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PDWORD PtrValue);
 LPBYTE CaptureInteger32(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PDWORD PtrValue);
 LPBYTE CaptureInteger32_BE(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PDWORD PtrValue);
 LPBYTE CaptureByteArray(LPBYTE pbDataPtr, LPBYTE pbDataEnd, size_t nLength, LPBYTE pbOutput);
 LPBYTE CaptureContentKey(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PCONTENT_KEY * PtrCKey);
+LPBYTE CaptureEncodedKey(LPBYTE pbEKey, LPBYTE pbData, BYTE EKeyLength);
 LPBYTE CaptureArray_(LPBYTE pbDataPtr, LPBYTE pbDataEnd, LPBYTE * PtrArray, size_t ItemSize, size_t ItemCount);
 
 #define CaptureArray(pbDataPtr, pbDataEnd, PtrArray, type, count) CaptureArray_(pbDataPtr, pbDataEnd, PtrArray, sizeof(type), count) 
@@ -277,7 +322,6 @@ LPTSTR CombinePath(LPCTSTR szPath, LPCTSTR szSubDir);
 LPTSTR GetLastPathPart(LPTSTR szWorkPath);
 bool CutLastPathPart(TCHAR * szWorkPath);
 
-size_t CreateCascSubdirectoryName(TCHAR * szBuffer, size_t nMaxChars, const TCHAR * szSubDir, const TCHAR * szExtension, LPBYTE pbEKey);
 size_t NormalizeFileName_UpperBkSlash(char * szNormName, const char * szFileName, size_t cchMaxChars);
 size_t NormalizeFileName_LowerSlash(char * szNormName, const char * szFileName, size_t cchMaxChars);
 
@@ -288,8 +332,31 @@ int ConvertDigitToInt32(const TCHAR * szString, PDWORD PtrValue);
 int ConvertStringToInt08(const char * szString, PDWORD PtrValue);
 int ConvertStringToInt32(const TCHAR * szString, size_t nMaxDigits, PDWORD PtrValue);
 int ConvertStringToBinary(const char * szString, size_t nMaxDigits, LPBYTE pbBinary);
-char * StringFromBinary(LPBYTE pbBinary, size_t cbBinary, char * szBuffer);
-char * StringFromMD5(LPBYTE md5, char * szBuffer);
+
+//-----------------------------------------------------------------------------
+// Conversion from binary array to string. The caller must ensure that
+// the buffer has at least ((cbBinary * 2) + 1) characters
+
+template <typename xchar>
+xchar * StringFromBinary(LPBYTE pbBinary, size_t cbBinary, xchar * szBuffer)
+{
+    xchar * szSaveBuffer = szBuffer;
+
+    // Verify the binary pointer
+    if(pbBinary && cbBinary)
+    {
+        // Convert the bytes to string array
+        for(size_t i = 0; i < cbBinary; i++)
+        {
+            *szBuffer++ = IntToHexChar[pbBinary[i] >> 0x04];
+            *szBuffer++ = IntToHexChar[pbBinary[i] & 0x0F];
+        }
+    }
+
+    // Terminate the string
+    *szBuffer = 0;
+    return szSaveBuffer;
+}
 
 //-----------------------------------------------------------------------------
 // Structure query key

@@ -25,24 +25,17 @@
 typedef struct _CASC_FILE_NODE
 {
     ULONGLONG FileNameHash;                         // Jenkins hash of the normalized file name (uppercase, backslashes)
-    PCASC_CKEY_ENTRY pCKeyEntry;                    // Pointer to the CKey entry.
+    PCASC_CKEY_ENTRY pCKeyEntry;                    // Pointer to the CKey entry
+
     DWORD Parent;                                   // The index of a parent directory. If CASC_INVALID_INDEX, then this is the root item
     DWORD NameIndex;                                // Index of the node name. If CASC_INVALID_INDEX, then this node has no name
     USHORT NameLength;                              // Length of the node name (without the zero terminator)
-    USHORT Flags;                                   // See CFE_FLAG_XXX
+    USHORT Flags;                                   // See CFN_FLAG_XXX
 
     DWORD ExtraValues[4];                           // FileDataId: Only if FTREE_FLAG_USE_DATA_ID specified at create
                                                     // LocaleFlags: Only if FTREE_FLAG_USE_LOCALE_FLAGS specified at create
                                                     // ContentFlags: Only if FTREE_FLAG_USE_CONTENT_FLAGS specified at create
 } CASC_FILE_NODE, *PCASC_FILE_NODE;
-
-// Common structure for comparing a file node
-typedef struct _CASC_COMPARE_CONTEXT
-{
-    ULONGLONG FileNameHash;
-    const char * szFileName;
-    void * pThis;
-} CASC_COMPARE_CONTEXT, *PCASC_COMPARE_CONTEXT;
 
 // Main structure for the file tree
 class CASC_FILE_TREE
@@ -50,7 +43,7 @@ class CASC_FILE_TREE
     public:
 
     // Initializes/destroys the entire tree
-    int Create(DWORD Flags = 0);
+    DWORD Create(DWORD Flags = 0);
     void Free();
 
     // Inserts a new node to the tree; either with name or nameless
@@ -108,6 +101,8 @@ class CASC_FILE_TREE
     size_t FileDataIdOffset;                        // If nonzero, this is the offset of the "FileDataId" field in the CASC_FILE_NODE
     size_t LocaleFlagsOffset;                       // If nonzero, this is the offset of the "LocaleFlags" field in the CASC_FILE_NODE
     size_t ContentFlagsOffset;                      // If nonzero, this is the offset of the "ContentFlags" field in the CASC_FILE_NODE
+    size_t FolderNodes;                             // Number of folder nodes
+    size_t FileNodes;                               // Number of file nodes
     DWORD KeyLength;                                // Actual length of the key supported by the root handler
 };
 

@@ -1279,8 +1279,8 @@ void SpellMgr::LoadSpellProcs()
 
     //                                                     0           1                2                 3                 4                 5                 6
     QueryResult result = WorldDatabase.Query("SELECT SpellId, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, SpellFamilyMask3, "
-    //           7              8               9       10              11              12      13        14      15
-        "ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
+    //           7              8               9       10              11                  12              13      14        15       16
+        "ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, DisableEffectsMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
 
     uint32 count = 0;
     if (result)
@@ -1330,10 +1330,11 @@ void SpellMgr::LoadSpellProcs()
             baseProcEntry.SpellPhaseMask     = fields[9].GetUInt32();
             baseProcEntry.HitMask            = fields[10].GetUInt32();
             baseProcEntry.AttributesMask     = fields[11].GetUInt32();
-            baseProcEntry.ProcsPerMinute     = fields[12].GetFloat();
-            baseProcEntry.Chance             = fields[13].GetFloat();
-            baseProcEntry.Cooldown           = Milliseconds(fields[14].GetUInt32());
-            baseProcEntry.Charges            = fields[15].GetUInt8();
+            baseProcEntry.DisableEffectsMask = fields[12].GetUInt32();
+            baseProcEntry.ProcsPerMinute     = fields[13].GetFloat();
+            baseProcEntry.Chance             = fields[14].GetFloat();
+            baseProcEntry.Cooldown           = Milliseconds(fields[15].GetUInt32());
+            baseProcEntry.Charges            = fields[16].GetUInt8();
 
             while (spellInfo)
             {
@@ -1599,6 +1600,7 @@ void SpellMgr::LoadSpellProcs()
         }
 
         procEntry.AttributesMask  = 0;
+        procEntry.DisableEffectsMask = 0;
         if (spellInfo->ProcFlags & PROC_FLAG_KILL)
             procEntry.AttributesMask |= PROC_ATTR_REQ_EXP_OR_HONOR;
         if (addTriggerFlag)
@@ -1789,8 +1791,8 @@ void SpellMgr::LoadSpellEnchantProcData()
 
     mSpellEnchantProcEventMap.clear();                             // need for reload case
 
-    //                                                  0         1           2         3
-    QueryResult result = WorldDatabase.Query("SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
+    //                                                       0       1               2        3               4
+    QueryResult result = WorldDatabase.Query("SELECT EnchantID, Chance, ProcsPerMinute, HitMask, AttributesMask FROM spell_enchant_proc_data");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 spell enchant proc event conditions. DB table `spell_enchant_proc_data` is empty.");
@@ -1813,9 +1815,10 @@ void SpellMgr::LoadSpellEnchantProcData()
 
         SpellEnchantProcEntry spe;
 
-        spe.customChance = fields[1].GetUInt32();
-        spe.PPMChance = fields[2].GetFloat();
-        spe.procEx = fields[3].GetUInt32();
+        spe.Chance = fields[1].GetFloat();
+        spe.ProcsPerMinute = fields[2].GetFloat();
+        spe.HitMask = fields[3].GetUInt32();
+        spe.AttributesMask = fields[4].GetUInt32();
 
         mSpellEnchantProcEventMap[enchantId] = spe;
 
@@ -2402,6 +2405,14 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
 
             switch (effect->ApplyAuraName)
             {
+                case SPELL_AURA_MOD_POSSESS:
+                case SPELL_AURA_MOD_CONFUSE:
+                case SPELL_AURA_MOD_CHARM:
+                case SPELL_AURA_AOE_CHARM:
+                case SPELL_AURA_MOD_FEAR:
+                case SPELL_AURA_MOD_STUN:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+                    break;
                 case SPELL_AURA_PERIODIC_HEAL:
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
@@ -2482,6 +2493,87 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             }
         }
 
+        // spells ignoring hit result should not be binary
+        if (!spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_HIT_RESULT))
+        {
+            bool setFlag = false;
+            for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+            {
+                if (!effect)
+                    continue;
+
+                if (effect->IsEffect())
+                {
+                    switch (effect->Effect)
+                    {
+                    case SPELL_EFFECT_SCHOOL_DAMAGE:
+                    case SPELL_EFFECT_WEAPON_DAMAGE:
+                    case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
+                    case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                    case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
+                    case SPELL_EFFECT_TRIGGER_SPELL:
+                    case SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE:
+                        break;
+                    case SPELL_EFFECT_PERSISTENT_AREA_AURA:
+                    case SPELL_EFFECT_APPLY_AURA:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_PET:
+                    case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
+                    {
+                        if (effect->ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
+                            effect->ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE_PERCENT ||
+                            effect->ApplyAuraName == SPELL_AURA_DUMMY ||
+                            effect->ApplyAuraName == SPELL_AURA_PERIODIC_LEECH ||
+                            effect->ApplyAuraName == SPELL_AURA_PERIODIC_HEALTH_FUNNEL ||
+                            effect->ApplyAuraName == SPELL_AURA_PERIODIC_DUMMY)
+                            break;
+                    }
+                    default:
+                    {
+                        // No value and not interrupt cast or crowd control without SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY flag
+                        if (!effect->CalcValue() && !((effect->Effect == SPELL_EFFECT_INTERRUPT_CAST || spellInfo->HasAttribute(SPELL_ATTR0_CU_AURA_CC)) && !spellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)))
+                            break;
+
+                        // Sindragosa Frost Breath
+                        if (spellInfo->Id == 69649 || spellInfo->Id == 71056 || spellInfo->Id == 71057 || spellInfo->Id == 71058 || spellInfo->Id == 73061 || spellInfo->Id == 73062 || spellInfo->Id == 73063 || spellInfo->Id == 73064)
+                            break;
+
+                        // Frostbolt
+                        if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (spellInfo->SpellFamilyFlags[0] & 0x20))
+                            break;
+
+                        // Frost Fever
+                        if (spellInfo->Id == 55095)
+                            break;
+
+                        // Haunt
+                        if (spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellInfo->SpellFamilyFlags[1] & 0x40000))
+                            break;
+
+                        setFlag = true;
+                        break;
+                    }
+                    }
+
+                    if (setFlag)
+                    {
+                        spellInfo->AttributesCu |= SPELL_ATTR0_CU_BINARY_SPELL;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Remove normal school mask to properly calculate damage
+        if ((spellInfo->SchoolMask & SPELL_SCHOOL_MASK_NORMAL) && (spellInfo->SchoolMask & SPELL_SCHOOL_MASK_MAGIC))
+        {
+            spellInfo->SchoolMask &= ~SPELL_SCHOOL_MASK_NORMAL;
+            spellInfo->AttributesCu |= SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC;
+        }
+
         if (!spellInfo->_IsPositiveEffect(EFFECT_0, false))
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
 
@@ -2494,8 +2586,68 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         if (talentSpells.count(spellInfo->Id))
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_TALENT;
 
+        switch (spellInfo->SpellFamilyName)
+        {
+        case SPELLFAMILY_WARRIOR:
+            // Shout / Piercing Howl
+            if (spellInfo->SpellFamilyFlags[0] & 0x20000/* || spellInfo->SpellFamilyFlags[1] & 0x20*/)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+            break;
+        case SPELLFAMILY_DRUID:
+            // Roar
+            if (spellInfo->SpellFamilyFlags[0] & 0x8)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+            break;
+        case SPELLFAMILY_GENERIC:
+            // Stoneclaw Totem effect
+            if (spellInfo->Id == 5729)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
+            break;
+        default:
+            break;
+        }
 
         spellInfo->_InitializeExplicitTargetMask();
+    }
+
+    // addition for binary spells, ommit spells triggering other spells
+    for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
+    {
+        spellInfo = mSpellInfoMap[i];
+        if (!spellInfo)
+            continue;
+
+        if (spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
+            continue;
+
+        bool allNonBinary = true;
+        bool overrideAttr = false;
+        for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
+        {
+            if (!effect)
+                continue;
+
+            if (effect->IsAura() && effect->TriggerSpell)
+            {
+                switch (effect->ApplyAuraName)
+                {
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                    if (SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(effect->TriggerSpell))
+                    {
+                        overrideAttr = true;
+                        if (triggerSpell->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
+                            allNonBinary = false;
+                    }
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+
+        if (overrideAttr && allNonBinary)
+            spellInfo->AttributesCu &= ~SPELL_ATTR0_CU_BINARY_SPELL;
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -2555,6 +2707,17 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetB = SpellImplicitTargetInfo();
+    });
+
+    ApplySpellFix({
+        56690, // Thrust Spear
+        60586, // Mighty Spear Thrust
+        60776, // Claw Swipe
+        60881, // Fatal Strike
+        60864  // Jaws of Death
+        }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
     });
 
     // Howl of Azgalor
@@ -3451,6 +3614,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 if (G3D::fuzzyEq(spellInfo->ConeAngle, 0.f))
                     spellInfo->ConeAngle = 90.f;
         }
+
+        // disable proc for magnet auras, they're handled differently
+        if (spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_SPELL_MAGNET))
+            spellInfo->ProcFlags = 0;
 
         if (spellInfo->ActiveIconFileDataId == 135754)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;

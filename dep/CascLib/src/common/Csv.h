@@ -69,8 +69,8 @@ class CASC_CSV
     CASC_CSV(size_t nLinesMax, bool bHasHeader);
     ~CASC_CSV();
 
-    int Load(LPBYTE pbData, size_t cbData);
-    int Load(const TCHAR * szFileName);
+    DWORD Load(LPBYTE pbData, size_t cbData);
+    DWORD Load(const TCHAR * szFileName);
     bool LoadNextLine();
 
     const CASC_CSV_COLUMN & operator[](const char * szColumnName) const;

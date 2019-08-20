@@ -432,7 +432,7 @@ public:
         {
             uint32 entry = atoul(*itr);
 
-            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
+            WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
             stmt->setUInt32(0, entry);
             PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -456,6 +456,7 @@ public:
             sObjectMgr->CheckCreatureTemplate(cInfo);
         }
 
+        sObjectMgr->InitializeQueriesData(QUERY_DATA_CREATURES);
         handler->SendGlobalGMSysMessage("Creature template reloaded.");
         return true;
     }
@@ -538,6 +539,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Quest Templates...");
         sObjectMgr->LoadQuests();
+        sObjectMgr->InitializeQueriesData(QUERY_DATA_QUESTS);
         handler->SendGlobalGMSysMessage("DB table `quest_template` (quest definitions) reloaded.");
 
         /// dependent also from `gameobject` but this table not reloaded anyway
@@ -721,6 +723,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Quest POI ..." );
         sObjectMgr->LoadQuestPOI();
+        sObjectMgr->InitializeQueriesData(QUERY_DATA_POIS);
         handler->SendGlobalGMSysMessage("DB Table `quest_poi` and `quest_poi_points` reloaded.");
         return true;
     }

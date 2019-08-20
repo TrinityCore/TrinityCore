@@ -25,6 +25,7 @@
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "Formulas.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
@@ -274,7 +275,7 @@ inline void Battleground::_ProcessOfflineQueue()
         BattlegroundPlayerMap::iterator itr = m_Players.find(*(m_OfflineQueue.begin()));
         if (itr != m_Players.end())
         {
-            if (itr->second.OfflineRemoveTime <= sWorld->GetGameTime())
+            if (itr->second.OfflineRemoveTime <= GameTime::GetGameTime())
             {
                 RemovePlayerAtLeave(itr->first, true, true);// remove player from BG
                 m_OfflineQueue.pop_front();                 // remove from offline queue
@@ -723,7 +724,7 @@ void Battleground::EndBattleground(uint32 winner)
         SetWinner(BG_TEAM_NEUTRAL);
     }
 
-    PreparedStatement* stmt = nullptr;
+    CharacterDatabasePreparedStatement* stmt = nullptr;
     uint64 battlegroundId = 1;
     if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
     {
@@ -909,7 +910,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
     }
     else
     {
-        SQLTransaction trans(nullptr);
+        CharacterDatabaseTransaction trans(nullptr);
         Player::OfflineResurrect(guid, trans);
     }
 
@@ -1169,7 +1170,7 @@ void Battleground::EventPlayerLoggedOut(Player* player)
 
     // player is correct pointer, it is checked in WorldSession::LogoutPlayer()
     m_OfflineQueue.push_back(player->GetGUID());
-    m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
+    m_Players[guid].OfflineRemoveTime = GameTime::GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
         // drop flag and handle other cleanups

@@ -696,16 +696,16 @@ typedef std::multimap<uint32, GossipMenuItems> GossipMenuItemsContainer;
 typedef std::pair<GossipMenuItemsContainer::const_iterator, GossipMenuItemsContainer::const_iterator> GossipMenuItemsMapBounds;
 typedef std::pair<GossipMenuItemsContainer::iterator, GossipMenuItemsContainer::iterator> GossipMenuItemsMapBoundsNonConst;
 
-struct QuestPOIPoint
+struct QuestPOIBlobPoint
 {
     int32 X;
     int32 Y;
 
-    QuestPOIPoint() : X(0), Y(0) { }
-    QuestPOIPoint(int32 _X, int32 _Y) : X(_X), Y(_Y) { }
+    QuestPOIBlobPoint() : X(0), Y(0) { }
+    QuestPOIBlobPoint(int32 _X, int32 _Y) : X(_X), Y(_Y) { }
 };
 
-struct QuestPOI
+struct QuestPOIBlobData
 {
     int32 BlobIndex;
     int32 ObjectiveIndex;
@@ -718,17 +718,29 @@ struct QuestPOI
     int32 WorldEffectID;
     int32 PlayerConditionID;
     int32 SpawnTrackingID;
-    std::vector<QuestPOIPoint> points;
+    std::vector<QuestPOIBlobPoint> QuestPOIBlobPointStats;
     bool AlwaysAllowMergingBlobs;
 
-    QuestPOI() : BlobIndex(0), ObjectiveIndex(0), QuestObjectiveID(0), QuestObjectID(0), MapID(0), UiMapID(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0), SpawnTrackingID(0), AlwaysAllowMergingBlobs(false){ }
-    QuestPOI(int32 blobIndex, int32 objectiveIndex, int32 questObjectiveID, int32 questObjectID, int32 mapID, int32 uiMapID, int32 priority, int32 flags, int32 worldEffectID, int32 playerConditionID, int32 spawnTrackingID, bool alwaysAllowMergingBlobs) :
-        BlobIndex(blobIndex), ObjectiveIndex(objectiveIndex), QuestObjectiveID(questObjectiveID), QuestObjectID(questObjectID), MapID(mapID), UiMapID(uiMapID),
-        Priority(priority), Flags(flags), WorldEffectID(worldEffectID), PlayerConditionID(playerConditionID), SpawnTrackingID(spawnTrackingID), AlwaysAllowMergingBlobs(alwaysAllowMergingBlobs) { }
+    QuestPOIBlobData() : BlobIndex(0), ObjectiveIndex(0), QuestObjectiveID(0), QuestObjectID(0), MapID(0), UiMapID(0), Priority(0), Flags(0), WorldEffectID(0),
+        PlayerConditionID(0), SpawnTrackingID(0), AlwaysAllowMergingBlobs(false) { }
+    QuestPOIBlobData(int32 blobIndex, int32 objectiveIndex, int32 questObjectiveID, int32 questObjectID, int32 mapID, int32 uiMapID, int32 priority,
+        int32 flags, int32 worldEffectID, int32 playerConditionID, int32 spawnTrackingID, std::vector<QuestPOIBlobPoint> questPOIBlobPointStats,
+        bool alwaysAllowMergingBlobs) : BlobIndex(blobIndex), ObjectiveIndex(objectiveIndex), QuestObjectiveID(questObjectiveID),
+        QuestObjectID(questObjectID), MapID(mapID), UiMapID(uiMapID), Priority(priority), Flags(flags), WorldEffectID(worldEffectID),
+        PlayerConditionID(playerConditionID), SpawnTrackingID(spawnTrackingID), QuestPOIBlobPointStats(std::move(questPOIBlobPointStats)),
+        AlwaysAllowMergingBlobs(alwaysAllowMergingBlobs) { }
 };
 
-typedef std::vector<QuestPOI> QuestPOIVector;
-typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIContainer;
+struct QuestPOIData
+{
+    int32 QuestID = 0;
+    std::vector<QuestPOIBlobData> QuestPOIBlobDataStats;
+
+    void InitializeQueryData();
+    ByteBuffer QueryDataBuffer;
+};
+
+typedef std::unordered_map<uint32, QuestPOIData> QuestPOIContainer;
 
 typedef std::array<std::unordered_map<uint32, QuestGreeting>, 2> QuestGreetingContainer;
 typedef std::array<std::unordered_map<uint32, QuestGreetingLocale>, 2> QuestGreetingLocaleContainer;
@@ -922,6 +934,17 @@ struct RaceUnlockRequirement
     uint32 AchievementId;
 };
 
+enum QueryDataGroup
+{
+    QUERY_DATA_CREATURES = 0x01,
+    QUERY_DATA_GAMEOBJECTS = 0x02,
+    QUERY_DATA_ITEMS = 0x04,
+    QUERY_DATA_QUESTS = 0x08,
+    QUERY_DATA_POIS = 0x10,
+
+    QUERY_DATA_ALL = 0xFF
+};
+
 class PlayerDumpReader;
 
 class TC_GAME_API ObjectMgr
@@ -991,8 +1014,6 @@ class TC_GAME_API ObjectMgr
 
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
-        static ObjectGuid GetPlayerGUIDByName(std::string const& name);
-
         std::vector<uint32> const* GetGameObjectQuestItemList(uint32 id) const
         {
             GameObjectQuestItemMap::const_iterator itr = _gameObjectQuestItemStore.find(id);
@@ -1010,25 +1031,6 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
         CreatureQuestItemMap const* GetCreatureQuestItemMap() const { return &_creatureQuestItemStore; }
-
-        /**
-        * Retrieves the player name by guid.
-        *
-        * If the player is online, the name is retrieved immediately otherwise
-        * a database query is done.
-        *
-        * @remark Use sWorld->GetCharacterNameData because it doesn't require a database query when player is offline
-        *
-        * @param guid player full guid
-        * @param name returned name
-        *
-        * @return true if player was found, false otherwise
-        */
-        static bool GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name);
-        static bool GetPlayerNameAndClassByGUID(ObjectGuid const& guid, std::string& name, uint8& _class);
-        static uint32 GetPlayerTeamByGUID(ObjectGuid const& guid);
-        static uint32 GetPlayerAccountIdByGUID(ObjectGuid const& guid);
-        static uint32 GetPlayerAccountIdByPlayerName(std::string const& name);
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
@@ -1122,7 +1124,7 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        QuestPOIVector const* GetQuestPOIVector(int32 QuestID)
+        QuestPOIData const* GetQuestPOIData(int32 QuestID)
         {
             QuestPOIContainer::const_iterator itr = _questPOIStore.find(QuestID);
             if (itr != _questPOIStore.end())
@@ -1277,6 +1279,8 @@ class TC_GAME_API ObjectMgr
 
         void LoadPlayerChoices();
         void LoadPlayerChoicesLocale();
+
+        void InitializeQueriesData(QueryDataGroup mask);
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -1598,9 +1602,8 @@ class TC_GAME_API ObjectMgr
         // first free id for selected id type
         uint32 _auctionId;
         uint64 _equipmentSetGuid;
-        uint32 _itemTextId;
-        uint32 _mailId;
-        uint32 _hiPetNumber;
+        std::atomic<uint32> _mailId;
+        std::atomic<uint32> _hiPetNumber;
         uint64 _voidItemId;
         uint64 _creatureSpawnId;
         uint64 _gameObjectSpawnId;

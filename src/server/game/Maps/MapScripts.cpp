@@ -18,6 +18,7 @@
 
 #include "Map.h"
 #include "CellImpl.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "Item.h"
@@ -56,7 +57,7 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
         sa.ownerGUID  = ownerGUID;
 
         sa.script = &iter->second;
-        m_scriptSchedule.insert(ScriptScheduleMap::value_type(time_t(sWorld->GetGameTime() + iter->first), sa));
+        m_scriptSchedule.insert(ScriptScheduleMap::value_type(time_t(GameTime::GetGameTime() + iter->first), sa));
         if (iter->first == 0)
             immedScript = true;
 
@@ -86,7 +87,7 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
     sa.ownerGUID  = ownerGUID;
 
     sa.script = &script;
-    m_scriptSchedule.insert(ScriptScheduleMap::value_type(time_t(sWorld->GetGameTime() + delay), sa));
+    m_scriptSchedule.insert(ScriptScheduleMap::value_type(time_t(GameTime::GetGameTime() + delay), sa));
 
     sMapMgr->IncreaseScheduledScriptsCount();
 
@@ -300,7 +301,7 @@ void Map::ScriptsProcess()
     ///- Process overdue queued scripts
     ScriptScheduleMap::iterator iter = m_scriptSchedule.begin();
     // ok as multimap is a *sorted* associative container
-    while (!m_scriptSchedule.empty() && (iter->first <= sWorld->GetGameTime()))
+    while (!m_scriptSchedule.empty() && (iter->first <= GameTime::GetGameTime()))
     {
         ScriptAction const& step = iter->second;
 
@@ -310,7 +311,7 @@ void Map::ScriptsProcess()
             switch (step.sourceGUID.GetHigh())
             {
                 case HighGuid::Item: // as well as HIGHGUID_CONTAINER
-                    if (Player* player = HashMapHolder<Player>::Find(step.ownerGUID))
+                    if (Player* player = GetPlayer(step.ownerGUID))
                         source = player->GetItemByGuid(step.sourceGUID);
                     break;
                 case HighGuid::Creature:
@@ -321,7 +322,7 @@ void Map::ScriptsProcess()
                     source = GetPet(step.sourceGUID);
                     break;
                 case HighGuid::Player:
-                    source = HashMapHolder<Player>::Find(step.sourceGUID);
+                    source = GetPlayer(step.sourceGUID);
                     break;
                 case HighGuid::GameObject:
                 case HighGuid::Transport:
@@ -350,7 +351,7 @@ void Map::ScriptsProcess()
                     target = GetPet(step.targetGUID);
                     break;
                 case HighGuid::Player:
-                    target = HashMapHolder<Player>::Find(step.targetGUID);
+                    target = GetPlayer(step.targetGUID);
                     break;
                 case HighGuid::GameObject:
                 case HighGuid::Transport:

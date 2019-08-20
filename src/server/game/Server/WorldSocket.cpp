@@ -69,7 +69,7 @@ uint8 const WorldSocket::SessionKeySeed[16] = { 0x58, 0xCB, 0xCF, 0x40, 0xFE, 0x
 uint8 const WorldSocket::ContinuedSessionSeed[16] = { 0x16, 0xAD, 0x0C, 0xD4, 0x46, 0xF9, 0x4F, 0xB2, 0xEF, 0x7D, 0xEA, 0x2A, 0x17, 0x66, 0x4D, 0x2F };
 uint8 const WorldSocket::EncryptionKeySeed[16] = { 0xE9, 0x75, 0x3C, 0x50, 0x90, 0x93, 0x61, 0xDA, 0x3B, 0x07, 0xEE, 0xFA, 0xFF, 0x9D, 0x41, 0xB8 };
 
-uint8 const ClientTypeSeed_Wn64[16] = { 0x2B, 0xAD, 0x61, 0x65, 0x5A, 0xBC, 0x2F, 0xC3, 0xD0, 0x48, 0x93, 0xB5, 0x36, 0x40, 0x3A, 0x91 };
+uint8 const ClientTypeSeed_Wn64[16] = { 0x79, 0x73, 0xA8, 0xD5, 0x4B, 0xDB, 0x8B, 0x79, 0x8D, 0x92, 0x97, 0xB0, 0x96, 0xE7, 0x71, 0xEF };
 uint8 const ClientTypeSeed_Mc64[16] = { 0x34, 0x1C, 0xFE, 0xFE, 0x3D, 0x72, 0xAC, 0xA9, 0xA4, 0x40, 0x7D, 0xC5, 0x35, 0xDE, 0xD6, 0x6A };
 
 WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
@@ -93,7 +93,7 @@ WorldSocket::~WorldSocket()
 void WorldSocket::Start()
 {
     std::string ip_address = GetRemoteIpAddress().to_string();
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
@@ -653,7 +653,7 @@ struct AccountInfo
 void WorldSocket::HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession)
 {
     // Get the account information from the auth database
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
     stmt->setInt32(0, int32(realm.Id.Realm));
     stmt->setString(1, authSession->RealmJoinTicket);
 
@@ -725,7 +725,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     memcpy(_encryptKey, encryptKeyGen.GetDigest(), 16);
 
     // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
     stmt->setString(0, address);
     stmt->setString(1, authSession->RealmJoinTicket);
     LoginDatabase.Execute(stmt);
@@ -873,7 +873,7 @@ void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth:
     }
 
     uint32 accountId = uint32(key.Fields.AccountId);
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION);
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION);
     stmt->setUInt32(0, accountId);
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthContinuedSessionCallback, this, authSession, std::placeholders::_1)));

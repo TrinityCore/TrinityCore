@@ -26,15 +26,15 @@
 #include <mysql.h>
 #include <sstream>
 
-PreparedStatement::PreparedStatement(uint32 index) :
-m_stmt(NULL),
-m_index(index) { }
+PreparedStatementBase::PreparedStatementBase(uint32 index, uint8 capacity) :
+    m_stmt(nullptr), m_index(index), statement_data(capacity) { }
 
-PreparedStatement::~PreparedStatement() { }
+PreparedStatementBase::~PreparedStatementBase() { }
 
-void PreparedStatement::BindParameters()
+void PreparedStatementBase::BindParameters(MySQLPreparedStatement* stmt)
 {
-    ASSERT(m_stmt);
+    ASSERT(stmt);
+    m_stmt = stmt;
 
     uint8 i = 0;
     for (; i < statement_data.size(); i++)
@@ -42,186 +42,170 @@ void PreparedStatement::BindParameters()
         switch (statement_data[i].type)
         {
             case TYPE_BOOL:
-                m_stmt->setBool(i, statement_data[i].data.boolean);
+                stmt->setBool(i, statement_data[i].data.boolean);
                 break;
             case TYPE_UI8:
-                m_stmt->setUInt8(i, statement_data[i].data.ui8);
+                stmt->setUInt8(i, statement_data[i].data.ui8);
                 break;
             case TYPE_UI16:
-                m_stmt->setUInt16(i, statement_data[i].data.ui16);
+                stmt->setUInt16(i, statement_data[i].data.ui16);
                 break;
             case TYPE_UI32:
-                m_stmt->setUInt32(i, statement_data[i].data.ui32);
+                stmt->setUInt32(i, statement_data[i].data.ui32);
                 break;
             case TYPE_I8:
-                m_stmt->setInt8(i, statement_data[i].data.i8);
+                stmt->setInt8(i, statement_data[i].data.i8);
                 break;
             case TYPE_I16:
-                m_stmt->setInt16(i, statement_data[i].data.i16);
+                stmt->setInt16(i, statement_data[i].data.i16);
                 break;
             case TYPE_I32:
-                m_stmt->setInt32(i, statement_data[i].data.i32);
+                stmt->setInt32(i, statement_data[i].data.i32);
                 break;
             case TYPE_UI64:
-                m_stmt->setUInt64(i, statement_data[i].data.ui64);
+                stmt->setUInt64(i, statement_data[i].data.ui64);
                 break;
             case TYPE_I64:
-                m_stmt->setInt64(i, statement_data[i].data.i64);
+                stmt->setInt64(i, statement_data[i].data.i64);
                 break;
             case TYPE_FLOAT:
-                m_stmt->setFloat(i, statement_data[i].data.f);
+                stmt->setFloat(i, statement_data[i].data.f);
                 break;
             case TYPE_DOUBLE:
-                m_stmt->setDouble(i, statement_data[i].data.d);
+                stmt->setDouble(i, statement_data[i].data.d);
                 break;
             case TYPE_STRING:
-                m_stmt->setBinary(i, statement_data[i].binary, true);
+                stmt->setBinary(i, statement_data[i].binary, true);
                 break;
             case TYPE_BINARY:
-                m_stmt->setBinary(i, statement_data[i].binary, false);
+                stmt->setBinary(i, statement_data[i].binary, false);
                 break;
             case TYPE_NULL:
-                m_stmt->setNull(i);
+                stmt->setNull(i);
                 break;
         }
     }
     #ifdef _DEBUG
-    if (i < m_stmt->m_paramCount)
+    if (i < stmt->m_paramCount)
         TC_LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement %u did not bind all allocated parameters", m_index);
     #endif
 }
 
 //- Bind to buffer
-void PreparedStatement::setBool(const uint8 index, const bool value)
+void PreparedStatementBase::setBool(const uint8 index, const bool value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.boolean = value;
     statement_data[index].type = TYPE_BOOL;
 }
 
-void PreparedStatement::setUInt8(const uint8 index, const uint8 value)
+void PreparedStatementBase::setUInt8(const uint8 index, const uint8 value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.ui8 = value;
     statement_data[index].type = TYPE_UI8;
 }
 
-void PreparedStatement::setUInt16(const uint8 index, const uint16 value)
+void PreparedStatementBase::setUInt16(const uint8 index, const uint16 value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.ui16 = value;
     statement_data[index].type = TYPE_UI16;
 }
 
-void PreparedStatement::setUInt32(const uint8 index, const uint32 value)
+void PreparedStatementBase::setUInt32(const uint8 index, const uint32 value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.ui32 = value;
     statement_data[index].type = TYPE_UI32;
 }
 
-void PreparedStatement::setUInt64(const uint8 index, const uint64 value)
+void PreparedStatementBase::setUInt64(const uint8 index, const uint64 value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.ui64 = value;
     statement_data[index].type = TYPE_UI64;
 }
 
-void PreparedStatement::setInt8(const uint8 index, const int8 value)
+void PreparedStatementBase::setInt8(const uint8 index, const int8 value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.i8 = value;
     statement_data[index].type = TYPE_I8;
 }
 
-void PreparedStatement::setInt16(const uint8 index, const int16 value)
+void PreparedStatementBase::setInt16(const uint8 index, const int16 value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.i16 = value;
     statement_data[index].type = TYPE_I16;
 }
 
-void PreparedStatement::setInt32(const uint8 index, const int32 value)
+void PreparedStatementBase::setInt32(const uint8 index, const int32 value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.i32 = value;
     statement_data[index].type = TYPE_I32;
 }
 
-void PreparedStatement::setInt64(const uint8 index, const int64 value)
+void PreparedStatementBase::setInt64(const uint8 index, const int64 value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.i64 = value;
     statement_data[index].type = TYPE_I64;
 }
 
-void PreparedStatement::setFloat(const uint8 index, const float value)
+void PreparedStatementBase::setFloat(const uint8 index, const float value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.f = value;
     statement_data[index].type = TYPE_FLOAT;
 }
 
-void PreparedStatement::setDouble(const uint8 index, const double value)
+void PreparedStatementBase::setDouble(const uint8 index, const double value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].data.d = value;
     statement_data[index].type = TYPE_DOUBLE;
 }
 
-void PreparedStatement::setString(const uint8 index, const std::string& value)
+void PreparedStatementBase::setString(const uint8 index, const std::string& value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].binary.resize(value.length() + 1);
     memcpy(statement_data[index].binary.data(), value.c_str(), value.length() + 1);
     statement_data[index].type = TYPE_STRING;
 }
 
-void PreparedStatement::setBinary(const uint8 index, const std::vector<uint8>& value)
+void PreparedStatementBase::setBinary(const uint8 index, const std::vector<uint8>& value)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index + 1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].binary = value;
     statement_data[index].type = TYPE_BINARY;
 }
 
-void PreparedStatement::setNull(const uint8 index)
+void PreparedStatementBase::setNull(const uint8 index)
 {
-    if (index >= statement_data.size())
-        statement_data.resize(index+1);
+    ASSERT(index < statement_data.size());
 
     statement_data[index].type = TYPE_NULL;
 }
 
-MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt) :
-m_stmt(NULL),
-m_Mstmt(stmt),
-m_bind(NULL)
+MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt, std::string queryString) :
+    m_stmt(nullptr), m_Mstmt(stmt), m_bind(nullptr), m_queryString(std::move(queryString))
 {
     /// Initialize variable parameters
     m_paramCount = mysql_stmt_param_count(stmt);
@@ -278,17 +262,17 @@ static void SetParameterValue(MYSQL_BIND* param, enum_field_types type, const vo
 }
 
 //- Bind on mysql level
-void MySQLPreparedStatement::CheckValidIndex(uint8 index)
+void MySQLPreparedStatement::AssertValidIndex(uint8 index)
 {
     ASSERT(index < m_paramCount || ParamenterIndexAssertFail(m_stmt->m_index, index, m_paramCount));
 
     if (m_paramsSet[index])
-        TC_LOG_WARN("sql.sql", "[WARNING] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
+        TC_LOG_ERROR("sql.sql", "[ERROR] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
 }
 
 void MySQLPreparedStatement::setNull(const uint8 index)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     param->buffer_type = MYSQL_TYPE_NULL;
@@ -307,7 +291,7 @@ void MySQLPreparedStatement::setBool(const uint8 index, const bool value)
 
 void MySQLPreparedStatement::setUInt8(const uint8 index, const uint8 value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_TINY, &value, sizeof(uint8), true);
@@ -315,7 +299,7 @@ void MySQLPreparedStatement::setUInt8(const uint8 index, const uint8 value)
 
 void MySQLPreparedStatement::setUInt16(const uint8 index, const uint16 value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_SHORT, &value, sizeof(uint16), true);
@@ -323,7 +307,7 @@ void MySQLPreparedStatement::setUInt16(const uint8 index, const uint16 value)
 
 void MySQLPreparedStatement::setUInt32(const uint8 index, const uint32 value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_LONG, &value, sizeof(uint32), true);
@@ -331,7 +315,7 @@ void MySQLPreparedStatement::setUInt32(const uint8 index, const uint32 value)
 
 void MySQLPreparedStatement::setUInt64(const uint8 index, const uint64 value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_LONGLONG, &value, sizeof(uint64), true);
@@ -339,7 +323,7 @@ void MySQLPreparedStatement::setUInt64(const uint8 index, const uint64 value)
 
 void MySQLPreparedStatement::setInt8(const uint8 index, const int8 value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_TINY, &value, sizeof(int8), false);
@@ -347,7 +331,7 @@ void MySQLPreparedStatement::setInt8(const uint8 index, const int8 value)
 
 void MySQLPreparedStatement::setInt16(const uint8 index, const int16 value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_SHORT, &value, sizeof(int16), false);
@@ -355,7 +339,7 @@ void MySQLPreparedStatement::setInt16(const uint8 index, const int16 value)
 
 void MySQLPreparedStatement::setInt32(const uint8 index, const int32 value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_LONG, &value, sizeof(int32), false);
@@ -363,7 +347,7 @@ void MySQLPreparedStatement::setInt32(const uint8 index, const int32 value)
 
 void MySQLPreparedStatement::setInt64(const uint8 index, const int64 value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_LONGLONG, &value, sizeof(int64), false);
@@ -371,7 +355,7 @@ void MySQLPreparedStatement::setInt64(const uint8 index, const int64 value)
 
 void MySQLPreparedStatement::setFloat(const uint8 index, const float value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_FLOAT, &value, sizeof(float), (value > 0.0f));
@@ -379,7 +363,7 @@ void MySQLPreparedStatement::setFloat(const uint8 index, const float value)
 
 void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     SetParameterValue(param, MYSQL_TYPE_DOUBLE, &value, sizeof(double), (value > 0.0f));
@@ -387,7 +371,7 @@ void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
 
 void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint8>& value, bool isString)
 {
-    CheckValidIndex(index);
+    AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     uint32 len = uint32(value.size());
@@ -407,9 +391,9 @@ void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint
     memcpy(param->buffer, value.data(), len);
 }
 
-std::string MySQLPreparedStatement::getQueryString(std::string const& sqlPattern) const
+std::string MySQLPreparedStatement::getQueryString() const
 {
-    std::string queryString = sqlPattern;
+    std::string queryString(m_queryString);
 
     size_t pos = 0;
     for (uint32 i = 0; i < m_stmt->statement_data.size(); i++)
@@ -472,7 +456,7 @@ std::string MySQLPreparedStatement::getQueryString(std::string const& sqlPattern
 }
 
 //- Execution
-PreparedStatementTask::PreparedStatementTask(PreparedStatement* stmt, bool async) :
+PreparedStatementTask::PreparedStatementTask(PreparedStatementBase* stmt, bool async) :
 m_stmt(stmt), m_result(nullptr)
 {
     m_has_result = async; // If it's async, then there's a result

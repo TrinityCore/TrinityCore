@@ -51,11 +51,11 @@ class TC_GAME_API Bag : public Item
 
         // DB operations
         // overwrite virtual Item::SaveToDB
-        void SaveToDB(SQLTransaction& trans) override;
+        void SaveToDB(CharacterDatabaseTransaction& trans) override;
         // overwrite virtual Item::LoadFromDB
         bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry) override;
         // overwrite virtual Item::DeleteFromDB
-        void DeleteFromDB(SQLTransaction& trans) override;
+        void DeleteFromDB(CharacterDatabaseTransaction& trans) override;
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
         void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;

@@ -168,7 +168,8 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
     //if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
     //    GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (unit->IsArmorer() || unit->IsCivilian() || unit->IsQuestGiver() || unit->IsServiceProvider() || unit->IsGuard())
+    // and if he has pure gossip or is banker and moves or is tabard designer?
+    //if (unit->IsArmorer() || unit->IsCivilian() || unit->IsQuestGiver() || unit->IsServiceProvider() || unit->IsGuard())
         unit->StopMoving();
 
     // If spiritguide, no need for gossip menu, just put player into resurrect queue
@@ -315,13 +316,7 @@ void WorldSession::SendSpiritResurrect()
 
         if (corpseGrave != ghostGrave)
             _player->TeleportTo(corpseGrave->MapID, corpseGrave->Loc.X, corpseGrave->Loc.Y, corpseGrave->Loc.Z, (corpseGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
-        // or update at original position
-        else
-            _player->UpdateObjectVisibility();
     }
-    // or update at original position
-    else
-        _player->UpdateObjectVisibility();
 }
 
 void WorldSession::HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet)
@@ -375,7 +370,7 @@ void WorldSession::HandleRequestStabledPets(WorldPackets::NPC::RequestStabledPet
 
 void WorldSession::SendStablePet(ObjectGuid guid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
 
     stmt->setUInt64(0, _player->GetGUID().GetCounter());
     stmt->setUInt8(1, PET_SAVE_FIRST_STABLE_SLOT);
@@ -474,7 +469,7 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
         return;
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS);
 
     stmt->setUInt64(0, _player->GetGUID().GetCounter());
     stmt->setUInt8(1, PET_SAVE_FIRST_STABLE_SLOT);
@@ -533,7 +528,7 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ENTRY);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ENTRY);
 
     stmt->setUInt64(0, _player->GetGUID().GetCounter());
     stmt->setUInt32(1, petnumber);
@@ -659,7 +654,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 
     // Find swapped pet slot in stable
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
 
     stmt->setUInt64(0, _player->GetGUID().GetCounter());
     stmt->setUInt32(1, petId);
