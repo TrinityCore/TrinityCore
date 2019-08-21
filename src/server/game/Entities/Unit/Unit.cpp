@@ -7951,10 +7951,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     int32 DoneFlatBenefit = 0;
 
     // ..done
-    AuraEffectList const& mDamageDoneCreature = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_CREATURE);
-    for (AuraEffectList::const_iterator i = mDamageDoneCreature.begin(); i != mDamageDoneCreature.end(); ++i)
-        if (creatureTypeMask & uint32((*i)->GetMiscValue()))
-            DoneFlatBenefit += (*i)->GetAmount();
+    DoneFlatBenefit += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_CREATURE, creatureTypeMask);
 
     // ..done
     // SPELL_AURA_MOD_DAMAGE_DONE included in weapon damage
@@ -7967,20 +7964,14 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         APbonus += victim->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
 
         // ..done (base at attack power and creature type)
-        AuraEffectList const& mCreatureAttackPower = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS);
-        for (AuraEffectList::const_iterator i = mCreatureAttackPower.begin(); i != mCreatureAttackPower.end(); ++i)
-            if (creatureTypeMask & uint32((*i)->GetMiscValue()))
-                APbonus += (*i)->GetAmount();
+        APbonus += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS, creatureTypeMask);
     }
     else
     {
         APbonus += victim->GetTotalAuraModifier(SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS);
 
         // ..done (base at attack power and creature type)
-        AuraEffectList const& mCreatureAttackPower = GetAuraEffectsByType(SPELL_AURA_MOD_MELEE_ATTACK_POWER_VERSUS);
-        for (AuraEffectList::const_iterator i = mCreatureAttackPower.begin(); i != mCreatureAttackPower.end(); ++i)
-            if (creatureTypeMask & uint32((*i)->GetMiscValue()))
-                APbonus += (*i)->GetAmount();
+        APbonus += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_MELEE_ATTACK_POWER_VERSUS, creatureTypeMask);
     }
 
     if (APbonus != 0)                                       // Can be negative
@@ -8025,16 +8016,15 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         }
     }
 
-    AuraEffectList const& mDamageDoneVersus = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
-    for (AuraEffectList::const_iterator i = mDamageDoneVersus.begin(); i != mDamageDoneVersus.end(); ++i)
-        if (creatureTypeMask & uint32((*i)->GetMiscValue()))
-            AddPct(DoneTotalMod, (*i)->GetAmount());
+    DoneTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS, creatureTypeMask);
 
     // bonus against aurastate
-    AuraEffectList const& mDamageDoneVersusAurastate = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS_AURASTATE);
-    for (AuraEffectList::const_iterator i = mDamageDoneVersusAurastate.begin(); i != mDamageDoneVersusAurastate.end(); ++i)
-        if (victim->HasAuraState(AuraStateType((*i)->GetMiscValue())))
-            AddPct(DoneTotalMod, (*i)->GetAmount());
+    DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS_AURASTATE, [victim](AuraEffect const* aurEff) -> bool
+    {
+        if (victim->HasAuraState(AuraStateType(aurEff->GetMiscValue())))
+            return true;
+        return false;
+    });
 
     // Add SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC percent bonus
     if (spellProto)
@@ -8063,25 +8053,16 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     int32 TakenFlatBenefit = 0;
     float TakenTotalCasterMod = 0.0f;
 
-    // get all auras from caster that allow the spell to ignore resistance (sanctified wrath)
-    SpellSchoolMask attackSchoolMask = spellProto ? spellProto->GetSchoolMask() : SPELL_SCHOOL_MASK_NORMAL;
-    AuraEffectList const& IgnoreResistAuras = attacker->GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
-    for (AuraEffectList::const_iterator i = IgnoreResistAuras.begin(); i != IgnoreResistAuras.end(); ++i)
-    {
-        if ((*i)->GetMiscValue() & attackSchoolMask)
-            TakenTotalCasterMod += (float((*i)->GetAmount()));
-    }
-
     // ..taken
-    AuraEffectList const& mDamageTaken = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_TAKEN);
-    for (AuraEffectList::const_iterator i = mDamageTaken.begin(); i != mDamageTaken.end(); ++i)
-        if ((*i)->GetMiscValue() & attacker->GetMeleeDamageSchoolMask())
-            TakenFlatBenefit += (*i)->GetAmount();
+    TakenFlatBenefit += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_TAKEN, attacker->GetMeleeDamageSchoolMask());
 
     if (attType != RANGED_ATTACK)
         TakenFlatBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN);
     else
         TakenFlatBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN);
+
+    if ((TakenFlatBenefit < 0) && (pdamage < static_cast<uint32>(-TakenFlatBenefit)))
+        return 0;
 
     // Taken total percent damage auras
     float TakenTotalMod = 1.0f;
@@ -8093,24 +8074,28 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     if (spellProto)
     {
         // From caster spells
-        AuraEffectList const& mOwnerTaken = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
-        for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
-            if ((*i)->GetCasterGUID() == attacker->GetGUID() && (*i)->IsAffectingSpell(spellProto))
-                AddPct(TakenTotalMod, (*i)->GetAmount());
+        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_FROM_CASTER, [attacker, spellProto](AuraEffect const* aurEff) -> bool
+        {
+            if (aurEff->GetCasterGUID() == attacker->GetGUID() && aurEff->IsAffectingSpell(spellProto))
+                return true;
+            return false;
+        });
 
         // Mod damage from spell mechanic
         uint32 mechanicMask = spellProto->GetAllEffectsMechanicMask();
 
         // Shred, Maul - "Effects which increase Bleed damage also increase Shred damage"
         if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && spellProto->SpellFamilyFlags[0] & 0x00008800)
-            mechanicMask |= (1<<MECHANIC_BLEED);
+            mechanicMask |= (1 << MECHANIC_BLEED);
 
         if (mechanicMask)
         {
-            AuraEffectList const& mDamageDoneMechanic = GetAuraEffectsByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
-            for (AuraEffectList::const_iterator i = mDamageDoneMechanic.begin(); i != mDamageDoneMechanic.end(); ++i)
-                if (mechanicMask & uint32(1<<((*i)->GetMiscValue())))
-                    AddPct(TakenTotalMod, (*i)->GetAmount());
+            TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT, [mechanicMask](AuraEffect const* aurEff) -> bool
+            {
+                if (mechanicMask & uint32(1 << (aurEff->GetMiscValue())))
+                    return true;
+                return false;
+            });
         }
     }
 
@@ -8144,36 +8129,29 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     //}*/
 
     if (attType != RANGED_ATTACK)
-    {
-        AuraEffectList const& mModMeleeDamageTakenPercent = GetAuraEffectsByType(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
-        for (AuraEffectList::const_iterator i = mModMeleeDamageTakenPercent.begin(); i != mModMeleeDamageTakenPercent.end(); ++i)
-            AddPct(TakenTotalMod, (*i)->GetAmount());
-    }
+        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
     else
-    {
-        AuraEffectList const& mModRangedDamageTakenPercent = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
-        for (AuraEffectList::const_iterator i = mModRangedDamageTakenPercent.begin(); i != mModRangedDamageTakenPercent.end(); ++i)
-            AddPct(TakenTotalMod, (*i)->GetAmount());
-    }
+        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
 
-    float tmpDamage = 0.0f;
-
-    if (TakenTotalCasterMod)
+    // Sanctified Wrath (bypass damage reduction)
+    if (TakenTotalMod < 1.0f)
     {
-        if (TakenFlatBenefit < 0)
+        SpellSchoolMask const attackSchoolMask = spellProto ? spellProto->GetSchoolMask() : SPELL_SCHOOL_MASK_NORMAL;
+
+        float damageReduction = 1.0f - TakenTotalMod;
+        Unit::AuraEffectList const& casterIgnoreResist = attacker->GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
+        for (AuraEffect const* aurEff : casterIgnoreResist)
         {
-            if (TakenTotalMod < 1)
-                tmpDamage = ((float(CalculatePct(pdamage, TakenTotalCasterMod) + TakenFlatBenefit) * TakenTotalMod) + CalculatePct(pdamage, TakenTotalCasterMod));
-            else
-                tmpDamage = ((float(CalculatePct(pdamage, TakenTotalCasterMod) + TakenFlatBenefit) + CalculatePct(pdamage, TakenTotalCasterMod)) * TakenTotalMod);
-        }
-        else if (TakenTotalMod < 1)
-            tmpDamage = ((CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod) * TakenTotalMod) + CalculatePct(float(pdamage) + TakenFlatBenefit, TakenTotalCasterMod));
-    }
-    if (!tmpDamage)
-        tmpDamage = (float(pdamage) + TakenFlatBenefit) * TakenTotalMod;
+            if (!(aurEff->GetMiscValue() & attackSchoolMask))
+                continue;
 
-    // bonus result can be negative
+            AddPct(damageReduction, -aurEff->GetAmount());
+        }
+
+        TakenTotalMod = 1.0f - damageReduction;
+    }
+
+    float tmpDamage = float(pdamage + TakenFlatBenefit) * TakenTotalMod;
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
@@ -11314,46 +11292,43 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
 
 void Unit::ApplyRegenMod(WeaponAttackType att, float val, bool apply)
 {
+    if (GetTypeId() != TYPEID_PLAYER)
+        return;
+
     if (val > 0)
     {
-        if (GetTypeId() == TYPEID_PLAYER)
+        if (att == BASE_ATTACK)
         {
-            if (att == BASE_ATTACK)
-            {
-                if (GetTypeId() == TYPEID_PLAYER && getClass() != CLASS_HUNTER)
-                    ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
+            // Modify rune regeneration based on haste
+            if (getClass() == CLASS_DEATH_KNIGHT)
+                for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
+                    ApplyPercentModFloatValue(PLAYER_RUNE_REGEN_1 + i, -val, !apply);
 
-                // Modify rune regeneration based on haste
-                if (getClass() == CLASS_DEATH_KNIGHT)
-                    for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
-                        ApplyPercentModFloatValue(PLAYER_RUNE_REGEN_1 + i, val, apply);
-            }
-            else if (att == RANGED_ATTACK)
-            {
-                if (getClass() == CLASS_HUNTER)
-                    ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
-            }
+            if (getClass() != CLASS_HUNTER)
+                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
+        }
+        else if (att == RANGED_ATTACK)
+        {
+            if (getClass() == CLASS_HUNTER)
+                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
         }
     }
     else
     {
-        if (GetTypeId() == TYPEID_PLAYER)
+        if (att == BASE_ATTACK)
         {
-            if (att == BASE_ATTACK)
-            {
-                if (GetTypeId() == TYPEID_PLAYER && getClass() != CLASS_HUNTER)
-                    ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
+            // Modify rune regeneration based on haste
+            if (getClass() == CLASS_DEATH_KNIGHT)
+                for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
+                    ApplyPercentModFloatValue(PLAYER_RUNE_REGEN_1 + i, val, apply);
 
-                // Modify rune regeneration based on haste
-                if (getClass() == CLASS_DEATH_KNIGHT)
-                    for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
-                        ApplyPercentModFloatValue(PLAYER_RUNE_REGEN_1 + i, val, !apply);
-            }
-            else if (att == RANGED_ATTACK)
-            {
-                if (getClass() == CLASS_HUNTER)
-                    ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
-            }
+            if (getClass() != CLASS_HUNTER)
+                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
+        }
+        else if (att == RANGED_ATTACK)
+        {
+            if (getClass() == CLASS_HUNTER)
+                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
         }
     }
 }

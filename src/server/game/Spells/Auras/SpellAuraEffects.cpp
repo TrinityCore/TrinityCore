@@ -4035,7 +4035,8 @@ void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mod
         {
             target->ApplyAttackTimePercentMod(BASE_ATTACK, (float)GetAmount(), !apply);
             target->ApplyAttackTimePercentMod(OFF_ATTACK, (float)GetAmount(), !apply);
-            target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), !apply);
+            if (applyRegenPct)
+                target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), !apply);
         }
     }
 
@@ -4046,7 +4047,8 @@ void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mod
     {
         target->ApplyAttackTimePercentMod(BASE_ATTACK, (float)GetAmount(), apply);
         target->ApplyAttackTimePercentMod(OFF_ATTACK, (float)GetAmount(), apply);
-        target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
+        if (applyRegenPct)
+            target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
     }
 }
 
