@@ -1363,6 +1363,23 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
+        case SMART_ACTION_SET_DATA:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (IsCreature(*itr))
+                    (*itr)->ToCreature()->AI()->SetData(e.action.setData.field, e.action.setData.data);
+                else if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->AI()->SetData(e.action.setData.field, e.action.setData.data);
+            }
+
+            delete targets;
+            break;
+        }
         case SMART_ACTION_MOVE_OFFSET:
         {
             if (ObjectList* targets = GetTargets(e, unit))
