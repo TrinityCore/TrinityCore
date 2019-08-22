@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "gundrak.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
