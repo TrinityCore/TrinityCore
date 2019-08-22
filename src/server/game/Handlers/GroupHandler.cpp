@@ -1026,26 +1026,26 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     }
 
     if (mask & GROUP_UPDATE_FLAG_CUR_HP)
-        *data << uint32(player->GetHealth());
+        *data << int32(player->GetHealth());
 
     if (mask & GROUP_UPDATE_FLAG_MAX_HP)
-        *data << uint32(player->GetMaxHealth());
+        *data << int32(player->GetMaxHealth());
 
     Powers powerType = player->getPowerType();
     if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)
         *data << uint8(powerType);
 
     if (mask & GROUP_UPDATE_FLAG_CUR_POWER)
-        *data << uint16(player->GetPower(powerType));
+        *data << int16(player->GetPower(powerType));
 
     if (mask & GROUP_UPDATE_FLAG_MAX_POWER)
-        *data << uint16(player->GetMaxPower(powerType));
+        *data << int16(player->GetMaxPower(powerType));
 
     if (mask & GROUP_UPDATE_FLAG_LEVEL)
-        *data << uint16(player->getLevel());
+        *data << int16(player->getLevel());
 
     if (mask & GROUP_UPDATE_FLAG_ZONE)
-        *data << uint16(player->GetZoneId());
+        *data << int16(player->GetZoneId());
 
     if (mask & GROUP_UPDATE_FLAG_UNK100)
         *data << uint16(0);
@@ -1112,7 +1112,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_MODEL_ID)
     {
         if (pet)
-            *data << uint16(pet->GetDisplayId());
+            *data << int16(pet->GetDisplayId());
         else
             *data << uint16(0);
     }
@@ -1120,17 +1120,17 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_CUR_HP)
     {
         if (pet)
-            *data << uint32(pet->GetHealth());
+            *data << int32(pet->GetHealth());
         else
-            *data << uint32(0);
+            *data << int32(0);
     }
 
     if (mask & GROUP_UPDATE_FLAG_PET_MAX_HP)
     {
         if (pet)
-            *data << uint32(pet->GetMaxHealth());
+            *data << int32(pet->GetMaxHealth());
         else
-            *data << uint32(0);
+            *data << int32(0);
     }
 
     if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
@@ -1144,17 +1144,17 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_CUR_POWER)
     {
         if (pet)
-            *data << uint16(pet->GetPower(pet->getPowerType()));
+            *data << int16(pet->GetPower(pet->getPowerType()));
         else
-            *data << uint16(0);
+            *data << int16(0);
     }
 
     if (mask & GROUP_UPDATE_FLAG_PET_MAX_POWER)
     {
         if (pet)
-            *data << uint16(pet->GetMaxPower(pet->getPowerType()));
+            *data << int16(pet->GetMaxPower(pet->getPowerType()));
         else
-            *data << uint16(0);
+            *data << int16(0);
     }
 
     if (mask & GROUP_UPDATE_FLAG_PET_AURAS)
@@ -1204,10 +1204,9 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_VEHICLE_SEAT)
     {
         if (Vehicle* veh = player->GetVehicle())
-            *data << uint32(veh->GetVehicleInfo()->m_seatID[player->m_movementInfo.transport.seat]);
+            *data << int32(veh->GetVehicleInfo()->m_seatID[player->m_movementInfo.transport.seat]);
         else
-            *data << uint32(0);
-
+            *data << int32(0);
     }
 
     if (mask & GROUP_UPDATE_FLAG_PHASE)

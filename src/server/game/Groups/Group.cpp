@@ -485,6 +485,9 @@ bool Group::AddMember(Player* player)
         }
     }
     player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
+    if (player->GetPet())
+        player->SetGroupUpdateFlag(GROUP_UPDATE_PET);
+
     UpdatePlayerOutOfRange(player);
 
     // quest related GO state dependent from raid membership

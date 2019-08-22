@@ -447,10 +447,10 @@ void PhasingHandler::SendToPlayer(Player const* player)
 
 void PhasingHandler::FillPartyMemberPhase(WorldPacket* data, PhaseShift const& phaseShift)
 {
-    *data << uint32(phaseShift.Flags.AsUnderlyingType());
-    *data << uint32(phaseShift.Phases.size());
+    *data << int32(phaseShift.Flags.AsUnderlyingType());
+    *data << int32(phaseShift.Phases.size());
     for (auto itr = phaseShift.Phases.begin(); itr != phaseShift.Phases.end(); ++itr)
-        *data << uint16(itr->Id);
+        *data << int16(itr->Id);
 }
 
 PhaseShift const& PhasingHandler::GetEmptyPhaseShift()
