@@ -7579,7 +7579,11 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     // group update
     if (GetGroup())
+    {
         SetGroupUpdateFlag(GROUP_UPDATE_FULL);
+        if (GetPet())
+            SetGroupUpdateFlag(GROUP_UPDATE_PET);
+    }
 
     // zone changed, so area changed as well, update it
     UpdateArea(newArea);
