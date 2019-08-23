@@ -6705,8 +6705,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     // Default calculation
     if (DoneAdvertisedBenefit)
     {
-        if (coeff < 0)
-            coeff = CalculateDefaultCoefficient(spellProto, damagetype) * int32(stack);
+        if (coeff < 0.f)
+            coeff = CalculateDefaultCoefficient(spellProto, damagetype);
 
         if (Player* modOwner = GetSpellModOwner())
         {
@@ -6729,6 +6729,10 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
 float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype) const
 {
     if (!spellProto || !victim || damagetype == DIRECT_DAMAGE)
+        return 1.0f;
+
+    // Some spells don't benefit from done mods
+    if (spellProto->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
         return 1.0f;
 
     // Some spells don't benefit from pct done mods
@@ -7498,7 +7502,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     if (DoneAdvertisedBenefit)
     {
         if (coeff < 0.f)
-            coeff = CalculateDefaultCoefficient(spellProto, damagetype) * int32(stack) * 1.88f;  // As wowwiki says: C = (Cast Time / 3.5) * 1.88 (for healing spells)
+            coeff = CalculateDefaultCoefficient(spellProto, damagetype) * 1.88f;  // As wowwiki says: C = (Cast Time / 3.5) * 1.88 (for healing spells)
 
         if (Player* modOwner = GetSpellModOwner())
         {
@@ -7985,7 +7989,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         // Check for table values
         if (SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id))
         {
-            if (bonus->ap_bonus > 0)
+            if (bonus->ap_bonus > 0.f)
             {
                 float APbonus = GetTotalAttackPowerValue(attType);
                 DoneFlatBenefit += int32(bonus->ap_bonus * APbonus);
