@@ -22,6 +22,7 @@
 #include "DBCEnums.h"
 #include "QuaternionData.h"
 #include "SharedDefines.h"
+#include "WorldPacket.h"
 #include <string>
 #include <vector>
 
@@ -713,6 +714,7 @@ struct GameObjectTemplate
 
     std::string AIName;
     uint32 ScriptId;
+    WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers
     bool IsDespawnAtAction() const
@@ -815,7 +817,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_TRAPDOOR:      autoCloseTime = trapdoor.autoClose; break;
             default: break;
         }
-        return autoCloseTime / IN_MILLISECONDS;              // prior to 3.0.3, conversion was / 0x10000;
+        return autoCloseTime;              // prior to 3.0.3, conversion was / 0x10000;
     }
 
     uint32 GetLootId() const
@@ -914,6 +916,9 @@ struct GameObjectTemplate
             default: return false;
         }
     }
+
+    void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
 // From `gameobject_template_addon`

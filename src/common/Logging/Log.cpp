@@ -247,7 +247,7 @@ Logger const* Log::GetLoggerByType(std::string const& type) const
         return NULL;
 
     std::string parentLogger = LOGGER_ROOT;
-    size_t found = type.find_last_of(".");
+    size_t found = type.find_last_of('.');
     if (found != std::string::npos)
         parentLogger = type.substr(0, found);
 
