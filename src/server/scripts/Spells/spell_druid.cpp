@@ -890,7 +890,7 @@ class spell_dru_stampede : public AuraScript
     void HandleEffectCatProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        if (GetTarget()->GetShapeshiftForm() != FORM_CAT || eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_CAT)
+        if (GetTarget()->GetShapeshiftForm() != FORM_CAT || eventInfo.GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_CAT)
             return;
 
         GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_CAT_RANK_1, GetSpellInfo()->GetRank()), true, nullptr, aurEff);
@@ -900,7 +900,7 @@ class spell_dru_stampede : public AuraScript
     void HandleEffectBearProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        if (GetTarget()->GetShapeshiftForm() != FORM_BEAR || eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_BEAR)
+        if (GetTarget()->GetShapeshiftForm() != FORM_BEAR || eventInfo.GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_BEAR)
             return;
 
         GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_BAER_RANK_1, GetSpellInfo()->GetRank()), true, nullptr, aurEff);
