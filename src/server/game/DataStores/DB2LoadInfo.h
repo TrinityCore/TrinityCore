@@ -4911,6 +4911,24 @@ struct SpellTotemsLoadInfo
     }
 };
 
+struct SpellVisualKitLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "Flags" },
+            { true, FT_BYTE, "FallbackPriority" },
+            { false, FT_INT, "FallbackSpellVisualKitId" },
+            { false, FT_SHORT, "DelayMin" },
+            { false, FT_SHORT, "DelayMax" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellVisualKitMeta::Instance(), HOTFIX_SEL_SPELL_VISUAL_KIT);
+        return &loadInfo;
+    }
+};
+
 struct SpellXSpellVisualLoadInfo
 {
     static DB2LoadInfo const* Instance()
