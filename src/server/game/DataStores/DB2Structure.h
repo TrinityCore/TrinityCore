@@ -3272,5 +3272,11 @@ struct WorldSafeLocsEntry
     float Facing;
 };
 
+struct WorldStateExpressionEntry
+{
+    uint32 ID;
+    char const* Expression;
+};
+
 #pragma pack(pop)
 #endif
