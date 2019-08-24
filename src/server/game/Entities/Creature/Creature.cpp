@@ -3069,18 +3069,22 @@ void Creature::SetDisplayId(uint32 modelId, float displayScale /*= 1.f*/)
     }
     else
     {
-        if (!m_outfit || modelId != m_outfit->GetDisplayId())
+        if (m_outfit)
         {
-            // no outfit or outfit's real modelid doesnt match modelid being set
-            // remove outfit and continue setting the new model
-            m_outfit.reset();
-            SetMirrorImageFlag(false);
-        }
-        else
-        {
-            // outfit's real modelid being set
-            // add flags and continue setting the model
-            SetMirrorImageFlag(true);
+            // if has outfit
+            if (modelId != m_outfit->GetDisplayId())
+            {
+                // and outfit's real modelid doesnt match modelid being set
+                // remove outfit and continue setting the new model
+                m_outfit.reset();
+                SetMirrorImageFlag(false);
+            }
+            else
+            {
+                // outfit's real modelid being set
+                // add flags and continue setting the model
+                SetMirrorImageFlag(true);
+            }
         }
     }
 
