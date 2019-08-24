@@ -380,8 +380,8 @@ class TC_GAME_API Battleground
         template<class Do>
         void BroadcastWorker(Do& _do);
 
-        void PlaySoundToTeam(uint32 SoundID, uint32 TeamID);
-        void PlaySoundToAll(uint32 SoundID);
+        void PlaySoundToTeam(uint32 soundID, uint32 teamID);
+        void PlaySoundToAll(uint32 soundID);
         void CastSpellOnTeam(uint32 SpellID, uint32 TeamID);
         void RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID);
         void RewardHonorToTeam(uint32 Honor, uint32 TeamID);

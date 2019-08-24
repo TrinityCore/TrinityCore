@@ -24,6 +24,7 @@
 #include "DBCStores.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "World.h"
 
@@ -300,12 +301,10 @@ void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType,
     if (!sound || !source)
         return;
 
-    WorldPacket data(SMSG_PLAY_SOUND, 4);
-    data << uint32(sound);
-    SendNonChatPacket(source, &data, msgType, whisperTarget, range, team, gmOnly);
+    SendNonChatPacket(source, WorldPackets::Misc::PlaySound(sound).Write(), msgType, whisperTarget, range, team, gmOnly);
 }
 
-void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly) const
 {
     switch (msgType)
     {
