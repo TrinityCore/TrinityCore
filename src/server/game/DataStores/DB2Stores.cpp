@@ -280,6 +280,7 @@ DB2Storage<WMOAreaTableEntry>                   sWMOAreaTableStore("WMOAreaTable
 DB2Storage<WorldEffectEntry>                    sWorldEffectStore("WorldEffect.db2", WorldEffectLoadInfo::Instance());
 DB2Storage<WorldMapOverlayEntry>                sWorldMapOverlayStore("WorldMapOverlay.db2", WorldMapOverlayLoadInfo::Instance());
 DB2Storage<WorldSafeLocsEntry>                  sWorldSafeLocsStore("WorldSafeLocs.db2", WorldSafeLocsLoadInfo::Instance());
+DB2Storage<WorldStateExpressionEntry>           sWorldStateExpressionStore("WorldStateExpression.db2", WorldStateExpressionLoadInfo::Instance());
 
 TaxiMask                                        sTaxiNodesMask;
 TaxiMask                                        sOldContinentsNodesMask;
@@ -739,6 +740,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sWorldEffectStore);
     LOAD_DB2(sWorldMapOverlayStore);
     LOAD_DB2(sWorldSafeLocsStore);
+    LOAD_DB2(sWorldStateExpressionStore);
 
 #undef LOAD_DB2
 
