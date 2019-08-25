@@ -1426,6 +1426,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetCritterGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Critter), guid); }
         ObjectGuid GetBattlePetCompanionGUID() const { return m_unitData->BattlePetCompanionGUID; }
         void SetBattlePetCompanionGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BattlePetCompanionGUID), guid); }
+        ObjectGuid GetDemonCreatorGUID() const { return m_unitData->DemonCreator; }
+        void SetDemonCreatorGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DemonCreator), guid); }
 
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
         ObjectGuid GetCharmerOrOwnerGUID() const;
