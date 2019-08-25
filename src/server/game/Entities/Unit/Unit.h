@@ -1356,6 +1356,8 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid GetPetGUID() const { return m_SummonSlot[SUMMON_SLOT_PET]; }
         void SetCritterGUID(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CRITTER, guid); }
         ObjectGuid GetCritterGUID() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
+        ObjectGuid GetDemonCreatorGUID() const { return m_unitData->DemonCreator; }
+        void SetDemonCreatorGUID(ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::DemonCreator), guid); }
 
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
         ObjectGuid GetCharmerOrOwnerGUID() const;
