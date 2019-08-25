@@ -601,7 +601,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
     SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
-    bool needsflag = static_cast<bool>(m_outfit) && Unit::GetDisplayId() == m_outfit->GetDisplayId();
+    bool needsflag = m_outfit && Unit::GetDisplayId() == m_outfit->GetDisplayId();
     if (needsflag)
         SetMirrorImageFlag(true);
 
@@ -2459,10 +2459,11 @@ void Creature::SaveRespawnTime(uint32 forceDelay)
         ri.spawnId = m_spawnId;
         ri.respawnTime = m_respawnTime;
         GetMap()->SaveRespawnInfoDB(ri);
+        return;
     }
 
     time_t thisRespawnTime = forceDelay ? GameTime::GetGameTime() + forceDelay : m_respawnTime;
-    GetMap()->SaveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId, GetEntry(), thisRespawnTime, GetMap()->GetZoneId(GetHomePosition()), Trinity::ComputeGridCoord(GetHomePosition().GetPositionX(), GetHomePosition().GetPositionY()).GetId());
+    GetMap()->SaveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId, GetEntry(), thisRespawnTime, Trinity::ComputeGridCoord(GetHomePosition().GetPositionX(), GetHomePosition().GetPositionY()).GetId());
 }
 
 // this should not be called by petAI or
@@ -3085,18 +3086,22 @@ void Creature::SetDisplayId(uint32 modelId)
     }
     else
     {
-        if (!m_outfit || modelId != m_outfit->GetDisplayId())
+        if (m_outfit)
         {
-            // no outfit or outfit's real modelid doesnt match modelid being set
-            // remove outfit and continue setting the new model
-            m_outfit.reset();
-            SetMirrorImageFlag(false);
-        }
-        else
-        {
-            // outfit's real modelid being set
-            // add flags and continue setting the model
-            SetMirrorImageFlag(true);
+            // if has outfit
+            if (modelId != m_outfit->GetDisplayId())
+            {
+                // and outfit's real modelid doesnt match modelid being set
+                // remove outfit and continue setting the new model
+                m_outfit.reset();
+                SetMirrorImageFlag(false);
+            }
+            else
+            {
+                // outfit's real modelid being set
+                // add flags and continue setting the model
+                SetMirrorImageFlag(true);
+            }
         }
     }
 
