@@ -1612,8 +1612,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             ENSURE_AI(SmartAI, me->AI())->SetRun(e.action.setRun.run != 0);
-            if (e.action.setRun.speed && e.action.setRun.speedDivider)
-                me->SetSpeed(MOVE_RUN, float(e.action.setRun.speed) / float(e.action.setRun.speedDivider));
             break;
         }
         case SMART_ACTION_SET_SWIM:
@@ -2871,26 +2869,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : *targets)
                 if (Player* playerTarget = target->ToPlayer())
                     playerTarget->GetSceneMgr().CancelSceneBySceneId(e.action.scene.sceneId);
-
-            delete targets;
-            break;
-        }
-        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
-        {
-            ObjectList* targets = GetTargets(e, unit);
-            if (!targets)
-                break;
-
-            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-            {
-                if (IsCreature(*itr))
-                {
-                    (*itr)->ToCreature()->SendPlaySpellVisualKit(e.action.spellVisualKit.spellVisualKitId, 0, 0);
-
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_SPELL_VISUAL_KIT: target: %s (%s), SpellVisualKit: %u",
-                        (*itr)->GetName().c_str(), (*itr)->GetGUID().ToString().c_str(), e.action.spellVisualKit.spellVisualKitId);
-                }
-            }
 
             delete targets;
             break;
