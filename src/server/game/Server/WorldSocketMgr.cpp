@@ -120,8 +120,3 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
 
     BaseSocketMgr::OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
 }
-
-NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const
-{
-    return new WorldSocketThread[GetNetworkThreadCount()];
-}

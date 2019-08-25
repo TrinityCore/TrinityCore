@@ -42,10 +42,6 @@ public:
     }
 
 protected:
-    NetworkThread<AuthSession>* CreateThreads() const override
-    {
-        return new NetworkThread<AuthSession>[1];
-    }
 
     static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
     {

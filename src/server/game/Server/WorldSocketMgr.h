@@ -50,8 +50,6 @@ public:
 protected:
     WorldSocketMgr();
 
-    NetworkThread<WorldSocket>* CreateThreads() const override;
-
 private:
     int32 _socketSystemSendBufferSize;
     int32 _socketApplicationSendBufferSize;

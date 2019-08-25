@@ -29,10 +29,11 @@ using boost::asio::ip::tcp;
 template<class SocketType>
 class SocketMgr
 {
+    using PNetThreadT = std::unique_ptr< NetworkThread<SocketType> > ;
 public:
     virtual ~SocketMgr()
     {
-        ASSERT(!_threads && !_acceptor && !_threadCount, "StopNetwork must be called prior to SocketMgr destruction");
+        ASSERT(!_threads.empty() && !_acceptor, "StopNetwork must be called prior to SocketMgr destruction");
     }
 
     virtual bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
@@ -58,13 +59,17 @@ public:
         }
 
         _acceptor = acceptor;
-        _threadCount = threadCount;
-        _threads = CreateThreads();
+        _threads.reserve(threadCount); // Reserve memory for pointers
+        // Create the _threads
+        for (size_t i=0; i < threadCount; i++) {
+            _threads.push_back(std::make_unique<NetworkThread<SocketType>>());
+        };
 
-        ASSERT(_threads);
+        ASSERT(!_threads.empty());
 
-        for (int32 i = 0; i < _threadCount; ++i)
-            _threads[i].Start();
+        for (auto& thread : _threads) {
+            thread->Start();
+        }
 
         return true;
     }
@@ -73,24 +78,22 @@ public:
     {
         _acceptor->Close();
 
-        if (_threadCount != 0)
-            for (int32 i = 0; i < _threadCount; ++i)
-                _threads[i].Stop();
+        for (auto& thread : _threads) {
+            thread->Stop();
+        };
 
         Wait();
 
         delete _acceptor;
         _acceptor = nullptr;
-        delete[] _threads;
-        _threads = nullptr;
-        _threadCount = 0;
+        _threads.clear();
     }
 
     void Wait()
     {
-        if (_threadCount != 0)
-            for (int32 i = 0; i < _threadCount; ++i)
-                _threads[i].Wait();
+        for (auto& thread : _threads) {
+            thread->Wait();
+        }
     }
 
     virtual void OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
@@ -100,7 +103,7 @@ public:
             std::shared_ptr<SocketType> newSocket = std::make_shared<SocketType>(std::move(sock));
             newSocket->Start();
 
-            _threads[threadIndex].AddSocket(newSocket);
+            _threads[threadIndex]->AddSocket(newSocket);
         }
         catch (boost::system::system_error const& err)
         {
@@ -108,14 +111,12 @@ public:
         }
     }
 
-    int32 GetNetworkThreadCount() const { return _threadCount; }
-
     uint32 SelectThreadWithMinConnections() const
     {
         uint32 min = 0;
 
-        for (int32 i = 1; i < _threadCount; ++i)
-            if (_threads[i].GetConnectionCount() < _threads[min].GetConnectionCount())
+        for (size_t i{1}; i < _threads.size(); ++i)
+            if (_threads[i]->GetConnectionCount() < _threads[min]->GetConnectionCount())
                 min = i;
 
         return min;
@@ -124,19 +125,21 @@ public:
     std::pair<tcp::socket*, uint32> GetSocketForAccept()
     {
         uint32 threadIndex = SelectThreadWithMinConnections();
-        return std::make_pair(_threads[threadIndex].GetSocketForAccept(), threadIndex);
+        return std::make_pair(_threads[threadIndex]->GetSocketForAccept(), threadIndex);
+
+        //Easier to understand?? Define comparison lambda for pointers to _threads
+        //auto comp = [](const PNetThreadT& nt1, const PNetThreadT& nt2) { return *nt1.GetConnectionCount() < *nt2.GetConnectionCount(); };
+        //auto iter = std::min_element(std::begin(_threads), std::end(_threads), comp);
+        //return std::make_pair( (*iter)->GetSocketForAccept(), (iter - _threads.begin()) );
     }
 
 protected:
-    SocketMgr() : _acceptor(nullptr), _threads(nullptr), _threadCount(0)
+    SocketMgr() : _acceptor(nullptr), _threads(0)
     {
     }
 
-    virtual NetworkThread<SocketType>* CreateThreads() const = 0;
-
     AsyncAcceptor* _acceptor;
-    NetworkThread<SocketType>* _threads;
-    int32 _threadCount;
+    std::vector<PNetThreadT> _threads;
 };
 
 #endif // SocketMgr_h__
