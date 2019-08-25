@@ -5518,6 +5518,15 @@ void SpellMgr::LoadSpellInfoCorrections()
        spellInfo->DmgClass = SPELL_DAMAGE_CLASS_MAGIC;
     });
 
+    // Improved Blood Presence
+    ApplySpellFix({
+        50365,
+        50371,
+    }, [](SpellInfo* spellInfo)
+    {
+       spellInfo->SpellFamilyName = SPELLFAMILY_DEATHKNIGHT;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
