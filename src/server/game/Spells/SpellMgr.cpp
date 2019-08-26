@@ -5527,6 +5527,12 @@ void SpellMgr::LoadSpellInfoCorrections()
        spellInfo->SpellFamilyName = SPELLFAMILY_DEATHKNIGHT;
     });
 
+    // Enhanced Elements
+    ApplySpellFix({ 77223 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->SpellFamilyName = SPELLFAMILY_SHAMAN;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
