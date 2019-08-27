@@ -99,13 +99,6 @@ public:
             return false;
         }
 
-        if (sObjectMgr->IsReservedName(guildName) || !sObjectMgr->IsValidCharterName(guildName))
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         Guild* guild = new Guild;
         if (!guild->Create(target, guildName))
         {
