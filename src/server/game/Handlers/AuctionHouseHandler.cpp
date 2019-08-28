@@ -759,7 +759,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_AUCTION_LIST_ITEMS");
 
     std::string searchedname;
-    uint8 levelmin, levelmax, usable, getAll;
+    uint8 levelmin, levelmax, usable, getAll, sortCount;
     uint32 listfrom, auctionSlotID, auctionMainCategory, auctionSubCategory, quality;
     ObjectGuid guid;
 
@@ -774,9 +774,13 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
     recvData >> getAll;
     recvData.read_skip<uint8>();                           // unk
 
-    // this block looks like it uses some lame byte packing or similar...
-    for (uint8 i = 0; i < 15; i++)
+    // Sorting
+    recvData >> sortCount;
+    for (uint8 i = 0; i < sortCount; i++)
+    {
         recvData.read_skip<uint8>();
+        recvData.read_skip<uint8>();
+    }
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)

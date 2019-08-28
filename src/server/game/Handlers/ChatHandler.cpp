@@ -623,8 +623,8 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
             uint32 msgLen = recvData.ReadBits(9);
             message = recvData.ReadString(msgLen);
             prefix = recvData.ReadString(prefixLen);
+            break;
         }
-
         case CHAT_MSG_GUILD:
         {
             uint32 msgLen = recvData.ReadBits(9);
@@ -638,7 +638,10 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
     }
 
     if (prefix.empty() || prefix.length() > 16)
+    {
+        recvData.rfinish();
         return;
+    }
 
     // Disabled addon channel?
     if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
@@ -683,7 +686,6 @@ void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
         case CHAT_MSG_PARTY:
         case CHAT_MSG_RAID:
         {
-
             Group* group = sender->GetGroup();
             if (!group || group->isBGGroup())
                 break;
