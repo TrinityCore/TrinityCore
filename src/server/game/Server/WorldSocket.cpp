@@ -104,6 +104,9 @@ bool WorldSocket::Update()
     MessageBuffer buffer(_sendBufferSize);
     while (_bufferQueue.Dequeue(queued))
     {
+        if (_worldSession && queued->size() > 0x400 && !queued->IsCompressed())
+            queued->Compress(_worldSession->GetCompressionStream());
+
         ServerPktHeader header(queued->size() + 2, queued->GetOpcode());
         if (queued->NeedsEncryption())
             _authCrypt.EncryptSend(header.header, header.getHeaderLength());

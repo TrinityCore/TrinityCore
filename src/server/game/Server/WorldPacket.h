@@ -24,11 +24,13 @@
 #include "ByteBuffer.h"
 #include <chrono>
 
+struct z_stream_s;
+
 class WorldPacket : public ByteBuffer
 {
     public:
                                                             // just container for later use
-        WorldPacket() : ByteBuffer(0), m_opcode(NULL_OPCODE)
+        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE)
         {
         }
 
@@ -80,11 +82,17 @@ class WorldPacket : public ByteBuffer
 
         uint16 GetOpcode() const { return m_opcode; }
         void SetOpcode(uint16 opcode) { m_opcode = opcode; }
+        bool IsCompressed() const { return (m_opcode & COMPRESSED_OPCODE_MASK) != 0; }
+        void Compress(z_stream_s* compressionStream);
+        void Compress(z_stream_s* compressionStream, WorldPacket const* source);
+
 
         std::chrono::steady_clock::time_point GetReceivedTime() const { return m_receivedTime; }
 
     protected:
         uint16 m_opcode;
+        void Compress(void* dst, uint32 *dst_size, const void* src, int src_size);
+        z_stream_s* _compressionStream;
         std::chrono::steady_clock::time_point m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
 };
 

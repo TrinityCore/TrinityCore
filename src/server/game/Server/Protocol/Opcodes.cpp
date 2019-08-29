@@ -1741,7 +1741,11 @@ inline std::string GetOpcodeNameForLoggingImpl(T id)
     if (static_cast<uint16>(id) < NUM_OPCODE_HANDLERS)
     {
         if (OpcodeHandler const* handler = opcodeTable[id])
+        {
             ss << handler->Name;
+            if (opcode & COMPRESSED_OPCODE_MASK)
+                ss << "_COMPRESSED";
+        }
         else
             ss << "UNKNOWN OPCODE";
     }

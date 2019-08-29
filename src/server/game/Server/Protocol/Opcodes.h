@@ -1380,8 +1380,11 @@ enum Opcodes : uint16
 
 enum OpcodeMisc : uint16
 {
-    NUM_OPCODE_HANDLERS = (0x7FFF + 1),
-    NULL_OPCODE         = 0x0000
+    MAX_OPCODE                                        = 0x7FFF,
+    NUM_OPCODE_HANDLERS                               = (MAX_OPCODE + 1),
+    UNKNOWN_OPCODE                                    = 0xFFFF,
+    NULL_OPCODE                                       = 0,
+    COMPRESSED_OPCODE_MASK                            = 0x8000
 };
 
 typedef Opcodes OpcodeClient;
