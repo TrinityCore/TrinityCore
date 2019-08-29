@@ -40,9 +40,9 @@ class DefenseMessageBuilder
             std::string text = sOutdoorPvPMgr->GetDefenseMessage(_zoneId, _id, locale);
 
             data.Initialize(SMSG_DEFENSE_MESSAGE, 4 + 4 + text.length());
-            data.append<uint32>(_zoneId);
-            data.append<uint32>(text.length());
-            data << text;
+            data << uint32(_zoneId);
+            data << int32(text.length());
+            data.WriteString(text);
         }
 
     private:
