@@ -15181,6 +15181,17 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         UpdatePvPState();
     }
 
+    if (quest->GetSrcSpell() > 0)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetSrcSpell());
+        Unit* caster = this;
+        if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_ACCEPT) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER) && !spellInfo->HasTargetType(TARGET_DEST_CASTER_SUMMON))
+            if (Unit* unit = questGiver->ToUnit())
+                unit->CastSpell(this, quest->GetSrcSpell(), true);
+
+        caster->CastSpell(this, quest->GetSrcSpell(), true);
+    }
+
     SetQuestSlot(log_slot, quest_id, qtime);
 
     m_QuestStatusSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
@@ -15498,16 +15509,12 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (quest->GetRewSpell() > 0)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
-        if (questGiver && questGiver->isType(TYPEMASK_UNIT) &&
-            !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) &&
-            !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM) &&
-            !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_APPLY_AURA))
-        {
+        Unit* caster = this;
+        if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
             if (Unit* unit = questGiver->ToUnit())
-                unit->CastSpell(this, quest->GetRewSpell(), true);
-        }
-        else
-            CastSpell(this, quest->GetRewSpell(), true);
+                caster = unit;
+
+        caster->CastSpell(this, quest->GetRewSpell(), true);
     }
     else
     {
@@ -15516,15 +15523,12 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             if (quest->RewardDisplaySpell[i] > 0)
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->RewardDisplaySpell[i]);
-                if (questGiver && questGiver->isType(TYPEMASK_UNIT) &&
-                    !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_LEARN_SPELL) &&
-                    !spellInfo->HasEffect(DIFFICULTY_NONE, SPELL_EFFECT_CREATE_ITEM))
-                {
-                    if (Unit* unit = questGiver->ToUnit())
-                        unit->CastSpell(this, quest->RewardDisplaySpell[i], true);
-                }
-                else
-                    CastSpell(this, quest->RewardDisplaySpell[i], true);
+                Unit* caster = this;
+                if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
+                    if (Unit * unit = questGiver->ToUnit())
+                        caster = unit;
+
+                caster->CastSpell(this, quest->RewardDisplaySpell[i], true);
             }
         }
     }
