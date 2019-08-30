@@ -1319,6 +1319,30 @@ bool SpellInfo::HasOnlyDamageEffects() const
     return true;
 }
 
+bool SpellInfo::HasTargetType(::Targets target) const
+{
+    for (auto itr = _effects.begin(); itr != _effects.end(); ++itr)
+    {
+        for (SpellEffectInfo const* effect : itr->second)
+        {
+            if (effect && (effect->TargetA.GetTarget() == target || effect->TargetB.GetTarget() == target))
+                return true;
+        }
+    }
+    return false;
+}
+
+bool SpellInfo::HasTargetType(uint32 difficulty, ::Targets target) const
+{
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(difficulty);
+    for (SpellEffectInfo const* effect : effects)
+    {
+        if (effect && (effect->TargetA.GetTarget() == target || effect->TargetB.GetTarget() == target))
+            return true;
+    }
+    return false;
+}
+
 bool SpellInfo::HasAnyAuraInterruptFlag() const
 {
     return std::find_if(AuraInterruptFlags.begin(), AuraInterruptFlags.end(), [](uint32 flag) { return flag != 0; }) != AuraInterruptFlags.end();
