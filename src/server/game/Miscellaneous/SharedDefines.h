@@ -1687,7 +1687,7 @@ enum Targets
     TARGET_GAMEOBJECT_CONE_109         = 109,
     TARGET_UNIT_CONE_ENTRY_110         = 110, // 1 spell
     TARGET_UNK_111                     = 111,
-    TARGET_UNK_112                     = 112,
+    TARGET_DEST_TARGET_ANY_2           = 112, // 1 Spell
     TARGET_UNK_113                     = 113,
     TARGET_UNK_114                     = 114,
     TARGET_UNK_115                     = 115,
