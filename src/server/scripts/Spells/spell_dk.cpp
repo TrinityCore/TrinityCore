@@ -64,15 +64,12 @@ enum DeathKnightSpells
     SPELL_DK_ENERGIZE_BLOOD_RUNE                = 81166,
     SPELL_DK_ENERGIZE_FROST_RUNE                = 81168,
     SPELL_DK_ENERGIZE_UNHOLY_RUNE               = 81169,
-    SPELL_DK_FREEZING_FOG                       = 59052,
     SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_PRESENCE                     = 48266,
     SPELL_DK_FROST_STRIKE                       = 49143,
     SPELL_DK_FROST_STRIKE_OFFHAND               = 66196,
     SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
-    SPELL_DK_HOWLING_BLAST                      = 49184,
-    SPELL_DK_ICY_TOUCH                          = 45477,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE            = 63611,
     SPELL_DK_IMPROVED_DEATH_STRIKE              = 62905,
     SPELL_DK_IMPROVED_FROST_PRESENCE            = 63621,
@@ -1272,46 +1269,6 @@ class spell_dk_howling_blast : public SpellScript
     }
 };
 
-// -49149 - Chill of the Grave
-class spell_dk_chill_of_the_grave : public AuraScript
-{
-    PrepareAuraScript(spell_dk_chill_of_the_grave);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-            {
-                SPELL_DK_FREEZING_FOG,
-                SPELL_DK_ICY_TOUCH,
-                SPELL_DK_HOWLING_BLAST
-            });
-    }
-
-    bool CheckProc(ProcEventInfo& eventInfo)
-    {
-        if (Spell const* spell = eventInfo.GetProcSpell())
-        {
-            if (SpellInfo const* spellInfo = spell->GetSpellInfo())
-                if (GetTarget()->HasAura(SPELL_DK_FREEZING_FOG))
-                    if (spellInfo->Id == SPELL_DK_ICY_TOUCH || spellInfo->Id == SPELL_DK_HOWLING_BLAST)
-                        return false;
-
-            if (Unit* spellTarget = spell->m_targets.GetUnitTarget())
-                if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
-                    if (Unit* procTarget = eventInfo.GetDamageInfo()->GetVictim())
-                        if (spellTarget == procTarget)
-                            return true;
-        }
-
-        return false;
-    }
-
-    void Register() override
-    {
-        DoCheckProc += AuraCheckProcFn(spell_dk_chill_of_the_grave::CheckProc);
-    }
-};
-
 class spell_dk_threat_of_thassarian : public AuraScript
 {
     PrepareAuraScript(spell_dk_threat_of_thassarian);
@@ -1723,7 +1680,6 @@ void AddSC_deathknight_spell_scripts()
     RegisterAuraScript(spell_dk_blood_gorged);
     RegisterAuraScript(spell_dk_blood_rites);
     RegisterAuraScript(spell_dk_butchery);
-    RegisterAuraScript(spell_dk_chill_of_the_grave);
     RegisterAuraScript(spell_dk_crimson_scourge);
     RegisterSpellScript(spell_dk_dark_transformation);
     RegisterAuraScript(spell_dk_dark_transformation_aura);
