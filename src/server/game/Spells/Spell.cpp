@@ -605,6 +605,7 @@ m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo, ca
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, must not be used before.
     m_timer = 0;                                            // will set to castime in prepare
     m_channeledDuration = 0;                                // will be setup in Spell::handle_immediate
+    m_launchHandled = false;
     m_immediateHandled = false;
 
     m_channelTargetEffectMask = 0;
@@ -794,11 +795,11 @@ void Spell::SelectSpellTargets()
         }
     }
 
-    if (uint64 dstDelay = CalculateDelayMomentForDst())
+    if (uint64 dstDelay = CalculateDelayMomentForDst(m_spellInfo->LaunchDelay))
         m_delayMoment = dstDelay;
 }
 
-uint64 Spell::CalculateDelayMomentForDst() const
+uint64 Spell::CalculateDelayMomentForDst(float launchDelay) const
 {
     if (m_targets.HasDst())
     {
@@ -806,18 +807,16 @@ uint64 Spell::CalculateDelayMomentForDst() const
         {
             float speed = m_targets.GetSpeedXY();
             if (speed > 0.0f)
-                return uint64(std::floor((m_targets.GetDist2d() / speed + m_spellInfo->LaunchDelay) * 1000.0f));
+                return uint64(std::floor((m_targets.GetDist2d() / speed + launchDelay) * 1000.0f));
         }
         else if (m_spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
-            return uint64(std::floor((m_spellInfo->Speed + m_spellInfo->LaunchDelay) * 1000.0f));
+            return uint64(std::floor((m_spellInfo->Speed + launchDelay) * 1000.0f));
         else if (m_spellInfo->Speed > 0.0f)
         {
             // We should not subtract caster size from dist calculation (fixes execution time desync with animation on client, eg. Malleable Goo cast by PP)
             float dist = m_caster->GetExactDist(*m_targets.GetDstPos());
-            return uint64(std::floor((dist / m_spellInfo->Speed + m_spellInfo->LaunchDelay) * 1000.0f));
+            return uint64(std::floor((dist / m_spellInfo->Speed + launchDelay) * 1000.0f));
         }
-
-        return uint64(std::floor(m_spellInfo->LaunchDelay * 1000.0f));
     }
 
     return 0;
@@ -825,7 +824,7 @@ uint64 Spell::CalculateDelayMomentForDst() const
 
 void Spell::RecalculateDelayMomentForDst()
 {
-    m_delayMoment = CalculateDelayMomentForDst();
+    m_delayMoment = CalculateDelayMomentForDst(0.0f);
     m_caster->m_Events.ModifyEventTime(_spellEvent, GetDelayStart() + m_delayMoment);
 }
 
@@ -2174,6 +2173,10 @@ void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
     else
         target.timeDelay = 0ULL;
 
+    // Calculate minimum incoming time
+    if (target.timeDelay && (!m_delayMoment || m_delayMoment > target.timeDelay))
+        m_delayMoment = target.timeDelay;
+
     // Add target to list
     m_UniqueGOTargetInfo.push_back(target);
 }
@@ -3224,7 +3227,11 @@ void Spell::_cast(bool skipCheck)
 
     PrepareScriptHitHandlers();
 
-    HandleLaunchPhase();
+    if (!m_spellInfo->LaunchDelay)
+    {
+        HandleLaunchPhase();
+        m_launchHandled = true;
+    }
 
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
     SendSpellGo();
@@ -3370,20 +3377,40 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         return 0;
     }
 
+    bool single_missile = m_targets.HasDst();
+    uint64 next_time = 0;
+
+    if (!m_launchHandled)
+    {
+        uint64 launchMoment = uint64(std::floor(m_spellInfo->LaunchDelay * 1000.0f));
+        if (launchMoment > t_offset)
+            return launchMoment;
+
+        HandleLaunchPhase();
+        m_launchHandled = true;
+        if (m_delayMoment > t_offset)
+        {
+            if (single_missile)
+                return m_delayMoment;
+
+            next_time = m_delayMoment;
+            if ((m_UniqueTargetInfo.size() > 2 || (m_UniqueTargetInfo.size() == 1 && m_UniqueTargetInfo.front().targetGUID == m_caster->GetGUID())) || !m_UniqueGOTargetInfo.empty())
+            {
+                t_offset = 0; // if LaunchDelay was present then the only target that has timeDelay = 0 is m_caster - and that is the only target we want to process now
+            }
+        }
+    }
+
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
 
-    uint64 next_time = 0;
-
     PrepareTargetProcessing();
 
-    if (!m_immediateHandled)
+    if (!m_immediateHandled && t_offset != 0)
     {
         _handle_immediate_phase();
         m_immediateHandled = true;
     }
-
-    bool single_missile = (m_targets.HasDst());
 
     // now recheck units targeting correctness (need before any effects apply to prevent adding immunity at first effect not allow apply second spell effect and similar cases)
     for (std::vector<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
@@ -7139,11 +7166,11 @@ bool SpellEvent::Execute(uint64 e_time, uint32 p_time)
                 // delaying had just started, record the moment
                 m_Spell->SetDelayStart(e_time);
                 // handle effects on caster if the spell has travel time but also affects the caster in some way
-                if (!m_Spell->m_targets.HasDst())
-                {
-                    uint64 n_offset = m_Spell->handle_delayed(0);
+                uint64 n_offset = m_Spell->handle_delayed(0);
+                if (m_Spell->m_spellInfo->LaunchDelay)
+                    ASSERT(n_offset == uint64(std::floor(m_Spell->m_spellInfo->LaunchDelay * 1000.0f)));
+                else
                     ASSERT(n_offset == m_Spell->GetDelayMoment());
-                }
                 // re-plan the event for the delay moment
                 m_Spell->GetCaster()->m_Events.AddEvent(this, e_time + m_Spell->GetDelayMoment(), false);
                 return false;                               // event not complete
