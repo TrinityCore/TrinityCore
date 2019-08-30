@@ -4999,7 +4999,9 @@ void Spell::TakeRunePower(bool didHit)
     player->ClearLastUsedRuneMask();
 
     int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
+    int32 runicPowerGain = runeCostData->runePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME);
 
+    // Apply rune cost modifiers
     for (uint32 i = 0; i < RUNE_DEATH; ++i)
     {
         runeCost[i] = runeCostData->RuneCost[i];
@@ -5053,7 +5055,7 @@ void Spell::TakeRunePower(bool didHit)
     // you can gain some runic power when use runes
     if (didHit)
     {
-        if (int32 rp = int32(runeCostData->runePowerGain * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME)))
+        if (runicPowerGain)
         {
             Unit::AuraEffectList const& bonusPct = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_RUNE_REGEN_SPEED);
             for (auto i = bonusPct.begin(); i != bonusPct.end(); ++i)
@@ -5063,14 +5065,18 @@ void Spell::TakeRunePower(bool didHit)
                 {
                     // Apply bonus when in Unholy or Blood Presence
                     if (player->HasAura(48265) || player->HasAura(48263))
-                        AddPct(rp, (*i)->GetAmount());
+                        AddPct(runicPowerGain, (*i)->GetAmount());
                     continue;
                 }
                 else
-                    AddPct(rp, (*i)->GetAmount());
+                    AddPct(runicPowerGain, (*i)->GetAmount());
             }
 
-            player->ModifyPower(POWER_RUNIC_POWER, rp);
+            // Apply runic power gain modifiers
+            if (Player* modOwner = m_caster->GetSpellModOwner())
+                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runicPowerGain, const_cast<Spell*>(this));
+
+            player->ModifyPower(POWER_RUNIC_POWER, std::max(0, runicPowerGain));
         }
     }
 }
