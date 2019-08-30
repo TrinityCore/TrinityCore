@@ -484,6 +484,8 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         joinData.result = LFG_JOIN_NOT_MEET_REQS;
     else if (player->HasAura(9454)) // check Freeze debuff
         joinData.result = LFG_JOIN_NOT_MEET_REQS;
+    else if (!CanPerformSelectedRoles(player->getClass(), roles))
+        joinData.result = LFG_JOIN_INTERNAL_ERROR;
     else if (grp)
     {
         if (grp->GetMembersCount() > MAXGROUPSIZE)
@@ -2280,6 +2282,20 @@ void LFGMgr::SetShortageRoleMask(uint32 dungeonId, uint8 role)
 uint32 LFGMgr::GetShortageRoleMask(uint32 dungeonId)
 {
     return ShortageRoleMaskStore[dungeonId];
+}
+
+bool LFGMgr::CanPerformSelectedRoles(uint8 playerClass, uint8 roles) const
+{
+    // Role Validation
+    if (roles & lfg::PLAYER_ROLE_TANK && (playerClass != CLASS_DEATH_KNIGHT && playerClass != CLASS_DRUID
+        && playerClass != CLASS_PALADIN && playerClass != CLASS_WARRIOR))
+        return false;
+
+    if (roles & lfg::PLAYER_ROLE_HEALER && (playerClass != CLASS_PALADIN && playerClass != CLASS_DRUID
+        && playerClass != CLASS_PRIEST && playerClass != CLASS_SHAMAN))
+        return false;
+
+    return true;
 }
 
 } // namespace lfg

@@ -85,6 +85,11 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPackets::LFG::LFGSetRoles& lfgSe
     ObjectGuid gguid = group->GetGUID();
     TC_LOG_DEBUG("lfg", "CMSG_LFG_SET_ROLES: Group %s, Player %s, Roles: %u",
         gguid.ToString().c_str(), GetPlayerInfo().c_str(), lfgSetRoles.RolesDesired);
+
+    // Role validation
+    if (!sLFGMgr->CanPerformSelectedRoles(GetPlayer()->getClass(), lfgSetRoles.RolesDesired))
+        lfgSetRoles.RolesDesired = 0;
+
     sLFGMgr->UpdateRoleCheck(gguid, guid, lfgSetRoles.RolesDesired);
 }
 

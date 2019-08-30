@@ -454,6 +454,10 @@ class TC_GAME_API LFGMgr
         /// Returns the stored role mask for the shortage system indexed by random dungeon id
         uint32 GetShortageRoleMask(uint32 dungeonId);
 
+        // WPE Protection
+        /// Checks if the player's class is allowed to perform his selected roles
+        bool CanPerformSelectedRoles(uint8 playerClass, uint8 roles) const;
+
     private:
         uint8 GetTeam(ObjectGuid guid);
         void RestoreState(ObjectGuid guid, char const* debugMsg);
