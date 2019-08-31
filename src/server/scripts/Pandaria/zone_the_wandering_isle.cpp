@@ -120,7 +120,7 @@ class spell_cave_of_scrolls_comp_timer_aura : public AuraScript
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
-            if (Creature* creature = target->FindNearestCreature(54567, 40.0f, true))
+            if (Creature* creature = target->FindNearestCreature(54567, target->GetVisibilityRange(), true))
                 creature->AI()->Talk(1, target);
     }
 
@@ -191,13 +191,13 @@ class spell_light_challengers_torch : public AuraScript
 
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit * target = GetTarget())
+        if (Unit* target = GetTarget())
             target->CastSpell(target, SPELL_UPDATE_ZONE_AURAS, true);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit * target = GetTarget())
+        if (Unit* target = GetTarget())
             target->RemoveAura(SPELL_SEE_FLICKERING_FLAME);
     }
 
@@ -1933,7 +1933,7 @@ public:
 
             if (HealthBelowPct(20) && !_vordrakaLowHp)
             {
-                if (Creature * creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER_VORDRAKA, me->GetVisibilityRange(), true))
+                if (Creature* creature = me->FindNearestCreature(NPC_AYSA_CLOUDSINGER_VORDRAKA, me->GetVisibilityRange(), true))
                 {
                     creature->AI()->Talk(TEXT_VORDRAKA_LOW_HP);
                     _vordrakaLowHp = true;
@@ -2084,6 +2084,11 @@ class spell_summon_deep_sea_aggressor : public SpellScript
     }
 };
 
+enum HealingSphereData
+{
+    DATA_RESET_ORIENTATION = 1
+};
+
 class areatrigger_healing_sphere : public AreaTriggerEntityScript
 {
 public:
@@ -2093,9 +2098,15 @@ public:
     {
         areatrigger_healing_sphereAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-        void OnUnitEnter(Unit* /*unit*/) override
+        void OnUnitEnter(Unit* unit) override
         {
             at->SetDuration(0);
+
+            if (Unit* caster = at->GetCaster())
+            {
+                caster->SetFacingToObject(unit);
+                caster->GetAI()->SetData(DATA_RESET_ORIENTATION, DATA_RESET_ORIENTATION);
+            }
         }
     };
 
@@ -2105,7 +2116,7 @@ public:
     }
 };
 
-enum NpcHealersActive
+enum HealersActiveBunnyMisc
 {
     DATA_HEALER_ACTIVE          = 1,
     DATA_HEALER_DIED            = 2,
@@ -2122,12 +2133,12 @@ public:
     {
         npc_healers_active_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset()
+        void Reset() override
         {
             _healersActive = 0;
         }
 
-        void SetData(uint32 id, uint32 value)
+        void SetData(uint32 id, uint32 value) override
         {
             if (id == DATA_HEALER_ACTIVE)
             {
@@ -2150,7 +2161,7 @@ public:
                         player->SendUpdateWorldState(WORLD_STATE_HEALERS_ACTIVE, _healersActive);
         }
 
-        uint32 GetData(uint32 id) const
+        uint32 GetData(uint32 id) const override
         {
             if (id == DATA_HEALER_ACTIVE)
                 return _healersActive;
@@ -2168,6 +2179,8 @@ public:
     }
 };
 
+typedef npc_healers_active_bunny::npc_healers_active_bunnyAI NPCHealersActiveBunnyAI;
+
 enum HealingShenzinSuSpells
 {
     SPELL_HEALING_SHENZIN_SU_CREDIT = 108898
@@ -2181,12 +2194,18 @@ class spell_healing_shenzin_su : public AuraScript
     {
         if (Unit* target = GetTarget())
         {
-            // somehow get worldstate value, so the alternate power bar can fill based on active healers
-            target->ModifyPower(POWER_ALTERNATE_POWER, 700);
+            if (Creature* npcHealersActiveBunny = target->FindNearestCreature(40789, 400.0f, true))
+            {
+                if (NPCHealersActiveBunnyAI* npcHealersActiveBunnyAI = CAST_AI(NPCHealersActiveBunnyAI, npcHealersActiveBunny->GetAI()))
+                {
+                    uint8 healersActive = npcHealersActiveBunnyAI->GetData(DATA_HEALER_ACTIVE);
+                    target->ModifyPower(POWER_ALTERNATE_POWER, healersActive);
+                }
+            }
 
             if (target->GetPowerPct(POWER_ALTERNATE_POWER) == 100)
             {
-                target->CastSpell(GetTarget(), SPELL_HEALING_SHENZIN_SU_CREDIT, true);
+                target->CastSpell(target, SPELL_HEALING_SHENZIN_SU_CREDIT, true);
                 target->RemoveAura(GetId());
             }
         }
@@ -2233,14 +2252,14 @@ class spell_ally_horde_argument : public AuraScript
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
-            if (Creature* creature = target->FindNearestCreature(NPC_KORGA_STRONGMANE, 40.0f, true))
+            if (Creature* creature = target->FindNearestCreature(NPC_KORGA_STRONGMANE, target->GetVisibilityRange(), true))
                 creature->AI()->Talk(0, target);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
-            if (Creature* creature = target->FindNearestCreature(NPC_DELORA_LIONHEART, 40.0f, true))
+            if (Creature* creature = target->FindNearestCreature(NPC_DELORA_LIONHEART, target->GetVisibilityRange(), true))
                 creature->AI()->Talk(0, target);
     }
 
