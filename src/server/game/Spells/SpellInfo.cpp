@@ -1078,6 +1078,7 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
     RangeIndex = _misc ? _misc->RangeIndex : 0;
     RangeEntry = _misc ? (_misc->RangeIndex ? sSpellRangeStore.LookupEntry(_misc->RangeIndex) : NULL) : NULL;
     Speed = _misc ? _misc->Speed : 0;
+    LaunchDelay = _misc ? _misc->LaunchDelay : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
     AttributesCu = 0;
     IconFileDataId = _misc ? _misc->SpellIconFileDataID : 0;
@@ -1657,6 +1658,11 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
 bool SpellInfo::HasInitialAggro() const
 {
     return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
+}
+
+bool SpellInfo::HasHitDelay() const
+{
+    return Speed > 0.0f || LaunchDelay > 0.0f;
 }
 
 WeaponAttackType SpellInfo::GetAttackType() const
