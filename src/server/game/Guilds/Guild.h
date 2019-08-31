@@ -798,7 +798,7 @@ public:
     void SendGuildRankInfo(WorldSession* session) const;
     void SendEventLog(WorldSession* session) const;
     void SendBankLog(WorldSession* session, uint8 tabId) const;
-    void SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const;
+    void SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) const;
     void SendGuildXP(WorldSession* session = nullptr) const;
     void SendBankTabText(WorldSession* session, uint8 tabId) const;
     void SendPermissions(WorldSession* session) const;

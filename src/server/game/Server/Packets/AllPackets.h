@@ -19,5 +19,6 @@
 #define AllPackets_h__
 
 #include "LFGPackets.h"
+#include "GuildPackets.h"
 
 #endif // AllPackets_h__

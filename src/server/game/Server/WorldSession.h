@@ -96,6 +96,15 @@ namespace WorldPackets
         class LfgBootPlayer;
         class LFGOfferContinue;
     }
+
+    namespace Guild
+    {
+        class GuildBankQueryResults;
+        class GuildBankActivate;
+        class GuildBankQueryTab;
+        class GuildBankBuyTab;
+        class GuildBankUpdateTab;
+    }
 }
 
 enum AccountDataType
@@ -1022,15 +1031,14 @@ class TC_GAME_API WorldSession
         // Guild Bank
         void HandleGuildPermissions(WorldPacket& recvData);
         void HandleGuildBankMoneyWithdrawn(WorldPacket& recvData);
-        void HandleGuildBankerActivate(WorldPacket& recvData);
-        void HandleGuildBankQueryTab(WorldPacket& recvData);
+        void HandleGuildBankActivate(WorldPackets::Guild::GuildBankActivate& packet);
+        void HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTab& packet);
         void HandleGuildBankLogQuery(WorldPacket& recvData);
         void HandleGuildBankDepositMoney(WorldPacket& recvData);
         void HandleGuildBankWithdrawMoney(WorldPacket& recvData);
         void HandleGuildBankSwapItems(WorldPacket& recvData);
-
-        void HandleGuildBankUpdateTab(WorldPacket& recvData);
-        void HandleGuildBankBuyTab(WorldPacket& recvData);
+        void HandleGuildBankUpdateTab(WorldPackets::Guild::GuildBankUpdateTab& packet);
+        void HandleGuildBankBuyTab(WorldPackets::Guild::GuildBankBuyTab& packet);
         void HandleQueryGuildBankTabText(WorldPacket& recvData);
         void HandleSetGuildBankTabText(WorldPacket& recvData);
         void HandleGuildQueryXPOpcode(WorldPacket& recvData);
