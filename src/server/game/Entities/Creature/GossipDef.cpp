@@ -26,6 +26,8 @@
 #include "Player.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -447,8 +449,20 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     packet.QuestFlags[1] = quest->GetFlagsEx();
     packet.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
-    if (quest->GetSrcSpell())
-        packet.LearnSpells.push_back(quest->GetSrcSpell());
+    // RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
+    if (quest->GetRewSpell())
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
+        if (spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
+        {
+            SpellEffectInfoVector effects = spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE);
+            for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
+            {
+                if ((*itr)->IsEffect(SPELL_EFFECT_LEARN_SPELL))
+                    packet.LearnSpells.push_back((*itr)->TriggerSpell);
+            }
+        }
+    }
 
     quest->BuildQuestRewards(packet.Rewards, _session->GetPlayer());
 

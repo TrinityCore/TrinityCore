@@ -405,8 +405,8 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK7                   = 0x00000080,       // pre-3.0.3 PLAYER_FLAGS_FFA_PVP flag for FFA PVP state
     PLAYER_FLAGS_CONTESTED_PVP          = 0x00000100,       // Player has been involved in a PvP combat and will be attacked by contested guards
     PLAYER_FLAGS_IN_PVP                 = 0x00000200,
-    PLAYER_FLAGS_HIDE_HELM              = 0x00000400,
-    PLAYER_FLAGS_HIDE_CLOAK             = 0x00000800,
+    PLAYER_FLAGS_WAR_MODE_ACTIVE        = 0x00000400,
+    PLAYER_FLAGS_WAR_MODE_DESIRED       = 0x00000800,
     PLAYER_FLAGS_PLAYED_LONG_TIME       = 0x00001000,       // played long time
     PLAYER_FLAGS_PLAYED_TOO_LONG        = 0x00002000,       // played too long time
     PLAYER_FLAGS_IS_OUT_OF_BOUNDS       = 0x00004000,
