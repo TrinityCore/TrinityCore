@@ -6324,10 +6324,16 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
                 && _IsValidAttackTarget(magnet, spellInfo))
             {
                 /// @todo handle this charge drop by proc in cast phase on explicit target
-                if (spellInfo->Speed > 0.0f)
+                if (spellInfo->HasHitDelay())
                 {
                     // Set up missile speed based delay
-                    uint32 delay = uint32(std::floor(std::max<float>(victim->GetDistance(this), 5.0f) / spellInfo->Speed * 1000.0f));
+                    float hitDelay = spellInfo->LaunchDelay;
+                    if (spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
+                        hitDelay += spellInfo->Speed;
+                    else if (spellInfo->Speed > 0.0f)
+                        hitDelay += std::max(victim->GetDistance(this), 5.0f) / spellInfo->Speed;
+
+                    uint32 delay = uint32(std::floor(hitDelay * 1000.0f));
                     // Schedule charge drop
                     (*itr)->GetBase()->DropChargeDelayed(delay, AURA_REMOVE_BY_EXPIRE);
                 }
