@@ -973,6 +973,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_SPELL_TOTEMS, "SELECT ID, SpellID, RequiredTotemCategoryID1, RequiredTotemCategoryID2, Totem1, Totem2"
         " FROM spell_totems ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // SpellVisualKit.db2
+    PrepareStatement(HOTFIX_SEL_SPELL_VISUAL_KIT, "SELECT ID, Flags, FallbackPriority, FallbackSpellVisualKitId, DelayMin, DelayMax"
+        " FROM spell_visual_kit ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // SpellXSpellVisual.db2
     PrepareStatement(HOTFIX_SEL_SPELL_X_SPELL_VISUAL, "SELECT ID, DifficultyID, SpellVisualID, Probability, Flags, Priority, SpellIconFileID, "
         "ActiveIconFileID, ViewerUnitConditionID, ViewerPlayerConditionID, CasterUnitConditionID, CasterPlayerConditionID, SpellID"
