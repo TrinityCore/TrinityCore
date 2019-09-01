@@ -3154,8 +3154,8 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+2098, 60571, 1, 0, 0, 0, 0, 1165, 0, -1, 0, 0, 1348.894, -4368.415, 26.44967, 6.058849, 120, 0, 0, 0, 0, 0, 0, 0, 0, 20886), -- 60571 (Area: The Dranosh'ar Blockade - Difficulty: 0)
 -- 3 guid space for alliance creatures in SW
 -- TEMP
-(@CGUID+2102, 40789, 860, 0, 0, 0, 0, 0, 0, -1, 11686, 0, 1392.552, 3866.292, 100.8501, 4.686589, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-(@CGUID+2103, 40789, 860, 0, 0, 0, 0, 0, 0, -1, 11686, 0, 1293.231, 3525.259, 100.2806, 4.686589, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+(@CGUID+2102, 41200, 860, 0, 0, 0, 0, 0, 0, -1, 11686, 0, 1392.552, 3866.292, 100.8501, 4.686589, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+(@CGUID+2103, 41200, 860, 0, 0, 0, 0, 0, 0, -1, 11686, 0, 1293.231, 3525.259, 100.2806, 4.686589, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 -- END TEMP
 
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID AND @CGUID+2103;
@@ -8561,7 +8561,7 @@ DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceEntry` I
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=25 AND `SourceEntry` IN (975, 976);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7709, 7714, 7265, 8564) AND `SourceId`=2;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118029, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497, 131505, 108933, 108932);
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 102522, 107049, 125961, 115446, 115447, 115334, 115336, 115338, 115435, 115493, 115494, 115495)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (13140, 13726));
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 108695, 102522, 107049, 125961, 115446, 115447, 115334, 115336, 115338, 115435, 115493, 115494, 115495)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (13140, 13726));
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Phases Specific
 (26, 629, 5825, 0, 0, 28, 0, 29419, 0, 0, 1, 0, 0, '', 'The Dawning Valley Phase 629 until Quest 29419 not complete'), -- phase not updated automatically (removed in SAI)
@@ -8828,6 +8828,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 105156, 0, 0, 2, 0, 75000, 1, 0, 0, 0, 0, '', 'Use red brazier - See Quest Invis 13 only when player has item'),
 (17, 0, 105157, 0, 0, 2, 0, 75000, 1, 0, 0, 0, 0, '', 'Use blue brazier - See Quest Invis 14 only when player has item'),
 (17, 0, 105158, 0, 0, 2, 0, 75000, 1, 0, 0, 0, 0, '', 'Use violet brazier - See Quest Invis 15 only when player has item'),
+(17, 0, 108695, 0, 0, 48, 0, 255751, 0, 0, 0, 0, 0, '', 'See Quest Invis 20 only when quest objective complete'),
 (17, 0, 102522, 0, 0, 29, 0, 57779, 10, 0, 0, 0, 0, '', 'Fan the Flames when Huo within 10y'),
 (18, 54993, 102717, 0, 0, 1, 0, 102938, 0, 0, 1, 0, 0, '', 'Show spellclick only when has not aura'),
 (18, 57431, 102717, 0, 0, 1, 0, 102938, 0, 0, 1, 0, 0, '', 'Show spellclick only when has not aura'),
@@ -9003,9 +9004,9 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (105162, 5849, 0, 29664, 0, 0, 2, 3, 0, 9), -- See Quest Invis 18 (Violet Flame - GO)
 (108694, 5849, 29664, 0, 0, 0, 2, 3, 8, 0), -- See Quest Invis 19 (Sparkle Bunny - Flickering Flame)
 (108695, 5849, 29664, 0, 0, 0, 2, 3, 8, 0), -- See Quest Invis 20 (Sparkle Bunny flames)
-(105156, 5849, 29664, 29422, 0, 0, 2, 7, 74, 1), -- See Quest Invis 13 (Red Flame activated - GO)
-(105157, 5849, 29664, 29422, 0, 0, 2, 7, 74, 1), -- See Quest Invis 14 (Blue Flame activated - GO)
-(105158, 5849, 29664, 29422, 0, 0, 2, 7, 74, 1), -- See Quest Invis 15 (Violet Flame activated - GO)
+(105156, 5849, 29664, 29422, 0, 0, 2, 6, 74, 1), -- See Quest Invis 13 (Red Flame activated - GO)
+(105157, 5849, 29664, 29422, 0, 0, 2, 6, 74, 1), -- See Quest Invis 14 (Blue Flame activated - GO)
+(105158, 5849, 29664, 29422, 0, 0, 2, 6, 74, 1), -- See Quest Invis 15 (Violet Flame activated - GO)
 (119305, 5849, 29422, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 13 (Red Flame activated - GO)
 (119306, 5849, 29422, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 14 (Blue Flame activated - GO)
 (119307, 5849, 29422, 0, 0, 0, 2, 3, 74, 0), -- See Quest Invis 15 (Violet Flame activated - GO)
@@ -9101,8 +9102,10 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, 
 (116962, 0, 1, 1361.95, -4375.25, 26.0891, 20886),
 (116962, 1, 1, 1361.95, -4375.25, 26.0891, 20886);
 
-DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (108936, 106494, -128589, 115343, 115351, 115491, -118202);
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (105151, -105151, 108936, 106494, -128589, 115343, 115351, 115491, -118202);
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
+(105151, 93425, 0, 'Update Zone Auras'),
+(-105151, -108694, 0, 'Remove See Quest Invis 19'),
 (108936, 108943, 0, 'Flying Shadow Kick'),
 (106494, -106493, 1, 'Remove See Quest Invis 15'),
 (-128589, 128588, 0, 'Cast Aysa Congrats Trigger Aura'),
@@ -9123,7 +9126,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid` BETWEEN -@CGUID-2103 AND -@CGUID
 -- Temp Spawns || Vehicle Accessories
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (59637, 54856, 59652, 56503, 57750, 54631, 61126, 61127, 54958, 56550, 60250, 60249, 57636, 57638, 60488, 55213, 57208, 57207, 64258, 57667, 57669, 55558, 60916, 59496, 59498, 56566, 55685, 55694, 57668, 57670, 65558, 56134, 57465, 57690, 57692, 64530, 55744, 64543, 64532, 56159, 65476, 65477, 56686, 57874, 56679, 56663, 55649, 56660, 56661, 57781, 59986, 59988, 59989, 60900, 56236, 60685, 60729, 60741, 57803, 60848, 57740, 57742, 64592) AND `source_type`=0;
 -- Action Lists > x*100 || Temp Spawns' Actionlists
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5485603, 5965200, 5650300, 5461101, 5461102, 5458701, 5458702, 5458703, 5458704, 5458705, 5458706, 5458707, 5458708, 5458601, 5356501, 5356502, 5356503, 5356504, 5774801, 5774802, 5774803, 6141101, 6141102, 6141103, 5413001, 5413002, 5413003, 5413004, 5413005, 5413006, 5413007, 5413008, 5413009, 5673001, 5673002, 5673003, 5463100, 6112600, 6112700, 5495800, 6025000, 6024900, 5763800, 5639301, 5639302, 6048800, 5720800, 5720700, 5766900, 5639303, 6546701, 6091601, 5547701, 5555800, 6091600, 5949600, 6668901, 6669101, 6669201, 5656600, 5569400, 5560101, 5560102, 5767000, 5639304, 5639305, 5639306, 5639307, 6546702, 5639401, 5639402, 5639403, 6555800, 5769200, 6454300, 5566501, 5574400, 6453200, 6453000, 5615900, 5668600, 5668601, 5668602, 5668603, 5564900, 5564901, 5564902, 5666100, 5666101, 5666000, 5666001, 5998600, 5998601, 5998602, 5998603, 5998800, 5998900, 5998901, 6090000, 5623600, 6072900, 6074100, 5780300, 5774000, 6459200) AND `source_type`=9;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5485603, 5965200, 5650300, 5461101, 5461102, 5461103, 5458701, 5458702, 5458703, 5458704, 5458705, 5458706, 5458707, 5458708, 5458601, 5356501, 5356502, 5356503, 5356504, 5774801, 5774802, 5774803, 6141101, 6141102, 6141103, 5413001, 5413002, 5413003, 5413004, 5413005, 5413006, 5413007, 5413008, 5413009, 5673001, 5673002, 5673003, 5463100, 6112600, 6112700, 5495800, 6025000, 6024900, 5763800, 5639301, 5639302, 6048800, 5720800, 5720700, 5766900, 5639303, 6546701, 6091601, 5547701, 5555800, 6091600, 5949600, 6668901, 6669101, 6669201, 5656600, 5569400, 5560101, 5560102, 5767000, 5639304, 5639305, 5639306, 5639307, 6546702, 5639401, 5639402, 5639403, 6555800, 5769200, 6454300, 5566501, 5574400, 6453200, 6453000, 5615900, 5668600, 5668601, 5668602, 5668603, 5564900, 5564901, 5564902, 5666100, 5666101, 5666000, 5666001, 5998600, 5998601, 5998602, 5998603, 5998800, 5998900, 5998901, 6090000, 5623600, 6072900, 6074100, 5780300, 5774000, 6459200) AND `source_type`=9;
 -- Area Triggers
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (7746, 7737, 7747, 7748, 6958, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7042, 7037, 7106, 7710, 7709, 7714, 8564, 7265) AND `source_type`=2;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
@@ -9332,26 +9335,29 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5461101, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 11, 108938, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Cast Baby Elephant Takes a Bath'),
 (5461102, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 11, 108955, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Cast Hawk Diving to Earth'),
 (54611, 0, 10, 0, 38, 4, 100, 0, 1, 1, 0, 0, 0, 11, 108959, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - On Data Set - Cast Dizzy'),
-(54611, 0, 11, 12, 2, 4, 100, 1, 0, 10, 0, 0, 0, 18, 33587472, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - On Health Pct - Set Unit Flags'),
+(54611, 0, 11, 12, 2, 4, 100, 1, 0, 1, 0, 0, 0, 18, 33587472, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - On Health Pct - Set Unit Flags'),
 (54611, 0, 12, 13, 61, 4, 100, 0, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - On Health Pct - Combat Stop'),
 (54611, 0, 13, 14, 61, 4, 100, 0, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - On Health Pct - Set Emote State'),
 (54611, 0, 14, 15, 61, 4, 100, 0, 0, 0, 0, 0, 0, 33, 54611, 0, 0, 0, 0, 0, 18, 20, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - On Health Pct - Quest Credit'),
 (54611, 0, 15, 16, 61, 4, 100, 0, 0, 0, 0, 0, 0, 86, 93425, 2, 24, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - On Health Pct - Cast Update Zone Auras'),
 (54611, 0, 16, 0, 61, 4, 100, 0, 0, 0, 0, 0, 0, 1, 1, 5000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - On Health Pct - Talk'),
-(54611, 0, 17, 0, 52, 4, 100, 0, 1, 54611, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - After Text - Evade'),
-(54611, 0, 18, 19, 21, 0, 100, 0, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Reached Home - Set Phase 1'),
-(54611, 0, 19, 20, 61, 0, 100, 0, 0, 0, 0, 0, 0, 11, 17683, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Reached Home - Cast Full Heal'),
-(54611, 0, 20, 21, 61, 0, 100, 0, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Reached Home - Set Emote State'),
-(54611, 0, 21, 22, 61, 0, 100, 0, 0, 0, 0, 0, 0, 90, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Reached Home - Set Bytes 1'),
-(54611, 0, 22, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 19, 33554704, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Reached Home - Remove Unit Flags'),
+(54611, 0, 17, 18, 52, 4, 100, 0, 1, 54611, 0, 0, 0, 11, 17683, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - After Text - Cast Full Heal'),
+(54611, 0, 18, 19, 61, 4, 100, 0, 0, 0, 0, 0, 0, 19, 33554432, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - After Text - Remove Unit Flag'),
+(54611, 0, 19, 0, 61, 4, 100, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - After Text - Evade'),
+(54611, 0, 20, 21, 21, 0, 100, 0, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Reached Home - Set Phase 1'),
+(54611, 0, 21, 22, 61, 0, 100, 0, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Reached Home - Set Emote State'),
+(54611, 0, 22, 23, 61, 0, 100, 0, 0, 0, 0, 0, 0, 19, 272, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Reached Home - Remove Unit Flags'),
+(54611, 0, 23, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 80, 5461103, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Reached Home - Run Script'),
+(5461103, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 90, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Set Bytes 1'),
 -- Jaomin Ro Hawk Diving
 (57750, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 0, 3, 0, 39796, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Just Spawned - Morph'),
 (57750, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 11, 108583, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Just Spawned - Cast Force Summoner to Ride Vehicle'),
 (57750, 0, 2, 0, 31, 0, 100, 0, 108583, 0, 0, 0, 0, 85, 108582, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - On Spellhit Target - Cast Ride Drake'),
 (57750, 0, 3, 0, 27, 0, 100, 0, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Passenger Boarded - Start Attack'),
-(57750, 0, 4, 5, 31, 0, 100, 1, 108935, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Spellhit Target - Despawn'),
-(57750, 0, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Spellhit Target - Set Data'),
-(57750, 0, 6, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 28, 108971, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Spellhit Target - Remove Aura'),
+(57750, 0, 4, 5, 31, 0, 100, 1, 108935, 0, 0, 0, 0, 28, 108582, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Spellhit Target - Remove Aura'),
+(57750, 0, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 0, 28, 108971, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Spellhit Target - Remove Aura'),
+(57750, 0, 6, 7, 61, 0, 100, 0, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Spellhit Target - Set Data'),
+(57750, 0, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jaomin Ro - Spellhit Target - Despawn'),
 -- Trigger 7747 Trainee Guang
 (7747, 2, 0, 0, 46, 0, 100, 0, 7747, 0, 0, 0, 0, 86, 116220, 2, 10, @CGUID+153, 60244, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cast Area Trigger Dummy Timer Aura B'),
 -- Trainee Guang
@@ -9668,10 +9674,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (60176, 0, 0, 0, 31, 0, 100, 0, 92571, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huojin Monk - On Spellhit Target - Talk'),
 -- Flame Spout
 (59626, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - On Respawn - Set React State'),
-(59626, 0, 1, 2, 60, 0, 100, 0, 0, 6000, 12000, 18000, 0, 11, 114686, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Update - Cast Flame Spout visual'),
+(59626, 0, 1, 2, 60, 0, 100, 0, 0, 12000, 12000, 18000, 0, 11, 114686, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Update - Cast Flame Spout visual'),
 (59626, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 80, 5962600, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Update - Run Script'),
 (5962600, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 11, 114684, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Cast Flame Spout dmg'),
-(5962600, 9, 1, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 0, 28, 114686, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Remove Aura'),
+(5962600, 9, 1, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 0, 28, 114686, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Flame Spout - Remove Aura'),
 -- Master Li Fei
 (54135, 0, 0, 0, 19, 0, 100, 0, 29421, 0, 0, 0, 0, 85, 108149, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On Quest Accepted - Cast Fire Crash Cover'),
 (54135, 0, 1, 2, 8, 0, 100, 0, 102515, 0, 0, 0, 0, 44, 1323, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On Spellhit - Remove Phase'),
@@ -9777,10 +9783,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (6112700, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 53, 1, 6112701, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Start WP'),
 (61127, 0, 2, 0, 58, 0, 100, 0, 13, 6112701, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - WP Ended - Despawn'),
 -- Huo (pet)
-(54958, 0, 0, 1, 8, 0, 100, 0, 105090, 0, 0, 0, 0, 136, 6, 5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Spellhit - Set Movement Speed'),
+(54958, 0, 0, 1, 8, 0, 100, 0, 105090, 0, 0, 0, 0, 136, 0, 5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Spellhit - Set Movement Speed'),
 (54958, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 955.1158, 3604.04, 200.718, 0, 'Huo - On Spellhit - Move to Pos'),
 (54958, 0, 2, 0, 34, 0, 100, 0, 8, 1, 0, 0, 0, 80, 5495800, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Run Script'),
-(5495800, 9, 0, 0, 0, 0, 100, 0, 250, 250, 0, 0, 0, 136, 6, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - Set Movement Speed'),
+(5495800, 9, 0, 0, 0, 0, 100, 0, 250, 250, 0, 0, 0, 136, 0, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - Set Movement Speed'),
 (5495800, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 6.213372, 'Huo - Set Orientation'),
 (5495800, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 11, 109135, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - Cast Fire Form'),
 (5495800, 9, 3, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 950.0073, 3601.004, 203.8196, 0, 'Huo - Move to Pos'),
@@ -11376,14 +11382,14 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Ji Firepaw
 (57720, 0, 0, 0, 38, 0, 100, 0, 3, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
 
--- Generic Controller Bunny TEMP (spawn Fe-Feng Brewthief)
+-- Generic Bunny - PRK TEMP (spawn Fe-Feng Brewthief)
 (-@CGUID-2102, 0, 0, 1, 60, 0, 100, 0, 0, 0, 60000, 60000, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Generic Controller Bunny (CSA) - Update - Set Event Phase 1'),
 (-@CGUID-2102, 0, 1, 0, 61, 1, 100, 0, 0, 0, 0, 0, 0, 12, 56730, 7, 0, 0, 0, 0, 8, 0, 0, 0, 1399.398, 3860.671, 100.5317, 4.16424, 'Generic Controller Bunny (CSA) - Update - Summon NPC'),
 (-@CGUID-2102, 0, 2, 0, 17, 1, 100, 0, 56730, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Generic Controller Bunny (CSA) - On Summoned Unit - Set Data'),
 (-@CGUID-2102, 0, 3, 4, 60, 0, 100, 0, 30000, 30000, 60000, 60000, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Generic Controller Bunny (CSA) - Update - Set Event Phase 2'),
 (-@CGUID-2102, 0, 4, 0, 61, 2, 100, 0, 0, 0, 0, 0, 0, 12, 56730, 7, 0, 0, 0, 0, 8, 0, 0, 0, 1381.038, 3863.463, 100.4475, 4.708899, 'Generic Controller Bunny (CSA) - Update - Summon NPC'),
 (-@CGUID-2102, 0, 5, 0, 17, 2, 100, 0, 56730, 0, 0, 0, 0, 45, 2, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Generic Controller Bunny (CSA) - On Summoned Unit - Set Data'),
--- Generic Controller Bunny TEMP (spawn Amberleaf Scamp)
+-- Generic Bunny - PRK TEMP (spawn Amberleaf Scamp)
 (-@CGUID-2103, 0, 0, 1, 60, 0, 100, 0, 0, 5000, 50000, 70000, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Generic Controller Bunny (CSA) - Update - Set Event Phase 1'),
 (-@CGUID-2103, 0, 1, 2, 61, 1, 100, 0, 0, 0, 0, 0, 0, 12, 54130, 7, 0, 0, 0, 0, 8, 0, 0, 0, 1288.38, 3528.148, 97.0253, 5.270895, 'Generic Controller Bunny (CSA) - Update - Spawn NPC'),
 (-@CGUID-2103, 0, 2, 0, 17, 1, 100, 0, 54130, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Generic Controller Bunny (CSA) - Summoned Unit - Set Data'),
@@ -12598,14 +12604,13 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (57742, 38, 745.7819, 3496.893, 135.9072, ''),
 (57742, 39, 729.5469, 3486.771, 128.211, 'Despawn');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (114698, 116421, 128598, 96733, 102207, 105151, 102522, 107050, 103069, 117033, 117034, 117035, 117036, 116810, 117054, 128589, 128588, 119073, 125699, 104126, 109144, 60603, 108806, 129341, 117275, 117400, 117783, 118233, 131983, 108897, 113244, 113245, 130422, 132211);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (114698, 116421, 128598, 96733, 102207, 102522, 107050, 103069, 117033, 117034, 117035, 117036, 116810, 117054, 128589, 128588, 119073, 125699, 104126, 109144, 60603, 108806, 129341, 117275, 117400, 117783, 118233, 131983, 108897, 113244, 113245, 130422, 132211);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (114698, 'spell_summon_troublemaker'),
 (116421, 'spell_meditation_timer_bar'),
 (128598, 'spell_cave_of_scrolls_comp_timer_aura'),
 (96733, 'spell_gen_creature_permanent_feign_death'),
 (102207, 'spell_summon_living_air'),
-(105151, 'spell_light_challengers_torch'),
 (102522, 'spell_fan_the_flames'),
 (103069, 'spell_rock_jump_a'),
 (117033, 'spell_shu_jump_to_rock'),

@@ -185,35 +185,6 @@ class spell_summon_living_air : public SpellScript
     }
 };
 
-enum LightChallengersTorchSpells
-{
-    SPELL_UPDATE_ZONE_AURAS     = 93425,
-    SPELL_SEE_FLICKERING_FLAME  = 108694
-};
-
-class spell_light_challengers_torch : public AuraScript
-{
-    PrepareAuraScript(spell_light_challengers_torch);
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Unit* target = GetTarget())
-            target->CastSpell(target, SPELL_UPDATE_ZONE_AURAS, true);
-    }
-
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Unit* target = GetTarget())
-            target->RemoveAura(SPELL_SEE_FLICKERING_FLAME);
-    }
-
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_light_challengers_torch::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_light_challengers_torch::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 enum QuestOnlyTheWorthyShallPassSpells
 {
     SPELL_CANCEL_FIRE_CRASH_PHASE   = 108153
@@ -2305,7 +2276,6 @@ void AddSC_the_wandering_isle()
     RegisterAuraScript(spell_cave_of_scrolls_comp_timer_aura);
     new q_the_way_of_the_tushui();
     RegisterSpellScript(spell_summon_living_air);
-    RegisterAuraScript(spell_light_challengers_torch);
     new q_only_the_worthy_shall_pass();
     RegisterAuraScript(spell_fan_the_flames);
     new q_passion_of_shenzin_su();
