@@ -3080,7 +3080,11 @@ void Creature::ReleaseSpellFocus(Spell const* focusSpell, bool withDelay)
 
 void Creature::ReacquireSpellFocusTarget()
 {
-    ASSERT(HasSpellFocus());
+    if (!HasSpellFocus())
+    {
+        TC_LOG_ERROR("entities.unit", "Creature::ReacquireSpellFocusTarget() being alled with HasSpellFocus() return false.");
+        return;
+    }
 
     SetGuidValue(UNIT_FIELD_TARGET, _spellFocusInfo.target);
 
