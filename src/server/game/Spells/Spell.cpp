@@ -817,6 +817,8 @@ uint64 Spell::CalculateDelayMomentForDst(float launchDelay) const
             float dist = m_caster->GetExactDist(*m_targets.GetDstPos());
             return uint64(std::floor((dist / m_spellInfo->Speed + launchDelay) * 1000.0f));
         }
+
+        return uint64(std::floor(launchDelay * 1000.0f));
     }
 
     return 0;
@@ -3401,12 +3403,15 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         }
     }
 
+    if (single_missile && !t_offset)
+        return m_delayMoment;
+
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
 
     PrepareTargetProcessing();
 
-    if (!m_immediateHandled && t_offset != 0)
+    if (!m_immediateHandled && t_offset)
     {
         _handle_immediate_phase();
         m_immediateHandled = true;
