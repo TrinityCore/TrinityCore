@@ -88,8 +88,8 @@ enum SMART_EVENT_PHASE_BITS
     SMART_EVENT_PHASE_10_BIT       = 512,
     SMART_EVENT_PHASE_11_BIT       = 1024,
     SMART_EVENT_PHASE_12_BIT       = 2048,
-    SMART_EVENT_PHASE_ALL          = SMART_EVENT_PHASE_1_BIT + SMART_EVENT_PHASE_2_BIT + SMART_EVENT_PHASE_3_BIT + SMART_EVENT_PHASE_4_BIT + SMART_EVENT_PHASE_5_BIT + 
-                                     SMART_EVENT_PHASE_6_BIT + SMART_EVENT_PHASE_7_BIT + SMART_EVENT_PHASE_8_BIT + SMART_EVENT_PHASE_9_BIT + SMART_EVENT_PHASE_10_BIT + 
+    SMART_EVENT_PHASE_ALL          = SMART_EVENT_PHASE_1_BIT + SMART_EVENT_PHASE_2_BIT + SMART_EVENT_PHASE_3_BIT + SMART_EVENT_PHASE_4_BIT + SMART_EVENT_PHASE_5_BIT +
+                                     SMART_EVENT_PHASE_6_BIT + SMART_EVENT_PHASE_7_BIT + SMART_EVENT_PHASE_8_BIT + SMART_EVENT_PHASE_9_BIT + SMART_EVENT_PHASE_10_BIT +
                                      SMART_EVENT_PHASE_11_BIT + SMART_EVENT_PHASE_12_BIT
 };
 
@@ -594,14 +594,15 @@ enum SMART_ACTION
     SMART_ACTION_LOAD_EQUIPMENT                     = 124,    // id
     SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT         = 125,    // id min range, id max range
     SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,
-    SMART_ACTION_STOP_MOTION                        = 127,	  // stopMoving, movementExpired
+    SMART_ACTION_STOP_MOTION                        = 127,    // stopMoving, movementExpired
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
     SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
     SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
     // 131 - 134 : 3.3.5 reserved
     SMART_ACTION_PLAY_CINEMATIC                     = 135,    // reserved for future uses
     SMART_ACTION_SET_MOVEMENT_SPEED                 = 136,    // movementType, speedInteger, speedFraction
-    SMART_ACTION_END                                = 137
+    SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId
+    SMART_ACTION_END                                = 138
 };
 
 struct SmartAction
@@ -1180,6 +1181,13 @@ struct SmartAction
             uint32 speedFraction;
         } movementSpeed;
 
+        struct
+        {
+            uint32 spellVisualKitId;
+            uint32 kitType;
+            uint32 duration;
+        } spellVisualKit;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1666,6 +1674,7 @@ class TC_GAME_API SmartAIMgr
         bool IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry);
         bool IsSoundValid(SmartScriptHolder const& e, uint32 entry);
         bool IsAnimKitValid(SmartScriptHolder const& e, uint32 entry);
+        bool IsSpellVisualKitValid(SmartScriptHolder const& e, uint32 entry);
         bool IsTextValid(SmartScriptHolder const& e, uint32 id);
 
         // Helpers
