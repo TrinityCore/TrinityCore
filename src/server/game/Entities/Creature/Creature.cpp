@@ -3300,7 +3300,11 @@ void Creature::ReleaseSpellFocus(Spell const* focusSpell, bool withDelay)
 
 void Creature::ReacquireSpellFocusTarget()
 {
-    ASSERT(HasSpellFocus());
+    if (!HasSpellFocus())
+    {
+        TC_LOG_ERROR("entities.unit", "Creature::ReacquireSpellFocusTarget() being called with HasSpellFocus() returning false. %s", GetDebugInfo().c_str());
+        return;
+    }
 
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Target), _spellFocusInfo.Target);
 
