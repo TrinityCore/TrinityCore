@@ -601,7 +601,7 @@ enum SMART_ACTION
     // 131 - 134 : 3.3.5 reserved
     SMART_ACTION_PLAY_CINEMATIC                     = 135,    // reserved for future uses
     SMART_ACTION_SET_MOVEMENT_SPEED                 = 136,    // movementType, speedInteger, speedFraction
-    SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId
+    SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId, kitType (unknown values, copypaste from packet dumps), duration
     SMART_ACTION_END                                = 138
 };
 
