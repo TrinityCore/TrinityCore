@@ -7589,12 +7589,12 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (56661, 8, 0, 'It is a boat... a whole airship!  That''s a bigger thorn than I was expecting.', 12, 0, 100, 1, 0, 27439, 55578, 0, 'Aysa Cloudsinger to Shang Xi''s Hot Air Balloon'),
 (56661, 9, 0, 'Someone has crashed into our island.  Removing this thorn may be more complicated than we thought.', 12, 0, 100, 1, 0, 27440, 55581, 0, 'Aysa Cloudsinger to Shang Xi''s Hot Air Balloon'),
 (56661, 10, 0, 'We should let Elder Shaopai know and then plan our next move.', 12, 0, 100, 1, 0, 27441, 55582, 0, 'Aysa Cloudsinger to Shang Xi''s Hot Air Balloon'),
-(56676, 0, 0, 'I am in pain, but it warms my heart that Liu Lang''s grandchildren have not forgotten me.', 12, 0, 100, 0, 0, 27822, 55550, 0, 'Shen-zin Su to Player'),
-(56676, 1, 0, 'There is a thorn in my side.  I cannot remove it.', 12, 0, 100, 0, 0, 27823, 55568, 0, 'Shen-zin Su to Player'),
-(56676, 2, 0, 'The pain is unbearable, and I can no longer swim straight.', 12, 0, 100, 0, 0, 27824, 55569, 0, 'Shen-zin Su to Player'),
-(56676, 3, 0, 'Please grandchildren, can you remove this thorn?  I cannot do so on my own.', 12, 0, 100, 0, 0, 27825, 55570, 0, 'Shen-zin Su to Player'),
-(56676, 4, 0, 'It is in the forest where your feet do not walk.  Continue along the mountains and you will find it.', 12, 0, 100, 0, 0, 27826, 55572, 0, 'Shen-zin Su to Player'),
-(56676, 5, 0, 'Thank you, grandchildren.', 12, 0, 100, 0, 0, 27827, 63407, 0, 'Shen-zin Su to Player'),
+(56676, 0, 0, 'I am in pain, but it warms my heart that Liu Lang''s grandchildren have not forgotten me.', 12, 0, 100, 0, 0, 27822, 55550, 300, 'Shen-zin Su to Player'),
+(56676, 1, 0, 'There is a thorn in my side.  I cannot remove it.', 12, 0, 100, 0, 0, 27823, 55568, 300, 'Shen-zin Su to Player'),
+(56676, 2, 0, 'The pain is unbearable, and I can no longer swim straight.', 12, 0, 100, 0, 0, 27824, 55569, 300, 'Shen-zin Su to Player'),
+(56676, 3, 0, 'Please grandchildren, can you remove this thorn?  I cannot do so on my own.', 12, 0, 100, 0, 0, 27825, 55570, 300, 'Shen-zin Su to Player'),
+(56676, 4, 0, 'It is in the forest where your feet do not walk.  Continue along the mountains and you will find it.', 12, 0, 100, 0, 0, 27826, 55572, 300, 'Shen-zin Su to Player'),
+(56676, 5, 0, 'Thank you, grandchildren.', 12, 0, 100, 0, 0, 27827, 63407, 350, 'Shen-zin Su to Player'),
 (59986, 0, 0, '$n''s here. Let''s go.', 12, 0, 100, 432, 0, 27420, 59481, 0, 'Aysa Cloudsinger to Player'),
 (59986, 1, 0, 'Wha...', 12, 0, 100, 432, 0, 27421, 59495, 0, 'Aysa Cloudsinger to Player'),
 (59986, 2, 0, 'The gate is jammed.', 12, 0, 100, 274, 0, 27422, 59511, 0, 'Aysa Cloudsinger to Player'),
@@ -7715,7 +7715,7 @@ UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `u
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33544, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry` IN (59652, 54856, 60249, 60250, 57638, 57669, 57670, 57692, 55213, 57207, 59498, 55558, 60916, 64530, 55744, 64543, 56159, 56686, 56661, 59986, 59988, 59989, 60900, 57742);
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=59637;
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=32768, `unit_flags2`=2048, `lootid`=54631, `AIName`='SmartAI' WHERE `entry`=54631;
-UPDATE `creature_template` SET `AIName`='SmartAI', `InhabitType`=4 WHERE `entry` IN (54787, 64554);
+UPDATE `creature_template` SET `AIName`='SmartAI', `InhabitType`=4 WHERE `entry` IN (54787, 64554, 56676);
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `AIName`='SmartAI' WHERE `entry`=56730;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33544, `unit_flags2`=2048, `AIName`='SmartAI', `InhabitType`=4 WHERE `entry`=54958;
 UPDATE `creature_template` SET `lootid`=54130, `AIName`='SmartAI' WHERE `entry`=54130;
@@ -7748,7 +7748,6 @@ UPDATE `creature_template` SET `speed_walk`=1.555556 WHERE `entry`=65105;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=8, `unit_flags2`=67635200, `AIName`='SmartAI' WHERE `entry`=57874;
 UPDATE `creature_template` SET `faction`=2395, `speed_run`=1.1, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=32776, `unit_flags2`=2048, `VehicleId`=1820, `AIName`='SmartAI', `InhabitType`=4 WHERE `entry`=55649;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33536, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=56660;
-UPDATE `creature_template` SET `InhabitType`=4, `ScriptName`='npc_shen_zin_shu_bunny' WHERE `entry`=56676;
 UPDATE `creature_template` SET `npcflag`=16777216, `unit_flags`=33280, `unit_flags2`=67110912, `BaseAttackTime`=2000, `RangeAttackTime`=2000 WHERE `entry`=57778;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33587720, `unit_flags2`=2048, `VehicleId`=1956, `AIName`='SmartAI', `InhabitType`=4 WHERE `entry`=57781;
 UPDATE `creature_template` SET `npcflag`=16777216, `unit_flags`=537166592, `unit_flags2`=1, `AIName`='SmartAI', `RegenHealth`=0 WHERE `entry`=55999;
@@ -10798,6 +10797,17 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (56660, 0, 6, 0, 38, 0, 100, 0, 2, 7, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
 (56660, 0, 7, 0, 38, 0, 100, 0, 2, 8, 0, 0, 0, 80, 5666001, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Run Script'),
 (5666001, 9, 0, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 0, 1, 6, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
+-- Shen-zin Su
+(56676, 0, 0, 0, 8, 0, 100, 0, 114898, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Talk'),
+(56676, 0, 1, 2, 8, 0, 100, 0, 106759, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Talk'),
+(56676, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Set Event Phase 1'),
+(56676, 0, 3, 4, 8, 1, 100, 0, 118571, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Talk'),
+(56676, 0, 4, 0, 61, 1, 100, 0, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Set Event Phase 2'),
+(56676, 0, 5, 6, 8, 2, 100, 0, 118571, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Talk'),
+(56676, 0, 6, 0, 61, 2, 100, 0, 0, 0, 0, 0, 0, 22, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Set Event Phase 3'),
+(56676, 0, 7, 0, 8, 0, 100, 0, 118572, 0, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Talk'),
+(56676, 0, 8, 9, 8, 4, 100, 0, 118571, 0, 0, 0, 0, 1, 5, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Talk'),
+(56676, 0, 9, 0, 61, 4, 100, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shen-zin Su - On Spellhit - Set Event Phase 0'),
 -- Uplifting Draft
 (57781, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 0, 85, 46598, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Uplifting Draft - Just Spawned - Invoker Cast Ride Vehicle Hardcoded'),
 (57781, 0, 1, 0, 27, 0, 100, 0, 0, 0, 0, 0, 0, 53, 1, 57781, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Uplifting Draft - Passenger Boarded - Start WP'),

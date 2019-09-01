@@ -26,7 +26,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
-enum CaveOfMeditationSpells
+enum CaveOfMeditation
 {
     SPELL_MEDITATION_TIMER_BAR  = 116421,
     QUEST_THE_WAY_OF_THE_TUSHUI = 29414
@@ -68,8 +68,8 @@ class spell_summon_troublemaker : public SpellScript
 
         Position pos = { 1181.75f, 3444.5f, 102.9385f, 3.285759f };
         int32 radius = urand(0, 4) == 0 ? 0 : urand(1, 7);
-        float angle = M_PI + M_PI * (urand(0, 7) / 7.f);
-        pos.RelocateOffset({ radius * sin(angle), radius * cos(angle), 0.f, 0.f });
+        float angle = M_PI + M_PI * (urand(0, 7) / 7.0f);
+        pos.RelocateOffset({ radius * sin(angle), radius * cos(angle), 0.0f, 0.0f });
 
         if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, pos, properties, duration, GetCaster()))
             summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
@@ -113,6 +113,12 @@ class spell_meditation_timer_bar : public AuraScript
     }
 };
 
+enum CaveOfScrollsCompTimerAura
+{
+    NPC_AYSA_CLOUDSINGER_IN_CAVE    = 54567,
+    TEXT_SPEAK_TO_MASTER            = 1
+};
+
 class spell_cave_of_scrolls_comp_timer_aura : public AuraScript
 {
     PrepareAuraScript(spell_cave_of_scrolls_comp_timer_aura);
@@ -120,8 +126,8 @@ class spell_cave_of_scrolls_comp_timer_aura : public AuraScript
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
-            if (Creature* creature = target->FindNearestCreature(54567, target->GetVisibilityRange(), true))
-                creature->AI()->Talk(1, target);
+            if (Creature* creature = target->FindNearestCreature(NPC_AYSA_CLOUDSINGER_IN_CAVE, target->GetVisibilityRange(), true))
+                creature->AI()->Talk(TEXT_SPEAK_TO_MASTER, target);
     }
 
     void Register() override
@@ -238,7 +244,7 @@ enum FanTheFlamesSpells
 
 enum FanTheFlamesNPCs
 {
-    NPC_HUO = 57779
+    NPC_HUO                 = 57779
 };
 
 class spell_fan_the_flames : public AuraScript
@@ -308,6 +314,19 @@ enum SingingPoolsATSpells
     SPELL_TRAINING_BELL_EXCLUSION_AURA  = 133381
 };
 
+enum SingingPoolsATs
+{
+    AT_FROG_POOL_1                      = 6986,
+    AT_FROG_POOL_2                      = 6987,
+    AT_SKUNK_POOL_1                     = 6988,
+    AT_SKUNK_POOL_2                     = 6989,
+    AT_CROCODILE_POOL                   = 6990,
+    AT_CRANE_POOL_1                     = 6991,
+    AT_CRANE_POOL_2                     = 6992,
+    AT_TURTLE_POOL_1                    = 7011,
+    AT_TURTLE_POOL_2                    = 7012
+};
+
 class at_singing_pools_transform : public AreaTriggerScript
 {
 public:
@@ -321,29 +340,29 @@ public:
             {
                 switch (areaTrigger->ID)
                 {
-                    case 6986:
-                    case 6987:
+                    case AT_FROG_POOL_1:
+                    case AT_FROG_POOL_2:
                         if (!player->HasAura(SPELL_CURSE_OF_THE_FROG))
                             player->CastSpell(player, SPELL_CURSE_OF_THE_FROG, true);
                         if (player->HasAura(SPELL_TRAINING_BELL_EXCLUSION_AURA))
                             player->RemoveAura(SPELL_TRAINING_BELL_EXCLUSION_AURA);
                         break;
-                    case 6988:
-                    case 6989:
+                    case AT_SKUNK_POOL_1:
+                    case AT_SKUNK_POOL_2:
                         if (!player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
                             player->CastSpell(player, SPELL_CURSE_OF_THE_SKUNK, true);
                         break;
-                    case 6990:
+                    case AT_CROCODILE_POOL:
                         if (!player->HasAura(SPELL_CURSE_OF_THE_CROCODILE))
                             player->CastSpell(player, SPELL_CURSE_OF_THE_CROCODILE, true);
                         break;
-                    case 6991:
-                    case 6992:
+                    case AT_CRANE_POOL_1:
+                    case AT_CRANE_POOL_2:
                         if (!player->HasAura(SPELL_CURSE_OF_THE_CRANE))
                             player->CastSpell(player, SPELL_CURSE_OF_THE_CRANE, true);
                         break;
-                    case 7011:
-                    case 7012:
+                    case AT_TURTLE_POOL_1:
+                    case AT_TURTLE_POOL_2:
                         if (!player->HasAura(SPELL_CURSE_OF_THE_TURTLE))
                             player->CastSpell(player, SPELL_CURSE_OF_THE_TURTLE, true);
                         break;
@@ -353,47 +372,47 @@ public:
             {
                 switch (areaTrigger->ID)
                 {
-                    case 6986:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6987)))
+                    case AT_FROG_POOL_1:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(AT_FROG_POOL_2)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_FROG))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
                         break;
-                    case 6987:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6986)))
+                    case AT_FROG_POOL_2:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(AT_FROG_POOL_1)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_FROG))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
                         break;
-                    case 6988:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6989)))
+                    case AT_SKUNK_POOL_1:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(AT_SKUNK_POOL_2)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
                         break;
-                    case 6989:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6988)))
+                    case AT_SKUNK_POOL_2:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(AT_SKUNK_POOL_1)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
                         break;
-                    case 6990:
+                    case AT_CROCODILE_POOL:
                         if (player->HasAura(SPELL_CURSE_OF_THE_CROCODILE))
                             player->RemoveAura(SPELL_CURSE_OF_THE_CROCODILE);
                         break;
-                    case 6991:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6992)))
+                    case AT_CRANE_POOL_1:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(AT_CRANE_POOL_2)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_CRANE))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
                         break;
-                    case 6992:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(6991)))
+                    case AT_CRANE_POOL_2:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(AT_CRANE_POOL_1)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_CRANE))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
                         break;
-                    case 7011:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(7012)))
+                    case AT_TURTLE_POOL_1:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(AT_TURTLE_POOL_2)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
                         break;
-                    case 7012:
-                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(7011)))
+                    case AT_TURTLE_POOL_2:
+                        if (!player->IsInAreaTriggerRadius(sAreaTriggerStore.AssertEntry(AT_TURTLE_POOL_1)))
                             if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE))
                                 player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
                         break;
@@ -496,7 +515,7 @@ enum TushuiMonkOnPoleEvents
 enum TushuiMonkOnPoleNPCs
 {
     NPC_MONK_ON_POLE_1              = 55019,
-    NPC_MONK_ON_POLE_2              = 65468,
+    NPC_MONK_ON_POLE_2              = 65468
 };
 
 enum TushuiMonkOnPoleSpells
@@ -672,6 +691,11 @@ public:
     }
 };
 
+enum RockJumpAGOs
+{
+    GO_ROCK_JUMP_B  = 209576
+};
+
 class spell_rock_jump_a : public SpellScript
 {
     PrepareSpellScript(spell_rock_jump_a);
@@ -682,15 +706,15 @@ class spell_rock_jump_a : public SpellScript
 
         if (Unit* caster = GetCaster())
         {
-            if (caster->GetPositionZ() > 92.0f)
+            if (caster->GetPositionZ() < 92.0f)
             {
-                Position const jumpPos = { 1077.019f, 2844.103f, 95.27103f };
-                caster->GetMotionMaster()->MoveJump(jumpPos, GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
+                if (GameObject* go = caster->FindNearestGameObject(GO_ROCK_JUMP_B, 8.0f))
+                    caster->GetMotionMaster()->MoveJump(go->GetPosition(), GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
             }
             else
             {
-                if (GameObject* go = caster->FindNearestGameObject(209576, 8.0f))
-                    caster->GetMotionMaster()->MoveJump(go->GetPosition(), GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
+                Position const jumpPos = { 1077.019f, 2844.103f, 95.27103f };
+                caster->GetMotionMaster()->MoveJump(jumpPos, GetSpellInfo()->GetEffect(effIndex)->MiscValue, 10);
             }
         }
     }
@@ -927,10 +951,11 @@ class spell_summon_water_spout : public SpellScript
     }
 };
 
-enum WaterSpoutQuestCreditSpells
+enum WaterSpoutQuestCredit
 {
     SPELL_AYSA_CONGRATS_TIMER       = 128589,
-    SPELL_SUMMON_SPIRIT_OF_WATER    = 103538
+    SPELL_SUMMON_SPIRIT_OF_WATER    = 103538,
+    QUEST_A_NEW_FRIEND              = 29679
 };
 
 class spell_water_spout_quest_credit : public SpellScript
@@ -941,7 +966,7 @@ class spell_water_spout_quest_credit : public SpellScript
     {
         if (Player* target = GetHitPlayer())
         {
-            if (target->GetQuestStatus(29679) == QUEST_STATUS_COMPLETE)
+            if (target->GetQuestStatus(QUEST_A_NEW_FRIEND) == QUEST_STATUS_COMPLETE)
             {
                 target->AddAura(SPELL_AYSA_CONGRATS_TIMER, target);
                 target->CastSpell(target, SPELL_SUMMON_SPIRIT_OF_WATER, true);
@@ -955,6 +980,13 @@ class spell_water_spout_quest_credit : public SpellScript
     }
 };
 
+enum AysaCongratsTimer
+{
+    NPC_AYSA_CLOUDSINGER_NEAR_LAKE  = 54975,
+    TEXT_THAT_LOOKED_FUN            = 0,
+    TEXT_NEW_FRIEND                 = 1
+};
+
 class spell_aysa_congrats_timer : public AuraScript
 {
     PrepareAuraScript(spell_aysa_congrats_timer);
@@ -962,8 +994,8 @@ class spell_aysa_congrats_timer : public AuraScript
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
-            if (Creature* creature = target->FindNearestCreature(54975, target->GetVisibilityRange(), true))
-                creature->AI()->Talk(0, target);
+            if (Creature* creature = target->FindNearestCreature(NPC_AYSA_CLOUDSINGER_NEAR_LAKE, target->GetVisibilityRange(), true))
+                creature->AI()->Talk(TEXT_THAT_LOOKED_FUN, target);
     }
 
     void Register() override
@@ -979,14 +1011,19 @@ class spell_aysa_congrats_trigger_aura : public AuraScript
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
-            if (Creature* creature = target->FindNearestCreature(54975, target->GetVisibilityRange(), true))
-                creature->AI()->Talk(1, target);
+            if (Creature* creature = target->FindNearestCreature(NPC_AYSA_CLOUDSINGER_NEAR_LAKE, target->GetVisibilityRange(), true))
+                creature->AI()->Talk(TEXT_NEW_FRIEND, target);
     }
 
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_aysa_congrats_trigger_aura::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
+};
+
+enum TempleOfFiveDawnsNPCs
+{
+    NPC_ZHAOREN = 64554
 };
 
 class at_temple_of_five_dawns_summon_zhaoren : public AreaTriggerScript
@@ -1002,7 +1039,7 @@ public:
             {
                 Position const pos = { 750.5781f, 4262.676f, 323.0713f, 5.042483f };
 
-                player->SummonCreature(64554, pos, TEMPSUMMON_MANUAL_DESPAWN);
+                player->SummonCreature(NPC_ZHAOREN, pos, TEMPSUMMON_MANUAL_DESPAWN);
 
                 return true;
             }
@@ -1080,14 +1117,14 @@ class spell_ruk_ruk_ooksplosions : public AuraScript
 
 enum RukRukEvents
 {
-    EVENT_AIM            = 1,
+    EVENT_AIM           = 1,
     EVENT_OOKSPLOSIONS  = 2
 };
 
 enum RukRukSpells
 {
-    SPELL_AIM            = 125609,
-    SPELL_OOKSPLOSIONS    = 125699,
+    SPELL_AIM           = 125609,
+    SPELL_OOKSPLOSIONS  = 125699,
     SPELL_AIM_VISUAL    = 26079
 };
 
@@ -1222,7 +1259,7 @@ public:
             {
                 _rocketTargetPos = rukRukAI->GetRocketTargetPos();
 
-                if (me->GetExactDist2d(_rocketTargetPos) > 30)
+                if (me->GetExactDist2d(_rocketTargetPos) > 30.0f)
                     RecalculateTargetPos();
             }
         }
@@ -1299,19 +1336,27 @@ enum ZhaorenPhases
     PHASE_STAY_IN_CENTER            = 3
 };
 
-enum ZhaorenMisc
+enum ZhaorenData
 {
-    ZHAOREN_PATH                    = 4514730,
-    NPC_JI_FIREPAW                  = 64505,
-    NPC_AYSA_CLOUDSINGER            = 64506,
-    NPC_DAFENG                      = 64532,
-    NPC_FIREWORK                    = 64507,
     DATA_1                          = 1,
     DATA_COMBAT                     = 2,
     DATA_AYSA_TALK_3                = 3,
     DATA_PHASE_OOC                  = 4,
     DATA_ZHAOREN_DEATH              = 5,
     DATA_EVADE                      = 6
+};
+
+enum ZhaorenNPCs
+{
+    NPC_JI_FIREPAW                  = 64505,
+    NPC_AYSA_CLOUDSINGER            = 64506,
+    NPC_DAFENG                      = 64532,
+    NPC_FIREWORK                    = 64507
+};
+
+enum ZhaorenMisc
+{
+    ZHAOREN_PATH                    = 4514730
 };
 
 class npc_zhaoren : public CreatureScript
@@ -1505,9 +1550,10 @@ public:
     }
 };
 
-enum SpellMasterShangFinalEscortNPCs
+enum MasterShangFinalEscort
 {
-    NPC_MASTER_SHANG    = 55672
+    NPC_MASTER_SHANG        = 55672,
+    TEXT_HELP_WITH_TASKS    = 0
 };
 
 class spell_master_shang_final_escort_say : public AuraScript
@@ -1518,98 +1564,12 @@ class spell_master_shang_final_escort_say : public AuraScript
     {
         if (Unit* target = GetTarget())
             if (Creature* creature = target->FindNearestCreature(NPC_MASTER_SHANG, target->GetVisibilityRange(), true))
-                creature->AI()->Talk(0, target);
+                creature->AI()->Talk(TEXT_HELP_WITH_TASKS, target);
     }
 
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_master_shang_final_escort_say::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-enum ShenZinShuBunnySpells
-{
-    SPELL_TRIGGER_WITH_ANIM_0   = 114898,
-    SPELL_TRIGGER               = 106759,
-    SPELL_TRIGGER_WITH_ANIM_1   = 118571,
-    SPELL_TRIGGER_WITH_TURN     = 118572
-};
-
-enum ShenZinShuBunnyTexts
-{
-    TEXT_1                      = 55550,
-    TEXT_2                      = 55568,
-    TEXT_3                      = 55569,
-    TEXT_4                      = 55570,
-    TEXT_5                      = 55572,
-    TEXT_6                      = 63407
-};
-
-class npc_shen_zin_shu_bunny : public CreatureScript
-{
-public:
-    npc_shen_zin_shu_bunny() : CreatureScript("npc_shen_zin_shu_bunny") { }
-
-    struct npc_shen_zin_shu_bunnyAI : public ScriptedAI
-    {
-        npc_shen_zin_shu_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Initialize()
-        {
-            _hitCount = 0;
-        }
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
-        {
-            switch (spell->Id)
-            {
-                case SPELL_TRIGGER_WITH_ANIM_0:
-                    me->Talk(TEXT_1, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                    me->PlayDirectSound(27822, caster->ToPlayer());
-                    break;
-                case SPELL_TRIGGER:
-                    me->Talk(TEXT_2, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                    me->PlayDirectSound(27823, caster->ToPlayer());
-                    break;
-                case SPELL_TRIGGER_WITH_ANIM_1:
-                    if (_hitCount == 0)
-                    {
-                        me->Talk(TEXT_3, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                        me->PlayDirectSound(27824, caster->ToPlayer());
-                        _hitCount++;
-                    }
-                    else if (_hitCount == 1)
-                    {
-                        me->Talk(TEXT_4, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                        me->PlayDirectSound(27825, caster->ToPlayer());
-                        _hitCount++;
-                    }
-                    else if (_hitCount == 2)
-                    {
-                        me->Talk(TEXT_6, CHAT_MSG_MONSTER_SAY, 350.0f, caster);
-                        me->PlayDirectSound(27827, caster->ToPlayer());
-                        _hitCount = 0;
-                    }
-                    break;
-                case SPELL_TRIGGER_WITH_TURN:
-                    me->Talk(TEXT_5, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                    me->PlayDirectSound(27826, caster->ToPlayer());
-                    break;
-            }
-        }
-
-    private:
-        uint8 _hitCount;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_shen_zin_shu_bunnyAI(creature);
     }
 };
 
@@ -1619,10 +1579,12 @@ class spell_injured_sailor_feign_death : public AuraScript
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Unit* target = GetTarget();
-        target->SetUnitFlags(UNIT_FLAG_UNK_29);
-        target->SetUnitFlags2(UNIT_FLAG2_FEIGN_DEATH);
-        target->SetHealth(target->CountPctFromMaxHealth(25));
+        if (Unit* target = GetTarget())
+        {
+            target->SetUnitFlags(UNIT_FLAG_UNK_29);
+            target->SetUnitFlags2(UNIT_FLAG2_FEIGN_DEATH);
+            target->SetHealth(target->CountPctFromMaxHealth(25));
+        }
     }
 
     void Register() override
@@ -1650,12 +1612,14 @@ class spell_rescue_injured_sailor : public SpellScript
     void HandleDummy(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        Player* player = GetCaster()->ToPlayer();
 
-        if (player->getGender() == GENDER_MALE)
-            player->CastSpell(player, SPELL_RESCUE_SAILOR_MALE_CAST, true);
-        else
-            player->CastSpell(player, SPELL_RESCUE_SAILOR_FEMALE_CAST, true);
+        if (Player* player = GetCaster()->ToPlayer())
+        {
+            if (player->getGender() == GENDER_MALE)
+                player->CastSpell(player, SPELL_RESCUE_SAILOR_MALE_CAST, true);
+            else
+                player->CastSpell(player, SPELL_RESCUE_SAILOR_FEMALE_CAST, true);
+        }
     }
 
     void HandleSummon(SpellEffIndex effIndex)
@@ -1803,7 +1767,7 @@ public:
                         _events.ScheduleEvent(EVENT_TEMPERED_FURY, urand(2000, 4000));
                         break;
                     case EVENT_COMBAT_ROLL:
-                        // todo: cast combat roll only if it won't kick Vordraka outside of ship boundaries
+                        // todo: cast combat roll only if it won't kick Aysa outside of ship boundaries
                         DoCastVictim(SPELL_COMBAT_ROLL);
                         _events.ScheduleEvent(EVENT_TEMPERED_FURY, urand(5000, 7000));
                         break;
@@ -1872,10 +1836,15 @@ enum VordrakaSpells
     SPELL_SEE_DEATH_INVIS           = 117491
 };
 
-enum VordrakaMisc
+enum VordrakaNPCs
 {
     NPC_AYSA_CLOUDSINGER_VORDRAKA   = 56416,
     NPC_DEEPSCALE_AGGRESSOR         = 60685
+};
+
+enum VordrakaMisc
+{
+    PHASE_DEFAULT_SPAWN             = 543
 };
 
 class npc_vordraka : public CreatureScript
@@ -1903,7 +1872,7 @@ public:
             _events.Reset();
             Initialize();
             me->SetReactState(REACT_PASSIVE);
-            PhasingHandler::AddPhase(me, 543, true);
+            PhasingHandler::AddPhase(me, PHASE_DEFAULT_SPAWN, true);
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -2086,7 +2055,7 @@ class spell_summon_deep_sea_aggressor : public SpellScript
 
 enum HealingSphereData
 {
-    DATA_RESET_ORIENTATION = 1
+    DATA_RESET_ORIENTATION  = 1
 };
 
 class areatrigger_healing_sphere : public AreaTriggerEntityScript
@@ -2116,7 +2085,7 @@ public:
     }
 };
 
-enum HealersActiveBunnyMisc
+enum HealersActiveBunny
 {
     DATA_HEALER_ACTIVE          = 1,
     DATA_HEALER_DIED            = 2,
@@ -2239,10 +2208,12 @@ class spell_turtle_healed_phase_timer : public AuraScript
     }
 };
 
-enum AllyHordeArgumentNPCs
+enum AllyHordeArgument
 {
     NPC_KORGA_STRONGMANE    = 60888,
-    NPC_DELORA_LIONHEART    = 60889
+    NPC_DELORA_LIONHEART    = 60889,
+    TEXT_HORDE_QUARREL      = 0,
+    TEXT_ALLIANCE_QUARREL   = 0
 };
 
 class spell_ally_horde_argument : public AuraScript
@@ -2253,14 +2224,14 @@ class spell_ally_horde_argument : public AuraScript
     {
         if (Unit* target = GetTarget())
             if (Creature* creature = target->FindNearestCreature(NPC_KORGA_STRONGMANE, target->GetVisibilityRange(), true))
-                creature->AI()->Talk(0, target);
+                creature->AI()->Talk(TEXT_HORDE_QUARREL, target);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
             if (Creature* creature = target->FindNearestCreature(NPC_DELORA_LIONHEART, target->GetVisibilityRange(), true))
-                creature->AI()->Talk(0, target);
+                creature->AI()->Talk(TEXT_ALLIANCE_QUARREL, target);
     }
 
     void Register() override
@@ -2356,7 +2327,6 @@ void AddSC_the_wandering_isle()
     new npc_ruk_ruk_rocket();
     new npc_zhaoren();
     RegisterAuraScript(spell_master_shang_final_escort_say);
-    new npc_shen_zin_shu_bunny();
     RegisterAuraScript(spell_injured_sailor_feign_death);
     RegisterSpellScript(spell_rescue_injured_sailor);
     new at_wreck_of_the_skyseeker_injured_sailor();
