@@ -692,6 +692,7 @@ void Player::UpdateRangedHitChances()
 void Player::UpdateSpellHitChances()
 {
     m_modSpellHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
+    SetFloatValue(PLAYER_FIELD_UI_SPELL_HIT_MODIFIER, m_modSpellHitChance);
     m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
 }
 
