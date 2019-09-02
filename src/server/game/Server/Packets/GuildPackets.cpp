@@ -62,8 +62,6 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
         _worldPacket.WriteBits(tab.Name.length(), 7);
     }
 
-    _worldPacket.FlushBits();
-
     for (GuildBankTabInfo const& tab : TabInfo)
     {
         _worldPacket.WriteString(tab.Icon);
@@ -90,8 +88,9 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
         _worldPacket << int32(item.RandomPropertiesSeed);
     }
 
-     _worldPacket << uint32(Tab);
-     _worldPacket << uint32(WithdrawalsRemaining);
+    _worldPacket.FlushBits();
+    _worldPacket << uint32(Tab);
+    _worldPacket << uint32(WithdrawalsRemaining);
 
     return &_worldPacket;
 }
