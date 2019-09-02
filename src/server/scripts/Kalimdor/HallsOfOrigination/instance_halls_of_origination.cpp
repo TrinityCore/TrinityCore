@@ -142,7 +142,6 @@ class instance_halls_of_origination : public InstanceMapScript
                     case GO_DOODAD_ULDUM_LIGHTMACHINE_04:
                     case GO_SUN_MIRROR:
                     case GO_ANRAPHET_DOOR:
-                        go->SetFarVisible(true);
                         go->setActive(true);
                         if (GetData(DATA_VAULT_OF_LIGHTS) == DONE)
                             go->SetGoState(GO_STATE_ACTIVE);
@@ -155,11 +154,15 @@ class instance_halls_of_origination : public InstanceMapScript
                     case GO_REORIGINATION_MECHANISM_5:
                         go->SetGoState(GO_STATE_ACTIVE);
                         break;
+                    case GO_BEACON_OF_LIGHT_NORMAL_1:
+                    case GO_BEACON_OF_LIGHT_NORMAL_2:
+                    case GO_BEACON_OF_LIGHT_HEROIC_1:
+                    case GO_BEACON_OF_LIGHT_HEROIC_2:
+                        _anhuurEncounterGUIDs.insert(go->GetGUID());
+                        break;
                     default:
                         break;
                 }
-
-                go->SetFarVisible(true);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -209,8 +212,12 @@ class instance_halls_of_origination : public InstanceMapScript
                         if (Creature* anraphet = GetCreature(DATA_ANRAPHET))
                             anraphet->AI()->JustSummoned(creature);
                     case NPC_CAVE_IN_STALKER:
+                        _anhuurEncounterGUIDs.insert(creature->GetGUID());
                         if (creature->GetPositionZ() <= 70.0f)
                             _caveInStalkerGUIDs.insert(creature->GetGUID());
+                        break;
+                    case NPC_PIT_VIPER:
+                         _anhuurEncounterGUIDs.insert(creature->GetGUID());
                         break;
                     default:
                         break;
@@ -331,6 +338,22 @@ class instance_halls_of_origination : public InstanceMapScript
 
                 switch (type)
                 {
+                    case DATA_TEMPLE_GUARDIAN_ANHUUR:
+                        if (state == FAIL || state == DONE)
+                        {
+                            for (ObjectGuid guid : _anhuurEncounterGUIDs)
+                            {
+                                if (guid.IsGameObject())
+                                {
+                                    if (GameObject* go = instance->GetGameObject(guid))
+                                        go->DespawnOrUnsummon(0s, state == FAIL ? 5s : 0s);
+                                }
+                                else if (Creature* creature = instance->GetCreature(guid))
+                                    creature->DespawnOrUnsummon(0s, state == FAIL ? 30s : 0s);
+                            }
+                            _anhuurEncounterGUIDs.clear();
+                        }
+                        break;
                     case DATA_EARTHRAGER_PTAH:
                         if (state == IN_PROGRESS)
                         {
@@ -463,6 +486,7 @@ class instance_halls_of_origination : public InstanceMapScript
             GuidSet _hooCamelGUIDs;
             GuidSet _isisetTrashGUIDs;
             GuidSet _caveInStalkerGUIDs;
+            GuidSet _anhuurEncounterGUIDs;
             GuidSet _beetleStalkerGUIDS;
             uint32 _brannIntroStarted;
             uint32 _deadElementals;

@@ -28,13 +28,13 @@ uint32 const EncounterCount = 12;
 enum HOOData
 {
     // Bosses
-    DATA_TEMPLE_GUARDIAN_ANHUUR,
-    DATA_EARTHRAGER_PTAH,
-    DATA_ANRAPHET,
-    DATA_ISISET,
-    DATA_AMMUNAE,
-    DATA_SETESH,
-    DATA_RAJH,
+    DATA_TEMPLE_GUARDIAN_ANHUUR = 0,
+    DATA_EARTHRAGER_PTAH        = 1,
+    DATA_ANRAPHET               = 2,
+    DATA_ISISET                 = 3,
+    DATA_AMMUNAE                = 4,
+    DATA_SETESH                 = 5,
+    DATA_RAJH                   = 6,
 
     // Temple Guardian Anhuur
     DATA_ANHUUR_DOOR,
@@ -78,25 +78,34 @@ enum HOOData
 
 enum HOOCreatures
 {
+    // Bosses
     BOSS_TEMPLE_GUARDIAN_ANHUUR     = 39425,
+    BOSS_EARTHRAGER_PTAH            = 39428,
+    BOSS_ANRAPHET                   = 39788,
+    BOSS_ISISET                     = 39587,
+    BOSS_AMMUNAE                    = 39731,
+    BOSS_SETESH                     = 39732,
+    BOSS_RAJH                       = 39378,
+
+    // Encounter Related Creatues
+    /*Temple Guardian Anhuur*/
     NPC_CAVE_IN_STALKER             = 40183,
     NPC_SEARING_LIGHT               = 40283,
+    NPC_PIT_VIPER                   = 39444,
 
-    BOSS_EARTHRAGER_PTAH            = 39428,
+    /*Earthrager Ptah*/
     NPC_BEETLE_STALKER              = 40459, // Summons both Jeweled Scarab and Dustbone Horror
     NPC_JEWELED_SCARAB              = 40458, // Summoned by spell: 75462 Summon Jeweled Scarab
     NPC_DUSTBONE_HORROR             = 40450, // Summoned by spell: 75521 Summon Dustbone Horror
     NPC_QUICKSAND                   = 40503, // Summoned by spell: 75550 (server-side, not in dbc)
     NPC_HOO_CAMEL                   = 39443,
 
-    BOSS_ANRAPHET                   = 39788,
+    /*Anraphet*/
     NPC_FIRE_WARDEN                 = 39800,
     NPC_EARTH_WARDEN                = 39801,
     NPC_WATER_WARDEN                = 39802,
     NPC_AIR_WARDEN                  = 39803,
-
     WARDEN_ENTRY_MAX_COUNT          = 4,
-
     NPC_BRANN_BRONZEBEARD_0         = 39908,
     NPC_OMEGA_STANCE                = 41194,
     NPC_ALPHA_BEAM                  = 41144,
@@ -104,23 +113,21 @@ enum HOOCreatures
     NPC_STONE_TROGG_BRUTE           = 40251,
     NPC_STONE_TROGG_ROCK_FLINGER    = 40252,
 
-    BOSS_ISISET                     = 39587,
+    /*Isiset*/
     NPC_SPATIAL_FLUX_TRASH          = 39612, // Isiset trash
     NPC_ENERGY_FLUX_TRASH           = 44015,
     NPC_SPATIAL_ANOMALY             = 40170,
     NPC_FLUX_ANIMATOR               = 40033,
     NPC_STAR_SHARD                  = 40106,
 
-    BOSS_AMMUNAE                    = 39731,
-
-    BOSS_SETESH                     = 39732,
+    /*Setesh*/
     NPC_SETESH_CHAOS_SEED           = 41126,
     NPC_SETESH_CHAOS_BLAST          = 41041,
     NPC_SETESH_CHAOS_PORTAL         = 41055,
     NPC_SETESH_ADD_STALKER          = 41479,
     NPC_SETESH_VOID_RIFT            = 39266, // Setesh trash
 
-    BOSS_RAJH                       = 39378,
+    /*Rajh*/
     NPC_INFERNO_LEAP                = 47040,
     NPC_BLAZING_INFERNO             = 40927,
     NPC_SUN_TOUCHED_SERVANT         = 39366,
@@ -129,6 +136,11 @@ enum HOOCreatures
 enum HOOGameObjects
 {
     GO_ANHUURS_BRIDGE               = 206506,
+    GO_BEACON_OF_LIGHT_NORMAL_1     = 203136,
+    GO_BEACON_OF_LIGHT_NORMAL_2     = 203133,
+    GO_BEACON_OF_LIGHT_HEROIC_1     = 207219,
+    GO_BEACON_OF_LIGHT_HEROIC_2     = 207218,
+
     GO_DOODAD_ULDUM_ELEVATOR_COL01  = 207725,
     GO_DOODAD_ULDUM_DOOR_14         = 202306,
     GO_DOODAD_ULDUM_DOOR_15         = 202307,
@@ -163,23 +175,8 @@ enum HOOGameObjects
 
 enum Achievements
 {
-    //    I Hate That Song
-    // Achievement.db2 ID 5293: ParentTree 19724
-    // CriteriaTree.db2 ID 19725: ParentTree 19724 - Criteria 15988
-    // Criteria.db2 ID 15988: on Anhuur kill, world state 5638 = value 0
-    //CRITERIA_I_HATE_THAT_SONG         = 15988,
-    WS_I_HATE_THIS_SONG                 =  5638,
-    
-    //    Straw That Broke the Camel's Back
-    // Achievement.db2 ID 5294: ParentTree 18221
-    // CriteriaTree.db2 ID 18222: ParentTree 18221 - Criteria 15989
-    // Criteria.db2 ID 15989: on Ptah kill, tree 2838?
+    WS_I_HATE_THIS_SONG                 = 5638,
     CRITERIA_STRAW_BROKE_CAMELS_BACK    = 15989,
-
-    //    Faster Than The Speed Of Light
-    // Achievement.db2 ID 5296: ParentTree  17685
-    // CriteriaTree.db2 ID 17686: ParentTree 17685 - Criteria 16008
-    // Criteria.db2 ID 16008: spell 94067, startEvent 24212, tree 2615?, world state 5653 = value 0, type 69
     ACHIEV_VAULT_OF_LIGHTS_START_EVENT  = 24212,
     SPELL_VAULT_OF_LIGHTS_CREDIT        = 94067  // Achievement aura, not in DBC
 };
