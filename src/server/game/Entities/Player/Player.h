@@ -1833,6 +1833,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateMeleeHitChances();
         void UpdateRangedHitChances();
         void UpdateSpellHitChances();
+        void UpdateHitChances();
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);

@@ -696,6 +696,12 @@ void Player::UpdateSpellHitChances()
     m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
 }
 
+void Player::UpdateHitChances()
+{
+    float modifier = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+    SetFloatValue(PLAYER_FIELD_UI_HIT_MODIFIER, modifier);
+}
+
 void Player::UpdateAllSpellCritChances()
 {
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
