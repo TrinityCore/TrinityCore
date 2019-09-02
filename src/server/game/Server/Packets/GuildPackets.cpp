@@ -150,6 +150,8 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
         _worldPacket.WriteBits(tab.Name.length(), 7);
     }
 
+    _worldPacket.FlushBits();
+
     for (GuildBankTabInfo const& tab : TabInfo)
     {
         _worldPacket.WriteString(tab.Icon);
@@ -163,23 +165,22 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
     {
         for (Guild::GuildBankItemInfo::GuildBankSocketEnchant const& socketEnchant : item.SocketEnchant)
         {
-            _worldPacket << socketEnchant.SocketIndex;
-            _worldPacket << socketEnchant.SocketEnchantID;
+            _worldPacket << uint32(socketEnchant.SocketIndex);
+            _worldPacket << uint32(socketEnchant.SocketEnchantID);
         }
 
         _worldPacket << uint32(item.EnchantmentID);
         _worldPacket << uint32(item.ReforgeEnchantmentID);
         _worldPacket << uint32(item.OnUseEnchantmentID);
-        _worldPacket << int32(item.Count);
-        _worldPacket << int32(item.Slot);
-        _worldPacket << int32(item.Flags);
-        _worldPacket << int32(item.Item.ItemID);
-        _worldPacket << int32(item.RandomPropertiesID);
-        _worldPacket << int32(item.Charges);
-        _worldPacket << int32(item.RandomPropertiesSeed);
+        _worldPacket << uint32(item.Count);
+        _worldPacket << uint32(item.Slot);
+        _worldPacket << uint32(item.Flags);
+        _worldPacket << uint32(item.Item.ItemID);
+        _worldPacket << uint32(item.RandomPropertiesID);
+        _worldPacket << uint32(item.Charges);
+        _worldPacket << uint32(item.RandomPropertiesSeed);
     }
 
-    _worldPacket.FlushBits();
     _worldPacket << uint32(Tab);
     _worldPacket << uint32(WithdrawalsRemaining);
 

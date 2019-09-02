@@ -361,7 +361,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 
         if (Guild* guild = GetPlayer()->GetGuild())
         {
-            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD, 0, 0, 0, NULL, GetPlayer());
+            guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD, 0, 0, 0, nullptr, GetPlayer());
             guild->HandleSetEmblem(this, emblemInfo);
         }
         else
