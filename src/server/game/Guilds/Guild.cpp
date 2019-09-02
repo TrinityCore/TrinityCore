@@ -3615,8 +3615,8 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
             itemInfo.Item.ItemID = int32(tabItem ? tabItem->GetEntry() : 0);
             itemInfo.Count = int32(tabItem ? tabItem->GetCount() : 0);
             itemInfo.Charges = int32(tabItem ? abs(tabItem->GetSpellCharges()) : 0);
-            itemInfo.RandomPropertiesID = int32(tabItem ? tabItem->GetItemRandomPropertyId() : 0);
-            itemInfo.RandomPropertiesSeed = int32(tabItem ? tabItem->GetItemSuffixFactor() : 0);
+            itemInfo.Item.RandomPropertiesID = int32(tabItem ? tabItem->GetItemRandomPropertyId() : 0);
+            itemInfo.Item.RandomPropertiesSeed = int32(tabItem ? tabItem->GetItemSuffixFactor() : 0);
             itemInfo.EnchantmentID = int32(tabItem ? tabItem->GetEnchantmentId(EnchantmentSlot(PERM_ENCHANTMENT_SLOT)) : 0);
             itemInfo.OnUseEnchantmentID = int32(tabItem ? tabItem->GetEnchantmentId(EnchantmentSlot(BONUS_ENCHANTMENT_SLOT)) : 0);
             itemInfo.ReforgeEnchantmentID = int32(tabItem ? tabItem->GetEnchantmentId(EnchantmentSlot(REFORGE_ENCHANTMENT_SLOT)) : 0);
@@ -3723,10 +3723,10 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
 
                     itemInfo.Slot = int32(slotId);
                     itemInfo.Item.ItemID = tabItem->GetEntry();
+                    itemInfo.Item.RandomPropertiesID = int32(tabItem->GetItemRandomPropertyId());
+                    itemInfo.Item.RandomPropertiesSeed = int32(tabItem->GetItemSuffixFactor());
                     itemInfo.Count = int32(tabItem->GetCount());
                     itemInfo.Charges = int32(abs(tabItem->GetSpellCharges()));
-                    itemInfo.RandomPropertiesID = int32(tabItem->GetItemRandomPropertyId());
-                    itemInfo.RandomPropertiesSeed = int32(tabItem->GetItemSuffixFactor());
                     itemInfo.EnchantmentID = tabItem->GetEnchantmentId(EnchantmentSlot(PERM_ENCHANTMENT_SLOT));
                     itemInfo.OnUseEnchantmentID = tabItem->GetEnchantmentId(EnchantmentSlot(BONUS_ENCHANTMENT_SLOT));
                     itemInfo.ReforgeEnchantmentID = tabItem->GetEnchantmentId(EnchantmentSlot(REFORGE_ENCHANTMENT_SLOT));

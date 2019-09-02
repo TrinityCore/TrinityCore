@@ -191,8 +191,6 @@ namespace WorldPackets
             int32 Charges = 0;
             int32 OnUseEnchantmentID = 0;
             int32 ReforgeEnchantmentID = 0;
-            int32 RandomPropertiesID = 0;
-            int32 RandomPropertiesSeed = 0;
             int32 Flags = 0;
             bool Locked = false;
             std::vector<GuildBankSocketEnchant> SocketEnchant;

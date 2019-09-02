@@ -176,9 +176,9 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
         _worldPacket << uint32(item.Slot);
         _worldPacket << uint32(item.Flags);
         _worldPacket << uint32(item.Item.ItemID);
-        _worldPacket << uint32(item.RandomPropertiesID);
+        _worldPacket << uint32(item.Item.RandomPropertiesID);
         _worldPacket << uint32(item.Charges);
-        _worldPacket << uint32(item.RandomPropertiesSeed);
+        _worldPacket << uint32(item.Item.RandomPropertiesSeed);
     }
 
     _worldPacket << uint32(Tab);
