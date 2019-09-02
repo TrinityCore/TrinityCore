@@ -6435,7 +6435,7 @@ void Player::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr)
     Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 }
 
-void Player::SendDirectMessage(WorldPacket* data) const
+void Player::SendDirectMessage(WorldPacket const* data) const
 {
     m_session->SendPacket(data);
 }

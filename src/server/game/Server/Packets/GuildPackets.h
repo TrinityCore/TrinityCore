@@ -219,6 +219,50 @@ namespace WorldPackets
             uint64 Money = 0;
             bool FullUpdate = false;
         };
+
+        class GuildEvent final : public ServerPacket
+        {
+        public:
+            GuildEvent() : ServerPacket(SMSG_GUILD_EVENT, 3) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 EventType = 0;
+            std::vector<std::string> Param;
+            ObjectGuid GUID;
+        };
+
+        class GuildMemberDailyReset final : public ServerPacket
+        {
+        public:
+            GuildMemberDailyReset() : ServerPacket(SMSG_GUILD_MEMBER_DAILY_RESET, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class GuildReputationWeeklyCap final : public ServerPacket
+        {
+        public:
+            GuildReputationWeeklyCap() : ServerPacket(SMSG_GUILD_REPUTATION_WEEKLY_CAP, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Cap = 0;
+        };
+
+        class GuildXP final : public ServerPacket
+        {
+        public:
+            GuildXP() : ServerPacket(SMSG_GUILD_XP, 40) { }
+
+            WorldPacket const* Write() override;
+
+            int64 WeeklyXP = 0;
+            int64 TotalXP = 0;
+            int64 GuildTodayXP = 0;
+            int64 GuildRemainingXP = 0;
+            int64 GuildCurrentXP;
+        };
     }
 }
 

@@ -2501,11 +2501,10 @@ void Guild::SendLoginInfo(WorldSession* session)
           SMSG_GUILD_MEMBER_DAILY_RESET // bank withdrawal reset
     */
 
-    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + m_motd.size() + 1);
-    data << uint8(GE_MOTD);
-    data << uint8(1);
-    data << m_motd;
-    session->SendPacket(&data);
+    WorldPackets::Guild::GuildEvent motd;
+    motd.EventType = GE_MOTD;
+    motd.Param.push_back(m_motd);
+    session->SendPacket(motd.Write());
 
     TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [%s] MOTD", session->GetPlayerInfo().c_str());
 
@@ -2513,15 +2512,14 @@ void Guild::SendLoginInfo(WorldSession* session)
     _BroadcastEvent(GE_SIGNED_ON, player->GetGUID(), player->GetName().c_str());
 
     // Send to self separately, player is not in world yet and is not found by _BroadcastEvent
-    data.Initialize(SMSG_GUILD_EVENT, 1 + 1 + player->GetName().size() + 8);
-    data << uint8(GE_SIGNED_ON);
-    data << uint8(1);
-    data << player->GetName();
-    data << uint64(player->GetGUID());
-    session->SendPacket(&data);
+    WorldPackets::Guild::GuildEvent signedOn;
+    signedOn.EventType = GE_SIGNED_ON;
+    signedOn.Param.push_back(player->GetName());
+    signedOn.GUID = player->GetGUID();
+    session->SendPacket(signedOn.Write());
 
-    data.Initialize(SMSG_GUILD_MEMBER_DAILY_RESET, 0);  // tells the client to request bank withdrawal limit
-    session->SendPacket(&data);
+    WorldPackets::Guild::GuildMemberDailyReset packet; // tells the client to request bank withdrawal limit
+    session->SendPacket(packet.Write());
 
     if (!sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
         return;
@@ -2829,7 +2827,7 @@ void Guild::BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::
     }
 }
 
-void Guild::BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const
+void Guild::BroadcastPacketToRank(WorldPacket const* packet, uint8 rankId) const
 {
     for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (itr->second->IsRank(rankId))
@@ -2837,14 +2835,14 @@ void Guild::BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const
                 player->SendDirectMessage(packet);
 }
 
-void Guild::BroadcastPacket(WorldPacket* packet) const
+void Guild::BroadcastPacket(WorldPacket const* packet) const
 {
     for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (Player* player = itr->second->FindPlayer())
             player->SendDirectMessage(packet);
 }
 
-void Guild::BroadcastPacketIfTrackingAchievement(WorldPacket* packet, uint32 criteriaId) const
+void Guild::BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint32 criteriaId) const
 {
     for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (itr->second->IsTrackingCriteriaId(criteriaId))
@@ -3656,23 +3654,21 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
 
 void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, char const* param1, char const* param2, char const* param3) const
 {
-    uint8 count = !param3 ? (!param2 ? (!param1 ? 0 : 1) : 2) : 3;
+    WorldPackets::Guild::GuildEvent packet;
+    packet.EventType = guildEvent;
+    if (param1)
+        packet.Param.push_back(param1);
 
-    WorldPacket data(SMSG_GUILD_EVENT, 1 + 1 + count + (guid ? 8 : 0));
-    data << uint8(guildEvent);
-    data << uint8(count);
+    if (param2)
+        packet.Param.push_back(param2);
 
     if (param3)
-        data << param1 << param2 << param3;
-    else if (param2)
-        data << param1 << param2;
-    else if (param1)
-        data << param1;
+        packet.Param.push_back(param3);
 
     if (guid)
-        data << uint64(guid);
+        packet.GUID = guid;
 
-    BroadcastPacket(&data);
+    BroadcastPacket(packet.Write());
 
     if (sLog->ShouldLog("guild", LOG_LEVEL_DEBUG))
         TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [Broadcast] Event: %s (%u)", _GetGuildEventString(guildEvent).c_str(), guildEvent);
@@ -3969,25 +3965,25 @@ void Guild::GiveXP(uint32 xp, Player* source, bool rewardedByChallenge)
             SendGuildXP(player->GetSession());
 }
 
-void Guild::SendGuildXP(WorldSession* session /* = nullptr */) const
+void Guild::SendGuildXP(WorldSession* session /*= nullptr*/) const
 {
     Member const* member = GetMember(session->GetPlayer()->GetGUID());
 
-    WorldPacket data(SMSG_GUILD_XP, 40);
-    data << uint64(member ? member->GetTotalActivity() : 0);
-    data << uint64(sGuildMgr->GetXPForGuildLevel(GetLevel()) - GetExperience());    // XP missing for next level
-    data << uint64(GetTodayExperience());
-    data << uint64(member ? member->GetWeekActivity() : 0);
-    data << uint64(GetExperience());
-    session->SendPacket(&data);
+    WorldPackets::Guild::GuildXP packet;
+    packet.TotalXP = uint64(member ? member->GetTotalActivity() : 0);
+    packet.GuildRemainingXP = uint64(sGuildMgr->GetXPForGuildLevel(GetLevel()) - GetExperience());
+    packet.GuildTodayXP = uint64(GetTodayExperience());
+    packet.WeeklyXP = uint64(member ? member->GetWeekActivity() : 0);
+    packet.GuildCurrentXP = uint64(GetExperience());
+    session->SendPacket(packet.Write());
 }
 
 void Guild::SendGuildReputationWeeklyCap(WorldSession* session, uint32 reputation) const
 {
-    uint32 cap = sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP) - reputation;
-    WorldPacket data(SMSG_GUILD_REPUTATION_WEEKLY_CAP, 4);
-    data << uint32(cap);
-    session->SendPacket(&data);
+    uint32 cap = std::max<uint32>(0, sWorld->getIntConfig(CONFIG_GUILD_WEEKLY_REP_CAP) - reputation);
+    WorldPackets::Guild::GuildReputationWeeklyCap packet;
+    packet.Cap = cap;
+    session->SendPacket(packet.Write());
     TC_LOG_DEBUG("guild", "SMSG_GUILD_REPUTATION_WEEKLY_CAP [%s]: Left: %u",
                    session->GetPlayerInfo().c_str(), cap);
 }

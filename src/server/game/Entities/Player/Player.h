@@ -2049,7 +2049,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendInitWorldStates(uint32 zone, uint32 area);
         void SendUpdateWorldState(uint32 Field, uint32 Value) const;
-        void SendDirectMessage(WorldPacket* data) const;
+        void SendDirectMessage(WorldPacket const* data) const;
         void SendBGWeekendWorldStates() const;
         void SendBattlefieldWorldStates() const;
 

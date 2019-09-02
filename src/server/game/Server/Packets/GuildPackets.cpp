@@ -185,3 +185,32 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Guild::GuildEvent::Write()
+{
+    _worldPacket << uint8(EventType);
+    _worldPacket << uint8(Param.size());
+    for (std::string param : Param)
+        _worldPacket << param;
+    _worldPacket << GUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildReputationWeeklyCap::Write()
+{
+    _worldPacket << uint32(Cap);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildXP::Write()
+{
+    _worldPacket << uint64(TotalXP);
+    _worldPacket << uint64(GuildRemainingXP);
+    _worldPacket << uint64(GuildTodayXP);
+    _worldPacket << uint64(WeeklyXP);
+    _worldPacket << uint64(GuildCurrentXP);
+
+    return &_worldPacket;
+}
