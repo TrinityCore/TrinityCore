@@ -1316,7 +1316,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_TAXIQUERYAVAILABLENODES:              //   0               1.5
         case CMSG_QUESTGIVER_QUERY_QUEST:               //   0               1.5
         case CMSG_PAGE_TEXT_QUERY:                      //   0               1.5
-        case CMSG_GUILD_BANK_QUERY_TEXT:                //   0               1.5
+        case CMSG_GUILD_BANK_TEXT_QUERY:                //   0               1.5
         case MSG_CORPSE_QUERY:                          //   0               1.5
         case MSG_MOVE_SET_FACING:                       //   0               1.5
         case CMSG_REQUEST_PARTY_MEMBER_STATS:           //   0               1.5
@@ -1495,7 +1495,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GUILD_BANK_WITHDRAW_MONEY:            // not profiled
         case CMSG_GUILD_BANK_BUY_TAB:                   // not profiled
         case CMSG_GUILD_BANK_UPDATE_TAB:                // not profiled
-        case CMSG_SET_GUILD_BANK_TEXT:                  // not profiled
+        case CMSG_GUILD_BANK_SET_TAB_TEXT:              // not profiled
         case MSG_SAVE_GUILD_EMBLEM:                     // not profiled
         case MSG_PETITION_RENAME:                       // not profiled
         case MSG_TALENT_WIPE_CONFIRM:                   // not profiled

@@ -104,6 +104,15 @@ namespace WorldPackets
         class GuildBankQueryTab;
         class GuildBankBuyTab;
         class GuildBankUpdateTab;
+        class GuildBankDepositMoney;
+        class GuildBankWithdrawMoney;
+        class GuildPermissionsQuery;
+        class GuildBankRemainingWithdrawMoneyQuery;
+        class GuildBankLogQuery;
+        class GuildBankSwapItems;
+        class GuildBankTextQuery;
+        class GuildBankSetTabText;
+        class GuildXPQuery;
     }
 }
 
@@ -725,6 +734,7 @@ class TC_GAME_API WorldSession
         void HandleAutoDeclineGuildInvites(WorldPacket& recvPacket);
         void HandleGuildSwitchRankOpcode(WorldPacket& recvPacket);
         void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
+        void HandleGuildXPQueryOpcode(WorldPackets::Guild::GuildXPQuery& packet);
 
         // Guild Finder
         void HandleGuildFinderAddRecruit(WorldPacket& recvPacket);
@@ -1029,19 +1039,18 @@ class TC_GAME_API WorldSession
         void HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData);
 
         // Guild Bank
-        void HandleGuildPermissions(WorldPacket& recvData);
-        void HandleGuildBankMoneyWithdrawn(WorldPacket& recvData);
+        void HandleGuildPermissionsQuery(WorldPackets::Guild::GuildPermissionsQuery& packet);
+        void HandleGuildBankMoneyWithdrawn(WorldPackets::Guild::GuildBankRemainingWithdrawMoneyQuery& packet);
         void HandleGuildBankActivate(WorldPackets::Guild::GuildBankActivate& packet);
         void HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTab& packet);
-        void HandleGuildBankLogQuery(WorldPacket& recvData);
-        void HandleGuildBankDepositMoney(WorldPacket& recvData);
-        void HandleGuildBankWithdrawMoney(WorldPacket& recvData);
-        void HandleGuildBankSwapItems(WorldPacket& recvData);
+        void HandleGuildBankLogQuery(WorldPackets::Guild::GuildBankLogQuery& packet);
+        void HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet);
+        void HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet);
+        void HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapItems& packet);
         void HandleGuildBankUpdateTab(WorldPackets::Guild::GuildBankUpdateTab& packet);
         void HandleGuildBankBuyTab(WorldPackets::Guild::GuildBankBuyTab& packet);
-        void HandleQueryGuildBankTabText(WorldPacket& recvData);
-        void HandleSetGuildBankTabText(WorldPacket& recvData);
-        void HandleGuildQueryXPOpcode(WorldPacket& recvData);
+        void HandleGuildBankTextQuery(WorldPackets::Guild::GuildBankTextQuery& packet);
+        void HandleGuildBankSetTabText(WorldPackets::Guild::GuildBankSetTabText& packet);
 
         // Refer-a-Friend
         void HandleGrantLevel(WorldPacket& recvData);

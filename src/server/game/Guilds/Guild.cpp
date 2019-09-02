@@ -3632,9 +3632,9 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
                 {
                     if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(enchSlot)))
                     {
-                        WorldPackets::Item::ItemGemData gem;
-                        gem.EnchantmentId = enchantId;
-                        gem.Slot = slotIndex;
+                        WorldPackets::Guild::GuildBankItemInfo::GuildBankSocketEnchant gem;
+                        gem.SocketIndex = slotIndex;
+                        gem.SocketEnchantID = enchantId;
                         itemInfo.SocketEnchant.push_back(gem);
                     }
                     slotIndex++;
@@ -3741,9 +3741,9 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
                     {
                         if (uint32 enchantId = tabItem->GetEnchantmentId(EnchantmentSlot(enchSlot)))
                         {
-                            WorldPackets::Item::ItemGemData gem;
-                            gem.EnchantmentId = enchantId;
-                            gem.Slot = slotIndex;
+                            WorldPackets::Guild::GuildBankItemInfo::GuildBankSocketEnchant gem;
+                            gem.SocketIndex = slotIndex;
+                            gem.SocketEnchantID = enchantId;
                             itemInfo.SocketEnchant.push_back(gem);
                         }
                         slotIndex++;

@@ -44,6 +44,94 @@ void WorldPackets::Guild::GuildBankUpdateTab::Read()
     _worldPacket >> Icon;
 }
 
+void WorldPackets::Guild::GuildBankDepositMoney::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> Money;
+}
+
+void WorldPackets::Guild::GuildBankWithdrawMoney::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> Money;
+}
+
+void WorldPackets::Guild::GuildBankLogQuery::Read()
+{
+    _worldPacket >> Tab;
+}
+
+void WorldPackets::Guild::GuildBankSwapItems::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankOnly;
+
+    if (BankOnly)
+    {
+        _worldPacket >> BankTab;
+        _worldPacket >> BankSlot;
+        _worldPacket >> ItemID;
+        _worldPacket >> BankTab1;
+        _worldPacket >> BankSlot1;
+        _worldPacket >> ItemID1;
+        _worldPacket >> ToSlot;
+        _worldPacket >> StackCount;
+    }
+    else
+    {
+        _worldPacket >> BankTab;
+        _worldPacket >> BankSlot;
+        _worldPacket >> ItemID;
+        _worldPacket >> AutoStore;
+        if (AutoStore)
+        {
+            _worldPacket >> StackCount;
+            _worldPacket >> ToSlot;
+            _worldPacket >> BankItemCount;
+        }
+        else
+        {
+            _worldPacket >> ContainerSlot;
+            _worldPacket >> ContainerItemSlot;
+            _worldPacket >> ToSlot;
+            _worldPacket >> StackCount;
+        }
+    }
+}
+
+void WorldPackets::Guild::GuildBankTextQuery::Read()
+{
+    _worldPacket >> Tab;
+}
+
+void WorldPackets::Guild::GuildBankSetTabText::Read()
+{
+    _worldPacket >> Tab;
+    uint32 length = _worldPacket.ReadBits(14);
+    TabText = _worldPacket.ReadString(length);
+}
+
+void WorldPackets::Guild::GuildXPQuery::Read()
+{
+    GuildGUID[2] = _worldPacket.ReadBit();
+    GuildGUID[1] = _worldPacket.ReadBit();
+    GuildGUID[0] = _worldPacket.ReadBit();
+    GuildGUID[5] = _worldPacket.ReadBit();
+    GuildGUID[4] = _worldPacket.ReadBit();
+    GuildGUID[7] = _worldPacket.ReadBit();
+    GuildGUID[6] = _worldPacket.ReadBit();
+    GuildGUID[3] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(GuildGUID[7]);
+    _worldPacket.ReadByteSeq(GuildGUID[2]);
+    _worldPacket.ReadByteSeq(GuildGUID[3]);
+    _worldPacket.ReadByteSeq(GuildGUID[6]);
+    _worldPacket.ReadByteSeq(GuildGUID[1]);
+    _worldPacket.ReadByteSeq(GuildGUID[5]);
+    _worldPacket.ReadByteSeq(GuildGUID[0]);
+    _worldPacket.ReadByteSeq(GuildGUID[4]);
+}
+
 WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
 {
     _worldPacket.WriteBit(FullUpdate);
@@ -73,8 +161,11 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
 
     for (GuildBankItemInfo const& item : ItemInfo)
     {
-        for (Item::ItemGemData const& socketEnchant : item.SocketEnchant)
-            _worldPacket << socketEnchant;
+        for (Guild::GuildBankItemInfo::GuildBankSocketEnchant const& socketEnchant : item.SocketEnchant)
+        {
+            _worldPacket << socketEnchant.SocketIndex;
+            _worldPacket << socketEnchant.SocketEnchantID;
+        }
 
         _worldPacket << uint32(item.EnchantmentID);
         _worldPacket << uint32(item.ReforgeEnchantmentID);

@@ -379,17 +379,17 @@ void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
         guild->SendEventLog(this);
 }
 
-void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket& /* recvPacket */)
+void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPackets::Guild::GuildBankRemainingWithdrawMoneyQuery& /*recvPacket */)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_MONEY_WITHDRAWN [%s]", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY_QUERY [%s]", GetPlayerInfo().c_str());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendMoneyInfo(this);
 }
 
-void WorldSession::HandleGuildPermissions(WorldPacket& /* recvPacket */)
+void WorldSession::HandleGuildPermissionsQuery(WorldPackets::Guild::GuildPermissionsQuery& /*packet*/)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_PERMISSIONS [%s]", GetPlayerInfo().c_str());
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_PERMISSIONS_QUERY [%s]", GetPlayerInfo().c_str());
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendPermissions(this);
@@ -426,114 +426,50 @@ void WorldSession::HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTa
             guild->SendBankList(this, packet.Tab, packet.FullUpdate);
 }
 
-void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvPacket)
+void WorldSession::HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet)
 {
-    ObjectGuid guid;
-    uint64 money;
-    recvPacket >> guid >> money;
-
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_DEPOSIT_MONEY [%s]: [%s], money: " UI64FMTD,
-        GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
+        GetPlayerInfo().c_str(), packet.Banker.ToString().c_str(), packet.Money);
 
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
-        if (money && GetPlayer()->HasEnoughMoney(money))
+    if (GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        if (packet.Money && GetPlayer()->HasEnoughMoney(packet.Money))
             if (Guild* guild = GetPlayer()->GetGuild())
-                guild->HandleMemberDepositMoney(this, money);
+                guild->HandleMemberDepositMoney(this, packet.Money);
 }
 
-void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvPacket)
+void WorldSession::HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet)
 {
-    ObjectGuid guid;
-    uint64 money;
-    recvPacket >> guid >> money;
-
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_WITHDRAW_MONEY [%s]: [%s], money: " UI64FMTD,
-        GetPlayerInfo().c_str(), guid.ToString().c_str(), money);
+        GetPlayerInfo().c_str(), packet.Banker.ToString().c_str(), packet.Money);
 
-    if (money && GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
+    if (packet.Money && GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->HandleMemberWithdrawMoney(this, money);
+            guild->HandleMemberWithdrawMoney(this, packet.Money);
 }
 
-void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvPacket)
+void WorldSession::HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapItems& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_SWAP_ITEMS [%s]", GetPlayerInfo().c_str());
 
-    ObjectGuid GoGuid;
-    recvPacket >> GoGuid;
-
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-    {
-        recvPacket.rfinish();                   // Prevent additional spam at rejected packet
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         return;
-    }
 
     Guild* guild = GetPlayer()->GetGuild();
     if (!guild)
-    {
-        recvPacket.rfinish();                   // Prevent additional spam at rejected packet
         return;
-    }
 
-    uint8 bankToBank;
-    recvPacket >> bankToBank;
-
-    uint8 tabId;
-    uint8 slotId;
-    uint32 itemEntry;
-    uint32 splitedAmount = 0;
-
-    if (bankToBank)
+    if (packet.BankOnly)
     {
-        uint8 destTabId;
-        recvPacket >> destTabId;
-
-        uint8 destSlotId;
-        recvPacket >> destSlotId;
-
-        uint32 destItemEntry;
-        recvPacket >> destItemEntry;
-
-        recvPacket >> tabId;
-        recvPacket >> slotId;
-        recvPacket >> itemEntry;
-        recvPacket.read_skip<uint8>();                       // Always 0
-        recvPacket >> splitedAmount;
-
-        guild->SwapItems(GetPlayer(), tabId, slotId, destTabId, destSlotId, splitedAmount);
+        guild->SwapItems(GetPlayer(), packet.BankTab1, packet.BankSlot1, packet.BankTab, packet.BankSlot, packet.StackCount);
     }
     else
     {
-        uint8 playerBag = NULL_BAG;
-        uint8 playerSlotId = NULL_SLOT;
-        uint8 toChar = 1;
-
-        recvPacket >> tabId;
-        recvPacket >> slotId;
-        recvPacket >> itemEntry;
-
-        uint8 autoStore;
-        recvPacket >> autoStore;
-        if (autoStore)
-        {
-            recvPacket.read_skip<uint32>();                  // autoStoreCount
-            recvPacket.read_skip<uint8>();                   // ToChar (?), always and expected to be 1 (autostore only triggered in Bank -> Char)
-            recvPacket.read_skip<uint32>();                  // Always 0
-        }
-        else
-        {
-            recvPacket >> playerBag;
-            recvPacket >> playerSlotId;
-            recvPacket >> toChar;
-            recvPacket >> splitedAmount;
-        }
-
         // Player <-> Bank
         // Allow to work with inventory only
-        if (!Player::IsInventoryPos(playerBag, playerSlotId) && !(playerBag == NULL_BAG && playerSlotId == NULL_SLOT))
+        if (!Player::IsInventoryPos(packet.ContainerSlot, packet.ContainerItemSlot) && !packet.AutoStore)
             GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
         else
-            guild->SwapItemsWithInventory(GetPlayer(), toChar != 0, tabId, slotId, playerBag, playerSlotId, splitedAmount);
+            guild->SwapItemsWithInventory(GetPlayer(), packet.ToSlot != 0, packet.BankTab, packet.BankSlot, packet.ContainerSlot, packet.ContainerItemSlot, packet.StackCount);
     }
 }
 
@@ -556,69 +492,35 @@ void WorldSession::HandleGuildBankUpdateTab(WorldPackets::Guild::GuildBankUpdate
                 guild->HandleSetBankTabInfo(this, packet.BankTab, packet.Name, packet.Icon);
 }
 
-void WorldSession::HandleGuildBankLogQuery(WorldPacket& recvPacket)
+void WorldSession::HandleGuildBankLogQuery(WorldPackets::Guild::GuildBankLogQuery& packet)
 {
-    uint32 tabId;
-    recvPacket >> tabId;
-
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_LOG_QUERY [%s]: TabId: %u", GetPlayerInfo().c_str(), tabId);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_LOG_QUERY [%s]: TabId: %u", GetPlayerInfo().c_str(), packet.Tab);
 
     if (Guild* guild = GetPlayer()->GetGuild())
-        guild->SendBankLog(this, tabId);
+        guild->SendBankLog(this, packet.Tab);
 }
 
-void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recvPacket)
+void WorldSession::HandleGuildBankTextQuery(WorldPackets::Guild::GuildBankTextQuery& packet)
 {
-    uint8 tabId;
-    recvPacket >> tabId;
-
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_QUERY_TEXT [%s]: TabId: %u", GetPlayerInfo().c_str(), tabId);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_BANK_TEXT_QUERY [%s]: TabId: %u", GetPlayerInfo().c_str(), packet.Tab);
 
     if (Guild* guild = GetPlayer()->GetGuild())
-        guild->SendBankTabText(this, tabId);
+        guild->SendBankTabText(this, packet.Tab);
 }
 
-void WorldSession::HandleSetGuildBankTabText(WorldPacket& recvPacket)
+void WorldSession::HandleGuildBankSetTabText(WorldPackets::Guild::GuildBankSetTabText& packet)
 {
-    uint32 tabId;
-    recvPacket >> tabId;
-
-    uint32 textLen = recvPacket.ReadBits(14);
-    std::string text = recvPacket.ReadString(textLen);
-
-    TC_LOG_DEBUG("guild", "CMSG_SET_GUILD_BANK_TEXT [%s]: TabId: %u, Text: %s", GetPlayerInfo().c_str(), tabId, text.c_str());
+    TC_LOG_DEBUG("guild", "CMSG_SET_GUILD_BANK_TEXT [%s]: TabId: %u, Text: %s", GetPlayerInfo().c_str(), packet.Tab, packet.TabText.c_str());
 
     if (Guild* guild = GetPlayer()->GetGuild())
-        guild->SetBankTabText(tabId, text);
+        guild->SetBankTabText(packet.Tab, packet.TabText);
 }
 
-void WorldSession::HandleGuildQueryXPOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildXPQueryOpcode(WorldPackets::Guild::GuildXPQuery& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_GUILD_XP");
+    TC_LOG_DEBUG("guild", "CMSG_QUERY_GUILD_XP [%s]: Guild: %s", GetPlayerInfo().c_str(), packet.GuildGUID.ToString().c_str());
 
-    ObjectGuid guildGuid;
-
-    guildGuid[2] = recvPacket.ReadBit();
-    guildGuid[1] = recvPacket.ReadBit();
-    guildGuid[0] = recvPacket.ReadBit();
-    guildGuid[5] = recvPacket.ReadBit();
-    guildGuid[4] = recvPacket.ReadBit();
-    guildGuid[7] = recvPacket.ReadBit();
-    guildGuid[6] = recvPacket.ReadBit();
-    guildGuid[3] = recvPacket.ReadBit();
-
-    recvPacket.ReadByteSeq(guildGuid[7]);
-    recvPacket.ReadByteSeq(guildGuid[2]);
-    recvPacket.ReadByteSeq(guildGuid[3]);
-    recvPacket.ReadByteSeq(guildGuid[6]);
-    recvPacket.ReadByteSeq(guildGuid[1]);
-    recvPacket.ReadByteSeq(guildGuid[5]);
-    recvPacket.ReadByteSeq(guildGuid[0]);
-    recvPacket.ReadByteSeq(guildGuid[4]);
-
-    TC_LOG_DEBUG("guild", "CMSG_QUERY_GUILD_XP [%s]: Guild: %s", GetPlayerInfo().c_str(), guildGuid.ToString().c_str());
-
-    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
+    if (Guild* guild = sGuildMgr->GetGuildByGuid(packet.GuildGUID))
         if (guild->IsMember(_player->GetGUID()))
             guild->SendGuildXP(this);
 }

@@ -74,8 +74,116 @@ namespace WorldPackets
             std::string Icon;
         };
 
+        class GuildBankDepositMoney final : public ClientPacket
+        {
+        public:
+            GuildBankDepositMoney(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_DEPOSIT_MONEY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint64 Money = 0;
+        };
+
+        class GuildBankWithdrawMoney final : public ClientPacket
+        {
+        public:
+            GuildBankWithdrawMoney(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_WITHDRAW_MONEY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            uint64 Money = 0;
+        };
+
+        class GuildPermissionsQuery final : public ClientPacket
+        {
+        public:
+            GuildPermissionsQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_PERMISSIONS_QUERY, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GuildBankRemainingWithdrawMoneyQuery final : public ClientPacket
+        {
+        public:
+            GuildBankRemainingWithdrawMoneyQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_REMAINING_WITHDRAW_MONEY_QUERY, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GuildBankLogQuery final : public ClientPacket
+        {
+        public:
+            GuildBankLogQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_LOG_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 Tab = 0;
+        };
+
+        class GuildBankSwapItems final : public ClientPacket
+        {
+        public:
+            GuildBankSwapItems(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid Banker;
+            int32 StackCount = 0;
+            int32 BankItemCount = 0;
+            uint32 ItemID = 0;
+            uint32 ItemID1 = 0;
+            uint8 ToSlot = 0;
+            uint8 BankSlot = 0;
+            uint8 BankSlot1 = 0;
+            uint8 BankTab = 0;
+            uint8 BankTab1 = 0;
+            uint8 ContainerSlot = 0;
+            uint8 ContainerItemSlot = 0;
+            bool AutoStore = false;
+            bool BankOnly = false;
+        };
+
+        class GuildBankTextQuery final : public ClientPacket
+        {
+        public:
+            GuildBankTextQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_TEXT_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 Tab = 0;
+        };
+
+        class GuildBankSetTabText final : public ClientPacket
+        {
+        public:
+            GuildBankSetTabText(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_SET_TAB_TEXT, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 Tab = 0;
+            std::string TabText;
+        };
+
+        class GuildXPQuery final : public ClientPacket
+        {
+        public:
+            GuildXPQuery(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_XP_QUERY, std::move(packet)) { }
+
+            ObjectGuid GuildGUID;
+
+            void Read() override;
+        };
+
         struct GuildBankItemInfo
         {
+            struct GuildBankSocketEnchant
+            {
+                int32 SocketIndex = 0;
+                int32 SocketEnchantID = 0;
+            };
+
             WorldPackets::Item::ItemInstance Item;
             int32 Slot = 0;
             int32 Count = 0;
@@ -87,7 +195,7 @@ namespace WorldPackets
             int32 RandomPropertiesSeed = 0;
             int32 Flags = 0;
             bool Locked = false;
-            std::vector<Item::ItemGemData> SocketEnchant;
+            std::vector<GuildBankSocketEnchant> SocketEnchant;
         };
 
         struct GuildBankTabInfo
