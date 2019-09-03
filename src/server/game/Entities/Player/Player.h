@@ -376,6 +376,13 @@ struct EnchantDuration
 typedef std::list<EnchantDuration> EnchantDurationList;
 typedef std::list<Item*> ItemDurationList;
 
+struct PrimaryProfessionData
+{
+    uint32 SkillId = 0;
+    uint32 Step = 0;
+    uint32 Rank = 0;
+};
+
 enum DrunkenState
 {
     DRUNKEN_SOBER   = 0,
@@ -1089,6 +1096,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendTamePetFailure(PetTameFailureReason reason);
 
+        void GetPrimaryProfessionData(PrimaryProfessionData* professions);
+
         PlayerTaxi m_taxi;
         void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
@@ -1493,6 +1502,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid);
+        static void   LoadPrimaryProfessionsFromDB(ObjectGuid guid, std::vector<PrimaryProfessionData>& data);
 
         static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE; }
         static bool ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create = false);

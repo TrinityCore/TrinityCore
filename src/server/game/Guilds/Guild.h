@@ -33,6 +33,7 @@ class Unit;
 class WorldPacket;
 class WorldSession;
 struct ItemPosCount;
+struct PrimaryProfessionData;
 enum AchievementCriteriaTypes : uint8;
 enum InventoryResult : uint8;
 enum LocaleConstant : uint8;
@@ -49,6 +50,7 @@ enum GuildMisc
     GUILD_WITHDRAW_SLOT_UNLIMITED       = 0xFFFFFFFF,
     GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF,
     GUILD_EXPERIENCE_UNCAPPED_LEVEL     = 20,                   ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
+    GUILD_PROFESSION_COUNT              = 2,
     TAB_UNDEFINED                       = 0xFF,
 };
 
@@ -57,6 +59,7 @@ enum GuildMemberData
     GUILD_MEMBER_DATA_ZONEID,
     GUILD_MEMBER_DATA_ACHIEVEMENT_POINTS,
     GUILD_MEMBER_DATA_LEVEL,
+    GUILD_MEMBER_DATA_PROFESSIONS
 };
 
 enum GuildDefaultRanks
@@ -354,6 +357,7 @@ private:
         void AddActivity(uint64 activity);
         void SetWeekReputation(uint32 reputation) { m_weekReputation = reputation; }
         void AddReputation(uint32 rep, Player *player);
+        void UpdatePrimaryProfessionData();
 
         void AddFlag(uint8 var) { m_flags |= var; }
         void RemFlag(uint8 var) { m_flags &= ~var; }
@@ -381,6 +385,7 @@ private:
         uint64 GetWeekActivity() const { return m_weekActivity; }
         uint32 GetTotalReputation() const { return m_totalReputation; }
         uint32 GetWeekReputation() const { return m_weekReputation; }
+        PrimaryProfessionData GetPrimaryProfessionData(uint8 index) const { return m_professions[index]; }
 
         std::set<uint32> GetTrackedCriteriaIds() const { return m_trackedCriteriaIds; }
         void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }
@@ -427,6 +432,7 @@ private:
         uint64 m_weekActivity;
         uint32 m_totalReputation;
         uint32 m_weekReputation;
+        PrimaryProfessionData m_professions[GUILD_PROFESSION_COUNT];
     };
 
     // Base class for event entries

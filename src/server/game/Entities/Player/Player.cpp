@@ -6118,6 +6118,9 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             }
         }
     }
+
+    if (Guild * guild = GetGuild())
+        guild->UpdateMemberData(this, GUILD_MEMBER_DATA_PROFESSIONS, 0);
 }
 
 bool Player::HasSkill(uint32 skill) const
@@ -17328,6 +17331,34 @@ bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, flo
     in_flight = !fields[5].GetString().empty();
 
     return true;
+}
+
+void Player::LoadPrimaryProfessionsFromDB(ObjectGuid guid, std::vector<PrimaryProfessionData>& data)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILLS);
+    stmt->setUInt32(0, guid.GetCounter());
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint16 skill = fields[0].GetUInt16();
+            uint16 value = fields[1].GetUInt16();
+            uint16 max = fields[2].GetUInt16();
+
+            SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skill);
+            if (!skillLine || skillLine->categoryId != SKILL_CATEGORY_PROFESSION)
+                continue;
+
+            PrimaryProfessionData profession;
+            profession.SkillId = skill;
+            profession.Step = max / 75;
+            profession.Rank = value;
+            data.push_back(profession);
+
+        } while (result->NextRow());
+    }
 }
 
 void Player::SetHomebind(WorldLocation const& loc, uint32 areaId)
@@ -28583,4 +28614,27 @@ void Player::SendTamePetFailure(PetTameFailureReason reason)
     WorldPacket data(SMSG_PET_TAME_FAILURE, 1);
     data << uint8(reason);
     SendDirectMessage(&data);
+}
+
+void Player::GetPrimaryProfessionData(PrimaryProfessionData* data)
+{
+    for (uint8 i = 0; i < 2; i++)
+    {
+        uint32 skillId = GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + i);
+        SkillStatusMap::iterator itr = mSkillStatus.find(skillId);
+        if (itr != mSkillStatus.end() && itr->second.uState != SKILL_DELETED)
+        {
+            uint16 field = itr->second.pos / 2;
+            uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
+            data[i].SkillId = skillId;
+            data[i].Step = GetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset);
+            data[i].Rank = GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset);
+        }
+        else
+        {
+            data[i].SkillId = 0;
+            data[i].Step = 0;
+            data[i].Rank = 0;
+        }
+    }
 }

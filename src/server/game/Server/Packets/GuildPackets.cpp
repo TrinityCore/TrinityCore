@@ -256,8 +256,8 @@ WorldPacket const* WorldPackets::Guild::GuildRoster::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterProfessionData const& rosterProfessionData)
 {
-    data << uint32(rosterProfessionData.Rank);
     data << uint32(rosterProfessionData.Step);
+    data << uint32(rosterProfessionData.Rank);
     data << uint32(rosterProfessionData.DbID);
 
     return data;
