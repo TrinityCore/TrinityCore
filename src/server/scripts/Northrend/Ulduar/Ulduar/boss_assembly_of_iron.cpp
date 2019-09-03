@@ -626,10 +626,16 @@ class boss_stormcaller_brundir : public CreatureScript
                             {
                                 float x = float(irand(-25, 25));
                                 float y = float(irand(-25, 25));
-                                me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + x, me->GetPositionY() + y, me->GetPositionZ());
+
+                                Position pos = *me;
+
+                                pos.m_positionX += x;
+                                pos.m_positionY += y;
+
+                                me->GetMotionMaster()->MovePoint(0, pos);
                                 // Prevention to go outside the room or into the walls
                                 if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f, true))
-                                    if (me->GetDistance(trigger) >= 50.0f)
+                                    if (pos.GetExactDist2d(trigger) >= 50.0f)
                                         me->GetMotionMaster()->MovePoint(0, *trigger);
                             }
                             events.ScheduleEvent(EVENT_MOVE_POSITION, urand(7500, 10000));
