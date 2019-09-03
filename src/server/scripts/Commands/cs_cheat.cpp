@@ -58,21 +58,23 @@ public:
 
     static bool HandleGodModeCheatCommand(ChatHandler* handler, char const* args)
     {
+        Player* player = handler->getSelectedPlayerOrSelf();
+
         std::string argstr = (char*)args;
 
         if (!*args)
-            argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_GOD)) ? "off" : "on";
+            argstr = (player->GetCommandStatus(CHEAT_GOD)) ? "off" : "on";
 
         if (argstr == "off")
         {
-            handler->GetSession()->GetPlayer()->SetCommandStatusOff(CHEAT_GOD);
-            handler->SendSysMessage("Godmode is OFF. You can take damage.");
+            player->SetCommandStatusOff(CHEAT_GOD);
+            handler->PSendSysMessage("Godmode is OFF. %s can take damage.", ChatHandler(player->GetSession()).GetNameLink().c_str());
             return true;
         }
         else if (argstr == "on")
         {
-            handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_GOD);
-            handler->SendSysMessage("Godmode is ON. You won't take damage.");
+            player->SetCommandStatusOn(CHEAT_GOD);
+            handler->PSendSysMessage("Godmode is ON. %s won't take damage.", ChatHandler(player->GetSession()).GetNameLink().c_str());
             return true;
         }
 
