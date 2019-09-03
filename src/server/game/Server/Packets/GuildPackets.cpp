@@ -215,3 +215,85 @@ WorldPacket const* WorldPackets::Guild::GuildXP::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Guild::GuildRoster::Write()
+{
+    _worldPacket.WriteBits(WelcomeText.length(), 11);
+    _worldPacket.WriteBits(MemberData.size(), 18);
+
+    for (GuildRosterMemberData const& member : MemberData)
+    {
+        _worldPacket.WriteBit(member.Guid[3]);
+        _worldPacket.WriteBit(member.Guid[4]);
+        _worldPacket.WriteBit(member.Authenticated);
+        _worldPacket.WriteBit(member.SorEligible);
+        _worldPacket.WriteBits(member.Note.length(), 8);
+        _worldPacket.WriteBits(member.OfficerNote.length(), 8);
+        _worldPacket.WriteBit(member.Guid[0]);
+        _worldPacket.WriteBits(member.Name.length(), 7);
+        _worldPacket.WriteBit(member.Guid[1]);
+        _worldPacket.WriteBit(member.Guid[2]);
+        _worldPacket.WriteBit(member.Guid[6]);
+        _worldPacket.WriteBit(member.Guid[5]);
+        _worldPacket.WriteBit(member.Guid[7]);
+    }
+
+    _worldPacket.WriteBits(InfoText.length(), 12);
+    _worldPacket.FlushBits();
+
+    for (GuildRosterMemberData const& member : MemberData)
+        _worldPacket << member;
+
+    _worldPacket.WriteString(InfoText);
+    _worldPacket.WriteString(WelcomeText);
+    _worldPacket << uint32(NumAccounts);
+    _worldPacket << uint32(WeeklyRepCap);
+    _worldPacket.AppendPackedTime(CreateDate);
+    _worldPacket << uint32(GuildFlags);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterProfessionData const& rosterProfessionData)
+{
+    data << uint32(rosterProfessionData.Rank);
+    data << uint32(rosterProfessionData.Step);
+    data << uint32(rosterProfessionData.DbID);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberData const& rosterMemberData)
+{
+    data << uint8(rosterMemberData.ClassID);
+    data << uint32(rosterMemberData.GuildReputation);
+    data.WriteByteSeq(rosterMemberData.Guid[0]);
+    data << uint64(rosterMemberData.WeeklyXP);
+    data << uint32(rosterMemberData.RankID);
+    data << uint32(rosterMemberData.PersonalAchievementPoints);
+
+    for (uint8 i = 0; i < 2; i++)
+        data << rosterMemberData.Profession[i];
+
+    data.WriteByteSeq(rosterMemberData.Guid[2]);
+    data << uint8(rosterMemberData.Status);
+    data << uint32(rosterMemberData.AreaID);
+    data << uint64(rosterMemberData.TotalXP);
+    data.WriteByteSeq(rosterMemberData.Guid[7]);
+    data << uint32(rosterMemberData.GuildRepToCap);
+    data.WriteString(rosterMemberData.Note);
+    data.WriteByteSeq(rosterMemberData.Guid[3]);
+    data << uint8(rosterMemberData.Level);
+    data << int32(rosterMemberData.VirtualRealmAddress); // Todo: Validate
+    data.WriteByteSeq(rosterMemberData.Guid[5]);
+    data.WriteByteSeq(rosterMemberData.Guid[4]);
+    data << uint8(rosterMemberData.Gender);
+    data.WriteByteSeq(rosterMemberData.Guid[1]);
+    data << float(rosterMemberData.LastSave);
+    data.WriteString(rosterMemberData.OfficerNote);
+    data.WriteByteSeq(rosterMemberData.Guid[6]);
+    data.WriteString(rosterMemberData.Name);
+
+    return data;
+}
+

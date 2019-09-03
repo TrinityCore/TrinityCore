@@ -261,7 +261,57 @@ namespace WorldPackets
             int64 GuildRemainingXP = 0;
             int64 GuildCurrentXP;
         };
+
+        struct GuildRosterProfessionData
+        {
+            int32 DbID = 0;
+            int32 Rank = 0;
+            int32 Step = 0;
+        };
+
+        struct GuildRosterMemberData
+        {
+            ObjectGuid Guid;
+            int64 WeeklyXP = 0;
+            int64 TotalXP = 0;
+            int32 RankID = 0;
+            int32 AreaID = 0;
+            int32 PersonalAchievementPoints = 0;
+            int32 GuildReputation = 0;
+            int32 GuildRepToCap = 0;
+            float LastSave = 0.0f;
+            std::string Name;
+            uint32 VirtualRealmAddress = 0;
+            std::string Note;
+            std::string OfficerNote;
+            uint8 Status = 0;
+            uint8 Level = 0;
+            uint8 ClassID = 0;
+            uint8 Gender = 0;
+            bool Authenticated = false;
+            bool SorEligible = false;
+            GuildRosterProfessionData Profession[2];
+        };
+
+        class GuildRoster final : public ServerPacket
+        {
+        public:
+            GuildRoster() : ServerPacket(SMSG_GUILD_ROSTER, 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildRosterMemberData> MemberData;
+            std::string WelcomeText;
+            std::string InfoText;
+            uint32 CreateDate = 0;
+            int32 NumAccounts = 0;
+            int32 GuildFlags = 0;
+            int32 WeeklyRepCap = 0;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterProfessionData const& rosterProfessionData);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberData const& rosterMemberData);
 
 #endif // GuildPackets_h__

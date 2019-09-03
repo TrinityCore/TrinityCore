@@ -367,9 +367,11 @@ private:
         uint32 GetAccountId() const { return m_accountId; }
         uint8 GetRankId() const { return m_rankId; }
         uint64 GetLogoutTime() const { return m_logoutTime; }
+        float GetInactiveDays() const;
         std::string GetPublicNote() const { return m_publicNote; }
         std::string GetOfficerNote() const { return m_officerNote; }
         uint8 GetClass() const { return m_class; }
+        uint8 GetGender() const { return _gender; }
         uint8 GetLevel() const { return m_level; }
         uint8 GetFlags() const { return m_flags; }
         uint32 GetZoneId() const { return m_zoneId; }
@@ -408,6 +410,7 @@ private:
         uint32 m_zoneId;
         uint8 m_level;
         uint8 m_class;
+        uint8 _gender;
         uint8 m_flags;
         uint64 m_logoutTime;
         uint32 m_accountId;
