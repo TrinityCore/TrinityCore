@@ -399,7 +399,6 @@ private:
         void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }
         bool IsTrackingCriteriaId(uint32 criteriaId) const { return m_trackedCriteriaIds.find(criteriaId) != m_trackedCriteriaIds.end();  }
 
-
         void ChangeRank(SQLTransaction& trans, uint8 newRank);
 
         inline void UpdateLogoutTime() { m_logoutTime = ::time(nullptr); }
@@ -896,6 +895,7 @@ public:
     }
 
     void SendKnownRecipes(Player const* player);
+    void SendMembersForRecipe(Player const* player, uint32 skillLineId, uint32 spellId, uint32 uniqueBit);
 
 protected:
     ObjectGuid::LowType m_id;

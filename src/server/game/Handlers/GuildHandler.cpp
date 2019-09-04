@@ -909,9 +909,16 @@ void WorldSession::HandleGuildRenameCallback(std::string newName, PreparedQueryR
 
 void WorldSession::HandleGuildQueryRecipesOpcode(WorldPackets::Guild::GuildQueryRecipes& packet)
 {
-    if (Guild * guild = sGuildMgr->GetGuildByGuid(packet.GuildGUID))
+    if (Guild* guild = sGuildMgr->GetGuildByGuid(packet.GuildGUID))
         if (guild->IsMember(_player->GetGUID()))
             guild->SendKnownRecipes(_player);
+}
+
+void WorldSession::HandleGuildQueryMembersForRecipe(WorldPackets::Guild::GuildQueryMembersForRecipe& packet)
+{
+    if (Guild* guild = sGuildMgr->GetGuildByGuid(packet.GuildGUID))
+        if (guild->IsMember(_player->GetGUID()))
+            guild->SendMembersForRecipe(_player, packet.SkillLineID, packet.SpellID, packet.UniqueBit);
 }
 
 /*

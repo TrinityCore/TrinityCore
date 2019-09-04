@@ -343,14 +343,39 @@ namespace WorldPackets
             std::array<uint8, GUILD_RECIPES_COUNT> SkillLineBitArray;
         };
 
-        class KnownRecipes final : public ServerPacket
+        class GuildKnownRecipes final : public ServerPacket
         {
         public:
-            KnownRecipes() : ServerPacket(SMSG_GUILD_KNOWN_RECIPES, 4) { }
+            GuildKnownRecipes() : ServerPacket(SMSG_GUILD_KNOWN_RECIPES, 4) { }
 
             WorldPacket const* Write() override;
 
             std::vector<GuildRecipesData> Recipes;
+        };
+
+        class GuildQueryMembersForRecipe : public ClientPacket
+        {
+        public:
+            GuildQueryMembersForRecipe(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_QUERY_MEMBERS_FOR_RECIPE, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GuildGUID;
+            int32 UniqueBit = 0;
+            int32 SkillLineID = 0;
+            int32 SpellID = 0;
+        };
+
+        class GuildMembersWithRecipe final : public ServerPacket
+        {
+        public:
+            GuildMembersWithRecipe() : ServerPacket(SMSG_GUILD_MEMBERS_WITH_RECIPE, 8) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            std::vector<ObjectGuid> Members;
+            int32 SkillLineID = 0;
         };
     }
 }

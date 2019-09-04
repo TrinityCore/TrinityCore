@@ -348,6 +348,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GUILD_QUERY_NEWS,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryNewsOpcode      );
     DEFINE_HANDLER(CMSG_GUILD_QUERY_RANKS,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryRanksOpcode     );
     DEFINE_HANDLER(CMSG_GUILD_QUERY_RECIPES,                              STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryRecipesOpcode   );
+    DEFINE_HANDLER(CMSG_GUILD_QUERY_MEMBERS_FOR_RECIPE,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryMembersForRecipe);
     DEFINE_HANDLER(CMSG_GUILD_REMOVE,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildRemoveOpcode         );
     DEFINE_HANDLER(CMSG_GUILD_REPLACE_GUILD_MASTER,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_GUILD_REQUEST_CHALLENGE_UPDATE,                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildRequestChallengeUpdate);
@@ -492,7 +493,6 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_PUSHQUESTTOPARTY,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePushQuestToParty          );
     DEFINE_HANDLER(CMSG_PVP_LOG_DATA,                                     STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandlePVPLogDataOpcode          );
     DEFINE_HANDLER(CMSG_QUERY_BATTLEFIELD_STATE,                          STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBattlegroundStateQuery    );
-    DEFINE_HANDLER(CMSG_QUERY_GUILD_MEMBERS_FOR_RECIPE,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_QUERY_GUILD_MEMBER_RECIPES,                       STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_QUERY_GUILD_REWARDS,                              STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildRewardsQueryOpcode   );
     DEFINE_HANDLER(CMSG_QUERY_INSPECT_ACHIEVEMENTS,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQueryInspectAchievements  );
@@ -940,7 +940,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_INVITE,                                     STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_INVITE_CANCEL,                              STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_MAX_DAILY_XP,                               STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_MEMBERS_FOR_RECIPE,                         STATUS_UNHANDLED);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_MEMBERS_WITH_RECIPE,                        STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_MEMBER_DAILY_RESET,                         STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_MEMBER_RECIPES,                             STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_MEMBER_UPDATE_NOTE,                         STATUS_NEVER);

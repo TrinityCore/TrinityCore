@@ -4162,7 +4162,7 @@ void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool stick
 
 void Guild::SendKnownRecipes(Player const* player)
 {
-    WorldPackets::Guild::KnownRecipes packet;
+    WorldPackets::Guild::GuildKnownRecipes packet;
 
     std::set<uint32> uniqueProfessions;
     std::unordered_map<uint32, std::array<uint8, GUILD_RECIPES_COUNT>> uniqueBitsMap;
@@ -4194,5 +4194,33 @@ void Guild::SendKnownRecipes(Player const* player)
         packet.Recipes.push_back(data);
     }
 
+    player->SendDirectMessage(packet.Write());
+}
+
+void Guild::SendMembersForRecipe(Player const* player, uint32 skillLineId, uint32 spellId, uint32 uniqueBit)
+{
+    WorldPackets::Guild::GuildMembersWithRecipe packet;
+    for (auto itr : m_members)
+    {
+        Member* member = itr.second;
+        for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
+        {
+            GuildMemberProfessionData prof = member->GetProfessionData(i);
+            if (prof.SkillId == skillLineId)
+            {
+                uint16 index = uniqueBit / 8;
+                uint8 offset = uniqueBit % 8;
+                uint8 bit = 1 << offset;
+                if (prof.RecipeUniqueBits[index] & bit)
+                    packet.Members.push_back(member->GetGUID());
+            }
+        }
+    }
+
+    if (packet.Members.empty())
+        return;
+
+    packet.SkillLineID = skillLineId;
+    packet.SpellID = spellId;
     player->SendDirectMessage(packet.Write());
 }
