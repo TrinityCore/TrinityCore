@@ -119,7 +119,7 @@ struct boss_scarlet_commander_mograine : public ScriptedAI
             if (who->GetTypeId() != TYPEID_PLAYER || !m_CanTalkKill)
                 return;
 
-            // Prevent talking more than once - resets every 5 seconds by
+            // Prevent talking more than once - resets every 5 seconds by EVENT_RESET_KILL_TALK
             m_CanTalkKill = false;
 
             events.ScheduleEvent(EVENT_RESET_KILL_TALK, Seconds(5));
@@ -282,7 +282,7 @@ struct boss_high_inquisitor_whitemane : public ScriptedAI
             if (who->GetTypeId() != TYPEID_PLAYER || !m_CanTalkKill)
                 return;
 
-            // Prevent talking more than once - resets every 5 seconds by
+            // Prevent talking more than once - resets every 5 seconds by EVENT_RESET_KILL_TALK
             m_CanTalkKill = false;
 
             events.ScheduleEvent(EVENT_RESET_KILL_TALK, Seconds(5));
