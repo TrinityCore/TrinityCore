@@ -40,7 +40,7 @@ enum Spells
 {
     /// Mograine Spells
     SPELL_CRUSADER_STRIKE        = 14518,
-    SPELL_HAMMER_OF_JUSTICE       = 5589,
+    SPELL_HAMMER_OF_JUSTICE      = 5589,
     SPELL_LAYONHANDS             = 9257,
     SPELL_RETRIBUTIONAURA        = 8990,
 
