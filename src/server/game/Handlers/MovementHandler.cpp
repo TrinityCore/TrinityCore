@@ -35,6 +35,7 @@
 #include "RBAC.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
