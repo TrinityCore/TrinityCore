@@ -967,11 +967,11 @@ void Guild::Member::UpdateProfessionData()
             m_professions[i].SkillId = skillId;
             m_professions[i].Rank = player->GetSkillValue(skillId);
             m_professions[i].Step = player->GetSkillStep(skillId);
-            m_professions->RecipeUniqueBits.clear();
+            m_professions[i].RecipeUniqueBits.clear();
 
             for (GuildProfession prof : sGuildMgr->GetGuildProfessionData(skillId))
                 if (player->HasSpell(prof.SpellId))
-                    m_professions->RecipeUniqueBits.push_back(prof.UniqueBits);
+                    m_professions[i].RecipeUniqueBits.push_back(prof.UniqueBits);
         }
         else
         {
