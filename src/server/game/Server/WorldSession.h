@@ -1629,7 +1629,7 @@ class TC_GAME_API WorldSession
         void SendLfgTeleportError(lfg::LfgTeleportResult err);
 
         void HandleSelfResOpcode(WorldPackets::Spells::SelfRes& selfRes);
-        void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& packet);
+        void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& requestPetInfo);
 
         // Socket gem
         void HandleSocketGems(WorldPackets::Item::SocketGems& socketGems);

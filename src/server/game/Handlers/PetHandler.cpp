@@ -63,10 +63,6 @@ void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packe
     }
 }
 
-void WorldSession::HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& /*packet */)
-{
-}
-
 void WorldSession::HandlePetAction(WorldPackets::Pet::PetAction& packet)
 {
     ObjectGuid guid1 = packet.PetGUID; //pet guid
@@ -747,4 +743,9 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
         petNameInvalid.RenameData.DeclinedNames = *declinedName;
 
     SendPacket(petNameInvalid.Write());
+}
+
+void WorldSession::HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& /*requestPetInfo*/)
+{
+    GetPlayer()->PetSpellInitialize();
 }
