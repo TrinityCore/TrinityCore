@@ -676,8 +676,15 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_totalReputation(0),
     m_weekReputation(0)
 {
+    for (uint8 i = 0; i < 2; i++)
+    {
+        m_professions[i].Rank = 0;
+        m_professions[i].Step = 0;
+        m_professions[i].SkillId = 0;
+        m_professions[i].RecipeUniqueBits.fill(0);
+    }
+
     memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(int32));
-    memset(m_professions, 0, GUILD_PROFESSION_COUNT * sizeof(GuildMemberProfessionData));
 }
 
 void Guild::Member::SetStats(Player* player)
@@ -812,7 +819,7 @@ void Guild::Member::LoadProfessionDataFromDB(ObjectGuid guid)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILLS);
     stmt->setUInt32(0, guid.GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
-    uint8 index = 0;
+    uint8 professionIndex = 0;
     if (result)
     {
         do
@@ -830,6 +837,7 @@ void Guild::Member::LoadProfessionDataFromDB(ObjectGuid guid)
             profession.SkillId = skill;
             profession.Step = max / 75;
             profession.Rank = value;
+            profession.RecipeUniqueBits.fill(0);
 
             PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELL);
             stmt2->setUInt32(0, guid.GetCounter());
@@ -846,14 +854,21 @@ void Guild::Member::LoadProfessionDataFromDB(ObjectGuid guid)
                         continue;
 
                     for (GuildProfession prof : sGuildMgr->GetGuildProfessionData(skill))
-                        if (prof.SpellId == spellId)
-                            profession.RecipeUniqueBits.push_back(prof.UniqueBits);
+                    {
+                        if (prof.SpellId == spellId || prof.AutoLearn)
+                        {
+                            uint16 index = prof.UniqueBits / 8;
+                            uint8 offset = prof.UniqueBits % 8;
+                            uint8 bit = 1 << offset;
+                            profession.RecipeUniqueBits[index] |= bit;
+                        }
+                    }
 
                 } while (result2->NextRow());
-            }
 
-            m_professions[index] = profession;
-            index++;
+                m_professions[professionIndex] = profession;
+                professionIndex++;
+            }
 
         } while (result->NextRow());
     }
@@ -967,18 +982,25 @@ void Guild::Member::UpdateProfessionData()
             m_professions[i].SkillId = skillId;
             m_professions[i].Rank = player->GetSkillValue(skillId);
             m_professions[i].Step = player->GetSkillStep(skillId);
-            m_professions[i].RecipeUniqueBits.clear();
+            m_professions[i].RecipeUniqueBits.fill(0);
 
             for (GuildProfession prof : sGuildMgr->GetGuildProfessionData(skillId))
+            {
                 if (player->HasSpell(prof.SpellId))
-                    m_professions[i].RecipeUniqueBits.push_back(prof.UniqueBits);
+                {
+                    uint16 index = prof.UniqueBits / 8;
+                    uint8 offset = prof.UniqueBits % 8;
+                    uint8 bit = 1 << offset;
+                    m_professions[i].RecipeUniqueBits[index] |= bit;
+                }
+            }
         }
         else
         {
             m_professions[i].SkillId = 0;
             m_professions[i].Step = 0;
             m_professions[i].Rank = 0;
-            m_professions[i].RecipeUniqueBits.clear();
+            m_professions[i].RecipeUniqueBits.fill(0);
         }
     }
 }
@@ -4143,17 +4165,20 @@ void Guild::SendKnownRecipes(Player const* player)
     WorldPackets::Guild::KnownRecipes packet;
 
     std::set<uint32> uniqueProfessions;
-    std::unordered_map<uint32, std::set<uint32>> uniqueBitsMap;
+    std::unordered_map<uint32, std::array<uint8, GUILD_RECIPES_COUNT>> uniqueBitsMap;
+
     for (auto itr : m_members)
     {
         Member* member = itr.second;
+
         for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
         {
-            if (uint32 skillId = member->GetProfessionData(i).SkillId)
+            GuildMemberProfessionData prof = member->GetProfessionData(i);
+            if (uint32 skillId = prof.SkillId)
             {
                 uniqueProfessions.insert(skillId);
-                for (uint32 bits : member->GetProfessionData(i).RecipeUniqueBits)
-                    uniqueBitsMap[skillId].insert(bits);
+                for (uint16 j = 0; j < GUILD_RECIPES_COUNT; j++)
+                    uniqueBitsMap[skillId][j] |= prof.RecipeUniqueBits[j];
             }
         }
     }
@@ -4161,15 +4186,11 @@ void Guild::SendKnownRecipes(Player const* player)
     for (uint32 skill : uniqueProfessions)
     {
         WorldPackets::Guild::GuildRecipesData data;
-        memset(data.UniqueBits, 0, GUILD_RECIPES_COUNT * sizeof(uint8));
+        data.UniqueBits.fill(0);
         data.SkillID = skill;
-        for (uint32 bits : uniqueBitsMap[skill])
-        {
-            uint16 index = std::floor(bits / 8);
-            uint8 offset = bits % 8;
-            uint8 bit = 1 << offset;
-            data.UniqueBits[index] |= bit;
-        }
+        for (uint16 i = 0; i < data.UniqueBits.max_size(); i++)
+            data.UniqueBits[i] = uniqueBitsMap[skill][i];
+
         packet.Recipes.push_back(data);
     }
 

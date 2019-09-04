@@ -340,7 +340,7 @@ namespace WorldPackets
         struct GuildRecipesData
         {
             uint32 SkillID;
-            uint8 UniqueBits[GUILD_RECIPES_COUNT];
+            std::array<uint8, GUILD_RECIPES_COUNT> UniqueBits;
         };
 
         class KnownRecipes final : public ServerPacket

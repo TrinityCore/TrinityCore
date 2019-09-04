@@ -38,6 +38,7 @@ struct GuildProfession
 {
     uint32 SpellId;
     uint32 UniqueBits;
+    bool AutoLearn;
 };
 
 class TC_GAME_API GuildMgr

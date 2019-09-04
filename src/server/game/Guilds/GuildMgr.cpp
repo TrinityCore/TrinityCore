@@ -591,6 +591,7 @@ void GuildMgr::LoadGuildProfessionData()
         GuildProfession prof;
         prof.SpellId = entry->spellId;
         prof.UniqueBits = entry->UniqueBits;
+        prof.AutoLearn = entry->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE;
         GuildProfessionStore[skill->id].push_back(prof);
     }
 }

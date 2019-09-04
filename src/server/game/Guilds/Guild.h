@@ -340,7 +340,7 @@ struct GuildMemberProfessionData
     uint32 SkillId;
     uint32 Rank;
     uint32 Step;
-    std::vector<uint32> RecipeUniqueBits;
+    std::array<uint8, GUILD_RECIPES_COUNT> RecipeUniqueBits;
 };
 
 class TC_GAME_API Guild

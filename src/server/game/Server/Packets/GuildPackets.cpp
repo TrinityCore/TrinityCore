@@ -354,7 +354,7 @@ WorldPacket const* WorldPackets::Guild::KnownRecipes::Write()
     for (GuildRecipesData recipe : Recipes)
     {
         _worldPacket << int32(recipe.SkillID);
-        for (uint16 i = 0; i < 300; i++)
+        for (uint16 i = 0; i < recipe.UniqueBits.max_size(); i++)
             _worldPacket << uint8(recipe.UniqueBits[i]);
     }
 
