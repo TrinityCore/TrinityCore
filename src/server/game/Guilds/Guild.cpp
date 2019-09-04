@@ -4226,6 +4226,8 @@ void Guild::SendRecipesOfMember(Player const* player, uint32 skillLineId, Object
 {
     Member const* member = GetMember(memberGuid);
     WorldPackets::Guild::GuildMemberRecipes packet;
+    packet.SkillLineBitArray.fill(0);
+
     for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
     {
         GuildMemberProfessionData prof = member->GetProfessionData(i);
@@ -4236,7 +4238,7 @@ void Guild::SendRecipesOfMember(Player const* player, uint32 skillLineId, Object
             packet.SkillRank = prof.Rank;
             packet.SkillStep = prof.Step;
             for (uint16 j = 0; j < prof.RecipeUniqueBits.max_size(); j++)
-                packet.SkillLineBitArray[j] = prof.RecipeUniqueBits[j];
+                packet.SkillLineBitArray[j] |= prof.RecipeUniqueBits[j];
         }
     }
     player->SendDirectMessage(packet.Write());
