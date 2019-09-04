@@ -68,13 +68,13 @@ public:
         if (argstr == "off")
         {
             player->SetCommandStatusOff(CHEAT_GOD);
-            handler->PSendSysMessage("Godmode is OFF. %s can take damage.", ChatHandler(player->GetSession()).GetNameLink().c_str());
+            handler->PSendSysMessage("%s GodMode is OFF!", ChatHandler(player->GetSession()).GetNameLink().c_str());
             return true;
         }
         else if (argstr == "on")
         {
             player->SetCommandStatusOn(CHEAT_GOD);
-            handler->PSendSysMessage("Godmode is ON. %s won't take damage.", ChatHandler(player->GetSession()).GetNameLink().c_str());
+            handler->PSendSysMessage("%s GodMode is ON!", ChatHandler(player->GetSession()).GetNameLink().c_str());
             return true;
         }
 

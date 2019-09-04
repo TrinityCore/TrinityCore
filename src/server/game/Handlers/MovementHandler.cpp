@@ -16,23 +16,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AccountMgr.h"
+#include "Battleground.h"
+#include "Chat.h"
 #include "Common.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
 #include "Corpse.h"
-#include "Player.h"
+#include "GameTime.h"
+#include "InstanceSaveMgr.h"
+#include "Language.h"
+#include "Log.h"
+#include "MovementGenerator.h"
 #include "MapManager.h"
 #include "MotionMaster.h"
-#include "MovementGenerator.h"
 #include "MoveSpline.h"
-#include "Transport.h"
-#include "Battleground.h"
-#include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "RBAC.h"
+#include "Transport.h"
 #include "Vehicle.h"
-#include "GameTime.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
+
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
@@ -204,6 +209,27 @@ void WorldSession::HandleMoveWorldportAck()
 
     //lets process all delayed operations on successful teleport
     player->ProcessDelayedOperations();
+
+    if (player->GetCommandStatus(CHEAT_GOD) && !HasPermission(rbac::RBAC_PERM_COMMAND_CHEAT_GOD))
+    {
+        auto const& sessionMap = sWorld->GetAllSessions();
+
+        for (auto const& itr : sessionMap)
+        {
+            WorldSession* session = itr.second;
+            if (!session || session == this || !session->HasPermission(rbac::RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE))
+                continue;
+
+            // Player should be in world
+            Player* sessPlayer = session->GetPlayer();
+            if (!sessPlayer || !sessPlayer->IsInWorld())
+                continue;
+
+            ChatHandler handler(session);
+
+            handler.SendSysMessage(handler.PGetParseString(LANG_COMMAND_CHEAT_GOD_MAP_CHANGE, ChatHandler(this).GetNameLink().c_str(), mEntry->name[0]).c_str());
+        }
+    }
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
