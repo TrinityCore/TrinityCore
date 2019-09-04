@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameTime.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -55,15 +56,12 @@ enum Spells
 
 enum Events
 {
-    /// Both
-    EVENT_RESET_KILL_TALK = 1,
-
     /// Mograine
-    EVENT_CRUSADER_STRIKE = 2,
+    EVENT_CRUSADER_STRIKE = 1,
     EVENT_HAMMER_OF_JUSTICE,
 
     /// Whitemane
-    EVENT_HEAL = 2,
+    EVENT_HEAL = 1,
     EVENT_POWER_WORD_SHIELD,
     EVENT_HOLY_SMITE,
 };
@@ -81,16 +79,19 @@ struct boss_scarlet_commander_mograine : public ScriptedAI
     public:
         boss_scarlet_commander_mograine(Creature* creature) : ScriptedAI(creature)
         {
-            m_CanTalkKill = true;
-            m_CanDie = false;
-            m_FakeDeath = false;
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_LastKillTime = 0;
+            m_CanDie       = false;
+            m_FakeDeath    = false;
         }
 
         void Reset() override
         {
-            m_CanTalkKill = true;
-            m_CanDie      = false;
-            m_FakeDeath   = false;
+            Initialize();
 
             events.Reset();
             scheduler.CancelAll();
@@ -119,15 +120,17 @@ struct boss_scarlet_commander_mograine : public ScriptedAI
 
         void KilledUnit(Unit* who) override
         {
-            if (who->GetTypeId() != TYPEID_PLAYER || !m_CanTalkKill)
+            if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            // Prevent talking more than once - resets every 5 seconds by EVENT_RESET_KILL_TALK
-            m_CanTalkKill = false;
+            // Cooldown between talking
+            time_t currTime = GameTime::GetGameTime();
 
-            events.ScheduleEvent(EVENT_RESET_KILL_TALK, Seconds(5));
-
-            Talk(SAY_MO_KILL);
+            if (m_LastKillTime < currTime)
+            {
+                Talk(SAY_MO_KILL);
+                m_LastKillTime = currTime + 5;
+            }
         }
 
         void UpdateAI(uint32 diff) override
@@ -145,9 +148,6 @@ struct boss_scarlet_commander_mograine : public ScriptedAI
             {
                 switch (eventId)
                 {
-                    case EVENT_RESET_KILL_TALK:
-                        m_CanTalkKill = true;
-                        break;
                     case EVENT_CRUSADER_STRIKE:
                         DoCastVictim(SPELL_CRUSADER_STRIKE);
                         events.Repeat(Seconds(10));
@@ -241,9 +241,9 @@ struct boss_scarlet_commander_mograine : public ScriptedAI
         TaskScheduler scheduler;
 
         /// Variables
-        bool m_CanTalkKill;
-        bool m_FakeDeath;
-        bool m_CanDie;
+        time_t m_LastKillTime;
+        bool   m_FakeDeath;
+        bool   m_CanDie;
 };
 
 /// High Inquisitor Whitemane - 3977
@@ -252,17 +252,18 @@ struct boss_high_inquisitor_whitemane : public ScriptedAI
     public:
         boss_high_inquisitor_whitemane(Creature* creature) : ScriptedAI(creature)
         {
-            m_CanTalkKill = true;
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_LastKillTime           = 0;
             m_RessurectionInProgress = false;
-            m_CanDie = false;
+            m_CanDie                 = false;
         }
 
         void Reset() override
         {
-            m_CanTalkKill            = true;
-            m_RessurectionInProgress = false;
-            m_CanDie                 = false;
-
             events.Reset();
             scheduler.CancelAll();
 
@@ -285,15 +286,17 @@ struct boss_high_inquisitor_whitemane : public ScriptedAI
 
         void KilledUnit(Unit* who) override
         {
-            if (who->GetTypeId() != TYPEID_PLAYER || !m_CanTalkKill)
+            if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            // Prevent talking more than once - resets every 5 seconds by EVENT_RESET_KILL_TALK
-            m_CanTalkKill = false;
+            // Cooldown between talking
+            time_t currTime = GameTime::GetGameTime();
 
-            events.ScheduleEvent(EVENT_RESET_KILL_TALK, Seconds(5));
-
-            Talk(SAY_MO_KILL);
+            if (m_LastKillTime < currTime)
+            {
+                Talk(SAY_MO_KILL);
+                m_LastKillTime = currTime + 5;
+            }
         }
 
         void UpdateAI(const uint32 diff) override
@@ -311,9 +314,6 @@ struct boss_high_inquisitor_whitemane : public ScriptedAI
             {
                 switch (eventId)
                 {
-                    case EVENT_RESET_KILL_TALK:
-                        m_CanTalkKill = true;
-                        break;
                     case EVENT_HEAL:
                     {
                         Creature* target = nullptr;
@@ -431,9 +431,9 @@ struct boss_high_inquisitor_whitemane : public ScriptedAI
         TaskScheduler scheduler;
 
         /// Variables
-        bool m_CanTalkKill;
-        bool m_RessurectionInProgress;
-        bool m_CanDie;
+        time_t m_LastKillTime;
+        bool   m_RessurectionInProgress;
+        bool   m_CanDie;
 };
 
 void AddSC_boss_mograine_and_whitemane()
