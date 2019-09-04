@@ -495,6 +495,9 @@ class boss_stormcaller_brundir : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 15min);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4s);
                 events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
+
+                if (auto trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f))
+                    m_TriggerGUID = trigger->GetGUID();
             }
 
             void DoAction(int32 action) override
@@ -627,16 +630,19 @@ class boss_stormcaller_brundir : public CreatureScript
                                 float x = float(irand(-25, 25));
                                 float y = float(irand(-25, 25));
 
-                                Position pos = *me;
+                                Position pos = me->GetPosition();
 
                                 pos.m_positionX += x;
                                 pos.m_positionY += y;
 
-                                me->GetMotionMaster()->MovePoint(0, pos);
                                 // Prevention to go outside the room or into the walls
-                                if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f, true))
+                                if (auto trigger = ObjectAccessor::GetCreature(*me, m_TriggerGUID))
+                                {
                                     if (pos.GetExactDist2d(trigger) >= 50.0f)
                                         me->GetMotionMaster()->MovePoint(0, *trigger);
+                                    else
+                                        me->GetMotionMaster()->MovePoint(0, pos);
+                                }
                             }
                             events.ScheduleEvent(EVENT_MOVE_POSITION, urand(7500, 10000));
                             break;
@@ -650,6 +656,9 @@ class boss_stormcaller_brundir : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+            private:
+                ObjectGuid m_TriggerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
