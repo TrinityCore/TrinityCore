@@ -4186,10 +4186,10 @@ void Guild::SendKnownRecipes(Player const* player)
     for (uint32 skill : uniqueProfessions)
     {
         WorldPackets::Guild::GuildRecipesData data;
-        data.UniqueBits.fill(0);
-        data.SkillID = skill;
-        for (uint16 i = 0; i < data.UniqueBits.max_size(); i++)
-            data.UniqueBits[i] = uniqueBitsMap[skill][i];
+        data.SkillLineBitArray.fill(0);
+        data.SkillLineID = skill;
+        for (uint16 i = 0; i < data.SkillLineBitArray.max_size(); i++)
+            data.SkillLineBitArray[i] = uniqueBitsMap[skill][i];
 
         packet.Recipes.push_back(data);
     }
