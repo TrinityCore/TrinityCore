@@ -483,7 +483,7 @@ WorldPacket const* WorldPackets::Guild::GuildMemberRecipes::Write()
     _worldPacket << int32(SkillRank);
 
     for (uint16 i = 0; i < SkillLineBitArray.max_size(); i++)
-        _worldPacket << SkillLineBitArray[i];
+        _worldPacket << uint8(SkillLineBitArray[i]);
 
     _worldPacket.WriteByteSeq(Member[3]);
     _worldPacket.WriteByteSeq(Member[6]);

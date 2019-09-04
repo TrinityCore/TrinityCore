@@ -4226,14 +4226,14 @@ void Guild::SendRecipesOfMember(Player const* player, uint32 skillLineId, Object
 {
     Member const* member = GetMember(memberGuid);
     WorldPackets::Guild::GuildMemberRecipes packet;
+    packet.Member = memberGuid;
     packet.SkillLineBitArray.fill(0);
 
     for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
     {
         GuildMemberProfessionData prof = member->GetProfessionData(i);
-        if (prof.SkillId = skillLineId)
+        if (prof.SkillId == skillLineId)
         {
-            packet.Member = memberGuid;
             packet.SkillLineID = skillLineId;
             packet.SkillRank = prof.Rank;
             packet.SkillStep = prof.Step;
