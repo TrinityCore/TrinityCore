@@ -921,6 +921,13 @@ void WorldSession::HandleGuildQueryMembersForRecipe(WorldPackets::Guild::GuildQu
             guild->SendMembersForRecipe(_player, packet.SkillLineID, packet.SpellID, packet.UniqueBit);
 }
 
+void WorldSession::HandleGuildQueryMemberRecipe(WorldPackets::Guild::GuildQueryMemberRecipes& packet)
+{
+    if (Guild* guild = sGuildMgr->GetGuildByGuid(packet.GuildGUID))
+        if (guild->IsMember(_player->GetGUID()) && guild->IsMember(packet.GuildMember))
+            guild->SendRecipesOfMember(_player, packet.SkillLineID, packet.GuildMember);
+}
+
 /*
 void WorldSession::HandleGuildChallengeRequest(WorldPacket& recvPacket)
 {

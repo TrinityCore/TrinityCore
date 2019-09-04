@@ -896,6 +896,7 @@ public:
 
     void SendKnownRecipes(Player const* player);
     void SendMembersForRecipe(Player const* player, uint32 skillLineId, uint32 spellId, uint32 uniqueBit);
+    void SendRecipesOfMember(Player const* player, uint32 skillLineId, ObjectGuid memberGuid);
 
 protected:
     ObjectGuid::LowType m_id;

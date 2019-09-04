@@ -377,6 +377,32 @@ namespace WorldPackets
             std::vector<ObjectGuid> Members;
             int32 SkillLineID = 0;
         };
+
+        class GuildQueryMemberRecipes : public ClientPacket
+        {
+        public:
+            GuildQueryMemberRecipes(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_QUERY_MEMBER_RECIPES, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GuildMember;
+            ObjectGuid GuildGUID;
+            int32 SkillLineID = 0;
+        };
+
+        class GuildMemberRecipes final : public ServerPacket
+        {
+        public:
+            GuildMemberRecipes() : ServerPacket(SMSG_GUILD_MEMBER_RECIPES, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Member;
+            int32 SkillRank = 0;
+            int32 SkillLineID = 0;
+            int32 SkillStep = 0;
+            std::array<uint8, GUILD_RECIPES_COUNT> SkillLineBitArray;
+        };
     }
 }
 

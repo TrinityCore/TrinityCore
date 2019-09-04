@@ -1455,6 +1455,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_WRAP_ITEM:                            // not profiled
         case CMSG_REPORT_PVP_AFK:                       // not profiled
         case CMSG_GUILD_QUERY_MEMBERS_FOR_RECIPE:       // not profiled
+        case CMSG_GUILD_QUERY_MEMBER_RECIPES:           // not profiled
         {
             maxPacketCounterAllowed = 10;
             break;

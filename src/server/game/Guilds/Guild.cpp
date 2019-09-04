@@ -4221,3 +4221,23 @@ void Guild::SendMembersForRecipe(Player const* player, uint32 skillLineId, uint3
     packet.SpellID = spellId;
     player->SendDirectMessage(packet.Write());
 }
+
+void Guild::SendRecipesOfMember(Player const* player, uint32 skillLineId, ObjectGuid memberGuid)
+{
+    Member const* member = GetMember(memberGuid);
+    WorldPackets::Guild::GuildMemberRecipes packet;
+    for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
+    {
+        GuildMemberProfessionData prof = member->GetProfessionData(i);
+        if (prof.SkillId = skillLineId)
+        {
+            packet.Member = memberGuid;
+            packet.SkillLineID = skillLineId;
+            packet.SkillRank = prof.Rank;
+            packet.SkillStep = prof.Step;
+            for (uint16 j = 0; j < prof.RecipeUniqueBits.max_size(); j++)
+                packet.SkillLineBitArray[j] = prof.RecipeUniqueBits[j];
+        }
+    }
+    player->SendDirectMessage(packet.Write());
+}
