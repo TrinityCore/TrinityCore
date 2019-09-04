@@ -885,3 +885,8 @@ void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
 
     recvData.rfinish();
 }
+
+void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvPacket*/)
+{
+    GetPlayer()->PetSpellInitialize();
+}
