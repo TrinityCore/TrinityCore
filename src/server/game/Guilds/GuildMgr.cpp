@@ -580,6 +580,21 @@ void GuildMgr::LoadGuildRewards()
     TC_LOG_INFO("server.loading", ">> Loaded %u guild reward definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void GuildMgr::LoadGuildProfessionData()
+{
+    for (SkillLineAbilityEntry const* entry : sSkillLineAbilityStore)
+    {
+        SkillLineEntry const* skill = sSkillLineStore.LookupEntry(entry->skillId);
+        if (!skill || skill->categoryId != SKILL_CATEGORY_PROFESSION)
+            continue;
+
+        GuildProfession prof;
+        prof.SpellId = entry->spellId;
+        prof.UniqueBits = entry->UniqueBits;
+        GuildProfessionStore[skill->id].push_back(prof);
+    }
+}
+
 void GuildMgr::ResetTimes(bool week)
 {
     CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE));

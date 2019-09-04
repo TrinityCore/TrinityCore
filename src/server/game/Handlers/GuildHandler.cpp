@@ -100,11 +100,8 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
     GetPlayer()->SetInGuild(0);
 }
 
-void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleGuildGetRosterOpcode(WorldPackets::Guild::GuildGetRoster& /*packet*/)
 {
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_ROSTER [%s]", GetPlayerInfo().c_str());
-    recvPacket.rfinish();
-
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRoster(this);
     else
@@ -909,6 +906,14 @@ void WorldSession::HandleGuildRenameCallback(std::string newName, PreparedQueryR
     if(pGuild && hasRenamed)
         pGuild->SetName(newName);
 }
+
+void WorldSession::HandleGuildQueryRecipesOpcode(WorldPackets::Guild::GuildQueryRecipes& packet)
+{
+    if (Guild * guild = sGuildMgr->GetGuildByGuid(packet.GuildGUID))
+        if (guild->IsMember(_player->GetGUID()))
+            guild->SendKnownRecipes(_player);
+}
+
 /*
 void WorldSession::HandleGuildChallengeRequest(WorldPacket& recvPacket)
 {

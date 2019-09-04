@@ -2000,6 +2000,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Guild rewards...");
     sGuildMgr->LoadGuildRewards();
 
+    TC_LOG_INFO("server.loading", "Initializing Guild Profession Data Store...");
+    sGuildMgr->LoadGuildProfessionData();
+
     TC_LOG_INFO("server.loading", "Loading Guilds...");
     sGuildMgr->LoadGuilds();
 

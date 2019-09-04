@@ -196,6 +196,16 @@ namespace WorldPackets
             std::vector<GuildBankSocketEnchant> SocketEnchant;
         };
 
+        class GuildQueryRecipes final : public ClientPacket
+        {
+        public:
+            GuildQueryRecipes(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_QUERY_RECIPES, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid GuildGUID;
+        };
+
         struct GuildBankTabInfo
         {
             int32 TabIndex = 0;
@@ -307,6 +317,40 @@ namespace WorldPackets
             int32 NumAccounts = 0;
             int32 GuildFlags = 0;
             int32 WeeklyRepCap = 0;
+        };
+
+        class GuildRosterUpdate final : public ServerPacket
+        {
+        public:
+            GuildRosterUpdate() : ServerPacket(SMSG_GUILD_ROSTER_UPDATE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildRosterMemberData> MemberData;
+        };
+
+        class GuildGetRoster final : public ClientPacket
+        {
+        public:
+            GuildGetRoster(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_GET_ROSTER, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        struct GuildRecipesData
+        {
+            uint32 SkillID;
+            uint8 UniqueBits[GUILD_RECIPES_COUNT];
+        };
+
+        class KnownRecipes final : public ServerPacket
+        {
+        public:
+            KnownRecipes() : ServerPacket(SMSG_GUILD_KNOWN_RECIPES, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildRecipesData> Recipes;
         };
     }
 }

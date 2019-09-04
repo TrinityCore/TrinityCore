@@ -132,6 +132,27 @@ void WorldPackets::Guild::GuildXPQuery::Read()
     _worldPacket.ReadByteSeq(GuildGUID[4]);
 }
 
+void WorldPackets::Guild::GuildQueryRecipes::Read()
+{
+    GuildGUID[5] = _worldPacket.ReadBit();
+    GuildGUID[6] = _worldPacket.ReadBit();
+    GuildGUID[1] = _worldPacket.ReadBit();
+    GuildGUID[4] = _worldPacket.ReadBit();
+    GuildGUID[2] = _worldPacket.ReadBit();
+    GuildGUID[7] = _worldPacket.ReadBit();
+    GuildGUID[0] = _worldPacket.ReadBit();
+    GuildGUID[3] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(GuildGUID[3]);
+    _worldPacket.ReadByteSeq(GuildGUID[1]);
+    _worldPacket.ReadByteSeq(GuildGUID[0]);
+    _worldPacket.ReadByteSeq(GuildGUID[5]);
+    _worldPacket.ReadByteSeq(GuildGUID[4]);
+    _worldPacket.ReadByteSeq(GuildGUID[2]);
+    _worldPacket.ReadByteSeq(GuildGUID[6]);
+    _worldPacket.ReadByteSeq(GuildGUID[7]);
+}
+
 WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
 {
     _worldPacket.WriteBit(FullUpdate);
@@ -254,6 +275,35 @@ WorldPacket const* WorldPackets::Guild::GuildRoster::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Guild::GuildRosterUpdate::Write()
+{
+    _worldPacket.WriteBits(MemberData.size(), 18);
+
+    for (GuildRosterMemberData const& member : MemberData)
+    {
+        _worldPacket.WriteBit(member.Guid[3]);
+        _worldPacket.WriteBit(member.Guid[4]);
+        _worldPacket.WriteBit(member.Authenticated);
+        _worldPacket.WriteBit(member.SorEligible);
+        _worldPacket.WriteBits(member.Note.length(), 8);
+        _worldPacket.WriteBits(member.OfficerNote.length(), 8);
+        _worldPacket.WriteBit(member.Guid[0]);
+        _worldPacket.WriteBits(member.Name.length(), 7);
+        _worldPacket.WriteBit(member.Guid[1]);
+        _worldPacket.WriteBit(member.Guid[2]);
+        _worldPacket.WriteBit(member.Guid[6]);
+        _worldPacket.WriteBit(member.Guid[5]);
+        _worldPacket.WriteBit(member.Guid[7]);
+    }
+
+    _worldPacket.FlushBits();
+
+    for (GuildRosterMemberData const& member : MemberData)
+        _worldPacket << member;
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterProfessionData const& rosterProfessionData)
 {
     data << uint32(rosterProfessionData.Step);
@@ -297,3 +347,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
     return data;
 }
 
+WorldPacket const* WorldPackets::Guild::KnownRecipes::Write()
+{
+    _worldPacket.WriteBits(Recipes.size(), 16);
+
+    for (GuildRecipesData recipe : Recipes)
+    {
+        _worldPacket << int32(recipe.SkillID);
+        for (uint16 i = 0; i < 300; i++)
+            _worldPacket << uint8(recipe.UniqueBits[i]);
+    }
+
+    return &_worldPacket;
+}

@@ -113,6 +113,8 @@ namespace WorldPackets
         class GuildBankTextQuery;
         class GuildBankSetTabText;
         class GuildXPQuery;
+        class GuildGetRoster;
+        class GuildQueryRecipes;
     }
 }
 
@@ -704,7 +706,7 @@ class TC_GAME_API WorldSession
         void HandleGuildAcceptOpcode(WorldPacket& recvPacket);
         void HandleGuildDeclineOpcode(WorldPacket& recvPacket);
         void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
-        void HandleGuildRosterOpcode(WorldPacket& recvPacket);
+        void HandleGuildGetRosterOpcode(WorldPackets::Guild::GuildGetRoster& /*packet*/);
         void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildPromoteOpcode(WorldPacket& recvPacket);
         void HandleGuildDemoteOpcode(WorldPacket& recvPacket);
@@ -718,6 +720,7 @@ class TC_GAME_API WorldSession
         void HandleGuildSetNoteOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryRanksOpcode(WorldPacket& recvPacket);
         void HandleGuildQueryNewsOpcode(WorldPacket& recvPacket);
+        void HandleGuildQueryRecipesOpcode(WorldPackets::Guild::GuildQueryRecipes& packet);
         void HandleGuildSetRankPermissionsOpcode(WorldPacket& recvPacket);
         void HandleGuildAddRankOpcode(WorldPacket& recvPacket);
         void HandleGuildDelRankOpcode(WorldPacket& recvPacket);

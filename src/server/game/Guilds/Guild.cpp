@@ -43,6 +43,7 @@
 #include "Group.h"
 #include "Battleground.h"
 #include "ReputationMgr.h"
+#include <unordered_map>
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -676,7 +677,7 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_weekReputation(0)
 {
     memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(int32));
-    memset(m_professions, 0, GUILD_PROFESSION_COUNT * sizeof(PrimaryProfessionData));
+    memset(m_professions, 0, GUILD_PROFESSION_COUNT * sizeof(GuildMemberProfessionData));
 }
 
 void Guild::Member::SetStats(Player* player)
@@ -800,24 +801,62 @@ bool Guild::Member::LoadFromDB(Field* fields)
         m_zoneId = Player::GetZoneIdFromDB(m_guid);
     }
 
-    std::vector<PrimaryProfessionData> professions;
-    Player::LoadPrimaryProfessionsFromDB(m_guid, professions);
-    if (professions.size() > GUILD_PROFESSION_COUNT)
-        TC_LOG_ERROR("guild", "Guild::Member::LoadFromDB: Character %s has too many primary professions. Skipped loading profession data.", m_guid.ToString().c_str());
-    else
-    {
-        uint8 index = 0;
-        for (PrimaryProfessionData profession : professions)
-        {
-            m_professions[index].SkillId = profession.SkillId;
-            m_professions[index].Rank = profession.Rank;
-            m_professions[index].Step = profession.Step;
-            index++;
-        }
-    }
+    LoadProfessionDataFromDB(m_guid);
 
     ResetFlags();
     return true;
+}
+
+void Guild::Member::LoadProfessionDataFromDB(ObjectGuid guid)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILLS);
+    stmt->setUInt32(0, guid.GetCounter());
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    uint8 index = 0;
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint16 skill = fields[0].GetUInt16();
+            uint16 value = fields[1].GetUInt16();
+            uint16 max = fields[2].GetUInt16();
+
+            SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skill);
+            if (!skillLine || skillLine->categoryId != SKILL_CATEGORY_PROFESSION)
+                continue;
+
+            GuildMemberProfessionData profession;
+            profession.SkillId = skill;
+            profession.Step = max / 75;
+            profession.Rank = value;
+
+            PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELL);
+            stmt2->setUInt32(0, guid.GetCounter());
+            PreparedQueryResult result2 = CharacterDatabase.Query(stmt2);
+
+            if (result2)
+            {
+                do
+                {
+                    Field* fields2 = result2->Fetch();
+                    uint32 spellId = fields2[0].GetUInt32();
+                    bool disabled = fields2[2].GetBool();
+                    if (disabled)
+                        continue;
+
+                    for (GuildProfession prof : sGuildMgr->GetGuildProfessionData(skill))
+                        if (prof.SpellId == spellId)
+                            profession.RecipeUniqueBits.push_back(prof.UniqueBits);
+
+                } while (result2->NextRow());
+            }
+
+            m_professions[index] = profession;
+            index++;
+
+        } while (result->NextRow());
+    }
 }
 
 // Validate player fields. Returns false if corrupted fields are found.
@@ -914,13 +953,34 @@ void Guild::Member::ResetWeekActivityAndReputation()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Guild::Member::UpdatePrimaryProfessionData()
+void Guild::Member::UpdateProfessionData()
 {
-    if (!IsOnline())
+    Player* player = FindConnectedPlayer();
+    if (!player)
         return;
 
-    Player* player = FindConnectedPlayer();
-    player->GetPrimaryProfessionData(m_professions);
+    for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
+    {
+        uint32 skillId = player->GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + i);
+        if (player->HasSkill(skillId))
+        {
+            m_professions[i].SkillId = skillId;
+            m_professions[i].Rank = player->GetSkillValue(skillId);
+            m_professions[i].Step = player->GetSkillStep(skillId);
+            m_professions->RecipeUniqueBits.clear();
+
+            for (GuildProfession prof : sGuildMgr->GetGuildProfessionData(skillId))
+                if (player->HasSpell(prof.SpellId))
+                    m_professions->RecipeUniqueBits.push_back(prof.UniqueBits);
+        }
+        else
+        {
+            m_professions[i].SkillId = 0;
+            m_professions[i].Step = 0;
+            m_professions[i].Rank = 0;
+            m_professions[i].RecipeUniqueBits.clear();
+        }
+    }
 }
 
 // Get amount of money/slots left for today.
@@ -1502,7 +1562,7 @@ void Guild::UpdateMemberData(Player* player, uint8 dataid, uint32 value)
                 member->SetLevel(value);
                 break;
             case GUILD_MEMBER_DATA_PROFESSIONS:
-                member->UpdatePrimaryProfessionData();
+                member->UpdateProfessionData();
                 break;
             default:
                 TC_LOG_ERROR("guild", "Guild::UpdateMemberData: Called with incorrect DATAID %u (value %u)", dataid, value);
@@ -1585,9 +1645,9 @@ void Guild::HandleRoster(WorldSession* session)
 
         for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
         {
-            memberData.Profession[i].DbID = member->GetPrimaryProfessionData(i).SkillId;
-            memberData.Profession[i].Step = member->GetPrimaryProfessionData(i).Step;
-            memberData.Profession[i].Rank = member->GetPrimaryProfessionData(i).Rank;
+            memberData.Profession[i].DbID = member->GetProfessionData(i).SkillId;
+            memberData.Profession[i].Step = member->GetProfessionData(i).Step;
+            memberData.Profession[i].Rank = member->GetProfessionData(i).Rank;
         }
 
         memberData.VirtualRealmAddress = 0;
@@ -2959,7 +3019,7 @@ bool Guild::AddMember(SQLTransaction& trans, ObjectGuid guid, uint8 rankId)
         player->SetGuildIdInvited(0);
         player->SetRank(rankId);
         player->SetGuildLevel(GetLevel());
-        member->UpdatePrimaryProfessionData();
+        member->UpdateProfessionData();
         SendLoginInfo(player->GetSession());
         name = player->GetName();
     }
@@ -4076,4 +4136,42 @@ void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool stick
     ByteBuffer buffer;
     news->WritePacket(data, buffer);
     session->SendPacket(&data);
+}
+
+void Guild::SendKnownRecipes(Player const* player)
+{
+    WorldPackets::Guild::KnownRecipes packet;
+
+    std::set<uint32> uniqueProfessions;
+    std::unordered_map<uint32, std::set<uint32>> uniqueBitsMap;
+    for (auto itr : m_members)
+    {
+        Member* member = itr.second;
+        for (uint8 i = 0; i < GUILD_PROFESSION_COUNT; i++)
+        {
+            if (uint32 skillId = member->GetProfessionData(i).SkillId)
+            {
+                uniqueProfessions.insert(skillId);
+                for (uint32 bits : member->GetProfessionData(i).RecipeUniqueBits)
+                    uniqueBitsMap[skillId].insert(bits);
+            }
+        }
+    }
+
+    for (uint32 skill : uniqueProfessions)
+    {
+        WorldPackets::Guild::GuildRecipesData data;
+        memset(data.UniqueBits, 0, GUILD_RECIPES_COUNT * sizeof(uint8));
+        data.SkillID = skill;
+        for (uint32 bits : uniqueBitsMap[skill])
+        {
+            uint16 index = std::floor(bits / 8);
+            uint8 offset = bits % 8;
+            uint8 bit = 1 << offset;
+            data.UniqueBits[index] |= bit;
+        }
+        packet.Recipes.push_back(data);
+    }
+
+    player->SendDirectMessage(packet.Write());
 }

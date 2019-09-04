@@ -33,7 +33,6 @@ class Unit;
 class WorldPacket;
 class WorldSession;
 struct ItemPosCount;
-struct PrimaryProfessionData;
 enum AchievementCriteriaTypes : uint8;
 enum InventoryResult : uint8;
 enum LocaleConstant : uint8;
@@ -51,6 +50,7 @@ enum GuildMisc
     GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF,
     GUILD_EXPERIENCE_UNCAPPED_LEVEL     = 20,                   ///> Hardcoded in client, starting from this level, guild daily experience gain is unlimited.
     GUILD_PROFESSION_COUNT              = 2,
+    GUILD_RECIPES_COUNT                 = 300,
     TAB_UNDEFINED                       = 0xFF,
 };
 
@@ -333,8 +333,15 @@ private:
 };
 
 typedef std::vector <GuildBankRightsAndSlots> GuildBankRightsAndSlotsVec;
-
 typedef std::set <uint8> SlotIds;
+
+struct GuildMemberProfessionData
+{
+    uint32 SkillId;
+    uint32 Rank;
+    uint32 Step;
+    std::vector<uint32> RecipeUniqueBits;
+};
 
 class TC_GAME_API Guild
 {
@@ -357,13 +364,14 @@ private:
         void AddActivity(uint64 activity);
         void SetWeekReputation(uint32 reputation) { m_weekReputation = reputation; }
         void AddReputation(uint32 rep, Player *player);
-        void UpdatePrimaryProfessionData();
+        void UpdateProfessionData();
 
         void AddFlag(uint8 var) { m_flags |= var; }
         void RemFlag(uint8 var) { m_flags &= ~var; }
         void ResetFlags() { m_flags = GUILDMEMBER_STATUS_NONE; }
 
         bool LoadFromDB(Field* fields);
+        void LoadProfessionDataFromDB(ObjectGuid guid);
         void SaveToDB(SQLTransaction& trans) const;
 
         ObjectGuid GetGUID() const { return m_guid; }
@@ -385,7 +393,7 @@ private:
         uint64 GetWeekActivity() const { return m_weekActivity; }
         uint32 GetTotalReputation() const { return m_totalReputation; }
         uint32 GetWeekReputation() const { return m_weekReputation; }
-        PrimaryProfessionData GetPrimaryProfessionData(uint8 index) const { return m_professions[index]; }
+        GuildMemberProfessionData GetProfessionData(uint8 index) const { return m_professions[index]; }
 
         std::set<uint32> GetTrackedCriteriaIds() const { return m_trackedCriteriaIds; }
         void SetTrackedCriteriaIds(std::set<uint32> criteriaIds) { m_trackedCriteriaIds.swap(criteriaIds); }
@@ -432,7 +440,7 @@ private:
         uint64 m_weekActivity;
         uint32 m_totalReputation;
         uint32 m_weekReputation;
-        PrimaryProfessionData m_professions[GUILD_PROFESSION_COUNT];
+        GuildMemberProfessionData m_professions[GUILD_PROFESSION_COUNT];
     };
 
     // Base class for event entries
@@ -887,6 +895,8 @@ public:
             member->SetAchievementPoints(achievementPoint);
     }
 
+    void SendKnownRecipes(Player const* player);
+
 protected:
     ObjectGuid::LowType m_id;
     std::string m_name;
@@ -914,6 +924,7 @@ protected:
     uint64 _todayExperience;
 
     uint8 _currChallengeCount[MAX_GUILD_CHALLENGE_TYPE];
+
 
 private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }

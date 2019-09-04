@@ -34,6 +34,12 @@ struct GuildReward
     uint8 Standing;
 };
 
+struct GuildProfession
+{
+    uint32 SpellId;
+    uint32 UniqueBits;
+};
+
 class TC_GAME_API GuildMgr
 {
 private:
@@ -53,11 +59,11 @@ public:
 
     void LoadGuildXpForLevel();
     void LoadGuildRewards();
+    void LoadGuildProfessionData();
 
     void LoadGuilds();
     void AddGuild(Guild* guild);
     void RemoveGuild(ObjectGuid::LowType guildId);
-
     void SaveGuilds();
 
     ObjectGuid::LowType GenerateGuildId();
@@ -65,12 +71,15 @@ public:
 
     uint32 GetXPForGuildLevel(uint8 level) const;
     std::vector<GuildReward> const& GetGuildRewards() const { return GuildRewards; }
+    std::vector<GuildProfession> const& GetGuildProfessionData(uint32 skillId) { return GuildProfessionStore[skillId]; }
 
     void ResetTimes(bool week);
 protected:
     typedef std::unordered_map<ObjectGuid::LowType, Guild*> GuildContainer;
+    typedef std::unordered_map<uint32 /*skillID*/, std::vector<GuildProfession>> GuildProfessionMap;
     ObjectGuid::LowType NextGuildId;
     GuildContainer GuildStore;
+    GuildProfessionMap GuildProfessionStore;
     std::vector<uint64> GuildXPperLevel;
     std::vector<GuildReward> GuildRewards;
 };

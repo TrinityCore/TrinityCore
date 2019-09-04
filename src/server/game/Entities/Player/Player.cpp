@@ -3665,6 +3665,9 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, uint32 fromSkill /*= 0*
 
     if (CanControlPet(spell_id) && GetPet())
         PetSpellInitialize();
+
+    if (Guild* guild = GetGuild())
+        guild->UpdateMemberData(this, GUILD_MEMBER_DATA_PROFESSIONS, 0);
 }
 
 void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
@@ -3854,6 +3857,9 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         data << uint32(spell_id);
         SendDirectMessage(&data);
     }
+
+    if (Guild* guild = GetGuild())
+        guild->UpdateMemberData(this, GUILD_MEMBER_DATA_PROFESSIONS, 0);
 }
 
 void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
@@ -5677,7 +5683,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             }
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
-            uint32 craft_skill_points = _spell_idx->second->character_points[0];
+            uint32 craft_skill_points = _spell_idx->second->character_points;
 
             if (craft_skill_points)
             {
@@ -17337,34 +17343,6 @@ bool Player::LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, flo
     return true;
 }
 
-void Player::LoadPrimaryProfessionsFromDB(ObjectGuid guid, std::vector<PrimaryProfessionData>& data)
-{
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SKILLS);
-    stmt->setUInt32(0, guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            uint16 skill = fields[0].GetUInt16();
-            uint16 value = fields[1].GetUInt16();
-            uint16 max = fields[2].GetUInt16();
-
-            SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skill);
-            if (!skillLine || skillLine->categoryId != SKILL_CATEGORY_PROFESSION)
-                continue;
-
-            PrimaryProfessionData profession;
-            profession.SkillId = skill;
-            profession.Step = max / 75;
-            profession.Rank = value;
-            data.push_back(profession);
-
-        } while (result->NextRow());
-    }
-}
-
 void Player::SetHomebind(WorldLocation const& loc, uint32 areaId)
 {
     loc.GetPosition(m_homebindX, m_homebindY, m_homebindZ);
@@ -28618,27 +28596,4 @@ void Player::SendTamePetFailure(PetTameFailureReason reason)
     WorldPacket data(SMSG_PET_TAME_FAILURE, 1);
     data << uint8(reason);
     SendDirectMessage(&data);
-}
-
-void Player::GetPrimaryProfessionData(PrimaryProfessionData* data)
-{
-    for (uint8 i = 0; i < 2; i++)
-    {
-        uint32 skillId = GetUInt32Value(PLAYER_PROFESSION_SKILL_LINE_1 + i);
-        SkillStatusMap::iterator itr = mSkillStatus.find(skillId);
-        if (itr != mSkillStatus.end() && itr->second.uState != SKILL_DELETED)
-        {
-            uint16 field = itr->second.pos / 2;
-            uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
-            data[i].SkillId = skillId;
-            data[i].Step = GetUInt16Value(PLAYER_SKILL_STEP_0 + field, offset);
-            data[i].Rank = GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset);
-        }
-        else
-        {
-            data[i].SkillId = 0;
-            data[i].Step = 0;
-            data[i].Rank = 0;
-        }
-    }
 }
