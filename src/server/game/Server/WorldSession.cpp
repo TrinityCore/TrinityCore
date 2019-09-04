@@ -1454,6 +1454,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_SOCKET_GEMS:                          // not profiled
         case CMSG_WRAP_ITEM:                            // not profiled
         case CMSG_REPORT_PVP_AFK:                       // not profiled
+        case CMSG_GUILD_QUERY_MEMBERS_FOR_RECIPE:       // not profiled
         {
             maxPacketCounterAllowed = 10;
             break;
@@ -1497,7 +1498,6 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_GUILD_BANK_BUY_TAB:                   // not profiled
         case CMSG_GUILD_BANK_UPDATE_TAB:                // not profiled
         case CMSG_GUILD_BANK_SET_TAB_TEXT:              // not profiled
-        case CMSG_GUILD_QUERY_MEMBERS_FOR_RECIPE:       // not profiled
         case MSG_SAVE_GUILD_EMBLEM:                     // not profiled
         case MSG_PETITION_RENAME:                       // not profiled
         case MSG_TALENT_WIPE_CONFIRM:                   // not profiled
