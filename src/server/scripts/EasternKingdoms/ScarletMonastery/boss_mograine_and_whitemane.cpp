@@ -79,9 +79,12 @@ const Position WhitemaneIntroMovePos(1163.113370f, 1398.856812f, 32.527786f);
 struct boss_scarlet_commander_mograine : public ScriptedAI
 {
     public:
-        boss_scarlet_commander_mograine(Creature* creature) : ScriptedAI(creature),
-            m_CanTalkKill(true), m_CanDie(false), m_FakeDeath(false)
-        { }
+        boss_scarlet_commander_mograine(Creature* creature) : ScriptedAI(creature)
+        {
+            m_CanTalkKill = true;
+            m_CanDie = false;
+            m_FakeDeath = false;
+        }
 
         void Reset() override
         {
@@ -247,9 +250,12 @@ struct boss_scarlet_commander_mograine : public ScriptedAI
 struct boss_high_inquisitor_whitemane : public ScriptedAI
 {
     public:
-        boss_high_inquisitor_whitemane(Creature* creature) : ScriptedAI(creature),
-            m_CanTalkKill(true), m_RessurectionInProgress(false), m_CanDie(false)
-        { }
+        boss_high_inquisitor_whitemane(Creature* creature) : ScriptedAI(creature)
+        {
+            m_CanTalkKill = true;
+            m_RessurectionInProgress = false;
+            m_CanDie = false;
+        }
 
         void Reset() override
         {
