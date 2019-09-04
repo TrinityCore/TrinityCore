@@ -4217,9 +4217,6 @@ void Guild::SendMembersForRecipe(Player const* player, uint32 skillLineId, uint3
         }
     }
 
-    if (packet.Members.empty())
-        return;
-
     packet.SkillLineID = skillLineId;
     packet.SpellID = spellId;
     player->SendDirectMessage(packet.Write());
