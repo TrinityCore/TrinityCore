@@ -496,7 +496,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 4s);
                 events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
 
-                if (auto trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f))
+                if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 100.0f))
                     m_TriggerGUID = trigger->GetGUID();
             }
 
@@ -636,7 +636,7 @@ class boss_stormcaller_brundir : public CreatureScript
                                 pos.m_positionY += y;
 
                                 // Prevention to go outside the room or into the walls
-                                if (auto trigger = ObjectAccessor::GetCreature(*me, m_TriggerGUID))
+                                if (Creature* trigger = ObjectAccessor::GetCreature(*me, m_TriggerGUID))
                                 {
                                     if (pos.GetExactDist2d(trigger) >= 50.0f)
                                         me->GetMotionMaster()->MovePoint(0, *trigger);
