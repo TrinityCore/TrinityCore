@@ -1447,27 +1447,32 @@ class spell_sha_ancestral_healing : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_VIGOR });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleAncestralFortitude(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                if (!(eventInfo.GetHitMask() & PROC_HIT_CRITICAL))
+                    PreventDefaultAction();
+            }
+
+            void HandleAncestralVigor(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
                 if (Unit* target = eventInfo.GetHealInfo()->GetTarget())
                 {
-                    uint32 baseHealth = target->GetMaxHealth();
+                    int32 heal = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+                    uint32 health = target->GetMaxHealth();
+                    if (Aura* oldVigor = target->GetAura(SPELL_SHAMAN_ANCESTRAL_VIGOR, GetTarget()->GetGUID()))
+                        health -= oldVigor->GetEffect(EFFECT_0)->GetAmount();
 
-                    // Do not take previous Ancestral Vigor buffs into account to avoid endless stacking
-                    if (Aura* oldVigor = target->GetAura(SPELL_SHAMAN_ANCESTRAL_VIGOR))
-                        baseHealth -= oldVigor->GetEffect(EFFECT_0)->GetAmount();
-
-                    int32 bp = std::min(CalculatePct(baseHealth, aurEff->GetAmount()), CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount()));
-
+                    int32 bp = std::min<int32>(heal, CalculatePct(health, aurEff->GetAmount()));
                     GetUnitOwner()->CastCustomSpell(target, SPELL_SHAMAN_ANCESTRAL_VIGOR, &bp, 0, 0, true, nullptr, aurEff);
                 }
             }
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_healing_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_healing_AuraScript::HandleAncestralFortitude, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc += AuraEffectProcFn(spell_sha_ancestral_healing_AuraScript::HandleAncestralVigor, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 
