@@ -494,3 +494,33 @@ WorldPacket const* WorldPackets::Guild::GuildMemberRecipes::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRewardItem const& rewardItem)
+{
+    data << uint32(rewardItem.MinGuildRep);
+    data << uint32(rewardItem.RaceMask);
+    data << uint32(rewardItem.ItemID);
+    data << uint64(rewardItem.Cost);
+    data << uint32(rewardItem.Unk4);
+    data << uint32(rewardItem.AchievementRequired);
+
+    return data;
+}
+
+void WorldPackets::Guild::RequestGuildRewardsList::Read()
+{
+    _worldPacket >> CurrentVersion;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildRewardList::Write()
+{
+    _worldPacket.WriteBits(RewardItems.size(), 21);
+    _worldPacket.FlushBits();
+
+    for (GuildRewardItem const& item : RewardItems)
+        _worldPacket << item;
+
+    _worldPacket << int32(Version);
+
+    return &_worldPacket;
+}

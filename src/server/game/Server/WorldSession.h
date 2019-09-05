@@ -117,6 +117,7 @@ namespace WorldPackets
         class GuildQueryRecipes;
         class GuildQueryMembersForRecipe;
         class GuildQueryMemberRecipes;
+        class RequestGuildRewardsList;
     }
 }
 
@@ -709,7 +710,7 @@ class TC_GAME_API WorldSession
         void HandleGuildDeclineOpcode(WorldPacket& recvPacket);
         void HandleGuildEventLogQueryOpcode(WorldPacket& recvPacket);
         void HandleGuildGetRosterOpcode(WorldPackets::Guild::GuildGetRoster& /*packet*/);
-        void HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket);
+        void HandleRequestGuildRewardsList(WorldPackets::Guild::RequestGuildRewardsList& /*packet*/);
         void HandleGuildPromoteOpcode(WorldPacket& recvPacket);
         void HandleGuildDemoteOpcode(WorldPacket& recvPacket);
         void HandleGuildAssignRankOpcode(WorldPacket& recvPacket);

@@ -637,29 +637,28 @@ void WorldSession::HandleAutoDeclineGuildInvites(WorldPacket& recvPacket)
     GetPlayer()->ApplyModFlag(PLAYER_FLAGS, PLAYER_FLAGS_AUTO_DECLINE_GUILD, enable != 0);
 }
 
-void WorldSession::HandleGuildRewardsQueryOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleRequestGuildRewardsList(WorldPackets::Guild::RequestGuildRewardsList& /*packet*/)
 {
-    recvPacket.read_skip<uint32>(); // Unk
-
     if (sGuildMgr->GetGuildById(_player->GetGuildId()))
     {
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
-        WorldPacket data(SMSG_GUILD_REWARDS_LIST, 3 + rewards.size() * (4 + 4 + 4 + 8 + 4 + 4));
-        data.WriteBits(rewards.size(), 21);
-        data.FlushBits();
+        WorldPackets::Guild::GuildRewardList rewardList;
+        rewardList.Version = uint32(time(nullptr));
+        rewardList.RewardItems.reserve(rewards.size());
 
         for (uint32 i = 0; i < rewards.size(); i++)
         {
-            data << uint32(rewards[i].Standing);
-            data << int32(rewards[i].Racemask);
-            data << uint32(rewards[i].Entry);
-            data << uint64(rewards[i].Price);
-            data << uint32(0); // Unused
-            data << uint32(rewards[i].AchievementId);
+            WorldPackets::Guild::GuildRewardItem rewardItem;
+            rewardItem.ItemID = rewards[i].Entry;
+            rewardItem.RaceMask = rewards[i].Racemask;
+            rewardItem.MinGuildRep = rewards[i].Standing;
+            rewardItem.AchievementRequired = rewards[i].AchievementId;
+            rewardItem.Cost = rewards[i].Price;
+            rewardList.RewardItems.push_back(rewardItem);
         }
-        data << uint32(time(nullptr));
-        SendPacket(&data);
+
+        SendPacket(rewardList.Write());
     }
 }
 

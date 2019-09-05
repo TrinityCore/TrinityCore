@@ -494,7 +494,6 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_PUSHQUESTTOPARTY,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePushQuestToParty          );
     DEFINE_HANDLER(CMSG_PVP_LOG_DATA,                                     STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandlePVPLogDataOpcode          );
     DEFINE_HANDLER(CMSG_QUERY_BATTLEFIELD_STATE,                          STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleBattlegroundStateQuery    );
-    DEFINE_HANDLER(CMSG_QUERY_GUILD_REWARDS,                              STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGuildRewardsQueryOpcode   );
     DEFINE_HANDLER(CMSG_QUERY_INSPECT_ACHIEVEMENTS,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQueryInspectAchievements  );
     DEFINE_HANDLER(CMSG_QUERY_QUESTS_COMPLETED,                           STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQueryQuestsCompleted      );
     DEFINE_HANDLER(CMSG_QUERY_TIME,                                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQueryTimeOpcode           );
@@ -525,6 +524,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_REQUEST_ACCOUNT_DATA,                             STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRequestAccountData        );
     DEFINE_HANDLER(CMSG_REQUEST_CATEGORY_COOLDOWNS,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestCategoryCooldowns  );
     DEFINE_HANDLER(CMSG_REQUEST_CEMETERY_LIST,                            STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestCemeteryList       );
+    DEFINE_HANDLER(CMSG_REQUEST_GUILD_REWARDS_LIST,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestGuildRewardsList   );
     DEFINE_HANDLER(CMSG_REQUEST_HOTFIX,                                   STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleRequestHotfix             );
     DEFINE_HANDLER(CMSG_REQUEST_INSPECT_RATED_BG_STATS,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_REQUEST_PARTY_MEMBER_STATS,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPartyMemberStatsOpcode);
@@ -958,7 +958,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_REPUTATION_REACTION_CHANGED,                STATUS_UNHANDLED);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_REPUTATION_WEEKLY_CAP,                      STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_RESET,                                      STATUS_NEVER);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_REWARDS_LIST,                               STATUS_NEVER);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_REWARD_LIST,                                STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_ROSTER,                                     STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_ROSTER_UPDATE,                              STATUS_NEVER);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_XP,                                         STATUS_NEVER);

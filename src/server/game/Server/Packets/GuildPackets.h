@@ -403,10 +403,42 @@ namespace WorldPackets
             int32 SkillStep = 0;
             std::array<uint8, GUILD_RECIPES_COUNT> SkillLineBitArray;
         };
+
+        class RequestGuildRewardsList final : public ClientPacket
+        {
+        public:
+            RequestGuildRewardsList(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_GUILD_REWARDS_LIST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 CurrentVersion = 0;
+        };
+
+        struct GuildRewardItem
+        {
+            uint32 ItemID = 0;
+            uint32 Unk4 = 0;
+            uint32 AchievementRequired;
+            uint32 RaceMask = 0;
+            int32 MinGuildRep = 0;
+            uint64 Cost = 0;
+        };
+
+        class GuildRewardList final : public ServerPacket
+        {
+        public:
+            GuildRewardList() : ServerPacket(SMSG_GUILD_REWARD_LIST, 8) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildRewardItem> RewardItems;
+            int32 Version = 0;
+        };
     }
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterProfessionData const& rosterProfessionData);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberData const& rosterMemberData);
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRewardItem const& rewardItem);
 
 #endif // GuildPackets_h__
