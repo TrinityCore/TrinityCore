@@ -165,7 +165,7 @@ public:
 
                 me->SetSpeedRate(MOVE_WALK, 1.5f);
 
-                if (auto tempSummon = me->ToTempSummon())
+                if (TempSummon* tempSummon = me->ToTempSummon())
                     tempSummon->SetCanFollowOwner(false);
             }
             else
