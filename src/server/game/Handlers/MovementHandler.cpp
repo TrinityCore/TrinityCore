@@ -414,36 +414,39 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         }
     }
 
-    if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_FAKEJUMPER_ENABLED) && plrMover && mover->IsFalling() && movementInfo.pos.GetPositionZ() > mover->GetPositionZ())
+    if (plrMover && !sWorld->isMapDisabledForAC(plrMover->GetMapId()))
     {
-        if (!plrMover->IsJumpingbyOpcode())
+        if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_FAKEJUMPER_ENABLED) && plrMover && mover->IsFalling() && movementInfo.pos.GetPositionZ() > mover->GetPositionZ())
         {
-            plrMover->SetJumpingbyOpcode(true);
-            plrMover->SetUnderACKmount();
+            if (!plrMover->IsJumpingbyOpcode())
+            {
+                plrMover->SetJumpingbyOpcode(true);
+                plrMover->SetUnderACKmount();
+            }
+            else if (!plrMover->UnderACKmount() && !plrMover->IsFlying())
+            {
+                // fake jumper -> for example gagarin air mode with falling flag (like player jumping), but client can't sent a new coords when falling
+                TC_LOG_INFO("anticheat", "MovementHandler::Fake_Jumper by Account id : %u, Player %s", plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str());
+                sWorld->SendGMText(LANG_GM_ANNOUNCE_JUMPER_FAKE, plrMover->GetName().c_str());
+                AccountMgr::RecordAntiCheatLog(plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str(), plrMover->GetDescriptionACForLogs(7), plrMover->GetPositionACForLogs(), int32(realm.Id.Realm));
+                if (sWorld->getBoolConfig(CONFIG_FAKEJUMPER_KICK_ENABLED))
+                {
+                    plrMover->GetSession()->KickPlayer();
+                    return;
+                }
+            }
         }
-        else if (!plrMover->UnderACKmount() && !plrMover->IsFlying())
+
+        if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_FAKEFLYINGMODE_ENABLED) && plrMover && !plrMover->IsCanFlybyServer() && !plrMover->UnderACKmount() && movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING_FLY) && !plrMover->IsInWater())
         {
-            // fake jumper -> for example gagarin air mode with falling flag (like player jumping), but client can't sent a new coords when falling
-            TC_LOG_INFO("anticheat", "MovementHandler::Fake_Jumper by Account id : %u, Player %s", plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str());
-            sWorld->SendGMText(LANG_GM_ANNOUNCE_JUMPER_FAKE, plrMover->GetName().c_str());
-            AccountMgr::RecordAntiCheatLog(plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str(), plrMover->GetDescriptionACForLogs(7), plrMover->GetPositionACForLogs(), int32(realm.Id.Realm));
-            if (sWorld->getBoolConfig(CONFIG_FAKEJUMPER_KICK_ENABLED))
+            TC_LOG_INFO("anticheat", "MovementHandler::Fake_flying mode (using MOVEMENTFLAG_FLYING flag doesn't restricted) by Account id : %u, Player %s", plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str());
+            sWorld->SendGMText(LANG_GM_ANNOUNCE_JUMPER_FLYING, plrMover->GetName().c_str());
+            AccountMgr::RecordAntiCheatLog(plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str(), plrMover->GetDescriptionACForLogs(8), plrMover->GetPositionACForLogs(), int32(realm.Id.Realm));
+            if (sWorld->getBoolConfig(CONFIG_FAKEFLYINGMODE_KICK_ENABLED))
             {
                 plrMover->GetSession()->KickPlayer();
                 return;
             }
-        }
-    }
-
-    if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_FAKEFLYINGMODE_ENABLED) && plrMover && !plrMover->IsCanFlybyServer() && !plrMover->UnderACKmount() && movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING_FLY) && !plrMover->IsInWater())
-    {
-        TC_LOG_INFO("anticheat", "MovementHandler::Fake_flying mode (using MOVEMENTFLAG_FLYING flag doesn't restricted) by Account id : %u, Player %s", plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str());
-        sWorld->SendGMText(LANG_GM_ANNOUNCE_JUMPER_FLYING, plrMover->GetName().c_str());
-        AccountMgr::RecordAntiCheatLog(plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str(), plrMover->GetDescriptionACForLogs(8), plrMover->GetPositionACForLogs(), int32(realm.Id.Realm));
-        if (sWorld->getBoolConfig(CONFIG_FAKEFLYINGMODE_KICK_ENABLED))
-        {
-            plrMover->GetSession()->KickPlayer();
-            return;
         }
     }
 
