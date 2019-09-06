@@ -607,6 +607,12 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     // DeserterTracker
     PrepareStatement(CHAR_INS_DESERTER_TRACK, "INSERT INTO battleground_deserters (guid, type, datetime) VALUES (?, ?, NOW())", CONNECTION_ASYNC);
+
+    // PhaseUpdate
+    PrepareStatement(CHAR_INS_CHAR_PHASE, "INSERT INTO character_phase (guid, phaseMask) VALUES (?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_CHAR_PHASE, "SELECT guid, phaseMask FROM character_phase WHERE guid = ?", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_CHAR_PHASE, "UPDATE character_phase SET phaseMask = ? WHERE guid = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_CHAR_PHASE, "DELETE FROM character_phase WHERE guid = ?", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

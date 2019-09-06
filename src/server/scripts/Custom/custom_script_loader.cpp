@@ -30,6 +30,7 @@ void AddSC_theramore_ruins();
 void AddSC_dalaran_jaina_anduin();
 void AddSC_dalaran_jaina_purge();
 void AddSC_npcs_sunreaver();
+void AddSC_action_update_phase();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -49,4 +50,5 @@ void AddCustomScripts()
     AddSC_dalaran_jaina_anduin();
     AddSC_dalaran_jaina_purge();
     AddSC_npcs_sunreaver();
+    AddSC_action_update_phase();
 }
