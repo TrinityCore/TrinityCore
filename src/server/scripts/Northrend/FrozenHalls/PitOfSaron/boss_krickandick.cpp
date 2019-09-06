@@ -374,6 +374,9 @@ class boss_krick : public CreatureScript
                 _phase = PHASE_OUTRO;
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_OUTRO_1, 1000);
+
+                // Clear combat
+                me->CombatStop();
             }
 
             void UpdateAI(uint32 diff) override
@@ -572,7 +575,10 @@ class spell_ick_explosive_barrage : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (caster->GetTypeId() == TYPEID_UNIT)
+                    {
+                        caster->GetMotionMaster()->Clear();
                         caster->GetMotionMaster()->MoveIdle();
+                    }
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
