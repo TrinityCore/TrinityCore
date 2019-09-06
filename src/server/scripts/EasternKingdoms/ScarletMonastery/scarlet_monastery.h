@@ -68,4 +68,6 @@ inline AI* GetScarletMonasteryAI(T* obj)
     return GetInstanceAI<AI>(obj, SMScriptName);
 }
 
+#define RegisterScarletMonastaryCreatureAI(ai) RegisterCreatureAIWithFactory(ai, GetScarletMonasteryAI)
+
 #endif // SCARLET_M_
