@@ -374,6 +374,9 @@ class boss_krick : public CreatureScript
                 _phase = PHASE_OUTRO;
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_OUTRO_1, 1000);
+
+                // Clear combat
+                me->CombatStop();
             }
 
             void UpdateAI(uint32 diff) override
