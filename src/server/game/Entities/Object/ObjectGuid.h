@@ -232,7 +232,7 @@ class TC_GAME_API ObjectGuid
         static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific && type != HighGuid::Transport, ObjectGuid>::type Create(uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, 0, mapId, 0, entry, counter); }
 
         template<HighGuid type>
-        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint8 subType, uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, subType, mapId, 0, entry, counter); }
+        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific && type != HighGuid::Transport, ObjectGuid>::type Create(uint8 subType, uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, subType, mapId, 0, entry, counter); }
 
         ObjectGuid() : _low(0), _high(0) { }
 
@@ -245,10 +245,27 @@ class TC_GAME_API ObjectGuid
         uint32 GetRealmId() const { return uint32((_high >> 42) & 0x1FFF); }
         uint32 GetMapId() const { return uint32((_high >> 29) & 0x1FFF); }
         uint32 GetEntry() const { return uint32((_high >> 6) & 0x7FFFFF); }
-        LowType GetCounter() const { return _low & UI64LIT(0x000000FFFFFFFFFF); }
-
-        static LowType GetMaxCounter(HighGuid /*high*/)
+        LowType GetCounter() const
         {
+            switch (GetHigh())
+            {
+                case HighGuid::Transport:
+                    return (_high >> 38) & UI64LIT(0xFFFFF);
+                default:
+                    break;
+            }
+            return _low & UI64LIT(0x000000FFFFFFFFFF);
+        }
+
+        static LowType GetMaxCounter(HighGuid high)
+        {
+            switch (high)
+            {
+                case HighGuid::Transport:
+                    return UI64LIT(0xFFFFF);
+                default:
+                    break;
+            }
             return UI64LIT(0xFFFFFFFFFF);
         }
 
@@ -316,7 +333,7 @@ class TC_GAME_API ObjectGuid
         std::string ToString() const;
         std::size_t GetHash() const;
 
-    private:
+    protected:
         static bool HasEntry(HighGuid high)
         {
             switch (high)
@@ -337,11 +354,16 @@ class TC_GAME_API ObjectGuid
         static ObjectGuid MapSpecific(HighGuid type, uint8 subType, uint16 mapId, uint32 serverId, uint32 entry, LowType counter);
 
         ObjectGuid(uint64 high, uint64 low) : _low(low), _high(high) { }
-        explicit ObjectGuid(uint32 const&) = delete;                 // no implementation, used to catch wrong type assignment
 
         uint64 _low;
         uint64 _high;
 };
+
+template<>
+inline typename std::enable_if<ObjectGuidTraits<HighGuid::Transport>::RealmSpecific, ObjectGuid>::type ObjectGuid::Create<HighGuid::Transport>(LowType counter)
+{
+    return ObjectGuid(uint64((uint64(HighGuid::Transport) << 58) | uint64(counter << 38)), UI64LIT(0));
+}
 
 #pragma pack(pop)
 
