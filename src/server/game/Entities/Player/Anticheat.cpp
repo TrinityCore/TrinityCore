@@ -23,6 +23,7 @@
 #include "MapManager.h"
 #include "Player.h"
 #include "Realm.h"
+#include "Vehicle.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -160,11 +161,15 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
         if (ToUnit()->IsFalling() || IsInFlight())
             return true;
 
-        if (GetVehicle() || GetVehicleKit())
+        bool vehicle = false;
+        if (GetVehicleKit() && GetVehicleKit()->GetBase())
+            vehicle = true;
+
+        if (GetVehicle())
             return true;
 
-        if (HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
-            return true;
+        //if (HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
+        //    return true;
 
         if (!IsControlledByPlayer())
             return true;
@@ -235,11 +240,24 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
         if (ping < 60)
             ping = 60;
 
-        speed = GetSpeed(MOVE_RUN);
+        if (!vehicle)
+            speed = GetSpeed(MOVE_RUN);
+        else
+            speed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_RUN);
         if (isSwimming())
-            speed = GetSpeed(MOVE_SWIM);
+        {
+            if (!vehicle)
+                speed = GetSpeed(MOVE_SWIM);
+            else
+                speed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_SWIM);
+        }
         if (IsFlying() || GetPlayerMovingMe()->CanFly())
-            speed = GetSpeed(MOVE_FLIGHT);
+        {
+            if (!vehicle)
+                speed = GetSpeed(MOVE_FLIGHT);
+            else
+                speed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_FLIGHT);
+        }
 
         delaysentrecieve = (ctime - oldstime) / 10000000000;
         delay = fabsf(movetime - stime) / 10000000000 + delaysentrecieve;
