@@ -95,11 +95,6 @@ enum AuraStacks
     STACK_AMOUNT_DISORIENTING_ROAR_HC = 3
 };
 
-enum Seats
-{
-    SEAT_THRONGUS = 0
-};
-
 class boss_forgemaster_throngus : public CreatureScript
 {
     public:
@@ -478,30 +473,27 @@ class spell_throngus_personal_phalanx : public SpellScriptLoader
         {
             PrepareAuraScript(spell_throngus_personal_phalanx_AuraScript);
 
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetOwner()->ToUnit())
-                {
-                    caster->CastSpell(caster, aurEff->GetAmount(), true);
+                Unit* target = GetTarget();
+                target->CastSpell(target, aurEff->GetAmount(), true);
 
-                    if (Creature* throngus = caster->ToCreature())
+                if (Creature * throngus = target->ToCreature())
+                    if (throngus->IsAIEnabled)
                         throngus->AI()->DoAction(ACTION_START_PHALLANX);
-                }
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetOwner()->ToUnit())
-                {
-                    if (Creature* throngus = caster->ToCreature())
+                if (Creature* throngus = GetTarget()->ToCreature())
+                    if (throngus->IsAIEnabled)
                         throngus->AI()->DoAction(ACTION_END_PHALLANX);
-                }
             }
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_throngus_personal_phalanx_AuraScript::OnApply, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_throngus_personal_phalanx_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_throngus_personal_phalanx_AuraScript::AfterApply, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_throngus_personal_phalanx_AuraScript::AfterRemove, EFFECT_2, SPELL_AURA_MOD_PACIFY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -583,30 +575,26 @@ class spell_throngus_burning_dual_blades : public SpellScriptLoader
         {
             PrepareAuraScript(spell_throngus_burning_dual_blades_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetOwner()->ToUnit())
-                {
-                    caster->SetCanDualWield(true);
-                    caster->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, WEAPON_MODEL_SWORD);
-                    caster->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, WEAPON_MODEL_SWORD);
-                }
+                Unit* target = GetTarget();
+                target->SetCanDualWield(true);
+                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, WEAPON_MODEL_SWORD);
+                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, WEAPON_MODEL_SWORD);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetOwner()->ToUnit())
-                {
-                    caster->SetCanDualWield(false);
-                    caster->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-                    caster->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-                }
+                Unit* target = GetTarget();
+                target->SetCanDualWield(false);
+                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
             }
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_throngus_burning_dual_blades_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_throngus_burning_dual_blades_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_throngus_burning_dual_blades_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_throngus_burning_dual_blades_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_HIT_CHANCE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -685,22 +673,20 @@ class spell_throngus_encumbered : public SpellScriptLoader
         {
             PrepareAuraScript(spell_throngus_encumbered_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetOwner()->ToUnit())
-                    caster->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, WEAPON_MODEL_MACE);
+                GetTarget()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, WEAPON_MODEL_MACE);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetOwner()->ToUnit())
-                    caster->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
+                GetTarget()->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
             }
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_throngus_encumbered_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_throngus_encumbered_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_throngus_encumbered_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_throngus_encumbered_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
@@ -719,25 +705,24 @@ class spell_throngus_impaling_slam : public SpellScriptLoader
         {
             PrepareAuraScript(spell_throngus_impaling_slam_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
-                    if (Unit* target = GetOwner()->ToUnit())
-                        if (caster->GetVehicleKit())
-                            target->EnterVehicle(caster, SEAT_THRONGUS);
+                    if (Unit * target = GetTarget())
+                        target->CastSpell(caster, VEHICLE_SPELL_RIDE_HARDCODED, true);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* target = GetOwner()->ToUnit())
-                    if (target->GetVehicleBase())
-                        target->ExitVehicle();
+                Unit* target = GetTarget();
+                if (target->GetVehicleBase())
+                    target->ExitVehicle();
             }
 
             void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_throngus_impaling_slam_AuraScript::OnApply, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_throngus_impaling_slam_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_throngus_impaling_slam_AuraScript::AfterApply, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_throngus_impaling_slam_AuraScript::AfterRemove, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
