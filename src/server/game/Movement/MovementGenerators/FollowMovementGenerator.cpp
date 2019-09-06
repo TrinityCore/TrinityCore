@@ -18,11 +18,13 @@
 #include "FollowMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "Map.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "Optional.h"
 #include "PathGenerator.h"
 #include "Pet.h"
+#include "Player.h"
 #include "Unit.h"
 #include "Util.h"
 
@@ -80,6 +82,9 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
     Unit* const target = GetTarget();
     if (!target || !target->IsInWorld())
         return false;
+
+    if (owner->IsJumping())
+        return true;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
@@ -150,18 +155,56 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
                     allowShortcut = true;
             }
 
+            bool transport = owner->GetTransport();
             bool success = _path->CalculatePath(x, y, z, allowShortcut);
-            if (!success || (_path->GetPathType() & PATHFIND_NOPATH))
+            if (!transport)
             {
-                owner->StopMoving();
-                return true;
+                if (!success || (_path->GetPathType() & PATHFIND_NOPATH))
+                {
+                    if (owner->GetOwner() && owner->GetOwner()->ToPlayer() && owner->GetOwner()->ToPlayer()->InArena()) // arena force destination for pet (arena nagrand)
+                    {
+                        Movement::MoveSplineInit init(owner);
+                        init.MoveTo(x, y, z, true, true);
+                        init.SetWalk(false);
+                        init.SetFacing(target);
+                        init.Launch();
+                        return true;
+                    }
+
+                    owner->StopMoving();
+                }
+            }
+            else
+            {
+                // check dynamic collision
+                bool dcol = owner->GetMap()->getObjectHitPos(owner->GetPhaseMask(), owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ() + 0.5f, x, y, z + 0.5f, x, y, z, -0.5f);
+                // collision occured
+                if (dcol && (z < owner->GetOwner()->GetPositionZ()))
+                {
+                    // move back a bit
+                    x -= CONTACT_DISTANCE * std::cos(owner->GetOrientation());
+                    y -= CONTACT_DISTANCE * std::sin(owner->GetOrientation());
+                    if (Map* map = owner->GetMap())
+                        z = map->GetHeight(owner->GetPhaseMask(), x, y, z + 2.8f, true);
+                }
+
+                if (z < target->GetPositionZ())
+                    z = target->GetPositionZ();
             }
 
             owner->AddUnitState(UNIT_STATE_FOLLOW_MOVE);
 
             Movement::MoveSplineInit init(owner);
-            init.MovebyPath(_path->GetPath());
-            init.SetWalk(target->IsWalking());
+            if (!transport)
+                init.MovebyPath(_path->GetPath());
+            else
+                init.MoveTo(x, y, z, false, true);
+            bool walk;
+            if (owner->GetOwner() && owner->GetOwner()->ToPlayer())
+                walk = owner->GetOwner()->ToPlayer()->HasWalkingFlag();
+            else
+                walk = target->IsWalking();
+            init.SetWalk(walk);
             init.SetFacing(target->GetOrientation());
             init.Launch();
         }

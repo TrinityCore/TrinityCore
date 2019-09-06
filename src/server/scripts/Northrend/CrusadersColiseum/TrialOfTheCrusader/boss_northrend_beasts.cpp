@@ -940,27 +940,27 @@ struct boss_icehowl : public boss_northrend_beastsAI
 
     void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE && type != SPLINE_CHAIN_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE && type != JUMP_MOTION_TYPE && type != SPLINE_CHAIN_MOTION_TYPE)
             return;
 
         switch (pointId)
         {
-            case POINT_INITIAL_MOVEMENT:
-                events.ScheduleEvent(EVENT_ENGAGE, 3s);
-                break;
-            case POINT_MIDDLE:
-                DoCastSelf(SPELL_MASSIVE_CRASH);
-                events.ScheduleEvent(EVENT_SELECT_CHARGE_TARGET, 4s);
-                break;
-            case POINT_ICEHOWL_CHARGE:
-                events.Reset();
-                events.SetPhase(PHASE_COMBAT);
-                RescheduleTasks();
-                me->SetReactState(REACT_AGGRESSIVE);
-                DoCastSelf(SPELL_TRAMPLE);
-                break;
-            default:
-                break;
+        case POINT_INITIAL_MOVEMENT:
+            events.ScheduleEvent(EVENT_ENGAGE, 3s);
+            break;
+        case POINT_MIDDLE:
+            DoCastSelf(SPELL_MASSIVE_CRASH);
+            events.ScheduleEvent(EVENT_SELECT_CHARGE_TARGET, 4s);
+            break;
+        case POINT_ICEHOWL_CHARGE:
+            events.Reset();
+            events.SetPhase(PHASE_COMBAT);
+            RescheduleTasks();
+            me->SetReactState(REACT_AGGRESSIVE);
+            DoCastSelf(SPELL_TRAMPLE);
+            break;
+        default:
+            break;
         }
     }
 

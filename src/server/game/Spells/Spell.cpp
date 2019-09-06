@@ -5504,28 +5504,51 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
                     float objSize = target->GetCombatReach();
                     float range = m_spellInfo->GetMaxRange(true, unitCaster, this) * 1.5f + objSize; // can't be overly strict
-
-                    m_preGeneratedPath = Trinity::make_unique<PathGenerator>(unitCaster);
-                    m_preGeneratedPath->SetPathLengthLimit(range);
-                    // first try with raycast, if it fails fall back to normal path
-                    float targetObjectSize = std::min(target->GetCombatReach(), 4.0f);
-                    bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, false, true);
-                    if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
+                    bool skipreduce = false;
+                    if (!target->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), range))
                         return SPELL_FAILED_OUT_OF_RANGE;
-                    else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
+
+                    if (!m_caster->GetTransport() || !target->GetTransport())
                     {
-                        result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, false, false);
+                        m_preGeneratedPath = Trinity::make_unique<PathGenerator>(unitCaster);
+                        m_preGeneratedPath->SetPathLengthLimit(range * 2.0f);
+                        // first try with raycast, if it fails fall back to normal path
+                        float targetObjectSize = std::min(target->GetCombatReach(), 4.0f);
+                        bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, false, true);
                         if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
                             return SPELL_FAILED_OUT_OF_RANGE;
                         else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
-                            return SPELL_FAILED_NOPATH;
-                        else if (m_preGeneratedPath->IsInvalidDestinationZ(target)) // Check position z, if not in a straight line
-                            return SPELL_FAILED_NOPATH;
-                    }
-                    else if (m_preGeneratedPath->IsInvalidDestinationZ(target)) // Check position z, if in a straight line
+                        {
+                            result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, false, false);
+                            if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
+                                return SPELL_FAILED_OUT_OF_RANGE;
+                            else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
+                            {
+                                bool arena = unitCaster->ToPlayer() && unitCaster->ToPlayer()->InArena();
+                                if (!arena)
+                                    return SPELL_FAILED_NOPATH;
+                                else
+                                {
+                                    float x, y, z;
+                                    target->GetClosePoint(x, y, z, targetObjectSize);
+                                    target->GetMap()->getObjectHitPos(target->GetPhaseMask(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, x, y, z + targetObjectSize, x, y, z, -targetObjectSize);
+                                    result = m_preGeneratedPath->CalculatePath(x, y, z + targetObjectSize, false, false);
+
+                                    if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
+                                        return SPELL_FAILED_NOPATH;
+                                    else
+                                        skipreduce = true;
+                                }
+                            }
+                            else if (m_preGeneratedPath->IsInvalidDestinationZ(target)) // Check position z, if not in a straight line
+                                return SPELL_FAILED_NOPATH;
+                        }
+                        else if (m_preGeneratedPath->IsInvalidDestinationZ(target)) // Check position z, if in a straight line
                             return SPELL_FAILED_NOPATH;
 
-                    m_preGeneratedPath->ShortenPathUntilDist(PositionToVector3(target), objSize); // move back
+                        if (!skipreduce)
+                            m_preGeneratedPath->ShortenPathUntilDist(PositionToVector3(target), objSize); // move back
+                    }
                 }
                 break;
             }

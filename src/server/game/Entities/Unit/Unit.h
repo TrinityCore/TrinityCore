@@ -1623,6 +1623,10 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanFly() const = 0;
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsFalling() const;
+        bool IsJumping() const { return _isJumping; }
+        void SetIsJumping(bool jump) { _isJumping = jump; }
+        bool IsCharging() const { return _isCharging; }
+        void SetIsCharging(bool jump) { _isCharging = jump; }
         virtual bool CanSwim() const;
 
         float GetHoverOffset() const
@@ -1812,6 +1816,8 @@ class TC_GAME_API Unit : public WorldObject
         bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
 
         SpellHistory* m_spellHistory;
+        bool _isJumping;
+        bool _isCharging;
 };
 
 namespace Trinity

@@ -191,6 +191,9 @@ bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
     else
         RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
 
+    if (owner->IsJumping())
+        return true;
+
     _timer.Update(diff);
     if ((HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING) && !owner->movespline->Finalized()) || (_timer.Passed() && owner->movespline->Finalized()))
         SetRandomLocation(owner);
