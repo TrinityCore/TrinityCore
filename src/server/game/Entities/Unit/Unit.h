@@ -1677,6 +1677,8 @@ class TC_GAME_API Unit : public WorldObject
         float GetCollisionHeight() const override;
 
         std::string GetDebugInfo() const override;
+
+        void UpdateSplinePosition();
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -1768,7 +1770,6 @@ class TC_GAME_API Unit : public WorldObject
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
-        void UpdateSplinePosition();
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;

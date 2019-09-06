@@ -18,12 +18,14 @@
 
 #include "ConfusedMovementGenerator.h"
 #include "Creature.h"
+#include "Map.h"
 #include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
 #include "Player.h"
 #include "Random.h"
+#include "VMapFactory.h"
 
 template<class T>
 ConfusedMovementGenerator<T>::ConfusedMovementGenerator() : _timer(0), _x(0.f), _y(0.f), _z(0.f)
@@ -53,9 +55,35 @@ void ConfusedMovementGenerator<T>::DoInitialize(T* owner)
     owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     owner->StopMoving();
 
-    _timer.Reset(0);
     owner->GetPosition(_x, _y, _z);
     _path = nullptr;
+
+    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) || owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+        _timer.Reset(200);
+    else
+    {
+        Position startdest;
+        owner->GetPosition(startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ);
+        owner->GetNearPoint(owner, startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ, 1.0f, owner->GetOrientation() * float(M_PI));
+
+        float distance = owner->GetExactDist2d(startdest.m_positionX, startdest.m_positionY);
+        owner->MovePositionToFirstCollision(startdest, distance, owner->GetOrientation() * float(M_PI));
+
+        Movement::MoveSplineInit init(owner);
+        init.MoveTo(startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ);
+        init.SetWalk(true);
+
+        float _speed = owner->GetSpeed(MOVE_WALK);
+        float _checkspeed = owner->IsMounted() ? 5.0f : 2.5f;
+        if (_speed > _checkspeed)
+            _speed = _checkspeed;
+
+        init.SetVelocity(_speed);
+
+        int32 traveltime = init.Launch();
+        owner->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
+        _timer.Reset(traveltime);
+    }
 }
 
 template<class T>
@@ -75,11 +103,30 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
     if (owner->IsJumping())
         return true;
 
+    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
+    {
+        if (owner->HasUnitState(UNIT_STATE_CONFUSED_MOVE))
+        {
+            owner->ClearUnitState(UNIT_STATE_CONFUSED_MOVE);
+            owner->StopMoving();
+            _path = nullptr;
+            return true;
+        }
+        else
+            return true;
+    }
+
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
-        owner->StopMoving();
-        _path = nullptr;
+        // remove old flag of movement
+        if (owner->HasUnitState(UNIT_STATE_CONFUSED_MOVE))
+        {
+            owner->ClearUnitState(UNIT_STATE_CONFUSED_MOVE);
+            owner->StopMoving();
+            _path = nullptr;
+        }
+
         return true;
     }
     else
@@ -90,11 +137,24 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
     if ((MovementGenerator::HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING) && !owner->movespline->Finalized()) || (_timer.Passed() && owner->movespline->Finalized()))
     {
         MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
-
+        // remove old flag of movement
+        owner->ClearUnitState(UNIT_STATE_CONFUSED_MOVE);
         Position destination(_x, _y, _z);
         float distance = 4.0f * frand(0.0f, 1.0f) - 2.0f;
         float angle = frand(0.0f, 1.0f) * float(M_PI) * 2.0f;
         owner->MovePositionToFirstCollision(destination, distance, angle);
+
+        // additional vmap checking, related with not full algorythm in MovePositionToFirstCollision
+        bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(owner->GetMapId(), owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ() + 0.5f, destination.m_positionX, destination.m_positionY, destination.m_positionZ + 0.5f, destination.m_positionX, destination.m_positionY, destination.m_positionZ, -0.5f);
+        // collision occured
+        if (col)
+        {
+            // move back a bit
+            destination.m_positionX -= CONTACT_DISTANCE * std::cos(owner->GetOrientation());
+            destination.m_positionY -= CONTACT_DISTANCE * std::sin(owner->GetOrientation());
+            if (Map* map = owner->GetMap())
+                destination.m_positionZ = map->GetHeight(owner->GetPhaseMask(), destination.m_positionX, destination.m_positionY, destination.m_positionZ + 2.8f, true);
+        }
 
         if (!_path)
         {
@@ -109,13 +169,23 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
             return true;
         }
 
-        owner->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
-
         Movement::MoveSplineInit init(owner);
         init.MovebyPath(_path->GetPath());
         init.SetWalk(true);
+
+        float _speed = owner->GetSpeed(MOVE_WALK);
+        float _checkspeed = owner->IsMounted() ? 5.0f : 2.5f;
+        if (_speed > _checkspeed)
+            _speed = _checkspeed;
+
+        init.SetVelocity(_speed);
+
         int32 traveltime = init.Launch();
-        _timer.Reset(traveltime + urand(800, 1500));
+        owner->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
+        _timer.Reset(traveltime);
+
+        // update position for server and others units/players
+        owner->UpdateSplinePosition();
     }
 
     return true;
@@ -139,6 +209,7 @@ void ConfusedMovementGenerator<Player>::DoFinalize(Player* owner, bool active, b
     if (active)
     {
         owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
+        owner->ClearUnitState(UNIT_STATE_CONFUSED_MOVE);
         owner->StopMoving();
     }
 }

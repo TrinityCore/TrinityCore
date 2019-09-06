@@ -19,12 +19,14 @@
 #include "FleeingMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "Map.h"
 #include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "Player.h"
+#include "VMapFactory.h"
 #include "Unit.h"
 
 #define MIN_QUIET_DISTANCE 28.0f
@@ -55,10 +57,37 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
         return;
 
     // TODO: UNIT_FIELD_FLAGS should not be handled by generators
+    //owner->AddUnitState(UNIT_STATE_FLEEING);
     owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
 
     _path = nullptr;
-    SetTargetLocation(owner);
+
+    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED) || owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+        _timer.Reset(200);
+    else
+    {
+        Position startdest;
+        owner->GetPosition(startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ);
+        owner->GetNearPoint(owner, startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ, 1.0f, owner->GetOrientation() * float(M_PI));
+    
+        float distance = owner->GetExactDist2d(startdest.m_positionX, startdest.m_positionY);
+        owner->MovePositionToFirstCollision(startdest, distance, owner->GetOrientation() * float(M_PI));
+
+        Movement::MoveSplineInit init(owner);
+        init.MoveTo(startdest.m_positionX, startdest.m_positionY, startdest.m_positionZ);
+        init.SetWalk(false);
+
+        float _speed = owner->GetSpeed(MOVE_RUN);
+        float _checkspeed = owner->IsMounted() ? 14.0f : 7.0f;
+        if (_speed > _checkspeed)
+            _speed = _checkspeed;
+
+        init.SetVelocity(_speed);
+        
+        int32 traveltime = init.Launch();
+        owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
+        _timer.Reset(traveltime);
+    }
 }
 
 template<class T>
@@ -78,12 +107,29 @@ bool FleeingMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
     if (owner->IsJumping())
         return true;
 
+    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
+    {
+        if (owner->HasUnitState(UNIT_STATE_FLEEING_MOVE))
+        {
+            owner->StopMoving();
+            owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
+            return true;
+        }
+        else
+            return true;
+    }
+
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
-        owner->StopMoving();
-        _path = nullptr;
-        return true;
+        // remove old flag of movement
+        if (owner->HasUnitState(UNIT_STATE_FLEEING_MOVE))
+        {
+            owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
+            owner->StopMoving();
+            _path = nullptr;
+            return true;
+        }
     }
     else
         MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
@@ -92,6 +138,9 @@ bool FleeingMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
     if ((MovementGenerator::HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING) && !owner->movespline->Finalized()) || (_timer.Passed() && owner->movespline->Finalized()))
     {
         MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
+        // remove old flag of movement
+        owner->ClearUnitState(UNIT_STATE_FLEEING_MOVE);
+
         SetTargetLocation(owner);
     }
 
@@ -151,6 +200,9 @@ void FleeingMovementGenerator<T>::SetTargetLocation(T* owner)
         return;
     }
 
+    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
+        return;
+
     Position destination = owner->GetPosition();
     GetPoint(owner, destination);
 
@@ -174,13 +226,23 @@ void FleeingMovementGenerator<T>::SetTargetLocation(T* owner)
         return;
     }
 
-    owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
-
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(_path->GetPath());
     init.SetWalk(false);
+
+    float _speed = owner->GetSpeed(MOVE_RUN);
+    float _checkspeed = owner->IsMounted() ? 14.0f : 7.0f;
+    if (_speed > _checkspeed)
+        _speed = _checkspeed;
+
+    init.SetVelocity(_speed);
+
     int32 traveltime = init.Launch();
-    _timer.Reset(traveltime + urand(800, 1500));
+    owner->AddUnitState(UNIT_STATE_FLEEING_MOVE);
+    _timer.Reset(traveltime);
+    
+    // update position
+    owner->UpdateSplinePosition();
 }
 
 template<class T>
@@ -219,6 +281,9 @@ void FleeingMovementGenerator<T>::GetPoint(T* owner, Position &position)
     }
 
     owner->MovePositionToFirstCollision(position, distance, angle);
+
+    if (owner->ToCreature() && owner->CanFly())
+        position.m_positionZ = owner->GetMap()->GetHeight(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ() + 2.0f, true, 10.0f);
 }
 
 template FleeingMovementGenerator<Player>::FleeingMovementGenerator(ObjectGuid);
@@ -259,6 +324,7 @@ void TimedFleeingMovementGenerator::Finalize(Unit* owner, bool active, bool/* mo
         return;
 
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+    owner->ClearUnitState(UNIT_STATE_FLEEING);
     owner->StopMoving();
     if (Unit* victim = owner->GetVictim())
     {
