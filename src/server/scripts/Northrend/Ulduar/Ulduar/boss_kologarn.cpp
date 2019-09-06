@@ -152,6 +152,12 @@ class boss_kologarn : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning.
                 _JustDied();
+
+                std::list<Creature*> armSweepStalkerList;
+                me->GetCreatureListWithEntryInGrid(armSweepStalkerList, NPC_ARM_SWEEP_STALKER, 500.0f);
+
+                for (Creature* armSweepStalker : armSweepStalkerList)
+                    armSweepStalker->CombatStop();
             }
 
             void KilledUnit(Unit* who) override
