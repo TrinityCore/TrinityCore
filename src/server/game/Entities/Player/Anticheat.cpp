@@ -168,19 +168,14 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
         if (GetVehicle())
             return true;
 
-        //if (HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
-        //    return true;
-
         if (!IsControlledByPlayer())
             return true;
 
-        bool transportflag = GetTransport() || (movementInfo.GetMovementFlags() & MOVEMENTFLAG_ONTRANSPORT) || HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-        if (transportflag)
+        if (HasUnitState(UNIT_STATE_IGNORE_ANTISPEEDHACK))
             return true;
 
         if (GetPlayerMovingMe())
         {
-
             if (GetPlayerMovingMe()->IsSkipOnePacketForASH())
             {
                 GetPlayerMovingMe()->SetSkipOnePacketForASH(false);
@@ -190,12 +185,35 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
         else
             return true;
 
-        Position npos = movementInfo.pos;
+        bool transportflag = movementInfo.GetMovementFlags() & MOVEMENTFLAG_ONTRANSPORT;
+        float x, y, z;
+        Position npos;
+
+        // Position coords for new point
+        if (!transportflag)
+            npos = movementInfo.pos;
+        else
+            npos = movementInfo.transport.pos;
+
+        // Position coords for previous point (old)
+        //         Just CheckMovementInfo are calling before player change UnitMovementFlag MOVEMENTFLAG_ONTRANSPORT
+        if (transportflag)
+        {
+            if (GetTransOffsetX() == 0.f) // if it elevator or fist step - player can have zero this coord
+                return true;
+
+            x = GetTransOffsetX();
+            y = GetTransOffsetY();
+            z = GetTransOffsetZ();
+        }
+        else
+            GetPosition(x, y, z);
+
         if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_IGNORE_CONTROL_MOVEMENT_ENABLED))
         {
             if (HasUnitState(UNIT_STATE_ROOT) && !UnderACKRootUpd())
             {
-                bool unrestricted = npos.GetPositionX() != GetPositionX() || npos.GetPositionY() != GetPositionY();
+                bool unrestricted = npos.GetPositionX() != x || npos.GetPositionY() != y;
                 if (unrestricted)
                 {
                     TC_LOG_INFO("anticheat", "CheckMovementInfo :  Ignore controll Hack detected for Account id : %u, Player %s", GetSession()->GetAccountId(), GetName().c_str());
@@ -206,13 +224,11 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
             }
         }
 
-        if (HasUnitState(UNIT_STATE_IGNORE_ANTISPEEDHACK))
-            return true;
-
-        float distance, movetime, speed, difftime, normaldistance, delay, delaysentrecieve, x, y, z;
-        GetPosition(x, y, z);
+        float distance, movetime, speed, difftime, normaldistance, delay, delaysentrecieve;
         std::string mapname = GetMap()->GetMapName();
-        distance = GetExactDist2d(npos);
+
+        // calculate distance - don't use func, because x,z can be offset transport coords
+        distance = sqrt((npos.GetPositionY() - y) * (npos.GetPositionY() - y) + (npos.GetPositionX() - x) * (npos.GetPositionX() - x));
         
         if (!jump && !CanFly() && !isSwimming() && !transportflag)
         {
