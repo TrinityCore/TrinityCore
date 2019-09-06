@@ -575,7 +575,10 @@ class spell_ick_explosive_barrage : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (caster->GetTypeId() == TYPEID_UNIT)
+                    {
+                        caster->GetMotionMaster()->Clear();
                         caster->GetMotionMaster()->MoveIdle();
+                    }
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
