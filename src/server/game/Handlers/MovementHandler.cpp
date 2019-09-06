@@ -457,6 +457,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         return;
     }
 
+    if (plrMover)
+    {
+        if (!plrMover->HasWalkingFlag() && movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING))
+            plrMover->SetWalkingFlag(true);
+        if (plrMover->HasWalkingFlag() && !movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING))
+            plrMover->SetWalkingFlag(false);
+    }
+
     /* process position-change */
     if (plrMover)
         plrMover->UpdateMovementInfo(movementInfo);

@@ -422,6 +422,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_groupUpdateTimer.Reset(5000);
     SetLastMoveClientTimestamp(GameTime::GetGameTimeMS());
     SetLastMoveServerTimestamp(GameTime::GetGameTimeMS());
+    m_walking = false;
 }
 
 Player::~Player()

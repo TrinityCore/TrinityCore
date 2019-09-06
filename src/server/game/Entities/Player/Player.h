@@ -1723,6 +1723,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::string GetPositionACForLogs() const;
         // END AntiCheat system
 
+        // Walking data from move packets
+        void SetWalkingFlag(bool walkstatus) { m_walking = walkstatus; }
+        bool HasWalkingFlag() const { return m_walking; }
+
         void RemoveGhoul();
 
         void DurabilityLossAll(double percent, bool inventory);
@@ -2521,6 +2525,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         // Timestamp on server clock of the moment the most recently processed movement packet was RECEIVED from the client
         uint32 lastMoveServerTimestamp;
         // END Anticheat feautures
+
+        bool m_walking;             // Player walking
 
         // Temporary removed pet cache
         uint32 m_temporaryUnsummonedPetNumber;
