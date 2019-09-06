@@ -59,6 +59,7 @@ enum DruidSpells
     SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R2     = 81283,
     SPELL_DRUID_FUROR_ENERGIZE_RAGE         = 17057,
     SPELL_DRUID_FUROR_ENERGIZE_ENERGY       = 17099,
+    SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845,
     SPELL_DRUID_EMPOWERED_TOUCH_SCRIPT      = 88433,
     SPELL_DRUID_FURY_OF_STORMRAGE           = 81093,
     SPELL_DRUID_GLYPH_OF_INNERVATE          = 54833,
@@ -106,12 +107,13 @@ enum DruidSpells
 
 enum DruidSpellIconIds
 {
-    SPELL_ICON_ID_NATURES_BOUNTY            = 197,
-    SPELL_ICON_ID_DREAMSTATE                = 2255,
-    SPELL_ICON_ID_GLYPH_OF_INNERVATE        = 62,
-    SPELL_ICON_ID_EUPHORIA                  = 4431,
-    SPELL_ICON_ID_SAVAGE_DEFENDER           = 146,
-    SPELL_ICON_ID_GLYPH_OF_FEROCIOUS_BITE   = 1680
+    SPELL_ICON_ID_NATURES_BOUNTY                    = 197,
+    SPELL_ICON_ID_DREAMSTATE                        = 2255,
+    SPELL_ICON_ID_GLYPH_OF_INNERVATE                = 62,
+    SPELL_ICON_ID_EUPHORIA                          = 4431,
+    SPELL_ICON_ID_SAVAGE_DEFENDER                   = 146,
+    SPELL_ICON_ID_GLYPH_OF_FEROCIOUS_BITE           = 1680,
+    SPELL_ICON_ID_GLYPH_OF_FRENZIED_REGENERATION    = 50
 };
 
 enum MiscSpells
@@ -1754,6 +1756,49 @@ class spell_dru_pulverize : public SpellScript
     }
 };
 
+// 22842 - Frenzied Regeneration
+class spell_dru_frenzied_regeneration : public AuraScript
+{
+    PrepareAuraScript(spell_dru_frenzied_regeneration);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_FRENZIED_REGENERATION_HEAL });
+    }
+
+    void HandleHealthAfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        int32 pct = GetSpellInfo()->Effects[aurEff->GetEffIndex()].CalcValue();
+
+        if (target->GetHealthPct() < pct)
+            target->SetHealth(CalculatePct(target->GetMaxHealth(), pct));
+    }
+
+    void HandleRegeneration(AuraEffect const* aurEff)
+    {
+        Unit* target = GetTarget();
+
+        // Glyph of Frenzied Regeneration - block heal
+        if (target->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, SPELL_ICON_ID_GLYPH_OF_FRENZIED_REGENERATION, EFFECT_0))
+            return;
+
+        float healthPct = CalculatePct<float>(aurEff->GetAmount(), 1);
+        uint32 rage = target->GetPower(POWER_RAGE) > 100 ? 100 : target->GetPower(POWER_RAGE);
+        int32 heal = CalculatePct(target->GetMaxHealth(), healthPct) * CalculatePct(rage, 10);
+
+        target->ModifyPower(POWER_RAGE, int32(rage * -1));
+        target->CastCustomSpell(SPELL_DRUID_FRENZIED_REGENERATION_HEAL, SPELLVALUE_BASE_POINT0, heal, target, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_frenzied_regeneration::HandleRegeneration, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_frenzied_regeneration::HandleHealthAfterApply, EFFECT_1, SPELL_AURA_MOD_INCREASE_HEALTH_2, AURA_EFFECT_HANDLE_REAL);
+
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
@@ -1768,6 +1813,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_empowered_touch_script);
     RegisterAuraScript(spell_dru_enrage);
     RegisterSpellScript(spell_dru_ferocious_bite);
+    RegisterAuraScript(spell_dru_frenzied_regeneration);
     RegisterAuraScript(spell_dru_furor);
     RegisterSpellScript(spell_dru_glyph_of_starfire);
     RegisterAuraScript(spell_dru_glyph_of_starfire_proc);
