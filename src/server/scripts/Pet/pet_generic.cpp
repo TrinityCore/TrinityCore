@@ -343,6 +343,8 @@ struct npc_pet_gen_soul_trader : public ScriptedAI
         Talk(SAY_SOUL_TRADER_INTRO);
         if (Unit* owner = me->GetOwner())
             DoCast(owner, SPELL_ETHEREAL_ONSUMMON);
+
+        CreatureAI::JustAppeared();
     }
 };
 
