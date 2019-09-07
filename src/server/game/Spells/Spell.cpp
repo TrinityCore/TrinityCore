@@ -3076,6 +3076,17 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         return;
     }
 
+    // Don't allow to interrupt channeled spells that are not allowed to be cancelled
+    if (Spell* curSpell = m_caster->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+    {
+        if (curSpell->m_spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL) && !m_spellInfo->HasAttribute(SPELL_ATTR4_CAN_CAST_WHILE_CASTING))
+        {
+            SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+            finish(false);
+            return;
+        }
+    }
+
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, m_caster))
     {
         SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
