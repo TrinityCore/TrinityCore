@@ -579,7 +579,7 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& movementForce)
+ByteBuffer& operator<<(ByteBuffer& data, MovementForce const& movementForce)
 {
     data << movementForce.ID;
     data << movementForce.Origin;
@@ -592,11 +592,23 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce c
     return data;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, MovementForce& movementForce)
+{
+    data >> movementForce.ID;
+    data >> movementForce.Origin;
+    data >> movementForce.Direction;
+    data >> movementForce.TransportID;
+    data >> movementForce.Magnitude;
+    movementForce.Type = data.ReadBits(2);
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
 {
     _worldPacket << *Status;
 
-    _worldPacket << uint32(MovementForces.size());
+    _worldPacket << uint32(MovementForces ? MovementForces->size() : 0);
     _worldPacket.WriteBit(WalkSpeed.is_initialized());
     _worldPacket.WriteBit(RunSpeed.is_initialized());
     _worldPacket.WriteBit(RunBackSpeed.is_initialized());
@@ -608,8 +620,9 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     _worldPacket.WriteBit(PitchRate.is_initialized());
     _worldPacket.FlushBits();
 
-    for (WorldPackets::Movement::MovementForce const& force : MovementForces)
-        _worldPacket << force;
+    if (MovementForces)
+        for (MovementForce const& force : *MovementForces)
+            _worldPacket << force;
 
     if (WalkSpeed)
         _worldPacket << *WalkSpeed;
@@ -745,18 +758,48 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
+WorldPacket const* WorldPackets::Movement::MoveApplyMovementForce::Write()
 {
-    _worldPacket << *Status;
-    _worldPacket << TriggerGUID;
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << *Force;
 
     return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveApplyMovementForceAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> Force;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveRemoveMovementForce::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << ID;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveRemoveMovementForceAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> ID;
 }
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
 {
     _worldPacket << *Status;
-    _worldPacket << Force;
+    _worldPacket << *Force;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
+{
+    _worldPacket << *Status;
+    _worldPacket << TriggerGUID;
 
     return &_worldPacket;
 }
