@@ -2162,6 +2162,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);
 
         uint8 m_forced_speed_changes[MAX_MOVE_TYPE];
+        uint8 m_movementForceModMagnitudeChanges;
 
         bool HasAtLoginFlag(AtLoginFlags f) const { return (m_atLoginFlags & f) != 0; }
         void SetAtLoginFlag(AtLoginFlags f) { m_atLoginFlags |= f; }
