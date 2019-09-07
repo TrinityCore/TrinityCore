@@ -13110,6 +13110,8 @@ void Unit::SendTeleportPacket(Position const& pos)
 
     WorldPackets::Movement::MoveUpdateTeleport moveUpdateTeleport;
     moveUpdateTeleport.Status = &m_movementInfo;
+    if (_movementForces)
+        moveUpdateTeleport.MovementForces = _movementForces->GetForces();
     Unit* broadcastSource = this;
 
     if (Player* playerMover = GetPlayerBeingMoved())
@@ -13896,6 +13898,132 @@ void Unit::SendSetVehicleRecId(uint32 vehicleId)
     setVehicleRec.VehicleGUID = GetGUID();
     setVehicleRec.VehicleRecID = vehicleId;
     SendMessageToSet(setVehicleRec.Write(), true);
+}
+
+void Unit::ApplyMovementForce(ObjectGuid id, Position origin, float magnitude, uint8 type, Position direction /*= {}*/, ObjectGuid transportGuid /*= ObjectGuid::Empty*/)
+{
+    if (!_movementForces)
+        _movementForces = Trinity::make_unique<MovementForces>();
+
+    MovementForce force;
+    force.ID = id;
+    force.Origin = origin;
+    force.Direction = direction;
+    if (transportGuid.IsMOTransport())
+        force.TransportID = transportGuid.GetCounter();
+
+    force.Magnitude = magnitude;
+    force.Type = type;
+
+    if (_movementForces->Add(force))
+    {
+        if (Player const* movingPlayer = GetPlayerMovingMe())
+        {
+            WorldPackets::Movement::MoveApplyMovementForce applyMovementForce;
+            applyMovementForce.MoverGUID = GetGUID();
+            applyMovementForce.SequenceIndex = m_movementCounter++;
+            applyMovementForce.Force = &force;
+            movingPlayer->SendDirectMessage(applyMovementForce.Write());
+        }
+        else
+        {
+            WorldPackets::Movement::MoveUpdateApplyMovementForce updateApplyMovementForce;
+            updateApplyMovementForce.Status = &m_movementInfo;
+            updateApplyMovementForce.Force = &force;
+            SendMessageToSet(updateApplyMovementForce.Write(), true);
+        }
+    }
+}
+
+void Unit::RemoveMovementForce(ObjectGuid id)
+{
+    if (!_movementForces)
+        return;
+
+    if (_movementForces->Remove(id))
+    {
+        if (Player const* movingPlayer = GetPlayerMovingMe())
+        {
+            WorldPackets::Movement::MoveRemoveMovementForce moveRemoveMovementForce;
+            moveRemoveMovementForce.MoverGUID = GetGUID();
+            moveRemoveMovementForce.SequenceIndex = m_movementCounter++;
+            moveRemoveMovementForce.ID = id;
+            movingPlayer->SendDirectMessage(moveRemoveMovementForce.Write());
+        }
+        else
+        {
+            WorldPackets::Movement::MoveUpdateRemoveMovementForce updateRemoveMovementForce;
+            updateRemoveMovementForce.Status = &m_movementInfo;
+            updateRemoveMovementForce.TriggerGUID = id;
+            SendMessageToSet(updateRemoveMovementForce.Write(), true);
+        }
+    }
+
+    if (_movementForces->IsEmpty())
+        _movementForces.reset();
+}
+
+bool Unit::SetIgnoreMovementForces(bool ignore)
+{
+    if (ignore == HasExtraUnitMovementFlag(MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES))
+        return false;
+
+    if (ignore)
+        AddExtraUnitMovementFlag(MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES);
+    else
+        RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES);
+
+    static OpcodeServer const ignoreMovementForcesOpcodeTable[2] =
+    {
+        SMSG_MOVE_UNSET_IGNORE_MOVEMENT_FORCES,
+        SMSG_MOVE_SET_IGNORE_MOVEMENT_FORCES
+    };
+
+    if (Player const* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetFlag packet(ignoreMovementForcesOpcodeTable[ignore]);
+        packet.MoverGUID = GetGUID();
+        packet.SequenceIndex = m_movementCounter++;
+        movingPlayer->SendDirectMessage(packet.Write());
+
+        WorldPackets::Movement::MoveUpdate moveUpdate;
+        moveUpdate.Status = &m_movementInfo;
+        SendMessageToSet(moveUpdate.Write(), movingPlayer);
+    }
+
+    return true;
+}
+
+void Unit::UpdateMovementForcesModMagnitude()
+{
+    float modMagnitude = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE);
+
+    if (Player* movingPlayer = GetPlayerMovingMe())
+    {
+        WorldPackets::Movement::MoveSetSpeed setModMovementForceMagnitude(SMSG_MOVE_SET_MOD_MOVEMENT_FORCE_MAGNITUDE);
+        setModMovementForceMagnitude.MoverGUID = GetGUID();
+        setModMovementForceMagnitude.SequenceIndex = m_movementCounter++;
+        setModMovementForceMagnitude.Speed = modMagnitude;
+        movingPlayer->SendDirectMessage(setModMovementForceMagnitude.Write());
+        ++movingPlayer->m_movementForceModMagnitudeChanges;
+    }
+    else
+    {
+        WorldPackets::Movement::MoveUpdateSpeed updateModMovementForceMagnitude(SMSG_MOVE_UPDATE_MOD_MOVEMENT_FORCE_MAGNITUDE);
+        updateModMovementForceMagnitude.Status = &m_movementInfo;
+        updateModMovementForceMagnitude.Speed = modMagnitude;
+        SendMessageToSet(updateModMovementForceMagnitude.Write(), true);
+    }
+
+    if (modMagnitude != 1.0f && !_movementForces)
+        _movementForces = Trinity::make_unique<MovementForces>();
+
+    if (_movementForces)
+    {
+        _movementForces->SetModMagnitude(modMagnitude);
+        if (_movementForces->IsEmpty())
+            _movementForces.reset();
+    }
 }
 
 void Unit::SendSetPlayHoverAnim(bool enable)

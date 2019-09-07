@@ -1378,6 +1378,12 @@ class TC_GAME_API Unit : public WorldObject
         bool SetCanDoubleJump(bool enable);
         void SendSetVehicleRecId(uint32 vehicleId);
 
+        MovementForces const* GetMovementForces() const { return _movementForces.get(); }
+        void ApplyMovementForce(ObjectGuid id, Position origin, float magnitude, uint8 type, Position direction = {}, ObjectGuid transportGuid = ObjectGuid::Empty);
+        void RemoveMovementForce(ObjectGuid id);
+        bool SetIgnoreMovementForces(bool ignore);
+        void UpdateMovementForcesModMagnitude();
+
         void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori, bool force = false);
         void SetFacingToObject(WorldObject const* object, bool force = false);
@@ -2131,6 +2137,8 @@ class TC_GAME_API Unit : public WorldObject
         uint16 _meleeAnimKitId;
 
         SpellHistory* _spellHistory;
+
+        std::unique_ptr<MovementForces> _movementForces;
 };
 
 namespace Trinity
