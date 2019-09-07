@@ -572,6 +572,92 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCo
     GetPlayer()->ValidateMovementInfo(&setCollisionHeightAck.Data.Status);
 }
 
+void WorldSession::HandleMoveApplyMovementForceAck(WorldPackets::Movement::MoveApplyMovementForceAck& moveApplyMovementForceAck)
+{
+    Unit* mover = _player->m_unitMovedByMe;
+    ASSERT(mover != nullptr);
+    _player->ValidateMovementInfo(&moveApplyMovementForceAck.Ack.Status);
+
+    // prevent tampered movement data
+    if (moveApplyMovementForceAck.Ack.Status.guid != mover->GetGUID())
+    {
+        TC_LOG_ERROR("network", "HandleMoveApplyMovementForceAck: guid error, expected %s, got %s",
+            mover->GetGUID().ToString().c_str(), moveApplyMovementForceAck.Ack.Status.guid.ToString().c_str());
+        return;
+    }
+
+    moveApplyMovementForceAck.Ack.Status.time += m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
+
+    WorldPackets::Movement::MoveUpdateApplyMovementForce updateApplyMovementForce;
+    updateApplyMovementForce.Status = &moveApplyMovementForceAck.Ack.Status;
+    updateApplyMovementForce.Force = &moveApplyMovementForceAck.Force;
+    mover->SendMessageToSet(updateApplyMovementForce.Write(), false);
+}
+
+void WorldSession::HandleMoveRemoveMovementForceAck(WorldPackets::Movement::MoveRemoveMovementForceAck& moveRemoveMovementForceAck)
+{
+    Unit* mover = _player->m_unitMovedByMe;
+    ASSERT(mover != nullptr);
+    _player->ValidateMovementInfo(&moveRemoveMovementForceAck.Ack.Status);
+
+    // prevent tampered movement data
+    if (moveRemoveMovementForceAck.Ack.Status.guid != mover->GetGUID())
+    {
+        TC_LOG_ERROR("network", "HandleMoveRemoveMovementForceAck: guid error, expected %s, got %s",
+            mover->GetGUID().ToString().c_str(), moveRemoveMovementForceAck.Ack.Status.guid.ToString().c_str());
+        return;
+    }
+
+    moveRemoveMovementForceAck.Ack.Status.time += m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
+
+    WorldPackets::Movement::MoveUpdateRemoveMovementForce updateRemoveMovementForce;
+    updateRemoveMovementForce.Status = &moveRemoveMovementForceAck.Ack.Status;
+    updateRemoveMovementForce.TriggerGUID = moveRemoveMovementForceAck.ID;
+    mover->SendMessageToSet(updateRemoveMovementForce.Write(), false);
+}
+
+void WorldSession::HandleMoveSetModMovementForceMagnitudeAck(WorldPackets::Movement::MovementSpeedAck& setModMovementForceMagnitudeAck)
+{
+    Unit* mover = _player->m_unitMovedByMe;
+    ASSERT(mover != nullptr);                      // there must always be a mover
+    _player->ValidateMovementInfo(&setModMovementForceMagnitudeAck.Ack.Status);
+
+    // prevent tampered movement data
+    if (setModMovementForceMagnitudeAck.Ack.Status.guid != mover->GetGUID())
+    {
+        TC_LOG_ERROR("network", "HandleSetModMovementForceMagnitudeAck: guid error, expected %s, got %s",
+            mover->GetGUID().ToString().c_str(), setModMovementForceMagnitudeAck.Ack.Status.guid.ToString().c_str());
+        return;
+    }
+
+    // skip all except last
+    if (_player->m_movementForceModMagnitudeChanges > 0)
+    {
+        --_player->m_movementForceModMagnitudeChanges;
+        if (!_player->m_movementForceModMagnitudeChanges)
+        {
+            float expectedModMagnitude = 1.0f;
+            if (MovementForces const* movementForces = mover->GetMovementForces())
+                expectedModMagnitude = movementForces->GetModMagnitude();
+
+            if (std::fabs(expectedModMagnitude - setModMovementForceMagnitudeAck.Speed) > 0.01f)
+            {
+                TC_LOG_DEBUG("misc", "Player %s from account id %u kicked for incorrect movement force magnitude (must be %f instead %f)",
+                    _player->GetName().c_str(), _player->GetSession()->GetAccountId(), expectedModMagnitude, setModMovementForceMagnitudeAck.Speed);
+                _player->GetSession()->KickPlayer();
+                return;
+            }
+        }
+    }
+
+    setModMovementForceMagnitudeAck.Ack.Status.time += m_clientTimeDelay + MOVEMENT_PACKET_TIME_DELAY;
+
+    WorldPackets::Movement::MoveUpdateSpeed updateModMovementForceMagnitude(SMSG_MOVE_UPDATE_MOD_MOVEMENT_FORCE_MAGNITUDE);
+    updateModMovementForceMagnitude.Status = &setModMovementForceMagnitudeAck.Ack.Status;
+    updateModMovementForceMagnitude.Speed = setModMovementForceMagnitudeAck.Speed;
+    mover->SendMessageToSet(updateModMovementForceMagnitude.Write(), false);
+}
+
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& /*moveTimeSkipped*/)
 {
 }
