@@ -1221,6 +1221,9 @@ class spell_chogall_conversion : public SpellScript
         {
             target->CastStop();
             target->StopMoving();
+            if (Unit* caster = GetCaster())
+                target->SetFacingToObject(caster, true);
+
             target->CastSpell(target, SPELL_WORSHIPPING, true);
         }
     }
@@ -1246,8 +1249,7 @@ class spell_chogall_worshipping : public AuraScript
         Unit* target = GetTarget();
 
         target->CastSpell(target, SPELL_WORSHIPPING_LINKED, true);
-        if (Player* player = target->ToPlayer())
-            player->SetClientControl(player, false);
+        target->SetControlled(true, UNIT_STATE_ROOT);
 
         if (InstanceScript* instance = target->GetInstanceScript())
             if (Creature* chogall = instance->GetCreature(DATA_CHOGALL))
@@ -1259,8 +1261,7 @@ class spell_chogall_worshipping : public AuraScript
         Unit* target = GetTarget();
 
         target->RemoveAurasDueToSpell(SPELL_WORSHIPPING_LINKED);
-        if (Player* player = target->ToPlayer())
-            player->SetClientControl(player, true);
+        target->SetControlled(false, UNIT_STATE_ROOT);
     }
 
     void Register() override
