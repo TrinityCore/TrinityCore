@@ -383,7 +383,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
 
         if (MovementForces const* movementForces = unit->GetMovementForces())
             for (MovementForce const& force : *movementForces->GetForces())
-                *data << force;
+                WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(force, *data, unit);
 
         if (HasSpline)
             WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(*unit->movespline, *data);
