@@ -21,7 +21,7 @@ project(TrinityCore)
 # CMake policies (can not be handled elsewhere)
 cmake_policy(SET CMP0005 NEW)
 if(POLICY CMP0043)
-  cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
+  cmake_policy(SET CMP0043 NEW) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
 endif()
 
 if(POLICY CMP0054)
