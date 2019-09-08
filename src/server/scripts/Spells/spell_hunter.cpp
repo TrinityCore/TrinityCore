@@ -1538,27 +1538,23 @@ class spell_hun_glyph_of_kill_shot : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN });
     }
 
-    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return (!GetTarget()->HasAura(SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN));
+        return (!GetTarget()->HasAura(SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN) && eventInfo.GetDamageInfo() && eventInfo.GetSpellInfo());
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
+        Unit* target = GetTarget();
+        DamageInfo* damage = eventInfo.GetDamageInfo();
+        Unit* victim = damage->GetVictim();
+        SpellInfo const* spell = eventInfo.GetSpellInfo();
 
-        Unit* victim = eventInfo.GetProcTarget();
-        if (!victim)
-            return;
-
-        uint32 spellId = 0;
-        if (SpellInfo const* spell = eventInfo.GetSpellInfo())
-            spellId = spell->Id;
-
-        if (!victim->isDead() && spellId)
+        if (damage->GetDamage() < victim->GetHealth())
         {
-            GetTarget()->GetSpellHistory()->ResetCooldown(spellId, true);
-            GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN, true, nullptr, aurEff);
+            target->GetSpellHistory()->ResetCooldown(spell->Id, true);
+            target->CastSpell(target, SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN, true, nullptr, aurEff);
         }
     }
 
