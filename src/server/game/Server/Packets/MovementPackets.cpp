@@ -383,6 +383,44 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectAreaTriggerSpline(
     data.append<G3D::Vector3>(spline.getPoints().data(), spline.getPoints().size());
 }
 
+void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(MovementForce const& movementForce, ByteBuffer& data, Position const* objectPosition /*= nullptr*/)
+{
+    data << movementForce.ID;
+    data << movementForce.Origin;
+    if (movementForce.Type == 1 && objectPosition) // gravity
+    {
+        TaggedPosition<Position::XYZ> direction;
+        if (movementForce.Magnitude != 0.0f)
+        {
+            Position tmp(movementForce.Origin.Pos.GetPositionX() - objectPosition->GetPositionX(),
+                movementForce.Origin.Pos.GetPositionY() - objectPosition->GetPositionY(),
+                movementForce.Origin.Pos.GetPositionZ() - objectPosition->GetPositionZ());
+            float lengthSquared = tmp.GetExactDistSq(0.0f, 0.0f, 0.0f);
+            if (lengthSquared > 0.0f)
+            {
+                float mult = 1.0f / std::sqrtf(lengthSquared) * movementForce.Magnitude;
+                tmp.m_positionX *= mult;
+                tmp.m_positionY *= mult;
+                tmp.m_positionZ *= mult;
+                float minLengthSquared = (tmp.GetPositionX() * tmp.GetPositionX() * 0.04f) +
+                    (tmp.GetPositionY() * tmp.GetPositionY() * 0.04f) +
+                    (tmp.GetPositionZ() * tmp.GetPositionZ() * 0.04f);
+                if (lengthSquared > minLengthSquared)
+                    direction = tmp;
+            }
+        }
+
+        data << direction;
+    }
+    else
+        data << movementForce.Direction;
+
+    data << uint32(movementForce.TransportID);
+    data << float(movementForce.Magnitude);
+    data.WriteBits(movementForce.Type, 2);
+    data.FlushBits();
+}
+
 void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
 {
     SplineData.ID = moveSpline.m_Id;
@@ -581,14 +619,7 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, MovementForce const& movementForce)
 {
-    data << movementForce.ID;
-    data << movementForce.Origin;
-    data << movementForce.Direction;
-    data << movementForce.TransportID;
-    data << movementForce.Magnitude;
-    data.WriteBits(movementForce.Type, 2);
-    data.FlushBits();
-
+    WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(movementForce, data);
     return data;
 }
 
