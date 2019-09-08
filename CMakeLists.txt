@@ -28,6 +28,10 @@ if(POLICY CMP0054)
   cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if (SOME_STRING_VARIABLE MATCHES "MSVC") as if (SOME_STRING_VARIABLE MATCHES "1")
 endif()
 
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
+endif()
+
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH 0)
