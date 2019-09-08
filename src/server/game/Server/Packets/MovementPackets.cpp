@@ -398,7 +398,7 @@ void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(Mov
             float lengthSquared = tmp.GetExactDistSq(0.0f, 0.0f, 0.0f);
             if (lengthSquared > 0.0f)
             {
-                float mult = 1.0f / std::sqrtf(lengthSquared) * movementForce.Magnitude;
+                float mult = 1.0f / std::sqrt(lengthSquared) * movementForce.Magnitude;
                 tmp.m_positionX *= mult;
                 tmp.m_positionY *= mult;
                 tmp.m_positionZ *= mult;
