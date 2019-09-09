@@ -112,7 +112,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
                 }
             }
 
-            if (pointId >= _currentNode)
+            if (pointId == _currentNode)
                 break;
 
             if (_currentNode == _preloadTargetNode)
@@ -120,7 +120,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
 
             _currentNode += departureEvent ? 1 : 0;
             departureEvent = !departureEvent;
-        } while (true);
+        } while (_currentNode < _path.size());
     }
 
     if (_currentNode >= (_path.size() - 1))
