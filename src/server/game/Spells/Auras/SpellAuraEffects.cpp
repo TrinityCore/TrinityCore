@@ -3005,7 +3005,10 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const* aurApp, uint8
 
     target->UpdateSpeed(MOVE_RUN);
     if (target->ToPlayer())
+    {
         target->ToPlayer()->SetUnderACKmount();
+        target->ToPlayer()->SetSkipOnePacketForASH(true);
+    }
 }
 
 void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3047,7 +3050,10 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
     }
 
     if (target->ToPlayer())
+    {
         target->ToPlayer()->SetUnderACKmount();
+        target->ToPlayer()->SetSkipOnePacketForASH(true);
+    }
 }
 
 void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3059,7 +3065,10 @@ void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, u
 
     target->UpdateSpeed(MOVE_SWIM);
     if (target->ToPlayer())
+    {
         target->ToPlayer()->SetUnderACKmount();
+        target->ToPlayer()->SetSkipOnePacketForASH(true);
+    }
 }
 
 void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3077,7 +3086,10 @@ void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8
     target->UpdateSpeed(MOVE_FLIGHT_BACK);
 
     if (target->ToPlayer())
+    {
         target->ToPlayer()->SetUnderACKmount();
+        target->ToPlayer()->SetSkipOnePacketForASH(true);
+    }
 }
 
 void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -3092,7 +3104,10 @@ void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint
     target->UpdateSpeed(MOVE_FLIGHT);
 
     if (target->ToPlayer())
+    {
         target->ToPlayer()->SetUnderACKmount();
+        target->ToPlayer()->SetSkipOnePacketForASH(true);
+    }
 }
 
 /*********************************************************/

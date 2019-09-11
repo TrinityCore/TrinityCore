@@ -12080,6 +12080,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         if (player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || player->HasAuraType(SPELL_AURA_FLY))
             player->SetCanFly(true, true);
         player->SetSkipOnePacketForASH(true);
+        player->SetUnderACKmount();
     }
 }
 
@@ -12328,6 +12329,7 @@ void Unit::JumpTo(float speedXY, float speedZ, bool forward)
         data << float(-speedZ);                                 // Z Movement speed (vertical)
 
         ToPlayer()->SendDirectMessage(&data);
+        ToPlayer()->SetUnderACKmount();
         ToPlayer()->SetSkipOnePacketForASH(true);
     }
 }

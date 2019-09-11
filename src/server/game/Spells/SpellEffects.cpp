@@ -4269,9 +4269,6 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         }
         else
             unitCaster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed);
-
-        if (unitCaster->ToPlayer())
-            unitCaster->ToPlayer()->SetUnderACKmount();
     }
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -4279,9 +4276,6 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
             unitCaster->Attack(unitTarget, true);
-
-        if (unitCaster->ToPlayer())
-            unitCaster->ToPlayer()->SetSkipOnePacketForASH(true);
     }
 }
 
@@ -4305,8 +4299,6 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
         }
 
         unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-        if (unitCaster->ToPlayer())
-            unitCaster->ToPlayer()->SetSkipOnePacketForASH(true);
     }
 }
 
@@ -4348,8 +4340,6 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     else //if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_KNOCK_BACK)
         m_caster->GetPosition(x, y);
 
-    if (unitTarget->ToPlayer())
-        unitTarget->ToPlayer()->SetUnderACKmount();
     unitTarget->KnockbackFrom(x, y, speedxy, speedz);
 }
 
@@ -4366,9 +4356,6 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
         if (unitCaster->ToPlayer())
             unitCaster->ToPlayer()->SetUnderACKmount();
     }
-
-    if (unitTarget->ToPlayer())
-        unitTarget->ToPlayer()->SetUnderACKmount();
 
     float speedxy = m_spellInfo->Effects[effIndex].MiscValue / 10.f;
     float modificator = sqrt(damage);

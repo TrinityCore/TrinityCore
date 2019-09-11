@@ -280,7 +280,7 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
         difftime = (movetime - ctime + ping) * 0.001f + delay;
         normaldistance = speed * difftime; // if movetime faked and lower, difftime should be with "-"
         if (GetPlayerMovingMe()->UnderACKmount())
-            normaldistance *= 3.0f;
+            normaldistance += 20.0f;
         if (distance < normaldistance)
             return true;
 
