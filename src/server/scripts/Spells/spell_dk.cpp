@@ -2104,9 +2104,9 @@ class spell_dk_rime : public SpellScriptLoader
     public:
         spell_dk_rime() : SpellScriptLoader("spell_dk_rime") { }
 
-        class spell_dk_blade_barrier_AuraScript : public AuraScript
+        class spell_dk_rime_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_dk_blade_barrier_AuraScript);
+            PrepareAuraScript(spell_dk_rime_AuraScript);
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
             {
@@ -2124,14 +2124,14 @@ class spell_dk_rime : public SpellScriptLoader
 
             void Register() override
             {
-                DoCheckProc += AuraCheckProcFn(spell_dk_blade_barrier_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_dk_blade_barrier_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+                DoCheckProc += AuraCheckProcFn(spell_dk_rime_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dk_rime_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new spell_dk_blade_barrier_AuraScript();
+            return new spell_dk_rime_AuraScript();
         }
 };
 
