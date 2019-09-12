@@ -93,7 +93,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
         return false;
 
     uint32 pointId = owner->movespline->currentPathIdx() < 0 ? 0 : owner->movespline->currentPathIdx();
-    if (pointId > _currentNode)
+    if (pointId > _currentNode && _currentNode < _path.size())
     {
         bool departureEvent = true;
         do
@@ -120,7 +120,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
 
             _currentNode += departureEvent ? 1 : 0;
             departureEvent = !departureEvent;
-        } while (true);
+        } while (_currentNode < _path.size());
     }
 
     if (_currentNode >= (_path.size() - 1))
