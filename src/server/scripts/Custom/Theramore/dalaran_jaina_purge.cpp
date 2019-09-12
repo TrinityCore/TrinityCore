@@ -922,6 +922,50 @@ class npc_enchanter_isian : public CreatureScript
     }
 };
 
+class npc_vereesa_windrunner : public CreatureScript
+{
+public:
+    npc_vereesa_windrunner() : CreatureScript("npc_vereesa_windrunner") {}
+
+    struct npc_vereesa_windrunnerAI : public ScriptedAI
+    {
+        npc_vereesa_windrunnerAI(Creature* creature) : ScriptedAI(creature) { }
+
+        //void QuestAccept(Player* player, Quest const* quest) override
+        //{
+        //    switch (quest->GetQuestId())
+        //    {
+        //        case QUEST_NOWHERE_TO_HIDE:
+        //            if (Creature * mage = me->FindNearestCreature(NPC_SILVER_COV_GUARDIAN, 5.f, true))
+        //            {
+        //                mage->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_ANGLE, PET_FOLLOW_ANGLE);
+        //                mage->SetFlag(UNIT_FIELD_FLAGS, CREATURE_TYPE_FLAG_CAN_ASSIST);
+        //                player->SetPetGUID(mage->GetGUID());
+        //            }
+        //            break;
+        //    }
+        //}
+
+        void Reset() override
+        {
+
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_vereesa_windrunnerAI(creature);
+    }
+};
+
 void AddSC_dalaran_jaina_purge()
 {
     new dalaran_jaina_purge();
@@ -930,4 +974,5 @@ void AddSC_dalaran_jaina_purge()
     new npc_arcanist_ivrenne();
     new npc_arcanist_uovril();
     new npc_enchanter_isian();
+    new npc_vereesa_windrunner();
 }
