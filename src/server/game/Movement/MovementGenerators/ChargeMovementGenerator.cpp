@@ -96,7 +96,7 @@ bool ChargeMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
     if (!owner)
         return false;
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
     {
         MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
@@ -117,6 +117,7 @@ void ChargeMovementGenerator<T>::DoDeactivate(T* owner)
 {
     MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+    owner->SetIsCharging(false);
 }
 
 template<class T>
@@ -200,7 +201,7 @@ bool ChargePathMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
     if (!owner)
         return false;
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
     {
         MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
@@ -221,6 +222,7 @@ void ChargePathMovementGenerator<T>::DoDeactivate(T* owner)
 {
     MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+    owner->SetIsCharging(false);
 }
 
 template<class T>
