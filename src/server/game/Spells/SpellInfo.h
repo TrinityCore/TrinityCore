@@ -488,6 +488,7 @@ class TC_GAME_API SpellInfo
         uint32 RangeIndex;
         SpellRangeEntry const* RangeEntry;
         float  Speed;
+        float  LaunchDelay;
         uint32 StackAmount;
         uint32 Totem[MAX_SPELL_TOTEMS];
         int32  Reagent[MAX_SPELL_REAGENTS];
@@ -534,6 +535,8 @@ class TC_GAME_API SpellInfo
         bool HasAreaAuraEffect(uint32 difficulty) const;
         bool HasAreaAuraEffect() const;
         bool HasOnlyDamageEffects() const;
+        bool HasTargetType(::Targets target) const;
+        bool HasTargetType(uint32 difficulty, ::Targets target) const;
 
         bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
         bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }
@@ -592,6 +595,7 @@ class TC_GAME_API SpellInfo
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;
         bool HasInitialAggro() const;
+        bool HasHitDelay() const;
 
         WeaponAttackType GetAttackType() const;
 

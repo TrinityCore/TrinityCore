@@ -145,7 +145,7 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
             data += 2;
             size -= 2;
         }
-        fwrite(packet.contents(), 1, packet.size(), _file);
+        fwrite(data, 1, size, _file);
     }
 
     fflush(_file);

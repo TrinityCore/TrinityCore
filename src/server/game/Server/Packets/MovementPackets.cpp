@@ -383,6 +383,44 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectAreaTriggerSpline(
     data.append<G3D::Vector3>(spline.getPoints().data(), spline.getPoints().size());
 }
 
+void WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(MovementForce const& movementForce, ByteBuffer& data, Position const* objectPosition /*= nullptr*/)
+{
+    data << movementForce.ID;
+    data << movementForce.Origin;
+    if (movementForce.Type == 1 && objectPosition) // gravity
+    {
+        TaggedPosition<Position::XYZ> direction;
+        if (movementForce.Magnitude != 0.0f)
+        {
+            Position tmp(movementForce.Origin.Pos.GetPositionX() - objectPosition->GetPositionX(),
+                movementForce.Origin.Pos.GetPositionY() - objectPosition->GetPositionY(),
+                movementForce.Origin.Pos.GetPositionZ() - objectPosition->GetPositionZ());
+            float lengthSquared = tmp.GetExactDistSq(0.0f, 0.0f, 0.0f);
+            if (lengthSquared > 0.0f)
+            {
+                float mult = 1.0f / std::sqrt(lengthSquared) * movementForce.Magnitude;
+                tmp.m_positionX *= mult;
+                tmp.m_positionY *= mult;
+                tmp.m_positionZ *= mult;
+                float minLengthSquared = (tmp.GetPositionX() * tmp.GetPositionX() * 0.04f) +
+                    (tmp.GetPositionY() * tmp.GetPositionY() * 0.04f) +
+                    (tmp.GetPositionZ() * tmp.GetPositionZ() * 0.04f);
+                if (lengthSquared > minLengthSquared)
+                    direction = tmp;
+            }
+        }
+
+        data << direction;
+    }
+    else
+        data << movementForce.Direction;
+
+    data << uint32(movementForce.TransportID);
+    data << float(movementForce.Magnitude);
+    data.WriteBits(movementForce.Type, 2);
+    data.FlushBits();
+}
+
 void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
 {
     SplineData.ID = moveSpline.m_Id;
@@ -579,15 +617,20 @@ WorldPacket const* WorldPackets::Movement::MoveTeleport::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce const& movementForce)
+ByteBuffer& operator<<(ByteBuffer& data, MovementForce const& movementForce)
 {
-    data << movementForce.ID;
-    data << movementForce.Origin;
-    data << movementForce.Direction;
-    data << movementForce.TransportID;
-    data << movementForce.Magnitude;
-    data.WriteBits(movementForce.Type, 2);
-    data.FlushBits();
+    WorldPackets::Movement::CommonMovement::WriteMovementForceWithDirection(movementForce, data);
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, MovementForce& movementForce)
+{
+    data >> movementForce.ID;
+    data >> movementForce.Origin;
+    data >> movementForce.Direction;
+    data >> movementForce.TransportID;
+    data >> movementForce.Magnitude;
+    movementForce.Type = data.ReadBits(2);
 
     return data;
 }
@@ -596,7 +639,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
 {
     _worldPacket << *Status;
 
-    _worldPacket << uint32(MovementForces.size());
+    _worldPacket << uint32(MovementForces ? MovementForces->size() : 0);
     _worldPacket.WriteBit(WalkSpeed.is_initialized());
     _worldPacket.WriteBit(RunSpeed.is_initialized());
     _worldPacket.WriteBit(RunBackSpeed.is_initialized());
@@ -608,8 +651,9 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
     _worldPacket.WriteBit(PitchRate.is_initialized());
     _worldPacket.FlushBits();
 
-    for (WorldPackets::Movement::MovementForce const& force : MovementForces)
-        _worldPacket << force;
+    if (MovementForces)
+        for (MovementForce const& force : *MovementForces)
+            _worldPacket << force;
 
     if (WalkSpeed)
         _worldPacket << *WalkSpeed;
@@ -745,18 +789,48 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
+WorldPacket const* WorldPackets::Movement::MoveApplyMovementForce::Write()
 {
-    _worldPacket << *Status;
-    _worldPacket << TriggerGUID;
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << *Force;
 
     return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveApplyMovementForceAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> Force;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveRemoveMovementForce::Write()
+{
+    _worldPacket << MoverGUID;
+    _worldPacket << SequenceIndex;
+    _worldPacket << ID;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveRemoveMovementForceAck::Read()
+{
+    _worldPacket >> Ack;
+    _worldPacket >> ID;
 }
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
 {
     _worldPacket << *Status;
-    _worldPacket << Force;
+    _worldPacket << *Force;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
+{
+    _worldPacket << *Status;
+    _worldPacket << TriggerGUID;
 
     return &_worldPacket;
 }

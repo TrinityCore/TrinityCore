@@ -187,6 +187,7 @@ class TC_GAME_API AuraEffect
         void HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleForceMoveForward(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraCanTurnWhileFalling(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleIgnoreMovementForces(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  threat
         void HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -211,6 +212,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModMinimumSpeedRate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModMovementForceMagnitude(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  immunity
         void HandleModMechanicImmunityMask(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const;
