@@ -19,13 +19,13 @@
 #include "BNetRealmList.h"
 #include "DatabaseEnv.h"
 #include "DeadlineTimer.h"
+#include "DeadlineTimer.h"
 #include "IoContext.h"
 #include "Log.h"
 #include "Resolver.h"
 #include "SessionManager.h"
 #include "Util.h"
 #include "WorldListener.h"
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
 BNetRealmList::BNetRealmList() : _updateInterval(0)

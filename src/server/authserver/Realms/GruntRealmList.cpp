@@ -19,11 +19,11 @@
 #include "GruntRealmList.h"
 #include "DatabaseEnv.h"
 #include "DeadlineTimer.h"
+#include "DeadlineTimer.h"
 #include "IoContext.h"
 #include "Log.h"
 #include "Resolver.h"
 #include "Util.h"
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
 GruntRealmList::GruntRealmList() : _updateInterval(0)
