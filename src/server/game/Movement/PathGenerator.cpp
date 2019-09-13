@@ -926,6 +926,7 @@ void PathGenerator::ShortenPathUntilDist(G3D::Vector3 const& target, float dist)
         return;
 
     size_t i = _pathPoints.size()-1;
+    float x, y, z, collisionHeight = _sourceUnit->GetCollisionHeight();
     // find the first i s.t.:
     //  - _pathPoints[i] is still too close
     //  - _pathPoints[i-1] is too far away
@@ -935,6 +936,15 @@ void PathGenerator::ShortenPathUntilDist(G3D::Vector3 const& target, float dist)
         // we know that pathPoints[i] is too close already (from the previous iteration)
         if ((_pathPoints[i-1] - target).squaredLength() >= distSq)
             break; // bingo!
+
+        // check if the shortened path is still in LoS with the target
+        _sourceUnit->GetHitSpherePointFor({ _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z + collisionHeight }, x, y, z);
+        if (!_sourceUnit->GetMap()->isInLineOfSight(x, y, z, _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z + collisionHeight, _sourceUnit->GetPhaseMask(), LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing))
+        {
+            // whenver we find a point that is not in LoS anymore, simply use last valid path
+            _pathPoints.resize(i + 1);
+            return;
+        }
 
         if (!--i)
         {
