@@ -127,9 +127,13 @@ enum CalendarError
     CALENDAR_ERROR_NO_MODERATOR                 = 40
 };
 
-#define CALENDAR_MAX_EVENTS         30
-#define CALENDAR_MAX_GUILD_EVENTS   100
-#define CALENDAR_MAX_INVITES        100
+enum CalendarLimits
+{
+    CALENDAR_MAX_EVENTS = 30,
+    CALENDAR_MAX_GUILD_EVENTS = 100,
+    CALENDAR_MAX_INVITES = 100,
+    CALENDAR_CREATE_EVENT_COOLDOWN = 5,
+};
 
 struct TC_GAME_API CalendarInvite
 {

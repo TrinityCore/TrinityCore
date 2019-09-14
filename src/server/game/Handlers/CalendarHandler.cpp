@@ -280,6 +280,14 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
         }
     }
 
+    if (GetCalendarEventCreationCooldown() > GameTime::GetGameTime())
+    {
+        recvData.rfinish();
+        sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_INTERNAL);
+        return;
+    }
+    SetCalendarEventCreationCooldown(GameTime::GetGameTime() + CALENDAR_CREATE_EVENT_COOLDOWN);
+
     CalendarEvent* calendarEvent = new CalendarEvent(sCalendarMgr->GetFreeEventId(), guid, 0, CalendarEventType(type), dungeonId,
         time_t(eventPackedTime), flags, time_t(unkPackedTime), title, description);
 
@@ -297,12 +305,11 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     else
     {
         // client limits the amount of players to be invited to 100
-        const uint32 MaxPlayerInvites = 100;
 
         uint32 inviteCount;
-        ObjectGuid invitee[MaxPlayerInvites];
-        uint8 status[MaxPlayerInvites];
-        uint8 rank[MaxPlayerInvites];
+        ObjectGuid invitee[CALENDAR_MAX_INVITES];
+        uint8 status[CALENDAR_MAX_INVITES];
+        uint8 rank[CALENDAR_MAX_INVITES];
 
         memset(status, 0, sizeof(status));
         memset(rank, 0, sizeof(rank));
@@ -311,7 +318,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
         {
             recvData >> inviteCount;
 
-            for (uint32 i = 0; i < inviteCount && i < MaxPlayerInvites; ++i)
+            for (uint32 i = 0; i < inviteCount && i < CALENDAR_MAX_INVITES; ++i)
             {
                 recvData >> invitee[i].ReadAsPacked();
                 recvData >> status[i] >> rank[i];
@@ -328,7 +335,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
         if (inviteCount > 1)
             trans = CharacterDatabase.BeginTransaction();
 
-        for (uint32 i = 0; i < inviteCount && i < MaxPlayerInvites; ++i)
+        for (uint32 i = 0; i < inviteCount && i < CALENDAR_MAX_INVITES; ++i)
         {
             // 946684800 is 01/01/2000 00:00:00 - default response time
             CalendarInvite* invite = new CalendarInvite(sCalendarMgr->GetFreeInviteId(), calendarEvent->GetEventId(), invitee[i], guid, 946684800, CalendarInviteStatus(status[i]), CalendarModerationRank(rank[i]), "");
@@ -452,6 +459,13 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
                 return;
             }
         }
+
+        if (GetCalendarEventCreationCooldown() > GameTime::GetGameTime())
+        {
+            sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_INTERNAL);
+            return;
+        }
+        SetCalendarEventCreationCooldown(GameTime::GetGameTime() + CALENDAR_CREATE_EVENT_COOLDOWN);
 
         CalendarEvent* newEvent = new CalendarEvent(*oldEvent, sCalendarMgr->GetFreeEventId());
         newEvent->SetEventTime(time_t(eventTime));

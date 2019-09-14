@@ -134,12 +134,12 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     m_currentBankerGUID(),
     _timeSyncClockDeltaQueue(6),
     _timeSyncClockDelta(0),
-    _pendingTimeSyncRequests()
+    _pendingTimeSyncRequests(),
+    _timeSyncNextCounter(0),
+    _timeSyncTimer(0),
+    _calendarEventCreationCooldown(0)
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
-
-    _timeSyncNextCounter = 0;
-    _timeSyncTimer = 0;
 
     if (sock)
     {
