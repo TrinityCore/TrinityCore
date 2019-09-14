@@ -5511,7 +5511,6 @@ MovementStatusElements const MoveSetCanTransitionBetweenSwimAndFly[] =
     MSEEnd,
 };
 
-
 MovementStatusElements const MoveUnsetCanTransitionBetweenSwimAndFly[] =
 {
     MSEHasGuidByte3,
