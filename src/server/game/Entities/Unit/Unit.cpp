@@ -14354,7 +14354,9 @@ bool Unit::SetCanFly(bool enable, bool packetOnly)
         {
             AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
             RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_SPLINE_ELEVATION);
-            AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
+            if (GetTypeId() == TYPEID_PLAYER)
+                AddExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
+
             SetFall(false);
         }
         else
@@ -14362,8 +14364,13 @@ bool Unit::SetCanFly(bool enable, bool packetOnly)
             if (IsFlying() && !IsLevitating())
                 SetFall(true);
             RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_MASK_MOVING_FLY);
-            RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
+
+            if (GetTypeId() == TYPEID_PLAYER)
+                RemoveExtraUnitMovementFlag(MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS);
         }
+
+        if (Player* player = ToPlayer())
+            player->SendMovementSetCanTransitionBetweenSwimAndFly(enable);
     }
 
     if (enable)

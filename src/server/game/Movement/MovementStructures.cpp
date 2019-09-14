@@ -5489,6 +5489,51 @@ MovementStatusElements const MoveUpdateFlightBackSpeed[] =
     MSEEnd
 };
 
+MovementStatusElements const MoveSetCanTransitionBetweenSwimAndFly[] =
+{
+    MSEHasGuidByte4,
+    MSEHasGuidByte5,
+    MSEHasGuidByte7,
+    MSEHasGuidByte0,
+    MSEHasGuidByte2,
+    MSEHasGuidByte6,
+    MSEHasGuidByte1,
+    MSEHasGuidByte3,
+    MSEGuidByte0,
+    MSEGuidByte6,
+    MSEGuidByte1,
+    MSEGuidByte2,
+    MSEGuidByte5,
+    MSEGuidByte4,
+    MSEGuidByte7,
+    MSECounter,
+    MSEGuidByte3,
+    MSEEnd,
+};
+
+
+MovementStatusElements const MoveUnsetCanTransitionBetweenSwimAndFly[] =
+{
+    MSEHasGuidByte3,
+    MSEHasGuidByte4,
+    MSEHasGuidByte7,
+    MSEHasGuidByte0,
+    MSEHasGuidByte6,
+    MSEHasGuidByte1,
+    MSEHasGuidByte5,
+    MSEHasGuidByte2,
+    MSEGuidByte5,
+    MSEGuidByte2,
+    MSEGuidByte7,
+    MSEGuidByte0,
+    MSECounter,
+    MSEGuidByte6,
+    MSEGuidByte4,
+    MSEGuidByte3,
+    MSEGuidByte1,
+    MSEEnd,
+};
+
 void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
 {
     MovementStatusElements const element = _elements[_index++];
@@ -5834,6 +5879,10 @@ MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
             return MoveGravityEnable;
         case SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED:
             return MoveUpdateFlightBackSpeed;
+        case SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY:
+            return MoveSetCanTransitionBetweenSwimAndFly;
+        case SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY:
+            return MoveUnsetCanTransitionBetweenSwimAndFly;
         default:
             break;
     }

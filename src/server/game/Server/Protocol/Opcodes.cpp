@@ -454,7 +454,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_MOVE_NOT_ACTIVE_MOVER,                            STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveNotActiveMover        );
     DEFINE_HANDLER(CMSG_MOVE_SET_CAN_FLY,                                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     DEFINE_HANDLER(CMSG_MOVE_SET_CAN_FLY_ACK,                             STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveSetCanFlyAckOpcode    );
-    DEFINE_HANDLER(CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                 );
+    DEFINE_HANDLER(CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
     DEFINE_HANDLER(CMSG_MOVE_SET_COLLISION_HEIGHT_ACK,                    STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleSetCollisionHeightAck     );
     DEFINE_HANDLER(CMSG_MOVE_SPLINE_DONE,                                 STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleMoveSplineDoneOpcode      );
     DEFINE_HANDLER(CMSG_MOVE_TIME_SKIPPED,                                STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleMoveTimeSkippedOpcode     );
