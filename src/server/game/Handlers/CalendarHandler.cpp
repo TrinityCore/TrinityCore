@@ -429,7 +429,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
     // To Do: properly handle timezones and remove the "- time_t(86400L)" hack
     if (time_t(eventTime) < (GameTime::GetGameTime() - time_t(86400L)))
     {
-        sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_INVALID_DATE);
+        sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_PASSED);
         return;
     }
 
