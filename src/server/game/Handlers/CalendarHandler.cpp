@@ -442,6 +442,24 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
 
     if (CalendarEvent* oldEvent = sCalendarMgr->GetEvent(eventId))
     {
+        // Ensure that the player has access to the event
+        if (oldEvent->IsGuildEvent() || oldEvent->IsGuildAnnouncement())
+        {
+            if (oldEvent->GetGuildId() != _player->GetGuildId())
+            {
+                sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
+                return;
+            }
+        }
+        else
+        {
+            if (oldEvent->GetCreatorGUID() != guid)
+            {
+                sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
+                return;
+            }
+        }
+
         // Check if the player reached the max number of events allowed to create
         if (oldEvent->IsGuildEvent() || oldEvent->IsGuildAnnouncement())
         {
