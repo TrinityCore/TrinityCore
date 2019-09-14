@@ -251,6 +251,9 @@ struct TC_GAME_API CalendarEvent
         bool IsGuildEvent() const { return (_flags & CALENDAR_FLAG_GUILD_EVENT) != 0; }
         bool IsGuildAnnouncement() const { return (_flags & CALENDAR_FLAG_WITHOUT_INVITES) != 0; }
 
+        static bool IsGuildEvent(uint32 flags) { return (flags & CALENDAR_FLAG_GUILD_EVENT) != 0; }
+        static bool IsGuildAnnouncement(uint32 flags) { return (flags & CALENDAR_FLAG_WITHOUT_INVITES) != 0; }
+
         std::string BuildCalendarMailSubject(ObjectGuid remover) const;
         std::string BuildCalendarMailBody() const;
 
@@ -291,7 +294,9 @@ class TC_GAME_API CalendarMgr
 
         CalendarEvent* GetEvent(uint64 eventId) const;
         CalendarEventStore const& GetEvents() const { return _events; }
+        CalendarEventStore GetEventsCreatedBy(ObjectGuid guid, bool includeGuildEvents = false);
         CalendarEventStore GetPlayerEvents(ObjectGuid guid);
+        CalendarEventStore GetGuildEvents(ObjectGuid::LowType guildId);
 
         CalendarInvite* GetInvite(uint64 inviteId) const;
         CalendarEventInviteStore const& GetInvites() const { return _invites; }
