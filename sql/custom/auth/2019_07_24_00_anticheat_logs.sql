@@ -13,3 +13,4 @@ CREATE TABLE `anticheat_logs`  (
   `realmId` int(9) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 0 CHARACTER SET = utf8;
+

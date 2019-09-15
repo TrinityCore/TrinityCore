@@ -11,3 +11,4 @@ INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
 ('6623', 'AntiCheat: FakeFlying mode Detected for %s'),
 ('6624', 'AntiCheat: Wallclimb Detected for Account id : %u, Player %s, diffZ = %f, distance = %f, angle = %f, Map = %s, mapId = %u, X = %f, Y = %f, Z = %f'),
 ('6625', 'AntiCheat: Ignore control Hack Detected for Account : %u, Player : %s');
+

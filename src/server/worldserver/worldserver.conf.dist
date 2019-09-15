@@ -4119,8 +4119,8 @@ AntiCheats.IgnoreControlMovement.Enabled = 1
 ###################################################################################################
 # Logs for Anticheat
 
-Appender.Anticheat=2,3,15,Anticheat.log
-Logger.anticheat=3,Console Anticheat
+#Appender.Anticheat=2,3,15,Anticheat.log
+Logger.anticheat=3,Console
 
 #
 ###################################################################################################
@@ -4179,3 +4179,4 @@ AntiCheats.forceExcludeMapsid = ""
 
 #
 ###################################################################################################
+
