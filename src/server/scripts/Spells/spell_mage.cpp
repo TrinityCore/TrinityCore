@@ -67,10 +67,10 @@ enum MageSpells
     SPELL_MAGE_FROSTFIRE_ORB_DUMMY               = 92283,
     SPELL_MAGE_FROSTFIRE_ORB_SUMMON              = 84714,
     SPELL_MAGE_FROSTFIRE_ORB_AOE                 = 84718,
-    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R1          = 95969,
-    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R2          = 84721,
-    SPELL_MAGE_FROSTFIRE_ORB_RANK_R2            = 84727,
-    SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT      = 44614,
+    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R1           = 95969,
+    SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R2           = 84721,
+    SPELL_MAGE_FROSTFIRE_ORB_RANK_R2             = 84727,
+    SPELL_MAGE_FROSTFIRE_BOLT_CHILL_EFFECT       = 44614,
     SPELL_MAGE_HOT_STREAK                        = 44445,
     SPELL_MAGE_HOT_STREAK_TRIGGERED              = 48108,
     SPELL_MAGE_IMPROVED_HOT_STREAK_R1            = 44446,
@@ -849,12 +849,29 @@ class spell_mage_ignite : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_IGNITE });
+        return ValidateSpellInfo(
+            {
+                SPELL_MAGE_IGNITE,
+                SPELL_MAGE_FLAME_ORB_DAMAGE,
+                SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R1,
+                SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R2
+            });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcTarget() != nullptr;
+        if (!eventInfo.GetSpellInfo() || !eventInfo.GetProcTarget())
+            return false;
+
+        switch (eventInfo.GetSpellInfo()->Id)
+        {
+            case SPELL_MAGE_FLAME_ORB_DAMAGE:
+            case SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R1:
+            case SPELL_MAGE_FROSTFIRE_ORB_DAMAGE_R2:
+                return false;
+        }
+
+        return true;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
