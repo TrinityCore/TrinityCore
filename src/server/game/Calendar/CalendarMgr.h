@@ -133,6 +133,7 @@ enum CalendarLimits
     CALENDAR_MAX_GUILD_EVENTS = 100,
     CALENDAR_MAX_INVITES = 100,
     CALENDAR_CREATE_EVENT_COOLDOWN = 5,
+    CALENDAR_OLD_EVENTS_DELETION_TIME = 1 * MONTH,
 };
 
 struct TC_GAME_API CalendarInvite
@@ -312,10 +313,13 @@ class TC_GAME_API CalendarMgr
         void FreeInviteId(uint64 id);
         uint64 GetFreeInviteId();
 
+        void DeleteOldEvents();
+
         uint32 GetPlayerNumPending(ObjectGuid guid);
 
         void AddEvent(CalendarEvent* calendarEvent, CalendarSendEventType sendType);
         void RemoveEvent(uint64 eventId, ObjectGuid remover);
+        void RemoveEvent(CalendarEvent* calendarEvent, ObjectGuid remover);
         void UpdateEvent(CalendarEvent* calendarEvent);
 
         void AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite);
