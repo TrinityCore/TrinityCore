@@ -78,8 +78,6 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         void SetLastStopFrameTime(uint32 time) { _lastStopFrameTime = time; }
         uint32 GetLastStopFrameTime() const { return _lastStopFrameTime; }
 
-        uint32 GetTransportCreationTime() const { return _creationGameTime;  }
-
     protected:
         void UpdatePassengerPositions(PassengerSet& passengers);
 
@@ -90,7 +88,6 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         uint32 _currentTransportTime;
         uint32 _alignmentTransportTime;
         uint32 _lastStopFrameTime;
-        uint32 _creationGameTime;
         bool _isDynamicTransport;
         bool _initialRelocate;
 };

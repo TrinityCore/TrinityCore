@@ -643,10 +643,12 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     {
         if (GameObject const* go = ToGameObject())
         {
+            if (MapTransport const* transport = go->ToMapTransport())
+                * data << uint32(transport->GetPathProgress());
             if (Transport const* transport = go->ToTransport())
-                *data << uint32(transport->GetPathProgress());
+                * data << uint32(getMSTime() + transport->GetCurrentTransportTime());
             else
-                *data << uint32(GameTime::GetGameTimeMS());
+                *data << uint32(getMSTime());
         }
     }
 }
