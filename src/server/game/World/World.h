@@ -349,6 +349,7 @@ enum WorldIntConfigs
     CONFIG_GUILD_BANK_EVENT_LOG_COUNT,
     CONFIG_MIN_LEVEL_STAT_SAVE,
     CONFIG_RANDOM_BG_RESET_HOUR,
+    CONFIG_CALENDAR_DELETE_OLD_EVENTS_HOUR,
     CONFIG_GUILD_RESET_HOUR,
     CONFIG_CHARDELETE_KEEP_DAYS,
     CONFIG_CHARDELETE_METHOD,
@@ -561,6 +562,7 @@ enum WorldStates
     WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
     WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly quest reset time
     WS_DAILY_QUEST_RESET_TIME   = 20008,                     // Next daily quest reset time
+    WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME = 20009,      // Next daily calendar deletions of old events time
     // Cata specific custom worldstates
     WS_GUILD_WEEKLY_RESET_TIME  = 20050,                     // Next guild week reset time
 };
@@ -820,8 +822,10 @@ class TC_GAME_API World
         void ResetMonthlyQuests();
 
         void InitRandomBGResetTime();
+        void InitCalendarOldEventsDeletionTime();
         void InitGuildResetTime();
         void ResetRandomBG();
+        void CalendarDeleteOldEvents();
         void ResetGuildCap();
         void ResetCurrencyWeekCap();
     private:
@@ -885,6 +889,7 @@ class TC_GAME_API World
         time_t m_NextWeeklyQuestReset;
         time_t m_NextMonthlyQuestReset;
         time_t m_NextRandomBGReset;
+        time_t m_NextCalendarOldEventsDeletionTime;
         time_t m_NextGuildReset;
         time_t m_NextCurrencyReset;
 

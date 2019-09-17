@@ -544,7 +544,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
     {
         // Create new rolecheck
         LfgRoleCheck& roleCheck = RoleChecksStore[gguid];
-        roleCheck.cancelTime = time_t(GameTime::GetGameTime()) + LFG_TIME_ROLECHECK;
+        roleCheck.cancelTime = GameTime::GetGameTime() + LFG_TIME_ROLECHECK;
         roleCheck.state = LFG_ROLECHECK_INITIALITING;
         roleCheck.leader = guid;
         roleCheck.dungeons = dungeons;
