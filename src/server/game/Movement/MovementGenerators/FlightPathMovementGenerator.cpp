@@ -152,8 +152,8 @@ void FlightPathMovementGenerator::DoReset(Player* player)
 
 bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
 {
-    uint32 pointId = (uint32)player->movespline->currentPathIdx();
-    if (pointId > _currentNode)
+    uint32 pointId = player->movespline->currentPathIdx() < 0 ? 0 : player->movespline->currentPathIdx();
+    if (pointId > _currentNode && _currentNode < _path.size())
     {
         bool departureEvent = true;
         do
@@ -170,7 +170,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
                 }
             }
 
-            if (pointId == _currentNode)
+            if (pointId >= _currentNode)
                 break;
 
             if (_currentNode == _preloadTargetNode)
