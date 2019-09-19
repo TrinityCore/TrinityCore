@@ -123,7 +123,7 @@ enum PlansVsZombies
     EVENT_ANNOUNCE_GOOD_JOB             = 6,
     EVENT_ANNOUNCE_PLACING_SPITTERS     = 7,
     EVENT_ANNOUNCE_MASSIVE_WAVE         = 8,
-    EVENT_ANNOUNCE_TUTORIAL_COMPLETED   = 9,
+    EVENT_ANNOUNCE_LEVEL_COMPLETED      = 9,
     EVENT_EJECT_PASSENGER               = 10,
     EVENT_SUNFLOWER_HIGHLIGHT           = 11,
     EVENT_ANNOUNCE_PLANT_MORE_FLOWERS   = 12,
@@ -131,14 +131,14 @@ enum PlansVsZombies
     EVENT_CREATE_GHOUL                  = 14,
     EVENT_KILL_LANE                     = 15,
     EVENT_PLAGUE_GAS                    = 16,
-    EVENT_ANNOUNCE_LEVEL_1_COMPLETED    = 17,
 
     // Actions
     ACTION_FIRST_SPITTER_PLANTED        = 1,
-    ACTION_ZOMBIE_DAMAGED               = 2,
-    ACTION_ZOMBIE_DIED                  = 3,
-    ACTION_GHOUL_DAMAGED                = 4,
-    ACTION_QUEST_FAILED                 = 5,
+    ACTION_FIRST_SUNFLOWER_PLANTED      = 2,
+    ACTION_ZOMBIE_DAMAGED               = 3,
+    ACTION_ZOMBIE_DIED                  = 4,
+    ACTION_GHOUL_DAMAGED                = 5,
+    ACTION_QUEST_FAILED                 = 6,
 
     // Misc
     SEAT_0                              = 0,
@@ -156,7 +156,7 @@ enum PlansVsZombies
 
     // Levels
     LEVEL_TUTORIAL                      = 0,
-    LEVEL_1                             = 1,
+    LEVEL_1                             = 1
 };
 
 Position const LawnMowerPositions[MAX_TARGET_POSITIONS]
@@ -235,1181 +235,1078 @@ float const LawnmowerOrientation = 6.178465f;
 float const SpitterTargetOrientation = 6.232892f;
 float const GoalStalkerOrientation = 6.178465f;
 
-Position const SolarPowerJumpPos = { -64.24827f, 181.3004f, 53.97961f };
+Position const SolarPowerJumpPos    = { -64.24827f, 181.3004f, 53.97961f };
+Position const FreezyaSeedSummonPos = { -49.3594f,  220.245f,  56.35883f, 0.01745329f };
+Position const FreezyaSeedJumpPos   = { -116.2847f, 216.7865f, 53.2755f };
 
-Position const FreezyaSeedSummonPos = { -49.3594f, 220.245f, 56.35883f, 0.01745329f };
-Position const FreezyaSeedJumpPos = { -116.2847f, 216.7865f, 53.2755f };
-
-class npc_brazie_the_bonatist_vehicle : public CreatureScript
+struct npc_brazie_the_bonatist_vehicle : public VehicleAI
 {
-    public:
-        npc_brazie_the_bonatist_vehicle() : CreatureScript("npc_brazie_the_bonatist_vehicle") { }
+    npc_brazie_the_bonatist_vehicle(Creature* creature) : VehicleAI(creature), _summons(me), _currentLevel(LEVEL_TUTORIAL),
+        _deadZombieCount(0), _damagedZombieCount(0), _damagedGhoulCount(0), _currentStage(0)
+    {
+        Inizialize();
+    }
 
-        struct npc_brazie_the_bonatist_vehicleAI : public VehicleAI
+    void Inizialize()
+    {
+        // Figure out at what level we currently are
+        InitializeLevel();
+
+        // Add available plants to vehicle action bar depending on level progress
+        SetupActionBar();
+
+        // Start events for each corresponding level
+        switch (_currentLevel)
         {
-            npc_brazie_the_bonatist_vehicleAI(Creature* creature) : VehicleAI(creature), _summons(me)
-            {
-                Inizialize();
-            }
+            case LEVEL_TUTORIAL:
+                _timeUntilNextSolarPower = 4s;
+                _events.ScheduleEvent(EVENT_SPITTER_HIGHLIGHT, 1s);
+                _events.ScheduleEvent(EVENT_SUMMON_SOLAR_POWER, 1s);
+                break;
+            case LEVEL_1:
+                _timeUntilNextSolarPower = 5s;
+                _events.ScheduleEvent(EVENT_SUNFLOWER_HIGHLIGHT, 1s);
+                _events.ScheduleEvent(EVENT_SUMMON_SOLAR_POWER, _timeUntilNextSolarPower + 500ms);
+                _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, 41s);
+                break;
+                default:
+            break;
+        }
+    }
 
-            void Inizialize()
-            {
-                _currentLevel = 1;
-                _deadZombieCount = 0;
-                _damagedZombieCount = 0;
-                _damagedGhoulCount = 0;
-                _currentStage = 0;
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
 
-                if (Unit* charmer = me->GetCharmerOrOwner())
+        if (summon->GetEntry() == NPC_EMPTY_SPOT)
+            _spotGUIDs.push_back(summon->GetGUID());
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (!passenger || passenger->GetTypeId() != TYPEID_PLAYER || !me->GetCharmerOrOwner())
+            return;
+
+        if (apply)
+        {
+            PhasingHandler::AddPhase(passenger, PHASE_ID_QUEST, true);
+            passenger->CastSpell(passenger, SPELL_PROGRESS_BAR, true);
+            me->SetPower(POWER_ENERGY, 0);
+            SetupSpawns();
+        }
+        else
+        {
+            _events.Reset();
+            passenger->RemoveAurasDueToSpell(SPELL_PROGRESS_BAR);
+            passenger->RemoveAurasDueToSpell(SPELL_CREATE_BOTANISTS_VEHICLE);
+            PhasingHandler::RemovePhase(passenger, PHASE_ID_QUEST, true);
+            _summons.DespawnAll();
+            me->DespawnOrUnsummon(100ms);
+        }
+    }
+
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_GET_FREEZYA_SEEDS:
+                me->m_spells[2] = SPELL_PLANT_FREEZYA;
+                if (Player* player = caster->ToPlayer())
                 {
-                    if (Player* player = charmer->ToPlayer())
-                    {
-                        if (player->GetQuestStatus(QUEST_BASIC_BOTANY) != QUEST_STATUS_REWARDED)
-                            _currentLevel = LEVEL_TUTORIAL;
-                        else if (player->GetQuestStatus(QUEST_BASIC_BOTANY) == QUEST_STATUS_REWARDED
-                            && player->GetQuestStatus(QUEST_FLOWER_POWER) != QUEST_STATUS_REWARDED)
-                            _currentLevel = LEVEL_1;
-                    }
+                    Talk(SAY_ANNOUNCE_GAINED_FREEZYA_SEEDS, player);
+                    player->VehicleSpellInitialize();
                 }
-                SetupActionBar();
-            }
+                break;
+            default:
+                break;
+        }
+    }
 
-            void Reset() override
-            {
-                Inizialize();
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                _summons.Summon(summon);
-
-                if (summon->GetEntry() == NPC_EMPTY_SPOT)
-                    _spotGUIDs.push_back(summon->GetGUID());
-            }
-
-            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
-            {
-                if (!passenger)
-                    return;
-
-                if (apply)
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_FIRST_SPITTER_PLANTED:
+                me->RemoveAurasDueToSpell(SPELL_SPITTER_HIGHLIGHT);
+                _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, 500ms);
+                if (Creature* highlight = me->FindNearestCreature(NPC_PLACE_IT_HERE, 100.0f, true))
+                    highlight->DespawnOrUnsummon();
+                break;
+            case ACTION_FIRST_SUNFLOWER_PLANTED:
+                me->RemoveAurasDueToSpell(SPELL_SUNFLOWER_HIGHLIGHT);
+                if (Creature* highlight = me->FindNearestCreature(NPC_PLACE_IT_HERE, 100.0f, true))
+                    highlight->DespawnOrUnsummon();
+                break;
+            case ACTION_ZOMBIE_DAMAGED:
+                _damagedZombieCount++;
+                switch (_currentLevel)
                 {
-                    PhasingHandler::AddPhase(passenger, PHASE_ID_QUEST, true);
-                    passenger->CastSpell(passenger, SPELL_PROGRESS_BAR, true);
-                    SetupSpawns();
-
-                    me->SetPower(POWER_ENERGY, 0);
-
-                    // Scheduling first events
-                    if (_currentLevel == LEVEL_TUTORIAL)
-                    {
-                        _events.ScheduleEvent(EVENT_SPITTER_HIGHLIGHT, Seconds(1));
-                        _events.ScheduleEvent(EVENT_SUMMON_SOLAR_POWER, Seconds(1));
-                    }
-                    else if (_currentLevel == LEVEL_1)
-                    {
-                        _events.ScheduleEvent(EVENT_SUNFLOWER_HIGHLIGHT, Seconds(1));
-                        _nextSolarPowerSeconds = Seconds(5);
-                        _events.ScheduleEvent(EVENT_SUMMON_SOLAR_POWER, _nextSolarPowerSeconds + Milliseconds(500));
-                        _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, Seconds(41));
-
-                    }
-
-                }
-                else
-                {
-                    _events.Reset();
-                    passenger->RemoveAurasDueToSpell(SPELL_PROGRESS_BAR);
-                    passenger->RemoveAurasDueToSpell(SPELL_CREATE_BOTANISTS_VEHICLE);
-                    PhasingHandler::RemovePhase(passenger, PHASE_ID_QUEST, true);
-                    _summons.DespawnAll();
-                    me->DespawnOrUnsummon(Milliseconds(100));
-                }
-            }
-
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
-            {
-                switch (spell->Id)
-                {
-                    case SPELL_GET_FREEZYA_SEEDS:
-                        me->m_spells[2] = SPELL_PLANT_FREEZYA;
-                        if (Player* player = caster->ToPlayer())
-                        {
-                            Talk(SAY_ANNOUNCE_GAINED_FREEZYA_SEEDS, player);
-                            player->VehicleSpellInitialize();
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_FIRST_SPITTER_PLANTED:
-                        _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, Milliseconds(500));
-                        break;
-                    case ACTION_ZOMBIE_DAMAGED:
-                        _damagedZombieCount++;
-                        if (_currentLevel == LEVEL_TUTORIAL && _currentStage < 2)
+                    case LEVEL_TUTORIAL:
+                        if (_currentStage < 2)
                             EnterNextStage();
-                        if (_currentLevel == LEVEL_1)
-                        {
-                            if (_currentStage == 0 && _damagedZombieCount == 1)
-                                EnterNextStage();
-                            if (_currentStage == 1 && _damagedZombieCount == 2)
-                                EnterNextStage();
-                        }
                         break;
-                    case ACTION_ZOMBIE_DIED:
-                        _deadZombieCount++;
-                        if (_currentLevel == LEVEL_TUTORIAL)
-                        {
-                            if (_deadZombieCount == 3)
-                                EnterNextStage();
-                            if (_deadZombieCount == 8)
-                                EnterNextStage();
-                        }
-
-                        if (_currentLevel == LEVEL_1)
-                        {
-                            if (_deadZombieCount == 4 && _currentStage == 2)
-                                EnterNextStage();
-                            if (_deadZombieCount == 11 && _currentStage == 3)
-                                EnterNextStage();
-                            if (_deadZombieCount == 27 && _currentStage == 4)
-                                EnterNextStage();
-                        }
-                        break;
-                    case ACTION_GHOUL_DAMAGED:
-                        _damagedGhoulCount++;
-                        if (_currentLevel == LEVEL_1)
-                        {
-                            if (_damagedGhoulCount == 1)
-                            {
-                                if (Unit* charmer = me->GetCharmerOrOwner())
-                                {
-                                    if (Player* player = charmer->ToPlayer())
-                                    {
-                                        player->Whisper(SAY_ANNOUNCE_DROPPED_SEED, player, true);
-                                        player->CastSpell(player, SPELL_CREATE_RANDOM_FREEZYA_SACK, true);
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case ACTION_QUEST_FAILED:
-                        if (Unit* charmer = me->GetCharmerOrOwner())
-                        {
-                            if (Player* player = charmer->ToPlayer())
-                            {
-                                if (_currentLevel == LEVEL_TUTORIAL)
-                                    player->FailQuest(QUEST_BASIC_BOTANY);
-                                else if (_currentLevel == LEVEL_1)
-                                    player->FailQuest(QUEST_FLOWER_POWER);
-                            }
-                        }
-
-                        Talk(SAY_ANNOUNCE_ZOMBIES_ATE_BRAIN);
-                        _summons.DespawnEntry(NPC_ZOMBIE);
-                        _summons.DespawnEntry(NPC_GHOUL);
-                        _events.Reset();
-                        _events.ScheduleEvent(EVENT_EJECT_PASSENGER, Seconds(2) + Milliseconds(300));
+                    case LEVEL_1:
+                        if (_currentStage == 0 && _damagedZombieCount == 1)
+                            EnterNextStage();
+                        if (_currentStage == 1 && _damagedZombieCount == 2)
+                            EnterNextStage();
                         break;
                     default:
                         break;
                 }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
+                break;
+            case ACTION_ZOMBIE_DIED:
+                _deadZombieCount++;
+                switch (_currentLevel)
                 {
+                    case LEVEL_TUTORIAL:
+                        if (_deadZombieCount == 3)
+                            EnterNextStage();
+                        if (_deadZombieCount == 8)
+                            EnterNextStage();
+                        break;
+                    case LEVEL_1:
+                        if (_deadZombieCount == 4 && _currentStage == 2)
+                            EnterNextStage();
+                        if (_deadZombieCount == 11 && _currentStage == 3)
+                            EnterNextStage();
+                        if (_deadZombieCount == 27 && _currentStage == 4)
+                            EnterNextStage();
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case ACTION_GHOUL_DAMAGED:
+                _damagedGhoulCount++;
+                switch (_currentLevel)
+                {
+                    case LEVEL_1:
+                        if (_damagedGhoulCount == 1)
+                        {
+                            if (Player* player = GetPlayer())
+                            {
+                                player->Whisper(SAY_ANNOUNCE_DROPPED_SEED, player, true);
+                                player->CastSpell(player, SPELL_CREATE_RANDOM_FREEZYA_SACK, true);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case ACTION_QUEST_FAILED:
+                if (Player* player = GetPlayer())
+                {
+                    switch (_currentLevel)
+                    {
+                        case LEVEL_TUTORIAL:
+                            player->FailQuest(QUEST_BASIC_BOTANY);
+                            break;
+                        case LEVEL_1:
+                            player->FailQuest(QUEST_FLOWER_POWER);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                Talk(SAY_ANNOUNCE_ZOMBIES_ATE_BRAIN);
+                _summons.DespawnEntry(NPC_ZOMBIE);
+                _summons.DespawnEntry(NPC_GHOUL);
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_EJECT_PASSENGER, 2s + 300ms);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SPITTER_HIGHLIGHT:
+                case EVENT_SUNFLOWER_HIGHLIGHT:
+                {
+                    uint32 textId = 0;
+                    uint32 spellId = 0;
+
                     switch (eventId)
                     {
                         case EVENT_SPITTER_HIGHLIGHT:
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                            {
-                                if (Player* player = charmer->ToPlayer())
-                                    player->Whisper(SAY_ANNOUNCE_TUTORIAL_1, player, true);
-
-                                charmer->CastSpell(charmer, SPELL_SPITTER_HIGHLIGHT, true);
-                            }
-                            break;
-                        case EVENT_SUMMON_SOLAR_POWER:
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                            {
-                                uint8 randomPositionIndex = urand(0, MAX_EMPTY_SPOT_POSITIONS - 1);
-                                Position pos = EmptySpotPositions[randomPositionIndex];
-                                float angle = frand(0, float(M_PI * 2));
-                                float x = pos.GetPositionX() + cos(angle) * 3;
-                                float y = pos.GetPositionY() + sin(angle) * 3;
-
-                                charmer->CastSpell(x, y, pos.GetPositionZ() + 50.0f, SPELL_CREATE_RANDOM_SUN_POWER, true);
-
-                                if (_currentLevel == LEVEL_TUTORIAL)
-                                    _events.Repeat(Seconds(4));
-                                else if (_currentLevel == LEVEL_1)
-                                {
-                                    if (_nextSolarPowerSeconds == Seconds(5))
-                                    {
-                                        _nextSolarPowerSeconds = Seconds(10);
-                                        _events.Repeat(_nextSolarPowerSeconds);
-                                    }
-                                    else
-                                    {
-                                        _nextSolarPowerSeconds = Seconds(5);
-                                        _events.Repeat(_nextSolarPowerSeconds);
-                                    }
-                                }
-                            }
-                            break;
-                        case EVENT_CREATE_ZOMBIE:
-                        {
-                            uint8 index = urand(0, MAX_TARGET_POSITIONS - 1);
-
-                            if (_currentLevel == LEVEL_TUTORIAL)
-                                index = CENTER_ZOMBIE_LANE_INDEX;
-
-                            Position pos = SpitterTargetPositions[index];
-                            float angle = pos.GetAngle(GoalStalkerPositions[index]);
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                                charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), angle, SPELL_CREATE_ZOMBIE, true);
-                            break;
-                        }
-                        case EVENT_ANNOUNCE_GOOD_JOB:
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                            {
-                                if (Player* player = charmer->ToPlayer())
-                                    player->Whisper(SAY_ANNOUNCE_TUTORIAL_2, player, true);
-                            }
-                            _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, Milliseconds(1));
-                            break;
-                        case EVENT_ANNOUNCE_PLACING_SPITTERS:
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                            {
-                                if (Player* player = charmer->ToPlayer())
-                                {
-                                    player->Whisper(SAY_ANNOUNCE_TUTORIAL_3, player, true);
-                                    player->SetPower(POWER_ALTERNATE_POWER, 1);
-                                }
-                            }
-                            _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, Milliseconds(1));
-                            break;
-                        case EVENT_ANNOUNCE_MASSIVE_WAVE:
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                            {
-                                if (Player* player = charmer->ToPlayer())
-                                {
-                                    player->Whisper(SAY_ANNOUNCE_MASSIVE_WAVE, player, true);
-
-                                    if (_currentLevel == LEVEL_TUTORIAL)
-                                        player->SetPower(POWER_ALTERNATE_POWER, 3);
-                                    if (_currentLevel == LEVEL_1)
-                                        player->SetPower(POWER_ALTERNATE_POWER, 4);
-                                }
-                            }
-                            break;
-                        case EVENT_ANNOUNCE_TUTORIAL_COMPLETED:
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                            {
-                                if (Player* player = charmer->ToPlayer())
-                                {
-                                    player->Whisper(SAY_ANNOUNCE_TUTORIAL_4, player, true);
-                                    player->RemoveAurasDueToSpell(SPELL_PROGRESS_BAR);
-                                    player->KilledMonsterCredit(CREDIT_BASIC_BOTANY);
-                                }
-                            }
-                            break;
-                        case EVENT_EJECT_PASSENGER:
-                            DoCastSelf(SPELL_EJECT_ALL_PASSENGERS, true);
+                            textId = SAY_ANNOUNCE_TUTORIAL_1;
+                            spellId = SPELL_SPITTER_HIGHLIGHT;
                             break;
                         case EVENT_SUNFLOWER_HIGHLIGHT:
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                            {
-                                if (Player* player = charmer->ToPlayer())
-                                    player->Whisper(SAY_ANNOUNCE_PLANT_SUNFLOWER, player, true);
-
-                                charmer->CastSpell(charmer, SPELL_SUNFLOWER_HIGHLIGHT, true);
-                            }
-                            _events.ScheduleEvent(EVENT_ANNOUNCE_PLANT_MORE_FLOWERS, Seconds(1));
+                            textId = SAY_ANNOUNCE_PLANT_SUNFLOWER;
+                            spellId = SPELL_SUNFLOWER_HIGHLIGHT;
                             break;
-                        case EVENT_ANNOUNCE_PLANT_MORE_FLOWERS:
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                                if (Player* player = charmer->ToPlayer())
-                                    player->Whisper(SAY_ANNOUNCE_PLANT_MORE_SUNFLOWERS, player, true);
+                        default:
+                            break;
+                    }
+
+                    if (Player* player = GetPlayer())
+                    {
+                        player->Whisper(textId, player, true);
+                        player->CastSpell(player, spellId, true);
+                    }
+                    if (eventId == EVENT_SUNFLOWER_HIGHLIGHT)
+                        _events.ScheduleEvent(EVENT_ANNOUNCE_PLANT_MORE_FLOWERS, 1s);
+                    break;
+                }
+                case EVENT_SUMMON_SOLAR_POWER:
+                {
+                    uint8 randomPositionIndex = urand(0, MAX_EMPTY_SPOT_POSITIONS - 1);
+                    Position pos = EmptySpotPositions[randomPositionIndex];
+                    float angle = frand(0, float(M_PI * 2));
+                    float x = pos.GetPositionX() + cos(angle) * 3;
+                    float y = pos.GetPositionY() + sin(angle) * 3;
+
+                    GetPlayer()->CastSpell(x, y, pos.GetPositionZ() + 50.0f, SPELL_CREATE_RANDOM_SUN_POWER, true);
+
+                    switch (_currentLevel)
+                    {
+                        case LEVEL_TUTORIAL:
+                            _events.Repeat(_timeUntilNextSolarPower);
+                            break;
+                        case LEVEL_1:
+                            if (_timeUntilNextSolarPower == 5s)
+                                _timeUntilNextSolarPower = 10s;
+                            else
+                                _timeUntilNextSolarPower = 5s;
+                            _events.Repeat(_timeUntilNextSolarPower);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                case EVENT_CREATE_ZOMBIE:
+                case EVENT_CREATE_GHOUL:
+                {
+                    // The tutorial quest only spawns zombies in the center lane
+                    uint8 index = _currentLevel == LEVEL_TUTORIAL ? CENTER_ZOMBIE_LANE_INDEX : urand(0, MAX_TARGET_POSITIONS - 1);
+                    Position pos = SpitterTargetPositions[index];
+                    float angle = pos.GetAngle(GoalStalkerPositions[index]);
+
+                    uint32 spellId = 0;
+                    switch (eventId)
+                    {
+                        case EVENT_CREATE_ZOMBIE:
+                            spellId = SPELL_CREATE_ZOMBIE;
                             break;
                         case EVENT_CREATE_GHOUL:
+                            spellId = SPELL_CREATE_GHOUL;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (Player* player = GetPlayer())
+                        player->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), angle, spellId, true);
+                    break;
+                }
+                case EVENT_ANNOUNCE_GOOD_JOB:
+                    if (Player* player = GetPlayer())
+                        player->Whisper(SAY_ANNOUNCE_TUTORIAL_2, player, true);
+                    _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, 1ms);
+                    break;
+                case EVENT_ANNOUNCE_PLACING_SPITTERS:
+                    if (Player* player = GetPlayer())
+                        player->Whisper(SAY_ANNOUNCE_TUTORIAL_3, player, true);
+                    _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, 1ms);
+                    break;
+                case EVENT_ANNOUNCE_MASSIVE_WAVE:
+                    if (Player* player = GetPlayer())
+                        player->Whisper(SAY_ANNOUNCE_MASSIVE_WAVE, player, true);
+                    break;
+                case EVENT_ANNOUNCE_LEVEL_COMPLETED:
+                {
+                    if (Player* player = GetPlayer())
+                    {
+                        uint32 textId = 0;
+                        uint32 creditEntry = 0;
+                        switch (_currentLevel)
                         {
-                            uint8 index = urand(0, MAX_TARGET_POSITIONS - 1);
-
-                            Position pos = SpitterTargetPositions[index];
-                            float angle = pos.GetAngle(GoalStalkerPositions[index]);
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                                charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), angle, SPELL_CREATE_GHOUL, true);
-                            break;
+                            case LEVEL_TUTORIAL:
+                                textId = SAY_ANNOUNCE_TUTORIAL_4;
+                                creditEntry = CREDIT_BASIC_BOTANY;
+                                break;
+                            case LEVEL_1:
+                                textId = SAY_ANNOUNCE_LEVEL_1_COMPLETE;
+                                creditEntry = CREDIT_FLOWER_POWER;
+                                break;
+                            default:
+                                break;
                         }
-                        case EVENT_ANNOUNCE_LEVEL_1_COMPLETED:
-                            if (Unit* charmer = me->GetCharmerOrOwner())
-                            {
-                                if (Player* player = charmer->ToPlayer())
-                                {
-                                    player->Whisper(SAY_ANNOUNCE_LEVEL_1_COMPLETE, player, true);
-                                    player->RemoveAurasDueToSpell(SPELL_PROGRESS_BAR);
-                                    player->KilledMonsterCredit(CREDIT_FLOWER_POWER);
-                                }
-                            }
-                            break;
-                        default:
-                            break;
+
+                        player->Whisper(textId, player, true);
+                        player->RemoveAurasDueToSpell(SPELL_PROGRESS_BAR);
+                        player->KilledMonsterCredit(creditEntry);
                     }
+                    break;
                 }
-
+                case EVENT_EJECT_PASSENGER:
+                    DoCastSelf(SPELL_EJECT_ALL_PASSENGERS, true);
+                    break;
+                case EVENT_ANNOUNCE_PLANT_MORE_FLOWERS:
+                    if (Player* player = GetPlayer())
+                        player->Whisper(SAY_ANNOUNCE_PLANT_MORE_SUNFLOWERS, player, true);
+                    break;
+                default:
+                    break;
             }
-
-            bool IsSpotFree(Position const pos)
-            {
-                for (ObjectGuid guid : _spotGUIDs)
-                {
-                    if (Creature* spot = ObjectAccessor::GetCreature(*me, guid))
-                        if (spot->GetDistance(pos) <= 5.0f)
-                            if (spot->IsAIEnabled)
-                                if (spot->AI()->GetData(DATA_CURRENT_ENTRY) == NPC_EMPTY_SPOT)
-                                    return true;
-                }
-
-                return false;
-            }
-
-        private:
-            void SetupSpawns()
-            {
-                Unit* charmer = me->GetCharmerOrOwner();
-                if (!charmer)
-                    return;
-
-                for (uint8 i = 0; i < MAX_TARGET_POSITIONS; i++)
-                {
-                    Position pos = LawnMowerPositions[i];
-                    charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), LawnmowerOrientation, SPELL_CREATE_LAWMOWER, true);
-
-                    pos = GoalStalkerPositions[i];
-                    charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), GoalStalkerOrientation, SPELL_CREATE_GOAL_STALKER, true);
-
-                    pos = SpitterTargetPositions[i];
-                    charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SpitterTargetOrientation, SPELL_CREATE_SPITTER_TARGET, true);
-                }
-
-                for (uint8 i = 0; i < MAX_EMPTY_SPOT_POSITIONS; i++)
-                {
-                    Position pos = EmptySpotPositions[i];
-                    charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), EmptySpotOrientation, SPELL_CREATE_EMPTY_SPOT, true);
-                }
-            }
-
-            void SetupActionBar()
-            {
-                if (_currentLevel == LEVEL_TUTORIAL)
-                    me->m_spells[0] = SPELL_PLANT_SPITTER;
-                else if (_currentLevel == LEVEL_1)
-                {
-                    me->m_spells[0] = SPELL_PLANT_SUNFLOWER;
-                    me->m_spells[1] = SPELL_PLANT_SPITTER;
-                }
-            }
-
-            void EnterNextStage()
-            {
-                _currentStage++;
-
-                // Tutorial Stages
-                if (_currentLevel == LEVEL_TUTORIAL)
-                {
-                    if (_currentStage == 1)
-                        _events.ScheduleEvent(EVENT_ANNOUNCE_GOOD_JOB, Milliseconds(1));
-
-                    if (_currentStage == 2)
-                        _events.ScheduleEvent(EVENT_ANNOUNCE_PLACING_SPITTERS, Milliseconds(1));
-
-                    if (_currentStage == 3)
-                    {
-                        _events.ScheduleEvent(EVENT_ANNOUNCE_MASSIVE_WAVE, Milliseconds(1));
-                        CreateZombies(5, Seconds(1) + Milliseconds(800), Seconds(3));
-                    }
-
-                    if (_currentStage == 4)
-                    {
-                        _events.Reset();
-                        _events.ScheduleEvent(EVENT_ANNOUNCE_TUTORIAL_COMPLETED, Milliseconds(1));
-                        _events.ScheduleEvent(EVENT_EJECT_PASSENGER, Seconds(1) + Milliseconds(600));
-                    }
-                }
-
-                // Level 1 Stages
-                if (_currentLevel == LEVEL_1)
-                {
-                    if (_currentStage == 1)
-                    {
-                        if (Unit* charmer = me->GetCharmerOrOwner())
-                            if (Player* player = charmer->ToPlayer())
-                                player->SetPower(POWER_ALTERNATE_POWER, 1);
-
-                        CreateZombies(2, Seconds(5), Seconds(7));
-                    }
-
-                    if (_currentStage == 2)
-                    {
-                        if (Unit* charmer = me->GetCharmerOrOwner())
-                            if (Player* player = charmer->ToPlayer())
-                                player->SetPower(POWER_ALTERNATE_POWER, 2);
-
-
-                        CreateZombies(3, Seconds(8), Seconds(7));
-                    }
-
-                    if (_currentStage == 3)
-                    {
-                        if (Unit* charmer = me->GetCharmerOrOwner())
-                            if (Player* player = charmer->ToPlayer())
-                                player->SetPower(POWER_ALTERNATE_POWER, 3);
-
-                        CreateZombies(3, Seconds(35), Seconds(5));
-                        CreateGhouls(2, Seconds(6), Seconds(39));
-                    }
-
-                    if (_currentStage == 4)
-                    {
-                        _events.ScheduleEvent(EVENT_ANNOUNCE_MASSIVE_WAVE, Milliseconds(500));
-                        CreateZombies(2, Seconds(2), Seconds(3));
-                        CreateZombies(5, Seconds(2), Seconds(3));
-                        CreateZombies(1, Seconds(20), Seconds(0));
-                        CreateZombies(2, Seconds(20), Seconds(2));
-                        CreateZombies(1, Seconds(29), Seconds(0));
-                        CreateZombies(1, Seconds(29), Seconds(0));
-
-                        CreateGhouls(2, Seconds(8), Seconds(3));
-                        CreateGhouls(1, Seconds(26), Seconds(0));
-                        CreateGhouls(1, Seconds(26), Seconds(0));
-                    }
-
-                    if (_currentStage == 5)
-                    {
-                        _events.Reset();
-                        _events.ScheduleEvent(EVENT_ANNOUNCE_LEVEL_1_COMPLETED, Milliseconds(1));
-                        _events.ScheduleEvent(EVENT_EJECT_PASSENGER, Seconds(1) + Milliseconds(600));
-                    }
-                }
-            }
-
-            void CreateZombies(uint8 amount, Milliseconds const& delay, Milliseconds const& repeatTimer)
-            {
-                for (uint8 i = 0; i < amount; i++)
-                    _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, delay + (repeatTimer * i));
-            }
-
-            void CreateGhouls(uint8 amount, Milliseconds const& delay, Milliseconds const& repeatTimer)
-            {
-                for (uint8 i = 0; i < amount; i++)
-                    _events.ScheduleEvent(EVENT_CREATE_GHOUL, delay + (repeatTimer * i));
-            }
-
-            EventMap _events;
-            SummonList _summons;
-            GuidVector _spotGUIDs;
-            uint8 _currentLevel;
-            uint8 _deadZombieCount;
-            uint8 _damagedZombieCount;
-            uint8 _damagedGhoulCount;
-            uint8 _currentStage;
-            Seconds _nextSolarPowerSeconds;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_brazie_the_bonatist_vehicleAI(creature);
         }
+
+    }
+
+public:
+    bool IsSpotFree(Position const pos)
+    {
+        for (ObjectGuid guid : _spotGUIDs)
+        {
+            if (Creature* spot = ObjectAccessor::GetCreature(*me, guid))
+                if (spot->GetDistance(pos) <= 5.0f)
+                    if (spot->IsAIEnabled)
+                        if (spot->AI()->GetData(DATA_CURRENT_ENTRY) == NPC_EMPTY_SPOT)
+                            return true;
+        }
+
+        return false;
+    }
+
+private:
+    Player* GetPlayer() { return me->GetCharmerOrOwner()->ToPlayer(); }
+
+    void SetupSpawns()
+    {
+        Unit* charmer = me->GetCharmerOrOwner();
+        if (!charmer)
+            return;
+
+        for (uint8 i = 0; i < MAX_TARGET_POSITIONS; i++)
+        {
+            Position pos = LawnMowerPositions[i];
+            charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), LawnmowerOrientation, SPELL_CREATE_LAWMOWER, true);
+
+            pos = GoalStalkerPositions[i];
+            charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), GoalStalkerOrientation, SPELL_CREATE_GOAL_STALKER, true);
+
+            pos = SpitterTargetPositions[i];
+            charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SpitterTargetOrientation, SPELL_CREATE_SPITTER_TARGET, true);
+        }
+
+        for (uint8 i = 0; i < MAX_EMPTY_SPOT_POSITIONS; i++)
+        {
+            Position pos = EmptySpotPositions[i];
+            charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), EmptySpotOrientation, SPELL_CREATE_EMPTY_SPOT, true);
+        }
+    }
+
+    void InitializeLevel()
+    {
+        if (Player* player = GetPlayer())
+        {
+            if (player->GetQuestStatus(QUEST_BASIC_BOTANY) == QUEST_STATUS_REWARDED
+                && player->GetQuestStatus(QUEST_FLOWER_POWER) != QUEST_STATUS_REWARDED)
+                _currentLevel = LEVEL_1;
+        }
+    }
+
+    void SetupActionBar()
+    {
+        if (_currentLevel == LEVEL_TUTORIAL)
+            me->m_spells[0] = SPELL_PLANT_SPITTER;
+        else if (_currentLevel == LEVEL_1)
+        {
+            me->m_spells[0] = SPELL_PLANT_SUNFLOWER;
+            me->m_spells[1] = SPELL_PLANT_SPITTER;
+        }
+    }
+
+    void EnterNextStage()
+    {
+        _currentStage++;
+
+        switch (_currentLevel)
+        {
+            case LEVEL_TUTORIAL:
+                if (_currentStage == 1)
+                    _events.ScheduleEvent(EVENT_ANNOUNCE_GOOD_JOB, 1ms);
+                else if (_currentStage == 2)
+                    _events.ScheduleEvent(EVENT_ANNOUNCE_PLACING_SPITTERS, 1ms);
+                else if (_currentStage == 3)
+                    StartMassiveWave();
+                else if (_currentStage == 4)
+                {
+                    FinishLevel();
+                    return;
+                }
+                break;
+            case LEVEL_1:
+                if (_currentStage == 1)
+                    CreateZombies(2, 5s, 7s);
+                else if (_currentStage == 2)
+                    CreateZombies(3, 8s, 7s);
+                else if (_currentStage == 3)
+                {
+                    CreateZombies(3, 35s, 5s);
+                    CreateGhouls(2, 6s, 39s);
+                }
+                else if (_currentStage == 4)
+                    StartMassiveWave();
+                else if (_currentStage == 5)
+                {
+                    FinishLevel();
+                    return;
+                }
+                break;
+            default:
+                break;
+        }
+
+        GetPlayer()->ModifyPower(POWER_ALTERNATE_POWER, 1);
+    }
+
+    void StartMassiveWave()
+    {
+        switch (_currentLevel)
+        {
+            case LEVEL_TUTORIAL:
+                _events.ScheduleEvent(EVENT_ANNOUNCE_MASSIVE_WAVE, 1ms);
+                CreateZombies(5, 1s + 800ms, 3s);
+                break;
+            case LEVEL_1:
+                _events.ScheduleEvent(EVENT_ANNOUNCE_MASSIVE_WAVE, 500ms);
+                CreateZombies(2, 2s, 3s);
+                CreateZombies(5, 2s, 3s);
+                CreateZombies(1, 20s, 0s);
+                CreateZombies(2, 20s, 2s);
+                CreateZombies(1, 29s, 0s);
+                CreateZombies(1, 29s, 0s);
+
+                CreateGhouls(2, 8s, 3s);
+                CreateGhouls(1, 26s, 0s);
+                CreateGhouls(1, 26s, 0s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void FinishLevel()
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_ANNOUNCE_LEVEL_COMPLETED, 1ms);
+        _events.ScheduleEvent(EVENT_EJECT_PASSENGER, 1s + 600ms);
+    }
+
+    void CreateZombies(uint8 amount, Milliseconds const& delay, Milliseconds const& repeatTimer)
+    {
+        for (uint8 i = 0; i < amount; i++)
+            _events.ScheduleEvent(EVENT_CREATE_ZOMBIE, delay + (repeatTimer * i));
+    }
+
+    void CreateGhouls(uint8 amount, Milliseconds const& delay, Milliseconds const& repeatTimer)
+    {
+        for (uint8 i = 0; i < amount; i++)
+            _events.ScheduleEvent(EVENT_CREATE_GHOUL, delay + (repeatTimer * i));
+    }
+
+    EventMap _events;
+    SummonList _summons;
+    GuidVector _spotGUIDs;
+    uint8 _currentLevel;
+    uint8 _deadZombieCount;
+    uint8 _damagedZombieCount;
+    uint8 _damagedGhoulCount;
+    uint8 _currentStage;
+    Seconds _timeUntilNextSolarPower;
 };
 
-class npc_brazie_fertilitize_o_tron_2000 : public CreatureScript
+struct npc_brazie_fertilitize_o_tron_2000 : public ScriptedAI
 {
-    public:
-        npc_brazie_fertilitize_o_tron_2000() : CreatureScript("npc_brazie_fertilitize_o_tron_2000") { }
+    npc_brazie_fertilitize_o_tron_2000(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_brazie_fertilitize_o_tron_2000AI : public ScriptedAI
+    void IsSummonedBy(Unit* summoner) override
+    {
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+
+        if (Creature* vehicle = summoner->GetVehicleCreatureBase())
+            if (vehicle->IsAIEnabled)
+                vehicle->AI()->JustSummoned(me);
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (me->GetPosition().GetExactDist(who->GetPosition()) > 3.0f)
+            return;
+
+        if (Creature* spitterTarget = me->FindNearestCreature(NPC_SPITTER_TARGET, 150.0f, true))
         {
-            npc_brazie_fertilitize_o_tron_2000AI(Creature* creature) : ScriptedAI(creature) { }
+            Position pos = me->GetPosition();
+            pos.SetOrientation(pos.GetAngle(spitterTarget));
 
-            void IsSummonedBy(Unit* summoner) override
-            {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-
-                if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-                    if (vehicle->IsAIEnabled)
-                        vehicle->AI()->JustSummoned(me);
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                 if (me->GetPosition().GetExactDist(who->GetPosition()) > 3.0f)
-                     return;
-
-                if (Creature* spitterTarget = me->FindNearestCreature(NPC_SPITTER_TARGET, 150.0f, true))
-                {
-                    Position pos = me->GetPosition();
-                    pos.SetOrientation(pos.GetAngle(spitterTarget));
-
-                    if (pos.HasInLine(who, 5.0f))
-                        CreatureAI::AttackStart(who);
-                }
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                DoCast(who, SPELL_DAZED, true);
-                DoCastSelf(SPELL_LAWNMOWER_STARTUP_SOUND, true);
-                me->SetReactState(REACT_PASSIVE);
-                me->AttackStop();
-                _events.ScheduleEvent(EVENT_KILL_LANE, Milliseconds(300));
-            }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
-                    return;
-
-                if (id == POINT_SPITTER_TARGET)
-                    me->DespawnOrUnsummon();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_KILL_LANE:
-                            if (Creature* spitterTarget = me->FindNearestCreature(NPC_SPITTER_TARGET, 150.0f, true))
-                                me->GetMotionMaster()->MovePoint(POINT_SPITTER_TARGET, spitterTarget->GetPosition(), false);
-                            _events.ScheduleEvent(EVENT_PLAGUE_GAS, Milliseconds(200));
-                            break;
-                        case EVENT_PLAGUE_GAS:
-                            DoCastAOE(SPELL_PLAGUE_GAS, true);
-                            _events.Repeat(Milliseconds(500));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-            }
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_brazie_fertilitize_o_tron_2000AI(creature);
+            if (pos.HasInLine(who, 5.0f))
+                CreatureAI::AttackStart(who);
         }
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        DoCast(who, SPELL_DAZED, true);
+        DoCastSelf(SPELL_LAWNMOWER_STARTUP_SOUND, true);
+        me->SetReactState(REACT_PASSIVE);
+        me->AttackStop();
+        _events.ScheduleEvent(EVENT_KILL_LANE, Milliseconds(300));
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+            return;
+
+        if (id == POINT_SPITTER_TARGET)
+            me->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_KILL_LANE:
+                if (Creature* spitterTarget = me->FindNearestCreature(NPC_SPITTER_TARGET, 150.0f, true))
+                    me->GetMotionMaster()->MovePoint(POINT_SPITTER_TARGET, spitterTarget->GetPosition(), false);
+                _events.ScheduleEvent(EVENT_PLAGUE_GAS, Milliseconds(200));
+                break;
+            case EVENT_PLAGUE_GAS:
+                DoCastAOE(SPELL_PLAGUE_GAS, true);
+                _events.Repeat(Milliseconds(500));
+                break;
+            default:
+                break;
+            }
+        }
+
+    }
+private:
+    EventMap _events;
 };
 
-class npc_brazie_spot : public CreatureScript
+struct npc_brazie_spot : public ScriptedAI
 {
-    public:
-        npc_brazie_spot() : CreatureScript("npc_brazie_spot") { }
+    npc_brazie_spot(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
 
-        struct npc_brazie_spotAI : public ScriptedAI
+    void Initialize()
+    {
+        _currentEntry = me->GetEntry();
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage) override
+    {
+        if (damage >= me->GetHealth())
         {
-            npc_brazie_spotAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
+            damage = 0;
 
-            void Initialize()
-            {
-                _currentEntry = me->GetEntry();
-            }
+            me->SetFullHealth();
+            me->UpdateEntry(NPC_EMPTY_SPOT);
+            _currentEntry = NPC_EMPTY_SPOT;
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+            me->AttackStop();
+            me->SetFacingTo(me->GetHomePosition().GetOrientation());
+            _events.Reset();
+        }
+    }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+    void IsSummonedBy(Unit* summoner) override
+    {
+        me->m_SightDistance = 150.0f;
+        me->m_CombatDistance = 150.0f;
+
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+
+        if (Creature* vehicle = summoner->GetVehicleCreatureBase())
+            if (vehicle->IsAIEnabled)
+                vehicle->AI()->JustSummoned(me);
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (_currentEntry == NPC_EMPTY_SPOT || _currentEntry == NPC_SUNFLOWER)
+            return;
+
+        if (who->GetEntry() != NPC_ZOMBIE && who->GetEntry() != NPC_GHOUL)
+            return;
+
+        if (Creature* spitterTarget = me->FindNearestCreature(NPC_SPITTER_TARGET, 150.0f, true))
+        {
+            Position pos = me->GetPosition();
+            pos.SetOrientation(pos.GetAngle(spitterTarget));
+
+            if (pos.HasInLine(who, 5.0f))
             {
-                if (damage >= me->GetHealth())
+                me->SetFacingToObject(spitterTarget);
+                me->SetNoCallAssistance(true);
+                CreatureAI::AttackStart(who);
+            }
+        }
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_CURRENT_ENTRY)
+            return _currentEntry;
+
+        return 0;
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_PLANT_SPITTER:
+                me->UpdateEntry(NPC_SPITTER);
+                _currentEntry = NPC_SPITTER;
+                break;
+            case SPELL_PLANT_SUNFLOWER:
+                me->UpdateEntry(NPC_SUNFLOWER);
+                _currentEntry = NPC_SUNFLOWER;
+                _events.ScheduleEvent(EVENT_SUNLIGHT, 16s);
+                break;
+            case SPELL_PLANT_FREEZYA:
+                me->UpdateEntry(NPC_FREEZYA);
+                _currentEntry = NPC_FREEZYA;
+                break;
+            default:
+                break;
+        }
+
+        if (spell->Id != SPELL_PLAGUE_GAS)
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case EVENT_SUNLIGHT:
+                DoCastSelf(SPELL_SUNLIGHT, true);
+                if (TempSummon* summon = me->ToTempSummon())
                 {
-                    damage = 0;
-
-                    me->SetFullHealth();
-                    me->UpdateEntry(NPC_EMPTY_SPOT);
-                    _currentEntry = NPC_EMPTY_SPOT;
-                    me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-                    me->AttackStop();
-                    me->SetFacingTo(me->GetHomePosition().GetOrientation());
-                    _events.Reset();
-                }
-            }
-
-            void IsSummonedBy(Unit* summoner) override
-            {
-                me->m_SightDistance = 150.0f;
-                me->m_CombatDistance = 150.0f;
-
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-
-                if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-                    if (vehicle->IsAIEnabled)
-                        vehicle->AI()->JustSummoned(me);
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                if (_currentEntry == NPC_EMPTY_SPOT || _currentEntry == NPC_SUNFLOWER)
-                    return;
-
-                if (who->GetEntry() != NPC_ZOMBIE && who->GetEntry() != NPC_GHOUL)
-                    return;
-
-                if (Creature* spitterTarget = me->FindNearestCreature(NPC_SPITTER_TARGET, 150.0f, true))
-                {
-                    Position pos = me->GetPosition();
-                    pos.SetOrientation(pos.GetAngle(spitterTarget));
-
-                    if (pos.HasInLine(who, 5.0f))
+                    if (Unit* summoner = summon->GetSummoner())
                     {
-                        me->SetFacingToObject(spitterTarget);
+                        uint8 randomPositionIndex = urand(0, MAX_EMPTY_SPOT_POSITIONS - 1);
+                        Position pos = EmptySpotPositions[randomPositionIndex];
+                        float angle = frand(0, float(M_PI * 2));
+                        float x = pos.GetPositionX() + cos(angle) * 3;
+                        float y = pos.GetPositionY() + sin(angle) * 3;
+
+                        summoner->CastSpell(x, y, pos.GetPositionZ() + 50.0f, SPELL_CREATE_RANDOM_SUN_POWER, true);
+                    }
+                }
+                _events.Repeat(17s);
+                break;
+            default:
+                break;
+            }
+        }
+
+        if (_currentEntry == NPC_SPITTER)
+            DoSpellAttackIfReady(SPELL_VENOM_SPIT);
+        else if (_currentEntry == NPC_FREEZYA)
+            DoSpellAttackIfReady(SPELL_FREEZYA_BLAST);
+    }
+
+private:
+    EventMap _events;
+    uint32 _currentEntry;
+    GuidVector _zombieGuids;
+};
+
+struct npc_brazie_zombie : public ScriptedAI
+{
+    npc_brazie_zombie(Creature* creature) : ScriptedAI(creature), _pathIndex(0), _notifiedLowHealth(false)
+    {
+    }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        me->m_SightDistance = 3.0f;
+        me->m_CombatDistance = 3.0f;
+
+        me->SetWalk(true);
+
+        if (Creature* vehicle = summoner->GetVehicleCreatureBase())
+            if (vehicle->IsAIEnabled)
+                vehicle->AI()->JustSummoned(me);
+
+        for (uint8 i = 0; i < MAX_TARGET_POSITIONS; i++)
+            if (me->GetPosition().GetExactDist(SpitterTargetPositions[i]) <= 1.0f)
+                _pathIndex = i;
+
+        if (me->GetEntry() == NPC_ZOMBIE)
+            DoCastSelf(SPELL_ZOMBIE_GROWL);
+        else if (me->GetEntry() == NPC_GHOUL)
+        {
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid4);
+            DoCastSelf(SPELL_GHOUL_GROWL, true);
+            DoCastSelf(SPELL_BUCKET_HEAD, true);
+        }
+
+        _events.ScheduleEvent(EVENT_MOVE_TO_GOAL_POSITION, 2s + 400ms);
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        // Just to make sure that a zombie wont call nearby zombies for aid
+        if (who->GetDistance(me) > 3.0f)
+            return;
+
+        // If we have a plant very close to us we assume that this plant has been added afterwards
+        if (me->GetPosition().GetExactDist(who) < 3.0f)
+            return;
+
+        // Do not attack plants behind me if they got replanted
+        if (!who->isInFront(me, 1.8f))
+            return;
+
+        Position pos = me->GetPosition();
+        pos.SetOrientation(pos.GetAngle(GoalStalkerPositions[_pathIndex]));
+
+        if (pos.HasInLine(who, 4.8f))
+        {
+            if (Creature* target = who->ToCreature())
+            {
+                if (target->IsAIEnabled)
+                {
+                    if (target->AI()->GetData(DATA_CURRENT_ENTRY) != NPC_EMPTY_SPOT || target->GetEntry() == NPC_FERTILITIZE_O_TRON_2000)
+                    {
                         me->SetNoCallAssistance(true);
+                        me->StopMoving();
                         CreatureAI::AttackStart(who);
                     }
                 }
             }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_CURRENT_ENTRY)
-                    return _currentEntry;
-
-                return 0;
-            }
-
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-            {
-                switch (spell->Id)
-                {
-                    case SPELL_PLANT_SPITTER:
-                        me->UpdateEntry(NPC_SPITTER);
-                        _currentEntry = NPC_SPITTER;
-                        break;
-                    case SPELL_PLANT_SUNFLOWER:
-                        me->UpdateEntry(NPC_SUNFLOWER);
-                        _currentEntry = NPC_SUNFLOWER;
-                        _events.ScheduleEvent(EVENT_SUNLIGHT, Seconds(16));
-                        break;
-                    case SPELL_PLANT_FREEZYA:
-                        me->UpdateEntry(NPC_FREEZYA);
-                        _currentEntry = NPC_FREEZYA;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (spell->Id != SPELL_PLAGUE_GAS)
-                    me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SUNLIGHT:
-                            DoCastSelf(SPELL_SUNLIGHT, true);
-                            if (TempSummon* summon = me->ToTempSummon())
-                            {
-                                if (Unit* summoner = summon->GetSummoner())
-                                {
-                                    uint8 randomPositionIndex = urand(0, MAX_EMPTY_SPOT_POSITIONS - 1);
-                                    Position pos = EmptySpotPositions[randomPositionIndex];
-                                    float angle = frand(0, float(M_PI * 2));
-                                    float x = pos.GetPositionX() + cos(angle) * 3;
-                                    float y = pos.GetPositionY() + sin(angle) * 3;
-
-                                    summoner->CastSpell(x, y, pos.GetPositionZ() + 50.0f, SPELL_CREATE_RANDOM_SUN_POWER, true);
-                                }
-                            }
-                            _events.Repeat(Seconds(17));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                if (_currentEntry == NPC_SPITTER)
-                    DoSpellAttackIfReady(SPELL_VENOM_SPIT);
-                else if (_currentEntry == NPC_FREEZYA)
-                    DoSpellAttackIfReady(SPELL_FREEZYA_BLAST);
-            }
-
-        private:
-            EventMap _events;
-            uint32 _currentEntry;
-            GuidVector _zombieGuids;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_brazie_spotAI(creature);
         }
-};
+    }
 
-class npc_brazie_zombie : public CreatureScript
-{
-    public:
-        npc_brazie_zombie() : CreatureScript("npc_brazie_zombie") { }
-
-        struct npc_brazie_zombieAI : public ScriptedAI
-        {
-            npc_brazie_zombieAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Inizialize();
-            }
-
-            void Inizialize()
-            {
-                _pathIndex = 0;
-                _notifiedLowHealth = false;
-            }
-
-            void IsSummonedBy(Unit* summoner) override
-            {
-                me->m_SightDistance = 3.0f;
-                me->m_CombatDistance = 3.0f;
-
-                me->SetWalk(true);
-
+    void JustDied(Unit* /*killer*/)
+    {
+        if (TempSummon* summon = me->ToTempSummon())
+            if (Unit* summoner = summon->GetSummoner())
                 if (Creature* vehicle = summoner->GetVehicleCreatureBase())
                     if (vehicle->IsAIEnabled)
-                        vehicle->AI()->JustSummoned(me);
+                        vehicle->AI()->DoAction(ACTION_ZOMBIE_DIED);
 
-                for (uint8 i = 0; i < MAX_TARGET_POSITIONS; i++)
-                    if (me->GetPosition().GetExactDist(SpitterTargetPositions[i]) <= 1.0f)
-                        _pathIndex = i;
+        me->DespawnOrUnsummon(4s);
+    }
 
-                if (me->GetEntry() == NPC_ZOMBIE)
-                    DoCastSelf(SPELL_ZOMBIE_GROWL);
-                else if (me->GetEntry() == NPC_GHOUL)
-                {
-                    me->SetDisplayId(me->GetCreatureTemplate()->Modelid4);
-                    DoCastSelf(SPELL_GHOUL_GROWL, true);
-                    DoCastSelf(SPELL_BUCKET_HEAD, true);
-                }
-
-                _events.ScheduleEvent(EVENT_MOVE_TO_GOAL_POSITION, Seconds(2) + Milliseconds(400));
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(50, damage) && !_notifiedLowHealth)
+        {
+            if (me->GetEntry() == NPC_ZOMBIE)
+                DoCastSelf(SPELL_LEAKING_GUTS, true);
+            else if (me->GetEntry() == NPC_GHOUL)
+            {
+                me->RemoveAurasDueToSpell(SPELL_BUCKET_HEAD);
+                DoCastSelf(SPELL_BUCKET, true);
             }
 
-            void AttackStart(Unit* who) override
+            if (TempSummon* summon = me->ToTempSummon())
             {
-                // Just to make sure that a zombie wont call nearby zombies for aid
-                if (who->GetDistance(me) > 3.0f)
-                    return;
-
-                // If we have a plant very close to us we assume that this plant has been added afterwards
-                if (me->GetPosition().GetExactDist(who) < 3.0f)
-                    return;
-
-                // Do not attack plants behind me if they got replanted
-                if (!who->isInFront(me, 1.8f))
-                    return;
-
-
-                Position pos = me->GetPosition();
-                pos.SetOrientation(pos.GetAngle(GoalStalkerPositions[_pathIndex]));
-
-                if (pos.HasInLine(who, 4.8f))
+                if (Unit* summoner = summon->GetSummoner())
                 {
-                    if (Creature* target = who->ToCreature())
+                    if (Creature* vehicle = summoner->GetVehicleCreatureBase())
                     {
-                        if (target->IsAIEnabled)
+                        if (vehicle->IsAIEnabled)
                         {
-                            if (target->AI()->GetData(DATA_CURRENT_ENTRY) != NPC_EMPTY_SPOT || target->GetEntry() == NPC_FERTILITIZE_O_TRON_2000)
-                            {
-                                me->SetNoCallAssistance(true);
-                                me->StopMoving();
-                                CreatureAI::AttackStart(who);
-                            }
+                            if (me->GetEntry() == NPC_ZOMBIE)
+                                vehicle->AI()->DoAction(ACTION_ZOMBIE_DAMAGED);
+                            else if (me->GetEntry() == NPC_GHOUL)
+                                vehicle->AI()->DoAction(ACTION_GHOUL_DAMAGED);
                         }
                     }
                 }
             }
 
-            void JustDied(Unit* /*killer*/)
-            {
+            _notifiedLowHealth = true;
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+            return;
+
+        if (id == POINT_GOAL_STALKER)
+            if (me->GetPosition().GetExactDist(GoalStalkerPositions[_pathIndex]) <= 0.1f)
                 if (TempSummon* summon = me->ToTempSummon())
                     if (Unit* summoner = summon->GetSummoner())
                         if (Creature* vehicle = summoner->GetVehicleCreatureBase())
                             if (vehicle->IsAIEnabled)
-                                vehicle->AI()->DoAction(ACTION_ZOMBIE_DIED);
+                                vehicle->AI()->DoAction(ACTION_QUEST_FAILED);
+    }
 
-                me->DespawnOrUnsummon(Seconds(4));
-            }
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                if (me->HealthBelowPctDamaged(50, damage) && !_notifiedLowHealth)
-                {
-                    if (me->GetEntry() == NPC_ZOMBIE)
-                        DoCastSelf(SPELL_LEAKING_GUTS, true);
-                    else if (me->GetEntry() == NPC_GHOUL)
+                case EVENT_MOVE_TO_GOAL_POSITION:
+                    me->GetMotionMaster()->MovePoint(POINT_GOAL_STALKER, GoalStalkerPositions[_pathIndex], false);
+                    _events.ScheduleEvent(EVENT_CHECK_VICTIM_STATE, 1s);
+                    break;
+                case EVENT_CHECK_VICTIM_STATE:
+                    if (Unit* victim = me->GetVictim())
                     {
-                        me->RemoveAurasDueToSpell(SPELL_BUCKET_HEAD);
-                        DoCastSelf(SPELL_BUCKET, true);
-                    }
-
-                    if (TempSummon* summon = me->ToTempSummon())
-                    {
-                        if (Unit* summoner = summon->GetSummoner())
+                        if (Creature* target = victim->ToCreature())
                         {
-                            if (Creature* vehicle = summoner->GetVehicleCreatureBase())
+                            if (target->IsAIEnabled)
                             {
-                                if (vehicle->IsAIEnabled)
+                                if (target->AI()->GetData(DATA_CURRENT_ENTRY) == NPC_EMPTY_SPOT)
                                 {
-                                    if (me->GetEntry() == NPC_ZOMBIE)
-                                        vehicle->AI()->DoAction(ACTION_ZOMBIE_DAMAGED);
-                                    else if (me->GetEntry() == NPC_GHOUL)
-                                        vehicle->AI()->DoAction(ACTION_GHOUL_DAMAGED);
+                                    me->AttackStop();
+                                    me->SetWalk(true);
+                                    me->GetMotionMaster()->MovePoint(POINT_GOAL_STALKER, GoalStalkerPositions[_pathIndex], false);
                                 }
                             }
                         }
                     }
-
-                    _notifiedLowHealth = true;
-                }
+                    _events.Repeat(1s);
+                    break;
+                default:
+                    break;
             }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
-                    return;
-
-                if (id == POINT_GOAL_STALKER)
-                    if (me->GetPosition().GetExactDist(GoalStalkerPositions[_pathIndex]) <= 0.1f)
-                        if (TempSummon* summon = me->ToTempSummon())
-                            if (Unit* summoner = summon->GetSummoner())
-                                if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-                                    if (vehicle->IsAIEnabled)
-                                        vehicle->AI()->DoAction(ACTION_QUEST_FAILED);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_MOVE_TO_GOAL_POSITION:
-                            me->GetMotionMaster()->MovePoint(POINT_GOAL_STALKER, GoalStalkerPositions[_pathIndex], false);
-                            _events.ScheduleEvent(EVENT_CHECK_VICTIM_STATE, Seconds(1));
-                            break;
-                        case EVENT_CHECK_VICTIM_STATE:
-                            if (Unit* victim = me->GetVictim())
-                            {
-                                if (Creature* target = victim->ToCreature())
-                                {
-                                    if (target->IsAIEnabled)
-                                    {
-                                        if (target->AI()->GetData(DATA_CURRENT_ENTRY) == NPC_EMPTY_SPOT)
-                                        {
-                                            me->AttackStop();
-                                            me->SetWalk(true);
-                                            me->GetMotionMaster()->MovePoint(POINT_GOAL_STALKER, GoalStalkerPositions[_pathIndex], false);
-                                        }
-                                    }
-                                }
-                            }
-
-                            _events.Repeat(Seconds(1));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-
-            }
-        private:
-            EventMap _events;
-            uint8 _pathIndex;
-            bool _notifiedLowHealth;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_brazie_zombieAI(creature);
         }
+        DoMeleeAttackIfReady();
+
+    }
+private:
+    EventMap _events;
+    uint8 _pathIndex;
+    bool _notifiedLowHealth;
 };
 
-class npc_brazie_vehicle_notifier : public CreatureScript
+struct npc_brazie_vehicle_notifier : public ScriptedAI
 {
-    public:
-        npc_brazie_vehicle_notifier() : CreatureScript("npc_brazie_vehicle_notifier") { }
+    npc_brazie_vehicle_notifier(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_brazie_vehicle_notifierAI : public ScriptedAI
+    void IsSummonedBy(Unit* summoner) override
+    {
+        switch (me->GetEntry())
         {
-            npc_brazie_vehicle_notifierAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(Unit* summoner) override
-            {
-                switch (me->GetEntry())
-                {
-                    case NPC_SOLAR_POWER:
-                    case NPC_FREEZYA_SEEDS:
-                        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        break;
-                    case NPC_PLACE_IT_HERE:
-                        me->Relocate(EmptySpotPositions[0]);
-                        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
-                        break;
-                    default:
-                        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-                        break;
-                }
-
-                if (Creature* vehicle = summoner->GetVehicleCreatureBase())
-                    if (vehicle->IsAIEnabled)
-                        vehicle->AI()->JustSummoned(me);
-            }
-
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
-            {
-                if (!caster)
-                    return;
-
-                switch (spell->Id)
-                {
-                    case SPELL_GAIN_SOLAR_POWER_SPELLCLICK:
-                        if (Unit* vehicle = caster->GetVehicleCreatureBase())
-                            DoCast(vehicle, SPELL_GAIN_SOLAR_POWER_ENERGIZE, true);
-                        me->GetMotionMaster()->MoveJump(SolarPowerJumpPos, 45.0f, 20.0f);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                        me->DespawnOrUnsummon(Seconds(2));
-                        break;
-                    case SPELL_GET_FREEZYA_SEEDS:
-                        me->GetMotionMaster()->MoveJump(FreezyaSeedJumpPos, 45.0f, 20.0f);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                        me->DespawnOrUnsummon(Seconds(2));
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_brazie_vehicle_notifierAI(creature);
+        case NPC_SOLAR_POWER:
+        case NPC_FREEZYA_SEEDS:
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            break;
+        case NPC_PLACE_IT_HERE:
+            me->Relocate(EmptySpotPositions[0]);
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+            break;
+        default:
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+            break;
         }
+
+        if (Creature* vehicle = summoner->GetVehicleCreatureBase())
+            if (vehicle->IsAIEnabled)
+                vehicle->AI()->JustSummoned(me);
+    }
+
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        if (!caster)
+            return;
+
+        switch (spell->Id)
+        {
+        case SPELL_GAIN_SOLAR_POWER_SPELLCLICK:
+            if (Unit* vehicle = caster->GetVehicleCreatureBase())
+                DoCast(vehicle, SPELL_GAIN_SOLAR_POWER_ENERGIZE, true);
+            me->GetMotionMaster()->MoveJump(SolarPowerJumpPos, 45.0f, 20.0f);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            me->DespawnOrUnsummon(Seconds(2));
+            break;
+        case SPELL_GET_FREEZYA_SEEDS:
+            me->GetMotionMaster()->MoveJump(FreezyaSeedJumpPos, 45.0f, 20.0f);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            me->DespawnOrUnsummon(Seconds(2));
+            break;
+        default:
+            break;
+        }
+    }
 };
 
-class spell_brazie_summon_plant : public SpellScriptLoader
+class spell_brazie_summon_plant : public SpellScript
 {
-    public:
-        spell_brazie_summon_plant() : SpellScriptLoader("spell_brazie_summon_plant") { }
+    PrepareSpellScript(spell_brazie_summon_plant);
 
-        class spell_brazie_summon_plant_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SUNFLOWER_HIGHLIGHT,
+                SPELL_SPITTER_HIGHLIGHT
+            });
+    }
+
+    SpellCastResult CheckLocation()
+    {
+        if (Creature* creature = GetCaster()->ToCreature())
+            if (CAST_AI(npc_brazie_the_bonatist_vehicle,
+                creature->AI())->IsSpotFree(GetExplTargetDest()->GetPosition()))
+                return SPELL_CAST_OK;
+
+        return SPELL_FAILED_BAD_TARGETS;
+    }
+
+    void PreventEffect(SpellEffIndex effIndex)
+    {
+        PreventHitEffect(effIndex);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || caster->GetTypeId() != TYPEID_UNIT)
+            return;
+
+        Creature* creature = caster->ToCreature();
+
+        if (creature->IsAIEnabled)
         {
-            PrepareSpellScript(spell_brazie_summon_plant_SpellScript);
+            if (creature->HasAura(SPELL_SUNFLOWER_HIGHLIGHT))
+                creature->AI()->DoAction(ACTION_FIRST_SUNFLOWER_PLANTED);
 
-            SpellCastResult CheckLocation()
-            {
-                if (Creature* creature = GetCaster()->ToCreature())
-                    if (CAST_AI(npc_brazie_the_bonatist_vehicle::npc_brazie_the_bonatist_vehicleAI,
-                        creature->AI())->IsSpotFree(GetExplTargetDest()->GetPosition()))
-                        return SPELL_CAST_OK;
-
-                return SPELL_FAILED_BAD_TARGETS;
-            }
-
-            void PreventEffect(SpellEffIndex effIndex)
-            {
-                PreventHitEffect(effIndex);
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
-
-                Creature* creature = caster->ToCreature();
-                if (!creature)
-                    return;
-
-                Unit* target = GetHitUnit();
-                if (!target)
-                    return;
-
-                if (Creature* dummy = target->FindNearestCreature(NPC_PLACE_IT_HERE, 150.0f, true))
-                {
-                    dummy->DespawnOrUnsummon();
-
-                    switch (GetSpellInfo()->Id)
-                    {
-                        case SPELL_PLANT_SPITTER:
-                            if (creature->HasAura(SPELL_SPITTER_HIGHLIGHT))
-                            {
-                                creature->RemoveAurasDueToSpell(SPELL_SPITTER_HIGHLIGHT);
-                                if (creature->IsAIEnabled)
-                                    creature->AI()->DoAction(ACTION_FIRST_SPITTER_PLANTED);
-                            }
-                            break;
-                        case SPELL_PLANT_SUNFLOWER:
-                            if (creature->HasAura(SPELL_SUNFLOWER_HIGHLIGHT))
-                                creature->RemoveAurasDueToSpell(SPELL_SUNFLOWER_HIGHLIGHT);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_brazie_summon_plant_SpellScript::CheckLocation);
-                OnEffectHitTarget += SpellEffectFn(spell_brazie_summon_plant_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-                OnEffectHit += SpellEffectFn(spell_brazie_summon_plant_SpellScript::PreventEffect, EFFECT_0, SPELL_EFFECT_TRANS_DOOR);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_brazie_summon_plant_SpellScript();
+            if (creature->HasAura(SPELL_SPITTER_HIGHLIGHT))
+                creature->AI()->DoAction(ACTION_FIRST_SPITTER_PLANTED);
         }
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_brazie_summon_plant::CheckLocation);
+        OnEffectHitTarget += SpellEffectFn(spell_brazie_summon_plant::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_brazie_summon_plant::PreventEffect, EFFECT_0, SPELL_EFFECT_TRANS_DOOR);
+    }
 };
 
-class spell_brazie_highlight : public SpellScriptLoader
+class spell_brazie_highlight : public SpellScript
 {
-    public:
-        spell_brazie_highlight() : SpellScriptLoader("spell_brazie_highlight") { }
+    PrepareSpellScript(spell_brazie_highlight);
 
-        class spell_brazie_highlight_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_brazie_highlight_SpellScript);
+    void SetDest(SpellDestination& dest)
+    {
+        dest.Relocate(EmptySpotPositions[0]);
+    }
 
-            void SetDestPosition(SpellEffIndex /*effIndex*/)
-            {
-                const_cast<WorldLocation*>(GetExplTargetDest())->Relocate(EmptySpotPositions[0]);
-                GetHitDest()->Relocate(EmptySpotPositions[0]);
-            }
-
-            void Register()
-            {
-                OnEffectLaunch += SpellEffectFn(spell_brazie_highlight_SpellScript::SetDestPosition, EFFECT_1, SPELL_EFFECT_SUMMON);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_brazie_highlight_SpellScript();
-        }
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_brazie_highlight::SetDest, EFFECT_1, TARGET_DEST_NEARBY_ENTRY);
+    }
 };
 
-class spell_brazie_create_random_seed_sack : public SpellScriptLoader
+class spell_brazie_create_random_seed_sack : public SpellScript
 {
-    public:
-        spell_brazie_create_random_seed_sack() : SpellScriptLoader("spell_brazie_create_random_seed_sack") { }
+    PrepareSpellScript(spell_brazie_create_random_seed_sack);
 
-        class spell_brazie_create_random_seed_sack_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_brazie_create_random_seed_sack_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CREATE_RANDOM_FREEZYA_SACK });
+    }
 
-            void SetDestPosition(SpellEffIndex /*effIndex*/)
-            {
-                Position const pos = GetSpellInfo()->Id == SPELL_CREATE_RANDOM_FREEZYA_SACK ? FreezyaSeedSummonPos : GetExplTargetDest()->GetPosition();
+    void SetDest(SpellDestination& dest)
+    {
+        if (GetSpellInfo()->Id == SPELL_CREATE_RANDOM_FREEZYA_SACK)
+            dest.Relocate(FreezyaSeedSummonPos);
+    }
 
-                const_cast<WorldLocation*>(GetExplTargetDest())->Relocate(pos);
-                GetHitDest()->Relocate(pos);
-            }
-
-            void Register()
-            {
-                OnEffectLaunch += SpellEffectFn(spell_brazie_create_random_seed_sack_SpellScript::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_brazie_create_random_seed_sack_SpellScript();
-        }
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_brazie_create_random_seed_sack::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
 };
 
-class spell_brazie_spit : public SpellScriptLoader
+class spell_brazie_spit : public SpellScript
 {
-    public:
-        spell_brazie_spit() : SpellScriptLoader("spell_brazie_spit") { }
+    PrepareSpellScript(spell_brazie_spit);
 
-        class spell_brazie_spit_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_brazie_spit_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
             {
-                if (targets.empty())
-                    return;
+                SPELL_VENOM_SPIT,
+                SPELL_FREEZYA_BLAST
+            });
+    }
 
-                if (GetSpellInfo()->Id == SPELL_VENOM_SPIT)
-                {
-                    targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
-                    targets.resize(1);
-                }
-                else
-                {
-                    std::list<WorldObject*> targetsBackup = targets;
-                    targetsBackup.remove_if(Trinity::UnitAuraCheck(true, SPELL_FREEZYA_BLAST));
-                    if (targetsBackup.empty())
-                    {
-                        targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
-                        targets.resize(1);
-                    }
-                    else
-                    {
-                        targets = targetsBackup;
-                        targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
-                        targets.resize(1);
-                    }
-                }
-            }
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
 
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_brazie_spit_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_CONE_ENEMY_104);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
+        if (GetSpellInfo()->Id == SPELL_VENOM_SPIT)
         {
-            return new spell_brazie_spit_SpellScript();
+            targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
+            targets.resize(1);
         }
+        else
+        {
+            std::list<WorldObject*> targetsBackup = targets;
+            targetsBackup.remove_if(Trinity::UnitAuraCheck(true, SPELL_FREEZYA_BLAST));
+            if (targetsBackup.empty())
+            {
+                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
+                targets.resize(1);
+            }
+            else
+            {
+                targets = targetsBackup;
+                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), true));
+                targets.resize(1);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_brazie_spit::FilterTargets, EFFECT_ALL, TARGET_UNIT_CONE_ENEMY_104);
+    }
 };
 
 void AddSC_hillsbrad_foothills()
 {
-    new npc_brazie_the_bonatist_vehicle();
-    new npc_brazie_fertilitize_o_tron_2000();
-    new npc_brazie_spot();
-    new npc_brazie_zombie();
-    new npc_brazie_vehicle_notifier();
-    new spell_brazie_summon_plant();
-    new spell_brazie_highlight();
-    new spell_brazie_create_random_seed_sack();
-    new spell_brazie_spit();
+    RegisterCreatureAI(npc_brazie_the_bonatist_vehicle);
+    RegisterCreatureAI(npc_brazie_fertilitize_o_tron_2000);
+    RegisterCreatureAI(npc_brazie_spot);
+    RegisterCreatureAI(npc_brazie_zombie);
+    RegisterCreatureAI(npc_brazie_vehicle_notifier);
+    RegisterSpellScript(spell_brazie_summon_plant);
+    RegisterSpellScript(spell_brazie_highlight);
+    RegisterSpellScript(spell_brazie_create_random_seed_sack);
+    RegisterSpellScript(spell_brazie_spit);
 }
