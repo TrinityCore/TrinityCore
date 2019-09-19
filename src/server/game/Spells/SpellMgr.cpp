@@ -5474,6 +5474,44 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
     });
 
+    // Dragon Orb
+    ApplySpellFix({
+        78219,
+        78220
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
+    });
+
+    // Shadowflame Breath
+    ApplySpellFix({
+        77826,
+        94124,
+        94125,
+        94126,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].Amplitude = 1500;
+    });
+
+    // Electrical Charge
+    ApplySpellFix({ 78949 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].Amplitude = 3000;
+    });
+
+    // Lightning Discharge
+    ApplySpellFix({
+        81435,
+        81436,
+        81437,
+        81438,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_18_YARDS);
+    });
+
+
     // ENDOF BLACKWING DESCENT SPELLS
 
     // Living Bomb

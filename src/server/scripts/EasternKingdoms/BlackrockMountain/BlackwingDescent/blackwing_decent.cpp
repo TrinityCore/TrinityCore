@@ -52,6 +52,40 @@ private:
     InstanceScript* _instance;
 };
 
+enum DragonOrb
+{
+    SPELL_DRAGON_ORB_1 = 78219
+};
+
+Position const DragonOrb1Offset = { -28.80208f, -216.4497f, 71.34686f };
+Position const DragonOrb2Offset = { -28.80208f, -232.4497f, 71.34686f };
+
+class spell_bwd_dragon_orb : public SpellScript
+{
+    PrepareSpellScript(spell_bwd_dragon_orb);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRAGON_ORB_1 });
+    }
+
+    void SetDest(SpellDestination& dest)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+        if (GetSpellInfo()->Id == SPELL_DRAGON_ORB_1)
+            dest.Relocate(DragonOrb1Offset);
+        else
+            dest.Relocate(DragonOrb2Offset);
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_bwd_dragon_orb::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
+    }
+};
+
 class at_bwd_intro: public AreaTriggerScript
 {
     public:
@@ -68,5 +102,6 @@ class at_bwd_intro: public AreaTriggerScript
 void AddSC_blackwing_descent()
 {
     RegisterGameObjectAI(go_bwd_ancient_bell);
+    RegisterSpellScript(spell_bwd_dragon_orb);
     new at_bwd_intro();
 }

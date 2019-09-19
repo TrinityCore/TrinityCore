@@ -24,33 +24,39 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_MAGMAW,                          DATA_MAGMAW                         },
-    { BOSS_OMNOTRON,                        DATA_OMNOTRON_DEFENSE_SYSTEM        },
-    { BOSS_ATRAMEDES,                       DATA_ATRAMEDES                      },
-    { BOSS_CHIMAERON,                       DATA_CHIMAERON                      },
-    { BOSS_MALORIAK,                        DATA_MALORIAK                       },
-    { NPC_ELECTRON,                         DATA_ELECTRON                       },
-    { NPC_MAGMATRON,                        DATA_MAGMATRON                      },
-    { NPC_TOXITRON,                         DATA_TOXITRON                       },
-    { NPC_ARCANOTRON,                       DATA_ARCANOTRON                     },
-    { NPC_NEFARIAN_MAGMAW,                  DATA_NEFARIAN_MAGMAW                },
-    { NPC_LORD_VICTOR_NEFARIUS_OMNOTRON,    DATA_LORD_VICTOR_NEFARIUS_OMNOTRON  },
-    { NPC_COLUMN_OF_LIGHT,                  DATA_COLUMN_OF_LIGHT                },
-    { NPC_LORD_VICTOR_NEFARIUS_ATRAMEDES,   DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES },
-    { NPC_BILE_O_TRON_800,                  DATA_BILE_O_TRON_800                },
-    { NPC_FINKLE_EINHORN,                   DATA_FINKLE_EINHORN                 },
-    { NPC_LORD_VICTOR_NEFARIUS_CHIMAERON,   DATA_LORD_VICTOR_NEFARIUS_CHIMAERON },
-    { NPC_CAULDRON_TRIGGER,                 DATA_CAULDRON_TRIGGER               },
-    { NPC_LORD_VICTOR_NEFARIUS_MALORIAK,    DATA_LORD_VICTOR_NEFARIUS_MALORIAK  },
-    { 0,                                    0                                   } // END
+    { BOSS_MAGMAW,                              DATA_MAGMAW                             },
+    { BOSS_OMNOTRON,                            DATA_OMNOTRON_DEFENSE_SYSTEM            },
+    { BOSS_ATRAMEDES,                           DATA_ATRAMEDES                          },
+    { BOSS_CHIMAERON,                           DATA_CHIMAERON                          },
+    { BOSS_MALORIAK,                            DATA_MALORIAK                           },
+    { BOSS_NEFARIAN,                            DATA_NEFARIANS_END                      },
+    { NPC_ELECTRON,                             DATA_ELECTRON                           },
+    { NPC_MAGMATRON,                            DATA_MAGMATRON                          },
+    { NPC_TOXITRON,                             DATA_TOXITRON                           },
+    { NPC_ARCANOTRON,                           DATA_ARCANOTRON                         },
+    { NPC_NEFARIAN_MAGMAW,                      DATA_NEFARIAN_MAGMAW                    },
+    { NPC_LORD_VICTOR_NEFARIUS_OMNOTRON,        DATA_LORD_VICTOR_NEFARIUS_OMNOTRON      },
+    { NPC_COLUMN_OF_LIGHT,                      DATA_COLUMN_OF_LIGHT                    },
+    { NPC_LORD_VICTOR_NEFARIUS_ATRAMEDES,       DATA_LORD_VICTOR_NEFARIUS_ATRAMEDES     },
+    { NPC_BILE_O_TRON_800,                      DATA_BILE_O_TRON_800                    },
+    { NPC_FINKLE_EINHORN,                       DATA_FINKLE_EINHORN                     },
+    { NPC_LORD_VICTOR_NEFARIUS_CHIMAERON,       DATA_LORD_VICTOR_NEFARIUS_CHIMAERON     },
+    { NPC_CAULDRON_TRIGGER,                     DATA_CAULDRON_TRIGGER                   },
+    { NPC_LORD_VICTOR_NEFARIUS_MALORIAK,        DATA_LORD_VICTOR_NEFARIUS_MALORIAK      },
+    { NPC_LORD_VICTOR_NEFARIUS_NEFARIANS_END,   DATA_LORD_VICTOR_NEFARIUS_NEFARIANS_END },
+    { NPC_INVISIBLE_STALKER,                    DATA_INVISIBLE_STALKER                  },
+    { NPC_NEFARIANS_LIGHTNING_MACHINE,          DATA_NEFARIANS_LIGHTNING_MACHINE        },
+    { NPC_ONYXIA,                               DATA_ONYXIA                             },
+    { 0,                                        0                                       } // END
 };
 
 ObjectData const gameobjectData[] =
 {
-    { GO_ANCIENT_BELL,                              DATA_ANCIENT_BELL   },
-    { GO_ATHENAEUM_DOOR,                            DATA_ATHENAEUM_DOOR },
-    { GO_DOODAD_BLACKROCKV2_LABROOM_CAULDRON_01,    DATA_CAULDRON       },
-    { 0,                                            0                   }  // END
+    { GO_ANCIENT_BELL,                              DATA_ANCIENT_BELL               },
+    { GO_ATHENAEUM_DOOR,                            DATA_ATHENAEUM_DOOR             },
+    { GO_DOODAD_BLACKROCKV2_LABROOM_CAULDRON_01,    DATA_CAULDRON                   },
+    { GO_DOODAD_BLACKWINGV2_ELEVATOR_ONYXIA,        DATA_BLACKWING_ELEVATOR_ONYXIA  },
+    { 0,                                            0                               }  // END
 };
 
 DoorData const doorData[] =
@@ -71,7 +77,8 @@ Position const LordVictorNefariusIntroPosition  = { -290.4809f, -224.5955f, 191.
 enum Events
 {
     EVENT_MAKE_ANCIENT_BELL_SELECTABLE = 1,
-    EVENT_RESPAWN_ATRAMEDES
+    EVENT_RESPAWN_ATRAMEDES,
+    EVENT_RESPAWN_NEFARIAN_END_SETUP
 };
 
 enum Actions
@@ -81,7 +88,8 @@ enum Actions
 
 enum SpawnGroup
 {
-    SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS = 400
+    SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS = 400,
+    SPAWN_GROUP_NEFARIANS_END           = 402
 };
 
 enum SummonGroups
@@ -253,9 +261,20 @@ class instance_blackwing_descent : public InstanceMapScript
                         else if (state == DONE)
                             instance->SpawnGroupDespawn(SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS, false);
                         break;
+                    case DATA_NEFARIANS_END:
+                        if (state == FAIL)
+                        {
+                            instance->SpawnGroupDespawn(SPAWN_GROUP_NEFARIANS_END, false);
+                            _events.ScheduleEvent(EVENT_RESPAWN_NEFARIAN_END_SETUP, 30s);
+                        }
+                        break;
                     default:
                         break;
                 }
+
+                if (type != DATA_NEFARIANS_END)
+                    if (IsNefarianAvailable())
+                        instance->SpawnGroupSpawn(SPAWN_GROUP_NEFARIANS_END, true);
 
                 return true;
             }
@@ -397,6 +416,9 @@ class instance_blackwing_descent : public InstanceMapScript
                             instance->SpawnGroupSpawn(SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS, true);
                             instance->SummonCreature(BOSS_ATRAMEDES, AtramedesRespawnPosition);
                             break;
+                        case EVENT_RESPAWN_NEFARIAN_END_SETUP:
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_NEFARIANS_END, true);
+                            break;
                         default:
                             break;
                     }
@@ -420,6 +442,9 @@ class instance_blackwing_descent : public InstanceMapScript
 
                 if (GetBossState(DATA_ATRAMEDES) != DONE)
                     instance->SpawnGroupSpawn(SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS, true);
+
+                if (IsNefarianAvailable())
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_NEFARIANS_END, true);
             }
 
         private:
@@ -433,6 +458,15 @@ class instance_blackwing_descent : public InstanceMapScript
             uint8 _deadDwarfSpirits;
             uint8 _atramedesIntroState;
             bool _entranceSequenceDone;
+
+            bool IsNefarianAvailable() const
+            {
+                for (BWDDataTypes data : { DATA_MAGMAW, DATA_OMNOTRON_DEFENSE_SYSTEM, DATA_CHIMAERON, DATA_ATRAMEDES, DATA_MALORIAK })
+                    if (GetBossState(data) != DONE)
+                        return false;
+
+                return true;
+            }
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
