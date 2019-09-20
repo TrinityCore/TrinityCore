@@ -12663,6 +12663,9 @@ void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
     }
     else
     {
+        if (!GetMap()->IsGridLoaded(pos.GetPositionX(), pos.GetPositionY()))
+            GetMap()->LoadGrid(pos.GetPositionX(), pos.GetPositionY());
+
         SendTeleportPacket(pos);
         UpdatePosition(pos, true);
         UpdateObjectVisibility();
