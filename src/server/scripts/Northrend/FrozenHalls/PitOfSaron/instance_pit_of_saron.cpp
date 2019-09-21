@@ -137,6 +137,8 @@ class instance_pit_of_saron : public InstanceMapScript
                         return _teamInInstance == ALLIANCE ? NPC_FREED_SLAVE_3_ALLIANCE : NPC_FREED_SLAVE_3_HORDE;
                     case NPC_RESCUED_SLAVE_HORDE:
                         return _teamInInstance == ALLIANCE ? NPC_RESCUED_SLAVE_ALLIANCE : NPC_RESCUED_SLAVE_HORDE;
+                    case NPC_GORKUN_IRONSKULL_2:
+                        return _teamInInstance == ALLIANCE ? NPC_MARTIN_VICTUS_1 : NPC_GORKUN_IRONSKULL_2;
                     default:
                         return entry;
                 }
