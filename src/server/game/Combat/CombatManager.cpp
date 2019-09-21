@@ -23,6 +23,8 @@
 
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
 {
+    // ToDo: add whatever is missing from WorldObject::IsValidAttackTarget() or use that function instead of copying everything here
+
     // Checks combat validity before initial reference creation.
     // For the combat to be valid...
     // ...the two units need to be different
@@ -44,6 +46,17 @@
         return false;
     if (a->HasUnitState(UNIT_STATE_IN_FLIGHT) || b->HasUnitState(UNIT_STATE_IN_FLIGHT))
         return false;
+
+    // check for immune to PC/NPC flags
+    if (!a->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && b->IsImmuneToNPC())
+        return false;
+    if (!b->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && a->IsImmuneToNPC())
+        return false;
+    if (a->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && b->IsImmuneToPC())
+        return false;
+    if (b->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && a->IsImmuneToPC())
+        return false;
+
     if (a->IsFriendlyTo(b) || b->IsFriendlyTo(a))
         return false;
     Player const* playerA = a->GetCharmerOrOwnerPlayerOrPlayerItself();
