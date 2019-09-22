@@ -877,10 +877,16 @@ class spell_mage_ignite : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
+        Unit* target = GetTarget();
         DamageInfo* damage = eventInfo.GetDamageInfo();
 
         int32 bp = CalculatePct(damage->GetDamage(), aurEff->GetAmount()) * 0.5f;
-        GetTarget()->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+
+        if (AuraEffect const* ignite = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_MAGE_IGNITE, EFFECT_0, target->GetGUID()))
+            if (!ignite->GetTickNumber())
+                bp += ignite->GetAmount();
+
+        target->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
     }
 
     void Register() override
