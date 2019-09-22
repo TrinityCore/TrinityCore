@@ -136,7 +136,7 @@ enum Spells
     SPELL_HARVEST_SOUL_VEHICLE          = 68984,
     SPELL_HARVEST_SOUL_VISUAL           = 71372,
     SPELL_HARVEST_SOUL_TELEPORT         = 72546,
-    SPELL_HARVEST_SOULS_TELEPORT        = 73655,
+    SPELL_HARVEST_SOULS_TELEPORT        = 73655,    // Heroic version, also periodic damage (Frostmourne)
     SPELL_HARVEST_SOUL_TELEPORT_BACK    = 72597,
     SPELL_IN_FROSTMOURNE_ROOM           = 74276,
     SPELL_KILL_FROSTMOURNE_PLAYERS      = 75127,
@@ -156,7 +156,6 @@ enum Spells
     SPELL_SUMMON_SPIRIT_BOMB_1          = 73581,    // (Heroic)
     SPELL_SUMMON_SPIRIT_BOMB_2          = 74299,    // (Heroic)
     SPELL_EXPLOSION                     = 73576,    // Spirit Bomb (Heroic)
-    SPELL_HARVEST_SOUL_DAMAGE_AURA      = 73655,
 
     // Outro
     SPELL_FURY_OF_FROSTMOURNE           = 72350,
@@ -1677,7 +1676,7 @@ class npc_strangulate_vehicle : public CreatureScript
                     if (Unit* summoner = summ->GetSummonerUnit())
                     {
                         DoCast(summoner, SPELL_HARVEST_SOUL_TELEPORT_BACK);
-                        summoner->RemoveAurasDueToSpell(SPELL_HARVEST_SOUL_DAMAGE_AURA);
+                        summoner->RemoveAurasDueToSpell(SPELL_HARVEST_SOULS_TELEPORT);
                     }
                 }
 
