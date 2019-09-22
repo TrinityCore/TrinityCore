@@ -170,14 +170,14 @@ bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
                 }
             }
 
-            if (pointId >= _currentNode)
+            if (pointId == _currentNode)
                 break;
 
             if (_currentNode == _preloadTargetNode)
                 PreloadEndGrid();
             _currentNode += departureEvent ? 1 : 0;
             departureEvent = !departureEvent;
-        } while (true);
+        } while (_currentNode < _path.size());
     }
 
     return _currentNode < (_path.size() - 1);
