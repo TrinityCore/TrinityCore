@@ -135,6 +135,8 @@ void FlightPathMovementGenerator::DoReset(Player* player)
     player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
 
     Movement::MoveSplineInit init(player);
+    // Providing an starting vertex since the taxi paths do not provide such
+    init.Path().push_back(G3D::Vector3(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()));
     uint32 end = GetPathAtMapEnd();
     for (uint32 i = GetCurrentNode(); i != end; ++i)
     {
@@ -145,7 +147,6 @@ void FlightPathMovementGenerator::DoReset(Player* player)
     init.SetFly();
     init.SetSmooth();
     init.SetUncompressed();
-    init.SetWalk(true);
     init.SetVelocity(PLAYER_FLIGHT_SPEED);
     init.Launch();
 }
