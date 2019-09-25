@@ -656,7 +656,7 @@ void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClien
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA: type %u, time " SI64FMTD ", decompressedSize %u",
         packet.DataType, packet.Time.AsUnderlyingType(), packet.Size);
 
-    if (packet.DataType > NUM_ACCOUNT_DATA_TYPES)
+    if (packet.DataType >= NUM_ACCOUNT_DATA_TYPES)
         return;
 
     if (packet.Size == 0)                               // erase
