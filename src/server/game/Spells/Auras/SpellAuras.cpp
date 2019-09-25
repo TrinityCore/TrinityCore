@@ -1045,8 +1045,11 @@ bool Aura::CanBeSaved() const
 
 bool Aura::CanBeSentToClient() const
 {
-    return !IsPassive() || GetSpellInfo()->HasAreaAuraEffect() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE)
-        || HasEffectType(SPELL_AURA_CAST_WHILE_WALKING) || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
+    if (!IsPassive() || GetSpellInfo()->HasAreaAuraEffect())
+        return true;
+
+    return HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE) || HasEffectType(SPELL_AURA_CAST_WHILE_WALKING)
+        || HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS) || HasEffectType(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE);
 }
 
 bool Aura::IsLimitedTargetWith(Aura const* aura) const
