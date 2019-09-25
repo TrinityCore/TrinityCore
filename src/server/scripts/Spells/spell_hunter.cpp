@@ -214,7 +214,7 @@ class spell_hun_cobra_shot : public SpellScriptLoader
                     else if (caster->HasAura(SPELL_HUNTER_TERMINATION_R_1))
                         spellId = SPELL_HUNTER_TERMINATION_R_1;
 
-                    uint32 amount = GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                    uint32 amount = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS)->Effects[EFFECT_0].BasePoints;
                     if (Aura* terminationAura = caster->GetAura(spellId))
                     {
                         if (Unit* spellTarget = GetExplTargetUnit())
