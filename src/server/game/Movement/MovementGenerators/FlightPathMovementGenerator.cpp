@@ -108,6 +108,8 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
 {
     // remove flag to prevent send object build movement packets for flight state and crash (movement generator already not at top of stack)
     player->ClearUnitState(UNIT_STATE_IN_FLIGHT);
+
+    uint32 taxiNodeId = player->m_taxi.GetTaxiDestination();
     player->m_taxi.ClearTaxiDestinations();
     player->Dismount();
     player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
@@ -119,10 +121,13 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
         // this prevent cheating with landing  point at lags
         // when client side flight end early in comparison server side
         player->StopMoving();
-        float mapHeight = player->GetMap()->GetHeight(player->GetPhaseShift(), _path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, _path[GetCurrentNode()]->LocZ);
-        player->SetFallInformation(0, mapHeight);
-        // When the player reaches the last flight point, teleport to destination at map height
-        player->TeleportTo(_path.back()->MapID, _path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, mapHeight, player->GetOrientation());
+
+        // When the player reaches the last flight point, teleport to taxi node location
+        if (TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(taxiNodeId))
+        {
+            player->SetFallInformation(0, node->z);
+            player->TeleportTo(node->map_id, node->x, node->y, node->z, player->GetOrientation());
+        }
     }
 
     player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
