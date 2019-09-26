@@ -108,7 +108,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
 {
     // remove flag to prevent send object build movement packets for flight state and crash (movement generator already not at top of stack)
     player->ClearUnitState(UNIT_STATE_IN_FLIGHT);
-
+    player->m_taxi.ClearTaxiDestinations();
     player->Dismount();
     player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
 
@@ -122,7 +122,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* player)
         float mapHeight = player->GetMap()->GetHeight(player->GetPhaseShift(), _path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, _path[GetCurrentNode()]->LocZ);
         player->SetFallInformation(0, mapHeight);
         // When the player reaches the last flight point, teleport to destination at map height
-        player->TeleportTo(_path[GetCurrentNode()]->MapID, _path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, mapHeight, player->GetOrientation());
+        player->TeleportTo(_path.back()->MapID, _path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, mapHeight, player->GetOrientation());
     }
 
     player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
@@ -145,6 +145,7 @@ void FlightPathMovementGenerator::DoReset(Player* player)
     }
     init.SetFirstPointId(GetCurrentNode());
     init.SetFly();
+    init.SetWalk(true);
     init.SetSmooth();
     init.SetUncompressed();
     init.SetVelocity(PLAYER_FLIGHT_SPEED);
@@ -153,8 +154,9 @@ void FlightPathMovementGenerator::DoReset(Player* player)
 
 bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
 {
-    uint32 pointId = player->movespline->currentPathIdx() < 0 ? 0 : player->movespline->currentPathIdx();
-    if (pointId > _currentNode && _currentNode < _path.size())
+    // skipping the first spline path point because it's our starting point and not a taxi path point
+    uint32 pointId = player->movespline->currentPathIdx() <= 0 ? 0 : player->movespline->currentPathIdx() - 1;
+    if (pointId > _currentNode && _currentNode < _path.size() - 1)
     {
         bool departureEvent = true;
         do
@@ -178,7 +180,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* player, uint32 /*diff*/)
                 PreloadEndGrid();
             _currentNode += departureEvent ? 1 : 0;
             departureEvent = !departureEvent;
-        } while (_currentNode < _path.size());
+        } while (_currentNode < _path.size() - 1);
     }
 
     return _currentNode < (_path.size() - 1);
