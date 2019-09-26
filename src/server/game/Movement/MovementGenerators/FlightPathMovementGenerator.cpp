@@ -123,7 +123,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
 
             _currentNode += departureEvent ? 1 : 0;
             departureEvent = !departureEvent;
-        } while (_currentNode < _path.size());
+        } while (_currentNode < _path.size() - 1);
     }
 
     if (_currentNode >= (_path.size() - 1))
