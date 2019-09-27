@@ -4743,54 +4743,106 @@ enum Vengeance
 };
 
 // 93098 - 93099 - 84839 - Vengeance
-class spell_gen_vengeance : public SpellScriptLoader
+class spell_gen_vengeance : public AuraScript
 {
-    public:
-        spell_gen_vengeance() : SpellScriptLoader("spell_gen_vengeance") { }
+    PrepareAuraScript(spell_gen_vengeance);
 
-        class spell_gen_vengeance_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VENGEANCE_TRIGGERED });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo() && eventInfo.GetDamageInfo()->GetAttacker()
+            && eventInfo.GetDamageInfo()->GetAttacker()->GetTypeId() != TYPEID_PLAYER;
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* caster = GetTarget();
+
+        if (!caster->GetAura(SPELL_VENGEANCE_TRIGGERED, caster->GetGUID()))
         {
-            PrepareAuraScript(spell_gen_vengeance_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_VENGEANCE_TRIGGERED });
-            }
-
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
-
-                DamageInfo* dInfo = eventInfo.GetDamageInfo();
-                if (!dInfo)
-                    return;
-
-                PreventDefaultAction();
-                uint32 damage = dInfo->GetDamage();
-                uint32 casterHealth = CalculatePct(caster->GetHealth(), 10);
-                if (damage > casterHealth)
-                    damage = casterHealth;
-
-                int32 bp = CalculatePct(damage, GetSpellInfo()->Effects[EFFECT_0].BasePoints);
-
-                if (bp) // make sure that we wont cast Vengeance when the damage bonus is 0
-                    caster->CastCustomSpell(caster, SPELL_VENGEANCE_TRIGGERED, &bp, &bp, nullptr, true);
-                else if (caster->HasAura(SPELL_VENGEANCE_TRIGGERED))
-                    caster->RemoveAurasDueToSpell(SPELL_VENGEANCE_TRIGGERED);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_gen_vengeance_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_gen_vengeance_AuraScript();
+            uint32 healthCap = CalculatePct(caster->GetCreateHealth(), 10) + caster->GetStat(STAT_STAMINA);
+            uint32 damageBonus = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 33);
+            int32 bp = std::min<int32>(damageBonus, healthCap);
+            caster->CastCustomSpell(caster, SPELL_VENGEANCE_TRIGGERED, &bp, &bp, &bp, true);
         }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_gen_vengeance::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_gen_vengeance::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+struct DamageTimeInfo
+{
+    uint32 TimeStamp;
+    uint32 Damage;
+};
+
+typedef std::vector<DamageTimeInfo> DamageInfoContainer;
+
+// 76691 - Vengeance
+class spell_gen_vengeance_triggered : public AuraScript
+{
+    PrepareAuraScript(spell_gen_vengeance_triggered);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VENGEANCE_TRIGGERED });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo() && eventInfo.GetDamageInfo()->GetAttacker()
+            && eventInfo.GetDamageInfo()->GetAttacker()->GetTypeId() != TYPEID_PLAYER;
+    }
+
+    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        if (uint32 damage = eventInfo.GetDamageInfo()->GetDamage())
+        {
+            _damageInfo.push_back({ GameTime::GetGameTimeMS(), damage });
+        }
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();    
+        // Get the total damage of the last two seconds and clean older damage data
+        int32 damageLastTwoSeconds = 0;
+        for (DamageInfoContainer::const_iterator itr = _damageInfo.begin(); itr != _damageInfo.end();)
+        {
+            if ((GameTime::GetGameTimeMS() - (*itr).TimeStamp) > 2 * IN_MILLISECONDS)
+                itr = _damageInfo.erase(itr);
+            else
+            {
+                damageLastTwoSeconds += (*itr).Damage;
+                itr++;
+            }
+        }
+
+        uint32 healthCap = CalculatePct(target->GetCreateHealth(), 10) + target->GetStat(STAT_STAMINA);
+        damageLastTwoSeconds = std::min<int32>(healthCap, CalculatePct(damageLastTwoSeconds, 33));
+        if (damageLastTwoSeconds)
+            target->CastCustomSpell(target, SPELL_VENGEANCE_TRIGGERED, &damageLastTwoSeconds, &damageLastTwoSeconds, &damageLastTwoSeconds, true);
+        else
+            Remove();
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_gen_vengeance_triggered::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_gen_vengeance_triggered::HandleEffectProc, EFFECT_0, SPELL_AURA_MOD_ATTACK_POWER);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_vengeance_triggered::HandleEffectPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+private:
+    DamageInfoContainer _damageInfo;
 };
 
 enum GilneasPrison
@@ -5138,7 +5190,8 @@ void AddSC_generic_spell_scripts()
     new spell_gen_blink();
     new spell_gen_toxic_blow_dart();
     new spell_gen_projectile_goods();
-    new spell_gen_vengeance();
+    RegisterAuraScript(spell_gen_vengeance);
+    RegisterAuraScript(spell_gen_vengeance_triggered);
     new spell_gen_gilneas_prison_periodic_dummy();
     new spell_gen_throw_torch();
     RegisterSpellScript(spell_gen_revserse_cast_mirror_image);
