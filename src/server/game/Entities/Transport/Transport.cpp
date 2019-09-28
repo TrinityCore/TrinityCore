@@ -360,6 +360,7 @@ void Transport::Update(uint32 diff)
         }
     }
 
+    SetPathProgress(getMSTime() + GetCurrentTransportTime());
     RelocateToProgress(GetCurrentTransportTime());
 }
 
