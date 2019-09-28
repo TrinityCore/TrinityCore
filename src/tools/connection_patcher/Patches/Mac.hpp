@@ -30,8 +30,6 @@ namespace Connection_Patcher
             struct x86
             {
                 static const std::vector<unsigned char> BNet() { return { }; }
-                static const std::vector<unsigned char> Portal() { return { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
-                static const std::vector<unsigned char> Connect() { return { }; }
                 static const std::vector<unsigned char> Password() { return { 0x0F, 0x85 }; }
                 static const std::vector<unsigned char> Signature() { return { }; }
             };
@@ -39,8 +37,6 @@ namespace Connection_Patcher
             struct x64
             {
                 static const std::vector<unsigned char> BNet() { return { }; }
-                static const std::vector<unsigned char> Portal() { return { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
-                static const std::vector<unsigned char> Connect() { return { }; }
                 static const std::vector<unsigned char> Password() { return { 0x0F, 0x85 }; }
                 static const std::vector<unsigned char> Signature() { return { }; }
             };

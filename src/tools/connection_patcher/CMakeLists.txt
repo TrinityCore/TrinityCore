@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,37 +8,21 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
-  ${OPENSSL_INCLUDE_DIR}
-)
+CollectSourceFiles(${CMAKE_CURRENT_SOURCE_DIR} PRIVATE_SOURCES)
 
-set(HEADER_FILES
-  Helper.hpp
-  Patcher.hpp
-  Constants/BinaryTypes.hpp
-  Patches/Mac.hpp
-  Patches/Windows.hpp
-  Patterns/Mac.hpp
-  Patterns/Windows.hpp
-)
+if (WIN32)
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
+endif()
 
-set(SRC_FILES
-  Helper.cpp
-  Patcher.cpp
-  Program.cpp
-)
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_executable(connection_patcher ${HEADER_FILES} ${SRC_FILES})
+add_executable(connection_patcher ${PRIVATE_SOURCES})
 
 target_link_libraries(connection_patcher
-  shared
-  ${OPENSSL_LIBRARIES}
-  ${Boost_LIBRARIES}
+  PRIVATE
+    trinity-core-interface
+  PUBLIC
+    common
 )
 
 if (UNIX)

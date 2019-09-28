@@ -18,8 +18,10 @@
 
 #include "Helper.hpp"
 #include "Patcher.hpp"
+#include "Patches/Common.hpp"
 #include "Patches/Mac.hpp"
 #include "Patches/Windows.hpp"
+#include "Patterns/Common.hpp"
 #include "Patterns/Mac.hpp"
 #include "Patterns/Windows.hpp"
 
@@ -75,18 +77,17 @@ namespace Connection_Patcher
         template<typename PATCH, typename PATTERN>
         void do_patches(Patcher* patcher, boost::filesystem::path output)
         {
+            std::cout << "patching Portal\n";
+            patcher->Patch(Patches::Common::Portal(), Patterns::Common::Portal());
+            std::cout << "patching redirect RSA Modulus\n";
+            patcher->Patch(Patches::Common::Modulus(), Patterns::Common::Modulus());
             std::cout << "patching BNet\n";
             patcher->Patch(PATCH::BNet(), PATTERN::BNet());
-            std::cout << "patching Portal\n";
-            patcher->Patch(PATCH::Portal(), PATTERN::Portal());
-            std::cout << "patching Connect\n";
-            patcher->Patch(PATCH::Connect(), PATTERN::Connect());
             std::cout << "patching Signature\n";
             patcher->Patch(PATCH::Signature(), PATTERN::Signature());
             patcher->Finish(output);
 
             std::cout << "Patching done.\n";
-
         }
     }
 
