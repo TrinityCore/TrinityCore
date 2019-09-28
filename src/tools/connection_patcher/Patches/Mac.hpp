@@ -27,13 +27,22 @@ namespace Connection_Patcher
     {
         namespace Mac
         {
-            struct x64
+            struct x86
             {
-                static const std::vector<unsigned char> BNet() { return { 0xB8, 0xD5, 0xF8, 0x7F, 0x82, 0x89, 0x47, 0x0C, 0x5D, 0xC3, 0x90, 0x90, 0x90 }; }
-                static const std::vector<unsigned char> Portal() { return { }; }
+                static const std::vector<unsigned char> BNet() { return { }; }
+                static const std::vector<unsigned char> Portal() { return { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
                 static const std::vector<unsigned char> Connect() { return { }; }
                 static const std::vector<unsigned char> Password() { return { 0x0F, 0x85 }; }
-                static const std::vector<unsigned char> Signature() { return { 0x45, 0x31, 0xED, 0x4D, 0x89, 0xFC, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xEB }; }
+                static const std::vector<unsigned char> Signature() { return { }; }
+            };
+
+            struct x64
+            {
+                static const std::vector<unsigned char> BNet() { return { }; }
+                static const std::vector<unsigned char> Portal() { return { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
+                static const std::vector<unsigned char> Connect() { return { }; }
+                static const std::vector<unsigned char> Password() { return { 0x0F, 0x85 }; }
+                static const std::vector<unsigned char> Signature() { return { }; }
             };
         };
     }
