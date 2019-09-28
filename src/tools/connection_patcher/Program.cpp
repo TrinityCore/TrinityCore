@@ -216,6 +216,8 @@ int main(int argc, char** argv)
     catch (std::exception const& ex)
     {
         std::cerr << "EX: " << ex.what() << std::endl;
+        std::cerr << "An error occurred. Press ENTER to continue...";
+        std::cin.get();
         return 1;
     }
 }
