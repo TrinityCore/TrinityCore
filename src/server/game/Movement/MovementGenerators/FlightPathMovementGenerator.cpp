@@ -161,7 +161,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
         if (TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(taxiNodeId))
         {
             owner->SetFallInformation(0, node->z);
-            owner->TeleportTo(node->map_id, node->x, node->y, node->z, player->GetOrientation());
+            owner->TeleportTo(node->map_id, node->x, node->y, node->z, owner->GetOrientation());
         }
     }
 
