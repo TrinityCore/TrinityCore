@@ -25,7 +25,8 @@
 #include "Patterns/Mac.hpp"
 #include "Patterns/Windows.hpp"
 
-#include <CompilerDefs.h>
+#include "Banner.h"
+#include "CompilerDefs.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
@@ -128,6 +129,8 @@ int main(int argc, char** argv)
 
     try
     {
+        Trinity::Banner::Show("connection_patcher", [](char const* text) { std::cout << text << std::endl; }, nullptr);
+
         if (argc != 2)
             throw std::invalid_argument("Wrong number of arguments: Missing client file.");
 
@@ -137,7 +140,7 @@ int main(int argc, char** argv)
 
         wchar_t* commonAppData(nullptr);
 #if PLATFORM == PLATFORM_WINDOWS
-        SHGetKnownFolderPath(FOLDERID_ProgramData, 0, NULL, &commonAppData);
+        SHGetKnownFolderPath(FOLDERID_ProgramData, 0, nullptr, &commonAppData);
 #endif
 
         std::cout << "Creating patched binaries for ";
