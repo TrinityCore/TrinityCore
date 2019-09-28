@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Connection_Patcher.Patterns
-{
-    class Windows
-    {
-        public static class x86
-        {
-            public static byte[] Password = { 0x74, 0x89, 0x8B, 0x16, 0x8B, 0x42, 0x04 };
-            public static byte[] RealmListBn = { 0x2E, 0x6C, 0x6F, 0x67, 0x6F, 0x6E, 0x2E, 0x62, 0x61, 0x74, 0x74, 0x6C, 0x65, 0x2E, 0x6E, 0x65, 0x74 };
-        }
+#ifndef CONNECTION_PATCHER_HELPER_HPP
+#define CONNECTION_PATCHER_HELPER_HPP
 
-        public static class x64
-        {
-            public static byte[] Password = { 0x74, 0x84, 0x48, 0x8B, 0x03 };
-        }
+#include "Constants/BinaryTypes.hpp"
+
+#include <vector>
+#include <string>
+
+namespace Connection_Patcher
+{
+    namespace Helper
+    {
+        Constants::BinaryTypes GetBinaryType(std::vector<unsigned char> const& data);
+        std::string GetFileChecksum(std::vector<unsigned char> const& data);
     }
 }
+
+#endif
