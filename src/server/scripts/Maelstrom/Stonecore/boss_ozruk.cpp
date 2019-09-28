@@ -67,7 +67,7 @@ class boss_ozruk : public CreatureScript
 
         struct boss_ozrukAI : public BossAI
         {
-            boss_ozrukAI(Creature* creature) : BossAI(creature, DATA_OZRUK) { }
+            boss_ozrukAI(Creature* creature) : BossAI(creature, DATA_OZRUK), _enraged(false) { }
 
             void JustEngagedWith(Unit* /*victim*/) override
             {
@@ -109,11 +109,12 @@ class boss_ozruk : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
             {
-                if (!me->HealthBelowPctDamaged(25, damage) || me->HasAura(SPELL_ENRAGE))
-                    return;
-
-                DoCast(me, SPELL_ENRAGE);
-                Talk(SAY_ENRAGE);
+                if (me->HealthBelowPctDamaged(25, damage) && !_enraged)
+                {
+                    DoCast(me, SPELL_ENRAGE);
+                    Talk(SAY_ENRAGE);
+                    _enraged = true;
+                }
             }
 
             void UpdateAI(uint32 diff) override
@@ -169,6 +170,8 @@ class boss_ozruk : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+        private:
+            bool _enraged;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
