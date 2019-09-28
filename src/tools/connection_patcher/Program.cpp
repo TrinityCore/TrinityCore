@@ -43,27 +43,20 @@ namespace Connection_Patcher
         template<typename PATCH, typename PATTERN>
         void PatchModule(boost::filesystem::path file, boost::filesystem::path path)
         {
-            namespace fs = boost::filesystem;
-
             std::cout << "Patching module...\n";
 
             Patcher patcher(file);
-
             std::cout << "patching Password\n";
-            // if (Authentication::ServerSignature::ClientValidateProof(x)) to if (true)
             patcher.Patch(PATCH::Password(), PATTERN::Password());
 
             std::string const moduleName(Helper::GetFileChecksum(patcher.binary) + ".auth");
-            fs::path const modulePath
-                (path / std::string(&moduleName[0], 2) / std::string(&moduleName[2], 2));
+            boost::filesystem::path const modulePath
+            (path / std::string(&moduleName[0], 2) / std::string(&moduleName[2], 2));
 
-            if (!fs::exists(modulePath))
-                fs::create_directories(modulePath);
+            if (!boost::filesystem::exists(modulePath))
+                boost::filesystem::create_directories(modulePath);
 
-            if (fs::exists(modulePath / modulePath))
-                fs::permissions(modulePath / moduleName, fs::add_perms | fs::others_write | fs::group_write | fs::owner_write);
             patcher.Finish(modulePath / moduleName);
-            fs::permissions(modulePath / moduleName, fs::remove_perms | fs::others_write | fs::group_write | fs::owner_write);
 
             std::cout << "Patching module finished.\n";
         }
@@ -85,24 +78,13 @@ namespace Connection_Patcher
         void do_patches(Patcher* patcher, boost::filesystem::path output)
         {
             std::cout << "patching Portal\n";
-            // '.logon.battle.net' -> '' to allow for set portal 'host'
             patcher->Patch(Patches::Common::Portal(), Patterns::Common::Portal());
-
             std::cout << "patching redirect RSA Modulus\n";
-            // public component of connection signing key to use known key pair
             patcher->Patch(Patches::Common::Modulus(), Patterns::Common::Modulus());
-
             std::cout << "patching BNet\n";
-            // hardcode 213.248.127.130 in IP6::Address::Address(IP4::Address::Address const&)
-            // used in Creep::Layer::Authentication::Online(), which overwrites GameStream::Connection::GetAddressRemote()
-            // to avoid CRYPT_SERVER_ADDRESS_IPV6 check in module
             patcher->Patch(PATCH::BNet(), PATTERN::BNet());
-
             std::cout << "patching Signature\n";
-            // if (Authentication::ModuleSignature::Validator::IsValid(x)) to if (true) in
-            // Creep::Instance::LoadModule() to allow for unsigned auth module
             patcher->Patch(PATCH::Signature(), PATTERN::Signature());
-
             patcher->Finish(output);
 
             std::cout << "Patching done.\n";
@@ -194,12 +176,7 @@ int main(int argc, char** argv)
             do_patches<Patches::Mac::x64, Patterns::Mac::x64>
                 (&patcher, renamed_binary_path);
 
-            {
-                namespace fs = boost::filesystem;
-                fs::permissions(renamed_binary_path, fs::add_perms | fs::others_exe | fs::group_exe | fs::owner_exe);
-            }
-
-            do_module<Patches::Mac::x64, Patterns::Mac::x64>
+            do_module<Patches::Windows::x64, Patterns::Windows::x64>
                 ("97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth"
                     , "/Users/Shared/Blizzard/Battle.net/Cache/"
                     );
@@ -216,8 +193,6 @@ int main(int argc, char** argv)
     catch (std::exception const& ex)
     {
         std::cerr << "EX: " << ex.what() << std::endl;
-        std::cerr << "An error occurred. Press ENTER to continue...";
-        std::cin.get();
         return 1;
     }
 }
