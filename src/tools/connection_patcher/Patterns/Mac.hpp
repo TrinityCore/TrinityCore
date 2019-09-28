@@ -30,7 +30,7 @@ namespace Connection_Patcher
             struct x86
             {
                 static const std::vector<unsigned char> BNet() { return { }; }
-                static const std::vector<unsigned char> Portal() { return { 0x2E, 0x6C, 0x6F, 0x67, 0x6F, 0x6E, 0x2E, 0x62, 0x61, 0x74, 0x74, 0x6C, 0x65, 0x2E, 0x6E, 0x65, 0x74, 0x00 }; }
+                static const std::vector<unsigned char> Portal() { return { '.', 'l', 'o', 'g', 'o', 'n', '.', 'b', 'a', 't', 't', 'l', 'e', '.', 'n', 'e', 't', 0x00 }; }
                 static const std::vector<unsigned char> Connect() { return { }; }
                 static const std::vector<unsigned char> Password() { return { }; }
                 static const std::vector<unsigned char> Signature() { return { }; }
@@ -39,7 +39,7 @@ namespace Connection_Patcher
             struct x64
             {
                 static const std::vector<unsigned char> BNet() { return { }; }
-                static const std::vector<unsigned char> Portal() { return { 0x2E, 0x6C, 0x6F, 0x67, 0x6F, 0x6E, 0x2E, 0x62, 0x61, 0x74, 0x74, 0x6C, 0x65, 0x2E, 0x6E, 0x65, 0x74, 0x00 }; }
+                static const std::vector<unsigned char> Portal() { return { '.', 'l', 'o', 'g', 'o', 'n', '.', 'b', 'a', 't', 't', 'l', 'e', '.', 'n', 'e', 't', 0x00 }; }
                 static const std::vector<unsigned char> Connect() { return { }; }
                 static const std::vector<unsigned char> Password() { return { }; }
                 static const std::vector<unsigned char> Signature() { return { }; }
