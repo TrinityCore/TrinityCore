@@ -101,14 +101,28 @@ namespace Connection_Patcher
         }
 
         template<typename PATCH, typename PATTERN>
-        void do_patches(Patcher* patcher, boost::filesystem::path output)
+        void do_client_patches(Patcher* patcher, boost::filesystem::path output)
         {
+            std::cout << "Patching client binary...\n";
+
+            std::cout << "patching redirect RSA Modulus\n";
+            patcher->Patch(Patches::Common::Modulus(), Patterns::Common::Modulus());     
+            patcher->Finish(output);
+
+            std::cout << "Patching done.\n";
+        }
+
+        template<typename PATCH, typename PATTERN>
+        void do_dll_patches(Patcher* patcher, boost::filesystem::path output)
+        {
+            std::cout << "Patching battle.net binary...\n";
+
             std::cout << "patching Portal\n";
             patcher->Patch(Patches::Common::Portal(), Patterns::Common::Portal());
-            std::cout << "patching redirect RSA Modulus\n";
-            patcher->Patch(Patches::Common::Modulus(), Patterns::Common::Modulus());
-            std::cout << "patching BNet\n";
+
+            std::cout << "patching Bnet\n";
             patcher->Patch(PATCH::BNet(), PATTERN::BNet());
+
             std::cout << "patching Signature\n";
             patcher->Patch(PATCH::Signature(), PATTERN::Signature());
             patcher->Finish(output);
@@ -220,7 +234,6 @@ int main(int argc, char** argv)
             throw std::invalid_argument("Wrong number of arguments: Missing client file.");
 
         std::string const binary_path(argv[1]);
-
         std::string renamed_binary_path(binary_path);
 
         wchar_t* commonAppData(nullptr);
@@ -235,11 +248,23 @@ int main(int argc, char** argv)
         switch (patcher.Type)
         {
             case Constants::BinaryTypes::Pe32:
+            {
                 std::cout << "Win32 client...\n";
 
                 boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
-                do_patches<Patches::Windows::x86, Patterns::Windows::x86>
+                do_client_patches<Patches::Windows::x86, Patterns::Windows::x86>
                     (&patcher, renamed_binary_path);
+
+                boost::filesystem::path p(binary_path);
+                p.remove_filename();
+                p.append("Battle.net.dll");
+
+                std::string renamed_dll_path(p.string());
+                Patcher bnetPatcher(p.string());
+
+                boost::algorithm::replace_all(renamed_dll_path, ".dll", "_Patched.dll");
+                do_dll_patches<Patches::Windows::x86, Patterns::Windows::x86>
+                    (&bnetPatcher, renamed_dll_path);
 
                 do_module<Patches::Windows::x86, Patterns::Windows::x86>
                     ("8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth"
@@ -247,12 +272,25 @@ int main(int argc, char** argv)
                         );
 
                 break;
+            }
             case Constants::BinaryTypes::Pe64:
+            {
                 std::cout << "Win64 client...\n";
 
                 boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
-                do_patches<Patches::Windows::x64, Patterns::Windows::x64>
+                do_client_patches<Patches::Windows::x64, Patterns::Windows::x64>
                     (&patcher, renamed_binary_path);
+
+                boost::filesystem::path p(binary_path);
+                p.remove_filename();
+                p.append("Battle.net-64.dll");
+
+                std::string renamed_dll_path(p.string());
+                Patcher bnetPatcher(p.string());
+
+                boost::algorithm::replace_all(renamed_dll_path, ".dll", "_Patched.dll");
+                do_dll_patches<Patches::Windows::x64, Patterns::Windows::x64>
+                    (&bnetPatcher, renamed_dll_path);
 
                 do_module<Patches::Windows::x64, Patterns::Windows::x64>
                     ("0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth"
@@ -260,6 +298,7 @@ int main(int argc, char** argv)
                         );
 
                 break;
+            }
             case Constants::BinaryTypes::Mach64:
                 std::cout << "Mac client...\n";
 
@@ -268,7 +307,7 @@ int main(int argc, char** argv)
                     , boost::filesystem::path(renamed_binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
                 );
 
-                do_patches<Patches::Mac::x64, Patterns::Mac::x64>
+                do_client_patches<Patches::Mac::x64, Patterns::Mac::x64>
                     (&patcher, renamed_binary_path);
 
                 do_module<Patches::Mac::x64, Patterns::Mac::x64>
