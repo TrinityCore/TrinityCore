@@ -36,9 +36,9 @@ namespace Connection_Patcher
 
             struct x64
             {
-                static const std::vector<unsigned char> BNet() { return { }; }
+                static const std::vector<unsigned char> BNet() { return { 0xB8, 0xD5, 0xF8, 0x7F, 0x82, 0x89, 0x41, 0x0C, 0x48, 0x8B, 0xC1, 0xC3 }; }
                 static const std::vector<unsigned char> Password() { return { 0x75 }; }
-                static const std::vector<unsigned char> Signature() { return { }; }
+                static const std::vector<unsigned char> Signature() { return { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xE9 }; }
             };
         };
     }

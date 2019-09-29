@@ -29,16 +29,16 @@ namespace Connection_Patcher
         {
             struct x86
             {
-                static const std::vector<unsigned char> BNet() { return { }; }
-                static const std::vector<unsigned char> Password() { return { }; }
-                static const std::vector<unsigned char> Signature() { return { }; }
+                static const std::vector<unsigned char> BNet() { return { 0x8B, 0x75, 0x08, 0x8D, 0x78, 0x0C }; }
+                static const std::vector<unsigned char> Password() { return { 0x74, 0x89, 0x8B, 0x16, 0x8B, 0x42, 0x04 }; }
+                static const std::vector<unsigned char> Signature() { return { 0xE8, 0x00, 0x00, 0x00, 0x00, 0x84, 0xC0, 0x75, 0x5F, 0x33, 0xC0 }; }
             };
 
             struct x64
             {
-                static const std::vector<unsigned char> BNet() { return { }; }
-                static const std::vector<unsigned char> Password() { return { }; }
-                static const std::vector<unsigned char> Signature() { return { }; }
+                static const std::vector<unsigned char> BNet() { return { 0x8B, 0x02, 0x89, 0x41, 0x0C, 0x48, 0x8B, 0xC1, 0xC3 }; }
+                static const std::vector<unsigned char> Password() { return { 0x74, 0x84, 0x48, 0x8B, 0x03 }; }
+                static const std::vector<unsigned char> Signature() { return { 0xE8, 0x00, 0x00, 0x00, 0x00, 0x84, 0xC0, 0x0F, 0x85, 0x88, 0x00, 0x00, 0x00, 0x45, 0x33, 0xC0 }; }
             };
         };
     }
