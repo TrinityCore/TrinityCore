@@ -498,8 +498,13 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
 
     memcpy(sessionKey + hmac.GetLength(), hmac2.GetDigest(), hmac2.GetLength());
 
-    LoginDatabase.DirectPExecute("UPDATE account SET sessionkey = '%s', last_ip = '%s', last_login = NOW(), locale = %u, failed_logins = 0, os = '%s' WHERE id = %u",
-        ByteArrayToHexStr(sessionKey, 40, true).c_str(), GetRemoteIpAddress().to_string().c_str(), GetLocaleByName(_locale), _os.c_str(), _gameAccountInfo->Id);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
+    stmt->setString(0, ByteArrayToHexStr(sessionKey, 40, true).c_str());
+    stmt->setString(1, GetRemoteIpAddress().to_string());
+    stmt->setUInt32(2, GetLocaleByName(_locale));
+    stmt->setString(3, _os);
+    stmt->setString(4, _gameAccountInfo->Name);
+    LoginDatabase.DirectExecute(stmt);
 
     joinResponse->IPv4.emplace_back(*realm->ExternalAddress, realm->Port);
     if (*realm->ExternalAddress != *realm->LocalAddress)
