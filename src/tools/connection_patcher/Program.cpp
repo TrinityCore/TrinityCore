@@ -143,57 +143,57 @@ int main(int argc, char** argv)
         SHGetKnownFolderPath(FOLDERID_ProgramData, 0, nullptr, &commonAppData);
 #endif
 
-        std::cout << "Creating patched binaries for ";
+        std::cout << "Creating patched binary..." << std::endl;
 
         Patcher patcher(binary_path);
 
         switch (patcher.Type)
         {
-        case Constants::BinaryTypes::Pe32:
-            std::cout << "Win32 client...\n";
+            case Constants::BinaryTypes::Pe32:
+                std::cout << "Win32 client...\n";
 
-            boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
-            do_patches<Patches::Windows::x86, Patterns::Windows::x86>
-                (&patcher, renamed_binary_path);
+                boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
+                do_patches<Patches::Windows::x86, Patterns::Windows::x86>
+                    (&patcher, renamed_binary_path);
 
-            do_module<Patches::Windows::x86, Patterns::Windows::x86>
-                ("8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth"
-                    , std::wstring(commonAppData) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
-                    );
+                do_module<Patches::Windows::x86, Patterns::Windows::x86>
+                    ("8f52906a2c85b416a595702251570f96d3522f39237603115f2f1ab24962043c.auth"
+                        , std::wstring(commonAppData) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
+                        );
 
-            break;
-        case Constants::BinaryTypes::Pe64:
-            std::cout << "Win64 client...\n";
+                break;
+            case Constants::BinaryTypes::Pe64:
+                std::cout << "Win64 client...\n";
 
-            boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
-            do_patches<Patches::Windows::x64, Patterns::Windows::x64>
-                (&patcher, renamed_binary_path);
+                boost::algorithm::replace_all(renamed_binary_path, ".exe", "_Patched.exe");
+                do_patches<Patches::Windows::x64, Patterns::Windows::x64>
+                    (&patcher, renamed_binary_path);
 
-            do_module<Patches::Windows::x64, Patterns::Windows::x64>
-                ("0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth"
-                    , std::wstring(commonAppData) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
-                    );
+                do_module<Patches::Windows::x64, Patterns::Windows::x64>
+                    ("0a3afee2cade3a0e8b458c4b4660104cac7fc50e2ca9bef0d708942e77f15c1d.auth"
+                        , std::wstring(commonAppData) + std::wstring(L"/Blizzard Entertainment/Battle.net/Cache/")
+                        );
 
-            break;
-        case Constants::BinaryTypes::Mach64:
-            std::cout << "Mac client...\n";
+                break;
+            case Constants::BinaryTypes::Mach64:
+                std::cout << "Mac client...\n";
 
-            boost::algorithm::replace_all(renamed_binary_path, ".app", " Patched.app");
-            copyDir(boost::filesystem::path(binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
-                , boost::filesystem::path(renamed_binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
-            );
+                boost::algorithm::replace_all(renamed_binary_path, ".app", " Patched.app");
+                copyDir(boost::filesystem::path(binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
+                    , boost::filesystem::path(renamed_binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
+                );
 
-            do_patches<Patches::Mac::x64, Patterns::Mac::x64>
-                (&patcher, renamed_binary_path);
+                do_patches<Patches::Mac::x64, Patterns::Mac::x64>
+                    (&patcher, renamed_binary_path);
 
-            do_module<Patches::Windows::x64, Patterns::Windows::x64>
-                ("97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth"
-                    , "/Users/Shared/Blizzard/Battle.net/Cache/"
-                    );
+                do_module<Patches::Windows::x64, Patterns::Windows::x64>
+                    ("97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth"
+                        , "/Users/Shared/Blizzard/Battle.net/Cache/"
+                        );
 
-            break;
-        default:
-            throw std::runtime_error("Type: " + std::to_string(static_cast<uint32_t>(patcher.Type)) + " not supported!");
+                break;
+            default:
+                throw std::runtime_error("Type: " + std::to_string(static_cast<uint32_t>(patcher.Type)) + " not supported!");
         }
 
         std::cout << "Successfully created your patched binaries.\n";
@@ -203,6 +203,8 @@ int main(int argc, char** argv)
     catch (std::exception const& ex)
     {
         std::cerr << "EX: " << ex.what() << std::endl;
+        std::cerr << "An error occurred. Press ENTER to continue...";
+        std::cin.get();
         return 1;
     }
 }
