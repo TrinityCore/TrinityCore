@@ -497,6 +497,7 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
     hmac2.Finalize();
 
     memcpy(sessionKey + hmac.GetLength(), hmac2.GetDigest(), hmac2.GetLength());
+    printf("OS = %s \n", _os.c_str());
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
     stmt->setString(0, ByteArrayToHexStr(sessionKey, 40, true).c_str());
