@@ -17,6 +17,7 @@
  */
 
 #include "WorldSession.h"
+#include "AuthenticationPackets.h"
 #include "AccountMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
@@ -54,6 +55,7 @@
 #include "Transport.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "boost/asio/ip/address.hpp"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -732,7 +734,6 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         return;
     }
 
-    m_playerLoading = true;
     ObjectGuid playerGuid;
 
     TC_LOG_DEBUG("network", "WORLD: Recvd Player Logon Message");
@@ -754,7 +755,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
     recvData.ReadByteSeq(playerGuid[1]);
     recvData.ReadByteSeq(playerGuid[4]);
 
-    TC_LOG_DEBUG("network", "Character %s logging in", playerGuid.ToString().c_str());
+    m_playerLoading = playerGuid;
 
     if (!IsLegitCharacterForAccount(playerGuid))
     {
@@ -763,13 +764,26 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
         return;
     }
 
-    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), playerGuid);
+    SendConnectToInstance(WorldPackets::Auth::ConnectToSerial::Realm);
+}
+
+void WorldSession::HandleContinuePlayerLogin()
+{
+    if (!PlayerLoading() || GetPlayer())
+    {
+        KickPlayer();
+        return;
+    }
+
+    LoginQueryHolder* holder = new LoginQueryHolder(GetAccountId(), m_playerLoading);
     if (!holder->Initialize())
     {
         delete holder;                                      // delete all unprocessed queries
-        m_playerLoading = false;
+        m_playerLoading.Clear();
         return;
     }
+
+    SendPacket(WorldPackets::Auth::ResumeComms(CONNECTION_TYPE_INSTANCE).Write());
 
     _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
 }
@@ -800,7 +814,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         KickPlayer();                                       // disconnect client, player no set to session and it will not deleted or saved at kick
         delete pCurrChar;                                   // delete it manually
         delete holder;                                      // delete all unprocessed queries
-        m_playerLoading = false;
+        m_playerLoading.Clear();
         return;
     }
 
@@ -1161,7 +1175,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STATE_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
 
-    m_playerLoading = false;
+    m_playerLoading.Clear();
 
     // Handle Login-Achievements (should be handled after loading)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);

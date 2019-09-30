@@ -153,6 +153,6 @@ namespace Movement
     bool PrintInvalidSequenceElement(MovementStatusElements element, char const* function);
 }
 
-MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode);
+MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode);
 
 #endif

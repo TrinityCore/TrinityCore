@@ -26,7 +26,7 @@
 #include "Define.h"
 #include <string>
 
-enum Opcodes : uint16
+enum OpcodeClient : uint16
 {
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x0205,
     CMSG_ACCEPT_TRADE                                 = 0x7110,
@@ -59,6 +59,7 @@ enum Opcodes : uint16
     CMSG_AUCTION_PLACE_BID                            = 0x2306,
     CMSG_AUCTION_REMOVE_ITEM                          = 0x6426,
     CMSG_AUCTION_SELL_ITEM                            = 0x4A06,
+    CMSG_AUTH_CONTINUED_SESSION                       = 0x044D,
     CMSG_AUTH_SESSION                                 = 0x0449,
     CMSG_AUTOBANK_ITEM                                = 0x2537,
     CMSG_AUTOEQUIP_GROUND_ITEM                        = 0x0000,
@@ -445,7 +446,6 @@ enum Opcodes : uint16
     CMSG_READ_ITEM                                    = 0x2F16,
     CMSG_REALM_SPLIT                                  = 0x2906,
     CMSG_RECLAIM_CORPSE                               = 0x4036,
-    CMSG_REDIRECTION_AUTH_PROOF                       = 0x044D,
     CMSG_REFORGE_ITEM                                 = 0x331A,
     CMSG_REORDER_CHARACTERS                           = 0x0593,
     CMSG_REPAIR_ITEM                                  = 0x2917,
@@ -530,7 +530,7 @@ enum Opcodes : uint16
     CMSG_SUBMIT_COMPLAIN                              = 0x2501,
     CMSG_SUGGESTION_SUBMIT                            = 0x2512,
     CMSG_SUMMON_RESPONSE                              = 0x6F27,
-    CMSG_SUSPEND_TOKEN                                = 0x046D,
+    CMSG_SUSPEND_TOKEN_RESPONSE                       = 0x046D,
     CMSG_SWAP_INV_ITEM                                = 0x2614,
     CMSG_SWAP_ITEM                                    = 0x6326,
     CMSG_SYNC_DANCE                                   = 0x0036,
@@ -578,77 +578,10 @@ enum Opcodes : uint16
     CMSG_WORLD_TELEPORT                               = 0x24B2,
     CMSG_WRAP_ITEM                                    = 0x4F06,
     CMSG_ZONEUPDATE                                   = 0x4F37,
-    MSG_AUCTION_HELLO                                 = 0x2307,
-    MSG_CHANNEL_START                                 = 0x0A15, // SMSG only?
-    MSG_CHANNEL_UPDATE                                = 0x2417, // SMSG only?
-    MSG_CORPSE_QUERY                                  = 0x4336,
-    MSG_GM_BIND_OTHER                                 = 0x0000,
-    MSG_GM_SHOWLABEL                                  = 0x0000,
-    MSG_GM_SUMMON                                     = 0x0000,
-    MSG_INSPECT_ARENA_TEAMS                           = 0x2704,
-    MSG_LIST_STABLED_PETS                             = 0x0834,
-    MSG_MINIMAP_PING                                  = 0x6635,
-    MSG_MOVE_CHARM_TELEPORT_CHEAT                     = 0x7A08,
-    MSG_MOVE_FALL_LAND                                = 0x380A,
-    MSG_MOVE_HEARTBEAT                                = 0x3914,
-    MSG_MOVE_JUMP                                     = 0x7A06,
-    MSG_MOVE_SET_ALL_SPEED_CHEAT                      = 0x0000,
-    MSG_MOVE_SET_COLLISION_HEIGHT                     = 0x0000,
-    MSG_MOVE_SET_FACING                               = 0x7914,
-    MSG_MOVE_SET_FLIGHT_SPEED_CHEAT                   = 0x0000,
-    MSG_MOVE_SET_PITCH                                = 0x7312,
-    MSG_MOVE_SET_RAW_POSITION_ACK                     = 0x0000,
-    MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT                 = 0x0000,
-    MSG_MOVE_SET_RUN_MODE                             = 0x791A,
-    MSG_MOVE_SET_RUN_SPEED_CHEAT                      = 0x0000,
-    MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT                = 0x0000,
-    MSG_MOVE_SET_SWIM_SPEED_CHEAT                     = 0x0000,
-    MSG_MOVE_SET_TURN_RATE_CHEAT                      = 0x0000,
-    MSG_MOVE_SET_WALK_MODE                            = 0x7002,
-    MSG_MOVE_SET_WALK_SPEED_CHEAT                     = 0x0000,
-    MSG_MOVE_START_ASCEND                             = 0x390A,
-    MSG_MOVE_START_BACKWARD                           = 0x330A,
-    MSG_MOVE_START_DESCEND                            = 0x3800,
-    MSG_MOVE_START_FORWARD                            = 0x7814,
-    MSG_MOVE_START_PITCH_DOWN                         = 0x3908,
-    MSG_MOVE_START_PITCH_UP                           = 0x3304,
-    MSG_MOVE_START_STRAFE_LEFT                        = 0x3A16,
-    MSG_MOVE_START_STRAFE_RIGHT                       = 0x3A02,
-    MSG_MOVE_START_SWIM                               = 0x3206,
-    MSG_MOVE_START_TURN_LEFT                          = 0x700C,
-    MSG_MOVE_START_TURN_RIGHT                         = 0x7000,
-    MSG_MOVE_STOP                                     = 0x320A,
-    MSG_MOVE_STOP_ASCEND                              = 0x7B00,
-    MSG_MOVE_STOP_PITCH                               = 0x7216,
-    MSG_MOVE_STOP_STRAFE                              = 0x3002,
-    MSG_MOVE_STOP_SWIM                                = 0x3802,
-    MSG_MOVE_STOP_TURN                                = 0x331E,
-    MSG_MOVE_TELEPORT                                 = 0x55A0,
-    MSG_MOVE_TELEPORT_ACK                             = 0x390C,
-    MSG_MOVE_TELEPORT_CHEAT                           = 0x3A10,
-    MSG_MOVE_TIME_SKIPPED                             = 0x19B3,
-    MSG_MOVE_TOGGLE_COLLISION_CHEAT                   = 0x7B04,
-    MSG_MOVE_TOGGLE_FALL_LOGGING                      = 0x0000,
-    MSG_MOVE_TOGGLE_LOGGING                           = 0x0000,
-    MSG_MOVE_UPDATE_MOUSE                             = 0x0000,
-    MSG_MOVE_WORLDPORT_ACK                            = 0x2411,
-    MSG_NOTIFY_PARTY_SQUELCH                          = 0x4D06,
-    MSG_PARTY_ASSIGNMENT                              = 0x0424,
-    MSG_PETITION_DECLINE                              = 0x4905,
-    MSG_PETITION_RENAME                               = 0x4005,
-    MSG_PVP_LOG_DATA                                  = 0x0000,
-    MSG_QUERY_NEXT_MAIL_TIME                          = 0x0F04,
-    MSG_QUEST_PUSH_RESULT                             = 0x4515,
-    MSG_RAID_READY_CHECK                              = 0x2304,
-    MSG_RAID_READY_CHECK_CONFIRM                      = 0x4F05,
-    MSG_RAID_READY_CHECK_FINISHED                     = 0x2E15,
-    MSG_RAID_TARGET_UPDATE                            = 0x2C36,
-    MSG_RANDOM_ROLL                                   = 0x0905,
-    MSG_SAVE_GUILD_EMBLEM                             = 0x2404,
-    MSG_SET_DUNGEON_DIFFICULTY                        = 0x4925,
-    MSG_SET_RAID_DIFFICULTY                           = 0x0614,
-    MSG_TABARDVENDOR_ACTIVATE                         = 0x6926,
-    MSG_TALENT_WIPE_CONFIRM                           = 0x0107,
+};
+
+enum OpcodeServer
+{
     SMSG_ACCOUNT_DATA_TIMES                           = 0x4B05,
     SMSG_ACCOUNT_INFO_RESPONSE                        = 0x10A7,
     SMSG_ACCOUNT_RESTRICTED_WARNING                   = 0x51A7,
@@ -851,7 +784,6 @@ enum Opcodes : uint16
     SMSG_FORCED_DEATH_UPDATE                          = 0x2606,
     SMSG_FORCE_ANIM                                   = 0x4C05,
     SMSG_FORCE_DISPLAY_UPDATE                         = 0x0000,
-    SMSG_FORCE_SEND_QUEUED_PACKETS                    = 0x0140,
     SMSG_FORCE_SET_VEHICLE_REC_ID                     = 0x70A1,
     SMSG_FORGE_MASTER_SET                             = 0x70B7,
     SMSG_FRIEND_STATUS                                = 0x0717,
@@ -1208,6 +1140,7 @@ enum Opcodes : uint16
     SMSG_RESET_FAILED_NOTIFY                          = 0x4616,
     SMSG_RESISTLOG                                    = 0x0000,
     SMSG_RESPOND_INSPECT_ACHIEVEMENTS                 = 0x15B0,
+    SMSG_RESUME_COMMS                                 = 0x0140,
     SMSG_RESURRECT_FAILED                             = 0x6705,
     SMSG_RESURRECT_REQUEST                            = 0x2905,
     SMSG_RESYNC_RUNES                                 = 0x6224,
@@ -1305,7 +1238,7 @@ enum Opcodes : uint16
     SMSG_SUPERCEDED_SPELL                             = 0x35B0,
     SMSG_SUPPRESS_NPC_GREETINGS                       = 0x74B1,
     SMSG_SUSPEND_COMMS                                = 0x4140,
-    SMSG_SUSPEND_TOKEN_RESPONSE                       = 0x14B1,
+    SMSG_SUSPEND_TOKEN                                = 0x14B1,
     SMSG_TALENTS_ERROR                                = 0x0916,
     SMSG_TALENTS_INFO                                 = 0x6F26,
     SMSG_TALENTS_INVOLUNTARILY_RESET                  = 0x2C27,
@@ -1374,7 +1307,111 @@ enum Opcodes : uint16
     SMSG_WORLD_SERVER_INFO                            = 0x31A2,
     SMSG_WORLD_STATE_UI_TIMER_UPDATE                  = 0x4A14,
     SMSG_XP_GAIN_ABORTED                              = 0x50B4,
-    SMSG_ZONE_UNDER_ATTACK                            = 0x0A06,
+    SMSG_ZONE_UNDER_ATTACK                            = 0x0A06
+};
+
+enum OpcodeServerClient
+{
+        MSG_AUCTION_HELLO                                 = 0x2307,
+    MSG_CHANNEL_START                                 = 0x0A15, // SMSG only?
+    MSG_CHANNEL_UPDATE                                = 0x2417, // SMSG only?
+    MSG_CORPSE_QUERY                                  = 0x4336,
+    MSG_GM_BIND_OTHER                                 = 0x0000,
+    MSG_GM_SHOWLABEL                                  = 0x0000,
+    MSG_GM_SUMMON                                     = 0x0000,
+    MSG_INSPECT_ARENA_TEAMS                           = 0x2704,
+    MSG_LIST_STABLED_PETS                             = 0x0834,
+    MSG_MINIMAP_PING                                  = 0x6635,
+    MSG_MOVE_CHARM_TELEPORT_CHEAT                     = 0x7A08,
+    MSG_MOVE_FALL_LAND                                = 0x380A,
+    MSG_MOVE_HEARTBEAT                                = 0x3914,
+    MSG_MOVE_JUMP                                     = 0x7A06,
+    MSG_MOVE_SET_ALL_SPEED_CHEAT                      = 0x0000,
+    MSG_MOVE_SET_COLLISION_HEIGHT                     = 0x0000,
+    MSG_MOVE_SET_FACING                               = 0x7914,
+    MSG_MOVE_SET_FLIGHT_SPEED_CHEAT                   = 0x0000,
+    MSG_MOVE_SET_PITCH                                = 0x7312,
+    MSG_MOVE_SET_RAW_POSITION_ACK                     = 0x0000,
+    MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT                 = 0x0000,
+    MSG_MOVE_SET_RUN_MODE                             = 0x791A,
+    MSG_MOVE_SET_RUN_SPEED_CHEAT                      = 0x0000,
+    MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT                = 0x0000,
+    MSG_MOVE_SET_SWIM_SPEED_CHEAT                     = 0x0000,
+    MSG_MOVE_SET_TURN_RATE_CHEAT                      = 0x0000,
+    MSG_MOVE_SET_WALK_MODE                            = 0x7002,
+    MSG_MOVE_SET_WALK_SPEED_CHEAT                     = 0x0000,
+    MSG_MOVE_START_ASCEND                             = 0x390A,
+    MSG_MOVE_START_BACKWARD                           = 0x330A,
+    MSG_MOVE_START_DESCEND                            = 0x3800,
+    MSG_MOVE_START_FORWARD                            = 0x7814,
+    MSG_MOVE_START_PITCH_DOWN                         = 0x3908,
+    MSG_MOVE_START_PITCH_UP                           = 0x3304,
+    MSG_MOVE_START_STRAFE_LEFT                        = 0x3A16,
+    MSG_MOVE_START_STRAFE_RIGHT                       = 0x3A02,
+    MSG_MOVE_START_SWIM                               = 0x3206,
+    MSG_MOVE_START_TURN_LEFT                          = 0x700C,
+    MSG_MOVE_START_TURN_RIGHT                         = 0x7000,
+    MSG_MOVE_STOP                                     = 0x320A,
+    MSG_MOVE_STOP_ASCEND                              = 0x7B00,
+    MSG_MOVE_STOP_PITCH                               = 0x7216,
+    MSG_MOVE_STOP_STRAFE                              = 0x3002,
+    MSG_MOVE_STOP_SWIM                                = 0x3802,
+    MSG_MOVE_STOP_TURN                                = 0x331E,
+    MSG_MOVE_TELEPORT                                 = 0x55A0,
+    MSG_MOVE_TELEPORT_ACK                             = 0x390C,
+    MSG_MOVE_TELEPORT_CHEAT                           = 0x3A10,
+    MSG_MOVE_TIME_SKIPPED                             = 0x19B3,
+    MSG_MOVE_TOGGLE_COLLISION_CHEAT                   = 0x7B04,
+    MSG_MOVE_TOGGLE_FALL_LOGGING                      = 0x0000,
+    MSG_MOVE_TOGGLE_LOGGING                           = 0x0000,
+    MSG_MOVE_UPDATE_MOUSE                             = 0x0000,
+    MSG_MOVE_WORLDPORT_ACK                            = 0x2411,
+    MSG_NOTIFY_PARTY_SQUELCH                          = 0x4D06,
+    MSG_PARTY_ASSIGNMENT                              = 0x0424,
+    MSG_PETITION_DECLINE                              = 0x4905,
+    MSG_PETITION_RENAME                               = 0x4005,
+    MSG_PVP_LOG_DATA                                  = 0x0000,
+    MSG_QUERY_NEXT_MAIL_TIME                          = 0x0F04,
+    MSG_QUEST_PUSH_RESULT                             = 0x4515,
+    MSG_RAID_READY_CHECK                              = 0x2304,
+    MSG_RAID_READY_CHECK_CONFIRM                      = 0x4F05,
+    MSG_RAID_READY_CHECK_FINISHED                     = 0x2E15,
+    MSG_RAID_TARGET_UPDATE                            = 0x2C36,
+    MSG_RANDOM_ROLL                                   = 0x0905,
+    MSG_SAVE_GUILD_EMBLEM                             = 0x2404,
+    MSG_SET_DUNGEON_DIFFICULTY                        = 0x4925,
+    MSG_SET_RAID_DIFFICULTY                           = 0x0614,
+    MSG_TABARDVENDOR_ACTIVATE                         = 0x6926,
+    MSG_TALENT_WIPE_CONFIRM                           = 0x0107,
+};
+
+inline bool IsInstanceOnlyOpcode(uint32 opcode)
+{
+    switch (opcode)
+    {
+        case SMSG_QUESTGIVER_STATUS: // ClientQuest
+        case SMSG_DUEL_REQUESTED: // Client
+        case SMSG_DUEL_INBOUNDS: // Client
+        case SMSG_QUERY_TIME_RESPONSE: // Client
+        case SMSG_DUEL_WINNER: // Client
+        case SMSG_DUEL_COMPLETE: // Client
+        case SMSG_DUEL_OUTOFBOUNDS: // Client
+        case SMSG_ATTACKSTOP: // Client
+        case SMSG_ATTACKSTART: // Client
+        case SMSG_MOUNTRESULT: // Client
+            return true;
+        default:
+            return false;
+    }
+}
+
+enum ConnectionType
+{
+    CONNECTION_TYPE_REALM       = 0,
+    CONNECTION_TYPE_INSTANCE    = 1,
+    MAX_CONNECTION_TYPES,
+
+    CONNECTION_TYPE_DEFAULT     = -1
 };
 
 enum OpcodeMisc : uint16
@@ -1386,8 +1423,8 @@ enum OpcodeMisc : uint16
     COMPRESSED_OPCODE_MASK                            = 0x8000
 };
 
-typedef Opcodes OpcodeClient;
-typedef Opcodes OpcodeServer;
+typedef OpcodeClient OpcodeClient;
+typedef OpcodeServer OpcodeServer;
 
 /// Player state
 enum SessionStatus
@@ -1434,8 +1471,10 @@ public:
 class ServerOpcodeHandler : public OpcodeHandler
 {
 public:
-    ServerOpcodeHandler(char const* name, SessionStatus status)
-        : OpcodeHandler(name, status) { }
+    ServerOpcodeHandler(char const* name, SessionStatus status, ConnectionType conIdx)
+        : OpcodeHandler(name, status), ConnectionIndex(conIdx) { }
+
+    ConnectionType ConnectionIndex;
 };
 
 class OpcodeTable
@@ -1450,24 +1489,30 @@ public:
 
     void Initialize();
 
-    ClientOpcodeHandler const* operator[](Opcodes index) const
+    ClientOpcodeHandler const* operator[](OpcodeClient index) const
     {
         return _internalTableClient[index];
+    }
+
+    ServerOpcodeHandler const* operator[](OpcodeServer index) const
+    {
+        return _internalTableServer[index];
     }
 
 private:
     template<typename Handler, Handler HandlerFunction>
     void ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing);
-
-    void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status);
+    void ValidateAndSetServerOpcode(OpcodeServer opcode, char const* name, SessionStatus status, ConnectionType conIdx);
 
     ClientOpcodeHandler* _internalTableClient[NUM_OPCODE_HANDLERS];
+    ServerOpcodeHandler* _internalTableServer[NUM_OPCODE_HANDLERS];
 };
 
-extern OpcodeTable opcodeTable;
+TC_GAME_API extern OpcodeTable opcodeTable;
 
 /// Lookup opcode name for human understandable logging
-std::string GetOpcodeNameForLogging(Opcodes opcode);
+std::string GetOpcodeNameForLogging(OpcodeClient opcode);
+std::string GetOpcodeNameForLogging(OpcodeServer opcode);
 
 #endif
 /// @}

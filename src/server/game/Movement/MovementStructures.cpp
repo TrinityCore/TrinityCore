@@ -5656,7 +5656,7 @@ void Movement::PacketSender::Send() const
     }
 }
 
-MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
+MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
 {
     switch (opcode)
     {

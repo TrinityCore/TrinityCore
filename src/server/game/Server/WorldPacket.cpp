@@ -24,14 +24,14 @@
 //! Compresses packet in place
 void WorldPacket::Compress(z_stream* compressionStream)
 {
-    uint16 uncompressedOpcode = GetOpcode();
+    OpcodeServer uncompressedOpcode = OpcodeServer(GetOpcode());
     if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
     {
         TC_LOG_ERROR("network", "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
-    Opcodes opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
+    uint32 opcode = uncompressedOpcode | COMPRESSED_OPCODE_MASK;
     uint32 size = wpos();
     uint32 destsize = compressBound(size);
 
@@ -47,7 +47,7 @@ void WorldPacket::Compress(z_stream* compressionStream)
     *this << uint32(size);
     append(&storage[0], destsize);
     SetOpcode(opcode);
-    TC_LOG_INFO("network", "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(Opcodes(uncompressedOpcode)).c_str(), size, opcode, destsize);
+    TC_LOG_INFO("network", "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(uncompressedOpcode).c_str(), size, opcode, destsize);
 }
 
 //! Compresses another packet and stores it in self (source left intact)
@@ -55,14 +55,14 @@ void WorldPacket::Compress(z_stream* compressionStream, WorldPacket const* sourc
 {
     ASSERT(source != this);
 
-    uint16 uncompressedOpcode = source->GetOpcode();
+    OpcodeServer uncompressedOpcode = OpcodeServer(source->GetOpcode());
     if (uncompressedOpcode & COMPRESSED_OPCODE_MASK)
     {
         TC_LOG_ERROR("network", "Packet with opcode 0x%04X is already compressed!", uncompressedOpcode);
         return;
     }
 
-    Opcodes opcode = Opcodes(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
+    OpcodeServer opcode = OpcodeServer(uncompressedOpcode | COMPRESSED_OPCODE_MASK);
     uint32 size = source->size();
     uint32 destsize = compressBound(size);
 
@@ -79,7 +79,7 @@ void WorldPacket::Compress(z_stream* compressionStream, WorldPacket const* sourc
 
     SetOpcode(opcode);
 
-    TC_LOG_INFO("network", "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(Opcodes(uncompressedOpcode)).c_str(), size, opcode, destsize);
+    TC_LOG_INFO("network", "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(uncompressedOpcode).c_str(), size, opcode, destsize);
 }
 
 void WorldPacket::Compress(void* dst, uint32 *dst_size, const void* src, int src_size)

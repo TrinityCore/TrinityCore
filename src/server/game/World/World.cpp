@@ -87,6 +87,7 @@
 #include "WeatherMgr.h"
 #include "WhoListStorage.h"
 #include "WorldSession.h"
+#include "WorldSocket.h"
 
 #include <boost/asio/ip/address.hpp>
 
@@ -302,6 +303,11 @@ void World::AddSession(WorldSession* s)
     addSessQueue.add(s);
 }
 
+void World::AddInstanceSocket(std::weak_ptr<WorldSocket> sock, uint64 connectToKey)
+{
+    _linkSocketQueue.add(std::make_pair(sock, connectToKey));
+}
+
 void World::AddSession_(WorldSession* s)
 {
     ASSERT(s);
@@ -365,6 +371,30 @@ void World::AddSession_(WorldSession* s)
         popu /= pLimit;
         popu *= 2;
         TC_LOG_INFO("misc", "Server Population (%f).", popu);
+    }
+}
+
+void World::ProcessLinkInstanceSocket(std::pair<std::weak_ptr<WorldSocket>, uint64> linkInfo)
+{
+    if (std::shared_ptr<WorldSocket> sock = linkInfo.first.lock())
+    {
+        if (!sock->IsOpen())
+            return;
+
+        WorldSession::ConnectToKey key;
+        key.Raw = linkInfo.second;
+
+        WorldSession* session = FindSession(uint32(key.Fields.AccountId));
+        if (!session || session->GetConnectToInstanceKey() != linkInfo.second)
+        {
+            sock->SendAuthResponseError(AUTH_SESSION_EXPIRED);
+            sock->DelayedCloseSocket();
+            return;
+        }
+
+        sock->SetWorldSession(session);
+        session->AddInstanceConnection(sock);
+        session->HandleContinuePlayerLogin();
     }
 }
 
@@ -729,9 +759,16 @@ void World::LoadConfigSettings(bool reload)
         uint32 val = sConfigMgr->GetIntDefault("WorldServerPort", 8085);
         if (val != m_int_configs[CONFIG_PORT_WORLD])
             TC_LOG_ERROR("server.loading", "WorldServerPort option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_PORT_WORLD]);
+
+        val = sConfigMgr->GetIntDefault("InstanceServerPort", 8086);
+        if (val != m_int_configs[CONFIG_PORT_INSTANCE])
+            TC_LOG_ERROR("server.loading", "InstanceServerPort option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_PORT_INSTANCE]);
     }
     else
+    {
         m_int_configs[CONFIG_PORT_WORLD] = sConfigMgr->GetIntDefault("WorldServerPort", 8085);
+        m_int_configs[CONFIG_PORT_INSTANCE] = sConfigMgr->GetIntDefault("InstanceServerPort", 8086);
+    }
 
     m_int_configs[CONFIG_SOCKET_TIMEOUTTIME] = sConfigMgr->GetIntDefault("SocketTimeOutTime", 900000);
     m_int_configs[CONFIG_SESSION_ADD_DELAY] = sConfigMgr->GetIntDefault("SessionAddDelay", 10000);
@@ -3027,10 +3064,14 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
 
 void World::UpdateSessions(uint32 diff)
 {
+    std::pair<std::weak_ptr<WorldSocket>, uint64> linkInfo;
+    while (_linkSocketQueue.next(linkInfo))
+        ProcessLinkInstanceSocket(std::move(linkInfo));
+
     ///- Add new sessions
     WorldSession* sess = nullptr;
     while (addSessQueue.next(sess))
-        AddSession_ (sess);
+        AddSession_(sess);
 
     ///- Then send an update signal to remaining ones
     for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)
