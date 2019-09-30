@@ -300,6 +300,7 @@ int main(int argc, char** argv)
                 break;
             }
             case Constants::BinaryTypes::Mach64:
+            {
                 std::cout << "Mac client...\n";
 
                 boost::algorithm::replace_all(renamed_binary_path, ".app", " Patched.app");
@@ -310,12 +311,27 @@ int main(int argc, char** argv)
                 do_client_patches<Patches::Mac::x64, Patterns::Mac::x64>
                     (&patcher, renamed_binary_path);
 
+                boost::filesystem::path p(binary_path);
+                p.remove_filename();
+                p.append("Battle.net.bundle");
+
+                std::string renamed_dll_path(p.string());
+                Patcher bnetPatcher(p.string());
+
+                boost::algorithm::replace_all(renamed_dll_path, ".bundle", " Patched.bundle");
+                copyDir(boost::filesystem::path(p.string()).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
+                    , boost::filesystem::path(renamed_dll_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
+                );
+                do_dll_patches<Patches::Mac::x64, Patterns::Mac::x64>
+                    (&bnetPatcher, renamed_dll_path);
+
                 do_module<Patches::Mac::x64, Patterns::Mac::x64>
                     ("97eeb2e28e9e56ed6a22d09f44e2ff43c93315e006bbad43bafc0defaa6f50ae.auth"
                         , "/Users/Shared/Blizzard/Battle.net/Cache/"
                         );
 
                 break;
+            }
             default:
                 throw std::runtime_error("Type: " + std::to_string(static_cast<uint32_t>(patcher.Type)) + " not supported!");
         }

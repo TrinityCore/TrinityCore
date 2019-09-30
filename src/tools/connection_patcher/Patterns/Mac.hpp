@@ -27,18 +27,11 @@ namespace Connection_Patcher
     {
         namespace Mac
         {
-            struct x86
-            {
-                static const std::vector<unsigned char> BNet() { return { }; }
-                static const std::vector<unsigned char> Password() { return { }; }
-                static const std::vector<unsigned char> Signature() { return { }; }
-            };
-
             struct x64
             {
-                static const std::vector<unsigned char> BNet() { return { }; }
-                static const std::vector<unsigned char> Password() { return { }; }
-                static const std::vector<unsigned char> Signature() { return { }; }
+                static const std::vector<unsigned char> BNet() { return { 0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x48, 0x89, 0xE5, 0x48, 0xC7, 0x07, 0x00, 0x00, 0x00, 0x00, 0x48, 0xC7, 0x47 }; }
+                static const std::vector<unsigned char> Password() { return { 0x0F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x49, 0x8B, 0x45, 0x00, 0xB9, 0x40 }; }
+                static const std::vector<unsigned char> Signature() { return { 0xE8, 0x00, 0x00, 0x00, 0x00, 0x84, 0xC0, 0x75, 0x00, 0x4C, 0x89, 0xEF, 0xE8, 0x00, 0x00, 0x00, 0x00, 0x48, 0x8D, 0x05, 0x00, 0x00, 0x00, 0x00, 0x48 }; }
             };
         };
     }
