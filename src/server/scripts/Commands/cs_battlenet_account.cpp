@@ -140,7 +140,7 @@ public:
                 else
                 {
                     handler->PSendSysMessage("IP2Location] No information");
-                    TC_LOG_DEBUG("server.authserver", "IP2Location] No information");
+                    TC_LOG_DEBUG("server.bnetserver", "IP2Location] No information");
                 }
             }
             else if (param == "off")
