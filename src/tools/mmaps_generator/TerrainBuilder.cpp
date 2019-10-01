@@ -405,7 +405,7 @@ namespace MMAP
                 useTerrain = true;
                 useLiquid = true;
                 uint8 liquidType = MAP_LIQUID_TYPE_NO_WATER;
-                // FIXME: "warning: the address of ‘liquid_type’ will always evaluate as ‘true’"
+                // FIXME: "warning: the address of Â‘liquid_typeÂ’ will always evaluate as Â‘trueÂ’"
 
                 // if there is no liquid, don't use liquid
                 if (!meshData.liquidVerts.size() || !ltriangles.size())
@@ -537,13 +537,13 @@ namespace MMAP
         switch (grid)
         {
         case GRID_V9:
-            coord[0] = (xOffset + index%(V9_SIZE)*GRID_PART_SIZE) * -1.f;
-            coord[1] = (yOffset + (int)(index/(V9_SIZE))*GRID_PART_SIZE) * -1.f;
+            coord[0] = (xOffset + index%(V9_SIZE)*GRID_PART_SIZE) * -1.0f;
+            coord[1] = (yOffset + (int)(index/(V9_SIZE))*GRID_PART_SIZE) * -1.0f;
             coord[2] = v[index];
             break;
         case GRID_V8:
-            coord[0] = (xOffset + index%(V8_SIZE)*GRID_PART_SIZE + GRID_PART_SIZE/2.f) * -1.f;
-            coord[1] = (yOffset + (int)(index/(V8_SIZE))*GRID_PART_SIZE + GRID_PART_SIZE/2.f) * -1.f;
+            coord[0] = (xOffset + index%(V8_SIZE)*GRID_PART_SIZE + GRID_PART_SIZE/2.0f) * -1.0f;
+            coord[1] = (yOffset + (int)(index/(V8_SIZE))*GRID_PART_SIZE + GRID_PART_SIZE/2.0f) * -1.0f;
             coord[2] = v[index];
             break;
         }
@@ -601,8 +601,8 @@ namespace MMAP
     {
         // wow coords: x, y, height
         // coord is mirroed about the horizontal axes
-        coord[0] = (xOffset + index%(V9_SIZE)*GRID_PART_SIZE) * -1.f;
-        coord[1] = (yOffset + (int)(index/(V9_SIZE))*GRID_PART_SIZE) * -1.f;
+        coord[0] = (xOffset + index%(V9_SIZE)*GRID_PART_SIZE) * -1.0f;
+        coord[1] = (yOffset + (int)(index/(V9_SIZE))*GRID_PART_SIZE) * -1.0f;
         coord[2] = v[index2];
     }
 
@@ -680,7 +680,7 @@ namespace MMAP
 
                 // transform data
                 float scale = instance.iScale;
-                G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z / -180.f, G3D::pi() * instance.iRot.x / -180.f, G3D::pi() * instance.iRot.y / -180.f);
+                G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z / -180.0f, G3D::pi() * instance.iRot.x / -180.0f, G3D::pi() * instance.iRot.y / -180.0f);
                 G3D::Vector3 position = instance.iPos;
                 position.x -= 32 * GRID_SIZE;
                 position.y -= 32 * GRID_SIZE;
@@ -736,8 +736,8 @@ namespace MMAP
                             {
                                 vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y*vertsX + x]);
                                 vert = vert * rotation * scale + position;
-                                vert.x *= -1.f;
-                                vert.y *= -1.f;
+                                vert.x *= -1.0f;
+                                vert.y *= -1.0f;
                                 liqVerts.push_back(vert);
                             }
                         }
@@ -796,8 +796,8 @@ namespace MMAP
         {
             // apply tranform, then mirror along the horizontal axes
             G3D::Vector3 v((*it) * rotation * scale + position);
-            v.x *= -1.f;
-            v.y *= -1.f;
+            v.x *= -1.0f;
+            v.y *= -1.0f;
             transformedVertices.push_back(v);
         }
     }
