@@ -1609,7 +1609,10 @@ class spell_putricide_clear_aura_effect_value : public SpellScriptLoader
                 uint32 auraId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
                 target->RemoveAurasDueToSpell(auraId);
                 if (m_scriptSpellId == SPELL_TEAR_GAS_CANCEL)
-                    target->RemoveAurasDueToSpell(SPELL_TEAR_GAS_TRIGGER_MISSILE);
+                {
+                    uint32 auraId2 = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                    target->RemoveAurasDueToSpell(auraId2);
+                }
             }
 
             void Register() override
