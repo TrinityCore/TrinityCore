@@ -288,6 +288,11 @@ class spell_forge_of_souls_soul_sickness : public AuraScript
 {
     PrepareAuraScript(spell_forge_of_souls_soul_sickness);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LETHARGY });
+    }
+
     void HandleStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
