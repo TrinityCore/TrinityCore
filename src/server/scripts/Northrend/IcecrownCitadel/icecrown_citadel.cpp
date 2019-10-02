@@ -1394,7 +1394,7 @@ class spell_frost_giant_death_plague : public SpellScript
         }
 
         targets = _sharedList;
-        targets.remove_if([caster](WorldObject* obj) -> bool
+        targets.remove_if([](WorldObject* obj) -> bool
         {
             Unit* object = obj->ToUnit();
 
