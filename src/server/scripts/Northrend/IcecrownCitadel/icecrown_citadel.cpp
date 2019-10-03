@@ -422,10 +422,10 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
         }
 };
 
-class PlagueSelector
+class DeathPlagueTargetSelector
 {
 public:
-    PlagueSelector(Unit* owner) : _me(owner) { }
+    DeathPlagueTargetSelector(Unit* owner) : _me(owner) { }
 
     bool operator()(Unit* unit) const
     {
@@ -483,7 +483,7 @@ class npc_rotting_frost_giant : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DEATH_PLAGUE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, PlagueSelector(me)))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, DeathPlagueTargetSelector(me)))
                             {
                                 Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
                                 DoCast(target, SPELL_DEATH_PLAGUE_AURA);
@@ -1339,29 +1339,6 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
         }
 };
 
-class DeathPlagueTargetSelector
-{
-    public:
-        explicit DeathPlagueTargetSelector(Unit* caster) : _caster(caster) { }
-
-        bool operator()(WorldObject* object) const
-        {
-            if (object == _caster)
-                return true;
-
-            if (object->GetTypeId() != TYPEID_PLAYER)
-                return true;
-
-            if (object->ToUnit()->HasAura(SPELL_RECENTLY_INFECTED) || object->ToUnit()->HasAura(SPELL_DEATH_PLAGUE_AURA))
-                return true;
-
-            return false;
-        }
-
-    private:
-        Unit* _caster;
-};
-
 // 72864 - Death Plague
 class spell_frost_giant_death_plague : public SpellScript
 {
@@ -1375,9 +1352,6 @@ class spell_frost_giant_death_plague : public SpellScript
     // Damage Effect count
     void CountTargets(std::list<WorldObject*>& targets)
     {
-        Unit* caster = GetCaster();
-        targets.remove(caster);
-        caster->CastSpell(caster, SPELL_RECENTLY_INFECTED, true);
         _sharedList = targets;
         _failed = targets.empty();
     }
@@ -1385,14 +1359,6 @@ class spell_frost_giant_death_plague : public SpellScript
     // Filter targets to jump
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        Unit* caster = GetCaster();
-        if (_failed)
-        {
-            caster->CastSpell(caster, SPELL_DEATH_PLAGUE_KILL, true);
-            targets.clear();
-            return;
-        }
-
         targets = _sharedList;
         targets.remove_if([](WorldObject* obj) -> bool
         {
@@ -1411,7 +1377,18 @@ class spell_frost_giant_death_plague : public SpellScript
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_DEATH_PLAGUE, true);
+        Unit* caster = GetCaster();
+        caster->CastSpell(GetHitUnit(), SPELL_DEATH_PLAGUE, true);
+        caster->CastSpell(caster, SPELL_RECENTLY_INFECTED, true);
+    }
+
+    void HandleKill()
+    {
+        if (_failed)
+        {
+            Unit* caster = GetCaster();
+            caster->CastSpell(caster, SPELL_DEATH_PLAGUE_KILL, true);
+        }
     }
 
     void Register() override
@@ -1419,6 +1396,7 @@ class spell_frost_giant_death_plague : public SpellScript
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
         OnEffectHitTarget += SpellEffectFn(spell_frost_giant_death_plague::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        AfterCast += SpellCastFn(spell_frost_giant_death_plague::HandleKill);
     }
 
 private:
