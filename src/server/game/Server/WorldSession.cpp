@@ -32,6 +32,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "IpAddress.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "Metric.h"
@@ -768,7 +769,7 @@ void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial)
 {
     boost::system::error_code ignored_error;
-    boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(boost::asio::ip::make_address(GetRemoteAddress(), ignored_error));
+    boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(Trinity::Net::make_address(GetRemoteAddress(), ignored_error));
     instanceAddress.port(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
 
     _instanceConnectKey.Fields.AccountId = GetAccountId();
