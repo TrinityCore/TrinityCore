@@ -625,7 +625,6 @@ class boss_professor_putricide : public CreatureScript
                             AttackStart(me->GetVictim());
                             // remove Tear Gas
                             me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PERIODIC_TRIGGER);
-                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEAR_GAS_TRIGGER_MISSILE, true, true);
                             DoCastAOE(SPELL_TEAR_GAS_CANCEL);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_VARIABLE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OOZE_VARIABLE);
@@ -1606,8 +1605,14 @@ class spell_putricide_clear_aura_effect_value : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
+                Unit* target = GetHitUnit();
                 uint32 auraId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
-                GetHitUnit()->RemoveAurasDueToSpell(auraId);
+                target->RemoveAurasDueToSpell(auraId);
+                if (m_scriptSpellId == SPELL_TEAR_GAS_CANCEL)
+                {
+                    uint32 auraId2 = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                    target->RemoveAurasDueToSpell(auraId2);
+                }
             }
 
             void Register() override
