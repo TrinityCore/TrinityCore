@@ -56,7 +56,7 @@ pipeline {
                     sh 'make install'
                 }
                 dir('bin') {
-                    sh './authserver  --version'
+                    sh './bnetserver  --version'
                     sh './worldserver  --version'
                 }
             }
