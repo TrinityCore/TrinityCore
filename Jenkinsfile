@@ -12,6 +12,7 @@ pipeline {
         string(name: 'USE_SCRIPTPCH',         defaultValue: '1',              description: 'Build Option USE_SCRIPTPCH')
         string(name: 'WITH_COREDEBUG',        defaultValue: '0',              description: 'Build Option WITH_COREDEBUG')
         string(name: 'CMAKE_BUILD_TYPE',      defaultValue: 'RelWithDebInfo', description: 'Build Option CMAKE_BUILD_TYPE')
+        string(name: 'CMAKE_ADDITIONAL',      defaultValue: '',               description: 'Additional CMake parameters')
     }
 
     agent {
@@ -33,7 +34,7 @@ pipeline {
             steps {
                 echo 'Building...'
                 dir('build') {
-                    sh "cmake ../git -DCMAKE_INSTALL_PREFIX=../ -DWITH_DYNAMIC_LINKING=${params.WITH_DYNAMIC_LINKING} -DSCRIPTS=${params.SCRIPTS} -DBNETSERVER=${params.BNETSERVER} -DWORLDSERVER=${params.WORLDSERVER} -DTOOLS=${params.TOOLS} -DWITH_WARNINGS=${params.WITH_WARNINGS} -DUSE_COREPCH=${params.USE_COREPCH} -DUSE_SCRIPTPCH=${params.USE_SCRIPTPCH} -DWITH_COREDEBUG=${params.WITH_COREDEBUG} -DCMAKE_BUILD_TYPE=${params.CMAKE_BUILD_TYPE}"
+                    sh "cmake ../git -DCMAKE_INSTALL_PREFIX=../ -DWITH_DYNAMIC_LINKING=${params.WITH_DYNAMIC_LINKING} -DSCRIPTS=${params.SCRIPTS} -DBNETSERVER=${params.BNETSERVER} -DWORLDSERVER=${params.WORLDSERVER} -DTOOLS=${params.TOOLS} -DWITH_WARNINGS=${params.WITH_WARNINGS} -DUSE_COREPCH=${params.USE_COREPCH} -DUSE_SCRIPTPCH=${params.USE_SCRIPTPCH} -DWITH_COREDEBUG=${params.WITH_COREDEBUG} -DCMAKE_BUILD_TYPE=${params.CMAKE_BUILD_TYPE} -DBoost_NO_BOOST_CMAKE=ON ${params.CMAKE_ADDITIONAL}"
                     sh """
                         set +x
 
