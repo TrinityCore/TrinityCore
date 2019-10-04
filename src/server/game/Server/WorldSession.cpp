@@ -54,7 +54,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSocket.h"
-#include <boost/system/system_error.hpp>
 #include <zlib.h>
 
 namespace {
