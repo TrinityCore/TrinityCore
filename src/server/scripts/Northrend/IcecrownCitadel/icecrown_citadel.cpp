@@ -422,6 +422,28 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
         }
 };
 
+class DeathPlagueTargetSelector
+{
+public:
+    DeathPlagueTargetSelector(Unit* owner) : _me(owner) { }
+
+    bool operator()(Unit* unit) const
+    {
+        if (unit->GetTypeId() != TYPEID_PLAYER || _me->GetDistance(unit) > 100.0f)
+            return false;
+
+        if (_me->GetVictim() && _me->GetVictim()->GetGUID() == unit->GetGUID())
+            return false;
+
+        if (unit->HasAura(SPELL_DEATH_PLAGUE_AURA) || unit->HasAura(SPELL_RECENTLY_INFECTED))
+            return false;
+
+        return true;
+    }
+private:
+    Unit const* _me;
+};
+
 class npc_rotting_frost_giant : public CreatureScript
 {
     public:
@@ -429,9 +451,7 @@ class npc_rotting_frost_giant : public CreatureScript
 
         struct npc_rotting_frost_giantAI : public ScriptedAI
         {
-            npc_rotting_frost_giantAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_rotting_frost_giantAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() override
             {
@@ -444,6 +464,8 @@ class npc_rotting_frost_giant : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _events.Reset();
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEATH_PLAGUE_AURA);
             }
 
             void UpdateAI(uint32 diff) override
@@ -461,10 +483,10 @@ class npc_rotting_frost_giant : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DEATH_PLAGUE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, DeathPlagueTargetSelector(me)))
                             {
                                 Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
-                                DoCast(target, SPELL_DEATH_PLAGUE);
+                                DoCast(target, SPELL_DEATH_PLAGUE_AURA);
                             }
                             _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
                             break;
@@ -1317,90 +1339,69 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
         }
 };
 
-class DeathPlagueTargetSelector
+// 72864 - Death Plague
+class spell_frost_giant_death_plague : public SpellScript
 {
-    public:
-        explicit DeathPlagueTargetSelector(Unit* caster) : _caster(caster) { }
+    PrepareSpellScript(spell_frost_giant_death_plague);
 
-        bool operator()(WorldObject* object) const
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RECENTLY_INFECTED, SPELL_DEATH_PLAGUE_KILL, SPELL_DEATH_PLAGUE });
+    }
+
+    // Damage Effect count
+    void CountTargets(std::list<WorldObject*>& targets)
+    {
+        _sharedList = targets;
+        _failed = targets.empty();
+    }
+
+    // Filter targets to jump
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets = _sharedList;
+        targets.remove_if([](WorldObject* obj) -> bool
         {
-            if (object == _caster)
+            Unit* object = obj->ToUnit();
+
+            if (!object || object->GetTypeId() != TYPEID_PLAYER)
                 return true;
 
-            if (object->GetTypeId() != TYPEID_PLAYER)
-                return true;
-
-            if (object->ToUnit()->HasAura(SPELL_RECENTLY_INFECTED) || object->ToUnit()->HasAura(SPELL_DEATH_PLAGUE_AURA))
+            if (object->HasAura(SPELL_RECENTLY_INFECTED) || object->HasAura(SPELL_DEATH_PLAGUE_AURA))
                 return true;
 
             return false;
-        }
+        });
+    }
 
-    private:
-        Unit* _caster;
-};
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        Unit* caster = GetCaster();
+        caster->CastSpell(GetHitUnit(), SPELL_DEATH_PLAGUE, true);
+        caster->CastSpell(caster, SPELL_RECENTLY_INFECTED, true);
+    }
 
-class spell_frost_giant_death_plague : public SpellScriptLoader
-{
-    public:
-        spell_frost_giant_death_plague() : SpellScriptLoader("spell_frost_giant_death_plague") { }
-
-        class spell_frost_giant_death_plague_SpellScript : public SpellScript
+    void HandleKill()
+    {
+        if (_failed)
         {
-            PrepareSpellScript(spell_frost_giant_death_plague_SpellScript);
-
-        public:
-            spell_frost_giant_death_plague_SpellScript()
-            {
-                _failed = false;
-            }
-
-        private:
-            // First effect
-            void CountTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove(GetCaster());
-                _failed = targets.empty();
-            }
-
-            // Second effect
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                // Select valid targets for jump
-                targets.remove_if(DeathPlagueTargetSelector(GetCaster()));
-                if (!targets.empty())
-                {
-                    WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-                    targets.clear();
-                    targets.push_back(target);
-                }
-
-                targets.push_back(GetCaster());
-            }
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                if (GetHitUnit() != GetCaster())
-                    GetCaster()->CastSpell(GetHitUnit(), SPELL_DEATH_PLAGUE_AURA, true);
-                else if (_failed)
-                    GetCaster()->CastSpell(GetCaster(), SPELL_DEATH_PLAGUE_KILL, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
-                OnEffectHitTarget += SpellEffectFn(spell_frost_giant_death_plague_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-
-            bool _failed;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_frost_giant_death_plague_SpellScript();
+            Unit* caster = GetCaster();
+            caster->CastSpell(caster, SPELL_DEATH_PLAGUE_KILL, true);
         }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_frost_giant_death_plague::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        AfterCast += SpellCastFn(spell_frost_giant_death_plague::HandleKill);
+    }
+
+private:
+    bool _failed = false;
+    std::list<WorldObject*> _sharedList;
 };
 
 class spell_icc_harvest_blight_specimen : public SpellScriptLoader
@@ -1592,7 +1593,7 @@ void AddSC_icecrown_citadel()
     RegisterSpellScript(spell_generic_remove_empowered_blood);
     new spell_icc_stoneform();
     new spell_icc_sprit_alarm();
-    new spell_frost_giant_death_plague();
+    RegisterSpellScript(spell_frost_giant_death_plague);
     new spell_icc_harvest_blight_specimen();
     new spell_icc_soul_missile();
     new at_icc_saurfang_portal();
