@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     std::string configService;
     auto vm = GetConsoleArguments(argc, argv, configFile, configService);
     // exit if help is enabled
-    if (vm.count("help"))
+    if (vm.count("help") || vm.count("version"))
         return 0;
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
@@ -303,6 +303,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
+		("version,v", "print version build info")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_BNET_CONFIG)),
                      "use <arg> as configuration file")
         ;
@@ -326,6 +327,10 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
 
     if (variablesMap.count("help")) {
         std::cout << all << "\n";
+    }
+	    else if (variablesMap.count("version"))
+    {
+        std::cout << GitRevision::GetFullVersion() << "\n";
     }
 
     return variablesMap;
