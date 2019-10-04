@@ -32,6 +32,7 @@
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
 #include "DeadlineTimer.h"
+#include "GitRevision.h"
 #include "IoContext.h"
 #include "MySQLThreading.h"
 #include "ModuleManager.h"
@@ -303,7 +304,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
     options_description all("Allowed options");
     all.add_options()
         ("help,h", "print usage message")
-		("version,v", "print version build info")
+        ("version,v", "print version build info")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_BNET_CONFIG)),
                      "use <arg> as configuration file")
         ;
