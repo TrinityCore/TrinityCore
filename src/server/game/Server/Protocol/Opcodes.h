@@ -1389,16 +1389,23 @@ inline bool IsInstanceOnlyOpcode(uint32 opcode)
 {
     switch (opcode)
     {
-        case SMSG_QUESTGIVER_STATUS: // ClientQuest
-        case SMSG_DUEL_REQUESTED: // Client
-        case SMSG_DUEL_INBOUNDS: // Client
-        case SMSG_QUERY_TIME_RESPONSE: // Client
-        case SMSG_DUEL_WINNER: // Client
-        case SMSG_DUEL_COMPLETE: // Client
-        case SMSG_DUEL_OUTOFBOUNDS: // Client
-        case SMSG_ATTACKSTOP: // Client
-        case SMSG_ATTACKSTART: // Client
-        case SMSG_MOUNTRESULT: // Client
+        case SMSG_ATTACKSTOP:
+        case SMSG_DUEL_INBOUNDS:
+        case SMSG_DUEL_OUTOFBOUNDS:
+        case SMSG_ITEM_PUSH_RESULT:
+        case SMSG_QUESTGIVER_STATUS:
+        case SMSG_QUERY_TIME_RESPONSE:
+        case SMSG_MOUNTRESULT:
+        case SMSG_DUEL_COMPLETE:
+        case SMSG_LOOT_MONEY_NOTIFY:
+        case SMSG_LOOT_CLEAR_MONEY:
+        case SMSG_ATTACKSTART:
+        case SMSG_DUEL_WINNER:
+        case SMSG_DUEL_REQUESTED:
+        case SMSG_LOOT_RESPONSE:
+        case SMSG_LOOT_REMOVED:
+        case SMSG_LOOT_ITEM_NOTIFY:
+        case SMSG_LOOT_RELEASE_RESPONSE:
             return true;
         default:
             return false;
