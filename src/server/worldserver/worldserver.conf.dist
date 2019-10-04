@@ -1200,6 +1200,14 @@ Command.LookupMaxResults = 0
 AllowTickets = 1
 
 #
+#    AllowBugsReportsAndSuggestions
+#        Description: Allow/disallow sending bug reports and suggestions via ingame support window
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+AllowBugsReportsAndSuggestions = 0
+
+#
 #    DeletedCharacterTicketTrace
 #        Description: Keep trace of tickets opened by deleted characters
 #                     gm_ticket.playerGuid will be 0, old GUID and character name

@@ -52,6 +52,7 @@
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
+#include "SystemPackets.h"
 #include "Transport.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -833,35 +834,27 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     LoadAccountData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
 
-    bool featureBit4 = true;
-    data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
-    data << uint8(2);                                       // unknown value
-    data << uint32(1);
-    data << uint32(1);
-    data << uint32(2);
-    data << uint32(0);
-    data.WriteBit(1);
-    data.WriteBit(1);
-    data.WriteBit(0);
-    data.WriteBit(featureBit4);
-    data.WriteBit(0);
-    data.WriteBit(0);
-    data.FlushBits();
-    if (featureBit4)
+    WorldPackets::System::FeatureSystemStatus features;
+    features.ComplaintStatus = 2;
+    features.ScrollOfResurrectionRequestsRemaining = 1;
+    features.ScrollOfResurrectionMaxRequestsPerDay = 1;
+    features.CfgRealmID = realm.Id.Realm;
+    features.CfgRealmRecID = 0;
+    features.ItemRestorationButtonEnabled = true;
+    features.ScrollOfResurrectionEnabled = false;
+    features.VoiceEnabled = false;
+
+    bool europaTicketSystemEnabled = sWorld->getBoolConfig(CONFIG_ALLOW_BUG_REPORTS_AND_SUGGESTIONS);
+    if (europaTicketSystemEnabled)
     {
-        data << uint32(1);
-        data << uint32(0);
-        data << uint32(10);
-        data << uint32(60);
+        features.EuropaTicketSystemStatus = boost::in_place();
+        features.EuropaTicketSystemStatus->TryCount = 1;
+        features.EuropaTicketSystemStatus->LastResetTimeBeforeNow = 264134872; // Pulled from sniff data
+        features.EuropaTicketSystemStatus->PerMilliseconds = 10;
+        features.EuropaTicketSystemStatus->MaxTries = 60;
     }
 
-    //if (featureBit5)
-    //{
-    //    data << uint32(0);
-    //    data << uint32(0);
-    //    data << uint32(0);
-    //}
-    SendPacket(&data);
+    SendPacket(features.Write());
 
     // Send MOTD
     {

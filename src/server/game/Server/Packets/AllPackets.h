@@ -19,7 +19,8 @@
 #define AllPackets_h__
 
 #include "AuthenticationPackets.h"
-#include "LFGPackets.h"
 #include "GuildPackets.h"
+#include "LFGPackets.h"
+#include "SystemPackets.h"
 
 #endif // AllPackets_h__

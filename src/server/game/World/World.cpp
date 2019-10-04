@@ -526,6 +526,9 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ALLOW_TICKETS] = sConfigMgr->GetBoolDefault("AllowTickets", true);
     m_bool_configs[CONFIG_DELETE_CHARACTER_TICKET_TRACE] = sConfigMgr->GetBoolDefault("DeletedCharacterTicketTrace", false);
 
+    /// - Read Europa Ticket System status (enabling or disabling suggestions and bug reports)
+    m_bool_configs[CONFIG_ALLOW_BUG_REPORTS_AND_SUGGESTIONS] = sConfigMgr->GetBoolDefault("AllowBugsReportsAndSuggestions", false);
+
     ///- Get string for new logins (newly created characters)
     SetNewCharString(sConfigMgr->GetStringDefault("PlayerStart.String", ""));
 
