@@ -1658,6 +1658,27 @@ class spell_stinky_precious_decimate : public SpellScriptLoader
         }
 };
 
+// 70402, 72511, 72512, 72513 - Mutated Transformation
+class spell_abomination_muted_transformation : public SpellScript
+{
+    PrepareSpellScript(spell_abomination_muted_transformation);
+
+    void HandleResistence(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        uint32 damage = GetHitDamage();
+        Unit* target = GetHitUnit();
+        damage -= Unit::CalcSpellResistedDamage(caster, target, GetHitDamage(), SPELL_SCHOOL_MASK_SHADOW, nullptr);
+        damage -= Unit::CalcSpellResistedDamage(caster, target, GetHitDamage(), SPELL_SCHOOL_MASK_NATURE, nullptr);
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_abomination_muted_transformation::HandleResistence, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_boss_professor_putricide()
 {
     new boss_professor_putricide();
@@ -1681,4 +1702,5 @@ void AddSC_boss_professor_putricide()
     new spell_putricide_regurgitated_ooze();
     new spell_putricide_clear_aura_effect_value();
     new spell_stinky_precious_decimate();
+    RegisterSpellScript(spell_abomination_muted_transformation);
 }
