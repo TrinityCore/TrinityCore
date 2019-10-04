@@ -329,7 +329,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
     if (variablesMap.count("help")) {
         std::cout << all << "\n";
     }
-	    else if (variablesMap.count("version"))
+    else if (variablesMap.count("version"))
     {
         std::cout << GitRevision::GetFullVersion() << "\n";
     }
