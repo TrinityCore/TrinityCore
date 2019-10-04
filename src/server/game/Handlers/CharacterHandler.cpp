@@ -840,9 +840,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     features.ScrollOfResurrectionMaxRequestsPerDay = 1;
     features.CfgRealmID = realm.Id.Realm;
     features.CfgRealmRecID = 0;
-    features.ItemRestorationButtonEnabled = true;
-    features.ScrollOfResurrectionEnabled = false;
-    features.VoiceEnabled = false;
 
     bool europaTicketSystemEnabled = sWorld->getBoolConfig(CONFIG_ALLOW_BUG_REPORTS_AND_SUGGESTIONS);
     if (europaTicketSystemEnabled)

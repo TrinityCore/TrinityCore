@@ -25,8 +25,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << int32(ScrollOfResurrectionMaxRequestsPerDay);
     _worldPacket << int32(CfgRealmID);
     _worldPacket << int32(CfgRealmRecID);
-    _worldPacket.WriteBit(TravelPassEnabled);
     _worldPacket.WriteBit(ItemRestorationButtonEnabled);
+    _worldPacket.WriteBit(TravelPassEnabled);
     _worldPacket.WriteBit(ScrollOfResurrectionEnabled);
     _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
     _worldPacket.WriteBit(SessionAlert.is_initialized());
