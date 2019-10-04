@@ -242,7 +242,7 @@ class instance_throne_of_the_four_winds : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 data, uint32 value) override
+            void SetData(uint32 data, uint32 /*value*/) override
             {
                 switch (data)
                 {

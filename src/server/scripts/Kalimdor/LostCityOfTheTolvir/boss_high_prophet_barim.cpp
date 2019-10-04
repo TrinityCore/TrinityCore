@@ -642,7 +642,7 @@ public:
                         }
                         break;
                     case EVENT_CHECK_DISTANCE:
-                        if (Creature* harbinger = me->FindNearestCreature(NPC_HARBINGER_OF_DARKNESS, 0.3f, true))
+                        if (me->FindNearestCreature(NPC_HARBINGER_OF_DARKNESS, 0.3f, true))
                         {
                             Talk(SAY_ANNOUNCE_MERGE_SOUL);
                             me->CastStop();

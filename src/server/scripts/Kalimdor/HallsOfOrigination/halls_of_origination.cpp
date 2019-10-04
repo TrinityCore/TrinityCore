@@ -233,7 +233,7 @@ class spell_hoo_emerge : public SpellScript
 {
     PrepareSpellScript(spell_hoo_emerge);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUBMERGE });
     }

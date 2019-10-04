@@ -61,7 +61,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId, uint32 pathId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

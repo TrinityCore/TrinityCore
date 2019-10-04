@@ -277,11 +277,15 @@ class instance_halls_of_origination : public InstanceMapScript
                         break;
                     case DATA_SUMMON_SANDSTORM_ADDS:
                         for (ObjectGuid guid : _beetleStalkerGUIDS)
+                        {
                             if (Creature* beetleStalker = instance->GetCreature(guid))
+                            {
                                 if (-400.f < beetleStalker->GetPositionY() && beetleStalker->GetPositionY() < -390.f) // 2 stalkers in the middle
                                     beetleStalker->CastSpell(beetleStalker, SPELL_SUMMON_DUSTBONE_HORROR);
                                 else
                                     beetleStalker->CastSpell(beetleStalker, SPELL_BEETLE_BURROW);
+                            }
+                        }
                         break;
                     case DATA_VAULT_OF_LIGHTS:
                         _vaultOfLightState = value;

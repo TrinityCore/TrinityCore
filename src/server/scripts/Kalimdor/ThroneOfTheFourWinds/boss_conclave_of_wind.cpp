@@ -263,7 +263,7 @@ struct boss_anshal : public BossAI
             Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -341,7 +341,7 @@ struct boss_anshal : public BossAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_WIND_DISTANCE_CHECKER)
         {
@@ -502,7 +502,7 @@ struct boss_nezir : public BossAI
             Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -580,7 +580,7 @@ struct boss_nezir : public BossAI
         }
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_WIND_DISTANCE_CHECKER)
         {
@@ -740,7 +740,7 @@ struct boss_rohash : public BossAI
             Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1054,7 +1054,7 @@ class spell_conclave_of_wind_winds_pre_effect_warning : public AuraScript
 {
     PrepareAuraScript(spell_conclave_of_wind_winds_pre_effect_warning);
 
-    void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
             if (Unit* caster = GetCaster())
@@ -1192,7 +1192,7 @@ class spell_conclave_of_wind_hurricane : public SpellScript
         return ValidateSpellInfo({ SPELL_HURRICANE_RIDE_VEHICLE });
     }
 
-    void HandleScriptEffect(SpellEffIndex effIndex)
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_HURRICANE_RIDE_VEHICLE, true);
     }

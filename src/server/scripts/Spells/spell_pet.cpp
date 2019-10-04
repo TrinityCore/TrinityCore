@@ -597,8 +597,6 @@ class spell_hun_pet_scaling_03 : public AuraScript
     void CalculateArmorAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
-        int32 resistanceSchool = GetSpellInfo()->Effects[aurEff->GetEffIndex()].MiscValue;
-
         if (Pet* pet = GetUnitOwner()->ToPet())
         {
             if (Player* owner = pet->GetOwner())

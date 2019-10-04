@@ -303,7 +303,7 @@ struct boss_alakir : public BossAI
         _useTempoaryCloudSpawns = false;
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _JustEngagedWith();
         Talk(SAY_AGGRO);

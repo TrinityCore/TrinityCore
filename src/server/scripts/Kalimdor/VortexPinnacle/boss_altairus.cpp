@@ -343,7 +343,7 @@ class spell_altairus_safe_area : public AuraScript
         return ValidateSpellInfo({ SPELL_LIGHTNING_BLAST });
     }
 
-    void HandleLightningBlast(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleLightningBlast(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
         InstanceScript* instance = target->GetInstanceScript();

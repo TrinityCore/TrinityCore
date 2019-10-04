@@ -390,8 +390,8 @@ class spell_sc_ring_wyrm_knockback : public SpellScript
         Unit* caster = GetCaster();
 
         float angle = caster->GetOrientation();
-        float x = caster->GetPositionX() + cos(caster->GetOrientation() + float(M_PI)) * 100.0f;
-        float y = caster->GetPositionY() + sin(caster->GetOrientation() + float(M_PI)) * 100.0f;
+        float x = caster->GetPositionX() + cos(angle + float(M_PI)) * 100.0f;
+        float y = caster->GetPositionY() + sin(angle + float(M_PI)) * 100.0f;
         float z = caster->GetPositionZ();
         dest.Relocate({ x, y, z, 0.0f });
     }

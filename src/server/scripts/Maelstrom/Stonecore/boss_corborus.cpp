@@ -367,7 +367,7 @@ class npc_crystal_shard : public CreatureScript
                 _events.ScheduleEvent(EVENT_REMOVE_SHRINK_AURA, Seconds(1) + Milliseconds(200));
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_CRYSTAL_SHARDS_TARGET)
                 {
@@ -431,7 +431,7 @@ class spell_corborus_crystal_barrage_targeting : public SpellScript
         Trinity::Containers::RandomResize(targets, 1);
     }
 
-    void HandleEffect(SpellEffIndex effIndex)
+    void HandleEffect(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
         {
@@ -456,7 +456,7 @@ class spell_corborus_crystal_barrage : public AuraScript
         return ValidateSpellInfo({ SPELL_CRYSTAL_BARRAGE_SHARD });
     }
 
-    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
             if (caster->GetMap()->IsHeroic())

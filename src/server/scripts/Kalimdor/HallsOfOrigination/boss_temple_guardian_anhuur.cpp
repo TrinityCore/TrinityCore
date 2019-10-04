@@ -131,7 +131,7 @@ struct boss_temple_guardian_anhuur : public BossAI
             Talk(SAY_KILL);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         _EnterEvadeMode();
