@@ -242,7 +242,7 @@ class spell_warr_concussion_blow : public SpellScript
 {
     PrepareSpellScript(spell_warr_concussion_blow);
 
-    void HandleDummy(SpellEffIndex effIndex)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         SetEffectValue(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetSpellInfo()->Effects[EFFECT_2].CalcValue()));
     }
@@ -1066,7 +1066,7 @@ class spell_warr_strikes_of_opportunity : public AuraScript
         return ValidateSpellInfo({ SPELL_WARRIOR_OPPORTUNITY_STRIKE });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
     }

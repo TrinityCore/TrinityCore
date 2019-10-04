@@ -414,7 +414,7 @@ class spell_pri_guardian_spirit : public AuraScript
         return true;
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount = -1;
     }
@@ -1124,7 +1124,7 @@ class spell_pri_chakra : public AuraScript
 {
     PrepareAuraScript(spell_pri_chakra);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
             {
@@ -1152,7 +1152,6 @@ class spell_pri_chakra : public AuraScript
         PreventDefaultAction();
         Unit* caster = eventInfo.GetActor();
 
-        uint32 spellId = 0;
         if (SpellInfo const* spell = eventInfo.GetSpellInfo())
         {
             // Chakra: Serenity
@@ -1193,12 +1192,12 @@ class spell_pri_chakra_sanctuary : public AuraScript
 {
     PrepareAuraScript(spell_pri_chakra_sanctuary);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED });
     }
 
-    void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(SPELL_PRIEST_CHAKRA_SANCTUARY_LINKED);
     }
@@ -1597,7 +1596,7 @@ class spell_pri_spirit_of_redemption : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION_TRIGGERED });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount = -1;
     }

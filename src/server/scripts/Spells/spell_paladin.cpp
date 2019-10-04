@@ -134,7 +134,7 @@ class spell_pal_ardent_defender : public AuraScript
         amount = -1;
     }
 
-    void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
     {
         Unit* target = GetTarget();
         if (dmgInfo.GetDamage() >= target->GetHealth())
@@ -431,7 +431,6 @@ class spell_pal_divine_storm : public SpellScript
 
     void TriggerHeal()
     {
-        Unit* caster = GetCaster();
         if (Unit* caster = GetCaster())
         {
             int32 heal = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster()));
@@ -1431,7 +1430,7 @@ class spell_pal_long_arm_of_the_law : public AuraScript
         return false;
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_LONG_ARM_OF_THE_LAW, true, nullptr, aurEff);
@@ -1700,7 +1699,7 @@ class spell_pal_guardian_of_ancient_kings : public SpellScript
 {
     PrepareSpellScript(spell_pal_guardian_of_ancient_kings);
 
-    bool Validate(SpellInfo const* spell) override
+    bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
             {
@@ -1810,7 +1809,7 @@ class spell_pal_ancient_crusader : public AuraScript
             });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         if (m_scriptSpellId == SPELL_PALADIN_ANCIENT_CRUSADER_GUARDIAN)

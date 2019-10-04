@@ -557,8 +557,6 @@ class spell_dru_innervate : public AuraScript
         if (!mana)
             return;
 
-        uint8 ticks = aurEff->GetTotalTicks();
-
         // Regenerate 5% of maximum mana
         uint8 percentage = 5;
 
@@ -576,7 +574,7 @@ class spell_dru_innervate : public AuraScript
             else
             {
                 // Glyph of Innervate
-                if (AuraEffect* glyph = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_GLYPH_OF_INNERVATE, EFFECT_0))
+                if (caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_GLYPH_OF_INNERVATE, EFFECT_0))
                     caster->CastSpell(caster, SPELL_DRUID_INNERVATE_TRIGGERED, true);
             }
         }
@@ -1276,7 +1274,7 @@ class spell_dru_rejuvenation : public AuraScript
     }
 
 
-    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
         {
@@ -1322,7 +1320,7 @@ class spell_dru_tree_of_life : public AuraScript
         }
     }
 
-    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
         {

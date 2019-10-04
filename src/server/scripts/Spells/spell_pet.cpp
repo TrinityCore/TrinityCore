@@ -589,11 +589,9 @@ class spell_hun_pet_scaling_03 : public AuraScript
     {
         // Formular: owner resistance of targeted school * 0.4
         canBeRecalculated = true;
-        int32 resistanceSchool = GetSpellInfo()->Effects[aurEff->GetEffIndex()].MiscValue;
-
         if (Pet* pet = GetUnitOwner()->ToPet())
             if (Player* owner = pet->GetOwner())
-                amount = uint32(owner->GetResistance(SpellSchoolMask(resistanceSchool)) * 0.4);
+                amount = uint32(owner->GetResistance(SpellSchoolMask(GetSpellInfo()->Effects[aurEff->GetEffIndex()].MiscValue)) * 0.4);
     }
 
     void CalculateArmorAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)

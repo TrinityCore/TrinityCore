@@ -105,7 +105,7 @@ struct npc_pet_mage_mirror_image : ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_INITIALIZE_IMAGES)
         {

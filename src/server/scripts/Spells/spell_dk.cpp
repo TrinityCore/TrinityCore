@@ -1200,7 +1200,7 @@ class spell_dk_runic_empowerment : public AuraScript
         return false;
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
 
@@ -1237,6 +1237,8 @@ class spell_dk_runic_empowerment : public AuraScript
                             break;
                         case RUNE_UNHOLY:
                             player->CastSpell(player, SPELL_DK_ENERGIZE_UNHOLY_RUNE, true, nullptr, aurEff);
+                            break;
+                        default:
                             break;
                     }
                 }

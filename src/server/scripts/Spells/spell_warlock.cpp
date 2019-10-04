@@ -1050,7 +1050,7 @@ class spell_warl_seed_of_corruption : public AuraScript
             });
     }
 
-    void HandleSoulburnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleSoulburnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* unit = GetCaster();
         Player* caster = unit->ToPlayer();
@@ -1622,7 +1622,7 @@ class spell_warl_drain_soul : public SpellScriptLoader
                 return ValidateSpellInfo({  SPELL_WARLOCK_SOUL_SHARD_ENERGIZE });
             }
 
-            void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
                     if (Unit* caster = GetCaster())
@@ -1753,13 +1753,14 @@ class spell_warl_soulburn : public AuraScript
         }
     }
 
-    void HandleSeedOfCorruptionDummyApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleSeedOfCorruptionDummyApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (AuraEffect* dummy = GetTarget()->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION, EFFECT_0))
-            GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SOULBURN_DUMMY_SEED_OF_CORRUPTION);
+        Unit* target = GetTarget();
+        if (target->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION, EFFECT_0))
+            target->CastSpell(target, SPELL_WARLOCK_SOULBURN_DUMMY_SEED_OF_CORRUPTION);
     }
 
-    void HandleSeedOfCorruptionDummyRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleSeedOfCorruptionDummyRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveAurasDueToSpell(SPELL_WARLOCK_SOULBURN_DUMMY_SEED_OF_CORRUPTION);
     }

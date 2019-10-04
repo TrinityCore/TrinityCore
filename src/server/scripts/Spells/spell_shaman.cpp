@@ -1009,7 +1009,7 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_mana_tide_totem_AuraScript);
 
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
             {
                 // @TODO: Exclude the "short term" buffs from the stat value
                 if (Unit* caster = GetUnitOwner())
@@ -1111,7 +1111,7 @@ class spell_sha_rolling_thunder : public AuraScript
             aura->RefreshDuration();
 
             // Fulmination visual
-            if (AuraEffect const* fulAurEff = target->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_FULMINATION, EFFECT_0))
+            if (target->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_FULMINATION, EFFECT_0))
                 if (charges == aurEff->GetAmount())
                     target->CastSpell(GetTarget(), SPELL_SHAMAN_FULMINATION_PROC, true, nullptr, aurEff);
         }
