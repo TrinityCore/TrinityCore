@@ -2442,7 +2442,7 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                         Transport const* transport = ToTransport();
                         if (uint32 transportPeriod = transport->GetTransportPeriod())
                         {
-                            float timer = float(transport->GetPathProgress() % transportPeriod);
+                            float timer = float(transport->GetTimer() % transportPeriod);
                             pathProgress = int16(timer / float(transportPeriod) * 65535.0f);
                         }
                         break;

@@ -58,10 +58,10 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         bool IsDynamicTransport() const { return _isDynamicTransport; }
 
-        uint32 GetPathProgress() const { return GetGOValue()->Transport.PathProgress; }
-        void SetPathProgress(uint32 val) { m_goValue.Transport.PathProgress = val; }
+        uint32 GetTransportPeriod() const { return GetUInt32Value(GAMEOBJECT_LEVEL); }
+        void SetPeriod(uint32 period) { SetUInt32Value(GAMEOBJECT_LEVEL, period); }
+        uint32 GetTimer() const { return GetGOValue()->Transport.PathProgress; }
 
-        virtual uint32 GetTransportPeriod() const;
         void SetTransportState(GOState state, uint32 stopFrame = 0);
 
         void RelocateToProgress(uint32 progress);
@@ -130,9 +130,6 @@ class TC_GAME_API MapTransport : public Transport
         * @return Summoned creature.
         */
         TempSummon* SummonPassenger(uint32 entry, Position const& pos, TempSummonType summonType, SummonPropertiesEntry const* properties = nullptr, uint32 duration = 0, Unit* summoner = nullptr, uint32 spellId = 0, uint32 vehId = 0);
-
-        uint32 GetTransportPeriod() const override { return GetUInt32Value(GAMEOBJECT_LEVEL); }
-        void SetPeriod(uint32 period) { SetUInt32Value(GAMEOBJECT_LEVEL, period); }
 
         KeyFrameVec const& GetKeyFrames() const { return _transportInfo->keyFrames; }
 

@@ -67,7 +67,7 @@ void Transport::AddPassenger(WorldObject* passenger)
     {
         passenger->SetTransport(this);
         passenger->m_movementInfo.transport.guid = GetGUID();
-        passenger->m_movementInfo.transport.time = GetPathProgress();
+        passenger->m_movementInfo.transport.time = GetTimer();
         TC_LOG_DEBUG("entities.transport", "Object %s boarded transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
         if (Unit* unit = passenger->ToUnit())
@@ -214,7 +214,19 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
     else
         SetGoState(GO_STATE_TRANSPORT_ACTIVE);
 
-    SetPathProgress(0);
+    if (_isDynamicTransport)
+    {
+        SetPeriod(m_goValue.Transport.AnimationInfo->TotalTime);
+        m_goValue.Transport.PathProgress = getMSTime();
+        if (m_goValue.Transport.AnimationInfo)
+            m_goValue.Transport.PathProgress -= m_goValue.Transport.PathProgress % GetTransportPeriod();    // align to period
+    }
+    else
+    {
+        SetPeriod(getMSTime() + stopTimer);
+        m_goValue.Transport.PathProgress = getMSTime() + stopTimer;
+    }
+    
     SetDestinationStopFrameTime(stopTimer);
     SetCurrentTransportTime(stopTimer);
 
@@ -291,6 +303,7 @@ void Transport::Update(uint32 diff)
 
     if (IsDynamicTransport())
     {
+        m_goValue.Transport.PathProgress += diff;
         SetCurrentTransportTime(GetCurrentTransportTime() + diff);
         if (GetCurrentTransportTime() >= GetTransportPeriod())
             SetCurrentTransportTime(GetCurrentTransportTime() % GetTransportPeriod());
@@ -358,9 +371,9 @@ void Transport::Update(uint32 diff)
                 SetCurrentTransportTime(currentTime);
             }
         }
+        m_goValue.Transport.PathProgress = getMSTime() + GetCurrentTransportTime();
     }
 
-    SetPathProgress(getMSTime() + GetCurrentTransportTime());
     RelocateToProgress(GetCurrentTransportTime());
 }
 
@@ -474,15 +487,6 @@ void Transport::UpdatePassengerPositions(PassengerSet& passengers)
     }
 }
 
-uint32 Transport::GetTransportPeriod() const
-{
-    ASSERT(m_goInfo->type == GAMEOBJECT_TYPE_TRANSPORT);
-    if (m_goValue.Transport.AnimationInfo)
-        return m_goValue.Transport.AnimationInfo->TotalTime;
-
-    return 0;
-}
-
 void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
 {
     // Do not change the transport state before reaching the last selected destination
@@ -497,9 +501,10 @@ void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
     if (state == GO_STATE_TRANSPORT_ACTIVE)
     {
         if (GetGoState() >= GO_STATE_TRANSPORT_STOPPED)
+        {
             stopTimer = m_goValue.Transport.StopFrames->at(GetGoState() - GO_STATE_TRANSPORT_STOPPED);
-
-        SetUInt32Value(GAMEOBJECT_LEVEL, getMSTime() + stopTimer);
+            SetPeriod(stopTimer);
+        }
     }
     else
     {
@@ -514,14 +519,15 @@ void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
 
         // forward movement. target frame time - current frame time
         if (GetCurrentTransportTime() < stopTimer)
-            SetUInt32Value(GAMEOBJECT_LEVEL, getMSTime() + stopTimer - GetCurrentTransportTime());
+            SetPeriod(getMSTime() + stopTimer - GetCurrentTransportTime());
         else if (backwardsTimer)
-            SetUInt32Value(GAMEOBJECT_LEVEL, getMSTime() + backwardsTimer);
+            SetPeriod(getMSTime() + backwardsTimer);
         else
-            SetUInt32Value(GAMEOBJECT_LEVEL, getMSTime() + GetCurrentTransportTime() - stopTimer);
+            SetPeriod(getMSTime() + GetCurrentTransportTime() - stopTimer);
 
         state = GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame);
     }
+
 
     SetDestinationStopFrameTime(stopTimer);
     SetLastStopFrameTime(GetCurrentTransportTime());
@@ -563,7 +569,7 @@ bool MapTransport::CreateMapTransport(ObjectGuid::LowType guidlow, uint32 entry,
     _triggeredArrivalEvent = false;
     _triggeredDepartureEvent = false;
 
-    SetPathProgress(0);
+    m_goValue.Transport.PathProgress = 0;
     SetPeriod(tInfo->pathTime);
     SetGoState(!m_goInfo->moTransport.canBeStopped ? GO_STATE_READY : GO_STATE_ACTIVE);
     SetLocalRotation(0.0f, 0.0f, 0.0f, 1.0f);
@@ -765,7 +771,7 @@ Creature* MapTransport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureDat
 
     creature->SetTransport(this);
     creature->m_movementInfo.transport.guid = GetGUID();
-    creature->m_movementInfo.transport.time = GetPathProgress();
+    creature->m_movementInfo.transport.time = GetTimer();
     creature->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
     creature->Relocate(x, y, z, o);
@@ -824,7 +830,7 @@ GameObject* MapTransport::CreateGOPassenger(ObjectGuid::LowType guid, GameObject
 
     go->SetTransport(this);
     go->m_movementInfo.transport.guid = GetGUID();
-    go->m_movementInfo.transport.time = GetPathProgress();
+    go->m_movementInfo.transport.time = GetTimer();
     go->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
     go->Relocate(x, y, z, o);
@@ -939,7 +945,7 @@ TempSummon* MapTransport::SummonPassenger(uint32 entry, Position const& pos, Tem
     summon->SetTransport(this);
     summon->m_movementInfo.transport.guid = GetGUID();
     summon->m_movementInfo.transport.pos.Relocate(pos);
-    summon->m_movementInfo.transport.time = GetPathProgress();
+    summon->m_movementInfo.transport.time = GetTimer();
     summon->Relocate(x, y, z, o);
     summon->SetHomePosition(x, y, z, o);
     summon->SetTransportHomePosition(pos);
