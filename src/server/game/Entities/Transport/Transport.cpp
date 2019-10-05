@@ -528,7 +528,7 @@ void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
         state = GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame);
     }
 
-
+    m_goValue.Transport.PathProgress = getMSTime() + stopTimer;
     SetDestinationStopFrameTime(stopTimer);
     SetLastStopFrameTime(GetCurrentTransportTime());
     if (GetCurrentTransportTime() > backwardsTimer)
