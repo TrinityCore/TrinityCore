@@ -546,4 +546,7 @@ AI* GetDeadminesAI(GameObject* go)
     return GetInstanceAI<AI>(go, DMScriptName);
 }
 
+#define RegisterDeadminesCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetDeadminesAI)
+
+// DEADMINES_H_
 #endif
