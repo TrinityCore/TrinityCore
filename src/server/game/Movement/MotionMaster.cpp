@@ -512,6 +512,32 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     init.Launch();
 }
 
+void MotionMaster::MoveCyclicPath(Position const* pathPoints, size_t pathSize, bool walk /*= false*/, bool fly /*= false*/, float velocity /*= 0.0f*/)
+{
+    Movement::MoveSplineInit init(_owner);
+    Movement::PointsArray path;
+    path.reserve(pathSize);
+    std::transform(pathPoints, pathPoints + pathSize, std::back_inserter(path), [](Position const& point)
+    {
+        return G3D::Vector3(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
+    });
+
+    if (fly)
+    {
+        init.SetFly();
+        init.SetUncompressed();
+    }
+
+    if (velocity > 0.0f)
+        init.SetVelocity(velocity);
+
+    init.MovebyPath(path);
+    init.SetSmooth();
+    init.SetWalk(walk);
+    init.SetCyclic();
+    init.Launch();
+}
+
 void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk /*= false*/, bool fly /*= false*/, float velocity /*= 0.0f*/)
 {
     Movement::MoveSplineInit init(_owner);
