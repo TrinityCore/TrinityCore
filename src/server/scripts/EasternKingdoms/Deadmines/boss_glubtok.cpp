@@ -251,7 +251,7 @@ struct boss_glubtok : public BossAI
                 case EVENT_ELEMENTAL_FISTS:
                     Talk(_lastFists == FISTS_OF_FLAME ? SAY_FISTS_OF_FROST : SAY_FISTS_OF_FLAME);
                     DoCastSelf(_lastFists == FISTS_OF_FLAME ? SPELL_FISTS_OF_FROST : SPELL_FISTS_OF_FLAME);
-                    _lastFists = _lastFists == FISTS_OF_FLAME ? FISTS_OF_FROST : SPELL_FISTS_OF_FLAME;
+                    _lastFists = _lastFists == FISTS_OF_FLAME ? FISTS_OF_FROST : FISTS_OF_FLAME;
                     break;
                 case EVENT_PHASE_TWO_INTRO_1:
                     Talk(SAY_PHASE_TWO_INTRO_1);
@@ -310,7 +310,7 @@ struct boss_glubtok : public BossAI
                     }
                     break;
                 case EVENT_BLOSSOM_TARGETING:
-                    _nextBlossomBunny == NPC_FIRE_BLOSSOM_BUNNY ? NPC_FROST_BLOSSOM_BUNNY : NPC_FIRE_BLOSSOM_BUNNY;
+                    _nextBlossomBunny = _nextBlossomBunny == NPC_FIRE_BLOSSOM_BUNNY ? NPC_FROST_BLOSSOM_BUNNY : NPC_FIRE_BLOSSOM_BUNNY;
                     DoCastAOE(SPELL_BLOSSOM_TARGETING, true);
                     events.Repeat(2s + 400ms);
                     break;
