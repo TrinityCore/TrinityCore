@@ -638,12 +638,12 @@ struct npc_magmaw_lava_parasite : public ScriptedAI
 {
     npc_magmaw_lava_parasite(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
     {
-        Initialize();
+        me->SetReactState(REACT_PASSIVE);
     }
 
-    void Initialize()
+    void JustAppeared() override
     {
-        me->SetReactState(REACT_PASSIVE);
+        me->GetMotionMaster()->MoveFall();
     }
 
     void IsSummonedBy(Unit* /*summoner*/) override
