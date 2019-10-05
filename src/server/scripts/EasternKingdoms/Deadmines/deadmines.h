@@ -26,32 +26,31 @@ uint32 const EncounterCount = 6;
 enum DMDataTypes
 {
     // Encounters
-    DATA_GLUBTOK                        = 0,
-    DATA_HELIX_GEARBREAKER              = 1,
-    DATA_FOE_REAPER_5000                = 2,
-    DATA_ADMIRAL_RIPSNARL               = 3,
-    DATA_CAPTAIN_COOKIE                 = 4,
-    DATA_VANESSA_VAN_CLEEF              = 5,
+    DATA_GLUBTOK            = 0,
+    DATA_HELIX_GEARBREAKER  = 1,
+    DATA_FOE_REAPER_5000    = 2,
+    DATA_ADMIRAL_RIPSNARL   = 3,
+    DATA_CAPTAIN_COOKIE     = 4,
+    DATA_VANESSA_VAN_CLEEF  = 5,
 
-    DATA_TEAM_IN_INSTANCE               = 6,
-    DATA_FIREWALL_PLATTER               = 7,
-    DATA_LUMBERING_OAF                  = 8,
-    DATA_FOE_REAPER_INTRO               = 9,
-    DATA_FOE_REAPER_BUNNY               = 10,
-    DATA_PROTOTYPE_REAPER               = 11,
-    DATA_BROKEN_DOOR                    = 13,
-    DATA_IRON_CLAD_DOOR                 = 14,
-    DATA_RIPSNARL_FOG                   = 15,
-    DATA_VANESSA_VAN_CLEEF_ENCOUNTER    = 16,
-    DATA_VANESSAS_TRAP_BUNNY            = 17,
-    DATA_VANESSA_ANCHOR_BUNNY           = 18,
-    DATA_ACTIVATED_VENT                 = 19,
-    DATA_FOUNDRY_DOOR                   = 20,
-    DATA_VANESSA_VAN_CLEEF_NIGHTMARE    = 21,
-    DATA_EMME_HARRINGTON                = 22,
-    DATA_ERIK_HARRINGTON                = 23,
-    DATA_CALISSA_HARRINGTON             = 24,
-    DATA_SUMMON_ROPES                   = 25
+    DATA_FIREWALL_PLATTER,
+    DATA_LUMBERING_OAF,
+    DATA_FOE_REAPER_INTRO,
+    DATA_FOE_REAPER_BUNNY,
+    DATA_PROTOTYPE_REAPER,
+    DATA_BROKEN_DOOR,
+    DATA_IRON_CLAD_DOOR,
+    DATA_RIPSNARL_FOG,
+    DATA_VANESSA_VAN_CLEEF_ENCOUNTER,
+    DATA_VANESSAS_TRAP_BUNNY,
+    DATA_VANESSA_ANCHOR_BUNNY,
+    DATA_ACTIVATED_VENT,
+    DATA_FOUNDRY_DOOR,
+    DATA_VANESSA_VAN_CLEEF_NIGHTMARE,
+    DATA_EMME_HARRINGTON,
+    DATA_ERIK_HARRINGTON,
+    DATA_CALISSA_HARRINGTON,
+    DATA_SUMMON_ROPES
 };
 
 enum DMCreatures
@@ -63,20 +62,6 @@ enum DMCreatures
     BOSS_ADMIRAL_RIPSNARL               = 47626,
     BOSS_CAPTAIN_COOKIE                 = 47739,
     BOSS_VANESSA_VAN_CLEEF              = 49541,
-
-    // Horde Creatures
-    NPC_SLINKY_SHARPSHIV                = 46906,
-    NPC_KAGTHA                          = 46889,
-    NPC_MISS_MAYHEM                     = 46902,
-    NPC_SHATTERED_HAND_ASSASSIN         = 46890,
-    NPC_MAYHEM_REAPER_PROTOTYPE         = 46903,
-
-    // Alliance Creatures
-    NPC_STORMWIND_INVESTIGATOR          = 46614,
-    NPC_CRIME_SCENE_ALARM_O_BOT         = 46613,
-    NPC_STORMWIND_DEFENDER              = 50595,
-    NPC_LIEUTENANT_HORATIO_LAINE        = 46612,
-    NPC_QUARTERMASTER_LEWIS             = 491,
 
     // Encounter Related
     NPC_GENERAL_PURPOSE_DUMMY_JMF       = 45979,

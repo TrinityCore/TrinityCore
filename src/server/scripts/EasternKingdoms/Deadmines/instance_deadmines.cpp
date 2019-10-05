@@ -107,6 +107,12 @@ DoorData const doorData[] =
     { 0,                    0,                      DOOR_TYPE_ROOM      } // END
 };
 
+enum SpawnGroups
+{
+    SPAWN_GROUP_ALLIANCE_ENTRANCE   = 409,
+    SPAWN_GROUP_HORDE_ENTRANCE      = 410
+};
+
 class instance_deadmines : public InstanceMapScript
 {
     public:
@@ -136,7 +142,10 @@ class instance_deadmines : public InstanceMapScript
             {
                 instance->LoadGrid(-205.75f, -579.09f);
                 if (!_teamInInstance)
+                {
                     _teamInInstance = player->GetTeam();
+                    instance->SpawnGroupSpawn(_teamInInstance == ALLIANCE ? SPAWN_GROUP_ALLIANCE_ENTRANCE : SPAWN_GROUP_HORDE_ENTRANCE);
+                }
 
                 if (!_cookieSpawnChecked)
                 {
@@ -168,24 +177,6 @@ class instance_deadmines : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
-                    // Horde restricted creatures
-                    case NPC_SLINKY_SHARPSHIV:
-                    case NPC_KAGTHA:
-                    case NPC_MISS_MAYHEM:
-                    case NPC_SHATTERED_HAND_ASSASSIN:
-                    case NPC_MAYHEM_REAPER_PROTOTYPE:
-                        if (_teamInInstance != HORDE)
-                            creature->SetVisible(false);
-                        break;
-                    // Alliance restricted creatures
-                    case NPC_STORMWIND_INVESTIGATOR:
-                    case NPC_CRIME_SCENE_ALARM_O_BOT:
-                    case NPC_STORMWIND_DEFENDER:
-                    case NPC_LIEUTENANT_HORATIO_LAINE:
-                    case NPC_QUARTERMASTER_LEWIS:
-                        if (_teamInInstance != ALLIANCE)
-                            creature->SetVisible(false);
-                        break;
                     case NPC_FIREWALL_PLATTER_1A:
                     case NPC_FIREWALL_PLATTER_1B:
                     case NPC_FIREWALL_PLATTER_1C:
@@ -462,10 +453,6 @@ class instance_deadmines : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_TEAM_IN_INSTANCE:
-                        _teamInInstance = data;
-                        SaveToDB();
-                        break;
                     case DATA_FOE_REAPER_INTRO:
                         if (data == DONE)
                         {
@@ -611,8 +598,6 @@ class instance_deadmines : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_TEAM_IN_INSTANCE:
-                        return _teamInInstance;
                     case DATA_FOE_REAPER_INTRO:
                         return _foeReaper5000Intro;
                     case DATA_BROKEN_DOOR:
@@ -890,14 +875,12 @@ class instance_deadmines : public InstanceMapScript
 
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << _teamInInstance << ' '
-                    << _foeReaper5000Intro << ' '
+                data << _foeReaper5000Intro << ' '
                     << _ironCladDoorState;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
-                data >> _teamInInstance;
                 data >> _foeReaper5000Intro;
                 data >> _ironCladDoorState;
             }
