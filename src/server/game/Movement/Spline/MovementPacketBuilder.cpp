@@ -245,6 +245,6 @@ namespace Movement
 
     void PacketBuilder::WriteSplineSync(MoveSpline const& moveSpline, ByteBuffer& data)
     {
-        data << float(moveSpline.timePassed() / moveSpline.Duration());
+        data << (float)moveSpline.timePassed() / moveSpline.Duration();
     }
 }

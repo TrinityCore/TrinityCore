@@ -290,8 +290,8 @@ MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
                     args.flags = splineflags;
                     args.path_Idx_offset = point_Idx_offset;
                     // MoveSplineFlag::Parabolic | MoveSplineFlag::Animation not supported currently
-                        //args.parabolic_amplitude = ?;
-                        //args.time_perc = ?;
+                    //args.parabolic_amplitude = ?;
+                    //args.time_perc = ?;
                     args.splineId = m_Id;
                     args.initialOrientation = initialOrientation;
                     args.velocity = 1.0f; // Calculated below
@@ -301,6 +301,7 @@ MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
                     {
                         // New cycle should preserve previous cycle's duration for some weird reason, even though
                         // the path is really different now. Blizzard is weird. Or this was just a simple oversight.
+
                         // Since our splines precalculate length with velocity in mind, if we want to find the desired
                         // velocity, we have to make a fake spline, calculate its duration and then compare it to the
                         // desired duration, thus finding out how much the velocity has to be increased for them to match.
