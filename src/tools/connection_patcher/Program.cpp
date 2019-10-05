@@ -35,7 +35,7 @@
 #include <fstream>
 #include <boost/asio.hpp>
 
-#if PLATFORM == PLATFORM_WINDOWS
+#ifdef _WIN32
 #include <Shlobj.h>
 #endif
 
@@ -237,13 +237,24 @@ int main(int argc, char** argv)
         std::string renamed_binary_path(binary_path);
 
         wchar_t* commonAppData(nullptr);
-#if PLATFORM == PLATFORM_WINDOWS
+#ifdef _WIN32
         SHGetKnownFolderPath(FOLDERID_ProgramData, 0, nullptr, &commonAppData);
 #endif
 
         std::cout << "Creating patched binary..." << std::endl;
 
+
+#ifdef __APPLE__
+        // we are using the '.app' directory on the patcher, due to that the type is determined wrongly
+        // lets do some checks
+        boost::filesystem::path mp(binary_path);
+        mp = mp.append("Contents").append("MacOS").append("World of Warcraft-64");
+        if (!boost::filesystem::exists(mp))
+            throw std::runtime_error("Use World of Warcraft-64.app instead of files inside, I'm doing da stuff inside");
+        Patcher patcher(mp);
+#else
         Patcher patcher(binary_path);
+#endif
 
         switch (patcher.Type)
         {
@@ -303,25 +314,21 @@ int main(int argc, char** argv)
             {
                 std::cout << "Mac client...\n";
 
-                boost::algorithm::replace_all(renamed_binary_path, ".app", " Patched.app");
-                copyDir(boost::filesystem::path(binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
-                    , boost::filesystem::path(renamed_binary_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
-                );
+                boost::filesystem::path originalPath(renamed_binary_path);
+                boost::algorithm::replace_all(renamed_binary_path, ".app", "_Patched.app");
+                boost::filesystem::path renamedApp(renamed_binary_path);
+                copyDir(originalPath, renamedApp);
 
+                boost::filesystem::path binaryPath(renamed_binary_path);
+                binaryPath = binaryPath.append("Contents").append("MacOS").append("World of Warcraft-64");
                 do_client_patches<Patches::Mac::x64, Patterns::Mac::x64>
-                    (&patcher, renamed_binary_path);
+                    (&patcher, binaryPath);
+                boost::filesystem::permissions(binaryPath, boost::filesystem::owner_exe | boost::filesystem::group_exe | boost::filesystem::others_exe);
 
-                boost::filesystem::path p(binary_path);
-                p.remove_filename();
-                p.append("Battle.net.bundle");
+                boost::filesystem::path renamedDll = renamedApp.append("Contents").append("Frameworks").append("Battle.net.bundle");
+                std::string renamed_dll_path(renamedDll.string());
+                Patcher bnetPatcher(renamed_dll_path);
 
-                std::string renamed_dll_path(p.string());
-                Patcher bnetPatcher(p.string());
-
-                boost::algorithm::replace_all(renamed_dll_path, ".bundle", " Patched.bundle");
-                copyDir(boost::filesystem::path(p.string()).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
-                    , boost::filesystem::path(renamed_dll_path).parent_path()/*MacOS*/.parent_path()/*Contents*/.parent_path()
-                );
                 do_dll_patches<Patches::Mac::x64, Patterns::Mac::x64>
                     (&bnetPatcher, renamed_dll_path);
 
