@@ -564,6 +564,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     SetUnitFlags(UnitFlags(unitFlags));
     SetUnitFlags2(UnitFlags2(unitFlags2));
+    bool needsflag = m_outfit && Unit::GetDisplayId() == m_outfit->GetDisplayId();
+    if (needsflag)
+        SetMirrorImageFlag(true);
     SetUnitFlags3(UnitFlags3(unitFlags3));
 
     SetDynamicFlags(dynamicFlags);
