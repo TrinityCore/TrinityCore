@@ -57,21 +57,4 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
         void Finalize(Unit*) override;
 };
 
-class EffectMovementGenerator : public MovementGenerator
-{
-    public:
-        explicit EffectMovementGenerator(uint32 id) : _pointId(id) { }
-
-        void Initialize(Unit*) override { }
-        void Finalize(Unit*) override;
-        void Reset(Unit*) override { }
-        bool Update(Unit*, uint32) override;
-        MovementGeneratorType GetMovementGeneratorType() const override { return EFFECT_MOTION_TYPE; }
-
-    private:
-        void MovementInform(Unit*);
-
-        uint32 _pointId;
-};
-
 #endif

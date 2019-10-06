@@ -37,7 +37,7 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
 
     owner->AddUnitState(UNIT_STATE_ROAMING);
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || (owner->IsMovementPreventedByCasting() && _movementId != EVENT_CHARGE))
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         _interrupt = true;
         owner->StopMoving();
@@ -139,23 +139,4 @@ void AssistanceMovementGenerator::Finalize(Unit* owner)
     owner->ToCreature()->CallAssistance();
     if (owner->IsAlive())
         owner->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
-}
-
-//---- EffectMovementGenerator
-
-bool EffectMovementGenerator::Update(Unit* owner, uint32 /*diff*/)
-{
-    return !owner->movespline->Finalized();
-}
-
-void EffectMovementGenerator::Finalize(Unit* owner)
-{
-    MovementInform(owner);
-}
-
-void EffectMovementGenerator::MovementInform(Unit* owner)
-{
-    if (Creature* creature = owner->ToCreature())
-        if (creature->AI())
-            creature->AI()->MovementInform(EFFECT_MOTION_TYPE, _pointId);
 }

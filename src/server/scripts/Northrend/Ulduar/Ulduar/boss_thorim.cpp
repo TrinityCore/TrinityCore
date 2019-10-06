@@ -651,8 +651,6 @@ class boss_thorim : public CreatureScript
                         summon->SetReactState(REACT_PASSIVE);
                         summon->CastSpell(summon, SPELL_LIGHTNING_DESTRUCTION, true);
 
-                        summon->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, LightningOrbPath[LightningOrbPathSize - 1], false);
-
                         Movement::PointsArray path;
                         path.reserve(LightningOrbPathSize);
                         std::transform(std::begin(LightningOrbPath), std::end(LightningOrbPath), std::back_inserter(path), [](Position const& pos)
@@ -662,7 +660,7 @@ class boss_thorim : public CreatureScript
 
                         Movement::MoveSplineInit init(summon);
                         init.MovebyPath(path);
-                        init.Launch();
+                        summon->GetMotionMaster()->LaunchMoveSpline(std::move(init), 0, MOTION_SLOT_ACTIVE, POINT_MOTION_TYPE);
                         break;
                     }
                     case NPC_DARK_RUNE_CHAMPION:

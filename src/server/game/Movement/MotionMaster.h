@@ -34,6 +34,11 @@ struct SplineChainLink;
 struct SplineChainResumeInfo;
 struct WaypointPath;
 
+namespace Movement
+{
+    class MoveSplineInit;
+}
+
 // Creature Entry ID used for waypoints show, visible only for GMs
 #define VISUAL_WAYPOINT 1
 // assume it is 25 yard per 0.6 second
@@ -113,6 +118,8 @@ struct ChaseAngle
     }
 };
 
+inline bool IsInvalidMovementGeneratorType(uint8 const type) { return type == MAX_DB_MOTION_TYPE || type >= MAX_MOTION_TYPE; }
+inline bool IsInvalidMovementSlot(uint8 const slot) { return slot >= MAX_MOTION_SLOT; }
 
 class TC_GAME_API MotionMaster
 {
@@ -202,6 +209,8 @@ class TC_GAME_API MotionMaster
         void MoveRotate(uint32 time, RotateDirection direction);
 
         void MoveFormation(uint32 id, Position destination, uint32 moveType, bool forceRun = false, bool forceOrientation = false);
+
+        void LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id = 0, MovementSlot slot = MOTION_SLOT_ACTIVE, MovementGeneratorType type = EFFECT_MOTION_TYPE);
     private:
         typedef std::vector<MovementGenerator*> MovementList;
 
