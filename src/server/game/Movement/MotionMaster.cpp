@@ -344,7 +344,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTakeoff: '%s', landing point Id: %u (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
 
     Movement::MoveSplineInit init(_owner);
-    init.MoveTo(PositionToVector3(pos));
+    init.MoveTo(PositionToVector3(pos), false);
     init.SetSmooth();
     init.SetFly();
     init.SetAnimation(Movement::ToFly);
