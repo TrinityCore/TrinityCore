@@ -569,7 +569,7 @@ public:
                         // Transform is casted only when in frog pool
                         if (me->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 71.0f, true))
                             DoCastSelf(SPELL_CURSE_OF_THE_FROG, true);
-                        ClearThreadList();
+                        ClearThreatList();
                         me->SetWalk(true);
                         MoveForward(10.0f);
                         me->DespawnOrUnsummon(3000);
@@ -615,7 +615,7 @@ public:
             }
         }
 
-        void ClearThreadList()
+        void ClearThreatList()
         {
             std::list<HostileReference*> threatList = me->getThreatManager().getThreatList();;
             for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
@@ -1063,6 +1063,34 @@ class spell_monkey_wisdom_text : public SpellScript
     }
 };
 
+enum SummonJiYuanNPCs
+{
+    NPC_JI_YUAN = 65558
+};
+
+class spell_summon_ji_yuan : public AuraScript
+{
+    PrepareAuraScript(spell_summon_ji_yuan);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* target = GetTarget())
+        {
+            std::list<Creature*> jiYuans;
+            target->GetCreatureListWithEntryInGrid(jiYuans, NPC_JI_YUAN, target->GetVisibilityRange());
+
+            for (std::list<Creature*>::iterator itr = jiYuans.begin(); itr != jiYuans.end(); ++itr)
+                if ((*itr)->GetOwner() == target)
+                    (*itr)->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_summon_ji_yuan::OnRemove, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 enum RukRukOoksplosions
 {
     SPELL_OOKSPLOSIONS_TRIGGERED    = 125885
@@ -1099,6 +1127,14 @@ enum RukRukSpells
     SPELL_AIM_VISUAL    = 26079
 };
 
+enum RukRukYuanTexts
+{
+    TEXT_RUKRUK_AGGRO   = 2,
+    TEXT_RUKRUK_TAUNT   = 3,
+    TEXT_RUKRUK_LOW_HP  = 4,
+    TEXT_RUKRUK_DEATH   = 5
+};
+
 class npc_ruk_ruk : public CreatureScript
 {
 public:
@@ -1111,12 +1147,27 @@ public:
         void Reset() override
         {
             _events.Reset();
+            _rukrukTaunt = false;
+            _rukrukLowHp = false;
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_AIM, 10000);
             _events.ScheduleEvent(EVENT_OOKSPLOSIONS, 30000);
+
+            if (Creature* jiYuan = me->FindNearestCreature(NPC_JI_YUAN, me->GetVisibilityRange(), true))
+                jiYuan->AI()->Talk(TEXT_RUKRUK_AGGRO, jiYuan->GetOwner());
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (damage >= me->GetHealth())
+            {
+                std::list<Creature*> jiYuans = GetJiYuans();
+                for (std::list<Creature*>::iterator itr = jiYuans.begin(); itr != jiYuans.end(); ++itr)
+                    (*itr)->AI()->Talk(TEXT_RUKRUK_DEATH, (*itr)->GetOwner());
+            }
         }
 
         Position GetRocketTargetPos() const
@@ -1130,6 +1181,22 @@ public:
                 return;
 
             _events.Update(diff);
+
+            if (!_rukrukTaunt && HealthBelowPct(70))
+            {
+                _rukrukTaunt = true;
+                std::list<Creature*> jiYuans = GetJiYuans();
+                for (std::list<Creature*>::iterator itr = jiYuans.begin(); itr != jiYuans.end(); ++itr)
+                    (*itr)->AI()->Talk(TEXT_RUKRUK_TAUNT, (*itr)->GetOwner());
+            }
+
+            if (!_rukrukLowHp && HealthBelowPct(25))
+            {
+                _rukrukLowHp = true;
+                std::list<Creature*> jiYuans = GetJiYuans();
+                for (std::list<Creature*>::iterator itr = jiYuans.begin(); itr != jiYuans.end(); ++itr)
+                    (*itr)->AI()->Talk(TEXT_RUKRUK_LOW_HP, (*itr)->GetOwner());
+            }
 
             while (uint32 eventId = _events.ExecuteEvent())
             {
@@ -1167,6 +1234,8 @@ public:
     private:
         EventMap _events;
         Position _pos;
+        bool _rukrukTaunt;
+        bool _rukrukLowHp;
 
         void CalculateSpellVisual(Unit* target)
         {
@@ -1174,19 +1243,26 @@ public:
             float z = me->GetPositionZ();
             float targetDist = target->GetExactDist(me->GetPosition());
 
-            for (int radius = 1; ; radius++)
+            for (int radius = 1; radius <= ceilf(targetDist); radius++)
             {
-                if (radius <= ceilf(targetDist))
-                {
-                    float x = me->GetPositionX() + radius * cos(ori);
-                    float y = me->GetPositionY() + radius * sin(ori);
-                    me->UpdateGroundPositionZ(x, y, z);
-                    _pos = { x, y, z };
-                    me->SendPlaySpellVisual(_pos, 0.0f, SPELL_AIM_VISUAL, 0, 0, 2.0f);
-                }
-                else
-                    break;
+                float x = me->GetPositionX() + radius * cos(ori);
+                float y = me->GetPositionY() + radius * sin(ori);
+                me->UpdateGroundPositionZ(x, y, z);
+                _pos = { x, y, z };
+                me->SendPlaySpellVisual(_pos, 0.0f, SPELL_AIM_VISUAL, 0, 0, 2.0f);
             }
+        }
+
+        std::list<Creature*> GetJiYuans()
+        {
+            std::list<Creature*> jiYuans;
+            std::list<HostileReference*> threatList = me->getThreatManager().getThreatList();
+            for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                if (Creature* creature = (*itr)->getTarget()->ToCreature())
+                    if (creature->GetEntry() == NPC_JI_YUAN)
+                        jiYuans.push_back(creature);
+
+            return jiYuans;
         }
     };
 
@@ -2292,6 +2368,7 @@ void AddSC_the_wandering_isle()
     RegisterAuraScript(spell_aysa_congrats_trigger_aura);
     new at_temple_of_five_dawns_summon_zhaoren();
     RegisterSpellScript(spell_monkey_wisdom_text);
+    RegisterAuraScript(spell_summon_ji_yuan);
     RegisterAuraScript(spell_ruk_ruk_ooksplosions);
     new npc_ruk_ruk();
     new npc_ruk_ruk_rocket();

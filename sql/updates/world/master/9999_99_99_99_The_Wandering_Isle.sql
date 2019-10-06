@@ -3632,7 +3632,7 @@ INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `b
 (65550, 0, 0, 0, 1, 426, 0, 0, 0, 0, ''), -- 65550
 (65559, 0, 0, 50331648, 1, 0, 0, 0, 0, 0, ''), -- 65559
 (65560, (@CGUID+1436)*10, 0, 50331648, 1, 0, 0, 0, 0, 0, ''), -- 65560
-(55665, 0, 0, 0, 1, 0, 0, 0, 0, 0, '104333'), -- 55665 - 105678 - 105678
+(55665, 0, 0, 0, 1, 0, 0, 0, 0, 3, '104333'), -- 55665 - 105678 - 105678
 (55592, 0, 0, 65536, 1, 0, 0, 0, 0, 3, '80797'), -- 55592 - 80797 - 80797
 (55874, 0, 0, 0, 1, 0, 0, 0, 0, 0, '29266'), -- 55874 - 29266 - 29266
 (65558, 0, 0, 0, 1, 0, 0, 0, 0, 0, '99203 105305'), -- 65558
@@ -7302,8 +7302,8 @@ INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `Sourc
 (29779, 0, 0, 0, 29778, 29784, -29779, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- The Direct Solution
 (29780, 0, 0, 0, 29778, 29784, -29779, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Do No Evil
 (29781, 0, 0, 0, 29778, 29784, -29779, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Monkey Advisory Warning
-(29782, 0, 0, 0, 29778, 29784, -29779, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, ''), -- Stronger Than Bone
-(29784, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Balanced Perspective
+(29782, 0, 0, 0, 29778, 29784, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, ''), -- Stronger Than Bone
+(29784, 0, 0, 116992, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Balanced Perspective
 (29785, 0, 0, 0, 29784, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Dafeng, the Spirit of Air
 (29786, 0, 0, 0, 29785, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Battle for the Skies
 (29787, 0, 0, 105333, 29786, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Worthy of Passing
@@ -8547,7 +8547,7 @@ INSERT INTO `areatrigger_template` (`Id`, `Type`, `Flags`, `Data0`, `Data1`, `Da
 
 DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId` IN (3313, 3424, 3435);
 INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `ActionType`, `ActionParam`, `TargetType`) VALUES
-(3313, 0, 125236, 0),
+(3313, 0, 125236, 2),
 (3424, 0, 128421, 2),
 (3435, 0, 128641, 1);
 
@@ -8559,9 +8559,9 @@ INSERT INTO `spell_areatrigger` (`SpellMiscId`, `AreaTriggerId`, `MoveCurveId`, 
 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceEntry` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944)) OR (`SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (524, 592, 593, 594, 595, 596, 597, 598, 964, 1430, 1510, 1518, 1523, 1526, 1527, 1836, 1885, 879, 903, 1835) AND `SourceEntry`=0);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=25 AND `SourceEntry` IN (975, 976);
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7709, 7714, 7265, 8564) AND `SourceId`=2;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118029, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497, 131505, 108933, 108932);
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 108695, 102522, 107049, 125961, 115446, 115447, 115334, 115336, 115338, 115435, 115493, 115494, 115495)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (13140, 13726));
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 6958, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7709, 7714, 7265, 8564) AND `SourceId`=2;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118029, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 116992, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497, 131505, 108933, 108932);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 108695, 102522, 107049, 105306, 125961, 115446, 115447, 115334, 115336, 115338, 115435, 115493, 115494, 115495)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (13140, 13726));
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Phases Specific
 (26, 629, 5825, 0, 0, 28, 0, 29419, 0, 0, 1, 0, 0, '', 'The Dawning Valley Phase 629 until Quest 29419 not complete'), -- phase not updated automatically (removed in SAI)
@@ -8596,7 +8596,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26, 878, 5828, 0, 0, 9, 0, 29792, 0, 0, 0, 0, 0, '', 'Mandori Village Phase 878 when Quest 29792 taken'),
 (26, 878, 5828, 0, 0, 48, 0, 263982, 0, 0, 1, 0, 0, '', 'Mandori Village Phase 878 when Quest objective not complete'),
 -- (26, 543, 5833, 0, 0, 14, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 543 when Quest 29798 available'),
-(26, 543, 5833, 0, 1, 9, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 543 when Quest 29798 taken'),
+(26, 543, 5833, 0, 1, 9, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 543 when Quest 29798 taken'), -- uncomment above and remove this when fixed
 (26, 993, 5833, 0, 0, 28, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 993 when Quest 29798 complete'), -- delayed
 (26, 993, 5833, 0, 1, 8, 0, 29798, 0, 0, 0, 0, 0, '', 'Wreck of the Skyseeker Phase 993 when Quest 29798 rewarded'),
 (26, 993, 5833, 0, 1, 28, 0, 30767, 0, 0, 1, 0, 0, '', 'Wreck of the Skyseeker Phase 993 when Quest 30767 not complete'),
@@ -8621,11 +8621,11 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- (26, 524, 0, 0, 0, 47, 0, 29786, 9, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 524 when Quest 29786 available or taken'),
 (26, 524, 0, 0, 0, 9, 0, 29786, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 524 when Quest 29786 taken'), -- uncomment above and remove this when fixed
 (26, 1430, 0, 0, 0, 8, 0, 29776, 0, 0, 0, 0, 0, '', 'Ridge of Laughing Winds Phase 1430 when Quest 29776 rewarded'),
-(26, 1430, 0, 0, 0, 47, 0, 29786, 75, 0, 1, 0, 0, '', 'Ridge of Laughing Winds Phase 1430 when Quest 29776 not available, not taken, not complete and not rewarded'),
+(26, 1430, 0, 0, 0, 47, 0, 29786, 74, 0, 1, 0, 0, '', 'Ridge of Laughing Winds Phase 1430 when Quest 29776 not taken, not complete and not rewarded'), -- should be until quest is available, not taken, not completed and not rewarded - but available doesnt work
 (26, 1836, 0, 0, 0, 28, 0, 29785, 0, 0, 1, 0, 0, '', 'Chamber of Whispers Phase 1836 when Quest 29785 not complete'),
 (26, 1836, 0, 0, 0, 8, 0, 29785, 0, 0, 1, 0, 0, '', 'Chamber of Whispers Phase 1836 when Quest 29785 not rewarded'),
 (26, 1518, 0, 0, 0, 8, 0, 29776, 0, 0, 0, 0, 0, '', 'Morning Breeze Village Phase 1518 when Quest 29776 rewarded'),
-(26, 1518, 0, 0, 0, 47, 0, 29786, 74, 0, 1, 0, 0, '', 'Morning Breeze Village Phase 1518 when Quest 29786 not in progress, not complete and not rewarded'), -- should be until quest is available, not in pogress, not completed and not rewarded - but available doesnt work
+(26, 1518, 0, 0, 0, 47, 0, 29786, 74, 0, 1, 0, 0, '', 'Morning Breeze Village Phase 1518 when Quest 29786 not taken, not complete and not rewarded'), -- should be until quest is available, not taken, not completed and not rewarded - but available doesnt work
 (26, 1523, 0, 0, 0, 8, 0, 29779, 0, 0, 0, 0, 0, '', 'Morning Breeze Lake Phase 1523 when Quest 29779 rewarded'),
 (26, 1523, 0, 0, 0, 8, 0, 29780, 0, 0, 0, 0, 0, '', 'Morning Breeze Lake Phase 1523 when Quest 29780 rewarded'),
 (26, 1523, 0, 0, 0, 8, 0, 29781, 0, 0, 0, 0, 0, '', 'Morning Breeze Lake Phase 1523 when Quest 29781 rewarded'),
@@ -8646,7 +8646,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (26, 903, 0, 0, 0, 8, 0, 29792, 0, 0, 0, 0, 0, '', 'Pei-Wu Forest Phase 903 when Quest 29792 rewarded'),
 (26, 903, 0, 0, 0, 28, 0, 30589, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 903 when Quest 30589 not complete'),
 (26, 903, 0, 0, 0, 8, 0, 30589, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 903 when Quest 30589 not rewarded'),
--- (26, 1835, 0, 0, 0, 14, 0, 29798, 0, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 1835 when Quest 29798 not available'),
 (26, 1835, 0, 0, 0, 28, 0, 30589, 0, 0, 0, 0, 0, '', 'Pei-Wu Forest Phase 1835 when Quest 30589 complete'),
 (26, 1835, 0, 0, 0, 1, 0, 117973, 1, 0, 1, 0, 0, '', 'Pei-Wu Forest Phase 1835 when player has not aura'),
 (26, 1835, 0, 0, 1, 8, 0, 30589, 0, 0, 0, 0, 0, '', 'Pei-Wu Forest Phase 1835 when Quest 30589 rewarded'),
@@ -8781,6 +8780,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 108845, 0, 0, 51, 0, 5, 55585, 0, 0, 0, 0, '', 'Summon Jojo Ironbrow target Jojo Ironbrow'),
 (13, 1, 108846, 0, 0, 51, 0, 5, 57668, 0, 0, 0, 0, '', 'Jojo Headbash, Stack of Blocks Impact target Stack of Blocks'),
 (13, 1, 108857, 0, 0, 51, 0, 5, 55585, 0, 0, 0, 0, '', 'Summon Jojo Ironbrow target Jojo Ironbrow'),
+(13, 1, 116992, 0, 0, 51, 0, 5, 65558, 0, 0, 0, 0, '', 'Trigger Ji Guardian Exit target Ji Firepaw'),
+(13, 1, 116992, 0, 0, 33, 0, 1, 3, 0, 0, 0, 0, '', 'Trigger Ji Guardian Exit target Ji Firepaw owned by summoner'),
 (13, 1, 125969, 0, 0, 51, 0, 5, 64507, 0, 0, 0, 0, '', 'Overpacked Firework Launcher Successful Ping target Firework Launcher'),
 (13, 1, 104855, 0, 0, 51, 0, 5, 55786, 0, 0, 0, 0, '', 'Overpacked Firework target Zhao-Ren'),
 (13, 1, 104612, 0, 0, 51, 0, 5, 55744, 0, 0, 0, 0, '', 'Trigger Aysa Wind Chamber Middle target Aysa Cloudsinger'),
@@ -8836,6 +8837,16 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 107049, 0, 0, 1, 0, 133381, 0, 0, 1, 30, 0, '', 'Ride Vehicle when player has not aura'),
 (17, 0, 107049, 0, 0, 29, 0, 56869, 8, 0, 0, 30, 0, '', 'Ride Vehicle when bunny within 8y'),
 (15, 13140, 0, 0, 0, 9, 0, 29774, 0, 0, 0, 0, 0, '', 'Show gossip menu option when quest taken'),
+(17, 0, 105306, 0, 0, 47, 0, 29779, 10, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29779 incomplete|complete'),
+(17, 0, 105306, 0, 1, 47, 0, 29780, 10, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29780 incomplete|complete'),
+(17, 0, 105306, 0, 2, 47, 0, 29781, 10, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29781 incomplete|complete'),
+(17, 0, 105306, 0, 3, 47, 0, 29779, 74, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29779 incomplete|complete|rewarded'),
+(17, 0, 105306, 0, 3, 47, 0, 29780, 10, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29780 incomplete|complete'),
+(17, 0, 105306, 0, 4, 47, 0, 29780, 10, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29780 incomplete|complete'),
+(17, 0, 105306, 0, 4, 47, 0, 29781, 74, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29781 incomplete|complete|rewarded'),
+(17, 0, 105306, 0, 5, 47, 0, 29779, 74, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29779 incomplete|complete|rewarded'),
+(17, 0, 105306, 0, 5, 47, 0, 29780, 10, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29780 incomplete|complete'),
+(17, 0, 105306, 0, 5, 47, 0, 29781, 74, 0, 0, 0, 0, '', 'Summon Ji Yuan only when quest 29781 incomplete|complete|rewarded'),
 (17, 0, 125961, 0, 0, 1, 1, 125964, 0, 0, 1, 30, 0, '', 'Overpacked Firework Launcher Ping only when has not aura'),
 (17, 0, 125961, 0, 0, 29, 1, 55786, 20, 0, 0, 209, 145, '', 'Overpacked Firework Launcher Ping only when Zhaoren within 20y'),
 (18, 55918, 46598, 0, 0, 51, 0, 6, 0, 0, 1, 0, 0, '', 'Hide spellclick'),
@@ -9053,9 +9064,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (108844, 5830, 29771, 29782, 0, 0, 2, 5, 66, 11), -- See Quest Invis 10 (Children & Onlookers)
 (108844, 5946, 29771, 29782, 0, 0, 2, 5, 66, 11), -- See Quest Invis 10 (Children & Onlookers)
 (109100, 5829, 0, 0, 0, 0, 2, 3, 0, 0), -- See Quest Invis 11 (???)
--- (105306, 5831, 29779, 0, 0, 0, 2, 3, 74, 0), -- Summon Ji Yuan
--- (105306, 5831, 29780, 0, 0, 0, 2, 3, 10, 0), -- Summon Ji Yuan
--- (105306, 5831, 29781, 0, 0, 0, 2, 3, 74, 0), -- Summon Ji Yuan
+(105306, 5831, 0, 0, 0, 0, 2, 1, 0, 0), -- Summon Ji Yuan - has conditions
 (105001, 5859, 29787, 29791, 0, 0, 2, 3, 74, 9), -- See Quest Invis 1 (Ji Firepaw)
 (105001, 5832, 29787, 29791, 0, 0, 2, 3, 74, 9), -- See Quest Invis 1 (Ji Firepaw)
 (105095, 5820, 29791, 0, 0, 0, 2, 3, 66, 0), --  See Quest Invis 3 (Elder Shaopai)
@@ -10155,10 +10164,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (55694, 0, 1, 0, 58, 0, 100, 0, 42, 55694, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - WP Ended - Despawn'),
 -- Zhao-Ren
 (64554, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 0, 48, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - On Respawn - Set Active'),
-(64554, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 136, 6, 40, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - On Respawn - Set Movement Speed'),
+(64554, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 136, 1, 40, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - On Respawn - Set Movement Speed'),
 (64554, 0, 2, 3, 54, 0, 100, 0, 0, 0, 0, 0, 0, 44, 1429, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Add Phase'),
 (64554, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 0, 48, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Set Active'),
-(64554, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 0, 136, 6, 40, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Set Movement Speed'),
+(64554, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 0, 136, 1, 40, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Set Movement Speed'),
 (64554, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 53, 1, 64554, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - Just Spawned - Start WP'),
 (64554, 0, 6, 0, 58, 0, 100, 0, 13, 64554, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Zhao-Ren - WP Ended - Despawn'),
 -- Trigger 8287 - The Dawning Span
@@ -10381,14 +10390,24 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5639402, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 53, 1, 5639404, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Mesmerized Child - Start WP'),
 (-@CGUID-1342, 0, 1, 0, 40, 0, 100, 0, 13, 5639404, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Mesmerized Child - WP Reached - Set Run'),
 (-@CGUID-1342, 0, 2, 0, 58, 0, 100, 0, 14, 5639404, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 2.130749, 'Mesmerized Child - WP Ended - Set Orientation'),
-/* Summoner should see Ji Firepaw and other players Huojin Monk
 -- Huojin Monk / Ji Firepaw
-(65558, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 0, 36, 56134, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huojin Monk - Just Spawned - Update Template'),
-(65558, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 0, 29, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Just Spawned - Stop Follow'),
-(65558, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 80, 6555800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Just Spawned - Run Script'),
-(6555800, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(6555800, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 29, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Follow'),
-*/
+(65558, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Just Spawned - Talk'),
+(65558, 0, 1, 0, 4, 0, 100, 0, 0, 0, 0, 0, 0, 11, 117312, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Aggro - Cast Combat Roll'),
+(65558, 0, 2, 0, 0, 0, 100, 0, 3000, 5000, 6000, 6000, 0, 11, 128631, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Blackout Kick'),
+(65558, 0, 3, 0, 0, 0, 100, 0, 3000, 5000, 3000, 5000, 0, 11, 128630, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Jab'),
+(65558, 0, 4, 0, 0, 0, 100, 0, 5000, 8000, 10000, 15000, 0, 11, 128635, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Fists of Fury'),
+(65558, 0, 5, 0, 0, 0, 100, 0, 5000, 8000, 10000, 15000, 0, 11, 128632, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Spinning Crane Kick'),
+(65558, 0, 6, 0, 0, 0, 100, 0, 10000, 10000, 10000, 10000, 0, 11, 128643, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Healing Sphere'),
+(65558, 0, 7, 0, 6, 0, 100, 0, 0, 0, 0, 0, 0, 86, 105306, 2, 23, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Death - Cross Cast Summon Ji Yuan'),
+(65558, 0, 8, 0, 5, 0, 40, 0, 5000, 5000, 0, 55632, 0, 1, 1, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Kill - Talk'),
+(65558, 0, 9, 0, 5, 0, 40, 0, 5000, 5000, 0, 57466, 0, 1, 1, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Kill - Talk'),
+(65558, 0, 10, 11, 8, 0, 100, 0, 116992, 0, 0, 0, 0, 29, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Stop Follow'),
+(65558, 0, 11, 12, 61, 0, 100, 0, 0, 0, 0, 0, 0, 1, 6, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Talk'),
+(65558, 0, 12, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 80, 6555800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Run Script'),
+(6555800, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 59, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Run'),
+(6555800, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set React State'),
+(6555800, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1163.807, 4334.277, 210.9638, 0, 'Ji Firepaw - Move to Pos'),
+(65558, 0, 13, 0, 34, 0, 100, 0, 8, 1, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Movement Inform - Despawn'),
 -- Fe-Feng Ruffian
 (55632, 0, 0, 0, 0, 0, 100, 0, 4000, 8000, 8000, 12000, 0, 80, 5563200, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Fe-Feng Ruffian - Update IC - Run Script'),
 (5563200, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 103, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Fe-Feng Ruffian - Set Root'),
@@ -10488,7 +10507,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5769200, 9, 6, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 2, 2, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Data'),
 (5769200, 9, 7, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 8, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
-(5769200, 9, 9, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 136, 0, 0, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Movement Speed'),
+(5769200, 9, 9, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 0, 136, 1, 0, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Movement Speed'),
 (5769200, 9, 10, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1078.09, 4177.64, 205.7422, 0, 'Jojo Ironbrow - Move to Pos'),
 (57692, 0, 1, 2, 34, 0, 100, 0, 8, 2, 0, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set AI AnimKit'),
 (57692, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 90, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set Bytes1'),
@@ -12604,7 +12623,7 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (57742, 38, 745.7819, 3496.893, 135.9072, ''),
 (57742, 39, 729.5469, 3486.771, 128.211, 'Despawn');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (114698, 116421, 128598, 96733, 102207, 102522, 107050, 103069, 117033, 117034, 117035, 117036, 116810, 117054, 128589, 128588, 119073, 125699, 104126, 109144, 60603, 108806, 129341, 117275, 117400, 117783, 118233, 131983, 108897, 113244, 113245, 130422, 132211);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (114698, 116421, 128598, 96733, 102207, 102522, 107050, 103069, 117033, 117034, 117035, 117036, 116810, 117054, 128589, 128588, 119073, 105306, 125699, 104126, 109144, 60603, 108806, 129341, 117275, 117400, 117783, 118233, 131983, 108897, 113244, 113245, 130422, 132211);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (114698, 'spell_summon_troublemaker'),
 (116421, 'spell_meditation_timer_bar'),
@@ -12622,6 +12641,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (128589, 'spell_aysa_congrats_timer'),
 (128588, 'spell_aysa_congrats_trigger_aura'),
 (119073, 'spell_gen_creature_permanent_feign_death'),
+(105306, 'spell_summon_ji_yuan'),
 (125699, 'spell_ruk_ruk_ooksplosions'),
 (104126, 'spell_monkey_wisdom_text'),
 (109144, 'spell_master_shang_final_escort_say'),
