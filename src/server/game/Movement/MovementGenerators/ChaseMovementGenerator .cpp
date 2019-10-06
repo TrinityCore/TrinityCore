@@ -63,6 +63,7 @@ void ChaseMovementGenerator::Initialize(Unit* owner)
 {
     owner->AddUnitState(UNIT_STATE_CHASE);
     owner->SetWalk(false);
+    _lastTargetPosition.reset();
 }
 
 bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -86,6 +87,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         owner->StopMoving();
         if (Creature* cOwner = owner->ToCreature())
             cOwner->SetCannotReachTarget(false);
+        _lastTargetPosition.reset();
         return true;
     }
 
@@ -128,7 +130,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     }
 
     // if the target moved, we have to consider whether to adjust
-    if (_lastTargetPosition != target->GetPosition() || mutualChase != _mutualChase)
+    if (!_lastTargetPosition || target->GetPosition() != _lastTargetPosition.get() || mutualChase != _mutualChase)
     {
         _lastTargetPosition = target->GetPosition();
         _mutualChase = mutualChase;

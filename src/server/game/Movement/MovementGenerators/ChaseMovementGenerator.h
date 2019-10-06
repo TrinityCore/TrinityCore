@@ -38,7 +38,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         bool Update(Unit* owner, uint32 diff) override;
         void Finalize(Unit* owner) override;
 
-        void UnitSpeedChanged() override { _lastTargetPosition.Relocate(0.0f,0.0f,0.0f); }
+        void UnitSpeedChanged() override { _lastTargetPosition.reset(); }
 
     private:
         static constexpr uint32 RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
@@ -47,7 +47,7 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         Optional<ChaseAngle> const _angle;
 
         std::unique_ptr<PathGenerator> _path;
-        Position _lastTargetPosition;
+        Optional<Position> _lastTargetPosition;
         uint32 _rangeCheckTimer = RANGE_CHECK_INTERVAL;
         bool _movingTowards = true;
         bool _mutualChase = true;
