@@ -48,15 +48,15 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool VoiceEnabled = false;
+            Optional<SavedThrottleObjectState> EuropaTicketSystemStatus;
             Optional<SessionAlertConfig> SessionAlert;
             uint32 ScrollOfResurrectionMaxRequestsPerDay = 0;
-            bool ScrollOfResurrectionEnabled = false;
-            Optional<SavedThrottleObjectState> EuropaTicketSystemStatus;
             uint32 ScrollOfResurrectionRequestsRemaining = 0;
             uint32 CfgRealmID = 0;
-            uint8 ComplaintStatus = 0;
             int32 CfgRealmRecID = 0;
+            uint8 ComplaintStatus = 0;
+            bool ScrollOfResurrectionEnabled = false;
+            bool VoiceEnabled = false;
             bool ItemRestorationButtonEnabled = false;
             bool TravelPassEnabled = false;
         };
