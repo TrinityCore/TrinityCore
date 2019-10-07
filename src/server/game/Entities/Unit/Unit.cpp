@@ -14665,7 +14665,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     data->append(fieldBuffer);
 }
 
-void Unit::DestroyForPlayer(Player* target) const
+void Unit::DestroyForPlayer(Player* target, bool onDeath /*= false*/) const
 {
     if (Battleground* bg = target->GetBattleground())
     {

@@ -256,15 +256,16 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* target) const
+void Object::DestroyForPlayer(Player* target, bool onDeath /*= false*/) const
 {
     ASSERT(target);
 
-    UpdateData updateData(target->GetMapId());
-    BuildOutOfRangeUpdateBlock(&updateData);
-    WorldPacket packet;
-    updateData.BuildPacket(&packet);
-    target->SendDirectMessage(&packet);
+    WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
+    data << uint64(GetGUID());
+    //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
+    //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
+    data << uint8(onDeath ? 1 : 0);
+    target->SendDirectMessage(&data);
 }
 
 int32 Object::GetInt32Value(uint16 index) const
@@ -2679,7 +2680,11 @@ void WorldObject::DestroyForNearbyPlayers()
         if (isType(TYPEMASK_UNIT) && ToUnit()->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
             continue;
 
-        DestroyForPlayer(player); // at remove from world (destroy) show kill animation
+        if (GetTypeId() == TYPEID_UNIT)
+            DestroyForPlayer(player, ToUnit()->IsDuringRemoveFromWorld() && ToCreature()->isDead()); // at remove from world (destroy) show kill animation
+        else
+            DestroyForPlayer(player);
+
         player->m_clientGUIDs.erase(GetGUID());
     }
 }
