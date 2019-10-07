@@ -2673,18 +2673,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case SPELL_AURA_MOD_STUN:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
                     break;
-                case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_PERIODIC_DAMAGE:
-                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                case SPELL_AURA_PERIODIC_ENERGIZE:
-                case SPELL_AURA_OBS_MOD_HEALTH:
-                case SPELL_AURA_OBS_MOD_POWER:
-                case SPELL_AURA_POWER_BURN:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
-                    break;
             }
 
             switch (spellInfo->Effects[j].Effect)
@@ -4248,7 +4236,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         70834, // Bone Storm (Lord Marrowgar)
         70835, // Bone Storm (Lord Marrowgar)
         70836, // Bone Storm (Lord Marrowgar)
-        72864, // Death Plague (Rotting Frost Giant)
         71160, // Plague Stench (Stinky)
         71161, // Plague Stench (Stinky)
         71123  // Decimate (Stinky & Precious)
@@ -4905,6 +4892,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 47198, 47199, 47200 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 0x00004000; // Drain soul
+    });
+
+    // Soul Sickness (Forge of Souls)
+    ApplySpellFix({ 69131 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
     });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)

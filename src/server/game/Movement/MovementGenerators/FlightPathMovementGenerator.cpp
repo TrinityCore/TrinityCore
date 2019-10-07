@@ -75,6 +75,8 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
     owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
 
     Movement::MoveSplineInit init(owner);
+    // Providing a starting vertex since the taxi paths do not provide such
+    init.Path().push_back(G3D::Vector3(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ()));
     uint32 end = GetPathAtMapEnd();
     for (uint32 i = GetCurrentNode(); i != end; ++i)
     {
@@ -92,8 +94,9 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
     if (!owner)
         return false;
 
-    uint32 pointId = owner->movespline->currentPathIdx() < 0 ? 0 : owner->movespline->currentPathIdx();
-    if (pointId > _currentNode && _currentNode < _path.size())
+    // skipping the first spline path point because it's our starting point and not a taxi path point
+    uint32 pointId = owner->movespline->currentPathIdx() <= 0 ? 0 : owner->movespline->currentPathIdx() - 1;
+    if (pointId > _currentNode && _currentNode < _path.size() - 1)
     {
         bool departureEvent = true;
         do
@@ -120,7 +123,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
 
             _currentNode += departureEvent ? 1 : 0;
             departureEvent = !departureEvent;
-        } while (_currentNode < _path.size());
+        } while (_currentNode < _path.size() - 1);
     }
 
     if (_currentNode >= (_path.size() - 1))

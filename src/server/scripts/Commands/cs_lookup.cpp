@@ -71,8 +71,8 @@ public:
 
         static std::vector<ChatCommand> lookupMapCommandTable =
         {
-            { "id", rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL_ID, true, &HandleLookupMapIdCommand,           "" },
-            { "",   rbac::RBAC_PERM_COMMAND_LOOKUP_SPELL,    true, &HandleLookupMapCommand,             "" },
+            { "id", rbac::RBAC_PERM_COMMAND_LOOKUP_MAP_ID, true, &HandleLookupMapIdCommand,           "" },
+            { "",   rbac::RBAC_PERM_COMMAND_LOOKUP_MAP,    true, &HandleLookupMapCommand,             "" },
         };
 
         static std::vector<ChatCommand> lookupCommandTable =
