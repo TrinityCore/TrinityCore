@@ -63,11 +63,14 @@ enum Spells
     SPELL_CHEST_BOMB_DAMAGE             = 88250,
     SPELL_OAFGUARD                      = 90546,
     SPELL_EMOTE_TALK                    = 79506,
+    SPELL_VEHICLE_SWITCH_TO_SEAT_3      = 84225,
 
     // Lumbering Oaf
     SPELL_OAF_GRAB_TARGETING            = 88289,
     SPELL_CHARGE                        = 88295,
     SPELL_OAF_SMASH                     = 88300,
+    SPELL_HOLD_THROWN                   = 88373,
+    SPELL_ATTACK_THROWN                 = 88374,
 
     // Sticky Bomb
     SPELL_ARMING_VISUAL_YELLOW          = 88315,
@@ -75,44 +78,55 @@ enum Spells
     SPELL_ARMING_VISUAL_RED             = 88317,
     SPELL_STICKY_BOMB_ARMED_STATE       = 88319,
     SPELL_STICKY_BOMB_PERIODIC_TRIGGER  = 88329,
-    SPELL_EXPLODE                       = 88974,
+    SPELL_EXPLODE                       = 88974
+};
+
+uint32 const BombArmingVisualSpells[] =
+{
+    SPELL_ARMING_VISUAL_YELLOW,
+    SPELL_ARMING_VISUAL_ORANGE,
+    SPELL_ARMING_VISUAL_RED
 };
 
 enum DisplayIds
 {
-    DISPLAY_ID_BOMB_INVISIBLE = 11686,
+    DISPLAY_ID_BOMB_INVISIBLE = 11686
 };
 
 enum Events
 {
     // Helix Gearbreaker
-    EVENT_STICKY_BOMB = 1,
+    EVENT_SUMMON_HELIX_CREW = 1,
+    EVENT_HELIX_RIDE,
+    EVENT_STICKY_BOMB,
     EVENT_OAF_SMASH,
     EVENT_THROW_HELIX,
     EVENT_RIDE_FACE,
 
     // Lumbering Oaf
-    EVENT_MOVE_TO_PREPARE_POSITION,
-    EVENT_CHARGE_DEST,
+    EVENT_PREPARE_OAF_SMASH,
+    EVENT_OAF_SMASH_CHARGE,
 
     // Sticky Bomb
-    EVENT_ARMING_VISUAL_YELLOW,
-    EVENT_ARMING_VISUAL_ORANGE,
-    EVENT_ARMING_VISUAL_RED,
-    EVENT_PREPARED_STATE,
+    EVENT_ARM_BOMB,
     EVENT_PERIODIC_TRIGGER,
     EVENT_EXPLOSION_COUNTDOWN,
-    EVENT_COUNTDOWN,
 
     // Helix' Crew
-    EVENT_TALK_READY,
+    EVENT_THROW_BOMB,
+    EVENT_TALK_READY
 };
 
 enum Actions
 {
+    // Lumbering Oaf
     ACTION_OAF_SMASH = 1,
-    ACTION_OAF_DEAD,
+
+    // Helix' Crw
     ACTION_TALK_CREW,
+
+    // Sticky Bomb
+    ACTION_BOMB_DETONATED,
 };
 
 enum Points
@@ -126,902 +140,727 @@ enum Phases
     PHASE_2 = 2
 };
 
-Position const ChargePreparationPos = { -289.8343f, -526.2162f, 49.83808f };
-Position const ChargePos = { -289.5868f, -489.5746f, 49.91263f };
-
-Position const HelixCrewPositions[] =
+enum Seats
 {
-    { -283.8438f, -503.3698f, 60.512f, 1.902409f },
+    SEAT_HELIX          = 0,
+    SEAT_PREPARE_THROW  = 2
+};
+
+Position const LumberingOafSummonPosition   = { -302.3611f, -516.3455f, 52.03153f, 0.1745329f };
+Position const OafSmashStartigPosition      = { -289.8343f, -526.2162f, 49.83808f };
+Position const ChargePos                    = { -289.5868f, -489.5746f, 49.91263f };
+
+static constexpr uint8 const HelixCrewPositionCount = 4;
+Position const HelixFirstCrewPositions[HelixCrewPositionCount] =
+{
+    { -283.8438f, -503.3698f, 60.512f,   1.902409f },
     { -285.8681f, -503.8264f, 60.55348f, 5.009095f },
     { -292.6788f, -503.7274f, 60.27357f, 4.468043f },
     { -289.8316f, -503.4063f, 60.36356f, 1.815142f }
 };
 
-class boss_helix_gearbreaker : public CreatureScript
+Position const HelixSecondCrewPositions[HelixCrewPositionCount] =
 {
-    public:
-        boss_helix_gearbreaker() : CreatureScript("boss_helix_gearbreaker") { }
+    {-282.2639f, -503.8333f, 60.60244f, 5.201081f },
+    {-287.474f,  -503.2708f, 60.44886f, 1.675516f },
+    {-291.0781f, -504.0938f, 60.25187f, 4.607669f },
+    {-294.1632f, -503.2326f, 60.1258f,  1.867502f }
+};
 
-        struct boss_helix_gearbreakerAI : public BossAI
+struct boss_helix_gearbreaker : public BossAI
+{
+    boss_helix_gearbreaker(Creature* creature) : BossAI(creature, DATA_HELIX_GEARBREAKER)
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        Talk(SAY_AGGRO);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+
+        DoCastAOE(SPELL_HELIX_RIDE);
+
+        events.SetPhase(PHASE_1);
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_SUMMON_HELIX_CREW, 5s, 0, PHASE_1);
+
+        events.ScheduleEvent(EVENT_STICKY_BOMB, 6s, 0, PHASE_1);
+        events.ScheduleEvent(EVENT_OAF_SMASH, 17s, 0, PHASE_1);
+        events.ScheduleEvent(EVENT_THROW_HELIX, 34s, 0, PHASE_1);
+        events.ScheduleEvent(EVENT_HELIX_RIDE, 5s);
+        events.ScheduleEvent(EVENT_HELIX_RIDE, 56s); // According to sniffs there are two spell casts
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_OAFGUARD);
+        DoSummon(NPC_LUMBERING_OAF, LumberingOafSummonPosition, 2 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        if (Creature* lumberingOaf = instance->GetCreature(DATA_LUMBERING_OAF))
+            if (lumberingOaf->IsAlive())
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, lumberingOaf);
+
+        summons.DespawnAll();
+        _DespawnAtEvade();
+    }
+
+    void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
+    {
+        switch (summon->GetEntry())
         {
-            boss_helix_gearbreakerAI(Creature* creature) : BossAI(creature, DATA_HELIX_GEARBREAKER)
+            case NPC_LUMBERING_OAF:
+                Talk(SAY_OAF_DEAD);
+                DoCastSelf(SPELL_EMOTE_TALK);
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->RemoveAurasDueToSpell(SPELL_OAFGUARD);
+
+                events.SetPhase(PHASE_2);
+                events.ScheduleEvent(EVENT_SUMMON_HELIX_CREW, 3s, 0, PHASE_2);
+                if (!me->GetVehicleBase())
+                    events.ScheduleEvent(EVENT_RIDE_FACE, 2s + 500ms, 0, PHASE_2);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        // Helix cannot die while he is protected by his Lumbering Oaf
+        if (damage >= me->GetHealth() && me->HasAura(SPELL_OAFGUARD))
+            damage = me->GetHealth() - 1;
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_RIDE_VEHICLE)
+            AttackStart(target);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                Initialize();
-            }
 
-            void Initialize()
-            {
-                _crewSummoned = false;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-                Talk(SAY_AGGRO);
-                me->AttackStop();
-                me->SetReactState(REACT_PASSIVE);
-
-                if (Creature* lumberingOaf = instance->GetCreature(DATA_LUMBERING_OAF))
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, lumberingOaf);
-
-                events.SetPhase(PHASE_1);
-                events.ScheduleEvent(EVENT_STICKY_BOMB, Seconds(5), 0, PHASE_1);
-                events.ScheduleEvent(EVENT_OAF_SMASH, Seconds(16), 0, PHASE_1);
-                events.ScheduleEvent(EVENT_THROW_HELIX, Seconds(34), 0, PHASE_1);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-                summons.DespawnAll();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _EnterEvadeMode();
-                summons.DespawnAll();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                if (Creature* lumberingOaf = instance->GetCreature(DATA_LUMBERING_OAF))
-                {
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, lumberingOaf);
-                    lumberingOaf->DespawnOrUnsummon(0, Seconds(30));
-                }
-                me->DespawnOrUnsummon();
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                summons.Summon(summon);
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_OAF_DEAD:
-                        Talk(SAY_OAF_DEAD);
-                        DoCastSelf(SPELL_EMOTE_TALK);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveAurasDueToSpell(SPELL_OAFGUARD);
-                        events.SetPhase(PHASE_2);
-                        if (!me->GetVehicleBase())
-                            events.ScheduleEvent(EVENT_RIDE_FACE, Seconds(2) + Milliseconds(500), 0, PHASE_2);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                if (damage >= me->GetHealth() && me->HasAura(SPELL_OAFGUARD))
-                    damage = me->GetHealth() - 1;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                case EVENT_SUMMON_HELIX_CREW:
+                    for (uint8 i = 0; i < HelixCrewPositionCount; i++)
                     {
-                        case EVENT_STICKY_BOMB:
-                            if (!_crewSummoned && IsHeroic())
-                            {
-                                for (uint8 i = 0; i < 4; i++)
-                                {
-                                    if (Creature* crew = DoSummon(NPC_HELIX_CREW, HelixCrewPositions[i], 0, TEMPSUMMON_MANUAL_DESPAWN))
-                                        if (i == 1)
-                                            crew->AI()->DoAction(ACTION_TALK_CREW);
-                                }
-                                _crewSummoned = true;
-                            }
-
-                            DoCastAOE(SPELL_THROW_BOMB_TARGETING, true);
-                            events.Repeat(Seconds(3) + Milliseconds(500));
-                            break;
-                        case EVENT_OAF_SMASH:
-                            if (Creature* lumberingOaf = me->GetVehicleCreatureBase())
-                            {
-                                lumberingOaf->AI()->DoAction(ACTION_OAF_SMASH);
-                                events.RescheduleEvent(EVENT_STICKY_BOMB, Seconds(10), 0, PHASE_1);
-                                events.Repeat(Seconds(52));
-                            }
-                            break;
-                        case EVENT_THROW_HELIX:
-                            Talk(SAY_THROW_HELIX);
-                            events.ScheduleEvent(EVENT_RIDE_FACE, Seconds(2));
-                            events.Repeat(Seconds(52));
-                            break;
-                        case EVENT_RIDE_FACE:
-                            DoCastAOE(SPELL_RIDE_FACE_TARGETING, true);
-                            events.RescheduleEvent(EVENT_STICKY_BOMB, Seconds(20), 0, PHASE_1);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-            private:
-                bool _crewSummoned;
-        };
-
-        CreatureAI* GetAI(Creature *creature) const override
-        {
-            return GetDeadminesAI<boss_helix_gearbreakerAI>(creature);
-        }
-};
-
-class npc_helix_lumbering_oaf : public CreatureScript
-{
-    public:
-        npc_helix_lumbering_oaf() : CreatureScript("npc_helix_lumbering_oaf") { }
-
-        struct npc_helix_lumbering_oafAI : public ScriptedAI
-        {
-            npc_helix_lumbering_oafAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                if (Creature* helix = _instance->GetCreature(DATA_HELIX_GEARBREAKER))
-                    if (!helix->IsInCombat())
-                        helix->AI()->AttackStart(who);
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_OAF_SMASH:
-                        Talk(SAY_OAF_SMASH_1);
-                        DoCastAOE(SPELL_OAF_GRAB_TARGETING, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
-            {
-                if (!passenger)
-                    return;
-
-                if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
-                {
-                    me->AttackStop();
-                    me->SetReactState(REACT_PASSIVE);
-                    _events.ScheduleEvent(EVENT_MOVE_TO_PREPARE_POSITION, Milliseconds(500));
-                }
-
-                if (!apply && passenger->GetEntry() == BOSS_HELIX_GEARBREAKER && me->IsInCombat())
-                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, passenger);
-                else if (apply && passenger->GetEntry() == BOSS_HELIX_GEARBREAKER && me->IsInCombat())
-                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, passenger);
-            }
-
-            void MovementInform(uint32 type, uint32 point) override
-            {
-                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
-                    return;
-
-                switch (point)
-                {
-                    case POINT_CHARGE_PREP:
-                        me->SetFacingTo(1.570796f);
-                        _events.ScheduleEvent(EVENT_CHARGE_DEST, Seconds(1));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-                if (Creature* helix = _instance->GetCreature(DATA_HELIX_GEARBREAKER))
-                    helix->AI()->DoAction(ACTION_OAF_DEAD);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_MOVE_TO_PREPARE_POSITION:
-                            Talk(SAY_OAF_SMASH_2);
-                            me->GetMotionMaster()->MovePoint(POINT_CHARGE_PREP, ChargePreparationPos, true);
-                            break;
-                        case EVENT_CHARGE_DEST:
-                            DoCastAOE(SPELL_CHARGE);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetDeadminesAI<npc_helix_lumbering_oafAI>(creature);
-        }
-};
-
-class npc_helix_sticky_bomb : public CreatureScript
-{
-    public:
-        npc_helix_sticky_bomb() : CreatureScript("npc_helix_sticky_bomb") { }
-
-        struct npc_helix_sticky_bombAI : public PassiveAI
-        {
-            npc_helix_sticky_bombAI(Creature* creature) : PassiveAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _countdown = 0;
-            }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                _events.ScheduleEvent(EVENT_ARMING_VISUAL_YELLOW, Seconds(2) + Milliseconds(500));
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_ARMING_VISUAL_YELLOW:
-                            DoCastSelf(SPELL_ARMING_VISUAL_YELLOW);
-                            _events.ScheduleEvent(EVENT_ARMING_VISUAL_ORANGE, Seconds(1));
-                            break;
-                        case EVENT_ARMING_VISUAL_ORANGE:
-                            DoCastSelf(SPELL_ARMING_VISUAL_ORANGE);
-                            _events.ScheduleEvent(EVENT_ARMING_VISUAL_RED, Seconds(2));
-                            break;
-                        case EVENT_ARMING_VISUAL_RED:
-                            DoCastSelf(SPELL_ARMING_VISUAL_RED);
-                            _events.ScheduleEvent(EVENT_PREPARED_STATE, Seconds(1));
-                            break;
-                        case EVENT_PREPARED_STATE:
-                            DoCastSelf(SPELL_STICKY_BOMB_ARMED_STATE);
-                            _events.ScheduleEvent(EVENT_PERIODIC_TRIGGER, Seconds(1));
-                            break;
-                        case EVENT_PERIODIC_TRIGGER:
-                            DoCastSelf(SPELL_STICKY_BOMB_PERIODIC_TRIGGER);
-                            _events.ScheduleEvent(EVENT_EXPLOSION_COUNTDOWN, Seconds(15) + Milliseconds(500));
-                            break;
-                        case EVENT_EXPLOSION_COUNTDOWN:
-                            DoCastSelf(SPELL_ARMING_VISUAL_RED);
-                            _events.ScheduleEvent(EVENT_COUNTDOWN, Seconds(1));
-                            break;
-                        case EVENT_COUNTDOWN:
-                            if (_countdown != 3)
-                            {
-                                DoCastSelf(SPELL_ARMING_VISUAL_RED);
-                                _countdown++;
-                                _events.Repeat(Seconds(1));
-                            }
-                            else
-                            {
-                                me->RemoveAllAuras();
-                                DoCastSelf(SPELL_EXPLODE, true);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        private:
-            EventMap _events;
-            uint8 _countdown;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetDeadminesAI<npc_helix_sticky_bombAI>(creature);
-        }
-};
-
-class npc_helix_crew : public CreatureScript
-{
-    public:
-        npc_helix_crew() : CreatureScript("npc_helix_crew") { }
-
-        struct npc_helix_crewAI : public PassiveAI
-        {
-            npc_helix_crewAI(Creature* creature) : PassiveAI(creature) { }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                _events.ScheduleEvent(EVENT_STICKY_BOMB, Seconds(1));
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_TALK_CREW:
-                        _events.ScheduleEvent(EVENT_TALK_READY, Seconds(1));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_STICKY_BOMB:
-                            DoCastAOE(SPELL_THROW_BOMB_TARGETING, true);
-                            _events.Repeat(Seconds(5));
-                            break;
-                        case EVENT_TALK_READY:
-                            Talk(SAY_CREW_JOIN_FIGHT);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetDeadminesAI<npc_helix_crewAI>(creature);
-        }
-};
-
-class spell_helix_throw_bomb_targeting : public SpellScriptLoader
-{
-    public:
-        spell_helix_throw_bomb_targeting() : SpellScriptLoader("spell_helix_throw_bomb_targeting") { }
-
-        class spell_helix_throw_bomb_targeting_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_helix_throw_bomb_targeting_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                GetCaster()->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_helix_throw_bomb_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_helix_throw_bomb_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_helix_throw_bomb_targeting_SpellScript();
-        }
-};
-
-class spell_helix_sticky_bomb_periodic_trigger : public SpellScriptLoader
-{
-    public:
-        spell_helix_sticky_bomb_periodic_trigger() : SpellScriptLoader("spell_helix_sticky_bomb_periodic_trigger") { }
-
-        class spell_helix_sticky_bomb_periodic_trigger_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_helix_sticky_bomb_periodic_trigger_AuraScript);
-
-            void HandleTick(AuraEffect const* /*aurEff*/)
-            {
-                PreventDefaultAction();
-                if (Unit* caster = GetCaster())
-                    if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell))
-                        if (Player* player = caster->SelectNearestPlayer(spell->Effects[EFFECT_0].CalcRadius()))
-                            if (!player->GetVehicleBase())
-                                caster->CastSpell(GetCaster()->GetVictim(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_helix_sticky_bomb_periodic_trigger_AuraScript::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_helix_sticky_bomb_periodic_trigger_AuraScript();
-        }
-};
-
-class spell_helix_explode : public SpellScriptLoader
-{
-    public:
-        spell_helix_explode() : SpellScriptLoader("spell_helix_explode") { }
-
-        class spell_helix_explode_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_helix_explode_SpellScript);
-
-            void HandleLaunch(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->GetTypeId() == TYPEID_UNIT)
-                    {
-                        caster->RemoveAllAuras();
-                        caster->SetDisplayId(DISPLAY_ID_BOMB_INVISIBLE);
-                        caster->ToCreature()->DespawnOrUnsummon(Seconds(2) + Milliseconds(400));
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectLaunch += SpellEffectFn(spell_helix_explode_SpellScript::HandleLaunch, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        private:
-            uint8 _targetsCounter;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_helix_explode_SpellScript();
-        }
-};
-
-class spell_helix_oaf_grab_targeting : public SpellScriptLoader
-{
-    public:
-        spell_helix_oaf_grab_targeting() : SpellScriptLoader("spell_helix_oaf_grab_targeting") { }
-
-        class spell_helix_oaf_grab_targeting_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_helix_oaf_grab_targeting_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_helix_oaf_grab_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_helix_oaf_grab_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_helix_oaf_grab_targeting_SpellScript();
-        }
-};
-
-class spell_helix_force_player_to_ride_oaf : public SpellScriptLoader
-{
-    public:
-        spell_helix_force_player_to_ride_oaf() : SpellScriptLoader("spell_helix_force_player_to_ride_oaf") { }
-
-        class spell_helix_force_player_to_ride_oaf_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_helix_force_player_to_ride_oaf_SpellScript);
-
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        if (caster->GetVehicleKit())
+                        if (events.IsInPhase(PHASE_1))
                         {
-                            target->CastStop();
-                            target->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, false);
+                            if (Creature* crew = DoSummon(NPC_HELIX_CREW, HelixFirstCrewPositions[i], 2 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN))
+                                if (!i && crew->IsAIEnabled)
+                                    crew->AI()->DoAction(ACTION_TALK_CREW);
                         }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_helix_force_player_to_ride_oaf_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_helix_force_player_to_ride_oaf_SpellScript();
-        }
-};
-
-class spell_helix_oaf_smash : public SpellScriptLoader
-{
-    public:
-        spell_helix_oaf_smash() : SpellScriptLoader("spell_helix_oaf_smash") { }
-
-        class spell_helix_oaf_smash_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_helix_oaf_smash_SpellScript);
-
-            void HandleLaunch(SpellEffIndex effIndex)
-            {
-                // We do our own knockback here because the boss is immune to knockback effects
-                // ... and because we have to use some additional spellinfo data
-                if (Unit* caster = GetCaster())
-                {
-                    float angle = caster->GetOrientation();
-                    float x = caster->GetPositionX() + cos(angle) * 1;
-                    float y = caster->GetPositionX() + sin(angle) * 1;
-                    float speedxy = float(GetSpellInfo()->Effects[effIndex].MiscValue) * 0.1;
-                    float speedz = float(GetSpellInfo()->Effects[effIndex].MiscValueB) * 0.1;
-
-                    caster->KnockbackFrom(x, y, speedxy, speedz);
-
-                    if (Creature* creature = caster->ToCreature())
-                    {
-                        creature->SetReactState(REACT_AGGRESSIVE);
-                        creature->setAttackTimer(BASE_ATTACK, creature->GetFloatValue(UNIT_FIELD_BASEATTACKTIME));
+                        else
+                            DoSummon(NPC_HELIX_CREW, HelixSecondCrewPositions[i], 2 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     }
-                }
-            }
+                    break;
+                case EVENT_HELIX_RIDE:
+                    DoCastAOE(SPELL_HELIX_RIDE);
+                    events.Repeat(56s);
+                    break;
+                case EVENT_STICKY_BOMB:
+                    DoCastAOE(SPELL_THROW_BOMB_TARGETING);
+                    events.Repeat(3s + 500ms);
+                    break;
+                case EVENT_OAF_SMASH:
+                    if (Creature* oaf = instance->GetCreature(DATA_LUMBERING_OAF))
+                        if (oaf->IsAIEnabled)
+                            oaf->AI()->DoAction(ACTION_OAF_SMASH);
 
-            void Register()
-            {
-                OnEffectLaunch += SpellEffectFn(spell_helix_oaf_smash_SpellScript::HandleLaunch, EFFECT_0, SPELL_EFFECT_KNOCK_BACK);
+                    events.RescheduleEvent(EVENT_STICKY_BOMB, 11s, 0, PHASE_1);
+                    events.Repeat(52s);
+                    break;
+                case EVENT_THROW_HELIX:
+                    Talk(SAY_THROW_HELIX);
+                    DoCastSelf(SPELL_VEHICLE_SWITCH_TO_SEAT_3);
+                    events.ScheduleEvent(EVENT_RIDE_FACE, 2s, 0, PHASE_1);
+                    events.Repeat(52s);
+                    events.RescheduleEvent(EVENT_STICKY_BOMB, 22s, 0, PHASE_1);
+                    break;
+                case EVENT_RIDE_FACE:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoCastAOE(SPELL_RIDE_FACE_TARGETING);
+                    break;
+                default:
+                    break;
             }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_helix_oaf_smash_SpellScript();
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
-class spell_helix_ride_face_targeting : public SpellScriptLoader
+struct npc_helix_lumbering_oaf : public ScriptedAI
 {
-    public:
-        spell_helix_ride_face_targeting() : SpellScriptLoader("spell_helix_ride_face_targeting") { }
+    npc_helix_lumbering_oaf(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        class spell_helix_ride_face_targeting_SpellScript : public SpellScript
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+
+        if (Creature* helix = _instance->GetCreature(DATA_HELIX_GEARBREAKER))
+            if (helix->IsAIEnabled)
+                helix->AI()->DoZoneInCombat();
+    }
+
+    void JustAppeared() override
+    {
+        if (Creature* helix = _instance->GetCreature(DATA_HELIX_GEARBREAKER))
+            helix->EnterVehicle(me);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            PrepareSpellScript(spell_helix_ride_face_targeting_SpellScript);
+            case ACTION_OAF_SMASH:
+                DoCastAOE(SPELL_OAF_GRAB_TARGETING);
+                break;
+            default:
+                break;
+        }
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+    {
+        if (!passenger)
+            return;
+
+        if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+        {
+            Talk(SAY_OAF_SMASH_1);
+            me->AttackStop();
+            me->SetReactState(REACT_PASSIVE);
+            _events.ScheduleEvent(EVENT_PREPARE_OAF_SMASH, 1s);
+        }
+
+        if (Creature* helix = passenger->ToCreature())
+        {
+            if (apply)
             {
-                return ValidateSpellInfo(
+                if (seatId == SEAT_PREPARE_THROW)
                 {
-                    SPELL_HELIX_RIDE,
-                    SPELL_HELIX_RIDE_FACE_TIMER_AURA
-                });
-            }
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_HELIX_RIDE));
-
-                if (targets.empty())
-                {
-                    if (Unit* caster = GetCaster())
-                        caster->CastSpell(caster, SPELL_HELIX_RIDE_FACE_TIMER_AURA, true);
-                    return;
+                    helix->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    DoCastSelf(SPELL_HOLD_THROWN);
                 }
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
+                else if (seatId == SEAT_HELIX)
                 {
-                    if (Unit* target = GetHitUnit())
+                    helix->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    helix->SetReactState(REACT_PASSIVE);
+                    helix->AttackStop();
+                }
+            }
+            else if (seatId == SEAT_PREPARE_THROW)
+            {
+                me->RemoveAurasDueToSpell(SPELL_HOLD_THROWN);
+                DoCastSelf(SPELL_ATTACK_THROWN);
+            }
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 point) override
+    {
+        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+            return;
+
+        switch (point)
+        {
+            case POINT_CHARGE_PREP:
+                me->SetFacingTo(1.570796f);
+                _events.ScheduleEvent(EVENT_OAF_SMASH_CHARGE, 1s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PREPARE_OAF_SMASH:
+                    Talk(SAY_OAF_SMASH_2);
+                    me->GetMotionMaster()->MovePoint(POINT_CHARGE_PREP, OafSmashStartigPosition, true);
+                    break;
+                case EVENT_OAF_SMASH_CHARGE:
+                    DoCastAOE(SPELL_CHARGE);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
+struct npc_helix_sticky_bomb : public NullCreatureAI
+{
+    npc_helix_sticky_bomb(Creature* creature) : NullCreatureAI(creature), _countdown(0) { }
+
+    void Reset() override
+    {
+        _events.ScheduleEvent(EVENT_ARM_BOMB, 2s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_BOMB_DETONATED:
+                me->SetDisplayId(DISPLAY_ID_BOMB_INVISIBLE);
+                me->RemoveAllAuras();
+                me->DespawnOrUnsummon(2s + 500ms);
+                _events.Reset();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ARM_BOMB:
+                    if (_countdown < 3)
                     {
-                        if (Creature* creature = caster->ToCreature())
-                            if (creature->IsAIEnabled && creature->GetVictim())
-                                creature->getThreatManager().modifyThreatPercent(caster->GetVictim(), -100);
-
-                        caster->CastSpell(caster, SPELL_HELIX_RIDE_FACE_TIMER_AURA, true);
-                        // Until we have core support for hiding vehicle datas clientside, we handle it like this
-                        target->AddAura(SPELL_HELIX_RIDE, target);
-                        caster->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+                        DoCastSelf(BombArmingVisualSpells[_countdown]);
+                        _events.Repeat(1s);
+                        _countdown++;
                     }
-                }
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_helix_ride_face_targeting_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffectHitTarget += SpellEffectFn(spell_helix_ride_face_targeting_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_helix_ride_face_targeting_SpellScript();
-        }
-};
-
-class spell_helix_ride_vehicle : public SpellScriptLoader
-{
-    public:
-        spell_helix_ride_vehicle() : SpellScriptLoader("spell_helix_ride_vehicle") { }
-
-        class spell_helix_ride_vehicle_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_helix_ride_vehicle_SpellScript);
-
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (Creature* creature = caster->ToCreature())
+                    else
                     {
-                        if (creature->IsAIEnabled)
-                        {
-                            creature->SetReactState(REACT_AGGRESSIVE);
-                            creature->AI()->AttackStart(GetHitUnit());
-                        }
+                        DoCastSelf(SPELL_STICKY_BOMB_ARMED_STATE);
+                        _events.ScheduleEvent(EVENT_PERIODIC_TRIGGER, 1s);
                     }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_helix_ride_vehicle_SpellScript::HandleHit, EFFECT_1, SPELL_EFFECT_THREAT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_helix_ride_vehicle_SpellScript();
-        }
-
-        class spell_helix_ride_vehicle_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_helix_ride_vehicle_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_RIDE_VEHICLE });
-            }
-
-            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* owner = GetOwner()->ToUnit())
-                    owner->RemoveAurasDueToSpell(SPELL_HELIX_RIDE);
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_helix_ride_vehicle_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_helix_ride_vehicle_AuraScript();
-        }
-};
-
-class spell_helix_ride_face_timer_aura: public SpellScriptLoader
-{
-    public:
-        spell_helix_ride_face_timer_aura() : SpellScriptLoader("spell_helix_ride_face_timer_aura") { }
-
-        class spell_helix_ride_face_timer_aura_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_helix_ride_face_timer_aura_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
+                    break;
+            case EVENT_PERIODIC_TRIGGER:
+                DoCastSelf(SPELL_STICKY_BOMB_PERIODIC_TRIGGER);
+                _events.ScheduleEvent(EVENT_EXPLOSION_COUNTDOWN, 15s + 500ms);
+                break;
+            case EVENT_EXPLOSION_COUNTDOWN:
+                if (_countdown)
                 {
-                    SPELL_RIDE_VEHICLE_OAF,
-                    SPELL_CHEST_BOMB,
-                    SPELL_HELIX_CHEST_BOMB_EMOTE
-                });
-            }
-
-            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* owner = GetOwner()->ToUnit())
-                {
-                    if (InstanceScript* instance = owner->GetInstanceScript())
-                    {
-                        if (Unit* vehicle = owner->GetVehicleBase())
-                        {
-                            if (owner->GetMap() && owner->GetMap()->IsHeroic())
-                                if (vehicle->GetTypeId() == TYPEID_PLAYER && owner->GetEntry() == BOSS_HELIX_GEARBREAKER)
-                                {
-                                    owner->CastSpell(vehicle, SPELL_CHEST_BOMB, true);
-                                    owner->CastSpell(vehicle, SPELL_HELIX_CHEST_BOMB_EMOTE, true);
-                                }
-
-                            if (Creature* oaf = instance->GetCreature(DATA_LUMBERING_OAF))
-                            {
-                                if (oaf->IsAlive() && owner->GetEntry() == BOSS_HELIX_GEARBREAKER)
-                                {
-                                    owner->CastSpell(oaf, SPELL_RIDE_VEHICLE_OAF);
-                                    if (Creature* creature = owner->ToCreature())
-                                    {
-                                        creature->AttackStop();
-                                        creature->SetReactState(REACT_PASSIVE);
-                                    }
-                                }
-                                else
-                                    owner->CastSpell(owner, SPELL_RIDE_FACE_TARGETING, true);
-                            }
-                            vehicle->RemoveAurasDueToSpell(SPELL_HELIX_RIDE);
-                        }
-                    }
+                    DoCastSelf(SPELL_ARMING_VISUAL_RED);
+                    _events.Repeat(1s);
+                    _countdown--;
                 }
+                else
+                {
+                    DoCastSelf(SPELL_EXPLODE);
+                    DoAction(ACTION_BOMB_DETONATED);
+                }
+                break;
+            default:
+                break;
             }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_helix_ride_face_timer_aura_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_helix_ride_face_timer_aura_AuraScript();
         }
+    }
+private:
+    EventMap _events;
+    uint8 _countdown;
 };
 
-class spell_helix_chest_bomb_emote : public SpellScriptLoader
+struct npc_helix_crew : public PassiveAI
 {
-    public:
-        spell_helix_chest_bomb_emote() : SpellScriptLoader("spell_helix_chest_bomb_emote") { }
+    npc_helix_crew(Creature* creature) : PassiveAI(creature) { }
 
-        class spell_helix_chest_bomb_emote_SpellScript : public SpellScript
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        _events.ScheduleEvent(EVENT_THROW_BOMB, 1s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            PrepareSpellScript(spell_helix_chest_bomb_emote_SpellScript);
-
-            void HandleScriptEffect(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Creature* creature = caster->ToCreature())
-                        if (creature->IsAIEnabled)
-                            creature->AI()->Talk(SAY_ANNOUNCE_CHEST_BOMB, GetHitUnit());
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_helix_chest_bomb_emote_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_helix_chest_bomb_emote_SpellScript();
+            case ACTION_TALK_CREW:
+                _events.ScheduleEvent(EVENT_TALK_READY, 1s);
+                break;
+            default:
+                break;
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_THROW_BOMB:
+                    DoCastAOE(SPELL_THROW_BOMB_TARGETING);
+                    _events.Repeat(5s);
+                    break;
+                case EVENT_TALK_READY:
+                    Talk(SAY_CREW_JOIN_FIGHT);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+private:
+    EventMap _events;
 };
 
-class spell_helix_chest_bomb : public SpellScriptLoader
+class spell_helix_throw_bomb_targeting : public SpellScript
 {
-    public:
-        spell_helix_chest_bomb() : SpellScriptLoader("spell_helix_chest_bomb") { }
+    PrepareSpellScript(spell_helix_throw_bomb_targeting);
 
-        class spell_helix_chest_bomb_AuraScript : public AuraScript
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_helix_throw_bomb_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_helix_throw_bomb_targeting::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_helix_sticky_bomb_periodic_trigger : public AuraScript
+{
+    PrepareAuraScript(spell_helix_sticky_bomb_periodic_trigger);
+
+    void HandleTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+        Creature* target = GetTarget()->ToCreature();
+        if (!target || !target->IsAIEnabled)
+            return;
+
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell);
+        if (!spell)
+            return;
+
+        if (Player* player = target->SelectNearestPlayer(spell->Effects[EFFECT_0].CalcRadius()))
         {
-            PrepareAuraScript(spell_helix_chest_bomb_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            if (!player->GetVehicleBase() && player->GetExactDist(target) <= 1.0f)
             {
-                return ValidateSpellInfo({ SPELL_CHEST_BOMB_DAMAGE });
+                target->CastSpell(target, spell->Id, true);
+                target->AI()->DoAction(ACTION_BOMB_DETONATED);
             }
-
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                if (Unit* owner = GetOwner()->ToUnit())
-                    owner->CastSpell(owner, SPELL_CHEST_BOMB_DAMAGE, true);
-            }
-
-            void Register() override
-            {
-                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_helix_chest_bomb_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_helix_chest_bomb_AuraScript();
         }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_helix_sticky_bomb_periodic_trigger::HandleTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+class spell_helix_oaf_grab_targeting : public SpellScript
+{
+    PrepareSpellScript(spell_helix_oaf_grab_targeting);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_helix_oaf_grab_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_helix_oaf_grab_targeting::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_helix_force_player_to_ride_oaf : public SpellScript
+{
+    PrepareSpellScript(spell_helix_force_player_to_ride_oaf);
+
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            GetHitUnit()->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_helix_force_player_to_ride_oaf::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_helix_oaf_smash : public SpellScript
+{
+    PrepareSpellScript(spell_helix_oaf_smash);
+
+    void HandleLaunch(SpellEffIndex effIndex)
+    {
+        // We do our own knockback here because the boss is immune to knockback effects
+        // ... and because we have to use some additional spellinfo data
+        if (Unit* caster = GetCaster())
+        {
+            float angle = caster->GetOrientation();
+            float x = caster->GetPositionX() + cos(angle) * 1;
+            float y = caster->GetPositionX() + sin(angle) * 1;
+            float speedxy = float(GetSpellInfo()->Effects[effIndex].MiscValue) * 0.1;
+            float speedz = float(GetSpellInfo()->Effects[effIndex].MiscValueB) * 0.1;
+
+            caster->KnockbackFrom(x, y, speedxy, speedz);
+
+            if (Creature* creature = caster->ToCreature())
+            {
+                creature->SetReactState(REACT_AGGRESSIVE);
+                creature->setAttackTimer(BASE_ATTACK, creature->GetFloatValue(UNIT_FIELD_BASEATTACKTIME));
+            }
+        }
+    }
+
+    void Register()
+    {
+        OnEffectLaunch += SpellEffectFn(spell_helix_oaf_smash::HandleLaunch, EFFECT_0, SPELL_EFFECT_KNOCK_BACK);
+    }
+};
+
+class spell_helix_helix_ride : public AuraScript
+{
+    PrepareAuraScript(spell_helix_helix_ride);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_helix_helix_ride::AfterApply, EFFECT_0, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_helix_ride_face_targeting : public SpellScript
+{
+    PrepareSpellScript(spell_helix_ride_face_targeting);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HELIX_RIDE,
+                SPELL_HELIX_RIDE_FACE_TIMER_AURA
+            });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Unit* caster = GetCaster();
+        targets.remove_if([caster](WorldObject const* obj)->bool
+        {
+            Unit const* target = obj->ToUnit();
+            return !target || !target->HasAura(SPELL_HELIX_RIDE);
+        });
+
+        // Make sure that we will always leap to a different player if available
+        if (targets.size() > 1)
+        {
+            targets.remove_if([caster](WorldObject const* obj)->bool
+            {
+                Unit const* target = obj->ToUnit();
+                return target->GetVehicleBase();
+            });
+        }
+
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Unit* target = GetHitUnit())
+        {
+            caster->getThreatManager().resetAllAggro();
+            caster->CastSpell(caster, SPELL_HELIX_RIDE_FACE_TIMER_AURA);
+            caster->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_helix_ride_face_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_helix_ride_face_targeting::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_helix_helix_ride_face_timer_aura : public AuraScript
+{
+    PrepareAuraScript(spell_helix_helix_ride_face_timer_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_RIDE_VEHICLE_OAF,
+                SPELL_CHEST_BOMB,
+                SPELL_HELIX_CHEST_BOMB_EMOTE
+            });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        InstanceScript* instance = target->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (target->GetMap()->IsHeroic())
+        {
+            if (Unit* player = target->GetVehicleBase())
+            {
+                target->CastSpell(player, SPELL_CHEST_BOMB);
+                target->CastSpell(player, SPELL_HELIX_CHEST_BOMB_EMOTE);
+            }
+        }
+
+        Creature* oaf = instance->GetCreature(DATA_LUMBERING_OAF);
+        // Lumbering oaf is dead when the last face riding expires. Continue with phase two behaivior and leap straight up to the next player
+        if (!oaf || oaf->isDead())
+            target->CastSpell(target, SPELL_RIDE_FACE_TARGETING);
+        else
+            target->CastSpell(oaf, SPELL_RIDE_VEHICLE_OAF);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_helix_helix_ride_face_timer_aura::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_helix_chest_bomb_emote : public SpellScript
+{
+    PrepareSpellScript(spell_helix_chest_bomb_emote);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Creature* creature = caster->ToCreature())
+                if (creature->IsAIEnabled)
+                    creature->AI()->Talk(SAY_ANNOUNCE_CHEST_BOMB, GetHitUnit());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_helix_chest_bomb_emote::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_helix_chest_bomb : public AuraScript
+{
+    PrepareAuraScript(spell_helix_chest_bomb);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CHEST_BOMB_DAMAGE });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* owner = GetOwner()->ToUnit())
+            owner->CastSpell(owner, SPELL_CHEST_BOMB_DAMAGE);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_helix_chest_bomb::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 void AddSC_boss_helix_gearbreaker()
 {
-    new boss_helix_gearbreaker();
-    new npc_helix_lumbering_oaf();
-    new npc_helix_sticky_bomb();
-    new npc_helix_crew();
-    new spell_helix_throw_bomb_targeting();
-    new spell_helix_sticky_bomb_periodic_trigger();
-    new spell_helix_explode();
-    new spell_helix_oaf_grab_targeting();
-    new spell_helix_force_player_to_ride_oaf();
-    new spell_helix_oaf_smash();
-    new spell_helix_ride_face_targeting();
-    new spell_helix_ride_vehicle();
-    new spell_helix_ride_face_timer_aura();
-    new spell_helix_chest_bomb_emote();
-    new spell_helix_chest_bomb();
+    RegisterDeadminesCreatureAI(boss_helix_gearbreaker);
+    RegisterDeadminesCreatureAI(npc_helix_lumbering_oaf);
+    RegisterDeadminesCreatureAI(npc_helix_sticky_bomb);
+    RegisterDeadminesCreatureAI(npc_helix_crew);
+    RegisterSpellScript(spell_helix_throw_bomb_targeting);
+    RegisterAuraScript(spell_helix_sticky_bomb_periodic_trigger);
+    RegisterSpellScript(spell_helix_oaf_grab_targeting);
+    RegisterSpellScript(spell_helix_force_player_to_ride_oaf);
+    RegisterSpellScript(spell_helix_oaf_smash);
+    RegisterAuraScript(spell_helix_helix_ride);
+    RegisterSpellScript(spell_helix_ride_face_targeting);
+    RegisterAuraScript(spell_helix_helix_ride_face_timer_aura);
+    RegisterSpellScript(spell_helix_chest_bomb_emote);
+    RegisterAuraScript(spell_helix_chest_bomb);
 }
