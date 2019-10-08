@@ -4056,9 +4056,9 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     Unit::BuildCreateUpdateBlockForPlayer(data, target);
 }
 
-void Player::DestroyForPlayer(Player* target) const
+void Player::DestroyForPlayer(Player* target, bool onDeath /*= false*/) const
 {
-    Unit::DestroyForPlayer(target);
+    Unit::DestroyForPlayer(target, onDeath);
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
@@ -5656,7 +5656,7 @@ inline int SkillGainChance(uint32 SkillValue, uint32 GrayLevel, uint32 GreenLeve
         return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREY) * 10;
     if (SkillValue >= GreenLevel)
         return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREEN)* 10;
-    if (SkillValue >= YellowLevel) 
+    if (SkillValue >= YellowLevel)
         return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_YELLOW) * 10;
     return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE) * 10;
 }
