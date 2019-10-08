@@ -972,3 +972,27 @@ void WorldSession::SendPetAdded(int32 petSlot, int32 petNumber, int32 creatureID
 
     SendPacket(&data);
 }
+
+void WorldSession::HandleRequestPetInfoOpcode(WorldPacket& /*recvData*/)
+{
+    /* Handle the packet CMSG_REQUEST_PET_INFO - Send when player has a pet, and does /reload
+     * From: https://github.com/TrinityCore/TrinityCore/commit/6ebe1afeeccb847702c12e522bddaa7b5694dc38#comments
+     * This packet is also sent when
+     *     You're controlling a vehicle (Player::VehicleSpellInitialize)
+     *     You have a unit charmed (Player::CharmSpellInitialize)
+     *     You're possessing a unit (Player::PossessSpellInitialize)
+     */
+
+    if (_player->GetPet() && _player->CanControlPet())
+        _player->PetSpellInitialize();
+
+    if (Unit* charm = _player->GetCharm())
+    {
+        if (charm->HasUnitState(UNIT_STATE_POSSESSED))
+            _player->PossessSpellInitialize();
+        else if (charm->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+            _player->VehicleSpellInitialize();
+        else
+            _player->CharmSpellInitialize();
+    }
+}
