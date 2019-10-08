@@ -839,7 +839,7 @@ enum TrinityStrings
     LANG_ACCOUNT_BNET_LIST_NO_ACCOUNTS  = 1035, // master branch ONLY
     LANG_ACCOUNT_BNET_LINKED            = 1036,
     LANG_ACCOUNT_OR_BNET_DOES_NOT_EXIST = 1037,
-    LANG_ACCOUNT_ALREADY_LINKED         = 1036,
+    LANG_ACCOUNT_ALREADY_LINKED         = 1038,
     LANG_ACCOUNT_BNET_UNLINKED          = 1039,
     LANG_ACCOUNT_BNET_NOT_LINKED        = 1040,
     // Room for more level 4              1041-1099 not used
