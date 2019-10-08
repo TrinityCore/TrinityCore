@@ -13,6 +13,7 @@ INSERT INTO `command` (`name`, `permission`, `help`) VALUES
 ('bnetaccount gameaccountcreate', 216, 'Syntax: .bnetaccount gameaccountcreate $account\nCreate additional game account for specified battle.net account.');
 
 DELETE FROM `trinity_string` WHERE `entry` BETWEEN 1185 AND 1189;
+DELETE FROM `trinity_string` WHERE `entry` BETWEEN 1036 AND 1040;
 INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
 (1036, 'Battle.net account %s was linked with game account %s.'),
 (1037, 'Battle.net account %s or game account %s does not exist.'),
