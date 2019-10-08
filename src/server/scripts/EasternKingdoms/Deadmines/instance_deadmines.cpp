@@ -28,7 +28,8 @@
 
 enum EventIds
 {
-    EVENT_SUMMON_CAPTAIN_COOKIE = 1,
+    EVENT_SPAWN_GOBLIN_EVENT = 1,
+    EVENT_SUMMON_CAPTAIN_COOKIE,
     EVENT_SUMMON_NOTE_FROM_VANESSA,
     EVENT_CAST_NIGHTMARE_AURA_1,
     EVENT_CAST_NIGHTMARE_AURA_2,
@@ -110,7 +111,8 @@ DoorData const doorData[] =
 enum SpawnGroups
 {
     SPAWN_GROUP_ALLIANCE_ENTRANCE   = 409,
-    SPAWN_GROUP_HORDE_ENTRANCE      = 410
+    SPAWN_GROUP_HORDE_ENTRANCE      = 410,
+    SPAWN_GROUP_GOBLIN_EVENT        = 411
 };
 
 class instance_deadmines : public InstanceMapScript
@@ -129,6 +131,7 @@ class instance_deadmines : public InstanceMapScript
                 _teamInInstance = 0;
                 _foeReaper5000Intro = 0;
                 _ironCladDoorState = 0;
+                _goblinEventState = 0;
                 _vanessaVanCleefEncounterState = 0;
                 _activatedVentCounter = 0;
                 _deadEnragedWorgen = 0;
@@ -589,6 +592,14 @@ class instance_deadmines : public InstanceMapScript
                         }
                         break;
                     }
+                    case DATA_GOBLIN_EVENT:
+                        if (_goblinEventState != DONE)
+                        {
+                            events.ScheduleEvent(EVENT_SPAWN_GOBLIN_EVENT, 2s + 500ms);
+                            _goblinEventState = DONE;
+                            SaveToDB();
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -617,6 +628,9 @@ class instance_deadmines : public InstanceMapScript
                 {
                     switch (eventId)
                     {
+                        case EVENT_SPAWN_GOBLIN_EVENT:
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_GOBLIN_EVENT);
+                            break;
                         case EVENT_SUMMON_CAPTAIN_COOKIE:
                             if (Creature* cookie = instance->SummonCreature(BOSS_CAPTAIN_COOKIE, captainCookieSpawnPos))
                             {
@@ -875,12 +889,14 @@ class instance_deadmines : public InstanceMapScript
 
             void WriteSaveDataMore(std::ostringstream& data) override
             {
-                data << _foeReaper5000Intro << ' '
+                data << _goblinEventState << ' '
+                    << _foeReaper5000Intro << ' '
                     << _ironCladDoorState;
             }
 
             void ReadSaveDataMore(std::istringstream& data) override
             {
+                data >> _goblinEventState;
                 data >> _foeReaper5000Intro;
                 data >> _ironCladDoorState;
             }
@@ -896,6 +912,7 @@ class instance_deadmines : public InstanceMapScript
             EventMap events;
             uint8 _activatedVentCounter;
             uint8 _deadEnragedWorgen;
+            uint8 _goblinEventState;
             uint32 _teamInInstance;
             uint32 _foeReaper5000Intro;
             uint32 _ironCladDoorState;
