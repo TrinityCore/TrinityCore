@@ -237,7 +237,8 @@ struct boss_helix_gearbreaker : public BossAI
                 me->RemoveAurasDueToSpell(SPELL_OAFGUARD);
 
                 events.SetPhase(PHASE_2);
-                events.ScheduleEvent(EVENT_SUMMON_HELIX_CREW, 3s, 0, PHASE_2);
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_SUMMON_HELIX_CREW, 3s, 0, PHASE_2);
                 if (!me->GetVehicleBase())
                     events.ScheduleEvent(EVENT_RIDE_FACE, 2s + 500ms, 0, PHASE_2);
                 break;
