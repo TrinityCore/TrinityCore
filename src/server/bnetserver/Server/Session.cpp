@@ -71,7 +71,7 @@ void Battlenet::GameAccountInfo::LoadResult(Field* fields)
 
 Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket)), _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
     _os(), _build(0), _ipCountry(), I(), s(), v(), b(), B(), K(),
-    _reconnectProof(), _crypt(), _authed(false), _subscribedToRealmListUpdates(false)
+    _reconnectProof(), _crypt(), _authed(false), _subscribedToRealmListUpdates(false), _toonOnline(false)
 {
     static uint8 const N_Bytes[] =
     {
@@ -472,7 +472,7 @@ void Battlenet::Session::HandleJoinRequestV2(WoWRealm::JoinRequestV2 const& join
 {
     WoWRealm::JoinResponseV2* joinResponse = new WoWRealm::JoinResponseV2();
     Realm const* realm = sBNetRealmList->GetRealm(joinRequest.Realm);
-    if (!realm || realm->Flags & (REALM_FLAG_VERSION_MISMATCH | REALM_FLAG_OFFLINE))
+    if (!realm || realm->Flags & (REALM_FLAG_VERSION_MISMATCH | REALM_FLAG_OFFLINE) || realm->Build != _build)
     {
         joinResponse->Response = WoWRealm::JoinResponseV2::FAILURE;
         AsyncWrite(joinResponse);

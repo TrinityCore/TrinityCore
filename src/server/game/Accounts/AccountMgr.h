@@ -29,7 +29,8 @@ enum class AccountOpResult : uint8
     AOR_EMAIL_TOO_LONG,
     AOR_NAME_ALREADY_EXIST,
     AOR_NAME_NOT_EXIST,
-    AOR_DB_INTERNAL_ERROR
+    AOR_DB_INTERNAL_ERROR,
+    AOR_ACCOUNT_BAD_LINK
 };
 
 enum PasswordChangeSecurity
@@ -58,7 +59,7 @@ class TC_GAME_API AccountMgr
     public:
         static AccountMgr* instance();
 
-        AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "");
+        AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "", uint32 bnetAccountId = 0, uint8 bnetIndex = 0);
         static AccountOpResult DeleteAccount(uint32 accountId);
         static AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
         static AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);

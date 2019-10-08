@@ -63,9 +63,18 @@ void WorldListener::Run()
 
 void WorldListener::HandleOpen()
 {
-    _worldSocket->bind(std::string("tcp://*:") + std::to_string(_worldListenPort));
+    try
+    {
+        _worldSocket->bind(std::string("tcp://*:") + std::to_string(_worldListenPort));
+    }
+    catch (zmqpp::zmq_internal_exception& ex)
+    {
+        TC_LOG_FATAL("server.ipc", "Could not bind to WorldserverListenPort %u. Exception: %s. Shutting down bnetserver.", _worldListenPort, ex.what());
+        abort();
+    }
+
     _poller->add(*_worldSocket);
-    TC_LOG_INFO("server.ipc", "Listening on connections from worldservers...");
+    TC_LOG_INFO("server.ipc", "Listening on connections from worldservers on port %u...", _worldListenPort);
 }
 
 void WorldListener::HandleClose()
@@ -97,13 +106,19 @@ void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& r
     {
         if (online)
         {
-            Battlenet::WoWRealm::ToonReady* toonReady = new Battlenet::WoWRealm::ToonReady();
-            toonReady->Realm = realm;
-            toonReady->Guid = toonHandle.Guid;
-            toonReady->Name = toonHandle.Name;
-            session->AsyncWrite(toonReady);
+            if (!session->IsToonOnline())
+            {
+                Battlenet::WoWRealm::ToonReady* toonReady = new Battlenet::WoWRealm::ToonReady();
+                toonReady->Realm = realm;
+                toonReady->Guid = toonHandle.Guid;
+                toonReady->Name = toonHandle.Name;
+                session->AsyncWrite(toonReady);
+            }
         }
-        else
+        else if (session->IsToonOnline())
+        {
             session->AsyncWrite(new Battlenet::WoWRealm::ToonLoggedOut());
+            session->SetToonOnline(false);
+        }
     }
 }

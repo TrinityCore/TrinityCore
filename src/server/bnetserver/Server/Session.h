@@ -121,6 +121,9 @@ namespace Battlenet
         uint32 GetAccountId() const { return _accountInfo->Id; }
         uint32 GetGameAccountId() const { return _gameAccountInfo->Id; }
 
+        bool IsToonOnline() const { return _toonOnline; }
+        void SetToonOnline(bool online) { _toonOnline = online; }
+
         bool IsSubscribedToRealmListUpdates() const { return _subscribedToRealmListUpdates; }
 
         void AsyncWrite(ServerPacket* packet);
@@ -185,6 +188,7 @@ namespace Battlenet
         PacketCrypt _crypt;
         bool _authed;
         bool _subscribedToRealmListUpdates;
+        bool _toonOnline;
 
         QueryCallbackProcessor _queryProcessor;
     };
