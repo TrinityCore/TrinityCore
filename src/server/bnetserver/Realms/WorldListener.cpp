@@ -97,13 +97,16 @@ void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& r
     {
         if (online)
         {
-            Battlenet::WoWRealm::ToonReady* toonReady = new Battlenet::WoWRealm::ToonReady();
-            toonReady->Realm = realm;
-            toonReady->Guid = toonHandle.Guid;
-            toonReady->Name = toonHandle.Name;
-            session->AsyncWrite(toonReady);
+            if (!session->IsToonOnline())
+            {
+                Battlenet::WoWRealm::ToonReady* toonReady = new Battlenet::WoWRealm::ToonReady();
+                toonReady->Realm = realm;
+                toonReady->Guid = toonHandle.Guid;
+                toonReady->Name = toonHandle.Name;
+                session->AsyncWrite(toonReady);
+            }
         }
-        else
+        else if (session->IsToonOnline())
             session->AsyncWrite(new Battlenet::WoWRealm::ToonLoggedOut());
     }
 }

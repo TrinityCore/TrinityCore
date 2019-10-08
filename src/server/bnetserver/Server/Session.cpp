@@ -71,7 +71,7 @@ void Battlenet::GameAccountInfo::LoadResult(Field* fields)
 
 Battlenet::Session::Session(tcp::socket&& socket) : Socket(std::move(socket)), _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
     _os(), _build(0), _ipCountry(), I(), s(), v(), b(), B(), K(),
-    _reconnectProof(), _crypt(), _authed(false), _subscribedToRealmListUpdates(false)
+    _reconnectProof(), _crypt(), _authed(false), _subscribedToRealmListUpdates(false), _toonOnline(false)
 {
     static uint8 const N_Bytes[] =
     {
