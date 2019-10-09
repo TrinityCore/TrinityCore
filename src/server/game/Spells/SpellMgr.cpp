@@ -5545,7 +5545,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Earth Shield
-    ApplySpellFix({ 378 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({ 379 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
     });

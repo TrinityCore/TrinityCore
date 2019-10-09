@@ -334,9 +334,9 @@ class spell_sha_earth_shield : public AuraScript
         {
             Unit* target = GetTarget();
             int32 bp = aurEff->GetAmount();
-
-            bp = caster->SpellHealingBonusDone(target, GetSpellInfo(), bp, HEAL, aurEff->GetEffIndex());
+            bp = caster->SpellHealingBonusDone(target, GetSpellInfo(), bp, HEAL, EFFECT_0);
             bp = target->SpellHealingBonusTaken(caster, GetSpellInfo(), bp, HEAL);
+
             if (AuraEffect const* glyphEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_GLYPH_OF_EARTH_SHIELD, EFFECT_0))
                 AddPct(bp, glyphEff->GetAmount());
 
