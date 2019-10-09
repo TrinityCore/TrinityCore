@@ -145,6 +145,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
     if (!active)
         return;
 
+    uint32 taxiNodeId = owner->m_taxi.GetTaxiDestination();
     owner->m_taxi.ClearTaxiDestinations();
     owner->Dismount();
     owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_TAXI_FLIGHT);
@@ -155,10 +156,13 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
         // this prevent cheating with landing point at lags
         // when client side flight end early in comparison server side
         owner->StopMoving();
-        float mapHeight = owner->GetMap()->GetHeight(_path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, _path[GetCurrentNode()]->LocZ);
-        owner->SetFallInformation(0, mapHeight);
-        // When the player reaches the last flight point, teleport to destination at map height
-        owner->TeleportTo(_path[GetCurrentNode()]->MapID, _path[GetCurrentNode()]->LocX, _path[GetCurrentNode()]->LocY, mapHeight, owner->GetOrientation());
+
+        // When the player reaches the last flight point, teleport to destination taxi node location
+        if (TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(taxiNodeId))
+        {
+            owner->SetFallInformation(0, node->z);
+            owner->TeleportTo(node->map_id, node->x, node->y, node->z, owner->GetOrientation());
+        }
     }
 
     owner->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
