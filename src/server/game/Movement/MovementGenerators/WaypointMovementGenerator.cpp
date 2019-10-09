@@ -29,7 +29,7 @@
 #include "Transport.h"
 #include "WaypointManager.h"
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true)
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _transitionPointId(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -37,7 +37,7 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bo
     BaseUnitState = UNIT_STATE_ROAMING;
 }
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _nextMoveTime(0), _pathId(0), _repeating(repeating), _loadedFromDB(false)
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _nextMoveTime(0), _transitionPointId(0), _pathId(0), _repeating(repeating), _loadedFromDB(false)
 {
     _path = &path;
 
@@ -167,8 +167,8 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
         RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
     }
 
-    // if it's moving
-    if (!owner->movespline->Finalized())
+    // if it's moving or hasn't reached its real final waypoint spline point yet
+    if (owner->movespline->currentPathIdx() < _transitionPointId)
     {
         // set home position at place (every MotionMaster::UpdateMotion)
         if (!owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) || owner->GetTransGUID().IsEmpty())
@@ -355,8 +355,29 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     init.MoveTo(waypoint.x, waypoint.y, waypoint.z);
 
     //! Accepts angles such as 0.00001 and -0.00001, 0 must be ignored, default value in waypoint table
-    if (waypoint.orientation && waypoint.delay)
+    if (waypoint.orientation > 0.f && waypoint.delay)
         init.SetFacing(waypoint.orientation);
+    else
+    {
+        // Smoothing out waypoint transition
+        uint32 nextNodeId = (_currentNode + 1) % _path->nodes.size();
+        WaypointNode const& nextWaypoint = _path->nodes[nextNodeId];
+
+        // We are going to build a path that consists of the default path + the first point of the next waypoint path
+        _transitionPointId = init.Path().size() - 1;
+
+        // Relocate the owner serverside so we can get the path from our next waypoint to our 2nd next one
+        Position const originalPos = owner->GetPosition();
+        owner->Relocate(nextWaypoint.x, nextWaypoint.y, nextWaypoint.z);
+
+        // Now we are going to pick the first actual spline vertex and add it to out current path
+        Movement::MoveSplineInit smoothInit(owner);
+        smoothInit.MoveTo(nextWaypoint.x, nextWaypoint.y, nextWaypoint.z);
+        init.Path().push_back(smoothInit.Path().at(1)); // 0 is going to be normalized as starting vertex, we want the real one, so we go with 1
+
+        // Everything is done and in place, so time to put our owner serverside position back to it's original place
+        owner->Relocate(originalPos);
+    }
 
     switch (waypoint.moveType)
     {
