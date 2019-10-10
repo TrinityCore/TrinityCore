@@ -25,94 +25,71 @@
 #include "GameObject.h"
 #include "Vehicle.h"
 
-enum DefiasWatcherSpells
+enum DefiasWatcher
 {
     SPELL_ON_FIRE           = 91737,
     SPELL_EXPLOSIVE_SUICIDE = 91738,
-    SPELL_ENERGIZE          = 89132
+    SPELL_ENERGIZE          = 89132,
+    SPELL_CLEAVE            = 90980,
+
+    FACTION_CONTROLLABLE    = 1816,
+
+    EVENT_CLEAVE            = 1
 };
 
-enum DefiasWatcherFaction
+struct npc_deadmines_defias_watcher : public ScriptedAI
 {
-    FACTION_CONTROLABLE     = 1816
-};
+    npc_deadmines_defias_watcher(Creature* creature) : ScriptedAI(creature), _isOnFire(false) { }
 
-class npc_deadmines_defias_watcher : public CreatureScript
-{
-    public:
-        npc_deadmines_defias_watcher() : CreatureScript("npc_deadmines_defias_watcher") { }
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_CLEAVE, 3s + 500ms);
+    }
 
-        struct npc_deadmines_defias_watcherAI : public ScriptedAI
+    void Reset() override
+    {
+        me->SetFullHealth();
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage) override
+    {
+        if (!_isOnFire, me->HealthBelowPctDamaged(30, damage))
         {
-            npc_deadmines_defias_watcherAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _suicideStarted = false;
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-            }
-
-            void Reset() override
-            {
-                me->SetHealth(me->GetMaxHealth());
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                if (!_suicideStarted)
-                    DoCastAOE(SPELL_ENERGIZE, true);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                if (me->GetHealthPct() <= 30.0f && !_suicideStarted)
-                {
-                    DoCastSelf(SPELL_ON_FIRE, true);
-                    DoCastAOE(SPELL_ENERGIZE, true);
-                    me->AttackStop();
-                    me->SetReactState(REACT_PASSIVE);
-                    me->SetFaction(FACTION_CONTROLABLE);
-                    me->setRegeneratingHealth(false);
-                    _events.Reset();
-                    _suicideStarted = true;
-                }
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case 0:
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-            bool _suicideStarted;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetDeadminesAI<npc_deadmines_defias_watcherAI>(creature);
+            me->DeleteThreatList();
+            me->CombatStop();
+            me->SetFaction(FACTION_CONTROLLABLE);
+            DoCastSelf(SPELL_ON_FIRE);
+            DoCastAOE(SPELL_ENERGIZE);
+            me->setRegeneratingHealth(false);
+            _isOnFire = true;
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    _events.Repeat(4s, 5s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    bool _isOnFire;
+    EventMap _events;
 };
 
 enum VanessasTrapBunny
@@ -577,36 +554,24 @@ class go_deadmines_defias_cannon : public GameObjectScript
         }
 };
 
-class spell_deadmines_on_fire : public SpellScriptLoader
+class spell_deadmines_on_fire : public AuraScript
 {
-    public:
-        spell_deadmines_on_fire() : SpellScriptLoader("spell_deadmines_on_fire") { }
+    PrepareAuraScript(spell_deadmines_on_fire);
 
-        class spell_deadmines_on_fire_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_deadmines_on_fire_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EXPLOSIVE_SUICIDE });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_EXPLOSIVE_SUICIDE });
-            }
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_EXPLOSIVE_SUICIDE, true);
+    }
 
-            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* owner = GetOwner()->ToUnit())
-                    owner->CastSpell(owner, SPELL_EXPLOSIVE_SUICIDE, true);
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_deadmines_on_fire_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE_PERCENT, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_deadmines_on_fire_AuraScript();
-        }
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_deadmines_on_fire::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE_PERCENT, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 class spell_deadmines_ride_magma_vehicle : public SpellScriptLoader
@@ -695,13 +660,13 @@ class spell_deadmines_bloodbath : public SpellScriptLoader
 
 void AddSC_deadmines()
 {
-    new npc_deadmines_defias_watcher();
+    RegisterDeadminesCreatureAI(npc_deadmines_defias_watcher);
     new npc_deadmines_vanessas_trap_bunny();
     new npc_deadmines_steam_valve();
     new npc_deadmines_vanessa_van_cleef_nightmare();
     new npc_deadmines_helix_nightmare();
     new go_deadmines_defias_cannon();
-    new spell_deadmines_on_fire();
+    RegisterAuraScript(spell_deadmines_on_fire);
     new spell_deadmines_ride_magma_vehicle();
     new spell_deadmines_magma_trap_throw_to_location();
     new spell_deadmines_bloodbath();
