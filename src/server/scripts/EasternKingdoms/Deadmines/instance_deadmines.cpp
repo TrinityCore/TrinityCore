@@ -144,7 +144,7 @@ class instance_deadmines : public InstanceMapScript
             void OnPlayerEnter(Player* player) override
             {
                 instance->LoadGrid(-205.75f, -579.09f);
-                if (!_teamInInstance)
+                if (!_teamInInstance && !instance->IsHeroic())
                 {
                     _teamInInstance = player->GetTeam();
                     instance->SpawnGroupSpawn(_teamInInstance == ALLIANCE ? SPAWN_GROUP_ALLIANCE_ENTRANCE : SPAWN_GROUP_HORDE_ENTRANCE);
