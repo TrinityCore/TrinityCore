@@ -233,11 +233,13 @@ void KillRewarder::_RewardGroup()
             // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
             for (GroupReference* itr = _group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
-                // Killer may not be at reward distance, check directly
                 if (Player* member = itr->GetSource())
                 {
+                    // Killer may not be at reward distance, check directly
                     if (_killer == member || member->IsAtGroupRewardDistance(_victim))
+                    {
                         _RewardPlayer(member, isDungeon);
+                    }
                 }
             }
         }
