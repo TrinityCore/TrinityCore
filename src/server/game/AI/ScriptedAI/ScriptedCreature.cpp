@@ -517,6 +517,16 @@ void BossAI::TeleportCheaters()
     }
 }
 
+void BossAI::ForceStopCombatForCreature(uint32 entry, float maxSearchRange /*= 250.0f*/)
+{
+    TC_LOG_WARN("scripts.ai", "BossAI::ForceStopCombatForCreature: called on '%s' with creature entry '%u'. This should be fixed in another way than calling this function. Debug info: %s", me->GetName().c_str(), entry, me->GetDebugInfo().c_str());
+    std::list<Creature*> creatures;
+    me->GetCreatureListWithEntryInGrid(creatures, entry, maxSearchRange);
+
+    for (Creature* creature : creatures)
+        creature->CombatStop();
+}
+
 void BossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
