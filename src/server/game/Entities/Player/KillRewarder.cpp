@@ -244,7 +244,6 @@ void KillRewarder::_RewardGroup()
                     if (_killer == member || member->IsAtGroupRewardDistance(_victim))
                     {
                         _RewardPlayer(member, isDungeon);
-                        member->UpdateCriteria(CriteriaType::KillPlayer, 1, 0, 0, _victim);
                     }
                 }
             }

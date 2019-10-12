@@ -6628,6 +6628,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateCriteria(CriteriaType::DeliverKillingBlowToRace, victim->GetRace());
             UpdateCriteria(CriteriaType::PVPKillInArea, GetAreaId());
             UpdateCriteria(CriteriaType::EarnHonorableKill, 1, 0, 0, victim);
+            UpdateCriteria(CriteriaType::KillPlayer, 1, 0, 0, victim);
         }
         else
         {
