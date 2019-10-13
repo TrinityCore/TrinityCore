@@ -5629,6 +5629,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                 if (spellInfo->SpellIconID == 2721 && spellInfo->SpellFamilyFlags[0] & 0x2)
                     spellInfo->SpellFamilyFlags[0] |= 0x40;
                 break;
+            case SPELLFAMILY_SHAMAN:
+                // Nature's Blessing should also affect Greater Healing Wave and Riptide
+                if (spellInfo->SpellIconID == 2012 && spellInfo->HasAura(SPELL_AURA_DUMMY))
+                    spellInfo->Effects[EFFECT_0].SpellClassMask[2] = (0x00000010 | 0x00010000);
+                break;
+            default:
+                break;
         }
     }
 

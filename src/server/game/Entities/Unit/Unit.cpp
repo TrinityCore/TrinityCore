@@ -7467,6 +7467,21 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
         }
     }
 
+    // Custom scripted damage
+    switch (spellProto->SpellFamilyName)
+    {
+        case SPELLFAMILY_SHAMAN:
+        {
+            // Nature's Blessing
+            if (AuraEffect const* blessing = GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2012, EFFECT_0))
+                if (blessing->IsAffectingSpell(spellProto) && victim->HasAura(974, GetGUID()))
+                    AddPct(DoneTotalMod, blessing->GetAmount());
+            break;
+        }
+        default:
+            break;
+    }
+
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
     // modify spell power by victim's SPELL_AURA_MOD_HEALING auras (eg Amplify/Dampen Magic)
