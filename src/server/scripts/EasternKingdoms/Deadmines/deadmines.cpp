@@ -53,7 +53,7 @@ struct npc_deadmines_defias_watcher : public ScriptedAI
 
     void DamageTaken(Unit* attacker, uint32& damage) override
     {
-        if (!_isOnFire, me->HealthBelowPctDamaged(30, damage))
+        if (!_isOnFire && me->HealthBelowPctDamaged(30, damage))
         {
             me->DeleteThreatList();
             me->CombatStop();
