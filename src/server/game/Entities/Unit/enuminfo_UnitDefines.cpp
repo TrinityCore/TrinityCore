@@ -48,7 +48,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_PVP: return { "UNIT_FLAG_PVP", "UNIT_FLAG_PVP", "changed in 3.0.3" };
         case UNIT_FLAG_SILENCED: return { "UNIT_FLAG_SILENCED", "UNIT_FLAG_SILENCED", "silenced, 2.1.1" };
         case UNIT_FLAG_CANNOT_SWIM: return { "UNIT_FLAG_CANNOT_SWIM", "UNIT_FLAG_CANNOT_SWIM", "2.0.8" };
-        case UNIT_FLAG_UNK_15: return { "UNIT_FLAG_UNK_15", "UNIT_FLAG_UNK_15", "" };
+        case UNIT_FLAG_SWIMMING: return { "UNIT_FLAG_SWIMMING", "UNIT_FLAG_SWIMMING", "shows swim animation in water" };
         case UNIT_FLAG_NON_ATTACKABLE_2: return { "UNIT_FLAG_NON_ATTACKABLE_2", "UNIT_FLAG_NON_ATTACKABLE_2", "removes attackable icon, if on yourself, cannot assist self but can cast TARGET_SELF spells - added by SPELL_AURA_MOD_UNATTACKABLE" };
         case UNIT_FLAG_PACIFIED: return { "UNIT_FLAG_PACIFIED", "UNIT_FLAG_PACIFIED", "3.0.3 ok" };
         case UNIT_FLAG_STUNNED: return { "UNIT_FLAG_STUNNED", "UNIT_FLAG_STUNNED", "3.0.3 ok" };
@@ -92,7 +92,7 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
         case 12: return UNIT_FLAG_PVP;
         case 13: return UNIT_FLAG_SILENCED;
         case 14: return UNIT_FLAG_CANNOT_SWIM;
-        case 15: return UNIT_FLAG_UNK_15;
+        case 15: return UNIT_FLAG_SWIMMING;
         case 16: return UNIT_FLAG_NON_ATTACKABLE_2;
         case 17: return UNIT_FLAG_PACIFIED;
         case 18: return UNIT_FLAG_STUNNED;
