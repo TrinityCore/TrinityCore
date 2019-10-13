@@ -72,7 +72,7 @@ enum Events
 
 const float WEB_WRAP_MOVE_SPEED = 20.0f;
 
-struct WebTargetSelector : public std::unary_function<Unit*, bool>
+struct WebTargetSelector
 {
     WebTargetSelector(Unit* maexxna) : _maexxna(maexxna) {}
     bool operator()(Unit const* target) const

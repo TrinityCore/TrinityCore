@@ -197,7 +197,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
         }
 };
 
-struct ManaUserTargetSelector : public std::unary_function<Unit*, bool>
+struct ManaUserTargetSelector
 {
     bool operator()(Unit const* target) const
     {
