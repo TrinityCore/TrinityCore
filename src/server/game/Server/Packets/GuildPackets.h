@@ -434,6 +434,42 @@ namespace WorldPackets
             std::vector<GuildRewardItem> RewardItems;
             int32 Version = 0;
         };
+
+        class GuildChallengeUpdateRequest final : public ClientPacket
+        {
+        public:
+            GuildChallengeUpdateRequest(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_REQUEST_CHALLENGE_UPDATE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class GuildChallengeUpdate final : public ServerPacket
+        {
+        public:
+            GuildChallengeUpdate() : ServerPacket(SMSG_GUILD_CHALLENGE_UPDATE, 80) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Xp[MAX_GUILD_CHALLENGE_TYPES];
+            int32 CurrentCount[MAX_GUILD_CHALLENGE_TYPES];
+            int32 MaxCount[MAX_GUILD_CHALLENGE_TYPES];
+            int32 Gold[MAX_GUILD_CHALLENGE_TYPES];
+            int32 MaxLevelGold[MAX_GUILD_CHALLENGE_TYPES];
+        };
+
+        class GuildChallengeCompleted final : public ServerPacket
+        {
+        public:
+            GuildChallengeCompleted() : ServerPacket(SMSG_GUILD_CHALLENGE_COMPLETED, 20) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MaxCount = 0;
+            int32 ChallengeType = 0;
+            int32 GoldAwarded = 0;
+            int32 XpAwarded = 0;
+            int32 CurrentCount = 0;
+        };
     }
 }
 

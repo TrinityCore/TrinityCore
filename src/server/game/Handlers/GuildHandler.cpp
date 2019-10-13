@@ -591,7 +591,7 @@ void WorldSession::HandleGuildRequestPartyState(WorldPacket& recvPacket)
         guild->HandleGuildPartyRequest(this);
 }
 
-void WorldSession::HandleGuildRequestChallengeUpdate(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildRequestChallengeUpdate(WorldPackets::Guild::GuildChallengeUpdateRequest& /*packet*/)
 {
     if (Guild* guild = _player->GetGuild())
         guild->HandleGuildRequestChallengeUpdate(this);
@@ -926,60 +926,3 @@ void WorldSession::HandleGuildQueryMemberRecipe(WorldPackets::Guild::GuildQueryM
         if (guild->IsMember(_player->GetGUID()) && guild->IsMember(packet.GuildMember))
             guild->SendRecipesOfMember(_player, packet.SkillLineID, packet.GuildMember);
 }
-
-/*
-void WorldSession::HandleGuildChallengeRequest(WorldPacket& recvPacket)
-{
-    uint8 counter = 4;
-
-    if (Guild* pGuild = GetPlayer()->GetGuild())
-    {
-        if (Guild::ChallengesMgr* challengesMgr = pGuild->GetChallengesMgr())
-        {
-            // First check if it's time to reset the challenges.
-            time_t thisTime = time(nullptr);
-            if (pGuild->GetChallengesMgr()->CompletedFirstChallenge(pGuild->GetId()) && pGuild->GetChallengesMgr()->GetFirstCompletedChallengeTime(pGuild->GetId()) + WEEK <= thisTime)
-                pGuild->GetChallengesMgr()->ResetWeeklyChallenges();
-
-            WorldPacket data(SMSG_GUILD_CHALLENGE_UPDATED, 5 * 4 * 4);
-
-            //Guild Experience Reward block
-
-            data << uint32(0);                                                                      //in the block its always 1
-            data << challengesMgr->GetXPRewardForType(CHALLENGE_TYPE_DUNGEON);                      //dungeon
-            data << challengesMgr->GetXPRewardForType(CHALLENGE_TYPE_RAID);                         //raid
-            data << challengesMgr->GetXPRewardForType(CHALLENGE_TYPE_RATEDBG);                      //rated BG
-
-            //Gold Bonus block
-            data << uint32(0);                                                                      //in the block its always 1
-            data << challengesMgr->GetGoldBonusForType(CHALLENGE_TYPE_DUNGEON);                     //dungeon
-            data << challengesMgr->GetGoldBonusForType(CHALLENGE_TYPE_RAID);                        //raid
-            data << challengesMgr->GetGoldBonusForType(CHALLENGE_TYPE_RATEDBG);                     //rated BG
-
-            //Total Count block
-
-            data << uint32(0);                                                                      //in the block its always 1
-            data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_DUNGEON);                        //dungeon
-            data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_RAID);                           //raid
-            data << challengesMgr->GetTotalCountFor(CHALLENGE_TYPE_RATEDBG);                        //rated BG
-
-            //Completion Gold Reward block
-
-            data << uint32(0);                                                                      //in the block its always 1
-            data << challengesMgr->GetGoldRewardForType(CHALLENGE_TYPE_DUNGEON);                    //dungeon
-            data << challengesMgr->GetGoldRewardForType(CHALLENGE_TYPE_RAID);                       //raid
-            data << challengesMgr->GetGoldRewardForType(CHALLENGE_TYPE_RATEDBG);                    //rated BG
-
-            //Current Count block
-
-            data << uint32(0);                                                                      //in the block its always 1
-            data << challengesMgr->GetCurrentCountFor(CHALLENGE_TYPE_DUNGEON);                      //dungeon
-            data << challengesMgr->GetCurrentCountFor(CHALLENGE_TYPE_RAID);                         //raid
-            data << challengesMgr->GetCurrentCountFor(CHALLENGE_TYPE_RATEDBG);                      //rated BG
-
-            SendPacket(&data);
-        }
-        return;
-    }
-}
-*/

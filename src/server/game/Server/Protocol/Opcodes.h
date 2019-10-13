@@ -833,7 +833,7 @@ enum OpcodeServer
     SMSG_GUILD_BANK_QUERY_TEXT_RESULT                 = 0x75A3,
     SMSG_GUILD_CANCEL                                 = 0x0000,
     SMSG_GUILD_CHALLENGE_COMPLETED                    = 0x39A3,
-    SMSG_GUILD_CHALLENGE_UPDATED                      = 0x18B1,
+    SMSG_GUILD_CHALLENGE_UPDATE                       = 0x18B1,
     SMSG_GUILD_CHANGE_NAME_RESULT                     = 0x3CB1,
     SMSG_GUILD_COMMAND_RESULT                         = 0x7DB3,
     SMSG_GUILD_COMMAND_RESULT_2                       = 0x2707,

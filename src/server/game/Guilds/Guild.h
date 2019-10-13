@@ -276,7 +276,7 @@ enum GuildChallengeTypes
     GUILD_CHALLENGE_TYPE_DUNGEON    = 1,
     GUILD_CHALLENGE_TYPE_RAID       = 2,
     GUILD_CHALLENGE_TYPE_RATED_BG   = 3,
-    MAX_GUILD_CHALLENGE_TYPE,
+    MAX_GUILD_CHALLENGE_TYPES
 };
 
 // Emblem info
@@ -898,6 +898,8 @@ public:
     void SendMembersForRecipe(Player const* player, uint32 skillLineId, uint32 spellId, uint32 uniqueBit);
     void SendRecipesOfMember(Player const* player, uint32 skillLineId, ObjectGuid memberGuid);
 
+    void InitializeGuildChallengeRewards();
+
 protected:
     ObjectGuid::LowType m_id;
     std::string m_name;
@@ -924,8 +926,11 @@ protected:
     uint64 _experience;
     uint64 _todayExperience;
 
-    uint8 _currChallengeCount[MAX_GUILD_CHALLENGE_TYPE];
-
+    uint32 _currChallengeCount[MAX_GUILD_CHALLENGE_TYPES];
+    uint32 _maxChallengeCount[MAX_GUILD_CHALLENGE_TYPES];
+    uint32 _challengeGold[MAX_GUILD_CHALLENGE_TYPES];
+    uint32 _challengeGoldMaxLevel[MAX_GUILD_CHALLENGE_TYPES];
+    uint32 _challengeXp[MAX_GUILD_CHALLENGE_TYPES];
 
 private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }

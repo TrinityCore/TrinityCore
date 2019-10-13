@@ -41,6 +41,15 @@ struct GuildProfession
     bool AutoLearn;
 };
 
+struct GuildChallenge
+{
+    int32 ChallengeType;
+    int32 ChallengeCount;
+    int32 Experience;
+    int32 Gold;
+    int32 GoldMaxLevel;
+};
+
 class TC_GAME_API GuildMgr
 {
 private:
@@ -61,6 +70,7 @@ public:
     void LoadGuildXpForLevel();
     void LoadGuildRewards();
     void LoadGuildProfessionData();
+    void LoadGuildChallenges();
 
     void LoadGuilds();
     void AddGuild(Guild* guild);
@@ -73,6 +83,7 @@ public:
     uint32 GetXPForGuildLevel(uint8 level) const;
     std::vector<GuildReward> const& GetGuildRewards() const { return GuildRewards; }
     std::vector<GuildProfession> const& GetGuildProfessionData(uint32 skillId) { return GuildProfessionStore[skillId]; }
+    std::vector<GuildChallenge> const& GetGuildChallengeData() const { return GuildChallenges; }
 
     void ResetTimes(bool week);
 protected:
@@ -83,6 +94,7 @@ protected:
     GuildProfessionMap GuildProfessionStore;
     std::vector<uint64> GuildXPperLevel;
     std::vector<GuildReward> GuildRewards;
+    std::vector<GuildChallenge> GuildChallenges;
 };
 
 #define sGuildMgr GuildMgr::instance()

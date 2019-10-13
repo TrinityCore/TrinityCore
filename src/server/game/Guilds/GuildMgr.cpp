@@ -596,6 +596,44 @@ void GuildMgr::LoadGuildProfessionData()
     }
 }
 
+void GuildMgr::LoadGuildChallenges()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0              1               2           3     4
+    QueryResult result = WorldDatabase.Query("SELECT ChallengeType, ChallengeCount, Experience, Gold, GoldMaxLevel FROM guild_challenges");
+
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 guild challenge definitions. DB table `guild_challenges` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        GuildChallenge challenge;
+        Field* fields = result->Fetch();
+        challenge.ChallengeType = fields[0].GetInt32();
+        challenge.ChallengeCount = fields[1].GetInt32();
+        challenge.Experience = fields[2].GetInt32();
+        challenge.Gold = fields[3].GetInt32();
+        challenge.GoldMaxLevel = fields[4].GetInt32();
+
+        if (challenge.ChallengeType >= MAX_GUILD_CHALLENGE_TYPES)
+        {
+            TC_LOG_ERROR("server.loading", "Guild challenge type %u is invalid. Skipped.", challenge.ChallengeType);
+            continue;
+        }
+
+        GuildChallenges.push_back(challenge);
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u guild challenge definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void GuildMgr::ResetTimes(bool week)
 {
     CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_RESET_TODAY_EXPERIENCE));

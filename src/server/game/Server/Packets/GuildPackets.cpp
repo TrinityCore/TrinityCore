@@ -524,3 +524,34 @@ WorldPacket const* WorldPackets::Guild::GuildRewardList::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Guild::GuildChallengeUpdate::Write()
+{
+    for (uint8 i = 0; i < MAX_GUILD_CHALLENGE_TYPES; i++)
+        _worldPacket << int32(Xp[i]);
+
+    for (uint8 i = 0; i < MAX_GUILD_CHALLENGE_TYPES; i++)
+        _worldPacket << int32(MaxLevelGold[i]);
+
+    for (uint8 i = 0; i < MAX_GUILD_CHALLENGE_TYPES; i++)
+        _worldPacket << int32(MaxCount[i]);
+
+    for (uint8 i = 0; i < MAX_GUILD_CHALLENGE_TYPES; i++)
+        _worldPacket << int32(Gold[i]);
+
+    for (uint8 i = 0; i < MAX_GUILD_CHALLENGE_TYPES; i++)
+        _worldPacket << int32(CurrentCount[i]);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildChallengeCompleted::Write()
+{
+    _worldPacket << int32(ChallengeType);
+    _worldPacket << int32(GoldAwarded);
+    _worldPacket << int32(CurrentCount);
+    _worldPacket << int32(XpAwarded);
+    _worldPacket << int32(MaxCount);
+
+    return &_worldPacket;
+}

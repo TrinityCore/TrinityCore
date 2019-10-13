@@ -121,6 +121,7 @@ namespace WorldPackets
         class GuildQueryRecipes;
         class GuildQueryMembersForRecipe;
         class GuildQueryMemberRecipes;
+        class GuildChallengeUpdateRequest;
         class RequestGuildRewardsList;
     }
 }
@@ -741,12 +742,11 @@ class TC_GAME_API WorldSession
         void HandleGuildAchievementMembers(WorldPacket& recvPacket);
         void HandleGuildSwitchRank(WorldPacket& recvPacket);
         void HandleGuildRenameRequest(WorldPacket& recvPacket);
-        void HandleGuildChallengeRequest(WorldPacket& recvPacket);
         void SendGuildCancelInvite(std::string unkString, uint8 unkByte);
         void HandleGuildRenameCallback(std::string newName, PreparedQueryResult result);
         void HandleAutoDeclineGuildInvites(WorldPacket& recvPacket);
         void HandleGuildSwitchRankOpcode(WorldPacket& recvPacket);
-        void HandleGuildRequestChallengeUpdate(WorldPacket& recvPacket);
+        void HandleGuildRequestChallengeUpdate(WorldPackets::Guild::GuildChallengeUpdateRequest& packet);
         void HandleGuildXPQueryOpcode(WorldPackets::Guild::GuildXPQuery& packet);
 
         // Guild Finder
