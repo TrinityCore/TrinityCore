@@ -169,7 +169,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
     public:
         KelThuzadCharmedPlayerAI(Player* player) : SimpleCharmedPlayerAI(player) { }
 
-        struct CharmedPlayerTargetSelectPred : public std::unary_function<Unit*, bool>
+        struct CharmedPlayerTargetSelectPred
         {
             bool operator()(Unit const* target) const
             {
@@ -198,7 +198,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
         }
 };
 
-struct ManaUserTargetSelector : public std::unary_function<Unit*, bool>
+struct ManaUserTargetSelector
 {
     bool operator()(Unit const* target) const
     {
