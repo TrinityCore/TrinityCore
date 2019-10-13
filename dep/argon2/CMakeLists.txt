@@ -9,8 +9,10 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 file(GLOB_RECURSE sources *.c)
-add_library(argon2 STATIC
-${sources})
+
+add_library(argon2 STATIC ${sources})
+
+set_target_properties(argon2 PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(argon2
 PUBLIC
