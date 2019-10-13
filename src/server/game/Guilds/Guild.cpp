@@ -3912,7 +3912,7 @@ void Guild::CompleteChallenge(uint8 challengeType, Player* source)
     SaveToDB(); // Save xp
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    _ModifyBankMoney(trans, uint64(gold * 100), true);
+    _ModifyBankMoney(trans, uint64(gold * 10000), true);
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_CHALLENGE);
     stmt->setUInt32(0, _currChallengeCount[GUILD_CHALLENGE_TYPE_DUNGEON]);
