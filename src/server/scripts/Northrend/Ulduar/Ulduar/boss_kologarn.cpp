@@ -151,6 +151,7 @@ class boss_kologarn : public CreatureScript
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning.
+                ForceStopCombatForCreature(NPC_ARM_SWEEP_STALKER, 500.f);
                 _JustDied();
             }
 
@@ -211,6 +212,7 @@ class boss_kologarn : public CreatureScript
 
             void JustSummoned(Creature* summon) override
             {
+                BossAI::JustSummoned(summon);
                 switch (summon->GetEntry())
                 {
                     case NPC_FOCUSED_EYEBEAM:
@@ -360,7 +362,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
 };
 
 // predicate function to select non main tank target
-class StoneGripTargetSelector : public std::unary_function<Unit*, bool>
+class StoneGripTargetSelector
 {
     public:
         StoneGripTargetSelector(Creature* me, Unit const* victim) : _me(me), _victim(victim) { }
