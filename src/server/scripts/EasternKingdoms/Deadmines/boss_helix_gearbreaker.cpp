@@ -800,8 +800,6 @@ class spell_helix_helix_ride_face_timer_aura : public AuraScript
             target->CastSpell(target, SPELL_RIDE_FACE_TARGETING);
         else
             target->CastSpell(oaf, SPELL_RIDE_VEHICLE_OAF);
-
-        target->CastSpell(target, SPELL_HELIX_RIDE);
     }
 
     void Register() override
