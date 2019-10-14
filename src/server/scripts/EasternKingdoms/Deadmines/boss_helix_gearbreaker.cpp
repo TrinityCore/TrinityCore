@@ -233,7 +233,6 @@ struct boss_helix_gearbreaker : public BossAI
             case NPC_LUMBERING_OAF:
                 Talk(SAY_OAF_DEAD);
                 DoCastSelf(SPELL_EMOTE_TALK);
-                me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAurasDueToSpell(SPELL_OAFGUARD);
 
                 events.SetPhase(PHASE_2);
@@ -801,6 +800,8 @@ class spell_helix_helix_ride_face_timer_aura : public AuraScript
             target->CastSpell(target, SPELL_RIDE_FACE_TARGETING);
         else
             target->CastSpell(oaf, SPELL_RIDE_VEHICLE_OAF);
+
+        target->CastSpell(target, SPELL_HELIX_RIDE);
     }
 
     void Register() override
@@ -848,6 +849,22 @@ class spell_helix_chest_bomb : public AuraScript
     }
 };
 
+class spell_helix_ride_vehicle : public AuraScript
+{
+    PrepareAuraScript(spell_helix_ride_vehicle);
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_helix_ride_vehicle::AfterRemove, EFFECT_0, SPELL_AURA_CONTROL_VEHICLE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+
 void AddSC_boss_helix_gearbreaker()
 {
     RegisterDeadminesCreatureAI(boss_helix_gearbreaker);
@@ -864,4 +881,5 @@ void AddSC_boss_helix_gearbreaker()
     RegisterAuraScript(spell_helix_helix_ride_face_timer_aura);
     RegisterSpellScript(spell_helix_chest_bomb_emote);
     RegisterAuraScript(spell_helix_chest_bomb);
+    RegisterAuraScript(spell_helix_ride_vehicle);
 }
