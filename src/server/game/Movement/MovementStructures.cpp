@@ -5435,7 +5435,7 @@ MovementStatusElements const MoveUpdateFlightBackSpeed[] =
     MSEHasTransportGuidByte7,
     MSEHasTransportGuidByte6,
     MSEHasTransportGuidByte0,
-    MSEOneBit, // has_transport_time 
+    MSEOneBit, // has_transport_time
     MSEHasTransportGuidByte2,
     MSEHasTransportGuidByte3,
     MSEHasTransportGuidByte5,
@@ -5704,7 +5704,7 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return MovementStopSwim;
         case MSG_MOVE_STOP_TURN:
             return MovementStopTurn;
-        case SMSG_PLAYER_MOVE:
+        case SMSG_MOVE_UPDATE:
             return PlayerMove;
         case CMSG_MOVE_CHNG_TRANSPORT:
             return MoveChngTransport;

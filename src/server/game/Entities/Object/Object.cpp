@@ -174,7 +174,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         return;
 
     uint8  updateType = m_isNewObject ? UPDATETYPE_CREATE_OBJECT2 : UPDATETYPE_CREATE_OBJECT;
-    uint16 flags      = m_updateFlag;
+    uint32 flags      = m_updateFlag;
 
     /** lower flag1 **/
     if (target == this)                                      // building packet for yourself
@@ -194,8 +194,13 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     }
 
     if (Unit const* unit = ToUnit())
+    {
         if (unit->GetVictim())
             flags |= UPDATEFLAG_HAS_TARGET;
+
+        if (unit->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+            flags |= UPDATEFLAG_PLAY_HOVER_ANIM;
+    }
 
     ByteBuffer buf(500);
     buf << uint8(updateType);
@@ -312,7 +317,7 @@ ObjectGuid Object::GetGuidValue(uint16 index) const
     return *((ObjectGuid*)&(m_uint32Values[index]));
 }
 
-void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
+void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 {
     Unit const* self = nullptr;
     ObjectGuid guid = GetGUID();
@@ -329,10 +334,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     bool hasAIAnimKit = false;
     bool hasMovementAnimKit = false;
     bool hasMeleeAnimKit = false;
-    bool hasHoverAnim = false;
-
-    if (Unit const* unit = ToUnit())
-        hasHoverAnim = unit->HasUnitMovementFlag(MOVEMENTFLAG_HOVER);
 
     uint32 stopFrameCount = 0;
     if (GameObject const* go = ToGameObject())
@@ -340,8 +341,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             stopFrameCount = go->GetGOValue()->Transport.StopFrames->size();
 
     // Bit content
-    data->WriteBit(hasHoverAnim);
-    data->WriteBit(0);
+    data->WriteBit(flags & UPDATEFLAG_PLAY_HOVER_ANIM);
+    data->WriteBit(flags & UPDATEFLAG_SUPPRESSED_GREETINGS);
     data->WriteBit(flags & UPDATEFLAG_ROTATION);
     data->WriteBit(flags & UPDATEFLAG_ANIMKITS);
     data->WriteBit(flags & UPDATEFLAG_HAS_TARGET);
@@ -349,11 +350,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     data->WriteBit(flags & UPDATEFLAG_VEHICLE);
     data->WriteBit(flags & UPDATEFLAG_LIVING);
     data->WriteBits(stopFrameCount, 24);
-    data->WriteBit(0);
+    data->WriteBit(flags & UPDATEFLAG_NO_BIRTH_ANIM);
     data->WriteBit(flags & UPDATEFLAG_GO_TRANSPORT_POSITION);
     data->WriteBit(flags & UPDATEFLAG_STATIONARY_POSITION);
-    data->WriteBit(flags & UPDATEFLAG_UNK5);
-    data->WriteBit(0);
+    data->WriteBit(flags & UPDATEFLAG_AREATRIGGER);
+    data->WriteBit(flags & UPDATEFLAG_ENABLE_PORTALS);
     data->WriteBit(flags & UPDATEFLAG_TRANSPORT);
 
     if (flags & UPDATEFLAG_LIVING)
@@ -373,7 +374,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (GetTypeId() == TYPEID_UNIT)
             movementFlags &= MOVEMENTFLAG_MASK_CREATURE_ALLOWED;
 
-        data->WriteBit(!movementFlags);
+        data->WriteBit(!movementFlags);                                         // !Has MoveFlags0
         data->WriteBit(G3D::fuzzyEq(self->GetOrientation(), 0.0f));             // Has Orientation
         data->WriteBit(guid[7]);
         data->WriteBit(guid[3]);
@@ -382,24 +383,24 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             data->WriteBits(movementFlags, 30);
 
         data->WriteBit(hasSpline && GetTypeId() == TYPEID_PLAYER);              // Has spline (from MovementInfo)
-        data->WriteBit(!hasPitch);                                              // Has pitch
+        data->WriteBit(!hasPitch);                                              // !Has pitch
         data->WriteBit(hasSpline);                                              // Has spline data (independent)
         data->WriteBit(hasFallData);                                            // Has fall data
-        data->WriteBit(!hasSplineElevation);                                    // Has spline elevation
+        data->WriteBit(!hasSplineElevation);                                    // !Has spline elevation
         data->WriteBit(guid[5]);
         data->WriteBit(self->m_movementInfo.transport.guid);                    // Has transport data
-        data->WriteBit(0);                                                      // Is missing time
+        data->WriteBit(0);                                                      // !HasTime
 
         if (self->m_movementInfo.transport.guid)
         {
             ObjectGuid transGuid = self->m_movementInfo.transport.guid;
 
             data->WriteBit(transGuid[1]);
-            data->WriteBit(hasTransportTime2);                             // Has transport time 2
+            data->WriteBit(hasTransportTime2);                             // Has PrevMoveTime
             data->WriteBit(transGuid[4]);
             data->WriteBit(transGuid[0]);
             data->WriteBit(transGuid[6]);
-            data->WriteBit(hasVehicleId);                                  // Has transport time 3
+            data->WriteBit(hasVehicleId);                                  // Has VehicleRecID
             data->WriteBit(transGuid[7]);
             data->WriteBit(transGuid[5]);
             data->WriteBit(transGuid[3]);
@@ -417,8 +418,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
         data->WriteBit(guid[0]);
         data->WriteBit(guid[1]);
-        data->WriteBit(0);
-        data->WriteBit(!movementFlagsExtra);
+        data->WriteBit(0);                                                      // HeightChangeFailed
+        data->WriteBit(!movementFlagsExtra);                                    // !Has MoveFlags1
         if (movementFlagsExtra)
             data->WriteBits(movementFlagsExtra, 12);
     }
@@ -586,8 +587,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (flags & UPDATEFLAG_ROTATION)
         *data << uint64(ToGameObject()->GetPackedLocalRotation());
 
-    if (flags & UPDATEFLAG_UNK5)
+    if (flags & UPDATEFLAG_AREATRIGGER)
     {
+        // client doesn't use these values, so unk
         *data << float(0.0f);
         *data << float(0.0f);
         *data << float(0.0f);

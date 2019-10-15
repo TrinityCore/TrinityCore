@@ -422,7 +422,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     mover->UpdatePosition(movementInfo.pos);
 
-    WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
+    WorldPacket data(SMSG_MOVE_UPDATE, recvPacket.size());
     mover->WriteMovementInfo(data);
     mover->SendMessageToSet(&data, _player);
 
