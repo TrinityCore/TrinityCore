@@ -161,12 +161,12 @@ class boss_forgemaster_throngus : public CreatureScript
                 {
                     case ACTION_PICK_WEAPON:
                     {
-                        uint8 selectedWeapon = RAND(WEAPON_PERSONAL_PHALANX, WEAPON_MACE);
+                        uint8 selectedWeapon = urand(WEAPON_PERSONAL_PHALANX, WEAPON_MACE);
                         // Make sure that we will never get the same weapon twice in a row
                         if (_lastWeapon == selectedWeapon && selectedWeapon < WEAPON_MACE)
                             selectedWeapon += 1;
                         else if (_lastWeapon == selectedWeapon && selectedWeapon == WEAPON_MACE)
-                            selectedWeapon = RAND(WEAPON_PERSONAL_PHALANX, WEAPON_DUAL_BLADES);
+                            selectedWeapon = urand(WEAPON_PERSONAL_PHALANX, WEAPON_DUAL_BLADES);
 
                         _lastWeapon = selectedWeapon;
                         switch (selectedWeapon)
