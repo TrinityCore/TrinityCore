@@ -33,6 +33,19 @@ RandomMovementGenerator<Creature>::~RandomMovementGenerator()
     delete _path;
 }
 
+void RandomMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
+{
+    _stalled = timer ? false : true;
+    _timer.Reset(timer ? timer : 1);
+}
+
+void RandomMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
+{
+    _stalled = false;
+    if (overrideTimer)
+        _timer.Reset(overrideTimer);
+}
+
 template<class T>
 void RandomMovementGenerator<T>::DoInitialize(T*) { }
 
@@ -130,7 +143,7 @@ bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
     if (!owner || !owner->IsAlive())
         return false;
 
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || _stalled)
     {
         _interrupt = true;
         owner->StopMoving();

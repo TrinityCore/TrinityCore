@@ -27,10 +27,13 @@ template<class T>
 class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
 {
     public:
-        explicit RandomMovementGenerator(float distance = 0.0f) : _path(nullptr), _timer(0), _reference(), _wanderDistance(distance), _interrupt(false) { }
+        explicit RandomMovementGenerator(float distance = 0.0f) : _path(nullptr), _timer(0), _reference(), _wanderDistance(distance), _interrupt(false), _stalled(false){ }
         ~RandomMovementGenerator();
 
         MovementGeneratorType GetMovementGeneratorType() const override { return RANDOM_MOTION_TYPE; }
+
+        void Pause(uint32 timer = 0) override;
+        void Resume(uint32 overrideTimer = 0) override;
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -45,6 +48,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
         Position _reference;
         float _wanderDistance;
         bool _interrupt;
+        bool _stalled;
 };
 
 #endif
