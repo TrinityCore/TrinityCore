@@ -83,7 +83,7 @@ bool MovementGeneratorComparator::operator()(MovementGenerator const* a, Movemen
 
 MovementGeneratorInformation::MovementGeneratorInformation(MovementGeneratorType type, ObjectGuid targetGUID, std::string const& targetName) : Type(type), TargetGUID(targetGUID), TargetName(targetName) { }
 
-MotionMaster::MotionMaster(Unit* unit) : _owner(unit), _defaultGenerator(nullptr), _flags(MOTIONMASTER_FLAG_NONE) { }
+MotionMaster::MotionMaster(Unit* unit) : _owner(unit), _defaultGenerator(nullptr), _flags(MOTIONMASTER_FLAG_NONE), _defaultInitialized(false) { }
 
 MotionMaster::~MotionMaster()
 {
@@ -110,6 +110,7 @@ void MotionMaster::Initialize()
 
 void MotionMaster::InitializeDefault()
 {
+    _defaultInitialized = true;
     Add(FactorySelector::SelectMovementGenerator(_owner), MOTION_SLOT_DEFAULT);
 }
 
@@ -322,7 +323,7 @@ void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION
         return;
     }
 
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_UPDATE) || !_defaultInitialized)
     {
         DelayedActionDefine action = [this, movement, slot]()
         {
