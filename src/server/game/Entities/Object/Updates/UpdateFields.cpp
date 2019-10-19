@@ -121,7 +121,6 @@ void ArtifactPower::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag>
 
 void ArtifactPower::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << int16(ArtifactPowerID);
     data << uint8(PurchasedRank);
     data << uint8(CurrentRankWithBonus);
@@ -513,7 +512,6 @@ void UnlockedAzeriteEssence::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateF
 
 void UnlockedAzeriteEssence::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << uint32(AzeriteEssenceID);
     data << uint32(Rank);
 }
@@ -705,7 +703,6 @@ void UnitChannel::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> f
 
 void UnitChannel::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << int32(SpellID);
     data << int32(SpellXSpellVisualID);
 }
@@ -756,7 +753,6 @@ void PassiveSpellHistory::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFiel
 
 void PassiveSpellHistory::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << int32(SpellID);
     data << int32(AuraSpellID);
 }
@@ -2307,7 +2303,6 @@ void CharacterRestriction::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFie
 
 void CharacterRestriction::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << int32(Field_0);
     data << int32(Field_4);
     data << int32(Field_8);
@@ -2324,7 +2319,6 @@ void SpellPctModByLabel::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateField
 
 void SpellPctModByLabel::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << int32(ModIndex);
     data << float(ModifierValue);
     data << int32(LabelID);
@@ -2339,7 +2333,6 @@ void SpellFlatModByLabel::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFiel
 
 void SpellFlatModByLabel::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << int32(ModIndex);
     data << int32(ModifierValue);
     data << int32(LabelID);
@@ -2352,7 +2345,6 @@ void Research::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fiel
 
 void Research::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << int16(ResearchProjectID);
 }
 
@@ -3827,17 +3819,18 @@ void ScaleCurve::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fi
 void ScaleCurve::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
 {
     UpdateMask<7> const& changesMask = _changesMask;
-    data.WriteBits(changesMask.GetBlocksMask(0), 1);
-    if (changesMask.GetBlock(0))
-        data.WriteBits(changesMask.GetBlock(0), 32);
+    data.WriteBits(changesMask.GetBlock(0), 7);
 
     if (changesMask[0])
     {
         if (changesMask[1])
         {
             data.WriteBit(OverrideActive);
-    data.FlushBits();
         }
+    }
+    data.FlushBits();
+    if (changesMask[0])
+    {
         if (changesMask[2])
         {
             data << uint32(StartTimeOffset);
@@ -4022,7 +4015,6 @@ void ConversationLine::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFl
 
 void ConversationLine::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << int32(ConversationLineID);
     data << uint32(StartTime);
     data << int32(UiCameraID);
@@ -4042,7 +4034,6 @@ void ConversationActor::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldF
 
 void ConversationActor::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const
 {
-    data.FlushBits();
     data << uint32(CreatureID);
     data << uint32(CreatureDisplayInfoID);
     data << ActorGUID;
