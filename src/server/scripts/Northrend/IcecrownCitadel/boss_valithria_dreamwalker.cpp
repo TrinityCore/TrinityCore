@@ -157,7 +157,7 @@ enum Misc
 
 Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};
 
-struct ManaVoidSelector : public std::unary_function<Unit*, bool>
+struct ManaVoidSelector
 {
         explicit ManaVoidSelector(WorldObject const* source) : _source(source) { }
 
