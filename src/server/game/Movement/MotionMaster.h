@@ -218,6 +218,7 @@ class TC_GAME_API MotionMaster
         MotionMasterUnitStatesContainer _baseUnitStatesMap;
         std::deque<DelayedAction> _delayedActions;
         uint8 _flags;
+        bool _defaultInitialized;
 };
 
 #endif // MOTIONMASTER_H
