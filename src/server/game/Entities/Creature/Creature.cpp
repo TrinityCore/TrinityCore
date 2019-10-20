@@ -3166,6 +3166,7 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     _spellFocusInfo.Spell = focusSpell;
 
     bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+
     // set target, then force send update packet to players if it changed to provide appropriate facing
     ObjectGuid newTarget = target ? target->GetGUID() : ObjectGuid::Empty;
     if (GetGuidValue(UNIT_FIELD_TARGET) != newTarget)
@@ -3209,7 +3210,7 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
 
 bool Creature::HasSpellFocus(Spell const* focusSpell) const
 {
-    if (isDead()) // dead creatures cannot focus
+    if (isDead() || !IsAlive()) // dead creatures cannot focus
     {
         if (_spellFocusInfo.Spell || _spellFocusInfo.Delay)
         {
@@ -3371,8 +3372,12 @@ void Creature::AtDisengage()
     Unit::AtDisengage();
 
     ClearUnitState(UNIT_STATE_ATTACK_PLAYER);
-    if (IsAlive() && HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
-        SetUInt32Value(UNIT_DYNAMIC_FLAGS, GetCreatureTemplate()->dynamicflags);
+    if (IsAlive())
+    {
+        if (HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED))
+            SetUInt32Value(UNIT_DYNAMIC_FLAGS, GetCreatureTemplate()->dynamicflags);
+        SetGuidValue(UNIT_FIELD_TARGET, ObjectGuid::Empty);
+    }
 
     if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
     {

@@ -29,7 +29,8 @@ enum NPCs
     NPC_WAVES_INVOKER               = 100017,
     NPC_THERAMORE_MEDIC             = 100033,
     NPC_WOUNDED_THERAMORE_GUARD     = 100037,
-    NPC_WOUNDED_DUMMY               = 100018
+    NPC_WOUNDED_DUMMY               = 100018,
+    NPC_DOCTOR_HELAINA              = 100014
 };
 
 enum Misc

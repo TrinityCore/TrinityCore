@@ -150,10 +150,12 @@ class theramore_waves_invoker : public CreatureScript
             wavesInvoker = WAVE_01;
         }
 
-        void SetData(uint32 id, uint32 /*value*/) override
+        void SetData(uint32 id, uint32 value) override
         {
             if (id == EVENT_START_WAR)
             {
+                wavesInvoker = value == 2 ? WAVE_10 : WAVE_01;
+
                 jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 20.f);
                 thalen = GetClosestCreatureWithEntry(me, NPC_THALEN_SONGWEAVER, 20.f);
                 kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS_DRAGON, 2000.f);

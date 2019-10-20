@@ -265,6 +265,7 @@ class npc_jaina_theramore : public CreatureScript
                     tervosh = SearchOrRespawn(NPC_ARCHMAGE_TERVOSH);
                     kinndy = SearchOrRespawn(NPC_KINNDY_SPARKSHINE);
                     aden = SearchOrRespawn(NPC_LIEUTENANT_ADEN);
+                    rhonin = GetClosestCreatureWithEntry(me, NPC_RHONIN, 2000.f);
 
                     me->SetPhaseMask(3, true);
                     tervosh->SetPhaseMask(3, true);
@@ -274,6 +275,8 @@ class npc_jaina_theramore : public CreatureScript
                     kinndy->NearTeleportTo(-3637.63f, -4408.91f, 9.79f, 4.84f);
                     kinndy->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CRY);
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+
+                    rhonin->SetVisible(false);
 
                     std::vector<GameObject*> fires;
                     GetGameObjectListWithEntryInGrid(fires, me, GOB_FIRE_THERAMORE, 5000.f);
@@ -879,6 +882,7 @@ class npc_jaina_theramore : public CreatureScript
                                 case 4902:
                                 case 6732:
                                 case 100025:
+                                case 100026:
                                 case 100027:
                                 case 100028:
                                     civil->SetVisible(false);
@@ -1208,7 +1212,7 @@ class npc_jaina_theramore : public CreatureScript
                         {
                             events.SetPhase(PHASE_BATTLE);
                             if (Creature * waves = me->SummonCreature(NPC_WAVES_INVOKER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
-                                waves->AI()->SetData(1, 1);
+                                waves->AI()->SetData(1, !debug ? 1 : 2);
                             break;
                         }
 
@@ -1471,7 +1475,7 @@ class npc_jaina_theramore : public CreatureScript
             if (fireballTimer <= diff)
             {
                 DoCastVictim(SPELL_FIREBALL);
-                fireballTimer = 980;
+                fireballTimer = 880;
             }
             else fireballTimer -= diff;
 

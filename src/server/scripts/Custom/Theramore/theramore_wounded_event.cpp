@@ -8,11 +8,15 @@
 #include "MotionMaster.h"
 #include "theramore.h"
 
+constexpr int AMARA_PATH_SIZE = 24;
+constexpr int AMARA_REVERSE_PATH_SIZE = 7;
+constexpr int JAINA_OUTRO_PATH_SIZE = 19;
+
 enum Wounded
 {
     // Events
 	EVENT_START_TELEPORT	= 1,
-    EVENT_STRAT_AMARA       = 2,
+    EVENT_START_AMARA       = 2,
     
     SAY_TELEPORT_1          = 50,
     SAY_TELEPORT_2          = 51,
@@ -59,7 +63,69 @@ enum Wounded
 	EVENT_TELEPORT_26,
 	EVENT_TELEPORT_27,
 	EVENT_TELEPORT_28,
-	EVENT_TELEPORT_29
+	EVENT_TELEPORT_29,
+	EVENT_TELEPORT_30
+};
+
+const Position AmaraPath[AMARA_PATH_SIZE]
+{
+    { -3658.76f, -4520.87f, 9.71f, 2.55f },
+    { -3661.97f, -4519.87f, 9.85f, 3.14f },
+    { -3664.97f, -4519.89f, 9.99f, 3.14f },
+    { -3667.66f, -4519.76f, 10.02f, 2.99f },
+    { -3669.91f, -4519.01f, 9.99f, 2.45f },
+    { -3671.18f, -4517.12f, 10.01f, 1.91f },
+    { -3671.49f, -4514.76f, 10.08f, 1.50f },
+    { -3671.18f, -4512.43f, 10.14f, 1.50f },
+    { -3671.00f, -4509.44f, 10.20f, 1.48f },
+    { -3670.68f, -4506.46f, 10.26f, 1.42f },
+    { -3670.24f, -4503.49f, 10.33f, 1.42f },
+    { -3669.99f, -4500.50f, 10.43f, 1.57f },
+    { -3670.19f, -4498.67f, 10.48f, 1.79f },
+    { -3671.51f, -4495.55f, 10.57f, 2.10f },
+    { -3672.28f, -4494.26f, 10.61f, 2.11f },
+    { -3673.88f, -4491.72f, 10.74f, 2.15f },
+    { -3675.52f, -4489.22f, 10.83f, 2.12f },
+    { -3677.06f, -4486.64f, 10.94f, 2.07f },
+    { -3678.38f, -4483.95f, 11.07f, 1.99f },
+    { -3679.55f, -4481.19f, 11.22f, 1.93f },
+    { -3680.46f, -4478.33f, 11.37f, 1.81f },
+    { -3680.63f, -4476.05f, 11.45f, 1.49f },
+    { -3679.94f, -4472.33f, 11.50f, 1.20f },
+    { -3678.00f, -4468.27f, 11.47f, 1.09f }
+};
+
+const Position AmaraReversePath[AMARA_REVERSE_PATH_SIZE]
+{
+    { -3682.65f, -4478.18f, 11.52f, 5.30f },
+    { -3680.38f, -4481.71f, 11.26f, 5.28f },
+    { -3675.82f, -4488.77f, 10.85f, 5.28f },
+    { -3671.61f, -4496.03f, 10.56f, 5.15f },
+    { -3668.61f, -4505.48f, 10.26f, 4.91f },
+    { -3668.04f, -4508.23f, 10.16f, 4.91f }
+};
+
+const Position JainaOutroPath[JAINA_OUTRO_PATH_SIZE]
+{
+    { -3665.92f, -4515.97f, 10.09f, 1.85f },
+    { -3680.00f, -4473.11f, 11.49f, 1.27f },
+    { -3680.50f, -4475.70f, 11.45f, 1.49f },
+    { -3680.43f, -4478.10f, 11.37f, 1.66f },
+    { -3679.93f, -4480.50f, 11.26f, 1.82f },
+    { -3678.53f, -4484.02f, 11.07f, 2.00f },
+    { -3677.87f, -4485.37f, 11.00f, 2.04f },
+    { -3676.34f, -4487.95f, 10.89f, 2.16f },
+    { -3674.57f, -4490.37f, 10.77f, 2.21f },
+    { -3672.76f, -4492.76f, 10.68f, 2.21f },
+    { -3671.06f, -4495.23f, 10.57f, 2.09f },
+    { -3670.15f, -4497.28f, 10.51f, 1.89f },
+    { -3669.90f, -4500.00f, 10.49f, 1.46f },
+    { -3670.35f, -4502.97f, 10.34f, 1.40f },
+    { -3670.78f, -4505.93f, 10.28f, 1.44f },
+    { -3670.66f, -4509.95f, 10.17f, 1.79f },
+    { -3670.04f, -4511.52f, 10.11f, 2.12f },
+    { -3668.00f, -4513.85f, 10.06f, 2.37f },
+    { -3665.84f, -4515.93f, 10.09f, 2.37f }
 };
 
 class theramore_wounded_event : public CreatureScript
@@ -84,6 +150,7 @@ class theramore_wounded_event : public CreatureScript
             switch (id)
             {
                 case EVENT_START_TELEPORT:
+                {
                     jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 20.f);
                     kalecgos = GetClosestCreatureWithEntry(me, NPC_KALECGOS, 2000.f);
                     rhonin = GetClosestCreatureWithEntry(me, NPC_RHONIN, 40.f);
@@ -93,11 +160,18 @@ class theramore_wounded_event : public CreatureScript
                     jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     jaina->SetSheath(SHEATH_STATE_UNARMED);
                     amara->SetSheath(SHEATH_STATE_UNARMED);
-                    rhonin->SetVisible(false);
+
+                    if (Creature * kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 40.f))
+                        kinndy->GetMotionMaster()->MovePoint(0, -3656.46f, -4516.56f, 9.46f, true, 0.42f);
+
+                    if (Creature* helaina = GetClosestCreatureWithEntry(me, NPC_DOCTOR_HELAINA, 40.f))
+                        helaina->GetMotionMaster()->MovePoint(0, -3651.05f, -4503.82f, 9.46, true, 5.67f);
+
                     events.ScheduleEvent(EVENT_TELEPORT_1, 1s);
                     break;
+                }
 
-                case EVENT_STRAT_AMARA:
+                case EVENT_START_AMARA:
                     jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 20.f);
                     rhonin = GetClosestCreatureWithEntry(me, NPC_RHONIN, 40.f);
                     amara = GetClosestCreatureWithEntry(me, NPC_AMARA_LEESON, 2000.f);
@@ -126,16 +200,16 @@ class theramore_wounded_event : public CreatureScript
 
                     case EVENT_TELEPORT_1:
                     {
-                        if (Creature * solider = jaina->FindNearestCreature(NPC_WOUNDED_THERAMORE_GUARD, 15.f))
+                        if (Creature * soldier = jaina->FindNearestCreature(NPC_WOUNDED_THERAMORE_GUARD, 15.f))
                         {
-                            float distanceToTravel = jaina->GetExactDist2d(solider->GetPosition()) - 1.5f;
-                            float angle = jaina->GetAbsoluteAngle(solider);
+                            float distanceToTravel = jaina->GetExactDist2d(soldier->GetPosition()) - 1.5f;
+                            float angle = jaina->GetAbsoluteAngle(soldier);
                             float destx = jaina->GetPositionX() + distanceToTravel * cosf(angle);
                             float desty = jaina->GetPositionY() + distanceToTravel * sinf(angle);
                             float time = (distanceToTravel / jaina->GetSpeed(MOVE_WALK)) * IN_MILLISECONDS;
 
-                            currentSoldier = solider;
-                            jaina->GetMotionMaster()->MovePoint(0, destx, desty, solider->GetPositionZ(), true, angle);
+                            currentSoldier = soldier;
+                            jaina->GetMotionMaster()->MovePoint(0, destx, desty, soldier->GetPositionZ(), true, angle);
                             events.ScheduleEvent(EVENT_TELEPORT_2, time + 500);
                         }
                         else
@@ -184,8 +258,6 @@ class theramore_wounded_event : public CreatureScript
                         break;
 
                     case EVENT_TELEPORT_8:
-                        if (Creature * kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 30.f))
-                            kinndy->SetFacingTo(3.17f);
                         jaina->AI()->Talk(SAY_TELEPORT_4);
                         jaina->SetFacingToObject(kalecgos);
                         events.ScheduleEvent(EVENT_TELEPORT_9, 3s);
@@ -223,28 +295,27 @@ class theramore_wounded_event : public CreatureScript
                         break;
 
                     case EVENT_TELEPORT_15:
-                        amara->CastSpell(amara, SPELL_SIMPLE_TELEPORT);
-                        events.ScheduleEvent(EVENT_TELEPORT_16, 1300);
+                        amara->GetMotionMaster()->MoveSmoothPath(0, AmaraPath, AMARA_PATH_SIZE, true);
+                        events.ScheduleEvent(EVENT_TELEPORT_16, 2s);
                         break;
 
                     case EVENT_TELEPORT_16:
-                        amara->CastSpell(amara, SPELL_TELEPORT);
                         jaina->SetFacingToObject(kalecgos);
-                        events.ScheduleEvent(EVENT_TELEPORT_17, 1500);
+                        events.ScheduleEvent(EVENT_TELEPORT_17, 2s);
                         break;
 
                     case EVENT_TELEPORT_17:
-                        amara->SetVisible(false);
                         jaina->AI()->Talk(SAY_TELEPORT_11);
                         events.ScheduleEvent(EVENT_TELEPORT_18, 2s);
                         break;
 
                     case EVENT_TELEPORT_18:
                         kalecgos->AI()->Talk(SAY_TELEPORT_12);
-                        events.ScheduleEvent(EVENT_TELEPORT_19, 8s);
+                        events.ScheduleEvent(EVENT_TELEPORT_19, 10s);
                         break;
 
                     case EVENT_TELEPORT_19:
+                        amara->SetVisible(false);
                         jaina->SetFacingTo(2.05f);
                         kalecgos->GetMotionMaster()->MovePoint(0, -3676.04f, -4487.67f, 10.88f, true, 2.15f);
                         events.ScheduleEvent(EVENT_TELEPORT_20, 5s);
@@ -264,14 +335,17 @@ class theramore_wounded_event : public CreatureScript
 
                     case EVENT_TELEPORT_21:
                         amara->SetVisible(true);
-                        amara->SetFacingToObject(jaina);
-                        jaina->SetFacingToObject(amara);
-                        events.ScheduleEvent(EVENT_TELEPORT_22, 1s);
+                        amara->GetMotionMaster()->Clear();
+                        amara->GetMotionMaster()->MoveIdle();
+                        amara->NearTeleportTo(AmaraReversePath[0]);
+                        amara->GetMotionMaster()->MoveSmoothPath(0, AmaraReversePath, AMARA_REVERSE_PATH_SIZE, false);
+                        events.ScheduleEvent(EVENT_TELEPORT_22, 6s);
                         break;
 
                     case EVENT_TELEPORT_22:
-                        amara->CastSpell(amara, SPELL_TELEPORT);
-                        events.ScheduleEvent(EVENT_TELEPORT_23, 2s);
+                        amara->SetFacingToObject(jaina);
+                        jaina->SetFacingToObject(amara);
+                        events.ScheduleEvent(EVENT_TELEPORT_23, 1s);
                         break;
 
                     case EVENT_TELEPORT_23:
@@ -295,19 +369,23 @@ class theramore_wounded_event : public CreatureScript
                         break;
 
                     case EVENT_TELEPORT_27:
-                        jaina->GetMotionMaster()->MovePoint(0, -3671.56f, -4495.92f, 10.56f);
-                        events.ScheduleEvent(EVENT_TELEPORT_28, 8s);
+                        jaina->GetMotionMaster()->MoveSmoothPath(0, JainaOutroPath, JAINA_OUTRO_PATH_SIZE, true);
+                        events.ScheduleEvent(EVENT_TELEPORT_28, 16s);
                         break;
 
                     case EVENT_TELEPORT_28:
                         jaina->SetVisible(false);
                         rhonin->SetVisible(true);
                         rhonin->NearTeleportTo(-3741.20f, -4452.27f, 64.99f, 5.71f);
-                        jaina->NearTeleportTo(-3747.51f, -4448.29f, 64.92f, 3.34f);
-                        events.ScheduleEvent(EVENT_TELEPORT_29, 5s);
+                        events.ScheduleEvent(EVENT_TELEPORT_29, 2s);
                         break;
 
                     case EVENT_TELEPORT_29:
+                        jaina->NearTeleportTo(-3747.51f, -4448.29f, 64.92f, 3.34f);
+                        events.ScheduleEvent(EVENT_TELEPORT_30, 1s);
+                        break;
+
+                    case EVENT_TELEPORT_30:
                         if (GameObject * portal = me->SummonGameObject(201797, -3749.90f, -4448.93f, 64.90f, 3.34f, QuaternionData(), 0))
                         {
                             portal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);

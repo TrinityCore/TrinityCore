@@ -18,7 +18,8 @@ enum Spells
     SPELL_MANA_POTION           = 100022,
     SPELL_HEALTH_POTION         = 100023,
     SPELL_SPIRIT_HEALER_VISUAL  = 70571,
-    SPELL_REJUVENATION          = 100024
+    SPELL_REJUVENATION          = 100024,
+    SPELL_DISPELL_CURSES        = 30281
 };
 
 enum Misc
@@ -117,6 +118,9 @@ class npc_priest : public CreatureScript
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
+
+            if (Unit * target = DoFindFriendlyUnitCC(30.f))
+                DoCast(target, SPELL_DISPELL_CURSES);
 
             while (uint32 eventId = events.ExecuteEvent())
             {
