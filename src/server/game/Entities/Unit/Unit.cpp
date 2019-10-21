@@ -9463,8 +9463,11 @@ void Unit::RestoreDisabledAI()
 
 void Unit::AddToWorld()
 {
-    if (!IsInWorld())
-        WorldObject::AddToWorld();
+    if (IsInWorld())
+        return;
+
+    WorldObject::AddToWorld();
+    i_motionMaster->AddToWorld();
 }
 
 void Unit::RemoveFromWorld()
