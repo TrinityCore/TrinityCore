@@ -9098,6 +9098,7 @@ void Unit::RestoreDisabledAI()
 void Unit::AddToWorld()
 {
     WorldObject::AddToWorld();
+    i_motionMaster->AddToWorld();
 
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::EnterWorld);
 }
