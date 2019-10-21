@@ -3942,6 +3942,14 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
+        51675,  // Rogue - Unfair Advantage (Rank 1)
+        51677   // Rogue - Unfair Advantage (Rank 2)
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // 5 yards
+    });
+
+    ApplySpellFix({
         55741, // Desecration (Rank 1)
         68766, // Desecration (Rank 2)
         57842  // Killing Spree (Off hand damage)
