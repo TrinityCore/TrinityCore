@@ -186,6 +186,10 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         void ResetThreatList(Unit* who = nullptr);
         // Returns the threat level of victim towards who (or me if not specified)
         float GetThreat(Unit const* victim, Unit const* who = nullptr);
+        // Stops combat, ignoring restrictions, for the given creature
+        void ForceCombatStop(Creature* who, bool reset = true);
+        // Stops combat, ignoring restrictions, for the found creatures
+        void ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true);
 
         void DoTeleportTo(float x, float y, float z, uint32 time = 0);
         void DoTeleportTo(float const pos[4]);
@@ -336,8 +340,6 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr) { _DespawnAtEvade(Seconds(delayToRespawn), who); }
 
         void TeleportCheaters();
-
-        void ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange = 250.0f, bool reset = true);
 
         EventMap events;
         SummonList summons;
