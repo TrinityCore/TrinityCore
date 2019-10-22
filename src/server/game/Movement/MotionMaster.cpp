@@ -83,7 +83,7 @@ bool MovementGeneratorComparator::operator()(MovementGenerator const* a, Movemen
 
 MovementGeneratorInformation::MovementGeneratorInformation(MovementGeneratorType type, ObjectGuid targetGUID, std::string const& targetName) : Type(type), TargetGUID(targetGUID), TargetName(targetName) { }
 
-MotionMaster::MotionMaster(Unit* unit) : _owner(unit), _defaultGenerator(nullptr), _flags(MOTIONMASTER_FLAG_NONE) { }
+MotionMaster::MotionMaster(Unit* unit) : _owner(unit), _defaultGenerator(nullptr), _flags(MOTIONMASTER_FLAG_INITIALIZATION_PENDING) { }
 
 MotionMaster::~MotionMaster()
 {
@@ -95,7 +95,7 @@ MotionMaster::~MotionMaster()
 
 void MotionMaster::Initialize()
 {
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this]()
         {
@@ -111,6 +111,16 @@ void MotionMaster::Initialize()
 void MotionMaster::InitializeDefault()
 {
     Add(FactorySelector::SelectMovementGenerator(_owner), MOTION_SLOT_DEFAULT);
+}
+
+void MotionMaster::AddToWorld()
+{
+    if (!HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING))
+        return;
+
+    ResolveDelayedActions();
+
+    RemoveFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING);
 }
 
 bool MotionMaster::Empty() const
@@ -277,6 +287,9 @@ void MotionMaster::Update(uint32 diff)
     if (!_owner)
         return;
 
+    if (HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING))
+        return;
+
     ASSERT(!Empty(), "MotionMaster:Update: update called without Initializing! (%s)", _owner->GetGUID().ToString().c_str());
 
     AddFlag(MOTIONMASTER_FLAG_UPDATE);
@@ -304,11 +317,7 @@ void MotionMaster::Update(uint32 diff)
 
     RemoveFlag(MOTIONMASTER_FLAG_UPDATE);
 
-    while (!_delayedActions.empty())
-    {
-        _delayedActions.front().Resolve();
-        _delayedActions.pop_front();
-    }
+    ResolveDelayedActions();
 }
 
 void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/)
@@ -322,7 +331,7 @@ void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION
         return;
     }
 
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, movement, slot]()
         {
@@ -339,7 +348,7 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
     if (!movement || IsInvalidMovementSlot(slot))
         return;
 
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, movement, slot]()
         {
@@ -377,7 +386,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
     if (IsInvalidMovementGeneratorType(type) || IsInvalidMovementSlot(slot))
         return;
 
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, type, slot]()
         {
@@ -415,7 +424,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
 
 void MotionMaster::Clear()
 {
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this]()
         {
@@ -434,7 +443,7 @@ void MotionMaster::Clear(MovementSlot slot)
     if (IsInvalidMovementSlot(slot))
         return;
 
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, slot]()
         {
@@ -462,7 +471,7 @@ void MotionMaster::Clear(MovementSlot slot)
 
 void MotionMaster::Clear(MovementGeneratorMode mode)
 {
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, mode]()
         {
@@ -484,7 +493,7 @@ void MotionMaster::Clear(MovementGeneratorMode mode)
 
 void MotionMaster::Clear(MovementGeneratorPriority priority)
 {
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, priority]()
         {
@@ -1018,6 +1027,15 @@ void MotionMaster::LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id/*
 }
 
 /******************** Private methods ********************/
+
+void MotionMaster::ResolveDelayedActions()
+{
+    while (!_delayedActions.empty())
+    {
+        _delayedActions.front().Resolve();
+        _delayedActions.pop_front();
+    }
+}
 
 void MotionMaster::Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform)
 {
