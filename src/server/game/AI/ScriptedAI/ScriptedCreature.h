@@ -336,7 +336,7 @@ class TC_GAME_API BossAI : public ScriptedAI
 
         void TeleportCheaters();
 
-        void ForceStopCombatForCreature(uint32 entry, float maxSearchRange = 250.0f);
+        void ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange = 250.0f, bool reset = true);
 
         EventMap events;
         SummonList summons;

@@ -47,7 +47,10 @@ enum MotionMasterFlags : uint8
 {
     MOTIONMASTER_FLAG_NONE                          = 0x0,
     MOTIONMASTER_FLAG_UPDATE                        = 0x1, // Update in progress
-    MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING = 0x2
+    MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING = 0x2, // Static movement (MOTION_SLOT_DEFAULT) hasn't been initialized
+    MOTIONMASTER_FLAG_INITIALIZATION_PENDING        = 0x4, // MotionMaster is stalled until signaled
+
+    MOTIONMASTER_FLAG_DELAYED = MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING | MOTIONMASTER_FLAG_INITIALIZATION_PENDING
 };
 
 enum MotionMasterDelayedActionType : uint8
@@ -112,6 +115,7 @@ class TC_GAME_API MotionMaster
 
         void Initialize();
         void InitializeDefault();
+        void AddToWorld();
 
         bool Empty() const;
         uint32 Size() const;
@@ -198,6 +202,7 @@ class TC_GAME_API MotionMaster
         bool HasFlag(uint8 const flag) const { return (_flags & flag) != 0; }
         void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
 
+        void ResolveDelayedActions();
         void Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform);
         void Pop(bool active, bool movementInform);
         void DirectInitialize();

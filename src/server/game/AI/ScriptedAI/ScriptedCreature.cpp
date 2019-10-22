@@ -517,14 +517,26 @@ void BossAI::TeleportCheaters()
     }
 }
 
-void BossAI::ForceStopCombatForCreature(uint32 entry, float maxSearchRange /*= 250.0f*/)
+void BossAI::ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange /*= 250.0f*/, bool reset /*= true*/)
 {
-    TC_LOG_WARN("scripts.ai", "BossAI::ForceStopCombatForCreature: called on '%s' with creature entry '%u'. This should be fixed in another way than calling this function. Debug info: %s", me->GetName().c_str(), entry, me->GetDebugInfo().c_str());
+    TC_LOG_DEBUG("scripts.ai", "BossAI::ForceCombatStopForCreatureEntry: called on '%s'. Debug info: %s", me->GetGUID().ToString().c_str(), me->GetDebugInfo().c_str());
+
     std::list<Creature*> creatures;
     me->GetCreatureListWithEntryInGrid(creatures, entry, maxSearchRange);
 
-    for (Creature* creature : creatures)
-        creature->CombatStop();
+    for (Creature* creature : creatures) {
+        creature->CombatStop(true);
+        creature->DoNotReacquireSpellFocusTarget();
+        creature->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
+
+        if (reset) {
+            creature->LoadCreaturesAddon();
+            creature->SetLootRecipient(nullptr);
+            creature->ResetPlayerDamageReq();
+            creature->SetLastDamagedTime(0);
+            creature->SetCannotReachTarget(false);
+        }
+    }
 }
 
 void BossAI::JustSummoned(Creature* summon)
