@@ -95,7 +95,10 @@ MotionMaster::~MotionMaster()
 
 void MotionMaster::Initialize()
 {
-    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
+    if (HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING))
+        return;
+
+    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
         DelayedActionDefine action = [this]()
         {
@@ -118,9 +121,13 @@ void MotionMaster::AddToWorld()
     if (!HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING))
         return;
 
+    AddFlag(MOTIONMASTER_FLAG_INITIALIZING);
+    RemoveFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING);
+
+    DirectInitialize();
     ResolveDelayedActions();
 
-    RemoveFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING);
+    RemoveFlag(MOTIONMASTER_FLAG_INITIALIZING);
 }
 
 bool MotionMaster::Empty() const
@@ -287,7 +294,7 @@ void MotionMaster::Update(uint32 diff)
     if (!_owner)
         return;
 
-    if (HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING))
+    if (HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING | MOTIONMASTER_FLAG_INITIALIZING))
         return;
 
     ASSERT(!Empty(), "MotionMaster:Update: update called without Initializing! (%s)", _owner->GetGUID().ToString().c_str());
