@@ -49,8 +49,9 @@ enum MotionMasterFlags : uint8
     MOTIONMASTER_FLAG_UPDATE                        = 0x1, // Update in progress
     MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING = 0x2, // Static movement (MOTION_SLOT_DEFAULT) hasn't been initialized
     MOTIONMASTER_FLAG_INITIALIZATION_PENDING        = 0x4, // MotionMaster is stalled until signaled
+    MOTIONMASTER_FLAG_INITIALIZING                  = 0x8, // MotionMaster is initializing
 
-    MOTIONMASTER_FLAG_DELAYED = MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING | MOTIONMASTER_FLAG_INITIALIZATION_PENDING
+    MOTIONMASTER_FLAG_DELAYED = MOTIONMASTER_FLAG_UPDATE | MOTIONMASTER_FLAG_INITIALIZATION_PENDING
 };
 
 enum MotionMasterDelayedActionType : uint8
