@@ -110,6 +110,8 @@ enum POSSpellsIcicle
     SPELL_DONT_LOOK_UP_ACHIEV_CREDIT    = 72845
 };
 
+class Creature;
+
 class ScheduledIcicleSummons : public BasicEvent
 {
     public:
