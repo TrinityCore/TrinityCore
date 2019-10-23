@@ -336,13 +336,12 @@ struct boss_krick : public ScriptedAI
     {
         if (actionId == ACTION_OUTRO)
         {
-            Creature* tyrannusPtr = ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_TYRANNUS_EVENT));
-            if (tyrannusPtr)
+            if (Creature* tyrannusPtr = ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_TYRANNUS_EVENT)))
                 tyrannusPtr->NearTeleportTo(outroPos[1].GetPositionX(), outroPos[1].GetPositionY(), outroPos[1].GetPositionZ(), outroPos[1].GetOrientation());
-            else if (tyrannusPtr = me->SummonCreature(NPC_TYRANNUS_EVENTS, outroPos[1], TEMPSUMMON_MANUAL_DESPAWN))
+            else if (TempSummon* newTyrannus = me->SummonCreature(NPC_TYRANNUS_EVENTS, outroPos[1], TEMPSUMMON_MANUAL_DESPAWN))
             {
-                tyrannusPtr->SetCanFly(true);
-                tyrannusPtr->SetFacingToObject(me);
+                newTyrannus->SetCanFly(true);
+                newTyrannus->SetFacingToObject(me);
             }
 
             me->GetMotionMaster()->MovePoint(POINT_KRICK_INTRO, outroPos[0].GetPositionX(), outroPos[0].GetPositionY(), outroPos[0].GetPositionZ());
