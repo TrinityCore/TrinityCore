@@ -95,7 +95,10 @@ MotionMaster::~MotionMaster()
 
 void MotionMaster::Initialize()
 {
-    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
+    if (HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING))
+        return;
+
+    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
         DelayedActionDefine action = [this]()
         {
@@ -121,6 +124,7 @@ void MotionMaster::AddToWorld()
     AddFlag(MOTIONMASTER_FLAG_INITIALIZING);
     RemoveFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING);
 
+    DirectInitialize();
     ResolveDelayedActions();
 
     RemoveFlag(MOTIONMASTER_FLAG_INITIALIZING);
