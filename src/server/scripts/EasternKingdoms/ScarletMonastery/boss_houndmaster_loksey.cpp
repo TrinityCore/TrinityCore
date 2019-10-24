@@ -68,5 +68,5 @@ struct boss_houndmaster_loksey : public BossAI
 
 void AddSC_boss_houndmaster_loksey()
 {
-    new boss_houndmaster_loksey();
+    RegisterScarletMonastaryCreatureAI(boss_houndmaster_loksey);
 }
