@@ -39,11 +39,6 @@ struct boss_houndmaster_loksey : public BossAI
 {
     boss_houndmaster_loksey(Creature* creature) : BossAI(creature, DATA_HOUNDMASTER_LOKSEY) { }
 
-    void Reset() override
-    {
-        _Reset();
-    }
-
     void JustEngagedWith(Unit* /*who*/) override
     {
         _JustEngagedWith();

@@ -18,7 +18,6 @@
 #include "scarlet_monastery.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
@@ -86,7 +85,7 @@ struct boss_scarlet_commander_mograine : public BossAI
         void Initialize()
         {
             _fakeDeath = false;
-            _canDie = false;
+            _canDie = true;
         }
 
         void Reset() override
@@ -232,7 +231,7 @@ struct boss_high_inquisitor_whitemane : public ScriptedAI
         void Initialize()
         {
             _ressurectionInProgress = false;
-            _canDie = false;
+            _canDie = true;
         }
 
         void Reset() override
