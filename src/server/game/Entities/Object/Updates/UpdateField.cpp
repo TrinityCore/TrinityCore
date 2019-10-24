@@ -30,6 +30,11 @@ void UF::WriteDynamicFieldUpdateMask(std::size_t size, std::vector<uint32> const
             for (std::size_t block = 0; block < size / 32; ++block)
                 data << uint32(updateMask[block]);
     }
+    else if (size == 32)
+    {
+        data.WriteBits(updateMask.back(), 32);
+        return;
+    }
 
     if (size % 32)
         data.WriteBits(updateMask.back(), size % 32);
