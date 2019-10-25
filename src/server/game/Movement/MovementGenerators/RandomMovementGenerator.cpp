@@ -33,12 +33,20 @@ RandomMovementGenerator<Creature>::~RandomMovementGenerator()
     delete _path;
 }
 
+template<class T>
+void RandomMovementGenerator<T>::Pause(uint32) { }
+
+template<>
 void RandomMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
 {
     _stalled = timer ? false : true;
     _timer.Reset(timer ? timer : 1);
 }
 
+template<class T>
+void RandomMovementGenerator<T>::Resume(uint32) { }
+
+template<>
 void RandomMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
 {
     _stalled = false;
