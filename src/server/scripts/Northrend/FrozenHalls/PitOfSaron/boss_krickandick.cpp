@@ -152,6 +152,14 @@ struct boss_ick : public BossAI
         _oldTargetThreat = 0.0f;
     }
 
+    void JustSummoned(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_KRICK)
+            return;
+
+        BossAI::JustSummoned(summon);
+    }
+
     void JustEngagedWith(Unit* /*who*/) override
     {
         _JustEngagedWith();
