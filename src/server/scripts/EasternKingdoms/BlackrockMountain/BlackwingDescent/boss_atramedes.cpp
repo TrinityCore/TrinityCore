@@ -217,6 +217,7 @@ struct boss_atramedes : public BossAI
         summons.DespawnAll();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetBossState(DATA_ATRAMEDES, FAIL);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_APPLY_VEHICLE_PERIODIC);
         if (GameObject* door = instance->GetGameObject(DATA_ATHENAEUM_DOOR))
             door->SetGoState(GO_STATE_ACTIVE);
         me->DespawnOrUnsummon();
@@ -226,6 +227,7 @@ struct boss_atramedes : public BossAI
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_APPLY_VEHICLE_PERIODIC);
         if (GameObject* door = instance->GetGameObject(DATA_ATHENAEUM_DOOR))
             door->SetGoState(GO_STATE_ACTIVE);
         Talk(SAY_DEATH);
