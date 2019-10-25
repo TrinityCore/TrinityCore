@@ -46,6 +46,12 @@ namespace UF
     template<typename T, uint32 BlockBit, uint32 Bit>
     class DynamicUpdateField;
 
+    template<typename T>
+    class OptionalUpdateFieldBase;
+
+    template<typename T, uint32 BlockBit, uint32 Bit>
+    class OptionalUpdateField;
+
     template<typename T, bool PublicSet>
     struct MutableFieldReference;
 
@@ -199,6 +205,24 @@ namespace UF
         std::vector<uint32>& _updateMask;
     };
 
+    template<typename T>
+    struct OptionalUpdateFieldSetter
+    {
+        template<typename F>
+        friend void RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<F>& setter);
+
+        OptionalUpdateFieldSetter(OptionalUpdateFieldBase<T>& field) : _field(field) { }
+
+    private:
+        void RemoveValue()
+        {
+            if (_field.is_initialized())
+                _field.DestroyValue();
+        }
+
+        OptionalUpdateFieldBase<T>& _field;
+    };
+
     template<typename T, bool PublicSet>
     struct MutableFieldReference
     {
@@ -257,6 +281,30 @@ namespace UF
             _value._changesMask.Set(Bit);
             (_value.*field).MarkChanged(index);
             return { (_value.*field)._values[index] };
+        }
+
+        template<typename V, uint32 BlockBit, uint32 Bit, typename U = T>
+        std::enable_if_t<std::is_base_of<HasChangesMaskTag, U>::value, OptionalUpdateFieldSetter<V>>
+            ModifyValue(OptionalUpdateField<V, BlockBit, Bit>(T::* field))
+        {
+            _value._changesMask.Set(BlockBit);
+            _value._changesMask.Set(Bit);
+            return { _value.*field };
+        }
+
+        template<typename V, uint32 BlockBit, uint32 Bit, typename U = T>
+        std::enable_if_t<std::is_base_of<HasChangesMaskTag, U>::value,
+            std::conditional_t<std::is_base_of<IsUpdateFieldStructureTag, V>::value,
+            MutableFieldReference<V, PublicSet>,
+            std::conditional_t<PublicSet, UpdateFieldPublicSetter<V>, UpdateFieldSetter<V>>>>
+            ModifyValue(OptionalUpdateField<V, BlockBit, Bit>(T::* field), uint32)
+        {
+            if (!(_value.*field).is_initialized())
+                (_value.*field).ConstructValue();
+
+            _value._changesMask.Set(BlockBit);
+            _value._changesMask.Set(Bit);
+            return { *((_value.*field)._value) };
         }
 
         template<typename V, typename U = T>
@@ -343,6 +391,14 @@ namespace UF
         }
 
         template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
+        MutableFieldReference<T, false> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field))
+        {
+            _changesMask.Set(BlockBit);
+            _changesMask.Set(Bit);
+            return { *((static_cast<Derived*>(this)->*field)._value) };
+        }
+
+        template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
         void ClearChanged(UpdateField<T, BlockBit, Bit>(Derived::*))
         {
             _changesMask.Reset(Bit);
@@ -360,6 +416,12 @@ namespace UF
         {
             _changesMask.Reset(Bit);
             (static_cast<Derived*>(this)->*field).ClearChanged(index);
+        }
+
+        template<typename Derived, typename T, uint32 BlockBit, uint32 Bit>
+        void ClearChanged(OptionalUpdateField<T, BlockBit, Bit>(Derived::*))
+        {
+            _changesMask.Reset(Bit);
         }
 
     protected:
@@ -409,6 +471,22 @@ namespace UF
         {
             for (uint32 i = 0; i < field._values.size(); ++i)
                 field._values[i].ClearChangesMask();
+        }
+
+        template<typename T, uint32 BlockBit, uint32 Bit>
+        void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>& field)
+        {
+            ClearChangesMask(field, std::is_base_of<HasChangesMaskTag, T>{});
+        }
+
+        template<typename T, uint32 BlockBit, uint32 Bit>
+        void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>&, std::false_type) { }
+
+        template<typename T, uint32 BlockBit, uint32 Bit>
+        void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>& field, std::true_type)
+        {
+            if (field.is_initialized())
+                field._value->ClearChangesMask();
         }
 
         UpdateMask<Bits> _changesMask;
@@ -601,6 +679,86 @@ namespace UF
 
         std::vector<T> _values;
         std::vector<uint32> _updateMask;
+    };
+
+    template<typename T>
+    class OptionalUpdateFieldBase
+    {
+        template<typename F, bool PublicSet>
+        friend struct MutableFieldReference;
+
+        template<std::size_t Bits>
+        friend class HasChangesMask;
+
+        template<typename F>
+        friend struct OptionalUpdateFieldSetter;
+
+    public:
+        using ValueType = T;
+        using IsLarge = std::integral_constant<bool, sizeof(void*) * 3 < sizeof(T)>;
+        using StorageType = std::conditional_t<IsLarge::value, std::add_pointer_t<T>, Optional<T>>;
+
+        ~OptionalUpdateFieldBase()
+        {
+            DestroyValue();
+        }
+
+        bool is_initialized() const
+        {
+            return !!_value;
+        }
+
+        operator T const& () const
+        {
+            return *_value;
+        }
+        T const* operator->() const
+        {
+            return &(*_value);
+        }
+        T const& operator*() const
+        {
+            return *_value;
+        }
+
+    private:
+        void ConstructValue()
+        {
+            ConstructValue(IsLarge{});
+        }
+
+        void ConstructValue(std::false_type)
+        {
+            _value.emplace();
+        }
+
+        void ConstructValue(std::true_type)
+        {
+            _value = new T();
+        }
+
+        void DestroyValue()
+        {
+            DestroyValue(IsLarge{});
+        }
+
+        void DestroyValue(std::false_type)
+        {
+            _value.reset();
+        }
+
+        void DestroyValue(std::true_type)
+        {
+            delete _value;
+            _value = nullptr;
+        }
+
+        StorageType _value = { };
+    };
+
+    template<typename T, uint32 BlockBit, uint32 Bit>
+    class OptionalUpdateField : public OptionalUpdateFieldBase<T>
+    {
     };
 
     template<typename T>
