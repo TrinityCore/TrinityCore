@@ -9,6 +9,8 @@
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "Group.h"
+#include "DatabaseEnv.h"
+#include "Mail.h"
 
 enum NPCs
 {
@@ -31,6 +33,7 @@ enum NPCs
 enum Spells
 {
     SPELL_SIMPLE_TELEPORT   = 100032,
+    SPELL_TELEPORT          = 51347,
     SPELL_TELEPORT_EFFECT   = 70525,
     SPELL_TELEPORT_ANIM     = 70527,
     SPELL_REMEMBER_SHADOW   = 100042,
@@ -49,7 +52,11 @@ enum Misc
     GOB_ANTONIDAS_STATUE        = 500011,
     GOB_PORTAL_TO_DALARAN       = 500013,
 
-    MOUNT_WHITE_STEED = 14338,
+    MOUNT_WHITE_STEED           = 14338,
+
+    PHASEMASK_DALARAN           = 4,
+    PHASEMASK_DALARAN_A         = 12,
+    PHASEMASK_DARNASSUS         = 17,
 
     QUEST_THE_FATE_OF_DALARAN   = 80012,
     QUEST_DARNASSUS_ATTACKED    = 80013,
@@ -57,7 +64,11 @@ enum Misc
     QUEST_JAINAS_RESOLUTION     = 80015,
 
     MAP_KALIMDOR                = 1,
-    MAP_DALARAN_INSTANCED       = 727
+    MAP_DALARAN_INSTANCED       = 727,
+
+    MAIL_DARNASSUS_ENTRY        = 293,
+    MAIL_DELIVER_DELAY_MIN      = 1 * MINUTE,
+    MAIL_DELIVER_DELAY_MAX      = 2 * MINUTE
 };
 
 enum Events
@@ -148,7 +159,7 @@ enum Texts
     SAY_JAINA_DARNASSUS_6   = 19,
 };
 
-#pragma region CONSTANTS
+#pragma region SCENES_CONSTANTS
 
 constexpr int INSIDE_PATH_SIZE           = 11;
 constexpr int SCENE_KALECGOS_COUNT       = 4;
@@ -173,7 +184,7 @@ const Position pathInsideJaina[INSIDE_PATH_SIZE] =
     { 5845.63f, 850.74f, 843.21f, 2.48f },
     { 5843.53f, 852.08f, 843.21f, 2.68f },
     { 5840.31f, 853.33f, 843.29f, 2.88f },
-    { 5836.37f, 853.11f, 843.72f, 5.02f }
+    { 5836.37f, 853.11f, 843.72f, 0.00f }
 };
 
 const Position pathInsideAnduin[INSIDE_PATH_SIZE] =
@@ -357,6 +368,85 @@ const Position MagicTracksPos[TOTAL_TRACKERS_COUNT] =
 
 #pragma endregion
 
+class JainaArrivesEvent : public BasicEvent
+{
+public:
+    JainaArrivesEvent(Creature* owner, Player* player) : owner(owner), stage(0), player(player) { }
+
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        switch (stage)
+        {
+            case 0:
+                owner->AI()->Talk(SAY_JAINA_DARNASSUS_1);
+                stage++;
+                owner->m_Events.AddEvent(this, eventTime + 3000);
+                return false;
+            case 1:
+                owner->SetFacingToObject(player);
+                stage++;
+                owner->m_Events.AddEvent(this, eventTime + 2000);
+                return false;
+            case 2:
+                owner->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                return true;
+            default:
+                break;
+        }
+        return true;
+    }
+
+private:
+    Creature* owner;
+    Player* player;
+    uint8 stage;
+};
+
+class AnduinLeavesEvent : public BasicEvent
+{
+public:
+    AnduinLeavesEvent(Creature* owner, Player* player, GameObject* portal) : owner(owner), stage(0), player(player), portal(portal)
+    {
+        owner->SetWalk(true);
+        owner->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+    }
+
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        switch (stage)
+        {
+            case 0:
+                owner->GetMotionMaster()->MovePoint(0, portal->GetPosition());
+                stage++;
+                owner->m_Events.AddEvent(this, eventTime + 9000);
+                return false;
+            case 1:
+                owner->CastSpell(owner, SPELL_TELEPORT);
+                stage++;
+                owner->m_Events.AddEvent(this, eventTime + 2000);
+                return false;
+            case 2:
+                owner->SetVisible(false);
+                player->SetPhaseMask(1, true);
+                portal->SetPhaseMask(1, true);
+                owner->m_Events.AddEvent(this, eventTime + 1000);
+                return false;
+            case 3:
+                portal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                return true;
+            default:
+                break;
+        }
+        return true;
+    }
+
+private:
+    Creature* owner;
+    Player* player;
+    uint8 stage;
+    GameObject* portal;
+};
+
 class dalaran_jaina_anduin : public CreatureScript
 {
     public:
@@ -423,7 +513,9 @@ class dalaran_jaina_anduin : public CreatureScript
                     break;
 
                 case QUEST_JAINAS_RESOLUTION:
-                    if (portal) portal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if (portal)
+                        portal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    player->SetPhaseMask(16, true);
                     break;
             }
         }
@@ -465,14 +557,14 @@ class dalaran_jaina_anduin : public CreatureScript
                 return;
 
             player = who->ToPlayer();
-            if (player->IsGameMaster() || player->GetPhaseMask() != me->GetPhaseMask())
+            if (player->IsGameMaster())
                 return;
 
             switch (me->GetMapId())
             {
                 case MAP_DALARAN_INSTANCED:
                 {
-                    if (me->IsFriendlyTo(player) && me->IsWithinDist(player, 6.f, false))
+                    if (player->GetPhaseMask() == PHASEMASK_DALARAN && me->IsFriendlyTo(player) && me->IsWithinDist(player, 6.f, false))
                     {
                         phase = PHASE_NOT_STARTED;
                         SetData(ACTION_INTRO_TELEPORT, 1U);
@@ -482,13 +574,11 @@ class dalaran_jaina_anduin : public CreatureScript
 
                 case MAP_KALIMDOR:
                 {
-                    if (me->IsFriendlyTo(player) && me->IsWithinDist(player, 30.f))
+                    if (player->GetPhaseMask() == PHASEMASK_DARNASSUS && me->IsFriendlyTo(player) && me->IsWithinDist(player, 30.f))
                     {
                         phase = PHASE_NOT_STARTED;
-                        Talk(SAY_JAINA_DARNASSUS_1);
-
                         me->PlayDirectMusic(SOUND_JAINA_DARNA_MUSIC);
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        me->m_Events.AddEvent(new JainaArrivesEvent(me, player), me->m_Events.CalculateTime(3000));
                     }
                     break;
                 }
@@ -813,6 +903,7 @@ class dalaran_jaina_anduin : public CreatureScript
                     case 2:
                     {
                         GameObject* o = me->SummonGameObject(Scenes[sceneIndex][i].Entry, Scenes[sceneIndex][i].Spawn, Scenes[sceneIndex][i].Rotation, 0);
+                        o->EnableCollision(false);
                         guid = o->GetGUID();
                         break;
                     }
@@ -956,59 +1047,51 @@ class dalaran_anduin_wrynn : public CreatureScript
 
         }
 
-        void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             switch (quest->GetQuestId())
             {
-                case QUEST_THE_FATE_OF_DALARAN:
-                    SetData(ACTION_OUTRO_REUNION, 0U);
+                case QUEST_DARNASSUS_ATTACKED:
+                    player->SetPhaseMask(PHASEMASK_DARNASSUS, true);
                     break;
             }
         }
 
-        void SetData(uint32 id, uint32 /*value*/) override
+        void QuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
         {
-            switch (id)
+            switch (quest->GetQuestId())
             {
-                case ACTION_OUTRO_REUNION:
-                    jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE_D, 10.f);
-                    jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                    events.ScheduleEvent(EVENT_OUTRO_REUNION_1, 2s);
+                case QUEST_THE_FATE_OF_DALARAN:
+                    SendMailToPlayer(player);
+                    if (GameObject* portal = me->SummonGameObject(190960, 5858.08f, 858.45f, 843.80f, 3.64f, QuaternionData(), 0))
+                    {
+                        portal->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        me->m_Events.AddEvent(new AnduinLeavesEvent(me, player, portal), me->m_Events.CalculateTime(3000));
+                    }
                     break;
             }
         }
 
         void Reset() override
         {
-            events.Reset();
             Initialize();
         }
 
         void UpdateAI(uint32 diff) override
         {
-            events.Update(diff);
+            if (!UpdateVictim())
+                return;
 
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_OUTRO_REUNION_1:
-                        break;
-
-                    default:
-                        break;
-                }
-            }
+            DoMeleeAttackIfReady();
         }
 
-        private:
-        EventMap events;
-        Creature* jaina;
-        Creature* sentinel;
-        GameObject* portal;
+        void SendMailToPlayer(Player* player) const
+        {
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            int16 deliverDelay = irand(MAIL_DELIVER_DELAY_MIN, MAIL_DELIVER_DELAY_MAX);
+            MailDraft(MAIL_DARNASSUS_ENTRY, true).SendMailTo(trans, MailReceiver(player), MailSender(MAIL_CREATURE, me->GetEntry()), MAIL_CHECK_MASK_NONE, deliverDelay);
+            CharacterDatabase.CommitTransaction(trans);
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override

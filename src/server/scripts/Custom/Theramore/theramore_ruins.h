@@ -137,6 +137,13 @@ enum Text
     SAY_IRIS_10                     = 12,
 };
 
+enum Misc
+{
+    MAIL_TIDES_ENTRY                = 292,
+    MAIL_DELIVER_DELAY_MIN          = 1 * MINUTE,
+    MAIL_DELIVER_DELAY_MAX          = 2 * MINUTE
+};
+
 struct Location
 {
     uint32 entry;

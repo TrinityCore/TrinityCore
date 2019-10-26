@@ -117,9 +117,9 @@ const Location npcsLocation[NPCS_TOTAL_COUNT] =
 {
     { NPC_AETHAS_SUNREAVER,   { 5802.06f, 839.48f, 680.05f, 4.62f }},
     { NPC_SUNREAVER_GUARDIAN, { 5794.70f, 810.40f, 661.83f, 4.53f }},
-    { NPC_SUNREAVER_GUARDIAN, { 5797.40f, 809.53f, 662.04f, 4.57f }},
-    { NPC_SUNREAVER_GUARDIAN, { 5800.04f, 809.05f, 662.08f, 4.66f }},
-    { NPC_SUNREAVER_GUARDIAN, { 5803.09f, 809.48f, 662.86f, 4.59f }}
+    { NPC_SUNREAVER_GUARDIAN, { 5797.40f, 809.53f, 662.03f, 4.57f }},
+    { NPC_SUNREAVER_GUARDIAN, { 5800.04f, 809.05f, 662.03f, 4.66f }},
+    { NPC_SUNREAVER_GUARDIAN, { 5803.09f, 809.48f, 661.83f, 4.59f }}
 };
 
 const Position destinationAethas1 = { 5799.26f, 812.35f, 662.02f, 4.62f };
@@ -293,14 +293,14 @@ class dalaran_jaina_purge : public CreatureScript
             teleportTimer = 3 * IN_MILLISECONDS;
         }
 
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
+        //void AttackStart(Unit* who) override
+        //{
+        //    if (!who)
+        //        return;
 
-            if (me->Attack(who, false))
-                SetCombatMovement(false);
-        }
+        //    if (me->Attack(who, false))
+        //        SetCombatMovement(false);
+        //}
 
         void Reset() override
         {
@@ -337,7 +337,7 @@ class dalaran_jaina_purge : public CreatureScript
                     {
                         if (sunreaver->IsEngaged())
                         {
-                            me->Attack(sunreaver, false);
+                            me->Attack(sunreaver, true);
                         }
                         else
                         {
@@ -541,20 +541,20 @@ class dalaran_aethas_event : public CreatureScript
                         aethas->SetHomePosition(destinationAethas1);
                         aethas->SetControlled(true, UNIT_STATE_ROOT);
                         jaina->AI()->Talk(SAY_JAINA_6);
-                        events.ScheduleEvent(EVENT_AETHAS_7, 5s);
+                        events.ScheduleEvent(EVENT_AETHAS_7, 2s);
                         break;
 
                     case EVENT_AETHAS_7:
                         jaina->GetMotionMaster()->MoveCloserAndStop(0, aethas, 3.f);
-                        aethas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        aethas->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
-                        elemental->CastSpell(aethas, SPELL_ICE_PRISON);
-                        events.ScheduleEvent(EVENT_AETHAS_8, 6s);
+                        events.ScheduleEvent(EVENT_AETHAS_8, 3s);
                         break;
 
                     case EVENT_AETHAS_8:
                         jaina->AI()->Talk(SAY_JAINA_7);
-                        events.ScheduleEvent(EVENT_AETHAS_9, 3s);
+                        aethas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        aethas->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
+                        elemental->CastSpell(aethas, SPELL_ICE_PRISON);
+                        events.ScheduleEvent(EVENT_AETHAS_9, 6s);
                         break;
 
                     case EVENT_AETHAS_9:

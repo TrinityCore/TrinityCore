@@ -165,7 +165,7 @@ class theramore_wounded_event : public CreatureScript
                         kinndy->GetMotionMaster()->MovePoint(0, -3656.46f, -4516.56f, 9.46f, true, 0.42f);
 
                     if (Creature* helaina = GetClosestCreatureWithEntry(me, NPC_DOCTOR_HELAINA, 40.f))
-                        helaina->GetMotionMaster()->MovePoint(0, -3651.05f, -4503.82f, 9.46, true, 5.67f);
+                        helaina->GetMotionMaster()->MovePoint(0, -3651.05f, -4503.82f, 9.46f, true, 5.67f);
 
                     events.ScheduleEvent(EVENT_TELEPORT_1, 1s);
                     break;

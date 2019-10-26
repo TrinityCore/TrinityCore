@@ -11,6 +11,53 @@
 #include "ScriptedGossip.h"
 #include "GridNotifiersImpl.h"
 #include "theramore_ruins.h"
+#include "DatabaseEnv.h"
+#include "Mail.h"
+
+class JainaStandEvent : public BasicEvent
+{
+public:
+    JainaStandEvent(Creature* owner, Player* player) : owner(owner), stage(0), player(player)
+    {
+        kinndy = owner->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 40.f);
+    }
+
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        switch (stage)
+        {
+            case 0:
+                owner->AI()->Talk(SAY_IRIS_1);
+                owner->SetWalk(true);
+                stage++;
+                owner->m_Events.AddEvent(this, eventTime + 3000);
+                return false;
+            case 1:
+                owner->SetStandState(UNIT_STAND_STATE_STAND);
+                stage++;
+                owner->m_Events.AddEvent(this, eventTime + 2000);
+                return false;
+            case 2:
+                kinndy->SetVisible(false);
+                stage++;
+                owner->m_Events.AddEvent(this, eventTime + 2000);
+                return false;
+            case 3:
+                owner->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                owner->SetFacingToObject(player);
+                return true;
+            default:
+                break;
+        }
+        return true;
+    }
+
+private:
+    Creature* owner;
+    Creature* kinndy;
+    Player* player;
+    uint8 stage;
+};
 
 class npc_jaina_ruins : public CreatureScript
 {
@@ -78,21 +125,15 @@ class npc_jaina_ruins : public CreatureScript
                     {
                         if (!canSayIntro && player->GetQuestStatus(QUEST_RETURN_TO_THERAMORE) == QUEST_STATUS_COMPLETE)
                         {
-                            kinndy = GetClosestCreatureWithEntry(me, NPC_KINNDY_SPARKSHINE, 5.f);
-
-                            Talk(SAY_IRIS_1);
-                            me->SetWalk(true);
-                            me->SetStandState(UNIT_STAND_STATE_STAND);
-                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                            kinndy->SetVisible(false);
-
+                            me->m_Events.AddEvent(new JainaStandEvent(me, player), me->m_Events.CalculateTime(1000));
                             canSayIntro = true;
                         }
 
                         if (!canSayEnd && player->GetQuestStatus(QUEST_DESTROY_THE_DESTROYER) == QUEST_STATUS_COMPLETE)
                         {
                             canSayEnd = true;
-                            events.ScheduleEvent(EVENT_IRIS_4, 1s);
+                            Talk(SAY_IRIS_3);
+                            events.ScheduleEvent(EVENT_IRIS_4, 3s);
                         }
                     }
 
@@ -332,7 +373,6 @@ class npc_jaina_ruins : public CreatureScript
                                     player->AddQuestAndCheckCompletion(protectTheArtefact, me);
                             }
 
-                            Talk(SAY_IRIS_3);
                             channelTarget->RemoveAllAuras();
                             me->RemoveAllAuras();
 
@@ -422,7 +462,6 @@ class npc_jaina_ruins : public CreatureScript
                             {
                                 soldier->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 soldier->SetReactState(REACT_AGGRESSIVE);
-                                soldier->Attack(players[0], true);
 
                                 if (soldier->GetPositionY() <= -4468.18f)
                                 {
@@ -442,13 +481,15 @@ class npc_jaina_ruins : public CreatureScript
 
                         case EVENT_IRIS_15:
                         {
-                            if (warlord->GetHealthPct() < 10.f || players[0]->GetHealthPct() <= 30.f)
+                            if (warlord->GetHealthPct() < 10.f || players[0]->GetHealthPct() <= 20.f)
                             {
-                                players[0]->ResurrectPlayer(50.f);
-                                players[0]->SetFullHealth();
-
                                 warlord->RemoveAllAuras();
                                 warlord->SetImmuneToAll(true);
+                                warlord->SetRegenerateHealth(false);
+                                warlord->SetControlled(true, UNIT_STATE_ROOT);
+
+                                float currentHealth = warlord->GetHealth() * 0.5f;
+                                warlord->SetHealth((uint32)currentHealth);
 
                                 events.CancelEvent(EVENT_IRIS_15);
                                 events.ScheduleEvent(EVENT_IRIS_16, 1s);
@@ -460,23 +501,37 @@ class npc_jaina_ruins : public CreatureScript
 
                         case EVENT_IRIS_16:
                         {
+                            if (!players[0]->IsAlive())
+                                players[0]->ResurrectPlayer(10.f);
+
                             warlord->CombatStop(true);
                             warlord->GetMotionMaster()->Clear();
                             warlord->GetMotionMaster()->MoveIdle();
                             warlord->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             warlord->SetReactState(REACT_PASSIVE);
-                            warlord->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_KNEEL);
+                            warlord->SetStandState(UNIT_STAND_STATE_KNEEL);
 
                             CastSpellExtraArgs args;
                             args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
                             me->CastSpell(me, SPELL_ICE_NOVA, args);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SPELL_CAST_OMNI);
 
                             for (Creature* soldier : soldiers)
                             {
-                                if (!soldier->IsAlive())
+                                if (!soldier || (soldier && !soldier->IsAlive()))
                                     continue;
 
-                                soldier->KillSelf();
+                                Unit::Kill(me, soldier);
+                            }
+
+                            for (uint8 i = 0; i < 2; ++i)
+                            {
+                                if (!elementals[i] || (elementals[i] && !elementals[i]->IsAlive()))
+                                    continue;
+
+                                elementals[i]->GetMotionMaster()->Clear();
+                                elementals[i]->GetMotionMaster()->MovePoint(0, ElementalsPos[i], false, ElementalsPos[i].GetOrientation());
+                                elementals[i]->SetHomePosition(ElementalsPos[i]);
                             }
 
                             events.ScheduleEvent(EVENT_IRIS_17, 2s);
@@ -484,6 +539,7 @@ class npc_jaina_ruins : public CreatureScript
                         }
 
                         case EVENT_IRIS_17:
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                             if (GameObject * temp = GetClosestGameObjectWithEntry(me, 190561, 100))
                             {
                                 float distanceToTravel = me->GetExactDist2d(temp->GetPosition()) - 1.5f;
@@ -532,8 +588,9 @@ class npc_jaina_ruins : public CreatureScript
                                 player->RewardQuest(protectTheArtefact, 0, me);
                             }
 
+                            Unit::Kill(me, warlord);
+
                             me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
-                            warlord->KillSelf();
                             events.ScheduleEvent(EVENT_IRIS_22, 2s);
                             break;
                         }
@@ -558,8 +615,9 @@ class npc_jaina_ruins : public CreatureScript
                             break;
 
                         case EVENT_IRIS_25:
+                            SendMailToPlayer(players[0]);
                             me->SetVisible(false);
-                            me->SummonGameObject(500014, me->GetPosition(), QuaternionData(), 0);
+                            me->SummonGameObject(500015, me->GetPosition(), QuaternionData(), 0);
                             break;
 
                         #pragma endregion
@@ -609,7 +667,6 @@ class npc_jaina_ruins : public CreatureScript
         std::vector<Creature*> soldiers;
         Creature* kalecgos;
         Creature* warlord;
-        Creature* kinndy;
         Creature* channelTarget;
         Creature* elementals[2];
         GameObject* mirror;
@@ -626,6 +683,14 @@ class npc_jaina_ruins : public CreatureScript
                 if (Player * player = itr->GetSource()->ToPlayer())
                     players.push_back(player);
             }
+        }
+
+        void SendMailToPlayer(Player* player) const
+        {
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            int16 deliverDelay = irand(MAIL_DELIVER_DELAY_MIN, MAIL_DELIVER_DELAY_MAX);
+            MailDraft(MAIL_TIDES_ENTRY, true).SendMailTo(trans, MailReceiver(player), MailSender(MAIL_CREATURE, me->GetEntry()), MAIL_CHECK_MASK_NONE, deliverDelay);
+            CharacterDatabase.CommitTransaction(trans);
         }
     };
 
