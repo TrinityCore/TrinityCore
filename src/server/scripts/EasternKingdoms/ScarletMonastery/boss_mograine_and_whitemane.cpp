@@ -168,10 +168,7 @@ public:
 
             me->InterruptNonMeleeSpells(true);
             me->ClearComboPointHolders();
-            me->RemoveOwnedAuras([](Aura const* aura) -> bool
-            {
-                return aura->GetSpellInfo()->Id != SPELL_RETRIBUTION_AURA;
-            });
+            me->RemoveAllAuras();
             me->ClearAllReactives();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -209,8 +206,30 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _canDie = true;
+                DoCastSelf(SPELL_RETRIBUTION_AURA, true);
             });
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+        scheduler.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            ExecuteEvent(eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
     }
 
 private:
@@ -236,6 +255,8 @@ public:
 
     void Reset() override
     {
+        Initialize();
+
         _events.Reset();
         _scheduler.CancelAll();
         _killYellTimer.Reset(0);

@@ -474,6 +474,12 @@ struct boss_headless_horseman : public ScriptedAI
         _instance->SetBossState(DATA_HORSEMAN_EVENT, NOT_STARTED);
     }
 
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        _phase = PHASE_BODY_1;
+        ScriptedAI::EnterEvadeMode(why);
+    }
+
     void DoAction(int32 param) override
     {
         switch (param)
@@ -481,8 +487,8 @@ struct boss_headless_horseman : public ScriptedAI
             case ACTION_HORSEMAN_EVENT_START:
                 me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                me->SetDisableGravity(true);
-                me->SetSpeedRate(MOVE_WALK, 5.0f);
+                me->SetCanFly(true);
+                me->SetWalk(false);
 
                 _id = 0;
                 _phase = PHASE_BODY_0;
@@ -550,7 +556,7 @@ struct boss_headless_horseman : public ScriptedAI
                 _instance->HandleGameObject(ObjectGuid::Empty, false, _instance->GetGameObject(DATA_PUMPKIN_SHRINE));
                 break;
             case POINT_HORSEMAN_19:
-                me->SetDisableGravity(false);
+                me->SetCanFly(false);
                 break;
             case POINT_HORSEMAN_20:
                 _phase = PHASE_BODY_1;
