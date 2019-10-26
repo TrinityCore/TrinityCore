@@ -493,7 +493,8 @@ struct boss_headless_horseman : public ScriptedAI
                     {
                         if (me->GetMap()->HavePlayers())
                         {
-                            auto it = me->GetMap()->GetPlayers().begin();
+                            RefManager<Map, Player> const& players = me->GetMap()->GetPlayers();
+                            LinkedListHead::Iterator<Reference<Map, Player> const> it = players.RefManager<Map, Player>::begin();
                             std::advance(it, urand(0, uint32(me->GetMap()->GetPlayers().getSize()) - 1));
                             if (Player* player = it->GetSource())
                                 player->Say(HeadlessHorsemanInitialPlayerTexts[talkContext.GetRepeatCounter()], LANG_UNIVERSAL);
@@ -505,7 +506,8 @@ struct boss_headless_horseman : public ScriptedAI
                         DoCast(SPELL_HEADLESS_HORSEMAN_CLIMAX___SUMMONING_RHYME_SHAKE_MEDIUM);
                         if (me->GetMap()->HavePlayers())
                         {
-                            auto it = me->GetMap()->GetPlayers().begin();
+                            RefManager<Map, Player> const& players = me->GetMap()->GetPlayers();
+                            LinkedListHead::Iterator<Reference<Map, Player> const> it = players.RefManager<Map, Player>::begin();
                             std::advance(it, urand(0, uint32(me->GetMap()->GetPlayers().getSize()) - 1));
                             if (Player* player = it->GetSource())
                             {
