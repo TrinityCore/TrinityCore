@@ -93,7 +93,8 @@ enum HeadlessHorsemanSpells
 
 enum HeadlessHorsemanMisc
 {
-    DISPLAYID_INVIS_WISP = 2027,
+    DISPLAYID_INVIS_WISP_MAN = 2027,
+    DISPLAYID_INVIS_WISP_INVISIBLE = 21908,
 
     DATA_INVIS_WISP_CREATURE_TYPE = 0,
     DATA_HEAD_TALK,
@@ -171,7 +172,10 @@ static char const* HeadlessHorsemanInitialPlayerTexts[] =
 
 struct npc_wisp_invis : public ScriptedAI
 {
-    npc_wisp_invis(Creature* creature) : ScriptedAI(creature), _timer(0), _creatureType(0), _firstSpell(0), _secondSpell(0) { }
+    npc_wisp_invis(Creature* creature) : ScriptedAI(creature), _timer(0), _creatureType(0), _firstSpell(0), _secondSpell(0)
+    {
+        creature->SetDisplayId(DISPLAYID_INVIS_WISP_INVISIBLE);
+    }
 
     void SetData(uint32 type, uint32 value) override
     {
@@ -206,7 +210,7 @@ struct npc_wisp_invis : public ScriptedAI
     void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_HEADLESS_HORSEMAN___WISP_FLIGHT_PORT && _creatureType == 4)
-            me->SetDisplayId(DISPLAYID_INVIS_WISP);
+            me->SetDisplayId(DISPLAYID_INVIS_WISP_MAN);
     }
 
     void MoveInLineOfSight(Unit* who) override
