@@ -575,7 +575,7 @@ struct boss_headless_horseman : public ScriptedAI
         {
             DoCastVictim(SPELL_HORSEMANS_CLEAVE);
             cleaveContext.Repeat(2s, 6s);
-        }).Schedule(6s, uint32(TASK_GROUP_COMBAT), [this](TaskContext burnContext)
+        }).Schedule(6s, uint32(TASK_GROUP_COMBAT), [this](TaskContext /*burnContext*/)
         {
             if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17 * IN_MILLISECONDS))
                 flame->AI()->SetData(DATA_INVIS_WISP_CREATURE_TYPE, INVIS_WISP_CREATURE_TYPE_FLAME);
@@ -652,7 +652,7 @@ struct boss_headless_horseman : public ScriptedAI
                 {
                     DoCastVictim(SPELL_HORSEMANS_CLEAVE);
                     cleaveContext.Repeat(2s, 6s);
-                }).Schedule(6s, uint32(TASK_GROUP_COMBAT), [this](TaskContext burnContext)
+                }).Schedule(6s, uint32(TASK_GROUP_COMBAT), [this](TaskContext /*burnContext*/)
                 {
                     if (Creature* flame = me->SummonCreature(NPC_HELPER, HeadlessHorsemanSpawnPoints[0], TEMPSUMMON_TIMED_DESPAWN, 17 * IN_MILLISECONDS))
                         flame->AI()->SetData(DATA_INVIS_WISP_CREATURE_TYPE, INVIS_WISP_CREATURE_TYPE_FLAME);
