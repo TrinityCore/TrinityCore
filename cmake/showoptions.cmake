@@ -105,6 +105,13 @@ if ( HELGRIND )
   add_definitions(-DHELGRIND)
 endif()
 
+if ( ASAN )
+  message("")
+  message(" *** ASAN - WARNING!")
+  message(" *** Please note that this is for DEBUGGING WITH ADDRESS SANITIZER only!")
+  add_definitions(-DASAN)
+endif()
+
 if ( PERFORMANCE_PROFILING )
   message("")
   message(" *** PERFORMANCE_PROFILING - WARNING!")
