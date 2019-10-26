@@ -1064,3 +1064,22 @@ bool BattlegroundSA::IsSpellAllowed(uint32 spellId, Player const* /*player*/) co
 
     return true;
 }
+
+bool BattlegroundSA::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor /*= true*/)
+{
+    if (!Battleground::UpdatePlayerScore(player, type, value, doAddHonor))
+        return false;
+
+    switch (type)
+    {
+        case SCORE_DESTROYED_DEMOLISHER:
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_SA_DEMOLISHERS_DESTROYED);
+            break;
+        case SCORE_DESTROYED_WALL:
+            player->UpdateCriteria(CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, BG_SA_GATES_DESTROYED);
+            break;
+        default:
+            break;
+    }
+    return true;
+}

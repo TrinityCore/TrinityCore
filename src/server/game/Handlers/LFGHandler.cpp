@@ -277,6 +277,7 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
     lfgUpdateStatus.Joined = join;
     lfgUpdateStatus.LfgJoined = updateData.updateType != lfg::LFG_UPDATETYPE_REMOVED_FROM_QUEUE;
     lfgUpdateStatus.Queued = queued;
+    lfgUpdateStatus.QueueMapID = sLFGMgr->GetDungeonMapId(_player->GetGUID());
 
     SendPacket(lfgUpdateStatus.Write());
 }

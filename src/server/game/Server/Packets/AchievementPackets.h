@@ -43,6 +43,7 @@ namespace WorldPackets
             time_t Date = time_t(0);
             uint32 TimeFromStart = 0;
             uint32 TimeFromCreate = 0;
+            Optional<uint64> RafAcceptanceID;
         };
 
         struct AllAchievements

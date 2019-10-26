@@ -118,6 +118,7 @@ enum class HighGuid
     ClientSession    = 46,
     Cast             = 47,
     ClientConnection = 48,
+    ClubFinder       = 49,
 
     Count,
 };
@@ -171,6 +172,7 @@ GUID_TRAIT_GLOBAL(HighGuid::CommerceObj)
 GUID_TRAIT_GLOBAL(HighGuid::ClientSession)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Player)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Item)       // This is not exactly correct, there are 2 more unknown parts in highguid: (high >> 10 & 0xFF), (high >> 18 & 0xFFFFFF)
+GUID_TRAIT_REALM_SPECIFIC(HighGuid::ChatChannel)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Guild)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::WorldTransaction)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Conversation)

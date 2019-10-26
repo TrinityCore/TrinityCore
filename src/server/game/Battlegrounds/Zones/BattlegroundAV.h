@@ -1486,7 +1486,8 @@ enum BG_AV_Objectives
     AV_OBJECTIVE_ASSAULT_TOWER      = 61,
     AV_OBJECTIVE_ASSAULT_GRAVEYARD  = 63,
     AV_OBJECTIVE_DEFEND_TOWER       = 64,
-    AV_OBJECTIVE_DEFEND_GRAVEYARD   = 65
+    AV_OBJECTIVE_DEFEND_GRAVEYARD   = 65,
+    AV_OBJECTIVE_SECONDARY_OBJECTIVE= 82
 };
 
 struct StaticNodeInfo
@@ -1601,11 +1602,11 @@ struct BattlegroundAVScore final : public BattlegroundScore
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
-            playerData.Stats.push_back(GraveyardsAssaulted);
-            playerData.Stats.push_back(GraveyardsDefended);
-            playerData.Stats.push_back(TowersAssaulted);
-            playerData.Stats.push_back(TowersDefended);
-            playerData.Stats.push_back(MinesCaptured);
+            playerData.Stats.emplace_back(AV_OBJECTIVE_ASSAULT_GRAVEYARD, GraveyardsAssaulted);
+            playerData.Stats.emplace_back(AV_OBJECTIVE_DEFEND_GRAVEYARD, GraveyardsDefended);
+            playerData.Stats.emplace_back(AV_OBJECTIVE_ASSAULT_TOWER, TowersAssaulted);
+            playerData.Stats.emplace_back(AV_OBJECTIVE_DEFEND_TOWER, TowersDefended);
+            playerData.Stats.emplace_back(AV_OBJECTIVE_SECONDARY_OBJECTIVE, MinesCaptured);
         }
 
         uint32 GetAttr1() const final override { return GraveyardsAssaulted; }

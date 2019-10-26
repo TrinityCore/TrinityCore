@@ -21,6 +21,12 @@
 #include "Battleground.h"
 #include "BattlegroundScore.h"
 
+enum BG_BFG_Objectives
+{
+    BFG_OBJECTIVE_BASES_ASSAULTED   = 370,
+    BFG_OBJECTIVE_BASES_DEFENDED    = 371
+};
+
 class BattlegroundBFGScore final : public BattlegroundScore
 {
     protected:
@@ -46,8 +52,8 @@ class BattlegroundBFGScore final : public BattlegroundScore
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
-            playerData.Stats.push_back(BasesAssaulted);
-            playerData.Stats.push_back(BasesDefended);
+            playerData.Stats.emplace_back(BFG_OBJECTIVE_BASES_ASSAULTED, BasesAssaulted);
+            playerData.Stats.emplace_back(BFG_OBJECTIVE_BASES_DEFENDED, BasesDefended);
         }
 
         uint32 GetAttr1() const final override { return BasesAssaulted; }

@@ -88,6 +88,16 @@ namespace WorldPackets
                 ObjectGuid GuildGuid;
             };
 
+            struct RafSystemFeatureInfo
+            {
+                bool Enabled = false;
+                bool RecruitingEnabled = false;
+                uint32 MaxRecruits = 0;
+                uint32 MaxRecruitMonths = 0;
+                uint32 MaxRecruitmentUses = 0;
+                uint32 DaysInCycle = 0;
+            };
+
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 48) { }
 
             WorldPacket const* Write() override;
@@ -95,7 +105,6 @@ namespace WorldPackets
             bool VoiceEnabled                        = false;
             bool BrowserEnabled                      = false;
             bool BpayStoreAvailable                  = false;
-            bool RecruitAFriendSendingEnabled        = false;
             bool BpayStoreEnabled                    = false;
             Optional<SessionAlertConfig> SessionAlert;
             uint32 ScrollOfResurrectionMaxRequestsPerDay = 0;
@@ -108,7 +117,6 @@ namespace WorldPackets
             uint32 TwitterPostThrottleLimit              = 0; ///< Number of twitter posts the client can send before they start being throttled
             uint32 TwitterPostThrottleCooldown           = 0; ///< Time in seconds the client has to wait before posting again after hitting post limit
             uint32 TokenPollTimeSeconds                  = 0;
-            uint32 TokenRedeemIndex                      = 0;
             int64 TokenBalanceAmount                     = 0;
             uint32 BpayStoreProductDeliveryDelay         = 0;
             uint32 ClubsPresenceUpdateTimer              = 0;
@@ -133,10 +141,14 @@ namespace WorldPackets
             bool ClubsPresenceUpdateEnabled          = false;
             bool VoiceChatDisabledByParentalControl  = false;
             bool VoiceChatMutedByParentalControl     = false;
+            bool QuestSessionEnabled                 = false;
+            bool Unused825                           = false;
+            bool ClubFinderEnabled                   = false;
 
             Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;
             VoiceChatProxySettings VoiceChatManagerSettings;
+            RafSystemFeatureInfo RAFSystem;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -161,8 +173,7 @@ namespace WorldPackets
             bool LiveRegionCharacterListEnabled      = false; // NYI
             bool LiveRegionCharacterCopyEnabled      = false; // NYI
             bool LiveRegionAccountCopyEnabled        = false; // NYI
-            int32 TokenPollTimeSeconds               = 0;     // NYI
-            int32 TokenRedeemIndex                   = 0;     // NYI
+            uint32 TokenPollTimeSeconds              = 0;     // NYI
             int64 TokenBalanceAmount                 = 0;     // NYI
             int32 MaxCharactersPerRealm              = 0;
             uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI

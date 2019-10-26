@@ -125,22 +125,22 @@ namespace WorldPackets
                 uint64 GuildClubMemberID = 0; ///< same as bgs.protocol.club.v1.MemberId.unique_id, guessed basing on SMSG_QUERY_PLAYER_NAME_RESPONSE (that one is known)
                 std::string Name;
                 uint8 ListPosition       = 0; ///< Order of the characters in list
-                uint8 Race               = 0;
-                uint8 Class              = 0;
-                uint8 Sex                = 0;
-                uint8 Skin               = 0;
-                uint8 Face               = 0;
+                uint8 RaceID             = 0;
+                uint8 ClassID            = 0;
+                uint8 SexID              = 0;
+                uint8 SkinID             = 0;
+                uint8 FaceID             = 0;
                 uint8 HairStyle          = 0;
                 uint8 HairColor          = 0;
                 uint8 FacialHair         = 0;
                 std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
-                uint8 Level              = 0;
-                int32 ZoneId             = 0;
-                int32 MapId              = 0;
-                TaggedPosition<Position::XYZ> PreLoadPosition;
-                ObjectGuid GuildGuid;
+                uint8 ExperienceLevel    = 0;
+                int32 ZoneID             = 0;
+                int32 MapID              = 0;
+                TaggedPosition<Position::XYZ> PreloadPos;
+                ObjectGuid GuildGUID;
                 uint32 Flags             = 0; ///< Character flag @see enum CharacterFlags
-                uint32 CustomizationFlag = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
+                uint32 Flags2            = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
                 uint32 Flags3            = 0; ///< Character flags 3 @todo research
                 uint32 Flags4            = 0;
                 bool FirstLogin      = false;
@@ -148,23 +148,21 @@ namespace WorldPackets
                 uint32 LastPlayedTime    = 0;
                 uint16 SpecID            = 0;
                 uint32 Unknown703        = 0;
-                uint32 LastLoginVersion    = 0;
+                uint32 LastLoginVersion  = 0;
 
-                struct PetInfo
-                {
-                    uint32 CreatureDisplayId = 0; ///< PetCreatureDisplayID
-                    uint32 Level             = 0; ///< PetExperienceLevel
-                    uint32 CreatureFamily    = 0; ///< PetCreatureFamilyID
-                } Pet;
+                uint32 PetCreatureDisplayID = 0;
+                uint32 PetExperienceLevel   = 0;
+                uint32 PetCreatureFamilyID  = 0;
 
                 bool BoostInProgress = false; ///< @todo
                 int32 ProfessionIds[2] = { }; ///< @todo
 
                 struct VisualItemInfo
                 {
-                    uint32 DisplayId        = 0;
-                    uint32 DisplayEnchantId = 0;
-                    uint8 InventoryType     = 0;
+                    uint32 DisplayID        = 0;
+                    uint32 DisplayEnchantID = 0;
+                    uint8 InvType           = 0;
+                    uint8 Subclass          = 0;
                 };
 
                 std::array<VisualItemInfo, 23> VisualItems = { };

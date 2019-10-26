@@ -60,6 +60,7 @@ namespace WorldPackets
             bool IsFullUpdate = false;
             bool IsSetFavorite = false;
             std::vector<uint32> FavoriteAppearances;
+            std::vector<uint32> NewAppearances;
         };
 
         class OpenTransmogrifier final : public ServerPacket

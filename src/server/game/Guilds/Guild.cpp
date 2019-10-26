@@ -1399,7 +1399,7 @@ void Guild::SendGuildRankInfo(WorldSession* session) const
 
         WorldPackets::Guild::GuildRankData rankData;
 
-        rankData.RankID = uint32(rankInfo->GetId());
+        rankData.RankID = rankInfo->GetId();
         rankData.RankOrder = uint32(i);
         rankData.Flags = rankInfo->GetRights();
         rankData.WithdrawGoldLimit = (rankInfo->GetId() == GR_GUILDMASTER ? (-1) : int32(rankInfo->GetBankMoneyPerDay() / GOLD));
