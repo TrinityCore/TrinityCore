@@ -904,9 +904,9 @@ private:
 
 void AddSC_boss_headless_horseman()
 {
-    RegisterScarletMonastaryCreatureAI(boss_headless_horseman);
-    RegisterScarletMonastaryCreatureAI(npc_head);
-    RegisterScarletMonastaryCreatureAI(npc_pulsing_pumpkin);
-    RegisterScarletMonastaryCreatureAI(npc_wisp_invis);
-    RegisterScarletMonastaryGameObjectAI(go_loosely_turned_soil);
+    RegisterScarletMonasteryCreatureAI(boss_headless_horseman);
+    RegisterScarletMonasteryCreatureAI(npc_head);
+    RegisterScarletMonasteryCreatureAI(npc_pulsing_pumpkin);
+    RegisterScarletMonasteryCreatureAI(npc_wisp_invis);
+    RegisterScarletMonasteryGameObjectAI(go_loosely_turned_soil);
 }

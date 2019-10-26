@@ -76,5 +76,5 @@ struct boss_scorn : public BossAI
 
 void AddSC_boss_scorn()
 {
-    RegisterScarletMonastaryCreatureAI(boss_scorn);
+    RegisterScarletMonasteryCreatureAI(boss_scorn);
 }

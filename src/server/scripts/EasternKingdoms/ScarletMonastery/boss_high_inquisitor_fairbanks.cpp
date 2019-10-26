@@ -159,5 +159,5 @@ private:
 
 void AddSC_boss_high_inquisitor_fairbanks()
 {
-    RegisterScarletMonastaryCreatureAI(boss_high_inquisitor_fairbanks);
+    RegisterScarletMonasteryCreatureAI(boss_high_inquisitor_fairbanks);
 }

@@ -155,6 +155,6 @@ private:
 
 void AddSC_boss_herod()
 {
-    RegisterScarletMonastaryCreatureAI(boss_herod);
-    RegisterScarletMonastaryCreatureAI(npc_scarlet_trainee);
+    RegisterScarletMonasteryCreatureAI(boss_herod);
+    RegisterScarletMonasteryCreatureAI(npc_scarlet_trainee);
 }

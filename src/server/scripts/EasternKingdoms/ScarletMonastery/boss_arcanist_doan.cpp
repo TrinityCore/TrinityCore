@@ -117,5 +117,5 @@ private:
 
 void AddSC_boss_arcanist_doan()
 {
-    RegisterScarletMonastaryCreatureAI(boss_arcanist_doan);
+    RegisterScarletMonasteryCreatureAI(boss_arcanist_doan);
 }

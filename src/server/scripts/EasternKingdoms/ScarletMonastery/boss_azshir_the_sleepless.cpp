@@ -106,5 +106,5 @@ private:
 
 void AddSC_boss_azshir_the_sleepless()
 {
-    RegisterScarletMonastaryCreatureAI(boss_azshir_the_sleepless);
+    RegisterScarletMonasteryCreatureAI(boss_azshir_the_sleepless);
 }

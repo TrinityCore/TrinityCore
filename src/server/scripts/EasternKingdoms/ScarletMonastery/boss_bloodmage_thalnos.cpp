@@ -111,5 +111,5 @@ private:
 
 void AddSC_boss_bloodmage_thalnos()
 {
-    RegisterScarletMonastaryCreatureAI(boss_bloodmage_thalnos);
+    RegisterScarletMonasteryCreatureAI(boss_bloodmage_thalnos);
 }

@@ -414,6 +414,6 @@ private:
 
 void AddSC_boss_mograine_and_whitemane()
 {
-    RegisterScarletMonastaryCreatureAI(boss_scarlet_commander_mograine);
-    RegisterScarletMonastaryCreatureAI(boss_high_inquisitor_whitemane);
+    RegisterScarletMonasteryCreatureAI(boss_scarlet_commander_mograine);
+    RegisterScarletMonasteryCreatureAI(boss_high_inquisitor_whitemane);
 }
