@@ -1858,7 +1858,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
             break;
         case CONDITION_SOURCE_TYPE_GRAVEYARD:
-            if (!sWorldSafeLocsStore.LookupEntry(cond->SourceEntry))
+            if (!sObjectMgr->GetWorldSafeLoc(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.", cond->ToString().c_str());
                 return false;
