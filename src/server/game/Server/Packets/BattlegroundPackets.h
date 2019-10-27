@@ -110,6 +110,15 @@ namespace WorldPackets
                 uint32 ContributionPoints = 0;
             };
 
+            struct PVPMatchPlayerPVPStat
+            {
+                PVPMatchPlayerPVPStat() : PvpStatID(0), PvpStatValue(0) { }
+                PVPMatchPlayerPVPStat(int32 pvpStatID, int32 pvpStatValue) : PvpStatID(pvpStatID), PvpStatValue(pvpStatValue) { }
+
+                int32 PvpStatID;
+                int32 PvpStatValue;
+            };
+
             struct PVPMatchPlayerStatistics
             {
                 ObjectGuid PlayerGUID;
@@ -123,7 +132,7 @@ namespace WorldPackets
                 Optional<int32> RatingChange;
                 Optional<uint32> PreMatchMMR;
                 Optional<int32> MmrChange;
-                std::vector<int32> Stats;
+                std::vector<PVPMatchPlayerPVPStat> Stats;
                 int32 PrimaryTalentTree = 0;
                 int32 Sex = 0;
                 int32 Race = 0;

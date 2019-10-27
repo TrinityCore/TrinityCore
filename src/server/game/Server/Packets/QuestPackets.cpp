@@ -147,6 +147,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << int32(Info.TreasurePickerID);
         _worldPacket << int32(Info.Expansion);
         _worldPacket << int32(Info.ManagedWorldStateID);
+        _worldPacket << int32(Info.QuestSessionBonus);
 
         _worldPacket.WriteBits(Info.LogTitle.size(), 9);
         _worldPacket.WriteBits(Info.LogDescription.size(), 12);
@@ -373,6 +374,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << uint32(DescEmotes.size());
     _worldPacket << uint32(Objectives.size());
     _worldPacket << int32(QuestStartItemID);
+    _worldPacket << int32(QuestSessionBonus);
 
     for (int32 spell : LearnSpells)
         _worldPacket << int32(spell);
@@ -399,6 +401,7 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
     _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
     _worldPacket.WriteBit(AutoLaunched);
+    _worldPacket.WriteBit(false);   // unused in client
     _worldPacket.WriteBit(StartCheat);
     _worldPacket.WriteBit(DisplayPopup);
     _worldPacket.FlushBits();

@@ -1624,7 +1624,6 @@ CREATE TABLE `character_void_storage` (
   `slot` tinyint(3) unsigned NOT NULL,
   `creatorGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `randomBonusListId` int(10) unsigned NOT NULL DEFAULT '0',
-  `upgradeId` int(10) unsigned NOT NULL DEFAULT '0',
   `fixedScalingLevel` int(10) unsigned DEFAULT '0',
   `artifactKnowledgeLevel` int(10) unsigned DEFAULT '0',
   `context` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2787,7 +2786,6 @@ CREATE TABLE `item_instance` (
   `playedTime` int(10) unsigned NOT NULL DEFAULT '0',
   `text` text,
   `transmogrification` int(10) unsigned NOT NULL DEFAULT '0',
-  `upgradeId` int(10) unsigned NOT NULL DEFAULT '0',
   `enchantIllusion` int(10) unsigned NOT NULL DEFAULT '0',
   `battlePetSpeciesId` int(10) unsigned NOT NULL DEFAULT '0',
   `battlePetBreedData` int(10) unsigned NOT NULL DEFAULT '0',
@@ -3570,7 +3568,9 @@ INSERT INTO `updates` VALUES
 ('2019_06_08_00_characters.sql','6C5AF52AEF03BC019B96E7A07592C22660F9327B','RELEASED','2019-06-03 20:04:47',0),
 ('2019_06_08_01_characters.sql','55076AFAF4B55DB4E34029C269EE0C84315C31BA','RELEASED','2019-06-04 22:11:47',0),
 ('2019_06_25_00_characters.sql','B8CBF79DEE02B40B01424327D31E52C70335BEC6','RELEASED','2019-06-25 22:40:37',0),
-('2019_07_15_00_characters.sql','E1C77F604FB2A2FE8B32258CD0C9EC71BEA4F0FF','RELEASED','2019-06-25 22:40:37',0);
+('2019_07_15_00_characters.sql','E1C77F604FB2A2FE8B32258CD0C9EC71BEA4F0FF','RELEASED','2019-06-25 22:40:37',0),
+('2019_10_26_00_characters.sql','F1090ACDEB876A7BB5ED8829373F6305A217949A','RELEASED','2019-10-25 23:04:42',0),
+('2019_10_26_01_characters.sql','59D5860930D02AB77D2AAA704C564957A9143760','RELEASED','2019-10-26 22:04:46',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

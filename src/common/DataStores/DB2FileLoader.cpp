@@ -678,25 +678,28 @@ void DB2FileLoaderRegularImpl::FillParentLookup(char* dataTable)
     for (uint32 i = 0; i < _header->SectionCount; ++i)
     {
         DB2SectionHeader const& section = GetSection(i);
-        for (std::size_t j = 0; j < _parentIndexes[i][0].Entries.size(); ++j)
+        if (!section.TactId)
         {
-            uint32 parentId = _parentIndexes[i][0].Entries[j].ParentId;
-            char* recordData = &dataTable[(_parentIndexes[i][0].Entries[j].RecordIndex + recordIndexOffset) * recordSize];
-
-            switch (_loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type)
+            for (std::size_t j = 0; j < _parentIndexes[i][0].Entries.size(); ++j)
             {
-                case FT_SHORT:
-                    *reinterpret_cast<uint16*>(&recordData[parentIdOffset]) = uint16(parentId);
-                    break;
-                case FT_BYTE:
-                    *reinterpret_cast<uint8*>(&recordData[parentIdOffset]) = uint8(parentId);
-                    break;
-                case FT_INT:
-                    *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
-                    break;
-                default:
-                    ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
-                    break;
+                uint32 parentId = _parentIndexes[i][0].Entries[j].ParentId;
+                char* recordData = &dataTable[(_parentIndexes[i][0].Entries[j].RecordIndex + recordIndexOffset) * recordSize];
+
+                switch (_loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type)
+                {
+                    case FT_SHORT:
+                        *reinterpret_cast<uint16*>(&recordData[parentIdOffset]) = uint16(parentId);
+                        break;
+                    case FT_BYTE:
+                        *reinterpret_cast<uint8*>(&recordData[parentIdOffset]) = uint8(parentId);
+                        break;
+                    case FT_INT:
+                        *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
+                        break;
+                    default:
+                        ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
+                        break;
+                }
             }
         }
         recordIndexOffset += section.RecordCount;
@@ -1383,25 +1386,28 @@ void DB2FileLoaderSparseImpl::FillParentLookup(char* dataTable)
     for (uint32 i = 0; i < _header->SectionCount; ++i)
     {
         DB2SectionHeader const& section = GetSection(i);
-        for (std::size_t j = 0; j < _parentIndexes[i][0].Entries.size(); ++j)
+        if (!section.TactId)
         {
-            uint32 parentId = _parentIndexes[i][0].Entries[j].ParentId;
-            char* recordData = &dataTable[(_parentIndexes[i][0].Entries[j].RecordIndex + recordIndexOffset) * recordSize];
-
-            switch (_loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type)
+            for (std::size_t j = 0; j < _parentIndexes[i][0].Entries.size(); ++j)
             {
-                case FT_SHORT:
-                    *reinterpret_cast<uint16*>(&recordData[parentIdOffset]) = uint16(parentId);
-                    break;
-                case FT_BYTE:
-                    *reinterpret_cast<uint8*>(&recordData[parentIdOffset]) = uint8(parentId);
-                    break;
-                case FT_INT:
-                    *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
-                    break;
-                default:
-                    ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
-                    break;
+                uint32 parentId = _parentIndexes[i][0].Entries[j].ParentId;
+                char* recordData = &dataTable[(_parentIndexes[i][0].Entries[j].RecordIndex + recordIndexOffset) * recordSize];
+
+                switch (_loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type)
+                {
+                    case FT_SHORT:
+                        *reinterpret_cast<uint16*>(&recordData[parentIdOffset]) = uint16(parentId);
+                        break;
+                    case FT_BYTE:
+                        *reinterpret_cast<uint8*>(&recordData[parentIdOffset]) = uint8(parentId);
+                        break;
+                    case FT_INT:
+                        *reinterpret_cast<uint32*>(&recordData[parentIdOffset]) = parentId;
+                        break;
+                    default:
+                        ASSERT(false, "Unhandled parent id type '%c' found in %s", _loadInfo->Meta->Fields[_loadInfo->Meta->ParentIndexField].Type, _fileName);
+                        break;
+                }
             }
         }
         recordIndexOffset += section.RecordCount;
@@ -1873,6 +1879,13 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     if (loadInfo && !loadInfo->Meta->HasIndexFieldInData() && _header.RecordCount)
         idTable.reserve(_header.RecordCount);
 
+    if (_header.ParentLookupCount)
+    {
+        parentIndexes.resize(_header.SectionCount);
+        for (std::vector<DB2IndexData>& parentIndexesForSection : parentIndexes)
+            parentIndexesForSection.resize(_header.ParentLookupCount);
+    }
+
     for (uint32 i = 0; i < _header.SectionCount; ++i)
     {
         DB2SectionHeader const& section = _impl->GetSection(i);
@@ -1917,9 +1930,7 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
 
         if (_header.ParentLookupCount)
         {
-            parentIndexes.emplace_back();
-            std::vector<DB2IndexData>& parentIndexesForSection = parentIndexes.back();
-            parentIndexesForSection.resize(_header.ParentLookupCount);
+            std::vector<DB2IndexData>& parentIndexesForSection = parentIndexes[i];
             for (uint32 j = 0; j < _header.ParentLookupCount; ++j)
             {
                 DB2IndexDataInfo indexInfo;

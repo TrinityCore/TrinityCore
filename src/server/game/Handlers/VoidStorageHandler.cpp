@@ -155,8 +155,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         }
 
         VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetCreator(),
-            item->GetItemRandomBonusListId(), item->GetModifier(ITEM_MODIFIER_UPGRADE_ID),
-            item->GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), item->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL),
+            item->GetItemRandomBonusListId(), item->GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL), item->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL),
             uint8(item->m_itemData->Context), item->m_itemData->BonusListIDs);
 
         WorldPackets::VoidStorage::VoidItem voidItem;
@@ -196,7 +195,6 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
 
         Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->RandomBonusListId, GuidSet(), itemVS->Context, itemVS->BonusListIDs);
         item->SetCreator(itemVS->CreatorGuid);
-        item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, itemVS->ItemUpgradeId);
         item->SetBinding(true);
         GetCollectionMgr()->AddItemAppearance(item);
 

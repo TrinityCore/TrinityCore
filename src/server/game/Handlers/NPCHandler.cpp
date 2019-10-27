@@ -315,7 +315,7 @@ void WorldSession::SendSpiritResurrect()
         WorldSafeLocsEntry const* ghostGrave = sObjectMgr->GetClosestGraveYard(*_player, _player->GetTeam(), _player);
 
         if (corpseGrave != ghostGrave)
-            _player->TeleportTo(corpseGrave->MapID, corpseGrave->Loc.X, corpseGrave->Loc.Y, corpseGrave->Loc.Z, (corpseGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
+            _player->TeleportTo(corpseGrave->Loc);
     }
 }
 

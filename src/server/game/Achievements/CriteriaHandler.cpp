@@ -786,8 +786,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_EARN_HONOR_XP:
             case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
             case CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL:
-            case CRITERIA_TREE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
-            case CRITERIA_TREE_HEART_OF_AZEROTH_LEVEL_REACHED:
+            case CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
+            case CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED:
                 break;                                   // Not implemented yet :(
         }
 
@@ -1151,8 +1151,8 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_EARN_HONOR_XP:
         case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
         case CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL:
-        case CRITERIA_TREE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
-        case CRITERIA_TREE_HEART_OF_AZEROTH_LEVEL_REACHED:
+        case CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
+        case CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED:
             return progress->Counter >= requiredAmount;
         case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case CRITERIA_TYPE_COMPLETE_QUEST:
@@ -2204,9 +2204,9 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "RELIC_TALENT_UNLOCKED";
         case CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL:
             return "REACH_ACCOUNT_HONOR_LEVEL";
-        case CRITERIA_TREE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
+        case CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
             return "HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED";
-        case CRITERIA_TREE_HEART_OF_AZEROTH_LEVEL_REACHED:
+        case CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED:
             return "HEART_OF_AZEROTH_LEVEL_REACHED";
     }
     return "MISSING_TYPE";

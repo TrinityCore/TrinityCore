@@ -20,6 +20,7 @@
 #include "BattlefieldMgr.h"
 #include "BattlefieldTB.h"
 #include "DB2Stores.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -83,8 +84,8 @@ class npc_tb_spirit_guide : public CreatureScript
                         return;
                 }
 
-                if (WorldSafeLocsEntry const* safeLoc = sWorldSafeLocsStore.LookupEntry(areaId))
-                    player->TeleportTo(safeLoc->MapID, safeLoc->Loc.X, safeLoc->Loc.Y, safeLoc->Loc.Z, 0);
+                if (WorldSafeLocsEntry const* safeLoc = sObjectMgr->GetWorldSafeLoc(areaId))
+                    player->TeleportTo(safeLoc->Loc);
             }
         };
 
