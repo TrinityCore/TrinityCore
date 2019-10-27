@@ -899,23 +899,21 @@ struct BGData
 
 struct VoidStorageItem
 {
-    VoidStorageItem() : ItemId(0), ItemEntry(0), RandomBonusListId(0), ItemUpgradeId(0), FixedScalingLevel(0), ArtifactKnowledgeLevel(0), Context(0) { }
+    VoidStorageItem() : ItemId(0), ItemEntry(0), RandomBonusListId(0), FixedScalingLevel(0), ArtifactKnowledgeLevel(0), Context(0) { }
     VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, ItemRandomBonusListId randomBonusListId,
-        uint32 upgradeId, uint32 fixedScalingLevel, uint32 artifactKnowledgeLevel, uint8 context, std::vector<int32> const& bonuses)
+        uint32 fixedScalingLevel, uint32 artifactKnowledgeLevel, uint8 context, std::vector<int32> const& bonuses)
         : ItemId(id), ItemEntry(entry), CreatorGuid(creator), RandomBonusListId(randomBonusListId),
-        ItemUpgradeId(upgradeId), FixedScalingLevel(fixedScalingLevel), ArtifactKnowledgeLevel(artifactKnowledgeLevel), Context(context)
+        FixedScalingLevel(fixedScalingLevel), ArtifactKnowledgeLevel(artifactKnowledgeLevel), Context(context)
     {
         BonusListIDs.insert(BonusListIDs.end(), bonuses.begin(), bonuses.end());
     }
     VoidStorageItem(VoidStorageItem&& vsi) noexcept : ItemId(vsi.ItemId), ItemEntry(vsi.ItemEntry), CreatorGuid(vsi.CreatorGuid), RandomBonusListId(vsi.RandomBonusListId),
-        ItemUpgradeId(vsi.ItemUpgradeId), FixedScalingLevel(vsi.FixedScalingLevel),
-        ArtifactKnowledgeLevel(vsi.ArtifactKnowledgeLevel), Context(vsi.Context), BonusListIDs(std::move(vsi.BonusListIDs)) { }
+        FixedScalingLevel(vsi.FixedScalingLevel), ArtifactKnowledgeLevel(vsi.ArtifactKnowledgeLevel), Context(vsi.Context), BonusListIDs(std::move(vsi.BonusListIDs)) { }
 
     uint64 ItemId;
     uint32 ItemEntry;
     ObjectGuid CreatorGuid;
     ItemRandomBonusListId RandomBonusListId;
-    uint32 ItemUpgradeId;
     uint32 FixedScalingLevel;
     uint32 ArtifactKnowledgeLevel;
     uint8 Context;

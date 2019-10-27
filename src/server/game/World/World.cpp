@@ -1813,6 +1813,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();
 
+    TC_LOG_INFO("server.loading", "Loading World locations...");
+    sObjectMgr->LoadWorldSafeLocs();                            // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
+
     TC_LOG_INFO("server.loading", "Loading AreaTrigger definitions...");
     sObjectMgr->LoadAreaTriggerTeleports();
 

@@ -19,6 +19,7 @@
 #define UpdateField_h__
 
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "UpdateMask.h"
 #include <algorithm>
 #include <vector>

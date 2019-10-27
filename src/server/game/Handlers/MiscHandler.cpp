@@ -616,15 +616,15 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
             if (Map* map = sMapMgr->FindMap(at->target_mapId, player->GetInstanceSave(at->target_mapId)->GetInstanceId()))
                 if (InstanceMap* instanceMap = map->ToInstanceMap())
                     if (InstanceScript* instanceScript = instanceMap->GetInstanceScript())
-                        entranceLocation = sWorldSafeLocsStore.LookupEntry(instanceScript->GetEntranceLocation());
+                        entranceLocation = sObjectMgr->GetWorldSafeLoc(instanceScript->GetEntranceLocation());
 
             // Finally check with the instancesave for an entrance location if we did not get a valid one from the instancescript
             if (!entranceLocation)
-                entranceLocation = sWorldSafeLocsStore.LookupEntry(instanceSave->GetEntranceLocation());
+                entranceLocation = sObjectMgr->GetWorldSafeLoc(instanceSave->GetEntranceLocation());
         }
 
         if (entranceLocation)
-            player->TeleportTo(entranceLocation->MapID, entranceLocation->Loc.X, entranceLocation->Loc.Y, entranceLocation->Loc.Z, entranceLocation->Facing * M_PI / 180, TELE_TO_NOT_LEAVE_TRANSPORT);
+            player->TeleportTo(entranceLocation->Loc, TELE_TO_NOT_LEAVE_TRANSPORT);
         else
             player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
     }

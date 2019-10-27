@@ -431,7 +431,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 RankID = 0;
+            uint8 RankID = 0;
             int32 RankOrder = 0;
             uint32 WithdrawGoldLimit = 0;
             uint32 Flags = 0;
@@ -485,8 +485,8 @@ namespace WorldPackets
 
         struct GuildRankData
         {
-            uint32 RankID = 0;
-            uint32 RankOrder = 0;
+            uint8 RankID = 0;
+            int32 RankOrder = 0;
             uint32 Flags = 0;
             uint32 WithdrawGoldLimit = 0;
             std::string RankName;

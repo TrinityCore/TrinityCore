@@ -47,7 +47,6 @@ LootItem::LootItem(LootStoreItem const& li)
     needs_quest = li.needs_quest;
 
     randomBonusListId = GenerateItemRandomBonusListId(itemid);
-    upgradeId = sDB2Manager.GetRulesetItemUpgrade(itemid);
     context = 0;
     count = 0;
     is_looted = 0;

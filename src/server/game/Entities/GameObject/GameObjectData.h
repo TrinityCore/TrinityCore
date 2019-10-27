@@ -706,6 +706,14 @@ struct GameObjectTemplate
             uint32 open;                                    // 2 open, References: Lock_, NoValue = 0
             uint32 openTextID;                              // 3 openTextID, References: BroadcastText, NoValue = 0
         } pvpReward;
+        // 56 GAMEOBJECT_TYPE_FUTURE_PATCH_1
+        struct
+        {
+        } futurePatch1;
+        // 57 GAMEOBJECT_TYPE_FUTURE_PATCH_2
+        struct
+        {
+        } futurePatch2;
         struct
         {
             uint32 data[MAX_GAMEOBJECT_DATA];

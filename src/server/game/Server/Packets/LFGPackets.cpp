@@ -197,6 +197,7 @@ WorldPacket const* WorldPackets::LFG::LFGUpdateStatus::Write()
     _worldPacket << uint32(Slots.size());
     _worldPacket << uint32(RequestedRoles);
     _worldPacket << uint32(SuspendedPlayers.size());
+    _worldPacket << uint32(QueueMapID);
 
     for (uint32 slot : Slots)
         _worldPacket << uint32(slot);

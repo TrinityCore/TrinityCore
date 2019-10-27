@@ -127,6 +127,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 102,// You can't do that right now.
     EQUIP_ERR_BAG_FULL_6                                   = 103,// That bag is full.
     EQUIP_ERR_CANT_BE_SCRAPPED                             = 104,// You can't scrap that item
+    EQUIP_NONE_4                                           = 105,
 };
 
 enum BuyResult
@@ -194,7 +195,7 @@ enum ItemModifier : uint16
     ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID                 = 6,
     ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS            = 7,
     ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID                = 8,
-    ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL = 9,
+    ITEM_MODIFIER_TIMEWALKER_LEVEL                      = 9,
     ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1               = 10,
     ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2            = 11,
     ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2               = 12,
@@ -207,9 +208,11 @@ enum ItemModifier : uint16
     ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1         = 19,
     ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2         = 20,
     ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3         = 21,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED         = 22,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4         = 22,
     ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL              = 23,
     ITEM_MODIFIER_ARTIFACT_TIER                         = 24,
+    ITEM_MODIFIER_UNUSED_25                             = 25,
+    ITEM_MODIFIER_PVP_RATING                            = 26,
 
     MAX_ITEM_MODIFIERS
 };
