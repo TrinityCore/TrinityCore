@@ -127,6 +127,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 102,// You can't do that right now.
     EQUIP_ERR_BAG_FULL_6                                   = 103,// That bag is full.
     EQUIP_ERR_CANT_BE_SCRAPPED                             = 104,// You can't scrap that item
+    EQUIP_NONE_4                                           = 105,
 };
 
 enum BuyResult
