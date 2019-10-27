@@ -19,7 +19,7 @@
 #define __TRINITY_CHANNELMGR_H
 
 #include "Define.h"
-#include "Hash.h"
+#include "ObjectGuid.h"
 #include <string>
 #include <unordered_map>
 
