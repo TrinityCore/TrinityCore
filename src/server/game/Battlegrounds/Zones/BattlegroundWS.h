@@ -197,8 +197,8 @@ struct BattlegroundWGScore final : public BattlegroundScore
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
-            playerData.Stats.push_back(FlagCaptures);
-            playerData.Stats.push_back(FlagReturns);
+            playerData.Stats.emplace_back(WS_OBJECTIVE_CAPTURE_FLAG, FlagCaptures);
+            playerData.Stats.emplace_back(WS_OBJECTIVE_RETURN_FLAG, FlagReturns);
         }
 
         uint32 GetAttr1() const final override { return FlagCaptures; }

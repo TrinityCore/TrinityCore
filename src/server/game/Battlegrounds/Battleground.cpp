@@ -1029,7 +1029,7 @@ void Battleground::StartBattleground()
 void Battleground::TeleportPlayerToExploitLocation(Player* player)
 {
     if (WorldSafeLocsEntry const* loc = GetExploitTeleportLocation(Team(player->GetBGTeam())))
-        player->TeleportTo(loc->MapID, loc->Loc.X, loc->Loc.Y, loc->Loc.Z, loc->Facing);
+        player->TeleportTo(loc->Loc);
 }
 
 void Battleground::AddPlayer(Player* player)
@@ -1359,7 +1359,7 @@ void Battleground::RelocateDeadPlayers(ObjectGuid guideGuid)
                 closestGrave = GetClosestGraveYard(player);
 
             if (closestGrave)
-                player->TeleportTo(GetMapId(), closestGrave->Loc.X, closestGrave->Loc.Y, closestGrave->Loc.Z, player->GetOrientation());
+                player->TeleportTo(closestGrave->Loc);
         }
         ghostList.clear();
     }

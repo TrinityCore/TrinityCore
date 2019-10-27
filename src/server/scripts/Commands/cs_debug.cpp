@@ -1257,23 +1257,24 @@ public:
             float z = player->GetPositionZ();
             float distNearest = std::numeric_limits<float>::max();
 
-            for (uint32 i = 0; i < sWorldSafeLocsStore.GetNumRows(); ++i)
+            for (auto&& kvp : sObjectMgr->GetWorldSafeLocs())
             {
-                WorldSafeLocsEntry const* loc = sWorldSafeLocsStore.LookupEntry(i);
-                if (loc && loc->MapID == player->GetMapId())
+                if (kvp.second.Loc.GetMapId() == player->GetMapId())
                 {
-                    float dist = (loc->Loc.X - x) * (loc->Loc.X - x) + (loc->Loc.Y - y) * (loc->Loc.Y - y) + (loc->Loc.Z - z) * (loc->Loc.Z - z);
+                    float dist = (kvp.second.Loc.GetPositionX() - x) * (kvp.second.Loc.GetPositionX() - x)
+                        + (kvp.second.Loc.GetPositionY() - y) * (kvp.second.Loc.GetPositionY() - y)
+                        + (kvp.second.Loc.GetPositionZ() - z) * (kvp.second.Loc.GetPositionZ() - z);
                     if (dist < distNearest)
                     {
                         distNearest = dist;
-                        nearestLoc = loc;
+                        nearestLoc = &kvp.second;
                     }
                 }
             }
         }
 
         if (nearestLoc)
-            handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD, nearestLoc->ID, nearestLoc->Loc.X, nearestLoc->Loc.Y, nearestLoc->Loc.Z);
+            handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD, nearestLoc->ID, nearestLoc->Loc.GetPositionX(), nearestLoc->Loc.GetPositionY(), nearestLoc->Loc.GetPositionZ());
         else
             handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD_NOTFOUND);
 

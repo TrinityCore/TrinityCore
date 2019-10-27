@@ -3910,9 +3910,9 @@ void ObjectMgr::LoadQuests()
         "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionCapIn5, RewardFactionFlags, "
         //96                97                  98                 99                  100                101                 102                103
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //104                105                 106          107          108             109               110        111
-        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, TreasurePickerID, Expansion, ManagedWorldStateID, "
-        //112      113             114               115              116                117                118                 119                 120
+        //104                105                 106          107          108             109               110        111                  112
+        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, TreasurePickerID, Expansion, ManagedWorldStateID, QuestSessionBonus, "
+        //113      114             115               116              117                118                119                 120                 121
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
         " FROM quest_template");
     if (!result)
@@ -6269,7 +6269,7 @@ void ObjectMgr::LoadGraveyardZones()
         uint32 zoneId = fields[1].GetUInt32();
         uint32 team   = fields[2].GetUInt16();
 
-        WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.LookupEntry(safeLocId);
+        WorldSafeLocsEntry const* entry = GetWorldSafeLoc(safeLocId);
         if (!entry)
         {
             TC_LOG_ERROR("sql.sql", "Table `graveyard_zone` has a record for non-existing graveyard (WorldSafeLocsID: %u), skipped.", safeLocId);
@@ -6305,9 +6305,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetDefaultGraveYard(uint32 team) const
     };
 
     if (team == HORDE)
-        return sWorldSafeLocsStore.LookupEntry(HORDE_GRAVEYARD);
+        return GetWorldSafeLoc(HORDE_GRAVEYARD);
     else if (team == ALLIANCE)
-        return sWorldSafeLocsStore.LookupEntry(ALLIANCE_GRAVEYARD);
+        return GetWorldSafeLoc(ALLIANCE_GRAVEYARD);
     else return nullptr;
 }
 
@@ -6368,7 +6368,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(WorldLocation const& lo
     {
         GraveYardData const& data = range.first->second;
 
-        WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.AssertEntry(data.safeLocId);
+        WorldSafeLocsEntry const* entry = ASSERT_NOTNULL(GetWorldSafeLoc(data.safeLocId));
 
         // skip enemy faction graveyard
         // team == 0 case can be at call from .neargrave
@@ -6380,17 +6380,17 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(WorldLocation const& lo
             if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_GRAVEYARD, data.safeLocId, conditionSource))
                 continue;
 
-            if (int16(entry->MapID) == mapEntry->ParentMapID && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->MapID))
+            if (int16(entry->Loc.GetMapId()) == mapEntry->ParentMapID && !conditionObject->GetPhaseShift().HasVisibleMapId(entry->Loc.GetMapId()))
                 continue;
         }
 
         // find now nearest graveyard at other map
-        if (MapId != entry->MapID && int16(entry->MapID) != mapEntry->ParentMapID)
+        if (MapId != entry->Loc.GetMapId() && int16(entry->Loc.GetMapId()) != mapEntry->ParentMapID)
         {
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry
                 || mapEntry->CorpseMapID < 0
-                || uint32(mapEntry->CorpseMapID) != entry->MapID
+                || uint32(mapEntry->CorpseMapID) != entry->Loc.GetMapId()
                 || (mapEntry->Corpse.X == 0 && mapEntry->Corpse.Y == 0)) // Check X and Y
             {
                 // not have any corrdinates for check distance anyway
@@ -6399,8 +6399,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(WorldLocation const& lo
             }
 
             // at entrance map calculate distance (2D);
-            float dist2 = (entry->Loc.X - mapEntry->Corpse.X)*(entry->Loc.X - mapEntry->Corpse.X)
-                +(entry->Loc.Y - mapEntry->Corpse.Y)*(entry->Loc.Y - mapEntry->Corpse.Y);
+            float dist2 = (entry->Loc.GetPositionX() - mapEntry->Corpse.X) * (entry->Loc.GetPositionX() - mapEntry->Corpse.X)
+                + (entry->Loc.GetPositionY() - mapEntry->Corpse.Y) * (entry->Loc.GetPositionY() - mapEntry->Corpse.Y);
             if (foundEntr)
             {
                 if (dist2 < distEntr)
@@ -6419,7 +6419,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(WorldLocation const& lo
         // find now nearest graveyard at same map
         else
         {
-            float dist2 = (entry->Loc.X - x)*(entry->Loc.X - x)+(entry->Loc.Y - y)*(entry->Loc.Y - y)+(entry->Loc.Z - z)*(entry->Loc.Z - z);
+            float dist2 = (entry->Loc.GetPositionX() - x) * (entry->Loc.GetPositionX() - x)
+                + (entry->Loc.GetPositionY() - y) * (entry->Loc.GetPositionY() - y)
+                + (entry->Loc.GetPositionZ() - z) * (entry->Loc.GetPositionZ() - z);
             if (foundNear)
             {
                 if (dist2 < distNear)
@@ -6456,6 +6458,46 @@ GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId) cons
             return &data;
     }
     return nullptr;
+}
+
+void ObjectMgr::LoadWorldSafeLocs()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                   0   1      2     3     4     5
+    if (QueryResult result = WorldDatabase.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing FROM world_safe_locs"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 id = fields[0].GetUInt32();
+            WorldLocation loc(fields[1].GetUInt32(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat());
+            if (!MapManager::IsValidMapCoord(loc))
+            {
+                TC_LOG_ERROR("sql.sql", "World location (ID: %u) has a invalid position MapID: %u %s, skipped", id, loc.GetMapId(), loc.ToString().c_str());
+                continue;
+            }
+
+            WorldSafeLocsEntry& worldSafeLocs = _worldSafeLocs[id];
+            worldSafeLocs.ID = id;
+            worldSafeLocs.Loc.WorldRelocate(loc);
+
+        } while (result->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " world locations %u ms", _worldSafeLocs.size(), GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+        TC_LOG_INFO("server.loading", ">> Loaded 0 world locations. DB table `world_safe_locs` is empty.");
+}
+
+WorldSafeLocsEntry const* ObjectMgr::GetWorldSafeLoc(uint32 id) const
+{
+    return Trinity::Containers::MapGetValuePtr(_worldSafeLocs, id);
+}
+
+Trinity::IteratorPair<std::unordered_map<uint32, WorldSafeLocsEntry>::const_iterator> ObjectMgr::GetWorldSafeLocs() const
+{
+    return std::make_pair(_worldSafeLocs.begin(), _worldSafeLocs.end());
 }
 
 AreaTriggerStruct const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
@@ -6575,7 +6617,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         uint32 Trigger_ID = fields[0].GetUInt32();
         uint32 PortLocID  = fields[1].GetUInt32();
 
-        WorldSafeLocsEntry const* portLoc = sWorldSafeLocsStore.LookupEntry(PortLocID);
+        WorldSafeLocsEntry const* portLoc = GetWorldSafeLoc(PortLocID);
         if (!portLoc)
         {
             TC_LOG_ERROR("sql.sql", "Area Trigger (ID: %u) has a non-existing Port Loc (ID: %u) in WorldSafeLocs.dbc, skipped", Trigger_ID, PortLocID);
@@ -6584,11 +6626,11 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         AreaTriggerStruct at;
 
-        at.target_mapId       = portLoc->MapID;
-        at.target_X           = portLoc->Loc.X;
-        at.target_Y           = portLoc->Loc.Y;
-        at.target_Z           = portLoc->Loc.Z;
-        at.target_Orientation = (portLoc->Facing * M_PI) / 180; // Orientation is initially in degrees
+        at.target_mapId       = portLoc->Loc.GetMapId();
+        at.target_X           = portLoc->Loc.GetPositionX();
+        at.target_Y           = portLoc->Loc.GetPositionY();
+        at.target_Z           = portLoc->Loc.GetPositionZ();
+        at.target_Orientation = portLoc->Loc.GetOrientation();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)

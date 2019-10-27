@@ -21,6 +21,7 @@
 #include "GameObject.h"
 #include "Log.h"
 #include "Map.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "Transport.h"
 #include "UnitAI.h"
@@ -875,10 +876,10 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
         float mindist = 999999.0f;
         for (uint8 i = 0; i < nodes.size(); ++i)
         {
-            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[nodes[i]]);
+            WorldSafeLocsEntry const*entry = sObjectMgr->GetWorldSafeLoc(BG_IC_GraveyardIds[nodes[i]]);
             if (!entry)
                 continue;
-            float dist = (entry->Loc.X - player_x)*(entry->Loc.X - player_x)+(entry->Loc.Y - player_y)*(entry->Loc.Y - player_y);
+            float dist = (entry->Loc.GetPositionX() - player_x) * (entry->Loc.GetPositionX() - player_x) + (entry->Loc.GetPositionY() - player_y) * (entry->Loc.GetPositionY() - player_y);
             if (mindist > dist)
             {
                 mindist = dist;
@@ -889,14 +890,14 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveYard(Player* player)
     }
     // If not, place ghost on starting location
     if (!good_entry)
-        good_entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[teamIndex+MAX_NODE_TYPES]);
+        good_entry = sObjectMgr->GetWorldSafeLoc(BG_IC_GraveyardIds[teamIndex+MAX_NODE_TYPES]);
 
     return good_entry;
 }
 
 WorldSafeLocsEntry const * BattlegroundIC::GetExploitTeleportLocation(Team team)
 {
-    return sWorldSafeLocsStore.LookupEntry(team == ALLIANCE ? IC_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : IC_EXPLOIT_TELEPORT_LOCATION_HORDE);
+    return sObjectMgr->GetWorldSafeLoc(team == ALLIANCE ? IC_EXPLOIT_TELEPORT_LOCATION_ALLIANCE : IC_EXPLOIT_TELEPORT_LOCATION_HORDE);
 }
 
 bool BattlegroundIC::IsAllNodesControlledByTeam(uint32 team) const
