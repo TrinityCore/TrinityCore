@@ -2183,6 +2183,7 @@ struct ItemAppearanceLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_BYTE, "DisplayType" },
+            { true, FT_INT, "SubclassID" },
             { true, FT_INT, "ItemDisplayInfoID" },
             { true, FT_INT, "DefaultIconFileDataID" },
             { true, FT_INT, "UiOrder" },
@@ -2801,7 +2802,8 @@ struct ItemSparseLoadInfo
             { false, FT_SHORT, "SocketMatchEnchantmentId" },
             { false, FT_SHORT, "TotemCategoryID" },
             { false, FT_SHORT, "InstanceBound" },
-            { false, FT_SHORT, "ZoneBound" },
+            { false, FT_SHORT, "ZoneBound1" },
+            { false, FT_SHORT, "ZoneBound2" },
             { false, FT_SHORT, "ItemSet" },
             { false, FT_SHORT, "LockID" },
             { false, FT_SHORT, "StartQuestID" },
@@ -2879,24 +2881,6 @@ struct ItemSpecOverrideLoadInfo
             { true, FT_INT, "ItemID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemSpecOverrideMeta::Instance(), HOTFIX_SEL_ITEM_SPEC_OVERRIDE);
-        return &loadInfo;
-    }
-};
-
-struct ItemUpgradeLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_BYTE, "ItemUpgradePathID" },
-            { false, FT_BYTE, "ItemLevelIncrement" },
-            { false, FT_SHORT, "PrerequisiteID" },
-            { false, FT_SHORT, "CurrencyType" },
-            { false, FT_INT, "CurrencyAmount" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemUpgradeMeta::Instance(), HOTFIX_SEL_ITEM_UPGRADE);
         return &loadInfo;
     }
 };
@@ -3649,9 +3633,9 @@ struct PowerTypeLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "ID" },
             { false, FT_STRING_NOT_LOCALIZED, "NameGlobalStringTag" },
             { false, FT_STRING_NOT_LOCALIZED, "CostGlobalStringTag" },
+            { false, FT_INT, "ID" },
             { true, FT_BYTE, "PowerTypeEnum" },
             { true, FT_BYTE, "MinPower" },
             { true, FT_SHORT, "MaxBasePower" },
@@ -3962,21 +3946,6 @@ struct RewardPackXItemLoadInfo
             { true, FT_INT, "RewardPackID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RewardPackXItemMeta::Instance(), HOTFIX_SEL_REWARD_PACK_X_ITEM);
-        return &loadInfo;
-    }
-};
-
-struct RulesetItemUpgradeLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { true, FT_INT, "ItemID" },
-            { false, FT_SHORT, "ItemUpgradeID" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RulesetItemUpgradeMeta::Instance(), HOTFIX_SEL_RULESET_ITEM_UPGRADE);
         return &loadInfo;
     }
 };
@@ -4399,12 +4368,12 @@ struct SpellEffectLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
+            { true, FT_SHORT, "EffectAura" },
             { true, FT_INT, "DifficultyID" },
             { true, FT_INT, "EffectIndex" },
             { false, FT_INT, "Effect" },
             { false, FT_FLOAT, "EffectAmplitude" },
             { true, FT_INT, "EffectAttributes" },
-            { true, FT_SHORT, "EffectAura" },
             { true, FT_INT, "EffectAuraPeriod" },
             { false, FT_FLOAT, "EffectBonusCoefficient" },
             { false, FT_FLOAT, "EffectChainAmplitude" },
@@ -4616,17 +4585,6 @@ struct SpellMiscLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { false, FT_BYTE, "DifficultyID" },
-            { false, FT_SHORT, "CastingTimeIndex" },
-            { false, FT_SHORT, "DurationIndex" },
-            { false, FT_SHORT, "RangeIndex" },
-            { false, FT_BYTE, "SchoolMask" },
-            { false, FT_FLOAT, "Speed" },
-            { false, FT_FLOAT, "LaunchDelay" },
-            { false, FT_FLOAT, "MinDuration" },
-            { true, FT_INT, "SpellIconFileDataID" },
-            { true, FT_INT, "ActiveIconFileDataID" },
-            { true, FT_INT, "ContentTuningID" },
             { true, FT_INT, "Attributes1" },
             { true, FT_INT, "Attributes2" },
             { true, FT_INT, "Attributes3" },
@@ -4641,6 +4599,17 @@ struct SpellMiscLoadInfo
             { true, FT_INT, "Attributes12" },
             { true, FT_INT, "Attributes13" },
             { true, FT_INT, "Attributes14" },
+            { false, FT_BYTE, "DifficultyID" },
+            { false, FT_SHORT, "CastingTimeIndex" },
+            { false, FT_SHORT, "DurationIndex" },
+            { false, FT_SHORT, "RangeIndex" },
+            { false, FT_BYTE, "SchoolMask" },
+            { false, FT_FLOAT, "Speed" },
+            { false, FT_FLOAT, "LaunchDelay" },
+            { false, FT_FLOAT, "MinDuration" },
+            { true, FT_INT, "SpellIconFileDataID" },
+            { true, FT_INT, "ActiveIconFileDataID" },
+            { true, FT_INT, "ContentTuningID" },
             { true, FT_INT, "SpellID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellMiscMeta::Instance(), HOTFIX_SEL_SPELL_MISC);
@@ -5160,6 +5129,7 @@ struct TransmogSetLoadInfo
             { false, FT_BYTE, "ExpansionID" },
             { true, FT_INT, "PatchID" },
             { true, FT_SHORT, "UiOrder" },
+            { true, FT_INT, "PlayerConditionID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogSetMeta::Instance(), HOTFIX_SEL_TRANSMOG_SET);
         return &loadInfo;
@@ -5339,7 +5309,7 @@ struct UnitPowerBarLoadInfo
             { false, FT_STRING, "ToolTip" },
             { false, FT_INT, "MinPower" },
             { false, FT_INT, "MaxPower" },
-            { false, FT_SHORT, "StartPower" },
+            { false, FT_INT, "StartPower" },
             { false, FT_BYTE, "CenterPower" },
             { false, FT_FLOAT, "RegenerationPeace" },
             { false, FT_FLOAT, "RegenerationCombat" },
@@ -5553,25 +5523,6 @@ struct WorldMapOverlayLoadInfo
             { false, FT_INT, "AreaID4" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldMapOverlayMeta::Instance(), HOTFIX_SEL_WORLD_MAP_OVERLAY);
-        return &loadInfo;
-    }
-};
-
-struct WorldSafeLocsLoadInfo
-{
-    static DB2LoadInfo const* Instance()
-    {
-        static DB2FieldMeta const fields[] =
-        {
-            { false, FT_INT, "ID" },
-            { false, FT_STRING, "AreaName" },
-            { false, FT_FLOAT, "LocX" },
-            { false, FT_FLOAT, "LocY" },
-            { false, FT_FLOAT, "LocZ" },
-            { false, FT_SHORT, "MapID" },
-            { false, FT_FLOAT, "Facing" },
-        };
-        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldSafeLocsMeta::Instance(), HOTFIX_SEL_WORLD_SAFE_LOCS);
         return &loadInfo;
     }
 };

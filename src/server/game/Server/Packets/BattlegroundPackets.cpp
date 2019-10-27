@@ -64,6 +64,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::PVPMatchPlayerPVPStat const& pvpStat)
+{
+    data << int32(pvpStat.PvpStatID);
+    data << int32(pvpStat.PvpStatValue);
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics const& playerData)
 {
     data << playerData.PlayerGUID;
@@ -77,8 +84,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     data << int32(playerData.Class);
     data << int32(playerData.CreatureID);
     data << int32(playerData.HonorLevel);
-    if (!playerData.Stats.empty())
-        data.append(playerData.Stats.data(), playerData.Stats.size());
+    for (WorldPackets::Battleground::PVPLogData::PVPMatchPlayerPVPStat const& pvpStat : playerData.Stats)
+        data << pvpStat;
 
     data.WriteBit(playerData.Faction != 0);
     data.WriteBit(playerData.IsInWorld);

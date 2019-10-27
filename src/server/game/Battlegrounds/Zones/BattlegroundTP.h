@@ -21,6 +21,12 @@
 #include "Battleground.h"
 #include "BattlegroundScore.h"
 
+enum BG_TP_Objectives
+{
+    BG_TP_FLAG_CAPTURES = 290,
+    BG_TP_FLAG_RETURNS  = 291
+};
+
 class BattlegroundTPScore final : public BattlegroundScore
 {
     protected:
@@ -46,8 +52,8 @@ class BattlegroundTPScore final : public BattlegroundScore
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
-            playerData.Stats.push_back(FlagCaptures);
-            playerData.Stats.push_back(FlagReturns);
+            playerData.Stats.emplace_back(BG_TP_FLAG_CAPTURES, FlagCaptures);
+            playerData.Stats.emplace_back(BG_TP_FLAG_RETURNS, FlagReturns);
         }
 
         uint32 GetAttr1() const final override { return FlagCaptures; }

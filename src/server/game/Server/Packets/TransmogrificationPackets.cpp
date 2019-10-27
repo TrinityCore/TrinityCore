@@ -41,8 +41,12 @@ WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::W
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.WriteBit(IsSetFavorite);
     _worldPacket << uint32(FavoriteAppearances.size());
+    _worldPacket << uint32(NewAppearances.size());
     if (!FavoriteAppearances.empty())
         _worldPacket.append(FavoriteAppearances.data(), FavoriteAppearances.size());
+
+    if (!NewAppearances.empty())
+        _worldPacket.append(NewAppearances.data(), NewAppearances.size());
 
     return &_worldPacket;
 }

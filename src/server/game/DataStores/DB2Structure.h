@@ -1420,6 +1420,7 @@ struct ItemAppearanceEntry
 {
     uint32 ID;
     uint8 DisplayType;
+    int32 SubclassID;
     int32 ItemDisplayInfoID;
     int32 DefaultIconFileDataID;
     int32 UiOrder;
@@ -1729,7 +1730,7 @@ struct ItemSparseEntry
     uint16 SocketMatchEnchantmentId;
     uint16 TotemCategoryID;
     uint16 InstanceBound;
-    uint16 ZoneBound;
+    uint16 ZoneBound[MAX_ITEM_PROTO_ZONES];
     uint16 ItemSet;
     uint16 LockID;
     uint16 StartQuestID;
@@ -1778,16 +1779,6 @@ struct ItemSpecOverrideEntry
     uint32 ID;
     uint16 SpecID;
     int32 ItemID;
-};
-
-struct ItemUpgradeEntry
-{
-    uint32 ID;
-    uint8 ItemUpgradePathID;
-    uint8 ItemLevelIncrement;
-    uint16 PrerequisiteID;
-    uint16 CurrencyType;
-    uint32 CurrencyAmount;
 };
 
 struct ItemXBonusTreeEntry
@@ -2205,9 +2196,9 @@ struct PowerDisplayEntry
 
 struct PowerTypeEntry
 {
-    uint32 ID;
     char const* NameGlobalStringTag;
     char const* CostGlobalStringTag;
+    uint32 ID;
     int8 PowerTypeEnum;
     int8 MinPower;
     int16 MaxBasePower;
@@ -2354,13 +2345,6 @@ struct RewardPackXItemEntry
     int32 ItemID;
     int32 ItemQuantity;
     int32 RewardPackID;
-};
-
-struct RulesetItemUpgradeEntry
-{
-    uint32 ID;
-    int32 ItemID;
-    uint16 ItemUpgradeID;
 };
 
 struct ScalingStatDistributionEntry
@@ -2611,12 +2595,12 @@ struct SpellDurationEntry
 struct SpellEffectEntry
 {
     uint32 ID;
+    int16 EffectAura;
     int32 DifficultyID;
     int32 EffectIndex;
     uint32 Effect;
     float EffectAmplitude;
     int32 EffectAttributes;
-    int16 EffectAura;
     int32 EffectAuraPeriod;
     float EffectBonusCoefficient;
     float EffectChainAmplitude;
@@ -2726,6 +2710,7 @@ struct SpellLevelsEntry
 struct SpellMiscEntry
 {
     uint32 ID;
+    int32 Attributes[14];
     uint8 DifficultyID;
     uint16 CastingTimeIndex;
     uint16 DurationIndex;
@@ -2737,7 +2722,6 @@ struct SpellMiscEntry
     int32 SpellIconFileDataID;
     int32 ActiveIconFileDataID;
     int32 ContentTuningID;
-    int32 Attributes[14];
     int32 SpellID;
 };
 
@@ -3013,6 +2997,7 @@ struct TransmogSetEntry
     uint8 ExpansionID;
     int32 PatchID;
     int16 UiOrder;
+    int32 PlayerConditionID;
 };
 
 struct TransmogSetGroupEntry
@@ -3106,7 +3091,7 @@ struct UnitPowerBarEntry
     LocalizedString* ToolTip;
     uint32 MinPower;
     uint32 MaxPower;
-    uint16 StartPower;
+    uint32 StartPower;
     uint8 CenterPower;
     float RegenerationPeace;
     float RegenerationCombat;
@@ -3271,15 +3256,6 @@ struct WorldMapOverlayEntry
     uint32 PlayerConditionID;
     uint32 Flags;
     uint32 AreaID[MAX_WORLD_MAP_OVERLAY_AREA_IDX];
-};
-
-struct WorldSafeLocsEntry
-{
-    uint32 ID;
-    LocalizedString* AreaName;
-    DBCPosition3D Loc;
-    uint16 MapID;
-    float Facing;
 };
 
 struct WorldStateExpressionEntry

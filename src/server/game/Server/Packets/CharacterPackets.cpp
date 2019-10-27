@@ -42,24 +42,24 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
     Name              = fields[1].GetString();
-    Race              = fields[2].GetUInt8();
-    Class             = fields[3].GetUInt8();
-    Sex               = fields[4].GetUInt8();
-    Skin              = fields[5].GetUInt8();
-    Face              = fields[6].GetUInt8();
+    RaceID            = fields[2].GetUInt8();
+    ClassID           = fields[3].GetUInt8();
+    SexID             = fields[4].GetUInt8();
+    SkinID            = fields[5].GetUInt8();
+    FaceID            = fields[6].GetUInt8();
     HairStyle         = fields[7].GetUInt8();
     HairColor         = fields[8].GetUInt8();
     FacialHair        = fields[9].GetUInt8();
     CustomDisplay[0]  = fields[10].GetUInt8();
     CustomDisplay[1]  = fields[11].GetUInt8();
     CustomDisplay[2]  = fields[12].GetUInt8();
-    Level             = fields[13].GetUInt8();
-    ZoneId            = int32(fields[14].GetUInt16());
-    MapId             = int32(fields[15].GetUInt16());
-    PreLoadPosition   = Position(fields[16].GetFloat(), fields[17].GetFloat(), fields[18].GetFloat());
+    ExperienceLevel   = fields[13].GetUInt8();
+    ZoneID            = int32(fields[14].GetUInt16());
+    MapID             = int32(fields[15].GetUInt16());
+    PreloadPos        = Position(fields[16].GetFloat(), fields[17].GetFloat(), fields[18].GetFloat());
 
     if (ObjectGuid::LowType guildId = fields[19].GetUInt64())
-        GuildGuid = ObjectGuid::Create<HighGuid::Guild>(guildId);
+        GuildGUID = ObjectGuid::Create<HighGuid::Guild>(guildId);
 
     uint32 playerFlags  = fields[20].GetUInt32();
     uint32 atLoginFlags = fields[21].GetUInt16();
@@ -80,24 +80,24 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
-        CustomizationFlag = CHAR_CUSTOMIZE_FLAG_CUSTOMIZE;
+        Flags2 = CHAR_CUSTOMIZE_FLAG_CUSTOMIZE;
     else if (atLoginFlags & AT_LOGIN_CHANGE_FACTION)
-        CustomizationFlag = CHAR_CUSTOMIZE_FLAG_FACTION;
+        Flags2 = CHAR_CUSTOMIZE_FLAG_FACTION;
     else if (atLoginFlags & AT_LOGIN_CHANGE_RACE)
-        CustomizationFlag = CHAR_CUSTOMIZE_FLAG_RACE;
+        Flags2 = CHAR_CUSTOMIZE_FLAG_RACE;
 
     Flags3 = 0;
     Flags4 = 0;
     FirstLogin = (atLoginFlags & AT_LOGIN_FIRST) != 0;
 
     // show pet at selection character in character list only for non-ghost character
-    if (!(playerFlags & PLAYER_FLAGS_GHOST) && (Class == CLASS_WARLOCK || Class == CLASS_HUNTER || Class == CLASS_DEATH_KNIGHT))
+    if (!(playerFlags & PLAYER_FLAGS_GHOST) && (ClassID == CLASS_WARLOCK || ClassID == CLASS_HUNTER || ClassID == CLASS_DEATH_KNIGHT))
     {
         if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(fields[22].GetUInt32()))
         {
-            Pet.CreatureDisplayId = fields[23].GetUInt32();
-            Pet.Level = fields[24].GetUInt16();
-            Pet.CreatureFamily = creatureInfo->family;
+            PetCreatureDisplayID = fields[23].GetUInt32();
+            PetExperienceLevel = fields[24].GetUInt16();
+            PetCreatureFamilyID = creatureInfo->family;
         }
     }
 
@@ -108,25 +108,27 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     Tokenizer equipment(fields[25].GetString(), ' ');
     ListPosition = fields[27].GetUInt8();
     LastPlayedTime = fields[28].GetUInt32();
-    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(Class, fields[29].GetUInt8()))
+    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[29].GetUInt8()))
         SpecID = spec->ID;
 
     LastLoginVersion = fields[30].GetUInt32();
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
-        uint32 visualBase = slot * 3;
-        VisualItems[slot].InventoryType = Player::GetUInt32ValueFromArray(equipment, visualBase);
-        VisualItems[slot].DisplayId = Player::GetUInt32ValueFromArray(equipment, visualBase + 1);
-        VisualItems[slot].DisplayEnchantId = Player::GetUInt32ValueFromArray(equipment, visualBase + 2);
+        uint32 visualBase = slot * 4;
+        VisualItems[slot].InvType = Player::GetUInt32ValueFromArray(equipment, visualBase);
+        VisualItems[slot].DisplayID = Player::GetUInt32ValueFromArray(equipment, visualBase + 1);
+        VisualItems[slot].DisplayEnchantID = Player::GetUInt32ValueFromArray(equipment, visualBase + 2);
+        VisualItems[slot].DisplayEnchantID = Player::GetUInt32ValueFromArray(equipment, visualBase + 3);
     }
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharactersResult::CharacterInfo::VisualItemInfo const& visualItem)
 {
-    data << uint32(visualItem.DisplayId);
-    data << uint32(visualItem.DisplayEnchantId);
-    data << uint8(visualItem.InventoryType);
+    data << uint32(visualItem.DisplayID);
+    data << uint32(visualItem.DisplayEnchantID);
+    data << uint8(visualItem.InvType);
+    data << uint8(visualItem.Subclass);
 
     return data;
 }
@@ -136,26 +138,26 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharacters
     data << charInfo.Guid;
     data << uint64(charInfo.GuildClubMemberID);
     data << uint8(charInfo.ListPosition);
-    data << uint8(charInfo.Race);
-    data << uint8(charInfo.Class);
-    data << uint8(charInfo.Sex);
-    data << uint8(charInfo.Skin);
-    data << uint8(charInfo.Face);
+    data << uint8(charInfo.RaceID);
+    data << uint8(charInfo.ClassID);
+    data << uint8(charInfo.SexID);
+    data << uint8(charInfo.SkinID);
+    data << uint8(charInfo.FaceID);
     data << uint8(charInfo.HairStyle);
     data << uint8(charInfo.HairColor);
     data << uint8(charInfo.FacialHair);
     data.append(charInfo.CustomDisplay.data(), charInfo.CustomDisplay.size());
-    data << uint8(charInfo.Level);
-    data << int32(charInfo.ZoneId);
-    data << int32(charInfo.MapId);
-    data << charInfo.PreLoadPosition;
-    data << charInfo.GuildGuid;
+    data << uint8(charInfo.ExperienceLevel);
+    data << int32(charInfo.ZoneID);
+    data << int32(charInfo.MapID);
+    data << charInfo.PreloadPos;
+    data << charInfo.GuildGUID;
     data << uint32(charInfo.Flags);
-    data << uint32(charInfo.CustomizationFlag);
+    data << uint32(charInfo.Flags2);
     data << uint32(charInfo.Flags3);
-    data << uint32(charInfo.Pet.CreatureDisplayId);
-    data << uint32(charInfo.Pet.Level);
-    data << uint32(charInfo.Pet.CreatureFamily);
+    data << uint32(charInfo.PetCreatureDisplayID);
+    data << uint32(charInfo.PetExperienceLevel);
+    data << uint32(charInfo.PetCreatureFamilyID);
 
     data << uint32(charInfo.ProfessionIds[0]);
     data << uint32(charInfo.ProfessionIds[1]);

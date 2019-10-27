@@ -227,6 +227,7 @@ namespace WorldPackets
             std::vector<uint32> Slots;
             uint32 RequestedRoles = 0;
             std::vector<ObjectGuid> SuspendedPlayers;
+            uint32 QueueMapID = 0;
             bool NotifyUI = false;
             bool IsParty = false;
             bool Joined = false;
