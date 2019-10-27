@@ -62,6 +62,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/prng.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/prof.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/rtree.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/safety_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/stats.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sz.c

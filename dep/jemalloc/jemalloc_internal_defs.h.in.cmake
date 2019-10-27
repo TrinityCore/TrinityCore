@@ -361,8 +361,8 @@
  */
 #define JEMALLOC_STRERROR_R_RETURNS_CHAR_WITH_GNU_SOURCE 
 
-/* Performs additional size-matching sanity checks when defined. */
-/* #undef JEMALLOC_EXTRA_SIZE_CHECK */
+/* Performs additional safety checks when defined. */
+/* #undef JEMALLOC_OPT_SAFETY_CHECKS */
 
 /* sizeof(void *) == 2^LG_SIZEOF_PTR. */
 #define LG_SIZEOF_PTR @JEM_SIZEDEF@
