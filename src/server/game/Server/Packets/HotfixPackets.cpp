@@ -26,10 +26,7 @@ void WorldPackets::Hotfix::DBQueryBulk::Read()
 
     Queries.resize(count);
     for (uint32 i = 0; i < count; ++i)
-    {
-        _worldPacket >> Queries[i].GUID;
         _worldPacket >> Queries[i].RecordID;
-    }
 }
 
 WorldPacket const* WorldPackets::Hotfix::DBReply::Write()

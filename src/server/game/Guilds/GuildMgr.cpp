@@ -410,17 +410,17 @@ void GuildMgr::LoadGuilds()
 
         //           0          1            2                3      4         5        6      7             8                 9          10          11    12
         // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
-        //               13                  14                  15              16                  17       18            19
-        //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs,
-        //                                    20                           21                           22                           23                           24
+        //                        13                  14              15                  16       17            18
+        //        battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs,
+        //                                    19                           20                           21                           22                           23
         //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
-        //                                  25                         26                         27                         28                         29
+        //                                  24                         25                         26                         27                         28
         //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-        //                30           31           32                33          34           35           36                37          38           39           40                41
+        //                29           30           31                32          33           34           35                36          37           38           39                40
         //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-        //                       42                      43
+        //                       41                      42
         //        fixedScalingLevel, artifactKnowledgeLevel
-        //             44     45      46
+        //             43     44      45
         //        guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
 
         PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEMS));
@@ -434,7 +434,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint64 guildId = fields[44].GetUInt64();
+                uint64 guildId = fields[43].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);

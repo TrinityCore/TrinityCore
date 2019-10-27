@@ -33,7 +33,6 @@ namespace WorldPackets
         public:
             struct DBQueryRecord
             {
-                ObjectGuid GUID;
                 uint32 RecordID = 0;
             };
 
