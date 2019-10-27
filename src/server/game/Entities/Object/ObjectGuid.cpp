@@ -90,6 +90,7 @@ namespace
         SET_GUID_NAME(ClientSession);
         SET_GUID_NAME(Cast);
         SET_GUID_NAME(ClientConnection);
+        SET_GUID_NAME(ClubFinder);
 
 #undef SET_GUID_NAME
     }
