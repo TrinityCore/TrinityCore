@@ -3905,6 +3905,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(13); // 50000yd
     });
 
+    ApplySpellFix({
+        44327, // Trained Rock Falcon/Hawk Hunting
+        44408  // Trained Rock Falcon/Hawk Hunting
+        }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Speed = 0.f;
+    });
+
     // Summon Corpse Scarabs
     ApplySpellFix({ 28864, 29105 }, [](SpellInfo* spellInfo)
     {
