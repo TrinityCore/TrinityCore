@@ -4418,7 +4418,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Frost Bomb
-    ApplySpellFix({ 69846 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({ 44327, 44408, 69846 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Speed = 0.0f;    // This spell's summon happens instantly
     });
