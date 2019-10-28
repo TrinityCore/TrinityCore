@@ -3935,7 +3935,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     ApplySpellFix({
         19503, // Scatter Shot
-        34490  // Silencing Shot
+        34490, // Silencing Shot
+        44327, // Trained Rock Falcon/Hawk Hunting
+        44408  // Trained Rock Falcon/Hawk Hunting
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Speed = 0.f;
@@ -4417,8 +4419,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
     });
 
-    // Trained Rock Falcon/Hawk Hunting, Frost Bomb
-    ApplySpellFix({ 44327, 44408, 69846 }, [](SpellInfo* spellInfo)
+    // Frost Bomb
+    ApplySpellFix({ 69846 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Speed = 0.0f;    // This spell's summon happens instantly
     });
