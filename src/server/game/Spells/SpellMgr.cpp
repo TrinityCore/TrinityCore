@@ -4417,7 +4417,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DEST);
     });
 
-    // Frost Bomb
+    // Trained Rock Falcon/Hawk Hunting, Frost Bomb
     ApplySpellFix({ 44327, 44408, 69846 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Speed = 0.0f;    // This spell's summon happens instantly
