@@ -112,6 +112,9 @@ void ExtractGameobjectModels()
     for (uint32 rec = 0; rec < db2.GetRecordCount(); ++rec)
     {
         DB2Record record = db2.GetRecord(rec);
+        if (!record)
+            continue;
+
         uint32 fileId = record.GetUInt32("FileDataID");
         if (!fileId)
             continue;
