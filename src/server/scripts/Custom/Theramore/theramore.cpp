@@ -4,13 +4,12 @@
 #include "GameObject.h"
 #include "theramore.h"
 #include "MoveSpline.h"
-#include <Movement\Waypoints\WaypointManager.h>
+#include "WaypointManager.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Weather.h"
 #include "GridNotifiersImpl.h"
-#include <iostream>
 
 constexpr int TERVOSH_PATH_SIZE         = 8;
 constexpr int KINNDY_PATH_SIZE          = 6;
@@ -242,15 +241,19 @@ class npc_jaina_theramore : public CreatureScript
             switch (id)
             {
                 case EVENT_START_CONVO:
-                    kalecgos = me->FindNearestCreature(NPC_KALECGOS, 15.f);
-                    tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
-                    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
+                {
+                    kalecgos = SearchOrRespawn(NPC_KALECGOS);
+                    tervosh = SearchOrRespawn(NPC_ARCHMAGE_TERVOSH);
+                    kinndy = SearchOrRespawn(NPC_KINNDY_SPARKSHINE);
+
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+
                     me->PlayDirectSound(28096);
+
                     events.SetPhase(PHASE_CONVO);
                     events.ScheduleEvent(EVENT_CONVO_1, 2s, 0, PHASE_CONVO);
-
                     break;
+                }
 
                 case EVENT_END_CONVO:
                     events.ScheduleEvent(EVENT_CONVO_22, 2s, 0, PHASE_CONVO);
@@ -261,11 +264,11 @@ class npc_jaina_theramore : public CreatureScript
                     for (Player* player : players)
                         player->SetPhaseMask(3, true);
 
-                    kalecgos = me->FindNearestCreature(NPC_KALECGOS, 2000.f);
+                    kalecgos = SearchOrRespawn(NPC_KALECGOS);
                     tervosh = SearchOrRespawn(NPC_ARCHMAGE_TERVOSH);
                     kinndy = SearchOrRespawn(NPC_KINNDY_SPARKSHINE);
                     aden = SearchOrRespawn(NPC_LIEUTENANT_ADEN);
-                    rhonin = GetClosestCreatureWithEntry(me, NPC_RHONIN, 2000.f);
+                    rhonin = SearchOrRespawn(NPC_RHONIN);
 
                     me->SetPhaseMask(3, true);
                     tervosh->SetPhaseMask(3, true);
@@ -289,16 +292,16 @@ class npc_jaina_theramore : public CreatureScript
                 }
 
                 case EVENT_START_EVACUATION:
-                    tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
-                    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
-                    kalecgos = me->FindNearestCreature(NPC_KALECGOS, 2000.f);
-                    aden = me->FindNearestCreature(NPC_LIEUTENANT_ADEN, 2000.f);
+                    tervosh = SearchOrRespawn(NPC_ARCHMAGE_TERVOSH);
+                    kinndy = SearchOrRespawn(NPC_KINNDY_SPARKSHINE);
+                    kalecgos = SearchOrRespawn(NPC_KALECGOS);
+                    aden = SearchOrRespawn(NPC_LIEUTENANT_ADEN);
                     events.ScheduleEvent(EVENT_EVACUATION_1, value ? value : 60000, 0, PHASE_CONVO);
                     break;
 
                 case EVENT_START_WARN:
-                    tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
-                    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
+                    tervosh = SearchOrRespawn(NPC_ARCHMAGE_TERVOSH);
+                    kinndy = SearchOrRespawn(NPC_KINNDY_SPARKSHINE);
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     events.SetPhase(PHASE_WARN);
                     events.ScheduleEvent(EVENT_WARN_1, 2s, 0, PHASE_WARN);
@@ -308,10 +311,10 @@ class npc_jaina_theramore : public CreatureScript
                 {
                     debug = value == 2 ? true : false;
 
-                    tervosh = me->FindNearestCreature(NPC_ARCHMAGE_TERVOSH, 15.f);
-                    kinndy = me->FindNearestCreature(NPC_KINNDY_SPARKSHINE, 15.f);
-                    kalecgos = me->FindNearestCreature(NPC_KALECGOS, 2000.f);
-                    aden = me->FindNearestCreature(NPC_LIEUTENANT_ADEN, 2000.f);
+                    tervosh = SearchOrRespawn(NPC_ARCHMAGE_TERVOSH);
+                    kinndy = SearchOrRespawn(NPC_KINNDY_SPARKSHINE);
+                    kalecgos = SearchOrRespawn(NPC_KALECGOS);
+                    aden = SearchOrRespawn(NPC_LIEUTENANT_ADEN);
 
                     kinndy->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
@@ -347,7 +350,7 @@ class npc_jaina_theramore : public CreatureScript
 
                 case EVENT_START_END:
                 {
-                    rhonin = me->FindNearestCreature(NPC_RHONIN, 15.f);
+                    rhonin = SearchOrRespawn(NPC_RHONIN);
 
                     events.SetPhase(PHASE_END);
                     events.ScheduleEvent(EVENT_END_1, 2s, 0, PHASE_END);
@@ -499,7 +502,6 @@ class npc_jaina_theramore : public CreatureScript
                             player->AreaExploredOrEventHappens(QUEST_LOOKING_FOR_THE_ARTEFACT);
                         kinndy->SetFacingTo(0.62f);
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                        kalecgos->DespawnOrUnsummon();
                         tervosh->SetVisible(false);
                         break;
 
@@ -1475,7 +1477,7 @@ class npc_jaina_theramore : public CreatureScript
             if (fireballTimer <= diff)
             {
                 DoCastVictim(SPELL_FIREBALL);
-                fireballTimer = 880;
+                fireballTimer = 780;
             }
             else fireballTimer -= diff;
 

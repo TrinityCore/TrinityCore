@@ -146,8 +146,8 @@ class npc_priest : public CreatureScript
                     }
 
                     case CASTING_HEAL:
-                        if (Unit * target = DoSelectLowestHpFriendly(30.0f))
-                            DoCast(target, RAND(SPELL_REJUVENATION, SPELL_FLASH_HEAL));
+                        if (Unit* target = DoSelectLowestHpFriendly(30.0f))
+                            DoCast(target, urand(0, 70) ? SPELL_FLASH_HEAL : SPELL_REJUVENATION);
                         events.RescheduleEvent(CASTING_HEAL, 8s);
                         break;
                 }

@@ -9,7 +9,7 @@
 #include "theramore.h"
 
 constexpr int AMARA_PATH_SIZE = 24;
-constexpr int AMARA_REVERSE_PATH_SIZE = 7;
+constexpr int AMARA_REVERSE_PATH_SIZE = 6;
 constexpr int JAINA_OUTRO_PATH_SIZE = 19;
 
 enum Wounded
@@ -339,7 +339,7 @@ class theramore_wounded_event : public CreatureScript
                         amara->GetMotionMaster()->MoveIdle();
                         amara->NearTeleportTo(AmaraReversePath[0]);
                         amara->GetMotionMaster()->MoveSmoothPath(0, AmaraReversePath, AMARA_REVERSE_PATH_SIZE, false);
-                        events.ScheduleEvent(EVENT_TELEPORT_22, 6s);
+                        events.ScheduleEvent(EVENT_TELEPORT_22, 8s);
                         break;
 
                     case EVENT_TELEPORT_22:

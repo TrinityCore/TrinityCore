@@ -429,11 +429,12 @@ public:
                 owner->SetVisible(false);
                 player->SetPhaseMask(1, true);
                 portal->SetPhaseMask(1, true);
+                stage++;
                 owner->m_Events.AddEvent(this, eventTime + 1000);
                 return false;
             case 3:
                 portal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                return true;
+                break;
             default:
                 break;
         }

@@ -437,16 +437,6 @@ std::list<Creature*> ScriptedAI::DoFindFriendlyCC(float range)
     return list;
 }
 
-Unit* ScriptedAI::DoFindFriendlyUnitCC(float range)
-{
-    Unit* unit = nullptr;
-    Trinity::FriendlyCCedInRange u_check(me, range);
-    Trinity::UnitLastSearcher<Trinity::FriendlyCCedInRange> searcher(me, unit, u_check);
-    Cell::VisitAllObjects(me, searcher, range);
-
-    return unit;
-}
-
 std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 uiSpellid)
 {
     std::list<Creature*> list;
