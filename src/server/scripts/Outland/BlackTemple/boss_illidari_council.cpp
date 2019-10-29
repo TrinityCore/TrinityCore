@@ -295,7 +295,7 @@ private:
     uint32 _bossId;
 };
 
-class HammerTargetSelector : public std::unary_function<Unit*, bool>
+class HammerTargetSelector
 {
 public:
     HammerTargetSelector(Unit const* unit) : _me(unit) { }

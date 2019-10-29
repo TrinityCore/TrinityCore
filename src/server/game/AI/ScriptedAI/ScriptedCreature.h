@@ -130,167 +130,172 @@ class TC_GAME_API DummyEntryCheckPredicate
 
 struct TC_GAME_API ScriptedAI : public CreatureAI
 {
-    explicit ScriptedAI(Creature* creature);
-    virtual ~ScriptedAI() { }
+    public:
+        explicit ScriptedAI(Creature* creature);
+        virtual ~ScriptedAI() { }
 
-    // *************
-    // CreatureAI Functions
-    // *************
+        // *************
+        // CreatureAI Functions
+        // *************
 
-    void AttackStartNoMove(Unit* target);
+        void AttackStartNoMove(Unit* target);
 
-    // Called at World update tick
-    virtual void UpdateAI(uint32 diff) override;
+        // Called at World update tick
+        virtual void UpdateAI(uint32 diff) override;
 
-    // *************
-    // Variables
-    // *************
+        // *************
+        // Variables
+        // *************
 
-    // For fleeing
-    bool IsFleeing;
+        // For fleeing
+        bool IsFleeing;
 
-    // *************
-    // Pure virtual functions
-    // *************
+        // *************
+        // Pure virtual functions
+        // *************
 
-    // Called before JustEngagedWith even before the creature is in combat.
-    void AttackStart(Unit* /*target*/) override;
+        // Called before JustEngagedWith even before the creature is in combat.
+        void AttackStart(Unit* /*target*/) override;
 
-    // *************
-    // AI Helper Functions
-    // *************
+        // *************
+        // AI Helper Functions
+        // *************
 
-    // Start movement toward victim
-    void DoStartMovement(Unit* target, float distance = 0.0f, float angle = 0.0f);
+        // Start movement toward victim
+        void DoStartMovement(Unit* target, float distance = 0.0f, float angle = 0.0f);
 
-    // Start no movement on victim
-    void DoStartNoMovement(Unit* target);
+        // Start no movement on victim
+        void DoStartNoMovement(Unit* target);
 
-    // Stop attack of current victim
-    void DoStopAttack();
+        // Stop attack of current victim
+        void DoStopAttack();
 
-    // Cast spell by spell info
-    void DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool triggered = false);
+        // Cast spell by spell info
+        void DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool triggered = false);
 
-    // Plays a sound to all nearby players
-    void DoPlaySoundToSet(WorldObject* source, uint32 soundId);
+        // Plays a sound to all nearby players
+        void DoPlaySoundToSet(WorldObject* source, uint32 soundId);
 
-    // Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
-    void AddThreat(Unit* victim, float amount, Unit* who = nullptr);
-    // Adds/removes the specified percentage from the specified victim's threat (to who, or me if not specified)
-    void ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who = nullptr);
-    // Resets the victim's threat level to who (or me if not specified) to zero
-    void ResetThreat(Unit* victim, Unit* who = nullptr);
-    // Resets the specified unit's threat list (me if not specified) - does not delete entries, just sets their threat to zero
-    void ResetThreatList(Unit* who = nullptr);
-    // Returns the threat level of victim towards who (or me if not specified)
-    float GetThreat(Unit const* victim, Unit const* who = nullptr);
+        // Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
+        void AddThreat(Unit* victim, float amount, Unit* who = nullptr);
+        // Adds/removes the specified percentage from the specified victim's threat (to who, or me if not specified)
+        void ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who = nullptr);
+        // Resets the victim's threat level to who (or me if not specified) to zero
+        void ResetThreat(Unit* victim, Unit* who = nullptr);
+        // Resets the specified unit's threat list (me if not specified) - does not delete entries, just sets their threat to zero
+        void ResetThreatList(Unit* who = nullptr);
+        // Returns the threat level of victim towards who (or me if not specified)
+        float GetThreat(Unit const* victim, Unit const* who = nullptr);
+        // Stops combat, ignoring restrictions, for the given creature
+        void ForceCombatStop(Creature* who, bool reset = true);
+        // Stops combat, ignoring restrictions, for the found creatures
+        void ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true);
 
-    void DoTeleportTo(float x, float y, float z, uint32 time = 0);
-    void DoTeleportTo(float const pos[4]);
+        void DoTeleportTo(float x, float y, float z, uint32 time = 0);
+        void DoTeleportTo(float const pos[4]);
 
-    // Teleports a player without dropping threat (only teleports to same map)
-    void DoTeleportPlayer(Unit* unit, float x, float y, float z, float o);
-    void DoTeleportAll(float x, float y, float z, float o);
+        // Teleports a player without dropping threat (only teleports to same map)
+        void DoTeleportPlayer(Unit* unit, float x, float y, float z, float o);
+        void DoTeleportAll(float x, float y, float z, float o);
 
-    // Returns friendly unit with the most amount of hp missing from max hp
-    Unit* DoSelectLowestHpFriendly(float range, uint32 minHPDiff = 1);
+        // Returns friendly unit with the most amount of hp missing from max hp
+        Unit* DoSelectLowestHpFriendly(float range, uint32 minHPDiff = 1);
 
-    // Returns friendly unit with hp pct below specified and with specified entry
-    Unit* DoSelectBelowHpPctFriendlyWithEntry(uint32 entry, float range, uint8 hpPct = 1, bool excludeSelf = true);
+        // Returns friendly unit with hp pct below specified and with specified entry
+        Unit* DoSelectBelowHpPctFriendlyWithEntry(uint32 entry, float range, uint8 hpPct = 1, bool excludeSelf = true);
 
-    // Returns a list of friendly CC'd units within range
-    std::list<Creature*> DoFindFriendlyCC(float range);
+        // Returns a list of friendly CC'd units within range
+        std::list<Creature*> DoFindFriendlyCC(float range);
 
-    // Returns a list of all friendly units missing a specific buff within range
-    std::list<Creature*> DoFindFriendlyMissingBuff(float range, uint32 spellId);
+        // Returns a list of all friendly units missing a specific buff within range
+        std::list<Creature*> DoFindFriendlyMissingBuff(float range, uint32 spellId);
 
-    // Return a player with at least minimumRange from me
-    Player* GetPlayerAtMinimumRange(float minRange);
+        // Return a player with at least minimumRange from me
+        Player* GetPlayerAtMinimumRange(float minRange);
 
-    // Spawns a creature relative to me
-    Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime);
+        // Spawns a creature relative to me
+        Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime);
 
-    bool HealthBelowPct(uint32 pct) const;
-    bool HealthAbovePct(uint32 pct) const;
+        bool HealthBelowPct(uint32 pct) const;
+        bool HealthAbovePct(uint32 pct) const;
 
-    // Returns spells that meet the specified criteria from the creatures spell list
-    SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effect);
+        // Returns spells that meet the specified criteria from the creatures spell list
+        SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effect);
 
-    void SetEquipmentSlots(bool loadDefault, int32 mainHand = EQUIP_NO_CHANGE, int32 offHand = EQUIP_NO_CHANGE, int32 ranged = EQUIP_NO_CHANGE);
+        void SetEquipmentSlots(bool loadDefault, int32 mainHand = EQUIP_NO_CHANGE, int32 offHand = EQUIP_NO_CHANGE, int32 ranged = EQUIP_NO_CHANGE);
 
-    // Used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
-    // NOTE: If you use SetCombatMovement while the creature is in combat, it will do NOTHING - This only affects AttackStart
-    //       You should make the necessary to make it happen so.
-    //       Remember that if you modified _isCombatMovementAllowed (e.g: using SetCombatMovement) it will not be reset at Reset().
-    //       It will keep the last value you set.
-    void SetCombatMovement(bool allowMovement);
-    bool IsCombatMovementAllowed() const { return _isCombatMovementAllowed; }
+        // Used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
+        // NOTE: If you use SetCombatMovement while the creature is in combat, it will do NOTHING - This only affects AttackStart
+        //       You should make the necessary to make it happen so.
+        //       Remember that if you modified _isCombatMovementAllowed (e.g: using SetCombatMovement) it will not be reset at Reset().
+        //       It will keep the last value you set.
+        void SetCombatMovement(bool allowMovement);
+        bool IsCombatMovementAllowed() const { return _isCombatMovementAllowed; }
 
-    // return true for heroic mode. i.e.
-    //   - for dungeon in mode 10-heroic,
-    //   - for raid in mode 10-Heroic
-    //   - for raid in mode 25-heroic
-    // DO NOT USE to check raid in mode 25-normal.
-    bool IsHeroic() const { return _isHeroic; }
+        // return true for heroic mode. i.e.
+        //   - for dungeon in mode 10-heroic,
+        //   - for raid in mode 10-Heroic
+        //   - for raid in mode 25-heroic
+        // DO NOT USE to check raid in mode 25-normal.
+        bool IsHeroic() const { return _isHeroic; }
 
-    // return the dungeon or raid difficulty
-    Difficulty GetDifficulty() const { return _difficulty; }
+        // return the dungeon or raid difficulty
+        Difficulty GetDifficulty() const { return _difficulty; }
 
-    // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() const { return _difficulty & RAID_DIFFICULTY_MASK_25MAN; }
+        // return true for 25 man or 25 man heroic mode
+        bool Is25ManRaid() const { return _difficulty & RAID_DIFFICULTY_MASK_25MAN; }
 
-    template <class T>
-    inline T const& DUNGEON_MODE(T const& normal5, T const& heroic10) const
-    {
-        switch (_difficulty)
+        template <class T>
+        inline T const& DUNGEON_MODE(T const& normal5, T const& heroic10) const
         {
-            case DUNGEON_DIFFICULTY_NORMAL:
-                return normal5;
-            case DUNGEON_DIFFICULTY_HEROIC:
-                return heroic10;
-            default:
-                break;
+            switch (_difficulty)
+            {
+                case DUNGEON_DIFFICULTY_NORMAL:
+                    return normal5;
+                case DUNGEON_DIFFICULTY_HEROIC:
+                    return heroic10;
+                default:
+                    break;
+            }
+
+            return heroic10;
         }
 
-        return heroic10;
-    }
-
-    template <class T>
-    inline T const& RAID_MODE(T const& normal10, T const& normal25) const
-    {
-        switch (_difficulty)
+        template <class T>
+        inline T const& RAID_MODE(T const& normal10, T const& normal25) const
         {
-            case RAID_DIFFICULTY_10MAN_NORMAL:
-                return normal10;
-            case RAID_DIFFICULTY_25MAN_NORMAL:
-                return normal25;
-            default:
-                break;
+            switch (_difficulty)
+            {
+                case RAID_DIFFICULTY_10MAN_NORMAL:
+                    return normal10;
+                case RAID_DIFFICULTY_25MAN_NORMAL:
+                    return normal25;
+                default:
+                    break;
+            }
+
+            return normal25;
         }
 
-        return normal25;
-    }
-
-    template <class T>
-    inline T const& RAID_MODE(T const& normal10, T const& normal25, T const& heroic10, T const& heroic25) const
-    {
-        switch (_difficulty)
+        template <class T>
+        inline T const& RAID_MODE(T const& normal10, T const& normal25, T const& heroic10, T const& heroic25) const
         {
-            case RAID_DIFFICULTY_10MAN_NORMAL:
-                return normal10;
-            case RAID_DIFFICULTY_25MAN_NORMAL:
-                return normal25;
-            case RAID_DIFFICULTY_10MAN_HEROIC:
-                return heroic10;
-            case RAID_DIFFICULTY_25MAN_HEROIC:
-                return heroic25;
-            default:
-                break;
-        }
+            switch (_difficulty)
+            {
+                case RAID_DIFFICULTY_10MAN_NORMAL:
+                    return normal10;
+                case RAID_DIFFICULTY_25MAN_NORMAL:
+                    return normal25;
+                case RAID_DIFFICULTY_10MAN_HEROIC:
+                    return heroic10;
+                case RAID_DIFFICULTY_25MAN_HEROIC:
+                    return heroic25;
+                default:
+                    break;
+            }
 
-        return heroic25;
-    }
+            return heroic25;
+        }
 
     private:
         Difficulty _difficulty;

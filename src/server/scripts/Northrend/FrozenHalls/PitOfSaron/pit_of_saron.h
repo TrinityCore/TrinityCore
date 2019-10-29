@@ -110,6 +110,8 @@ enum POSSpellsIcicle
     SPELL_DONT_LOOK_UP_ACHIEV_CREDIT    = 72845
 };
 
+class Creature;
+
 class ScheduledIcicleSummons : public BasicEvent
 {
     public:
@@ -126,5 +128,7 @@ inline AI* GetPitOfSaronAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, PoSScriptName);
 }
+
+#define RegisterPitOfSaronCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetPitOfSaronAI)
 
 #endif // PIT_OF_SARON_H_
