@@ -86,6 +86,7 @@ extern "C" {
 #define CASC_OVERCOME_ENCRYPTED     0x00000020  // When CascReadFile encounters a block encrypted with a key that is missing, the block is filled with zeros and returned as success
 
 #define CASC_LOCALE_ALL             0xFFFFFFFF
+#define CASC_LOCALE_ALL_WOW         0x0001F3F6  // All except enCN and enTW
 #define CASC_LOCALE_NONE            0x00000000
 #define CASC_LOCALE_UNKNOWN1        0x00000001
 #define CASC_LOCALE_ENUS            0x00000002
@@ -141,6 +142,9 @@ extern "C" {
 // Macro to convert FileDataId to the argument of CascOpenFile
 #define CASC_FILE_DATA_ID(FileDataId) ((LPCSTR)(size_t)FileDataId)
 #define CASC_FILE_DATA_ID_FROM_STRING(szFileName)  ((DWORD)(size_t)szFileName)
+
+// Maximum length of encryption key
+#define CASC_KEY_LENGTH 0x10
 
 //-----------------------------------------------------------------------------
 // Structures
@@ -342,9 +346,6 @@ bool  WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, 
 bool  WINAPI CascOpenStorage(LPCTSTR szParams, DWORD dwLocaleMask, HANDLE * phStorage);
 bool  WINAPI CascOpenOnlineStorage(LPCTSTR szParams, DWORD dwLocaleMask, HANDLE * phStorage);
 bool  WINAPI CascGetStorageInfo(HANDLE hStorage, CASC_STORAGE_INFO_CLASS InfoClass, void * pvStorageInfo, size_t cbStorageInfo, size_t * pcbLengthNeeded);
-bool  WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key);
-bool  WINAPI CascAddStringEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPCSTR szKey);
-LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName);
 bool  WINAPI CascCloseStorage(HANDLE hStorage);
 
 bool  WINAPI CascOpenFile(HANDLE hStorage, const void * pvFileName, DWORD dwLocaleFlags, DWORD dwOpenFlags, HANDLE * PtrFileHandle);
@@ -361,6 +362,11 @@ DWORD WINAPI CascSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * PtrFilePosHi
 HANDLE WINAPI CascFindFirstFile(HANDLE hStorage, LPCSTR szMask, PCASC_FIND_DATA pFindData, LPCTSTR szListFile);
 bool  WINAPI CascFindNextFile(HANDLE hFind, PCASC_FIND_DATA pFindData);
 bool  WINAPI CascFindClose(HANDLE hFind);
+
+bool   WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key);
+bool   WINAPI CascAddStringEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPCSTR szKey);
+LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName);
+bool   WINAPI CascGetNotFoundEncryptionKey(HANDLE hStorage, ULONGLONG * KeyName);
 
 //-----------------------------------------------------------------------------
 // GetLastError/SetLastError support for non-Windows platform

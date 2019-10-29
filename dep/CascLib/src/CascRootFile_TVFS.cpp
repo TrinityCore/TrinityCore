@@ -397,6 +397,32 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         return dwErrCode;
     }
 
+    PCASC_CKEY_ENTRY InsertUnknownCKeyEntry(TCascStorage * hs, LPBYTE pbEKey, size_t cbEKey, DWORD ContentSize)
+    {
+        PCASC_CKEY_ENTRY pCKeyEntry;
+
+        // Insert a new entry to the array. DO NOT ALLOW enlarge array here
+        pCKeyEntry = (PCASC_CKEY_ENTRY)hs->CKeyArray.Insert(1, false);
+        if(pCKeyEntry != NULL)
+        {
+            memset(pCKeyEntry, 0, sizeof(CASC_CKEY_ENTRY));
+            memcpy(pCKeyEntry->EKey, pbEKey, cbEKey);
+            pCKeyEntry->StorageOffset = CASC_INVALID_OFFS64;
+            pCKeyEntry->ContentSize = ContentSize;
+            pCKeyEntry->EncodedSize = CASC_INVALID_SIZE;
+            pCKeyEntry->Flags = CASC_CE_HAS_EKEY | CASC_CE_HAS_EKEY_PARTIAL;
+            pCKeyEntry->SpanCount = 1;
+
+            // Copy the information from index files to the CKey entry
+            CopyEKeyEntry(hs, pCKeyEntry);
+
+            // Insert the item into EKey map
+            hs->EKeyMap.InsertObject(pCKeyEntry, pCKeyEntry->EKey);
+        }
+
+        return pCKeyEntry;
+    }
+
     void InsertRootVfsEntry(TCascStorage * hs, LPBYTE pbCKey, const char * szFormat, size_t nIndex)
     {
         PCASC_CKEY_ENTRY pCKeyEntry;
@@ -474,29 +500,37 @@ struct TRootHandler_TVFS : public TFileTreeRoot
 
                         // Find the CKey entry
                         pCKeyEntry = FindCKeyEntry_EKey(hs, SpanEntry.EKey);
-                        if(pCKeyEntry != NULL)
+                        if(pCKeyEntry == NULL)
                         {
-                            // We need to check whether this is another TVFS directory file
-                            if (IsVfsSubDirectory(hs, DirHeader, SubHeader, SpanEntry.EKey, SpanEntry.ContentSize) == ERROR_SUCCESS)
+                            // Some files are in the ROOT manifest even if they are not in ENCODING and DOWNLOAD.
+                            // Example: "2018 - New CASC\00001", file "DivideAndConquer.w3m:war3mapMap.blp"
+                            pCKeyEntry = InsertUnknownCKeyEntry(hs, SpanEntry.EKey, DirHeader.EKeySize, SpanEntry.ContentSize);
+                            if(pCKeyEntry == NULL)
                             {
-                                // Add colon (':')
-                                PathBuffer.AppendChar(':');
-
-                                // The file content size should already be there
-                                assert(pCKeyEntry->ContentSize == SpanEntry.ContentSize);
-                                FileTree.InsertByName(pCKeyEntry, PathBuffer);
-
-                                // Parse the subdir
-                                ParseDirectoryData(hs, SubHeader, PathBuffer);
-                                CASC_FREE(SubHeader.pbDirectoryData);
+                                return ERROR_NOT_ENOUGH_MEMORY;
                             }
-                            else
-                            {
-                                // If the content content size is not there, supply it now
-                                if(pCKeyEntry->ContentSize == CASC_INVALID_SIZE)
-                                    pCKeyEntry->ContentSize = SpanEntry.ContentSize;
-                                FileTree.InsertByName(pCKeyEntry, PathBuffer);
-                            }
+                        }
+
+                        // We need to check whether this is another TVFS directory file
+                        if (IsVfsSubDirectory(hs, DirHeader, SubHeader, SpanEntry.EKey, SpanEntry.ContentSize) == ERROR_SUCCESS)
+                        {
+                            // Add colon (':')
+                            PathBuffer.AppendChar(':');
+
+                            // The file content size should already be there
+                            assert(pCKeyEntry->ContentSize == SpanEntry.ContentSize);
+                            FileTree.InsertByName(pCKeyEntry, PathBuffer);
+
+                            // Parse the subdir
+                            ParseDirectoryData(hs, SubHeader, PathBuffer);
+                            CASC_FREE(SubHeader.pbDirectoryData);
+                        }
+                        else
+                        {
+                            // If the content content size is not there, supply it now
+                            if(pCKeyEntry->ContentSize == CASC_INVALID_SIZE)
+                                pCKeyEntry->ContentSize = SpanEntry.ContentSize;
+                            FileTree.InsertByName(pCKeyEntry, PathBuffer);
                         }
                     }
                     else

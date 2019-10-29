@@ -680,7 +680,7 @@ static bool BaseHttp_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
                 if (HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE, szStatusCode, &dwDataSize, &dwIndex))
                     dwStatusCode = _tcstoul(szStatusCode, &szEndPtr, 10);
 
-                // Copare the statuc code
+                // Compare the status code
                 if (dwStatusCode == 200)
                 {
                     // Check if the archive has Last Modified field
