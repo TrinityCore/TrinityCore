@@ -86,6 +86,16 @@ typedef struct _CASC_TAG_ENTRY
     char TagName[1];                                // Tag name. Variable length.
 } CASC_TAG_ENTRY, *PCASC_TAG_ENTRY;
 
+// Information about index file
+typedef struct _CASC_INDEX
+{
+    LPTSTR szFileName;                              // Full name of the index file
+    LPBYTE pbFileData;                              // Loaded content of the index file
+    size_t cbFileData;                               // Size of the index file
+    DWORD NewSubIndex;                              // New subindex
+    DWORD OldSubIndex;                              // Old subindex
+} CASC_INDEX, *PCASC_INDEX;
+
 // Normalized header of the index files.
 // Both version 1 and version 2 are converted to this structure
 typedef struct _CASC_INDEX_HEADER
@@ -292,6 +302,8 @@ struct TCascStorage
     QUERY_KEY BuildFiles;                           // List of supported build files
 
     TFileStream * DataFiles[CASC_MAX_DATA_FILES];   // Array of open data files
+    CASC_INDEX IndexFiles[CASC_INDEX_COUNT];        // Array of found index files
+    CASC_MAP IndexEKeyMap;
 
     CASC_CKEY_ENTRY EncodingCKey;                   // Information about ENCODING file
     CASC_CKEY_ENTRY DownloadCKey;                   // Information about DOWNLOAD file
@@ -317,6 +329,7 @@ struct TCascStorage
 
     CASC_ARRAY ExtraKeysList;                       // List additional encryption keys
     CASC_MAP   EncryptionKeys;                      // Map of encryption keys
+    ULONGLONG  LastFailKeyName;                     // The value of the encryption key that recently was NOT found.
 
 };
 
@@ -465,7 +478,10 @@ DWORD CascDecrypt(TCascStorage * hs, LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LP
 //-----------------------------------------------------------------------------
 // Support for index files
 
+bool CopyEKeyEntry(TCascStorage * hs, PCASC_CKEY_ENTRY pCKeyEntry);
+
 DWORD LoadIndexFiles(TCascStorage * hs);
+void  FreeIndexFiles(TCascStorage * hs);
 
 //-----------------------------------------------------------------------------
 // Support for ROOT file
