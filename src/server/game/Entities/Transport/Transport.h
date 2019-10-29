@@ -72,11 +72,11 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
         void SetCurrentTransportTime(uint32 time) { _currentTransportTime = time; }
         uint32 GetCurrentTransportTime() const { return _currentTransportTime; }
 
-        void SetAlignmentTransportTime(uint32 time) { _alignmentTransportTime = time; }
-        uint32 GetAlightmentTransportTime() const { return _alignmentTransportTime; }
-
         void SetLastStopFrameTime(uint32 time) { _lastStopFrameTime = time; }
         uint32 GetLastStopFrameTime() const { return _lastStopFrameTime; }
+
+        void SetExpectedTravelTime(uint32 time) { _expectedTravelTime = time; }
+        uint32 GetExpectedTravelTime() const { return _expectedTravelTime; }
 
     protected:
         void UpdatePassengerPositions(PassengerSet& passengers);
@@ -86,8 +86,8 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         uint32 _destinationStopFrameTime;
         uint32 _currentTransportTime;
-        uint32 _alignmentTransportTime;
         uint32 _lastStopFrameTime;
+        uint32 _expectedTravelTime;
         bool _isDynamicTransport;
         bool _initialRelocate;
 };
