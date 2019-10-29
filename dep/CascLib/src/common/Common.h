@@ -438,17 +438,11 @@ bool CascVerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expec
 //-----------------------------------------------------------------------------
 // Scanning a directory
 
-typedef bool (*INDEX_FILE_FOUND)(const TCHAR * szFileName, PDWORD IndexArray, PDWORD OldIndexArray, void * pvContext);
+typedef bool (*INDEX_FILE_FOUND)(LPCTSTR szFileName, void * pvContext);
 
-bool DirectoryExists(const TCHAR * szDirectory);
+bool DirectoryExists(LPCTSTR szDirectory);
 
-int ScanIndexDirectory(
-    const TCHAR * szIndexPath,
-    INDEX_FILE_FOUND pfnOnFileFound,
-    PDWORD IndexArray,
-    PDWORD OldIndexArray,
-    void * pvContext
-    );
+int ScanIndexDirectory(LPCTSTR szIndexPath, INDEX_FILE_FOUND pfnOnFileFound, void * pvContext);
 
 //-----------------------------------------------------------------------------
 // Argument structure versioning
