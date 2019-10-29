@@ -3935,7 +3935,9 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     ApplySpellFix({
         19503, // Scatter Shot
-        34490  // Silencing Shot
+        34490, // Silencing Shot
+        44327, // Trained Rock Falcon/Hawk Hunting
+        44408  // Trained Rock Falcon/Hawk Hunting
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Speed = 0.f;
