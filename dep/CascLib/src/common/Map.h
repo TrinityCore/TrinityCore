@@ -94,7 +94,7 @@ class CASC_MAP
         Free();
     }
 
-    int Create(size_t MaxItems, size_t KeyLength, size_t KeyOffset, KEY_TYPE KeyType = KeyIsHash)
+    DWORD Create(size_t MaxItems, size_t KeyLength, size_t KeyOffset, KEY_TYPE KeyType = KeyIsHash)
     {
         // Set the class variables
         m_KeyLength = CASCLIB_MAX(KeyLength, 8);
@@ -331,7 +331,7 @@ class CASC_MAP
         size_t PowerOfTwo;
         
         // Round the hash table size up to the nearest power of two
-        for(PowerOfTwo = MIN_HASH_TABLE_SIZE; PowerOfTwo < MAX_HASH_TABLE_SIZE; PowerOfTwo <<= 1)
+        for(PowerOfTwo = MIN_HASH_TABLE_SIZE; PowerOfTwo <= MAX_HASH_TABLE_SIZE; PowerOfTwo <<= 1)
         {
             if(PowerOfTwo > MaxItems)
             {

@@ -80,15 +80,19 @@
   #include <sys/types.h>
   #include <sys/stat.h>
   #include <sys/mman.h>
-  #include <unistd.h>
   #include <fcntl.h>
-  #include <stdlib.h>
   #include <dirent.h>
-  #include <errno.h>
+  #include <unistd.h>
   #include <stddef.h>
+  #include <stdint.h>
+  #include <stdlib.h>
+  #include <stdio.h>
+  #include <stdarg.h>
   #include <string.h>
   #include <ctype.h>
+  #include <wchar.h>
   #include <cassert>
+  #include <errno.h>
 
   // Support for PowerPC on Max OS X
   #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
@@ -261,6 +265,10 @@
 #define ERROR_CANCELLED                  1009
 #endif
 
+#ifndef ERROR_INDEX_PARSING_DONE
+#define ERROR_INDEX_PARSING_DONE         1010
+#endif
+
 #ifndef _countof
 #define _countof(x)   (sizeof(x) / sizeof(x[0]))  
 #endif
@@ -321,7 +329,7 @@ inline DWORD CascInterlockedIncrement(PDWORD PtrValue)
 inline DWORD CascInterlockedDecrement(PDWORD PtrValue)
 {
 #ifdef PLATFORM_WINDOWS
-    return (DWORD)InterlockedIncrement((LONG *)(PtrValue));
+    return (DWORD)InterlockedDecrement((LONG *)(PtrValue));
 #else
     return --PtrValue[0];
 #endif
