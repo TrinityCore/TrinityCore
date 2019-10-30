@@ -45,8 +45,8 @@ OpenSSL (general-purpose cryptography library)
   Version: external
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
-  Based on http://agner.org/random/
-  Version: 2010-Aug-03
+  https://github.com/MersenneTwister-Lab/SFMT
+  Version: 73bcba2e483640b8d50c1275514326dd4c1b0ca4
 
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   http://utfcpp.sourceforge.net/
