@@ -20,6 +20,8 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
 
 enum Events
 {
@@ -67,6 +69,11 @@ enum Phase
 {
     PHASE_NORMAL,
     PHASE_INTRO,
+};
+
+enum ForgeSpells
+{
+    SPELL_LETHARGY = 69133
 };
 
 class npc_sylvanas_fos : public CreatureScript
@@ -276,8 +283,34 @@ public:
     }
 };
 
+// 69131 - Soul Sickness
+class spell_forge_of_souls_soul_sickness : public AuraScript
+{
+    PrepareAuraScript(spell_forge_of_souls_soul_sickness);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LETHARGY });
+    }
+
+    void HandleStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+        {
+            Unit* target = GetTarget();
+            target->CastSpell(target, SPELL_LETHARGY, aurEff);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_forge_of_souls_soul_sickness::HandleStun, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_forge_of_souls()
 {
     new npc_sylvanas_fos();
     new npc_jaina_fos();
+    RegisterAuraScript(spell_forge_of_souls_soul_sickness);
 }

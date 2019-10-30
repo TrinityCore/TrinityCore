@@ -688,11 +688,6 @@ SpellAreaForAreaMapBounds SpellMgr::GetSpellAreaForAreaMapBounds(uint32 area_id)
     return mSpellAreaForAreaMap.equal_range(area_id);
 }
 
-SpellAreaForQuestAreaMapBounds SpellMgr::GetSpellAreaForQuestAreaMapBounds(uint32 area_id, uint32 quest_id) const
-{
-    return mSpellAreaForQuestAreaMap.equal_range(std::pair<uint32, uint32>(area_id, quest_id));
-}
-
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
 {
     if (gender != GENDER_NONE)                   // is not expected gender
@@ -1529,8 +1524,8 @@ void SpellMgr::LoadSpellProcs()
 
     //                                                     0           1                2                 3                 4                 5
     QueryResult result = WorldDatabase.Query("SELECT SpellId, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, "
-    //           6              7               8        9              10              11      12        13      14
-        "ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
+    //           6              7               8        9               10                  11              12      13        14       15
+        "ProcFlags, SpellTypeMask, SpellPhaseMask, HitMask, AttributesMask, DisableEffectsMask, ProcsPerMinute, Chance, Cooldown, Charges FROM spell_proc");
 
     uint32 count = 0;
     if (result)
@@ -1579,10 +1574,11 @@ void SpellMgr::LoadSpellProcs()
             baseProcEntry.SpellPhaseMask = fields[8].GetUInt32();
             baseProcEntry.HitMask = fields[9].GetUInt32();
             baseProcEntry.AttributesMask = fields[10].GetUInt32();
-            baseProcEntry.ProcsPerMinute = fields[11].GetFloat();
-            baseProcEntry.Chance = fields[12].GetFloat();
-            baseProcEntry.Cooldown = Milliseconds(fields[13].GetUInt32());
-            baseProcEntry.Charges = fields[14].GetUInt8();
+            baseProcEntry.DisableEffectsMask = fields[11].GetUInt32();
+            baseProcEntry.ProcsPerMinute = fields[12].GetFloat();
+            baseProcEntry.Chance = fields[13].GetFloat();
+            baseProcEntry.Cooldown = Milliseconds(fields[14].GetUInt32());
+            baseProcEntry.Charges = fields[15].GetUInt8();
 
             while (spellInfo)
             {
@@ -1634,8 +1630,8 @@ void SpellMgr::LoadSpellProcs()
                 if (procEntry.HitMask && !(procEntry.ProcFlags & TAKEN_HIT_PROC_FLAG_MASK || (procEntry.ProcFlags & DONE_HIT_PROC_FLAG_MASK && (!procEntry.SpellPhaseMask || procEntry.SpellPhaseMask & (PROC_SPELL_PHASE_HIT | PROC_SPELL_PHASE_FINISH)))))
                     TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has `HitMask` value defined, but it will not be used for defined `ProcFlags` and `SpellPhaseMask` values.", spellInfo->Id);
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if ((procEntry.AttributesMask & (PROC_ATTR_DISABLE_EFF_0 << i)) && !spellInfo->Effects[i].IsAura())
-                        TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has Attribute PROC_ATTR_DISABLE_EFF_%u, but effect %u is not an aura effect", spellInfo->Id, static_cast<uint32>(i), static_cast<uint32>(i));
+                    if ((procEntry.DisableEffectsMask & (1u << i)) && !spellInfo->Effects[i].IsAura())
+                        TC_LOG_ERROR("sql.sql", "The `spell_proc` table entry for spellId %u has DisableEffectsMask with effect %u, but effect %u is not an aura effect", spellInfo->Id, static_cast<uint32>(i), static_cast<uint32>(i));
                 if (procEntry.AttributesMask & PROC_ATTR_REQ_SPELLMOD)
                 {
                     bool found = false;
@@ -1866,12 +1862,11 @@ void SpellMgr::LoadSpellProcs()
         }
 
         procEntry.AttributesMask  = 0;
+        procEntry.DisableEffectsMask = nonProcMask;
         if (spellInfo->ProcFlags & PROC_FLAG_KILL)
             procEntry.AttributesMask |= PROC_ATTR_REQ_EXP_OR_HONOR;
         if (addTriggerFlag)
             procEntry.AttributesMask |= PROC_ATTR_TRIGGERED_CAN_PROC;
-        if (nonProcMask)
-            procEntry.AttributesMask |= nonProcMask * PROC_ATTR_DISABLE_EFF_0;
 
         procEntry.ProcsPerMinute  = 0;
         procEntry.Chance          = spellInfo->ProcChance;
@@ -2376,7 +2371,6 @@ void SpellMgr::LoadSpellAreas()
     mSpellAreaForQuestMap.clear();
     mSpellAreaForQuestEndMap.clear();
     mSpellAreaForAuraMap.clear();
-    mSpellAreaForQuestAreaMap.clear();
 
     //                                                  0     1         2              3               4                 5          6          7       8         9
     QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
@@ -2538,9 +2532,19 @@ void SpellMgr::LoadSpellAreas()
         if (spellArea.areaId)
             mSpellAreaForAreaMap.insert(SpellAreaForAreaMap::value_type(spellArea.areaId, sa));
 
-        // for search at quest start/reward
-        if (spellArea.questStart)
-            mSpellAreaForQuestMap.insert(SpellAreaForQuestMap::value_type(spellArea.questStart, sa));
+        // for search at quest update checks
+        if (spellArea.questStart || spellArea.questEnd)
+        {
+            if (spellArea.questStart == spellArea.questEnd)
+                mSpellAreaForQuestMap.insert(SpellAreaForQuestMap::value_type(spellArea.questStart, sa));
+            else
+            {
+                if (spellArea.questStart)
+                    mSpellAreaForQuestMap.insert(SpellAreaForQuestMap::value_type(spellArea.questStart, sa));
+                if (spellArea.questEnd)
+                    mSpellAreaForQuestMap.insert(SpellAreaForQuestMap::value_type(spellArea.questEnd, sa));
+            }
+        }
 
         // for search at quest start/reward
         if (spellArea.questEnd)
@@ -2549,12 +2553,6 @@ void SpellMgr::LoadSpellAreas()
         // for search at aura apply
         if (spellArea.auraSpell)
             mSpellAreaForAuraMap.insert(SpellAreaForAuraMap::value_type(abs(spellArea.auraSpell), sa));
-
-        if (spellArea.areaId && spellArea.questStart)
-            mSpellAreaForQuestAreaMap.insert(SpellAreaForQuestAreaMap::value_type(std::pair<uint32, uint32>(spellArea.areaId, spellArea.questStart), sa));
-
-        if (spellArea.areaId && spellArea.questEnd)
-            mSpellAreaForQuestAreaMap.insert(SpellAreaForQuestAreaMap::value_type(std::pair<uint32, uint32>(spellArea.areaId, spellArea.questEnd), sa));
 
         ++count;
     } while (result->NextRow());
@@ -2674,18 +2672,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                 case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_STUN:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
-                    break;
-                case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_PERIODIC_DAMAGE:
-                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                case SPELL_AURA_PERIODIC_ENERGIZE:
-                case SPELL_AURA_OBS_MOD_HEALTH:
-                case SPELL_AURA_OBS_MOD_POWER:
-                case SPELL_AURA_POWER_BURN:
-                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
                     break;
             }
 
@@ -4249,7 +4235,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         70834, // Bone Storm (Lord Marrowgar)
         70835, // Bone Storm (Lord Marrowgar)
         70836, // Bone Storm (Lord Marrowgar)
-        72864, // Death Plague (Rotting Frost Giant)
         71160, // Plague Stench (Stinky)
         71161, // Plague Stench (Stinky)
         71123  // Decimate (Stinky & Precious)
@@ -4906,6 +4891,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 47198, 47199, 47200 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_1].SpellClassMask[0] |= 0x00004000; // Drain soul
+    });
+
+    // Soul Sickness (Forge of Souls)
+    ApplySpellFix({ 69131 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_DECREASE_SPEED;
     });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)

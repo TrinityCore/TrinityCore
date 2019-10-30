@@ -1,0 +1,2 @@
+-- 
+UPDATE `quest_request_items` SET `CompletionText`="Our spells of Fortify are very powerful, $N. They allow our companions to take further injury from all types of attacks and survive in situations where they would normally fall. But this is nothing when compared to our abilities to heal. There are no greater healers than a priest--do well to remember that. Your power alone can turn the tides of battle easily." WHERE `ID`=5621;

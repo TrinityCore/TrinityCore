@@ -22,12 +22,6 @@
 #include "Map.h"
 #include "scarlet_monastery.h"
 
-DoorData const doorData[] =
-{
-    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
-    { 0,                        0,                             DOOR_TYPE_ROOM } // END
-};
-
 class instance_scarlet_monastery : public InstanceMapScript
 {
     public:
@@ -39,9 +33,6 @@ class instance_scarlet_monastery : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadDoorData(doorData);
-
-                HorsemanAdds.clear();
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -52,6 +43,9 @@ class instance_scarlet_monastery : public InstanceMapScript
                 {
                     case GO_PUMPKIN_SHRINE:
                         PumpkinShrineGUID = go->GetGUID();
+                        break;
+                    case GO_HIGH_INQUISITORS_DOOR:
+                        HighInquistorDoorGUID = go->GetGUID();
                         break;
                     default:
                         break;
@@ -127,12 +121,16 @@ class instance_scarlet_monastery : public InstanceMapScript
             {
                 switch (type)
                 {
+                    /// Creatures
                     case DATA_MOGRAINE:
                         return MograineGUID;
                     case DATA_WHITEMANE:
                         return WhitemaneGUID;
                     case DATA_VORREL:
                         return VorrelGUID;
+                    /// GameObjects
+                    case GO_HIGH_INQUISITORS_DOOR:
+                        return HighInquistorDoorGUID;
                     default:
                         break;
                 }
@@ -140,12 +138,16 @@ class instance_scarlet_monastery : public InstanceMapScript
             }
 
         protected:
-            ObjectGuid PumpkinShrineGUID;
+            /// Creatures
             ObjectGuid HorsemanGUID;
             ObjectGuid HeadGUID;
             ObjectGuid MograineGUID;
             ObjectGuid WhitemaneGUID;
             ObjectGuid VorrelGUID;
+
+            /// GameObjects
+            ObjectGuid PumpkinShrineGUID;
+            ObjectGuid HighInquistorDoorGUID;
 
             GuidSet HorsemanAdds;
         };

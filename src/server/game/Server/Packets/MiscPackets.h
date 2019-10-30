@@ -19,6 +19,7 @@
 #define MiscPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
 #include "Weather.h"
 
 enum WeatherState : uint32;
@@ -38,6 +39,42 @@ namespace WorldPackets
             bool Abrupt = false;
             float Intensity = 0.0f;
             WeatherState WeatherID = WeatherState(0);
+        };
+
+        class TC_GAME_API PlayMusic final : public ServerPacket
+        {
+        public:
+            PlayMusic() : ServerPacket(SMSG_PLAY_MUSIC, 4) { }
+            PlayMusic(uint32 soundKitID) : ServerPacket(SMSG_PLAY_MUSIC, 4), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SoundKitID = 0;
+        };
+
+        class TC_GAME_API PlayObjectSound final : public ServerPacket
+        {
+        public:
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 4 + 8) { }
+            PlayObjectSound(ObjectGuid const& sourceObjectGUID, uint32 soundKitID)
+                : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 4 + 8), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGUID;
+            uint32 SoundKitID = 0;
+            
+        };
+
+        class TC_GAME_API PlaySound final : public ServerPacket
+        {
+        public:
+            PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 4) { }
+            PlaySound(uint32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 4), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 SoundKitID = 0;
         };
 
         class OverrideLight final : public ServerPacket

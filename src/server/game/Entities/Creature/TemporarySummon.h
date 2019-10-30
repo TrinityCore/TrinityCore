@@ -53,6 +53,8 @@ class TC_GAME_API TempSummon : public Creature
         ObjectGuid GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType GetSummonType() const { return m_type; }
         uint32 GetTimer() const { return m_timer; }
+        bool CanFollowOwner() const { return m_canFollowOwner; }
+        void SetCanFollowOwner(bool can) { m_canFollowOwner = can; }
 
         SummonPropertiesEntry const* const m_Properties;
 
@@ -62,6 +64,7 @@ class TC_GAME_API TempSummon : public Creature
         uint32 m_timer;
         uint32 m_lifetime;
         ObjectGuid m_summonerGUID;
+        bool m_canFollowOwner;
 };
 
 class TC_GAME_API Minion : public TempSummon
