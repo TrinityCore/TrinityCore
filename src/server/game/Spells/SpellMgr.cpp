@@ -5522,6 +5522,24 @@ void SpellMgr::LoadSpellInfoCorrections()
        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
     });
 
+    // Shadowflame Barrage (10 player)
+    ApplySpellFix({
+        78621,
+        94122,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 4;
+    });
+
+    // Shadowflame Barrage (25 player)
+    ApplySpellFix({
+        94121,
+        94123,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 8;
+    });
+
     // ENDOF BLACKWING DESCENT SPELLS
 
     // Living Bomb

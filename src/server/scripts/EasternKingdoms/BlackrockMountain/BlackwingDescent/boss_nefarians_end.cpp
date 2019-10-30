@@ -44,6 +44,8 @@ enum Spells
     SPELL_CHILDREN_OF_DEATHWING_NEFARIAN        = 80787,
     SPELL_HAIL_OF_BONES                         = 78679,
     SPELL_NEFARIAN_PHASE_2_HEALTH_AURA          = 81582,
+    SPELL_SHADOWFLAME_BARRAGE                   = 78621,
+    SPELL_BRUSHFIRE_PRE_START_PERIODIC          = 94630,
 
     // Onyxia
     SPELL_PERMANENT_FEIGN_DEATH_1               = 29266,
@@ -63,14 +65,24 @@ enum Spells
     // Nefarian and Onyxia
     SPELL_TAIL_LASH                             = 77827,
     SPELL_SHADOWFLAME_BREATH                    = 77826,
+    SPELL_SHADOW_OF_COWARDICE_DAMAGE            = 79353,
+    SPELL_SHADOW_OF_COWARDICE_DUMMY             = 80963,
 
     // Nefarian's Lightning Machine
     SPELL_ELECTROCUTE                           = 81198,
+    SPELL_ELECTROCUTE_DAMAGE                    = 81272,
 
     // Animated Bone Warrior
     SPELL_FULL_POWER_NO_REGEN                   = 78120,
     SPELL_ANIMATE_BONES                         = 78122,
     SPELL_PERMANENT_FEIGN_DEATH_2               = 70628,
+    SPELL_CLEAR_ALL_DEBUFFS                     = 34098,
+
+    // Chromatic Prototype
+    SPELL_JUMP_DOWN_TO_PLATFORM                 = 79205,
+    SPELL_READY_UNARMED                         = 94610,
+    SPELL_DUMMY_NUKE                            = 80776,
+    SPELL_BLAST_NOVA                            = 80734,
 
     // Invisible Stalker (Cataclysm Boss, Ignore Combat, Floating)
     SPELL_INTRO_1_TRANSFORM_VISUAL              = 78205,
@@ -88,6 +100,8 @@ enum Texts
     SAY_ANNOUNCE_AIR_CRACKLES   = 0,
     SAY_HAIL_OF_BONES           = 1,
     SAY_ONYXIA_DIED             = 2,
+    SAY_MOLTEN_LAVA             = 3,
+    SAY_LAND_PHASE_THREE        = 4,
 
     // Lord Victor Nefarius
     SAY_INTRO_1                 = 0,
@@ -105,13 +119,21 @@ enum Events
     EVENT_MAKE_ATTACKABLE,
     EVENT_FLY_CYCLIC_PATH,
     EVENT_PREPARE_LANDING,
-    EVENT_LAND,
+    EVENT_LAND_PHASE_ONE,
     EVENT_LANDED,
     EVENT_ENGAGE_PLAYERS,
     EVENT_SAY_ONYXIA_DEAD,
     EVENT_MOVE_TO_CENTER,
     EVENT_LIFTOFF_PHASE_TWO,
-    EVENT_LOWER_PLATFORM,
+    EVENT_SUMMON_CHROMATIC_PROTOTYPES,
+    EVENT_LOWER_ELEVATOR,
+    EVENT_ELEVATOR_LOWERED,
+    EVENT_SHADOWFLAME_BARRAGE,
+    EVENT_SAY_PHASE_TWO,
+    EVENT_ENTER_PHASE_THREE,
+    EVENT_SAY_PHASE_THREE,
+    EVENT_LAND_PHASE_THREE,
+    EVENT_ELECTROCUTE,
 
     // Onyxia
     EVENT_LIGHTNING_DISCHARGE,
@@ -125,7 +147,14 @@ enum Events
     EVENT_TALK_INTRO_2,
     EVENT_TALK_INTRO_3,
     EVENT_CAST_TRANSFORM_VISUAL,
-    EVENT_RAISE_ELEVATOR
+    EVENT_RAISE_ELEVATOR,
+
+    // Chromatic Prototype
+    EVENT_JUMP_DOWN_TO_PLATFORM,
+    EVENT_READY_PROTOTYPE,
+    EVENT_DUMMY_NUKE,
+    EVENT_BLAST_NOVA,
+    EVENT_DISENGAGE_PLAYERS,
 };
 
 enum Phases
@@ -138,15 +167,18 @@ enum Phases
 enum Actions
 {
     // Lord Victor Nefarius
-    ACTION_START_INTRO              = 0,
+    ACTION_START_INTRO              = 1,
 
     // Nefarian
-    ACTION_ONYXIA_ENGAGED           = 0,
-    ACTION_ONYXIA_DIED              = 1,
+    ACTION_ONYXIA_ENGAGED           = 1,
+    ACTION_ONYXIA_DIED              = 2,
 
     // Onyxia
-    ACTION_REANIMATED               = 0,
-    ACTION_UPDATE_ELECTRICAL_CHARGE = 1,
+    ACTION_REANIMATED               = 1,
+    ACTION_UPDATE_ELECTRICAL_CHARGE = 2,
+
+    // Chromatic Prototype
+    ACTION_DISENGAGE_PLAYERS        = 1
 };
 
 enum TransportStopFrames
@@ -162,17 +194,22 @@ enum SummonGroups
 
 enum MovePoints
 {
+    // Nefarian
+    POINT_NONE              = 0,
     POINT_LIFTOFF           = 1,
     POINT_PREPARE_LANDING   = 2,
     POINT_LAND              = 3,
     POINT_ELEVATOR_CENTER   = 4,
-    POINT_LIFTOFF_CENTER    = 5,
+
+    // Chromatic Prototype
+    POINT_JUMP_DOWN         = 1
 };
 
 enum EncounterFrames
 {
-    FRAME_INDEX_ONYXIA      = 2,
-    FRAME_INDEX_NEFARIAN    = 3
+    FRAME_INDEX_CHROMATIC_PROTOTYPE = 1,
+    FRAME_INDEX_ONYXIA              = 2,
+    FRAME_INDEX_NEFARIAN            = 3
 };
 
 struct OnyxiaChainData
@@ -194,11 +231,14 @@ enum Misc
     SOUND_ID_ROAR = 7274
 };
 
-Position const NefarianSummonPosition               = { -166.655f,  -224.602f,  40.48163f, 0.0f };
-Position const NefarianLiftOffPosition              = { -162.076f,  -224.604f,  57.9262f  };
-Position const NefarianElevatorLandPosition         = { -107.2559f, -223.9451f, 17.38522f };
-Position const NefarianElevatorCenterPosition       = { -106.2347f, -224.8227f, 6.488089f };
-Position const NefarianElevatorLiftOffPosition      = { -107.2065f, -224.6071f, 35.63027f };
+Position const NefarianSummonPosition                           = { -166.655f,    -224.602f,    40.48163f, 0.0f };
+Position const NefarianLiftOffPosition                          = { -162.076f,    -224.604f,    57.9262f   };
+Position const NefarianElevatorPrepareLandPositionPhaseOne      = { -107.255753f, -223.944778f, 17.38522f  };
+Position const NefarianElevatorLandPhaseOnePosition             = { -106.899124f, -225.162415f, 6.488089f  };
+Position const NefarianElevatorCenterPosition                   = { -106.209747f, -224.530594f, 6.488089f  };
+Position const NefarianElevatorLiftOffPosition                  = { -107.205688f, -224.597412f, 35.630280f };
+Position const NefarianElevatorPrepareLandPositionPhaseThree    = { -107.238045f, -224.599579f, 17.629690f };
+Position const NefarianElevatorLandPhaseThreePosition           = { -107.238045f, -224.599579f, 6.488089f  };
 
 static constexpr uint32 const CyclicPathPoints = 17;
 Position const NefarianCyclicPath[CyclicPathPoints] =
@@ -222,9 +262,32 @@ Position const NefarianCyclicPath[CyclicPathPoints] =
     { -174.6406f, -225.2222f, 92.31927f }
 };
 
+static constexpr uint8 const MaxChromaticPrototypes = 3;
+Position const ChromaticPrototypeSummonPositions[MaxChromaticPrototypes]
+{
+    { -183.972f,  -225.163f,  43.17013f, 0.05235988f },
+    { -63.20486f, -135.6719f, 65.17735f, 4.29351f },
+    { -62.87326f, -312.467f,  65.01746f, 2.007129f }
+};
+
+Position const ChromaticPrototypeMovePositions[MaxChromaticPrototypes]
+{
+    { -164.7852f, -224.4054f, 40.39833f },
+    { -73.10334f, -156.7224f, 65.5925f  },
+    { -72.80968f, -292.0725f, 65.65186f }
+};
+
+Position const ChromaticPrototypeJumpPositions[MaxChromaticPrototypes]
+{
+    { 40.50549f, -0.06254366f, 9.92507f },
+    { -20.47418f, -34.21686f, 9.925069f },
+    { -20.44454f,  34.39596f, 9.925069f }
+};
+
 struct boss_nefarians_end : public BossAI
 {
-    boss_nefarians_end(Creature* creature) : BossAI(creature, DATA_NEFARIANS_END), _landed(false)
+    boss_nefarians_end(Creature* creature) : BossAI(creature, DATA_NEFARIANS_END),
+        _landed(false), _elevatorLowered(false), _killedChromaticPrototypes(0), _nextElectrocuteHealthPercentage(90)
     {
         me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING); // Remove this little workarround when mmaps for transports have arrived.
         me->SetReactState(REACT_PASSIVE);
@@ -260,7 +323,14 @@ struct boss_nefarians_end : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
         if (Transport* transport = GetElevator())
-            transport->SetTransportState(GO_STATE_TRANSPORT_STOPPED, TRANSPORT_STOP_FRAME_LOWERED);
+            transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+
+        for (ObjectGuid summon : summons)
+        {
+            if (Creature* creature = instance->instance->GetCreature(summon))
+                if (creature->GetEntry() == NPC_CHROMATIC_PROTOTYPE && creature->IsAlive())
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, creature);
+        }
 
         summons.DespawnAll();
         instance->SetBossState(DATA_NEFARIANS_END, FAIL);
@@ -305,7 +375,10 @@ struct boss_nefarians_end : public BossAI
                 }
                 break;
             case POINT_PREPARE_LANDING:
-                events.ScheduleEvent(EVENT_LAND, 200ms, 0, PHASE_ONE);
+                if (events.IsInPhase(PHASE_ONE))
+                    events.ScheduleEvent(EVENT_LAND_PHASE_ONE, 200ms, 0, PHASE_ONE);
+                else if (events.IsInPhase(PHASE_THREE))
+                    events.ScheduleEvent(EVENT_LAND_PHASE_THREE, 200ms, 0, PHASE_THREE);
                 break;
             case POINT_LAND:
                 events.ScheduleEvent(EVENT_LANDED, 1ms);
@@ -313,10 +386,21 @@ struct boss_nefarians_end : public BossAI
             case POINT_ELEVATOR_CENTER:
                 events.ScheduleEvent(EVENT_LIFTOFF_PHASE_TWO, 1s, 0, PHASE_TWO);
                 break;
-            case POINT_LIFTOFF_CENTER:
-                break;
             default:
                 break;
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (damage >= me->GetHealth())
+            return;
+
+        if (me->HealthBelowPctDamaged(_nextElectrocuteHealthPercentage, damage))
+        {
+            Talk(SAY_ANNOUNCE_AIR_CRACKLES);
+            events.ScheduleEvent(EVENT_ELECTROCUTE, 5s);
+            _nextElectrocuteHealthPercentage -= 10;
         }
     }
 
@@ -325,13 +409,27 @@ struct boss_nefarians_end : public BossAI
         switch (action)
         {
             case ACTION_ONYXIA_ENGAGED:
-                DoCastSelf(SPELL_ELECTRICAL_CHARGE_NEFARIAN);
                 Talk(SAY_HAIL_OF_BONES);
+                DoCastSelf(SPELL_ELECTRICAL_CHARGE_NEFARIAN);
                 DoCastSelf(SPELL_HAIL_OF_BONES);
                 events.ScheduleEvent(EVENT_PREPARE_LANDING, 24s, 0, PHASE_ONE);
                 break;
             case ACTION_ONYXIA_DIED:
                 events.ScheduleEvent(EVENT_SAY_ONYXIA_DEAD, 1ms, 0, PHASE_ONE);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
+    {
+        switch (summon->GetEntry())
+        {
+            case NPC_CHROMATIC_PROTOTYPE:
+                _killedChromaticPrototypes++;
+                if (_killedChromaticPrototypes == MaxChromaticPrototypes)
+                    events.ScheduleEvent(EVENT_ENTER_PHASE_THREE, 1ms);
                 break;
             default:
                 break;
@@ -381,43 +479,68 @@ struct boss_nefarians_end : public BossAI
                     me->GetMotionMaster()->MovePoint(POINT_LIFTOFF, NefarianLiftOffPosition, false);
                     break;
                 case EVENT_PREPARE_LANDING:
-                    me->GetMotionMaster()->MovePoint(POINT_PREPARE_LANDING, NefarianElevatorLandPosition, false);
+                {
+                    Position pos = events.IsInPhase(PHASE_ONE) ? NefarianElevatorPrepareLandPositionPhaseOne : NefarianElevatorPrepareLandPositionPhaseThree;
+                    me->GetMotionMaster()->MovePoint(POINT_PREPARE_LANDING, pos, false);
                     break;
-                case EVENT_LAND:
-                        if (Transport* transport = GetElevator())
-                        {
-                            transport->AddPassenger(me);
-                            Position pos = me->GetPosition();
-                            pos.m_positionZ -= 10.8f;
-                            me->GetMotionMaster()->MoveLand(POINT_LAND, pos);
-                        }
+                }
+                case EVENT_LAND_PHASE_ONE:
+                    if (Transport* transport = GetElevator())
+                        transport->AddPassenger(me);
+
+                    me->GetMotionMaster()->MoveLand(POINT_LAND, NefarianElevatorLandPhaseOnePosition);
                     break;
                 case EVENT_LANDED:
                     me->SetDisableGravity(false);
                     me->SendSetPlayHoverAnim(false);
+                    me->SendMovementSetSplineAnim(Movement::AnimType::ToGround);
                     me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                    DoCastSelf(SPELL_SHADOW_OF_COWARDICE);
-                    DoZoneInCombat();
-                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_INDEX_NEFARIAN);
-                    events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 2s, 0, PHASE_ONE);
-                    _landed = true;
+
+                    if (events.IsInPhase(PHASE_ONE))
+                    {
+                        DoCastSelf(SPELL_SHADOW_OF_COWARDICE);
+                        DoZoneInCombat();
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_INDEX_NEFARIAN);
+                        events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 2s, 0, PHASE_ONE);
+                        _landed = true;
+                    }
+                    else if (events.IsInPhase(PHASE_THREE))
+                        events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 2s, 0, PHASE_THREE);
                     break;
                 case EVENT_ENGAGE_PLAYERS:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    DoCastSelf(SPELL_CHILDREN_OF_DEATHWING_NEFARIAN);
-                    if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
-                        onyxia->CastSpell(onyxia, SPELL_CHILDREN_OF_DEATHWING_ONYXIA, true);
 
-                    events.ScheduleEvent(EVENT_TAIL_LASH, 18s, 0, PHASE_ONE);
-                    events.ScheduleEvent(EVENT_SHADOWFLAME_BREATH, 9s, 10s, 0, PHASE_ONE);
+                    if (events.IsInPhase(PHASE_ONE))
+                    {
+                        DoCastSelf(SPELL_CHILDREN_OF_DEATHWING_NEFARIAN);
+                        if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
+                            onyxia->CastSpell(onyxia, SPELL_CHILDREN_OF_DEATHWING_ONYXIA, true);
+
+                        events.ScheduleEvent(EVENT_TAIL_LASH, 18s, 0, PHASE_ONE);
+                        events.ScheduleEvent(EVENT_SHADOWFLAME_BREATH, 9s, 10s, 0, PHASE_ONE);
+                    }
+                    else if (events.IsInPhase(PHASE_THREE))
+                    {
+                        DoCastSelf(SPELL_SHADOW_OF_COWARDICE);
+                        DoCastSelf(SPELL_BRUSHFIRE_PRE_START_PERIODIC);
+                        events.ScheduleEvent(EVENT_SHADOWFLAME_BREATH, 9s, 0, PHASE_THREE);
+                        events.ScheduleEvent(EVENT_TAIL_LASH, 1s, 0, PHASE_THREE);
+                    }
                     break;
                 case EVENT_TAIL_LASH:
                     DoCastSelf(SPELL_TAIL_LASH);
-                    events.Repeat(5s);
+                    if (events.IsInPhase(PHASE_ONE))
+                        events.Repeat(5s);
+                    else if (events.IsInPhase(PHASE_THREE))
+                        events.Repeat(15s, 22s);
                     break;
                 case EVENT_SHADOWFLAME_BREATH:
                     DoCastVictim(SPELL_SHADOWFLAME_BREATH);
-                    events.Repeat(9s, 14s);
+
+                    if (events.IsInPhase(PHASE_ONE))
+                        events.Repeat(9s, 14s);
+                    else if (events.IsInPhase(PHASE_THREE))
+                        events.Repeat(17s, 22s);
                     break;
                 case EVENT_SAY_ONYXIA_DEAD:
                     if (!_landed) // Do not transition to phase two if Nefarian did not land first
@@ -427,25 +550,79 @@ struct boss_nefarians_end : public BossAI
                     }
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
+                    me->RemoveAurasDueToSpell(SPELL_CHILDREN_OF_DEATHWING_NEFARIAN);
+                    me->RemoveAurasDueToSpell(SPELL_ELECTRICAL_CHARGE_NEFARIAN);
+                    me->RemoveAurasDueToSpell(SPELL_SHADOW_OF_COWARDICE);
                     Talk(SAY_ONYXIA_DIED);
                     events.SetPhase(PHASE_TWO);
                     events.ScheduleEvent(EVENT_MOVE_TO_CENTER, 2s, 0, PHASE_TWO);
                     break;
                 case EVENT_MOVE_TO_CENTER:
-                    // Todo: enable pathfinding when mmaps for transports have arrived
-                    me->GetMotionMaster()->MovePoint(POINT_ELEVATOR_CENTER, NefarianElevatorCenterPosition, false);
+                    me->GetMotionMaster()->MovePoint(POINT_ELEVATOR_CENTER, NefarianElevatorCenterPosition);
                     break;
                 case EVENT_LIFTOFF_PHASE_TWO:
                     DoCastSelf(SPELL_NEFARIAN_PHASE_2_HEALTH_AURA);
                     me->SetDisableGravity(true);
                     me->SendSetPlayHoverAnim(true);
-                    me->GetMotionMaster()->MoveTakeoff(POINT_LIFTOFF_CENTER, NefarianElevatorLiftOffPosition);
+                    me->SendMovementSetSplineAnim(Movement::AnimType::FlyToGround);
+                    me->GetMotionMaster()->MovePoint(POINT_NONE, NefarianElevatorLiftOffPosition);
                     me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                    events.ScheduleEvent(EVENT_LOWER_PLATFORM, 800ms, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_SUMMON_CHROMATIC_PROTOTYPES, 400ms, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_LOWER_ELEVATOR, 800ms, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_SAY_PHASE_TWO, 4s + 800ms, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_ENTER_PHASE_THREE, 2min + 30s, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_SHADOWFLAME_BARRAGE, 2s + 500ms, 0, PHASE_TWO);
                     break;
-                case EVENT_LOWER_PLATFORM:
+                case EVENT_SUMMON_CHROMATIC_PROTOTYPES:
+                    for (uint8 i = 0; i < MaxChromaticPrototypes; i++)
+                    {
+                        if (Creature* prototype = DoSummon(NPC_CHROMATIC_PROTOTYPE, ChromaticPrototypeSummonPositions[i], 4000))
+                        {
+                            Position point = ChromaticPrototypeMovePositions[i];
+                            prototype->m_Events.AddEventAtOffset([prototype, point]()
+                            {
+                                prototype->GetMotionMaster()->MovePoint(POINT_JUMP_DOWN, point);
+                            }, 800ms);
+                        }
+                    }
+                    break;
+                case EVENT_LOWER_ELEVATOR:
                     if (Transport* transport = GetElevator())
-                        transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE, TRANSPORT_STOP_FRAME_LOWERED);
+                        transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+                    events.ScheduleEvent(EVENT_ELEVATOR_LOWERED, 8s, 0, PHASE_TWO);
+                    break;
+                case EVENT_ELEVATOR_LOWERED:
+                    _elevatorLowered = true;
+                    break;
+                case EVENT_SHADOWFLAME_BARRAGE:
+                    DoCastAOE(SPELL_SHADOWFLAME_BARRAGE);
+                    events.Repeat(2s + 500ms);
+                    break;
+                case EVENT_SAY_PHASE_TWO:
+                    Talk(SAY_MOLTEN_LAVA);
+                    break;
+                case EVENT_ENTER_PHASE_THREE:
+                    if (!_elevatorLowered)
+                    {
+                        events.Repeat(1s);
+                        break;
+                    }
+                    EnterPhaseThree();
+                    break;
+                case EVENT_SAY_PHASE_THREE:
+                    Talk(SAY_LAND_PHASE_THREE);
+                    break;
+                case EVENT_LAND_PHASE_THREE:
+                    me->RemoveAurasDueToSpell(SPELL_NEFARIAN_PHASE_2_HEALTH_AURA);
+                    me->SendSetPlayHoverAnim(true);
+                    me->GetMotionMaster()->MoveLand(POINT_LAND, NefarianElevatorLandPhaseThreePosition);
+                    break;
+                case EVENT_ELECTROCUTE:
+                    if (Creature* machine = instance->GetCreature(DATA_NEFARIANS_LIGHTNING_MACHINE))
+                    {
+                        machine->CastSpell(machine, SPELL_ELECTROCUTE);
+                        machine->CastSpell(machine, SPELL_ELECTROCUTE_DAMAGE);
+                    }
                     break;
                 default:
                     break;
@@ -504,6 +681,25 @@ private:
         }
     }
 
+    void EnterPhaseThree()
+    {
+        if (events.IsInPhase(PHASE_THREE))
+            return;
+
+        events.SetPhase(PHASE_THREE);
+        events.ScheduleEvent(EVENT_SAY_PHASE_THREE, 14s + 700ms);
+        events.ScheduleEvent(EVENT_LAND_PHASE_THREE, 15s + 500ms, 0, PHASE_THREE);
+        if (Transport* elevator = GetElevator())
+            elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, TRANSPORT_STOP_FRAME_RAISED);
+
+        for (ObjectGuid guid : summons)
+        {
+            if (Creature* creature = ObjectAccessor::GetCreature(*me, guid))
+                if (creature->GetEntry() == NPC_CHROMATIC_PROTOTYPE &&  creature->IsAlive() && creature->IsAIEnabled)
+                    creature->AI()->DoAction(ACTION_DISENGAGE_PLAYERS);
+        }
+    }
+
     Transport* GetElevator()
     {
         GameObject* elevator = instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA);
@@ -514,6 +710,9 @@ private:
     }
 
     bool _landed;
+    bool _elevatorLowered;
+    uint8 _killedChromaticPrototypes;
+    uint8 _nextElectrocuteHealthPercentage;
 };
 
 struct npc_nefarians_end_onyxia : public ScriptedAI
@@ -552,6 +751,8 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         if (Creature* nefarian = _instance->GetCreature(DATA_NEFARIANS_END))
             nefarian->AI()->DoAction(ACTION_ONYXIA_DIED);
+
+        me->DespawnOrUnsummon(19s);
     }
 
     void DoAction(int32 action) override
@@ -733,6 +934,102 @@ struct npc_nefarians_end_animated_bone_warrior : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+};
+
+struct npc_nefarians_end_chromatic_prototype : public PassiveAI
+{
+    npc_nefarians_end_chromatic_prototype(Creature* creature) : PassiveAI(creature), _instance(me->GetInstanceScript()) { }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        switch (id)
+        {
+            case POINT_JUMP_DOWN:
+                _events.ScheduleEvent(EVENT_JUMP_DOWN_TO_PLATFORM, 1s + 200ms);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_DISENGAGE_PLAYERS:
+                me->InterruptNonMeleeSpells(true);
+                me->SetHomePosition(me->GetPosition());
+                me->DeleteThreatList();
+                me->CombatStop();
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_DISENGAGE_PLAYERS, 3s + 700ms);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_JUMP_DOWN_TO_PLATFORM:
+                    if (GameObject* elevator = _instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
+                    {
+                        if (Transport* transport = elevator->ToTransport())
+                        {
+                            transport->AddPassenger(me);
+                            DoCastAOE(SPELL_JUMP_DOWN_TO_PLATFORM);
+                        }
+                    }
+                    _events.ScheduleEvent(EVENT_READY_PROTOTYPE, 5s);
+                    break;
+                case EVENT_READY_PROTOTYPE:
+                    DoZoneInCombat();
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_INDEX_CHROMATIC_PROTOTYPE);
+                    DoCastSelf(SPELL_READY_UNARMED);
+                    for (uint8 i = 0; i < 3; i++) // no idea what Blizzard was thinking here...
+                        DoCastSelf(SPELL_DUMMY_NUKE);
+
+                    _events.ScheduleEvent(EVENT_DUMMY_NUKE, 1s);
+                    _events.ScheduleEvent(EVENT_BLAST_NOVA, 3s + 500ms);
+                    break;
+                case EVENT_DUMMY_NUKE:
+                    DoCastSelf(SPELL_DUMMY_NUKE);
+                    _events.Repeat(1s);
+                    break;
+                case EVENT_BLAST_NOVA:
+                    DoCastAOE(SPELL_BLAST_NOVA);
+                    _events.Repeat(13s);
+                    break;
+                case EVENT_DISENGAGE_PLAYERS:
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+                    me->DespawnOrUnsummon(5s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    InstanceScript* _instance;
+    EventMap _events;
 };
 
 class spell_nefarians_end_electrical_charge : public AuraScript
@@ -917,7 +1214,11 @@ class spell_nefarians_end_animate_bones_dummy : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PERMANENT_FEIGN_DEATH_2 });
+        return ValidateSpellInfo(
+            {
+                SPELL_PERMANENT_FEIGN_DEATH_2,
+                SPELL_CLEAR_ALL_DEBUFFS
+            });
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/)
@@ -926,7 +1227,7 @@ class spell_nefarians_end_animate_bones_dummy : public SpellScript
         if (!target || target->GetPower(POWER_ENERGY) > 1)
             return;
 
-        target->RemoveAllAuras();
+        target->CastSpell(target, SPELL_CLEAR_ALL_DEBUFFS, true);
         target->AttackStop();
         target->DeleteThreatList();
         target->SetReactState(REACT_PASSIVE);
@@ -974,6 +1275,72 @@ class spell_nefarians_end_shadowflame_breath : public SpellScript
     }
 };
 
+class spell_nefarians_end_jump_down_to_platform : public SpellScript
+{
+    PrepareSpellScript(spell_nefarians_end_jump_down_to_platform);
+
+    void SetDest(SpellDestination& dest)
+    {
+        Position positions[MaxChromaticPrototypes];
+
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
+
+        GameObject* elevator = instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA);
+        if (!elevator || !elevator->ToTransport())
+            return;
+
+        Transport* transport = elevator->ToTransport();
+
+        // Transform sniffed transport destinations into map coordinates so we can use them for real time transport position based offsets
+        for (uint8 i = 0; i < MaxChromaticPrototypes; i++)
+        {
+            positions[i] = ChromaticPrototypeJumpPositions[i];
+            transport->CalculatePassengerPosition(positions[i].m_positionX, positions[i].m_positionY, positions[i].m_positionZ);
+        }
+
+        // Pick the closest jump destination
+        Position pos = positions[0];
+        for (uint8 i = 1; i < MaxChromaticPrototypes; i++)
+            if (GetCaster()->GetExactDist2d(positions[i]) < GetCaster()->GetExactDist2d(pos))
+                pos = positions[i];
+
+        dest.Relocate(pos);
+    }
+
+    void Register()
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_nefarians_end_jump_down_to_platform::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+    }
+};
+
+class spell_nefarians_end_shadow_of_cowardice : public SpellScript
+{
+    PrepareSpellScript(spell_nefarians_end_shadow_of_cowardice);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_OF_COWARDICE_DAMAGE });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetHitUnit();
+        if (target->GetTransport() && target->GetTransOffsetZ() > 9.5f)
+            caster->CastSpell(target, SPELL_SHADOW_OF_COWARDICE_DAMAGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_shadow_of_cowardice::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 struct go_nefarians_end_orb_of_culmination : public GameObjectAI
 {
     go_nefarians_end_orb_of_culmination(GameObject* go) : GameObjectAI(go), _instance(me->GetInstanceScript()) { }
@@ -1003,6 +1370,7 @@ void AddSC_boss_nefarians_end()
     RegisterBlackwingDescentCreatureAI(npc_nefarians_end_onyxia);
     RegisterBlackwingDescentCreatureAI(npc_nefarians_end_lord_victor_nefarius);
     RegisterBlackwingDescentCreatureAI(npc_nefarians_end_animated_bone_warrior);
+    RegisterBlackwingDescentCreatureAI(npc_nefarians_end_chromatic_prototype);
     RegisterAuraScript(spell_nefarians_end_electrical_charge);
     RegisterAuraScript(spell_nefarians_end_lightning_discharge_triggered_periodic_aura);
     RegisterSpellScript(spell_nefarians_end_lightning_discharge_cone);
@@ -1011,6 +1379,8 @@ void AddSC_boss_nefarians_end()
     RegisterAuraScript(spell_nefarians_end_animate_bones);
     RegisterSpellScript(spell_nefarians_end_animate_bones_dummy);
     RegisterSpellScript(spell_nefarians_end_shadowflame_breath);
+    RegisterSpellScript(spell_nefarians_end_jump_down_to_platform);
+    RegisterSpellScript(spell_nefarians_end_shadow_of_cowardice);
 
     RegisterGameObjectAI(go_nefarians_end_orb_of_culmination);
 }
