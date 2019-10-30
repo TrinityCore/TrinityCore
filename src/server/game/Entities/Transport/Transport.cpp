@@ -480,6 +480,7 @@ void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
             stopTimer = currentStopFrameTime / 2;
             SetPeriod(getMSTime() + stopTimer);
             SetExpectedTravelTime(stopTimer);
+            SetDestinationStopFrameTime(m_goValue.Transport.StopFrames->at(0));
         }
     }
     else
@@ -499,11 +500,11 @@ void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
         // Transport destinations are sent as msTime + travel time from frame A to B
         SetPeriod(getMSTime() + travelTime);
         SetExpectedTravelTime(travelTime);
+        SetDestinationStopFrameTime(stopTimer);
         state = GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame);
     }
 
     m_goValue.Transport.PathProgress = getMSTime() + stopTimer;
-    SetDestinationStopFrameTime(stopTimer);
     SetLastStopFrameTime(currentStopFrameTime);
     SetGoState(state);
 }
