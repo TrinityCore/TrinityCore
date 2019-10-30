@@ -334,8 +334,13 @@ void Transport::Update(uint32 diff)
 
                 // Keeping our transport synch with the reduced travel time.
                 uint32 timeDiff = diff;
-                if (float alignmentPercentage = (float)lastStopFrameTime / GetExpectedTravelTime())
-                    timeDiff *= alignmentPercentage;
+
+                if (lastStopFrameTime)
+                {
+                    uint32 travelTime = GetExpectedTravelTime();
+                    if (float alignmentPercentage = (float)travelTime / lastStopFrameTime)
+                        timeDiff += diff * alignmentPercentage;
+                }
 
                 bool backwardsMovement = destinationStopFrameTime < lastStopFrameTime;
                 uint32 transportTime = backwardsMovement ?
@@ -346,8 +351,6 @@ void Transport::Update(uint32 diff)
                 break;
             }
         }
-
-        m_goValue.Transport.PathProgress = getMSTime() + GetCurrentTransportTime();
     }
 
     RelocateToProgress(GetCurrentTransportTime());
@@ -480,7 +483,8 @@ void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
             stopTimer = currentStopFrameTime / 2;
             SetPeriod(getMSTime() + stopTimer);
             SetExpectedTravelTime(stopTimer);
-            SetDestinationStopFrameTime(m_goValue.Transport.StopFrames->at(0));
+            stopTimer = m_goValue.Transport.StopFrames->at(0);
+            SetDestinationStopFrameTime(stopTimer);
         }
     }
     else
