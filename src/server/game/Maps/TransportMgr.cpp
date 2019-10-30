@@ -517,7 +517,7 @@ bool TransportAnimation::GetAnimNode(uint32 time, TransportAnimationEntry const*
         if (time >= itr->first)
         {
             curr = itr->second;
-            ASSERT(itr != Path.rbegin());
+            //ASSERT(itr != Path.rbegin());
 
             --itr;
             next = itr->second;
