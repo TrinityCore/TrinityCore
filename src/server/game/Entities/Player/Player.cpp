@@ -28221,7 +28221,7 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
                 if (hasTransportData)
                     hasTransportTime2 = data.ReadBit();
                 break;
-            case MSEHasTransportTime3:
+            case MSEHasVehicleId:
                 if (hasTransportData)
                     hasTransportVehicleId = data.ReadBit();
                 break;

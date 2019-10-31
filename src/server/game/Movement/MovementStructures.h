@@ -49,7 +49,7 @@ enum MovementStatusElements
     MSEHasTransportGuidByte6,
     MSEHasTransportGuidByte7,
     MSEHasTransportTime2,
-    MSEHasTransportTime3,
+    MSEHasVehicleId,
     MSEHasPitch,
     MSEHasFallData,
     MSEHasFallDirection,

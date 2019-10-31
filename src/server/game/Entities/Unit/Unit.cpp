@@ -13724,7 +13724,7 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
             if (hasTransportData)
                 data.WriteBit(hasTransportTime2);
             break;
-        case MSEHasTransportTime3:
+        case MSEHasVehicleId:
             if (hasTransportData)
                 data.WriteBit(hasTransportVehicleId);
             break;
