@@ -11,25 +11,25 @@
 file(GLOB_RECURSE sources *.c)
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-    list(REMOVE_ITEM sources
-            ${CMAKE_CURRENT_SOURCE_DIR}/argon2/opt.c)
+  list(REMOVE_ITEM sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/argon2/opt.c)
 else()
-    list(REMOVE_ITEM sources
-            ${CMAKE_CURRENT_SOURCE_DIR}/argon2/ref.c)
+  list(REMOVE_ITEM sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/argon2/ref.c)
 endif()
 
 add_library(argon2 STATIC
 ${sources})
 
 target_include_directories(argon2
-PUBLIC
+  PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(argon2
-PRIVATE
+  PRIVATE
   trinity-dependency-interface)
 
 set_target_properties(argon2
-PROPERTIES
+  PROPERTIES
   FOLDER
-    "dep")
+  "dep")
