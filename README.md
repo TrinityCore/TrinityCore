@@ -1,5 +1,12 @@
 # ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore
 
+## Build Status
+
+
+4.3.4 
+:------------:
+[![4.3.4 Build Status](https://travis-ci.com/Ovahlord/TrinityCore.svg?branch=4.3.4)](https://travis-ci.org/Ovahlord/TrinityCore)
+
 ## Introduction
 
 TrinityCore is a *MMORPG* Framework based mostly in C++.
