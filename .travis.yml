@@ -15,13 +15,13 @@ addons:
       - sourceline: 'ppa:kzemek/boost'
     packages:
       - g++-6
-      - libboost1.68-dev
-      - libboost-filesystem1.68-dev
-      - libboost-iostreams1.68-dev
-      - libboost-program-options1.68-dev
-      - libboost-regex1.68-dev
-      - libboost-system1.68-dev
-      - libboost-thread1.68-dev
+      - libboost1.58-dev
+      - libboost-filesystem1.58-dev
+      - libboost-iostreams1.58-dev
+      - libboost-program-options1.58-dev
+      - libboost-regex1.58-dev
+      - libboost-system1.58-dev
+      - libboost-thread1.58-dev
       - libssl-dev
       - libmysqlclient-dev
       - libreadline6-dev
