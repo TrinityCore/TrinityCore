@@ -82,12 +82,6 @@ if (BUILD_SHARED_LIBS)
             "src/efsw/FileWatcherFSEvents.cpp")
   endif ()
 
-  if (MSVC)
-    add_definitions(-D_SCL_SECURE_NO_WARNINGS)
-  else ()
-    add_definitions(-Wall -Wno-long-long)
-  endif ()
-
   add_library(efsw STATIC ${SRCS})
 
   target_include_directories(efsw
