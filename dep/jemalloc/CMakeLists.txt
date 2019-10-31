@@ -28,6 +28,14 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
     set(JEM_MADFREE_DEF "#undef")
   endif()
 
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(JEM_CPU_SPINWAIT "")
+    set(JEM_HAVE_CPU_SPINWAIT 0)
+  else()
+    set(JEM_CPU_SPINWAIT "__asm__ volatile\(\"pause\"\)")
+    set(JEM_HAVE_CPU_SPINWAIT 1)
+  endif()
+
   # Create the header, so we can use it
   configure_file(
     "${CMAKE_SOURCE_DIR}/dep/jemalloc/jemalloc_internal_defs.h.in.cmake"
