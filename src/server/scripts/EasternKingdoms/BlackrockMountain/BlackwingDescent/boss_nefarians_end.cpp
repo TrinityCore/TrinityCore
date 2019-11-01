@@ -46,6 +46,7 @@ enum Spells
     SPELL_NEFARIAN_PHASE_2_HEALTH_AURA          = 81582,
     SPELL_SHADOWFLAME_BARRAGE                   = 78621,
     SPELL_BRUSHFIRE_PRE_START_PERIODIC          = 94630,
+    SPELL_BRUSHFIRE_START                       = 79813,
 
     // Onyxia
     SPELL_PERMANENT_FEIGN_DEATH_1               = 29266,
@@ -77,6 +78,7 @@ enum Spells
     SPELL_ANIMATE_BONES                         = 78122,
     SPELL_PERMANENT_FEIGN_DEATH_2               = 70628,
     SPELL_CLEAR_ALL_DEBUFFS                     = 34098,
+    SPELL_EMPOWER                               = 79330,
 
     // Chromatic Prototype
     SPELL_JUMP_DOWN_TO_PLATFORM                 = 79205,
@@ -91,7 +93,16 @@ enum Spells
     SPELL_CHAINS_C_STEEL                        = 81176,
     SPELL_CHAINS_A_LIGHTNING                    = 81158,
     SPELL_CHAINS_B_LIGHTNING                    = 81175,
-    SPELL_CHAINS_C_LIGHTNING                    = 81177
+    SPELL_CHAINS_C_LIGHTNING                    = 81177,
+
+    // Controller Stalker
+    SPELL_PET_HACK_1                            = 95278, // Todo: research this. Perhaps ignore pathfinding?
+
+    // Shadowblase Flashpoint / Shadowblaze
+    SPELL_BRUSHFIRE_FLASHPOINT_CONTROL          = 79392,
+    SPELL_BRUSHFIRE_GROWTH                      = 79393,
+    SPELL_BRUSHFIRE_BURN_AURA                   = 79396,
+    SPELL_BRUSHFIRE_SUMMON                      = 79405,
 };
 
 enum Texts
@@ -102,6 +113,9 @@ enum Texts
     SAY_ONYXIA_DIED             = 2,
     SAY_MOLTEN_LAVA             = 3,
     SAY_LAND_PHASE_THREE        = 4,
+    SAY_SHADOWBLAZE_SPARK       = 5,
+    SAY_SLAY                    = 6,
+    SAY_DEATH                   = 7,
 
     // Lord Victor Nefarius
     SAY_INTRO_1                 = 0,
@@ -138,6 +152,7 @@ enum Events
     // Onyxia
     EVENT_LIGHTNING_DISCHARGE,
     EVENT_ELECTRICAL_CHARGE,
+    EVENT_SHADOW_OF_CORWARDICE,
 
     // Nefarian and Onyxia
     EVENT_TAIL_LASH,
@@ -189,7 +204,8 @@ enum TransportStopFrames
 
 enum SummonGroups
 {
-    SUMMON_GROUP_ELEVATOR = 0
+    SUMMON_GROUP_ELEVATOR           = 0,
+    SUMMON_GROUP_CONTROLLER_STALKER = 1
 };
 
 enum MovePoints
@@ -325,6 +341,10 @@ struct boss_nefarians_end : public BossAI
         if (Transport* transport = GetElevator())
             transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
 
+        if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
+            if (onyxia->IsAlive())
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, onyxia);
+
         for (ObjectGuid summon : summons)
         {
             if (Creature* creature = instance->instance->GetCreature(summon))
@@ -335,6 +355,19 @@ struct boss_nefarians_end : public BossAI
         summons.DespawnAll();
         instance->SetBossState(DATA_NEFARIANS_END, FAIL);
         me->DespawnOrUnsummon();
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -355,6 +388,8 @@ struct boss_nefarians_end : public BossAI
                 if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
                     if (onyxia->IsAIEnabled)
                         onyxia->AI()->DoAction(ACTION_REANIMATED);
+
+                SetupTransportSpawns(SUMMON_GROUP_CONTROLLER_STALKER);
 
                 for (ObjectGuid guid : summons)
                 {
@@ -393,6 +428,10 @@ struct boss_nefarians_end : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
+        // Do not allow Nefarian to die before he raised the platform again
+        if (damage >= me->GetHealth() && events.IsInPhase(PHASE_TWO))
+            damage = 0;
+
         if (damage >= me->GetHealth())
             return;
 
@@ -505,7 +544,7 @@ struct boss_nefarians_end : public BossAI
                         _landed = true;
                     }
                     else if (events.IsInPhase(PHASE_THREE))
-                        events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 2s, 0, PHASE_THREE);
+                        events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 3s, 0, PHASE_THREE);
                     break;
                 case EVENT_ENGAGE_PLAYERS:
                     me->SetReactState(REACT_AGGRESSIVE);
@@ -623,6 +662,10 @@ struct boss_nefarians_end : public BossAI
                         machine->CastSpell(machine, SPELL_ELECTROCUTE);
                         machine->CastSpell(machine, SPELL_ELECTROCUTE_DAMAGE);
                     }
+
+                    if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
+                        if (Aura* charge = onyxia->GetAura(SPELL_ELECTRICAL_CHARGE_ONYXIA))
+                            charge->ModStackAmount(17, AURA_REMOVE_BY_DEFAULT, false);
                     break;
                 default:
                     break;
@@ -732,16 +775,24 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
         if (Creature* nefarian = _instance->GetCreature(DATA_NEFARIANS_END))
             nefarian->AI()->DoAction(ACTION_ONYXIA_ENGAGED);
 
+        me->RemoveAurasDueToSpell(SPELL_ONYXIA_START_FIGHT_1_PERIODIC);
         DoCastSelf(SPELL_ELECTRICAL_CHARGE_ONYXIA);
         _events.ScheduleEvent(EVENT_TAIL_LASH, 20s);
         _events.ScheduleEvent(EVENT_SHADOWFLAME_BREATH, 11s, 12s);
         _events.ScheduleEvent(EVENT_LIGHTNING_DISCHARGE, 22s);
+
+        if (Creature* controller = _instance->GetCreature(DATA_CONTROLLER_STALKER))
+        {
+            if (controller->IsAIEnabled)
+                controller->AI()->DoZoneInCombat();
+
+            controller->CastSpell(controller, SPELL_PET_HACK_1);
+        }
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
-        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         if (Creature* nefarian = _instance->GetCreature(DATA_NEFARIANS_END))
             nefarian->AI()->EnterEvadeMode();
     }
@@ -1044,28 +1095,32 @@ class spell_nefarians_end_electrical_charge : public AuraScript
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Creature* target = GetTarget()->ToCreature();
-        if (!target)
+        InstanceScript* instance = GetTarget()->GetInstanceScript();
+        if (!target || !instance)
             return;
 
-        if (GetSpellInfo()->Id == SPELL_ELECTRICAL_CHARGE_NEFARIAN)
+        switch (target->GetEntry())
         {
-            if (InstanceScript* instance = target->GetInstanceScript())
-            {
+            case BOSS_NEFARIAN:
+                if (target->GetReactState() == REACT_PASSIVE)
+                    break;
+
                 if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
                 {
-                    if (Aura* aura = onyxia->GetAura(SPELL_ELECTRICAL_CHARGE_ONYXIA))
-                        aura->ModStackAmount(1);
+                    if (Aura* charge = onyxia->GetAura(SPELL_ELECTRICAL_CHARGE_ONYXIA))
+                        charge->ModStackAmount(1, AURA_REMOVE_BY_DEFAULT, false);
 
                     if (onyxia->IsAIEnabled)
                         onyxia->AI()->DoAction(ACTION_UPDATE_ELECTRICAL_CHARGE);
                 }
-            }
-        }
-        else
-        {
-            ModStackAmount(1);
-            if (target->IsAIEnabled)
-                target->AI()->DoAction(ACTION_UPDATE_ELECTRICAL_CHARGE);
+                break;
+            case NPC_ONYXIA:
+                ModStackAmount(1);
+                if (target->IsAIEnabled)
+                    target->AI()->DoAction(ACTION_UPDATE_ELECTRICAL_CHARGE);
+                break;
+            default:
+                break;
         }
     }
 
@@ -1217,7 +1272,8 @@ class spell_nefarians_end_animate_bones_dummy : public SpellScript
         return ValidateSpellInfo(
             {
                 SPELL_PERMANENT_FEIGN_DEATH_2,
-                SPELL_CLEAR_ALL_DEBUFFS
+                SPELL_CLEAR_ALL_DEBUFFS,
+                SPELL_EMPOWER
             });
     }
 
@@ -1227,6 +1283,9 @@ class spell_nefarians_end_animate_bones_dummy : public SpellScript
         if (!target || target->GetPower(POWER_ENERGY) > 1)
             return;
 
+        target->RemoveAurasDueToSpell(SPELL_FULL_POWER_NO_REGEN);
+        target->RemoveAurasDueToSpell(SPELL_ANIMATE_BONES);
+        target->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_EMPOWER, target));
         target->CastSpell(target, SPELL_CLEAR_ALL_DEBUFFS, true);
         target->AttackStop();
         target->DeleteThreatList();
@@ -1247,7 +1306,11 @@ class spell_nefarians_end_shadowflame_breath : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PERMANENT_FEIGN_DEATH_2 });
+        return ValidateSpellInfo(
+            {
+                SPELL_PERMANENT_FEIGN_DEATH_2,
+                SPELL_FULL_POWER_NO_REGEN
+            });
     }
 
     void HandleHit(SpellEffIndex effIndex)
@@ -1266,6 +1329,7 @@ class spell_nefarians_end_shadowflame_breath : public SpellScript
             target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
+        target->CastSpell(target, SPELL_FULL_POWER_NO_REGEN);
         target->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints);
     }
 
@@ -1341,6 +1405,108 @@ class spell_nefarians_end_shadow_of_cowardice : public SpellScript
     }
 };
 
+class spell_nefarians_end_onyxia_start_fight_2_effect : public SpellScript
+{
+    PrepareSpellScript(spell_nefarians_end_onyxia_start_fight_2_effect);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_OF_COWARDICE_DAMAGE });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (!target->GetTransport())
+            return;
+
+        if (Creature* caster = GetCaster()->ToCreature())
+        {
+            if (caster->IsAIEnabled && !caster->IsInCombat())
+                caster->AI()->DoZoneInCombat();
+
+            if (target->GetTransOffsetZ() > 9.5f)
+                caster->CastSpell(target, SPELL_SHADOW_OF_COWARDICE_DAMAGE, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_onyxia_start_fight_2_effect::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_nefarians_end_empowering_strikes : public AuraScript
+{
+    PrepareAuraScript(spell_nefarians_end_empowering_strikes);
+
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURAS));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_empowering_strikes::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+class spell_nefarians_end_brushfire_pre_start_periodic : public AuraScript
+{
+    PrepareAuraScript(spell_nefarians_end_brushfire_pre_start_periodic);
+
+    bool Load() override
+    {
+        _nextTriggerTickNumber = 6;
+        return true;
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BRUSHFIRE_START });
+    }
+
+    void HandlePeriodicTick(AuraEffect const* aurEff)
+    {
+        Unit* target = GetTarget();
+        _ticksSinceLastTrigger++;
+        if (aurEff->GetTickNumber() == 1)
+            target->CastSpell(target, SPELL_BRUSHFIRE_START, true);
+        else if (_ticksSinceLastTrigger == _nextTriggerTickNumber)
+        {
+            target->CastSpell(target, SPELL_BRUSHFIRE_START, true);
+            _ticksSinceLastTrigger = 0;
+            _nextTriggerTickNumber = std::max<uint32>(2, _nextTriggerTickNumber - 1);
+        }
+    }
+
+private:
+    uint8 _nextTriggerTickNumber = 0;
+    uint8 _ticksSinceLastTrigger = 0;
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_brushfire_pre_start_periodic::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+class spell_nefarians_end_brushfire_start : public SpellScript
+{
+    PrepareSpellScript(spell_nefarians_end_brushfire_start);
+
+    void HandleDummyEffect(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_brushfire_start::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 struct go_nefarians_end_orb_of_culmination : public GameObjectAI
 {
     go_nefarians_end_orb_of_culmination(GameObject* go) : GameObjectAI(go), _instance(me->GetInstanceScript()) { }
@@ -1381,6 +1547,10 @@ void AddSC_boss_nefarians_end()
     RegisterSpellScript(spell_nefarians_end_shadowflame_breath);
     RegisterSpellScript(spell_nefarians_end_jump_down_to_platform);
     RegisterSpellScript(spell_nefarians_end_shadow_of_cowardice);
+    RegisterSpellScript(spell_nefarians_end_onyxia_start_fight_2_effect);
+    RegisterAuraScript(spell_nefarians_end_empowering_strikes);
+    RegisterAuraScript(spell_nefarians_end_brushfire_pre_start_periodic);
+    RegisterSpellScript(spell_nefarians_end_brushfire_start);
 
     RegisterGameObjectAI(go_nefarians_end_orb_of_culmination);
 }

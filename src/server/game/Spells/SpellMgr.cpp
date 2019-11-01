@@ -5522,7 +5522,7 @@ void SpellMgr::LoadSpellInfoCorrections()
        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
     });
 
-    // Shadowflame Barrage (10 player)
+    // Shadowflame Barrage (10 players)
     ApplySpellFix({
         78621,
         94122,
@@ -5531,13 +5531,19 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 4;
     });
 
-    // Shadowflame Barrage (25 player)
+    // Shadowflame Barrage (25 players)
     ApplySpellFix({
         94121,
         94123,
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 8;
+    });
+
+    // Brushfire Start
+    ApplySpellFix({ 79813 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
     });
 
     // ENDOF BLACKWING DESCENT SPELLS

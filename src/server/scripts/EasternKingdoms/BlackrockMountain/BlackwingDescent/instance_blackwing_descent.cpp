@@ -47,6 +47,7 @@ ObjectData const creatureData[] =
     { NPC_INVISIBLE_STALKER,                    DATA_INVISIBLE_STALKER                  },
     { NPC_NEFARIANS_LIGHTNING_MACHINE,          DATA_NEFARIANS_LIGHTNING_MACHINE        },
     { NPC_ONYXIA,                               DATA_ONYXIA                             },
+    { NPC_CONTROLLER_STALKER,                   DATA_CONTROLLER_STALKER                 },
     { 0,                                        0                                       } // END
 };
 

@@ -73,7 +73,8 @@ enum BWDDataTypes
     DATA_INVISIBLE_STALKER,
     DATA_BLACKWING_ELEVATOR_ONYXIA,
     DATA_NEFARIANS_LIGHTNING_MACHINE,
-    DATA_ONYXIA
+    DATA_ONYXIA,
+    DATA_CONTROLLER_STALKER
 };
 
 enum BWDCreatureIds
@@ -142,6 +143,7 @@ enum BWDCreatureIds
     NPC_NEFARIANS_LIGHTNING_MACHINE         = 51089,
     NPC_ONYXIA                              = 41270,
     NPC_CHROMATIC_PROTOTYPE                 = 41948,
+    NPC_CONTROLLER_STALKER                  = 42856,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST                = 43125,
