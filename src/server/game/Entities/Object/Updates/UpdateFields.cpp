@@ -1915,7 +1915,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, UpdateMask<192> const& changesMas
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
-    bool hasQuestLogDynamicChangesMask = data.WriteBit(IsQuestLogDynamicChangesMask());
+    bool noQuestLogChangesMask = data.WriteBit(IsQuestLogChangesMaskSkipped());
     if (changesMask[0])
     {
         if (changesMask[1])
@@ -1944,10 +1944,10 @@ void PlayerData::WriteUpdate(ByteBuffer& data, UpdateMask<192> const& changesMas
             {
                 if (QuestSessionQuestLog.HasChanged(i))
                 {
-                    if (hasQuestLogDynamicChangesMask)
-                        QuestSessionQuestLog[i].WriteUpdate(data, owner, receiver);
-                    else
+                    if (noQuestLogChangesMask)
                         QuestSessionQuestLog[i].WriteCreate(data, owner, receiver);
+                    else
+                        QuestSessionQuestLog[i].WriteUpdate(data, owner, receiver);
                 }
             }
         }
@@ -2105,10 +2105,10 @@ void PlayerData::WriteUpdate(ByteBuffer& data, UpdateMask<192> const& changesMas
         {
             if (changesMask[42 + i])
             {
-                if (hasQuestLogDynamicChangesMask)
-                    QuestLog[i].WriteUpdate(data, owner, receiver);
-                else
+                if (noQuestLogChangesMask)
                     QuestLog[i].WriteCreate(data, owner, receiver);
+                else
+                    QuestLog[i].WriteUpdate(data, owner, receiver);
             }
         }
     }
