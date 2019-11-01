@@ -76,10 +76,10 @@ using LoginDatabaseQueryHolder = SQLQueryHolder<LoginDatabaseConnection>;
 using WorldDatabaseQueryHolder = SQLQueryHolder<WorldDatabaseConnection>;
 
 // mysql
-typedef struct st_mysql MYSQL;
-typedef struct st_mysql_res MYSQL_RES;
-typedef struct st_mysql_field MYSQL_FIELD;
-typedef struct st_mysql_bind MYSQL_BIND;
-typedef struct st_mysql_stmt MYSQL_STMT;
+struct MySQLHandle;
+struct MySQLResult;
+struct MySQLField;
+struct MySQLBind;
+struct MySQLStmt;
 
 #endif // DatabaseEnvFwd_h__
