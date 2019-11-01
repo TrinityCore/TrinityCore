@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,16 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _MYSQLTHREADING_H
-#define _MYSQLTHREADING_H
+#ifndef MySQLHacks_h__
+#define MySQLHacks_h__
 
-#include "Define.h"
+#include "MySQLWorkaround.h"
+#include <type_traits>
 
-namespace MySQL
-{
-    void TC_DATABASE_API Library_Init();
-    void TC_DATABASE_API Library_End();
-    char const* TC_DATABASE_API GetLibraryVersion();
-};
+struct MySQLHandle : MYSQL { };
+struct MySQLResult : MYSQL_RES { };
+struct MySQLField : MYSQL_FIELD { };
+struct MySQLBind : MYSQL_BIND { };
+struct MySQLStmt : MYSQL_STMT { };
 
-#endif
+// mysql 8 removed my_bool typedef (it was char) and started using bools directly
+// to maintain compatibility we use this trick to retrieve which type is being used
+using MySQLBool = std::remove_pointer_t<decltype(std::declval<MYSQL_BIND>().is_null)>;
+
+#endif // MySQLHacks_h__

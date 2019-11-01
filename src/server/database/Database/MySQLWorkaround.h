@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,16 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _MYSQLTHREADING_H
-#define _MYSQLTHREADING_H
-
-#include "Define.h"
-
-namespace MySQL
-{
-    void TC_DATABASE_API Library_Init();
-    void TC_DATABASE_API Library_End();
-    char const* TC_DATABASE_API GetLibraryVersion();
-};
-
+#ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
+#include <winsock2.h>
 #endif
+#include <mysql.h>
