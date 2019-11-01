@@ -98,6 +98,7 @@ class TC_DATABASE_API PreparedStatement
         void setString(uint8 index, std::string const& value);
         void setBinary(uint8 index, std::vector<uint8> const& value);
 
+        uint32 GetIndex() const { return m_index; }
     protected:
         void BindParameters(MySQLPreparedStatement* stmt);
 
@@ -110,53 +111,6 @@ class TC_DATABASE_API PreparedStatement
 
         PreparedStatement(PreparedStatement const& right) = delete;
         PreparedStatement& operator=(PreparedStatement const& right) = delete;
-};
-
-//- Class of which the instances are unique per MySQLConnection
-//- access to these class objects is only done when a prepared statement task
-//- is executed.
-class TC_DATABASE_API MySQLPreparedStatement
-{
-    friend class MySQLConnection;
-    friend class PreparedStatement;
-
-    public:
-        MySQLPreparedStatement(MYSQL_STMT* stmt, std::string queryString);
-        ~MySQLPreparedStatement();
-
-        void setNull(uint8 index);
-        void setBool(uint8 index, bool value);
-        void setUInt8(uint8 index, uint8 value);
-        void setUInt16(uint8 index, uint16 value);
-        void setUInt32(uint8 index, uint32 value);
-        void setUInt64(uint8 index, uint64 value);
-        void setInt8(uint8 index, int8 value);
-        void setInt16(uint8 index, int16 value);
-        void setInt32(uint8 index, int32 value);
-        void setInt64(uint8 index, int64 value);
-        void setFloat(uint8 index, float value);
-        void setDouble(uint8 index, double value);
-        void setBinary(uint8 index, std::vector<uint8> const& value, bool isString);
-
-        uint32 GetParameterCount() const { return m_paramCount; }
-
-    protected:
-        MYSQL_STMT* GetSTMT() { return m_Mstmt; }
-        MYSQL_BIND* GetBind() { return m_bind; }
-        PreparedStatement* m_stmt;
-        void ClearParameters();
-        void AssertValidIndex(uint8 index);
-        std::string getQueryString() const;
-
-    private:
-        MYSQL_STMT* m_Mstmt;
-        uint32 m_paramCount;
-        std::vector<bool> m_paramsSet;
-        MYSQL_BIND* m_bind;
-        std::string const m_queryString;
-
-        MySQLPreparedStatement(MySQLPreparedStatement const& right) = delete;
-        MySQLPreparedStatement& operator=(MySQLPreparedStatement const& right) = delete;
 };
 
 //- Lower-level class, enqueuable operation

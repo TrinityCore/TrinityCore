@@ -16,10 +16,7 @@
  */
 
 #include "MySQLThreading.h"
-#ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
-#include <winsock2.h>
-#endif
-#include <mysql.h>
+#include "MySQLWorkaround.h"
 
 void MySQL::Library_Init()
 {
@@ -29,4 +26,9 @@ void MySQL::Library_Init()
 void MySQL::Library_End()
 {
     mysql_library_end();
+}
+
+char const* MySQL::GetLibraryVersion()
+{
+    return MYSQL_SERVER_VERSION;
 }

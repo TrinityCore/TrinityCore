@@ -139,7 +139,7 @@ class TC_DATABASE_API Field
 
     private:
         #ifdef TRINITY_DEBUG
-        void SetMetadata(MYSQL_FIELD* field, uint32 fieldIndex);
+        void SetMetadata(MySQLField* field, uint32 fieldIndex);
         Metadata meta;
         #endif
 };

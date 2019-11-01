@@ -14,17 +14,3 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef _MYSQLTHREADING_H
-#define _MYSQLTHREADING_H
-
-#include "Define.h"
-
-namespace MySQL
-{
-    TC_DATABASE_API void Library_Init();
-    TC_DATABASE_API void Library_End();
-    TC_DATABASE_API char const* GetLibraryVersion();
-}
-
-#endif
