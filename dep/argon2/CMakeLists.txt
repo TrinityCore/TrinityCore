@@ -9,7 +9,6 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 file(GLOB_RECURSE sources *.c)
-add_definitions(-DARGON2_NO_THREADS)
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
   list(REMOVE_ITEM sources
@@ -20,17 +19,21 @@ else()
 endif()
 
 add_library(argon2 STATIC
-${sources})
+  ${sources})
+
+target_compile_definitions(argon2
+  PRIVATE
+    -DARGON2_NO_THREADS)
 
 target_include_directories(argon2
   PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR})
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(argon2
   PRIVATE
-  trinity-dependency-interface)
+    trinity-dependency-interface)
 
 set_target_properties(argon2
   PROPERTIES
-  FOLDER
-  "dep")
+    FOLDER
+      "dep")
