@@ -417,7 +417,7 @@ struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<192>
     void AppendAllowedFieldsMaskForFlag(UpdateMask<192>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
     void WriteUpdate(ByteBuffer& data, UpdateMask<192> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void ClearChangesMask();
-    bool IsQuestLogDynamicChangesMask() const { return false; } // bandwidth savings aren't worth the cpu time
+    bool IsQuestLogChangesMaskSkipped() const { return false; } // bandwidth savings aren't worth the cpu time
 };
 
 struct SkillInfo : public IsUpdateFieldStructureTag, public HasChangesMask<1793>
