@@ -24,6 +24,7 @@ namespace MySQL
 {
     void TC_DATABASE_API Library_Init();
     void TC_DATABASE_API Library_End();
+    char const* TC_DATABASE_API GetLibraryVersion();
 };
 
 #endif
