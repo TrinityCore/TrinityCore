@@ -417,7 +417,7 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                        9         10        11              12        13        14                      15                 16
                                              "TitleAlt, IconName, gossip_menu_id, minlevel, maxlevel, HealthScalingExpansion, RequiredExpansion, VignetteID, "
     //                                        17       18       19          20         21     22    23         24              25               26            27
-                                             "faction, npcflag, speed_walk, speed_run, scale, rank, dmgschool, BaseAttackTime, RangeAttackTime, BaseVariance, RangeVariance, "
+                                             "faction, npcflag, speed_walk, speed_run, scale, `rank`, dmgschool, BaseAttackTime, RangeAttackTime, BaseVariance, RangeVariance, "
     //                                        28          29          30           31           32            33      34             35
                                              "unit_class, unit_flags, unit_flags2, unit_flags3, dynamicflags, family, trainer_class, type, "
     //                                        36          37           38      39              40        41           42           43           44           45           46
@@ -6841,7 +6841,7 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         sGuildMgr->SetNextGuildId((*result)[0].GetUInt64()+1);
 
-    result = CharacterDatabase.Query("SELECT MAX(guid) FROM groups");
+    result = CharacterDatabase.Query("SELECT MAX(guid) FROM `groups`");
     if (result)
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
 

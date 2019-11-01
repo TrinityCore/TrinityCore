@@ -1032,7 +1032,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // UiMap.db2
-    PrepareStatement(HOTFIX_SEL_UI_MAP, "SELECT Name, ID, ParentUiMapID, Flags, System, Type, LevelRangeMin, LevelRangeMax, BountySetID, "
+    PrepareStatement(HOTFIX_SEL_UI_MAP, "SELECT Name, ID, ParentUiMapID, Flags, `System`, Type, LevelRangeMin, LevelRangeMax, BountySetID, "
         "BountyDisplayLocation, VisibilityPlayerConditionID, HelpTextPosition, BkgAtlasID FROM ui_map ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_UI_MAP, "SELECT ID, Name_lang FROM ui_map_locale WHERE locale = ?", CONNECTION_SYNCH);
 
