@@ -272,6 +272,7 @@ enum Actions
     ACTION_TELEPORT_DOWN,
     ACTION_PREPARE_FUSION,
     ACTION_SCHEDULE_HEROIC_ABILITY,
+    ACTION_DESPAWN,
 
     // Ignacious
     ACTION_CAST_INFERNO_RUSH,
@@ -368,25 +369,25 @@ class boss_ascendant_council_controller : public CreatureScript
                         if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
                         {
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, feludius);
-                            feludius->AI()->EnterEvadeMode();
+                            feludius->AI()->DoAction(ACTION_DESPAWN);
                         }
 
                         if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
                         {
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, ignacious);
-                            ignacious->AI()->EnterEvadeMode();
+                            ignacious->AI()->DoAction(ACTION_DESPAWN);
                         }
 
                         if (Creature* arion = instance->GetCreature(DATA_ARION))
                         {
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, arion);
-                            arion->AI()->EnterEvadeMode();
+                            arion->AI()->DoAction(ACTION_DESPAWN);
                         }
 
                         if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
                         {
                             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, terrastra);
-                            terrastra->AI()->EnterEvadeMode();
+                            terrastra->AI()->DoAction(ACTION_DESPAWN);
                         }
 
                         if (Creature* elementiumMonstrosity = instance->GetCreature(DATA_ELEMENTIUM_MONSTROSITY))
@@ -550,19 +551,10 @@ class npc_feludius : public CreatureScript
                 _events.ScheduleEvent(EVENT_HYDRO_LANCE, 8s + 500ms);
             }
 
-            void EnterEvadeMode(EvadeReason why) override
+            void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                if (why == EVADE_REASON_NO_HOSTILES)
-                {
-                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                        controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
-                }
-                else
-                {
-                    _EnterEvadeMode();
-                    _summons.DespawnAll();
-                    me->DespawnOrUnsummon();
-                }
+                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                    controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
             }
 
             void KilledUnit(Unit* who) override
@@ -614,6 +606,10 @@ class npc_feludius : public CreatureScript
                     case ACTION_PREPARE_ULTIMATE_ABILITY:
                         _events.ScheduleEvent(EVENT_WATER_BOMB, 2s);
                         _events.ScheduleEvent(EVENT_GLACIATE, 15s);
+                        break;
+                    case ACTION_DESPAWN:
+                        _summons.DespawnAll();
+                        me->DespawnOrUnsummon();
                         break;
                     default:
                         break;
@@ -739,9 +735,8 @@ class npc_ignacious : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                _EnterEvadeMode();
-                _summons.DespawnAll();
-                me->DespawnOrUnsummon();
+                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                    controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
             }
 
             void KilledUnit(Unit* who) override
@@ -842,6 +837,10 @@ class npc_ignacious : public CreatureScript
                         if (Aura* aura = me->GetAura(SPELL_RISING_FLAMES))
                             if (int32(_events.GetTimeUntilEvent(EVENT_FLAME_TORRENT)) < aura->GetDuration())
                                 _events.RescheduleEvent(EVENT_FLAME_TORRENT, aura->GetDuration() + 1000);
+                        break;
+                    case ACTION_DESPAWN:
+                        _summons.DespawnAll();
+                        me->DespawnOrUnsummon();
                         break;
                     default:
                         break;
@@ -989,9 +988,8 @@ class npc_arion : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                _EnterEvadeMode();
-                _summons.DespawnAll();
-                me->DespawnOrUnsummon();
+                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                    controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
             }
 
             void KilledUnit(Unit* who) override
@@ -1040,6 +1038,10 @@ class npc_arion : public CreatureScript
                         break;
                     case ACTION_SCHEDULE_HEROIC_ABILITY:
                         _events.ScheduleEvent(EVENT_STATIC_OVERLOAD, 19s + 700ms);
+                        break;
+                    case ACTION_DESPAWN:
+                        _summons.DespawnAll();
+                        me->DespawnOrUnsummon();
                         break;
                     default:
                         break;
@@ -1181,9 +1183,8 @@ class npc_terrastra : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                _EnterEvadeMode();
-                _summons.DespawnAll();
-                me->DespawnOrUnsummon();
+                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                    controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
             }
 
             void KilledUnit(Unit* who) override
@@ -1230,6 +1231,10 @@ class npc_terrastra : public CreatureScript
                         break;
                     case ACTION_SCHEDULE_HEROIC_ABILITY:
                         _events.ScheduleEvent(EVENT_GRAVITY_CORE, 22s + 700ms);
+                        break;
+                    case ACTION_DESPAWN:
+                        _summons.DespawnAll();
+                        me->DespawnOrUnsummon();
                         break;
                     default:
                         break;
@@ -1351,7 +1356,6 @@ class npc_elementium_monstrosity : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                _EnterEvadeMode();
                 _summons.DespawnAll();
                 if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
                     controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
