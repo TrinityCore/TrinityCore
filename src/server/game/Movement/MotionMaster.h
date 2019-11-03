@@ -149,7 +149,9 @@ class TC_GAME_API MotionMaster
         // NOTE: MOTION_SLOT_DEFAULT wont be affected
         void Clear(MovementGeneratorPriority priority);
         void PropagateSpeedChange();
+
         bool GetDestination(float &x, float &y, float &z);
+        float GetTime() const;
 
         void MoveIdle();
         void MoveTargetedHome();
@@ -203,6 +205,9 @@ class TC_GAME_API MotionMaster
         bool HasFlag(uint8 const flag) const { return (_flags & flag) != 0; }
         void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
 
+        void SetTime(float x, float y);
+        void SetTime(Position destination);
+
         void ResolveDelayedActions();
         void Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform);
         void Pop(bool active, bool movementInform);
@@ -218,7 +223,10 @@ class TC_GAME_API MotionMaster
         void ClearBaseUnitState(MovementGenerator const* movement);
         void ClearBaseUnitStates();
 
+        const float OFFSET_TIME = 1.5f;
+
         Unit* _owner;
+        float _timeToReachDestination;
         MovementGeneratorPointer _defaultGenerator;
         MotionMasterContainer _generators;
         MotionMasterUnitStatesContainer _baseUnitStatesMap;

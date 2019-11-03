@@ -165,7 +165,10 @@ class theramore_wounded_event : public CreatureScript
                         kinndy->GetMotionMaster()->MovePoint(0, -3656.46f, -4516.56f, 9.46f, true, 0.42f);
 
                     if (Creature* helaina = GetClosestCreatureWithEntry(me, NPC_DOCTOR_HELAINA, 40.f))
+                    {
+                        helaina->SetWalk(true);
                         helaina->GetMotionMaster()->MovePoint(0, -3651.05f, -4503.82f, 9.46f, true, 5.67f);
+                    }
 
                     events.ScheduleEvent(EVENT_TELEPORT_1, 1s);
                     break;
@@ -202,15 +205,9 @@ class theramore_wounded_event : public CreatureScript
                     {
                         if (Creature * soldier = jaina->FindNearestCreature(NPC_WOUNDED_THERAMORE_GUARD, 15.f))
                         {
-                            float distanceToTravel = jaina->GetExactDist2d(soldier->GetPosition()) - 1.5f;
-                            float angle = jaina->GetAbsoluteAngle(soldier);
-                            float destx = jaina->GetPositionX() + distanceToTravel * cosf(angle);
-                            float desty = jaina->GetPositionY() + distanceToTravel * sinf(angle);
-                            float time = (distanceToTravel / jaina->GetSpeed(MOVE_WALK)) * IN_MILLISECONDS;
-
                             currentSoldier = soldier;
-                            jaina->GetMotionMaster()->MovePoint(0, destx, desty, soldier->GetPositionZ(), true, angle);
-                            events.ScheduleEvent(EVENT_TELEPORT_2, time + 500);
+                            jaina->GetMotionMaster()->MoveCloserAndStop(0, soldier, 1.5f);
+                            events.ScheduleEvent(EVENT_TELEPORT_2, jaina->GetMotionMaster()->GetTime() + 500);
                         }
                         else
                             events.ScheduleEvent(EVENT_TELEPORT_5, 1s);

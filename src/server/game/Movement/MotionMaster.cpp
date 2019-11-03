@@ -544,6 +544,11 @@ bool MotionMaster::GetDestination(float &x, float &y, float &z)
     return true;
 }
 
+float MotionMaster::GetTime() const
+{
+    return _timeToReachDestination;
+}
+
 void MotionMaster::MoveIdle()
 {
     Add(GetIdleMovementGenerator(), MOTION_SLOT_DEFAULT);
@@ -647,6 +652,8 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z, bool generate
     }
     else
     {
+        SetTime(x, y);
+
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MovePoint: '%s', targeted point Id: %u (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), id, x, y, z);
         Add(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, 0.0f, finalOrient));
     }
@@ -1034,6 +1041,22 @@ void MotionMaster::LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id/*
 }
 
 /******************** Private methods ********************/
+
+void MotionMaster::SetTime(float x, float y)
+{
+    if (_owner->GetTypeId() != TYPEID_UNIT)
+        return;
+
+    float distance = _owner->GetExactDist2d(x, y);
+    float speed = _owner->IsWalking() ? _owner->GetSpeed(MOVE_WALK) : _owner->GetSpeed(MOVE_RUN);
+
+    _timeToReachDestination = (distance / speed) * IN_MILLISECONDS;
+}
+
+void MotionMaster::SetTime(Position destination)
+{
+    SetTime(destination.m_positionX, destination.m_positionY);
+}
 
 void MotionMaster::ResolveDelayedActions()
 {
