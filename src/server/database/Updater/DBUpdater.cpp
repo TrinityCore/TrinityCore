@@ -378,7 +378,10 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     // Check if we want to connect through ip or socket (Unix only)
 #ifdef _WIN32
 
-    args.push_back("-P" + port_or_socket);
+    if (host == ".")
+        args.push_back("--protocol=PIPE");
+    else
+        args.push_back("-P" + port_or_socket);
 
 #else
 
