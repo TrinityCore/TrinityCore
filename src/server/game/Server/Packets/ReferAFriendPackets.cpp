@@ -17,23 +17,6 @@
 
 #include "ReferAFriendPackets.h"
 
-void WorldPackets::RaF::AcceptLevelGrant::Read()
-{
-    _worldPacket >> Granter;
-}
-
-void WorldPackets::RaF::GrantLevel::Read()
-{
-    _worldPacket >> Target;
-}
-
-WorldPacket const* WorldPackets::RaF::ProposeLevelGrant::Write()
-{
-    _worldPacket << Sender;
-
-    return &_worldPacket;
-}
-
 WorldPacket const* WorldPackets::RaF::ReferAFriendFailure::Write()
 {
     _worldPacket << int32(Reason);

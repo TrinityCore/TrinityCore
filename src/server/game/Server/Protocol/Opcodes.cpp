@@ -145,7 +145,6 @@ void OpcodeTable::Initialize()
     ValidateAndSetClientOpcode<decltype(handler), handler>(opcode, #opcode, status, processing)
 
     DEFINE_HANDLER(CMSG_ACCEPT_GUILD_INVITE,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildAcceptInvite);
-    //DEFINE_HANDLER(CMSG_ACCEPT_LEVEL_GRANT,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptGrantLevel);
     DEFINE_HANDLER(CMSG_ACCEPT_TRADE,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleAcceptTradeOpcode);
     DEFINE_HANDLER(CMSG_ACCEPT_WARGAME_INVITE,                              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_ACTIVATE_TAXI,                                      STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleActivateTaxiOpcode);
@@ -432,7 +431,6 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GM_TICKET_GET_CASE_STATUS,                          STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGMTicketGetCaseStatusOpcode);
     DEFINE_HANDLER(CMSG_GM_TICKET_GET_SYSTEM_STATUS,                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleGMTicketSystemStatusOpcode);
     DEFINE_HANDLER(CMSG_GOSSIP_SELECT_OPTION,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGossipSelectOptionOpcode);
-    //DEFINE_HANDLER(CMSG_GRANT_LEVEL,                                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGrantLevel);
     DEFINE_HANDLER(CMSG_GUILD_ADD_BATTLENET_FRIEND,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_GUILD_ADD_RANK,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildAddRank);
     DEFINE_HANDLER(CMSG_GUILD_ASSIGN_MEMBER_RANK,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGuildAssignRank);
@@ -1625,7 +1623,6 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PRE_RESSURECT,                           STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PRINT_NOTIFICATION,                      STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PROC_RESIST,                             STATUS_NEVER,        CONNECTION_TYPE_REALM);
-    //DEFINE_SERVER_OPCODE_HANDLER(SMSG_PROPOSE_LEVEL_GRANT,                     STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PUSH_SPELL_TO_ACTION_BAR,                STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PVP_CREDIT,                              STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_PVP_LOG_DATA,                            STATUS_NEVER,        CONNECTION_TYPE_INSTANCE);

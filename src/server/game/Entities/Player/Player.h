@@ -1191,7 +1191,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /// return presence related currency
         bool HasCurrency(uint32 id, uint32 count) const;
         /// initialize currency count for custom initialization at create character
-        void SetCurrency(uint32 id, uint32 count, bool printLog = true);
+        void SetCreateCurrency(uint32 id, uint32 count, bool printLog = true);
         void ResetCurrencyWeekCap();
 
         /**
@@ -1917,8 +1917,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool isHonorOrXPTarget(Unit const* victim) const;
 
         bool GetsRecruitAFriendBonus(bool forXP);
-        uint8 GetGrantableLevels() const { return m_grantableLevels; }
-        void SetGrantableLevels(uint8 val) { m_grantableLevels = val; }
 
         ReputationMgr&       GetReputationMgr()       { return *m_reputationMgr; }
         ReputationMgr const& GetReputationMgr() const { return *m_reputationMgr; }
@@ -2697,8 +2695,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
         bool IsAlwaysDetectableFor(WorldObject const* seer) const override;
-
-        uint8 m_grantableLevels;
 
         uint8 m_fishingSteps;
 
