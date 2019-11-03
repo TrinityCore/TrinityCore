@@ -781,11 +781,9 @@ enum OpcodeClient : uint16
     CMSG_WORLD_PORT_RESPONSE                          = 0x35FA,
     CMSG_WRAP_ITEM                                    = 0x3994,
 
-    CMSG_ACCEPT_LEVEL_GRANT                           = 0xBADD,
     CMSG_BF_MGR_ENTRY_INVITE_RESPONSE                 = 0xBADD,
     CMSG_BF_MGR_QUEUE_INVITE_RESPONSE                 = 0xBADD,
     CMSG_BF_MGR_QUEUE_EXIT_REQUEST                    = 0xBADD,
-    CMSG_GRANT_LEVEL                                  = 0xBADD,
 };
 
 enum OpcodeServer : uint16
@@ -1830,7 +1828,6 @@ enum OpcodeServer : uint16
     SMSG_BF_MGR_ENTRY_INVITE                          = 0xBADD,
     SMSG_BF_MGR_QUEUE_INVITE                          = 0xBADD,
     SMSG_BF_MGR_QUEUE_REQUEST_RESPONSE                = 0xBADD,
-    SMSG_PROPOSE_LEVEL_GRANT                          = 0xBADD,
 };
 
 inline bool IsInstanceOnlyOpcode(uint32 opcode)
