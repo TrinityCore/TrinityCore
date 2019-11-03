@@ -1023,7 +1023,7 @@ bool DB2FileLoaderSparseImpl::LoadCatalogData(DB2FileSource* source, uint32 sect
     {
         std::size_t oldCopyTableSize = _copyTable.size();
         _copyTable.resize(oldCopyTableSize + _sections[section].CopyTableCount);
-        if (!source->Read(&_copyTable[oldSize], sizeof(DB2RecordCopy) * _sections[section].CopyTableCount))
+        if (!source->Read(&_copyTable[oldCopyTableSize], sizeof(DB2RecordCopy) * _sections[section].CopyTableCount))
             return false;
     }
 
