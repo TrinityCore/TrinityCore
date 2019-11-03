@@ -69,6 +69,12 @@ void Transport::AddPassenger(WorldObject* passenger)
         passenger->SetTransport(this);
         passenger->m_movementInfo.transport.guid = GetGUID();
         passenger->m_movementInfo.transport.time = GetTimer();
+        float x, y, z, o;
+        passenger->GetPosition(x, y, z, o);
+        TransportBase::CalculatePassengerOffset(x, y, z, &o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
+        passenger->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+        UpdatePassengerPositions(_passengers);
+
         TC_LOG_DEBUG("entities.transport", "Object %s boarded transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
         if (Unit* unit = passenger->ToUnit())
