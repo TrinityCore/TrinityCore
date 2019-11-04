@@ -1487,12 +1487,16 @@ class spell_dk_disease : public AuraScript
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32 &amount, bool & /*canBeRecalculated*/)
     {
         Unit* caster = GetCaster();
-        if (!caster)
+        Unit* target = GetUnitOwner();
+        if (!caster || !target)
             return;
 
-        // Formular: ${$m1*1.15+$AP*0.055*1.15}
+        // Formular: ${$m1 * 1.15 + $AP * 0.055 * 1.15}
         AddPct(amount, 15);
-        amount += ((caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f) * 1.15f);
+        int32 bonus = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.055f * 1.15f;
+
+        bonus = caster->SpellDamageBonusDone(target, GetSpellInfo(), bonus, DOT, EFFECT_0);
+        amount += bonus;
     }
 
     void HandleResilientInfection(DispelInfo* /*dispelInfo*/)
@@ -1673,6 +1677,54 @@ class spell_dk_unoly_blight : public AuraScript
     }
 };
 
+// 85948 - Festering Strike
+class spell_dk_festering_strike : public SpellScript
+{
+    PrepareSpellScript(spell_dk_festering_strike);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DK_FROST_FEVER,
+                SPELL_DK_BLOOD_PLAGUE
+            });
+    }
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        uint32 durationBonus = GetSpellInfo()->Effects[effIndex].CalcValue(caster) * IN_MILLISECONDS;
+        for (AuraEffect* disease : GetHitUnit()->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE))
+        {
+            if ((disease->GetSpellInfo()->Id == SPELL_DK_FROST_FEVER || disease->GetSpellInfo()->Id == SPELL_DK_BLOOD_PLAGUE)
+                && disease->GetCasterGUID() == caster->GetGUID())
+            {
+                uint32 maxDuration = disease->GetBase()->GetMaxDuration();
+                disease->GetBase()->SetDuration(std::min<uint32>(maxDuration, disease->GetBase()->GetDuration() + durationBonus));
+            }
+        }
+
+        for (AuraEffect* snare : GetHitUnit()->GetAuraEffectsByType(SPELL_AURA_MOD_DECREASE_SPEED))
+        {
+            SpellInfo const* spellInfo = snare->GetSpellInfo();
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[0] == 0x00000004 &&  snare->GetCasterGUID() == caster->GetGUID())
+            {
+                uint32 maxDuration = snare->GetBase()->GetMaxDuration();
+                snare->GetBase()->SetDuration(std::min<uint32>(maxDuration, snare->GetBase()->GetDuration() + durationBonus));
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_festering_strike::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterAuraScript(spell_dk_anti_magic_shell);
@@ -1698,6 +1750,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterAuraScript(spell_dk_desecration);
     RegisterAuraScript(spell_dk_disease);
     RegisterAuraScript(spell_dk_ebon_plaguebringer);
+    RegisterSpellScript(spell_dk_festering_strike);
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterSpellScript(spell_dk_ghoul_taunt);
     RegisterSpellScript(spell_dk_howling_blast);
