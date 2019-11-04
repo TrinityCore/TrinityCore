@@ -1034,12 +1034,6 @@ class spell_warl_seed_of_corruption : public AuraScript
 {
     PrepareAuraScript(spell_warl_seed_of_corruption);
 
-    bool Load() override
-    {
-        _affectedBySoulburn = false;
-        return true;
-    }
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1067,10 +1061,14 @@ class spell_warl_seed_of_corruption : public AuraScript
     void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* unit = GetCaster();
+        if (!unit)
+            return;
+
         Player* caster = unit->ToPlayer();
-        Unit* target = GetTarget();
         if (!caster)
             return;
+
+        Unit* target = GetTarget();
 
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
         {
@@ -1086,13 +1084,50 @@ class spell_warl_seed_of_corruption : public AuraScript
         }
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo();
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        _takenDamage += eventInfo.GetDamageInfo()->GetDamage();
+
+        if (_takenDamage >= uint32(aurEff->GetAmount()))
+        {
+            Unit* unit = GetCaster();
+            if (!unit)
+                return;
+
+            Player* caster = unit->ToPlayer();
+            if (!caster)
+                return;
+
+            Unit* target = GetTarget();
+
+            if (_affectedBySoulburn)
+            {
+                caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, true, nullptr, aurEff);
+                caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
+            }
+            else
+                caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true);
+
+            Remove();
+        }
+    }
+
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_warl_seed_of_corruption::HandleSoulburnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_warl_seed_of_corruption::HandleRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        DoCheckProc += AuraCheckProcFn(spell_warl_seed_of_corruption::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_warl_seed_of_corruption::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 private:
-    bool _affectedBySoulburn;
+    bool _affectedBySoulburn = false;
+    uint32 _takenDamage = 0;
 };
 
 // 87385 - Seed of Corruption (explosion damage)
