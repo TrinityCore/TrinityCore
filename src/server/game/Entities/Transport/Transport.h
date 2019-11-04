@@ -77,6 +77,7 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
     protected:
         void UpdatePassengerPositions(PassengerSet& passengers);
+        void UpdatePositionForPassenger(WorldObject* passenger);
 
         PassengerSet _passengers;
         PassengerSet::iterator _passengerTeleportItr;
