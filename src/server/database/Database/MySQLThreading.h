@@ -22,9 +22,9 @@
 
 namespace MySQL
 {
-    void TC_DATABASE_API Library_Init();
-    void TC_DATABASE_API Library_End();
-    char const* TC_DATABASE_API GetLibraryVersion();
+    TC_DATABASE_API void Library_Init();
+    TC_DATABASE_API void Library_End();
+    TC_DATABASE_API char const* GetLibraryVersion();
 };
 
 #endif
