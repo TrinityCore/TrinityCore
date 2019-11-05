@@ -1,6 +1,7 @@
 #include <efsw/FileWatcherGeneric.hpp>
 #include <efsw/FileSystem.hpp>
 #include <efsw/System.hpp>
+#include <efsw/Lock.hpp>
 
 namespace efsw
 {
@@ -18,14 +19,12 @@ FileWatcherGeneric::~FileWatcherGeneric()
 {
 	mInitOK = false;
 
-	mThread->wait();
-
 	efSAFE_DELETE( mThread );
 
 	/// Delete the watches
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		efSAFE_DELETE( (*it) );
 	}
@@ -75,9 +74,8 @@ WatchID FileWatcherGeneric::addWatch(const std::string& directory, FileWatchList
 
 	WatcherGeneric * pWatch		= new WatcherGeneric( mLastWatchID, dir, watcher, this, recursive );
 
-	mWatchesLock.lock();
+	Lock lock( mWatchesLock );
 	mWatches.push_back(pWatch);
-	mWatchesLock.unlock();
 
 	return pWatch->ID;
 }
@@ -86,19 +84,17 @@ void FileWatcherGeneric::removeWatch( const std::string& directory )
 {
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		if ( (*it)->Directory == directory )
 		{
 			WatcherGeneric * watch = (*it);
 
-			mWatchesLock.lock();
+			Lock lock( mWatchesLock );
 
 			mWatches.erase( it );
 
 			efSAFE_DELETE( watch ) ;
-
-			mWatchesLock.unlock();
 
 			return;
 		}
@@ -109,19 +105,17 @@ void FileWatcherGeneric::removeWatch(WatchID watchid)
 {
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		if ( (*it)->ID == watchid )
 		{
 			WatcherGeneric * watch = (*it);
 
-			mWatchesLock.lock();
+			Lock lock( mWatchesLock );
 
 			mWatches.erase( it );
 
 			efSAFE_DELETE( watch ) ;
-
-			mWatchesLock.unlock();
 
 			return;
 		}
@@ -141,22 +135,22 @@ void FileWatcherGeneric::run()
 {
 	do
 	{
-		mWatchesLock.lock();
-
-		WatchList::iterator it = mWatches.begin();
-
-		for ( ; it != mWatches.end(); it++ )
 		{
-			(*it)->watch();
-		}
+			Lock lock( mWatchesLock);
 
-		mWatchesLock.unlock();
+			WatchList::iterator it = mWatches.begin();
+
+			for ( ; it != mWatches.end(); ++it )
+			{
+				( *it )->watch();
+			}
+		}
 
 		if ( mInitOK ) System::sleep( 1000 );
 	} while ( mInitOK );
 }
 
-void FileWatcherGeneric::handleAction(Watcher * watch, const std::string& filename, unsigned long action, std::string oldFilename)
+void FileWatcherGeneric::handleAction(Watcher *, const std::string&, unsigned long, std::string)
 {
 	/// Not used
 }
@@ -165,16 +159,14 @@ std::list<std::string> FileWatcherGeneric::directories()
 {
 	std::list<std::string> dirs;
 
-	mWatchesLock.lock();
+	Lock lock( mWatchesLock );
 
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		dirs.push_back( (*it)->Directory );
 	}
-
-	mWatchesLock.unlock();
 
 	return dirs;
 }
@@ -183,7 +175,7 @@ bool FileWatcherGeneric::pathInWatches( const std::string& path )
 {
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		if ( (*it)->Directory == path || (*it)->pathInWatches( path ) )
 		{
