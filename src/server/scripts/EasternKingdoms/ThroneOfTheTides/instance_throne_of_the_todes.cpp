@@ -176,17 +176,11 @@ class instance_throne_of_the_tides : public InstanceMapScript
         {
             instance_throne_of_the_tides_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
-                Initialize();
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameobjectData);
                 LoadDoorData(doorData);
-            }
-
-            void Initialize()
-            {
                 _eventIndex = EVENT_INDEX_NONE;
-                _fallingRocksDummyGUID = ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

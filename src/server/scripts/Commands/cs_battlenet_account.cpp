@@ -111,7 +111,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             default:
-                break;
+                return false;
         }
 
         return true;
@@ -322,7 +322,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             default:
-                break;
+                return false;
         }
         return true;
     }
@@ -342,17 +342,19 @@ public:
 
         switch (Battlenet::AccountMgr::LinkWithGameAccount(bnetAccountName, gameAccountName))
         {
-        case AccountOpResult::AOR_OK:
-            handler->PSendSysMessage(LANG_ACCOUNT_BNET_LINKED, bnetAccountName.c_str(), gameAccountName.c_str());
-            break;
-        case AccountOpResult::AOR_NAME_NOT_EXIST:
-            handler->PSendSysMessage(LANG_ACCOUNT_OR_BNET_DOES_NOT_EXIST, bnetAccountName.c_str(), gameAccountName.c_str());
-            handler->SetSentErrorMessage(true);
-            break;
-        case AccountOpResult::AOR_ACCOUNT_BAD_LINK:
-            handler->PSendSysMessage(LANG_ACCOUNT_ALREADY_LINKED, gameAccountName.c_str());
-            handler->SetSentErrorMessage(true);
-            break;
+            case AccountOpResult::AOR_OK:
+                handler->PSendSysMessage(LANG_ACCOUNT_BNET_LINKED, bnetAccountName.c_str(), gameAccountName.c_str());
+                break;
+            case AccountOpResult::AOR_NAME_NOT_EXIST:
+                handler->PSendSysMessage(LANG_ACCOUNT_OR_BNET_DOES_NOT_EXIST, bnetAccountName.c_str(), gameAccountName.c_str());
+                handler->SetSentErrorMessage(true);
+                break;
+            case AccountOpResult::AOR_ACCOUNT_BAD_LINK:
+                handler->PSendSysMessage(LANG_ACCOUNT_ALREADY_LINKED, gameAccountName.c_str());
+                handler->SetSentErrorMessage(true);
+                break;
+            default:
+                break;
         }
 
         return true;
@@ -371,17 +373,19 @@ public:
 
         switch (Battlenet::AccountMgr::UnlinkGameAccount(gameAccountName))
         {
-        case AccountOpResult::AOR_OK:
-            handler->PSendSysMessage(LANG_ACCOUNT_BNET_UNLINKED, gameAccountName.c_str());
-            break;
-        case AccountOpResult::AOR_NAME_NOT_EXIST:
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, gameAccountName.c_str());
-            handler->SetSentErrorMessage(true);
-            break;
-        case AccountOpResult::AOR_ACCOUNT_BAD_LINK:
-            handler->PSendSysMessage(LANG_ACCOUNT_BNET_NOT_LINKED, gameAccountName.c_str());
-            handler->SetSentErrorMessage(true);
-            break;
+            case AccountOpResult::AOR_OK:
+                handler->PSendSysMessage(LANG_ACCOUNT_BNET_UNLINKED, gameAccountName.c_str());
+                break;
+            case AccountOpResult::AOR_NAME_NOT_EXIST:
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, gameAccountName.c_str());
+                handler->SetSentErrorMessage(true);
+                break;
+            case AccountOpResult::AOR_ACCOUNT_BAD_LINK:
+                handler->PSendSysMessage(LANG_ACCOUNT_BNET_NOT_LINKED, gameAccountName.c_str());
+                handler->SetSentErrorMessage(true);
+                break;
+            default:
+                break;
         }
 
         return true;

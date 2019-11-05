@@ -371,7 +371,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void PlayDirectSound(uint32 sound_id, Player* target = nullptr);
         void PlayDirectMusic(uint32 music_id, Player* target = nullptr);
 
-        virtual void SaveRespawnTime(uint32 /*forceDelay*/ = 0, bool /*saveToDB*/ = true) { }
         void AddObjectToRemoveList();
 
         float GetGridActivationRange() const;

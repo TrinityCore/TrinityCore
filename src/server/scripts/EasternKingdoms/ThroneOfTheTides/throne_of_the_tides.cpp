@@ -55,12 +55,6 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
             _events.ScheduleEvent(EVENT_CHANGE_TO_SHOCK_SEAT, 2s);
     }
 
-    void PassengerBoarded(Unit* who, int8 seatId, bool apply) override
-    {
-        if (!who)
-            return;
-    }
-
     void UpdateAI(uint32 diff) override
     {
         _events.Update(diff);

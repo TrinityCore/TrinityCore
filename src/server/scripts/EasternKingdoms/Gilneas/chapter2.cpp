@@ -361,7 +361,7 @@ struct npc_gilneas_forsaken_catapult : public VehicleAI
         _preparedDespawn = false;
     }
 
-    void Reset()
+    void Reset() override
     {
         Initialize();
         _events.ScheduleEvent(EVENT_FIERY_BOULDER, Milliseconds(1), Seconds(7));
@@ -394,15 +394,15 @@ struct npc_gilneas_forsaken_catapult : public VehicleAI
             _events.ScheduleEvent(EVENT_CHECK_AREA, Milliseconds(1));
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {
-        case SPELL_LAUNCH_INTERNAL:
-            DoCastSelf(SPELL_LAUNCH_INTERNAL_2, true);
-            break;
-        default:
-            break;
+            case SPELL_LAUNCH_INTERNAL:
+                DoCastSelf(SPELL_LAUNCH_INTERNAL_2, true);
+                break;
+            default:
+                break;
         }
     }
 

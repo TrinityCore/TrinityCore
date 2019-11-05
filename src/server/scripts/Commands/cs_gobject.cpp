@@ -158,12 +158,12 @@ public:
         if (objectInfo->type == GAMEOBJECT_TYPE_TRANSPORT)
         {
             object = new Transport();
-            ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::Transport>();
+            guidLow = map->GenerateLowGuid<HighGuid::Transport>();
         }
         else
         {
             object = new GameObject();
-            ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
+            guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
         }
 
         if (!object->Create(guidLow, objectInfo->entry, map, 0, *player, QuaternionData(), 255, GO_STATE_READY))

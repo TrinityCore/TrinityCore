@@ -50,10 +50,6 @@ struct boss_daakara : public BossAI
         _JustDied();
     }
 
-    void KilledUnit(Unit* victim) override
-    {
-    }
-
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())

@@ -34,9 +34,8 @@
 #include "ZoneScript.h"
 
 Transport::Transport() : GameObject(),
-    _passengerTeleportItr(_passengers.begin()), _currentTransportTime(0), _destinationStopFrameTime(0),
-    _lastStopFrameTime(0), _finalStopFrameTime(0), _isDynamicTransport(false),
-    _initialRelocate(false)
+    _passengerTeleportItr(_passengers.begin()), _destinationStopFrameTime(0), _currentTransportTime(0),
+    _lastStopFrameTime(0), _finalStopFrameTime(0), _isDynamicTransport(false), _initialRelocate(false)
 {
     m_updateFlag |= UPDATEFLAG_TRANSPORT | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
 }
@@ -153,7 +152,7 @@ void Transport::RemovePassenger(WorldObject* passenger)
     }
 }
 
-bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint32 /*phaseMask*/, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit /*= 0*/, bool dynamic, ObjectGuid::LowType spawnid)
+bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint32 /*phaseMask*/, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState /*go_state*/, uint32 artKit /*= 0*/, bool dynamic, ObjectGuid::LowType spawnid)
 {
     ASSERT(map);
     SetMap(map);
@@ -285,7 +284,7 @@ bool Transport::CreateTransport(ObjectGuid::LowType guidlow, uint32 entry, uint3
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
     if (!goinfo)
     {
-        TC_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, guidlow: %u map: %u (Position: %s) ang: %f", guidlow, mapid, pos.ToString().c_str());
+        TC_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, guidlow: %u map: %u  (X: %f Y: %f Z: %f) ang: %f", guidlow, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
         return false;
     }
 

@@ -293,7 +293,7 @@ struct boss_ozumat : public BossAI
                     break;
                 case EVENT_CHANGE_SEAT:
                     DoCastAOE(SPELL_SUMMON_CHEST_VISUAL);
-                    if (Creature* vehicle = instance->GetCreature(DATA_OZUMAT_VEHICLE))
+                    if (instance->GetCreature(DATA_OZUMAT_VEHICLE))
                         me->ChangeSeat(SEAT_1);
 
                     events.ScheduleEvent(EVENT_SWIM_AWAY, 1s);

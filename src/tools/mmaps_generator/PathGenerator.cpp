@@ -265,8 +265,6 @@ int finish(char const* message, int returnValue)
 
 std::unordered_map<uint32, uint8> LoadLiquid()
 {
-    bool silent = false;
-
     DBCFileLoader* liquidDbc = new DBCFileLoader();
     std::unordered_map<uint32, uint8> liquidData;
     std::string liquidTypeSource = (boost::filesystem::path("dbc") / "LiquidType.dbc").string();

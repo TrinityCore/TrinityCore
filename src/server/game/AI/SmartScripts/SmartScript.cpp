@@ -1413,12 +1413,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             bool repeat = e.action.wpStart.repeat != 0;
 
             // ensure that SMART_ESCORT_TARGETS contains at least one player reference
-            bool stored = false;
             for (WorldObject* target : targets)
             {
                 if (IsPlayer(target))
                 {
-                    stored = true;
                     StoreTargetList(targets, SMART_ESCORT_TARGETS);
                     break;
                 }

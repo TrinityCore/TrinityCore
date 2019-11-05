@@ -206,7 +206,7 @@ struct boss_lady_nazjar : public BossAI
         events.ScheduleEvent(EVENT_SHOCK_BLAST, 13s, 16s);
     }
 
-    void Reset()
+    void Reset() override
     {
         _Reset();
         Initialize();

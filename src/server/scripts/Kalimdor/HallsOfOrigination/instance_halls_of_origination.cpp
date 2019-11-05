@@ -85,15 +85,12 @@ class instance_halls_of_origination : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
-            }
-
-            void Initialize()
-            {
                 _brannIntroStarted = 0;
                 _deadElementals = 0;
                 _anraphetInitialized = false;
                 _vaultOfLightState = NOT_STARTED;
             }
+
 
             void OnPlayerEnter(Player* /*player*/) override
             {

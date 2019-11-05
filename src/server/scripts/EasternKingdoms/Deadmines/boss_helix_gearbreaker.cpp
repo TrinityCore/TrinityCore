@@ -720,8 +720,7 @@ class spell_helix_ride_face_targeting : public SpellScript
         if (targets.empty())
             return;
 
-        Unit* caster = GetCaster();
-        targets.remove_if([caster](WorldObject const* obj)->bool
+        targets.remove_if([](WorldObject const* obj)->bool
         {
             Unit const* target = obj->ToUnit();
             return !target || !target->HasAura(SPELL_HELIX_RIDE);
@@ -730,7 +729,7 @@ class spell_helix_ride_face_targeting : public SpellScript
         // Make sure that we will always leap to a different player if available
         if (targets.size() > 1)
         {
-            targets.remove_if([caster](WorldObject const* obj)->bool
+            targets.remove_if([](WorldObject const* obj)->bool
             {
                 Unit const* target = obj->ToUnit();
                 return target->GetVehicleBase();

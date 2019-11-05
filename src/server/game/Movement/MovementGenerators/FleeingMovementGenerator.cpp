@@ -116,7 +116,6 @@ void FleeingMovementGenerator<T>::SetTargetLocation(T* owner)
     GetPoint(owner, destination);
 
     // Add LOS check for target point
-    Position mypos = owner->GetPosition();
     if (!owner->IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
     {
         _timer.Reset(200);

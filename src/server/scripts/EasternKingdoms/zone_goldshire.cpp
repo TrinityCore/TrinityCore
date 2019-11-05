@@ -131,7 +131,7 @@ struct npc_cameron : public ScriptedAI
         me->SetHomePosition(MovePosPositions.back());
     }
 
-    void WaypointReached(uint32 waypointId, uint32 pathId)
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
     {
         switch (pathId)
         {

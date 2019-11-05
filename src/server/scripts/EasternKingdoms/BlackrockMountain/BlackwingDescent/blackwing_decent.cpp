@@ -35,17 +35,14 @@ struct go_bwd_ancient_bell : public GameObjectAI
         if (_instance->GetData(DATA_ATRAMEDES_INTRO) == DONE)
             return true;
 
-        if (GameObject* bell = me->ToGameObject())
-        {
-            _instance->SetData(DATA_ATRAMEDES_INTRO, DONE);
-            me->SendCustomAnim(0);
-            me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        _instance->SetData(DATA_ATRAMEDES_INTRO, DONE);
+        me->SendCustomAnim(0);
+        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        if (Creature* column = _instance->GetCreature(DATA_COLUMN_OF_LIGHT))
+            column->DespawnOrUnsummon();
 
-            if (Creature* column = _instance->GetCreature(DATA_COLUMN_OF_LIGHT))
-                column->DespawnOrUnsummon();
+        me->DespawnOrUnsummon(7s + 400ms);
 
-            me->DespawnOrUnsummon(7s + 400ms);
-        }
         return true;
     }
 private:
@@ -80,7 +77,7 @@ class spell_bwd_dragon_orb : public SpellScript
             dest.Relocate(DragonOrb2Offset);
     }
 
-    void Register()
+    void Register() override
     {
         OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_bwd_dragon_orb::SetDest, EFFECT_0, TARGET_DEST_CASTER_RANDOM);
     }

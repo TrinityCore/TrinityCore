@@ -26,10 +26,12 @@
 #include "Patterns/Windows.hpp"
 
 #include "Banner.h"
+#include "IoContext.h"
 #include "CompilerDefs.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/version.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -157,21 +159,35 @@ namespace Connection_Patcher
     // adapted from http://stackoverflow.com/questions/21422094/boostasio-download-image-file-from-server
     void GetFile(const std::string& serverName, int port, const std::string& getCommand, std::ostream& out)
     {
-        io_context io_service;
+        Trinity::Asio::IoContext io_service;
         boost::system::error_code error = boost::asio::error::host_not_found;
-
-        // Get a list of endpoints corresponding to the server name.
         tcp::resolver resolver(io_service);
-        tcp::resolver::results_type endpoints = resolver.resolve(serverName, std::to_string(port), error);
-        if (error)
-            throw std::runtime_error("Meh...");
-
-        // Try each endpoint until we successfully establish a connection.
-        error = boost::asio::error::host_not_found;
         tcp::socket socket(io_service);
-        boost::asio::connect(socket, endpoints, error);
-        if (error)
-            throw std::runtime_error("Meh...");
+
+        #if BOOST_VERSION >= 106600
+            // Get a list of endpoints corresponding to the server name.
+            tcp::resolver::results_type endpoints = resolver.resolve(serverName, std::to_string(port), error);
+            if (error)
+                throw std::runtime_error("Could not resolve server address for auth module download");
+
+            // Try each endpoint until we successfully establish a connection.
+            error = boost::asio::error::host_not_found;
+            boost::asio::connect(socket, endpoints, error);
+            if (error)
+                throw std::runtime_error("Could not connect to server adress for auth module download");
+        #else
+            // Get a list of endpoints corresponding to the server name.
+            tcp::resolver::query query(serverName, std::to_string(port));
+            tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+            tcp::resolver::iterator end;
+
+            // Try each endpoint until we successfully establish a connection.
+            while (error && endpoint_iterator != end)
+            {
+                socket.close();
+                socket.connect(*endpoint_iterator++, error);
+            }
+        #endif
 
         boost::asio::streambuf request;
         std::ostream request_stream(&request);

@@ -294,7 +294,7 @@ class npc_rock_borer : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 if (Creature* corborus = _instance->GetCreature(DATA_CORBORUS))
                     corborus->AI()->JustSummoned(me);

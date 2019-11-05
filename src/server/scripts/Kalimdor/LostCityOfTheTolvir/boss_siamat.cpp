@@ -138,7 +138,7 @@ class boss_siamat : public CreatureScript
                 events.ScheduleEvent(EVENT_CALL_OF_SKY, Seconds(13));
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
                 DespawnServants();

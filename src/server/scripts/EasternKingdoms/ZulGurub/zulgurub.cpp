@@ -591,7 +591,7 @@ struct npc_zulgurub_gurubashi_berserker: public ScriptedAI
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
-    void SpellHitTarget(Unit* victim, const SpellInfo* spellInfo)
+    void SpellHitTarget(Unit* victim, const SpellInfo* spellInfo) override
     {
         if (!victim)
             return;

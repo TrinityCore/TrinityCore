@@ -58,17 +58,12 @@ class instance_grim_batol : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, nullptr);
-                Initialize();
-            }
-
-            void Initialize()
-            {
                 _initialized = false;
                 _destroyedNets = 0;
                 _batteredRedDrakeState = STATE_EMPRISONED;
             }
 
-            void OnPlayerEnter(Player* /*player*/)
+            void OnPlayerEnter(Player* /*player*/) override
             {
                 if (_initialized)
                     return;
@@ -230,12 +225,12 @@ class instance_grim_batol : public InstanceMapScript
                 }
             }
 
-            void WriteSaveDataMore(std::ostringstream& data)
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
                 data << _batteredRedDrakeState;
             }
 
-            void ReadSaveDataMore(std::istringstream& data)
+            void ReadSaveDataMore(std::istringstream& data) override
             {
                 data >> _batteredRedDrakeState;
             }

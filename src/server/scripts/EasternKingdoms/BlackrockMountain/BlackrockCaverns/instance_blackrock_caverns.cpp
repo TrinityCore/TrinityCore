@@ -39,14 +39,9 @@ class instance_blackrock_caverns : public InstanceMapScript
         {
             instance_blackrock_caverns_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
-                Initialize();
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, nullptr);
-            }
-
-            void Initialize()
-            {
                 _lastRazAreaIndex = RAZ_AREA_INDEX_ROMOGG;
             }
 

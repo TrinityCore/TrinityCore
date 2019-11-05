@@ -375,7 +375,7 @@ class spell_warl_pet_scaling_06 : public AuraScript
                     amount += int32(meleeHaste);
     }
 
-    void Register()
+    void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_pet_scaling_06::CalculateMeleeHasteAmount, EFFECT_0, SPELL_AURA_MOD_CRIT_PCT);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_pet_scaling_06::CalculateMeleeHasteAmount, EFFECT_1, SPELL_AURA_MELEE_SLOW);
@@ -594,7 +594,7 @@ class spell_hun_pet_scaling_03 : public AuraScript
                 amount = uint32(owner->GetResistance(SpellSchoolMask(GetSpellInfo()->Effects[aurEff->GetEffIndex()].MiscValue)) * 0.4);
     }
 
-    void CalculateArmorAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+    void CalculateArmorAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
         canBeRecalculated = true;
         if (Pet* pet = GetUnitOwner()->ToPet())
@@ -700,7 +700,7 @@ class spell_hun_pet_scaling_05 : public AuraScript
                     amount += int32(meleeHaste);
     }
 
-    void Register()
+    void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_scaling_05::CalculateMeleeHasteAmount, EFFECT_0, SPELL_AURA_MOD_CRIT_PCT);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_scaling_05::CalculateMeleeHasteAmount, EFFECT_1, SPELL_AURA_MELEE_SLOW);
@@ -972,7 +972,7 @@ class spell_dk_pet_scaling_05 : public AuraScript
             amount += owner->GetInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE);
     }
 
-    void Register()
+    void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_pet_scaling_05::CalculateAmountCritPct, EFFECT_0, SPELL_AURA_MOD_CRIT_PCT);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_pet_scaling_05::CalculateAmountResistance, EFFECT_2, SPELL_AURA_MOD_TARGET_RESISTANCE);

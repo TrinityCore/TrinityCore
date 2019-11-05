@@ -71,6 +71,8 @@ struct boss_hexlord_malacrass : public BossAI
     {
         if (!UpdateVictim())
             return;
+
+        events.Update(diff);
     }
 };
 

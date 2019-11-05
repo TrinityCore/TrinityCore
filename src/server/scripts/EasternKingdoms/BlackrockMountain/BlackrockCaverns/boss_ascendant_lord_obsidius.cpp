@@ -156,7 +156,7 @@ struct boss_ascendant_lord_obsidius : public BossAI
         }
     }
 
-    void SetData(uint32 type, uint32 data) override
+    void SetData(uint32 type, uint32 /*data*/) override
     {
         switch (type)
         {
@@ -357,7 +357,7 @@ class spell_obsidius_shadow_of_obsidius : public AuraScript
 {
     PrepareAuraScript(spell_obsidius_shadow_of_obsidius);
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount = -1;
     }

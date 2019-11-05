@@ -1158,7 +1158,7 @@ class spell_dru_solar_beam : public AuraScript
             GetTarget()->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), SPELL_DRUID_SOLAR_BEAM_SILENCE, true);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_solar_beam::HandleEffectPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
     }
@@ -1287,7 +1287,7 @@ class spell_dru_rejuvenation : public AuraScript
         }
     }
 
-    void Register()
+    void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_rejuvenation::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_rejuvenation::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
@@ -1330,7 +1330,7 @@ class spell_dru_tree_of_life : public AuraScript
         }
     }
 
-    void Register()
+    void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_tree_of_life::AfterApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_tree_of_life::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
@@ -1446,7 +1446,7 @@ class spell_dru_wild_mushroom : public SpellScript
         }
     }
 
-    void Register()
+    void Register() override
     {
         AfterCast += SpellCastFn(spell_dru_wild_mushroom::HandleSummon);
     }

@@ -317,7 +317,7 @@ struct boss_chogall : public BossAI
             _allowDeath = false;
     }
 
-    void Reset()
+    void Reset() override
     {
         _Reset();
         Initialize();
@@ -1215,7 +1215,7 @@ class spell_chogall_conversion : public SpellScript
         Trinity::Containers::RandomResize(targets, GetCaster()->GetMap()->Is25ManRaid() ? 4 : 2);
     }
 
-    void HandleScriptEffect(SpellEffIndex effIndex)
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
         {

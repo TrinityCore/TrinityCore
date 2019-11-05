@@ -279,7 +279,7 @@ class BattlegroundBFG : public Battleground
         /* Scorekeeping */
         bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
-        void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(WorldPacket& data) override;
 
         /* Nodes occupying */
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj) override;
@@ -318,7 +318,6 @@ class BattlegroundBFG : public Battleground
         uint32                  m_HonorScoreTics[BG_TEAMS_COUNT];
         bool                    m_IsInformedNearVictory;
         uint32                  m_HonorTics;
-        uint32                  m_ReputationTics;
         // need for achievements
         bool                    m_TeamScores500Disadvantage[BG_TEAMS_COUNT];
 };

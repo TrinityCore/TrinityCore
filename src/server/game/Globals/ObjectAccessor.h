@@ -32,6 +32,7 @@ class Object;
 class Pet;
 class Player;
 class Transport;
+class MapTransport;
 class Unit;
 class WorldObject;
 

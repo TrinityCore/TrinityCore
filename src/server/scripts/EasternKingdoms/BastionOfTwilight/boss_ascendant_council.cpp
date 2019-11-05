@@ -541,7 +541,7 @@ class npc_feludius : public CreatureScript
                 me->MakeInterruptable(false);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
                     controller->AI()->DoAction(ACTION_START_ENCOUNTER);
@@ -723,7 +723,7 @@ class npc_ignacious : public CreatureScript
                 me->MakeInterruptable(false);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
                     controller->AI()->DoAction(ACTION_START_ENCOUNTER);
@@ -1003,7 +1003,7 @@ class npc_arion : public CreatureScript
                 _summons.Summon(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(25, damage))
                     if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
@@ -1198,7 +1198,7 @@ class npc_terrastra : public CreatureScript
                 _summons.Summon(summon);
             }
 
-            void DamageTaken(Unit* attacker, uint32& damage) override
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(25, damage))
                     if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
@@ -1863,7 +1863,7 @@ class npc_ascendant_council_flame_strike : public CreatureScript
                 summoner->CastSpell(me, SPELL_FLAME_STRIKE);
             }
 
-            void SpellHit(Unit* /*caste*/r, SpellInfo const* spell) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_FLAME_STRIKE)
                 {
@@ -1872,7 +1872,7 @@ class npc_ascendant_council_flame_strike : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* /*spell*/) override
             {
                 if (target->GetEntry() == NPC_FROZEN_ORB)
                 {
@@ -1995,7 +1995,7 @@ class spell_feludius_heart_of_ice : public AuraScript
             });
     }
 
-    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
             target->RemoveAurasDueToSpell(SPELL_BURNING_BLOOD);
@@ -2041,7 +2041,7 @@ class spell_feludius_frost_imbued_AuraScript : public AuraScript
 {
     PrepareAuraScript(spell_feludius_frost_imbued_AuraScript);
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         if (Unit* caster = GetCaster())
             return (GetTarget()->GetDistance(caster) > 10.0f);
@@ -2124,7 +2124,7 @@ class spell_ignacious_burning_blood : public AuraScript
             });
     }
 
-    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* target = GetTarget())
             target->RemoveAurasDueToSpell(SPELL_HEART_OF_ICE);
@@ -2170,7 +2170,7 @@ class spell_ignacious_flame_imbued_AuraScript : public AuraScript
 {
     PrepareAuraScript(spell_ignacious_flame_imbued_AuraScript);
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         if (Unit* caster = GetCaster())
             return (GetTarget()->GetDistance(caster) > 10.0f);
@@ -2273,7 +2273,7 @@ class spell_arion_lashing_winds : public SpellScript
             });
     }
 
-    void HandleHit(SpellEffIndex effIndex)
+    void HandleHit(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
         {
@@ -2537,7 +2537,7 @@ class spell_terrastra_harden_skin : public AuraScript
         return ValidateSpellInfo({ SPELL_SHATTER });
     }
 
-    void OnAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void OnAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
         absorbAmount = CalculatePct(dmgInfo.GetDamage(), GetSpellInfo()->Effects[EFFECT_2].BasePoints);
         _absorbedDamage += absorbAmount;

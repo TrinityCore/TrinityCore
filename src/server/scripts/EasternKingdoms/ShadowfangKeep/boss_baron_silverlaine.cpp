@@ -173,42 +173,37 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            switch (IsHeroic())
+            if (IsHeroic())
             {
-                case true:
+                if (me->HealthBelowPctDamaged(90, damage) && _worgenCounter == 0)
                 {
-                    if (me->HealthBelowPct(90) && _worgenCounter == 0)
-                    {
-                        events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
-                        _worgenCounter++;
-                    }
-                    else if (me->HealthBelowPct(60) && _worgenCounter == 1)
-                    {
-                        events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
-                        _worgenCounter++;
-                    }
-                    else if (me->HealthBelowPct(30) && _worgenCounter == 2)
-                    {
-                        events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
-                        _worgenCounter++;
-                    }
-                    break;
+                    events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
+                    _worgenCounter++;
                 }
-                case false:
+                else if (me->HealthBelowPctDamaged(60, damage) && _worgenCounter == 1)
                 {
-                    if (me->HealthBelowPct(75) && _worgenCounter == 0)
-                    {
-                        events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
-                        _worgenCounter++;
-                    }
-                    else if (me->HealthBelowPct(35) && _worgenCounter == 1)
-                    {
-                        events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
-                        _worgenCounter++;
-                    }
-                    break;
+                    events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
+                    _worgenCounter++;
+                }
+                else if (me->HealthBelowPctDamaged(30, damage) && _worgenCounter == 2)
+                {
+                    events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
+                    _worgenCounter++;
+                }
+            }
+            else
+            {
+                if (me->HealthBelowPctDamaged(75, damage) && _worgenCounter == 0)
+                {
+                    events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
+                    _worgenCounter++;
+                }
+                else if (me->HealthBelowPctDamaged(35, damage) && _worgenCounter == 1)
+                {
+                    events.ScheduleEvent(EVENT_SUMMON_WORGEN_SPIRIT, (Milliseconds(1)));
+                    _worgenCounter++;
                 }
             }
         }
@@ -266,7 +261,7 @@ public:
             _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             DoZoneInCombat();
             events.ScheduleEvent(EVENT_CLAW, Seconds(1) + Milliseconds(600));
-            for (uint8 i = 0; i < 3; i++);
+            for (uint8 i = 0; i < 3; i++)
                 DoCast(me, SPELL_SUMMON_LUPINE_SPECTRE, true);
         }
 

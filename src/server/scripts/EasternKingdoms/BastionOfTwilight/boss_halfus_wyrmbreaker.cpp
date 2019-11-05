@@ -274,7 +274,7 @@ class boss_halfus_wyrmbreaker : public CreatureScript
                 }
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -676,7 +676,7 @@ class spell_halfus_fireball : public SpellScriptLoader
                 Trinity::Containers::RandomResize(targets, 1);
             }
 
-            void HandleHit(SpellEffIndex effIndex)
+            void HandleHit(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* caster = GetCaster())
                 {

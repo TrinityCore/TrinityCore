@@ -4536,7 +4536,7 @@ class spell_gen_armor_specialization : public SpellScriptLoader
                         player->CastSpell(player, spellId, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_gen_armor_specialization_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
@@ -4576,7 +4576,7 @@ class spell_gen_pvp_trinket : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterHit += SpellHitFn(spell_gen_pvp_trinket_SpellScript::HandlePvPTrinketVisual);
             }
@@ -4634,7 +4634,7 @@ class spell_gen_blink : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_blink_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_gen_blink_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
@@ -4664,7 +4664,7 @@ public:
             Trinity::Containers::RandomResize(targets, 1);
         }
 
-        void Register()
+        void Register() override
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_toxic_blow_dart_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENEMY);
         }
@@ -4725,7 +4725,7 @@ class spell_gen_projectile_goods : public SpellScriptLoader
                 GetCaster()->CastSpell(GetHitUnit(), spellId, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_gen_projectile_goods_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -4919,7 +4919,7 @@ class spell_gen_gilneas_prison_periodic_dummy : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_gen_gilneas_prison_periodic_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
@@ -4958,7 +4958,7 @@ class spell_gen_throw_torch : public SpellScriptLoader
                         player->KilledMonsterCredit(CREDIT_ROUND_UP_WORGEN);
             }
 
-            void Register()
+            void Register() override
             {
                 BeforeHit += SpellHitFn(spell_gen_throw_torch_SpellScript::HandleEffect);
             }

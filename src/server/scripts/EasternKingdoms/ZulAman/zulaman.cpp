@@ -354,7 +354,7 @@ struct npc_zulaman_amanishi_guardian : public ScriptedAI
             instance->SetData(DATA_TRIGGER_AMANISHI_SAVAGES, IN_PROGRESS);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         me->GetMotionMaster()->MoveTargetedHome();
         _EnterEvadeMode();

@@ -64,25 +64,12 @@ struct boss_akilzon : public BossAI
         _JustDied();
     }
 
-    void KilledUnit(Unit* who) override
-    {
-    }
-
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
 
         events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            /*
-            switch (eventId)
-            {
-            }
-            */
-        }
 
         DoMeleeAttackIfReady();
     }

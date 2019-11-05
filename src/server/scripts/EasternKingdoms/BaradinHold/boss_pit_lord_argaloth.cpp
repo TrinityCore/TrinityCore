@@ -272,7 +272,7 @@ class spell_argaloth_consuming_darkness_AuraScript : public AuraScript
     PrepareAuraScript(spell_argaloth_consuming_darkness_AuraScript);
 
 
-    void HandlePeriodic(AuraEffect const* aurEff)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (AuraEffect* aurEff = GetEffect(EFFECT_0))
         {

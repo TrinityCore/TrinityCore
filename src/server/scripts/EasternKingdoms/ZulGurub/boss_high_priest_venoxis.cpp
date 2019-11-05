@@ -582,7 +582,6 @@ class spell_venom_withdrawal : public SpellScript
         // Let's do our own knockback to make sure that we hit our sniffed position
         PreventHitDefaultEffect(effIndex);
         float moveTimeHalf = 15.0f / Movement::gravity;
-        float dist = 2 * moveTimeHalf * 15.0f;
         float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -15.0f);
 
         Movement::MoveSplineInit init(GetHitUnit());

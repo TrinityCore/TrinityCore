@@ -66,6 +66,8 @@ struct boss_halazzi : public BossAI
         if (!UpdateVictim())
             return;
 
+        events.Update(diff);
+
         DoMeleeAttackIfReady();
     }
 };

@@ -352,7 +352,7 @@ struct boss_chimaeron : public BossAI
             switch (eventId)
             {
                 case EVENT_CAUSTIC_SLIME:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                    if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                         DoCastAOE(SPELL_CAUSTIC_SLIME_TARGETING, true);
                     events.Repeat(5s);
                     break;
@@ -404,7 +404,7 @@ struct npc_chimaeron_finkle_einhorn : public ScriptedAI
 {
     npc_chimaeron_finkle_einhorn(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _bileOTronActivated(false) { }
 
-    bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 /*gossipListId*/) override
     {
         if (menuId == GOSSIP_MENU_ID_RESTRICTIONS && !_bileOTronActivated)
         {
@@ -717,7 +717,7 @@ class spell_chimaeron_finkles_mixture : public AuraScript
                 Remove();
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount = -1;
     }

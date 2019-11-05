@@ -813,7 +813,7 @@ struct npc_brazie_spot : public ScriptedAI
         _currentEntry = me->GetEntry();
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (damage >= me->GetHealth())
         {
@@ -1005,7 +1005,7 @@ struct npc_brazie_zombie : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) override
     {
         if (TempSummon* summon = me->ToTempSummon())
             if (Unit* summoner = summon->GetSummoner())
@@ -1224,7 +1224,7 @@ class spell_brazie_highlight : public SpellScript
         dest.Relocate(EmptySpotPositions[0]);
     }
 
-    void Register()
+    void Register() override
     {
         OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_brazie_highlight::SetDest, EFFECT_1, TARGET_DEST_NEARBY_ENTRY);
     }
@@ -1245,7 +1245,7 @@ class spell_brazie_create_random_seed_sack : public SpellScript
             dest.Relocate(FreezyaSeedSummonPos);
     }
 
-    void Register()
+    void Register() override
     {
         OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_brazie_create_random_seed_sack::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
     }

@@ -8070,7 +8070,6 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         return 0;
 
     int32 TakenFlatBenefit = 0;
-    float TakenTotalCasterMod = 0.0f;
 
     // ..taken
     TakenFlatBenefit += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_TAKEN, attacker->GetMeleeDamageSchoolMask());
@@ -14692,7 +14691,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     data->append(fieldBuffer);
 }
 
-void Unit::DestroyForPlayer(Player* target, bool onDeath /*= false*/) const
+void Unit::DestroyForPlayer(Player* target, bool /*onDeath = false*/) const
 {
     if (Battleground* bg = target->GetBattleground())
     {

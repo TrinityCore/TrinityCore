@@ -279,15 +279,7 @@ class npc_drahga_valiona : public CreatureScript
 
         struct npc_drahga_valionaAI : public ScriptedAI
         {
-            npc_drahga_valionaAI(Creature* creature) : ScriptedAI(creature), _summons(me), _instance(me->GetInstanceScript())
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _finished = false;
-            }
+            npc_drahga_valionaAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _summons(me), _finished(false) { }
 
             void IsSummonedBy(Unit* /*summon*/) override
             {
@@ -475,13 +467,13 @@ class npc_drahga_invoked_flaming_spirit : public CreatureScript
                 me->SetWalk(true);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/)
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoZoneInCombat();
                 _events.ScheduleEvent(EVENT_CHASE_PLAYER, Seconds(2));
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 me->DespawnOrUnsummon(Seconds(3));
             }
@@ -492,7 +484,7 @@ class npc_drahga_invoked_flaming_spirit : public CreatureScript
                     DoCastSelf(SPELL_QUIETE_SUICIDE, true);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;

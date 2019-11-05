@@ -207,7 +207,7 @@ class spell_ozruk_rupture : public AuraScript
         }
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_ozruk_rupture::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
@@ -233,7 +233,7 @@ class spell_ozuruk_rupture_summon : public SpellScript
         dest.Relocate({ x, y, z, pos.GetOrientation() });
     }
 
-    void Register()
+    void Register() override
     {
         OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_ozuruk_rupture_summon::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT);
     }

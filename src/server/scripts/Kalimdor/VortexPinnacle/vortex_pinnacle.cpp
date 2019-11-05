@@ -198,7 +198,7 @@ struct npc_slipstream : public NullCreatureAI
         me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
     }
 
-    void OnSpellClick(Unit* clicker, bool& result)
+    void OnSpellClick(Unit* clicker, bool& result) override
     {
         if (!clicker)
             return;

@@ -1443,8 +1443,6 @@ class spell_dk_army_of_the_dead : public AuraScript
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_army_of_the_dead::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
     }
-private:
-    uint32 absorbPct;
 };
 
 // -49588 Unholy Command

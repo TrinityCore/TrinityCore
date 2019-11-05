@@ -96,11 +96,6 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
-                Initialize();
-            }
-
-            void Initialize()
-            {
                 heroicAughSpawned = false;
             }
 

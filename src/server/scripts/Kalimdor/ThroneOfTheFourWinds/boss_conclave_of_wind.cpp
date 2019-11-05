@@ -248,7 +248,7 @@ struct boss_anshal : public BossAI
             events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 1s);
     }
 
-    void Reset()
+    void Reset() override
     {
         _Reset();
         Initialize();
@@ -488,7 +488,7 @@ struct boss_nezir : public BossAI
             events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 1s);
     }
 
-    void Reset()
+    void Reset() override
     {
         _Reset();
         Initialize();
@@ -720,7 +720,7 @@ struct boss_rohash : public BossAI
             events.ScheduleEvent(EVENT_PRE_WIND_EFFECT_WARNING, 1s);
     }
 
-    void Reset()
+    void Reset() override
     {
         _Reset();
         Initialize();
@@ -1079,7 +1079,7 @@ class spell_conclave_of_wind_teleport_to_center : public SpellScript
             dest.Relocate(creature->GetHomePosition());
     }
 
-    void Register()
+    void Register() override
     {
         OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_conclave_of_wind_teleport_to_center::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
     }
@@ -1124,7 +1124,7 @@ class spell_conclave_of_wind_winds : public AuraScript
             owner->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, damage, owner, true);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_conclave_of_wind_winds::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }

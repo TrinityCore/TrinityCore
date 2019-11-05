@@ -280,7 +280,7 @@ struct boss_magmaw : public BossAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
         switch (spell->Id)
         {
@@ -503,13 +503,15 @@ struct boss_magmaw : public BossAI
 private:
     void SetupBody()
     {
-        if (_pincer1 = DoSummon(NPC_MAGMAWS_PINCER_1, me->GetPosition()))
+        _pincer1 = DoSummon(NPC_MAGMAWS_PINCER_1, me->GetPosition());
+        if (_pincer1)
         {
             _pincer1->EnterVehicle(me, SEAT_MAGMAWS_PINCER_1);
             _pincer1->SetDisplayId(_pincer1->GetCreatureTemplate()->Modelid3);
         }
 
-        if (_pincer2 = DoSummon(NPC_MAGMAWS_PINCER_2, me->GetPosition()))
+        _pincer2 = DoSummon(NPC_MAGMAWS_PINCER_2, me->GetPosition());
+        if (_pincer2)
         {
             _pincer2->EnterVehicle(me, SEAT_MAGMAWS_PINCER_2);
             _pincer2->SetDisplayId(_pincer2->GetCreatureTemplate()->Modelid3);
@@ -1205,7 +1207,7 @@ class achievement_parasite_evening : public AchievementCriteriaScript
     public:
         achievement_parasite_evening() : AchievementCriteriaScript("achievement_parasite_evening") { }
 
-        bool OnCheck(Player* source, Unit* target) override
+        bool OnCheck(Player* /*source*/, Unit* target) override
         {
             if (!target)
                 return false;

@@ -84,7 +84,7 @@ struct boss_karsh_steelbender : public BossAI
 {
     boss_karsh_steelbender(Creature* creature) : BossAI(creature, DATA_KARSH_STEELBENDER) { }
 
-    void Reset()
+    void Reset() override
     {
         DoCastSelf(SPELL_QUICKSILVER_ARMOR);
         DoCastSelf(SPELL_QUICKSILVER_ARMOR_DAMAGE_REDUCTION);
@@ -279,7 +279,7 @@ class spell_karsh_superheated_quicksilver_armor_proc : public AuraScript
         return ValidateSpellInfo({ SPELL_SUPERHEATED_QUICKSILVER_ARMOR });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
         return (GetTarget()->HasAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_SUPERHEATED_QUICKSILVER_ARMOR, GetTarget())));
     }

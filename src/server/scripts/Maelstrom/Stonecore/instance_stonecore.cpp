@@ -56,11 +56,6 @@ class instance_stonecore : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadObjectData(creatureData, nullptr);
-                Initialize();
-            }
-
-            void Initialize()
-            {
                 _initialSetupDone = false;
                 _eventIndex = EVENT_INDEX_NONE;
             }

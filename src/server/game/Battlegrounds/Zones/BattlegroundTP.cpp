@@ -492,7 +492,7 @@ WorldSafeLocsEntry const* BattlegroundTP::GetClosestGraveyard(Player* player)
 
     if (isRated())
     {
-        if (player->GetAreaId() == 5680 && team == TEAM_HORDE || player->GetAreaId() == 5681 && team == TEAM_ALLIANCE)
+        if ((player->GetAreaId() == 5680 && team == TEAM_HORDE) || (player->GetAreaId() == 5681 && team == TEAM_ALLIANCE))
             return sWorldSafeLocsStore.LookupEntry(BG_TP_GraveyardIds[TP_GRAVEYARD_START_ALLIANCE + team]);
         else
             return sWorldSafeLocsStore.LookupEntry(BG_TP_GraveyardIds[TP_GRAVEYARD_MIDDLE_ALLIANCE + team]);

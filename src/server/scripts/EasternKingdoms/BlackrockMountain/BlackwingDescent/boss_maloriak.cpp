@@ -1074,7 +1074,6 @@ class spell_maloriak_release_experiments : public SpellScript
         if (targets.empty())
             return;
 
-        Unit* caster = GetCaster();
         targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_DROWNED_STATE));
 
         if (!targets.empty() && GetSpellInfo()->Id == SPELL_RELEASE_ABERRATIONS)
@@ -1125,7 +1124,7 @@ class spell_maloriak_magma_jets_periodic : public AuraScript
             Remove();
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_maloriak_magma_jets_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
@@ -1167,7 +1166,7 @@ class spell_maloriak_vile_swill: public AuraScript
         return ValidateSpellInfo({ SPELL_VILE_SWILL_SUMMON });
     }
 
-    void HandlePeriodic(AuraEffect const* aurEff)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
         Unit* target = GetTarget();
@@ -1175,7 +1174,7 @@ class spell_maloriak_vile_swill: public AuraScript
         target->CastSpell(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ(), SPELL_VILE_SWILL_SUMMON, true);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_maloriak_vile_swill::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }

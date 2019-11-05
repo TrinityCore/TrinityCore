@@ -411,7 +411,7 @@ class spell_kilnara_wave_of_agony_dummy : public AuraScript
 {
     PrepareAuraScript(spell_kilnara_wave_of_agony_dummy);
 
-    void HandlePeriodic(AuraEffect const* aurEff)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         if (Unit* caster = GetCaster())
         {

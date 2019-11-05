@@ -1129,7 +1129,7 @@ private:
         {
             if (Creature* golem = _instance->GetCreature(i))
                 if (!golem->HasAura(SPELL_INACTIVE))
-                    if (!preferedGolem || golem->GetPower(POWER_ENERGY) && golem->GetPower(POWER_ENERGY) <= preferedGolem->GetPower(POWER_ENERGY))
+                    if (!preferedGolem || (golem->GetPower(POWER_ENERGY) && golem->GetPower(POWER_ENERGY) <= preferedGolem->GetPower(POWER_ENERGY)))
                         preferedGolem = golem;
         }
 
@@ -1495,7 +1495,7 @@ class spell_omnotron_barrier : public AuraScript
         return ValidateSpellInfo({ SPELL_BACKDRAFT });
     }
 
-    void HandleAbsorbRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void HandleAbsorbRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
             if (Unit* caster = GetCaster())

@@ -323,7 +323,7 @@ struct boss_alakir : public BossAI
         summons.DespawnEntry(NPC_SLIPSTREAM);
     }
 
-    void Reset()
+    void Reset() override
     {
         _Reset();
         if (instance->GetBossState(DATA_CONCLAVE_OF_WIND) == DONE)
@@ -989,7 +989,7 @@ class spell_alakir_wind_burst : public AuraScript
         GetTarget()->SetCanFly(true, true);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_alakir_wind_burst::HandlePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
@@ -1013,7 +1013,7 @@ class spell_alakir_lightning_clouds_periodic : public AuraScript
         target->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_LIGHTNING_CLOUDS_VISUAL_DEST);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_alakir_lightning_clouds_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }

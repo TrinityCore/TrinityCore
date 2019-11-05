@@ -111,11 +111,6 @@ class instance_blackwing_descent : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameobjectData);
                 LoadDoorData(doorData);
-                Initialize();
-            }
-
-            void Initialize()
-            {
                 _deadDwarfSpirits = 0;
                 _atramedesIntroState = NOT_STARTED;
                 _entranceSequenceDone = false;

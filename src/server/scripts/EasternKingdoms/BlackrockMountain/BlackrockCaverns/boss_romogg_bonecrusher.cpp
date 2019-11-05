@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "blackrock_caverns.h"
 #include "InstanceScript.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellScript.h"
@@ -125,7 +126,7 @@ struct boss_romogg_bonecrusher : public BossAI
         events.ScheduleEvent(EVENT_QUAKE, 24s);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
         summons.DespawnAll();
@@ -199,17 +200,9 @@ private:
     uint8 _killedElementals;
 };
 
-struct npc_romogg_chains_of_woe : public ScriptedAI
+struct npc_romogg_chains_of_woe : public NullCreatureAI
 {
-    npc_romogg_chains_of_woe(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        me->SetReactState(REACT_PASSIVE);
-    }
+    npc_romogg_chains_of_woe(Creature* creature) : NullCreatureAI(creature) { }
 
     void IsSummonedBy(Unit* /*summoner*/) override
     {
@@ -217,8 +210,6 @@ struct npc_romogg_chains_of_woe : public ScriptedAI
         DoCastSelf(SPELL_CHAINS_OF_WOE_TELEPORT);
         DoCastSelf(SPELL_CHAINS_OF_WOE_CHANNELED);
     }
-
-    void EnterEvadeMode(EvadeReason why) override { }
 
 private:
     EventMap _events;
@@ -314,7 +305,7 @@ class spell_romogg_call_for_help : public SpellScript
 {
     PrepareSpellScript(spell_romogg_call_for_help);
 
-    void HandleScriptEffect(SpellEffIndex effIndex)
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Creature* creature = GetHitCreature())
             if (creature->IsAIEnabled)

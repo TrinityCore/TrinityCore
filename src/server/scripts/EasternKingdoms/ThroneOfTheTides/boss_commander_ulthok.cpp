@@ -83,7 +83,7 @@ struct boss_commander_ulthok : public BossAI
         events.ScheduleEvent(EVENT_DARK_FISSURE, 7s);
     }
 
-    void Reset()
+    void Reset() override
     {
         _Reset();
         events.SetPhase(PHASE_INTRO);

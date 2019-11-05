@@ -944,9 +944,9 @@ struct npc_nefarians_end_lord_victor_nefarius : public PassiveAI
     }
 
 private:
-    bool _started;
     EventMap _events;
     InstanceScript* _instance;
+    bool _started;
 };
 
 struct npc_nefarians_end_animated_bone_warrior : public ScriptedAI

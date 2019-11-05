@@ -622,7 +622,7 @@ struct spell_jindo_call_spirit : public SpellScript
         return ValidateSpellInfo({ SPELL_SUMMON_SPIRIT });
     }
 
-    void HandleDummyEffect(SpellEffIndex effIndex)
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_SPIRIT, false);
     }
@@ -653,7 +653,7 @@ struct spell_jindo_body_slam : public SpellScript
 {
     PrepareSpellScript(spell_jindo_body_slam);
 
-    void HandleShieldBreakEffect(SpellEffIndex effIndex)
+    void HandleShieldBreakEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitCreature();
         if (!target)

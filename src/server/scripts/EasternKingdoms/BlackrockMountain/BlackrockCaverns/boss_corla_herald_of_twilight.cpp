@@ -140,7 +140,7 @@ struct boss_corla_herald_of_twilight : public BossAI
             Talk(SAY_SLAY);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);

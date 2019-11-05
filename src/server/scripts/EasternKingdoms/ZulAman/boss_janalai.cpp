@@ -64,8 +64,9 @@ struct boss_janalai : public BossAI
     {
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
+
     }
 };
 

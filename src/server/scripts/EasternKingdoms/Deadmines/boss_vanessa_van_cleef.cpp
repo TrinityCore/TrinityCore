@@ -582,7 +582,7 @@ class npc_vanessa_note_from_vanessa : public CreatureScript
                 _events.ScheduleEvent(EVENT_TALK_NOTE_FALLS_TO_THE_GROUND, Seconds(5));
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 if (_instance->GetData(DATA_VANESSA_VAN_CLEEF_ENCOUNTER) != IN_PROGRESS)
                 {

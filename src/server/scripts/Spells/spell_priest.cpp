@@ -1257,12 +1257,6 @@ class spell_pri_holy_word_sanctuary_triggered : public SpellScript
 {
     PrepareSpellScript(spell_pri_holy_word_sanctuary_triggered);
 
-    bool Load()
-    {
-        _targets = 0;
-        return true;
-    }
-
     void HandleHeal(SpellEffIndex /*effIndex*/)
     {
         if (GetHitHeal() && _targets > 6)
@@ -1281,7 +1275,7 @@ class spell_pri_holy_word_sanctuary_triggered : public SpellScript
     }
 
 private:
-    uint32 _targets;
+    uint32 _targets = 0;
 };
 
 // -81659 - Evangelism
@@ -1430,7 +1424,7 @@ class spell_power_word_barrier : public AuraScript
 {
     PrepareAuraScript(spell_power_word_barrier);
 
-    bool Load()
+    bool Load() override
     {
         TempSummon* summon = GetCaster()->ToTempSummon();
         if (!summon)
@@ -1457,7 +1451,7 @@ class spell_power_word_barrier : public AuraScript
     }
 
 private:
-    bool _glyphEnabled;
+    bool _glyphEnabled = false;
 };
 
 // -89488 - Strength of Soul

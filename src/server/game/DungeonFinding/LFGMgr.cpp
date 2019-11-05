@@ -403,14 +403,11 @@ void LFGMgr::Update(uint32 diff)
                 uint32 tankCount = 0;
                 uint32 healerCount = 0;
 
-                for (uint32 dungeonId : GetDungeonsByRandom(dungeon->ID))
+                for (auto it : rolesPerDungeonId)
                 {
-                    for (auto it : rolesPerDungeonId)
-                    {
-                        dpsCount += it.second.currentDps;
-                        healerCount += it.second.currentHealers;
-                        tankCount += it.second.currentTanks;
-                    }
+                    dpsCount += it.second.currentDps;
+                    healerCount += it.second.currentHealers;
+                    tankCount += it.second.currentTanks;
                 }
 
                 uint32 dpsCountAbsolute = dpsCount ? std::floor(dpsCount / 3) : 0;
@@ -1603,14 +1600,11 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
             player->RewardQuest(quest, 0, nullptr, false);
         }
 
-        uint8 tmpRole = 0;
-        if (Group *group = player->GetGroup())
-            tmpRole = group->GetLfgRoles(player->GetGUID());
-
         Quest const* shortageQuest = nullptr;
         if (IsEnligibleForShortageRewards(guid))
         {
-            if (shortageQuest = sObjectMgr->GetQuestTemplate(reward->shortageQuest))
+            shortageQuest = sObjectMgr->GetQuestTemplate(reward->shortageQuest);
+            if (shortageQuest)
             {
                 player->RewardQuest(shortageQuest, 0, nullptr, false);
                 SetEnligibleForShortageRewards(guid, false);

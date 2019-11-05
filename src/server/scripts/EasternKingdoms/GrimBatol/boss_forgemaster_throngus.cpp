@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "grim_batol.h"
 
@@ -314,17 +315,13 @@ class npc_throngus_cave_in : public CreatureScript
     public:
         npc_throngus_cave_in() : CreatureScript("npc_throngus_cave_in") { }
 
-        struct npc_throngus_cave_inAI : public ScriptedAI
+        struct npc_throngus_cave_inAI : public NullCreatureAI
         {
-            npc_throngus_cave_inAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_throngus_cave_inAI(Creature* creature) : NullCreatureAI(creature) { }
 
             void IsSummonedBy(Unit* /*summoner*/) override
             {
                 DoCastAOE(SPELL_CAVE_IN_VISUAL);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
             }
         };
 

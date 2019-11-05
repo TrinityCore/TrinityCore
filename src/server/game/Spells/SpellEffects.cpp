@@ -1709,7 +1709,7 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
                     player->UpdateGatherSkill(skillId, pureSkillValue, reqSkillValue))
                 {
                     gameObjTarget->AddToSkillupList(player->GetGUID().GetCounter());
-                    player->GiveXpForGather(skillId, reqSkillValue);
+                    player->GiveXpForGather(skillId);
                 }
             }
             else if (itemTarget)
@@ -2591,7 +2591,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
         pet->SavePetToDB(PET_SAVE_NEW_PET);
         if (uint8 slot = pet->GetSlot() <= PET_SLOT_LAST_ACTIVE_SLOT)
         {
-            m_caster->ToPlayer()->GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), creatureTarget->GetEntry(), creatureTarget->GetDisplayId(), creatureTarget->getLevel(), pet->GetName());
+            m_caster->ToPlayer()->GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), creatureTarget->GetEntry(), creatureTarget->getLevel(), pet->GetName());
             m_caster->ToPlayer()->PetSpellInitialize();
         }
         else
@@ -4741,7 +4741,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         return;
     }
 
-    float fx, fy, fz, fo;
+    float fx = 0.f, fy = 0.f, fz = 0.f, fo = 0.f;
 
     if (m_targets.HasDst())
         destTarget->GetPosition(fx, fy, fz, fo);

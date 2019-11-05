@@ -102,15 +102,6 @@ public:
             }
         }
 
-        void OnGameObjectRemove(GameObject* go) override
-        {
-        }
-
-        ObjectGuid GetGuidData(uint32 type) const override
-        {
-            return ObjectGuid::Empty;
-        }
-
         void SetData(uint32 type, uint32 data) override
         {
             switch (type)

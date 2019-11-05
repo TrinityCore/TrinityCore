@@ -124,15 +124,7 @@ class boss_erudax : public CreatureScript
 
         struct boss_erudaxAI : public BossAI
         {
-            boss_erudaxAI(Creature* creature) : BossAI(creature, DATA_ERUDAX)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _achievementEnligible = true;
-            }
+            boss_erudaxAI(Creature* creature) : BossAI(creature, DATA_ERUDAX), _achievementEnligible(true) { }
 
             void JustEngagedWith(Unit* /*who*/) override
             {
@@ -142,12 +134,6 @@ class boss_erudax : public CreatureScript
                 events.ScheduleEvent(EVENT_BINDING_SHADOWS, Seconds(10) + Milliseconds(500));
                 events.ScheduleEvent(EVENT_ENFEEBLING_BLOW, Seconds(19));
                 events.ScheduleEvent(EVENT_SUMMON_SHADOW_GALE_STALKER, Seconds(21) + Milliseconds(500));
-            }
-
-            void Reset()
-            {
-                _Reset();
-                Initialize();
             }
 
             void KilledUnit(Unit* killed) override

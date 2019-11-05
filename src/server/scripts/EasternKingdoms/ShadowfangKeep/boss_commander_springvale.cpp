@@ -355,7 +355,7 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (me->HealthBelowPct(20) && !_shielded)
+            if (me->HealthBelowPctDamaged(20, damage) && !_shielded)
             {
                 DoCast(me, SPELL_SHIELD_WALL);
                 _shielded = true;

@@ -5771,7 +5771,7 @@ bool Player::UpdateFishingSkill()
     return false;
 }
 
-void Player::GiveXpForGather(uint32 const& skillId, uint32 const& reqSkillValue)
+void Player::GiveXpForGather(uint32 const& skillId)
 {
     // Skip if the profession is no gather profession
     if (skillId != SKILL_HERBALISM && skillId != SKILL_MINING && skillId != SKILL_ARCHAEOLOGY)
@@ -7276,7 +7276,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     uint32 surplousJusticePoints = 0;
     if (totalCap && count > int32(totalCap))
     {
-        if (id = CURRENCY_TYPE_JUSTICE_POINTS)
+        if (id == CURRENCY_TYPE_JUSTICE_POINTS)
             surplousJusticePoints = (oldTotalCount + count - totalCap) / precision;
         count = totalCap;
     }
@@ -17656,7 +17656,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder* holder)
         // else - needs motiontransport
         if (transSpawnId)
         {
-            if (map = sMapMgr->CreateMap(mapId, this, instanceId))
+            map = sMapMgr->CreateMap(mapId, this, instanceId);
+            if (map)
             {
                 auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(transSpawnId);
                 if (bounds.first != bounds.second)
@@ -19047,7 +19048,7 @@ void Player::UpdateMountCapabilities()
             AuraEffect* mountEffect = auraList.front();
             if (MountCapabilityEntry const* mountCapability = mountEffect->GetBase()->GetUnitOwner()->GetMountCapability(uint32(mountEffect->GetMiscValueB())))
             {
-                if (mountCapability->Id != mountEffect->GetAmount())
+                if (mountCapability->Id != uint32(mountEffect->GetAmount()))
                 {
                     Unit* target = mountEffect->GetBase()->GetApplicationOfTarget(GetGUID())->GetTarget();
                     if (MountCapabilityEntry const* oldMountCapability = sMountCapabilityStore.LookupEntry(mountEffect->GetAmount()))
@@ -24369,7 +24370,7 @@ void Player::SendAurasForTarget(Unit* target) const
 
 void Player::SetDailyQuestStatus(uint32 quest_id)
 {
-    if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(quest_id))
+    if (sObjectMgr->GetQuestTemplate(quest_id))
     {
         for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
         {
@@ -28095,7 +28096,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
                 pet->InitPetCreateSpells();
                 pet->SavePetToDB(PET_SAVE_NEW_PET);
                 PetSpellInitialize();
-                GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), pet->GetEntry(), pet->GetDisplayId(), pet->getLevel(), pet->GetName());
+                GetSession()->SendPetAdded(pet->GetSlot(), pet->GetCharmInfo()->GetPetNumber(), pet->GetEntry(), pet->getLevel(), pet->GetName());
                 break;
             default:
                 break;

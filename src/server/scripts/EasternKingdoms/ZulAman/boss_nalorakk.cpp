@@ -70,6 +70,8 @@ struct boss_nalorakk : public BossAI
         if (!UpdateVictim())
             return;
 
+        events.Update(diff);
+
         DoMeleeAttackIfReady();
     }
 };

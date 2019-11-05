@@ -117,7 +117,7 @@ Position const FirewallPlatterCyclicPath[FirewallPlatterCyclicPathSize] =
 struct boss_glubtok : public BossAI
 {
     boss_glubtok(Creature* creature) : BossAI(creature, DATA_GLUBTOK),
-        _defeated(false), _nextBlossomBunny(NPC_FIRE_BLOSSOM_BUNNY), _lastFists(FISTS_OF_FLAME) { }
+        _defeated(false), _lastFists(FISTS_OF_FLAME), _nextBlossomBunny(NPC_FIRE_BLOSSOM_BUNNY) { }
 
     void Reset() override
     {

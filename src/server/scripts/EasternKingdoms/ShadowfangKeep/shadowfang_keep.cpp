@@ -485,13 +485,6 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 pointId) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-        }
-
         bool WasWhisperedBefore(ObjectGuid guid) const
         {
             return _whisperedPlayers.count(guid) != 0;
@@ -1104,12 +1097,7 @@ public:
 
     struct npc_sfk_veteran_forsaken_trooperAI : public ScriptedAI
     {
-        npc_sfk_veteran_forsaken_trooperAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
-        {
-        }
-
-        InstanceScript* instance;
-        EventMap events;
+        npc_sfk_veteran_forsaken_trooperAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
         void DoAction(int32 action) override
         {
@@ -1131,16 +1119,17 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_CHEER:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_CHEER_NO_SHEATHE);
-                    break;
-                default:
-                    break;
+                    case EVENT_CHEER:
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_CHEER_NO_SHEATHE);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
     private:
-        uint8 undeadNumber;
+        InstanceScript* instance;
+        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1258,7 +1247,7 @@ class spell_sfk_shield_of_bones: public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHIELD_OF_BONES_TRIGGERED });
             }
 
-            void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
                     if (Unit* caster = GetCaster())

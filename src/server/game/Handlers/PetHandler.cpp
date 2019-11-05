@@ -958,9 +958,9 @@ void WorldSession::SendPetSlotUpdated(int32 petNumberA, int32 petSlotA, int32 pe
     SendPacket(&data);
 }
 
-void WorldSession::SendPetAdded(int32 petSlot, int32 petNumber, int32 creatureID, int32 displayID, int32 level, std::string name)
+void WorldSession::SendPetAdded(int32 petSlot, int32 petNumber, int32 creatureID, int32 level, std::string name)
 {
-    WorldPacket data(SMSG_PET_ADDED, 4 + 4 + 1 + 4 + 4 + name.size());
+    WorldPacket data(SMSG_PET_ADDED, 4 + 4 + 1 + 4 + 4 + name.length());
 
     data << uint32(level);
     data << uint32(petSlot);

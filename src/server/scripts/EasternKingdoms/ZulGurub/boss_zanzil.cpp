@@ -433,7 +433,7 @@ struct npc_zanzil_zanzili_berserker : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* victim, const SpellInfo* spellInfo)
+    void SpellHitTarget(Unit* victim, const SpellInfo* spellInfo) override
     {
         if (!victim)
             return;
@@ -528,7 +528,7 @@ class spell_zanzil_zanzils_resurrection_elixir : public AuraScript
         GetTarget()->CastSpell(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, true);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_zanzil_zanzils_resurrection_elixir::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }

@@ -51,7 +51,7 @@ struct npc_deadmines_defias_watcher : public ScriptedAI
         me->SetFullHealth();
     }
 
-    void DamageTaken(Unit* attacker, uint32& damage) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         if (!_isOnFire && me->HealthBelowPctDamaged(30, damage))
         {
@@ -563,7 +563,7 @@ class spell_deadmines_on_fire : public AuraScript
         return ValidateSpellInfo({ SPELL_EXPLOSIVE_SUICIDE });
     }
 
-    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_EXPLOSIVE_SUICIDE, true);
     }
@@ -613,7 +613,7 @@ class spell_deadmines_magma_trap_throw_to_location : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (Position const* pos = GetHitDest())
+                if (GetHitDest())
                     GetHitDest()->Relocate(-225.1973f, -563.7677f, 51.23737f);
             }
 

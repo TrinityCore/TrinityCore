@@ -66,11 +66,6 @@ class instance_zulgurub : public InstanceMapScript
                 LoadObjectData(creatureData, nullptr);
                 LoadDoorData(doorData);
                 LoadBossBoundaries(boundaries);
-                Initialize();
-            }
-
-            void Initialize()
-            {
                 _defeatedBossesCount = 0;
                 _killedGurubashiSpiritWarriorMask = 0;
             }

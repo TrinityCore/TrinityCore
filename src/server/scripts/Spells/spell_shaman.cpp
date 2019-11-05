@@ -1633,12 +1633,6 @@ class spell_sha_healing_rain_triggered : public SpellScript
 {
     PrepareSpellScript(spell_sha_healing_rain_triggered);
 
-    bool Load()
-    {
-        _targets = 0;
-        return true;
-    }
-
     void FilterTargets(std::list<WorldObject*>& unitList)
     {
         _targets = unitList.size();
