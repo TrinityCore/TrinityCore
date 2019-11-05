@@ -209,7 +209,7 @@ void FileWatcherWin32::run()
 
 		removeWatches();
 
-		for ( Watches::iterator it = mWatchesNew.begin(); it != mWatchesNew.end(); it++ )
+		for ( Watches::iterator it = mWatchesNew.begin(); it != mWatchesNew.end(); ++it )
 		{
 			RefreshWatch(*it);
 		}
@@ -246,7 +246,7 @@ void FileWatcherWin32::handleAction(Watcher* watch, const std::string& filename,
 			FileSystem::dirAddSlashAtEnd( opath );
 			FileSystem::dirAddSlashAtEnd( fpath );
 
-			for ( Watches::iterator it = mWatches.begin(); it != mWatches.end(); it++ )
+			for ( Watches::iterator it = mWatches.begin(); it != mWatches.end(); ++it )
 			{
 				if ( (*it)->Watch->Directory == opath )
 				{
@@ -287,7 +287,7 @@ std::list<std::string> FileWatcherWin32::directories()
 
 	Lock lock( mWatchesLock );
 
-	for ( Watches::iterator it = mWatches.begin(); it != mWatches.end(); it++ )
+	for ( Watches::iterator it = mWatches.begin(); it != mWatches.end(); ++it )
 	{
 		dirs.push_back( std::string( (*it)->Watch->DirName ) );
 	}
@@ -297,7 +297,7 @@ std::list<std::string> FileWatcherWin32::directories()
 
 bool FileWatcherWin32::pathInWatches( const std::string& path )
 {
-	for ( Watches::iterator it = mWatches.begin(); it != mWatches.end(); it++ )
+	for ( Watches::iterator it = mWatches.begin(); it != mWatches.end(); ++it )
 	{
 		if ( (*it)->Watch->DirName == path )
 		{
