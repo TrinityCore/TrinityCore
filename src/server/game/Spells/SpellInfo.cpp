@@ -1301,7 +1301,7 @@ bool SpellInfo::IsPassiveStackableWithRanks() const
 
 bool SpellInfo::IsMultiSlotAura() const
 {
-    if (IsPassive())
+    if (IsPassive() || HasAura(SPELL_AURA_CONTROL_VEHICLE))
         return true;
 
     switch (Id)
