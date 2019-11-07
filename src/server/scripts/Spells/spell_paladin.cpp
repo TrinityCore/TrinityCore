@@ -835,71 +835,59 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
 
 // 20271 - Judgement
 /// Updated 4.3.4
-class spell_pal_judgement : public SpellScriptLoader
+class spell_pal_judgement : public SpellScript
 {
-    public:
-        spell_pal_judgement() : SpellScriptLoader("spell_pal_judgement") { }
+    PrepareSpellScript(spell_pal_judgement);
 
-        class spell_pal_judgement_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PALADIN_JUDGEMENT_DAMAGE,
+                SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS,
+                SPELL_PALADIN_SEAL_OF_TRUTH,
+            });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        uint32 spellId = SPELL_PALADIN_JUDGEMENT_DAMAGE;
+        int32 bp = 0;
+        float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+        int32 holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+
+        // some seals have SPELL_AURA_DUMMY in EFFECT_2
+        Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_DUMMY);
+        for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
         {
-            PrepareSpellScript(spell_pal_judgement_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
             {
-                return ValidateSpellInfo(
+                if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
                 {
-                    SPELL_PALADIN_JUDGEMENT_DAMAGE,
-                    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS,
-                    SPELL_PALADIN_SEAL_OF_TRUTH,
-                });
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
-
-                uint32 spellId = SPELL_PALADIN_JUDGEMENT_DAMAGE;
-                int32 bp = 0;
-                float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                int32 holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-                holy += GetHitUnit()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
-
-                // some seals have SPELL_AURA_DUMMY in EFFECT_2
-                Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_DUMMY);
-                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
-                {
-                    if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
-                    {
-                        if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
-                        {
-                            spellId = (*i)->GetAmount();
-                            break;
-                        }
-                    }
+                    spellId = (*i)->GetAmount();
+                    break;
                 }
-
-                if (caster->HasAura(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS))
-                    bp = 1 + int32(ap * 0.2f + 0.32f * holy);
-                else if (caster->HasAura(SPELL_PALADIN_SEAL_OF_TRUTH))
-                    bp = 1 + int32(ap * 0.142f + 0.223f * holy);
-                else
-                    bp = 1 + int32(ap * 0.16f + 0.25f * holy);
-
-                caster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, GetHitUnit(), true, nullptr);
             }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_judgement_SpellScript();
         }
+
+        if (caster->HasAura(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS))
+            bp = 1 + int32(1 + ap * 0.2f + 0.32f * holy);
+        else if (caster->HasAura(SPELL_PALADIN_SEAL_OF_TRUTH))
+            bp = 1 + int32(1 + ap * 0.142f + 0.223f * holy);
+        else
+            bp = 1 + int32(1 + ap * 0.16f + 0.25f * holy);
+
+        caster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, GetHitUnit(), true, nullptr);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pal_judgement::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 633 - Lay on Hands
@@ -1156,7 +1144,6 @@ class spell_pal_seal_of_righteousness : public AuraScript
 
         float ap = target->GetTotalAttackPowerValue(BASE_ATTACK);
         int32 holy = target->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-        holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
         int32 bp = int32((ap * 0.011f + 0.022f * holy) * target->GetAttackTime(BASE_ATTACK) / 1000);
 
         if (target->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_SEALS_OF_COMMAND, EFFECT_1))
@@ -1310,18 +1297,15 @@ class spell_pal_exorcism : public SpellScript
 {
     PrepareSpellScript(spell_pal_exorcism);
 
-    void HandleDamage()
+    void HandleDamage(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
             return;
 
-        int32 damage = GetHitDamage();
-        int32 ap = int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.344f);
-        int32 holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-        holy += GetHitUnit()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
-        holy *= 0.344f;
-        SetHitDamage(damage + std::max(ap, holy));
+        int32 baseValue = GetEffectValue();
+        int32 bonus = std::max<int32>(caster->GetTotalAttackPowerValue(BASE_ATTACK), caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY)) * 0.344f;
+        SetEffectValue(baseValue + bonus);
     }
 
     void ApplyDotBonus()
@@ -1332,25 +1316,13 @@ class spell_pal_exorcism : public SpellScript
         if (!target || !caster)
             return;
 
-        int32 damage = GetHitDamage();
-
         if (AuraEffect* exorcismAuraEff = target->GetAuraEffect(GetSpellInfo()->Id, EFFECT_1, caster->GetGUID()))
-        {
-            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GLYPH_OF_EXORCISM, EFFECT_0))
-            {
-                uint8 ticks = exorcismAuraEff->GetTotalTicks();
-                if (!ticks)
-                    return;
-
-                int32 amount = CalculatePct(damage, aurEff->GetAmount()) / ticks;
-                exorcismAuraEff->SetAmount(amount);
-            }
-        }
+            exorcismAuraEff->SetAmount(GetHitDamage() * 0.0688f);
     }
 
     void Register() override
     {
-        BeforeHit += SpellHitFn(spell_pal_exorcism::HandleDamage);
+        OnEffectLaunchTarget += SpellEffectFn(spell_pal_exorcism::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         AfterHit += SpellHitFn(spell_pal_exorcism::ApplyDotBonus);
     }
 };
@@ -1359,19 +1331,16 @@ class spell_pal_exorcism_AuraScript : public AuraScript
 {
     PrepareAuraScript(spell_pal_exorcism_AuraScript);
 
-    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleGlyph(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (!caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GLYPH_OF_EXORCISM, EFFECT_0))
-            Remove();
+        if (Unit* caster = GetCaster())
+            if (!caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GLYPH_OF_EXORCISM, EFFECT_0))
+                Remove();
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_pal_exorcism_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_pal_exorcism_AuraScript::HandleGlyph, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2072,7 +2041,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     RegisterSpellScript(spell_pal_inquisition);
     new spell_pal_item_healing_discount();
-    new spell_pal_judgement();
+    RegisterSpellScript(spell_pal_judgement);
     RegisterAuraScript(spell_pal_judgements);
     new spell_pal_lay_on_hands();
     RegisterAuraScript(spell_pal_lights_beacon);
