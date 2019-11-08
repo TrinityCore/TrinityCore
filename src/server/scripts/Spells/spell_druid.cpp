@@ -1733,7 +1733,9 @@ class spell_dru_pulverize : public SpellScript
         if (!caster || !target)
             return;
 
-        int32 bp = GetEffectValue();
+        // Formular: $m3 * $m1 / 100
+        int32 bp = CalculatePct(GetEffectValue() * GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster), 1);
+
         if (Aura* aura = target->GetAura(SPELL_DRUID_LACERATE, caster->GetGUID()))
         {
             uint8 stacks = aura->GetStackAmount();
@@ -1750,7 +1752,7 @@ class spell_dru_pulverize : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_dru_pulverize::ChangeDamage, EFFECT_2, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget += SpellEffectFn(spell_dru_pulverize::ChangeDamage, EFFECT_2, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
     }
 };
 

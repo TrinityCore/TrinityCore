@@ -5572,12 +5572,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS;
     });
 
-    // Pulverize (Bear Form)
-    ApplySpellFix({ 80313 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_2].Effect = SPELL_EFFECT_SCHOOL_DAMAGE;
-    });
-
     // Earth Shield
     ApplySpellFix({ 379 }, [](SpellInfo* spellInfo)
     {
