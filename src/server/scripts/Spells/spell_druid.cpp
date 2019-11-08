@@ -53,6 +53,9 @@ enum DruidSpells
     SPELL_DRUID_EUPHORIA_ENERGIZE           = 81069,
     SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
     SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
+    SPELL_DRUID_FERAL_SWIFTNESS             = 17002,
+    SPELL_DRUID_FERAL_SWIFTNESS_CLEAR_ROAR  = 97993,
+    SPELL_DRUID_FERAL_SWIFTNESS_CLEAR_CAT   = 97985,
     SPELL_DRUID_FUNGAL_GROWTH_R1            = 78788,
     SPELL_DRUID_FUNGAL_GROWTH_R2            = 78789,
     SPELL_DRUID_FUNGAL_GROWTH_SUMMON_R1     = 81291,
@@ -143,9 +146,36 @@ class spell_dru_berserk : public AuraScript
 };
 
 // 1850 - Dash
-class spell_dru_dash : public AuraScript
+class spell_dru_dash : public SpellScript
 {
-    PrepareAuraScript(spell_dru_dash);
+    PrepareSpellScript(spell_dru_dash);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_FERAL_SWIFTNESS,
+                SPELL_DRUID_FERAL_SWIFTNESS_CLEAR_CAT
+            });
+    }
+
+    void HandleFeralSwiftness(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (Aura* swiftness = target->GetAuraOfRankedSpell(SPELL_DRUID_FERAL_SWIFTNESS, target->GetGUID()))
+            if (roll_chance_i(swiftness->GetSpellInfo()->Effects[EFFECT_1].BasePoints))
+                target->CastSpell(target, SPELL_DRUID_FERAL_SWIFTNESS_CLEAR_CAT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_dash::HandleFeralSwiftness, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+class spell_dru_dash_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_dru_dash_AuraScript);
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
@@ -156,7 +186,7 @@ class spell_dru_dash : public AuraScript
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
     }
 };
 
@@ -1799,10 +1829,60 @@ class spell_dru_frenzied_regeneration : public AuraScript
     }
 };
 
+class spell_dru_stampeding_roar : public SpellScript
+{
+    PrepareSpellScript(spell_dru_stampeding_roar);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_FERAL_SWIFTNESS,
+                SPELL_DRUID_FERAL_SWIFTNESS_CLEAR_ROAR
+            });
+    }
+
+    void HandleFeralSwiftness(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (GetCaster() != target)
+            return;
+
+        if (Aura* swiftness = target->GetAuraOfRankedSpell(SPELL_DRUID_FERAL_SWIFTNESS, target->GetGUID()))
+            if (roll_chance_i(swiftness->GetSpellInfo()->Effects[EFFECT_1].BasePoints))
+                target->CastSpell(target, SPELL_DRUID_FERAL_SWIFTNESS_CLEAR_ROAR, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_stampeding_roar::HandleFeralSwiftness, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+class spell_dru_feral_swiftness_clear : public SpellScript
+{
+    PrepareSpellScript(spell_dru_feral_swiftness_clear);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAppliedAuras([](AuraApplication const* aurApp)->bool
+        {
+            SpellInfo const* auraSpellInfo = aurApp->GetBase()->GetSpellInfo();
+            uint32 mechanicMask = auraSpellInfo->GetSpellMechanicMaskByEffectMask(EFFECT_ALL);
+            return (mechanicMask & (1 << MECHANIC_ROOT)) || (mechanicMask & (1 << MECHANIC_SNARE));
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_feral_swiftness_clear::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
-    RegisterAuraScript(spell_dru_dash);
+    RegisterSpellAndAuraScriptPair(spell_dru_dash, spell_dru_dash_AuraScript);
     RegisterAuraScript(spell_dru_eclipse);
     RegisterSpellScript(spell_dru_eclipse_energize);
     RegisterAuraScript(spell_dru_eclipse_mastery_driver_passive);
@@ -1845,4 +1925,6 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_wild_growth);
     RegisterSpellScript(spell_dru_wild_mushroom);
     RegisterSpellScript(spell_dru_wild_mushroom_detonate);
+    RegisterSpellScript(spell_dru_stampeding_roar);
+    RegisterSpellScript(spell_dru_feral_swiftness_clear);
 }
