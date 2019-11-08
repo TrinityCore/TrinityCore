@@ -7929,7 +7929,7 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit
     return false;
 }
 
-uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto)
+uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType attType, SpellInfo const* spellProto /*= nullptr*/, bool useSpellBonusData /*= true*/)
 {
     if (!victim || pdamage == 0)
         return 0;
@@ -7969,7 +7969,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
         DoneFlatBenefit += int32(APbonus / 14.0f * GetAPMultiplier(attType, normalized));
     }
 
-    if (spellProto)
+    if (spellProto && useSpellBonusData)
     {
         // Check for table values
         if (SpellBonusEntry const* bonus = sSpellMgr->GetSpellBonusData(spellProto->Id))
@@ -8021,8 +8021,7 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
 
     // Add SPELL_AURA_MOD_AUTOATTACK_DAMAGE percent bonus
     if (!spellProto)
-        for (AuraEffect const* meleeBonusEff : GetAuraEffectsByType(SPELL_AURA_MOD_AUTOATTACK_DAMAGE))
-            AddPct(DoneTotalMod, meleeBonusEff->GetAmount());
+        AddPct(DoneTotalMod, GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE));
 
     // done scripted mod (take it from owner)
     // Unit* owner = GetOwner() ? GetOwner() : this;

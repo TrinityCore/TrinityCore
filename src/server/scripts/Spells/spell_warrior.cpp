@@ -1196,6 +1196,35 @@ class spell_warr_shockwave : public SpellScript
     }
 };
 
+class spell_warr_devastate : public SpellScript
+{
+    PrepareSpellScript(spell_warr_devastate);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_SUNDER_ARMOR });
+    }
+
+    void HandleDamageBonus(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Aura* sunder = GetHitUnit()->GetAura(SPELL_WARRIOR_SUNDER_ARMOR, caster->GetGUID()))
+                SetEffectValue(GetEffectValue() + GetEffectValue() * sunder->GetStackAmount());
+    }
+
+    void HandleSunderArmor(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_WARRIOR_SUNDER_ARMOR, true);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warr_devastate::HandleDamageBonus, EFFECT_1, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_devastate::HandleSunderArmor, EFFECT_1, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterAuraScript(spell_warr_blood_craze);
@@ -1204,6 +1233,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_charge();
     RegisterSpellScript(spell_warr_concussion_blow);
     new spell_warr_deep_wounds();
+    RegisterSpellScript(spell_warr_devastate);
     new spell_warr_execute();
     new spell_warr_glyph_of_sunder_armor();
     new spell_warr_intimidating_shout();
