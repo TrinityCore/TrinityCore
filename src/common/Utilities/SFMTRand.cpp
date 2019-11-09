@@ -16,67 +16,30 @@
  */
 
 #include "SFMTRand.h"
-
-#include <exception>
+#include <algorithm>
+#include <array>
+#include <functional>
+#include <random>
 #include <emmintrin.h>
 #include <ctime>
 
 SFMTRand::SFMTRand()
 {
-    RandomInit((uint32_t)(time(0)));
-}
+    std::random_device dev;
+    if (dev.entropy() > 0)
+    {
+        std::array<uint32, SFMT_N32> seed;
+        std::generate(seed.begin(), seed.end(), std::ref(dev));
 
-void SFMTRand::RandomInit(uint32_t seed)                     // Re-seed
-{
-    sfmt_init_gen_rand(&state, seed);
-}
-
-int32_t SFMTRand::IRandom(int32_t min, int32_t max)     // Output random integer
-{
-    // Output random integer in the interval min <= x <= max
-    // Slightly inaccurate if (max-min+1) is not a power of 2
-    if (max <= min) {
-        if (max == min) return min; else return 0x80000000;
+        sfmt_init_by_array(&_state, seed.data(), seed.size());
     }
-    // Assume 64 bit integers supported. Use multiply and shift method
-    uint32_t interval;                  // Length of interval
-    uint64_t longran;                   // Random bits * interval
-    uint32_t iran;                      // Longran / 2^32
-
-    interval = (uint32_t)(max - min + 1);
-    longran  = (uint64_t)BRandom() * interval;
-    iran = (uint32_t)(longran >> 32);
-    // Convert back to signed and return result
-    return (int32_t)iran + min;
+    else
+        sfmt_init_gen_rand(&_state, uint32(time(nullptr)));
 }
 
-uint32_t SFMTRand::URandom(uint32_t min, uint32_t max)
+uint32 SFMTRand::RandomUInt32()                            // Output random bits
 {
-    // Output random integer in the interval min <= x <= max
-    // Slightly inaccurate if (max-min+1) is not a power of 2
-    if (max <= min) {
-        if (max == min) return min; else return 0;
-    }
-    // Assume 64 bit integers supported. Use multiply and shift method
-    uint32_t interval;                  // Length of interval
-    uint64_t longran;                   // Random bits * interval
-    uint32_t iran;                      // Longran / 2^32
-
-    interval = (uint32_t)(max - min + 1);
-    longran  = (uint64_t)BRandom() * interval;
-    iran = (uint32_t)(longran >> 32);
-    // Convert back to signed and return result
-    return iran + min;
-}
-
-double SFMTRand::Random()                               // Output random floating point number
-{
-    return sfmt_genrand_real1(&state);
-}
-
-uint32_t SFMTRand::BRandom()                            // Output random bits
-{
-    return sfmt_genrand_uint32(&state);
+    return sfmt_genrand_uint32(&_state);
 }
 
 void* SFMTRand::operator new(size_t size, std::nothrow_t const&)
@@ -84,7 +47,7 @@ void* SFMTRand::operator new(size_t size, std::nothrow_t const&)
     return _mm_malloc(size, 16);
 }
 
-    void SFMTRand::operator delete(void* ptr, std::nothrow_t const&)
+void SFMTRand::operator delete(void* ptr, std::nothrow_t const&)
 {
     _mm_free(ptr);
 }
@@ -104,17 +67,17 @@ void* SFMTRand::operator new[](size_t size, std::nothrow_t const&)
     return _mm_malloc(size, 16);
 }
 
-    void SFMTRand::operator delete[](void* ptr, std::nothrow_t const&)
+void SFMTRand::operator delete[](void* ptr, std::nothrow_t const&)
 {
     _mm_free(ptr);
 }
 
-    void* SFMTRand::operator new[](size_t size)
+void* SFMTRand::operator new[](size_t size)
 {
     return _mm_malloc(size, 16);
 }
 
-    void SFMTRand::operator delete[](void* ptr)
+void SFMTRand::operator delete[](void* ptr)
 {
     _mm_free(ptr);
 }
