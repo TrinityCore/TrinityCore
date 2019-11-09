@@ -75,8 +75,6 @@ class TC_GAME_API AuraEffect
 
         void  SetBonusAmount(int32 val) { m_bonusAmount = val; }
         int32 GetBonusAmount() const { return m_bonusAmount; }
-        void  SetCritChance(float val) { m_critChance = val; }
-        float GetCritChance() const { return m_critChance; }
         void  SetDonePct(float val) { m_donePct = val; }
         float GetDonePct() const { return m_donePct; }
 
@@ -110,7 +108,6 @@ class TC_GAME_API AuraEffect
 
         int32 m_amount;
         int32 m_bonusAmount;
-        float m_critChance;
         float m_donePct;
 
         SpellModifier* m_spellmod;

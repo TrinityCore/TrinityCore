@@ -693,7 +693,6 @@ class spell_dk_pestilence : public SpellScript
                 if (AuraEffect* aurEffOld = aurOld->GetEffect(EFFECT_0))
                 {
                     float donePct = aurEffOld->GetDonePct();
-                    float critChance = aurEffOld->GetCritChance();
 
                     caster->CastSpell(hitUnit, SPELL_DK_BLOOD_PLAGUE, true); // Spread the disease to hitUnit.
 
@@ -701,7 +700,6 @@ class spell_dk_pestilence : public SpellScript
                     {
                         if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
                         {
-                            aurEffNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
                             aurEffNew->SetDonePct(donePct);
                             aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT, aurEffNew->GetEffIndex()));
                         }
