@@ -26,6 +26,7 @@
 #include "Timer.h"
 #include "Transaction.h"
 #include "Util.h"
+#include <errmsg.h>
 #include "MySQLWorkaround.h"
 #include <mysqld_error.h>
 
