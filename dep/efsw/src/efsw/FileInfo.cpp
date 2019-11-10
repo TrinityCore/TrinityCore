@@ -180,17 +180,17 @@ bool FileInfo::operator==( const FileInfo& Other ) const
 	);
 }
 
-bool FileInfo::isDirectory()
+bool FileInfo::isDirectory() const
 {
 	return 0 != S_ISDIR(Permissions);
 }
 
-bool FileInfo::isRegularFile()
+bool FileInfo::isRegularFile() const
 {
 	return 0 != S_ISREG(Permissions);
 }
 
-bool FileInfo::isReadable()
+bool FileInfo::isReadable() const
 {
 #if EFSW_PLATFORM != EFSW_PLATFORM_WIN32
 	static bool isRoot = getuid() == 0;
@@ -200,7 +200,7 @@ bool FileInfo::isReadable()
 #endif
 }
 
-bool FileInfo::isLink()
+bool FileInfo::isLink() const
 {
 #if EFSW_PLATFORM != EFSW_PLATFORM_WIN32
 	return S_ISLNK(Permissions);

@@ -24,7 +24,7 @@ FileWatcherGeneric::~FileWatcherGeneric()
 	/// Delete the watches
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		efSAFE_DELETE( (*it) );
 	}
@@ -84,7 +84,7 @@ void FileWatcherGeneric::removeWatch( const std::string& directory )
 {
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		if ( (*it)->Directory == directory )
 		{
@@ -105,7 +105,7 @@ void FileWatcherGeneric::removeWatch(WatchID watchid)
 {
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		if ( (*it)->ID == watchid )
 		{
@@ -140,7 +140,7 @@ void FileWatcherGeneric::run()
 
 			WatchList::iterator it = mWatches.begin();
 
-			for ( ; it != mWatches.end(); it++ )
+			for ( ; it != mWatches.end(); ++it )
 			{
 				( *it )->watch();
 			}
@@ -150,7 +150,7 @@ void FileWatcherGeneric::run()
 	} while ( mInitOK );
 }
 
-void FileWatcherGeneric::handleAction(Watcher * watch, const std::string& filename, unsigned long action, std::string oldFilename)
+void FileWatcherGeneric::handleAction(Watcher *, const std::string&, unsigned long, std::string)
 {
 	/// Not used
 }
@@ -163,7 +163,7 @@ std::list<std::string> FileWatcherGeneric::directories()
 
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		dirs.push_back( (*it)->Directory );
 	}
@@ -175,7 +175,7 @@ bool FileWatcherGeneric::pathInWatches( const std::string& path )
 {
 	WatchList::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		if ( (*it)->Directory == path || (*it)->pathInWatches( path ) )
 		{
