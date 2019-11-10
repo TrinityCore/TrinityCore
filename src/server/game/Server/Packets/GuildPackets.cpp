@@ -188,6 +188,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
     return data;
 }
 
+WorldPacket const* WorldPackets::Guild::GuildEventAwayChange::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket.WriteBit(AFK);
+    _worldPacket.WriteBit(DND);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Guild::GuildEventPresenceChange::Write()
 {
     _worldPacket << Guid;
