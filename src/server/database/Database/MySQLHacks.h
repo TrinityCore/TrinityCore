@@ -15,20 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MySQLThreading.h"
+#ifndef MySQLHacks_h__
+#define MySQLHacks_h__
+
 #include "MySQLWorkaround.h"
+#include <type_traits>
 
-void MySQL::Library_Init()
-{
-    mysql_library_init(-1, nullptr, nullptr);
-}
+struct MySQLHandle : MYSQL { };
+struct MySQLResult : MYSQL_RES { };
+struct MySQLField : MYSQL_FIELD { };
+struct MySQLBind : MYSQL_BIND { };
+struct MySQLStmt : MYSQL_STMT { };
 
-void MySQL::Library_End()
-{
-    mysql_library_end();
-}
+// mysql 8 removed my_bool typedef (it was char) and started using bools directly
+// to maintain compatibility we use this trick to retrieve which type is being used
+using MySQLBool = std::remove_pointer_t<decltype(std::declval<MYSQL_BIND>().is_null)>;
 
-char const* MySQL::GetLibraryVersion()
-{
-    return MYSQL_SERVER_VERSION;
-}
+#endif // MySQLHacks_h__

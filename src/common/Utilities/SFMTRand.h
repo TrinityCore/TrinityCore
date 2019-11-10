@@ -15,20 +15,30 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MySQLThreading.h"
-#include "MySQLWorkaround.h"
+#ifndef SFMTRand_h__
+#define SFMTRand_h__
 
-void MySQL::Library_Init()
-{
-    mysql_library_init(-1, nullptr, nullptr);
-}
+#include "Define.h"
+#include <SFMT.h>
+#include <new>
 
-void MySQL::Library_End()
-{
-    mysql_library_end();
-}
+/*
+ * C++ Wrapper for SFMT
+ */
+class SFMTRand {
+public:
+    SFMTRand();
+    uint32 RandomUInt32(); // Output random bits
+    void* operator new(size_t size, std::nothrow_t const&);
+    void operator delete(void* ptr, std::nothrow_t const&);
+    void* operator new(size_t size);
+    void operator delete(void* ptr);
+    void* operator new[](size_t size, std::nothrow_t const&);
+    void operator delete[](void* ptr, std::nothrow_t const&);
+    void* operator new[](size_t size);
+    void operator delete[](void* ptr);
+private:
+    sfmt_t _state;
+};
 
-char const* MySQL::GetLibraryVersion()
-{
-    return MYSQL_SERVER_VERSION;
-}
+#endif // SFMTRand_h__
