@@ -796,6 +796,7 @@ class TC_GAME_API Guild
         void SendNewsUpdate(WorldSession* session) const;
 
         // Send events
+        void SendEventAwayChanged(ObjectGuid const& memberGuid, bool afk, bool dnd);
         void SendEventBankMoneyChanged() const;
         void SendEventMOTD(WorldSession* session, bool broadcast = false) const;
         void SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted = false) const;
