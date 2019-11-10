@@ -45,7 +45,9 @@ enum DataTypes
 
     DATA_SLIPSTREAM_ASAAD_1,
     DATA_SLIPSTREAM_ENTRANCE_1,
-    DATA_SLIPSTREAM_ENTRANCE_2
+    DATA_SLIPSTREAM_ENTRANCE_2,
+
+    DATA_COLLECTED_GOLDEN_ORB
 };
 
 enum VPCreatureIds
@@ -71,16 +73,18 @@ enum VPCreatureIds
     NPC_ZEPHYR                  = 45991,
     NPC_SKYFALL                 = 45981,
     NPC_SKYFALL_STAR            = 52019,
+    NPC_GOLDEN_ORB              = 51157,
 
     // Grounding Field
-    NPC_GROUNDING_FIELD         = 47085
+    NPC_GROUNDING_FIELD         = 47085,
 };
 
 enum VPSpells
 {
     SPELL_BEAM_A                = 87721,
     SPELL_BEAM_B                = 87722,
-    SPELL_BEAM_C                = 87723
+    SPELL_BEAM_C                = 87723,
+    SPELL_ACHIEVEMENT_CHECK     = 94756
 };
 
 enum VPActions
@@ -93,6 +97,11 @@ enum VPMisc
 {
     PATH_ZEPHYR_SOUTH   = 4599100,
     PATH_ZEPHYR_NORTH   = 4599101
+};
+
+enum VPWorldStates
+{
+    WS_GOLDEN_ORBS_COLLECTED = 5649
 };
 
 template <class AI, class T>

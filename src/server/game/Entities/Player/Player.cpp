@@ -9689,6 +9689,13 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(3106) << uint32(0);              // 10 WORLD_STATE_ZULAMAN_TIMER
             }
             break;
+        // The Vortex Pinnacle
+        case 5035:
+            if (instance && mapid == 657)
+                instance->FillInitialWorldStates(data);
+            else
+                data << uint32(5649) << uint32 (0);
+            break;
         // Twin Peaks
         case 5031:
             if (bg && bg->GetTypeID(true) == BATTLEGROUND_TP)

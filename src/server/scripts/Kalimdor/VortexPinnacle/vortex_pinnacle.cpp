@@ -32,7 +32,7 @@
 
 enum Texts
 {
-    SAY_FEIGN_DEATH = 0,
+    SAY_FEIGN_DEATH = 0
 };
 
 enum Spells

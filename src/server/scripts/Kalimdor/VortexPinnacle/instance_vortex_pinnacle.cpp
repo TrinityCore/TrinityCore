@@ -118,7 +118,8 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 SummonGroundingFieldPrism(FirstPrismGroundingFieldTop, FirstPrismGroundingFieldPoints);
                 SummonGroundingFieldPrism(SecondPrismGroundingFieldTop, SecondPrismGroundingFieldPoints);
 
-                events.ScheduleEvent(EVENT_SUMMON_ZEPHYRS, 1s);
+                _events.ScheduleEvent(EVENT_SUMMON_ZEPHYRS, 1s);
+                _collectedGoldenOrbs = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -131,7 +132,7 @@ class instance_vortex_pinnacle : public InstanceMapScript
                         creature->SetDisplayId(creature->GetCreatureTemplate()->Modelid2);
                         break;
                     case NPC_AIR_CURRENT:
-                        airCurrentGUIDs.push_back(creature->GetGUID());
+                        _airCurrentGUIDs.push_back(creature->GetGUID());
                         break;
                     case NPC_SLIPSTREAM:
                         for (SlipstreamVehicleData info : SlipStreamInfo)
@@ -165,6 +166,9 @@ class instance_vortex_pinnacle : public InstanceMapScript
                             }
                         }
                         break;
+                    case NPC_GOLDEN_ORB:
+                        creature->SetDisplayId(creature->GetCreatureTemplate()->Modelid2);
+                        break;
                     default:
                         break;
                 }
@@ -176,21 +180,37 @@ class instance_vortex_pinnacle : public InstanceMapScript
 
                 if (type == DATA_ALTAIRUS && (state == DONE || state == FAIL))
                 {
-                    for (ObjectGuid guid : airCurrentGUIDs)
+                    for (ObjectGuid guid : _airCurrentGUIDs)
                         if (Creature* air = instance->GetCreature(guid))
                             air->DespawnOrUnsummon(0, 30s);
 
-                    airCurrentGUIDs.clear();
+                    _airCurrentGUIDs.clear();
                 }
 
                 return true;
             }
 
+            void SetData(uint32 type, uint32 value) override
+            {
+                switch (type)
+                {
+                    case DATA_COLLECTED_GOLDEN_ORB:
+                        _collectedGoldenOrbs++;
+                        DoUpdateWorldState(WS_GOLDEN_ORBS_COLLECTED, _collectedGoldenOrbs);
+                        if (_collectedGoldenOrbs == 5)
+                            DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_ACHIEVEMENT_CHECK);
+                        SaveToDB();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             void Update(uint32 diff) override
             {
-                events.Update(diff);
+                _events.Update(diff);
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -201,12 +221,27 @@ class instance_vortex_pinnacle : public InstanceMapScript
                             if (instance->IsGridLoaded(NorthZephyrSummonLocation))
                                 if (TempSummon* zephyr = instance->SummonCreature(NPC_ZEPHYR, NorthZephyrSummonLocation, nullptr, 18 * IN_MILLISECONDS))
                                     zephyr->GetMotionMaster()->MovePath(PATH_ZEPHYR_NORTH, false);
-                            events.Repeat(10s);
+                            _events.Repeat(10s);
                             break;
                         default:
                             break;
                     }
                 }
+            }
+
+            void FillInitialWorldStates(WorldPacket& data) override
+            {
+                data << uint32(WS_GOLDEN_ORBS_COLLECTED) << uint32(_collectedGoldenOrbs);
+            }
+
+            void WriteSaveDataMore(std::ostringstream& data) override
+            {
+                data << _collectedGoldenOrbs;
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                data >> _collectedGoldenOrbs;
             }
 
         private:
@@ -230,8 +265,9 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 }
             }
 
-            EventMap events;
-            GuidVector airCurrentGUIDs;
+            EventMap _events;
+            GuidVector _airCurrentGUIDs;
+            uint8 _collectedGoldenOrbs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
