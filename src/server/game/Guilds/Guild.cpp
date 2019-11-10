@@ -2249,6 +2249,29 @@ void Guild::SendLoginInfo(WorldSession* session)
     member->AddFlag(GUILDMEMBER_STATUS_ONLINE);
 }
 
+void Guild::SendEventAwayChanged(ObjectGuid const& memberGuid, bool afk, bool dnd)
+{
+    Member* member = GetMember(memberGuid);
+    if (!member)
+        return;
+
+    if (afk)
+        member->AddFlag(GUILDMEMBER_STATUS_AFK);
+    else
+        member->RemFlag(GUILDMEMBER_STATUS_AFK);
+
+    if (dnd)
+        member->AddFlag(GUILDMEMBER_STATUS_DND);
+    else
+        member->RemFlag(GUILDMEMBER_STATUS_DND);
+
+    WorldPackets::Guild::GuildEventAwayChange awayChange;
+    awayChange.Guid = memberGuid;
+    awayChange.AFK = afk;
+    awayChange.DND = dnd;
+    BroadcastPacket(awayChange.Write());
+}
+
 void Guild::SendEventBankMoneyChanged() const
 {
     WorldPackets::Guild::GuildEventBankMoneyChanged eventPacket;
