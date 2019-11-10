@@ -68,17 +68,16 @@ enum Misc
     NPC_JAINA_PROUDMOORE        = 100066,
     NPC_KALECGOS                = 100001,
     NPC_THRALL                  = 100068,
-    NPC_PURPLE_GRYPHON          = 18362,
     NPC_KLANNOC_MACLEOD         = 100067,
     NPC_AFFRAY_SPECTATOR        = 100068,
     NPC_INVISIBLE_STALKER       = 32780,
+    NPC_FOCUSING_IRIS           = 100069,
 
     // Morph
     MORPH_INVISIBLE_PLAYER      = 15880,
 
     // Game objects
     GOB_FIRE                    = 182592,
-    GOB_FOCUSING_IRIS           = 500017,
     GOB_ANTONIDAS_BOOK          = 500018,
 };
 
@@ -93,9 +92,11 @@ enum Spells
     SPELL_PYROBLAST             = 100005,
     SPELL_IMMOLATE              = 48150,
     SPELL_ICE_NOVA              = 56935,
-    SPELL_ARCANE_CANALISATION   = 54219,
-    SPELL_CANALISATION          = 58012,
-    SPELL_ARCANE_CLOUD          = 39952
+    SPELL_ARCANE_CANALISATION   = 100064,
+    SPELL_CANALISATION          = 100062,
+    SPELL_ARCANE_CLOUD          = 39952,
+    SPELL_LIGHTING_STRIKES      = 100065,
+    SPELL_STUNNED               = 100066,
 };
 
 const Position FocusingIrisPos      = { -1643.60f, -4244.23f, 10.42f, 6.25f };
@@ -180,44 +181,6 @@ const Position BuildingMeteorPos[FIRES_MAX_NUMBER] =
     { -1667.19f, -4367.37f,  4.88f, 5.63f }
 };
 
-class PurpleGryphonFlyAway : public BasicEvent
-{
-    public:
-        PurpleGryphonFlyAway(Creature* owner) : owner(owner), stage(0)
-        {
-            posToLift = owner->GetPosition();
-            posToLift.m_positionZ += 20.f;
-        }
-
-        bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
-        {
-            switch (stage)
-            {
-                case 0:
-                    owner->GetMotionMaster()->MoveTakeoff(0, posToLift);
-                    return NextEvent(eventTime, 3000);
-                case 1:
-                    owner->GetMotionMaster()->MovePoint(0, -1528.06f, -3962.72f, 44.08f, false, 0.f);
-                    return true;
-                default:
-                    break;
-            }
-            return true;
-        }
-
-    private:
-        Creature* owner;
-        uint8 stage;
-        Position posToLift;
-
-        bool NextEvent(uint64 eventTime, uint64 time)
-        {
-            stage++;
-            owner->m_Events.AddEvent(this, eventTime + time);
-            return false;
-        }
-};
-
 class KlannocBurning : public BasicEvent
 {
     public:
@@ -232,7 +195,7 @@ class KlannocBurning : public BasicEvent
                     return NextEvent(eventTime, 500);
                 case 1:
                     jaina->CastSpell(owner, SPELL_PYROBLAST);
-                    return NextEvent(eventTime, 1000);
+                    return NextEvent(eventTime, 1890);
                 case 2:
                     owner->RemoveAllAuras();
                     owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -278,6 +241,60 @@ class SpectatorDeath : public BasicEvent
         Creature* owner;
 };
 
+class WaveGrowing : public BasicEvent
+{
+    public:
+        WaveGrowing(Creature* owner) : owner(owner) { }
+
+        bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+        {
+            if (!owner->HasAura(SPELL_WAVE_VISUAL))
+                owner->AddAura(SPELL_WAVE_VISUAL, owner);
+
+            float currentScale = owner->GetObjectScale();
+            if (currentScale >= 4.f)
+                return true;
+
+            owner->SetObjectScale(currentScale + 0.3f);
+            owner->m_Events.AddEvent(this, eventTime + 2000);
+            return false;
+        }
+
+    private:
+        Creature* owner;
+};
+
+class LightingStrikes : public BasicEvent
+{
+    public:
+        LightingStrikes(Creature* owner) : owner(owner), stage(0), lighting(nullptr) { }
+
+        bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+        {
+            switch (stage)
+            {
+                case 0:
+                    lighting = owner->SummonCreature(NPC_INVISIBLE_STALKER, owner->GetRandomNearPosition(50.f), TEMPSUMMON_TIMED_DESPAWN, 2s);
+                    stage++;
+                    owner->m_Events.AddEvent(this, eventTime + 1000);
+                    return false;
+                case 1:
+                    lighting->CastSpell(lighting, SPELL_LIGHTING_STRIKES);
+                    stage = 0;
+                    owner->m_Events.AddEvent(this, eventTime + urand(100, 500));
+                    return false;
+                default:
+                    break;
+            }
+            return true;
+        }
+
+    private:
+        Creature* owner;
+        Creature* lighting;
+        uint8 stage;
+};
+
 class jaina_affray_isle : public CreatureScript
 {
     public:
@@ -307,17 +324,9 @@ class jaina_affray_isle : public CreatureScript
 
                     debug = value == 2 ? true : false;
                     if (debug)
-                    {
                         events.ScheduleEvent(EVENT_AFFRAY_ISLE_3, 2s);
-                    }
                     else
-                    {
-                        gryphon = GetClosestCreatureWithEntry(me, NPC_PURPLE_GRYPHON, 25.f);
-                        me->SetFacingToObject(gryphon);
-                        gryphon->m_Events.AddEvent(new PurpleGryphonFlyAway(gryphon), gryphon->m_Events.CalculateTime(3000));
-
                         events.ScheduleEvent(EVENT_AFFRAY_ISLE_1, 3s);
-                    }
 
                     break;
                 }
@@ -342,7 +351,6 @@ class jaina_affray_isle : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_AFFRAY_ISLE_1:
-                        me->SetFacingTo(4.57f);
                         me->AI()->Talk(TALK_JAINA_01);
                         events.ScheduleEvent(EVENT_AFFRAY_ISLE_2, 3s);
                         break;
@@ -404,6 +412,18 @@ class jaina_affray_isle : public CreatureScript
                             klannoc->SetFaction(14);
                         }
 
+                        if (playerSpectator = me->SummonCreature(NPC_AFFRAY_SPECTATOR, player->GetRandomNearPosition(1.f), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min))
+                        {
+                            playerSpectator->CastSpell(player, SPELL_STUNNED);
+
+                            playerSpectator->SetFacingToObject(player);
+                            playerSpectator->CastSpell(playerSpectator, SPELL_SMOKE_REVEAL);
+                            playerSpectator->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            playerSpectator->SetReactState(REACT_PASSIVE);
+                            playerSpectator->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY_THROWN);
+                            playerSpectator->SetFaction(14);
+                        }
+
                         float angle = 45.f;
                         for (uint8 i = 0; i < SPECTATORS_MAX_NUMBER; i++)
                         {
@@ -444,7 +464,7 @@ class jaina_affray_isle : public CreatureScript
 
                     case EVENT_AFFRAY_ISLE_10:
                         klannoc->m_Events.AddEvent(new KlannocBurning(klannoc, me), klannoc->m_Events.CalculateTime(100));
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_11, 2s);
+                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_11, 3s);
                         break;
 
                     case EVENT_AFFRAY_ISLE_11:
@@ -458,12 +478,16 @@ class jaina_affray_isle : public CreatureScript
                             spectator->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
                         }
 
+                        playerSpectator->GetMotionMaster()->MoveFleeing(me);
+                        playerSpectator->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+
                         uint8 randomSpectator = urand(0, SPECTATORS_MAX_NUMBER - 1);
                         if (Creature* victim = spectators[randomSpectator])
                         {
                             victim->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                             CastSpellExtraArgs args;
+                            args.AddSpellBP0(99999999);
                             args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
 
                             DoCast(victim, SPELL_ARCANE_BARRAGE, args);
@@ -482,12 +506,15 @@ class jaina_affray_isle : public CreatureScript
                             spectator->m_Events.AddEvent(new SpectatorDeath(spectator), spectator->m_Events.CalculateTime(2000));
                         }
 
+                        playerSpectator->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        playerSpectator->m_Events.AddEvent(new SpectatorDeath(playerSpectator), playerSpectator->m_Events.CalculateTime(2000));
+
                         CastSpellExtraArgs args;
                         args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
 
                         DoCastAOE(SPELL_ICE_NOVA, args);
 
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_13, 2s);
+                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_13, 5s);
                         break;
                     }
 
@@ -499,35 +526,38 @@ class jaina_affray_isle : public CreatureScript
                         break;
 
                     case EVENT_AFFRAY_ISLE_14:
+                        me->SetWalk(true);
                         me->GetMotionMaster()->MovePoint(0, -1655.44f, -4246.56f, 1.77f, true, 6.13f);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_15, 3s);
+                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_15, me->GetMotionMaster()->GetTime());
                         break;
 
                     case EVENT_AFFRAY_ISLE_15:
                     {
-                        me->SummonGameObject(GOB_ANTONIDAS_BOOK, -1651.47f, -4241.25f, 3.02f, 3.82f, QuaternionData(0.f, 0.f, -0.9200f, 0.3917f), 0);
+                        if (focusingIrisFx = me->SummonCreature(NPC_FOCUSING_IRIS, -1654.17f, -4246.51f, 3.51f, 3.08f, TEMPSUMMON_MANUAL_DESPAWN))
+                        {
+                            waveFx = me->SummonCreature(NPC_INVISIBLE_STALKER, -1553.19f, -4251.73f, -1.91f, 6.27f);
+                            waveFx->m_Events.AddEvent(new WaveGrowing(waveFx), waveFx->m_Events.CalculateTime(3000));
 
-                        //arcaneCloud = me->SummonCreature(NPC_INVISIBLE_STALKER, -1652.58f, -4242.50f, 87.16f, 0.04f, TEMPSUMMON_MANUAL_DESPAWN);
-                        //arcaneCloud->AddAura(SPELL_ARCANE_CLOUD, arcaneCloud);
-                        //arcaneCloud->SetObjectScale(5.f);
+                            DoCast(SPELL_ARCANE_CANALISATION);
 
-                        me->SummonGameObject(GOB_FOCUSING_IRIS, -1649.19f, -4247.15f, 3.32f, 3.09f, QuaternionData(), 0);
-                        iris = me->SummonCreature(NPC_INVISIBLE_STALKER, FocusingIrisFxPos, TEMPSUMMON_MANUAL_DESPAWN);
+                            me->SetFacingToObject(focusingIrisFx);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SPELL_CHANNEL_DIRECTED);
+                            me->SummonGameObject(GOB_ANTONIDAS_BOOK, -1653.03f, -4243.82f, 3.11f, 3.99f, QuaternionData(0.f, 0.f, -0.9101f, 0.4143f), 0);
+                        }
 
                         events.ScheduleEvent(EVENT_AFFRAY_ISLE_16, 3s);
                         break;
                     }
 
                     case EVENT_AFFRAY_ISLE_16:
-                        DoCast(SPELL_ARCANE_CANALISATION);
-                        wave = me->SummonCreature(NPC_INVISIBLE_STALKER, -1579.89f, -4245.80f, -2.19f, 6.20f, TEMPSUMMON_MANUAL_DESPAWN);
-                        events.ScheduleEvent(EVENT_AFFRAY_ISLE_17, 4s);
+                        lightingStrikesEvent = new LightingStrikes(me);
+                        me->m_Events.AddEvent(lightingStrikesEvent, me->m_Events.CalculateTime(3000));
+                        //events.ScheduleEvent(EVENT_AFFRAY_ISLE_17, 15s);
                         break;
 
-                    case EVENT_AFFRAY_ISLE_17:
-                        iris->CastSpell(wave, SPELL_CANALISATION);
-                        wave->AddAura(SPELL_WAVE_VISUAL, wave);
-                        break;
+                    //case EVENT_AFFRAY_ISLE_17:
+                    //    lightingStrikesEvent->ScheduleAbort();
+                    //    break;
 
                     default:
                         break;
@@ -537,14 +567,15 @@ class jaina_affray_isle : public CreatureScript
 
         private:
             EventMap events;
+            LightingStrikes* lightingStrikesEvent;
             Player* player;
             Creature* klannoc;
+            Creature* playerSpectator;
             Creature* kalecgos;
             Creature* thrall;
-            Creature* gryphon;
             Creature* arcaneCloud;
-            Creature* iris;
-            Creature* wave;
+            Creature* focusingIrisFx;
+            Creature* waveFx;
             std::vector<Creature*> spectators;
 
             bool debug;
@@ -588,10 +619,10 @@ class jaina_affray_isle : public CreatureScript
 
             const Position GetPositionAroundMe(float angle, float radius)
             {
-                double ang = angle * (M_PI / 180);
+                float ang = float(angle * (M_PI / 180.f));
                 Position pos;
-                pos.m_positionX = me->GetPositionX() + radius * sin(ang);
-                pos.m_positionY = me->GetPositionY() + radius * cos(ang);
+                pos.m_positionX = me->GetPositionX() + radius * sinf(ang);
+                pos.m_positionY = me->GetPositionY() + radius * cosf(ang);
                 pos.m_positionZ = 4.38f;
                 return pos;
             }
