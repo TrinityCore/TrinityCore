@@ -1172,6 +1172,7 @@ enum CurrencyTypes
     CURRENCY_TYPE_JUSTICE_POINTS        = 395,
     CURRENCY_TYPE_VALOR_POINTS          = 396,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
+    CURRENCY_TYPE_AZERITE               = 1553
 };
 
 enum WorldMapTransformsFlags

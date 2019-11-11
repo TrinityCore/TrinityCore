@@ -4769,6 +4769,32 @@ public:
     }
 };
 
+// 277253 - Heart of Azeroth
+class spell_item_heart_of_azeroth : public AuraScript
+{
+    PrepareAuraScript(spell_item_heart_of_azeroth);
+
+    void SetEquippedFlag(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            if (Item* item = target->GetItemByGuid(GetAura()->GetCastItemGUID()))
+                item->AddItemFlag2(ITEM_FIELD_FLAG2_HEART_OF_AZEROTH_EQUIPPED);
+    }
+
+    void ClearEquippedFlag(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            if (Item* item = target->GetItemByGuid(GetAura()->GetCastItemGUID()))
+                item->RemoveItemFlag2(ITEM_FIELD_FLAG2_HEART_OF_AZEROTH_EQUIPPED);
+    }
+
+    void Register()
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_item_heart_of_azeroth::SetEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_item_heart_of_azeroth::ClearEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4885,7 +4911,9 @@ void AddSC_item_spell_scripts()
     new spell_item_world_queller_focus();
     new spell_item_water_strider();
     new spell_item_brutal_kinship();
-    
+
     new spell_item_mad_alchemists_potion();
     new spell_item_crazy_alchemists_potion();
+
+    RegisterAuraScript(spell_item_heart_of_azeroth);
 }

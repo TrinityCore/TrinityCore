@@ -110,6 +110,16 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name, FactionID, DepositRate, ConsignmentRate FROM auction_house ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name_lang FROM auction_house_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // AzeriteItem.db2
+    PrepareStatement(HOTFIX_SEL_AZERITE_ITEM, "SELECT ID, ItemID FROM azerite_item ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // AzeriteKnowledgeMultiplier.db2
+    PrepareStatement(HOTFIX_SEL_AZERITE_KNOWLEDGE_MULTIPLIER, "SELECT ID, Multiplier FROM azerite_knowledge_multiplier ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // AzeriteLevelInfo.db2
+    PrepareStatement(HOTFIX_SEL_AZERITE_LEVEL_INFO, "SELECT ID, BaseExperienceToNextLevel, MinimumExperienceToNextLevel, ItemLevel"
+        " FROM azerite_level_info ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // BankBagSlotPrices.db2
     PrepareStatement(HOTFIX_SEL_BANK_BAG_SLOT_PRICES, "SELECT ID, Cost FROM bank_bag_slot_prices ORDER BY ID DESC", CONNECTION_SYNCH);
 
@@ -908,8 +918,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM spell_levels ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SpellMisc.db2
-    PrepareStatement(HOTFIX_SEL_SPELL_MISC, "SELECT Attributes1, Attributes2, Attributes3, Attributes4, Attributes5, Attributes6, Attributes7, "
-        "Attributes8, Attributes9, Attributes10, Attributes11, Attributes12, Attributes13, Attributes14, ID, DifficultyID, CastingTimeIndex, "
+    PrepareStatement(HOTFIX_SEL_SPELL_MISC, "SELECT ID, Attributes1, Attributes2, Attributes3, Attributes4, Attributes5, Attributes6, Attributes7, "
+        "Attributes8, Attributes9, Attributes10, Attributes11, Attributes12, Attributes13, Attributes14, DifficultyID, CastingTimeIndex, "
         "DurationIndex, RangeIndex, SchoolMask, Speed, LaunchDelay, MinDuration, SpellIconFileDataID, ActiveIconFileDataID, ContentTuningID, SpellID"
         " FROM spell_misc ORDER BY ID DESC", CONNECTION_SYNCH);
 

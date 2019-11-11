@@ -18,6 +18,7 @@
 
 #include "Item.h"
 #include "ArtifactPackets.h"
+#include "AzeriteItem.h"
 #include "Bag.h"
 #include "CollectionMgr.h"
 #include "Common.h"
@@ -41,6 +42,17 @@
 #include "UpdateData.h"
 #include "World.h"
 #include "WorldSession.h"
+
+Item* NewItemOrBag(ItemTemplate const* proto)
+{
+    if (proto->GetInventoryType() == INVTYPE_BAG)
+        return new Bag();
+
+    if (sDB2Manager.IsAzeriteItem(proto->GetId()))
+        return new AzeriteItem();
+
+    return new Item();
+}
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -628,8 +640,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
     //                29           30           31                32          33           34           35                36          37           38           39                40
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       41                      42
-    //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
+    //                       41                      42     43        44                 45
+    //        fixedScalingLevel, artifactKnowledgeLevel, iz.xp, iz.level, iz.knowledgeLevel FROM item_instance
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB

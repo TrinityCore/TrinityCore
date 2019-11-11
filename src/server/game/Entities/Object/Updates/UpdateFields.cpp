@@ -221,7 +221,7 @@ void ItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fiel
     data << uint32(Gems.size());
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
     {
-        data << uint32(Field_130);
+        data << uint32(DynamicFlags2);
     }
     for (std::size_t i = 0; i < Modifiers.size(); ++i)
     {
@@ -375,7 +375,7 @@ void ItemData::WriteUpdate(ByteBuffer& data, UpdateMask<40> const& changesMask, 
         }
         if (changesMask[19])
         {
-            data << uint32(Field_130);
+            data << uint32(DynamicFlags2);
         }
     }
     if (changesMask[20])
@@ -420,7 +420,7 @@ void ItemData::ClearChangesMask()
     Base::ClearChangesMask(Context);
     Base::ClearChangesMask(ArtifactXP);
     Base::ClearChangesMask(ItemAppearanceModID);
-    Base::ClearChangesMask(Field_130);
+    Base::ClearChangesMask(DynamicFlags2);
     Base::ClearChangesMask(SpellCharges);
     Base::ClearChangesMask(Enchantment);
     _changesMask.ResetAll();
@@ -504,19 +504,19 @@ void AzeriteEmpoweredItemData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void UnlockedAzeriteEssence::WriteCreate(ByteBuffer& data, Item const* owner, Player const* receiver) const
+void UnlockedAzeriteEssence::WriteCreate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const
 {
     data << uint32(AzeriteEssenceID);
     data << uint32(Rank);
 }
 
-void UnlockedAzeriteEssence::WriteUpdate(ByteBuffer& data, Item const* owner, Player const* receiver) const
+void UnlockedAzeriteEssence::WriteUpdate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const
 {
     data << uint32(AzeriteEssenceID);
     data << uint32(Rank);
 }
 
-void SelectedAzeriteEssences::WriteCreate(ByteBuffer& data, Item const* owner, Player const* receiver) const
+void SelectedAzeriteEssences::WriteCreate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const
 {
     for (std::size_t i = 0; i < 3; ++i)
     {
@@ -527,7 +527,7 @@ void SelectedAzeriteEssences::WriteCreate(ByteBuffer& data, Item const* owner, P
     data.FlushBits();
 }
 
-void SelectedAzeriteEssences::WriteUpdate(ByteBuffer& data, Item const* owner, Player const* receiver) const
+void SelectedAzeriteEssences::WriteUpdate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const
 {
     UpdateMask<7> const& changesMask = _changesMask;
     data.WriteBits(changesMask.GetBlocksMask(0), 1);
@@ -567,7 +567,7 @@ void SelectedAzeriteEssences::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void AzeriteItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
+void AzeriteItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
     {
@@ -594,7 +594,7 @@ void AzeriteItemData::WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFla
     }
 }
 
-void AzeriteItemData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
+void AzeriteItemData::WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const
 {
     UpdateMask<9> allowedMaskForTarget({ 0x0000000Fu });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
@@ -607,7 +607,7 @@ void AzeriteItemData::AppendAllowedFieldsMaskForFlag(UpdateMask<9>& allowedMaskF
         allowedMaskForTarget |= { 0x000001F0u };
 }
 
-void AzeriteItemData::WriteUpdate(ByteBuffer& data, UpdateMask<9> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
+void AzeriteItemData::WriteUpdate(ByteBuffer& data, UpdateMask<9> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const
 {
     data.WriteBits(changesMask.GetBlock(0), 9);
 

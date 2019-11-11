@@ -2856,6 +2856,31 @@ LOCK TABLES `item_instance_artifact_powers` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `item_instance_azerite`
+--
+
+DROP TABLE IF EXISTS `item_instance_azerite`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_instance_azerite` (
+  `itemGuid` bigint(20) unsigned NOT NULL,
+  `xp` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `level` int(10) unsigned NOT NULL DEFAULT '1',
+  `knowledgeLevel` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`itemGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_instance_azerite`
+--
+
+LOCK TABLES `item_instance_azerite` WRITE;
+/*!40000 ALTER TABLE `item_instance_azerite` DISABLE KEYS */;
+/*!40000 ALTER TABLE `item_instance_azerite` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `item_instance_gems`
 --
 
@@ -3570,7 +3595,8 @@ INSERT INTO `updates` VALUES
 ('2019_07_15_00_characters.sql','E1C77F604FB2A2FE8B32258CD0C9EC71BEA4F0FF','RELEASED','2019-06-25 22:40:37',0),
 ('2019_10_26_00_characters.sql','F1090ACDEB876A7BB5ED8829373F6305A217949A','RELEASED','2019-10-25 23:04:42',0),
 ('2019_10_26_01_characters.sql','59D5860930D02AB77D2AAA704C564957A9143760','RELEASED','2019-10-26 22:04:46',0),
-('2019_11_03_00_characters.sql','DC789597F85B890E9A7901B4443DAD9CAEE2A02A','RELEASED','2019-11-03 14:13:27',0);
+('2019_11_03_00_characters.sql','DC789597F85B890E9A7901B4443DAD9CAEE2A02A','RELEASED','2019-11-03 14:13:27',0),
+('2019_11_12_00_characters.sql','D4C642B4D48DAE9F56329BDE51C258323A132A91','RELEASED','2019-11-12 16:31:29',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
