@@ -72,9 +72,4 @@ class TC_GAME_API Bag : public Item
         Item* m_bagslot[MAX_BAG_SIZE];
 };
 
-inline Item* NewItemOrBag(ItemTemplate const* proto)
-{
-    return (proto->GetInventoryType() == INVTYPE_BAG) ? new Bag : new Item;
-}
-
 #endif
