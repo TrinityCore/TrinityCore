@@ -908,8 +908,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM spell_levels ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SpellMisc.db2
-    PrepareStatement(HOTFIX_SEL_SPELL_MISC, "SELECT Attributes1, Attributes2, Attributes3, Attributes4, Attributes5, Attributes6, Attributes7, "
-        "Attributes8, Attributes9, Attributes10, Attributes11, Attributes12, Attributes13, Attributes14, ID, DifficultyID, CastingTimeIndex, "
+    PrepareStatement(HOTFIX_SEL_SPELL_MISC, "SELECT ID, Attributes1, Attributes2, Attributes3, Attributes4, Attributes5, Attributes6, Attributes7, "
+        "Attributes8, Attributes9, Attributes10, Attributes11, Attributes12, Attributes13, Attributes14, DifficultyID, CastingTimeIndex, "
         "DurationIndex, RangeIndex, SchoolMask, Speed, LaunchDelay, MinDuration, SpellIconFileDataID, ActiveIconFileDataID, ContentTuningID, SpellID"
         " FROM spell_misc ORDER BY ID DESC", CONNECTION_SYNCH);
 
