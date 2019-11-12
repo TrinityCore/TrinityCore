@@ -418,6 +418,50 @@ struct AuctionHouseLoadInfo
     }
 };
 
+struct AzeriteItemLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "ItemID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AzeriteItemMeta::Instance(), HOTFIX_SEL_AZERITE_ITEM);
+        return &loadInfo;
+    }
+};
+
+struct AzeriteKnowledgeMultiplierLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_FLOAT, "Multiplier" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AzeriteKnowledgeMultiplierMeta::Instance(), HOTFIX_SEL_AZERITE_KNOWLEDGE_MULTIPLIER);
+        return &loadInfo;
+    }
+};
+
+struct AzeriteLevelInfoLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_LONG, "BaseExperienceToNextLevel" },
+            { false, FT_LONG, "MinimumExperienceToNextLevel" },
+            { true, FT_INT, "ItemLevel" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AzeriteLevelInfoMeta::Instance(), HOTFIX_SEL_AZERITE_LEVEL_INFO);
+        return &loadInfo;
+    }
+};
+
 struct BankBagSlotPricesLoadInfo
 {
     static DB2LoadInfo const* Instance()
