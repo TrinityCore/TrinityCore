@@ -97,12 +97,7 @@ class TC_GAME_API SmartScript
         CounterMap mCounterList;
 
     private:
-        void IncPhase(uint32 p)
-        {
-            // protect phase from overflowing
-            mEventPhase = std::min<uint32>(SMART_EVENT_PHASE_12, mEventPhase + p);
-        }
-
+        void IncPhase(uint32 p);
         void DecPhase(uint32 p)
         {
             if (p >= mEventPhase)

@@ -21,6 +21,27 @@
 #define CASC_MAX_EXTRA_ITEMS 0x40
 
 //-----------------------------------------------------------------------------
+// DEBUG functions
+
+//#define CHECKED_KEY "2a378c"
+
+#if defined(_DEBUG) && defined(CHECKED_KEY)
+
+inline bool CheckForXKey(LPBYTE XKey)
+{
+    BYTE CheckedKey[4];
+    ConvertStringToBinary(CHECKED_KEY, 6, CheckedKey);
+    return (XKey[0] == CheckedKey[0] && XKey[1] == CheckedKey[1] && XKey[2] == CheckedKey[2]);
+}
+#define BREAK_ON_WATCHED(XKey)  if(CheckForXKey((LPBYTE)XKey))  { __debugbreak(); }
+
+#else
+
+#define BREAK_ON_WATCHED(XKey)  { /* NOTHING */ }
+
+#endif
+
+//-----------------------------------------------------------------------------
 // TCascStorage class functions
 
 TCascStorage::TCascStorage()
@@ -35,6 +56,7 @@ TCascStorage::TCascStorage()
     szRegion = NULL;
     
     memset(DataFiles, 0, sizeof(DataFiles));
+    memset(IndexFiles, 0, sizeof(IndexFiles));
     dwBuildNumber = 0;
     dwFeatures = 0;
     BuildFileType = CascBuildNone;
@@ -55,6 +77,9 @@ TCascStorage::~TCascStorage()
         FileStream_Close(DataFiles[i]);
         DataFiles[i] = NULL;
     }
+
+    // Cleanup space occupied by index files
+    FreeIndexFiles(this);
 
     // Free the file paths
     CASC_FREE(szDataPath);
@@ -113,9 +138,9 @@ void * ProbeOutputBuffer(void * pvBuffer, size_t cbLength, size_t cbMinLength, s
     return pvBuffer;
 }
 
-static TCHAR * CheckForIndexDirectory(TCascStorage * hs, const TCHAR * szSubDir)
+static LPTSTR CheckForIndexDirectory(TCascStorage * hs, LPCTSTR szSubDir)
 {
-    TCHAR * szIndexPath;
+    LPTSTR szIndexPath;
 
     // Combine the index path
     szIndexPath = CombinePath(hs->szDataPath, szSubDir);
@@ -131,6 +156,9 @@ static TCHAR * CheckForIndexDirectory(TCascStorage * hs, const TCHAR * szSubDir)
 static PCASC_CKEY_ENTRY InsertCKeyEntry(TCascStorage * hs, CASC_CKEY_ENTRY & CKeyEntry)
 {
     PCASC_CKEY_ENTRY pCKeyEntry = NULL;
+
+    // Stop on file-of-interest
+    BREAK_ON_WATCHED(CKeyEntry.EKey);
 
     // Skip entries without any key
     if(CKeyEntry.Flags & (CASC_CE_HAS_CKEY | CASC_CE_HAS_EKEY))
@@ -171,14 +199,14 @@ static PCASC_CKEY_ENTRY InsertCKeyEntry(TCascStorage * hs, PFILE_CKEY_ENTRY pFil
 {
     PCASC_CKEY_ENTRY pCKeyEntry;
 
-    // Check whether the entry is already there
-    if((pCKeyEntry = FindCKeyEntry_EKey(hs, pFileEntry->EKey)) == NULL)
-    {
-        // Insert a new entry to the array. DO NOT ALLOW enlarge array here
-        pCKeyEntry = (PCASC_CKEY_ENTRY)hs->CKeyArray.Insert(1, false);
-        if(pCKeyEntry == NULL)
-            return NULL;
+    // Stop on file-of-interest
+    BREAK_ON_WATCHED(pFileEntry->EKey);
 
+    // Insert a new entry to the array. DO NOT ALLOW enlarge array here
+    pCKeyEntry = (PCASC_CKEY_ENTRY)hs->CKeyArray.Insert(1, false);
+    if(pCKeyEntry != NULL)
+    {
+        // Initialize the entry
         CopyMemory16(pCKeyEntry->CKey, pFileEntry->CKey);
         CopyMemory16(pCKeyEntry->EKey, pFileEntry->EKey);
         pCKeyEntry->StorageOffset = CASC_INVALID_OFFS64;
@@ -190,24 +218,16 @@ static PCASC_CKEY_ENTRY InsertCKeyEntry(TCascStorage * hs, PFILE_CKEY_ENTRY pFil
         pCKeyEntry->SpanCount = 1;
         pCKeyEntry->Priority = 0;
 
+        // Copy the information from index files to the CKey entry
+        CopyEKeyEntry(hs, pCKeyEntry);
+
         // Insert the item into both maps
         hs->CKeyMap.InsertObject(pCKeyEntry, pCKeyEntry->CKey);
         hs->EKeyMap.InsertObject(pCKeyEntry, pCKeyEntry->EKey);
     }
     else
     {
-        // Supply both CKey and EKey. Rewrite EKey regardless, because ENCODING manifest contains a full one
-        CopyMemory16(pCKeyEntry->CKey, pFileEntry->CKey);
-        CopyMemory16(pCKeyEntry->EKey, pFileEntry->EKey);
-
-        // Supply the content size
-        if(pCKeyEntry->ContentSize == CASC_INVALID_SIZE)
-            pCKeyEntry->ContentSize = ConvertBytesToInteger_4(pFileEntry->ContentSize);
-        pCKeyEntry->Flags |= CASC_CE_HAS_CKEY | CASC_CE_HAS_EKEY | CASC_CE_IN_ENCODING;
-        pCKeyEntry->Flags &= ~CASC_CE_HAS_EKEY_PARTIAL;
-
-        // Insert the item into CKey map
-        hs->CKeyMap.InsertObject(pCKeyEntry, pCKeyEntry->CKey);
+        assert(false);
     }
 
     return pCKeyEntry;
@@ -218,13 +238,19 @@ static PCASC_CKEY_ENTRY InsertCKeyEntry(TCascStorage * hs, CASC_DOWNLOAD_ENTRY &
 {
     PCASC_CKEY_ENTRY pCKeyEntry;
 
+    // Stop on file-of-interest
+    BREAK_ON_WATCHED(DlEntry.EKey);
+
     // Check whether the entry is already there
     if((pCKeyEntry = FindCKeyEntry_EKey(hs, DlEntry.EKey)) == NULL)
     {
         // Insert dummy CKey entry to the array. DO NOT allow to enlarge the array
         pCKeyEntry = (PCASC_CKEY_ENTRY)hs->CKeyArray.Insert(1, false);
         if(pCKeyEntry == NULL)
+        {
+            assert(false);
             return NULL;
+        }
 
         // Copy the entry
         ZeroMemory16(pCKeyEntry->CKey);
@@ -236,6 +262,9 @@ static PCASC_CKEY_ENTRY InsertCKeyEntry(TCascStorage * hs, CASC_DOWNLOAD_ENTRY &
         pCKeyEntry->Flags = CASC_CE_HAS_EKEY | CASC_CE_IN_DOWNLOAD;
         pCKeyEntry->RefCount = 0;
         pCKeyEntry->SpanCount = 1;
+
+        // Copy the information from index files to the CKey entry
+        CopyEKeyEntry(hs, pCKeyEntry);
 
         // Insert the entry to the map. Only insert it to the EKey map, as there is no CKey present
         hs->EKeyMap.InsertObject(pCKeyEntry, pCKeyEntry->EKey);
@@ -278,25 +307,34 @@ static DWORD CopyBuildFileItemsToCKeyArray(TCascStorage * hs)
     return ERROR_SUCCESS;
 }
 
-// Estimate the total number of files, so we won't have to re-allocate the array
+// Estimate the total number of files, so we won't have to re-allocate arrays and maps
+// and thus speed-up storage loading. In theory, we could guess the file count by
+// measuring size of ENCODING or DOWNLOAD manifests.
 static size_t GetEstimatedNumberOfFiles(TCascStorage * hs)
 {
+    size_t nNumberOfFiles1 = 0;
+    size_t nNumberOfFiles2 = 0;
+
     // If we know the size of DOWNLOAD at this point, we estimate number of files from it.
-    // Size of one entry in DOWNLOAD is at least 26 bytes. This is the most reliable method.
+    // Size of one entry in DOWNLOAD is at least 22 bytes. This is the most reliable method.
     // However, for some online storages ("agent"), this is a very small value
     if(hs->DownloadCKey.ContentSize != CASC_INVALID_SIZE)
-        return (hs->DownloadCKey.ContentSize / 26) + CASC_MAX_EXTRA_ITEMS;
+        nNumberOfFiles1 = (hs->DownloadCKey.ContentSize / sizeof(FILE_DOWNLOAD_ENTRY)) + CASC_MAX_EXTRA_ITEMS;
 
     // If we know the size of ENCODING at this point, we estimate number of files from it.
     // Size of one entry in ENCODING is at least 38 bytes. This method fails on storages
     // with TVFS file system, as ENCODING only contains a small subset of file.
     // Fortunately, all known TVFS-based storages have "download-size" present
     if(hs->EncodingCKey.ContentSize != CASC_INVALID_SIZE)
-        return (hs->EncodingCKey.ContentSize / 26) + CASC_MAX_EXTRA_ITEMS;
+        nNumberOfFiles2 = (hs->EncodingCKey.ContentSize / sizeof(FILE_CKEY_ENTRY)) + CASC_MAX_EXTRA_ITEMS;
 
-    // By default, it's gonna be half a million, which is the maximum observed number of files
-    // for all older storages (HOTS before 39445, WoW before 19116)
-    return 500000;
+    // Do we know any of them?
+    if(nNumberOfFiles1 || nNumberOfFiles2)
+        return CASCLIB_MAX(nNumberOfFiles1, nNumberOfFiles2);
+
+    // Older storages (HOTS before 39445, WoW before 19116) don't state sizes of ENCODING
+    // and DOWNLOAD in the Build Config files. Solution: Assume there is max 1M of files
+    return 1000000;
 }
 
 static DWORD InitCKeyArray(TCascStorage * hs)
@@ -373,7 +411,7 @@ static int LoadEncodingCKeyPage(TCascStorage * hs, CASC_ENCODING_HEADER & EnHead
         // Example of a file entry with multiple EKeys: 
         // Overwatch build 24919, CKey: 0e 90 94 fa d2 cb 85 ac d0 7c ea 09 f9 c5 ba 00 
 //      BREAKIF(pFileEntry->EKeyCount > 1);
-//      BREAK_ON_XKEY3(pFileEntry->EKey, 0x09, 0xF3, 0xCD);
+//      BREAK_ON_XKEY3(pFileEntry->CKey, 0x34, 0x82, 0x1f);
 
         // Insert the entry to the central CKey table
         InsertCKeyEntry(hs, pFileEntry);
@@ -386,7 +424,7 @@ static int LoadEncodingCKeyPage(TCascStorage * hs, CASC_ENCODING_HEADER & EnHead
 
 static int LoadEncodingManifest(TCascStorage * hs)
 {
-    PCASC_CKEY_ENTRY pCKeyEntry = FindCKeyEntry_CKey(hs, hs->EncodingCKey.CKey);
+    CASC_CKEY_ENTRY & CKeyEntry = hs->EncodingCKey;
     LPBYTE pbEncodingFile;
     DWORD cbEncodingFile = 0;
     DWORD dwErrCode = ERROR_SUCCESS;
@@ -395,8 +433,12 @@ static int LoadEncodingManifest(TCascStorage * hs)
     if(InvokeProgressCallback(hs, "Loading ENCODING manifest", NULL, 0, 0))
         return ERROR_CANCELLED;
 
+    // Fill-in the information from the index entry
+    if(!CopyEKeyEntry(hs, &CKeyEntry))
+        return ERROR_FILE_NOT_FOUND;
+
     // Load the entire encoding file to memory
-    pbEncodingFile = LoadInternalFileToMemory(hs, pCKeyEntry, &cbEncodingFile);
+    pbEncodingFile = LoadInternalFileToMemory(hs, &hs->EncodingCKey, &cbEncodingFile);
     if(pbEncodingFile != NULL && cbEncodingFile != 0)
     {
         CASC_ENCODING_HEADER EnHeader;
@@ -450,12 +492,6 @@ static int LoadEncodingManifest(TCascStorage * hs)
         {
             dwErrCode = CopyBuildFileItemsToCKeyArray(hs);
         }
-
-        // Now supply all the entries from the index files
-        //if(dwErrCode == ERROR_SUCCESS)
-        //{
-        //    dwErrCode = CopyIndexItemsToCKeyArray(hs);
-        //}
 
         // Free the loaded ENCODING file
         CASC_FREE(pbEncodingFile);
@@ -807,16 +843,16 @@ static int LoadBuildManifest(TCascStorage * hs, DWORD dwLocaleMask)
     assert(hs->CKeyMap.IsInitialized() == true);
     assert(hs->pRootHandler == NULL);
 
+    // Inform the user about what we are doing
+    if(InvokeProgressCallback(hs, "Loading ROOT manifest", NULL, 0, 0))
+        return ERROR_CANCELLED;
+
     // Locale: The default parameter is 0 - in that case, we load all locales
     dwLocaleMask = (dwLocaleMask != 0) ? dwLocaleMask : 0xFFFFFFFF;
 
     // Prioritize the VFS root over legacy ROOT file
     pCKeyEntry = (hs->VfsRoot.ContentSize != CASC_INVALID_SIZE) ? &hs->VfsRoot : &hs->RootFile;
     pCKeyEntry = FindCKeyEntry_CKey(hs, pCKeyEntry->CKey);
-
-    // Inform the user about what we are doing
-    if(InvokeProgressCallback(hs, "Loading ROOT manifest", NULL, 0, 0))
-        return ERROR_CANCELLED;
 
     // Load the entire ROOT file to memory
     pbRootFile = LoadInternalFileToMemory(hs, pCKeyEntry, &cbRootFile);
@@ -1020,7 +1056,7 @@ static bool GetStoragePathProduct(TCascStorage * hs, void * pvStorageInfo, size_
 
 static DWORD InitializeLocalDirectories(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
 {
-    TCHAR * szWorkPath;
+    LPTSTR szWorkPath;
     DWORD dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
 
     // Find the root directory of the storage. The root directory
@@ -1135,13 +1171,13 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
         dwErrCode = LoadCdnBuildFile(hs);
     }
 
-    // Create the central file array
+    // Create the array of CKey entries. Each entry represents a file in the storage
     if(dwErrCode == ERROR_SUCCESS)
     {
         dwErrCode = InitCKeyArray(hs);
     }
 
-    // Load the index files. Store information from the index files to the CKeyArray.
+    // Pre-load the local index files
     if(dwErrCode == ERROR_SUCCESS)
     {
         dwErrCode = LoadIndexFiles(hs);
@@ -1153,8 +1189,7 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
         dwErrCode = LoadEncodingManifest(hs);
     }
 
-    // We need to load the DOWNLOAD manifest. This will give us the information about
-    // how many physical files are in the storage, so we can start building file tables
+    // We need to load the DOWNLOAD manifest
     if(dwErrCode == ERROR_SUCCESS)
     {
         dwErrCode = LoadDownloadManifest(hs);
@@ -1163,10 +1198,20 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
     // Load the build manifest ("ROOT" file)
     if(dwErrCode == ERROR_SUCCESS)
     {
-        // If we fail to load the ROOT file, we take the file names from the INSTALL manifest
+        // For WoW storages, multiple files are present in the storage (same name, same file data ID, different locale).
+        // Failing to select storage on them will lead to the first-in-order file in the list being loaded.
+        // Example: WoW build 32144, file: DBFilesClient\Achievement.db2, file data ID: 1260179
+        // Locales: koKR frFR deDE zhCN esES zhTW enUS&enGB esMX ruRU itIT ptBT&ptPT (in order of appearance in the build manifest)
+        if(dwLocaleMask == 0)
+        {
+            dwLocaleMask = hs->dwDefaultLocale;
+        }
+
+        // Continue loading the manifest
         dwErrCode = LoadBuildManifest(hs, dwLocaleMask);
         if (dwErrCode != ERROR_SUCCESS)
         {
+            // If we fail to load the ROOT file, we take the file names from the INSTALL manifest
             dwErrCode = LoadInstallManifest(hs);
         }
     }
@@ -1192,8 +1237,9 @@ static DWORD LoadCascStorage(TCascStorage * hs, PCASC_OPEN_STORAGE_ARGS pArgs)
         dwErrCode = CascLoadEncryptionKeys(hs);
     }
 
-    // Clear the arg structure
-    hs->pArgs = pArgs;
+    // Cleanup and exit
+    FreeIndexFiles(hs);
+    hs->pArgs = NULL;
     return dwErrCode;
 }
 

@@ -374,7 +374,7 @@ void Guild::BankTab::LoadFromDB(Field* fields)
 
 bool Guild::BankTab::LoadItemFromDB(Field* fields)
 {
-    uint8 slotId = fields[45].GetUInt8();
+    uint8 slotId = fields[48].GetUInt8();
     ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
     uint32 itemEntry = fields[1].GetUInt32();
     if (slotId >= GUILD_BANK_MAX_SLOTS)
@@ -2249,6 +2249,29 @@ void Guild::SendLoginInfo(WorldSession* session)
     member->AddFlag(GUILDMEMBER_STATUS_ONLINE);
 }
 
+void Guild::SendEventAwayChanged(ObjectGuid const& memberGuid, bool afk, bool dnd)
+{
+    Member* member = GetMember(memberGuid);
+    if (!member)
+        return;
+
+    if (afk)
+        member->AddFlag(GUILDMEMBER_STATUS_AFK);
+    else
+        member->RemFlag(GUILDMEMBER_STATUS_AFK);
+
+    if (dnd)
+        member->AddFlag(GUILDMEMBER_STATUS_DND);
+    else
+        member->RemFlag(GUILDMEMBER_STATUS_DND);
+
+    WorldPackets::Guild::GuildEventAwayChange awayChange;
+    awayChange.Guid = memberGuid;
+    awayChange.AFK = afk;
+    awayChange.DND = dnd;
+    BroadcastPacket(awayChange.Write());
+}
+
 void Guild::SendEventBankMoneyChanged() const
 {
     WorldPackets::Guild::GuildEventBankMoneyChanged eventPacket;
@@ -2475,7 +2498,7 @@ void Guild::LoadBankTabFromDB(Field* fields)
 
 bool Guild::LoadBankItemFromDB(Field* fields)
 {
-    uint8 tabId = fields[44].GetUInt8();
+    uint8 tabId = fields[47].GetUInt8();
     if (tabId >= _GetPurchasedTabsSize())
     {
         TC_LOG_ERROR("guild", "Invalid tab for item (GUID: %u, id: #%u) in guild bank, skipped.",
