@@ -259,6 +259,26 @@ struct AuctionHouseEntry
     uint8 ConsignmentRate;
 };
 
+struct AzeriteItemEntry
+{
+    uint32 ID;
+    int32 ItemID;
+};
+
+struct AzeriteKnowledgeMultiplierEntry
+{
+    uint32 ID;
+    float Multiplier;
+};
+
+struct AzeriteLevelInfoEntry
+{
+    uint32 ID;
+    uint64 BaseExperienceToNextLevel;
+    uint64 MinimumExperienceToNextLevel;
+    int32 ItemLevel;
+};
+
 struct BankBagSlotPricesEntry
 {
     uint32 ID;

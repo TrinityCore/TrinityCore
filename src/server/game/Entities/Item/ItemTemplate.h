@@ -169,6 +169,11 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK26         = 0x80000000
 };
 
+enum ItemFieldFlags2 : uint32
+{
+    ITEM_FIELD_FLAG2_HEART_OF_AZEROTH_EQUIPPED = 0x1
+};
+
 enum ItemFlags : uint32
 {
     ITEM_FLAG_NO_PICKUP                         = 0x00000001,

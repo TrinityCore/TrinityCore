@@ -26,6 +26,7 @@
 #include "UpdateMask.h"
 
 class AreaTrigger;
+class AzeriteItem;
 class Bag;
 class ByteBuffer;
 class Conversation;
@@ -104,7 +105,7 @@ struct ItemData : public IsUpdateFieldStructureTag, public HasChangesMask<40>
     UpdateField<int32, 0, 16> Context;
     UpdateField<uint64, 0, 17> ArtifactXP;
     UpdateField<uint8, 0, 18> ItemAppearanceModID;
-    UpdateField<uint32, 0, 19> Field_130;
+    UpdateField<uint32, 0, 19> DynamicFlags2;
     UpdateFieldArray<int32, 5, 20, 21> SpellCharges;
     UpdateFieldArray<UF::ItemEnchantment, 13, 26, 27> Enchantment;
 
@@ -139,8 +140,8 @@ struct UnlockedAzeriteEssence : public IsUpdateFieldStructureTag
     uint32 AzeriteEssenceID;
     uint32 Rank;
 
-    void WriteCreate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
 };
 
 struct SelectedAzeriteEssences : public IsUpdateFieldStructureTag, public HasChangesMask<7>
@@ -149,8 +150,8 @@ struct SelectedAzeriteEssences : public IsUpdateFieldStructureTag, public HasCha
     UpdateField<uint32, 0, 2> Enabled;
     UpdateFieldArray<uint32, 3, 3, 4> AzeriteEssenceID;
 
-    void WriteCreate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -165,10 +166,10 @@ struct AzeriteItemData : public IsUpdateFieldStructureTag, public HasChangesMask
     UpdateField<uint32, 0, 7> KnowledgeLevel;
     UpdateField<int32, 0, 8> DEBUGknowledgeWeek;
 
-    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const;
     void AppendAllowedFieldsMaskForFlag(UpdateMask<9>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
-    void WriteUpdate(ByteBuffer& data, UpdateMask<9> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, UpdateMask<9> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
