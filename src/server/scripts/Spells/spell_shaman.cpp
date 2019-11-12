@@ -886,47 +886,29 @@ class spell_sha_item_t10_elemental_2p_bonus : public SpellScriptLoader
 
 // 60103 - Lava Lash
 /// Updated 4.3.4
-class spell_sha_lava_lash : public SpellScriptLoader
+class spell_sha_lava_lash : public SpellScript
 {
-    public:
-        spell_sha_lava_lash() : SpellScriptLoader("spell_sha_lava_lash") { }
+    PrepareSpellScript(spell_sha_lava_lash);
 
-        class spell_sha_lava_lash_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_sha_lava_lash_SpellScript);
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+    void HandleDamageBonus(SpellEffIndex /*effIndex*/)
+    {
+        Player* caster = GetCaster()->ToPlayer();
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Player* caster = GetCaster()->ToPlayer())
-                {
-                    int32 damage = GetEffectValue();
-                    int32 hitDamage = GetHitDamage();
-                    if (caster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                    {
-                        // Damage is increased by 25% if your off-hand weapon is enchanted with Flametongue.
-                        if (caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0x200000, 0, 0))
-                            AddPct(hitDamage, damage);
-                        SetHitDamage(hitDamage);
-                    }
-                }
-            }
+        // Increase damage of lava lash by 40% if the offhand weapon is enchanted with Flametongue
+        if (Item* offhand = caster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+            if (offhand->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT) == SHAMAN_ENCHANTMENT_ID_FLAMETONGUE)
+                SetEffectValue(GetEffectValue() + GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster));
+    }
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_sha_lava_lash_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
-
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sha_lava_lash_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_sha_lava_lash::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+    }
 };
 
 class spell_sha_lava_surge : public SpellScriptLoader
@@ -2065,7 +2047,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_item_lightning_shield_trigger();
     new spell_sha_item_mana_surge();
     new spell_sha_item_t10_elemental_2p_bonus();
-    new spell_sha_lava_lash();
+    RegisterSpellScript(spell_sha_lava_lash);
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
     RegisterAuraScript(spell_sha_lightning_shield);
