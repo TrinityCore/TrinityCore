@@ -41,6 +41,7 @@ enum BWDDataTypes
     DATA_COLUMN_OF_LIGHT,
     DATA_ATRAMEDES_INTRO,
     DATA_ENTRANCE_INTRO,
+    DATA_NEFARIAN_ACHIEVEMENT_STATE,
 
     // Encounter Data
     /*Magmaw*/
@@ -144,6 +145,7 @@ enum BWDCreatureIds
     NPC_ONYXIA                              = 41270,
     NPC_CHROMATIC_PROTOTYPE                 = 41948,
     NPC_CONTROLLER_STALKER                  = 42856,
+    NPC_SHADOWBLAZE_FLASHPOINT              = 42595,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST                = 43125,
@@ -184,6 +186,11 @@ enum BWDSpells
 
     // Column of Light
     SPELL_COLUMN_OF_LIGHT       = 95660
+};
+
+enum BWDWorldStates
+{
+    WS_KEEPING_IT_IN_THE_FAMILY = 0
 };
 
 template <class AI, class T>

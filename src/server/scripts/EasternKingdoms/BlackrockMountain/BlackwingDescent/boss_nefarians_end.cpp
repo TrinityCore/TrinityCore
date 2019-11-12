@@ -103,6 +103,7 @@ enum Spells
     SPELL_BRUSHFIRE_GROWTH                      = 79393,
     SPELL_BRUSHFIRE_BURN_AURA                   = 79396,
     SPELL_BRUSHFIRE_SUMMON                      = 79405,
+    SPELL_BRUSHFIRE_CHECK_VALID_LOCATION        = 79401
 };
 
 enum Texts
@@ -191,9 +192,14 @@ enum Actions
     // Onyxia
     ACTION_REANIMATED               = 1,
     ACTION_UPDATE_ELECTRICAL_CHARGE = 2,
+    ACTION_NEFARIAN_LANDED          = 3,
 
     // Chromatic Prototype
-    ACTION_DISENGAGE_PLAYERS        = 1
+    ACTION_DISENGAGE_PLAYERS        = 1,
+
+    // Shadowblaze Flashpoint / Shadowblaze
+    ACTION_DESPAWN_FLAMES           = 1,
+    ACTION_SPREAD_FLAMES            = 2
 };
 
 enum TransportStopFrames
@@ -244,7 +250,8 @@ std::vector<OnyxiaChainData> OnyxiaChainInfo =
 
 enum Misc
 {
-    SOUND_ID_ROAR = 7274
+    SOUND_ID_ROAR           = 7274,
+    WS_ACHIEVEMENT_CRITERIA = 5652
 };
 
 Position const NefarianSummonPosition                           = { -166.655f,    -224.602f,    40.48163f, 0.0f };
@@ -303,7 +310,7 @@ Position const ChromaticPrototypeJumpPositions[MaxChromaticPrototypes]
 struct boss_nefarians_end : public BossAI
 {
     boss_nefarians_end(Creature* creature) : BossAI(creature, DATA_NEFARIANS_END),
-        _landed(false), _elevatorLowered(false), _killedChromaticPrototypes(0), _nextElectrocuteHealthPercentage(90)
+        _elevatorLowered(false), _nextElectrocuteHealthPercentage(90)
     {
         me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING); // Remove this little workarround when mmaps for transports have arrived.
         me->SetReactState(REACT_PASSIVE);
@@ -353,6 +360,7 @@ struct boss_nefarians_end : public BossAI
         }
 
         summons.DespawnAll();
+        instance->SetData(DATA_NEFARIAN_ACHIEVEMENT_STATE, 1);
         instance->SetBossState(DATA_NEFARIANS_END, FAIL);
         me->DespawnOrUnsummon();
     }
@@ -368,6 +376,13 @@ struct boss_nefarians_end : public BossAI
         _JustDied();
         Talk(SAY_DEATH);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+        // keeping the summon list clean since we have to deal with many tempoary summons
+        summons.RemoveNotExisting();
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -429,7 +444,7 @@ struct boss_nefarians_end : public BossAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
         // Do not allow Nefarian to die before he raised the platform again
-        if (damage >= me->GetHealth() && events.IsInPhase(PHASE_TWO))
+        if (damage >= me->GetHealth() && !events.IsInPhase(PHASE_THREE))
             damage = 0;
 
         if (damage >= me->GetHealth())
@@ -466,9 +481,8 @@ struct boss_nefarians_end : public BossAI
         switch (summon->GetEntry())
         {
             case NPC_CHROMATIC_PROTOTYPE:
-                _killedChromaticPrototypes++;
-                if (_killedChromaticPrototypes == MaxChromaticPrototypes)
-                    events.ScheduleEvent(EVENT_ENTER_PHASE_THREE, 1ms);
+                // Nefarian enters phase three when the first Chromatic Prototype has died
+                events.ScheduleEvent(EVENT_ENTER_PHASE_THREE, 1ms, 0, PHASE_TWO);
                 break;
             default:
                 break;
@@ -541,7 +555,9 @@ struct boss_nefarians_end : public BossAI
                         DoZoneInCombat();
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_INDEX_NEFARIAN);
                         events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 2s, 0, PHASE_ONE);
-                        _landed = true;
+                        if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
+                            if (onyxia->IsAIEnabled)
+                                onyxia->AI()->DoAction(ACTION_NEFARIAN_LANDED);
                     }
                     else if (events.IsInPhase(PHASE_THREE))
                         events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 3s, 0, PHASE_THREE);
@@ -582,11 +598,6 @@ struct boss_nefarians_end : public BossAI
                         events.Repeat(17s, 22s);
                     break;
                 case EVENT_SAY_ONYXIA_DEAD:
-                    if (!_landed) // Do not transition to phase two if Nefarian did not land first
-                    {
-                        events.Repeat(1s);
-                        break;
-                    }
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
                     me->RemoveAurasDueToSpell(SPELL_CHILDREN_OF_DEATHWING_NEFARIAN);
@@ -652,6 +663,9 @@ struct boss_nefarians_end : public BossAI
                     Talk(SAY_LAND_PHASE_THREE);
                     break;
                 case EVENT_LAND_PHASE_THREE:
+                    if (me->GetHealthPct() > 50.f)
+                        instance->SetData(DATA_NEFARIAN_ACHIEVEMENT_STATE, 0);
+
                     me->RemoveAurasDueToSpell(SPELL_NEFARIAN_PHASE_2_HEALTH_AURA);
                     me->SendSetPlayHoverAnim(true);
                     me->GetMotionMaster()->MoveLand(POINT_LAND, NefarianElevatorLandPhaseThreePosition);
@@ -752,15 +766,13 @@ private:
         return elevator->ToTransport();
     }
 
-    bool _landed;
     bool _elevatorLowered;
-    uint8 _killedChromaticPrototypes;
     uint8 _nextElectrocuteHealthPercentage;
 };
 
 struct npc_nefarians_end_onyxia : public ScriptedAI
 {
-    npc_nefarians_end_onyxia(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    npc_nefarians_end_onyxia(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _allowDeath(false)
     {
         me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING); // Remove this little workarround when mmaps for transports have arrived.
     }
@@ -831,9 +843,19 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
                     me->SetPower(POWER_ALTERNATE_POWER, stacks - 1);
                 }
                 break;
+            case ACTION_NEFARIAN_LANDED:
+                _allowDeath = true;
+                break;
             default:
                 break;
         }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        // Onyxia may not die before Nefarian has landed
+        if (damage >= me->GetHealth() && !_allowDeath)
+            damage = me->GetHealth() - 1;
     }
 
     void OnSuccessfulSpellCast(SpellInfo const* spell) override
@@ -885,6 +907,7 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
 private:
     InstanceScript* _instance;
     EventMap _events;
+    bool _allowDeath;
 };
 
 struct npc_nefarians_end_lord_victor_nefarius : public PassiveAI
@@ -951,16 +974,23 @@ private:
 
 struct npc_nefarians_end_animated_bone_warrior : public ScriptedAI
 {
-    npc_nefarians_end_animated_bone_warrior(Creature* creature) : ScriptedAI(creature)
+    npc_nefarians_end_animated_bone_warrior(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
     {
         me->SetReactState(REACT_PASSIVE);
         me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING); // tempfix until mmaps for transports have arrived
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void JustAppeared() override
     {
         DoCastSelf(SPELL_FULL_POWER_NO_REGEN);
         DoCastSelf(SPELL_ANIMATE_BONES);
+
+        if (GameObject* elevator = _instance->GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
+            if (Transport* transport = elevator->ToTransport())
+                transport->AddPassenger(me);
+
+        me->UpdatePositionData();
+
         me->m_Events.AddEventAtOffset([this]()
         {
             me->SetReactState(REACT_AGGRESSIVE);
@@ -985,6 +1015,8 @@ struct npc_nefarians_end_animated_bone_warrior : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+private:
+    InstanceScript* _instance;
 };
 
 struct npc_nefarians_end_chromatic_prototype : public PassiveAI
@@ -1081,6 +1113,104 @@ struct npc_nefarians_end_chromatic_prototype : public PassiveAI
 private:
     InstanceScript* _instance;
     EventMap _events;
+};
+
+struct npc_nefarians_end_shadowblaze : public NullCreatureAI
+{
+    npc_nefarians_end_shadowblaze(Creature* creature) : NullCreatureAI(creature), _summonedByController(false), _instance(me->GetInstanceScript()) { }
+
+    void JustAppeared() override
+    {
+        if (me->GetEntry() == NPC_SHADOWBLAZE_FLASHPOINT)
+            DoCastSelf(SPELL_BRUSHFIRE_FLASHPOINT_CONTROL);
+        else
+            DoCastSelf(SPELL_BRUSHFIRE_CHECK_VALID_LOCATION);
+
+        DoCastSelf(SPELL_BRUSHFIRE_BURN_AURA);
+        DoCastSelf(SPELL_BRUSHFIRE_GROWTH);
+    }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        if (summoner->GetEntry() == NPC_SHADOWBLAZE_FLASHPOINT)
+            _summonedByController = true;
+
+        if (Creature* nefarian = _instance->GetCreature(DATA_NEFARIANS_END))
+            if (nefarian->IsAIEnabled)
+                nefarian->AI()->JustSummoned(me);
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_BRUSHFIRE_CHECK_VALID_LOCATION:
+                _controllerStalkerPosition = target->GetPosition();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_SPREAD_FLAMES:
+            {
+                if (!_summonedByController && me->GetEntry() != NPC_SHADOWBLAZE_FLASHPOINT)
+                {
+                    // Select a destination that will serve as our offset selection helper
+                    float angle = me->GetAngle(_controllerStalkerPosition) - float(M_PI / 2.5f);
+                    float compareX = me->GetPositionX() + std::cos(angle) * 5.f;
+                    float compareY = me->GetPositionY() + std::sin(angle) * 5.f;
+                    Position comparePos = Position(compareX, compareY);
+
+                    Position summonPos = me->GetPosition();
+                    // Select the closest nearby location for summoning
+                    float offsets[3] = { -5.f, 0.f, 5.f };
+
+                    for (uint8 i = 0; i < 3; i++)
+                    {
+                        float x = me->GetPositionX() + offsets[i];
+                        for (uint8 u = 0; u < 3; u++)
+                        {
+                            float y = me->GetPositionY() + offsets[u];
+                            if (Position(x, y).GetExactDist2d(comparePos) < summonPos.GetExactDist2d(comparePos))
+                                summonPos = Position(x, y);
+                        }
+                    }
+
+                    me->CastSpell(summonPos.GetPositionX(), summonPos.GetPositionY(), me->GetPositionZ(), 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                }
+                else
+                {
+                    if (me->GetEntry() == NPC_SHADOWBLAZE_FLASHPOINT)
+                    {
+                        me->CastSpell(me->GetPositionX() - 5.f, me->GetPositionY(), me->GetPositionZ(), 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                        me->CastSpell(me->GetPositionX(), me->GetPositionY() + 5.f, me->GetPositionZ(), 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                    }
+                    else if (_summonedByController)
+                    {
+                        for (uint8 i = 0; i < 2; i++)
+                        {
+                            float x = me->GetPositionX() + 5.f;
+                            float y = me->GetPositionY() + 5.f;
+                            me->CastSpell(x, y, me->GetPositionZ(), 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                        }
+                    }
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+private:
+    Position _controllerStalkerPosition;
+    InstanceScript* _instance;
+    bool _summonedByController;
 };
 
 class spell_nefarians_end_electrical_charge : public AuraScript
@@ -1507,6 +1637,23 @@ class spell_nefarians_end_brushfire_start : public SpellScript
     }
 };
 
+class spell_nefarians_end_brushfire_growth : public AuraScript
+{
+    PrepareAuraScript(spell_nefarians_end_brushfire_growth);
+
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        if (Creature* creature = GetTarget()->ToCreature())
+            if (creature->IsAIEnabled)
+                creature->AI()->DoAction(ACTION_SPREAD_FLAMES);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_brushfire_growth::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 struct go_nefarians_end_orb_of_culmination : public GameObjectAI
 {
     go_nefarians_end_orb_of_culmination(GameObject* go) : GameObjectAI(go), _instance(me->GetInstanceScript()) { }
@@ -1530,6 +1677,62 @@ private:
     InstanceScript* _instance;
 };
 
+class spell_nefarians_end_shadowblaze : public SpellScript
+{
+    PrepareSpellScript(spell_nefarians_end_shadowblaze);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PERMANENT_FEIGN_DEATH_2,
+                SPELL_FULL_POWER_NO_REGEN,
+                SPELL_CLEAR_ALL_DEBUFFS
+            });
+    }
+
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        Creature* target = GetHitCreature();
+        if (!target)
+            return;
+
+        if (target->HasAura(SPELL_PERMANENT_FEIGN_DEATH_2))
+        {
+            target->SetReactState(REACT_AGGRESSIVE);
+            if (target->IsAIEnabled)
+                target->AI()->DoZoneInCombat();
+
+            target->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH_2);
+            target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        }
+
+        target->CastSpell(target, SPELL_CLEAR_ALL_DEBUFFS, true);
+        target->CastSpell(target, SPELL_FULL_POWER_NO_REGEN);
+        target->CastSpell(target, GetSpellInfo()->Effects[effIndex].BasePoints);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_shadowblaze::HandleHit, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class achievement_keeping_it_in_the_family : public AchievementCriteriaScript
+{
+public:
+    achievement_keeping_it_in_the_family() : AchievementCriteriaScript("achievement_keeping_it_in_the_family") { }
+
+    bool OnCheck(Player* /*source*/, Unit* target) override
+    {
+        InstanceScript* instance = target->GetInstanceScript();
+        if (!instance)
+            return false;
+
+        return instance->GetData(DATA_NEFARIAN_ACHIEVEMENT_STATE);
+    }
+};
+
 void AddSC_boss_nefarians_end()
 {
     RegisterBlackwingDescentCreatureAI(boss_nefarians_end);
@@ -1537,6 +1740,7 @@ void AddSC_boss_nefarians_end()
     RegisterBlackwingDescentCreatureAI(npc_nefarians_end_lord_victor_nefarius);
     RegisterBlackwingDescentCreatureAI(npc_nefarians_end_animated_bone_warrior);
     RegisterBlackwingDescentCreatureAI(npc_nefarians_end_chromatic_prototype);
+    RegisterBlackwingDescentCreatureAI(npc_nefarians_end_shadowblaze);
     RegisterAuraScript(spell_nefarians_end_electrical_charge);
     RegisterAuraScript(spell_nefarians_end_lightning_discharge_triggered_periodic_aura);
     RegisterSpellScript(spell_nefarians_end_lightning_discharge_cone);
@@ -1551,6 +1755,8 @@ void AddSC_boss_nefarians_end()
     RegisterAuraScript(spell_nefarians_end_empowering_strikes);
     RegisterAuraScript(spell_nefarians_end_brushfire_pre_start_periodic);
     RegisterSpellScript(spell_nefarians_end_brushfire_start);
-
+    RegisterAuraScript(spell_nefarians_end_brushfire_growth);
+    RegisterSpellScript(spell_nefarians_end_shadowblaze);
     RegisterGameObjectAI(go_nefarians_end_orb_of_culmination);
+    new achievement_keeping_it_in_the_family();
 }

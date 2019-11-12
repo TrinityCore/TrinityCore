@@ -9694,7 +9694,14 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             if (instance && mapid == 657)
                 instance->FillInitialWorldStates(data);
             else
-                data << uint32(5649) << uint32 (0);
+                data << uint32(5649) << uint32(0);
+            break;
+        // Blackwing Descent
+            if (instance && mapid == 669)
+                instance->FillInitialWorldStates(data);
+            else
+                data << uint32(5652) << uint32(1);
+        case 5094:
             break;
         // Twin Peaks
         case 5031:

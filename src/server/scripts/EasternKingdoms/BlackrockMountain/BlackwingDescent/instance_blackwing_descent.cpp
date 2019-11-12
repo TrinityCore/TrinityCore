@@ -114,6 +114,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 _deadDwarfSpirits = 0;
                 _atramedesIntroState = NOT_STARTED;
                 _entranceSequenceDone = false;
+                _nefarianAchievementEligible = true;
             }
 
             void Create() override
@@ -322,9 +323,18 @@ class instance_blackwing_descent : public InstanceMapScript
                             }
                         }
                         break;
+                    case DATA_NEFARIAN_ACHIEVEMENT_STATE:
+                        _nefarianAchievementEligible = uint8(data);
+                        DoUpdateWorldState(WS_KEEPING_IT_IN_THE_FAMILY, uint8(_nefarianAchievementEligible));
+                        break;
                     default:
                         break;
                 }
+            }
+
+            void FillInitialWorldStates(WorldPacket& data) override
+            {
+                data << uint32(WS_KEEPING_IT_IN_THE_FAMILY) << uint32(_nefarianAchievementEligible);
             }
 
             uint32 GetData(uint32 type) const override
@@ -333,6 +343,8 @@ class instance_blackwing_descent : public InstanceMapScript
                 {
                     case DATA_ATRAMEDES_INTRO:
                         return _atramedesIntroState;
+                    case DATA_NEFARIAN_ACHIEVEMENT_STATE:
+                        return uint8(_nefarianAchievementEligible);
                 }
                 return 0;
             }
@@ -454,6 +466,7 @@ class instance_blackwing_descent : public InstanceMapScript
             uint8 _deadDwarfSpirits;
             uint8 _atramedesIntroState;
             bool _entranceSequenceDone;
+            bool _nefarianAchievementEligible;
 
             bool IsNefarianAvailable() const
             {
