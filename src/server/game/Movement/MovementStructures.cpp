@@ -4657,8 +4657,8 @@ MovementStatusElements const MoveSetPitchRate[] =
 
 MovementStatusElements const MoveSetCollisionHeight[] =
 {
-    MSEOneBit,
-    MSEOneBit,
+    MSEZeroBit,
+    MSEZeroBit,
     MSEHasGuidByte6,
     MSEHasGuidByte1,
     MSEHasGuidByte4,
