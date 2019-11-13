@@ -20,7 +20,7 @@
 #include "Log.h"
 #include "Player.h"
 
-MovementStatusElements const PlayerMove[] =
+MovementStatusElements const MoveUpdate[] =
 {
     MSEHasFallData,
     MSEHasGuidByte3,
@@ -593,7 +593,6 @@ MovementStatusElements const MovementStartForward[] =
     MSEPitch,
     MSEOrientation,
     MSETimestamp,
-
     MSEEnd,
 };
 
@@ -4658,8 +4657,8 @@ MovementStatusElements const MoveSetPitchRate[] =
 
 MovementStatusElements const MoveSetCollisionHeight[] =
 {
-    MSEZeroBit,
-    MSEZeroBit,
+    MSEOneBit,
+    MSEOneBit,
     MSEHasGuidByte6,
     MSEHasGuidByte1,
     MSEHasGuidByte4,
@@ -4673,7 +4672,7 @@ MovementStatusElements const MoveSetCollisionHeight[] =
     MSEGuidByte4,
     MSEGuidByte3,
     MSEGuidByte5,
-    MSETimestamp,
+    MSECounter,
     MSEGuidByte1,
     MSEGuidByte2,
     MSEGuidByte7,
@@ -5729,7 +5728,7 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
         case MSG_MOVE_STOP_TURN:
             return MovementStopTurn;
         case SMSG_MOVE_UPDATE:
-            return PlayerMove;
+            return MoveUpdate;
         case CMSG_MOVE_CHNG_TRANSPORT:
             return MoveChngTransport;
         case CMSG_MOVE_SPLINE_DONE:
