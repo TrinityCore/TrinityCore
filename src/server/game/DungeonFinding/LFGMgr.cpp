@@ -1610,6 +1610,22 @@ LfgDungeonSet const& LFGMgr::GetSelectedDungeons(ObjectGuid guid)
     return PlayersStore[guid].GetSelectedDungeons();
 }
 
+uint32 LFGMgr::GetSelectedRandomDungeon(ObjectGuid guid)
+{
+    if (GetState(guid) != LFG_STATE_NONE)
+    {
+        LfgDungeonSet const& dungeons = GetSelectedDungeons(guid);
+        if (!dungeons.empty())
+        {
+            LFGDungeonData const* dungeon = GetLFGDungeon(*dungeons.begin());
+            if (dungeon && dungeon->type == LFG_TYPE_RANDOM)
+                return *dungeons.begin();
+        }
+    }
+
+    return 0;
+}
+
 LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
 {
     TC_LOG_TRACE("lfg.data.player.dungeons.locked.get", "Player: %s, LockedDungeons.", guid.ToString().c_str());
