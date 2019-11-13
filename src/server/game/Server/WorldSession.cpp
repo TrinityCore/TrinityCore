@@ -467,7 +467,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     if (!updater.ProcessUnsafe()) // <=> updater is of type MapSessionFilter
     {
-        // Send time sync packet every 10s.
+        // Send time sync packet every 5s.
         if (_timeSyncTimer > 0)
         {
             if (diff >= _timeSyncTimer)
@@ -1604,7 +1604,7 @@ void WorldSession::SendTimeSync()
 
     _pendingTimeSyncRequests[_timeSyncNextCounter] = getMSTime();
 
-    // Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
-    _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
+    // Schedule next sync in 5 sec (sniffs sometimes vary between 5 and 6 seconds. Probably due to their 400 batch interval)
+    _timeSyncTimer = 5000;
     _timeSyncNextCounter++;
 }

@@ -393,7 +393,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
     {
         TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
+        movementInfo.time = getMSTime();
     }
     else
     {
@@ -490,21 +490,54 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
         "PitchRate"
     };
 
+    OpcodeServer moveUpdateOpcode = OpcodeServer(NULL_OPCODE);
     switch (recvData.GetOpcode())
     {
-        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:        move_type = MOVE_WALK;        break;
-        case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:         move_type = MOVE_RUN;         break;
-        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK:    move_type = MOVE_RUN_BACK;    break;
-        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:        move_type = MOVE_SWIM;        break;
-        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:   move_type = MOVE_SWIM_BACK;   break;
-        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:         move_type = MOVE_TURN_RATE;   break;
-        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:      move_type = MOVE_FLIGHT;      break;
-        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK: move_type = MOVE_FLIGHT_BACK; break;
-        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:        move_type = MOVE_PITCH_RATE;  break;
+        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:
+            move_type = MOVE_WALK;
+            moveUpdateOpcode = SMSG_MOVE_UPDATE_WALK_SPEED;
+            break;
+        case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:
+            move_type = MOVE_RUN;
+            moveUpdateOpcode = SMSG_MOVE_UPDATE_RUN_SPEED;
+            break;
+        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK:
+            move_type = MOVE_RUN_BACK;
+            moveUpdateOpcode = SMSG_MOVE_UPDATE_RUN_BACK_SPEED;
+            break;
+        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:
+            move_type = MOVE_SWIM;
+            moveUpdateOpcode = SMSG_MOVE_UPDATE_SWIM_SPEED;
+            break;
+        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:
+            move_type = MOVE_SWIM_BACK;
+            moveUpdateOpcode = SMSG_MOVE_UPDATE_SWIM_BACK_SPEED;
+            break;
+        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:
+            move_type = MOVE_TURN_RATE;
+            moveUpdateOpcode = SMSG_MOVE_UPDATE_TURN_RATE;
+            break;
+        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:
+            move_type = MOVE_FLIGHT;
+            moveUpdateOpcode = SMSG_MOVE_UPDATE_FLIGHT_SPEED;
+            break;
+        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:
+            move_type = MOVE_FLIGHT_BACK;
+            moveUpdateOpcode = SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED;
+            break;
+        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:
+            move_type = MOVE_PITCH_RATE;
+            moveUpdateOpcode = SMSG_MOVE_UPDATE_PITCH_RATE;
+            break;
         default:
             TC_LOG_ERROR("network", "WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", recvData.GetOpcode());
             return;
     }
+
+    static MovementStatusElements const speedVal = MSEExtraFloat;
+    Movement::ExtraMovementStatusElement extra(&speedVal);
+    extra.Data.floatData = newspeed;
+    Movement::PacketSender(_player, NULL_OPCODE, NULL_OPCODE, moveUpdateOpcode, &extra).Send();
 
     // skip all forced speed changes except last and unexpected
     // in run/mounted case used one ACK and it must be skipped. m_forced_speed_changes[MOVE_RUN] store both.
@@ -639,6 +672,8 @@ void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvPacket)
     Movement::ExtraMovementStatusElement extra(&heightElement);
     MovementInfo movementInfo;
     GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo, &extra);
+
+    Movement::PacketSender(_player, NULL_OPCODE, NULL_OPCODE, SMSG_MOVE_UPDATE_COLLISION_HEIGHT, &extra).Send();
 }
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
@@ -685,8 +720,8 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
     mover->m_movementInfo.time += time;
 
     WorldPacket data(MSG_MOVE_TIME_SKIPPED, recvData.size());
-    data << guid.WriteAsPacked();
     data << time;
+    data << guid.WriteAsPacked();
     GetPlayer()->SendMessageToSet(&data, false);
 }
 
