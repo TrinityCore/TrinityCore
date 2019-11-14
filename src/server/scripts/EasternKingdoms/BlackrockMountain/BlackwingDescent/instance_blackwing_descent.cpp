@@ -474,6 +474,9 @@ class instance_blackwing_descent : public InstanceMapScript
 
             bool IsNefarianAvailable() const
             {
+                if (GetBossState(DATA_NEFARIANS_END) == DONE)
+                    return false;
+
                 for (BWDDataTypes data : { DATA_MAGMAW, DATA_OMNOTRON_DEFENSE_SYSTEM, DATA_CHIMAERON, DATA_ATRAMEDES, DATA_MALORIAK })
                     if (GetBossState(data) != DONE)
                         return false;
