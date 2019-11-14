@@ -1672,7 +1672,7 @@ class spell_nefarians_end_brushfire_pre_start_periodic : public AuraScript
 
     bool Load() override
     {
-        _nextTriggerTickNumber = 6;
+        _nextTriggerTickNumber = 1;
         return true;
     }
 
@@ -1685,13 +1685,15 @@ class spell_nefarians_end_brushfire_pre_start_periodic : public AuraScript
     {
         Unit* target = GetTarget();
         _ticksSinceLastTrigger++;
-        if (aurEff->GetTickNumber() == 1)
-            target->CastSpell(target, SPELL_BRUSHFIRE_START, true);
-        else if (_ticksSinceLastTrigger == _nextTriggerTickNumber)
+        if (_ticksSinceLastTrigger == _nextTriggerTickNumber)
         {
             target->CastSpell(target, SPELL_BRUSHFIRE_START, true);
             _ticksSinceLastTrigger = 0;
-            _nextTriggerTickNumber = std::max<uint32>(2, _nextTriggerTickNumber - 1);
+
+            if (_nextTriggerTickNumber == 1)
+                _nextTriggerTickNumber = 6;
+            else
+                _nextTriggerTickNumber = std::max<uint32>(2, _nextTriggerTickNumber - 1);
         }
     }
 
