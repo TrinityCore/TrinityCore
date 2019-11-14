@@ -35,75 +35,102 @@
 enum Spells
 {
     // Nefarian
-    SPELL_INTRO_2_STALKER_TRANSFORM             = 78750,
-    SPELL_INTRO_3_SHRINK_AURA                   = 78753,
-    SPELL_INTRO_4_LIFT_OFF_ANIM_KIT             = 78692,
-    SPELL_INTRO_5A_START_FIGHT_PROC             = 78730,
-    SPELL_ELECTRICAL_CHARGE_NEFARIAN            = 95793,
-    SPELL_SHADOW_OF_COWARDICE                   = 79355,
-    SPELL_CHILDREN_OF_DEATHWING_NEFARIAN        = 80787,
-    SPELL_HAIL_OF_BONES                         = 78679,
-    SPELL_NEFARIAN_PHASE_2_HEALTH_AURA          = 81582,
-    SPELL_SHADOWFLAME_BARRAGE                   = 78621,
-    SPELL_BRUSHFIRE_PRE_START_PERIODIC          = 94630,
-    SPELL_BRUSHFIRE_START                       = 79813,
+    SPELL_INTRO_2_STALKER_TRANSFORM                     = 78750,
+    SPELL_INTRO_3_SHRINK_AURA                           = 78753,
+    SPELL_INTRO_4_LIFT_OFF_ANIM_KIT                     = 78692,
+    SPELL_INTRO_5A_START_FIGHT_PROC                     = 78730,
+    SPELL_ELECTRICAL_CHARGE_NEFARIAN                    = 95793,
+    SPELL_SHADOW_OF_COWARDICE                           = 79355,
+    SPELL_CHILDREN_OF_DEATHWING_NEFARIAN                = 80787,
+    SPELL_HAIL_OF_BONES                                 = 78679,
+    SPELL_NEFARIAN_PHASE_2_HEALTH_AURA                  = 81582,
+    SPELL_SHADOWFLAME_BARRAGE                           = 78621,
+    SPELL_BRUSHFIRE_PRE_START_PERIODIC                  = 94630,
+    SPELL_BRUSHFIRE_START                               = 79813,
+    SPELL_DOMINION_DUMMY                                = 94211,
+    SPELL_DOMINION_OVERRIDE_ACTION_BAR                  = 79318,
+    SPELL_EXPLOSIVE_CINDERS                             = 79339,
+    SPELL_EXPLOSIVE_CINDERS_EXPLOSION                   = 79347,
 
     // Onyxia
-    SPELL_PERMANENT_FEIGN_DEATH_1               = 29266,
-    SPELL_ONYXIA_START_FIGHT_1_PERIODIC         = 81516,
-    SPELL_ELECTRICAL_CHARGE_ONYXIA              = 78949,
-    SPELL_ELECTRICAL_OVERLOAD                   = 78999,
-    SPELL_LIGHTNING_DISCHARGE                   = 78090,
-    SPELL_LIGHTNING_DISCHARGE_VISUAL_LEFT_1     = 81435,
-    SPELL_LIGHTNING_DISCHARGE_VISUAL_LEFT_2     = 81436,
-    SPELL_LIGHTNING_DISCHARGE_VISUAL_RIGHT_1    = 81437,
-    SPELL_LIGHTNING_DISCHARGE_VISUAL_RIGHT_2    = 81438,
-    SPELL_LIGHTNING_DISCHARGE_CONE_BACK         = 77833,
-    SPELL_LIGHTNING_DISCHARGE_CONE_FRONT        = 77836,
-    SPELL_LIGHTNING_DISCHARGE_DAMAGE            = 77943,
-    SPELL_CHILDREN_OF_DEATHWING_ONYXIA          = 80785,
+    SPELL_PERMANENT_FEIGN_DEATH_1                       = 29266,
+    SPELL_ONYXIA_START_FIGHT_1_PERIODIC                 = 81516,
+    SPELL_ELECTRICAL_CHARGE_ONYXIA                      = 78949,
+    SPELL_ELECTRICAL_OVERLOAD                           = 78999,
+    SPELL_LIGHTNING_DISCHARGE                           = 78090,
+    SPELL_LIGHTNING_DISCHARGE_VISUAL_LEFT_1             = 81435,
+    SPELL_LIGHTNING_DISCHARGE_VISUAL_LEFT_2             = 81436,
+    SPELL_LIGHTNING_DISCHARGE_VISUAL_RIGHT_1            = 81437,
+    SPELL_LIGHTNING_DISCHARGE_VISUAL_RIGHT_2            = 81438,
+    SPELL_LIGHTNING_DISCHARGE_CONE_BACK                 = 77833,
+    SPELL_LIGHTNING_DISCHARGE_CONE_FRONT                = 77836,
+    SPELL_LIGHTNING_DISCHARGE_DAMAGE                    = 77943,
+    SPELL_CHILDREN_OF_DEATHWING_ONYXIA                  = 80785,
 
     // Nefarian and Onyxia
-    SPELL_TAIL_LASH                             = 77827,
-    SPELL_SHADOWFLAME_BREATH                    = 77826,
-    SPELL_SHADOW_OF_COWARDICE_DAMAGE            = 79353,
-    SPELL_SHADOW_OF_COWARDICE_DUMMY             = 80963,
+    SPELL_TAIL_LASH                                     = 77827,
+    SPELL_SHADOWFLAME_BREATH                            = 77826,
+    SPELL_SHADOW_OF_COWARDICE_DAMAGE                    = 79353,
+    SPELL_SHADOW_OF_COWARDICE_DUMMY                     = 80963,
 
     // Nefarian's Lightning Machine
-    SPELL_ELECTROCUTE                           = 81198,
-    SPELL_ELECTROCUTE_DAMAGE                    = 81272,
+    SPELL_ELECTROCUTE                                   = 81198,
+    SPELL_ELECTROCUTE_DAMAGE                            = 81272,
 
     // Animated Bone Warrior
-    SPELL_FULL_POWER_NO_REGEN                   = 78120,
-    SPELL_ANIMATE_BONES                         = 78122,
-    SPELL_PERMANENT_FEIGN_DEATH_2               = 70628,
-    SPELL_CLEAR_ALL_DEBUFFS                     = 34098,
-    SPELL_EMPOWER                               = 79330,
+    SPELL_FULL_POWER_NO_REGEN                           = 78120,
+    SPELL_ANIMATE_BONES                                 = 78122,
+    SPELL_PERMANENT_FEIGN_DEATH_2                       = 70628,
+    SPELL_CLEAR_ALL_DEBUFFS                             = 34098,
+    SPELL_EMPOWER                                       = 79330,
 
     // Chromatic Prototype
-    SPELL_JUMP_DOWN_TO_PLATFORM                 = 79205,
-    SPELL_READY_UNARMED                         = 94610,
-    SPELL_DUMMY_NUKE                            = 80776,
-    SPELL_BLAST_NOVA                            = 80734,
+    SPELL_JUMP_DOWN_TO_PLATFORM                         = 79205,
+    SPELL_READY_UNARMED                                 = 94610,
+    SPELL_DUMMY_NUKE                                    = 80776,
+    SPELL_BLAST_NOVA                                    = 80734,
 
     // Invisible Stalker (Cataclysm Boss, Ignore Combat, Floating)
-    SPELL_INTRO_1_TRANSFORM_VISUAL              = 78205,
-    SPELL_CHAINS_A_STEEL                        = 81159,
-    SPELL_CHAINS_B_STEEL                        = 81174,
-    SPELL_CHAINS_C_STEEL                        = 81176,
-    SPELL_CHAINS_A_LIGHTNING                    = 81158,
-    SPELL_CHAINS_B_LIGHTNING                    = 81175,
-    SPELL_CHAINS_C_LIGHTNING                    = 81177,
+    SPELL_INTRO_1_TRANSFORM_VISUAL                      = 78205,
+    SPELL_CHAINS_A_STEEL                                = 81159,
+    SPELL_CHAINS_B_STEEL                                = 81174,
+    SPELL_CHAINS_C_STEEL                                = 81176,
+    SPELL_CHAINS_A_LIGHTNING                            = 81158,
+    SPELL_CHAINS_B_LIGHTNING                            = 81175,
+    SPELL_CHAINS_C_LIGHTNING                            = 81177,
 
     // Controller Stalker
-    SPELL_PET_HACK_1                            = 95278, // Todo: research this. Perhaps ignore pathfinding?
+    SPELL_PET_HACK_1                                    = 95278, // Todo: we don't need this (yet). This is going to disable pathfinding for pets.
 
     // Shadowblase Flashpoint / Shadowblaze
-    SPELL_BRUSHFIRE_FLASHPOINT_CONTROL          = 79392,
-    SPELL_BRUSHFIRE_GROWTH                      = 79393,
-    SPELL_BRUSHFIRE_BURN_AURA                   = 79396,
-    SPELL_BRUSHFIRE_SUMMON                      = 79405,
-    SPELL_BRUSHFIRE_CHECK_VALID_LOCATION        = 79401
+    SPELL_BRUSHFIRE_FLASHPOINT_CONTROL                  = 79392,
+    SPELL_BRUSHFIRE_GROWTH                              = 79393,
+    SPELL_BRUSHFIRE_BURN_AURA                           = 79396,
+    SPELL_BRUSHFIRE_SUMMON                              = 79405,
+    SPELL_BRUSHFIRE_CHECK_VALID_LOCATION                = 79401,
+
+    // Dominion Stalker
+    SPELL_DOMINION_DETERMINE_FARTHEST_PORTAL_STALKER    = 81664,
+    SPELL_DOMINION_PORTAL_TRIGGER                       = 81752,
+    SPELL_DOMINION_PORTAL_BEAM                          = 81709,
+
+    // Players
+    SPELL_DOMINION_IMMUNITY                             = 95900,
+    SPELL_SUMMON_DOMINION_STALKER_NORTH                 = 81665,
+    SPELL_SUMMON_DOMINION_STALKER_EAST                  = 81745,
+    SPELL_SUMMON_DOMINION_STALKER_SOUTH                 = 81746,
+    SPELL_SUMMON_DOMINION_STALKER_WEST                  = 81747,
+    SPELL_STOLEN_POWER                                  = 80627,
+    SPELL_INSTAKILL_SELF                                = 29878
+};
+
+static constexpr uint8 const DominionStalkerSpellCount = 4;
+uint32 const DominionStalkerSummonSpells[DominionStalkerSpellCount] =
+{
+    SPELL_SUMMON_DOMINION_STALKER_NORTH,
+    SPELL_SUMMON_DOMINION_STALKER_EAST,
+    SPELL_SUMMON_DOMINION_STALKER_SOUTH,
+    SPELL_SUMMON_DOMINION_STALKER_WEST
 };
 
 enum Texts
@@ -117,6 +144,7 @@ enum Texts
     SAY_SHADOWBLAZE_SPARK       = 5,
     SAY_SLAY                    = 6,
     SAY_DEATH                   = 7,
+    SAY_DOMINION                = 8,
 
     // Lord Victor Nefarius
     SAY_INTRO_1                 = 0,
@@ -149,6 +177,8 @@ enum Events
     EVENT_SAY_PHASE_THREE,
     EVENT_LAND_PHASE_THREE,
     EVENT_ELECTROCUTE,
+    EVENT_DOMINION,
+    EVENT_EXPLOSIVE_CINDERS,
 
     // Onyxia
     EVENT_LIGHTNING_DISCHARGE,
@@ -381,8 +411,17 @@ struct boss_nefarians_end : public BossAI
     void JustSummoned(Creature* summon) override
     {
         summons.Summon(summon);
-        // keeping the summon list clean since we have to deal with many tempoary summons
+        // keeping the summon list clean because we have to deal with many tempoary summons
         summons.RemoveNotExisting();
+
+        switch (summon->GetEntry())
+        {
+            case NPC_DOMINION_STALKER:
+                summon->CastSpell(summon, SPELL_DOMINION_DETERMINE_FARTHEST_PORTAL_STALKER);
+                break;
+            default:
+                break;
+        }
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -431,7 +470,7 @@ struct boss_nefarians_end : public BossAI
                     events.ScheduleEvent(EVENT_LAND_PHASE_THREE, 200ms, 0, PHASE_THREE);
                 break;
             case POINT_LAND:
-                events.ScheduleEvent(EVENT_LANDED, 1ms);
+                events.ScheduleEvent(EVENT_LANDED, 400ms);
                 break;
             case POINT_ELEVATOR_CENTER:
                 events.ScheduleEvent(EVENT_LIFTOFF_PHASE_TWO, 1s, 0, PHASE_TWO);
@@ -455,6 +494,21 @@ struct boss_nefarians_end : public BossAI
             Talk(SAY_ANNOUNCE_AIR_CRACKLES);
             events.ScheduleEvent(EVENT_ELECTROCUTE, 5s);
             _nextElectrocuteHealthPercentage -= 10;
+        }
+    }
+
+    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_BRUSHFIRE_START:
+                Talk(SAY_SHADOWBLAZE_SPARK);
+                break;
+            case SPELL_DOMINION_OVERRIDE_ACTION_BAR:
+                Talk(SAY_DOMINION);
+                break;
+            default:
+                break;
         }
     }
 
@@ -560,7 +614,7 @@ struct boss_nefarians_end : public BossAI
                                 onyxia->AI()->DoAction(ACTION_NEFARIAN_LANDED);
                     }
                     else if (events.IsInPhase(PHASE_THREE))
-                        events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 3s, 0, PHASE_THREE);
+                        events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 2s, 0, PHASE_THREE);
                     break;
                 case EVENT_ENGAGE_PLAYERS:
                     me->SetReactState(REACT_AGGRESSIVE);
@@ -573,6 +627,9 @@ struct boss_nefarians_end : public BossAI
 
                         events.ScheduleEvent(EVENT_TAIL_LASH, 18s, 0, PHASE_ONE);
                         events.ScheduleEvent(EVENT_SHADOWFLAME_BREATH, 9s, 10s, 0, PHASE_ONE);
+
+                        if (IsHeroic())
+                            events.ScheduleEvent(EVENT_DOMINION, 13s, 0, PHASE_ONE);
                     }
                     else if (events.IsInPhase(PHASE_THREE))
                     {
@@ -622,6 +679,9 @@ struct boss_nefarians_end : public BossAI
                     events.ScheduleEvent(EVENT_SAY_PHASE_TWO, 4s + 800ms, 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_ENTER_PHASE_THREE, 2min + 30s, 0, PHASE_TWO);
                     events.ScheduleEvent(EVENT_SHADOWFLAME_BARRAGE, 2s + 500ms, 0, PHASE_TWO);
+
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_EXPLOSIVE_CINDERS, 2s, 0, PHASE_TWO);
                     break;
                 case EVENT_SUMMON_CHROMATIC_PROTOTYPES:
                     for (uint8 i = 0; i < MaxChromaticPrototypes; i++)
@@ -680,6 +740,14 @@ struct boss_nefarians_end : public BossAI
                     if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
                         if (Aura* charge = onyxia->GetAura(SPELL_ELECTRICAL_CHARGE_ONYXIA))
                             charge->ModStackAmount(17, AURA_REMOVE_BY_DEFAULT, false);
+                    break;
+                case EVENT_DOMINION:
+                    DoCastAOE(SPELL_DOMINION_DUMMY);
+                    events.Repeat(15s);
+                    break;
+                case EVENT_EXPLOSIVE_CINDERS:
+                    DoCastAOE(SPELL_EXPLOSIVE_CINDERS);
+                    events.Repeat(15s);
                     break;
                 default:
                     break;
@@ -1158,12 +1226,16 @@ struct npc_nefarians_end_shadowblaze : public NullCreatureAI
         {
             case ACTION_SPREAD_FLAMES:
             {
+                float z = me->GetPositionZ();
+                if (z >= 13.f) // tempfix to avoid flames spawn in the air when a controller gets spawned on a pillar
+                    z = 8.472f;
+
                 if (!_summonedByController && me->GetEntry() != NPC_SHADOWBLAZE_FLASHPOINT)
                 {
                     // Select a destination that will serve as our offset selection helper
                     float angle = me->GetAngle(_controllerStalkerPosition) - float(M_PI / 2.5f);
-                    float compareX = me->GetPositionX() + std::cos(angle) * 5.f;
-                    float compareY = me->GetPositionY() + std::sin(angle) * 5.f;
+                    float compareX = me->GetPositionX() + std::cos(angle) * 20.f;
+                    float compareY = me->GetPositionY() + std::sin(angle) * 20.f;
                     Position comparePos = Position(compareX, compareY);
 
                     Position summonPos = me->GetPosition();
@@ -1181,14 +1253,14 @@ struct npc_nefarians_end_shadowblaze : public NullCreatureAI
                         }
                     }
 
-                    me->CastSpell(summonPos.GetPositionX(), summonPos.GetPositionY(), me->GetPositionZ(), 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                    me->CastSpell(summonPos.GetPositionX(), summonPos.GetPositionY(), z, 0.f, SPELL_BRUSHFIRE_SUMMON, true);
                 }
                 else
                 {
                     if (me->GetEntry() == NPC_SHADOWBLAZE_FLASHPOINT)
                     {
-                        me->CastSpell(me->GetPositionX() - 5.f, me->GetPositionY(), me->GetPositionZ(), 0.f, SPELL_BRUSHFIRE_SUMMON, true);
-                        me->CastSpell(me->GetPositionX(), me->GetPositionY() + 5.f, me->GetPositionZ(), 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                        me->CastSpell(me->GetPositionX() - 5.f, me->GetPositionY(), z, 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                        me->CastSpell(me->GetPositionX(), me->GetPositionY() + 5.f, z, 0.f, SPELL_BRUSHFIRE_SUMMON, true);
                     }
                     else if (_summonedByController)
                     {
@@ -1196,7 +1268,7 @@ struct npc_nefarians_end_shadowblaze : public NullCreatureAI
                         {
                             float x = me->GetPositionX() + 5.f;
                             float y = me->GetPositionY() + 5.f;
-                            me->CastSpell(x, y, me->GetPositionZ(), 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                            me->CastSpell(x, y, z, 0.f, SPELL_BRUSHFIRE_SUMMON, true);
                         }
                     }
                 }
@@ -1232,16 +1304,16 @@ class spell_nefarians_end_electrical_charge : public AuraScript
         switch (target->GetEntry())
         {
             case BOSS_NEFARIAN:
-                if (target->GetReactState() == REACT_PASSIVE)
-                    break;
-
-                if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
+                if (target->GetReactState() == REACT_AGGRESSIVE)
                 {
-                    if (Aura* charge = onyxia->GetAura(SPELL_ELECTRICAL_CHARGE_ONYXIA))
-                        charge->ModStackAmount(1, AURA_REMOVE_BY_DEFAULT, false);
+                    if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
+                    {
+                        if (Aura* charge = onyxia->GetAura(SPELL_ELECTRICAL_CHARGE_ONYXIA))
+                            charge->ModStackAmount(1, AURA_REMOVE_BY_DEFAULT, false);
 
-                    if (onyxia->IsAIEnabled)
-                        onyxia->AI()->DoAction(ACTION_UPDATE_ELECTRICAL_CHARGE);
+                        if (onyxia->IsAIEnabled)
+                            onyxia->AI()->DoAction(ACTION_UPDATE_ELECTRICAL_CHARGE);
+                    }
                 }
                 break;
             case NPC_ONYXIA:
@@ -1278,10 +1350,7 @@ class spell_nefarians_end_lightning_discharge_triggered_periodic_aura : public A
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        Creature* target = GetTarget()->ToCreature();
-        if (!target)
-            return;
-
+        Unit* target = GetTarget();
         for (uint8 i = 0; i < 4; i++)
         {
             target->CastSpell(target, SPELL_LIGHTNING_DISCHARGE_VISUAL_LEFT_1, true);
@@ -1611,14 +1680,14 @@ class spell_nefarians_end_brushfire_pre_start_periodic : public AuraScript
         }
     }
 
-private:
-    uint8 _nextTriggerTickNumber = 0;
-    uint8 _ticksSinceLastTrigger = 0;
-
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_brushfire_pre_start_periodic::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
+
+private:
+    uint8 _nextTriggerTickNumber = 0;
+    uint8 _ticksSinceLastTrigger = 0;
 };
 
 class spell_nefarians_end_brushfire_start : public SpellScript
@@ -1652,29 +1721,6 @@ class spell_nefarians_end_brushfire_growth : public AuraScript
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_brushfire_growth::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
-};
-
-struct go_nefarians_end_orb_of_culmination : public GameObjectAI
-{
-    go_nefarians_end_orb_of_culmination(GameObject* go) : GameObjectAI(go), _instance(me->GetInstanceScript()) { }
-
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
-    {
-        if (Creature* stalker = _instance->GetCreature(DATA_INVISIBLE_STALKER))
-            stalker->RemoveAllAuras();
-
-        if (Creature* nefarius = _instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_NEFARIANS_END))
-            if (nefarius->IsAIEnabled)
-                nefarius->AI()->DoAction(ACTION_START_INTRO);
-
-        player->PlayerTalkClass->SendCloseGossip();
-        me->DespawnOrUnsummon();
-
-        return false;
-    }
-
-private:
-    InstanceScript* _instance;
 };
 
 class spell_nefarians_end_shadowblaze : public SpellScript
@@ -1718,6 +1764,243 @@ class spell_nefarians_end_shadowblaze : public SpellScript
     }
 };
 
+class spell_nefarians_end_dominion_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_nefarians_end_dominion_dummy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DOMINION_OVERRIDE_ACTION_BAR });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        uint8 size = caster->GetMap()->Is25ManRaid() ? 2 : 5;
+        if (!targets.empty())
+            caster->CastCustomSpell(SPELL_DOMINION_OVERRIDE_ACTION_BAR, SPELLVALUE_MAX_TARGETS, size, caster, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nefarians_end_dominion_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+class spell_nefarians_end_dominion : public AuraScript
+{
+    PrepareAuraScript(spell_nefarians_end_dominion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SUMMON_DOMINION_STALKER_NORTH,
+                SPELL_SUMMON_DOMINION_STALKER_SOUTH,
+                SPELL_SUMMON_DOMINION_STALKER_EAST,
+                SPELL_SUMMON_DOMINION_STALKER_WEST
+            });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+
+        for (uint8 i = 0; i < DominionStalkerSpellCount; i++)
+            target->CastSpell(target, DominionStalkerSummonSpells[i], true);
+
+        target->CastSpell(target, SPELL_DOMINION_IMMUNITY, true);
+        target->SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_UNK1);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_DOMINION_IMMUNITY);
+        target->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_UNK1);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_nefarians_end_dominion::AfterApply, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_nefarians_end_dominion::AfterRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_nefarians_end_determine_farthest_portal_stalker : public AuraScript
+{
+    PrepareAuraScript(spell_nefarians_end_determine_farthest_portal_stalker);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DOMINION_PORTAL_TRIGGER });
+    }
+
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        TempSummon* target = GetTarget()->ToTempSummon();
+        if (!target)
+            return;
+
+        bool farthest = true;
+
+        // This is very ugly and should be changed asap when we have a clean way to select all summoned units of a player
+        std::list<Creature*> portalStalkers;
+        Unit* summoner = target->GetSummoner();
+        target->GetCreatureListWithEntryInGrid(portalStalkers, NPC_DOMINION_STALKER, 100.f);
+
+        // Iterating through all stalkers of a player and select his furthest stalker
+        for (Creature* stalker : portalStalkers)
+        {
+            TempSummon* summon = stalker->ToTempSummon();
+            if (!summon || summon->GetSummonerGUID() != target->GetSummonerGUID() || summon == target)
+                continue;
+
+            if (summon->GetExactDist2d(summoner) > target->GetExactDist2d(summoner))
+                farthest = false;
+        }
+
+        if (farthest)
+        {
+            target->CastSpell(target, SPELL_DOMINION_PORTAL_TRIGGER);
+            Remove();
+        }
+        else
+            target->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_determine_farthest_portal_stalker::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+
+private:
+    uint8 _nextTriggerTickNumber = 0;
+    uint8 _ticksSinceLastTrigger = 0;
+};
+
+class spell_nefarians_end_dominion_portal_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_nefarians_end_dominion_portal_trigger);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DOMINION_PORTAL_BEAM,
+                SPELL_INSTAKILL_SELF
+            });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (Unit* caster = GetCaster())
+        {
+            caster->CastSpell(caster, SPELL_DOMINION_PORTAL_BEAM);
+
+            Movement::MoveSplineInit init(target);
+            init.SetWalk(true);
+            init.SetVelocity(3.5f);
+            init.MoveTo(caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), false); // Todo: enable pathfinding when mmaps for transports have arrived
+            target->m_Events.AddEventAtOffset([target, caster]()
+            {
+                if (target->HasAura(SPELL_DOMINION_OVERRIDE_ACTION_BAR))
+                    target->CastSpell(target, SPELL_INSTAKILL_SELF, true);
+
+                if (Creature* creature = caster->ToCreature())
+                    creature->DespawnOrUnsummon();
+            }, Milliseconds(init.Launch()));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_dominion_portal_trigger::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_nefarians_end_free_your_mind : public AuraScript
+{
+    PrepareAuraScript(spell_nefarians_end_free_your_mind);
+
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(aurEff->GetAmount());
+        target->StopMoving();
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_nefarians_end_free_your_mind::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_nefarians_end_siphon_power : public SpellScript
+{
+    PrepareSpellScript(spell_nefarians_end_siphon_power);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STOLEN_POWER });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_STOLEN_POWER);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_siphon_power::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_nefarians_end_explosive_cinders : public AuraScript
+{
+    PrepareAuraScript(spell_nefarians_end_explosive_cinders);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EXPLOSIVE_CINDERS_EXPLOSION });
+    }
+
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+            GetTarget()->CastSpell(GetTarget(), SPELL_EXPLOSIVE_CINDERS_EXPLOSION, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_nefarians_end_explosive_cinders::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+struct go_nefarians_end_orb_of_culmination : public GameObjectAI
+{
+    go_nefarians_end_orb_of_culmination(GameObject* go) : GameObjectAI(go), _instance(me->GetInstanceScript()) { }
+
+    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        if (Creature* stalker = _instance->GetCreature(DATA_INVISIBLE_STALKER))
+            stalker->RemoveAllAuras();
+
+        if (Creature* nefarius = _instance->GetCreature(DATA_LORD_VICTOR_NEFARIUS_NEFARIANS_END))
+            if (nefarius->IsAIEnabled)
+                nefarius->AI()->DoAction(ACTION_START_INTRO);
+
+        player->PlayerTalkClass->SendCloseGossip();
+        me->DespawnOrUnsummon();
+
+        return false;
+    }
+
+private:
+    InstanceScript* _instance;
+};
+
 class achievement_keeping_it_in_the_family : public AchievementCriteriaScript
 {
 public:
@@ -1757,6 +2040,13 @@ void AddSC_boss_nefarians_end()
     RegisterSpellScript(spell_nefarians_end_brushfire_start);
     RegisterAuraScript(spell_nefarians_end_brushfire_growth);
     RegisterSpellScript(spell_nefarians_end_shadowblaze);
+    RegisterSpellScript(spell_nefarians_end_dominion_dummy);
+    RegisterAuraScript(spell_nefarians_end_dominion);
+    RegisterAuraScript(spell_nefarians_end_determine_farthest_portal_stalker);
+    RegisterSpellScript(spell_nefarians_end_dominion_portal_trigger);
+    RegisterAuraScript(spell_nefarians_end_free_your_mind);
+    RegisterSpellScript(spell_nefarians_end_siphon_power);
+    RegisterAuraScript(spell_nefarians_end_explosive_cinders);
     RegisterGameObjectAI(go_nefarians_end_orb_of_culmination);
     new achievement_keeping_it_in_the_family();
 }

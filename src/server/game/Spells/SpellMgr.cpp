@@ -5546,6 +5546,23 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
+    // Lightning Discharge
+    ApplySpellFix({
+        81435,
+        81436,
+        81437,
+        81438
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_18_YARDS);
+    });
+
+    // Explosive Cinders
+    ApplySpellFix({ 79339 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 1;
+    });
+
     // ENDOF BLACKWING DESCENT SPELLS
 
     // Living Bomb

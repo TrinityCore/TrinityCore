@@ -171,8 +171,12 @@ class instance_blackwing_descent : public InstanceMapScript
                         break;
                     case NPC_FLASH_FREEZE:
                     case NPC_VILE_SWILL:
-                        if (Creature * maloriak = GetCreature(DATA_MALORIAK))
+                        if (Creature* maloriak = GetCreature(DATA_MALORIAK))
                             maloriak->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_DOMINION_STALKER:
+                        if (Creature* nefarian = GetCreature(DATA_NEFARIANS_END))
+                            nefarian->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;

@@ -146,6 +146,7 @@ enum BWDCreatureIds
     NPC_CHROMATIC_PROTOTYPE                 = 41948,
     NPC_CONTROLLER_STALKER                  = 42856,
     NPC_SHADOWBLAZE_FLASHPOINT              = 42595,
+    NPC_DOMINION_STALKER                    = 43656,
 
     /*Events*/
     NPC_SPIRIT_OF_MOLTENFIST                = 43125,
