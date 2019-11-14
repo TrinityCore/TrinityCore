@@ -935,6 +935,18 @@ enum PhaseUseFlagsValues : uint8
     PHASE_USE_FLAGS_ALL             = PHASE_USE_FLAGS_ALWAYS_VISIBLE | PHASE_USE_FLAGS_INVERSE
 };
 
+enum class PlayerConditionLfgStatus : uint8
+{
+    InLFGDungeon            = 1,
+    InLFGRandomDungeon      = 2,
+    InLFGFirstRandomDungeon = 3,
+    PartialClear            = 4,
+    StrangerCount           = 5,
+    VoteKickCount           = 6,
+    BootCount               = 7,
+    GearDiff                = 8
+};
+
 enum PrestigeLevelInfoFlags : uint8
 {
     PRESTIGE_FLAG_DISABLED  = 0x01                      // Prestige levels with this flag won't be included to calculate max prestigelevel.
