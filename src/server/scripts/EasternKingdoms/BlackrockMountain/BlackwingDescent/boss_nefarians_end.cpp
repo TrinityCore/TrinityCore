@@ -398,6 +398,8 @@ struct boss_nefarians_end : public BossAI
         summons.DespawnAll();
         instance->SetData(DATA_NEFARIAN_ACHIEVEMENT_STATE, 1);
         instance->SetBossState(DATA_NEFARIANS_END, FAIL);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_EXPLOSIVE_CINDERS);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOMINION_OVERRIDE_ACTION_BAR);
         me->DespawnOrUnsummon();
     }
 
@@ -412,6 +414,8 @@ struct boss_nefarians_end : public BossAI
         _JustDied();
         Talk(SAY_DEATH);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_EXPLOSIVE_CINDERS);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOMINION_OVERRIDE_ACTION_BAR);
     }
 
     void JustSummoned(Creature* summon) override
@@ -1821,7 +1825,8 @@ class spell_nefarians_end_dominion : public AuraScript
                 SPELL_SUMMON_DOMINION_STALKER_NORTH,
                 SPELL_SUMMON_DOMINION_STALKER_SOUTH,
                 SPELL_SUMMON_DOMINION_STALKER_EAST,
-                SPELL_SUMMON_DOMINION_STALKER_WEST
+                SPELL_SUMMON_DOMINION_STALKER_WEST,
+                SPELL_DOMINION_IMMUNITY
             });
     }
 
