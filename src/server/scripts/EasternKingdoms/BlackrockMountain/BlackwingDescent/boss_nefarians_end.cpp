@@ -146,6 +146,10 @@ enum Texts
     SAY_DEATH                   = 7,
     SAY_DOMINION                = 8,
 
+    // Onyxia
+    SAY_ANNOUNCE_WARNING_1      = 0,
+    SAY_ANNOUNCE_WARNING_2      = 1,
+
     // Lord Victor Nefarius
     SAY_INTRO_1                 = 0,
     SAY_INTRO_2                 = 1,
@@ -840,7 +844,7 @@ private:
 
 struct npc_nefarians_end_onyxia : public ScriptedAI
 {
-    npc_nefarians_end_onyxia(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _allowDeath(false)
+    npc_nefarians_end_onyxia(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _allowDeath(false), _chargeWarningLevel(0)
     {
         me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING); // Remove this little workarround when mmaps for transports have arrived.
     }
@@ -906,8 +910,21 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
                     {
                         DoCastAOE(SPELL_ELECTRICAL_OVERLOAD);
                         stacks = 1;
+                        _chargeWarningLevel = 0;
                         chargeAura->SetStackAmount(stacks);
                     }
+
+                    if (stacks >= 50 && _chargeWarningLevel == 0)
+                    {
+                        Talk(SAY_ANNOUNCE_WARNING_1);
+                        _chargeWarningLevel = 1;
+                    }
+                    else if (stacks >= 80 && _chargeWarningLevel != 2)
+                    {
+                        Talk(SAY_ANNOUNCE_WARNING_2);
+                        _chargeWarningLevel = 2;
+                    }
+
                     me->SetPower(POWER_ALTERNATE_POWER, stacks - 1);
                 }
                 break;
@@ -976,6 +993,7 @@ private:
     InstanceScript* _instance;
     EventMap _events;
     bool _allowDeath;
+    uint8 _chargeWarningLevel;
 };
 
 struct npc_nefarians_end_lord_victor_nefarius : public PassiveAI
@@ -1310,9 +1328,6 @@ class spell_nefarians_end_electrical_charge : public AuraScript
                     {
                         if (Aura* charge = onyxia->GetAura(SPELL_ELECTRICAL_CHARGE_ONYXIA))
                             charge->ModStackAmount(1, AURA_REMOVE_BY_DEFAULT, false);
-
-                        if (onyxia->IsAIEnabled)
-                            onyxia->AI()->DoAction(ACTION_UPDATE_ELECTRICAL_CHARGE);
                     }
                 }
                 break;
