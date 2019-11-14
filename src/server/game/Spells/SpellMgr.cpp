@@ -3047,14 +3047,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
-        38310, // Multi-Shot
-        53385  // Divine Storm (Damage)
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 4;
-    });
-
-    ApplySpellFix({
         42005, // Bloodboil
         38296, // Spitfire Totem
         37676, // Insidious Whisper
