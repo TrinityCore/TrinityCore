@@ -51,6 +51,7 @@ enum Spells
     SPELL_DOMINION_OVERRIDE_ACTION_BAR                  = 79318,
     SPELL_EXPLOSIVE_CINDERS                             = 79339,
     SPELL_EXPLOSIVE_CINDERS_EXPLOSION                   = 79347,
+    SPELL_BERSERK                                       = 26662,
 
     // Onyxia
     SPELL_PERMANENT_FEIGN_DEATH_1                       = 29266,
@@ -183,6 +184,7 @@ enum Events
     EVENT_ELECTROCUTE,
     EVENT_DOMINION,
     EVENT_EXPLOSIVE_CINDERS,
+    EVENT_BERSERK,
 
     // Onyxia
     EVENT_LIGHTNING_DISCHARGE,
@@ -525,6 +527,7 @@ struct boss_nefarians_end : public BossAI
                 DoCastSelf(SPELL_ELECTRICAL_CHARGE_NEFARIAN);
                 DoCastSelf(SPELL_HAIL_OF_BONES);
                 events.ScheduleEvent(EVENT_PREPARE_LANDING, 24s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_BERSERK, 10min + 30s);
                 break;
             case ACTION_ONYXIA_DIED:
                 events.ScheduleEvent(EVENT_SAY_ONYXIA_DEAD, 1ms, 0, PHASE_ONE);
@@ -752,6 +755,9 @@ struct boss_nefarians_end : public BossAI
                 case EVENT_EXPLOSIVE_CINDERS:
                     DoCastAOE(SPELL_EXPLOSIVE_CINDERS);
                     events.Repeat(15s);
+                    break;
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK, true);
                     break;
                 default:
                     break;
