@@ -346,7 +346,7 @@ Position const ChromaticPrototypeJumpPositions[MaxChromaticPrototypes]
 struct boss_nefarians_end : public BossAI
 {
     boss_nefarians_end(Creature* creature) : BossAI(creature, DATA_NEFARIANS_END),
-        _elevatorLowered(false), _nextElectrocuteHealthPercentage(90)
+        _elevatorLowered(false), _nextElectrocuteHealthPercentage(90), _deadChromaticPrototypes(0)
     {
         me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING); // Remove this little workarround when mmaps for transports have arrived.
         me->SetReactState(REACT_PASSIVE);
@@ -546,8 +546,15 @@ struct boss_nefarians_end : public BossAI
         switch (summon->GetEntry())
         {
             case NPC_CHROMATIC_PROTOTYPE:
-                // Nefarian enters phase three when the first Chromatic Prototype has died
-                events.ScheduleEvent(EVENT_ENTER_PHASE_THREE, 1ms, 0, PHASE_TWO);
+                // Nefarian enters phase three when the first Chromatic Prototype has died on heroic difficulty
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_ENTER_PHASE_THREE, 1ms, 0, PHASE_TWO);
+                else
+                {
+                    _deadChromaticPrototypes++;
+                    if (_deadChromaticPrototypes == 3)
+                        events.ScheduleEvent(EVENT_ENTER_PHASE_THREE, 1ms, 0, PHASE_TWO);
+                }
                 break;
             default:
                 break;
@@ -850,6 +857,7 @@ private:
 
     bool _elevatorLowered;
     uint8 _nextElectrocuteHealthPercentage;
+    uint8 _deadChromaticPrototypes;
 };
 
 struct npc_nefarians_end_onyxia : public ScriptedAI
