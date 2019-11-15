@@ -615,6 +615,11 @@ namespace UF
             return _values.end();
         }
 
+        bool empty() const
+        {
+            return _values.empty();
+        }
+
         std::size_t size() const
         {
             return _values.size();

@@ -843,3 +843,11 @@ uint32 Garrison::Follower::GetItemLevel() const
 {
     return (PacketInfo.ItemLevelWeapon + PacketInfo.ItemLevelArmor) / 2;
 }
+
+bool Garrison::Follower::HasAbility(uint32 garrAbilityId) const
+{
+    return std::find_if(PacketInfo.AbilityID.begin(), PacketInfo.AbilityID.end(), [garrAbilityId](GarrAbilityEntry const* garrAbility)
+    {
+        return garrAbility->ID == garrAbilityId;
+    }) != PacketInfo.AbilityID.end();
+}
