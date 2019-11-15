@@ -64,6 +64,7 @@ enum Spells
     // Magmaw Spike Stalker
     SPELL_CHAIN_VISUAL_1                        = 77940,
     SPELL_CHAIN_VISUAL_2                        = 77929,
+    SPELL_EJECT_PASSENGER                       = 78643,
 
     // Lava Parasite
     SPELL_LAVA_PARASITE_PROC_AURA               = 78019,
@@ -94,7 +95,6 @@ enum Events
     EVENT_ANNOUNCE_PINCERS_EXPOSED,
     EVENT_FINISH_MASSIVE_CRASH,
     EVENT_IMPALE_SELF,
-    EVENT_EJECT_PASSENGER_1,
     EVENT_EXPOSE_HEAD,
     EVENT_HIDE_HEAD,
     EVENT_FINISH_IMPALE_SELF,
@@ -294,7 +294,6 @@ struct boss_magmaw : public BossAI
 
                 events.ScheduleEvent(EVENT_ANNOUNCE_PINCERS_EXPOSED, 1s);
                 events.ScheduleEvent(EVENT_FINISH_MASSIVE_CRASH, 7s);
-                events.ScheduleEvent(EVENT_EJECT_PASSENGER_1, 12s);
 
                 Unit* head = _exposedHead1;
                 head->m_Events.AddEventAtOffset([head]()
@@ -428,7 +427,7 @@ struct boss_magmaw : public BossAI
 
                     events.CancelEvent(EVENT_MAGMA_PROJECTILE);
                     events.CancelEvent(EVENT_LAVA_SPEW);
-                    events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 5s);
+                    events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 3s + 500ms);
                     events.Repeat(1min + 35s);
                     break;
                 case EVENT_PREPARE_MASSIVE_CRASH:
@@ -461,10 +460,6 @@ struct boss_magmaw : public BossAI
                     break;
                 case EVENT_IMPALE_SELF:
                     DoCastSelf(SPELL_IMPALE_SELF);
-                    break;
-                case EVENT_EJECT_PASSENGER_1:
-                    _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
-                    _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
                     break;
                 case EVENT_EXPOSE_HEAD:
                     if (!_headEngaged)
@@ -1019,12 +1014,33 @@ class spell_magmaw_launch_hook : public AuraScript
             target->RemoveAllAuras();
             target->CastSpell(target, SPELL_CHAIN_VISUAL_1);
             target->CastSpell(target, SPELL_CHAIN_VISUAL_2);
+            target->CastSpell(target, SPELL_EJECT_PASSENGER);
         }
     }
 
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_magmaw_launch_hook::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+
+class spell_magmaw_eject_passenger : public SpellScript
+{
+    PrepareSpellScript(spell_magmaw_eject_passenger);
+
+    void EjectPassenger(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->m_Events.AddEventAtOffset([target]()
+        {
+            target->CastSpell(target, SPELL_EJECT_PASSENGER_1, true);
+        }, 3s + 500ms);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_magmaw_eject_passenger::EjectPassenger, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1231,6 +1247,7 @@ void AddSC_boss_magmaw()
     RegisterSpellScript(spell_magmaw_pillar_of_flame_forcecast);
     RegisterSpellScript(spell_magmaw_ride_vehicle);
     RegisterAuraScript(spell_magmaw_launch_hook);
+    RegisterSpellScript(spell_magmaw_eject_passenger);
     RegisterSpellScript(spell_magmaw_eject_passenger_1);
     RegisterSpellScript(spell_magmaw_eject_passenger_3);
     RegisterAuraScript(spell_magmaw_lava_parasite);
