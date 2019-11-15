@@ -25,7 +25,7 @@ UPDATE `creature_template` SET `flags_extra`= 128, `ScriptName`= 'npc_nefarians_
 -- Shadowblaze
 UPDATE `creature_template` SET `flags_extra`= 128, `ScriptName`= 'npc_nefarians_end_shadowblaze' WHERE `entry`= 42596;
 -- Dominion Stalker
-UPDATE `creature_template` SET `flags_extra`= 128, `unit_flags`= 33587200, `ScriptName`= 'NullCreatureAI' WHERE `entry`= 43656;
+UPDATE `creature_template` SET `flags_extra`= 128, `unit_flags`= 33587200, `AIName`= 'NullCreatureAI' WHERE `entry`= 43656;
 
 -- Spell Scripts
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN 
