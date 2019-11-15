@@ -200,6 +200,15 @@ void AzeriteItem::GiveXP(uint64 xp)
     owner->SendDirectMessage(xpGain.Write());
 }
 
+UF::SelectedAzeriteEssences const* AzeriteItem::GetSelectedAzeriteEssences() const
+{
+    for (UF::SelectedAzeriteEssences const& essences : m_azeriteItemData->SelectedEssences)
+        if (essences.Enabled)
+            return &essences;
+
+    return nullptr;
+}
+
 void AzeriteItem::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);

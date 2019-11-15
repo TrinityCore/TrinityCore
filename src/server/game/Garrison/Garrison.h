@@ -204,6 +204,7 @@ public:
     struct Follower
     {
         uint32 GetItemLevel() const;
+        bool HasAbility(uint32 garrAbilityId) const;
 
         WorldPackets::Garrison::GarrisonFollower PacketInfo;
     };
