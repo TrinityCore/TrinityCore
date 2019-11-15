@@ -1188,6 +1188,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetCurrencyOnWeek(uint32 id) const;
         /// return week cap by currency id
         uint32 GetCurrencyWeekCap(uint32 id) const;
+        /// return tracked currency count by currency id
+        uint32 GetTrackedCurrencyCount(uint32 id) const;
         /// return presence related currency
         bool HasCurrency(uint32 id, uint32 count) const;
         /// initialize currency count for custom initialization at create character

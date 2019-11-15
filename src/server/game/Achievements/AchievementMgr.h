@@ -91,6 +91,7 @@ public:
 
     void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) override;
 
+    using CriteriaHandler::ModifierTreeSatisfied;
     bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
 protected:

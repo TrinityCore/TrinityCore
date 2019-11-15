@@ -41,6 +41,8 @@ public:
     static uint64 CalcTotalXPToNextLevel(uint32 level, uint32 knowledgeLevel);
     void GiveXP(uint64 xp);
 
+    UF::SelectedAzeriteEssences const* GetSelectedAzeriteEssences() const;
+
     void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
     void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
     void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
