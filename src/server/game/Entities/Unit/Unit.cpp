@@ -6848,15 +6848,11 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     }
 
     // Add SPELL_AURA_MOD_DAMAGE_FROM_MANA percent bonus
-    AuraEffectList const& mDamageFromManaPct = owner->GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_MANA);
-    for (AuraEffectList::const_iterator i = mDamageFromManaPct.begin(); i != mDamageFromManaPct.end(); ++i)
+    if (int32 mana = GetPower(POWER_MANA))
     {
-        if (GetPower(POWER_MANA))
-        {
-            uint32 masteryBonus = (*i)->GetAmount();
-            float manaPct = 100.f * GetPower(POWER_MANA) / GetMaxPower(POWER_MANA);
-            AddPct(DoneTotalMod, CalculatePct(masteryBonus, manaPct));
-        }
+        int32 masteryBonus = owner->GetTotalAuraModifier(SPELL_AURA_MOD_DAMAGE_FROM_MANA);
+        float manaPct = 100.f * GetPower(POWER_MANA) / GetMaxPower(POWER_MANA);
+        AddPct(DoneTotalMod, CalculatePct(masteryBonus, manaPct));
     }
 
     // Custom scripted damage
