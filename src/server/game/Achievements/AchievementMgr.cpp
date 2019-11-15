@@ -549,7 +549,10 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
 
 bool PlayerAchievementMgr::ModifierTreeSatisfied(uint32 modifierTreeId) const
 {
-    return AdditionalRequirementsSatisfied(sCriteriaMgr->GetModifierTree(modifierTreeId), 0, 0, nullptr, _owner);
+    if (ModifierTreeNode const* modifierTree = sCriteriaMgr->GetModifierTree(modifierTreeId))
+        return ModifierTreeSatisfied(modifierTree, 0, 0, nullptr, _owner);
+
+    return false;
 }
 
 void PlayerAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
