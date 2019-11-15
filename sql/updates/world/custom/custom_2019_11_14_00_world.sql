@@ -4,7 +4,7 @@ UPDATE `creature_template` SET `ScriptName`= 'boss_nefarians_end' WHERE `entry`=
 UPDATE `creature_template` SET `speed_walk`= 3.2, `speed_run`= 1.71429, `unit_flags`= 33588032, `unit_flags2`= 134219776, `flags_extra`= 1 | 512, `DamageModifier`= 120, `BaseVariance`= 0.5, `BaseAttackTime`= 1500, `mechanic_immune_mask`= 650854271 WHERE `entry` IN (41376, 51104, 51105, 51106);
 -- Onyxia
 UPDATE `creature_template` SET `difficulty_entry_1`= 51116, `difficulty_entry_2`= 51117, `difficulty_entry_3` = 51118, `ScriptName`= 'npc_nefarians_end_onyxia' WHERE `entry`= 41270;
-UPDATE `creature_template` SET `minlevel`= 88, `maxlevel`= 88, `exp`= 3, `faction`= 16, `speed_walk`= 3.2, `speed_run`= 1.71429, `BaseAttackTime`= 1500, `unit_flags2`= 134219776, `unit_flags`= 537166656, `dynamicflags`= 32, `DamageModifier`= 120, `BaseVariance`= 0.5, `flags_extra`= 1073741824 WHERE `entry` IN (41270, 51116, 51117, 51118);
+UPDATE `creature_template` SET `minlevel`= 88, `maxlevel`= 88, `exp`= 3, `faction`= 16, `speed_walk`= 3.2, `speed_run`= 1.71429, `BaseAttackTime`= 1500, `unit_flags2`= 134219776, `unit_flags`= 537166656, `dynamicflags`= 32, `DamageModifier`= 120, `BaseVariance`= 0.5, `mechanic_immune_mask`= 650854271, `flags_extra`= 1073741824 WHERE `entry` IN (41270, 51116, 51117, 51118);
 -- Lord Victor Nefarius
 UPDATE `creature_template` SET `ScriptName`= 'npc_nefarians_end_lord_victor_nefarius' WHERE `entry`= 41379;
 -- Animated Bone Warrior
@@ -243,25 +243,25 @@ UPDATE `creature_template` SET `lootid`= `entry` WHERE `entry` IN (41376, 51104,
 DELETE FROM `creature_loot_template` WHERE `Entry` IN (41376, 51104, 51105, 51106);
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `Reference`, `MinCount`, `MaxCount`, `GroupId`) VALUES
 -- 10n
+(41376, 413760, 100, 1, 413760, 2, 2, 0),
 (41376, 63682, 0, 1, 0, 1, 1, 1),
 (41376, 63683, 0, 1, 0, 1, 1, 1),
 (41376, 63684, 0, 1, 0, 1, 1, 1),
-(41376, 413760, 100, 1, 413760, 2, 2, 2),
 -- 25n
+(51104, 413760, 100, 1, 413760, 5, 5, 0),
 (51104, 63682, 0, 1, 0, 1, 1, 1),
 (51104, 63683, 0, 1, 0, 1, 1, 1),
 (51104, 63684, 0, 1, 0, 1, 1, 1),
-(51104, 413760, 100, 1, 413760, 5, 5, 2),
 -- 10hc
+(51105, 413761, 100, 1, 413761, 2, 2, 0),
 (51105, 65000, 0, 1, 0, 1, 1, 1),
 (51105, 65001, 0, 1, 0, 1, 1, 1),
 (51105, 65002, 0, 1, 0, 1, 1, 1),
-(51105, 413761, 100, 1, 413761, 2, 2, 2),
 -- 25hc
+(51106, 413761, 100, 1, 413761, 5, 5, 0),
 (51106, 65000, 0, 1, 0, 1, 1, 1),
 (51106, 65001, 0, 1, 0, 1, 1, 1),
-(51106, 65002, 0, 1, 0, 1, 1, 1),
-(51106, 413761, 100, 1, 413761, 5, 5, 2);
+(51106, 65002, 0, 1, 0, 1, 1, 1);
 
 DELETE FROM `reference_loot_template` WHERE `Entry` IN (413760, 413761);
 INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Chance`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`) VALUES
