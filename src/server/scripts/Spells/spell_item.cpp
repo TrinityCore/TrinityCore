@@ -4764,8 +4764,6 @@ class spell_item_crescendo_of_suffering : public AuraScript
 
 enum ConsumeCharges
 {
-    SPELL_HEARTS_REVELATION         = 91027,
-    SPELL_HEARTS_REVELATION_HEROIC  = 92325,
     SPELL_RAW_FURY                  = 91832
 };
 
@@ -4817,6 +4815,81 @@ class spell_item_consume_charges : public SpellScriptLoader
 
     private:
         uint32 _spellId;
+};
+
+enum HeartsJudgement
+{
+    SPELL_HEARTS_JUDGEMENT_HEROIC   = 92328,
+    SPELL_HEARTS_REVELATION         = 91027,
+    SPELL_HEARTS_REVELATION_HEROIC  = 92325
+};
+
+class spell_item_hearts_judgement : public SpellScript
+{
+    PrepareSpellScript(spell_item_hearts_judgement);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HEARTS_JUDGEMENT_HEROIC,
+                SPELL_HEARTS_REVELATION,
+                SPELL_HEARTS_REVELATION_HEROIC
+            });
+    }
+
+    bool Load() override
+    {
+        _auraId = GetSpellInfo()->Id == SPELL_HEARTS_JUDGEMENT_HEROIC ? SPELL_HEARTS_REVELATION_HEROIC : SPELL_HEARTS_REVELATION;
+        return true;
+    }
+
+    SpellCastResult CheckCast()
+    {
+        if (Aura* aura = GetCaster()->GetAura(_auraId, GetCaster()->GetGUID()))
+            if (aura->GetStackAmount())
+                return SPELL_CAST_OK;
+
+        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_item_hearts_judgement::CheckCast);
+    }
+private:
+    uint32 _auraId = 0;
+};
+
+class spell_item_hearts_judgement_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_item_hearts_judgement_AuraScript);
+
+    bool Load() override
+    {
+        _auraId = GetSpellInfo()->Id == SPELL_HEARTS_JUDGEMENT_HEROIC ? SPELL_HEARTS_REVELATION_HEROIC : SPELL_HEARTS_REVELATION;
+        return true;
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Unit* target = GetUnitOwner();
+        uint8 stacks = 0;
+        if (Aura* revelation = target->GetAura(_auraId, target->GetGUID()))
+        {
+            stacks = revelation->GetStackAmount();
+            revelation->Remove();
+        }
+
+        amount *= stacks;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_item_hearts_judgement_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RATING);
+    }
+private:
+    uint32 _auraId;
 };
 
 void AddSC_item_spell_scripts()
@@ -4941,7 +5014,7 @@ void AddSC_item_spell_scripts()
     RegisterAuraScript(spell_item_egg_shell);
     RegisterAuraScript(spell_item_song_of_sorrow);
     RegisterAuraScript(spell_item_crescendo_of_suffering);
-    new spell_item_consume_charges("spell_item_hearts_judgement", SPELL_HEARTS_REVELATION);
-    new spell_item_consume_charges("spell_item_hearts_judgement_heroic", SPELL_HEARTS_REVELATION_HEROIC);
     new spell_item_consume_charges("spell_item_forged_fury", SPELL_RAW_FURY);
+    RegisterSpellAndAuraScriptPair(spell_item_hearts_judgement, spell_item_hearts_judgement_AuraScript);
+
 }
