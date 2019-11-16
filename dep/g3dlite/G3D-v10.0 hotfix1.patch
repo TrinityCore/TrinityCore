@@ -318,7 +318,17 @@ Index: include/G3D/System.h
 ===================================================================
 --- include/G3D/System.h	(revision 5889)
 +++ include/G3D/System.h	(working copy)
-@@ -379,10 +379,10 @@
+@@ -21,6 +21,9 @@
+ #include "G3D/FileNotFound.h"
+ #include "G3D/G3DString.h"
+ #include <vector>
++#ifdef G3D_LINUX
++#   include <sys/socket.h>
++#endif
+ 
+ 
+ #ifdef G3D_OSX
+@@ -379,10 +382,10 @@
       </PRE>
       \endhtmlonly
       */
@@ -331,7 +341,7 @@ Index: include/G3D/System.h
  
      inline static void setOutOfMemoryCallback(OutOfMemoryCallback c) {
          instance().m_outOfMemoryCallback = c;
-@@ -484,6 +484,7 @@
+@@ -484,6 +487,7 @@
  };
  
  
@@ -339,7 +349,7 @@ Index: include/G3D/System.h
  #ifdef _MSC_VER
  #   ifdef _M_IX86
          // 32-bit
-@@ -556,6 +557,7 @@
+@@ -556,6 +560,7 @@
                    (double) UnsignedWideToUInt64(diffNS) * instance().m_secondsPerNS);
  #endif
  }

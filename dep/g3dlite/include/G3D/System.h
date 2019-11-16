@@ -21,6 +21,9 @@
 #include "G3D/FileNotFound.h"
 #include "G3D/G3DString.h"
 #include <vector>
+#ifdef G3D_LINUX
+#   include <sys/socket.h>
+#endif
 
 
 #ifdef G3D_OSX
