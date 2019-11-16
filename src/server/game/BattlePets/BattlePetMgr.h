@@ -115,7 +115,7 @@ public:
 
     uint8 GetPetCount(uint32 species) const;
 
-    WorldPackets::BattlePet::BattlePetSlot* GetSlot(uint8 slot) { return &_slots[slot]; }
+    WorldPackets::BattlePet::BattlePetSlot* GetSlot(uint8 slot) { return slot < _slots.size() ? &_slots[slot] : nullptr; }
     void UnlockSlot(uint8 slot);
 
     WorldSession* GetOwner() const { return _owner; }

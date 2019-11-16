@@ -22,6 +22,7 @@
 #include <unordered_set>
 
 struct ScenarioData;
+struct ScenarioEntry;
 struct ScenarioStepEntry;
 
 namespace WorldPackets
@@ -64,6 +65,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
 
         bool IsComplete();
         void SetStepState(ScenarioStepEntry const* step, ScenarioStepState state) { _stepStates[step] = state; }
+        ScenarioEntry const* GetEntry() const;
         ScenarioStepState GetStepState(ScenarioStepEntry const* step);
         ScenarioStepEntry const* GetStep() const { return _currentstep; }
         ScenarioStepEntry const* GetFirstStep() const;
