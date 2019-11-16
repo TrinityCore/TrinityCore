@@ -37,7 +37,7 @@ private:
 public:
     float value;
 
-    Color1(DoNotInitialize dni) {}
+    Color1(DoNotInitialize /*dni*/) {}
 
     /**
     Initializes to 0

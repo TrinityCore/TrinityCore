@@ -15,7 +15,7 @@ private:
 
 public:
 
-    Matrix2(DoNotInitialize dni) {}
+    Matrix2(DoNotInitialize /*dni*/) {}
 
     Matrix2() {
         data[0][0] = 1.0f; data[0][1] = 0.0f;

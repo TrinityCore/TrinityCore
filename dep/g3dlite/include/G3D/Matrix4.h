@@ -73,7 +73,7 @@ public:
         float r3c1, float r3c2, float r3c3, float r3c4,
         float r4c1, float r4c2, float r4c3, float r4c4);
 
-    Matrix4(DoNotInitialize dni) {}
+    Matrix4(DoNotInitialize /*dni*/) {}
 
     /**
      init should be <B>row major</B>.

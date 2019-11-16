@@ -53,7 +53,7 @@ public:
         */
     Color4(const Any& any);
 
-    Color4(DoNotInitialize dni){}
+    Color4(DoNotInitialize /*dni*/){}
     
     /** Converts the Color4 to an Any. */
     Any toAny() const;

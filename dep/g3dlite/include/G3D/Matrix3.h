@@ -57,7 +57,7 @@ public:
     */
     Matrix3(const Any& any);
 
-    Matrix3(DoNotInitialize dni) {}
+    Matrix3(DoNotInitialize /*dni*/) {}
 
     static Matrix3 fromColumns(const Vector3& c0, const Vector3& c1, const Vector3& c2) {
         Matrix3 m;
@@ -352,7 +352,7 @@ public:
     // "You might be tempted to write [...] them as inline functions 
     // inside their respective header files, but this is something you 
     // must definitely not do. An inline function can be duplicated 
-    // in every file in which it appears œóõ½ and this duplication 
+    // in every file in which it appears oóõ½ and this duplication 
     // includes the static object definition. Because inline functions 
     // automatically default to internal linkage, this would result in 
     // having multiple static objects across the various translation 

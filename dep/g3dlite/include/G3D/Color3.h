@@ -45,7 +45,7 @@ public:
      */
     Color3() : r(0), g(0), b(0) {}
 
-    Color3(DoNotInitialize dni) {}
+    Color3(DoNotInitialize /*dni*/) {}
 
     bool nonZero() const {
         return (r != 0) || (g != 0) || (b != 0);

@@ -18,10 +18,32 @@ Index: include/G3D/Array.h
         const size_t oldSize = num;
         num += other.num;
         if (numAllocated < num) {
+Index: include/G3D/Color1.h
+===================================================================
+--- include/G3D/Color1.h	(revision 5516)
++++ include/G3D/Color1.h	(working copy)
+@@ -37,7 +37,7 @@
+ public:
+     float value;
+ 
+-    Color1(DoNotInitialize dni) {}
++    Color1(DoNotInitialize /*dni*/) {}
+ 
+     /**
+     Initializes to 0
 Index: include/G3D/Color3.h
 ===================================================================
 --- include/G3D/Color3.h	(revision 5516)
 +++ include/G3D/Color3.h	(working copy)
+@@ -45,7 +45,7 @@
+      */
+     Color3() : r(0), g(0), b(0) {}
+ 
+-    Color3(DoNotInitialize dni) {}
++    Color3(DoNotInitialize /*dni*/) {}
+ 
+     bool nonZero() const {
+         return (r != 0) || (g != 0) || (b != 0);
 @@ -190,7 +190,7 @@
      Color3 direction() const;
      float squaredLength () const;
@@ -31,6 +53,19 @@ Index: include/G3D/Color3.h
      Color3 cross (const Color3& rkVector) const;
      Color3 unitCross (const Color3& rkVector) const;
  
+Index: include/G3D/Color4.h
+===================================================================
+--- include/G3D/Color4.h	(revision 5516)
++++ include/G3D/Color4.h	(working copy)
+@@ -53,7 +53,7 @@
+         */
+     Color4(const Any& any);
+ 
+-    Color4(DoNotInitialize dni){}
++    Color4(DoNotInitialize /*dni*/){}
+     
+     /** Converts the Color4 to an Any. */
+     Any toAny() const;
 Index: include/G3D/debugAssert.h
 ===================================================================
 --- include/G3D/debugAssert.h	(revision 5516)
@@ -146,10 +181,32 @@ Index: include/G3D/GMutex.h
  #endif
  
  #if defined(G3D_LINUX) || defined(G3D_OSX)
+Index: include/G3D/Matrix2.h
+===================================================================
+--- include/G3D/Matrix2.h	(revision 5516)
++++ include/G3D/Matrix2.h	(working copy)
+@@ -15,7 +15,7 @@
+ 
+ public:
+ 
+-    Matrix2(DoNotInitialize dni) {}
++    Matrix2(DoNotInitialize /*dni*/) {}
+ 
+     Matrix2() {
+         data[0][0] = 1.0f; data[0][1] = 0.0f;
 Index: include/G3D/Matrix3.h
 ===================================================================
 --- include/G3D/Matrix3.h	(revision 5516)
 +++ include/G3D/Matrix3.h	(working copy)
+@@ -57,7 +57,7 @@
+     */
+     Matrix3(const Any& any);
+ 
+-    Matrix3(DoNotInitialize dni) {}
++    Matrix3(DoNotInitialize /*dni*/) {}
+ 
+     static Matrix3 fromColumns(const Vector3& c0, const Vector3& c1, const Vector3& c2) {
+         Matrix3 m;
 @@ -245,8 +245,8 @@
      bool isOrthonormal() const;
  
@@ -161,6 +218,28 @@ Index: include/G3D/Matrix3.h
      float determinant () const;
  
      /** singular value decomposition */
+@@ -352,7 +352,7 @@
+     // "You might be tempted to write [...] them as inline functions 
+     // inside their respective header files, but this is something you 
+     // must definitely not do. An inline function can be duplicated 
+-    // in every file in which it appears œóõ½ and this duplication 
++    // in every file in which it appears oóõ½ and this duplication 
+     // includes the static object definition. Because inline functions 
+     // automatically default to internal linkage, this would result in 
+     // having multiple static objects across the various translation 
+Index: include/G3D/Matrix4.h
+===================================================================
+--- include/G3D/Matrix4.h	(revision 5516)
++++ include/G3D/Matrix4.h	(working copy)
+@@ -73,7 +73,7 @@
+         float r3c1, float r3c2, float r3c3, float r3c4,
+         float r4c1, float r4c2, float r4c3, float r4c4);
+ 
+-    Matrix4(DoNotInitialize dni) {}
++    Matrix4(DoNotInitialize /*dni*/) {}
+ 
+     /**
+      init should be <B>row major</B>.
 Index: include/G3D/platform.h
 ===================================================================
 --- include/G3D/platform.h	(revision 5516)
