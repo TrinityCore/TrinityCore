@@ -46,6 +46,10 @@ extern "C" {
 #define ARGON2_MIN_LANES UINT32_C(1)
 #define ARGON2_MAX_LANES UINT32_C(0xFFFFFF)
 
+/* Minimum and maximum number of threads */
+#define ARGON2_MIN_THREADS UINT32_C(1)
+#define ARGON2_MAX_THREADS UINT32_C(0xFFFFFF)
+
 /* Number of synchronization points between lanes per pass */
 #define ARGON2_SYNC_POINTS UINT32_C(4)
 

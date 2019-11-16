@@ -16,148 +16,148 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_High_Inquisitor_Fairbanks
-SD%Complete: 100
-SDComment: @todo if this guy not involved in some special event, remove (and let ACID script)
-SDCategory: Scarlet Monastery
-EndScriptData */
-
-#include "ScriptMgr.h"
 #include "scarlet_monastery.h"
-#include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "Timer.h"
 
-enum Spells
+enum HighInquisitorFairbanksSpells
 {
-    SPELL_CURSEOFBLOOD              = 8282,
-    SPELL_DISPELMAGIC               = 15090,
-    SPELL_FEAR                      = 12096,
-    SPELL_HEAL                      = 12039,
-    SPELL_POWERWORDSHIELD           = 11647,
-    SPELL_SLEEP                     = 8399
+    SPELL_CURSEOFBLOOD = 8282,
+    SPELL_DISPEL_MAGIC = 15090,
+    SPELL_FEAR = 12096,
+    SPELL_HEAL = 12039,
+    SPELL_POWERWORDSHIELD = 11647,
+    SPELL_SLEEP = 8399
 };
 
-class boss_high_inquisitor_fairbanks : public CreatureScript
+enum HighInquisitorFairbanksEvents
+{
+    EVENT_CURSE_BLOOD = 1,
+    EVENT_DIPEL_MAGIC,
+    EVENT_FEAR,
+    EVENT_HEAL,
+    EVENT_SLEEP
+};
+
+class HighInquisitorFairbanksDispelMagicTargetSelector
 {
 public:
-    boss_high_inquisitor_fairbanks() : CreatureScript("boss_high_inquisitor_fairbanks") { }
+    HighInquisitorFairbanksDispelMagicTargetSelector(Unit* owner) : _me(owner) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    bool operator()(Unit* unit) const
     {
-        return GetScarletMonasteryAI<boss_high_inquisitor_fairbanksAI>(creature);
+        if (unit->GetTypeId() != TYPEID_PLAYER || _me->GetDistance(unit) > 30.f)
+            return false;
+
+        DispelChargesList dispelList;
+        unit->GetDispellableAuraList(_me, DISPEL_MAGIC, dispelList);
+        if (dispelList.empty())
+            return false;
+
+        return true;
     }
 
-    struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
+private:
+    Unit const* _me;
+};
+
+struct boss_high_inquisitor_fairbanks : public BossAI
+{
+    boss_high_inquisitor_fairbanks(Creature* creature) : BossAI(creature, DATA_HIGH_INQUISITOR_FAIRBANKS), _healTimer(0), _powerWordShield(false) { }
+
+    void Reset() override
     {
-        boss_high_inquisitor_fairbanksAI(Creature* creature) : ScriptedAI(creature)
+        _Reset();
+        _healTimer.Reset(0);
+        _powerWordShield = false;
+        me->SetStandState(UNIT_STAND_STATE_DEAD);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        events.ScheduleEvent(EVENT_CURSE_BLOOD, 10s);
+        events.ScheduleEvent(EVENT_DIPEL_MAGIC, 30s);
+        events.ScheduleEvent(EVENT_FEAR, 40s);
+        events.ScheduleEvent(EVENT_SLEEP, 25s);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(25, damage))
         {
-            Initialize();
-            instance = creature->GetInstanceScript();
+            if (!_powerWordShield)
+            {
+                DoCastSelf(SPELL_POWERWORDSHIELD);
+                _powerWordShield = true;
+            }
+
+            if (!me->IsNonMeleeSpellCast(false) && _healTimer.Passed())
+            {
+                _healTimer.Reset(30 * IN_MILLISECONDS);
+                DoCastSelf(SPELL_HEAL);
+            }
         }
+    }
 
-        void Initialize()
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            CurseOfBlood_Timer = 10000;
-            DispelMagic_Timer = 30000;
-            Fear_Timer = 40000;
-            Heal_Timer = 30000;
-            Sleep_Timer = 30000;
-            Dispel_Timer = 20000;
-            PowerWordShield = false;
-        }
-
-        uint32 CurseOfBlood_Timer;
-        uint32 DispelMagic_Timer;
-        uint32 Fear_Timer;
-        uint32 Heal_Timer;
-        uint32 Sleep_Timer;
-        uint32 Dispel_Timer;
-        bool PowerWordShield;
-        InstanceScript* instance;
-
-        void Reset() override
-        {
-            Initialize();
-            me->SetStandState(UNIT_STAND_STATE_DEAD);
-            instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, NOT_STARTED);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, IN_PROGRESS);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            instance->SetBossState(DATA_HIGH_INQUISITOR_FAIRBANKS, DONE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
+            ExecuteEvent(eventId);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            //If we are <25% hp cast Heal
-            if (!HealthAbovePct(25) && !me->IsNonMeleeSpellCast(false) && Heal_Timer <= diff)
-            {
-                DoCast(me, SPELL_HEAL);
-                Heal_Timer = 30000;
-            }
-            else Heal_Timer -= diff;
-
-            //Fear_Timer
-            if (Fear_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(target, SPELL_FEAR);
-
-                Fear_Timer = 40000;
-            }
-            else Fear_Timer -= diff;
-
-            //Sleep_Timer
-            if (Sleep_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
-                    DoCast(target, SPELL_SLEEP);
-
-                Sleep_Timer = 30000;
-            }
-            else Sleep_Timer -= diff;
-
-            //PowerWordShield_Timer
-            if (!PowerWordShield && !HealthAbovePct(25))
-            {
-                DoCast(me, SPELL_POWERWORDSHIELD);
-                PowerWordShield = true;
-            }
-
-            //Dispel_Timer
-            if (Dispel_Timer <= diff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_DISPELMAGIC);
-
-                DispelMagic_Timer = 30000;
-            }
-            else DispelMagic_Timer -= diff;
-
-            //CurseOfBlood_Timer
-            if (CurseOfBlood_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CURSEOFBLOOD);
-                CurseOfBlood_Timer = 25000;
-            }
-            else CurseOfBlood_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
-    };
+
+        if (!_healTimer.Passed())
+            _healTimer.Update(diff);
+
+        DoMeleeAttackIfReady();
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_CURSE_BLOOD:
+                DoCastVictim(SPELL_CURSEOFBLOOD);
+                events.Repeat(25s);
+                break;
+            case EVENT_DIPEL_MAGIC:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, HighInquisitorFairbanksDispelMagicTargetSelector(me)))
+                    DoCast(target, SPELL_DISPEL_MAGIC);
+                events.Repeat(30s);
+                break;
+            case EVENT_FEAR:
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.f, true))
+                    DoCast(target, SPELL_FEAR);
+                events.Repeat(40s);
+                break;
+            case EVENT_SLEEP:
+                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 30.f, true, false))
+                    DoCast(target, SPELL_SLEEP);
+                events.Repeat(30s);
+            default:
+                break;
+        }
+    }
+
+private:
+    TimeTrackerSmall _healTimer;
+    bool _powerWordShield;
 };
 
 void AddSC_boss_high_inquisitor_fairbanks()
 {
-    new boss_high_inquisitor_fairbanks();
+    RegisterScarletMonasteryCreatureAI(boss_high_inquisitor_fairbanks);
 }

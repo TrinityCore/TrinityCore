@@ -16,7 +16,7 @@
  */
 
 #include "WorldDatabase.h"
-#include "PreparedStatement.h"
+#include "MySQLPreparedStatement.h"
 
 void WorldDatabaseConnection::DoPrepareStatements()
 {
