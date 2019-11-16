@@ -57,6 +57,7 @@ private:
 
     static Log*             commonLog;
 
+public:
 
     /**
      If the specified file cannot
