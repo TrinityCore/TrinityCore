@@ -23,6 +23,7 @@
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CollectionMgr.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
@@ -43,6 +44,7 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 bool CriteriaData::IsValid(Criteria const* criteria)
 {
