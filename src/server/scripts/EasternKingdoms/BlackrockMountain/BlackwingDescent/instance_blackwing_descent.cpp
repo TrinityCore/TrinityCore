@@ -340,7 +340,6 @@ class instance_blackwing_descent : public InstanceMapScript
                         break;
                     case DATA_RESET_ELEVATOR:
                         _events.ScheduleEvent(EVENT_RAISE_ELEVATOR, data);
-                        printf("elevator raise scheduled for %u ms! \n", data);
                         break;
                     default:
                         break;
