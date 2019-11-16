@@ -82,7 +82,7 @@ class G3DAllocator {
     }
 
     // deallocate storage p of deleted elements
-    void deallocate (pointer p, size_type num) {
+    void deallocate (pointer p, size_type /*num*/) {
         //::operator delete((void*)p);
         _internal::systemFree(p);
     }

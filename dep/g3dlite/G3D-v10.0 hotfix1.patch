@@ -64,6 +64,19 @@ Index: include/G3D/debugAssert.h
  
  /**
   Pops up an assertion dialog or prints an assertion
+Index: include/G3D/G3DAllocator.h
+===================================================================
+--- include/G3D/G3DAllocator.h	(revision 5516)
++++ include/G3D/G3DAllocator.h	(working copy)
+@@ -82,7 +82,7 @@
+     }
+ 
+     // deallocate storage p of deleted elements
+-    void deallocate (pointer p, size_type num) {
++    void deallocate (pointer p, size_type /*num*/) {
+         //::operator delete((void*)p);
+         _internal::systemFree(p);
+     }
 Index: include/G3D/g3dmath.h
 ===================================================================
 --- include/G3D/g3dmath.h	(revision 5516)
