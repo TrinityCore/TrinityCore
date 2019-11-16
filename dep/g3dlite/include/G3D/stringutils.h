@@ -4,7 +4,7 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @author  2000-09-09
- @edited  2010-03-05
+ @edited  2015-03-17
  */
 
 #ifndef G3D_stringutils_h
@@ -12,7 +12,9 @@
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
+#include "G3D/DepthFirstTreeBuilder.h"
 #include <cstring>
+#include "G3D/G3DString.h"
 
 namespace G3D {
 
@@ -201,6 +203,36 @@ inline int countNewlines(const String& s) {
     }
     return c;
 }
+
+/** Finds the greatest common prefix of two strings 
+    of ' ', ':', ';', '/', and '\' separated words.
+    \param a const String
+    \param b const String */
+inline String greatestCommonPrefix(const String a, const String b) {
+    String rest = a;  //rest of unsearched string a
+    size_t i = 0;     //end index of gcp so far
+        
+    while ((i < a.length()) && (i < b.length())) {
+        const size_t j = rest.find_first_of(" :/\\;"); 
+        //since j is the index of the first found separator, the length of the prefix is j+1       
+        if ((j == std::string::npos)    //no more separators in a
+            || (i + j + 1 > b.length()) //not enough characters in b to contain the prefix
+            || (a.substr(i, j + 1) != b.substr(i, j + 1))) { 
+            return a.substr(0, i);
+        }           
+        i += j + 1;
+        rest = a.substr(i);
+    }
+    return a.substr(0, i);
+}   
+
+
+/** Does a depth first traversal of a prefix tree 
+    generated from the passed list. The list must 
+    be sorted alphabetically.
+\param list alphabetically sorted list of strings
+\param tree depth first tree traversal, providing functions enterChild(n) and goToParent() */
+void buildPrefixTree(const Array<String>& list, DepthFirstTreeBuilder<String>& tree);
 
 }; // namespace
 

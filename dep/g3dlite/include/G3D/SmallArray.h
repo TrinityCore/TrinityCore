@@ -4,7 +4,7 @@
   \created 2009-04-26
   \edited  2012-07-23
 
-  Copyright 2000-2014, Morgan McGuire, http://graphics.cs.williams.edu
+  Copyright 2000-2015, Morgan McGuire, http://graphics.cs.williams.edu
   All rights reserved.
  */
 #ifndef G3D_SmallArray_h

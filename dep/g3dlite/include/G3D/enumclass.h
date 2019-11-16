@@ -61,7 +61,7 @@ namespace G3D {
  */
 #define G3D_DECLARE_ENUM_CLASS_METHODS(Classname)\
 private: \
-    void fromString(const String& x) {\
+    void fromString(const G3D::String& x) {\
         Value v = (Value)0;\
         const char* s;\
         int i = 0;\
@@ -69,7 +69,7 @@ private: \
         do {\
             s = toString(i, v);\
             if (s == NULL) {\
-                throw String(format("Attempted to create enum from illegal string %s", x.c_str()));\
+                throw G3D::String(G3D::format("Attempted to create enum from illegal string %s", x.c_str()));\
                 return;\
             }\
             if (x == s) {\
@@ -98,7 +98,7 @@ public:\
         }\
     }\
 \
-    explicit Classname(const String& x) : value((Value)0) {\
+    explicit Classname(const G3D::String& x) : value((Value)0) {\
         fromString(x);\
     }\
 \
@@ -122,7 +122,7 @@ public:\
         static int c = -1;\
         if (c == -1) {\
             Value ignore = Value(0);\
-            for (c = 0; notNull(toString(c, ignore)); ++c);\
+            for (c = 0; G3D::notNull(toString(c, ignore)); ++c);\
         }\
         return c;\
     }\
@@ -130,7 +130,7 @@ public:\
     static Value nthValue(int n) {\
         Value v = Value(0);\
         const char* c = toString(n, v);\
-        debugAssertM(notNull(c), "Value out of range"); (void)c; \
+        debugAssertM(G3D::notNull(c), "Value out of range"); (void)c; \
         return v;\
     }\
 \
@@ -138,7 +138,7 @@ public:\
         return (int)value;\
     }\
 \
-    Classname& operator=(const Any& a) {\
+    Classname& operator=(const G3D::Any& a) {\
         value = Classname(a).value;\
         return *this;\
     }\

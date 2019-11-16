@@ -6,7 +6,7 @@
   \created 2007-05-16
   \edited  2012-01-02
 
-  Copyright 2000-2014, Morgan McGuire.
+  Copyright 2000-2015, Morgan McGuire.
   All rights reserved.
  */
 #ifndef G3D_WeakCache_h

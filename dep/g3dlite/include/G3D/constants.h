@@ -3,7 +3,7 @@
 
   \maintainer Morgan McGuire, http://graphics.cs.williams.edu
   \created 2009-05-20
-  \edited  2013-09-27
+  \edited  2015-01-02
 */
 #ifndef G3D_constants_h
 #define G3D_constants_h
@@ -42,7 +42,8 @@ public:
 };
 
 
-/** Values for UniversalSurface::GPUGeom::refractionHint. */
+/** \def RefractionQuality
+   Values for UniversalSurface::GPUGeom::refractionHint. */
 G3D_DECLARE_ENUM_CLASS(RefractionQuality,
         /** No refraction; a translucent object will appear as if it had the same index of refraction
             as the surrounding medium and objects will be undistorted in the background. */
@@ -86,11 +87,54 @@ G3D_DECLARE_ENUM_CLASS(MirrorQuality,
         /** True ray tracing. */
         RAY_TRACE);
 
+
+/** \brief How the alpha value should be interpreted for partial coverage. 
+
+    This must be kept in sync with AlphaHint.glsl
+    \sa UniversalMaterial */
+G3D_DECLARE_ENUM_CLASS(AlphaHint,
+        /** Used by UniversalMaterial to specify a default behavior:
+        
+            - use BLEND for surfaces with some 0.0 < alpha < 1.0
+            - use ONE for surfaces with all alpha = 1.0. 
+            - use BINARY for surfaces with both alpha = 0 and alpha = 1 at locations, but no intermediate values
+        */
+        DETECT,
+
+        /** Treat the surface as completely covered, forcing alpha = 1.0 everywhere */
+        ONE,
+
+        /** Alpha is rounded per sample before being applied. Alpha >= 0.5 is rendered, alpha < 0.5 is discarded. 
+            This enables faster deferred shading and more accurate post-processing because the surface can be exactly represented in the 
+            GBuffer. It creates some aliasing on surface edges, however. */
+        BINARY,
+
+        /** Convert alpha to coverage values using
+           <code>glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB)</code>.
+           Requires a MSAA framebuffer to be bound.
+
+           Not currently supported by UniversalSurface.
+           
+           See http://www.dhpoware.com/samples/glMultiSampleAntiAliasing.html for an example.*/
+        COVERAGE_MASK,
+        
+        /** Render surfaces with partial coverage from back to front,
+            using Porter and Duff's OVER operator.  This leaves the
+            depth buffer inconsistent with the color buffer and
+            requires a sort, but often gives the best appearance. 
+            
+            Even surfaces with a binary alpha cutout can benefit from
+            blending because the transition under minification or magnification
+            between alpha = 0 and alpha = 1 will create fractional values.*/
+        BLEND
+    );
+
 } // namespace G3D
 
 G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::PrimitiveType)
 G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::RefractionQuality)
 G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::MirrorQuality)
+G3D_DECLARE_ENUM_CLASS_HASHCODE(G3D::AlphaHint)
 
 #endif
 

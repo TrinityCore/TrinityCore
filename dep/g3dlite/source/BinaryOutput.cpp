@@ -360,7 +360,10 @@ void BinaryOutput::commit(bool flush) {
 
             size_t success = fwrite(m_buffer, m_bufferLen, 1, file);
             (void)success;
-            debugAssertM(success == 1, String("Could not write to '") + m_filename + "'");
+			if (success != 1) {
+				debugAssertM(false, String("Could not write to '") + m_filename + "'");
+				throw String("BinaryOutput::commit could not write to '") + m_filename + "'";
+			}
         }
         if (flush) {
             fflush(file);

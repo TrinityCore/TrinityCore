@@ -29,6 +29,11 @@ const Color1& Color1::zero() {
     return x;
 }
 
+const Color1& Color1::nan() {
+    static const Color1 x(fnan());
+    return x;
+}
+
 
 Color1::Color1(BinaryInput& bi) {
     deserialize(bi);

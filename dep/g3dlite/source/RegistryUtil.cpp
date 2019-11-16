@@ -140,6 +140,7 @@ bool RegistryUtil::readBytes(const String& key, const String& value, uint8* data
     return (result == ERROR_SUCCESS);
 }
 
+
 bool RegistryUtil::readString(const String& key, const String& value, String& data) {
     size_t pos = key.find('\\', 0);
     if (pos == String::npos) {
@@ -160,7 +161,6 @@ bool RegistryUtil::readString(const String& key, const String& value, String& da
         uint32 dataSize = 0;
 
         result = RegQueryValueExA(openKey, value.c_str(), NULL, NULL, NULL, reinterpret_cast<LPDWORD>(&dataSize));
-        debugAssertM(result == ERROR_SUCCESS, "Could not read registry key value.");
 
         // increment datasize to allow for non null-terminated strings in registry
         dataSize += 1;
@@ -170,7 +170,6 @@ bool RegistryUtil::readString(const String& key, const String& value, String& da
             System::memset(tmpStr, 0, dataSize);
 
             result = RegQueryValueExA(openKey, value.c_str(), NULL, NULL, reinterpret_cast<LPBYTE>(tmpStr), reinterpret_cast<LPDWORD>(&dataSize));
-            debugAssertM(result == ERROR_SUCCESS, "Could not read registry key value.");
                 
             if (result == ERROR_SUCCESS) {
                 data = tmpStr;
@@ -180,8 +179,10 @@ bool RegistryUtil::readString(const String& key, const String& value, String& da
             System::free(tmpStr);
         }
     }
+
     return (result == ERROR_SUCCESS);
 }
+
 
 bool RegistryUtil::writeInt32(const String& key, const String& value, int32 data) {
     size_t pos = key.find('\\', 0);

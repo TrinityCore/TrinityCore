@@ -31,6 +31,7 @@ set(g3dlib_STAT_SRCS
   source/G3DAllocator.cpp
   source/G3DString.cpp
   source/GThread.cpp
+  source/initG3D.cpp
   source/Line.cpp
   source/LineSegment.cpp
   source/Log.cpp

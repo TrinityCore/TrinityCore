@@ -377,33 +377,20 @@ void System::initializeDirectoryArray(Array<String>& directoryArray, bool caseSe
     // Initialize the directory array
     RealTime t0 = System::time();
 
-    Array<String> baseDirArray;
+    std::vector<String> baseDirArray;
         
-    baseDirArray.append(FileSystem::currentDirectory());
+    baseDirArray.push_back(FileSystem::currentDirectory());
 
     if (! initialAppDataDir.empty()) {
-        baseDirArray.append(initialAppDataDir);
-        baseDirArray.append(pathConcat(initialAppDataDir, "data"));
-        baseDirArray.append(pathConcat(initialAppDataDir, "data.zip"));
+        baseDirArray.push_back(initialAppDataDir);
+        baseDirArray.push_back(pathConcat(initialAppDataDir, "data"));
+        baseDirArray.push_back(pathConcat(initialAppDataDir, "data.zip"));
     } else {
-        baseDirArray.append("data");
-        baseDirArray.append("data.zip");
+        baseDirArray.push_back("data");
+        baseDirArray.push_back("data.zip");
     }
 
-	const char* c = System::getEnv("G3D10DATA");
-    const String& fullG3D10DATA = isNull(c) ? "" : c;
-    const char splitChar = 
-#           ifdef G3D_WINDOWS
-            ';'
-#           else
-            ':'
-#           endif
-            ;
-
-    const Array<String>& allG3D10DATAPaths = stringSplit(fullG3D10DATA, splitChar);
-    for (int i = 0; i < allG3D10DATAPaths.size(); ++i) {
-        baseDirArray.append(FileSystem::resolve(allG3D10DATAPaths[i]));
-    }
+    getG3DDataPaths(baseDirArray);
 
     static const String subdirs[] = 
         {"font", "gui", "shader", "model", "cubemap", "icon", "material", "image", "md2", "md3", "ifs", "3ds", "sky", "music", "sound", "scene", ""};
@@ -424,6 +411,29 @@ void System::initializeDirectoryArray(Array<String>& directoryArray, bool caseSe
         }
     }
     logLazyPrintf("Initializing System::findDataFile took %fs\n", System::time() - t0);
+}
+
+void System::getG3DDataPaths(std::vector<String>& paths) {
+    instance().init();
+
+    if (! _internal::g3dInitializationSpecification().deployMode) {
+        const char* c = System::getEnv("G3D10DATA");
+        const String& fullG3D10DATA = isNull(c) ? "" : c;
+        const char splitChar = 
+    #           ifdef G3D_WINDOWS
+                ';'
+    #           else
+                ':'
+    #           endif
+                ;
+
+        const Array<String>& allG3D10DATAPaths = stringSplit(fullG3D10DATA, splitChar);
+        for (int i = 0; i < allG3D10DATAPaths.size(); ++i) {
+              if (! allG3D10DATAPaths[i].empty()) {
+                  paths.push_back(FileSystem::resolve(allG3D10DATAPaths[i]));
+              }
+        }
+    }
 }
 
 #define MARK_LOG()
@@ -1627,7 +1637,7 @@ const char* System::getEnv(const String& name) {
 
 
 static void var(TextOutput& t, const String& name, const String& val) {
-    t.writeSymbols(name,"=");
+    t.writeSymbols(name, "=");
     t.writeString(val);
     t.writeNewline();
 }
@@ -1640,7 +1650,7 @@ static void var(TextOutput& t, const String& name, const bool val) {
 
 
 static void var(TextOutput& t, const String& name, const int val) {
-    t.writeSymbols(name,"=");
+    t.writeSymbols(name, "=");
     t.writeNumber(val);
     t.writeNewline();
 }
@@ -1709,6 +1719,7 @@ void System::describeSystem(
         const char* g3dPath = getenv("G3D10DATA");
         var(t, "Link version", G3D_VER);
         var(t, "Compile version", System::version());
+        var(t, "G3DSpecification::deployMode", _internal::g3dInitializationSpecification().deployMode);
         var(t, "G3D10DATA", String(g3dPath ? g3dPath : ""));
     }
     t.popIndent();

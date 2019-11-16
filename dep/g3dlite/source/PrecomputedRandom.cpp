@@ -62,6 +62,12 @@ PrecomputedRandom::~PrecomputedRandom() {
     }
 }
 
+
+void PrecomputedRandom::reset(uint32 seed, bool threadsafe) {
+    m_index = seed & m_modMask;
+}
+
+
 float PrecomputedRandom::uniform(float low, float high) {
     m_index = (m_index + 1) & m_modMask;
     return low + m_hemiUniform[m_index].uniform * (high - low);

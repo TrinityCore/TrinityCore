@@ -10,7 +10,7 @@
  \created 2001-06-02
  \edited  2013-10-07
 
- Copyright 2000-2014, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
  */
 
@@ -279,6 +279,7 @@ public:
 
     static const Color3& zero();
     static const Color3& one();
+	static const Color3& nan();
 
     inline Color3 bgr() const {
         return Color3(b, g, r);

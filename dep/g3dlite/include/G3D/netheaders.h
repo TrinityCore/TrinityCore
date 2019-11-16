@@ -1,6 +1,6 @@
 /*
 G3D Library
- Copyright 2000-2014, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
 */
 #ifndef G3D_netheaders_h

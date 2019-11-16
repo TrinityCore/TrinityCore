@@ -307,7 +307,9 @@ INT_PTR CALLBACK PromptDlgProc(HWND hDlg, UINT msg,
     case WM_INITDIALOG:
       {
         PromptParams *params = (PromptParams*)lParam;
-        ::SetWindowTextA(::GetDlgItem(hDlg, IDC_MESSAGE), params->message);
+        HWND item = ::GetDlgItem(hDlg, IDC_MESSAGE);
+
+        ::SetWindowTextA(item, params->message);
 
         ::SetFocus(::GetDlgItem(hDlg, IDC_BUTTON0));
 
@@ -425,7 +427,7 @@ static int guiPrompt(
     *pNew = '\0';
 
     PromptParams params;
-    params.message  = newStr;;
+    params.message  = newStr;
     params.title    = windowTitle;
 
     HMODULE module = GetModuleHandle(0);

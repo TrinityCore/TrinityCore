@@ -5,7 +5,7 @@
    \created 2008-07-01
    \edited  2010-11-28
 
-   Copyright 2000-2014, Morgan McGuire.
+   Copyright 2000-2015, Morgan McGuire.
    All rights reserved.
 */
 #ifndef G3D_PointHashGrid_h

@@ -7,7 +7,7 @@
  \created 2007-01-31
  \edited  2011-08-20
 
- Copyright 2000-2014, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
  */
 
@@ -59,6 +59,8 @@ public:
     inline bool isOne() const {
         return value == 1.0f;
     }
+
+	static const Color1& nan();
 
     static const Color1& one();
 

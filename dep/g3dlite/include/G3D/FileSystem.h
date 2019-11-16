@@ -195,6 +195,9 @@ private:
     /** \copydoc resolve */
     String _resolve(const String& path, const String& cwd = currentDirectory());
 
+    /** \copydoc NFDStandardizeFilename */
+    String _NFDStandardizeFilename(const String& path, const String& cwd = currentDirectory());
+
     /** \copydoc isNewer */
     bool _isNewer(const String& src, const String& dst);
 
@@ -438,7 +441,17 @@ public:
         return b;
     }
 
-    
+    /**
+        Attempts to fully resolve a filename, removing all instances of "." and "..", assuming that there are no Symlinks that would make "." or ".." difficult to reason about.
+        Also ensures that the slashes are consistent. NFD will crash when given a path that does not meet this qualifications
+    */
+
+    static String NFDStandardizeFilename(const String& path, const String& cwd = currentDirectory()) {
+        mutex.lock();
+        const String& s = instance()._NFDStandardizeFilename(path, cwd);
+        mutex.unlock();
+        return s;
+    }
 	/** Fully qualifies a filename.
 
         The filename may contain wildcards, in which case the wildcards will be preserved in the returned value.

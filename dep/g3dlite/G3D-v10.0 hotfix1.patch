@@ -1,6 +1,6 @@
 Index: include/G3D/Array.h
 ===================================================================
---- include/G3D/Array.h	(revision 5516)
+--- include/G3D/Array.h	(revision 5889)
 +++ include/G3D/Array.h	(working copy)
 @@ -362,6 +362,7 @@
  
@@ -20,7 +20,7 @@ Index: include/G3D/Array.h
         if (numAllocated < num) {
 Index: include/G3D/Color1.h
 ===================================================================
---- include/G3D/Color1.h	(revision 5516)
+--- include/G3D/Color1.h	(revision 5889)
 +++ include/G3D/Color1.h	(working copy)
 @@ -37,7 +37,7 @@
  public:
@@ -33,7 +33,7 @@ Index: include/G3D/Color1.h
      Initializes to 0
 Index: include/G3D/Color3.h
 ===================================================================
---- include/G3D/Color3.h	(revision 5516)
+--- include/G3D/Color3.h	(revision 5889)
 +++ include/G3D/Color3.h	(working copy)
 @@ -45,7 +45,7 @@
       */
@@ -55,7 +55,7 @@ Index: include/G3D/Color3.h
  
 Index: include/G3D/Color4.h
 ===================================================================
---- include/G3D/Color4.h	(revision 5516)
+--- include/G3D/Color4.h	(revision 5889)
 +++ include/G3D/Color4.h	(working copy)
 @@ -53,7 +53,7 @@
          */
@@ -68,7 +68,7 @@ Index: include/G3D/Color4.h
      Any toAny() const;
 Index: include/G3D/debugAssert.h
 ===================================================================
---- include/G3D/debugAssert.h	(revision 5516)
+--- include/G3D/debugAssert.h	(revision 5889)
 +++ include/G3D/debugAssert.h	(working copy)
 @@ -45,10 +45,12 @@
  #ifdef G3D_LINUX
@@ -101,7 +101,7 @@ Index: include/G3D/debugAssert.h
   Pops up an assertion dialog or prints an assertion
 Index: include/G3D/G3DAllocator.h
 ===================================================================
---- include/G3D/G3DAllocator.h	(revision 5516)
+--- include/G3D/G3DAllocator.h	(revision 5889)
 +++ include/G3D/G3DAllocator.h	(working copy)
 @@ -82,7 +82,7 @@
      }
@@ -114,7 +114,7 @@ Index: include/G3D/G3DAllocator.h
      }
 Index: include/G3D/g3dmath.h
 ===================================================================
---- include/G3D/g3dmath.h	(revision 5516)
+--- include/G3D/g3dmath.h	(revision 5889)
 +++ include/G3D/g3dmath.h	(working copy)
 @@ -31,7 +31,7 @@
  #include <stdlib.h>
@@ -159,7 +159,7 @@ Index: include/G3D/g3dmath.h
  }
 Index: include/G3D/G3DString.h
 ===================================================================
---- include/G3D/G3DString.h	(revision 5516)
+--- include/G3D/G3DString.h	(revision 5889)
 +++ include/G3D/G3DString.h	(working copy)
 @@ -852,6 +852,7 @@
      typedef SSESmallString<64> String;
@@ -171,7 +171,7 @@ Index: include/G3D/G3DString.h
  /** For use with default output arguments. The value is always undefined. */
 Index: include/G3D/GMutex.h
 ===================================================================
---- include/G3D/GMutex.h	(revision 5516)
+--- include/G3D/GMutex.h	(revision 5889)
 +++ include/G3D/GMutex.h	(working copy)
 @@ -16,6 +16,7 @@
  #ifndef G3D_WINDOWS
@@ -183,7 +183,7 @@ Index: include/G3D/GMutex.h
  #if defined(G3D_LINUX) || defined(G3D_OSX)
 Index: include/G3D/Matrix2.h
 ===================================================================
---- include/G3D/Matrix2.h	(revision 5516)
+--- include/G3D/Matrix2.h	(revision 5889)
 +++ include/G3D/Matrix2.h	(working copy)
 @@ -15,7 +15,7 @@
  
@@ -196,7 +196,7 @@ Index: include/G3D/Matrix2.h
          data[0][0] = 1.0f; data[0][1] = 0.0f;
 Index: include/G3D/Matrix3.h
 ===================================================================
---- include/G3D/Matrix3.h	(revision 5516)
+--- include/G3D/Matrix3.h	(revision 5889)
 +++ include/G3D/Matrix3.h	(working copy)
 @@ -57,7 +57,7 @@
      */
@@ -229,7 +229,7 @@ Index: include/G3D/Matrix3.h
      // having multiple static objects across the various translation 
 Index: include/G3D/Matrix4.h
 ===================================================================
---- include/G3D/Matrix4.h	(revision 5516)
+--- include/G3D/Matrix4.h	(revision 5889)
 +++ include/G3D/Matrix4.h	(working copy)
 @@ -73,7 +73,7 @@
          float r3c1, float r3c2, float r3c3, float r3c4,
@@ -242,9 +242,9 @@ Index: include/G3D/Matrix4.h
       init should be <B>row major</B>.
 Index: include/G3D/platform.h
 ===================================================================
---- include/G3D/platform.h	(revision 5516)
+--- include/G3D/platform.h	(revision 5889)
 +++ include/G3D/platform.h	(working copy)
-@@ -362,6 +362,12 @@
+@@ -366,6 +366,12 @@
  #endif
  #if (!defined(_LIBCPP_VERSION) && defined(__APPLE__)) || (!defined(_LIBCPP_VERSION) && defined(__linux__))
  #   include <tr1/memory>
@@ -257,7 +257,7 @@ Index: include/G3D/platform.h
      using std::tr1::shared_ptr;
      using std::tr1::weak_ptr;
      using std::tr1::dynamic_pointer_cast;
-@@ -368,7 +374,6 @@
+@@ -372,7 +378,6 @@
      using std::tr1::static_pointer_cast;
      using std::tr1::enable_shared_from_this;
  #else
@@ -265,7 +265,7 @@ Index: include/G3D/platform.h
      using std::shared_ptr;
      using std::weak_ptr;
      using std::dynamic_pointer_cast;
-@@ -376,7 +381,6 @@
+@@ -380,7 +385,6 @@
      using std::enable_shared_from_this;
  #endif
  
@@ -275,7 +275,7 @@ Index: include/G3D/platform.h
      public:
 Index: include/G3D/Quat.h
 ===================================================================
---- include/G3D/Quat.h	(revision 5516)
+--- include/G3D/Quat.h	(revision 5889)
 +++ include/G3D/Quat.h	(working copy)
 @@ -345,8 +345,8 @@
       Note that q.pow(a).pow(b) == q.pow(a + b)
@@ -303,7 +303,7 @@ Index: include/G3D/Quat.h
      /**
 Index: include/G3D/Rect2D.h
 ===================================================================
---- include/G3D/Rect2D.h	(revision 5516)
+--- include/G3D/Rect2D.h	(revision 5889)
 +++ include/G3D/Rect2D.h	(working copy)
 @@ -118,7 +118,7 @@
      }
@@ -316,19 +316,9 @@ Index: include/G3D/Rect2D.h
      /** \param any Must either Rect2D::xywh(#, #, #, #) or Rect2D::xyxy(#, #, #, #)*/
 Index: include/G3D/System.h
 ===================================================================
---- include/G3D/System.h	(revision 5516)
+--- include/G3D/System.h	(revision 5889)
 +++ include/G3D/System.h	(working copy)
-@@ -20,6 +20,9 @@
- #include "G3D/BinaryFormat.h"
- #include "G3D/FileNotFound.h"
- #include "G3D/G3DString.h"
-+#ifdef G3D_LINUX
-+#   include <sys/socket.h>
-+#endif
- 
- 
- #ifdef G3D_OSX
-@@ -378,10 +381,10 @@
+@@ -379,10 +379,10 @@
       </PRE>
       \endhtmlonly
       */
@@ -341,7 +331,7 @@ Index: include/G3D/System.h
  
      inline static void setOutOfMemoryCallback(OutOfMemoryCallback c) {
          instance().m_outOfMemoryCallback = c;
-@@ -477,6 +480,7 @@
+@@ -484,6 +484,7 @@
  };
  
  
@@ -349,7 +339,7 @@ Index: include/G3D/System.h
  #ifdef _MSC_VER
  #   ifdef _M_IX86
          // 32-bit
-@@ -549,6 +553,7 @@
+@@ -556,6 +557,7 @@
                    (double) UnsignedWideToUInt64(diffNS) * instance().m_secondsPerNS);
  #endif
  }
@@ -359,7 +349,7 @@ Index: include/G3D/System.h
  } // namespace
 Index: include/G3D/Vector2.h
 ===================================================================
---- include/G3D/Vector2.h	(revision 5516)
+--- include/G3D/Vector2.h	(revision 5889)
 +++ include/G3D/Vector2.h	(working copy)
 @@ -55,7 +55,7 @@
      /** \param any Must either Vector2(#, #) or Vector2 {x = #, y = #}*/
@@ -372,7 +362,7 @@ Index: include/G3D/Vector2.h
      Any toAny() const;
 Index: include/G3D/Vector3.h
 ===================================================================
---- include/G3D/Vector3.h	(revision 5516)
+--- include/G3D/Vector3.h	(revision 5889)
 +++ include/G3D/Vector3.h	(working copy)
 @@ -77,7 +77,7 @@
      /** Initializes to zero */
@@ -385,7 +375,7 @@ Index: include/G3D/Vector3.h
          Because Point3 is a typedef for Vector3 in the current implementation,
 Index: source/BinaryInput.cpp
 ===================================================================
---- source/BinaryInput.cpp	(revision 5516)
+--- source/BinaryInput.cpp	(revision 5889)
 +++ source/BinaryInput.cpp	(working copy)
 @@ -38,8 +38,10 @@
  #include "G3D/fileutils.h"
@@ -417,7 +407,7 @@ Index: source/BinaryInput.cpp
      m_length = FileSystem::size(m_filename);
 Index: source/BinaryOutput.cpp
 ===================================================================
---- source/BinaryOutput.cpp	(revision 5516)
+--- source/BinaryOutput.cpp	(revision 5889)
 +++ source/BinaryOutput.cpp	(working copy)
 @@ -14,7 +14,7 @@
  #include "G3D/FileSystem.h"
@@ -441,7 +431,7 @@ Index: source/BinaryOutput.cpp
  // chunks of the file will be dumped to disk.
 Index: source/debugAssert.cpp
 ===================================================================
---- source/debugAssert.cpp	(revision 5516)
+--- source/debugAssert.cpp	(revision 5889)
 +++ source/debugAssert.cpp	(working copy)
 @@ -37,9 +37,11 @@
  AssertionHook _failureHook = _handleErrorCheck_;
@@ -482,7 +472,7 @@ Index: source/debugAssert.cpp
      #endif
 Index: source/FileSystem.cpp
 ===================================================================
---- source/FileSystem.cpp	(revision 5516)
+--- source/FileSystem.cpp	(revision 5889)
 +++ source/FileSystem.cpp	(working copy)
 @@ -12,7 +12,9 @@
  #include "G3D/fileutils.h"
@@ -537,7 +527,7 @@ Index: source/FileSystem.cpp
  }
  
  
-@@ -587,6 +602,7 @@
+@@ -611,6 +626,7 @@
      int result = stat64(filename.c_str(), &st);
      
      if (result == -1) {
@@ -545,7 +535,7 @@ Index: source/FileSystem.cpp
          String zip, contents;
          if (zipfileExists(filename, zip, contents)) {
              int64 requiredMem;
-@@ -604,8 +620,11 @@
+@@ -628,8 +644,11 @@
              zip_close(z);
              return requiredMem;
          } else {
@@ -559,7 +549,7 @@ Index: source/FileSystem.cpp
      return st.st_size;
 Index: source/fileutils.cpp
 ===================================================================
---- source/fileutils.cpp	(revision 5516)
+--- source/fileutils.cpp	(revision 5889)
 +++ source/fileutils.cpp	(working copy)
 @@ -21,7 +21,9 @@
  
@@ -687,7 +677,7 @@ Index: source/fileutils.cpp
  
 Index: source/G3DString.cpp
 ===================================================================
---- source/G3DString.cpp	(revision 5516)
+--- source/G3DString.cpp	(revision 5889)
 +++ source/G3DString.cpp	(working copy)
 @@ -20,5 +20,11 @@
  #   endif
@@ -704,7 +694,7 @@ Index: source/G3DString.cpp
 +}
 Index: source/prompt.cpp
 ===================================================================
---- source/prompt.cpp	(revision 5516)
+--- source/prompt.cpp	(revision 5889)
 +++ source/prompt.cpp	(working copy)
 @@ -21,6 +21,7 @@
  #    define _getch getchar
@@ -724,7 +714,7 @@ Index: source/prompt.cpp
  
  #ifdef G3D_WINDOWS
  
-@@ -469,6 +472,7 @@
+@@ -471,6 +474,7 @@
  }
  
  #endif
@@ -732,7 +722,7 @@ Index: source/prompt.cpp
  
  
  /**
-@@ -531,6 +535,7 @@
+@@ -533,6 +537,7 @@
      return c;
  }
  
@@ -740,7 +730,7 @@ Index: source/prompt.cpp
  #ifdef G3D_OSX
  
  static int guiPrompt
-@@ -543,6 +548,7 @@
+@@ -545,6 +550,7 @@
  }
  
  #endif
@@ -748,7 +738,7 @@ Index: source/prompt.cpp
  
  int prompt(
      const char*      windowTitle,
-@@ -551,6 +557,7 @@
+@@ -553,6 +559,7 @@
      int              numChoices,
      bool             useGui) {
  
@@ -756,7 +746,7 @@ Index: source/prompt.cpp
      #ifdef G3D_WINDOWS
          if (useGui) {
              // Build the message box
-@@ -566,6 +573,9 @@
+@@ -568,6 +575,9 @@
  		  return result;
                  }
          #endif
@@ -768,7 +758,7 @@ Index: source/prompt.cpp
  
 Index: source/RegistryUtil.cpp
 ===================================================================
---- source/RegistryUtil.cpp	(revision 5516)
+--- source/RegistryUtil.cpp	(revision 5889)
 +++ source/RegistryUtil.cpp	(working copy)
 @@ -16,6 +16,15 @@
  #include "G3D/RegistryUtil.h"
@@ -788,7 +778,7 @@ Index: source/RegistryUtil.cpp
  // static helpers
 Index: source/System.cpp
 ===================================================================
---- source/System.cpp	(revision 5516)
+--- source/System.cpp	(revision 5889)
 +++ source/System.cpp	(working copy)
 @@ -46,6 +46,7 @@
  #   include <sys/timeb.h>
@@ -808,7 +798,7 @@ Index: source/System.cpp
  
  
  namespace G3D {
-@@ -926,7 +929,11 @@
+@@ -936,7 +939,11 @@
          
          if (localTimeVals) {
              // tm_gmtoff is already corrected for daylight savings.

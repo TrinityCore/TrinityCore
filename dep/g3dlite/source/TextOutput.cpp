@@ -5,7 +5,7 @@
   \created 2004-06-21
   \edited  2013-04-09
 
-  Copyright 2000-2014, Morgan McGuire.
+  Copyright 2000-2015, Morgan McGuire.
   All rights reserved.
  */
 

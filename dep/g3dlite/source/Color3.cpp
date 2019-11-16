@@ -189,6 +189,12 @@ const Color3& Color3::one() {
 }
 
 
+const Color3& Color3::nan() {
+    static Color3 c(fnan(), fnan(), fnan());
+    return c;
+}
+
+
 const Color3& Color3::gray() {
     static Color3 c(0.7f, 0.7f, 0.7f);
     return c;

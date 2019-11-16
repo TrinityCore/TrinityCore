@@ -8,7 +8,7 @@
   \created 2001-06-02
   \edited  2013-09-25
 
-  Copyright 2000-2014, Morgan McGuire.
+  Copyright 2000-2015, Morgan McGuire.
   All rights reserved.
  */
 
@@ -395,13 +395,10 @@ public:
         That is, so that the probability of \f$\vec{V}\f$ is
         proportional to \f$\max((\vec{v} \cdot \vec{n})^k, 0)\f$.
         Useful in photon mapping for glossy scattering.
-
-        Distribution rendered by G3D::DirectionHistogram:
-        \image html vector3-cospowhemirandom.png
-
+        
         \param n Unit vector at the center of the distribution.
 
-        @cite Ashikhmin and Shirley, An anisotropic Phong BRDF model, Journal of Graphics Tools, 2002
+        \cite Ashikhmin and Shirley, An anisotropic Phong BRDF model, Journal of Graphics Tools, 2002
     */
     static Vector3 cosPowHemiRandom(const Vector3& n, const float k, Random& r = Random::common());
 

@@ -4,9 +4,9 @@
  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
  @created 2009-03-31
- @edited  2009-03-31
+ @edited  2015-06-01
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
  */
 #ifndef G3D_PrecomputedRandom_h
@@ -75,6 +75,8 @@ public:
     PrecomputedRandom(int dataSize, uint32 seed = 0xF018A4D2);
 
     ~PrecomputedRandom();
+    
+    virtual void reset(uint32 seed = 0xF018A4D2, bool threadsafe = true) override;
 
     /** Each bit is random.  Subclasses can choose to override just 
        this method and the other methods will all work automatically. */

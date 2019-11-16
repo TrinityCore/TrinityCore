@@ -5,7 +5,7 @@
 
  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
- Copyright 2000-2014, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
 
  \created 2003-06-09
@@ -14,6 +14,10 @@
 
 #ifndef G3D_platform_h
 #define G3D_platform_h
+
+/** \def G3D_OSX Defined on OS X */
+/** \def G3D_WINDOWS Defined on Windows */
+/** \def G3D_LINUX Defined on Linux */
 
 /**
  \def G3D_VER
@@ -104,7 +108,7 @@ These control the version of Winsock used by G3D.
 #   ifndef __GNUC__
 #       error G3D only supports the gcc compiler on Linux.
 #   endif
-#   define G3D_NO_FFMPEG
+//#   define G3D_NO_FFMPEG
 #endif
 
 #ifdef G3D_OSX
@@ -219,7 +223,7 @@ These control the version of Winsock used by G3D.
 #       define NOMINMAX 1
 #   endif
 #   ifndef _WIN32_WINNT
-#       define _WIN32_WINNT 0x0500
+#       define _WIN32_WINNT 0x0602
 #   endif
 #   include <windows.h>
 #   undef WIN32_LEAN_AND_MEAN
@@ -403,7 +407,12 @@ namespace G3D {
 		/** Should AudioDevice be enabled? (It will still be initialized regardless of enabling.) Default: false. */
 		bool audio;
 
-        G3DSpecification() : threadedNetworking(true), audio(false) {}
+        /** Set parameters for deployment of a standalone application.
+            If true, disable System::findDataFile's ability to look in
+            the directory specified by the G3D10DATA environment variable. */
+        bool deployMode;
+
+        G3DSpecification() : threadedNetworking(true), audio(false), deployMode(false) {}
 
         virtual ~G3DSpecification() {}
     };

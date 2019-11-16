@@ -522,6 +522,30 @@ void FileSystem::_removeFile(const String& path) {
     _clearCache(FilePath::parent(path));
 }
 
+String FileSystem::_NFDStandardizeFilename(const String& _path, const String& _cwd) {
+    const String& filename = FilePath::canonicalize(_resolve(_path, _cwd));
+    Array<String> sections = stringSplit(filename, '/');
+    size_t size = sections.size();
+    Array<size_t> removalIndices;
+    for (size_t i = 0; i < sections.size(); ++i) {
+        if (sections[i] == ".") {
+            removalIndices.append(i);
+        }
+        else if (sections[i] == "..") {
+            removalIndices.append(i);
+            debugAssertM(i != 0, "Absolute path cannot begin with  \"..\"");
+            removalIndices.append(i - 1);
+        }
+    }
+    for (size_t i = 0; i < removalIndices.size(); ++i) {
+        sections.remove(removalIndices[i]);
+    }
+    char slash = '/';
+#ifdef G3D_WINDOWS
+    slash = '\\';
+#endif
+    return stringJoin(sections, slash);
+}
 
 String FileSystem::_resolve(const String& _filename, const String& _cwd) {
     const String& filename = FilePath::expandEnvironmentVariables(_filename);

@@ -1,5 +1,5 @@
 /**
- Copyright 2000-2014, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
 */
 #include "G3D/Frustum.h"

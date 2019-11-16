@@ -6,7 +6,7 @@
  \created 2009-01-02
  \edited  2012-03-29
 
- Copyright 2000-2014, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
  */
 #include "G3D/Random.h"

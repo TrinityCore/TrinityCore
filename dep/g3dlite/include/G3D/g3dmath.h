@@ -9,7 +9,7 @@
  \created 2001-06-02
  \edited  2014-07-14
 
- Copyright 2000-2014, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
  */
 

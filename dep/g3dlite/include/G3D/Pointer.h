@@ -6,7 +6,7 @@
   \created 2007-05-16
   \edited  2012-10-06
 
-  Copyright 2000-2014, Morgan McGuire.
+  Copyright 2000-2015, Morgan McGuire.
   All rights reserved.
  */
 #ifndef G3D_Pointer_h
@@ -379,6 +379,126 @@ public:
     static Pointer<bool> wrap(const Pointer<bool>& ptr) {
         Ptr p(new NotAdapter(ptr));
         return Pointer<bool>(p, &NotAdapter::get, &NotAdapter::set);
+    }
+};
+
+
+/** Maps an integer pointer to a power of two G3D::Pointer value \sa NegativeAdapter */
+template<class T>
+class PowerOfTwoAdapter : public ReferenceCountedObject {
+private:
+
+    friend class Pointer<int>;
+
+    Pointer<int>      m_source;
+
+    typedef shared_ptr<PowerOfTwoAdapter> Ptr;
+
+    /** For use by Pointer<T> */
+    T get() const { return m_source.getValue(); }
+
+    /** For use by Pointer<T> */
+    void set(const T& v) { m_source.setValue(ceilPow2(v)); }
+
+    PowerOfTwoAdapter(Pointer<T> ptr) : m_source(ptr) {}
+
+public:
+
+    static Pointer<T> create(Pointer<T> ptr) {
+        Ptr p(new PowerOfTwoAdapter(ptr));
+        return Pointer<T>(p, &PowerOfTwoAdapter::get, &PowerOfTwoAdapter::set);
+    }
+};
+
+/** Negates a numeric type G3D::Pointer value \sa PercentageAdapter */
+template<class T>
+class NegativeAdapter : public ReferenceCountedObject {
+private:
+
+    friend class Pointer<T>;
+
+    Pointer<T>      m_source;
+
+    typedef shared_ptr<NegativeAdapter> Ptr;
+
+    NegativeAdapter(Pointer<T> ptr) : m_source(ptr) {}
+
+    /** For use by Pointer<T> */
+    T get() const { return -m_source.getValue(); }
+
+    /** For use by Pointer<T> */
+    void set(const T& v) { m_source.setValue(-v); }
+
+public:
+
+    static Pointer<T> create(Pointer<T> ptr) {
+        Ptr p(new NegativeAdapter(ptr));
+        return Pointer<T>(p, &NegativeAdapter<T>::get, &NegativeAdapter<T>::set);
+    }
+};
+
+
+/** Maps a floating point fraction to a percentage G3D::Pointer value \sa NegativeAdapter */
+template<class T>
+class PercentageAdapter : public ReferenceCountedObject {
+private:
+
+    friend class Pointer<float>;
+
+    Pointer<float>      m_source;
+
+    typedef shared_ptr<PercentageAdapter> Ptr;
+
+    /** For use by Pointer<T> */
+    T get() const { return 100.0f * m_source.getValue(); }
+
+    /** For use by Pointer<T> */
+    void set(const T& v) { m_source.setValue(v * 0.01f); }
+
+    PercentageAdapter(Pointer<T> ptr) : m_source(ptr) {}
+
+public:
+
+    static Pointer<T> create(Pointer<T> ptr) {
+        Ptr p(new PercentageAdapter(ptr));
+        return Pointer<T>(p, &PercentageAdapter::get, &PercentageAdapter::set);
+    }
+};
+
+
+/** Maps an integer pointer to a perfect square */
+template<class T>
+class SquareAdapter : public ReferenceCountedObject {
+private:
+
+    friend class Pointer<int>;
+
+    Pointer<int>      m_source;
+
+    typedef shared_ptr<SquareAdapter> Ptr;
+
+    /** For use by Pointer<T> */
+    T get() const { return m_source.getValue(); }
+
+    /** For use by Pointer<T> */
+    void set(const T& v) {
+        int low = int(square(floor(sqrt(v))));
+        int high = int(square(ceil(sqrt(v))));
+        if (high - v < v - low) {
+            m_source.setValue(high);
+        }
+        else {
+            m_source.setValue(low);
+        }
+    }
+
+    SquareAdapter(Pointer<T> ptr) : m_source(ptr) {}
+
+public:
+
+    static Pointer<T> create(Pointer<T> ptr) {
+        Ptr p(new SquareAdapter(ptr));
+        return Pointer<T>(p, &SquareAdapter::get, &SquareAdapter::set);
     }
 };
 

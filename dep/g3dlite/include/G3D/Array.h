@@ -7,7 +7,7 @@
   \created 2001-03-11
   \edited  2013-01-28
 
-  Copyright 2000-2014, Morgan McGuire, http://graphics.cs.williams.edu
+  Copyright 2000-2015, Morgan McGuire, http://graphics.cs.williams.edu
   All rights reserved.
  */
 
@@ -914,6 +914,15 @@ public:
                                             (int)n, (int)num));
        return data[n];
    }
+
+   // OS X's clang distinguishes between uint64 and size_t
+#   ifdef G3D_OSX
+   inline T& operator[](size_t n) {
+       debugAssertM(n < (size_t)num, format("Array index out of bounds. n = %d, size() = %d",
+                                            (int)n, (int)num));
+       return data[n];
+   }
+#   endif
    
    inline T& operator[](uint64 n) {
        debugAssertM(n < (uint64)num, format("Array index out of bounds. n = %d, size() = %d", (int)n, (int)num));
@@ -934,6 +943,14 @@ public:
         debugAssert(data!=NULL);
         return data[n];
     }
+
+#   ifdef G3D_OSX
+    inline const T& operator[](size_t n) const {
+        debugAssert((n < (size_t)num));
+        debugAssert(data!=NULL);
+        return data[n];
+    }
+#   endif
 
     inline const T& operator[](uint64 n) const {
         debugAssert((n < (uint64)num));

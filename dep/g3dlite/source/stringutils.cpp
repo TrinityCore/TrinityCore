@@ -46,6 +46,14 @@ bool __cdecl alphabeticalIgnoringCaseG3DLastLessThan(const String& _a, const Str
         }
     } else if (beginsWith(b, "g3d")) {
         return true;
+    } else if (beginsWith(a, "mcg")) {
+        if (beginsWith(b, "mcg")) {
+            return (a < b);
+        } else {
+            return false;
+        }
+    } else if (beginsWith(b, "mcg")) {
+        return true;
     } else {
         return (a < b);
     }
@@ -340,6 +348,79 @@ String trimWhitespace(const String& s) {
     return s.substr(left, right - left + 1);
 }
 
+
+namespace _internal {
+    /** Helper function to prefixTree. Finds all strings 
+        within the given interval which share an indented 
+        prefix with the item at index start, continuing the 
+        tree traversal with the smallest greatest common 
+        prefix of these strings.
+        \param list alphabetically sorted list of strings
+        \param tree depth first tree traversal, providing functions enterChild(n) and goToParent() 
+        \param start beginning of interval, inclusive
+        \param end end of interval, exclusive
+        \param indent starting index of string being considered */
+void buildPrefixTree(const Array<String>& list, DepthFirstTreeBuilder<String>& tree, const size_t start, const size_t end, const size_t indent) {      
+    debugAssertM(end <= list.length(), "Index out of bounds.");
+    debugAssertM(start <= end + 1, "The interval cannot have the inclusive start index more than one past the exclusive end index");
+    
+    if (start >= end) {
+        // reached end of recursion
+        return;
+    } 
+    
+    if (start == (end - 1)) {
+        // if start == (end - 1), then entry is a leaf
+        tree.enterChild(list[int(start)].substr(indent));
+        tree.goToParent();
+    } else {
+        // else, find elements at top of list that share a prefix
+        // start < end <  list.length(), therefore start and start + 1 are valid indices 
+        // t, leastGCP, and prefix will change upon each iteration
+        size_t t = start;
+        String leastGCP = greatestCommonPrefix(list[start].substr(indent), list[start + 1].substr(indent));
+        String prefix = leastGCP;
+    
+        while ((! prefix.empty()) && (t < (end - 1))) {
+            // when considering children, we must keep track of indent index of where
+            // the child starts in the string
+            // for example, when considering the children of "G3D Demo" and "G3D Scene",
+            // the indent will be 4 since the parent is "G3D " and the children are "Demo" and "Scene"
+            prefix = greatestCommonPrefix(list[t].substr(indent), list[t + 1].substr(indent)); 
+            if (! prefix.empty()) {
+                ++t;
+                if (prefix.length() < leastGCP.length()) {
+                  leastGCP = prefix; 
+                }
+            }
+        } // while
+        
+        if (leastGCP.empty()) {
+            // if leastGCP is "", then list[start] is a leaf
+            buildPrefixTree(list, tree, start, t + 1,   indent);
+            buildPrefixTree(list, tree, t + 1, end, indent);
+        
+        } else { 
+            // t represents last index of list that shared a common prefix
+            // otherwise, leastGCP is a child and _prefixTree can be recursively called
+            // if t < end, then there are siblings to be added as well
+            tree.enterChild(leastGCP);
+            buildPrefixTree(list, tree, start, t + 1, indent + leastGCP.length());
+            tree.goToParent();
+
+            if (t < end - 1) {
+                buildPrefixTree(list, tree, t + 1, end, indent); 
+            } // t < end
+        } // leastGCP is empty
+    } // start < end
+}
+
+} // _internal
+
+
+void buildPrefixTree(const Array<String>& list, DepthFirstTreeBuilder<String>& tree) {
+     _internal::buildPrefixTree(list, tree, 0, list.length(), 0);
+}
 
 }; // namespace
 

@@ -159,7 +159,7 @@ bool _handleDebugAssert_(
     // Log the error
     Log::common()->print(String("\n**************************\n\n") + dialogTitle + "\n" + dialogText);
 
-    int result = G3D::prompt(dialogTitle.c_str(), dialogText.c_str(), (const char**)choices, 3, useGuiPrompt);
+    const int result = G3D::prompt(dialogTitle.c_str(), dialogText.c_str(), (const char**)choices, 3, useGuiPrompt);
 
 #    ifdef G3D_WINDOWS
         // Put the incoming last error back.

@@ -6,7 +6,7 @@
  \created 2001-08-09
  \edited  2011-08-24
 
- Copyright 2000-2014, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
  */
 
@@ -176,6 +176,9 @@ public:
 
      @param flush If true (default) the file is ready for reading when the method returns, otherwise 
       the method returns immediately and writes the file in the background.
+
+	  String exception will be thrown for file write failure.
+
     */
     void commit(bool flush = true);
 

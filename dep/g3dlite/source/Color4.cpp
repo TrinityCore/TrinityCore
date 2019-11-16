@@ -6,7 +6,7 @@
  \author Morgan McGuire, http://graphics.cs.williams.edu
 
  \created 2002-06-25
- \edited  2014-02-13
+ \edited  2015-01-13
  */
 
 #include <stdlib.h>
@@ -18,7 +18,6 @@
 #include "G3D/BinaryOutput.h"
 #include "G3D/Any.h"
 #include "G3D/stringutils.h"
-#include "GLG3D/UniversalBSDF.h"
 
 namespace G3D {
 
@@ -30,11 +29,14 @@ static float parseAlphaAny(const Any& a) {
     case Any::ARRAY:
     case Any::EMPTY_CONTAINER:
         if (a.nameBeginsWith("glossyExponent")) {
+            // Legacy code path
             a.verifySize(1);
-            return UniversalBSDF::packGlossyExponent(float(a[0].number()));
+            const float x = float(a[0].number());
+            // Never let the exponent go above the max representable non-mirror value in a uint8
+            return (clamp((float)(sqrt((x - 0.5f) * (1.0f / 8192.0f))), 0.0f, 1.0f) * 253.0f + 1.0f) * (1.0f / 255.0f);
         } else if (a.nameBeginsWith("mirror")) {
             a.verifySize(0);
-            return UniversalBSDF::packedSpecularMirror();
+            return 1.0f;
         }
         break;
 

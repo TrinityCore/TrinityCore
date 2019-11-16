@@ -9,7 +9,7 @@
  \created 2001-08-25
  \edited  2014-10-24
 
- Copyright 2000-2014, Morgan McGuire.
+ Copyright 2000-2015, Morgan McGuire.
  All rights reserved.
 */
 
@@ -177,7 +177,8 @@ template<class T> struct HashTrait< shared_ptr<T> > {
 #include "G3D/CPUPixelTransferBuffer.h"
 #include "G3D/CompassDirection.h"
 #include "G3D/Access.h"
-
+#include "G3D/DepthFirstTreeBuilder.h"
+#include "G3D/SmallTable.h"
 namespace G3D {
 
     /** 

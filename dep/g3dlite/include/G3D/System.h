@@ -20,9 +20,7 @@
 #include "G3D/BinaryFormat.h"
 #include "G3D/FileNotFound.h"
 #include "G3D/G3DString.h"
-#ifdef G3D_LINUX
-#   include <sys/socket.h>
-#endif
+#include <vector>
 
 
 #ifdef G3D_OSX
@@ -420,6 +418,12 @@ public:
 
     static void describeSystem
        (String&        s);
+
+    /**
+     Appends search paths specified by G3D10DATA environment
+     variable to paths vector, since cannot rely on Array.
+    */
+    static void getG3DDataPaths(std::vector<String>& paths);
 
     /**
      Tries to locate the resource by looking in related directories.

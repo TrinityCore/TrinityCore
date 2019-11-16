@@ -6,7 +6,7 @@
   \created 2011-08-11
   \edited  2011-08-11
 
-  Copyright 2000-2014, Morgan McGuire.
+  Copyright 2000-2015, Morgan McGuire.
   All rights reserved.
  */
 #ifndef G3D_unorm8_h
