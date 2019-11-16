@@ -28,14 +28,14 @@ target_compile_definitions(argon2
 set_target_properties(argon2 PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(argon2
-PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR})
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(argon2
-PRIVATE
-  trinity-dependency-interface)
+  PRIVATE
+    trinity-dependency-interface)
 
 set_target_properties(argon2
-PROPERTIES
-  FOLDER
-    "dep")
+  PROPERTIES
+    FOLDER
+      "dep")
