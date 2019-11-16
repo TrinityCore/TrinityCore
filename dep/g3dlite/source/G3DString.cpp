@@ -20,11 +20,4 @@ bool inConstSegment(const char* c) {
 #   endif
     (void)PROBED_CONST_SEG_ADDR;
 }
-#if 0
-#elif !defined(G3D_64BIT) || !_MSC_VER
-#else
-std::ostream& operator<<(std::ostream& os, const String& str) {
-    return os << str.c_str();
-}
-#endif
 }

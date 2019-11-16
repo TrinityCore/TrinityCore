@@ -834,11 +834,11 @@ public:
 */
 
 // Choose the implementation of G3D::String
-#if 0
+#if 1
 
     // Slow
     typedef std::string String;
-    #define G3D_STRING_DESTRUCTOR ~string
+    #define G3D_STRING_DESTRUCTOR ~basic_string
 
 #elif !defined(G3D_64BIT) || !_MSC_VER
 
@@ -852,7 +852,6 @@ public:
     typedef SSESmallString<64> String;
     #define G3D_STRING_DESTRUCTOR ~SSESmallString
 
-    std::ostream& operator<<(std::ostream& os, const String& str);
 #endif
 
 /** For use with default output arguments. The value is always undefined. */
@@ -872,6 +871,7 @@ inline G3D::SSESmallString<64> operator+(const char s1, const G3D::SSESmallStrin
 #endif
 
 
+/*
 #if defined(G3D_64BIT) && _MSC_VER
 // For use with hash_map
 namespace stdext {
@@ -883,5 +883,6 @@ inline
 	}
 }
 #endif
+*/
 
 #endif

@@ -161,14 +161,35 @@ Index: include/G3D/G3DString.h
 ===================================================================
 --- include/G3D/G3DString.h	(revision 5889)
 +++ include/G3D/G3DString.h	(working copy)
-@@ -852,6 +852,7 @@
-     typedef SSESmallString<64> String;
-     #define G3D_STRING_DESTRUCTOR ~SSESmallString
+@@ -834,11 +834,11 @@
+ */
  
-+    std::ostream& operator<<(std::ostream& os, const String& str);
+ // Choose the implementation of G3D::String
+-#if 0
++#if 1
+ 
+     // Slow
+     typedef std::string String;
+-    #define G3D_STRING_DESTRUCTOR ~string
++    #define G3D_STRING_DESTRUCTOR ~basic_string
+ 
+ #elif !defined(G3D_64BIT) || !_MSC_VER
+ 
+@@ -871,6 +871,7 @@
  #endif
  
- /** For use with default output arguments. The value is always undefined. */
+ 
++/*
+ #if defined(G3D_64BIT) && _MSC_VER
+ // For use with hash_map
+ namespace stdext {
+@@ -882,5 +883,6 @@
+ 	}
+ }
+ #endif
++*/
+ 
+ #endif
 Index: include/G3D/GMutex.h
 ===================================================================
 --- include/G3D/GMutex.h	(revision 5889)
@@ -218,15 +239,6 @@ Index: include/G3D/Matrix3.h
      float determinant () const;
  
      /** singular value decomposition */
-@@ -352,7 +352,7 @@
-     // "You might be tempted to write [...] them as inline functions 
-     // inside their respective header files, but this is something you 
-     // must definitely not do. An inline function can be duplicated 
--    // in every file in which it appears œóõ½ and this duplication 
-+    // in every file in which it appears oóõ½ and this duplication 
-     // includes the static object definition. Because inline functions 
-     // automatically default to internal linkage, this would result in 
-     // having multiple static objects across the various translation 
 Index: include/G3D/Matrix4.h
 ===================================================================
 --- include/G3D/Matrix4.h	(revision 5889)
@@ -689,19 +701,12 @@ Index: source/G3DString.cpp
 ===================================================================
 --- source/G3DString.cpp	(revision 5889)
 +++ source/G3DString.cpp	(working copy)
-@@ -20,5 +20,11 @@
+@@ -20,5 +20,4 @@
  #   endif
      (void)PROBED_CONST_SEG_ADDR;
  }
 -
-+#if 0
-+#elif !defined(G3D_64BIT) || !_MSC_VER
-+#else
-+std::ostream& operator<<(std::ostream& os, const String& str) {
-+    return os << str.c_str();
  }
-+#endif
-+}
 Index: source/initG3D.cpp
 ===================================================================
 --- source/initG3D.cpp	(revision 5889)
