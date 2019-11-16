@@ -34,6 +34,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "PhasingHandler.h"
 #include "Player.h"
 #include "Random.h"
 #include "SpellAuras.h"
@@ -2358,14 +2359,15 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
             {
                 if (map && this->isRaidGroup() && map->IsDungeon() && SendMsgTo)
                 {
-                    AreaTrigger const * const instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
+                    AreaTriggerStruct const* instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
 
                     if (!instanceEntrance)
                         TC_LOG_DEBUG("root", "Instance entrance not found for maps %u", map->GetId());
                     else
                     {
-                        WorldSafeLocsEntry const * graveyardLocation = sObjectMgr->GetClosestGraveyard(instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z, instanceEntrance->target_mapId, SendMsgTo->GetTeam());;
-                        uint32 const zoneId = sMapMgr->GetZoneId(graveyardLocation->map_id, graveyardLocation->x, graveyardLocation->y, graveyardLocation->z);
+                        WorldLocation graveyard = WorldLocation(instanceEntrance->target_mapId, instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z);
+                        WorldSafeLocsEntry const* graveyardLocation = sObjectMgr->GetClosestGraveyard(graveyard, SendMsgTo->GetTeam(), nullptr);
+                        uint32 const zoneId = sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), graveyardLocation->map_id, graveyardLocation->x, graveyardLocation->y, graveyardLocation->z);
 
                         for (const MemberSlot &member : this->GetMemberSlots())
                         {
