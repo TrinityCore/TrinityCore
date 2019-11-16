@@ -23,6 +23,7 @@
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CollectionMgr.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
