@@ -1545,35 +1545,34 @@ class spell_sha_earth_shock : public SpellScript
     void HandleFulmination(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-
-        Unit* target = GetExplTargetUnit();
+        Unit* target = GetHitUnit();
         if (!target)
             return;
 
-        AuraEffect const* fulminationEffect = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_FULMINATION, EFFECT_0);
-        if (!fulminationEffect)
-            return;
-
-        Aura* lightningShieldAura = caster->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD);
-        if (!lightningShieldAura)
-            return;
-
-        if (uint8 surplousCharges = std::max(0, (lightningShieldAura->GetCharges() - fulminationEffect->GetAmount())))
+        if (AuraEffect const* fulminationEffect = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_FULMINATION, EFFECT_0))
         {
-            if (SpellInfo const* shieldDamageSpell = sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE))
+            if (Aura* lightningShieldAura = caster->GetAura(SPELL_SHAMAN_LIGHTNING_SHIELD, caster->GetGUID()))
             {
-                lightningShieldAura->SetCharges(fulminationEffect->GetAmount());
-                int32 basepoints = (shieldDamageSpell->Effects[EFFECT_0].CalcValue() + caster->SpellDamageBonusDone(target, shieldDamageSpell, 0, SPELL_DIRECT_DAMAGE, EFFECT_0)) * surplousCharges;
-                caster->CastCustomSpell(SPELL_SHAMAN_FULMINATION_DAMAGE, SPELLVALUE_BASE_POINT0, basepoints, target, true);
+                uint8 surplousCharges = std::max<int8>(0, lightningShieldAura->GetCharges() - fulminationEffect->GetAmount());
+                if (surplousCharges)
+                {
+                    SpellInfo const* lightningShieldSpell = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE);
+                    lightningShieldAura->SetCharges(fulminationEffect->GetAmount());
 
-                caster->RemoveAurasDueToSpell(SPELL_SHAMAN_FULMINATION_PROC);
+                    int32 bp = lightningShieldSpell->Effects[EFFECT_0].CalcValue(caster, nullptr, target);
+                    bp = caster->SpellDamageBonusDone(target, lightningShieldSpell, bp, SPELL_DIRECT_DAMAGE, EFFECT_0);
+                    bp *= surplousCharges;
+
+                    caster->CastCustomSpell(SPELL_SHAMAN_FULMINATION_DAMAGE, SPELLVALUE_BASE_POINT0, bp, target, true);
+                    caster->RemoveAurasDueToSpell(SPELL_SHAMAN_FULMINATION_PROC);
+                }
             }
         }
     }
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_sha_earth_shock::HandleFulmination, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget += SpellEffectFn(spell_sha_earth_shock::HandleFulmination, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
