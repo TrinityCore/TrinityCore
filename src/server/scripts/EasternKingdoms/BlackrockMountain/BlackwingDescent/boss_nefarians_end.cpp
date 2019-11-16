@@ -1701,11 +1701,17 @@ class spell_nefarians_end_onyxia_start_fight_2_effect : public SpellScript
         return ValidateSpellInfo({ SPELL_SHADOW_OF_COWARDICE_DAMAGE });
     }
 
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject const* target)->bool
+        {
+            return !target->GetTransGUID();
+        });
+    }
+
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        if (!target->GetTransport())
-            return;
 
         if (Creature* caster = GetCaster()->ToCreature())
         {
@@ -1720,6 +1726,7 @@ class spell_nefarians_end_onyxia_start_fight_2_effect : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_nefarians_end_onyxia_start_fight_2_effect::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nefarians_end_onyxia_start_fight_2_effect::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
