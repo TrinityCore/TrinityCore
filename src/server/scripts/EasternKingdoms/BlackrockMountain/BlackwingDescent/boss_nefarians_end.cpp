@@ -321,6 +321,28 @@ Position const NefarianCyclicPath[CyclicPathPoints] =
     { -174.6406f, -225.2222f, 92.31927f }
 };
 
+static constexpr uint32 const CyclicRespawnPathPoints = 17;
+Position const NefarianCyclicRespawnPath[CyclicRespawnPathPoints] =
+{
+    { -184.1267f, -224.5573f, 97.70717f },
+    { -169.3941f, -250.8021f, 91.78177f },
+    { -154.9757f, -272.2014f, 92.11506f },
+    { -132.934f,  -286.8906f, 92.25407f },
+    { -106.7951f, -292.2639f, 93.06911f },
+    { -81.66319f, -287.3004f, 93.81921f },
+    { -59.42708f, -272.5538f, 94.29151f },
+    { -44.60417f, -251.0191f, 94.40255f },
+    { -39.86979f, -225.0208f, 93.93014f },
+    { -44.62847f, -198.8733f, 94.15247f },
+    { -59.65799f, -176.8993f, 94.81911f },
+    { -81.1875f,  -162.474f,  94.70798f },
+    { -107.0816f, -157.3715f, 94.20808f },
+    { -132.8073f, -162.3507f, 93.4026f  },
+    { -154.6771f, -177.1233f, 92.95815f },
+    { -169.151f,  -199.1771f, 92.23587f },
+    { -174.6406f, -225.2222f, 92.31927f }
+};
+
 static constexpr uint8 const MaxChromaticPrototypes = 3;
 Position const ChromaticPrototypeSummonPositions[MaxChromaticPrototypes]
 {
@@ -346,7 +368,8 @@ Position const ChromaticPrototypeJumpPositions[MaxChromaticPrototypes]
 struct boss_nefarians_end : public BossAI
 {
     boss_nefarians_end(Creature* creature) : BossAI(creature, DATA_NEFARIANS_END),
-        _elevatorLowered(false), _nextElectrocuteHealthPercentage(90), _deadChromaticPrototypes(0)
+        _elevatorLowered(false), _encounterReset(instance->GetData(DATA_NEFARIANS_END_INTRO_DONE)),
+        _nextElectrocuteHealthPercentage(90), _deadChromaticPrototypes(0)
     {
         me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING); // Remove this little workarround when mmaps for transports have arrived.
         me->SetReactState(REACT_PASSIVE);
@@ -368,11 +391,24 @@ struct boss_nefarians_end : public BossAI
     void JustAppeared() override
     {
         events.SetPhase(PHASE_ONE);
-        events.ScheduleEvent(EVENT_CHAIN_ONYXIA, 1s, 0, PHASE_ONE);
-        events.ScheduleEvent(EVENT_REMOVE_TRANSFORM_AURA, 26s + 700ms, 0, PHASE_ONE);
-        me->SendSetPlayHoverAnim(false);
-        DoCastSelf(SPELL_INTRO_2_STALKER_TRANSFORM);
-        DoCastSelf(SPELL_INTRO_3_SHRINK_AURA);
+        if (!_encounterReset)
+        {
+            events.ScheduleEvent(EVENT_CHAIN_ONYXIA, 1s, 0, PHASE_ONE);
+            events.ScheduleEvent(EVENT_REMOVE_TRANSFORM_AURA, 26s + 700ms, 0, PHASE_ONE);
+            me->SendSetPlayHoverAnim(false);
+            DoCastSelf(SPELL_INTRO_2_STALKER_TRANSFORM);
+            DoCastSelf(SPELL_INTRO_3_SHRINK_AURA);
+        }
+        else
+        {
+            me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+            me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+            me->GetMotionMaster()->MoveCyclicPath(NefarianCyclicRespawnPath, CyclicRespawnPathPoints, false, true, 14.0f);
+            DoCastSelf(SPELL_INTRO_5A_START_FIGHT_PROC);
+            SetupTransportSpawns(SUMMON_GROUP_CONTROLLER_STALKER);
+
+        }
         SetupTransportSpawns(SUMMON_GROUP_ELEVATOR);
     }
 
@@ -381,8 +417,10 @@ struct boss_nefarians_end : public BossAI
         _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
-        if (Transport* transport = GetElevator())
-            transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
+        if (events.IsInPhase(PHASE_TWO) && !_elevatorLowered)
+            instance->SetData(DATA_RESET_ELEVATOR, events.GetTimeUntilEvent(EVENT_ELEVATOR_LOWERED));
+        else if (Transport* transport = GetElevator())
+            transport->SetTransportState(GO_STATE_TRANSPORT_STOPPED, TRANSPORT_STOP_FRAME_RAISED);
 
         if (Creature* onyxia = instance->GetCreature(DATA_ONYXIA))
             if (onyxia->IsAlive())
@@ -717,7 +755,7 @@ struct boss_nefarians_end : public BossAI
                 case EVENT_LOWER_ELEVATOR:
                     if (Transport* transport = GetElevator())
                         transport->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
-                    events.ScheduleEvent(EVENT_ELEVATOR_LOWERED, 8s, 0, PHASE_TWO);
+                    events.ScheduleEvent(EVENT_ELEVATOR_LOWERED, 9s, 0, PHASE_TWO);
                     break;
                 case EVENT_ELEVATOR_LOWERED:
                     _elevatorLowered = true;
@@ -812,6 +850,14 @@ private:
             Position pos = itr->pos;
             float x, y, z, o;
             pos.GetPosition(x, y, z, o);
+
+            // Keeping the current transport position in mind for example if we spawn the units after a reset above the lava
+            if (summonGroupId == SUMMON_GROUP_ELEVATOR)
+            {
+                z += std::abs(transport->GetPositionZ() - transport->GetGameObjectData()->spawnPoint.GetPositionZ());
+                pos.m_positionZ = z;
+            }
+
             transport->CalculatePassengerOffset(x, y, z, &o);
 
             transport->AddPassenger(summon);
@@ -856,6 +902,7 @@ private:
     }
 
     bool _elevatorLowered;
+    bool _encounterReset;
     uint8 _nextElectrocuteHealthPercentage;
     uint8 _deadChromaticPrototypes;
 };
@@ -865,6 +912,12 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
     npc_nefarians_end_onyxia(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _allowDeath(false), _chargeWarningLevel(0)
     {
         me->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING); // Remove this little workarround when mmaps for transports have arrived.
+    }
+
+    void JustAppeared() override
+    {
+        if (_instance->GetData(DATA_NEFARIANS_END_INTRO_DONE))
+            DoAction(ACTION_REANIMATED);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -914,7 +967,7 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
         {
             case ACTION_REANIMATED:
                 me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH_1);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_UNK_29);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                 me->PlayDirectSound(SOUND_ID_ROAR);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -1023,14 +1076,15 @@ struct npc_nefarians_end_lord_victor_nefarius : public PassiveAI
         switch (action)
         {
             case ACTION_START_INTRO:
-                if (_started)
-                    break;
-                Talk(SAY_INTRO_1);
-                DoSummon(BOSS_NEFARIAN, NefarianSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
-                _events.ScheduleEvent(EVENT_TALK_INTRO_2, 22s);
-                _events.ScheduleEvent(EVENT_RAISE_ELEVATOR, 20s + 500ms);
-                _events.ScheduleEvent(EVENT_CAST_TRANSFORM_VISUAL, 26s + 700ms);
-                _started = true;
+                if (!_started)
+                {
+                    Talk(SAY_INTRO_1);
+                    DoSummon(BOSS_NEFARIAN, NefarianSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
+                    _events.ScheduleEvent(EVENT_TALK_INTRO_2, 22s);
+                    _events.ScheduleEvent(EVENT_RAISE_ELEVATOR, 20s + 500ms);
+                    _events.ScheduleEvent(EVENT_CAST_TRANSFORM_VISUAL, 26s + 700ms);
+                    _started = true;
+                }
                 break;
             default:
                 break;
@@ -1051,6 +1105,7 @@ struct npc_nefarians_end_lord_victor_nefarius : public PassiveAI
                     break;
                 case EVENT_TALK_INTRO_3:
                     Talk(SAY_INTRO_3);
+                    _instance->SetData(DATA_NEFARIANS_END_INTRO_DONE, 1);
                     me->DespawnOrUnsummon();
                     break;
                 case EVENT_RAISE_ELEVATOR:

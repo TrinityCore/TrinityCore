@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MapManager.h"
+#include "Transport.h"
 #include "blackwing_descent.h"
 
 ObjectData const creatureData[] =
@@ -74,12 +75,14 @@ Position const ColumnOfLightPosition            = { 231.3559f, -224.3038f, 74.95
 Position const AtramedesIntroSummonPosition     = { 288.325f,  -222.438f,  96.61964f, 3.089233f };
 Position const AtramedesRespawnPosition         = { 220.0347f, -224.3125f, 74.88777f, 3.141593f };
 Position const LordVictorNefariusIntroPosition  = { -290.4809f, -224.5955f, 191.6532f, 3.124139f };
+Position const NefarianRespawnPosition          = { -181.9734f, -228.3499f, 96.76361f, 5.217541f };
 
 enum Events
 {
     EVENT_MAKE_ANCIENT_BELL_SELECTABLE = 1,
     EVENT_RESPAWN_ATRAMEDES,
-    EVENT_RESPAWN_NEFARIAN_END_SETUP
+    EVENT_RESPAWN_NEFARIAN,
+    EVENT_RAISE_ELEVATOR
 };
 
 enum Actions
@@ -115,6 +118,7 @@ class instance_blackwing_descent : public InstanceMapScript
                 _atramedesIntroState = NOT_STARTED;
                 _entranceSequenceDone = false;
                 _nefarianAchievementEligible = true;
+                _nefariansEndIntroDone = false;
             }
 
             void Create() override
@@ -266,7 +270,7 @@ class instance_blackwing_descent : public InstanceMapScript
                         if (state == FAIL)
                         {
                             instance->SpawnGroupDespawn(SPAWN_GROUP_NEFARIANS_END, false);
-                            _events.ScheduleEvent(EVENT_RESPAWN_NEFARIAN_END_SETUP, 30s);
+                            _events.ScheduleEvent(EVENT_RESPAWN_NEFARIAN, 30s);
                         }
                         break;
                     default:
@@ -331,6 +335,13 @@ class instance_blackwing_descent : public InstanceMapScript
                         _nefarianAchievementEligible = uint8(data);
                         DoUpdateWorldState(WS_KEEPING_IT_IN_THE_FAMILY, uint8(_nefarianAchievementEligible));
                         break;
+                    case DATA_NEFARIANS_END_INTRO_DONE:
+                        _nefariansEndIntroDone = uint8(data);
+                        break;
+                    case DATA_RESET_ELEVATOR:
+                        _events.ScheduleEvent(EVENT_RAISE_ELEVATOR, data);
+                        printf("elevator raise scheduled for %u ms! \n", data);
+                        break;
                     default:
                         break;
                 }
@@ -349,6 +360,8 @@ class instance_blackwing_descent : public InstanceMapScript
                         return _atramedesIntroState;
                     case DATA_NEFARIAN_ACHIEVEMENT_STATE:
                         return uint8(_nefarianAchievementEligible);
+                    case DATA_NEFARIANS_END_INTRO_DONE:
+                        return uint8(_nefariansEndIntroDone);
                 }
                 return 0;
             }
@@ -428,8 +441,13 @@ class instance_blackwing_descent : public InstanceMapScript
                             instance->SpawnGroupSpawn(SPAWN_GROUP_ANCIENT_DWARVEN_SHIELDS, true);
                             instance->SummonCreature(BOSS_ATRAMEDES, AtramedesRespawnPosition);
                             break;
-                        case EVENT_RESPAWN_NEFARIAN_END_SETUP:
-                            instance->SpawnGroupSpawn(SPAWN_GROUP_NEFARIANS_END, true);
+                        case EVENT_RESPAWN_NEFARIAN:
+                            instance->SummonCreature(BOSS_NEFARIAN, NefarianRespawnPosition);
+                            break;
+                        case EVENT_RAISE_ELEVATOR:
+                            if (GameObject* gameobject = GetGameObject(DATA_BLACKWING_ELEVATOR_ONYXIA))
+                                if (Transport* transport = gameobject->ToTransport())
+                                    transport->SetTransportState(GO_STATE_TRANSPORT_STOPPED, 1);
                             break;
                         default:
                             break;
@@ -471,6 +489,7 @@ class instance_blackwing_descent : public InstanceMapScript
             uint8 _atramedesIntroState;
             bool _entranceSequenceDone;
             bool _nefarianAchievementEligible;
+            bool _nefariansEndIntroDone;
 
             bool IsNefarianAvailable() const
             {
