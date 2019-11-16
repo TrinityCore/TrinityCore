@@ -14,12 +14,16 @@ namespace _internal {
         return s;
     }
 
+    /*
     void initializeNetwork();
     void cleanupNetwork();
+    */
 }
 
 static void G3DCleanupHook() {
+    /*
     _internal::cleanupNetwork();
+    */
     System::cleanup();
 }
 
@@ -34,7 +38,9 @@ void initG3D(const G3DSpecification& spec) {
         // Trigger a call to System::init
         System::cpuSpeedMHz();
 
+        /*
         _internal::initializeNetwork();
+        */
     }
 }
 

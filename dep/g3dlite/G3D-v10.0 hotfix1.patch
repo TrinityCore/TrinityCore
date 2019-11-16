@@ -692,6 +692,37 @@ Index: source/G3DString.cpp
  }
 +#endif
 +}
+Index: source/initG3D.cpp
+===================================================================
+--- source/initG3D.cpp	(revision 5889)
++++ source/initG3D.cpp	(working copy)
+@@ -14,12 +14,16 @@
+         return s;
+     }
+ 
++    /*
+     void initializeNetwork();
+     void cleanupNetwork();
++    */
+ }
+ 
+ static void G3DCleanupHook() {
++    /*
+     _internal::cleanupNetwork();
++    */
+     System::cleanup();
+ }
+ 
+@@ -34,7 +38,9 @@
+         // Trigger a call to System::init
+         System::cpuSpeedMHz();
+ 
++        /*
+         _internal::initializeNetwork();
++        */
+     }
+ }
+ 
 Index: source/prompt.cpp
 ===================================================================
 --- source/prompt.cpp	(revision 5889)
