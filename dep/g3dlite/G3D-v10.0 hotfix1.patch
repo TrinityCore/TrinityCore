@@ -278,6 +278,19 @@ Index: include/G3D/System.h
  
  
  } // namespace
+Index: include/G3D/Vector2.h
+===================================================================
+--- include/G3D/Vector2.h	(revision 5516)
++++ include/G3D/Vector2.h	(working copy)
+@@ -55,7 +55,7 @@
+     /** \param any Must either Vector2(#, #) or Vector2 {x = #, y = #}*/
+     Vector2(const Any& any);
+     
+-    Vector2(DoNotInitialize dni) {}
++    Vector2(DoNotInitialize /*dni*/) {}
+ 
+     /** Converts the Vector2 to an Any. */
+     Any toAny() const;
 Index: source/BinaryInput.cpp
 ===================================================================
 --- source/BinaryInput.cpp	(revision 5516)

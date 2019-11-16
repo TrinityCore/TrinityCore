@@ -55,7 +55,7 @@ public:
     /** \param any Must either Vector2(#, #) or Vector2 {x = #, y = #}*/
     Vector2(const Any& any);
     
-    Vector2(DoNotInitialize dni) {}
+    Vector2(DoNotInitialize /*dni*/) {}
 
     /** Converts the Vector2 to an Any. */
     Any toAny() const;
