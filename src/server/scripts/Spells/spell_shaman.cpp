@@ -1798,7 +1798,7 @@ class spell_sha_windfury_weapon : public AuraScript
         int32 amount = static_cast<int32>(attackPower / 14.f * player->GetAttackTime(attType) / 1000.f);
         uint32 spellId = attType == BASE_ATTACK ? SPELL_SHAMAN_WINDFURY_ATTACK_MAINHAND : SPELL_SHAMAN_WINDFURY_ATTACK_OFFHAND;
 
-        for (uint8 i = 0; i < 2; i++)
+        for (uint8 i = 0; i < 3; i++)
             player->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, amount, target, true, item, aurEff);
     }
 
