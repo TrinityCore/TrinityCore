@@ -77,7 +77,7 @@ public:
     /** Initializes to zero */
     Vector3();
 
-    Vector3(DoNotInitialize dni) {}
+    Vector3(DoNotInitialize /*dni*/) {}
     /** 
         \param any  Must either Vector3(#, #, #) or Vector3 {x = #, y = #, z = #}.
         Because Point3 is a typedef for Vector3 in the current implementation,
