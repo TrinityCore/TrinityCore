@@ -22,6 +22,7 @@
 #include <unordered_set>
 
 struct ScenarioData;
+struct ScenarioEntry;
 struct ScenarioStepEntry;
 
 namespace WorldPackets
