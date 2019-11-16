@@ -80,8 +80,8 @@ class KalecgosFlightEvent : public BasicEvent
     public:
     KalecgosFlightEvent(Creature* owner) : owner(owner)
     {
-        spellArgs.AddSpellBP0(1258);
-        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT1, 558);
+        spellArgs.AddSpellBP0(8599);
+        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT1, 1699);
 
         spellArgs.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
@@ -154,7 +154,7 @@ class theramore_waves_invoker : public CreatureScript
         {
             if (id == EVENT_START_WAR)
             {
-                wavesInvoker = value == 2 ? WAVE_10 : WAVE_01;
+                wavesInvoker = value != 1 ? WAVE_10 : WAVE_01;
 
                 jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 20.f);
                 thalen = GetClosestCreatureWithEntry(me, NPC_THALEN_SONGWEAVER, 20.f);

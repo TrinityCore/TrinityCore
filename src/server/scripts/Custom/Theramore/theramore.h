@@ -89,6 +89,8 @@ enum Events
     EVENT_CONVO_21,
     EVENT_CONVO_22,
     EVENT_CONVO_23,
+    EVENT_CONVO_24,
+    EVENT_CONVO_25,
 
     EVENT_WARN_1,
     EVENT_WARN_2,
@@ -223,7 +225,7 @@ enum Spells
     SPELL_ICE_BLOCK                 = 45776,
     SPELL_TELEPORT                  = 51347,
     SPELL_POWER_BALL_VISUAL         = 54139,
-    SPELL_VANISH                    = 36747,
+    SPELL_VANISH                    = 10389,
     SPELL_CHAINS                    = 68341,
     SPELL_PORTAL                    = 57687
 };
