@@ -48,7 +48,7 @@ static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance,
         return false;
     if (maxDistance && distSq > square(*maxDistance))
         return false;
-    if (angle && !angle->IsAngleOkay(target->GetAngle(owner)))
+    if (angle && !angle->IsAngleOkay(target->GetRelativeAngle(owner)))
         return false;
     if (!owner->IsWithinLOSInMap(target))
         return false;
@@ -74,20 +74,16 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 
     // our target might have gone away
     Unit* const target = GetTarget();
-    if (!target)
-        return false;
-
-    // the owner might've selected a different target (feels like we shouldn't check this here...)
-    if (owner->GetVictim() != target)
+    if (!target || !target->IsInWorld())
         return false;
 
     // the owner might be unable to move (rooted or casting), pause movement
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         owner->StopMoving();
+        _lastTargetPosition.reset();
         if (Creature* cOwner = owner->ToCreature())
             cOwner->SetCannotReachTarget(false);
-        _lastTargetPosition.reset();
         return true;
     }
 
