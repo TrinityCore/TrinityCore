@@ -421,10 +421,12 @@ void PetAI::DoAttack(Unit* target, bool chase)
             if (me->HasUnitState(UNIT_STATE_FOLLOW))
                 me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
             
-            // Pets with ranged attacks should not care about the chase angles or tolerances at all.
+            // Pets with ranged attacks should not care about the chase angle at all.
             float chaseDistance = me->GetPetChaseDistance();
-            ChaseAngle angle = ChaseAngle(chaseDistance == 0.f ? float(M_PI) : 0.f, chaseDistance == 0.f ? float(M_PI_4) : float(M_PI * 2));
-            me->GetMotionMaster()->MoveChase(target, ChaseRange(0.f, chaseDistance), angle);
+            float angle = chaseDistance == 0.f ? float(M_PI) : 0.f;
+            float tolerance = chaseDistance == 0.f ? float(M_PI_4) : float(M_PI * 2);
+            ChaseAngle chaseAngle = ChaseAngle(angle, tolerance);
+            me->GetMotionMaster()->MoveChase(target, ChaseRange(0.f, chaseDistance), chaseAngle);
         }
         else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
         {
