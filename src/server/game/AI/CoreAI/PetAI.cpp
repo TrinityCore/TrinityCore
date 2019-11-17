@@ -425,8 +425,7 @@ void PetAI::DoAttack(Unit* target, bool chase)
             float chaseDistance = me->GetPetChaseDistance();
             float angle = chaseDistance == 0.f ? float(M_PI) : 0.f;
             float tolerance = chaseDistance == 0.f ? float(M_PI_4) : float(M_PI * 2);
-            ChaseAngle chaseAngle = ChaseAngle(angle, tolerance);
-            me->GetMotionMaster()->MoveChase(target, ChaseRange(0.f, chaseDistance), chaseAngle);
+            me->GetMotionMaster()->MoveChase(target, ChaseRange(0.f, chaseDistance), ChaseAngle(angle, tolerance));
         }
         else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
         {
