@@ -168,6 +168,16 @@ enum ArtifactPowerFlag : uint8
 
 #define BATTLE_PET_SPECIES_MAX_ID 2796
 
+enum BattlemasterListFlags
+{
+    BATTLEMASTER_LIST_FLAG_DISABLED             = 0x01,
+    BATTLEMASTER_LIST_FLAG_UNK02                = 0x02,
+    BATTLEMASTER_LIST_FLAG_UNK04                = 0x04,
+    BATTLEMASTER_LIST_FLAG_CAN_INIT_WAR_GAME    = 0x08,
+    BATTLEMASTER_LIST_FLAG_CAN_SPECIFIC_QUEUE   = 0x10,
+    BATTLEMASTER_LIST_FLAG_BRAWL                = 0x20
+};
+
 enum ChrSpecializationFlag
 {
     CHR_SPECIALIZATION_FLAG_CASTER                  = 0x01,
