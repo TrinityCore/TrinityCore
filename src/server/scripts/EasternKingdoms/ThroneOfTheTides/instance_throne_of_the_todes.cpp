@@ -287,6 +287,7 @@ class instance_throne_of_the_tides : public InstanceMapScript
                         break;
                     case GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_1:
                     case GO_DOODAD_ABYSSAL_LEVIATHAN_TENTACLE_2:
+                        go->SetFarVisible(true);
                         if (_eventIndex >= EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
                             go->DespawnOrUnsummon();
                         break;
