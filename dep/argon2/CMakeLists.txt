@@ -25,6 +25,8 @@ target_compile_definitions(argon2
   PRIVATE
     -DARGON2_NO_THREADS)
 
+set_target_properties(argon2 PROPERTIES LINKER_LANGUAGE CXX)
+
 target_include_directories(argon2
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
