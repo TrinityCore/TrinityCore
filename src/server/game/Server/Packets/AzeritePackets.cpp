@@ -15,27 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AzeriteItemPackets_h__
-#define AzeriteItemPackets_h__
+#include "AzeritePackets.h"
 
-#include "Packet.h"
-#include "ObjectGuid.h"
-
-namespace WorldPackets
+WorldPacket const* WorldPackets::Azerite::AzeriteXpGain::Write()
 {
-    namespace AzeriteItem
-    {
-        class AzeriteXpGain final : public ServerPacket
-        {
-        public:
-            AzeriteXpGain() : ServerPacket(SMSG_AZERITE_XP_GAIN, 16 + 8) { }
+    _worldPacket << ItemGUID;
+    _worldPacket << uint64(XP);
 
-            WorldPacket const* Write() override;
-
-            ObjectGuid ItemGUID;
-            uint64 XP = 0;
-        };
-    }
+    return &_worldPacket;
 }
-
-#endif // AzeriteItemPackets_h__
