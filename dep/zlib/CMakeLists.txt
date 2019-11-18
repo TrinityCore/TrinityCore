@@ -39,6 +39,8 @@ else()
   add_library(zlib STATIC
     ${zlib_STAT_SRCS})
 
+  set_target_properties(zlib PROPERTIES LINKER_LANGUAGE CXX)
+
   target_include_directories(zlib
     PUBLIC
       ${CMAKE_CURRENT_SOURCE_DIR})
