@@ -16,7 +16,7 @@
  */
 
 #include "AzeriteItem.h"
-#include "AzeriteItemPackets.h"
+#include "AzeritePackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GameTime.h"
@@ -194,7 +194,7 @@ void AzeriteItem::GiveXP(uint64 xp)
         SetState(ITEM_CHANGED, owner);
     }
 
-    WorldPackets::AzeriteItem::AzeriteXpGain xpGain;
+    WorldPackets::Azerite::AzeriteXpGain xpGain;
     xpGain.ItemGUID = GetGUID();
     xpGain.XP = xp;
     owner->SendDirectMessage(xpGain.Write());
