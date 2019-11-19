@@ -219,7 +219,10 @@ struct npc_grim_batol_battered_red_drake: public VehicleAI
             _events.ScheduleEvent(EVENT_PREPARE_BOMBARDMENT, 1s);
         }
         else
+        {
             player->SetMover(player);
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+        }
     }
 
     void UpdateAI(uint32 diff) override
