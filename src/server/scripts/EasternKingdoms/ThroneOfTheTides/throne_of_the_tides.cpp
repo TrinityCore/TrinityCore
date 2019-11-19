@@ -45,8 +45,13 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
     {
         me->setActive(true); // ugly but the only safe way for now to keep the grid loaded...
         if (_instance->GetData(DATA_CURRENT_EVENT_PROGRESS) < EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
+        {
             if (Creature* ozumat = DoSummon(NPC_OZUMAT, me->GetPosition()))
+            {
                 me->HandleSpellClick(ozumat, SEAT_TENTACLE_BLOCK);
+                ozumat->setActive(true);
+            }
+        }
     }
 
     void DoAction(int32 action) override
