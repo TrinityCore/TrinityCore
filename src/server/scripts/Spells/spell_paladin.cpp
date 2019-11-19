@@ -1054,67 +1054,56 @@ class spell_pal_shield_of_the_righteous : public SpellScriptLoader
 
 // 85256 - Templar's Verdict
 /// Updated 4.3.4
-class spell_pal_templar_s_verdict : public SpellScriptLoader
+class spell_pal_templar_s_verdict : public SpellScript
 {
-    public:
-        spell_pal_templar_s_verdict() : SpellScriptLoader("spell_pal_templar_s_verdict") { }
+    PrepareSpellScript(spell_pal_templar_s_verdict);
 
-        class spell_pal_templar_s_verdict_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
+    }
+
+    bool Load() override
+    {
+        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
+            return false;
+
+        return true;
+    }
+
+    void HandleDamageBonus(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        int32 damage = GetEffectValue();
+
+        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
+            damage *= 7.5;  // 7.5*30% = 225%
+        else
         {
-            PrepareSpellScript(spell_pal_templar_s_verdict_SpellScript);
-
-            bool Validate (SpellInfo const* /*spellEntry*/) override
+            switch (caster->GetPower(POWER_HOLY_POWER))
             {
-                return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_PURPOSE_PROC });
-            }
-
-            bool Load() override
-            {
-                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
-                    return false;
-
-                if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
-                    return false;
-
-                return true;
-            }
-
-            void ChangeDamage(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                int32 damage = GetHitDamage();
-
-                if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
+                case 0: // 1 Holy Power
+                    // same damage
+                    break;
+                case 1: // 2 Holy Power
+                    damage *= 3;    // 3*30 = 90%
+                    break;
+                case 2: // 3 Holy Power
                     damage *= 7.5;  // 7.5*30% = 225%
-                else
-                {
-                    switch (caster->GetPower(POWER_HOLY_POWER))
-                    {
-                        case 0: // 1 Holy Power
-                            // same damage
-                            break;
-                        case 1: // 2 Holy Power
-                            damage *= 3;    // 3*30 = 90%
-                            break;
-                        case 2: // 3 Holy Power
-                            damage *= 7.5;  // 7.5*30% = 225%
-                            break;
-                    }
-                }
-
-                SetHitDamage(damage);
+                    break;
             }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_templar_s_verdict_SpellScript::ChangeDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_templar_s_verdict_SpellScript();
         }
+
+        SetEffectValue(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_pal_templar_s_verdict::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+    }
 };
 
 // 20154 - Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.011*$AP+0.022*$SPH)} damage)
@@ -2053,6 +2042,6 @@ void AddSC_paladin_spell_scripts()
     RegisterAuraScript(spell_pal_seal_of_truth);
     new spell_pal_shield_of_the_righteous();
     RegisterAuraScript(spell_pal_selfless_healer);
-    new spell_pal_templar_s_verdict();
+    RegisterSpellScript(spell_pal_templar_s_verdict);
     RegisterSpellAndAuraScriptPair(spell_pal_word_of_glory, spell_pal_word_of_glory_AuraScript);
 }
