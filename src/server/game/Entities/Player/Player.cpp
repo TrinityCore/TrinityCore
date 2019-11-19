@@ -18185,7 +18185,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     // must be before inventory (some items required reputation check)
     m_reputationMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_REPUTATION));
 
-    _LoadInventory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INVENTORY), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARTIFACTS), time_diff);
+    _LoadInventory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INVENTORY),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARTIFACTS),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AZERITE),
+        time_diff);
 
     if (IsVoidStorageUnlocked())
         _LoadVoidStorage(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE));
@@ -18582,7 +18585,7 @@ void Player::LoadCorpse(PreparedQueryResult result)
     RemoveAtLoginFlag(AT_LOGIN_RESURRECT);
 }
 
-void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, uint32 timeDiff)
+void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, PreparedQueryResult azeriteResult, uint32 timeDiff)
 {
     //           0          1            2                3      4         5        6      7             8                 9          10          11    12
     // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
@@ -18594,9 +18597,9 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
     //                29           30           31                32          33           34           35                36          37           38           39                40
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       41                      42     43        44                 45
-    //        fixedScalingLevel, artifactKnowledgeLevel, iz.xp, iz.level, iz.knowledgeLevel FROM item_instance
-    //         46    47
+    //                       41                      42
+    //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
+    //         43    44
     //        bag, slot
     // FROM character_inventory ci
     // JOIN item_instance ii ON ci.item = ii.guid
@@ -18612,38 +18615,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
     //expected to be equipped before offhand items (@todo fixme)
 
-    //                 0     1                       2                 3                   4                 5
-    // SELECT a.itemGuid, a.xp, a.artifactAppearanceId, a.artifactTierId, ap.artifactPowerId, ap.purchasedRank FROM item_instance_artifact_powers ap LEFT JOIN item_instance_artifact a ON ap.itemGuid = a.itemGuid INNER JOIN character_inventory ci ON ci.item = ap.guid WHERE ci.guid = ?
-    std::unordered_map<ObjectGuid, std::tuple<uint64, uint32, uint32, std::vector<ArtifactPowerLoadInfo>>> artifactData;
-    if (artifactsResult)
-    {
-        do
-        {
-            Field* fields = artifactsResult->Fetch();
-            auto& artifactDataEntry = artifactData[ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt64())];
-            std::get<0>(artifactDataEntry) = fields[1].GetUInt64();
-            std::get<1>(artifactDataEntry) = fields[2].GetUInt32();
-            std::get<2>(artifactDataEntry) = fields[3].GetUInt32();
-            ArtifactPowerLoadInfo artifactPowerData;
-            artifactPowerData.ArtifactPowerId = fields[4].GetUInt32();
-            artifactPowerData.PurchasedRank = fields[5].GetUInt8();
-            if (ArtifactPowerEntry const* artifactPower = sArtifactPowerStore.LookupEntry(artifactPowerData.ArtifactPowerId))
-            {
-                uint32 maxRank = artifactPower->MaxPurchasableRank;
-                // allow ARTIFACT_POWER_FLAG_FINAL to overflow maxrank here - needs to be handled in Item::CheckArtifactUnlock (will refund artifact power)
-                if (artifactPower->Flags & ARTIFACT_POWER_FLAG_MAX_RANK_WITH_TIER && artifactPower->Tier < std::get<2>(artifactDataEntry))
-                    maxRank += std::get<2>(artifactDataEntry) - artifactPower->Tier;
-
-                if (artifactPowerData.PurchasedRank > maxRank)
-                    artifactPowerData.PurchasedRank = maxRank;
-
-                artifactPowerData.CurrentRankWithBonus = (artifactPower->Flags & ARTIFACT_POWER_FLAG_FIRST) == ARTIFACT_POWER_FLAG_FIRST ? 1 : 0;
-
-                std::get<3>(artifactDataEntry).push_back(artifactPowerData);
-            }
-
-        } while (artifactsResult->NextRow());
-    }
+    std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo> additionalData;
+    ItemAdditionalLoadInfo::Init(&additionalData, artifactsResult, azeriteResult);
 
     if (result)
     {
@@ -18661,12 +18634,19 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
             Field* fields = result->Fetch();
             if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                auto artifactDataItr = artifactData.find(item->GetGUID());
-                if (item->GetTemplate()->GetArtifactID() && artifactDataItr != artifactData.end())
-                    item->LoadArtifactData(this, std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second), std::get<3>(artifactDataItr->second));
+                if (ItemAdditionalLoadInfo* addionalDataPtr = Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64()))
+                {
+                    if (item->GetTemplate()->GetArtifactID() && addionalDataPtr->Artifact)
+                        item->LoadArtifactData(this, addionalDataPtr->Artifact->Xp, addionalDataPtr->Artifact->ArtifactAppearanceId,
+                            addionalDataPtr->Artifact->ArtifactTierId, addionalDataPtr->Artifact->ArtifactPowers);
 
-                ObjectGuid bagGuid = fields[46].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[46].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[47].GetUInt8();
+                    if (addionalDataPtr->AzeriteItem)
+                        if (AzeriteItem* azeriteItem = item->ToAzeriteItem())
+                            azeriteItem->LoadAzeriteItemData(*addionalDataPtr->AzeriteItem);
+                }
+
+                ObjectGuid bagGuid = fields[43].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[43].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[44].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -18971,61 +18951,59 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint
 }
 
 // load mailed item which should receive current player
-void Player::_LoadMailedItems(Mail* mail)
+void Player::_LoadMailedItem(Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData)
 {
-    // data needs to be at first place for Item::LoadFromDB
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
-    stmt->setUInt32(0, mail->messageID);
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-    if (!result)
-        return;
+    ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
+    uint32 itemEntry = fields[1].GetUInt32();
 
-    do
+    mail->AddItem(itemGuid, itemEntry);
+
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
+    if (!proto)
     {
-        Field* fields = result->Fetch();
+        TC_LOG_ERROR("entities.player", "Player '%s' (%s) has unknown item_template in mailed items (GUID: " UI64FMTD ", Entry: %u) in mail (%u), deleted.",
+            GetName().c_str(), GetGUID().ToString().c_str(), itemGuid, itemEntry, mail->messageID);
 
-        ObjectGuid::LowType itemGuid = fields[0].GetUInt64();
-        uint32 itemEntry = fields[1].GetUInt32();
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
+        stmt->setUInt64(0, itemGuid);
+        CharacterDatabase.Execute(stmt);
 
-        mail->AddItem(itemGuid, itemEntry);
-
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
-        if (!proto)
-        {
-            TC_LOG_ERROR("entities.player", "Player '%s' (%s) has unknown item_template in mailed items (GUID: " UI64FMTD ", Entry: %u) in mail (%u), deleted.",
-                GetName().c_str(), GetGUID().ToString().c_str(), itemGuid, itemEntry, mail->messageID);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);
-            stmt->setUInt64(0, itemGuid);
-            CharacterDatabase.Execute(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-            stmt->setUInt64(0, itemGuid);
-            CharacterDatabase.Execute(stmt);
-            continue;
-        }
-
-        Item* item = NewItemOrBag(proto);
-
-        ObjectGuid ownerGuid = fields[46].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[46].GetUInt64()) : ObjectGuid::Empty;
-        if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
-        {
-            TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
-            stmt->setUInt64(0, itemGuid);
-            CharacterDatabase.Execute(stmt);
-
-            item->FSetState(ITEM_REMOVED);
-
-            CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(nullptr);
-            item->SaveToDB(temp);                               // it also deletes item object !
-            continue;
-        }
-
-        AddMItem(item);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+        stmt->setUInt64(0, itemGuid);
+        CharacterDatabase.Execute(stmt);
+        return;
     }
-    while (result->NextRow());
+
+    Item* item = NewItemOrBag(proto);
+
+    ObjectGuid ownerGuid = fields[43].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[43].GetUInt64()) : ObjectGuid::Empty;
+    if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
+    {
+        TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
+
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
+        stmt->setUInt64(0, itemGuid);
+        CharacterDatabase.Execute(stmt);
+
+        item->FSetState(ITEM_REMOVED);
+
+        CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(nullptr);
+        item->SaveToDB(temp);                               // it also deletes item object !
+        return;
+    }
+
+    if (addionalData)
+    {
+        if (item->GetTemplate()->GetArtifactID() && addionalData->Artifact)
+            item->LoadArtifactData(this, addionalData->Artifact->Xp, addionalData->Artifact->ArtifactAppearanceId,
+                addionalData->Artifact->ArtifactTierId, addionalData->Artifact->ArtifactPowers);
+
+        if (addionalData->AzeriteItem)
+            if (AzeriteItem* azeriteItem = item->ToAzeriteItem())
+                azeriteItem->LoadAzeriteItemData(*addionalData->AzeriteItem);
+    }
+
+    AddMItem(item);
 }
 
 void Player::_LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery)
@@ -19049,12 +19027,14 @@ void Player::_LoadMail()
     stmt->setUInt64(0, GetGUID().GetCounter());
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
+    std::unordered_map<uint32, Mail*> mailById;
+
     if (result)
     {
         do
         {
             Field* fields = result->Fetch();
-            Mail* m = new Mail;
+            Mail* m = new Mail();
 
             m->messageID      = fields[0].GetUInt32();
             m->messageType    = fields[1].GetUInt8();
@@ -19062,14 +19042,13 @@ void Player::_LoadMail()
             m->receiver       = fields[3].GetUInt64();
             m->subject        = fields[4].GetString();
             m->body           = fields[5].GetString();
-            bool has_items    = fields[6].GetBool();
-            m->expire_time    = time_t(fields[7].GetUInt32());
-            m->deliver_time   = time_t(fields[8].GetUInt32());
-            m->money          = fields[9].GetUInt64();
-            m->COD            = fields[10].GetUInt64();
-            m->checked        = fields[11].GetUInt8();
-            m->stationery     = fields[12].GetUInt8();
-            m->mailTemplateId = fields[13].GetInt16();
+            m->expire_time    = time_t(fields[6].GetUInt32());
+            m->deliver_time   = time_t(fields[7].GetUInt32());
+            m->money          = fields[8].GetUInt64();
+            m->COD            = fields[9].GetUInt64();
+            m->checked        = fields[10].GetUInt8();
+            m->stationery     = fields[11].GetUInt8();
+            m->mailTemplateId = fields[12].GetInt16();
 
             if (m->mailTemplateId && !sMailTemplateStore.LookupEntry(m->mailTemplateId))
             {
@@ -19079,13 +19058,38 @@ void Player::_LoadMail()
 
             m->state = MAIL_STATE_UNCHANGED;
 
-            if (has_items)
-                _LoadMailedItems(m);
-
             m_mail.push_back(m);
+            mailById[m->messageID] = m;
         }
         while (result->NextRow());
     }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS);
+    stmt->setUInt64(0, GetGUID().GetCounter());
+    result = CharacterDatabase.Query(stmt);
+
+    if (result)
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_ARTIFACT);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        PreparedQueryResult artifactResult = CharacterDatabase.Query(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        PreparedQueryResult azeriteResult = CharacterDatabase.Query(stmt);
+
+        std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo> additionalData;
+        ItemAdditionalLoadInfo::Init(&additionalData, artifactResult, azeriteResult);
+
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 mailId = fields[44].GetUInt32();
+            _LoadMailedItem(mailById[mailId], fields, Trinity::Containers::MapGetValuePtr(additionalData, fields[0].GetUInt64()));
+        }
+        while (result->NextRow());
+    }
+
     m_mailsLoaded = true;
 }
 
