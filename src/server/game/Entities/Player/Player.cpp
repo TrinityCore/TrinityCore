@@ -461,11 +461,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetGender(createInfo->Sex);
     SetPowerType(Powers(powertype));
     InitDisplayIds();
-    if (sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || sWorld->getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP)
-    {
-        AddPvpFlag(UNIT_BYTE2_FLAG_PVP);
-        AddUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
-    }
 
     AddUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
     SetHoverHeight(1.0f);            // default for players in 3.0.3
@@ -7090,21 +7085,19 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     GetMap()->SendZoneDynamicInfo(newZone, this);
 
-    sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
-
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital
     switch (zone->FactionGroupMask)
     {
         case AREATEAM_ALLY:
-            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->Flags[0] & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (IsInWarMode() || zone->Flags[0] & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_HORDE:
-            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->Flags[0] & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (IsInWarMode() || zone->Flags[0] & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_NONE:
             // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
-            pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->Flags[0] & AREA_FLAG_WINTERGRASP;
+            pvpInfo.IsInHostileArea = IsInWarMode() || InBattleground() || zone->Flags[0] & AREA_FLAG_WINTERGRASP;
             break;
         default:                                            // 6 in fact
             pvpInfo.IsInHostileArea = false;
@@ -8805,7 +8798,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 38:                                            // Loch Modan
         case 40:                                            // Westfall
         case 51:                                            // Searing Gorge
-        case 1519:                                          // Stormwind City
+        case ZONE_STORMWIND_CITY:
         case 1537:                                          // Ironforge
         case 2257:                                          // Deeprun Tram
         case 3703:                                          // Shattrath City});
@@ -22908,15 +22901,15 @@ void Player::UpdatePvPState(bool onlyFFA)
     if (onlyFFA)
         return;
 
-    if (pvpInfo.IsHostile)                               // in hostile area
+    if (pvpInfo.IsHostile)                      // in hostile area
     {
         if (!IsPvP() || pvpInfo.EndTimer)
             UpdatePvP(true, true);
     }
-    else                                                    // in friendly area
+    else                                        // in friendly area
     {
         if (IsPvP() && !HasPlayerFlag(PLAYER_FLAGS_IN_PVP) && !pvpInfo.EndTimer)
-            pvpInfo.EndTimer = time(nullptr);                  // start toggle-off
+            pvpInfo.EndTimer = time(nullptr);   // start toggle-off
     }
 }
 
@@ -26283,7 +26276,7 @@ bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup,
         return false;
     }
 
-    if (HasPvpRulesEnabled())
+    if (IsInWarMode())
         LearnSpell(talent->SpellID, false);
 
     // Move this to toggle ?
@@ -26315,6 +26308,9 @@ void Player::RemovePvpTalent(PvpTalentEntry const* talent)
 
 void Player::TogglePvpTalents(bool enable)
 {
+    if (!HasSpell(195710)) // Honorable Medallion
+        CastSpell(this, 208682, true); // Learn Gladiator's Medallion
+
     PlayerPvpTalentMap const& pvpTalents = GetPvpTalentMap(GetActiveTalentGroup());
     for (uint32 pvpTalentId : pvpTalents)
     {
@@ -26341,6 +26337,8 @@ void Player::EnablePvpRules(bool dueToCombat /*= false*/)
             CastSpell(this, 208682, true); // Learn Gladiator's Medallion
 
         CastSpell(this, SPELL_PVP_RULES_ENABLED, true);
+
+        TogglePvpTalents(true);
     }
 
     if (!dueToCombat)
@@ -26360,7 +26358,7 @@ void Player::EnablePvpRules(bool dueToCombat /*= false*/)
 
 void Player::DisablePvpRules()
 {
-    // Don't disable pvp rules when in pvp zone.
+    // Don't disable pvp rules when in pvp zone or when in warmode
     if (IsInAreaThatActivatesPvpTalents())
         return;
 
@@ -26368,6 +26366,7 @@ void Player::DisablePvpRules()
     {
         RemoveAurasDueToSpell(SPELL_PVP_RULES_ENABLED);
         UpdateItemLevelAreaBasedScaling();
+        TogglePvpTalents(false);
     }
     else if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
         aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration());

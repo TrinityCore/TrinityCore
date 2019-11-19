@@ -6557,4 +6557,10 @@ enum class GameError : uint32
     ERR_CANT_USE_PROFANITY                                          = 1041,
 };
 
+enum AreaName : uint32
+{
+    ZONE_STORMWIND_CITY = 1519,
+    ZONE_ORGRIMMAR      = 1637,
+};
+
 #endif
