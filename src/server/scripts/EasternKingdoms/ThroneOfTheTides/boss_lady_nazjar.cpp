@@ -46,8 +46,8 @@ enum Spells
 
     // Waterspout
     SPELL_EJECT_ALL_PASSENGERS      = 63109,
+    SPELL_WATERSPOUT_TARGETING      = 90444,
     SPELL_WATERSPOUT                = 90440,
-    SPELL_WATERSPOUT_CHARGE         = 90461,
 
     // Geyser
     SPELL_GEYSER_VISUAL             = 75699,
@@ -132,39 +132,6 @@ class PrepareDelayedAttackEvent : public BasicEvent
     private:
         Creature* _owner;
 };
-
-class EjectAllPassengersEvent : public BasicEvent
-{
-    public:
-        EjectAllPassengersEvent(Creature* owner) :  _owner(owner) { }
-
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            _owner->RemoveAurasDueToSpell(SPELL_WATERSPOUT);
-            _owner->CastSpell(_owner, SPELL_EJECT_ALL_PASSENGERS);
-            return true;
-        }
-
-    private:
-        Creature* _owner;
-};
-
-class WaterSpoutChargeEvent : public BasicEvent
-{
-    public:
-        WaterSpoutChargeEvent(Creature* owner) :  _owner(owner) { }
-
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            _owner->RemoveAurasDueToSpell(SPELL_WATERSPOUT);
-            _owner->CastSpell(_owner, SPELL_EJECT_ALL_PASSENGERS);
-            return true;
-        }
-
-    private:
-        Creature* _owner;
-};
-
 
 Position const LadyNazjarCenterPosition = { 191.5f, 802.7f, 807.6f, 4.414708f };
 
@@ -253,15 +220,13 @@ struct boss_lady_nazjar : public BossAI
                 summon->m_Events.AddEvent(new GeyserEruptionEvent(summon), summon->m_Events.CalculateTime(6000));
                 break;
             case NPC_WATERSPOUT:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true, 0))
+                summon->CastSpell(summon, SPELL_WATERSPOUT_TARGETING);
+                summon->m_Events.AddEventAtOffset([summon]()
                 {
-                    summon->CastSpell(target, SPELL_WATERSPOUT_CHARGE);
-                    if (uint32 duration = summon->movespline->Duration())
-                    {
-                        summon->m_Events.AddEventAtOffset(new EjectAllPassengersEvent(summon), Milliseconds(duration));
-                        summon->DespawnOrUnsummon(duration + (5 * IN_MILLISECONDS));
-                    }
-                }
+                    summon->CastSpell(summon, SPELL_EJECT_ALL_PASSENGERS);
+                    summon->RemoveAllAuras();
+                    summon->DespawnOrUnsummon(5s);
+                }, 20s + 500ms);
                 break;
             default:
                 break;
@@ -308,8 +273,6 @@ struct boss_lady_nazjar : public BossAI
             || (me->HealthBelowPctDamaged(30, damage) && _waterspoutPhaseCount == 1))
         {
             events.Reset();
-            me->AttackStop();
-            me->SetReactState(REACT_PASSIVE);
             me->InterruptNonMeleeSpells(true);
             me->NearTeleportTo(LadyNazjarCenterPosition);
             instance->SetData(DATA_LADY_NAZJAR_GEYSERS, IN_PROGRESS);
@@ -540,10 +503,49 @@ class spell_nazjar_waterspout : public SpellScript
     }
 };
 
+class spell_nazjar_waterspout_targeting : public SpellScript
+{
+    PrepareSpellScript(spell_nazjar_waterspout_targeting);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        if (!instance)
+            return;
+
+        if (Creature* nazjar = instance->GetCreature(DATA_LADY_NAZJAR))
+        {
+            targets.remove_if([nazjar](WorldObject const* obj)->bool
+            {
+                return nazjar->GetVictim() == obj;
+            });
+        }
+
+        if (!targets.empty())
+            Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleScriptEffect(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_nazjar_waterspout_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_nazjar_waterspout_targeting::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_lady_nazjar()
 {
     RegisterThroneOfTheTidesCreatureAI(boss_lady_nazjar);
     RegisterThroneOfTheTidesCreatureAI(npc_nazjar_nazjar_honor_guard);
     RegisterThroneOfTheTidesCreatureAI(npc_nazjar_nazjar_tempest_witch);
     RegisterSpellScript(spell_nazjar_waterspout);
+    RegisterSpellScript(spell_nazjar_waterspout_targeting);
 }
