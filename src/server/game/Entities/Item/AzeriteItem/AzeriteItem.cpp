@@ -58,60 +58,51 @@ void AzeriteItem::SaveToDB(CharacterDatabaseTransaction& trans)
     trans->Append(stmt);
 }
 
-bool AzeriteItem::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry)
+void AzeriteItem::LoadAzeriteItemData(AzeriteItemData& azeriteItemData)
 {
-    if (!Item::LoadFromDB(guid, ownerGuid, fields, entry))
-        return false;
-
     bool needSave = false;
 
-    uint64 xp = fields[43].GetUInt64();
-    uint32 level = fields[44].GetUInt32();
-    uint32 knowledgeLevel = fields[45].GetUInt32();
-
-    if (!sAzeriteLevelInfoStore.LookupEntry(level))
+    if (!sAzeriteLevelInfoStore.LookupEntry(azeriteItemData.Level))
     {
-        xp = 0;
-        level = 1;
-        knowledgeLevel = GetCurrentKnowledgeLevel();
+        azeriteItemData.Xp = 0;
+        azeriteItemData.Level = 1;
+        azeriteItemData.KnowledgeLevel = GetCurrentKnowledgeLevel();
         needSave = true;
     }
-    else if (level > MAX_AZERITE_ITEM_LEVEL)
+    else if (azeriteItemData.Level > MAX_AZERITE_ITEM_LEVEL)
     {
-        xp = 0;
-        level = MAX_AZERITE_ITEM_LEVEL;
+        azeriteItemData.Xp = 0;
+        azeriteItemData.Level = MAX_AZERITE_ITEM_LEVEL;
         needSave = true;
     }
 
-    if (knowledgeLevel != GetCurrentKnowledgeLevel())
+    if (azeriteItemData.KnowledgeLevel != GetCurrentKnowledgeLevel())
     {
         // rescale XP to maintain same progress %
-        uint64 oldMax = CalcTotalXPToNextLevel(level, knowledgeLevel);
-        knowledgeLevel = GetCurrentKnowledgeLevel();
-        uint64 newMax = CalcTotalXPToNextLevel(level, knowledgeLevel);
-        xp = uint64(xp / double(oldMax) * newMax);
+        uint64 oldMax = CalcTotalXPToNextLevel(azeriteItemData.Level, azeriteItemData.KnowledgeLevel);
+        azeriteItemData.KnowledgeLevel = GetCurrentKnowledgeLevel();
+        uint64 newMax = CalcTotalXPToNextLevel(azeriteItemData.Level, azeriteItemData.KnowledgeLevel);
+        azeriteItemData.Xp = uint64(azeriteItemData.Xp / double(oldMax) * newMax);
         needSave = true;
     }
-    else if (knowledgeLevel > MAX_AZERITE_ITEM_KNOWLEDGE_LEVEL)
+    else if (azeriteItemData.KnowledgeLevel > MAX_AZERITE_ITEM_KNOWLEDGE_LEVEL)
     {
-        knowledgeLevel = MAX_AZERITE_ITEM_KNOWLEDGE_LEVEL;
+        azeriteItemData.KnowledgeLevel = MAX_AZERITE_ITEM_KNOWLEDGE_LEVEL;
         needSave = true;
     }
 
-    SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::Xp), xp);
-    SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::Level), level);
-    SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::KnowledgeLevel), knowledgeLevel);
+    SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::Xp), azeriteItemData.Xp);
+    SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::Level), azeriteItemData.Level);
+    SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::KnowledgeLevel), azeriteItemData.KnowledgeLevel);
 
     if (needSave)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_INSTANCE_AZERITE_ON_LOAD);
-        stmt->setUInt64(0, xp);
-        stmt->setUInt32(1, knowledgeLevel);
-        stmt->setUInt64(2, guid);
+        stmt->setUInt64(0, azeriteItemData.Xp);
+        stmt->setUInt32(1, azeriteItemData.KnowledgeLevel);
+        stmt->setUInt64(2, GetGUID().GetCounter());
         CharacterDatabase.Execute(stmt);
     }
-
-    return true;
 }
 
 void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans)

@@ -32,10 +32,20 @@ public:
     bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner) override;
 
     void SaveToDB(CharacterDatabaseTransaction& trans) override;
-    bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry) override;
+    void LoadAzeriteItemData(AzeriteItemData& azeriteItem);
     void DeleteFromDB(CharacterDatabaseTransaction& trans) override;
 
     uint32 GetItemLevel(Player const* owner) const override;
+
+    uint32 GetLevel() const { return m_azeriteItemData->Level; }
+    uint32 GetEffectiveLevel() const
+    {
+        uint32 level = m_azeriteItemData->AuraLevel;
+        if (!level)
+            level = m_azeriteItemData->Level;
+
+        return level;
+    }
 
     static uint32 GetCurrentKnowledgeLevel();
     static uint64 CalcTotalXPToNextLevel(uint32 level, uint32 knowledgeLevel);
