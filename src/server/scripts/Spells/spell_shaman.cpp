@@ -66,6 +66,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_BURST_TRIGGERED           = 77451,
     SPELL_SHAMAN_LAVA_FLOWS_R1                  = 51480,
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 65264,
+    SPELL_SHAMAN_LAVA_LASH_SPREAD_FLAME_SHOCK   = 105792,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
     SPELL_SHAMAN_LIGHTNING_BOLT                 = 403,
     SPELL_SHAMAN_LIGHTNING_BOLT_TRIGGERED       = 45284,
@@ -78,6 +79,7 @@ enum ShamanSpells
     SPELL_SHAMAN_RESURGENCE_ENERGIZE            = 101033,
     SPELL_SHAMAN_RIPTIDE                        = 61295,
     SPELL_SHAMAN_SATED                          = 57724,
+    SPELL_SHAMAN_SEARING_FLAMES_DAMAGE          = 77661,
     SPELL_SHAMAN_STORM_EARTH_AND_FIRE           = 51483,
     SPELL_SHAMAN_TELLURIC_CURRENTS              = 82987,
     SPELL_SHAMAN_TOTEM_EARTHBIND_EARTHGRAB      = 64695,
@@ -105,7 +107,9 @@ enum ShamanSpellIcons
     SHAMAN_ICON_ID_BLESSING_OF_THE_ETERNALS     = 3157,
     SHAMAN_ICON_ID_FULMINATION                  = 2010,
     SHAMAN_ICON_ID_GLYPH_OF_LIGHTNING_SHIELD    = 19,
-    SHAMAN_ICON_ID_GLYPH_OF_EARTH_SHIELD        = 2015
+    SHAMAN_ICON_ID_GLYPH_OF_EARTH_SHIELD        = 2015,
+    SHAMAN_ICON_ID_SEARING_FLAMES               = 680,
+    SHAMAN_ICON_ID_IMPROVED_LAVA_LASH           = 4780
 };
 
 enum MiscSpells
@@ -895,19 +899,98 @@ class spell_sha_lava_lash : public SpellScript
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_SEARING_FLAMES_DAMAGE,
+                SPELL_SHAMAN_LAVA_LASH_SPREAD_FLAME_SHOCK,
+                SPELL_SHAMAN_FLAME_SHOCK
+            });
+    }
+
     void HandleDamageBonus(SpellEffIndex /*effIndex*/)
     {
         Player* caster = GetCaster()->ToPlayer();
+        Unit* target = GetHitUnit();
+        if (!target || !caster)
+            return;
+
+        int32 bonusDamage = 0;
 
         // Increase damage of lava lash by 40% if the offhand weapon is enchanted with Flametongue
         if (Item* offhand = caster->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
             if (offhand->GetEnchantmentId(TEMP_ENCHANTMENT_SLOT) == SHAMAN_ENCHANTMENT_ID_FLAMETONGUE)
-                SetEffectValue(GetEffectValue() + GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster));
+                bonusDamage += GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
+
+        // Improved Lava Lash
+        if (AuraEffect const* bonusAura = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_IMPROVED_LAVA_LASH, EFFECT_1))
+        {
+            if (Aura* aura = target->GetAura(SPELL_SHAMAN_SEARING_FLAMES_DAMAGE, caster->GetGUID()))
+            {
+                bonusDamage += bonusAura->GetAmount() * aura->GetStackAmount();
+                aura->Remove();
+
+                if (target->HasAura(SPELL_SHAMAN_FLAME_SHOCK, caster->GetGUID()))
+                    caster->CastCustomSpell(SPELL_SHAMAN_LAVA_LASH_SPREAD_FLAME_SHOCK, SPELLVALUE_MAX_TARGETS, 4, target, true, nullptr, bonusAura);
+            }
+        }
+        SetEffectValue(GetEffectValue() + bonusDamage);
     }
 
     void Register() override
     {
         OnEffectLaunchTarget += SpellEffectFn(spell_sha_lava_lash::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+    }
+};
+
+class spell_sha_lava_lash_script : public SpellScript
+{
+    PrepareSpellScript(spell_sha_lava_lash_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_FLAME_SHOCK });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        targets.remove_if([this](WorldObject const* obj)->bool
+            {
+                Unit const* target = obj->ToUnit();
+
+                if (!target || obj == GetExplTargetUnit())
+                    return true;
+
+                if (target->HasAura(SPELL_SHAMAN_FLAME_SHOCK, GetCaster()->GetGUID()))
+                    return true;
+
+                return target->HasBreakableByDamageCrowdControlAura();
+            });
+
+        if (targets.size() > 4)
+            targets.resize(4);
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* spellTarget = GetExplTargetUnit();
+        if (!caster || !spellTarget)
+            return;
+
+        if (Aura* flameshock = spellTarget->GetAura(SPELL_SHAMAN_FLAME_SHOCK, caster->GetGUID()))
+            if (Aura* spread = caster->AddAura(SPELL_SHAMAN_FLAME_SHOCK, GetHitUnit()))
+                spread->SetDuration(flameshock->GetDuration());
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_lava_lash_script::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_lava_lash_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -2014,6 +2097,33 @@ class spell_sha_lightning_shield : public AuraScript
     }
 };
 
+class spell_sha_searing_bolt : public SpellScript
+{
+    PrepareSpellScript(spell_sha_searing_bolt);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_SEARING_FLAMES_DAMAGE });
+    }
+
+    void HandleSearingFlames(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Unit* owner = caster->GetOwner())
+            if (AuraEffect const* effect = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_SEARING_FLAMES, EFFECT_0))
+                if (roll_chance_i(effect->GetAmount()))
+                    owner->CastSpell(GetHitUnit(), SPELL_SHAMAN_SEARING_FLAMES_DAMAGE, true, nullptr, effect);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_searing_bolt::HandleSearingFlames, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -2047,6 +2157,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_item_mana_surge();
     new spell_sha_item_t10_elemental_2p_bonus();
     RegisterSpellScript(spell_sha_lava_lash);
+    RegisterSpellScript(spell_sha_lava_lash_script);
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
     RegisterAuraScript(spell_sha_lightning_shield);
@@ -2054,6 +2165,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_nature_guardian();
     new spell_sha_resurgence();
     RegisterAuraScript(spell_sha_rolling_thunder);
+    RegisterSpellScript(spell_sha_searing_bolt);
     RegisterAuraScript(spell_sha_static_shock);
     new spell_sha_telluric_currents();
     new spell_sha_thunderstorm();
