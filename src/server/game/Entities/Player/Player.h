@@ -1017,6 +1017,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
         uint32 GetPhaseMaskForSpawn() const;                // used for proper set phase for DB at GM-mode creature/GO spawn
 
+        void Lock(bool apply);
+
         // pet auras
         std::unordered_set<PetAura const*> m_petAuras;
         void AddPetAura(PetAura const* petSpell);

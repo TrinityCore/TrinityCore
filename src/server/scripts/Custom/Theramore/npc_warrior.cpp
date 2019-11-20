@@ -51,7 +51,7 @@ class npc_warrior : public CreatureScript
                         break;
 
                     case CASTING_PROCOCATION:
-                        if (Unit * target = SelectTarget(SELECT_TARGET_MINTHREAT, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MINTHREAT, 0))
                             DoCast(target, SPELL_PROCOCATION);
                         events.RescheduleEvent(CASTING_PROCOCATION, 32s, 60s);
                         break;
@@ -65,7 +65,7 @@ class npc_warrior : public CreatureScript
         EventMap events;
     };
 
-    CreatureAI* GetAI(Creature * creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_warriorAI(creature);
     }

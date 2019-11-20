@@ -76,9 +76,9 @@ class npc_priest : public CreatureScript
             if (me->GetEntry() != 100014)
                 return;
 
-            if (Creature * spiritHealder = DoSummon(NPC_SPIRIT_HEALER, me->GetPosition(), 13000, TEMPSUMMON_TIMED_DESPAWN))
+            if (Creature* spiritHealder = DoSummon(NPC_SPIRIT_HEALER, me->GetPosition(), 13000, TEMPSUMMON_TIMED_DESPAWN))
             {
-                if (Creature * fx = DoSummon(NPC_INVISIBLE_STALKER, me->GetPosition(), 13000, TEMPSUMMON_TIMED_DESPAWN))
+                if (Creature* fx = DoSummon(NPC_INVISIBLE_STALKER, me->GetPosition(), 13000, TEMPSUMMON_TIMED_DESPAWN))
                 {
                     fx->AddAura(SPELL_SPIRIT_HEALER_VISUAL, fx);
                     fx->SetObjectScale(1.5f);
@@ -88,7 +88,7 @@ class npc_priest : public CreatureScript
                 for (int i = 0; i < 5; ++i)
                 {
                     Position pos = GetPositionAround(spiritHealder, angle, spiritHealder->GetObjectScale() * 3.f);
-                    if (Creature * lightwell = DoSummon(NPC_LIGHTWELL, pos, 13000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* lightwell = DoSummon(NPC_LIGHTWELL, pos, 13000, TEMPSUMMON_TIMED_DESPAWN))
                         lightwell->CastSpell(lightwell, SPELL_MASS_HEAL);
                     angle += 72;
                 }
@@ -128,7 +128,7 @@ class npc_priest : public CreatureScript
                         break;
 
                     case CASTING_HOLY_FIRE:
-                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_HOLY_FIRE);
                         events.RescheduleEvent(CASTING_HOLY_FIRE, 5s, 8s);
                         break;
@@ -164,7 +164,7 @@ class npc_priest : public CreatureScript
         Creature* resTarget;
         bool isSaved;
 
-        Position GetPositionAround(Unit * target, double angle, float radius)
+        Position GetPositionAround(Unit* target, double angle, float radius)
         {
             double ang = angle * (M_PI / 180);
             Position pos;
@@ -175,7 +175,7 @@ class npc_priest : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature * creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_priestAI(creature);
     }

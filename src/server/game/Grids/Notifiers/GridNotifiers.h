@@ -805,6 +805,26 @@ namespace Trinity
             uint32 i_hp;
     };
 
+    class CastingUnitInRange
+    {
+        public:
+            CastingUnitInRange(Unit const* obj, uint32 spellid, float range) : i_obj(obj), i_spell(spellid), i_range(range){ }
+
+            bool operator()(Unit* u)
+            {
+                if (u->IsAlive() && i_obj->IsHostileTo(u) && u->IsInCombat() && i_obj->IsWithinDistInMap(u, i_range) && u->HasUnitState(UNIT_STATE_CASTING) && !u->HasAura(i_spell))
+                {
+                    return true;
+                }
+                return false;
+            }
+
+        private:
+            Unit const* i_obj;
+            uint32 i_spell;
+            float i_range;
+    };
+
     class FriendlyBelowHpPctEntryInRange
     {
         public:

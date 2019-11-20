@@ -24987,6 +24987,20 @@ uint32 Player::GetPhaseMaskForSpawn() const
     return PHASEMASK_NORMAL;
 }
 
+void Player::Lock(bool apply)
+{
+    if (apply)
+    {
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_SILENCED);
+        SetClientControl(this, 0);
+    }
+    else
+    {
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_SILENCED);
+        SetClientControl(this, 1);
+    }
+}
+
 InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limit_count) const
 {
     ItemTemplate const* pProto = pItem->GetTemplate();

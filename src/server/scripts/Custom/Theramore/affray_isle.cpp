@@ -184,115 +184,116 @@ const Position BuildingMeteorPos[FIRES_MAX_NUMBER] =
 class KlannocBurning : public BasicEvent
 {
     public:
-        KlannocBurning(Creature* owner, Creature* jaina) : owner(owner), jaina(jaina), stage(0) { }
+    KlannocBurning(Creature* owner, Creature* jaina) : owner(owner), jaina(jaina), stage(0) { }
 
-        bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        switch (stage)
         {
-            switch (stage)
-            {
-                case 0:
-                    owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    return NextEvent(eventTime, 500);
-                case 1:
-                    jaina->CastSpell(owner, SPELL_PYROBLAST);
-                    return NextEvent(eventTime, 1890);
-                case 2:
-                    owner->RemoveAllAuras();
-                    owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    owner->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
-                    owner->AddAura(SPELL_IMMOLATE, owner);
-                    owner->GetMotionMaster()->MoveConfused();
-                    return NextEvent(eventTime, 6000);
-                case 3:
-                    owner->KillSelf();
-                    return true;
-                default:
-                    break;
-            }
-            return true;
+            case 0:
+                owner->SetWalk(false);
+                owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                return NextEvent(eventTime, 500);
+            case 1:
+                jaina->CastSpell(owner, SPELL_PYROBLAST);
+                return NextEvent(eventTime, 1890);
+            case 2:
+                owner->RemoveAllAuras();
+                owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                owner->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+                owner->AddAura(SPELL_IMMOLATE, owner);
+                owner->GetMotionMaster()->MoveConfused();
+                return NextEvent(eventTime, 6000);
+            case 3:
+                owner->KillSelf();
+                return true;
+            default:
+                break;
         }
+        return true;
+    }
 
     private:
-        Creature* owner;
-        Creature* jaina;
-        uint8 stage;
-        Position posToLift;
+    Creature* owner;
+    Creature* jaina;
+    uint8 stage;
+    Position posToLift;
 
-        bool NextEvent(uint64 eventTime, uint64 time)
-        {
-            stage++;
-            owner->m_Events.AddEvent(this, eventTime + time);
-            return false;
-        }
+    bool NextEvent(uint64 eventTime, uint64 time)
+    {
+        stage++;
+        owner->m_Events.AddEvent(this, eventTime + time);
+        return false;
+    }
 };
 
 class SpectatorDeath : public BasicEvent
 {
     public:
-        SpectatorDeath(Creature* owner) : owner(owner) { }
+    SpectatorDeath(Creature* owner) : owner(owner) { }
 
-        bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
-        {
-            owner->KillSelf();
-            return true;
-        }
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        owner->KillSelf();
+        return true;
+    }
 
     private:
-        Creature* owner;
+    Creature* owner;
 };
 
 class WaveGrowing : public BasicEvent
 {
     public:
-        WaveGrowing(Creature* owner) : owner(owner) { }
+    WaveGrowing(Creature* owner) : owner(owner) { }
 
-        bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
-        {
-            if (!owner->HasAura(SPELL_WAVE_VISUAL))
-                owner->AddAura(SPELL_WAVE_VISUAL, owner);
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        if (!owner->HasAura(SPELL_WAVE_VISUAL))
+            owner->AddAura(SPELL_WAVE_VISUAL, owner);
 
-            float currentScale = owner->GetObjectScale();
-            if (currentScale >= 4.f)
-                return true;
+        float currentScale = owner->GetObjectScale();
+        if (currentScale >= 4.f)
+            return true;
 
-            owner->SetObjectScale(currentScale + 0.3f);
-            owner->m_Events.AddEvent(this, eventTime + 2000);
-            return false;
-        }
+        owner->SetObjectScale(currentScale + 0.3f);
+        owner->m_Events.AddEvent(this, eventTime + 2000);
+        return false;
+    }
 
     private:
-        Creature* owner;
+    Creature* owner;
 };
 
 class LightingStrikes : public BasicEvent
 {
     public:
-        LightingStrikes(Creature* owner) : owner(owner), stage(0), lighting(nullptr) { }
+    LightingStrikes(Creature* owner) : owner(owner), stage(0), lighting(nullptr) { }
 
-        bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
+    {
+        switch (stage)
         {
-            switch (stage)
-            {
-                case 0:
-                    lighting = owner->SummonCreature(NPC_INVISIBLE_STALKER, owner->GetRandomNearPosition(50.f), TEMPSUMMON_TIMED_DESPAWN, 2s);
-                    stage++;
-                    owner->m_Events.AddEvent(this, eventTime + 1000);
-                    return false;
-                case 1:
-                    lighting->CastSpell(lighting, SPELL_LIGHTING_STRIKES);
-                    stage = 0;
-                    owner->m_Events.AddEvent(this, eventTime + urand(100, 500));
-                    return false;
-                default:
-                    break;
-            }
-            return true;
+            case 0:
+                lighting = owner->SummonCreature(NPC_INVISIBLE_STALKER, owner->GetRandomNearPosition(50.f), TEMPSUMMON_TIMED_DESPAWN, 2s);
+                stage++;
+                owner->m_Events.AddEvent(this, eventTime + 1000);
+                return false;
+            case 1:
+                lighting->CastSpell(lighting, SPELL_LIGHTING_STRIKES);
+                stage = 0;
+                owner->m_Events.AddEvent(this, eventTime + urand(100, 500));
+                return false;
+            default:
+                break;
         }
+        return true;
+    }
 
     private:
-        Creature* owner;
-        Creature* lighting;
-        uint8 stage;
+    Creature* owner;
+    Creature* lighting;
+    uint8 stage;
 };
 
 class jaina_affray_isle : public CreatureScript
@@ -415,6 +416,7 @@ class jaina_affray_isle : public CreatureScript
                         if (playerSpectator = me->SummonCreature(NPC_AFFRAY_SPECTATOR, player->GetRandomNearPosition(1.f), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min))
                         {
                             playerSpectator->CastSpell(player, SPELL_STUNNED);
+                            player->Lock(true);
 
                             playerSpectator->SetFacingToObject(player);
                             playerSpectator->CastSpell(playerSpectator, SPELL_SMOKE_REVEAL);
@@ -509,6 +511,8 @@ class jaina_affray_isle : public CreatureScript
                         playerSpectator->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         playerSpectator->m_Events.AddEvent(new SpectatorDeath(playerSpectator), playerSpectator->m_Events.CalculateTime(2000));
 
+                        player->Lock(false);
+
                         CastSpellExtraArgs args;
                         args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
 
@@ -555,9 +559,9 @@ class jaina_affray_isle : public CreatureScript
                         //events.ScheduleEvent(EVENT_AFFRAY_ISLE_17, 15s);
                         break;
 
-                    //case EVENT_AFFRAY_ISLE_17:
-                    //    lightingStrikesEvent->ScheduleAbort();
-                    //    break;
+                        //case EVENT_AFFRAY_ISLE_17:
+                        //    lightingStrikesEvent->ScheduleAbort();
+                        //    break;
 
                     default:
                         break;
@@ -566,69 +570,69 @@ class jaina_affray_isle : public CreatureScript
         }
 
         private:
-            EventMap events;
-            LightingStrikes* lightingStrikesEvent;
-            Player* player;
-            Creature* klannoc;
-            Creature* playerSpectator;
-            Creature* kalecgos;
-            Creature* thrall;
-            Creature* arcaneCloud;
-            Creature* focusingIrisFx;
-            Creature* waveFx;
-            std::vector<Creature*> spectators;
+        EventMap events;
+        LightingStrikes* lightingStrikesEvent;
+        Player* player;
+        Creature* klannoc;
+        Creature* playerSpectator;
+        Creature* kalecgos;
+        Creature* thrall;
+        Creature* arcaneCloud;
+        Creature* focusingIrisFx;
+        Creature* waveFx;
+        std::vector<Creature*> spectators;
 
-            bool debug;
+        bool debug;
 
-            void SetPlayerTeleportMode(Player* player, bool value)
+        void SetPlayerTeleportMode(Player* player, bool value)
+        {
+            player->Lock(value);
+
+            float speed = value ? 20.f : 1.f;
+            player->SetSpeedRate(MOVE_WALK, speed);
+            player->SetSpeedRate(MOVE_RUN, speed);
+            player->SetSpeedRate(MOVE_SWIM, speed);
+            player->SetSpeedRate(MOVE_FLIGHT, speed);
+
+            if (value)
             {
-                player->SetControlled(value, UNIT_STATE_CONTROLLED);
-
-                float speed = value ? 20.f : 1.f;
-                player->SetSpeedRate(MOVE_WALK, speed);
-                player->SetSpeedRate(MOVE_RUN, speed);
-                player->SetSpeedRate(MOVE_SWIM, speed);
-                player->SetSpeedRate(MOVE_FLIGHT, speed);
-
-                if (value)
-                {
-                    player->SetDisplayId(MORPH_INVISIBLE_PLAYER);
-                    player->AddAura(SPELL_TELEPORT_PATH, player);
-                }
-                else
-                {
-                    player->SetDisplayId(player->GetNativeDisplayId());
-                    player->RemoveAurasDueToSpell(SPELL_TELEPORT_PATH);
-                }
-
-                SetPlayerCanFly(player, value);
+                player->SetDisplayId(MORPH_INVISIBLE_PLAYER);
+                player->AddAura(SPELL_TELEPORT_PATH, player);
+            }
+            else
+            {
+                player->SetDisplayId(player->GetNativeDisplayId());
+                player->RemoveAurasDueToSpell(SPELL_TELEPORT_PATH);
             }
 
-            void SetPlayerCanFly(Player* player, bool value)
-            {
-                WorldPacket data(12);
-                if (value)
-                    data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
-                else
-                    data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
+            SetPlayerCanFly(player, value);
+        }
 
-                data << player->GetPackGUID();
-                data << uint32(0);
-                player->SendMessageToSet(&data, true);
-            }
+        void SetPlayerCanFly(Player* player, bool value)
+        {
+            WorldPacket data(12);
+            if (value)
+                data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
+            else
+                data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
 
-            const Position GetPositionAroundMe(float angle, float radius)
-            {
-                float ang = float(angle * (M_PI / 180.f));
-                Position pos;
-                pos.m_positionX = me->GetPositionX() + radius * sinf(ang);
-                pos.m_positionY = me->GetPositionY() + radius * cosf(ang);
-                pos.m_positionZ = 4.38f;
-                return pos;
-            }
+            data << player->GetPackGUID();
+            data << uint32(0);
+            player->SendMessageToSet(&data, true);
+        }
+
+        const Position GetPositionAroundMe(float angle, float radius)
+        {
+            float ang = float(angle * (M_PI / 180.f));
+            Position pos;
+            pos.m_positionX = me->GetPositionX() + radius * sinf(ang);
+            pos.m_positionY = me->GetPositionY() + radius * cosf(ang);
+            pos.m_positionZ = 4.38f;
+            return pos;
+        }
     };
 
-    CreatureAI* GetAI(Creature * creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new jaina_affray_isleAI(creature);
     }

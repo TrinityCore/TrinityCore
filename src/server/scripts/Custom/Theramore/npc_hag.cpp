@@ -8,6 +8,7 @@ enum Spells
 	SPELL_ICE_BLOCK         = 100008,
 	SPELL_BLINK             = 64662,
 	SPELL_ARCANE_BLAST      = 100010,
+    SPELL_PRISMATIC_BARRIER = 100069
 };
 
 enum Casting
@@ -26,17 +27,19 @@ class npc_hag : public CreatureScript
     struct npc_hagAI : public ScriptedAI
     {
         npc_hagAI(Creature* creature) : ScriptedAI(creature)
-		{
-			Initialize();
-		}
+        {
+            Initialize();
+        }
 
-		void Initialize()
-		{
-			iceBlocked = false;
-		}
+        void Initialize()
+        {
+            iceBlocked = false;
+        }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
+            DoCast(SPELL_PRISMATIC_BARRIER);
+
             events.ScheduleEvent(CASTING_FIREBALL, 1s);
             events.ScheduleEvent(CASTING_ICE_LANCE, 5s);
             events.ScheduleEvent(CASTING_BLINK, 10s);
@@ -46,7 +49,7 @@ class npc_hag : public CreatureScript
         void Reset() override
         {
             events.Reset();
-			Initialize();
+            Initialize();
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -55,7 +58,7 @@ class npc_hag : public CreatureScript
             {
                 me->InterruptNonMeleeSpells(false);
                 DoCastSelf(SPELL_ICE_BLOCK);
-				iceBlocked = true;
+                iceBlocked = true;
             }
         }
 
@@ -81,7 +84,7 @@ class npc_hag : public CreatureScript
 
                     case CASTING_ICE_LANCE:
                         me->InterruptNonMeleeSpells(true);
-                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_ICE_LANCE);
                         events.RescheduleEvent(CASTING_ICE_LANCE, 8s, 15s);
                         break;
@@ -93,7 +96,7 @@ class npc_hag : public CreatureScript
                         break;
 
                     case CASTING_ARCANE_BLAST:
-                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_ARCANE_BLAST);
                         events.RescheduleEvent(CASTING_ARCANE_BLAST, 8s, 14s);
                         break;
@@ -108,7 +111,7 @@ class npc_hag : public CreatureScript
 
         private:
         EventMap events;
-		bool iceBlocked;
+        bool iceBlocked;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

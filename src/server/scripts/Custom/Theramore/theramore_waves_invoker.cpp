@@ -162,11 +162,12 @@ class theramore_waves_invoker : public CreatureScript
                 amara = GetClosestCreatureWithEntry(me, NPC_AMARA_LEESON, 20.f);
 
                 jaina->AI()->Talk(JAINA_SAY_01);
+                jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
                 Map::PlayerList const& allPlayers = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = allPlayers.begin(); itr != allPlayers.end(); ++itr)
                 {
-                    if (Player * player = itr->GetSource()->ToPlayer())
+                    if (Player* player = itr->GetSource()->ToPlayer())
                         players.push_back(player);
                 }
 
@@ -191,7 +192,7 @@ class theramore_waves_invoker : public CreatureScript
                 {
                     // Event - Battle
                     case EVENT_BATTLE_1:
-                        if (Creature * cannon = DoSummon(NPC_INVISIBLE_STALKER, { -3646.48f, -4362.23f, 9.57f, 0.70f }, 9000, TEMPSUMMON_TIMED_DESPAWN))
+                        if (Creature* cannon = DoSummon(NPC_INVISIBLE_STALKER, { -3646.48f, -4362.23f, 9.57f, 0.70f }, 9000, TEMPSUMMON_TIMED_DESPAWN))
                         {
                             jaina->AI()->Talk(JAINA_SAY_02);
                             jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
@@ -205,14 +206,14 @@ class theramore_waves_invoker : public CreatureScript
                         for (Player* player : players)
                             player->PlayDirectSound(11563);
 
-                        if (Creature * barrier = GetClosestCreatureWithEntry(me, NPC_INVISIBLE_STALKER, 20.f))
+                        if (Creature* barrier = GetClosestCreatureWithEntry(me, NPC_INVISIBLE_STALKER, 20.f))
                         {
                             barrier->CastSpell(barrier, 70444);
                             barrier->RemoveAllAuras();
                             barrier->DespawnOrUnsummon(2s);
                         }
 
-                        if (GameObject * gate = GetClosestGameObjectWithEntry(me, GOB_THERAMORE_GATE, 35.f))
+                        if (GameObject* gate = GetClosestGameObjectWithEntry(me, GOB_THERAMORE_GATE, 35.f))
                         {
                             gate->SetLootState(GO_READY);
                             gate->UseDoorOrButton();
@@ -239,7 +240,7 @@ class theramore_waves_invoker : public CreatureScript
 
                     case EVENT_BATTLE_4:
                         jaina->AI()->Talk(JAINA_SAY_04);
-                        if (Creature * fx = DoSummon(NPC_INVISIBLE_STALKER, jaina->GetPosition(), 5000, TEMPSUMMON_TIMED_DESPAWN))
+                        if (Creature* fx = DoSummon(NPC_INVISIBLE_STALKER, jaina->GetPosition(), 5000, TEMPSUMMON_TIMED_DESPAWN))
                             fx->CastSpell(fx, SPELL_TELEPORT, true);
                         jaina->NearTeleportTo(-3612.43f, -4335.63f, 9.29f, 0.72f);
                         events.ScheduleEvent(EVENT_BATTLE_5, 1s);
@@ -272,7 +273,7 @@ class theramore_waves_invoker : public CreatureScript
 
                     case EVENT_BATTLE_9:
                         thalen->RemoveAllAuras();
-                        if (Creature * medic = DoSummon(NPC_THERAMORE_MEDIC, { -3736.40f, -4553.58f, 4.74f, 5.99f }, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                        if (Creature* medic = DoSummon(NPC_THERAMORE_MEDIC, { -3736.40f, -4553.58f, 4.74f, 5.99f }, 0, TEMPSUMMON_MANUAL_DESPAWN))
                             medic->CastSpell(thalen, SPELL_CHAINS);
                         thalen->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STRANGULATE);
                         jaina->CastSpell(jaina, SPELL_TELEPORT, true);
@@ -281,7 +282,7 @@ class theramore_waves_invoker : public CreatureScript
                         events.ScheduleEvent(WAVE_01, 5s);
                         break;
 
-                    // Event - Invoker
+                        // Event - Invoker
                     case WAVE_01:
                     case WAVE_02:
                     case WAVE_03:
@@ -358,7 +359,7 @@ class theramore_waves_invoker : public CreatureScript
         uint32 wavesInvoker;
         std::vector<Player*> players;
 
-        void HordeMembersInvoker(uint32 waveId, ObjectGuid * hordes)
+        void HordeMembersInvoker(uint32 waveId, ObjectGuid* hordes)
         {
             for (uint32 i = 0; i < NUMBER_OF_WAVES; ++i)
             {
@@ -380,7 +381,7 @@ class theramore_waves_invoker : public CreatureScript
                         break;
                 }
 
-                if (Creature * temp = DoSummon(entry, pos, 900000, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN))
+                if (Creature* temp = DoSummon(entry, pos, 900000, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN))
                 {
                     if (waveId == WAVE_DOORS)
                     {
@@ -407,13 +408,13 @@ class theramore_waves_invoker : public CreatureScript
                     groupId = JAINA_SAY_WAVE_DOORS;
                     break;
 
-                // Citadelle
+                    // Citadelle
                 case WAVE_CITADEL:
                     position = { -3668.74f, -4511.64f, 10.09f, 1.54f };
                     groupId = JAINA_SAY_WAVE_CITADEL;
                     break;
 
-                // Docks
+                    // Docks
                 case WAVE_DOCKS:
                     position = { -3826.84f, -4539.05f, 9.21f };
                     groupId = JAINA_SAY_WAVE_DOCKS;
@@ -436,7 +437,7 @@ class theramore_waves_invoker : public CreatureScript
         }
     };
 
-    CreatureAI* GetAI(Creature * creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new theramore_waves_invokerAI(creature);
     }
