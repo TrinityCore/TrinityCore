@@ -75,6 +75,6 @@ enum PetTalk
 };
 
 #define PET_FOLLOW_DIST  1.0f
-#define PET_FOLLOW_ANGLE float(M_PI)
+#define PET_FOLLOW_ANGLE float(M_PI/2)
 
 #endif
