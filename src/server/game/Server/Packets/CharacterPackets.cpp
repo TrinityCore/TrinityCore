@@ -119,7 +119,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
         VisualItems[slot].InvType = Player::GetUInt32ValueFromArray(equipment, visualBase);
         VisualItems[slot].DisplayID = Player::GetUInt32ValueFromArray(equipment, visualBase + 1);
         VisualItems[slot].DisplayEnchantID = Player::GetUInt32ValueFromArray(equipment, visualBase + 2);
-        VisualItems[slot].DisplayEnchantID = Player::GetUInt32ValueFromArray(equipment, visualBase + 3);
+        VisualItems[slot].Subclass = Player::GetUInt32ValueFromArray(equipment, visualBase + 3);
     }
 }
 
