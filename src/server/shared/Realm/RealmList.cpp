@@ -207,6 +207,8 @@ Realm const* RealmList::GetRealm(Battlenet::RealmHandle const& id) const
 // List of client builds for verbose version info in realmlist packet
 static RealmBuildInfo const ClientBuilds[] =
 {
+    { 32580, 8, 2, 5, ' ' },
+    { 32494, 8, 2, 5, ' ' },
     { 28938, 8, 1, 5, ' ' },
     { 21355, 6, 2, 4, ' ' },
     { 20726, 6, 2, 3, ' ' },
