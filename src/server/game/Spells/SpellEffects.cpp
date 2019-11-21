@@ -75,7 +75,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
+NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
 {
     &Spell::EffectNULL,                                     //  0
     &Spell::EffectInstaKill,                                //  1 SPELL_EFFECT_INSTAKILL
