@@ -342,6 +342,13 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //262 SPELL_EFFECT_262
     &Spell::EffectNULL,                                     //263 SPELL_EFFECT_REPAIR_ITEM
     &Spell::EffectNULL,                                     //264 SPELL_EFFECT_REMOVE_GEM
+    &Spell::EffectNULL,                                     //265 SPELL_EFFECT_LEARN_AZERITE_ESSENCE_POWER
+    &Spell::EffectNULL,                                     //266 SPELL_EFFECT_266
+    &Spell::EffectNULL,                                     //267 SPELL_EFFECT_267
+    &Spell::EffectNULL,                                     //268 SPELL_EFFECT_APPLY_MOUNT_EQUIPMENT
+    &Spell::EffectNULL,                                     //269 SPELL_EFFECT_UPGRADE_ITEM
+    &Spell::EffectNULL,                                     //270 SPELL_EFFECT_270
+    &Spell::EffectNULL,                                     //271 SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
