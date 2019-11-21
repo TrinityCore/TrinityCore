@@ -544,4 +544,14 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
     return static_cast<typename std::underlying_type<E>::type>(enumValue);
 }
 
+template<typename T>
+struct NonDefaultConstructible
+{
+    constexpr /*implicit*/ NonDefaultConstructible(T value) : Value(std::move(value))
+    {
+    }
+
+    T Value;
+};
+
 #endif
