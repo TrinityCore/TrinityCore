@@ -1105,7 +1105,11 @@ class spell_pri_shadow_orb : public AuraScript
         PreventDefaultAction();
 
         Unit* target = GetTarget();
-        int32 bp = aurEff->GetAmount();
+        int32 bp = 10;
+        if (AuraEffect const* powerEff = target->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_PRIEST, 0x0, 0x0, 0x00100000))
+            bp += powerEff->GetAmount();
+
+        bp *= GetStackAmount();
         target->CastCustomSpell(target, SPELL_PRIEST_EMPOWERED_SHADOW, &bp, &bp, 0, true, nullptr, aurEff);
         target->RemoveAurasDueToSpell(SPELL_PRIEST_SHADOW_ORB_MARKER);
         Remove();
