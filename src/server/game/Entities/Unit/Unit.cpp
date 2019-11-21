@@ -6952,10 +6952,6 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
             });
     }
 
-    // from positive and negative SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN
-    // multiplicative bonus, for example Dispersion + Shadowform (0.10*0.85=0.085)
-    TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, spellProto->GetSchoolMask());
-
     //.. taken pct: dummy auras
     AuraEffectList const& mDummyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
     for (AuraEffectList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
@@ -7040,19 +7036,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
         }
 
         // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
-        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
-        for (AuraEffect const* aurEff : mSpellPowerPct)
-        {
-            int32 spellGroupVal = GetHighestExclusiveSameEffectSpellGroupValue(aurEff, SPELL_AURA_MOD_SPELL_POWER_PCT);
-            if (abs(spellGroupVal) >= abs(aurEff->GetAmount()))
-            {
-                AddPct(DoneAdvertisedBenefit, spellGroupVal);
-                break;
-            }
-            else if (!spellGroupVal)
-                AddPct(DoneAdvertisedBenefit, aurEff->GetAmount());
-        }
-
+        AddPct(DoneAdvertisedBenefit, GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_POWER_PCT));
         // ... and attack power
         DoneAdvertisedBenefit += static_cast<int32>(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER, schoolMask)));
     }
