@@ -57,7 +57,7 @@
 #include "WorldSession.h"
 #include <numeric>
 
-extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
+extern NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS];
 
 SpellDestination::SpellDestination()
 {
@@ -4774,7 +4774,7 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
 
     if (!preventDefault && eff < TOTAL_SPELL_EFFECTS)
     {
-        (this->*SpellEffects[eff])((SpellEffIndex)i);
+        (this->*SpellEffects[eff].Value)((SpellEffIndex)i);
     }
 }
 
