@@ -64,7 +64,7 @@ class Aura;
 // because for change amount operation packets will not be send
 // aura effect handlers shouldn't contain any AuraEffect or Aura object modifications
 
-pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
+NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
 {
     &AuraEffect::HandleNULL,                                      //  0 SPELL_AURA_NONE
     &AuraEffect::HandleBindSight,                                 //  1 SPELL_AURA_BIND_SIGHT
@@ -830,7 +830,7 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
     if ((apply && aurApp->GetRemoveMode()) || prevented)
         return;
 
-    (*this.*AuraEffectHandler[GetAuraType()])(aurApp, mode, apply);
+    (*this.*AuraEffectHandler[GetAuraType()].Value)(aurApp, mode, apply);
 
     // check if script events have removed the aura or if default effect prevention was requested
     if (apply && aurApp->GetRemoveMode())
