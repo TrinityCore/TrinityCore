@@ -284,7 +284,8 @@ static uint32 const IllusionModifierMaskSpecSpecific =
     (1 << ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4);
 
 void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo>* loadInfo,
-    PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult)
+    PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
+    PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult)
 {
     //                 0     1                       2                 3                   4                 5
     // SELECT a.itemGuid, a.xp, a.artifactAppearanceId, a.artifactTierId, ap.artifactPowerId, ap.purchasedRank FROM item_instance_artifact_powers ap LEFT JOIN item_instance_artifact a ON ap.itemGuid = a.itemGuid ...
@@ -321,7 +322,16 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
     }
 
     //                  0      1         2                  3
-    // SELECT iz.itemGuid, iz.xp, iz.level, iz.knowledgeLevel FROM item_instance_azerite iz INNER JOIN ...
+    // SELECT iz.itemGuid, iz.xp, iz.level, iz.knowledgeLevel,
+    //                                 4                                             5                                             6                                             7
+    // iz.selectedAzeriteEssences1specId, iz.selectedAzeriteEssences1azeriteEssenceId1, iz.selectedAzeriteEssences1azeriteEssenceId2, iz.selectedAzeriteEssences1azeriteEssenceId3,
+    //                                 8                                             9                                            10                                            11
+    // iz.selectedAzeriteEssences2specId, iz.selectedAzeriteEssences2azeriteEssenceId1, iz.selectedAzeriteEssences2azeriteEssenceId2, iz.selectedAzeriteEssences2azeriteEssenceId3,
+    //                                12                                            13                                            14                                            15
+    // iz.selectedAzeriteEssences3specId, iz.selectedAzeriteEssences3azeriteEssenceId1, iz.selectedAzeriteEssences3azeriteEssenceId2, iz.selectedAzeriteEssences3azeriteEssenceId3,
+    //                                16                                            17                                            18                                            19
+    // iz.selectedAzeriteEssences4specId, iz.selectedAzeriteEssences4azeriteEssenceId1, iz.selectedAzeriteEssences4azeriteEssenceId2, iz.selectedAzeriteEssences4azeriteEssenceId3
+    // FROM item_instance_azerite iz INNER JOIN ...
     if (azeriteItemResult)
     {
         do
@@ -333,8 +343,58 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             info.AzeriteItem->Xp = fields[1].GetUInt64();
             info.AzeriteItem->Level = fields[2].GetUInt32();
             info.AzeriteItem->KnowledgeLevel = fields[3].GetUInt32();
+            for (std::size_t i = 0; i < MAX_SPECIALIZATIONS; ++i)
+            {
+                uint32 specializationId = fields[4 + i * 4].GetUInt32();
+                if (!sChrSpecializationStore.LookupEntry(specializationId))
+                    continue;
+
+                info.AzeriteItem->SelectedAzeriteEssences[i].SpecializationId = specializationId;
+                for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
+                {
+                    AzeriteEssenceEntry const* azeriteEssence = sAzeriteEssenceStore.LookupEntry(fields[5 + i * 4 + j].GetUInt32());
+                    if (!azeriteEssence || !sDB2Manager.IsSpecSetMember(azeriteEssence->SpecSetID, specializationId))
+                        continue;
+
+                    info.AzeriteItem->SelectedAzeriteEssences[i].AzeriteEssenceId[j] = azeriteEssence->ID;
+                }
+            }
 
         } while (azeriteItemResult->NextRow());
+    }
+
+    //                    0                                 1
+    // SELECT iamp.itemGuid, iamp.azeriteItemMilestonePowerId FROM item_instance_azerite_milestone_power iamp INNER JOIN ...
+    if (azeriteItemMilestonePowersResult)
+    {
+        do
+        {
+            Field* fields = azeriteItemMilestonePowersResult->Fetch();
+            ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
+            if (!info.AzeriteItem)
+                info.AzeriteItem = boost::in_place();
+            info.AzeriteItem->AzeriteItemMilestonePowers.push_back(fields[1].GetUInt32());
+        }
+        while (azeriteItemMilestonePowersResult->NextRow());
+    }
+
+    //                    0                      1           2
+    // SELECT iaue.itemGuid, iaue.azeriteEssenceId, iaue.`rank` FROM item_instance_azerite_unlocked_essence iaue INNER JOIN  ...
+    if (azeriteItemUnlockedEssencesResult)
+    {
+        do
+        {
+            Field* fields = azeriteItemUnlockedEssencesResult->Fetch();
+            if (AzeriteEssencePowerEntry const* azeriteEssencePower = sDB2Manager.GetAzeriteEssencePower(fields[1].GetUInt32(), fields[2].GetUInt32()))
+            {
+                ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
+                if (!info.AzeriteItem)
+                    info.AzeriteItem = boost::in_place();
+
+                info.AzeriteItem->UnlockedAzeriteEssences.push_back(azeriteEssencePower);
+            }
+        }
+        while (azeriteItemUnlockedEssencesResult->NextRow());
     }
 }
 
@@ -357,7 +417,7 @@ Item::Item()
     memset(&_bonusData, 0, sizeof(_bonusData));
 }
 
-bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner)
+bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner)
 {
     Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
@@ -385,6 +445,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owne
 
     SetExpiration(itemProto->GetDuration());
     SetCreatePlayedTime(0);
+    SetContext(context);
 
     if (itemProto->GetArtifactID())
     {
@@ -763,7 +824,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[15].GetUInt16());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[16].GetUInt32());
 
-    SetContext(fields[17].GetUInt8());
+    SetContext(ItemContext(fields[17].GetUInt8()));
 
     Tokenizer bonusListString(fields[18].GetString(), ' ');
     std::vector<int32> bonusListIDs;
@@ -1394,7 +1455,7 @@ void Item::SendTimeUpdate(Player* owner)
     owner->GetSession()->SendPacket(itemTimeUpdate.Write());
 }
 
-Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= nullptr*/)
+Item* Item::CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player /*= nullptr*/)
 {
     if (count < 1)
         return nullptr;                                        //don't create item at zero count
@@ -1408,7 +1469,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= 
         ASSERT(count != 0, "proto->Stackable == 0 but checked at loading already");
 
         Item* item = NewItemOrBag(proto);
-        if (item->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), itemEntry, player))
+        if (item->Create(sObjectMgr->GetGenerator<HighGuid::Item>().Generate(), itemEntry, context, player))
         {
             item->SetCount(count);
             return item;
@@ -1423,7 +1484,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player /*= 
 
 Item* Item::CloneItem(uint32 count, Player const* player /*= nullptr*/) const
 {
-    Item* newItem = CreateItem(GetEntry(), count, player);
+    Item* newItem = CreateItem(GetEntry(), count, GetContext(), player);
     if (!newItem)
         return nullptr;
 
@@ -2052,7 +2113,7 @@ void Item::ItemContainerSaveLootToDB()
             stmt_items->setBool(7, _li->is_underthreshold);
             stmt_items->setBool(8, _li->needs_quest);
             stmt_items->setUInt32(9, _li->randomBonusListId);
-            stmt_items->setUInt8(10, _li->context);
+            stmt_items->setUInt8(10, AsUnderlyingType(_li->context));
             std::ostringstream bonusListIDs;
             for (int32 bonusListID : _li->BonusListIDs)
                 bonusListIDs << bonusListID << ' ';
@@ -2115,7 +2176,7 @@ bool Item::ItemContainerLoadLootFromDB()
                 loot_item.is_underthreshold = fields[6].GetBool();
                 loot_item.needs_quest = fields[7].GetBool();
                 loot_item.randomBonusListId = fields[8].GetUInt32();
-                loot_item.context = fields[9].GetUInt8();
+                loot_item.context = ItemContext(fields[9].GetUInt8());
                 Tokenizer bonusLists(fields[10].GetString(), ' ');
                 std::transform(bonusLists.begin(), bonusLists.end(), std::back_inserter(loot_item.BonusListIDs), [](char const* token)
                 {
@@ -2180,21 +2241,28 @@ void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
 
 uint32 Item::GetItemLevel(Player const* owner) const
 {
+    ItemTemplate const* itemTemplate = GetTemplate();
     uint32 minItemLevel = owner->m_unitData->MinItemLevel;
     uint32 minItemLevelCutoff = owner->m_unitData->MinItemLevelCutoff;
-    uint32 maxItemLevel = GetTemplate()->GetFlags3() & ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP ? 0 : owner->m_unitData->MaxItemLevel;
+    uint32 maxItemLevel = itemTemplate->GetFlags3() & ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP ? 0 : owner->m_unitData->MaxItemLevel;
     bool pvpBonus = owner->IsUsingPvpItemLevels();
-    return Item::GetItemLevel(GetTemplate(), _bonusData, owner->getLevel(), GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL),
-        minItemLevel, minItemLevelCutoff, maxItemLevel, pvpBonus);
+    uint32 azeriteLevel = 0;
+    if (AzeriteItem const* azeriteItem = ToAzeriteItem())
+        azeriteLevel = azeriteItem->GetEffectiveLevel();
+    return Item::GetItemLevel(itemTemplate, _bonusData, owner->getLevel(), GetModifier(ITEM_MODIFIER_TIMEWALKER_LEVEL),
+        minItemLevel, minItemLevelCutoff, maxItemLevel, pvpBonus, azeriteLevel);
 }
 
 uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel,
-    uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus)
+    uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus, uint32 azeriteLevel)
 {
     if (!itemTemplate)
         return MIN_ITEM_LEVEL;
 
     uint32 itemLevel = itemTemplate->GetBaseItemLevel();
+    if (AzeriteLevelInfoEntry const* azeriteLevelInfo = sAzeriteLevelInfoStore.LookupEntry(azeriteLevel))
+        itemLevel = azeriteLevelInfo->ItemLevel;
+
     if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(bonusData.ScalingStatDistribution))
     {
         if (fixedLevel)

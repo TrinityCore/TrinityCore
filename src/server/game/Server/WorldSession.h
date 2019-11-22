@@ -109,6 +109,12 @@ namespace WorldPackets
         enum class ConnectToSerial : uint32;
     }
 
+    namespace Azerite
+    {
+        class AzeriteEssenceUnlockMilestone;
+        class AzeriteEssenceActivateEssence;
+    }
+
     namespace Bank
     {
         class AutoBankItem;
@@ -1717,6 +1723,10 @@ class TC_GAME_API WorldSession
 
         // Scenario
         void HandleQueryScenarioPOI(WorldPackets::Scenario::QueryScenarioPOI& queryScenarioPOI);
+
+        // Azerite
+        void HandleAzeriteEssenceUnlockMilestone(WorldPackets::Azerite::AzeriteEssenceUnlockMilestone& azeriteEssenceUnlockMilestone);
+        void HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::AzeriteEssenceActivateEssence& azeriteEssenceActivateEssence);
 
         union ConnectToKey
         {

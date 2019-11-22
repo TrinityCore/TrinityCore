@@ -259,10 +259,40 @@ struct AuctionHouseEntry
     uint8 ConsignmentRate;
 };
 
+struct AzeriteEssenceEntry
+{
+    LocalizedString* Name;
+    LocalizedString* Description;
+    uint32 ID;
+    int32 SpecSetID;
+};
+
+struct AzeriteEssencePowerEntry
+{
+    uint32 ID;
+    LocalizedString* SourceAlliance;
+    LocalizedString* SourceHorde;
+    int32 AzeriteEssenceID;
+    uint8 Tier;
+    int32 MajorPowerDescription;
+    int32 MinorPowerDescription;
+    int32 MajorPowerActual;
+    int32 MinorPowerActual;
+};
+
 struct AzeriteItemEntry
 {
     uint32 ID;
     int32 ItemID;
+};
+
+struct AzeriteItemMilestonePowerEntry
+{
+    uint32 ID;
+    int32 RequiredLevel;
+    int32 AzeritePowerID;
+    int32 Type;
+    int32 AutoUnlock;
 };
 
 struct AzeriteKnowledgeMultiplierEntry
@@ -277,6 +307,15 @@ struct AzeriteLevelInfoEntry
     uint64 BaseExperienceToNextLevel;
     uint64 MinimumExperienceToNextLevel;
     int32 ItemLevel;
+};
+
+struct AzeritePowerEntry
+{
+    uint32 ID;
+    int32 SpellID;
+    int32 ItemBonusListID;
+    int32 SpecSetID;
+    int32 Flags;
 };
 
 struct BankBagSlotPricesEntry
@@ -2510,6 +2549,13 @@ struct SpecializationSpellsEntry
     int32 SpellID;
     int32 OverridesSpellID;
     uint8 DisplayOrder;
+};
+
+struct SpecSetMemberEntry
+{
+    uint32 ID;
+    int32 ChrSpecializationID;
+    int32 SpecSetID;
 };
 
 struct SpellAuraOptionsEntry
