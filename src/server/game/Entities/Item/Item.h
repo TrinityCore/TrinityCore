@@ -110,17 +110,23 @@ private:
 
 struct ArtifactPowerData
 {
-    uint32 ArtifactPowerId;
-    uint8 PurchasedRank;
-    uint8 CurrentRankWithBonus;
+    uint32 ArtifactPowerId = 0;
+    uint8 PurchasedRank = 0;
+    uint8 CurrentRankWithBonus = 0;
 };
 
 struct ArtifactData
 {
-    uint64 Xp;
-    uint32 ArtifactAppearanceId;
-    uint32 ArtifactTierId;
+    uint64 Xp = 0;
+    uint32 ArtifactAppearanceId = 0;
+    uint32 ArtifactTierId = 0;
     std::vector<ArtifactPowerData> ArtifactPowers;
+};
+
+struct AzeriteItemSelectedEssencesData
+{
+    uint32 SpecializationId = 0;
+    std::array<uint32, MAX_AZERITE_ESSENCE_SLOT> AzeriteEssenceId = { };
 };
 
 struct AzeriteItemData
@@ -128,11 +134,15 @@ struct AzeriteItemData
     uint64 Xp;
     uint32 Level;
     uint32 KnowledgeLevel;
+    std::vector<uint32> AzeriteItemMilestonePowers;
+    std::vector<AzeriteEssencePowerEntry const*> UnlockedAzeriteEssences;
+    std::array<AzeriteItemSelectedEssencesData, MAX_SPECIALIZATIONS> SelectedAzeriteEssences = { };
 };
 
 struct ItemAdditionalLoadInfo
 {
-    static void Init(std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo>* loadInfo, PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult);
+    static void Init(std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo>* loadInfo, PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
+        PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult);
 
     Optional<ArtifactData> Artifact;
     Optional<AzeriteItemData> AzeriteItem;
@@ -152,12 +162,12 @@ class TC_GAME_API Item : public Object
     friend void AddItemToUpdateQueueOf(Item* item, Player* player);
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
-        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = nullptr);
+        static Item* CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player = nullptr);
         Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
         Item();
 
-        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
         BonusData const* GetBonus() const { return &_bonusData; }
@@ -308,9 +318,9 @@ class TC_GAME_API Item : public Object
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
         bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
         uint32 GetQuality() const { return _bonusData.Quality; }
-        virtual uint32 GetItemLevel(Player const* owner) const;
+        uint32 GetItemLevel(Player const* owner) const;
         static uint32 GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel,
-            uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus);
+            uint32 minItemLevel, uint32 minItemLevelCutoff, uint32 maxItemLevel, bool pvpBonus, uint32 azeriteLevel);
         int32 GetRequiredLevel() const;
         int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
         int32 GetItemStatValue(uint32 index, Player const* owner) const;
@@ -389,7 +399,8 @@ class TC_GAME_API Item : public Object
         void SetArtifactXP(uint64 xp) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ArtifactXP), xp); }
         void GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCategoryId);
 
-        void SetContext(int32 context) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Context), context); }
+        ItemContext GetContext() const { return ItemContext(*m_itemData->Context); }
+        void SetContext(ItemContext context) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Context), int32(context)); }
 
         void SetPetitionId(uint32 petitionId) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::ID), petitionId); }
         void SetPetitionNumSignatures(uint32 signatures) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::Duration), signatures); }

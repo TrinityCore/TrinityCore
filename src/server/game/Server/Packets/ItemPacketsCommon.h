@@ -27,6 +27,7 @@ class ByteBuffer;
 class Item;
 struct LootItem;
 struct VoidStorageItem;
+enum class ItemContext : uint8;
 
 namespace UF
 {
@@ -39,7 +40,7 @@ namespace WorldPackets
     {
         struct ItemBonusInstanceData
         {
-            uint8 Context = 0;
+            ItemContext Context = ItemContext(0);
             std::vector<int32> BonusListIDs;
 
             bool operator==(ItemBonusInstanceData const& r) const;

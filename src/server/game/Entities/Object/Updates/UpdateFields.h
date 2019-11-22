@@ -26,6 +26,7 @@
 #include "UpdateMask.h"
 
 class AreaTrigger;
+class AzeriteEmpoweredItem;
 class AzeriteItem;
 class Bag;
 class ByteBuffer;
@@ -130,8 +131,8 @@ struct AzeriteEmpoweredItemData : public IsUpdateFieldStructureTag, public HasCh
 {
     UpdateFieldArray<int32, 5, 0, 1> Selections;
 
-    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteEmpoweredItem const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteEmpoweredItem const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
