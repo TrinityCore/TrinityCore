@@ -930,10 +930,10 @@ class spell_sha_lava_lash : public SpellScript
             {
                 bonusDamage += bonusAura->GetAmount() * aura->GetStackAmount();
                 aura->Remove();
-
-                if (target->HasAura(SPELL_SHAMAN_FLAME_SHOCK, caster->GetGUID()))
-                    caster->CastCustomSpell(SPELL_SHAMAN_LAVA_LASH_SPREAD_FLAME_SHOCK, SPELLVALUE_MAX_TARGETS, 4, target, true, nullptr, bonusAura);
             }
+
+            if (target->HasAura(SPELL_SHAMAN_FLAME_SHOCK, caster->GetGUID()))
+                caster->CastCustomSpell(SPELL_SHAMAN_LAVA_LASH_SPREAD_FLAME_SHOCK, SPELLVALUE_MAX_TARGETS, 4, target, true, nullptr, bonusAura);
         }
         SetEffectValue(GetEffectValue() + bonusDamage);
     }
