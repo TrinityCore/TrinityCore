@@ -3394,7 +3394,7 @@ class spell_gen_upper_deck_create_foam_sword : public SpellScriptLoader
                             return;
                     }
 
-                    CreateItem(effIndex, itemId[urand(0, 4)]);
+                    CreateItem(effIndex, itemId[urand(0, 4)], ItemContext::NONE);
                 }
             }
 

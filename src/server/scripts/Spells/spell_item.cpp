@@ -1366,7 +1366,7 @@ class spell_item_mingos_fortune_generator : public SpellScriptLoader
                         return;
                 }
 
-                CreateItem(effIndex, newitemid);
+                CreateItem(effIndex, newitemid, ItemContext::NONE);
             }
 
             void Register() override

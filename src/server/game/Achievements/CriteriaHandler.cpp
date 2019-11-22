@@ -2044,8 +2044,9 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_REWARDED_QUEST: // 110
-            if (!referencePlayer->GetQuestRewardStatus(reqValue))
-                return false;
+            if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(reqValue))
+                if (!(referencePlayer->m_activePlayerData->QuestCompleted[((questBit - 1) >> 6)] & (UI64LIT(1) << ((questBit - 1) & 63))))
+                    return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_COMPLETED_QUEST: // 111
             if (referencePlayer->GetQuestStatus(reqValue) != QUEST_STATUS_COMPLETE)
@@ -2610,7 +2611,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case CRITERIA_ADDITIONAL_CONDITION_AZERITE_ITEM_LEVEL: // 235
         {
             Item const* heartOfAzeroth = referencePlayer->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH);
-            if (!heartOfAzeroth || heartOfAzeroth->ToAzeriteItem()->m_azeriteItemData->Level < reqValue)
+            if (!heartOfAzeroth || heartOfAzeroth->ToAzeriteItem()->GetLevel() < reqValue)
                 return false;
             break;
         }

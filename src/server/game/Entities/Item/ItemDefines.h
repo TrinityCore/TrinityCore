@@ -217,4 +217,20 @@ enum ItemModifier : uint16
     MAX_ITEM_MODIFIERS
 };
 
+enum class AzeriteEssenceActivateResult : uint32
+{
+    None                = 0,
+    EssenceNotUnlocked  = 2,    // Arg: AzeriteEssenceID
+    CantDoThatRightNow  = 3,
+    AffectingCombat     = 4,
+    CantRemoveEssence   = 5,    // Arg: SpellID of active essence on cooldown
+    ChallengeModeActive = 6,
+    NotInRestArea       = 7,
+    ConditionFailed     = 8,
+    SlotLocked          = 9,
+    NotAtForge          = 10,
+    HeartLevelTooLow    = 11,   // Arg: RequiredLevel
+    NotEquipped         = 12
+};
+
 #endif // ItemDefines_h__

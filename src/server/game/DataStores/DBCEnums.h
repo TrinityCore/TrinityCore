@@ -166,6 +166,16 @@ enum ArtifactPowerFlag : uint8
 
 #define MAX_ARTIFACT_TIER 1
 
+#define MAX_AZERITE_ESSENCE_SLOT 3
+#define MAX_AZERITE_ESSENCE_RANK 4
+
+enum class AzeriteItemMilestoneType : int32
+{
+    MajorEssence    = 0,
+    MinorEssence    = 1,
+    BonusStamina    = 2
+};
+
 #define BATTLE_PET_SPECIES_MAX_ID 2796
 
 enum ChrSpecializationFlag
