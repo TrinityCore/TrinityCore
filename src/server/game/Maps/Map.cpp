@@ -3736,16 +3736,16 @@ MapDifficultyEntry const* Map::GetMapDifficulty() const
     return sDB2Manager.GetMapDifficultyData(GetId(), GetDifficultyID());
 }
 
-uint8 Map::GetDifficultyLootItemContext() const
+ItemContext Map::GetDifficultyLootItemContext() const
 {
     if (MapDifficultyEntry const* mapDifficulty = GetMapDifficulty())
         if (mapDifficulty->ItemContext)
-            return mapDifficulty->ItemContext;
+            return ItemContext(mapDifficulty->ItemContext);
 
     if (DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(GetDifficultyID()))
-        return difficulty->ItemContext;
+        return ItemContext(difficulty->ItemContext);
 
-    return 0;
+    return ItemContext::NONE;
 }
 
 uint32 Map::GetId() const

@@ -532,7 +532,7 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
 
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-        Item* item = reward->ItemId ? Item::CreateItem(reward->ItemId, 1, _owner) : NULL;
+        Item* item = reward->ItemId ? Item::CreateItem(reward->ItemId, 1, ItemContext::NONE, _owner) : NULL;
         if (item)
         {
             // save new item before send

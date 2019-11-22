@@ -18,6 +18,8 @@
 
 #include "GameObject.h"
 #include "ArtifactPackets.h"
+#include "AzeriteItem.h"
+#include "AzeritePackets.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
@@ -1983,18 +1985,39 @@ void GameObject::Use(Unit* user)
                 if (!sConditionMgr->IsPlayerMeetingCondition(player, playerCondition))
                     return;
 
-            Aura const* artifactAura = player->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE);
-            Item const* item = artifactAura ? player->GetItemByGuid(artifactAura->GetCastItemGUID()) : nullptr;
-            if (!item)
+            switch (info->itemForge.ForgeType)
             {
-                player->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_MUST_EQUIP_ARTIFACT).Write());
-                return;
-            }
+                case 0: // Artifact Forge
+                case 1: // Relic Forge
+                {
+                    Aura const* artifactAura = player->GetAura(ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE);
+                    Item const* item = artifactAura ? player->GetItemByGuid(artifactAura->GetCastItemGUID()) : nullptr;
+                    if (!item)
+                    {
+                        player->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_MUST_EQUIP_ARTIFACT).Write());
+                        return;
+                    }
 
-            WorldPackets::Artifact::ArtifactForgeOpened artifactForgeOpened;
-            artifactForgeOpened.ArtifactGUID = item->GetGUID();
-            artifactForgeOpened.ForgeGUID = GetGUID();
-            player->SendDirectMessage(artifactForgeOpened.Write());
+                    WorldPackets::Artifact::ArtifactForgeOpened artifactForgeOpened;
+                    artifactForgeOpened.ArtifactGUID = item->GetGUID();
+                    artifactForgeOpened.ForgeGUID = GetGUID();
+                    player->SendDirectMessage(artifactForgeOpened.Write());
+                    break;
+                }
+                case 2: // Heart Forge
+                {
+                    Item const* item = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH);
+                    if (!item)
+                        return;
+
+                    WorldPackets::Azerite::AzeriteEssenceForgeOpened azeriteEssenceForgeOpened;
+                    azeriteEssenceForgeOpened.ForgeGUID = GetGUID();
+                    player->SendDirectMessage(azeriteEssenceForgeOpened.Write());
+                    break;
+                }
+                default:
+                    break;
+            }
             return;
         }
         case GAMEOBJECT_TYPE_UI_LINK:
