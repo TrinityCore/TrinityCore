@@ -19,7 +19,9 @@
 #define AzeriteItemPackets_h__
 
 #include "Packet.h"
+#include "ItemDefines.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 
 namespace WorldPackets
 {
@@ -34,6 +36,58 @@ namespace WorldPackets
 
             ObjectGuid ItemGUID;
             uint64 XP = 0;
+        };
+
+        class AzeriteEssenceForgeOpened final : public ServerPacket
+        {
+        public:
+            AzeriteEssenceForgeOpened() : ServerPacket(SMSG_AZERITE_ESSENCE_FORGE_OPENED, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ForgeGUID;
+        };
+
+        class AzeriteEssenceForgeClose final : public ServerPacket
+        {
+        public:
+            AzeriteEssenceForgeClose() : ServerPacket(SMSG_AZERITE_ESSENCE_FORGE_CLOSE, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class AzeriteEssenceUnlockMilestone final : public ClientPacket
+        {
+        public:
+            AzeriteEssenceUnlockMilestone(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_ESSENCE_UNLOCK_MILESTONE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 AzeriteItemMilestonePowerID = 0;
+        };
+
+        class AzeriteEssenceActivateEssence final : public ClientPacket
+        {
+        public:
+            AzeriteEssenceActivateEssence(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_ESSENCE_ACTIVATE_ESSENCE, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 AzeriteEssenceID = 0;
+            uint8 Slot = 0;
+        };
+
+        class AzeriteEssenceSelectionResult final : public ServerPacket
+        {
+        public:
+            AzeriteEssenceSelectionResult() : ServerPacket(SMSG_AZERITE_ESSENCE_SELECTION_RESULT, 0) { }
+
+            WorldPacket const* Write() override;
+
+            AzeriteEssenceActivateResult Reason = AzeriteEssenceActivateResult::None;
+            int32 Arg = 0;
+            int32 AzeriteEssenceID = 0;
+            Optional<uint8> Slot;
         };
     }
 }

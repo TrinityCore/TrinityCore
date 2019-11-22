@@ -2867,8 +2867,24 @@ CREATE TABLE `item_instance_azerite` (
   `xp` bigint(20) unsigned NOT NULL DEFAULT '0',
   `level` int(10) unsigned NOT NULL DEFAULT '1',
   `knowledgeLevel` int(10) unsigned NOT NULL DEFAULT '0',
+  `selectedAzeriteEssences1specId` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences1azeriteEssenceId1` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences1azeriteEssenceId2` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences1azeriteEssenceId3` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences2specId` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences2azeriteEssenceId1` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences2azeriteEssenceId2` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences2azeriteEssenceId3` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences3specId` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences3azeriteEssenceId1` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences3azeriteEssenceId2` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences3azeriteEssenceId3` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences4specId` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences4azeriteEssenceId1` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences4azeriteEssenceId2` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences4azeriteEssenceId3` int(10) unsigned NULL DEFAULT '0',
   PRIMARY KEY (`itemGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2878,6 +2894,53 @@ CREATE TABLE `item_instance_azerite` (
 LOCK TABLES `item_instance_azerite` WRITE;
 /*!40000 ALTER TABLE `item_instance_azerite` DISABLE KEYS */;
 /*!40000 ALTER TABLE `item_instance_azerite` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `item_instance_azerite_milestone_power`
+--
+
+DROP TABLE IF EXISTS `item_instance_azerite_milestone_power`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_instance_azerite_milestone_power` (
+  `itemGuid` bigint(20) unsigned NOT NULL,
+  `azeriteItemMilestonePowerId` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`itemGuid`,`azeriteItemMilestonePowerId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_instance_azerite_milestone_power`
+--
+
+LOCK TABLES `item_instance_azerite_milestone_power` WRITE;
+/*!40000 ALTER TABLE `item_instance_azerite_milestone_power` DISABLE KEYS */;
+/*!40000 ALTER TABLE `item_instance_azerite_milestone_power` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `item_instance_azerite`
+--
+
+DROP TABLE IF EXISTS `item_instance_azerite_unlocked_essence`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_instance_azerite_unlocked_essence` (
+  `itemGuid` bigint(20) unsigned NOT NULL,
+  `azeriteEssenceId` int(10) unsigned NOT NULL DEFAULT '0',
+  `rank` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`itemGuid`,`azeriteEssenceId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_instance_azerite_unlocked_essence`
+--
+
+LOCK TABLES `item_instance_azerite_unlocked_essence` WRITE;
+/*!40000 ALTER TABLE `item_instance_azerite_unlocked_essence` DISABLE KEYS */;
+/*!40000 ALTER TABLE `item_instance_azerite_unlocked_essence` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3596,7 +3659,8 @@ INSERT INTO `updates` VALUES
 ('2019_10_26_00_characters.sql','F1090ACDEB876A7BB5ED8829373F6305A217949A','RELEASED','2019-10-25 23:04:42',0),
 ('2019_10_26_01_characters.sql','59D5860930D02AB77D2AAA704C564957A9143760','RELEASED','2019-10-26 22:04:46',0),
 ('2019_11_03_00_characters.sql','DC789597F85B890E9A7901B4443DAD9CAEE2A02A','RELEASED','2019-11-03 14:13:27',0),
-('2019_11_12_00_characters.sql','D4C642B4D48DAE9F56329BDE51C258323A132A91','RELEASED','2019-11-12 16:31:29',0);
+('2019_11_12_00_characters.sql','D4C642B4D48DAE9F56329BDE51C258323A132A91','RELEASED','2019-11-12 16:31:29',0),
+('2019_11_22_00_characters.sql','95DFA71DBD75542C098CD86E9C0051C9690902F0','RELEASED','2019-11-20 15:10:12',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
