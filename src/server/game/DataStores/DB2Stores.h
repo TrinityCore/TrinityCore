@@ -298,7 +298,7 @@ public:
     std::vector<uint32> const* GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const;
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     uint32 GetItemBonusListForItemLevelDelta(int16 delta) const;
-    std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemContext) const;
+    std::set<uint32> GetItemBonusTree(uint32 itemId, ItemContext itemContext) const;
     ItemChildEquipmentEntry const* GetItemChildEquipment(uint32 itemId) const;
     ItemClassEntry const* GetItemClassByOldEnum(uint32 itemClass) const;
     bool HasItemCurrencyCost(uint32 itemId) const;

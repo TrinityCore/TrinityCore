@@ -162,12 +162,12 @@ class TC_GAME_API Item : public Object
     friend void AddItemToUpdateQueueOf(Item* item, Player* player);
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
-        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = nullptr);
+        static Item* CreateItem(uint32 itemEntry, uint32 count, ItemContext context, Player const* player = nullptr);
         Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
         Item();
 
-        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
         BonusData const* GetBonus() const { return &_bonusData; }
@@ -399,7 +399,8 @@ class TC_GAME_API Item : public Object
         void SetArtifactXP(uint64 xp) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ArtifactXP), xp); }
         void GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCategoryId);
 
-        void SetContext(int32 context) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Context), context); }
+        ItemContext GetContext() const { return ItemContext(*m_itemData->Context); }
+        void SetContext(ItemContext context) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Context), int32(context)); }
 
         void SetPetitionId(uint32 petitionId) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::ID), petitionId); }
         void SetPetitionNumSignatures(uint32 signatures) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::Enchantment, 0).ModifyValue(&UF::ItemEnchantment::Duration), signatures); }

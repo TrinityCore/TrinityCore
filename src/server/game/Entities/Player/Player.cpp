@@ -697,7 +697,7 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
         if (msg != EQUIP_ERR_OK)
             break;
 
-        EquipNewItem(eDest, titem_id, true);
+        EquipNewItem(eDest, titem_id, ItemContext::NONE, true);
         AutoUnequipOffhandIfNeed();
         --titem_amount;
     }
@@ -8505,7 +8505,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                 if (groupRules)
                     group->UpdateLooterGuid(go, true);
 
-                loot->FillLoot(lootid, LootTemplates_Gameobject, this, !groupRules, false, go->GetLootMode());
+                loot->FillLoot(lootid, LootTemplates_Gameobject, this, !groupRules, false, go->GetLootMode(), GetMap()->GetDifficultyLootItemContext());
                 go->SetLootGenerationTime();
 
                 // get next RR player (for next loot)
@@ -11269,7 +11269,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* offending
 InventoryResult Player::CanEquipNewItem(uint8 slot, uint16 &dest, uint32 item, bool swap) const
 {
     dest = 0;
-    Item* pItem = Item::CreateItem(item, 1, this);
+    Item* pItem = Item::CreateItem(item, 1, ItemContext::NONE, this);
     if (pItem)
     {
         InventoryResult result = CanEquipItem(slot, dest, pItem, swap);
@@ -11899,13 +11899,13 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
 Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId /*= 0*/,
-    GuidSet const& allowedLooters /*= GuidSet()*/, uint8 context /*= 0*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
+    GuidSet const& allowedLooters /*= GuidSet()*/, ItemContext context /*= ItemContext::NONE*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = pos.begin(); itr != pos.end(); ++itr)
         count += itr->count;
 
-    Item* item = Item::CreateItem(itemId, count, this);
+    Item* item = Item::CreateItem(itemId, count, context, this);
     if (item)
     {
         ItemAddedQuestCheck(itemId, count);
@@ -11914,7 +11914,6 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
 
         item->AddItemFlag(ITEM_FIELD_FLAG_NEW_ITEM);
 
-        item->SetContext(context);
         item->SetBonuses(bonusListIDs);
 
         item = StoreItem(pos, item, update);
@@ -12092,9 +12091,9 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
     }
 }
 
-Item* Player::EquipNewItem(uint16 pos, uint32 item, bool update)
+Item* Player::EquipNewItem(uint16 pos, uint32 item, ItemContext context, bool update)
 {
-    if (Item* pItem = Item::CreateItem(item, 1, this))
+    if (Item* pItem = Item::CreateItem(item, 1, context, this))
     {
         ItemAddedQuestCheck(item, 1);
         UpdateCriteria(CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, 1);
@@ -15532,7 +15531,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
                     SendNewItem(item, quest->RewardItemCount[i], true, false);
                 }
                 else if (quest->IsDFQuest())
-                    SendItemRetrievalMail(quest->RewardItemId[i], quest->RewardItemCount[i]);
+                    SendItemRetrievalMail(quest->RewardItemId[i], quest->RewardItemCount[i], ItemContext::Quest_Reward);
             }
         }
     }
@@ -18883,7 +18882,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         ItemRandomBonusListId randomBonusListId = fields[4].GetUInt32();
         uint32 fixedScalingLevel = fields[5].GetUInt32();
         uint32 artifactKnowledgeLevel = fields[6].GetUInt32();
-        uint8 context = fields[7].GetUInt8();
+        ItemContext context = ItemContext(fields[7].GetUInt8());
         std::vector<int32> bonusListIDs;
         Tokenizer bonusListIdTokens(fields[8].GetString(), ' ');
         for (char const* token : bonusListIdTokens)
@@ -20715,7 +20714,7 @@ void Player::_SaveVoidStorage(CharacterDatabaseTransaction& trans)
             stmt->setUInt32(5, _voidStorageItems[i]->RandomBonusListId);
             stmt->setUInt32(6, _voidStorageItems[i]->FixedScalingLevel);
             stmt->setUInt32(7, _voidStorageItems[i]->ArtifactKnowledgeLevel);
-            stmt->setUInt8(8, _voidStorageItems[i]->Context);
+            stmt->setUInt8(8, AsUnderlyingType(_voidStorageItems[i]->Context));
             std::ostringstream bonusListIDs;
             for (int32 bonusListID : _voidStorageItems[i]->BonusListIDs)
                 bonusListIDs << bonusListID << ' ';
@@ -22530,8 +22529,8 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     }
 
     Item* it = bStore ?
-        StoreNewItem(vDest, item, true, GenerateItemRandomBonusListId(item), {}, 0, crItem->BonusListIDs, false) :
-        EquipNewItem(uiDest, item, true);
+        StoreNewItem(vDest, item, true, GenerateItemRandomBonusListId(item), {}, ItemContext::Vendor, crItem->BonusListIDs, false) :
+        EquipNewItem(uiDest, item, ItemContext::Vendor, true);
     if (it)
     {
         uint32 new_count = pVendor->UpdateVendorItemCurrentCount(crItem, count);
@@ -25796,10 +25795,10 @@ void Player::InitRunes()
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerRegenInterruptedFlatModifier, runeIndex), 0.0f);
 }
 
-void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast)
+void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, ItemContext context, bool broadcast)
 {
     Loot loot;
-    loot.FillLoot (loot_id, store, this, true);
+    loot.FillLoot (loot_id, store, this, true, false, LOOT_MODE_DEFAULT, context);
 
     uint32 max_slot = loot.GetMaxSlotInLootFor(this);
     for (uint32 i = 0; i < max_slot; ++i)
@@ -27462,13 +27461,13 @@ void Player::RefundItem(Item* item)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Player::SendItemRetrievalMail(uint32 itemEntry, uint32 count)
+void Player::SendItemRetrievalMail(uint32 itemEntry, uint32 count, ItemContext context)
 {
     MailSender sender(MAIL_CREATURE, UI64LIT(34337) /* The Postmaster */);
     MailDraft draft("Recovered Item", "We recovered a lost item in the twisting nether and noted that it was yours.$B$BPlease find said object enclosed."); // This is the text used in Cataclysm, it probably wasn't changed.
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    if (Item* item = Item::CreateItem(itemEntry, count, nullptr))
+    if (Item* item = Item::CreateItem(itemEntry, count, context, nullptr))
     {
         item->SaveToDB(trans);
         draft.AddItem(item);

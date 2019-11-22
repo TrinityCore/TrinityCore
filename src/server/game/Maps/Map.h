@@ -64,6 +64,7 @@ struct SummonPropertiesEntry;
 class Transport;
 enum Difficulty : uint8;
 enum WeatherState : uint32;
+enum class ItemContext : uint8;
 
 namespace Trinity { struct ObjectUpdater; }
 namespace G3D { class Plane; }
@@ -393,7 +394,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // have meaning only for instanced map (that have set real difficulty)
         Difficulty GetDifficultyID() const { return Difficulty(i_spawnMode); }
         MapDifficultyEntry const* GetMapDifficulty() const;
-        uint8 GetDifficultyLootItemContext() const;
+        ItemContext GetDifficultyLootItemContext() const;
 
         uint32 GetId() const;
         bool Instanceable() const;

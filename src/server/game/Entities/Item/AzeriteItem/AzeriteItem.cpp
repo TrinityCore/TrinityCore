@@ -33,9 +33,9 @@ AzeriteItem::AzeriteItem() : Item()
     SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::DEBUGknowledgeWeek), -1);
 }
 
-bool AzeriteItem::Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner)
+bool AzeriteItem::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner)
 {
-    if (!Item::Create(guidlow, itemId, owner))
+    if (!Item::Create(guidlow, itemId, context, owner))
         return false;
 
     SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::Level), 1);

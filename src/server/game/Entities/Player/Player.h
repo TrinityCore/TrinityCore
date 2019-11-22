@@ -905,9 +905,9 @@ struct BGData
 
 struct VoidStorageItem
 {
-    VoidStorageItem() : ItemId(0), ItemEntry(0), RandomBonusListId(0), FixedScalingLevel(0), ArtifactKnowledgeLevel(0), Context(0) { }
+    VoidStorageItem() : ItemId(0), ItemEntry(0), RandomBonusListId(0), FixedScalingLevel(0), ArtifactKnowledgeLevel(0), Context(ItemContext::NONE) { }
     VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, ItemRandomBonusListId randomBonusListId,
-        uint32 fixedScalingLevel, uint32 artifactKnowledgeLevel, uint8 context, std::vector<int32> const& bonuses)
+        uint32 fixedScalingLevel, uint32 artifactKnowledgeLevel, ItemContext context, std::vector<int32> const& bonuses)
         : ItemId(id), ItemEntry(entry), CreatorGuid(creator), RandomBonusListId(randomBonusListId),
         FixedScalingLevel(fixedScalingLevel), ArtifactKnowledgeLevel(artifactKnowledgeLevel), Context(context)
     {
@@ -922,7 +922,7 @@ struct VoidStorageItem
     ItemRandomBonusListId RandomBonusListId;
     uint32 FixedScalingLevel;
     uint32 ArtifactKnowledgeLevel;
-    uint8 Context;
+    ItemContext Context;
     std::vector<int32> BonusListIDs;
 };
 
@@ -1164,16 +1164,16 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem) const;
         InventoryResult CanRollForItemInLFG(ItemTemplate const* item, WorldObject const* lootedObject) const;
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId = 0, GuidSet const& allowedLooters = GuidSet(), uint8 context = 0, std::vector<int32> const& bonusListIDs = std::vector<int32>(), bool addToCollection = true);
+        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomBonusListId randomBonusListId = 0, GuidSet const& allowedLooters = GuidSet(), ItemContext context = ItemContext::NONE, std::vector<int32> const& bonusListIDs = std::vector<int32>(), bool addToCollection = true);
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
-        Item* EquipNewItem(uint16 pos, uint32 item, bool update);
+        Item* EquipNewItem(uint16 pos, uint32 item, ItemContext context, bool update);
         Item* EquipItem(uint16 pos, Item* pItem, bool update);
         void AutoUnequipOffhandIfNeed(bool force = false);
         void EquipChildItem(uint8 parentBag, uint8 parentSlot, Item* parentItem);
         void AutoUnequipChildItem(Item* parentItem);
         bool StoreNewItemInBestSlots(uint32 item_id, uint32 item_count);
-        void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, bool broadcast = false);
-        void AutoStoreLoot(uint32 loot_id, LootStore const& store, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, broadcast); }
+        void AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore const& store, ItemContext context = ItemContext::NONE, bool broadcast = false);
+        void AutoStoreLoot(uint32 loot_id, LootStore const& store, ItemContext context = ItemContext::NONE, bool broadcast = false) { AutoStoreLoot(NULL_BAG, NULL_SLOT, loot_id, store, context, broadcast); }
         void StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult = nullptr);
 
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = nullptr, uint32* offendingItemId = nullptr) const;
@@ -1514,7 +1514,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         PlayerMails const& GetMails() const { return m_mail; }
 
-        void SendItemRetrievalMail(uint32 itemEntry, uint32 count); // Item retrieval mails sent by The Postmaster (34337), used in multiple places.
+        void SendItemRetrievalMail(uint32 itemEntry, uint32 count, ItemContext context); // Item retrieval mails sent by The Postmaster (34337), used in multiple places.
 
         /*********************************************************/
         /*** MAILED ITEMS SYSTEM ***/

@@ -31,7 +31,7 @@ class TC_GAME_API AzeriteItem : public Item
 public:
     AzeriteItem();
 
-    bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner) override;
+    bool Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner) override;
 
     void SaveToDB(CharacterDatabaseTransaction& trans) override;
     void LoadAzeriteItemData(Player* owner, AzeriteItemData& azeriteItem);

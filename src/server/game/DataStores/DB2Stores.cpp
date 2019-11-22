@@ -1941,17 +1941,12 @@ uint32 DB2Manager::GetItemBonusListForItemLevelDelta(int16 delta) const
     return 0;
 }
 
-std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemContext) const
+template<typename Visitor>
+void VisitItemBonusTree(uint32 itemId, Visitor visitor)
 {
-    std::set<uint32> bonusListIDs;
-
-    ItemSparseEntry const* proto = sItemSparseStore.LookupEntry(itemId);
-    if (!proto)
-        return bonusListIDs;
-
     auto itemIdRange = _itemToBonusTree.equal_range(itemId);
     if (itemIdRange.first == itemIdRange.second)
-        return bonusListIDs;
+        return;
 
     for (auto itemTreeItr = itemIdRange.first; itemTreeItr != itemIdRange.second; ++itemTreeItr)
     {
@@ -1961,45 +1956,59 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemContext)
 
         for (ItemBonusTreeNodeEntry const* bonusTreeNode : treeItr->second)
         {
-            if (bonusTreeNode->ItemContext != itemContext)
-                continue;
+            visitor(bonusTreeNode);
+        }
+    }
+}
 
-            if (bonusTreeNode->ChildItemBonusListID)
+std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, ItemContext itemContext) const
+{
+    std::set<uint32> bonusListIDs;
+
+    ItemSparseEntry const* proto = sItemSparseStore.LookupEntry(itemId);
+    if (!proto)
+        return bonusListIDs;
+
+    VisitItemBonusTree(itemId, [this, proto, itemContext, &bonusListIDs](ItemBonusTreeNodeEntry const* bonusTreeNode)
+    {
+        if (ItemContext(bonusTreeNode->ItemContext) != itemContext)
+            return;
+
+        if (bonusTreeNode->ChildItemBonusListID)
+        {
+            bonusListIDs.insert(bonusTreeNode->ChildItemBonusListID);
+        }
+        else if (bonusTreeNode->ChildItemLevelSelectorID)
+        {
+            ItemLevelSelectorEntry const* selector = sItemLevelSelectorStore.LookupEntry(bonusTreeNode->ChildItemLevelSelectorID);
+            if (!selector)
+                return;
+
+            int16 delta = int16(selector->MinItemLevel) - proto->ItemLevel;
+
+            if (uint32 bonus = GetItemBonusListForItemLevelDelta(delta))
+                bonusListIDs.insert(bonus);
+
+            if (ItemLevelSelectorQualitySetEntry const* selectorQualitySet = sItemLevelSelectorQualitySetStore.LookupEntry(selector->ItemLevelSelectorQualitySetID))
             {
-                bonusListIDs.insert(bonusTreeNode->ChildItemBonusListID);
-            }
-            else if (bonusTreeNode->ChildItemLevelSelectorID)
-            {
-                ItemLevelSelectorEntry const* selector = sItemLevelSelectorStore.LookupEntry(bonusTreeNode->ChildItemLevelSelectorID);
-                if (!selector)
-                    continue;
-
-                int16 delta = int16(selector->MinItemLevel) - proto->ItemLevel;
-
-                if (uint32 bonus = GetItemBonusListForItemLevelDelta(delta))
-                    bonusListIDs.insert(bonus);
-
-                if (ItemLevelSelectorQualitySetEntry const* selectorQualitySet = sItemLevelSelectorQualitySetStore.LookupEntry(selector->ItemLevelSelectorQualitySetID))
+                auto itemSelectorQualities = _itemLevelQualitySelectorQualities.find(selector->ItemLevelSelectorQualitySetID);
+                if (itemSelectorQualities != _itemLevelQualitySelectorQualities.end())
                 {
-                    auto itemSelectorQualities = _itemLevelQualitySelectorQualities.find(selector->ItemLevelSelectorQualitySetID);
-                    if (itemSelectorQualities != _itemLevelQualitySelectorQualities.end())
-                    {
-                        ItemQualities quality = ITEM_QUALITY_UNCOMMON;
-                        if (selector->MinItemLevel >= selectorQualitySet->IlvlEpic)
-                            quality = ITEM_QUALITY_EPIC;
-                        else if (selector->MinItemLevel >= selectorQualitySet->IlvlRare)
-                            quality = ITEM_QUALITY_RARE;
+                    ItemQualities quality = ITEM_QUALITY_UNCOMMON;
+                    if (selector->MinItemLevel >= selectorQualitySet->IlvlEpic)
+                        quality = ITEM_QUALITY_EPIC;
+                    else if (selector->MinItemLevel >= selectorQualitySet->IlvlRare)
+                        quality = ITEM_QUALITY_RARE;
 
-                        auto itemSelectorQuality = std::lower_bound(itemSelectorQualities->second.begin(), itemSelectorQualities->second.end(),
-                            quality, ItemLevelSelectorQualityEntryComparator{});
+                    auto itemSelectorQuality = std::lower_bound(itemSelectorQualities->second.begin(), itemSelectorQualities->second.end(),
+                        quality, ItemLevelSelectorQualityEntryComparator{});
 
-                        if (itemSelectorQuality != itemSelectorQualities->second.end())
-                            bonusListIDs.insert((*itemSelectorQuality)->QualityItemBonusListID);
-                    }
+                    if (itemSelectorQuality != itemSelectorQualities->second.end())
+                        bonusListIDs.insert((*itemSelectorQuality)->QualityItemBonusListID);
                 }
             }
         }
-    }
+    });
 
     return bonusListIDs;
 }

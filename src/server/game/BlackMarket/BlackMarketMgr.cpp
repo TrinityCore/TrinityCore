@@ -291,7 +291,7 @@ void BlackMarketMgr::SendAuctionWonMail(BlackMarketEntry* entry, CharacterDataba
 
     // Create item
     BlackMarketTemplate const* templ = entry->GetTemplate();
-    Item* item = Item::CreateItem(templ->Item.ItemID, templ->Quantity);
+    Item* item = Item::CreateItem(templ->Item.ItemID, templ->Quantity, ItemContext::Black_Market);
     if (!item)
         return;
 

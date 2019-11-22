@@ -948,7 +948,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
 
         uint32 stackCount = GetStackSizeForItem(prototype, config);
 
-        Item* item = Item::CreateItem(itemId, stackCount);
+        Item* item = Item::CreateItem(itemId, stackCount, ItemContext::NONE);
         if (!item)
         {
             TC_LOG_ERROR("ahbot", "AHBot: Item::CreateItem() returned NULL for item %u (stack: %u)", itemId, stackCount);
