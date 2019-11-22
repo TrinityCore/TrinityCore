@@ -117,6 +117,8 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
     }
 
     if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) ||
+        GetBase()->HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS) ||
+        GetBase()->HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED) ||
         GetBase()->HasEffectType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN) ||
         GetBase()->HasEffectType(SPELL_AURA_MOD_MAX_CHARGES) ||
         GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD) ||

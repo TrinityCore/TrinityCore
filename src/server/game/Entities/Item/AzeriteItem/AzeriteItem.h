@@ -23,6 +23,8 @@
 constexpr uint32 ITEM_ID_HEART_OF_AZEROTH = 158075;
 constexpr uint32 MAX_AZERITE_ITEM_LEVEL = 70;
 constexpr uint32 MAX_AZERITE_ITEM_KNOWLEDGE_LEVEL = 30;
+constexpr uint32 PLAYER_CONDITION_ID_UNLOCKED_AZERITE_ESSENCES = 69048;
+constexpr uint32 SPELL_ID_HEART_ESSENCE_ACTION_BAR_OVERRIDE = 298554;
 
 class TC_GAME_API AzeriteItem : public Item
 {
@@ -32,10 +34,8 @@ public:
     bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner) override;
 
     void SaveToDB(CharacterDatabaseTransaction& trans) override;
-    void LoadAzeriteItemData(AzeriteItemData& azeriteItem);
+    void LoadAzeriteItemData(Player* owner, AzeriteItemData& azeriteItem);
     void DeleteFromDB(CharacterDatabaseTransaction& trans) override;
-
-    uint32 GetItemLevel(Player const* owner) const override;
 
     uint32 GetLevel() const { return m_azeriteItemData->Level; }
     uint32 GetEffectiveLevel() const
@@ -47,11 +47,29 @@ public:
         return level;
     }
 
+    // Gaining artifact power
     static uint32 GetCurrentKnowledgeLevel();
     static uint64 CalcTotalXPToNextLevel(uint32 level, uint32 knowledgeLevel);
     void GiveXP(uint64 xp);
 
+    // Essences
+    // C_AzeriteEssence.CanOpenUI - checks PlayerCondition 69048 - HasAura(261912) || RewardedQuest(57010) || IsOnQuest(57010)
+    static GameObject const* FindHeartForge(Player const* owner);
+    bool CanUseEssences() const;
+    bool HasUnlockedEssenceSlot(uint8 slot) const;
+    bool HasUnlockedEssenceMilestone(uint32 azeriteItemMilestonePowerId) const { return m_azeriteItemData->UnlockedEssenceMilestones.FindIndex(azeriteItemMilestonePowerId) != -1; }
+    void AddUnlockedEssenceMilestone(uint32 azeriteItemMilestonePowerId)
+    {
+        AddDynamicUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData)
+            .ModifyValue(&UF::AzeriteItemData::UnlockedEssenceMilestones)) = azeriteItemMilestonePowerId;
+    }
+
+    uint32 GetEssenceRank(uint32 azeriteEssenceId) const;
+    void SetEssenceRank(uint32 azeriteEssenceId, uint32 rank);
+
     UF::SelectedAzeriteEssences const* GetSelectedAzeriteEssences() const;
+    void SetSelectedAzeriteEssences(uint32 specializationId);
+    void SetSelectedAzeriteEssence(uint8 slot, uint32 azeriteEssenceId);
 
     void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
     void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
@@ -59,6 +77,10 @@ public:
     void ClearUpdateMask(bool remove) override;
 
     UF::UpdateField<UF::AzeriteItemData, 0, TYPEID_AZERITE_ITEM> m_azeriteItemData;
+
+private:
+    void UnlockDefaultMilestones();
+    void CreateSelectedAzeriteEssences(uint32 specializationId);
 };
 
 #endif // AzeriteItem_h__

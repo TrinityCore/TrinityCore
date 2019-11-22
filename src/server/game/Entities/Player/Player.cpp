@@ -3225,7 +3225,7 @@ bool Player::IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const
     return false;
 }
 
-void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/)
+void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/, bool suppressMessaging /*= false*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
 
@@ -3239,6 +3239,7 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/
     {
         WorldPackets::Spells::LearnedSpells packet;
         packet.SpellID.push_back(spell_id);
+        packet.SuppressMessaging = suppressMessaging;
         GetSession()->SendPacket(packet.Write());
     }
 
@@ -3262,7 +3263,7 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/
     }
 }
 
-void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
+void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_low_rank /*= true*/, bool suppressMessaging /*= false*/)
 {
     PlayerSpellMap::iterator itr = m_spells.find(spell_id);
     if (itr == m_spells.end())
@@ -3430,6 +3431,7 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     {
         WorldPackets::Spells::UnlearnedSpells unlearnedSpells;
         unlearnedSpells.SpellID.push_back(spell_id);
+        unlearnedSpells.SuppressMessaging = suppressMessaging;
         SendDirectMessage(unlearnedSpells.Write());
     }
 }
@@ -4050,6 +4052,14 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_BY_OWNER);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER_BY_OWNER);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE_BY_OWNER);
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
@@ -7325,6 +7335,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
     if (updateItemAuras)
         ApplyItemDependentAuras(item, apply);
     ApplyArtifactPowers(item, apply);
+    ApplyAzeritePowers(item, apply);
     ApplyEnchantment(item, apply);
 
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: completed");
@@ -7910,6 +7921,90 @@ void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const
 
 }
 
+void Player::ApplyAzeritePowers(Item* item, bool apply)
+{
+    if (AzeriteItem* azeriteItem = item->ToAzeriteItem())
+    {
+        // milestone powers
+        for (uint32 azeriteItemMilestonePowerId : azeriteItem->m_azeriteItemData->UnlockedEssenceMilestones)
+            ApplyAzeriteItemMilestonePower(item, sAzeriteItemMilestonePowerStore.AssertEntry(azeriteItemMilestonePowerId), apply);
+
+        // essences
+        if (UF::SelectedAzeriteEssences const* selectedEssences = azeriteItem->GetSelectedAzeriteEssences())
+            for (uint8 slot = 0; slot < MAX_AZERITE_ESSENCE_SLOT; ++slot)
+                if (selectedEssences->AzeriteEssenceID[slot])
+                    ApplyAzeriteEssence(item, selectedEssences->AzeriteEssenceID[slot], azeriteItem->GetEssenceRank(selectedEssences->AzeriteEssenceID[slot]),
+                        AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(slot)->Type) == AzeriteItemMilestoneType::MajorEssence, apply);
+
+        return;
+    }
+}
+
+void Player::ApplyAzeriteItemMilestonePower(Item* item, AzeriteItemMilestonePowerEntry const* azeriteItemMilestonePower, bool apply)
+{
+    AzeriteItemMilestoneType type = AzeriteItemMilestoneType(azeriteItemMilestonePower->Type);
+    if (type == AzeriteItemMilestoneType::BonusStamina)
+    {
+        if (AzeritePowerEntry const* azeritePower = sAzeritePowerStore.LookupEntry(azeriteItemMilestonePower->AzeritePowerID))
+        {
+            if (apply)
+                CastSpell(this, azeritePower->SpellID, true, item);
+            else
+                RemoveAurasDueToItemSpell(azeritePower->SpellID, item->GetGUID());
+        }
+    }
+}
+
+void Player::ApplyAzeriteEssence(Item* item, uint32 azeriteEssenceId, uint32 rank, bool major, bool apply)
+{
+    for (uint32 currentRank = 1; currentRank <= rank; ++currentRank)
+    {
+        if (AzeriteEssencePowerEntry const* azeriteEssencePower = sDB2Manager.GetAzeriteEssencePower(azeriteEssenceId, currentRank))
+        {
+            ApplyAzeriteEssencePower(item, azeriteEssencePower, major, apply);
+            if (major && currentRank == 1)
+            {
+                if (apply)
+                    CastCustomSpell(SPELL_ID_HEART_ESSENCE_ACTION_BAR_OVERRIDE, SPELLVALUE_BASE_POINT0, azeriteEssencePower->MajorPowerDescription, this, TRIGGERED_FULL_MASK);
+                else
+                    RemoveAurasDueToSpell(SPELL_ID_HEART_ESSENCE_ACTION_BAR_OVERRIDE);
+            }
+        }
+    }
+}
+
+void Player::ApplyAzeriteEssencePower(Item* item, AzeriteEssencePowerEntry const* azeriteEssencePower, bool major, bool apply)
+{
+    if (SpellInfo const* powerSpell = sSpellMgr->GetSpellInfo(azeriteEssencePower->MinorPowerDescription))
+    {
+        if (apply)
+            CastSpell(this, powerSpell, true, item);
+        else
+            RemoveAurasDueToItemSpell(powerSpell->Id, item->GetGUID());
+    }
+
+    if (major)
+    {
+        if (SpellInfo const* powerSpell = sSpellMgr->GetSpellInfo(azeriteEssencePower->MajorPowerDescription))
+        {
+            if (powerSpell->IsPassive())
+            {
+                if (apply)
+                    CastSpell(this, powerSpell, true, item);
+                else
+                    RemoveAurasDueToItemSpell(powerSpell->Id, item->GetGUID());
+            }
+            else
+            {
+                if (apply)
+                    LearnSpell(powerSpell->Id, true, 0, true);
+                else
+                    RemoveSpell(powerSpell->Id, false, false, true);
+            }
+        }
+    }
+}
+
 void Player::CastItemCombatSpell(DamageInfo const& damageInfo)
 {
     Unit* target = damageInfo.GetVictim();
@@ -8215,6 +8310,7 @@ void Player::_RemoveAllItemMods()
 
             ApplyItemEquipSpell(m_items[i], false);
             ApplyEnchantment(m_items[i], false);
+            ApplyAzeritePowers(m_items[i], false);
             ApplyArtifactPowers(m_items[i], false);
         }
     }
@@ -8267,6 +8363,7 @@ void Player::_ApplyAllItemMods()
 
             ApplyItemEquipSpell(m_items[i], true);
             ApplyArtifactPowers(m_items[i], true);
+            ApplyAzeritePowers(m_items[i], true);
             ApplyEnchantment(m_items[i], true);
         }
     }
@@ -18188,6 +18285,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     _LoadInventory(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INVENTORY),
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ARTIFACTS),
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AZERITE),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AZERITE_MILESTONE_POWERS),
+        holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AZERITE_UNLOCKED_ESSENCES),
         time_diff);
 
     if (IsVoidStorageUnlocked())
@@ -18585,7 +18684,8 @@ void Player::LoadCorpse(PreparedQueryResult result)
     RemoveAtLoginFlag(AT_LOGIN_RESURRECT);
 }
 
-void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, PreparedQueryResult azeriteResult, uint32 timeDiff)
+void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, PreparedQueryResult azeriteResult,
+    PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult, uint32 timeDiff)
 {
     //           0          1            2                3      4         5        6      7             8                 9          10          11    12
     // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
@@ -18616,7 +18716,7 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     //expected to be equipped before offhand items (@todo fixme)
 
     std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo> additionalData;
-    ItemAdditionalLoadInfo::Init(&additionalData, artifactsResult, azeriteResult);
+    ItemAdditionalLoadInfo::Init(&additionalData, artifactsResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult);
 
     if (result)
     {
@@ -18642,7 +18742,7 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
 
                     if (addionalDataPtr->AzeriteItem)
                         if (AzeriteItem* azeriteItem = item->ToAzeriteItem())
-                            azeriteItem->LoadAzeriteItemData(*addionalDataPtr->AzeriteItem);
+                            azeriteItem->LoadAzeriteItemData(this, *addionalDataPtr->AzeriteItem);
                 }
 
                 ObjectGuid bagGuid = fields[43].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[43].GetUInt64()) : ObjectGuid::Empty;
@@ -19000,7 +19100,7 @@ void Player::_LoadMailedItem(Mail* mail, Field* fields, ItemAdditionalLoadInfo* 
 
         if (addionalData->AzeriteItem)
             if (AzeriteItem* azeriteItem = item->ToAzeriteItem())
-                azeriteItem->LoadAzeriteItemData(*addionalData->AzeriteItem);
+                azeriteItem->LoadAzeriteItemData(this, *addionalData->AzeriteItem);
     }
 
     AddMItem(item);
@@ -19078,8 +19178,16 @@ void Player::_LoadMail()
         stmt->setUInt64(0, GetGUID().GetCounter());
         PreparedQueryResult azeriteResult = CharacterDatabase.Query(stmt);
 
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_MILESTONE_POWER);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        PreparedQueryResult azeriteItemMilestonePowersResult = CharacterDatabase.Query(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAILITEMS_AZERITE_UNLOCKED_ESSENCE);
+        stmt->setUInt64(0, GetGUID().GetCounter());
+        PreparedQueryResult azeriteItemUnlockedEssencesResult = CharacterDatabase.Query(stmt);
+
         std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo> additionalData;
-        ItemAdditionalLoadInfo::Init(&additionalData, artifactResult, azeriteResult);
+        ItemAdditionalLoadInfo::Init(&additionalData, artifactResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult);
 
         do
         {
@@ -27069,6 +27177,22 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
 
     activeGlyphs.IsFullUpdate = true;
     SendDirectMessage(activeGlyphs.Write());
+
+    if (Item* item = GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH))
+    {
+        if (AzeriteItem* azeriteItem = item->ToAzeriteItem())
+        {
+            if (azeriteItem->IsEquipped())
+                ApplyAzeritePowers(azeriteItem, false);
+
+            azeriteItem->SetSelectedAzeriteEssences(spec->ID);
+
+            if (azeriteItem->IsEquipped())
+                ApplyAzeritePowers(azeriteItem, true);
+
+            azeriteItem->SetState(ITEM_CHANGED, this);
+        }
+    }
 
     Unit::AuraEffectList const& shapeshiftAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
     for (AuraEffect* aurEff : shapeshiftAuras)
