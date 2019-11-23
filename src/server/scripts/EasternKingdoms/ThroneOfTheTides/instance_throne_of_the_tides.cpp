@@ -33,6 +33,7 @@ ObjectData const creatureData[] =
     { NPC_OZUMAT_VEHICLE_BIG,   DATA_OZUMAT_VEHICLE_BIG     },
     { NPC_OZUMAT_VEHICLE,       DATA_OZUMAT_VEHICLE         },
     { NPC_NEPTULON,             DATA_NEPTULON               },
+    { NPC_OZUMAT,               DATA_OZUMAT_PASSENGER       },
     { 0,                        0                           } // END
 };
 

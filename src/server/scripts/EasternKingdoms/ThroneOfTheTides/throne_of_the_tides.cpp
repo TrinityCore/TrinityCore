@@ -43,15 +43,9 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->setActive(true); // ugly but the only safe way for now to keep the grid loaded...
         if (_instance->GetData(DATA_CURRENT_EVENT_PROGRESS) < EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED)
-        {
             if (Creature* ozumat = DoSummon(NPC_OZUMAT, me->GetPosition()))
-            {
-                me->HandleSpellClick(ozumat, SEAT_TENTACLE_BLOCK);
-                ozumat->setActive(true);
-            }
-        }
+                ozumat->EnterVehicle(me, SEAT_TENTACLE_BLOCK);
     }
 
     void DoAction(int32 action) override
@@ -70,16 +64,16 @@ struct npc_tott_ozumat_vehicle_big : public ScriptedAI
             {
                 case EVENT_CHANGE_TO_SHOCK_SEAT:
                     if (Vehicle* vehicle = me->GetVehicleKit())
-                        if (Unit* ozumat = vehicle->GetPassenger(SEAT_TENTACLE_BLOCK))
-                            me->HandleSpellClick(ozumat, SEAT_DEFENSE_SYSTEM);
+                        if (Creature* ozumat = _instance->GetCreature(DATA_OZUMAT_PASSENGER))
+                            ozumat->EnterVehicle(me, SEAT_DEFENSE_SYSTEM);
                     _events.ScheduleEvent(EVENT_CHANGE_TO_ESCAPE_SEAT, 29s);
                     break;
                 case EVENT_CHANGE_TO_ESCAPE_SEAT:
                     if (Vehicle* vehicle = me->GetVehicleKit())
                     {
-                        if (Unit* ozumat = vehicle->GetPassenger(SEAT_DEFENSE_SYSTEM))
+                        if (Creature* ozumat = _instance->GetCreature(DATA_OZUMAT_PASSENGER))
                         {
-                            me->HandleSpellClick(ozumat, SEAT_ESCAPE);
+                            ozumat->EnterVehicle(me, SEAT_ESCAPE);
                             me->DespawnOrUnsummon(6s);
                             if (Creature* creature = ozumat->ToCreature())
                                 creature->DespawnOrUnsummon(6s);

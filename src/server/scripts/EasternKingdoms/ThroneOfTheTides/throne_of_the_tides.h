@@ -47,7 +47,8 @@ enum TotTDataTypes
     DATA_ABYSSAL_CORAL_CHUNK                = 14,
     DATA_NEPTULON                           = 15,
     DATA_OZUMAT_VEHICLE                     = 16,
-    DATA_LADY_NAZJAR_GEYSERS                = 17
+    DATA_LADY_NAZJAR_GEYSERS                = 17,
+    DATA_OZUMAT_PASSENGER                   = 18
 };
 
 enum TotTCreatureIds
