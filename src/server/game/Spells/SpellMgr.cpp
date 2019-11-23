@@ -4476,11 +4476,14 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // Commander Ulthok
     // Dark Fissure
-    ApplySpellFix({
-        76047,
-        96311
-    }, [](SpellInfo* spellInfo)
+    ApplySpellFix({ 76047 }, [](SpellInfo* spellInfo)
     {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
+    });
+
+    ApplySpellFix({ 96311 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21); // Infinite
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_1_YARD);
     });
 
