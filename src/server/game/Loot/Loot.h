@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "ConditionMgr.h"
+#include "DBCEnums.h"
 #include "ItemEnchantmentMgr.h"
 #include "ObjectGuid.h"
 #include "RefManager.h"
