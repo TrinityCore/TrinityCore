@@ -862,7 +862,7 @@ class spell_ozumat_shadow_blast_missile : public SpellScript
 
         // Calculation is correct, core needs to support vertical only splines....
         Position pos = GetCaster()->GetPosition();
-        pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhaseShift(), pos);
+        pos.m_positionZ = caster->GetFloorZ();
         dest.Relocate(pos);
     }
 
