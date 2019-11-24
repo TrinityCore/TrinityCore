@@ -2281,11 +2281,20 @@ class spell_mage_frostfire_bolt : public SpellScript
 
     void HandleGlyphSlow(SpellEffIndex effIndex)
     {
-        if (Unit* caster = GetCaster())
-            if (caster->GetDummyAuraEffect(SPELLFAMILY_MAGE, ICON_MAGE_GLYPH_OF_FROSTFIRE, EFFECT_2))
-                if (Aura* aura = GetHitAura())
-                    if (AuraEffect* effect = aura->GetEffect(effIndex))
-                        effect->SetAmount(0);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Aura* aura = GetHitAura())
+        {
+            if (AuraEffect* effect = aura->GetEffect(effIndex))
+            {
+                if (caster->GetDummyAuraEffect(SPELLFAMILY_MAGE, ICON_MAGE_GLYPH_OF_FROSTFIRE, EFFECT_2))
+                    effect->SetAmount(0);
+                else
+                    effect->SetAmount(GetSpellInfo()->Effects[effIndex].CalcValue());
+            }
+        }
     }
 
     void HandleGlyphDot(SpellEffIndex effIndex)
