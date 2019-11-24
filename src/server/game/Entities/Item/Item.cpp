@@ -2495,6 +2495,14 @@ void Item::ClearBonuses()
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), _bonusData.AppearanceModID);
 }
 
+bool Item::IsArtifactDisabled() const
+{
+    if (ArtifactEntry const* artifact = sArtifactStore.LookupEntry(GetTemplate()->GetArtifactID()))
+        return artifact->ArtifactCategoryID != 2; // fishing artifact
+
+    return true;
+}
+
 UF::ArtifactPower const* Item::GetArtifactPower(uint32 artifactPowerId) const
 {
     auto indexItr = m_artifactPowerIdToIndex.find(artifactPowerId);
