@@ -387,6 +387,8 @@ class TC_GAME_API Item : public Object
         ObjectGuid GetChildItem() const { return m_childItem; }
         void SetChildItem(ObjectGuid childItem) { m_childItem = childItem; }
 
+        bool IsArtifactDisabled() const;
+
         UF::ArtifactPower const* GetArtifactPower(uint32 artifactPowerId) const;
         void AddArtifactPower(ArtifactPowerData const* artifactPower);
         void SetArtifactPower(uint16 artifactPowerId, uint8 purchasedRank, uint8 currentRankWithBonus);
