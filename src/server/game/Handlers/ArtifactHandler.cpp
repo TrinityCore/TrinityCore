@@ -32,7 +32,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
         return;
 
     Item* artifact = _player->GetItemByGuid(artifactAddPower.ArtifactGUID);
-    if (!artifact)
+    if (!artifact || artifact->IsArtifactDisabled())
         return;
 
     uint32 currentArtifactTier = artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER);
@@ -204,7 +204,7 @@ void WorldSession::HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmAr
         return;
 
     Item* artifact = _player->GetItemByGuid(confirmArtifactRespec.ArtifactGUID);
-    if (!artifact)
+    if (!artifact || artifact->IsArtifactDisabled())
         return;
 
     uint64 xpCost = 0;
