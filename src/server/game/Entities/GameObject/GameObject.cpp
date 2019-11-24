@@ -1224,6 +1224,14 @@ uint8 GameObject::getLevelForTarget(WorldObject const* target) const
     if (Unit* owner = GetOwner())
         return owner->getLevelForTarget(target);
 
+    if (GetGoType() == GAMEOBJECT_TYPE_TRAP)
+    {
+        if (GetGOInfo()->trap.level != 0)
+            return GetGOInfo()->trap.level;
+        if (const Unit* targetUnit = target->ToUnit())
+            return targetUnit->GetLevel();
+    }
+
     return 1;
 }
 
