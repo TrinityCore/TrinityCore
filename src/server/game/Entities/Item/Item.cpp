@@ -2318,6 +2318,9 @@ int32 Item::GetItemStatValue(uint32 index, Player const* owner) const
 
 ItemDisenchantLootEntry const* Item::GetDisenchantLoot(Player const* owner) const
 {
+    if (!_bonusData.CanDisenchant)
+        return nullptr;
+
     return Item::GetDisenchantLoot(GetTemplate(), GetQuality(), GetItemLevel(owner));
 }
 
@@ -2756,9 +2759,10 @@ void BonusData::Initialize(ItemTemplate const* proto)
     ScalingStatDistribution = proto->GetScalingStatDistribution();
     ContentTuningId = 0;
     RelicType = -1;
-    HasItemLevelBonus = false;
     HasFixedLevel = false;
     RequiredLevelOverride = 0;
+    CanDisenchant = (proto->GetFlags() & ITEM_FLAG_NO_DISENCHANT) == 0;
+    CanScrap = (proto->GetFlags4() & ITEM_FLAG4_SCRAPABLE) != 0;
 
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
     _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
@@ -2786,7 +2790,6 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
     {
         case ITEM_BONUS_ITEM_LEVEL:
             ItemLevelBonus += values[0];
-            HasItemLevelBonus = true;
             break;
         case ITEM_BONUS_STAT:
         {
@@ -2855,6 +2858,12 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
             break;
         case ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL:
             RequiredLevelOverride = values[0];
+            break;
+        case ITEM_BONUS_OVERRIDE_CAN_DISENCHANT:
+            CanDisenchant = values[0] != 0;
+            break;
+        case ITEM_BONUS_OVERRIDE_CAN_SCRAP:
+            CanScrap = values[0] != 0;
             break;
     }
 }
