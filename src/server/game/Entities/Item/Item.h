@@ -92,7 +92,8 @@ struct BonusData
     uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 RelicType;
     int32 RequiredLevelOverride;
-    bool HasItemLevelBonus;
+    bool CanDisenchant;
+    bool CanScrap;
     bool HasFixedLevel;
 
     void Initialize(ItemTemplate const* proto);
