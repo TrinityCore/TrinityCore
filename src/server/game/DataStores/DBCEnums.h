@@ -990,7 +990,9 @@ enum ItemBonusType
     ITEM_BONUS_RANDOM_ENCHANTMENT               = 15,             // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
     ITEM_BONUS_BONDING                          = 16,
     ITEM_BONUS_RELIC_TYPE                       = 17,
-    ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18
+    ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18,
+    ITEM_BONUS_OVERRIDE_CAN_DISENCHANT          = 21,
+    ITEM_BONUS_OVERRIDE_CAN_SCRAP               = 22
 };
 
 enum class ItemContext : uint8
