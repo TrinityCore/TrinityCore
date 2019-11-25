@@ -1911,6 +1911,8 @@ ItemDisenchantLootEntry const* Roll::GetItemDisenchantLoot(Player const* player)
 
         BonusData bonusData;
         bonusData.Initialize(itemInstance);
+        if (!bonusData.CanDisenchant)
+            return nullptr;
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemid);
         uint32 itemLevel = Item::GetItemLevel(itemTemplate, bonusData, player->getLevel(), 0, 0, 0, 0, false, 0);
