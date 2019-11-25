@@ -2888,19 +2888,19 @@ class spell_gen_restoration : public AuraScript
     {
         PreventDefaultAction();
 
-        Unit* caster = GetCaster();
-        if (!caster)
+        Unit* target = GetTarget();
+        if (!target)
             return;
 
-        int32 heal = caster->CountPctFromMaxHealth(10);
-        HealInfo healInfo(caster, GetTarget(), heal, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
-        caster->HealBySpell(healInfo);
+        int32 heal = target->CountPctFromMaxHealth(10);
+        HealInfo healInfo(target, target, heal, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
+        target->HealBySpell(healInfo);
 
         /// @todo: should proc other auras?
-        if (int32 mana = caster->GetMaxPower(POWER_MANA))
+        if (int32 mana = target->GetMaxPower(POWER_MANA))
         {
             mana /= 10;
-            caster->EnergizeBySpell(caster, GetId(), mana, POWER_MANA);
+            target->EnergizeBySpell(target, GetId(), mana, POWER_MANA);
         }
     }
 
