@@ -2382,6 +2382,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         player->DestroyItemCount(itemTarget, count, true);
         unitTarget = player;
         // and add a scroll
+        damage = 1;
         DoCreateItem(effIndex, effectInfo->ItemType, m_spellInfo->HasAttribute(SPELL_ATTR0_TRADESPELL) ? ItemContext::Trade_Skill : ItemContext::NONE);
         itemTarget = NULL;
         m_targets.SetItemTarget(NULL);
