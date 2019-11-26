@@ -1481,41 +1481,40 @@ class spell_pal_word_of_glory: public SpellScript
     void HandleHeal(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (!caster)
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
             return;
 
-        int32 heal = GetHitHeal();
+        int32 heal = GetEffectValue() + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.198;
+        uint8 power = caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC) ? 3 : (caster->GetPower(POWER_HOLY_POWER) + 1);
+        heal *= power;
 
-        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
-            heal += heal * 2;
-        else
-            heal += heal * caster->GetPower(POWER_HOLY_POWER);
-
-        if (caster != GetHitUnit())
+        if (caster != target)
             if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICOM_ID_SELFLESS_HEALER, EFFECT_0))
-                heal += CalculatePct(heal, aurEff->GetAmount());
+                AddPct(heal, aurEff->GetAmount());
 
-        SetHitHeal(heal);
+        SetEffectValue(heal);
     }
 
     void HandleEternalGlory()
     {
-        if (Unit* caster = GetCaster())
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_ETERNAL_GLORY, EFFECT_0))
         {
-            if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_ETERNAL_GLORY, EFFECT_0))
+            if (roll_chance_i(aurEff->GetAmount()))
             {
-                if (roll_chance_i(aurEff->GetAmount()))
-                {
-                    uint8 powerCost = 1 + GetSpell()->GetPowerCost();
-                    caster->CastCustomSpell(SPELL_PALADIN_ETERNAL_GLORY_PROC, SPELLVALUE_BASE_POINT0, powerCost, caster, true, nullptr, aurEff);
-                }
+                uint8 powerCost = 1 + GetSpell()->GetPowerCost();
+                caster->CastCustomSpell(SPELL_PALADIN_ETERNAL_GLORY_PROC, SPELLVALUE_BASE_POINT0, powerCost, caster, true, nullptr, aurEff);
             }
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pal_word_of_glory::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnEffectLaunchTarget += SpellEffectFn(spell_pal_word_of_glory::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
         AfterCast += SpellCastFn(spell_pal_word_of_glory::HandleEternalGlory);
     }
 };
@@ -1541,14 +1540,12 @@ class spell_pal_word_of_glory_AuraScript : public AuraScript
         if (!caster)
             return;
 
-        if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
-            amount += amount * 2;
-        else
-            amount += amount * caster->GetPower(POWER_HOLY_POWER);
+        uint8 power = caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC) ? 3 : (caster->GetPower(POWER_HOLY_POWER) + 1);
+        amount *= power;
 
         if (caster != GetUnitOwner())
             if (AuraEffect* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICOM_ID_SELFLESS_HEALER, EFFECT_0))
-                amount += CalculatePct(amount, aurEff->GetAmount());
+                AddPct(amount, aurEff->GetAmount());
     }
 
     void Register() override
