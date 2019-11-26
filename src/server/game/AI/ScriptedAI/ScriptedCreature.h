@@ -190,6 +190,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         void ForceCombatStop(Creature* who, bool reset = true);
         // Stops combat, ignoring restrictions, for the found creatures
         void ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true);
+        // Stops combat, ignoring restrictions, for the found creatures
+        void ForceCombatStopForCreatureEntry(std::vector<uint32> creatureEntries, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true);
 
         void DoTeleportTo(float x, float y, float z, uint32 time = 0);
         void DoTeleportTo(float const pos[4]);
