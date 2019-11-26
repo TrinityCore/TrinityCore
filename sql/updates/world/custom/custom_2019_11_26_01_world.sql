@@ -10,4 +10,4 @@ INSERT INTO `spell_proc` (`SpellId`, `SpellFamilyName`, `SpellFamilyMask0`, `Pro
 UPDATE `spell_proc` SET `ProcFlags`= 0 WHERE `SpellId`= -12329;
 
 -- Bloodsurge 
-UPDATE `spell_proc` SET  `SpellFamilyMask1`= 0x08000000, `ProcFlags`= 0 WHERE `SpellId`= -46913;
+UPDATE `spell_proc` SET  `SpellFamilyMask1`= 0x00000400, `ProcFlags`= 0 WHERE `SpellId`= -46913;
