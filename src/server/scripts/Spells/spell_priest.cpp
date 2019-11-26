@@ -104,7 +104,8 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
     PRIEST_ICON_ID_SHIELD_DISCIPLINE                = 566,
     PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_BARRIER      = 3837,
-    PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_SHIELD       = 566
+    PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_SHIELD       = 566,
+    PRIEST_ICON_ID_HARNESSED_SHADOWS                = 554
 };
 
 enum MiscSpells
@@ -1028,11 +1029,16 @@ class spell_pri_shadow_orbs : public AuraScript
 
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
+        Unit* target = GetTarget();
         // Do not proc when the target has Shadow Orb Power mastery active
-        if (GetTarget()->HasAura(SPELL_PRIEST_SHADOW_ORB_POWER))
+        if (target->HasAura(SPELL_PRIEST_SHADOW_ORB_POWER, target->GetGUID()))
             return false;
 
-        return true;
+        int32 procChance = 10;
+        if (AuraEffect const* effect = target->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_PRIEST, PRIEST_ICON_ID_HARNESSED_SHADOWS, EFFECT_0))
+            procChance += effect->GetAmount();
+
+        return roll_chance_i(procChance);
     }
 
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
