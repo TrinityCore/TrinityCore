@@ -5611,6 +5611,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->SpellFamilyName = SPELLFAMILY_SHAMAN;
     });
 
+    // Last Word
+    ApplySpellFix({
+        20234,
+        20235,
+    }, [](SpellInfo* spellInfo)
+    {
+       spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_OVERRIDE_CLASS_SCRIPTS;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
