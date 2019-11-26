@@ -18,6 +18,11 @@ enum Casting
     CASTING_SACRED_LIGHT,
 };
 
+/*
+*       Pas de Heal après shield
+*       Update avec CustomAI
+*/
+
 class npc_paladin : public CreatureScript
 {
     public:

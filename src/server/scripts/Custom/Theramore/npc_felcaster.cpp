@@ -1,74 +1,111 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "World.h"
+#include "DBCStores.h"
+#include "Custom/AI/CustomAI.h"
 
 enum Spells
 {
-    SPELL_SHADOW_BOLT       = 100028,
-    SPELL_FEL_FIREBALL      = 100027
+    SPELL_SHADOW_BOLT           = 100028,
+    SPELL_FEL_FIREBALL          = 100027,
+    SPELL_SUMMON_PET            = 100070,
 };
 
-enum Casting
+enum Pets
 {
-    CASTING_SHADOWN_BOLT    = 1,
-    CASTING_FEL_FIREBALL,
+    NPC_PET                     = 100070,
+
+    DISPLAYID_IMP               = 4449,
+    DISPLAYID_VOID_WALKER       = 1132,
+    DISPLAYID_FELHUNTER         = 850,
+    DISPLAYID_SUCCUBUS          = 4162
 };
+
+/*
+*       Crash avec le pet ???
+*/
 
 class npc_felcaster : public CreatureScript
 {
     public:
     npc_felcaster() : CreatureScript("npc_felcaster") {}
 
-    struct npc_felcasterAI : public ScriptedAI
+    struct npc_felcasterAI : public CustomAI
     {
-        npc_felcasterAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_felcasterAI(Creature* creature) : CustomAI(creature), currentPet(nullptr) { }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            events.ScheduleEvent(CASTING_SHADOWN_BOLT, 1s);
-            events.ScheduleEvent(CASTING_FEL_FIREBALL, 3s);
-        }
+            SummonPet(who);
 
-        void Reset() override
-        {
-            events.Reset();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // Combat
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
+            scheduler
+                .Schedule(Seconds(3), [this](TaskContext shadow_bolt)
                 {
-                    case CASTING_SHADOWN_BOLT:
-                        DoCastVictim(SPELL_SHADOW_BOLT);
-                        events.RescheduleEvent(CASTING_SHADOWN_BOLT, 3s, 5s);
-                        break;
+                    DoCastVictim(SPELL_SHADOW_BOLT);
+                    shadow_bolt.Repeat(Seconds(10), Seconds(14));
+                })
+                .Schedule(Seconds(8), [this](TaskContext fel_fireball)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_FEL_FIREBALL);
+                    fel_fireball.Repeat(Seconds(13), Seconds(25));
+                });
+        }
 
-                    case CASTING_FEL_FIREBALL:
-                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_FEL_FIREBALL);
-                        events.RescheduleEvent(CASTING_FEL_FIREBALL, 25s, 30s);
-                        break;
-                }
+        void EnterEvadeMode(EvadeReason /*why*/) override { }
 
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
+        void JustDied(Unit* killer) override
+        {
+            if (currentPet)
+                currentPet->DespawnOrUnsummon();
 
-            DoMeleeAttackIfReady();
+            CustomAI::JustDied(killer);
         }
 
         private:
-        EventMap events;
+        Creature* currentPet;
+
+        void SummonPet(Unit* who)
+        {
+            if (currentPet)
+            {
+                currentPet->Attack(who, true);
+                currentPet->GetMotionMaster()->MoveChase(who, PET_FOLLOW_DIST);
+            }
+            else
+            {
+                if (Creature* pet = DoSummon(NPC_PET, me, 2.f, 8000, TEMPSUMMON_CORPSE_TIMED_DESPAWN))
+                {
+                    CreatureFamilyEntry const* creatureFamily;
+                    switch (pet->GetDisplayId())
+                    {
+                        case DISPLAYID_IMP:
+                            creatureFamily = sCreatureFamilyStore.LookupEntry(CREATURE_FAMILY_IMP);
+                            pet->SetName(creatureFamily->Name[sWorld->GetDefaultDbcLocale()]);
+                            break;
+                        case DISPLAYID_VOID_WALKER:
+                            creatureFamily = sCreatureFamilyStore.LookupEntry(CREATURE_FAMILY_VOIDWALKER);
+                            pet->SetName(creatureFamily->Name[sWorld->GetDefaultDbcLocale()]);
+                            break;
+                        case DISPLAYID_FELHUNTER:
+                            creatureFamily = sCreatureFamilyStore.LookupEntry(CREATURE_FAMILY_FELHUNTER);
+                            pet->SetName(creatureFamily->Name[sWorld->GetDefaultDbcLocale()]);
+                            break;
+                        case DISPLAYID_SUCCUBUS:
+                            creatureFamily = sCreatureFamilyStore.LookupEntry(CREATURE_FAMILY_SUCCUBUS);
+                            pet->SetName(creatureFamily->Name[sWorld->GetDefaultDbcLocale()]);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    pet->Attack(who, true);
+                    pet->GetMotionMaster()->MoveChase(who, PET_FOLLOW_DIST);
+
+                    currentPet = pet;
+                }
+            }
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override

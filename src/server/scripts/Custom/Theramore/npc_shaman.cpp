@@ -1,25 +1,17 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ThreatManager.h"
+#include "Custom/AI/CustomAI.h"
 
 enum Spells
 {
-    SPELL_LIGHTNING_BOLT = 100026,
-    SPELL_HEALING_WAVE = 100025,
-    SPELL_HEX = 51514,
-    SPELL_HEALING = 100030,
-    SPELL_LIGHTNING_CHAIN = 100031,
+    SPELL_LIGHTNING_BOLT    = 100026,
+    SPELL_HEALING_WAVE      = 100025,
+    SPELL_HEX               = 51514,
+    SPELL_HEALING           = 100030,
+    SPELL_LIGHTNING_CHAIN   = 100031,
 
-    NPC_HEALING_TOTEM = 100036
-};
-
-enum Casting
-{
-    CASTING_LIGHTNING_BOLT = 1,
-    CASTING_HEALING_WAVE,
-    CASTING_HEX,
-    CASTING_HEALING_TOTEM,
-    CASTING_LIGHTNING_CHAIN
+    NPC_HEALING_TOTEM       = 100036
 };
 
 class npc_shaman : public CreatureScript
@@ -27,22 +19,56 @@ class npc_shaman : public CreatureScript
     public:
     npc_shaman() : CreatureScript("npc_shaman") {}
 
-    struct npc_shamanAI : public ScriptedAI
+    struct npc_shamanAI : public CustomAI
     {
-        npc_shamanAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_shamanAI(Creature* creature) : CustomAI(creature) { }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(CASTING_LIGHTNING_BOLT, 1s);
-            events.ScheduleEvent(CASTING_HEALING_WAVE, 3s);
-            events.ScheduleEvent(CASTING_HEX, 8s);
-            events.ScheduleEvent(CASTING_HEALING_TOTEM, 6s);
-            events.ScheduleEvent(CASTING_LIGHTNING_CHAIN, 14s);
+            scheduler
+                .Schedule(Seconds(1), [this](TaskContext lighting_bolt)
+                {
+                    DoCastVictim(SPELL_LIGHTNING_BOLT);
+                    lighting_bolt.Repeat(Seconds(10), Seconds(15));
+                })
+                .Schedule(Seconds(12), [this](TaskContext lightning_chain)
+                {
+                    DoCastVictim(SPELL_LIGHTNING_CHAIN);
+                    lightning_chain.Repeat(Seconds(14), Seconds(25));
+                })
+                .Schedule(Seconds(3), [this](TaskContext hex)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_HEX);
+                    hex.Repeat(Seconds(25), Seconds(30));
+                })
+                .Schedule(Seconds(3), [this](TaskContext healing_wave)
+                {
+                    if (Unit * target = DoSelectLowestHpFriendly(40.0f))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(target, SPELL_HEALING_WAVE);
+                    }
+                    healing_wave.Repeat(Seconds(8));
+                })
+                .Schedule(Seconds(6), [this](TaskContext healing_totem)
+                {
+                    if (healingTotem = DoSummon(NPC_HEALING_TOTEM, me->GetRandomNearPosition(2.f), 15000, TEMPSUMMON_TIMED_DESPAWN))
+                    {
+                        healingTotem->SetFaction(me->GetFaction());
+                        healingTotem->CastSpell(healingTotem, SPELL_HEALING);
+                        healingTotem->SetReactState(REACT_PASSIVE);
+                    }
+                    healing_totem.Repeat(Seconds(20), Seconds(30));
+                });
         }
 
-        void Reset() override
+        void JustDied(Unit* killer) override
         {
-            events.Reset();
+            if (healingTotem)
+                healingTotem->DespawnOrUnsummon();
+
+            CustomAI::JustDied(killer);
         }
 
         void SpellHitTarget(Unit* /*target*/, SpellInfo const* spellInfo) override
@@ -54,75 +80,8 @@ class npc_shaman : public CreatureScript
             }
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            // Combat
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case CASTING_LIGHTNING_BOLT:
-                        DoCastVictim(SPELL_LIGHTNING_BOLT);
-                        events.RescheduleEvent(CASTING_LIGHTNING_BOLT, 3s, 5s);
-                        break;
-
-                    case CASTING_LIGHTNING_CHAIN:
-                        DoCastVictim(SPELL_LIGHTNING_CHAIN);
-                        events.RescheduleEvent(CASTING_LIGHTNING_CHAIN, 14s, 24s);
-                        break;
-
-                    case CASTING_HEX:
-                        if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_HEX);
-                        events.RescheduleEvent(CASTING_HEX, 25s, 30s);
-                        break;
-
-                    case CASTING_HEALING_WAVE:
-                        if (Unit * target = DoSelectLowestHpFriendly(40.0f))
-                        {
-                            me->InterruptNonMeleeSpells(true);
-                            DoCast(target, SPELL_HEALING_WAVE);
-                        }
-                        events.RescheduleEvent(CASTING_HEALING_WAVE, 2s);
-                        break;
-
-                    case CASTING_HEALING_TOTEM:
-                    {
-                        float alpha = 2.f * float(M_PI * rand_norm());
-                        float r = 3.f * sqrtf(float(rand_norm()));
-                        float x = r * cosf(alpha) + me->GetPositionX();
-                        float y = r * sinf(alpha) + me->GetPositionY();
-                        Position pos = { x, y, me->GetPositionZ(), 0.f };
-
-                        if (Creature * totem = DoSummon(NPC_HEALING_TOTEM, pos, 15000, TEMPSUMMON_TIMED_DESPAWN))
-                        {
-                            totem->SetFaction(me->GetFaction());
-                            totem->CastSpell(totem, SPELL_HEALING);
-                            totem->SetReactState(REACT_PASSIVE);
-                        }
-
-                        events.RescheduleEvent(CASTING_HEALING_TOTEM, 20s, 30s);
-                        break;
-                    }
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
         private:
-        EventMap events;
+        Creature* healingTotem;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

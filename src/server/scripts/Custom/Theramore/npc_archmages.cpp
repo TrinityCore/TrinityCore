@@ -280,6 +280,11 @@ class npc_archmage_arcanes : public CreatureScript
     }
 };
 
+/*
+*       Vérifier au niveau du timing IB / Nova / blink
+*       Update avec CustomAI
+*/
+
 class npc_archmage_frost : public CreatureScript
 {
     public:

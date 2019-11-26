@@ -160,14 +160,16 @@ class npc_jaina_theramore : public CreatureScript
 
         void Initialize()
         {
-            fireballTimer = 0;
-            sayInCombatTimer = 0;
-            blizzardTimer = 0;
             playerShaker = false;
             firesCount = 0;
             npcCount = 0;
             canBeginEnd = false;
             debug = false;
+
+            scheduler.SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
         }
 
         void QuestAccept(Player* player, Quest const* quest) override
@@ -361,10 +363,6 @@ class npc_jaina_theramore : public CreatureScript
         void Reset() override
         {
             me->RemoveAllAuras();
-
-            fireballTimer = 0;
-            sayInCombatTimer = 2000;
-            blizzardTimer = urand(3500, 5000);
         }
 
         void AttackStart(Unit* who) override
@@ -374,6 +372,37 @@ class npc_jaina_theramore : public CreatureScript
 
             if (me->Attack(who, false))
                 SetCombatMovement(false);
+        }
+
+        void EnterEvadeMode(EvadeReason /*why*/) override
+        {
+            scheduler.CancelAll();
+        }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            scheduler
+                .Schedule(Seconds(0), [this](TaskContext fireball)
+                {
+                    DoCastVictim(SPELL_FIREBALL);
+                    fireball.Repeat(Seconds(2));
+                })
+                .Schedule(Seconds(14), [this](TaskContext blizzard)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    {
+                        me->AI()->Talk(RAND(SAY_BLIZZARD_1, SAY_BLIZZARD_2));
+                        DoCast(target, SPELL_BLIZZARD);
+                    }
+                    blizzard.Repeat(Seconds(6), Seconds(15));
+                })
+                .Schedule(Seconds(2), [this](TaskContext talk)
+                {
+                    me->AI()->Talk(RAND(SAY_CASTING_1, SAY_CASTING_2, SAY_CASTING_3));
+                    talk.Repeat(Seconds(24), Minutes(1));
+                });
+
+            DoStartNoMovement(who);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -1463,38 +1492,10 @@ class npc_jaina_theramore : public CreatureScript
             if (!UpdateVictim())
                 return;
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            // Blizzard
-            if (blizzardTimer <= diff)
+            scheduler.Update(diff, [this]
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                {
-                    me->AI()->Talk(RAND(SAY_BLIZZARD_1, SAY_BLIZZARD_2));
-                    DoCast(pTarget, SPELL_BLIZZARD);
-                }
-                blizzardTimer = urand(6000, 15000);
-            }
-            else blizzardTimer -= diff;
-
-            // Boule de feu
-            if (fireballTimer <= diff)
-            {
-                DoCastVictim(SPELL_FIREBALL);
-                fireballTimer = 780;
-            }
-            else fireballTimer -= diff;
-
-            // Parle en combat
-            if (sayInCombatTimer <= diff)
-            {
-                me->AI()->Talk(RAND(SAY_CASTING_1, SAY_CASTING_2, SAY_CASTING_3));
-                sayInCombatTimer = urand(24000, 65000);
-            }
-            else sayInCombatTimer -= diff;
-
-            DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
+            });
         }
 
         private:
@@ -1517,8 +1518,7 @@ class npc_jaina_theramore : public CreatureScript
         bool playerShaker, canBeginEnd, debug;
         uint8 firesCount;
         uint8 npcCount;
-
-        uint32 sayInCombatTimer, blizzardTimer, fireballTimer;
+        TaskScheduler scheduler;
 
         void Relocate(Creature* c, float x, float y, float z, float orientation)
         {
