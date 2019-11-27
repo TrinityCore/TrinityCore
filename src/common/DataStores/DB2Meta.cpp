@@ -22,8 +22,8 @@ DB2MetaField::DB2MetaField(DBCFormer type, uint8 arraySize, bool isSigned) : Typ
 {
 }
 
-DB2Meta::DB2Meta(uint32 fileDataId, int32 indexField, uint32 fieldCount, uint32 layoutHash, DB2MetaField const* fields, int32 parentIndexField)
-    : FileDataId(fileDataId),IndexField(indexField), ParentIndexField(parentIndexField), FieldCount(fieldCount), LayoutHash(layoutHash), Fields(fields)
+DB2Meta::DB2Meta(uint32 fileDataId, int32 indexField, uint32 fieldCount, uint32 fileFieldCount, uint32 layoutHash, DB2MetaField const* fields, int32 parentIndexField)
+    : FileDataId(fileDataId),IndexField(indexField), ParentIndexField(parentIndexField), FieldCount(fieldCount), FileFieldCount(fileFieldCount), LayoutHash(layoutHash), Fields(fields)
 {
 }
 
@@ -44,6 +44,12 @@ uint32 DB2Meta::GetRecordSize() const
     {
         for (uint8 j = 0; j < Fields[i].ArraySize; ++j)
         {
+            if (i >= FileFieldCount && i == ParentIndexField)
+            {
+                size += 4;
+                continue;
+            }
+
             switch (Fields[i].Type)
             {
                 case FT_BYTE:
@@ -87,6 +93,12 @@ uint32 DB2Meta::GetIndexFieldOffset() const
     {
         for (uint8 j = 0; j < Fields[i].ArraySize; ++j)
         {
+            if (i >= int32(FileFieldCount) && i == ParentIndexField)
+            {
+                offset += 4;
+                continue;
+            }
+
             switch (Fields[i].Type)
             {
                 case FT_BYTE:
@@ -197,7 +209,7 @@ bool DB2Meta::IsSignedField(uint32 field) const
         default:
             break;
     }
-    if (field == uint32(IndexField))
+    if (field == uint32(IndexField) || field == uint32(ParentIndexField))
         return false;
 
     return Fields[field].IsSigned;
