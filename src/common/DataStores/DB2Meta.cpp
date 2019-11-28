@@ -44,7 +44,7 @@ uint32 DB2Meta::GetRecordSize() const
     {
         for (uint8 j = 0; j < Fields[i].ArraySize; ++j)
         {
-            if (i >= FileFieldCount && i == ParentIndexField)
+            if (i >= FileFieldCount && int32(i) == ParentIndexField)
             {
                 size += 4;
                 continue;

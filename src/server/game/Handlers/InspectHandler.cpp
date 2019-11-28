@@ -66,7 +66,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
         inspectResult.GuildData->AchievementPoints = guild->GetAchievementMgr().GetAchievementPoints();
     }
 
-    if (Item const* heartOfAzeroth = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH))
+    if (Item const* heartOfAzeroth = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE))
         if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
             inspectResult.AzeriteLevel = azeriteItem->GetEffectiveLevel();
 
