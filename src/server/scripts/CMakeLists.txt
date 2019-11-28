@@ -207,7 +207,7 @@ target_link_libraries(scripts
   PRIVATE
     trinity-core-interface
   PUBLIC
-    game)
+    game-interface)
 
 target_include_directories(scripts
   PUBLIC
