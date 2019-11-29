@@ -27,7 +27,7 @@ void WorldSession::HandleAzeriteEssenceUnlockMilestone(WorldPackets::Azerite::Az
     if (!AzeriteItem::FindHeartForge(_player))
         return;
 
-    Item* item = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH);
+    Item* item = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE);
     if (!item)
         return;
 
@@ -58,8 +58,8 @@ void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::Az
 {
     WorldPackets::Azerite::AzeriteEssenceSelectionResult activateEssenceResult;
     activateEssenceResult.AzeriteEssenceID = azeriteEssenceActivateEssence.AzeriteEssenceID;
-    Item* item = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH);
-    if (!item || !item->IsEquipped())
+    Item* item = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_IN_EQUIPMENT);
+    if (!item)
     {
         activateEssenceResult.Reason = AzeriteEssenceActivateResult::NotEquipped;
         activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
