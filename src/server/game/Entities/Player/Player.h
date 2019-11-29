@@ -650,6 +650,17 @@ struct ItemPosCount
 };
 typedef std::vector<ItemPosCount> ItemPosCountVec;
 
+enum ItemSearchLocation
+{
+    ITEM_SEARCH_IN_EQUIPMENT    = 0x01,
+    ITEM_SEARCH_IN_INVENTORY    = 0x02,
+    ITEM_SEARCH_IN_BANK         = 0x04,
+    ITEM_SEARCH_IN_REAGENT_BANK = 0x08,
+
+    ITEM_SEARCH_DEFAULT     = ITEM_SEARCH_IN_EQUIPMENT | ITEM_SEARCH_IN_INVENTORY,
+    ITEM_SEARCH_EVERYWHERE  = ITEM_SEARCH_IN_EQUIPMENT | ITEM_SEARCH_IN_INVENTORY | ITEM_SEARCH_IN_BANK | ITEM_SEARCH_IN_REAGENT_BANK
+};
+
 enum TransferAbortReason
 {
     TRANSFER_ABORT_NONE                          = 0,
@@ -1107,7 +1118,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = nullptr) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = nullptr) const;
         Item* GetItemByGuid(ObjectGuid guid) const;
-        Item* GetItemByEntry(uint32 entry) const;
+        Item* GetItemByEntry(uint32 entry, ItemSearchLocation where = ITEM_SEARCH_DEFAULT) const;
         std::vector<Item*> GetItemListByEntry(uint32 entry, bool inBankAlso = false) const;
         Item* GetItemByPos(uint16 pos) const;
         Item* GetItemByPos(uint8 bag, uint8 slot) const;

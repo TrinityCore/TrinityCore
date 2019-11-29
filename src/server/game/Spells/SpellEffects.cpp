@@ -5830,7 +5830,7 @@ void Spell::EffectLearnAzeriteEssencePower(SpellEffIndex /*effIndex*/)
     if (!playerTarget)
         return;
 
-    Item* heartOfAzeroth = playerTarget->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH);
+    Item* heartOfAzeroth = playerTarget->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE);
     if (!heartOfAzeroth)
         return;
 
