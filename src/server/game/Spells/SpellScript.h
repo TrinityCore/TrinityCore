@@ -47,6 +47,7 @@ class WorldObject;
 struct SpellDestination;
 struct SpellModifier;
 struct SpellValue;
+enum class ItemContext : uint8;
 
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1
