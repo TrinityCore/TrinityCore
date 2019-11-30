@@ -500,7 +500,7 @@ SpellValue::SpellValue(Difficulty diff, SpellInfo const* proto, Unit const* cast
     memset(EffectBasePoints, 0, sizeof(EffectBasePoints));
     for (SpellEffectInfo const* effect : effects)
         if (effect)
-            EffectBasePoints[effect->EffectIndex] = effect->CalcBaseValue(caster, nullptr, -1);
+            EffectBasePoints[effect->EffectIndex] = effect->CalcBaseValue(caster, nullptr, 0, -1);
 
     CustomBasePointsMask = 0;
     MaxAffectedTargets = proto->MaxAffectedTargets;
@@ -2602,13 +2602,13 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
                 if (auraSpellEffect)
                     basePoints[auraSpellEffect->EffectIndex] = (m_spellValue->CustomBasePointsMask & (1 << auraSpellEffect->EffectIndex)) ?
                         m_spellValue->EffectBasePoints[auraSpellEffect->EffectIndex] :
-                        auraSpellEffect->CalcBaseValue(m_originalCaster, unit, m_castItemLevel);
+                        auraSpellEffect->CalcBaseValue(m_originalCaster, unit, m_castItemEntry, m_castItemLevel);
 
             bool refresh = false;
             bool const resetPeriodicTimer = !(_triggeredCastFlags & TRIGGERED_DONT_RESET_PERIODIC_TIMER);
             m_spellAura = Aura::TryRefreshStackOrCreate(m_spellInfo, m_castId, effectMask, unit,
                 m_originalCaster, basePoints,
-                m_CastItem, ObjectGuid::Empty, &refresh, resetPeriodicTimer, ObjectGuid::Empty, m_castItemLevel);
+                m_CastItem, ObjectGuid::Empty, &refresh, resetPeriodicTimer, ObjectGuid::Empty, m_castItemEntry, m_castItemLevel);
             if (m_spellAura)
             {
                 // Set aura stack amount to desired value
@@ -6046,7 +6046,7 @@ SpellCastResult Spell::CheckArenaAndRatedBattlegroundCastRules()
 int32 Spell::CalculateDamage(uint8 i, Unit const* target, float* var /*= nullptr*/) const
 {
     bool needRecalculateBasePoints = !(m_spellValue->CustomBasePointsMask & (1 << i));
-    return m_caster->CalculateSpellDamage(target, m_spellInfo, i, needRecalculateBasePoints ? nullptr : &m_spellValue->EffectBasePoints[i], var, m_castItemLevel);
+    return m_caster->CalculateSpellDamage(target, m_spellInfo, i, needRecalculateBasePoints ? nullptr : &m_spellValue->EffectBasePoints[i], var, m_castItemEntry, m_castItemLevel);
 }
 
 bool Spell::CanAutoCast(Unit* target)
