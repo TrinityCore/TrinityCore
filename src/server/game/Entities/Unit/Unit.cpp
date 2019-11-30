@@ -3223,7 +3223,7 @@ void Unit::DeMorph()
     SetDisplayId(GetNativeDisplayId());
 }
 
-Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool resetPeriodicTimer /*= true*/, ObjectGuid castItemGuid /*= ObjectGuid::Empty*/, int32 castItemLevel /*= -1*/)
+Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint32 effMask, Unit* caster, int32* baseAmount /*= nullptr*/, Item* castItem /*= nullptr*/, ObjectGuid casterGUID /*= ObjectGuid::Empty*/, bool resetPeriodicTimer /*= true*/, ObjectGuid castItemGuid /*= ObjectGuid::Empty*/, uint32 castItemId /*= 0*/, int32 castItemLevel /*= -1*/)
 {
     ASSERT(!casterGUID.IsEmpty() || caster);
 
@@ -3239,9 +3239,15 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
         {
             castItemGuid = castItem->GetGUID();
             if (Player* owner = castItem->GetOwner())
+            {
+                castItemId = castItem->GetEntry();
                 castItemLevel = int32(castItem->GetItemLevel(owner));
+            }
             else if (castItem->GetOwnerGUID() == caster->GetGUID())
+            {
+                castItemId = castItem->GetEntry();
                 castItemLevel = int32(castItem->GetItemLevel(caster->ToPlayer()));
+            }
         }
 
         // find current aura from spell and change it's stackamount, or refresh it's duration
@@ -3278,6 +3284,8 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint3
             {
                 ObjectGuid* oldGUID = const_cast<ObjectGuid*>(&foundAura->m_castItemGuid);
                 *oldGUID = castItemGuid;
+                uint32* oldItemId = const_cast<uint32*>(&foundAura->m_castItemId);
+                *oldItemId = castItemId;
                 int32* oldItemLevel = const_cast<int32*>(&foundAura->m_castItemLevel);
                 *oldItemLevel = castItemLevel;
             }
@@ -8987,13 +8995,13 @@ float Unit::ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index
 }
 
 // function uses real base points (typically value - 1)
-int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints /*= nullptr*/, float* variance /*= nullptr*/, int32 itemLevel /*= -1*/) const
+int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
 {
     SpellEffectInfo const* effect = spellProto->GetEffect(GetMap()->GetDifficultyID(), effect_index);
     if (variance)
         *variance = 0.0f;
 
-    return effect ? effect->CalcValue(this, basePoints, target, variance, itemLevel) : 0;
+    return effect ? effect->CalcValue(this, basePoints, target, variance, castItemId, itemLevel) : 0;
 }
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
@@ -14296,17 +14304,24 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
 
 SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
 {
-    Unit::AuraEffectList swaps = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
-    Unit::AuraEffectList const& swaps2 = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED);
-    if (!swaps2.empty())
-        swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
-
-    for (AuraEffect const* auraEffect : swaps)
+    auto findMatchingAuraEffectIn = [this, spellInfo](AuraType type) -> SpellInfo const*
     {
-        if (uint32(auraEffect->GetMiscValue()) == spellInfo->Id || auraEffect->IsAffectingSpell(spellInfo))
-            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount()))
-                return newInfo;
-    }
+        for (AuraEffect const* auraEffect : GetAuraEffectsByType(type))
+        {
+            bool matches = auraEffect->GetMiscValue() ? uint32(auraEffect->GetMiscValue()) == spellInfo->Id : auraEffect->IsAffectingSpell(spellInfo);
+            if (matches)
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount()))
+                    return newInfo;
+        }
+
+        return nullptr;
+    };
+
+    if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS))
+        return newInfo;
+
+    if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED))
+        return newInfo;
 
     return spellInfo;
 }

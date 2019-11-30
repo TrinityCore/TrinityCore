@@ -84,7 +84,7 @@ void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::Az
 
     UF::SelectedAzeriteEssences const* selectedEssences = azeriteItem->GetSelectedAzeriteEssences();
     // essence is already in that slot, nothing to do
-    if (selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot] == uint32(azeriteEssenceActivateEssence.AzeriteEssenceID))
+    if (selectedEssences && selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot] == uint32(azeriteEssenceActivateEssence.AzeriteEssenceID))
         return;
 
     uint32 rank = azeriteItem->GetEssenceRank(azeriteEssenceActivateEssence.AzeriteEssenceID);
@@ -120,45 +120,51 @@ void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::Az
         return;
     }
 
-    // need to remove selected essence from another slot if selected
-    int32 removeEssenceFromSlot = -1;
-    for (int32 slot = 0; slot < MAX_AZERITE_ESSENCE_SLOT; ++slot)
-        if (azeriteEssenceActivateEssence.Slot != uint8(slot) && selectedEssences->AzeriteEssenceID[slot] == uint32(azeriteEssenceActivateEssence.AzeriteEssenceID))
-            removeEssenceFromSlot = slot;
-
-    // check cooldown of major essence slot
-    if (selectedEssences->AzeriteEssenceID[0] && (azeriteEssenceActivateEssence.Slot == 0 || removeEssenceFromSlot == 0))
+    if (selectedEssences)
     {
-        for (uint32 essenceRank = 1; essenceRank <= rank; ++essenceRank)
+        // need to remove selected essence from another slot if selected
+        int32 removeEssenceFromSlot = -1;
+        for (int32 slot = 0; slot < MAX_AZERITE_ESSENCE_SLOT; ++slot)
+            if (azeriteEssenceActivateEssence.Slot != uint8(slot) && selectedEssences->AzeriteEssenceID[slot] == uint32(azeriteEssenceActivateEssence.AzeriteEssenceID))
+                removeEssenceFromSlot = slot;
+
+        // check cooldown of major essence slot
+        if (selectedEssences->AzeriteEssenceID[0] && (azeriteEssenceActivateEssence.Slot == 0 || removeEssenceFromSlot == 0))
         {
-            AzeriteEssencePowerEntry const* azeriteEssencePower = ASSERT_NOTNULL(sDB2Manager.GetAzeriteEssencePower(selectedEssences->AzeriteEssenceID[0], essenceRank));
-            if (_player->GetSpellHistory()->HasCooldown(azeriteEssencePower->MajorPowerDescription))
+            for (uint32 essenceRank = 1; essenceRank <= rank; ++essenceRank)
             {
-                activateEssenceResult.Reason = AzeriteEssenceActivateResult::CantRemoveEssence;
-                activateEssenceResult.Arg = azeriteEssencePower->MajorPowerDescription;
-                activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
-                SendPacket(activateEssenceResult.Write());
-                return;
+                AzeriteEssencePowerEntry const* azeriteEssencePower = ASSERT_NOTNULL(sDB2Manager.GetAzeriteEssencePower(selectedEssences->AzeriteEssenceID[0], essenceRank));
+                if (_player->GetSpellHistory()->HasCooldown(azeriteEssencePower->MajorPowerDescription))
+                {
+                    activateEssenceResult.Reason = AzeriteEssenceActivateResult::CantRemoveEssence;
+                    activateEssenceResult.Arg = azeriteEssencePower->MajorPowerDescription;
+                    activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
+                    SendPacket(activateEssenceResult.Write());
+                    return;
+                }
             }
         }
-    }
 
-    if (removeEssenceFromSlot != -1)
-    {
-        _player->ApplyAzeriteEssence(azeriteItem, selectedEssences->AzeriteEssenceID[removeEssenceFromSlot], MAX_AZERITE_ESSENCE_RANK,
-            AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(removeEssenceFromSlot)->Type) == AzeriteItemMilestoneType::MajorEssence, false);
-        azeriteItem->SetSelectedAzeriteEssence(removeEssenceFromSlot, 0);
-    }
+        if (removeEssenceFromSlot != -1)
+        {
+            _player->ApplyAzeriteEssence(azeriteItem, selectedEssences->AzeriteEssenceID[removeEssenceFromSlot], MAX_AZERITE_ESSENCE_RANK,
+                AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(removeEssenceFromSlot)->Type) == AzeriteItemMilestoneType::MajorEssence, false);
+            azeriteItem->SetSelectedAzeriteEssence(removeEssenceFromSlot, 0);
+        }
 
-    if (selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot])
-    {
-        _player->ApplyAzeriteEssence(azeriteItem, selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot], MAX_AZERITE_ESSENCE_RANK,
-            AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot)->Type) == AzeriteItemMilestoneType::MajorEssence, false);
+        if (selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot])
+        {
+            _player->ApplyAzeriteEssence(azeriteItem, selectedEssences->AzeriteEssenceID[azeriteEssenceActivateEssence.Slot], MAX_AZERITE_ESSENCE_RANK,
+                AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot)->Type) == AzeriteItemMilestoneType::MajorEssence, false);
+        }
     }
+    else
+        azeriteItem->CreateSelectedAzeriteEssences(_player->GetPrimarySpecialization());
+
+    azeriteItem->SetSelectedAzeriteEssence(azeriteEssenceActivateEssence.Slot, azeriteEssenceActivateEssence.AzeriteEssenceID);
 
     _player->ApplyAzeriteEssence(azeriteItem, azeriteEssenceActivateEssence.AzeriteEssenceID, rank,
         AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot)->Type) == AzeriteItemMilestoneType::MajorEssence, true);
 
-    azeriteItem->SetSelectedAzeriteEssence(azeriteEssenceActivateEssence.Slot, azeriteEssenceActivateEssence.AzeriteEssenceID);
     azeriteItem->SetState(ITEM_CHANGED, _player);
 }
