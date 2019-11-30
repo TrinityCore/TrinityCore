@@ -34,7 +34,7 @@ public:
     bool Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner) override;
 
     void SaveToDB(CharacterDatabaseTransaction& trans) override;
-    void LoadAzeriteItemData(Player* owner, AzeriteItemData& azeriteItem);
+    void LoadAzeriteItemData(Player const* owner, AzeriteItemData& azeriteItem);
     void DeleteFromDB(CharacterDatabaseTransaction& trans) override;
 
     uint32 GetLevel() const { return m_azeriteItemData->Level; }
@@ -69,6 +69,7 @@ public:
 
     UF::SelectedAzeriteEssences const* GetSelectedAzeriteEssences() const;
     void SetSelectedAzeriteEssences(uint32 specializationId);
+    void CreateSelectedAzeriteEssences(uint32 specializationId);
     void SetSelectedAzeriteEssence(uint8 slot, uint32 azeriteEssenceId);
 
     void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
@@ -80,7 +81,6 @@ public:
 
 private:
     void UnlockDefaultMilestones();
-    void CreateSelectedAzeriteEssences(uint32 specializationId);
 };
 
 #endif // AzeriteItem_h__
