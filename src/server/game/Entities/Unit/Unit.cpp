@@ -14304,17 +14304,24 @@ void Unit::Whisper(uint32 textId, Player* target, bool isBossWhisper /*= false*/
 
 SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
 {
-    Unit::AuraEffectList swaps = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
-    Unit::AuraEffectList const& swaps2 = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED);
-    if (!swaps2.empty())
-        swaps.insert(swaps.end(), swaps2.begin(), swaps2.end());
-
-    for (AuraEffect const* auraEffect : swaps)
+    auto findMatchingAuraEffectIn = [this, spellInfo](AuraType type) -> SpellInfo const*
     {
-        if (uint32(auraEffect->GetMiscValue()) == spellInfo->Id || auraEffect->IsAffectingSpell(spellInfo))
-            if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount()))
-                return newInfo;
-    }
+        for (AuraEffect const* auraEffect : GetAuraEffectsByType(type))
+        {
+            bool matches = auraEffect->GetMiscValue() ? uint32(auraEffect->GetMiscValue()) == spellInfo->Id : auraEffect->IsAffectingSpell(spellInfo);
+            if (matches)
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(auraEffect->GetAmount()))
+                    return newInfo;
+        }
+
+        return nullptr;
+    };
+
+    if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS))
+        return newInfo;
+
+    if (SpellInfo const* newInfo = findMatchingAuraEffectIn(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED))
+        return newInfo;
 
     return spellInfo;
 }
