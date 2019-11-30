@@ -13,6 +13,15 @@ enum Casting
     CASTING_PROCOCATION
 };
 
+/*
+
+La.charge
+Le cs
+Faire que le PNJ prenne l'agroo sur le joueur l'obligeant a changer de cible pour liot
+Protéger in allier avec son bouclier quand il est low life
+
+*/
+
 class npc_warrior : public CreatureScript
 {
     public:

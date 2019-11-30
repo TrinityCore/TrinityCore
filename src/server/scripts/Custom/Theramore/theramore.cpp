@@ -234,6 +234,9 @@ class npc_jaina_theramore : public CreatureScript
 
         void SetData(uint32 id, uint32 value) override
         {
+            if (!playerForQuest)
+                playerForQuest = me->SelectNearestPlayer(2000.f);
+
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->SetSheath(SHEATH_STATE_UNARMED);
 
@@ -363,26 +366,20 @@ class npc_jaina_theramore : public CreatureScript
         void Reset() override
         {
             me->RemoveAllAuras();
+            scheduler.CancelAll();
         }
 
-        void AttackStart(Unit* who) override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            if (!who)
-                return;
+            ScriptedAI::EnterEvadeMode(why);
 
-            if (me->Attack(who, false))
-                SetCombatMovement(false);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
             scheduler.CancelAll();
         }
 
         void JustEngagedWith(Unit* who) override
         {
             scheduler
-                .Schedule(Seconds(0), [this](TaskContext fireball)
+                .Schedule(Seconds(1), [this](TaskContext fireball)
                 {
                     DoCastVictim(SPELL_FIREBALL);
                     fireball.Repeat(Seconds(2));
@@ -396,7 +393,7 @@ class npc_jaina_theramore : public CreatureScript
                     }
                     blizzard.Repeat(Seconds(6), Seconds(15));
                 })
-                .Schedule(Seconds(2), [this](TaskContext talk)
+                .Schedule(Seconds(8), [this](TaskContext talk)
                 {
                     me->AI()->Talk(RAND(SAY_CASTING_1, SAY_CASTING_2, SAY_CASTING_3));
                     talk.Repeat(Seconds(24), Minutes(1));
@@ -1247,6 +1244,8 @@ class npc_jaina_theramore : public CreatureScript
                             events.SetPhase(PHASE_BATTLE);
                             if (Creature* waves = me->SummonCreature(NPC_WAVES_INVOKER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
                             {
+                                waves->AI()->SetGUID(playerForQuest->GetGUID(), TYPEID_PLAYER);
+
                                 if (debug)
                                 {
                                     me->Talk("Need to launch waves manually in debug mode with SetData command.", CHAT_MSG_MONSTER_SAY, LANG_UNIVERSAL, 5.f, playerForQuest);

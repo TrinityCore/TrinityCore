@@ -21,9 +21,15 @@ class npc_shaman : public CreatureScript
 
     struct npc_shamanAI : public CustomAI
     {
-        npc_shamanAI(Creature* creature) : CustomAI(creature) { }
+        npc_shamanAI(Creature* creature) : CustomAI(creature)
+        {
+            scheduler.SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
+        }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             scheduler
                 .Schedule(Seconds(1), [this](TaskContext lighting_bolt)
@@ -38,7 +44,7 @@ class npc_shaman : public CreatureScript
                 })
                 .Schedule(Seconds(3), [this](TaskContext hex)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                         DoCast(target, SPELL_HEX);
                     hex.Repeat(Seconds(25), Seconds(30));
                 })
@@ -53,7 +59,7 @@ class npc_shaman : public CreatureScript
                 })
                 .Schedule(Seconds(6), [this](TaskContext healing_totem)
                 {
-                    if (healingTotem = DoSummon(NPC_HEALING_TOTEM, me->GetRandomNearPosition(2.f), 15000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* healingTotem = DoSummon(NPC_HEALING_TOTEM, me->GetRandomNearPosition(2.f), 15000, TEMPSUMMON_TIMED_DESPAWN))
                     {
                         healingTotem->SetFaction(me->GetFaction());
                         healingTotem->CastSpell(healingTotem, SPELL_HEALING);
@@ -61,27 +67,9 @@ class npc_shaman : public CreatureScript
                     }
                     healing_totem.Repeat(Seconds(20), Seconds(30));
                 });
+
+            DoStartNoMovement(who);
         }
-
-        void JustDied(Unit* killer) override
-        {
-            if (healingTotem)
-                healingTotem->DespawnOrUnsummon();
-
-            CustomAI::JustDied(killer);
-        }
-
-        void SpellHitTarget(Unit* /*target*/, SpellInfo const* spellInfo) override
-        {
-            if (spellInfo->Id == SPELL_HEALING_WAVE)
-            {
-                for (ThreatReference* ref : me->GetThreatManager().GetModifiableThreatList())
-                    ref->AddThreat(80);
-            }
-        }
-
-        private:
-        Creature* healingTotem;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

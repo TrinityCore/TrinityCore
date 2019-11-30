@@ -1,120 +1,99 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Custom/AI/CustomAI.h"
 
 enum Spells
 {
     SPELL_DIVINE_STORM          = 100034,
     SPELL_HAMMER_OF_JUSTICE     = 100035,
     SPELL_HAND_OF_RECKONING     = 100036,
-    SPELL_DIVINE_SHIELD         =  67251,
-    SPELL_SACRED_LIGHT          =  68013
+    SPELL_SACRED_LIGHT          = 100071,
+    SPELL_DIVINE_SHIELD         = 100072,
+    SPELL_JUDGMENT_OF_COMMAND   = 100073
 };
 
-enum Casting
+enum Groups
 {
-    CASTING_DIVINE_STORM        = 1,
-    CASTING_HAMMER_OF_JUSTICE,
-    CASTING_HAND_OF_RECKONING,
-    CASTING_SACRED_LIGHT,
+    GROUP_FIGHT
 };
-
-/*
-*       Pas de Heal après shield
-*       Update avec CustomAI
-*/
 
 class npc_paladin : public CreatureScript
 {
     public:
-    npc_paladin() : CreatureScript("npc_paladin") {}
-
-    struct npc_paladinAI : public ScriptedAI
+    npc_paladin() : CreatureScript("npc_paladin")
     {
-        npc_paladinAI(Creature* creature) : ScriptedAI(creature)
+    }
+
+    struct npc_paladinAI : public CustomAI
+    {
+        npc_paladinAI(Creature* creature) : CustomAI(creature), healOnCooldown(false)
         {
-            Initialize();
+            scheduler.SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
         }
 
-        void Initialize()
+        void JustEngagedWith(Unit* who) override
         {
-            handOfProtection = false;
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            events.ScheduleEvent(CASTING_DIVINE_STORM, 5s);
-            events.ScheduleEvent(CASTING_HAMMER_OF_JUSTICE, 8s);
-            events.ScheduleEvent(CASTING_HAND_OF_RECKONING, 1s);
-        }
-
-        void Reset() override
-        {
-            events.Reset();
-            Initialize();
+            scheduler
+                .Schedule(Seconds(5), GROUP_FIGHT, [this](TaskContext divine_storm)
+                {
+                    DoCast(SPELL_DIVINE_STORM);
+                    divine_storm.Repeat(Seconds(18), Seconds(25));
+                })
+                .Schedule(Seconds(8), GROUP_FIGHT, [this](TaskContext divine_storm)
+                {
+                    if (Unit* target = DoSelectCastingUnit(SPELL_HAMMER_OF_JUSTICE, 35.f))
+                    {
+                        DoCast(target, SPELL_HAMMER_OF_JUSTICE);
+                        divine_storm.Repeat(Seconds(24), Seconds(32));
+                    }
+                    else
+                    {
+                        divine_storm.Repeat(Seconds(1));
+                    }
+                })
+                .Schedule(Seconds(13), [this](TaskContext judgment_of_command)
+                {
+                    DoCastVictim(SPELL_JUDGMENT_OF_COMMAND);
+                    judgment_of_command.Repeat(Seconds(18), Seconds(29));
+                })
+                .Schedule(Seconds(5), GROUP_FIGHT, [this](TaskContext divine_storm)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0))
+                        DoCast(target, SPELL_HAND_OF_RECKONING);
+                    divine_storm.Repeat(Seconds(24), Seconds(35));
+                });
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
-            if (!handOfProtection && HealthBelowPct(20))
+            if (!healOnCooldown && HealthBelowPct(20))
             {
-                handOfProtection = true;
+                scheduler.DelayGroup(GROUP_FIGHT, Seconds(5));
 
-                me->SetControlled(true, UNIT_STATE_ROOT);
                 DoCastSelf(SPELL_DIVINE_SHIELD);
-                events.ScheduleEvent(CASTING_SACRED_LIGHT, 5ms);
-            }
-        }
 
-        void UpdateAI(uint32 diff) override
-        {
-            // Combat
-            if (!UpdateVictim())
-                return;
+                healOnCooldown = true;
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case CASTING_DIVINE_STORM:
-                        DoCast(SPELL_DIVINE_STORM);
-                        events.RescheduleEvent(CASTING_DIVINE_STORM, 8s, 18s);
-                        break;
-
-                    case CASTING_HAMMER_OF_JUSTICE:
-                        DoCastVictim(SPELL_HAMMER_OF_JUSTICE);
-                        events.RescheduleEvent(CASTING_HAMMER_OF_JUSTICE, 8s, 18s);
-                        break;
-
-                    case CASTING_HAND_OF_RECKONING:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_HAND_OF_RECKONING);
-                        events.RescheduleEvent(CASTING_HAND_OF_RECKONING, 8s, 18s);
-                        break;
-
-                    case CASTING_SACRED_LIGHT:
+                scheduler
+                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                    {
                         DoCastSelf(SPELL_SACRED_LIGHT);
-                        me->SetControlled(false, UNIT_STATE_ROOT);
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+                    })
+                    .Schedule(Minutes(1), [this](TaskContext /*context*/)
+                    {
+                        healOnCooldown = false;
+                    });
             }
-
-            DoMeleeAttackIfReady();
         }
 
         private:
-        EventMap events;
-        bool handOfProtection;
+        bool healOnCooldown;
     };
 
-    CreatureAI* GetAI(Creature * creature) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_paladinAI(creature);
     }

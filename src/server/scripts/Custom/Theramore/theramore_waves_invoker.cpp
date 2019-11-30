@@ -109,27 +109,22 @@ class KalecgosFlightEvent : public BasicEvent
 class CannonDoorsEvent : public BasicEvent
 {
     public:
-    CannonDoorsEvent(Creature* owner, std::vector<Player*> players) : owner(owner), players(players)
+    CannonDoorsEvent(Creature* owner, Player* playerForQuest) : owner(owner), playerForQuest(playerForQuest)
     {
     }
 
     bool Execute(uint64 eventTime, uint32 /*updateTime*/) override
     {
-        for (Player* player : players)
-        {
-            player->PlayDirectSound(RAND(11564, 11565, 11566, 11567));
-            player->CastSpell(player, 12816);
-        }
-
+        playerForQuest->PlayDirectSound(RAND(11564, 11565, 11566, 11567));
+        playerForQuest->CastSpell(playerForQuest, 12816);
         owner->CastSpell(owner, 71495);
         owner->m_Events.AddEvent(this, eventTime + urand(300, 800));
-
         return false;
     }
 
     private:
     Creature* owner;
-    std::vector<Player*> players;
+    Player* playerForQuest;
 };
 
 class theramore_waves_invoker : public CreatureScript
@@ -150,11 +145,17 @@ class theramore_waves_invoker : public CreatureScript
             wavesInvoker = WAVE_01;
         }
 
+        void SetGUID(ObjectGuid const& guid, int32 id = 0) override
+        {
+            if (id == TYPEID_PLAYER)
+                playerForQuest = ObjectAccessor::GetPlayer(*me, guid);
+        }
+
         void SetData(uint32 id, uint32 value) override
         {
             if (id == EVENT_START_WAR)
             {
-                wavesInvoker = value != 1 ? WAVE_10 : WAVE_01;
+                wavesInvoker = value == 2 ? WAVE_10 : WAVE_01;
 
                 jaina = GetClosestCreatureWithEntry(me, NPC_JAINA_PROUDMOORE, 20.f);
                 thalen = GetClosestCreatureWithEntry(me, NPC_THALEN_SONGWEAVER, 20.f);
@@ -163,13 +164,6 @@ class theramore_waves_invoker : public CreatureScript
 
                 jaina->AI()->Talk(JAINA_SAY_01);
                 jaina->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-
-                Map::PlayerList const& allPlayers = me->GetMap()->GetPlayers();
-                for (Map::PlayerList::const_iterator itr = allPlayers.begin(); itr != allPlayers.end(); ++itr)
-                {
-                    if (Player* player = itr->GetSource()->ToPlayer())
-                        players.push_back(player);
-                }
 
                 events.ScheduleEvent(EVENT_BATTLE_1, 5s);
             }
@@ -196,15 +190,14 @@ class theramore_waves_invoker : public CreatureScript
                         {
                             jaina->AI()->Talk(JAINA_SAY_02);
                             jaina->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
-                            cannon->m_Events.AddEvent(new CannonDoorsEvent(cannon, players), cannon->m_Events.CalculateTime(500));
+                            cannon->m_Events.AddEvent(new CannonDoorsEvent(cannon, playerForQuest), cannon->m_Events.CalculateTime(500));
                         }
                         events.ScheduleEvent(EVENT_BATTLE_2, 8s);
                         break;
 
                     case EVENT_BATTLE_2:
                     {
-                        for (Player* player : players)
-                            player->PlayDirectSound(11563);
+                        playerForQuest->PlayDirectSound(11563);
 
                         if (Creature* barrier = GetClosestCreatureWithEntry(me, NPC_INVISIBLE_STALKER, 20.f))
                         {
@@ -322,9 +315,7 @@ class theramore_waves_invoker : public CreatureScript
                         // Quand le nombre de membres vivants est inférieur ou égal au nom de membres morts
                         if (membersCounter <= deadCounter)
                         {
-                            for (Player* player : players)
-                                player->KilledMonsterCredit(NPC_THERAMORE_WAVES);
-
+                            playerForQuest->KilledMonsterCredit(NPC_THERAMORE_WAVES);
                             events.ScheduleEvent(++wavesInvoker, 2s);
                         }
                         else
@@ -333,8 +324,7 @@ class theramore_waves_invoker : public CreatureScript
                     }
 
                     case WAVE_EXIT:
-                        for (Player* player : players)
-                            player->CompleteQuest(QUEST_PREPARE_FOR_WAR);
+                        playerForQuest->CompleteQuest(QUEST_PREPARE_FOR_WAR);
                         jaina->NearTeleportTo(JainaHomePos);
                         jaina->SetHomePosition(JainaHomePos);
                         jaina->AI()->SetData(EVENT_STOP_KALECGOS, 1U);
@@ -354,16 +344,16 @@ class theramore_waves_invoker : public CreatureScript
         Creature* thalen;
         Creature* amara;
         Creature* kalecgos;
+        Player* playerForQuest;
         ObjectGuid horderMembers[NUMBER_OF_WAVES];
         uint32 waves;
         uint32 wavesInvoker;
-        std::vector<Player*> players;
 
         void HordeMembersInvoker(uint32 waveId, ObjectGuid* hordes)
         {
             for (uint32 i = 0; i < NUMBER_OF_WAVES; ++i)
             {
-                uint32 entry = RAND(NPC_ROK_NAH_GRUNT, NPC_ROK_NAH_SOLDIER, NPC_ROK_NAH_FELCASTER, NPC_ROK_NAH_HAG, NPC_ROK_NAH_LOA_SINGER);
+                uint32 entry = RAND(/*NPC_ROK_NAH_GRUNT, NPC_ROK_NAH_SOLDIER,*/ NPC_ROK_NAH_FELCASTER, /*NPC_ROK_NAH_HAG,*/ NPC_ROK_NAH_LOA_SINGER);
                 Position pos;
 
                 switch (waveId)

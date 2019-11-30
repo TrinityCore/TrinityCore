@@ -3,11 +3,6 @@
 CustomAI::CustomAI(Creature* creature) : ScriptedAI(creature), summons(creature)
 {
     Initialize();
-
-    scheduler.SetValidator([this]
-    {
-        return !me->HasUnitState(UNIT_STATE_CASTING);
-    });
 }
 
 void CustomAI::JustSummoned(Creature* summon)
@@ -22,6 +17,13 @@ void CustomAI::SummonedCreatureDespawn(Creature* summon)
     summons.Despawn(summon);
 
     ScriptedAI::SummonedCreatureDespawn(summon);
+}
+
+void CustomAI::SummonedCreatureDies(Creature* summon, Unit* killer)
+{
+    summons.Despawn(summon);
+
+    ScriptedAI::SummonedCreatureDies(summon, killer);
 }
 
 void CustomAI::EnterEvadeMode(EvadeReason why)
@@ -46,10 +48,6 @@ void CustomAI::Reset()
 
 void CustomAI::JustEngagedWith(Unit* who)
 {
-    events.Reset();
-    summons.DespawnAll();
-    scheduler.CancelAll();
-
     ScriptedAI::JustEngagedWith(who);
 }
 
