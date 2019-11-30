@@ -4421,8 +4421,21 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 
     float speedxy = m_spellInfo->Effects[effIndex].MiscValue / 10.f;
     float speedz = damage / 10.f;
-    // 69070: Rocket Jump
-    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID == 4329);
+
+    bool forward = false;
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_GENERIC)
+    {
+        switch (m_spellInfo->SpellIconID)
+        {
+            case 4329: // Rocket Jump
+            case 5365: // Thermal Jump
+                forward = true;
+                break;
+            default:
+                break;
+        }
+    }
+    unitTarget->JumpTo(speedxy, speedz, forward);
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
