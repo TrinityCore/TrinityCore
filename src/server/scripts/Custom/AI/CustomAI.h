@@ -28,7 +28,6 @@ class TC_GAME_API CustomAI : public ScriptedAI
 
     protected:
         TaskScheduler scheduler;
-        EventMap events;
         SummonList summons;
 };
 

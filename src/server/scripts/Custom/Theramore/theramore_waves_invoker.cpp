@@ -80,9 +80,6 @@ class KalecgosFlightEvent : public BasicEvent
     public:
     KalecgosFlightEvent(Creature* owner) : owner(owner)
     {
-        spellArgs.AddSpellBP0(8599);
-        spellArgs.AddSpellMod(SPELLVALUE_BASE_POINT1, 1699);
-
         spellArgs.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
         spellArgs.SetTriggerFlags(TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS);
@@ -169,7 +166,6 @@ class theramore_waves_invoker : public CreatureScript
             }
         }
 
-        // Faire les IA de la horde en c++
         void Reset() override
         {
             events.Reset();
@@ -353,7 +349,7 @@ class theramore_waves_invoker : public CreatureScript
         {
             for (uint32 i = 0; i < NUMBER_OF_WAVES; ++i)
             {
-                uint32 entry = RAND(/*NPC_ROK_NAH_GRUNT, NPC_ROK_NAH_SOLDIER,*/ NPC_ROK_NAH_FELCASTER, /*NPC_ROK_NAH_HAG,*/ NPC_ROK_NAH_LOA_SINGER);
+                uint32 entry = RAND(NPC_ROK_NAH_GRUNT, NPC_ROK_NAH_SOLDIER, NPC_ROK_NAH_FELCASTER, NPC_ROK_NAH_HAG, NPC_ROK_NAH_LOA_SINGER);
                 Position pos;
 
                 switch (waveId)
@@ -388,7 +384,7 @@ class theramore_waves_invoker : public CreatureScript
 
         void SendJainaWarning(uint8 spawnNumber)
         {
-            uint8 groupId = -1;
+            uint8 groupId;
             Position position;
             switch (spawnNumber)
             {
@@ -398,19 +394,20 @@ class theramore_waves_invoker : public CreatureScript
                     groupId = JAINA_SAY_WAVE_DOORS;
                     break;
 
-                    // Citadelle
+                // Citadelle
                 case WAVE_CITADEL:
                     position = { -3668.74f, -4511.64f, 10.09f, 1.54f };
                     groupId = JAINA_SAY_WAVE_CITADEL;
                     break;
 
-                    // Docks
+                // Docks
                 case WAVE_DOCKS:
                     position = { -3826.84f, -4539.05f, 9.21f };
                     groupId = JAINA_SAY_WAVE_DOCKS;
                     break;
             }
 
+            jaina->CastSpell(jaina, SPELL_TELEPORT);
             jaina->NearTeleportTo(position);
             jaina->SetHomePosition(position);
             jaina->AI()->Talk(JAINA_SAY_WAVE_ALERT);

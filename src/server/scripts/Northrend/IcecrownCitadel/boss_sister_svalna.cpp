@@ -992,7 +992,7 @@ private:
     Creature* FindFriendlyCreature() const
     {
         Creature* target = nullptr;
-        Trinity::MostHPMissingInRange u_check(me, 60.0f, 0);
+        Trinity::MostHPMissingInRange u_check(me, 60.0f, 0, true);
         Trinity::CreatureLastSearcher<Trinity::MostHPMissingInRange> searcher(me, target, u_check);
         Cell::VisitGridObjects(me, searcher, 60.0f);
         return target;

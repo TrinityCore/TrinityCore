@@ -1,11 +1,9 @@
 #include "ScriptMgr.h"
-#include "ObjectAccessor.h"
-#include "Player.h"
-#include "SpellInfo.h"
-#include "MotionMaster.h"
+#include "Unit.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "ScriptedCreature.h"
-#include "CreatureAIImpl.h"
-#include <iostream>
+#include "Custom/AI/CustomAI.h"
 
 enum Spells
 {
@@ -20,36 +18,23 @@ enum Spells
     SPELL_BLINK                 = 57869,
     SPELL_FROT_NOVA             = 71320,
     SPELL_ICE_BARRIER           = 100068,
+    SPELL_FROSTBITE             = 12494,
 
     SPELL_ARCANE_BARRAGE        = 100009,
+    SPELL_ARCANE_BARRAGES       = 100078,
     SPELL_ARCANE_BLAST          = 100010,
-    SPELL_ARCANE_PROJECTILE     = 100011,
-    SPELL_ARCANE_EXPLOSION      = 100012,
+    AURA_ARCANE_BLAST           = 36032,
+    SPELL_ARCANE_PROJECTILE     = 100012,
+    SPELL_ARCANE_EXPLOSION      = 100011,
     SPELL_EVOCATION             = 100014,
     SPELL_PRISMATIC_BARRIER     = 100069,
 
     SPELL_COUNTERSPELL          = 15122
 };
 
-enum Casting
+enum Misc
 {
-    CASTING_FIREBALL = 1,
-    CASTING_FIREBLAST,
-    CASTING_PYROBLAST,
-
-    CASTING_FROSTBOLT,
-    CASTING_ICE_LANCE,
-    CASTING_ICE_BLOCK,
-    CASTING_BLINK,
-
-    CASTING_ARCANE_BARRAGE,
-    CASTING_ARCANE_BLAST,
-    CASTING_ARCANE_PROJECTILE,
-    CASTING_ARCANE_EXPLOSION,
-    CASTING_EVOCATION,
-
-    CASTING_COUNTERSPELL,
-    CASTING_BARRIER
+    NPC_RHONIN                  = 100005
 };
 
 class npc_archmage_fire : public CreatureScript
@@ -57,21 +42,46 @@ class npc_archmage_fire : public CreatureScript
     public:
     npc_archmage_fire() : CreatureScript("npc_archmage_fire") {}
 
-    struct npc_archmage_fireAI : public ScriptedAI
+    struct npc_archmage_fireAI : public CustomAI
     {
-        npc_archmage_fireAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_archmage_fireAI(Creature* creature) : CustomAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(CASTING_FIREBALL, .5f);
-            events.ScheduleEvent(CASTING_COUNTERSPELL, .5f);
-            events.ScheduleEvent(CASTING_FIREBLAST, 8s, 14s);
-            events.ScheduleEvent(CASTING_PYROBLAST, 12s, 24s);
-        }
-
-        void Reset() override
-        {
-            events.Reset();
+            scheduler
+                .Schedule(5ms, [this](TaskContext fireball)
+                {
+                    DoCastVictim(SPELL_FIREBALL);
+                    fireball.Repeat(2s);
+                })
+                .Schedule(5ms, [this](TaskContext counterspell)
+                {
+                    if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(target, SPELL_COUNTERSPELL);
+                        counterspell.Repeat(25s, 40s);
+                    }
+                    else
+                    {
+                        counterspell.Repeat(1s);
+                    }
+                })
+                .Schedule(8s, [this](TaskContext fireblast)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_FIREBLAST);
+                    fireblast.Repeat(14s, 22s);
+                })
+                .Schedule(12s, [this](TaskContext pyroblast)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0))
+                        DoCast(target, SPELL_PYROBLAST);
+                    pyroblast.Repeat(22s, 35s);
+                });
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -86,62 +96,6 @@ class npc_archmage_fire : public CreatureScript
                     damage = 0;
             }
         }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // Combat
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case CASTING_FIREBALL:
-                        DoCastVictim(SPELL_FIREBALL);
-                        events.RescheduleEvent(CASTING_FIREBALL, 3s, 8s);
-                        break;
-
-                    case CASTING_FIREBLAST:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_FIREBLAST);
-                        events.RescheduleEvent(CASTING_FIREBLAST, 14s, 22s);
-                        break;
-
-                    case CASTING_PYROBLAST:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0))
-                            DoCast(target, SPELL_PYROBLAST);
-                        events.RescheduleEvent(CASTING_PYROBLAST, 22s, 35s);
-                        break;
-
-                    case CASTING_COUNTERSPELL:
-                        if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
-                        {
-                            me->InterruptNonMeleeSpells(true);
-                            DoCast(target, SPELL_COUNTERSPELL);
-                            events.RescheduleEvent(CASTING_COUNTERSPELL, 25s, 40s);
-                        }
-                        else
-                        {
-                            events.RescheduleEvent(CASTING_COUNTERSPELL, 1s);
-                        }
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        private:
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -155,26 +109,111 @@ class npc_archmage_arcanes : public CreatureScript
     public:
     npc_archmage_arcanes() : CreatureScript("npc_archmage_arcanes") {}
 
-    struct npc_archmage_arcanesAI : public ScriptedAI
+    struct npc_archmage_arcanesAI : public CustomAI
     {
-        npc_archmage_arcanesAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_archmage_arcanesAI(Creature* creature) : CustomAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            DoCast(SPELL_PRISMATIC_BARRIER);
+            if (me->GetEntry() != NPC_RHONIN)
+            {
+                DoCast(SPELL_PRISMATIC_BARRIER);
 
-            events.ScheduleEvent(CASTING_ARCANE_BLAST, .5f);
-            events.ScheduleEvent(CASTING_EVOCATION, .5f);
-            events.ScheduleEvent(CASTING_COUNTERSPELL, .5f);
-            events.ScheduleEvent(CASTING_BARRIER, 30s);
-            events.ScheduleEvent(CASTING_ARCANE_PROJECTILE, 2s);
-            events.ScheduleEvent(CASTING_ARCANE_BARRAGE, 3s);
-            events.ScheduleEvent(CASTING_ARCANE_EXPLOSION, 8s);
-        }
+                scheduler
+                    .Schedule(30s, [this](TaskContext prismatic_barrier)
+                    {
+                        if (!me->HasAura(SPELL_PRISMATIC_BARRIER))
+                        {
+                            DoCast(SPELL_PRISMATIC_BARRIER);
+                            prismatic_barrier.Repeat(30s);
+                        }
+                        else
+                        {
+                            prismatic_barrier.Repeat(1s);
+                        }
+                    })
+                    .Schedule(15s, [this](TaskContext arcane_projectile)
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCastVictim(SPELL_ARCANE_PROJECTILE);
+                        arcane_projectile.Repeat(28s, 40s);
+                    });
+            }
 
-        void Reset() override
-        {
-            events.Reset();
+            scheduler
+                .Schedule(5ms, [this](TaskContext arcane_blast)
+                {
+                    if (Aura* aura = me->GetAura(AURA_ARCANE_BLAST))
+                    {
+                        if (aura->GetStackAmount() <= 3)
+                            DoCastVictim(SPELL_ARCANE_BLAST);
+                    }
+                    else
+                    {
+                        DoCastVictim(SPELL_ARCANE_BLAST);
+                    }
+
+                    arcane_blast.Repeat(500ms);
+                })
+                .Schedule(5ms, [this](TaskContext evocation)
+                {
+                    float manaPct = me->GetPower(POWER_MANA) * 100 / me->GetMaxPower(POWER_MANA);
+                    if (manaPct <= 20)
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        if (me->GetEntry() == NPC_RHONIN)
+                        {
+                            CastSpellExtraArgs args;
+                            const SpellInfo* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_EVOCATION);
+                            args.AddSpellBP0(spellInfo->Effects[EFFECT_0].BasePoints * 10);
+                            DoCastSelf(SPELL_EVOCATION, args);
+                        }
+                        else
+                        {
+                            DoCastSelf(SPELL_EVOCATION);
+                        }
+
+                        evocation.Repeat(2min);
+                    }
+                    else
+                    {
+                        evocation.Repeat(5s);
+                    }
+                })
+                .Schedule(5ms, [this](TaskContext counterspell)
+                {
+                    if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(target, SPELL_COUNTERSPELL);
+                        counterspell.Repeat(25s, 40s);
+                    }
+                    else
+                    {
+                        counterspell.Repeat(1s);
+                    }
+                })
+                .Schedule(3s, [this](TaskContext arcane_barrage)
+                {
+                    if (Aura* aura = me->GetAura(AURA_ARCANE_BLAST))
+                    {
+                        if (aura->GetStackAmount() >= 4)
+                        {
+                            me->InterruptNonMeleeSpells(true);
+                            DoCastVictim(SPELL_ARCANE_BARRAGE);
+                        }
+                    }
+
+                    arcane_barrage.Repeat(500ms);
+                })
+                .Schedule(1min, [this](TaskContext arcane_explosion)
+                {
+                    DoCastAOE(SPELL_ARCANE_EXPLOSION);
+                    arcane_explosion.Repeat(1min, 2min);
+                });
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -189,89 +228,6 @@ class npc_archmage_arcanes : public CreatureScript
                     damage = 0;
             }
         }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // Combat
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case CASTING_ARCANE_BLAST:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ARCANE_BLAST);
-                        events.RescheduleEvent(CASTING_ARCANE_BLAST, 3s, 8s);
-                        break;
-
-                    case CASTING_ARCANE_PROJECTILE:
-                        DoCastVictim(SPELL_ARCANE_PROJECTILE);
-                        events.RescheduleEvent(CASTING_ARCANE_PROJECTILE, 8s, 14s);
-                        break;
-
-                    case CASTING_ARCANE_EXPLOSION:
-                        DoCast(SPELL_ARCANE_EXPLOSION);
-                        events.RescheduleEvent(CASTING_ARCANE_EXPLOSION, 14s, 24s);
-                        break;
-
-                    case CASTING_ARCANE_BARRAGE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ARCANE_BARRAGE);
-                        events.RescheduleEvent(CASTING_ARCANE_BARRAGE, 28s, 32s);
-                        break;
-
-                    case CASTING_BARRIER:
-                        if (!me->HasAura(SPELL_PRISMATIC_BARRIER))
-                        {
-                            DoCast(SPELL_PRISMATIC_BARRIER);
-                            events.RescheduleEvent(CASTING_BARRIER, 30s);
-                            break;
-                        }
-                        events.RescheduleEvent(CASTING_BARRIER, 1s);
-                        break;
-
-                    case CASTING_EVOCATION:
-                    {
-                        float manaPct = me->GetPower(POWER_MANA) * 100 / me->GetMaxPower(POWER_MANA);
-                        if (manaPct <= 20)
-                        {
-                            me->InterruptNonMeleeSpells(true);
-                            DoCast(SPELL_EVOCATION);
-                            events.RescheduleEvent(CASTING_EVOCATION, 2min);
-                        }
-                        events.RescheduleEvent(CASTING_EVOCATION, 5s);
-                        break;
-                    }
-
-                    case CASTING_COUNTERSPELL:
-                    {
-                        if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
-                        {
-                            me->InterruptNonMeleeSpells(true);
-                            DoCast(target, SPELL_COUNTERSPELL);
-                            events.RescheduleEvent(CASTING_COUNTERSPELL, 25s, 40s);
-                        }
-                        else
-                        {
-                            events.RescheduleEvent(CASTING_COUNTERSPELL, 1s);
-                        }
-                        break;
-                    }
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        private:
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -280,33 +236,72 @@ class npc_archmage_arcanes : public CreatureScript
     }
 };
 
-/*
-*       Vérifier au niveau du timing IB / Nova / blink
-*       Update avec CustomAI
-*/
-
 class npc_archmage_frost : public CreatureScript
 {
     public:
     npc_archmage_frost() : CreatureScript("npc_archmage_frost") {}
 
-    struct npc_archmage_frostAI : public ScriptedAI
+    struct npc_archmage_frostAI : public CustomAI
     {
-        npc_archmage_frostAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_archmage_frostAI(Creature* creature) : CustomAI(creature)
+        {
+            SetCombatMovement(false);
+        }
+
+        void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_FROST && roll_chance_i(30))
+                DoCast(target, SPELL_FROSTBITE);
+        }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(SPELL_ICE_BARRIER);
 
-            events.ScheduleEvent(CASTING_FROSTBOLT, .5f);
-            events.ScheduleEvent(CASTING_COUNTERSPELL, .5f);
-            events.ScheduleEvent(CASTING_BARRIER, 30s);
-            events.ScheduleEvent(CASTING_ICE_LANCE, 8s, 14s);
+            scheduler
+                .Schedule(5ms, [this](TaskContext frostbotl)
+                {
+                    DoCastVictim(SPELL_FROSTBOLT);
+                    frostbotl.Repeat(2s);
+                })
+                .Schedule(5ms, [this](TaskContext counterspell)
+                {
+                    if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(target, SPELL_COUNTERSPELL);
+                        counterspell.Repeat(20s, 45s);
+                    }
+                    else
+                    {
+                        counterspell.Repeat(1s);
+                    }
+                })
+                .Schedule(3s, [this](TaskContext ice_lance)
+                {
+                    me->InterruptNonMeleeSpells(false);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_ICE_LANCE);
+                    ice_lance.Repeat(8s, 14s);
+                })
+                .Schedule(30s, [this](TaskContext ice_barrier)
+                {
+                    if (!me->HasAura(SPELL_ICE_BARRIER))
+                    {
+                        DoCast(SPELL_ICE_BARRIER);
+                        ice_barrier.Repeat(30s);
+                    }
+                    else
+                    {
+                        ice_barrier.Repeat(1s);
+                    }
+                });
         }
 
         void Reset() override
         {
-            events.Reset();
+            CustomAI::Reset();
+
             me->RemoveAurasDueToSpell(SPELL_HYPOTHERMIA);
         }
 
@@ -315,9 +310,19 @@ class npc_archmage_frost : public CreatureScript
             if (!me->HasAura(SPELL_HYPOTHERMIA) && HealthBelowPct(30))
             {
                 me->InterruptNonMeleeSpells(false);
+
                 DoCastSelf(SPELL_ICE_BLOCK);
                 DoCastSelf(SPELL_HYPOTHERMIA);
-                events.ScheduleEvent(CASTING_BLINK, 6s);
+
+                scheduler
+                    .Schedule(6s, [this](TaskContext /*context*/)
+                    {
+                        DoCast(SPELL_FROT_NOVA);
+                    })
+                    .Schedule(7s, [this](TaskContext /*context*/)
+                    {
+                        DoCast(SPELL_BLINK);
+                    });
             }
 
             // Que pour la bataille de Theramore
@@ -330,76 +335,6 @@ class npc_archmage_frost : public CreatureScript
                     damage = 0;
             }
         }
-
-        void UpdateAI(uint32 diff) override
-        {
-            // Combat
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    // Frost
-                    case CASTING_FROSTBOLT:
-                        DoCastVictim(SPELL_FROSTBOLT);
-                        events.RescheduleEvent(CASTING_FROSTBOLT, 5s, 8s);
-                        break;
-
-                    case CASTING_ICE_LANCE:
-                        me->InterruptNonMeleeSpells(false);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ICE_LANCE);
-                        events.RescheduleEvent(CASTING_ICE_LANCE, 8s, 9s);
-                        break;
-
-                    case CASTING_BLINK:
-                        me->InterruptNonMeleeSpells(false);
-                        DoCast(SPELL_FROT_NOVA);
-                        DoCast(SPELL_BLINK);
-                        break;
-
-                    case CASTING_BARRIER:
-                        if (!me->HasAura(SPELL_ICE_BARRIER))
-                        {
-                            DoCast(SPELL_ICE_BARRIER);
-                            events.RescheduleEvent(CASTING_BARRIER, 30s);
-                            break;
-                        }
-                        events.RescheduleEvent(CASTING_BARRIER, 1s);
-                        break;
-
-                    case CASTING_COUNTERSPELL:
-                    {
-                        if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
-                        {
-                            me->InterruptNonMeleeSpells(true);
-                            DoCast(target, SPELL_COUNTERSPELL);
-                            events.RescheduleEvent(CASTING_COUNTERSPELL, 25s, 40s);
-                        }
-                        else
-                        {
-                            events.RescheduleEvent(CASTING_COUNTERSPELL, 1s);
-                        }
-                        break;
-                    }
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        private:
-        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

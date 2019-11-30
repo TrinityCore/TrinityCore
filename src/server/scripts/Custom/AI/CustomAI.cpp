@@ -28,7 +28,6 @@ void CustomAI::SummonedCreatureDies(Creature* summon, Unit* killer)
 
 void CustomAI::EnterEvadeMode(EvadeReason why)
 {
-    events.Reset();
     summons.DespawnAll();
     scheduler.CancelAll();
 
@@ -39,7 +38,6 @@ void CustomAI::Reset()
 {
     Initialize();
 
-    events.Reset();
     summons.DespawnAll();
     scheduler.CancelAll();
 
@@ -53,7 +51,6 @@ void CustomAI::JustEngagedWith(Unit* who)
 
 void CustomAI::JustDied(Unit* killer)
 {
-    events.Reset();
     summons.DespawnAll();
     scheduler.CancelAll();
 

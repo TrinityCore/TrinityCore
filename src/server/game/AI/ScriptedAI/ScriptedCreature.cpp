@@ -416,7 +416,17 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
 Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 minHPDiff)
 {
     Unit* unit = nullptr;
-    Trinity::MostHPMissingInRange u_check(me, range, minHPDiff);
+    Trinity::MostHPMissingInRange u_check(me, range, minHPDiff, true);
+    Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(me, unit, u_check);
+    Cell::VisitAllObjects(me, searcher, range);
+
+    return unit;
+}
+
+Unit* ScriptedAI::DoSelectLowestHpEnemy(float range, uint32 minHPDiff)
+{
+    Unit* unit = nullptr;
+    Trinity::MostHPMissingInRange u_check(me, range, minHPDiff, false);
     Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(me, unit, u_check);
     Cell::VisitAllObjects(me, searcher, range);
 
@@ -428,6 +438,16 @@ Unit* ScriptedAI::DoSelectBelowHpPctFriendlyWithEntry(uint32 entry, float range,
     Unit* unit = nullptr;
     Trinity::FriendlyBelowHpPctEntryInRange u_check(me, entry, range, minHPDiff, excludeSelf);
     Trinity::UnitLastSearcher<Trinity::FriendlyBelowHpPctEntryInRange> searcher(me, unit, u_check);
+    Cell::VisitAllObjects(me, searcher, range);
+
+    return unit;
+}
+
+Unit* ScriptedAI::DoSelectBelowHpPctFriendly(float range, uint8 pct, bool excludeSelf)
+{
+    Unit* unit = nullptr;
+    Trinity::FriendlyBelowHpPctInRange u_check(me, range, pct, excludeSelf);
+    Trinity::UnitLastSearcher<Trinity::FriendlyBelowHpPctInRange> searcher(me, unit, u_check);
     Cell::VisitAllObjects(me, searcher, range);
 
     return unit;
@@ -461,6 +481,16 @@ std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 u
     Cell::VisitAllObjects(me, searcher, range);
 
     return list;
+}
+
+Unit* ScriptedAI::DoFindEnemyMissingDot(float range, SpellInfo const* spellInfo)
+{
+    Unit* unit = nullptr;
+    Trinity::EnemyMissingDotInRange u_check(me, spellInfo);
+    Trinity::UnitLastSearcher<Trinity::EnemyMissingDotInRange> searcher(me, unit, u_check);
+    Cell::VisitAllObjects(me, searcher, range);
+
+    return unit;
 }
 
 Player* ScriptedAI::GetPlayerAtMinimumRange(float minimumRange)

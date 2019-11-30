@@ -379,24 +379,24 @@ class npc_jaina_theramore : public CreatureScript
         void JustEngagedWith(Unit* who) override
         {
             scheduler
-                .Schedule(Seconds(1), [this](TaskContext fireball)
+                .Schedule(5ms, [this](TaskContext fireball)
                 {
                     DoCastVictim(SPELL_FIREBALL);
-                    fireball.Repeat(Seconds(2));
+                    fireball.Repeat(2s);
                 })
-                .Schedule(Seconds(14), [this](TaskContext blizzard)
+                .Schedule(8s, [this](TaskContext talk)
+                {
+                    me->AI()->Talk(RAND(SAY_CASTING_1, SAY_CASTING_2, SAY_CASTING_3));
+                    talk.Repeat(24s, 1min);
+                })
+                .Schedule(14s, [this](TaskContext blizzard)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         me->AI()->Talk(RAND(SAY_BLIZZARD_1, SAY_BLIZZARD_2));
                         DoCast(target, SPELL_BLIZZARD);
                     }
-                    blizzard.Repeat(Seconds(6), Seconds(15));
-                })
-                .Schedule(Seconds(8), [this](TaskContext talk)
-                {
-                    me->AI()->Talk(RAND(SAY_CASTING_1, SAY_CASTING_2, SAY_CASTING_3));
-                    talk.Repeat(Seconds(24), Minutes(1));
+                    blizzard.Repeat(6s, 15s);
                 });
 
             DoStartNoMovement(who);

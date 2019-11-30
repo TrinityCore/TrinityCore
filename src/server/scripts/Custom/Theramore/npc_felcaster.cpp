@@ -14,7 +14,8 @@ enum Spells
     SPELL_HAUNT                 = 100075,
     SPELL_HAUNT_HEAL            = 100076,
     SPELL_CURSE_OF_AGONY        = 100077,
-    SPELL_DRAIN_OF_LIFE         = 69066
+    SPELL_DRAIN_OF_LIFE         = 69066,
+    SPELL_DEMON_ARMOR           = 47889
 };
 
 enum Pets
@@ -36,10 +37,22 @@ class npc_felcaster : public CreatureScript
     {
         npc_felcasterAI(Creature* creature) : CustomAI(creature), healOnCooldown(false)
         {
+            SetCombatMovement(false);
+
+            corruptionInfo = sSpellMgr->AssertSpellInfo(SPELL_CORRUPTION);
+            curseOfAgonyInfo = sSpellMgr->AssertSpellInfo(SPELL_CURSE_OF_AGONY);
+
             scheduler.SetValidator([this]
             {
                 return !me->HasUnitState(UNIT_STATE_CASTING);
             });
+        }
+
+        void Reset() override
+        {
+            CustomAI::Reset();
+
+            DoCastSelf(SPELL_DEMON_ARMOR);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -48,11 +61,12 @@ class npc_felcaster : public CreatureScript
             {
                 me->InterruptNonMeleeSpells(true);
 
-                DoCastVictim(SPELL_DRAIN_OF_LIFE);
+                if (Unit* target = DoSelectLowestHpEnemy(30.0f))
+                    DoCast(target, SPELL_DRAIN_OF_LIFE);
 
                 healOnCooldown = true;
 
-                scheduler.Schedule(Minutes(1), [this](TaskContext /*context*/)
+                scheduler.Schedule(1min, [this](TaskContext /*context*/)
                 {
                     healOnCooldown = false;
                 });
@@ -70,66 +84,41 @@ class npc_felcaster : public CreatureScript
             }
 
             scheduler
-                .Schedule(Seconds(12), [this](TaskContext shadow_bolt)
+                .Schedule(5ms, [this](TaskContext shadow_bolt)
                 {
                     DoCastVictim(SPELL_SHADOW_BOLT);
-                    shadow_bolt.Repeat(Seconds(3));
+                    shadow_bolt.Repeat(3s);
                 })
-                .Schedule(Seconds(8), [this](TaskContext fel_fireball)
+                .Schedule(8s, [this](TaskContext fel_fireball)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_FEL_FIREBALL);
-                    fel_fireball.Repeat(Seconds(8), Seconds(13));
+                    fel_fireball.Repeat(8s, 13s);
                 })
-                .Schedule(Seconds(2), [this](TaskContext curse_of_agony)
+                .Schedule(5ms, [this](TaskContext curse_of_agony)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    {
-                        if (!target->HasAura(SPELL_CURSE_OF_AGONY))
-                        {
-                            DoCast(target, SPELL_CURSE_OF_AGONY);
-                            curse_of_agony.Repeat(Seconds(15), Seconds(28));
-                        }
-                        else
-                        {
-                            curse_of_agony.Repeat(Seconds(5));
-                        }
-                    }
+                    if (Unit* target = DoFindEnemyMissingDot(50.0f, curseOfAgonyInfo))
+                        DoCast(target, SPELL_CURSE_OF_AGONY);
+                    curse_of_agony.Repeat(1s);
                 })
-                .Schedule(Seconds(3), [this](TaskContext corruption)
+                .Schedule(5ms, [this](TaskContext corruption)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = DoFindEnemyMissingDot(50.0f, corruptionInfo))
                         DoCast(target, SPELL_CORRUPTION);
-                    corruption.Repeat(Seconds(18), Seconds(24));
+                    corruption.Repeat(1s);
                 })
-                .Schedule(Seconds(5), [this](TaskContext haunt)
+                .Schedule(5s, [this](TaskContext haunt)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = DoSelectLowestHpEnemy(30.0f))
                         DoCast(target, SPELL_HAUNT);
-                    haunt.Repeat(Seconds(20), Seconds(30));
+                    haunt.Repeat(20s, 30s);
                 });
-
-            DoStartNoMovement(who);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            ScriptedAI::UpdateAI(diff);
-
-            if (!UpdateVictim())
-                return;
-
-            scheduler.Update(diff, [this]
-            {
-                if (me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    DoMeleeAttackIfReady();
-                }
-            });
         }
 
         private:
         bool healOnCooldown;
+        const SpellInfo* corruptionInfo;
+        const SpellInfo* curseOfAgonyInfo;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

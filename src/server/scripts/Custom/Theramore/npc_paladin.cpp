@@ -37,33 +37,33 @@ class npc_paladin : public CreatureScript
         void JustEngagedWith(Unit* who) override
         {
             scheduler
-                .Schedule(Seconds(5), GROUP_FIGHT, [this](TaskContext divine_storm)
+                .Schedule(5s, GROUP_FIGHT, [this](TaskContext divine_storm)
                 {
                     DoCast(SPELL_DIVINE_STORM);
-                    divine_storm.Repeat(Seconds(18), Seconds(25));
+                    divine_storm.Repeat(18s, 25s);
                 })
-                .Schedule(Seconds(8), GROUP_FIGHT, [this](TaskContext divine_storm)
+                .Schedule(8s, GROUP_FIGHT, [this](TaskContext divine_storm)
                 {
                     if (Unit* target = DoSelectCastingUnit(SPELL_HAMMER_OF_JUSTICE, 35.f))
                     {
                         DoCast(target, SPELL_HAMMER_OF_JUSTICE);
-                        divine_storm.Repeat(Seconds(24), Seconds(32));
+                        divine_storm.Repeat(24s, 32s);
                     }
                     else
                     {
-                        divine_storm.Repeat(Seconds(1));
+                        divine_storm.Repeat(1s);
                     }
                 })
-                .Schedule(Seconds(13), [this](TaskContext judgment_of_command)
+                .Schedule(13s, [this](TaskContext judgment_of_command)
                 {
                     DoCastVictim(SPELL_JUDGMENT_OF_COMMAND);
-                    judgment_of_command.Repeat(Seconds(18), Seconds(29));
+                    judgment_of_command.Repeat(18s, 29s);
                 })
-                .Schedule(Seconds(5), GROUP_FIGHT, [this](TaskContext divine_storm)
+                .Schedule(5s, GROUP_FIGHT, [this](TaskContext divine_storm)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0))
                         DoCast(target, SPELL_HAND_OF_RECKONING);
-                    divine_storm.Repeat(Seconds(24), Seconds(35));
+                    divine_storm.Repeat(24s, 35s);
                 });
         }
 
@@ -71,18 +71,18 @@ class npc_paladin : public CreatureScript
         {
             if (!healOnCooldown && HealthBelowPct(20))
             {
-                scheduler.DelayGroup(GROUP_FIGHT, Seconds(5));
+                scheduler.DelayGroup(GROUP_FIGHT, 5s);
 
                 DoCastSelf(SPELL_DIVINE_SHIELD);
 
                 healOnCooldown = true;
 
                 scheduler
-                    .Schedule(Seconds(1), [this](TaskContext /*context*/)
+                    .Schedule(1s, [this](TaskContext /*context*/)
                     {
                         DoCastSelf(SPELL_SACRED_LIGHT);
                     })
-                    .Schedule(Minutes(1), [this](TaskContext /*context*/)
+                    .Schedule(1min, [this](TaskContext /*context*/)
                     {
                         healOnCooldown = false;
                     });

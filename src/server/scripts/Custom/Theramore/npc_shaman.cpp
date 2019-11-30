@@ -23,6 +23,8 @@ class npc_shaman : public CreatureScript
     {
         npc_shamanAI(Creature* creature) : CustomAI(creature)
         {
+            SetCombatMovement(false);
+
             scheduler.SetValidator([this]
             {
                 return !me->HasUnitState(UNIT_STATE_CASTING);
@@ -32,32 +34,32 @@ class npc_shaman : public CreatureScript
         void JustEngagedWith(Unit* who) override
         {
             scheduler
-                .Schedule(Seconds(1), [this](TaskContext lighting_bolt)
+                .Schedule(5ms, [this](TaskContext lighting_bolt)
                 {
                     DoCastVictim(SPELL_LIGHTNING_BOLT);
-                    lighting_bolt.Repeat(Seconds(10), Seconds(15));
+                    lighting_bolt.Repeat(10s, 15s);
                 })
-                .Schedule(Seconds(12), [this](TaskContext lightning_chain)
+                .Schedule(12s, [this](TaskContext lightning_chain)
                 {
                     DoCastVictim(SPELL_LIGHTNING_CHAIN);
-                    lightning_chain.Repeat(Seconds(14), Seconds(25));
+                    lightning_chain.Repeat(14s, 25s);
                 })
-                .Schedule(Seconds(3), [this](TaskContext hex)
+                .Schedule(3s, [this](TaskContext hex)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                         DoCast(target, SPELL_HEX);
-                    hex.Repeat(Seconds(25), Seconds(30));
+                    hex.Repeat(25s, 30s);
                 })
-                .Schedule(Seconds(3), [this](TaskContext healing_wave)
+                .Schedule(3s, [this](TaskContext healing_wave)
                 {
                     if (Unit * target = DoSelectLowestHpFriendly(40.0f))
                     {
                         me->InterruptNonMeleeSpells(true);
                         DoCast(target, SPELL_HEALING_WAVE);
                     }
-                    healing_wave.Repeat(Seconds(8));
+                    healing_wave.Repeat(8s);
                 })
-                .Schedule(Seconds(6), [this](TaskContext healing_totem)
+                .Schedule(6s, [this](TaskContext healing_totem)
                 {
                     if (Creature* healingTotem = DoSummon(NPC_HEALING_TOTEM, me->GetRandomNearPosition(2.f), 15000, TEMPSUMMON_TIMED_DESPAWN))
                     {
@@ -65,10 +67,8 @@ class npc_shaman : public CreatureScript
                         healingTotem->CastSpell(healingTotem, SPELL_HEALING);
                         healingTotem->SetReactState(REACT_PASSIVE);
                     }
-                    healing_totem.Repeat(Seconds(20), Seconds(30));
+                    healing_totem.Repeat(20s, 30s);
                 });
-
-            DoStartNoMovement(who);
         }
     };
 

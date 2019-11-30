@@ -3754,7 +3754,7 @@ Unit* SmartScript::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff) const
         return nullptr;
 
     Unit* unit = nullptr;
-    Trinity::MostHPMissingInRange u_check(me, range, MinHPDiff);
+    Trinity::MostHPMissingInRange u_check(me, range, MinHPDiff, true);
     Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(me, unit, u_check);
     Cell::VisitGridObjects(me, searcher, range);
     return unit;

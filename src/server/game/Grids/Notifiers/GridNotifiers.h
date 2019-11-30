@@ -787,11 +787,12 @@ namespace Trinity
     class MostHPMissingInRange
     {
         public:
-            MostHPMissingInRange(Unit const* obj, float range, uint32 hp) : i_obj(obj), i_range(range), i_hp(hp) { }
+            MostHPMissingInRange(Unit const* obj, float range, uint32 hp, bool friendly) : i_obj(obj), i_range(range), i_hp(hp), i_friendly(friendly){ }
 
             bool operator()(Unit* u)
             {
-                if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
+                bool friendly = i_friendly ? !i_obj->IsHostileTo(u) : i_obj->IsHostileTo(u);
+                if (u->IsAlive() && u->IsInCombat() && friendly && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
                 {
                     i_hp = u->GetMaxHealth() - u->GetHealth();
                     return true;
@@ -803,6 +804,7 @@ namespace Trinity
             Unit const* i_obj;
             float i_range;
             uint32 i_hp;
+            bool i_friendly;
     };
 
     class CastingUnitInRange
@@ -847,6 +849,29 @@ namespace Trinity
             bool i_excludeSelf;
     };
 
+    class FriendlyBelowHpPctInRange
+    {
+        public:
+        FriendlyBelowHpPctInRange(Unit const* obj, float range, uint8 pct, bool excludeSelf) : i_obj(obj), i_range(range), i_pct(pct), i_excludeSelf(excludeSelf)
+        {
+        }
+
+        bool operator()(Unit* u)
+        {
+            if (i_excludeSelf && i_obj->GetGUID() == u->GetGUID())
+                return false;
+            if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->HealthBelowPct(i_pct))
+                return true;
+            return false;
+        }
+
+        private:
+        Unit const* i_obj;
+        float i_range;
+        uint8 i_pct;
+        bool i_excludeSelf;
+    };
+
     class FriendlyCCedInRange
     {
         public:
@@ -884,6 +909,24 @@ namespace Trinity
             Unit const* i_obj;
             float i_range;
             uint32 i_spell;
+    };
+
+    class EnemyMissingDotInRange
+    {
+        public:
+            EnemyMissingDotInRange(Unit const* obj, SpellInfo const* spellInfo) : i_obj(obj), i_spellInfo(spellInfo) { }
+
+            bool operator()(Unit* u) const
+            {
+                if (u->IsAlive() && u->IsInCombat() && i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_spellInfo->GetMaxRange()) && !u->HasAura(i_spellInfo->Id))
+                    return true;
+
+                return false;
+            }
+
+        private:
+            Unit const* i_obj;
+            SpellInfo const* i_spellInfo;
     };
 
     class AnyUnfriendlyUnitInObjectRangeCheck
@@ -1396,6 +1439,29 @@ namespace Trinity
 
         private:
             Unit const* unit;
+    };
+
+    class AllFriendlyInRange
+    {
+        public:
+            AllFriendlyInRange(Unit const* obj, float range) : unit(obj), range(range){ }
+
+            bool operator()(Unit* u) const
+            {
+                if (u->GetTypeId() == TYPEID_PLAYER)
+                    return true;
+
+                if (u->IsAlive() && u->IsVisible() && u->IsFriendlyTo(unit) && u->IsWithinDistInMap(u, range))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+        private:
+            Unit const* unit;
+            float range;
     };
 
     class AllGameObjectsWithEntryInRange
