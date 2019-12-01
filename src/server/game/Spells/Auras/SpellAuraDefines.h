@@ -355,7 +355,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_BASE_HEALTH_PCT                          = 282,
     SPELL_AURA_MOD_HEALING_RECEIVED                         = 283,  // Possibly only for some spell family class spells
     SPELL_AURA_LINKED                                       = 284,
-    SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR                    = 285,
+    SPELL_AURA_LINKED_2                                     = 285,
     SPELL_AURA_ABILITY_PERIODIC_CRIT                        = 286,
     SPELL_AURA_DEFLECT_SPELLS                               = 287,
     SPELL_AURA_IGNORE_HIT_DIRECTION                         = 288,
@@ -395,7 +395,7 @@ enum AuraType : uint32
     SPELL_AURA_INTERFERE_TARGETTING                         = 322,
     SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
     SPELL_AURA_324                                          = 324,  // spell critical chance (probably by school mask)
-    SPELL_AURA_325                                          = 325,  // Not used in 4.3.4
+    SPELL_AURA_LEARN_PVP_TALENT                             = 325,  // NYI
     SPELL_AURA_PHASE_GROUP                                  = 326,  // Puts the player in all the phases that are in the group with id = miscB
     SPELL_AURA_327                                          = 327,  // Not used in 4.3.4
     SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT                   = 328,  // NYI Triggers spell when power goes above (MiscB = 0) or falls below (MiscB = 1) specified percent value (once, not every time condition has meet)
