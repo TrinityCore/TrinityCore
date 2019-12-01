@@ -1173,6 +1173,33 @@ class spell_warr_devastate : public SpellScript
     }
 };
 
+class spell_warr_whirlwind : public SpellScript
+{
+    PrepareSpellScript(spell_warr_whirlwind);
+
+    void CountTargets(SpellEffIndex /*effIndex*/)
+    {
+        _hitTargets++;
+    }
+
+    void HandleCooldownReduction()
+    {
+        Unit* caster = GetCaster();
+        if (!caster || _hitTargets < 4)
+            return;
+
+        caster->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, ((GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster) * IN_MILLISECONDS) * -1));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_whirlwind::CountTargets, EFFECT_0, SPELL_EFFECT_NORMALIZED_WEAPON_DMG);
+        AfterCast += SpellCastFn(spell_warr_whirlwind::HandleCooldownReduction);
+    }
+private:
+    uint8 _hitTargets = 0;
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterAuraScript(spell_warr_blood_craze);
@@ -1205,4 +1232,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_victory_rush);
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
+    RegisterSpellScript(spell_warr_whirlwind);
 }
