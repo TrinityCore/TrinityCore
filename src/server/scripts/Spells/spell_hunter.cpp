@@ -1241,42 +1241,31 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
 };
 
 // -56333 - T.N.T.
-class spell_hun_tnt : public SpellScriptLoader
+class spell_hun_tnt : public AuraScript
 {
-    public:
-        spell_hun_tnt() : SpellScriptLoader("spell_hun_tnt") { }
+    PrepareAuraScript(spell_hun_tnt);
 
-        class spell_hun_tnt_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_tnt_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
-            }
+    bool CheckProc(ProcEventInfo& /*eventInfo*/)
+    {
+        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
+    }
 
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
-            }
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_LOCK_AND_LOAD, true, nullptr, aurEff);
+    }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_LOCK_AND_LOAD, true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_hun_tnt_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_hun_tnt_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_hun_tnt_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_hun_tnt::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_hun_tnt::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 76659 - Wild Quiver
@@ -1724,7 +1713,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_thrill_of_the_hunt();
-    new spell_hun_tnt();
+    RegisterAuraScript(spell_hun_tnt);
     RegisterAuraScript(spell_hun_trap_launcher);
     new spell_hun_wild_quiver();
 }
