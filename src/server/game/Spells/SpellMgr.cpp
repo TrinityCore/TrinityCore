@@ -2969,12 +2969,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
     });
 
-    // Execute
-    ApplySpellFix({ 5308 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
-    });
-
     // Improved Spell Reflection - aoe aura
     ApplySpellFix({ 59725 }, [](SpellInfo* spellInfo)
     {
