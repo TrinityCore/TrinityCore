@@ -105,6 +105,7 @@ enum Events
     EVENT_TIDAL_SURGE_2,
     EVENT_MAKE_OZUMAT_ATTACKABLE,
     EVENT_PURE_WATER,
+    EVENT_ENTER_PHASE_TWO,
 
     // Ozumat
     EVENT_GLOBE_IMPACT,
@@ -128,7 +129,6 @@ enum Events
 
 enum Actions
 {
-    ACTION_FACELESS_DIED        = 0,
     // ACTION_CORAL_GARDEN_ENTERED = 1,
     ACTION_COMPLETE_ENCOUNTER   = 2
 };
@@ -399,6 +399,7 @@ struct npc_ozumat_neptulon : public ScriptedAI
             _events.ScheduleEvent(EVENT_PURIFY, 1s);
             _events.ScheduleEvent(EVENT_CAST_LT_EFFECT, 20s, 22s);
             _events.ScheduleEvent(EVENT_APPLY_CASTER_PERIODIC, 5s);
+            _events.ScheduleEvent(EVENT_ENTER_PHASE_TWO, 1min + 36s);
         }
 
         return false;
@@ -411,16 +412,6 @@ struct npc_ozumat_neptulon : public ScriptedAI
             case ACTION_CORAL_GARDEN_ENTERED:
                 Talk(SAY_INTRO_1);
                 _events.ScheduleEvent(EVENT_TALK_INTRO, 7s);
-                break;
-            case ACTION_FACELESS_DIED:
-                _deadAddsCount++;
-                if (_deadAddsCount == 4)
-                {
-                    _events.ScheduleEvent(EVENT_SUMMON_OZUMAT, 3s);
-                    _events.ScheduleEvent(EVENT_TALK_OZUMAT_RETURNED, 200ms);
-                    _events.ScheduleEvent(EVENT_SUMMON_FACELESS_SAPPERS, 4s + 500ms);
-                    _events.ScheduleEvent(EVENT_APPLY_KITE_PERIODIC, 9s);
-                }
                 break;
             case ACTION_COMPLETE_ENCOUNTER:
                 for (ObjectGuid guid : _summons)
@@ -441,7 +432,7 @@ struct npc_ozumat_neptulon : public ScriptedAI
         if (summon->GetEntry() == NPC_FACELESS_SAPPER)
         {
             _deadAddsCount++;
-            if (_deadAddsCount == 7)
+            if (_deadAddsCount == 3)
             {
                 if (Creature* friendlyTrigger = ObjectAccessor::GetCreature(*me, _friendlyTriggerGUID))
                     friendlyTrigger->RemoveAllAuras();
@@ -573,6 +564,12 @@ struct npc_ozumat_neptulon : public ScriptedAI
                     DoCastAOE(SPELL_PURE_WATER);
                     _events.Repeat(2s + 500ms);
                     break;
+                case EVENT_ENTER_PHASE_TWO:
+                    _events.ScheduleEvent(EVENT_SUMMON_OZUMAT, 3s);
+                    _events.ScheduleEvent(EVENT_TALK_OZUMAT_RETURNED, 200ms);
+                    _events.ScheduleEvent(EVENT_SUMMON_FACELESS_SAPPERS, 4s + 500ms);
+                    _events.ScheduleEvent(EVENT_APPLY_KITE_PERIODIC, 9s);
+                    break;
                 default:
                     break;
             }
@@ -604,12 +601,6 @@ struct npc_ozumat_vicious_mindlasher : public ScriptedAI
         _events.ScheduleEvent(EVENT_BRAIN_SPIKE, 44s, 45s);
         _events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 8s, 9s);
         _events.ScheduleEvent(EVENT_SHADOW_BOLT, 1ms);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        if (Creature* neptulon = _instance->GetCreature(DATA_NEPTULON))
-            neptulon->AI()->DoAction(ACTION_FACELESS_DIED);
     }
 
     void UpdateAI(uint32 diff) override
@@ -657,12 +648,6 @@ struct npc_ozumat_unyielding_behemoth : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_SHADOW_BLAST, 10s);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        if (Creature* neptulon = _instance->GetCreature(DATA_NEPTULON))
-            neptulon->AI()->DoAction(ACTION_FACELESS_DIED);
     }
 
     void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
