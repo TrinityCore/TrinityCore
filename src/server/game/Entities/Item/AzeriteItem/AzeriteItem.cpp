@@ -177,20 +177,24 @@ void AzeriteItem::LoadAzeriteItemData(Player const* owner, AzeriteItemData& azer
     }
 }
 
-void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans)
+void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    trans->Append(stmt);
+    stmt->setUInt64(0, itemGuid);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    trans->Append(stmt);
+    stmt->setUInt64(0, itemGuid);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    trans->Append(stmt);
+    stmt->setUInt64(0, itemGuid);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
+}
 
+void AzeriteItem::DeleteFromDB(CharacterDatabaseTransaction& trans)
+{
+    AzeriteItem::DeleteFromDB(trans, GetGUID().GetCounter());
     Item::DeleteFromDB(trans);
 }
 
