@@ -5605,6 +5605,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->SpellFamilyName = SPELLFAMILY_SHAMAN;
     });
 
+    // Fulmination
+    ApplySpellFix({ 88767 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+    });
+
     // Last Word
     ApplySpellFix({
         20234,
