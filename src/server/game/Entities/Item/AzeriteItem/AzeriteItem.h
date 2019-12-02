@@ -35,6 +35,7 @@ public:
 
     void SaveToDB(CharacterDatabaseTransaction& trans) override;
     void LoadAzeriteItemData(Player const* owner, AzeriteItemData& azeriteItem);
+    static void DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid);
     void DeleteFromDB(CharacterDatabaseTransaction& trans) override;
 
     uint32 GetLevel() const { return m_azeriteItemData->Level; }

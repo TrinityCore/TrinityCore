@@ -129,11 +129,7 @@ void MailDraft::deleteIncludedItems(CharacterDatabaseTransaction& trans, bool in
         Item* item = mailItemIter->second;
 
         if (inDB)
-        {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-            stmt->setUInt64(0, item->GetGUID().GetCounter());
-            trans->Append(stmt);
-        }
+            item->DeleteFromDB(trans);
 
         delete item;
     }
