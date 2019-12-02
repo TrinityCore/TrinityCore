@@ -74,6 +74,7 @@ enum PriestSpells
     SPELL_PRIEST_LEAP_OF_FAITH_TRIGGERED            = 92572,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_MIND_FLAY                          = 15407,
+    SPELL_PRIEST_MIND_TRAUMA                        = 48301,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
     SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
@@ -105,7 +106,9 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_SHIELD_DISCIPLINE                = 566,
     PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_BARRIER      = 3837,
     PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_SHIELD       = 566,
-    PRIEST_ICON_ID_HARNESSED_SHADOWS                = 554
+    PRIEST_ICON_ID_HARNESSED_SHADOWS                = 554,
+    PRIEST_ICON_ID_IMPROVED_MIND_BLAST              = 95,
+    PRIEST_ICON_ID_MIND_MELT                        = 3139
 };
 
 enum MiscSpells
@@ -573,16 +576,12 @@ class spell_pri_pain_and_suffering_proc : public SpellScript
     void HandleEffectScriptEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        // Refresh Shadow Word: Pain on target
-        if (Unit* target = GetHitUnit())
-        {
-            if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, caster->GetGUID()))
-            {
-                aur->SetBonusAmount(caster->SpellDamageBonusDone(target, aur->GetSpellInfo(), 0, DOT, aur->GetEffIndex()));
-                aur->CalculatePeriodic(caster, false, false);
-                aur->GetBase()->RefreshDuration();
-            }
-        }
+        if (!caster)
+            return;
+
+        // Refresh Shadow Word: Pain duration on target
+        if (AuraEffect* aur = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, caster->GetGUID()))
+            aur->GetBase()->RefreshDuration();
     }
 
     void Register() override
@@ -821,7 +820,7 @@ class spell_pri_renew : public AuraScript
     }
 };
 
-// 32379 - Shadow Word Death
+// 32379 - Shadow Word: Death
 class spell_pri_shadow_word_death : public SpellScript
 {
     PrepareSpellScript(spell_pri_shadow_word_death);
@@ -831,7 +830,28 @@ class spell_pri_shadow_word_death : public SpellScript
         return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH });
     }
 
-    void HandleDamage()
+    void HandleDamageBonus(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        int32 damage = GetEffectValue();
+        if (Unit* target = GetHitUnit())
+        {
+            // Shadow Word: Death deals three times the damage when hitting a target below 25% health
+            if (target->GetHealthPct() < 25.f)
+            {
+                damage *= 3;
+
+                // Mind Melt talent bonus
+                if (AuraEffect const* effect = target->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_MIND_MELT, EFFECT_0))
+                    AddPct(damage, effect->GetAmount());
+            }
+        }
+    }
+
+    void HandleSelfDamagingEffect(SpellEffIndex /*effIndex*/)
     {
         int32 damage = GetHitDamage();
 
@@ -844,7 +864,8 @@ class spell_pri_shadow_word_death : public SpellScript
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pri_shadow_word_death::HandleDamage);
+        OnEffectLaunchTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleSelfDamagingEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1624,6 +1645,66 @@ class spell_pri_spirit_of_redemption : public AuraScript
     }
 };
 
+// 8092 - Mind Blast
+class spell_pri_mind_blast : public SpellScript
+{
+    PrepareSpellScript(spell_pri_mind_blast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_MIND_TRAUMA });
+    }
+
+    void HandleImprovedMindBlast(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || caster->GetShapeshiftForm() != FORM_SHADOW)
+            return;
+
+        if (AuraEffect* effect = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_PRIEST, PRIEST_ICON_ID_IMPROVED_MIND_BLAST, EFFECT_0))
+            if (roll_chance_i(effect->GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster)))
+                caster->CastSpell(GetHitUnit(), SPELL_PRIEST_MIND_TRAUMA, true, nullptr, effect);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast::HandleImprovedMindBlast, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// -88994 - Masochism
+class spell_pri_masochism : public AuraScript
+{
+    PrepareAuraScript(spell_pri_masochism);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        DamageInfo const* damage = eventInfo.GetDamageInfo();
+        if (!damage)
+            return false;
+
+        // Damaging yourself with Shadow Word: Death
+        if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_SHADOW_WORD_DEATH && eventInfo.GetActor() == GetTarget())
+            return true;
+
+        // Taking damage >= 10% of your total health
+        if (damage->GetDamage() >= CalculatePct(GetTarget()->GetMaxHealth(), GetSpellInfo()->Effects[EFFECT_1].CalcValue()))
+            return true;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_masochism::CheckProc);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_archangel);
@@ -1650,6 +1731,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterAuraScript(spell_pri_lightwell_renew);
     RegisterAuraScript(spell_pri_mana_leech);
+    RegisterAuraScript(spell_pri_masochism);
+    RegisterSpellScript(spell_pri_mind_blast);
     RegisterSpellScript(spell_pri_mind_sear);
     RegisterSpellScript(spell_pri_pain_and_suffering_proc);
     RegisterSpellScript(spell_pri_penance);
