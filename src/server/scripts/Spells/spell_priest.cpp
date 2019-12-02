@@ -849,6 +849,8 @@ class spell_pri_shadow_word_death : public SpellScript
                     AddPct(damage, effect->GetAmount());
             }
         }
+
+        SetEffectValue(damage);
     }
 
     void HandleSelfDamagingEffect(SpellEffIndex /*effIndex*/)
