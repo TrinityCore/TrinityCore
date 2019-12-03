@@ -2014,6 +2014,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _RemoveAllItemMods();
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
+        void ApplyAllAzeriteItemMods(bool apply);
         void _ApplyItemBonuses(Item* item, uint8 slot, bool apply);
         void _ApplyWeaponDamage(uint8 slot, Item* item, bool apply);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot) const;
@@ -2028,9 +2029,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ApplyArtifactPowers(Item* item, bool apply);
         void ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const* artifactPowerRank, bool apply);
         void ApplyAzeritePowers(Item* item, bool apply);
-        void ApplyAzeriteItemMilestonePower(Item* item, AzeriteItemMilestonePowerEntry const* azeriteItemMilestonePower, bool apply);
-        void ApplyAzeriteEssence(Item* item, uint32 azeriteEssenceId, uint32 rank, bool major, bool apply);
-        void ApplyAzeriteEssencePower(Item* item, AzeriteEssencePowerEntry const* azeriteEssencePower, bool major, bool apply);
+        void ApplyAzeriteItemMilestonePower(AzeriteItem* item, AzeriteItemMilestonePowerEntry const* azeriteItemMilestonePower, bool apply);
+        void ApplyAzeriteEssence(AzeriteItem* item, uint32 azeriteEssenceId, uint32 rank, bool major, bool apply);
+        void ApplyAzeriteEssencePower(AzeriteItem* item, AzeriteEssencePowerEntry const* azeriteEssencePower, bool major, bool apply);
 
         void CastItemCombatSpell(DamageInfo const& damageInfo);
         void CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemTemplate const* proto);

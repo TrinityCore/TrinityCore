@@ -7925,20 +7925,18 @@ void Player::ApplyAzeritePowers(Item* item, bool apply)
     {
         // milestone powers
         for (uint32 azeriteItemMilestonePowerId : azeriteItem->m_azeriteItemData->UnlockedEssenceMilestones)
-            ApplyAzeriteItemMilestonePower(item, sAzeriteItemMilestonePowerStore.AssertEntry(azeriteItemMilestonePowerId), apply);
+            ApplyAzeriteItemMilestonePower(azeriteItem, sAzeriteItemMilestonePowerStore.AssertEntry(azeriteItemMilestonePowerId), apply);
 
         // essences
         if (UF::SelectedAzeriteEssences const* selectedEssences = azeriteItem->GetSelectedAzeriteEssences())
             for (uint8 slot = 0; slot < MAX_AZERITE_ESSENCE_SLOT; ++slot)
                 if (selectedEssences->AzeriteEssenceID[slot])
-                    ApplyAzeriteEssence(item, selectedEssences->AzeriteEssenceID[slot], azeriteItem->GetEssenceRank(selectedEssences->AzeriteEssenceID[slot]),
+                    ApplyAzeriteEssence(azeriteItem, selectedEssences->AzeriteEssenceID[slot], azeriteItem->GetEssenceRank(selectedEssences->AzeriteEssenceID[slot]),
                         AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(slot)->Type) == AzeriteItemMilestoneType::MajorEssence, apply);
-
-        return;
     }
 }
 
-void Player::ApplyAzeriteItemMilestonePower(Item* item, AzeriteItemMilestonePowerEntry const* azeriteItemMilestonePower, bool apply)
+void Player::ApplyAzeriteItemMilestonePower(AzeriteItem* item, AzeriteItemMilestonePowerEntry const* azeriteItemMilestonePower, bool apply)
 {
     AzeriteItemMilestoneType type = AzeriteItemMilestoneType(azeriteItemMilestonePower->Type);
     if (type == AzeriteItemMilestoneType::BonusStamina)
@@ -7953,7 +7951,7 @@ void Player::ApplyAzeriteItemMilestonePower(Item* item, AzeriteItemMilestonePowe
     }
 }
 
-void Player::ApplyAzeriteEssence(Item* item, uint32 azeriteEssenceId, uint32 rank, bool major, bool apply)
+void Player::ApplyAzeriteEssence(AzeriteItem* item, uint32 azeriteEssenceId, uint32 rank, bool major, bool apply)
 {
     for (uint32 currentRank = 1; currentRank <= rank; ++currentRank)
     {
@@ -7971,7 +7969,7 @@ void Player::ApplyAzeriteEssence(Item* item, uint32 azeriteEssenceId, uint32 ran
     }
 }
 
-void Player::ApplyAzeriteEssencePower(Item* item, AzeriteEssencePowerEntry const* azeriteEssencePower, bool major, bool apply)
+void Player::ApplyAzeriteEssencePower(AzeriteItem* item, AzeriteEssencePowerEntry const* azeriteEssencePower, bool major, bool apply)
 {
     if (SpellInfo const* powerSpell = sSpellMgr->GetSpellInfo(azeriteEssencePower->MinorPowerDescription))
     {
@@ -8308,7 +8306,6 @@ void Player::_RemoveAllItemMods()
 
             ApplyItemEquipSpell(m_items[i], false);
             ApplyEnchantment(m_items[i], false);
-            ApplyAzeritePowers(m_items[i], false);
             ApplyArtifactPowers(m_items[i], false);
         }
     }
@@ -8361,7 +8358,6 @@ void Player::_ApplyAllItemMods()
 
             ApplyItemEquipSpell(m_items[i], true);
             ApplyArtifactPowers(m_items[i], true);
-            ApplyAzeritePowers(m_items[i], true);
             ApplyEnchantment(m_items[i], true);
         }
     }
@@ -8379,6 +8375,20 @@ void Player::_ApplyAllLevelScaleItemMods(bool apply)
                 continue;
 
             _ApplyItemMods(m_items[i], i, apply);
+        }
+    }
+}
+
+void Player::ApplyAllAzeriteItemMods(bool apply)
+{
+    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (m_items[i])
+        {
+            if (!m_items[i]->IsAzeriteItem() || m_items[i]->IsBroken() || !CanUseAttackType(Player::GetAttackBySlot(i, m_items[i]->GetTemplate()->GetInventoryType())))
+                continue;
+
+            ApplyAzeritePowers(m_items[i], apply);
         }
     }
 }
@@ -18892,6 +18902,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
     }
     //if (IsAlive())
     _ApplyAllItemMods();
+    // Apply all azerite item mods, azerite empowered item mods will get applied through its spell script
+    ApplyAllAzeriteItemMods(true);
 }
 
 void Player::_LoadVoidStorage(PreparedQueryResult result)
