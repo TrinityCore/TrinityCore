@@ -2794,112 +2794,111 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         }
     }
 
-    switch (m_spellInfo->SpellFamilyName)
+    if (useWeaponDamage)
     {
-        case SPELLFAMILY_ROGUE:
+        switch (m_spellInfo->SpellFamilyName)
         {
-            // Hemorrhage
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
+            case SPELLFAMILY_ROGUE:
             {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
-                // 45% more damage with daggers
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
-                        if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                            totalDamagePercentMod *= 1.45f;
-            }
-            break;
-        }
-        case SPELLFAMILY_SHAMAN:
-        {
-            // Skyshatter Harness item set bonus
-            // Stormstrike
-            if (AuraEffect* aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
-                m_caster->CastSpell(m_caster, 38430, true, nullptr, aurEff);
-            break;
-        }
-        case SPELLFAMILY_DRUID:
-        {
-            // Mangle (Cat): CP
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x400)
-            {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
-            }
-            // Shred, Maul - Rend and Tear
-            else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING))
-            {
-                if (AuraEffect const* rendAndTear = m_caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, 0))
-                    AddPct(totalDamagePercentMod, rendAndTear->GetAmount());
-            }
-            break;
-        }
-        case SPELLFAMILY_DEATHKNIGHT:
-        {
-            // Death Strike
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x10)
-            {
-                // Glyph of Death Strike
-                // 2% more damage per 5 runic power, up to a maximum of 40%
-                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
-                    if (uint32 runic = std::min<uint32>(uint32(m_caster->GetPower(POWER_RUNIC_POWER) / 2.5f), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster)))
-                        AddPct(totalDamagePercentMod, runic);
-            }
-
-            // Obliterate / Blood Strike / Blood-Caked Strike (12.5% more damage per disease) / Heart Strike (15% more damage per disease)
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 || m_spellInfo->SpellFamilyFlags[0] & 0x400000
-                || m_spellInfo->SpellFamilyFlags[0] & 0x1000000 || m_spellInfo->Id == 50463)
-            {
-                float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster);
-                uint8 diseaseCount = unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), false);
-
-                if (m_spellInfo->SpellFamilyFlags[1] & 0x20000) // Obliterate - 50% of Basepoints as bonus
-                    bonusPct *= 0.5f;
-                else if (m_spellInfo->SpellFamilyFlags[0] & 0x400000) // Blood Strike - 10% of Basepoints as bonus
-                    bonusPct *= 0.1f;
-
-                float bonusAmount = bonusPct * diseaseCount;
-                // Death Knight T8 Melee 4P Bonus
-                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
-                    AddPct(bonusAmount, aurEff->GetAmount());
-
-                AddPct(totalDamagePercentMod, bonusAmount);
-            }
-
-            // Blood-Caked Strike - Blood-Caked Blade
-            if (m_spellInfo->SpellIconID == 1736)
-                AddPct(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 50.0f);
-
-            // Merciless Combat (Obliterate and Frost Strike)
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 || m_spellInfo->SpellFamilyFlags[1] & 0x4)
-                if (unitTarget->GetHealthPct() < 35.0f)
-                    if (AuraEffect const* mercilessCombat = m_caster->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 2656, 0))
-                        AddPct(totalDamagePercentMod, mercilessCombat->GetAmount());
-            break;
-        }
-        case SPELLFAMILY_WARLOCK:
-        {
-            if (useWeaponDamage)
-            {
-                // Felstorm and Legion Strike
-                if (m_spellInfo->Id == 89753)
+                // Hemorrhage
+                if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
                 {
-                    if (m_caster->IsPet())
-                        if (Unit* owner = m_caster->GetOwner())
-                            m_damage += ((owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW) * 0.5f) * 2) * 0.231f;
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                        m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
+                    // 45% more damage with daggers
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                        if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
+                            if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
+                                totalDamagePercentMod *= 1.45f;
                 }
-                else if (m_spellInfo->Id == 30213)
-                {
-                    if (m_caster->IsPet())
-                        if (Unit* owner = m_caster->GetOwner())
-                            m_damage += ((owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW) * 0.5f) * 2) * 0.264f;
-                }
+                break;
             }
-            break;
+            case SPELLFAMILY_SHAMAN:
+            {
+                // Skyshatter Harness item set bonus
+                // Stormstrike
+                if (AuraEffect* aurEff = m_caster->IsScriptOverriden(m_spellInfo, 5634))
+                    m_caster->CastSpell(m_caster, 38430, true, nullptr, aurEff);
+                break;
+            }
+            case SPELLFAMILY_DRUID:
+            {
+                // Mangle (Cat): CP
+                if (m_spellInfo->SpellFamilyFlags[1] & 0x400)
+                    m_caster->CastSpell(unitTarget, 34071, true);
+                // Shred, Maul - Rend and Tear
+                else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING))
+                {
+                    if (AuraEffect const* rendAndTear = m_caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, 0))
+                        AddPct(totalDamagePercentMod, rendAndTear->GetAmount());
+                }
+                break;
+            }
+            case SPELLFAMILY_DEATHKNIGHT:
+            {
+                // Death Strike
+                if (m_spellInfo->SpellFamilyFlags[0] & 0x10)
+                {
+                    // Glyph of Death Strike
+                    // 2% more damage per 5 runic power, up to a maximum of 40%
+                    if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
+                        if (uint32 runic = std::min<uint32>(uint32(m_caster->GetPower(POWER_RUNIC_POWER) / 2.5f), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster)))
+                            AddPct(totalDamagePercentMod, runic);
+                }
+
+                // Obliterate / Blood Strike / Blood-Caked Strike (12.5% more damage per disease) / Heart Strike (15% more damage per disease)
+                if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 || m_spellInfo->SpellFamilyFlags[0] & 0x400000
+                    || m_spellInfo->SpellFamilyFlags[0] & 0x1000000 || m_spellInfo->Id == 50463)
+                {
+                    float bonusPct = m_spellInfo->Effects[EFFECT_2].CalcValue(m_caster);
+                    uint8 diseaseCount = unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), false);
+
+                    if (m_spellInfo->SpellFamilyFlags[1] & 0x20000) // Obliterate - 50% of Basepoints as bonus
+                        bonusPct *= 0.5f;
+                    else if (m_spellInfo->SpellFamilyFlags[0] & 0x400000) // Blood Strike - 10% of Basepoints as bonus
+                        bonusPct *= 0.1f;
+
+                    float bonusAmount = bonusPct * diseaseCount;
+                    // Death Knight T8 Melee 4P Bonus
+                    if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
+                        AddPct(bonusAmount, aurEff->GetAmount());
+
+                    AddPct(totalDamagePercentMod, bonusAmount);
+                }
+
+                // Blood-Caked Strike - Blood-Caked Blade
+                if (m_spellInfo->SpellIconID == 1736)
+                    AddPct(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 50.0f);
+
+                // Merciless Combat (Obliterate and Frost Strike)
+                if (m_spellInfo->SpellFamilyFlags[1] & 0x20000 || m_spellInfo->SpellFamilyFlags[1] & 0x4)
+                    if (unitTarget->GetHealthPct() < 35.0f)
+                        if (AuraEffect const* mercilessCombat = m_caster->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 2656, 0))
+                            AddPct(totalDamagePercentMod, mercilessCombat->GetAmount());
+                break;
+            }
+            case SPELLFAMILY_WARLOCK:
+            {
+                if (useWeaponDamage)
+                {
+                    // Felstorm and Legion Strike
+                    if (m_spellInfo->Id == 89753)
+                    {
+                        if (m_caster->IsPet())
+                            if (Unit* owner = m_caster->GetOwner())
+                                m_damage += ((owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW) * 0.5f) * 2) * 0.231f;
+                    }
+                    else if (m_spellInfo->Id == 30213)
+                    {
+                        if (m_caster->IsPet())
+                            if (Unit* owner = m_caster->GetOwner())
+                                m_damage += ((owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW) * 0.5f) * 2) * 0.264f;
+                    }
+                }
+                break;
+            }
         }
     }
-
 
     // if (addPctMods) { percent mods are added in Unit::CalculateDamage } else { percent mods are added in Unit::MeleeDamageBonusDone }
     // this distinction is neccessary to properly inform the client about his autoattack damage values from Script_UnitDamage
