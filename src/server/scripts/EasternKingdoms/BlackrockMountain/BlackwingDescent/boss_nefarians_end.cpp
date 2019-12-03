@@ -1971,10 +1971,6 @@ class spell_nefarians_end_determine_farthest_portal_stalker : public AuraScript
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_nefarians_end_determine_farthest_portal_stalker::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
-
-private:
-    uint8 _nextTriggerTickNumber = 0;
-    uint8 _ticksSinceLastTrigger = 0;
 };
 
 class spell_nefarians_end_dominion_portal_trigger : public SpellScript
