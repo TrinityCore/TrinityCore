@@ -1372,8 +1372,8 @@ struct npc_nefarians_end_shadowblaze : public NullCreatureAI
 
 private:
     Position _controllerStalkerPosition;
-    InstanceScript* _instance;
     bool _summonedByController;
+    InstanceScript* _instance;
 };
 
 class spell_nefarians_end_electrical_charge : public AuraScript

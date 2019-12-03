@@ -190,7 +190,7 @@ class instance_vortex_pinnacle : public InstanceMapScript
                 return true;
             }
 
-            void SetData(uint32 type, uint32 value) override
+            void SetData(uint32 type, uint32 /*value*/) override
             {
                 switch (type)
                 {
