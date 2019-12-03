@@ -4307,7 +4307,19 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-    int32 reqValue = targetLevel < 10 ? 0 : targetLevel < 20 ? (targetLevel-10)*10 : targetLevel*5;
+    int32 reqValue = 1;
+    if (targetLevel <= 10)
+        reqValue = 1;
+    else if (targetLevel <= 20)
+        reqValue = 2 * (5 * targetLevel - 50);
+    else if (targetLevel <= 73)
+        reqValue = 5 * targetLevel;
+    else if (targetLevel <= 80)
+        reqValue = 10 * targetLevel - 365;
+    else if (targetLevel > 83)
+        reqValue = 20 * targetLevel - 1210;
+    else
+        reqValue = 5 * targetLevel + 35;
 
     int32 skillValue = m_caster->ToPlayer()->GetPureSkillValue(skill);
 
