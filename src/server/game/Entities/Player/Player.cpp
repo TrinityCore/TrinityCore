@@ -27797,29 +27797,140 @@ void Player::_LoadRandomBGStatus(PreparedQueryResult result)
 
 float Player::GetAverageItemLevel() const
 {
-    float sum = 0;
-    uint32 count = 0;
+    auto getEffectiveItemLevel = [](uint32 itemLevel, uint32* pValue, uint32* pMinValue)->void
+    {
+        if (pMinValue != nullptr)
+        {
+            if (itemLevel <= *pValue)
+            {
+                if (itemLevel >= *pMinValue)
+                    *pMinValue = itemLevel;
+            }
+            else
+            {
+                *pMinValue = *pValue;
+                *pValue = itemLevel;
+            }
+        }
+        else
+        {
+            if (*pValue > itemLevel)
+                itemLevel = *pValue;
+
+            *pValue = itemLevel;
+        }
+    };
+
+    uint32 itemLevelPerInvType[MAX_INVTYPE] = { 0 };
+
+    uint32 fingerItemLevel = 0;
+    uint32 trinketItemLevel = 0;
+    uint32 weaponItemLevel = 0;
+    uint32 weapon2HItemLevel = 0;
 
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
     {
-        // don't check tabard or shirt
-        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_BODY)
+        const ItemTemplate* itemTemplate = m_items[i] == nullptr ? nullptr : m_items[i]->GetTemplate();
+        if (itemTemplate == nullptr)
             continue;
 
-        if (i == EQUIPMENT_SLOT_OFFHAND)
+        uint32* pEffective = nullptr;
+        switch (itemTemplate->InventoryType)
         {
-            // don't consider offhand slots when we do not use them (2h weapons or no weapon at all)
-            if (!m_items[i])
-                continue;
+            case INVTYPE_FINGER:   pEffective = &fingerItemLevel;  break;
+            case INVTYPE_TRINKET:  pEffective = &trinketItemLevel; break;
+            case INVTYPE_WEAPON:   pEffective = &weaponItemLevel;  break;
+            case INVTYPE_2HWEAPON: pEffective = &weapon2HItemLevel; break;
         }
 
-        if (m_items[i])
-            sum += m_items[i]->GetTemplate()->ItemLevel;
-
-        ++count;
+        getEffectiveItemLevel(static_cast<uint32>(itemTemplate->ItemLevel), &itemLevelPerInvType[itemTemplate->InventoryType], pEffective);
     }
 
-    return ((float)sum) / count;
+    uint32 maxRangedThrownRelicRangedRight = std::max(
+    {
+        itemLevelPerInvType[INVTYPE_RANGED],
+        itemLevelPerInvType[INVTYPE_RANGEDRIGHT],
+        itemLevelPerInvType[INVTYPE_RELIC],
+        itemLevelPerInvType[INVTYPE_THROWN]
+    });
+
+    uint32 offHandItemLevel = 0;
+    uint32 mainHandItemLevel = 0;
+
+    if (getClass() == CLASS_WARRIOR || getClass() == CLASS_ROGUE || getClass() == CLASS_SHAMAN || getClass() == CLASS_HUNTER || getClass() == CLASS_DEATH_KNIGHT)
+    {
+        uint8 const weaponSorterSize = 6;
+        std::array<uint32, weaponSorterSize> weaponSorter;
+        weaponSorter[0] = itemLevelPerInvType[INVTYPE_WEAPONMAINHAND];
+
+        weaponSorter[1] = std::max(
+        {
+            itemLevelPerInvType[INVTYPE_SHIELD],
+            itemLevelPerInvType[INVTYPE_WEAPONOFFHAND],
+            itemLevelPerInvType[INVTYPE_HOLDABLE]
+        });
+
+        weaponSorter[2] = itemLevelPerInvType[INVTYPE_WEAPON];
+        weaponSorter[3] = weaponItemLevel;
+
+        if (getClass() == CLASS_WARRIOR)
+        {
+            weaponSorter[4] = itemLevelPerInvType[INVTYPE_2HWEAPON];
+            weaponSorter[5] = weapon2HItemLevel;
+        }
+        else
+        {
+            weaponSorter[4] = 0;
+            weaponSorter[5] = 0;
+        }
+
+        std::sort(weaponSorter.begin(), weaponSorter.end(), [](uint32 lhs, uint32 rhs)->bool
+        {
+            return rhs < lhs;
+        });
+
+        offHandItemLevel = weaponSorter[1];
+        mainHandItemLevel = weaponSorter[0];
+    }
+    else
+    {
+        mainHandItemLevel = std::max(itemLevelPerInvType[INVTYPE_WEAPON], itemLevelPerInvType[INVTYPE_WEAPONMAINHAND]);
+        offHandItemLevel = std::max(itemLevelPerInvType[INVTYPE_SHIELD], itemLevelPerInvType[INVTYPE_HOLDABLE]);
+    }
+
+    uint32 twoHandedWeapon = itemLevelPerInvType[INVTYPE_2HWEAPON];
+    itemLevelPerInvType[INVTYPE_NON_EQUIP] = 0;
+    itemLevelPerInvType[INVTYPE_BODY] = 0;
+    itemLevelPerInvType[INVTYPE_RANGED] = 0;
+    itemLevelPerInvType[INVTYPE_THROWN] = 0;
+    itemLevelPerInvType[INVTYPE_AMMO] = 0;
+    itemLevelPerInvType[INVTYPE_RANGEDRIGHT] = 0;
+    itemLevelPerInvType[INVTYPE_RELIC] = 0;
+    itemLevelPerInvType[INVTYPE_2HWEAPON] = 0;
+    itemLevelPerInvType[INVTYPE_WEAPON] = 0;
+    itemLevelPerInvType[INVTYPE_SHIELD] = 0;
+    itemLevelPerInvType[INVTYPE_WEAPONMAINHAND] = 0;
+    itemLevelPerInvType[INVTYPE_WEAPONOFFHAND] = 0;
+    itemLevelPerInvType[INVTYPE_HOLDABLE] = 0;
+    itemLevelPerInvType[INVTYPE_BAG] = 0;
+    itemLevelPerInvType[INVTYPE_TABARD] = 0;
+    itemLevelPerInvType[INVTYPE_CHEST] = std::max(itemLevelPerInvType[INVTYPE_CHEST], itemLevelPerInvType[INVTYPE_ROBE]);
+    itemLevelPerInvType[INVTYPE_ROBE] = 0;
+
+    uint32 v33 = INVTYPE_HEAD;
+    uint32 itemLevelAccumulated = 0;
+    for (uint8 i = 0; i < MAX_INVTYPE; ++i)
+        itemLevelAccumulated += itemLevelPerInvType[i];
+
+    itemLevelAccumulated += fingerItemLevel + trinketItemLevel + maxRangedThrownRelicRangedRight;
+    uint32 finalSum = mainHandItemLevel + itemLevelAccumulated + offHandItemLevel;
+    float oneHandingScore = finalSum / 17.0f; // One handing
+    float twoHandingScore = (twoHandedWeapon + itemLevelAccumulated) / 16.0f; // two handing
+
+    if (oneHandingScore <= twoHandingScore)
+        return twoHandingScore;
+
+    return oneHandingScore;
 }
 
 void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
