@@ -1761,7 +1761,7 @@ class spell_nefarians_end_brushfire_pre_start_periodic : public AuraScript
         return ValidateSpellInfo({ SPELL_BRUSHFIRE_START });
     }
 
-    void HandlePeriodicTick(AuraEffect const* aurEff)
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
         _ticksSinceLastTrigger++;
@@ -2064,7 +2064,7 @@ class spell_nefarians_end_explosive_cinders : public AuraScript
         return ValidateSpellInfo({ SPELL_EXPLOSIVE_CINDERS_EXPLOSION });
     }
 
-    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
             GetTarget()->CastSpell(GetTarget(), SPELL_EXPLOSIVE_CINDERS_EXPLOSION, true);
