@@ -27917,7 +27917,6 @@ float Player::GetAverageItemLevel() const
     itemLevelPerInvType[INVTYPE_CHEST] = std::max(itemLevelPerInvType[INVTYPE_CHEST], itemLevelPerInvType[INVTYPE_ROBE]);
     itemLevelPerInvType[INVTYPE_ROBE] = 0;
 
-    uint32 v33 = INVTYPE_HEAD;
     uint32 itemLevelAccumulated = 0;
     for (uint8 i = 0; i < MAX_INVTYPE; ++i)
         itemLevelAccumulated += itemLevelPerInvType[i];
