@@ -41,6 +41,7 @@ struct AreaTriggerEntry;
 struct ArtifactPowerRankEntry;
 struct AzeriteEssencePowerEntry;
 struct AzeriteItemMilestonePowerEntry;
+struct AzeritePowerEntry;
 struct BarberShopStyleEntry;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
@@ -766,6 +767,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_AZERITE,
     PLAYER_LOGIN_QUERY_LOAD_AZERITE_MILESTONE_POWERS,
     PLAYER_LOGIN_QUERY_LOAD_AZERITE_UNLOCKED_ESSENCES,
+    PLAYER_LOGIN_QUERY_LOAD_AZERITE_EMPOWERED,
     PLAYER_LOGIN_QUERY_LOAD_ACTIONS,
     PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT,
     PLAYER_LOGIN_QUERY_LOAD_MAIL_DATE,
@@ -2015,6 +2017,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _ApplyAllItemMods();
         void _ApplyAllLevelScaleItemMods(bool apply);
         void ApplyAllAzeriteItemMods(bool apply);
+        void ApplyAllAzeriteEmpoweredItemMods(bool apply);
         void _ApplyItemBonuses(Item* item, uint8 slot, bool apply);
         void _ApplyWeaponDamage(uint8 slot, Item* item, bool apply);
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot) const;
@@ -2032,6 +2035,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ApplyAzeriteItemMilestonePower(AzeriteItem* item, AzeriteItemMilestonePowerEntry const* azeriteItemMilestonePower, bool apply);
         void ApplyAzeriteEssence(AzeriteItem* item, uint32 azeriteEssenceId, uint32 rank, bool major, bool apply);
         void ApplyAzeriteEssencePower(AzeriteItem* item, AzeriteEssencePowerEntry const* azeriteEssencePower, bool major, bool apply);
+        void ApplyAzeritePower(AzeriteEmpoweredItem* item, AzeritePowerEntry const* azeritePower, bool apply);
 
         void CastItemCombatSpell(DamageInfo const& damageInfo);
         void CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemTemplate const* proto);
@@ -2450,6 +2454,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemovePlayerLocalFlag(PlayerLocalFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
         void SetPlayerLocalFlags(PlayerLocalFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::LocalFlags), flags); }
 
+        uint8 GetNumRespecs() const { return m_activePlayerData->NumRespecs; }
+        void SetNumRespecs(uint8 numRespecs) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumRespecs), numRespecs); }
+
         void SetWatchedFactionIndex(int32 index) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::WatchedFactionIndex), index);  }
 
         void AddAuraVision(PlayerFieldByte2Flags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
@@ -2510,7 +2517,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
         void _LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, PreparedQueryResult azeriteResult,
-            PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult, uint32 timeDiff);
+            PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult,
+            PreparedQueryResult azeriteEmpoweredItemResult, uint32 timeDiff);
         void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
         void _LoadMail();

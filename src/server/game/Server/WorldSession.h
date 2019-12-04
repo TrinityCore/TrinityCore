@@ -111,6 +111,8 @@ namespace WorldPackets
 
     namespace Azerite
     {
+        class AzeriteEmpoweredItemSelectPower;
+        class AzeriteEmpoweredItemViewed;
         class AzeriteEssenceUnlockMilestone;
         class AzeriteEssenceActivateEssence;
     }
@@ -1727,6 +1729,8 @@ class TC_GAME_API WorldSession
         // Azerite
         void HandleAzeriteEssenceUnlockMilestone(WorldPackets::Azerite::AzeriteEssenceUnlockMilestone& azeriteEssenceUnlockMilestone);
         void HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::AzeriteEssenceActivateEssence& azeriteEssenceActivateEssence);
+        void HandleAzeriteEmpoweredItemViewed(WorldPackets::Azerite::AzeriteEmpoweredItemViewed& azeriteEmpoweredItemViewed);
+        void HandleAzeriteEmpoweredItemSelectPower(WorldPackets::Azerite::AzeriteEmpoweredItemSelectPower& azeriteEmpoweredItemSelectPower);
 
         union ConnectToKey
         {

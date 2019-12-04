@@ -89,6 +89,49 @@ namespace WorldPackets
             int32 AzeriteEssenceID = 0;
             Optional<uint8> Slot;
         };
+
+        class AzeriteEmpoweredItemViewed final : public ClientPacket
+        {
+        public:
+            AzeriteEmpoweredItemViewed(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_EMPOWERED_ITEM_VIEWED, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGUID;
+        };
+
+        class AzeriteEmpoweredItemSelectPower final : public ClientPacket
+        {
+        public:
+            AzeriteEmpoweredItemSelectPower(WorldPacket&& packet) : ClientPacket(CMSG_AZERITE_EMPOWERED_ITEM_SELECT_POWER, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 Tier = 0;
+            int32 AzeritePowerID = 0;
+            uint8 ContainerSlot = 0;
+            uint8 Slot = 0;
+        };
+
+        class AzeriteEmpoweredItemEquippedStatusChanged final : public ServerPacket
+        {
+        public:
+            AzeriteEmpoweredItemEquippedStatusChanged() : ServerPacket(SMSG_AZERITE_EMPOWERED_ITEM_EQUIPPED_STATUS_CHANGED, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsHeartEquipped = false;
+        };
+
+        class AzeriteEmpoweredItemRespecOpen final : public ServerPacket
+        {
+        public:
+            AzeriteEmpoweredItemRespecOpen(ObjectGuid npcGuid) : ServerPacket(SMSG_AZERITE_EMPOWERED_ITEM_RESPEC_OPEN, 1), NpcGUID(npcGuid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid NpcGUID;
+        };
     }
 }
 

@@ -18,6 +18,7 @@
 
 #include "ObjectMgr.h"
 #include "ArenaTeamMgr.h"
+#include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
 #include "Chat.h"
 #include "Containers.h"
@@ -5874,6 +5875,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 {
                     Item::DeleteFromDB(nonTransactional, itr2->item_guid);
                     AzeriteItem::DeleteFromDB(nonTransactional, itr2->item_guid);
+                    AzeriteEmpoweredItem::DeleteFromDB(nonTransactional, itr2->item_guid);
                 }
 
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
