@@ -157,7 +157,7 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_CHILD         = 0x00080000,
     ITEM_FIELD_FLAG_UNK15         = 0x00100000,
     ITEM_FIELD_FLAG_NEW_ITEM      = 0x00200000, // Item glows in inventory
-    ITEM_FIELD_FLAG_UNK17         = 0x00400000,
+    ITEM_FIELD_FLAG_AZERITE_EMPOWERED_ITEM_VIEWED = 0x00400000, // Won't play azerite powers animation when viewing it
     ITEM_FIELD_FLAG_UNK18         = 0x00800000,
     ITEM_FIELD_FLAG_UNK19         = 0x01000000,
     ITEM_FIELD_FLAG_UNK20         = 0x02000000,
@@ -171,7 +171,7 @@ enum ItemFieldFlags : uint32
 
 enum ItemFieldFlags2 : uint32
 {
-    ITEM_FIELD_FLAG2_HEART_OF_AZEROTH_EQUIPPED = 0x1
+    ITEM_FIELD_FLAG2_EQUIPPED   = 0x1
 };
 
 enum ItemFlags : uint32

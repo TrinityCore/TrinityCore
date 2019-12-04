@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
 #include "DB2Stores.h"
@@ -167,4 +168,68 @@ void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::Az
         AzeriteItemMilestoneType(sDB2Manager.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot)->Type) == AzeriteItemMilestoneType::MajorEssence, true);
 
     azeriteItem->SetState(ITEM_CHANGED, _player);
+}
+
+void WorldSession::HandleAzeriteEmpoweredItemViewed(WorldPackets::Azerite::AzeriteEmpoweredItemViewed& azeriteEmpoweredItemViewed)
+{
+    Item* item = _player->GetItemByGuid(azeriteEmpoweredItemViewed.ItemGUID);
+    if (!item || !item->IsAzeriteEmpoweredItem())
+        return;
+
+    item->AddItemFlag(ITEM_FIELD_FLAG_AZERITE_EMPOWERED_ITEM_VIEWED);
+    item->SetState(ITEM_CHANGED, _player);
+}
+
+void WorldSession::HandleAzeriteEmpoweredItemSelectPower(WorldPackets::Azerite::AzeriteEmpoweredItemSelectPower& azeriteEmpoweredItemSelectPower)
+{
+    Item* item = _player->GetItemByPos(azeriteEmpoweredItemSelectPower.ContainerSlot, azeriteEmpoweredItemSelectPower.Slot);
+    if (!item)
+        return;
+
+    AzeritePowerEntry const* azeritePower = sAzeritePowerStore.LookupEntry(azeriteEmpoweredItemSelectPower.AzeritePowerID);
+    if (!azeritePower)
+        return;
+
+    AzeriteEmpoweredItem* azeriteEmpoweredItem = item->ToAzeriteEmpoweredItem();
+    if (!azeriteEmpoweredItem)
+        return;
+
+    // Validate tier
+    int32 actualTier = azeriteEmpoweredItem->GetTierForAzeritePower(Classes(_player->getClass()), azeriteEmpoweredItemSelectPower.AzeritePowerID);
+    if (azeriteEmpoweredItemSelectPower.Tier > MAX_AZERITE_EMPOWERED_TIER || azeriteEmpoweredItemSelectPower.Tier != actualTier)
+        return;
+
+    uint32 azeriteLevel = 0;
+    Item const* heartOfAzeroth = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE);
+    if (!heartOfAzeroth)
+        return;
+
+    if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
+        azeriteLevel = azeriteItem->GetEffectiveLevel();
+
+    // Check required heart of azeroth level
+    if (azeriteLevel < azeriteEmpoweredItem->GetRequiredAzeriteLevelForTier(uint32(actualTier)))
+        return;
+
+    // tiers are ordered backwards, you first select the highest one
+    for (int32 i = actualTier + 1; i < azeriteEmpoweredItem->GetMaxAzeritePowerTier(); ++i)
+        if (!azeriteEmpoweredItem->GetSelectedAzeritePower(i))
+            return;
+
+    bool activateAzeritePower = azeriteEmpoweredItem->IsEquipped() && heartOfAzeroth->IsEquipped();
+    if (azeritePower->ItemBonusListID && activateAzeritePower)
+        _player->_ApplyItemMods(azeriteEmpoweredItem, azeriteEmpoweredItem->GetSlot(), false);
+
+    azeriteEmpoweredItem->SetSelectedAzeritePower(actualTier, azeriteEmpoweredItemSelectPower.AzeritePowerID);
+
+    if (activateAzeritePower)
+    {
+        // apply all item mods when azerite power grants a bonus, item level changes and that affects stats and auras that scale with item level
+        if (azeritePower->ItemBonusListID)
+            _player->_ApplyItemMods(azeriteEmpoweredItem, azeriteEmpoweredItem->GetSlot(), true);
+        else
+            _player->ApplyAzeritePower(azeriteEmpoweredItem, azeritePower, true);
+    }
+
+    azeriteEmpoweredItem->SetState(ITEM_CHANGED, _player);
 }
