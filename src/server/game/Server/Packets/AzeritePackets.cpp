@@ -55,3 +55,31 @@ WorldPacket const* WorldPackets::Azerite::AzeriteEssenceSelectionResult::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Azerite::AzeriteEmpoweredItemViewed::Read()
+{
+    _worldPacket >> ItemGUID;
+}
+
+void WorldPackets::Azerite::AzeriteEmpoweredItemSelectPower::Read()
+{
+    _worldPacket >> Tier;
+    _worldPacket >> AzeritePowerID;
+    _worldPacket >> ContainerSlot;
+    _worldPacket >> Slot;
+}
+
+WorldPacket const* WorldPackets::Azerite::AzeriteEmpoweredItemEquippedStatusChanged::Write()
+{
+    _worldPacket.WriteBit(IsHeartEquipped);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Azerite::AzeriteEmpoweredItemRespecOpen::Write()
+{
+    _worldPacket << NpcGUID;
+
+    return &_worldPacket;
+}
