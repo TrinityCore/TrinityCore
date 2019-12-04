@@ -18,6 +18,7 @@
 
 #include "Item.h"
 #include "ArtifactPackets.h"
+#include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
 #include "Bag.h"
 #include "CollectionMgr.h"
@@ -50,6 +51,9 @@ Item* NewItemOrBag(ItemTemplate const* proto)
 
     if (sDB2Manager.IsAzeriteItem(proto->GetId()))
         return new AzeriteItem();
+
+    if (sDB2Manager.GetAzeriteEmpoweredItem(proto->GetId()))
+        return new AzeriteEmpoweredItem();
 
     return new Item();
 }
@@ -285,7 +289,8 @@ static uint32 const IllusionModifierMaskSpecSpecific =
 
 void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAdditionalLoadInfo>* loadInfo,
     PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
-    PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult)
+    PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult,
+    PreparedQueryResult azeriteEmpoweredItemResult)
 {
     //                 0     1                       2                 3                   4                 5
     // SELECT a.itemGuid, a.xp, a.artifactAppearanceId, a.artifactTierId, ap.artifactPowerId, ap.purchasedRank FROM item_instance_artifact_powers ap LEFT JOIN item_instance_artifact a ON ap.itemGuid = a.itemGuid ...
@@ -395,6 +400,24 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
             }
         }
         while (azeriteItemUnlockedEssencesResult->NextRow());
+    }
+
+    //                   0                    1                    2                    3                    4                    5
+    // SELECT iae.itemGuid, iae.azeritePowerId1, iae.azeritePowerId2, iae.azeritePowerId3, iae.azeritePowerId4, iae.azeritePowerId5 FROM item_instance_azerite_empowered iae INNER JOIN ...
+    if (azeriteEmpoweredItemResult)
+    {
+        do
+        {
+            Field* fields = azeriteEmpoweredItemResult->Fetch();
+            ItemAdditionalLoadInfo& info = (*loadInfo)[fields[0].GetUInt64()];
+            if (!info.AzeriteEmpoweredItem)
+                info.AzeriteEmpoweredItem = boost::in_place();
+
+            for (uint32 i = 0; i < MAX_AZERITE_EMPOWERED_TIER; ++i)
+                if (sAzeritePowerStore.LookupEntry(fields[1 + i].GetInt32()))
+                    info.AzeriteEmpoweredItem->SelectedAzeritePowers[i] = fields[1 + i].GetInt32();
+
+        } while (azeriteEmpoweredItemResult->NextRow());
     }
 }
 
@@ -1358,9 +1381,7 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalin
                 BonusData gemBonus;
                 gemBonus.Initialize(gemTemplate);
                 for (uint16 bonusListId : gem->BonusListIDs)
-                    if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListId))
-                        for (ItemBonusEntry const* itemBonus : *bonuses)
-                            gemBonus.AddBonus(itemBonus->Type, itemBonus->Value);
+                    gemBonus.AddBonusList(bonusListId);
 
                 uint32 gemBaseItemLevel = gemTemplate->GetBaseItemLevel();
                 if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(gemBonus.ScalingStatDistribution))
@@ -2508,9 +2529,7 @@ void Item::SetBonuses(std::vector<int32> bonusListIDs)
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::BonusListIDs), std::move(bonusListIDs));
 
     for (int32 bonusListID : *m_itemData->BonusListIDs)
-        if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
-            for (ItemBonusEntry const* bonus : *bonuses)
-                _bonusData.AddBonus(bonus->Type, bonus->Value);
+        _bonusData.AddBonusList(bonusListID);
 
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), _bonusData.AppearanceModID);
 }
@@ -2785,11 +2804,16 @@ void BonusData::Initialize(ItemTemplate const* proto)
     RelicType = -1;
     HasFixedLevel = false;
     RequiredLevelOverride = 0;
+    AzeriteTierUnlockSetId = 0;
+    if (AzeriteEmpoweredItemEntry const* azeriteEmpoweredItem = sDB2Manager.GetAzeriteEmpoweredItem(proto->GetId()))
+        AzeriteTierUnlockSetId = azeriteEmpoweredItem->AzeriteTierUnlockSetID;
+
     CanDisenchant = (proto->GetFlags() & ITEM_FLAG_NO_DISENCHANT) == 0;
     CanScrap = (proto->GetFlags4() & ITEM_FLAG4_SCRAPABLE) != 0;
 
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
     _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
+    _state.AzeriteTierUnlockSetPriority = std::numeric_limits<int32>::max();
     _state.HasQualityBonus = false;
 }
 
@@ -2803,9 +2827,14 @@ void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
 
     if (itemInstance.ItemBonus)
         for (uint32 bonusListID : itemInstance.ItemBonus->BonusListIDs)
-            if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListID))
-                for (ItemBonusEntry const* bonus : *bonuses)
-                    AddBonus(bonus->Type, bonus->Value);
+            AddBonusList(bonusListID);
+}
+
+void BonusData::AddBonusList(uint32 bonusListId)
+{
+    if (DB2Manager::ItemBonusList const* bonuses = sDB2Manager.GetItemBonusList(bonusListId))
+        for (ItemBonusEntry const* bonus : *bonuses)
+            AddBonus(bonus->Type, bonus->Value);
 }
 
 void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
@@ -2882,6 +2911,13 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[3])
             break;
         case ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL:
             RequiredLevelOverride = values[0];
+            break;
+        case ITEM_BONUS_AZERITE_TIER_UNLOCK_SET:
+            if (values[1] < _state.AzeriteTierUnlockSetPriority)
+            {
+                AzeriteTierUnlockSetId = values[0];
+                _state.AzeriteTierUnlockSetPriority = values[1];
+            }
             break;
         case ITEM_BONUS_OVERRIDE_CAN_DISENCHANT:
             CanDisenchant = values[0] != 0;

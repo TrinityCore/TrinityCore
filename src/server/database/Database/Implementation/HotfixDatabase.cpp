@@ -110,6 +110,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name, FactionID, DepositRate, ConsignmentRate FROM auction_house ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_AUCTION_HOUSE, "SELECT ID, Name_lang FROM auction_house_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // AzeriteEmpoweredItem.db2
+    PrepareStatement(HOTFIX_SEL_AZERITE_EMPOWERED_ITEM, "SELECT ID, ItemID, AzeriteTierUnlockSetID, AzeritePowerSetID FROM azerite_empowered_item"
+        " ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // AzeriteEssence.db2
     PrepareStatement(HOTFIX_SEL_AZERITE_ESSENCE, "SELECT Name, Description, ID, SpecSetID FROM azerite_essence ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_AZERITE_ESSENCE, "SELECT ID, Name_lang, Description_lang FROM azerite_essence_locale WHERE locale = ?", CONNECTION_SYNCH);
@@ -136,6 +140,21 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // AzeritePower.db2
     PrepareStatement(HOTFIX_SEL_AZERITE_POWER, "SELECT ID, SpellID, ItemBonusListID, SpecSetID, Flags FROM azerite_power ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // AzeritePowerSetMember.db2
+    PrepareStatement(HOTFIX_SEL_AZERITE_POWER_SET_MEMBER, "SELECT ID, AzeritePowerSetID, AzeritePowerID, Class, Tier, OrderIndex"
+        " FROM azerite_power_set_member ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // AzeriteTierUnlock.db2
+    PrepareStatement(HOTFIX_SEL_AZERITE_TIER_UNLOCK, "SELECT ID, ItemCreationContext, Tier, AzeriteLevel, AzeriteTierUnlockSetID"
+        " FROM azerite_tier_unlock ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // AzeriteTierUnlockSet.db2
+    PrepareStatement(HOTFIX_SEL_AZERITE_TIER_UNLOCK_SET, "SELECT ID, Flags FROM azerite_tier_unlock_set ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // AzeriteUnlockMapping.db2
+    PrepareStatement(HOTFIX_SEL_AZERITE_UNLOCK_MAPPING, "SELECT ID, ItemLevel, ItemBonusListHead, ItemBonusListShoulders, ItemBonusListChest, "
+        "AzeriteUnlockMappingSetID FROM azerite_unlock_mapping ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // BankBagSlotPrices.db2
     PrepareStatement(HOTFIX_SEL_BANK_BAG_SLOT_PRICES, "SELECT ID, Cost FROM bank_bag_slot_prices ORDER BY ID DESC", CONNECTION_SYNCH);

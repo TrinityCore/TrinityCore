@@ -418,6 +418,22 @@ struct AuctionHouseLoadInfo
     }
 };
 
+struct AzeriteEmpoweredItemLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "ItemID" },
+            { false, FT_INT, "AzeriteTierUnlockSetID" },
+            { false, FT_INT, "AzeritePowerSetID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AzeriteEmpoweredItemMeta::Instance(), HOTFIX_SEL_AZERITE_EMPOWERED_ITEM);
+        return &loadInfo;
+    }
+};
+
 struct AzeriteEssenceLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -529,6 +545,73 @@ struct AzeritePowerLoadInfo
             { true, FT_INT, "Flags" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AzeritePowerMeta::Instance(), HOTFIX_SEL_AZERITE_POWER);
+        return &loadInfo;
+    }
+};
+
+struct AzeritePowerSetMemberLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "AzeritePowerSetID" },
+            { true, FT_INT, "AzeritePowerID" },
+            { true, FT_INT, "Class" },
+            { true, FT_INT, "Tier" },
+            { true, FT_INT, "OrderIndex" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AzeritePowerSetMemberMeta::Instance(), HOTFIX_SEL_AZERITE_POWER_SET_MEMBER);
+        return &loadInfo;
+    }
+};
+
+struct AzeriteTierUnlockLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_BYTE, "ItemCreationContext" },
+            { false, FT_BYTE, "Tier" },
+            { false, FT_BYTE, "AzeriteLevel" },
+            { false, FT_INT, "AzeriteTierUnlockSetID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AzeriteTierUnlockMeta::Instance(), HOTFIX_SEL_AZERITE_TIER_UNLOCK);
+        return &loadInfo;
+    }
+};
+
+struct AzeriteTierUnlockSetLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AzeriteTierUnlockSetMeta::Instance(), HOTFIX_SEL_AZERITE_TIER_UNLOCK_SET);
+        return &loadInfo;
+    }
+};
+
+struct AzeriteUnlockMappingLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "ItemLevel" },
+            { true, FT_INT, "ItemBonusListHead" },
+            { true, FT_INT, "ItemBonusListShoulders" },
+            { true, FT_INT, "ItemBonusListChest" },
+            { false, FT_INT, "AzeriteUnlockMappingSetID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AzeriteUnlockMappingMeta::Instance(), HOTFIX_SEL_AZERITE_UNLOCK_MAPPING);
         return &loadInfo;
     }
 };

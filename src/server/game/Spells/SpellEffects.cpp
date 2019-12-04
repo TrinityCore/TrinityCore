@@ -19,6 +19,7 @@
 #include "Spell.h"
 #include "AccountMgr.h"
 #include "AreaTrigger.h"
+#include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
@@ -337,7 +338,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //256 SPELL_EFFECT_256
     &Spell::EffectNULL,                                     //257 SPELL_EFFECT_257
     &Spell::EffectNULL,                                     //258 SPELL_EFFECT_MODIFY_KEYSTONE
-    &Spell::EffectNULL,                                     //259 SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM
+    &Spell::EffectRespecAzeriteEmpoweredItem,               //259 SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM
     &Spell::EffectNULL,                                     //260 SPELL_EFFECT_SUMMON_STABLED_PET
     &Spell::EffectNULL,                                     //261 SPELL_EFFECT_SCRAP_ITEM
     &Spell::EffectNULL,                                     //262 SPELL_EFFECT_262
@@ -5819,6 +5820,34 @@ void Spell::EffectLearnTransmogSet(SpellEffIndex /*effIndex*/)
         return;
 
     unitTarget->ToPlayer()->GetSession()->GetCollectionMgr()->AddTransmogSet(effectInfo->MiscValue);
+}
+
+void Spell::EffectRespecAzeriteEmpoweredItem(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!itemTarget || !itemTarget->IsAzeriteEmpoweredItem())
+        return;
+
+    Player* owner = m_caster->ToPlayer();
+    if (!owner)
+        return;
+
+    AzeriteEmpoweredItem* azeriteEmpoweredItem = itemTarget->ToAzeriteEmpoweredItem();
+    owner->ModifyMoney(-azeriteEmpoweredItem->GetRespecCost());
+
+    // reapply all item mods - item level change affects stats and auras
+    if (azeriteEmpoweredItem->IsEquipped())
+        owner->_ApplyItemMods(azeriteEmpoweredItem, azeriteEmpoweredItem->GetSlot(), false);
+
+    azeriteEmpoweredItem->ClearSelectedAzeritePowers();
+
+    if (azeriteEmpoweredItem->IsEquipped())
+        owner->_ApplyItemMods(azeriteEmpoweredItem, azeriteEmpoweredItem->GetSlot(), true);
+
+    azeriteEmpoweredItem->SetState(ITEM_CHANGED, owner);
+    owner->SetNumRespecs(owner->GetNumRespecs() + 1);
 }
 
 void Spell::EffectLearnAzeriteEssencePower(SpellEffIndex /*effIndex*/)

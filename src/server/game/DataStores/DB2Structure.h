@@ -259,6 +259,14 @@ struct AuctionHouseEntry
     uint8 ConsignmentRate;
 };
 
+struct AzeriteEmpoweredItemEntry
+{
+    uint32 ID;
+    int32 ItemID;
+    uint32 AzeriteTierUnlockSetID;
+    uint32 AzeritePowerSetID;
+};
+
 struct AzeriteEssenceEntry
 {
     LocalizedString* Name;
@@ -316,6 +324,41 @@ struct AzeritePowerEntry
     int32 ItemBonusListID;
     int32 SpecSetID;
     int32 Flags;
+};
+
+struct AzeritePowerSetMemberEntry
+{
+    uint32 ID;
+    int32 AzeritePowerSetID;
+    int32 AzeritePowerID;
+    int32 Class;
+    int32 Tier;
+    int32 OrderIndex;
+};
+
+struct AzeriteTierUnlockEntry
+{
+    uint32 ID;
+    uint8 ItemCreationContext;
+    uint8 Tier;
+    uint8 AzeriteLevel;
+    uint32 AzeriteTierUnlockSetID;
+};
+
+struct AzeriteTierUnlockSetEntry
+{
+    uint32 ID;
+    int32 Flags;
+};
+
+struct AzeriteUnlockMappingEntry
+{
+    uint32 ID;
+    int32 ItemLevel;
+    int32 ItemBonusListHead;
+    int32 ItemBonusListShoulders;
+    int32 ItemBonusListChest;
+    uint32 AzeriteUnlockMappingSetID;
 };
 
 struct BankBagSlotPricesEntry
