@@ -1694,6 +1694,7 @@ CREATE TABLE `characters` (
   `rest_bonus` float NOT NULL DEFAULT '0',
   `resettalents_cost` int(10) unsigned NOT NULL DEFAULT '0',
   `resettalents_time` int(10) unsigned NOT NULL DEFAULT '0',
+  `numRespecs` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `primarySpecialization` int(10) unsigned NOT NULL DEFAULT '0',
   `trans_x` float NOT NULL DEFAULT '0',
   `trans_y` float NOT NULL DEFAULT '0',
@@ -2898,6 +2899,33 @@ LOCK TABLES `item_instance_azerite` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `item_instance_azerite_empowered`
+--
+
+DROP TABLE IF EXISTS `item_instance_azerite_empowered`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_instance_azerite_empowered` (
+  `itemGuid` bigint(20) unsigned NOT NULL,
+  `azeritePowerId1` int(11) NOT NULL,
+  `azeritePowerId2` int(11) NOT NULL,
+  `azeritePowerId3` int(11) NOT NULL,
+  `azeritePowerId4` int(11) NOT NULL,
+  `azeritePowerId5` int(11) NOT NULL,
+  PRIMARY KEY (`itemGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_instance_azerite_empowered`
+--
+
+LOCK TABLES `item_instance_azerite_empowered` WRITE;
+/*!40000 ALTER TABLE `item_instance_azerite_empowered` DISABLE KEYS */;
+/*!40000 ALTER TABLE `item_instance_azerite_empowered` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `item_instance_azerite_milestone_power`
 --
 
@@ -3662,7 +3690,8 @@ INSERT INTO `updates` VALUES
 ('2019_11_03_00_characters.sql','DC789597F85B890E9A7901B4443DAD9CAEE2A02A','RELEASED','2019-11-03 14:13:27',0),
 ('2019_11_12_00_characters.sql','D4C642B4D48DAE9F56329BDE51C258323A132A91','RELEASED','2019-11-12 16:31:29',0),
 ('2019_11_22_00_characters.sql','95DFA71DBD75542C098CD86E9C0051C9690902F0','RELEASED','2019-11-20 15:10:12',0),
-('2019_11_30_00_characters.sql','D0678E62B651AECA60C2DD6989BF80BD999AD12B','RELEASED','2019-11-29 22:42:01',0);
+('2019_11_30_00_characters.sql','D0678E62B651AECA60C2DD6989BF80BD999AD12B','RELEASED','2019-11-29 22:42:01',0),
+('2019_12_05_00_characters.sql','EA381C9634A5646A3168F15DF4E06A708A622762','RELEASED','2019-12-05 20:56:58',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
