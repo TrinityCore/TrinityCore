@@ -40,18 +40,29 @@ bool AzeriteEmpoweredItem::Create(ObjectGuid::LowType guidlow, uint32 itemId, It
 
 void AzeriteEmpoweredItem::SaveToDB(CharacterDatabaseTransaction& trans)
 {
-    Item::SaveToDB(trans);
-
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_AZERITE_EMPOWERED);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    for (uint32 i = 0; i < MAX_AZERITE_EMPOWERED_TIER; ++i)
-        stmt->setInt32(1 + i, m_azeriteEmpoweredItemData->Selections[i]);
+    switch (GetState())
+    {
+        case ITEM_NEW:
+        case ITEM_CHANGED:
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_AZERITE_EMPOWERED);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            for (uint32 i = 0; i < MAX_AZERITE_EMPOWERED_TIER; ++i)
+                stmt->setInt32(1 + i, m_azeriteEmpoweredItemData->Selections[i]);
 
-    trans->Append(stmt);
+            trans->Append(stmt);
+            break;
+        }
+        case ITEM_REMOVED:
+        default:
+            break;
+    }
+
+    Item::SaveToDB(trans);
 }
 
 void AzeriteEmpoweredItem::LoadAzeriteEmpoweredItemData(Player const* owner, AzeriteEmpoweredItemData& azeriteEmpoweredItem)
