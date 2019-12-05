@@ -33,6 +33,7 @@
 
 enum DruidSpells
 {
+    SPELL_DRUID_BLOOD_IN_THE_WATER_SCRIPT   = 80863,
     SPELL_DRUID_WRATH                       = 5176,
     SPELL_DRUID_STARFIRE                    = 2912,
     SPELL_DRUID_STARSURGE                   = 78674,
@@ -89,6 +90,7 @@ enum DruidSpells
     SPELL_DRUID_NATURES_BOUNTY              = 96206,
     SPELL_DRUID_NATURES_GRACE               = 16880,
     SPELL_DRUID_PULVERIZE_TRIGGERED         = 80951,
+    SPELL_DRUID_RIP                         = 1079,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
@@ -102,6 +104,7 @@ enum DruidSpells
     SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1      = 5420,
     SPELL_DRUID_TREE_OF_LIFE_PASSIVE_2      = 81097,
     SPELL_DRUID_TREE_OF_LIFE_PASSIVE_3      = 81098,
+    SPELL_DRUID_T13_FERAL_2P_BONUS          = 105725,
     SPELL_DRUID_WILD_MUSHROOM               = 88747,
     SPELL_DRUID_WILD_MUSHROOM_DAMAGE        = 78777,
     SPELL_DRUID_WILD_MUSHROOM_SUICIDE       = 92853,
@@ -1879,9 +1882,75 @@ class spell_dru_feral_swiftness_clear : public SpellScript
     }
 };
 
+// -80318 - Blood in the Water
+class spell_dru_blood_in_the_water : public AuraScript
+{
+    PrepareAuraScript(spell_dru_blood_in_the_water);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_BLOOD_IN_THE_WATER_SCRIPT,
+                SPELL_DRUID_T13_FERAL_2P_BONUS
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (!eventInfo.GetDamageInfo() || !eventInfo.GetDamageInfo()->GetVictim())
+            return false;
+
+        float healthPct = 25.f;
+
+        // T13 Bonus
+        if (GetTarget()->HasAura(SPELL_DRUID_T13_FERAL_2P_BONUS))
+            healthPct = sSpellMgr->AssertSpellInfo(SPELL_DRUID_T13_FERAL_2P_BONUS)->Effects[EFFECT_1].BasePoints;
+
+        return eventInfo.GetDamageInfo()->GetVictim()->GetHealthPct() <= healthPct && roll_chance_i(50 * GetSpellInfo()->GetRank());
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_BLOOD_IN_THE_WATER_SCRIPT, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_blood_in_the_water::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_dru_blood_in_the_water::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 80863 - Blood in the Water
+class spell_dru_blood_in_the_water_script : public SpellScript
+{
+    PrepareSpellScript(spell_dru_blood_in_the_water_script);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_RIP });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Aura* aura = GetHitUnit()->GetAura(SPELL_DRUID_RIP, caster->GetGUID()))
+                aura->RefreshDuration();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_blood_in_the_water_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterAuraScript(spell_dru_berserk);
+    RegisterAuraScript(spell_dru_blood_in_the_water);
+    RegisterSpellScript(spell_dru_blood_in_the_water_script);
     RegisterSpellAndAuraScriptPair(spell_dru_dash, spell_dru_dash_AuraScript);
     RegisterAuraScript(spell_dru_eclipse);
     RegisterSpellScript(spell_dru_eclipse_energize);

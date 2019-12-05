@@ -5610,6 +5610,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
     });
+    
+    // Blood in the Water (Rank 1)
+    ApplySpellFix({ 80318 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
+    });
 
     // Last Word
     ApplySpellFix({
