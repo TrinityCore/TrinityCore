@@ -113,7 +113,7 @@ namespace WorldPackets
             uint8 Slot = 0;
         };
 
-        class AzeriteEmpoweredItemEquippedStatusChanged final : public ServerPacket
+        class TC_GAME_API AzeriteEmpoweredItemEquippedStatusChanged final : public ServerPacket
         {
         public:
             AzeriteEmpoweredItemEquippedStatusChanged() : ServerPacket(SMSG_AZERITE_EMPOWERED_ITEM_EQUIPPED_STATUS_CHANGED, 1) { }
