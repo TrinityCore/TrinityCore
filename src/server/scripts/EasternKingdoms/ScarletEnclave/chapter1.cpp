@@ -345,10 +345,6 @@ public:
     }
 };
 
- /*######
-## npc_eye_of_acherus
-######*/
-
 /*######
 ## npc_eye_of_acherus
 ######*/
