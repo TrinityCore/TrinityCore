@@ -53,10 +53,12 @@ ECHO.
 ECHO Now extracting dbcs and maps, please do not exit the program!
 ECHO.
 RMDIR /s /q .\buildings
-RMDIR /s /q .\vmaps
+RMDIR /s /q .\Cameras
+RMDIR /s /q .\db2
+RMDIR /s /q .\dbc
 RMDIR /s /q .\maps
 RMDIR /s /q .\mmaps
-RMDIR /s /q .\dbc
+RMDIR /s /q .\vmaps
 mapextractor.exe
 ECHO.
 ECHO Dbcs and maps are finished extracting... Now extracting vmaps...
@@ -73,13 +75,12 @@ ECHO Vmaps are now assembled... Now ready to build mmaps...
 ECHO.
 ECHO.
 MKDIR mmaps
-MOVE .\buildings\* .\vmaps
 mmaps_generator.exe
 PAUSE
 
 CLS
 ECHO.
-ECHO All maps/dbc/vmaps/mmaps completed!
+ECHO All /camera/maps/db2/dbc/vmaps/mmaps completed!
 ECHO.
 ECHO You will now need to move the folders dbc, vmaps, maps, and mmaps to your server directory. 
 ECHO.
