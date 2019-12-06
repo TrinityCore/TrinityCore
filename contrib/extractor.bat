@@ -1,57 +1,88 @@
 @ECHO OFF
+title Simple Extractor
+COLOR 0A
+
 CLS
-
-:MENU
 ECHO.
-ECHO ...............................................
-ECHO Trinitycore dbc/db2, maps, vmaps, mmaps extractor
-ECHO ...............................................
-ECHO PRESS 1, 2, 3 OR 4 to select your task, or 5 to EXIT.
-ECHO ...............................................
+ECHO     ______                       __
+ECHO    /\__  _\       __          __/\ \__
+ECHO    \/_/\ \/ _ __ /\_\    ___ /\_\ \, _\  __  __
+ECHO         \ \ \/\`'__\/\ \ /' _ `\/\ \ \ \/ /\ \/\ \
+ECHO          \ \ \ \ \/ \ \ \/\ \/\ \ \ \ \ \_\ \ \_\ \
+ECHO           \ \_\ \_\  \ \_\ \_\ \_\ \_\ \__\//`____ \
+ECHO            \/_/\/_/   \/_/\/_/\/_/\/_/\/__/ `/___/  \
+ECHO                                       C O R E  /\___/
+ECHO      http://TrinityCore.org                    \/__/
 ECHO.
-ECHO The vmaps extractor output text below is intended and not an error:
-ECHO ..........................................
-ECHO Extracting World\Wmo\Band\Final_Stage.wmo
-ECHO No such file.
-ECHO Couldn't open RootWmo!!!
-ECHO Done!
-ECHO ..........................................
 ECHO.
-ECHO 1 - Extract dbc/db2 and maps
-ECHO 2 - Extract vmaps (needs maps to be extracted before you run this)
-ECHO 3 - Extract mmaps (needs vmaps to be extracted before you run this, may take hours)
-ECHO 4 - Extract all (may take hours)
-ECHO 5 - EXIT
 ECHO.
-SET /P M=Type 1, 2, 3, 4 or 5 then press ENTER:
-IF %M%==1 GOTO MAPS
-IF %M%==2 GOTO VMAPS
-IF %M%==3 GOTO MMAPS
-IF %M%==4 GOTO ALL
-IF %M%==5 GOTO :EOF
-
-:MAPS
-start /b /w mapextractor.exe
-GOTO MENU
-
-:VMAPS
-start /b /w vmap4extractor.exe
-start /b /w vmap4assembler.exe Buildings vmaps
-rmdir Buildings /s /q
-GOTO MENU
-
-:MMAPS
-ECHO This may take a few hours to complete. Please be patient.
+ECHO.
 PAUSE
-start /b /w mmaps_generator.exe
-GOTO MENU
 
-:ALL
-ECHO This may take a few hours to complete. Please be patient.
+CLS
+COLOR 0A
+ECHO.
+ECHO.
+ECHO       Before Continuing, PLEASE check to ensure your 
+ECHO.
+ECHO          Config.wtf is set at accounttype "BFA"
+ECHO.
+ECHO     (They should be located in: "\World of Warcraft\_retail_\WTF\")
+ECHO.
+ECHO.
 PAUSE
-start /b /w mapextractor.exe
-start /b /w vmap4extractor.exe
-start /b /w vmap4assembler.exe
-rmdir Buildings /s /q
-start /b /w mmaps_generator.exe
-GOTO MENU
+
+CLS
+COLOR 0A
+ECHO.
+ECHO.
+ECHO                             ***NOTE*** 
+ECHO This entire process will take anywhere from 2 hours to 20 hours or MORE, 
+ECHO                depending upon the speed of your machine.
+ECHO.
+ECHO To continue the extraction process, enter 1, else, enter X to exit.
+SET /p v= 		Enter a char:
+IF %v%==1 GOTO Extract
+IF %v%==x GOTO EXIT
+IF %v%==X GOTO EXIT
+
+:Extract
+CLS
+COLOR 0A
+ECHO.
+ECHO Now extracting dbcs and maps, please do not exit the program!
+ECHO.
+RMDIR /s /q .\buildings
+RMDIR /s /q .\vmaps
+RMDIR /s /q .\maps
+RMDIR /s /q .\mmaps
+RMDIR /s /q .\dbc
+mapextractor.exe
+ECHO.
+ECHO Dbcs and maps are finished extracting... Now extracting vmaps...
+ECHO.
+vmap4extractor.exe
+ECHO.
+ECHO Vmaps are now extracted... Now assembling vmaps...
+ECHO.
+MKDIR vmaps
+vmap4assembler.exe Buildings vmaps
+ECHO.
+ECHO.
+ECHO Vmaps are now assembled... Now ready to build mmaps...
+ECHO.
+ECHO.
+MKDIR mmaps
+MOVE .\buildings\* .\vmaps
+mmaps_generator.exe
+PAUSE
+
+CLS
+ECHO.
+ECHO All maps/dbc/vmaps/mmaps completed!
+ECHO.
+ECHO You will now need to move the folders dbc, vmaps, maps, and mmaps to your server directory. 
+ECHO.
+ECHO.
+PAUSE
+:EXIT
