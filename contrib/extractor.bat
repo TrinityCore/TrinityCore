@@ -140,8 +140,9 @@ GOTO MENU
 CLS
 COLOR 0A
 ECHO.
-ECHO Now extracting Cameras, please do not exit the program!
+ECHO Now extracting VMAPS, please do not exit the program!
 ECHO.
+RMDIR /s /q .\Buildings
 RMDIR /s /q .\vmaps
 vmap4extractor.exe
 ECHO.
