@@ -23,22 +23,9 @@ CLS
 COLOR 0A
 ECHO.
 ECHO.
-ECHO       Before Continuing, PLEASE check to ensure your 
-ECHO.
-ECHO          Config.wtf is set at accounttype "BFA"
-ECHO.
-ECHO     (They should be located in: "\World of Warcraft\_retail_\WTF\")
-ECHO.
-ECHO.
-PAUSE
-
-CLS
-COLOR 0A
-ECHO.
-ECHO.
 ECHO                             ***NOTE*** 
-ECHO This entire process will take anywhere from 2 hours to 20 hours or MORE, 
-ECHO                depending upon the speed of your machine.
+ECHO This entire process will take anywhere from 2 hours to 8 hours or MORE, 
+ECHO                depending upon the speed of your machine. (If you have a potato machine *Shauren says that*)
 ECHO.
 ECHO To continue the extraction process, enter 1, else, enter X to exit.
 SET /p v= 		Enter a char:
