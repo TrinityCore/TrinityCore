@@ -1001,47 +1001,37 @@ class spell_mage_mana_shield : public SpellScriptLoader
 };
 
 // -29074 - Master of Elements
-class spell_mage_master_of_elements : public SpellScriptLoader
+class spell_mage_master_of_elements : public AuraScript
 {
-    public:
-        spell_mage_master_of_elements() : SpellScriptLoader("spell_mage_master_of_elements") { }
+    PrepareAuraScript(spell_mage_master_of_elements);
 
-        class spell_mage_master_of_elements_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_master_of_elements_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE });
-            }
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo()->GetSpellInfo() != nullptr;
+    }
 
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetDamageInfo()->GetSpellInfo() != nullptr;
-            }
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
+        SpellInfo const* spell = eventInfo.GetSpellInfo();
+        int32 mana = int32(spell->CalcPowerCost(GetTarget(), spell->GetSchoolMask()));
+        mana = CalculatePct(mana, aurEff->GetAmount());
 
-                int32 mana = int32(eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), eventInfo.GetDamageInfo()->GetSchoolMask()));
-                mana = CalculatePct(mana, aurEff->GetAmount());
+        if (mana)
+            GetTarget()->CastCustomSpell(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, nullptr, aurEff);
+    }
 
-                if (mana > 0)
-                    GetTarget()->CastCustomSpell(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_mage_master_of_elements_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_mage_master_of_elements_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_master_of_elements_AuraScript();
-        }
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_master_of_elements::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_mage_master_of_elements::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // -86181 - Nether Vortex
@@ -2346,7 +2336,7 @@ void AddSC_mage_spell_scripts()
     RegisterAuraScript(spell_mage_living_bomb);
     new spell_mage_mage_ward();
     new spell_mage_mana_shield();
-    new spell_mage_master_of_elements();
+    RegisterAuraScript(spell_mage_master_of_elements);
     RegisterSpellAndAuraScriptPair(spell_mage_mirror_image, spell_mage_mirror_image_AurasScript);
     RegisterAuraScript(spell_mage_nether_vortex);
     RegisterAuraScript(spell_mage_offensive_state_dnd);
