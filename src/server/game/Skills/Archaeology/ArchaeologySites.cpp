@@ -41,7 +41,7 @@ enum SurveyBot
 
 void Archaeology::LoadSitesFromDB()
 {
-    QueryResult result = CharacterDatabase.PQuery("SELECT site, type, finds FROM character_archaeology_sites WHERE guid=%u", _player->GetGUID());
+    QueryResult result = CharacterDatabase.PQuery("SELECT site, type, finds FROM character_archaeology_sites WHERE guid=%u", _player->GetGUID().GetCounter());
 
     if (!result)
         return;
@@ -152,7 +152,7 @@ void Archaeology::UseSite()
             RegeneratePosition(position, GetContinent());
         else
         {
-            CharacterDatabase.PExecute("UPDATE character_archaeology_sites SET finds = %u WHERE site= %u AND guid= %u", _site[position].State, position, _player->GetGUID());
+            CharacterDatabase.PExecute("UPDATE character_archaeology_sites SET finds = %u WHERE site= %u AND guid= %u", _site[position].State, position, _player->GetGUID().GetCounter());
             sArchaeologyMgr->SetSiteCoords(_site[position]);
         }
     }
@@ -224,7 +224,7 @@ void Archaeology::RegeneratePosition(uint32 position, Continent continent)
 
     uint16 entry = sArchaeologyMgr->GetNewSite(continent, _site, _continentState[continent] == STATE_EXT, _player->getLevel());
     SetSite(position, entry);
-    CharacterDatabase.PExecute("REPLACE INTO character_archaeology_sites values (%u, %u, %u, %u);", _player->GetGUID(), position, entry, _site[position].State);
+    CharacterDatabase.PExecute("REPLACE INTO character_archaeology_sites values (%u, %u, %u, %u);", _player->GetGUID().GetCounter(), position, entry, _site[position].State);
 }
 
 void Archaeology::RegenerateContinent(Continent continent)

@@ -87,7 +87,7 @@ void Archaeology::RegenerateBranch(uint8 branch)
     uint16 project = sArchaeologyMgr->GetNewProject(branch, &_branches[branch], &_completedProjects, _player->GetSkillValue(SKILL_ARCHAEOLOGY));
     _branches[branch].Project = project;
 
-    CharacterDatabase.PExecute("REPLACE INTO character_archaeology_projects VALUES (%u, %u, %u)", _player->GetGUID(), branch, project);
+    CharacterDatabase.PExecute("REPLACE INTO character_archaeology_projects VALUES (%u, %u, %u)", _player->GetGUID().GetCounter(), branch, project);
 }
 
 void Archaeology::VerifyProjects()
@@ -114,8 +114,7 @@ void Archaeology::VerifyProjects()
 
 void Archaeology::CleanProjects()
 {
-    CharacterDatabase.PExecute("delete from character_archaeology_projects where guid=%u",
-        _player->GetGUID());
+    CharacterDatabase.PExecute("delete from character_archaeology_projects where guid=%u", _player->GetGUID().GetCounter());
 
     for (uint8 i = 0; i < MAX_PROJECTS; ++i)
         VisualizeBranch(i, 0);
@@ -193,15 +192,14 @@ void Archaeology::CompleteProject(uint16 projectId)
         _completedProjects[projectId].first = time(nullptr);
         _completedProjects[projectId].second = 1;
 
-        CharacterDatabase.PExecute("REPLACE INTO character_archaeology_completed VALUES (%u, %u, %u, 1);",
-            _player->GetGUID(), projectId, time(nullptr));
+        CharacterDatabase.PExecute("REPLACE INTO character_archaeology_completed VALUES (%u, %u, %u, 1);", _player->GetGUID().GetCounter(), projectId, time(nullptr));
     }
     else
     {
         _completedProjects[projectId].second++;
 
         CharacterDatabase.PExecute("UPDATE character_archaeology_completed SET count=%u WHERE guid=%u and project=%u;",
-            _completedProjects[projectId].second, _player->GetGUID(), projectId);
+            _completedProjects[projectId].second, _player->GetGUID().GetCounter(), projectId);
     }
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS, projectId, 1);
