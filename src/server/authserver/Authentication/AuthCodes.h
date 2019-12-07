@@ -84,9 +84,9 @@ struct RealmBuildInfo;
 
 namespace AuthHelper
 {
-    bool IsAcceptedClientBuild(int build);
-    bool IsPostBCAcceptedClientBuild(int build);
-    bool IsPreBCAcceptedClientBuild(int build);
+    bool IsAcceptedClientBuild(uint32 build);
+    bool IsPostBCAcceptedClientBuild(uint32 build);
+    bool IsPreBCAcceptedClientBuild(uint32 build);
 }
 
 #endif
