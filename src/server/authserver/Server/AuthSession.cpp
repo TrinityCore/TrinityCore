@@ -430,41 +430,42 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     if (AuthHelper::IsAcceptedClientBuild(_build))
     {
         pkt << uint8(WOW_SUCCESS);
+
+        // B may be calculated < 32B so we force minimal length to 32B
+        pkt.append(B.AsByteArray(32).get(), 32);      // 32 bytes
+        pkt << uint8(1);
+        pkt.append(g.AsByteArray(1).get(), 1);
+        pkt << uint8(32);
+        pkt.append(N.AsByteArray(32).get(), 32);
+        pkt.append(s.AsByteArray(int32(BufferSizes::SRP_6_S)).get(), size_t(BufferSizes::SRP_6_S));   // 32 bytes
+        pkt.append(VersionChallenge.data(), VersionChallenge.size());
+        pkt << uint8(securityFlags);            // security flags (0x0...0x04)
+
+        if (securityFlags & 0x01)               // PIN input
+        {
+            pkt << uint32(0);
+            pkt << uint64(0) << uint64(0);      // 16 bytes hash?
+        }
+
+        if (securityFlags & 0x02)               // Matrix input
+        {
+            pkt << uint8(0);
+            pkt << uint8(0);
+            pkt << uint8(0);
+            pkt << uint8(0);
+            pkt << uint64(0);
+        }
+
+        if (securityFlags & 0x04)               // Security token input
+            pkt << uint8(1);
+
+        TC_LOG_DEBUG("server.authserver", "'%s:%d' [AuthChallenge] account %s is using '%s' locale (%u)",
+            ipAddress.c_str(), port, _accountInfo.Login.c_str(), _localizationName.c_str(), GetLocaleByName(_localizationName));
+
         _status = STATUS_LOGON_PROOF;
     }
     else
         pkt << uint8(WOW_FAIL_VERSION_INVALID);
-
-    // B may be calculated < 32B so we force minimal length to 32B
-    pkt.append(B.AsByteArray(32).get(), 32);      // 32 bytes
-    pkt << uint8(1);
-    pkt.append(g.AsByteArray(1).get(), 1);
-    pkt << uint8(32);
-    pkt.append(N.AsByteArray(32).get(), 32);
-    pkt.append(s.AsByteArray(int32(BufferSizes::SRP_6_S)).get(), size_t(BufferSizes::SRP_6_S));   // 32 bytes
-    pkt.append(VersionChallenge.data(), VersionChallenge.size());
-    pkt << uint8(securityFlags);            // security flags (0x0...0x04)
-
-    if (securityFlags & 0x01)               // PIN input
-    {
-        pkt << uint32(0);
-        pkt << uint64(0) << uint64(0);      // 16 bytes hash?
-    }
-
-    if (securityFlags & 0x02)               // Matrix input
-    {
-        pkt << uint8(0);
-        pkt << uint8(0);
-        pkt << uint8(0);
-        pkt << uint8(0);
-        pkt << uint64(0);
-    }
-
-    if (securityFlags & 0x04)               // Security token input
-        pkt << uint8(1);
-
-    TC_LOG_DEBUG("server.authserver", "'%s:%d' [AuthChallenge] account %s is using '%s' locale (%u)",
-        ipAddress.c_str(), port, _accountInfo.Login.c_str(), _localizationName.c_str(), GetLocaleByName(_localizationName));
 
     SendPacket(pkt);
 }
@@ -849,7 +850,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
 
         // No SQL injection. id of realm is controlled by the database.
         uint32 flag = realm.Flags;
-        RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm.Build);
+        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(realm.Build);
         if (!okBuild)
         {
             if (!buildInfo)
@@ -964,7 +965,7 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, uint8 const* vers
     std::array<uint8, 20> const* versionHash = nullptr;
     if (!isReconnect)
     {
-        RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(_build);
+        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(_build);
         if (!buildInfo)
             return false;
 
