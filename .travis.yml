@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 
 language: cpp
 compiler:
@@ -11,7 +11,7 @@ addons:
   apt:
     sources:
       - sourceline: 'ppa:mhier/libboost-latest'
-      - ubuntu-toolchain-r-test
+#     - sourceline: 'ubuntu-toolchain-r-test'
     packages:
       - boost1.67
       - libssl-dev
