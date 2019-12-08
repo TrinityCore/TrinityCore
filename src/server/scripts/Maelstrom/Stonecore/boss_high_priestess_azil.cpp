@@ -574,7 +574,7 @@ class spell_azil_summon_wave_south : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        for (int i = 0; i < 3; i++)
+        for (uint8 i = 0; i < 3; i++)
             caster->CastSpell(caster, SPELL_SUMMON_ADD_SOUTH, true);
     }
 
@@ -596,7 +596,7 @@ class spell_azil_summon_wave_west : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        for (int i = 0; i < 10; i++)
+        for (uint8 i = 0; i < 10; i++)
             caster->CastSpell(caster, SPELL_SUMMON_ADD_WEST, true);
     }
 
