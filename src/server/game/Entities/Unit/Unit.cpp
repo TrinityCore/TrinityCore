@@ -6653,6 +6653,18 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     if (!spellProto->HasAttribute(SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS))
         DoneTotal += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS, victim->GetCreatureTypeMask());
 
+    // Custom scripted damage
+    switch (spellProto->SpellFamilyName)
+    {
+        case SPELLFAMILY_HUNTER:
+            // Hunter Pet basic attacks (RAP * 0.4 * 0.2)
+            if (spellProto->SpellFamilyFlags[0] & 0x00080000)
+                DoneTotal += (owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.4f) * 0.2f;
+            break;
+        default:
+            break;
+    }
+
     // Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
 
