@@ -416,7 +416,7 @@ class npc_azil_devout_follower : public CreatureScript
         {
             npc_azil_devout_followerAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) { }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 if (Creature* azil = _instance->GetCreature(DATA_HIGH_PRIESTESS_AZIL))
                     azil->AI()->JustSummoned(me);
