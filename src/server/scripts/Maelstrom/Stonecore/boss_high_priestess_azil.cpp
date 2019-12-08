@@ -254,6 +254,9 @@ class boss_high_priestess_azil : public CreatureScript
                         events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, Seconds(6));
                         events.ScheduleEvent(EVENT_FORCE_GRIP, Seconds(8), Seconds(10));
                         events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, Seconds(16));
+                        events.ScheduleEvent(EVENT_ENERGY_SHIELD, Seconds(35), Seconds(36));
+                        events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, Milliseconds(1));
+                        events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, Seconds(42));
                         break;
                     default:
                         break;
