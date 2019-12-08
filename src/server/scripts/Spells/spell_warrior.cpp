@@ -225,16 +225,9 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                if (Player* player = GetUnitOwner()->ToPlayer())
+                if (Player* player = GetTarget()->ToPlayer())
                 {
-                    int32 damage = 0;
-                    Item* mainhandWeapon = player->GetWeaponForAttack(BASE_ATTACK);
-                    Item* offhandWeapon = player->GetWeaponForAttack(OFF_ATTACK);
-                    if (mainhandWeapon)
-                        damage += (mainhandWeapon->GetTemplate()->DamageMin + mainhandWeapon->GetTemplate()->DamageMax) * 0.5f;
-                    if (offhandWeapon)
-                        damage += (offhandWeapon->GetTemplate()->DamageMin + offhandWeapon->GetTemplate()->DamageMax) * 0.5f;
-
+                    int32 damage = player->CalculateDamage(eventInfo.GetDamageInfo()->GetAttackType(), false, false);
                     damage = CalculatePct(damage, 16 * GetSpellInfo()->GetRank());
 
                     if (damage)
