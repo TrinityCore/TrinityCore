@@ -81,8 +81,7 @@ enum Events
     EVENT_SUMMON_GRAVITY_WELL,
     EVENT_ENERGY_SHIELD,
     EVENT_EARTH_FURY,
-    EVENT_SUMMON_WAVE_SOUTH,
-    EVENT_SUMMON_WAVE_WEST,
+    EVENT_SUMMON_FOLLOWERS,
     EVENT_GRAVITY_WELL_AURA_DAMAGE,
     EVENT_GRAVITY_WELL_AURA_PULL,
     EVENT_APPLY_IMMUNITY,
@@ -96,9 +95,10 @@ enum Events
     EVENT_SEISMIC_SHARD_MOUNT
 };
 
-enum EventGroups
+enum Phases
 {
-    EVENT_GROUP_PHASE_ONE = 1
+    PHASE_ONE = 1,
+    PHASE_TWO = 2
 };
 
 enum Points
@@ -161,14 +161,7 @@ class boss_high_priestess_azil : public CreatureScript
 
                 DoCast(me, SPELL_ENERGY_SHIELD);
                 Talk(SAY_AGGRO);
-
-                events.ScheduleEvent(EVENT_INTRO_MOVE, Seconds(2));
-                events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, Seconds(6), EVENT_GROUP_PHASE_ONE);
-                events.ScheduleEvent(EVENT_FORCE_GRIP, Seconds(8), Seconds(10), EVENT_GROUP_PHASE_ONE);
-                events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, Seconds(16), EVENT_GROUP_PHASE_ONE);
-                events.ScheduleEvent(EVENT_ENERGY_SHIELD, Seconds(35), Seconds(36));
-                events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, Milliseconds(1));
-                events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, Seconds(42));
+                SchedulePhaseOne();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -240,15 +233,15 @@ class boss_high_priestess_azil : public CreatureScript
                     case POINT_FLY_UP:
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
-                        events.ScheduleEvent(EVENT_EARTH_FURY_FLY_ABOVE_PLATFORM, Seconds(1));
+                        events.ScheduleEvent(EVENT_EARTH_FURY_FLY_ABOVE_PLATFORM, 1s, 0, PHASE_TWO);
                         break;
                     case POINT_ABOVE_PLATFORM:
                         me->SetFacingTo(5.218534f);
-                        DoCast(me, SPELL_EARTH_FURY_CASTING_VISUAL);
-                        DoCast(me, SPELL_SEISMIC_SHARD_SUMMON_1);
-                        DoCast(me, SPELL_SEISMIC_SHARD_SUMMON_2);
-                        DoCast(me, SPELL_SEISMIC_SHARD_SUMMON_3);
-                        events.ScheduleEvent(EVENT_EARTH_FURY_PREPARE_SHARD, Seconds(6) + Milliseconds(700));
+                        DoCastSelf(SPELL_EARTH_FURY_CASTING_VISUAL);
+                        DoCastSelf(SPELL_SEISMIC_SHARD_SUMMON_1);
+                        DoCastSelf(SPELL_SEISMIC_SHARD_SUMMON_2);
+                        DoCastSelf(SPELL_SEISMIC_SHARD_SUMMON_3);
+                        events.ScheduleEvent(EVENT_EARTH_FURY_PREPARE_SHARD, 6s + 700ms, 0, PHASE_TWO);
                         break;
                     case POINT_GROUND:
                         DoCast(me, SPELL_EJECT_ALL_PASSENGERS);
@@ -256,10 +249,7 @@ class boss_high_priestess_azil : public CreatureScript
                         me->SetDisableGravity(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoStartMovement(me->GetVictim());
-                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, Seconds(6), EVENT_GROUP_PHASE_ONE);
-                        events.ScheduleEvent(EVENT_FORCE_GRIP, Seconds(8), Seconds(10), EVENT_GROUP_PHASE_ONE);
-                        events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, Seconds(16), EVENT_GROUP_PHASE_ONE);
-                        events.ScheduleEvent(EVENT_ENERGY_SHIELD, Seconds(35), Seconds(36));
+                        SchedulePhaseOne();
                         break;
                     default:
                         break;
@@ -286,14 +276,14 @@ class boss_high_priestess_azil : public CreatureScript
                         case EVENT_CURSE_OF_BLOOD:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_CURSE_OF_BLOOD);
-                            events.Repeat(Seconds(13), Seconds(15));
+                            events.Repeat(13s, 15s);
                             break;
                         case EVENT_FORCE_GRIP:
                             MakeInterruptable(true);
                             SetVehicleId(VEHICLE_ID_FORCE_GRIP);
                             DoCastVictim(SPELL_FORCE_GRIP);
-                            events.ScheduleEvent(EVENT_APPLY_IMMUNITY, Seconds(6) + Milliseconds(500));
-                            events.Repeat(Seconds(13), Seconds(15));
+                            events.ScheduleEvent(EVENT_APPLY_IMMUNITY, 6s + 500ms, 0, PHASE_ONE);
+                            events.Repeat(13s, 15s);
                             break;
                         case EVENT_FORCE_GRIP_SMASH:
                             if (Vehicle* vehicle = me->GetVehicleKit())
@@ -304,7 +294,7 @@ class boss_high_priestess_azil : public CreatureScript
                             if (Vehicle* vehicle = me->GetVehicleKit())
                                 if (Unit* passenger = vehicle->GetPassenger(SEAT_FORCE_GRIP_2))
                                     DoCast(passenger, SPELL_FORCE_GRIP_DAMAGE, true);
-                            events.ScheduleEvent(EVENT_REPEAT_FORCE_GRIP_SMASH, Milliseconds(400));
+                            events.ScheduleEvent(EVENT_REPEAT_FORCE_GRIP_SMASH, 400ms, 0, PHASE_ONE);
                             break;
                         case EVENT_REPEAT_FORCE_GRIP_SMASH:
                             if (Vehicle* vehicle = me->GetVehicleKit())
@@ -316,29 +306,30 @@ class boss_high_priestess_azil : public CreatureScript
                         case EVENT_SUMMON_GRAVITY_WELL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_SUMMON_GRAVITY_WELL);
-                            events.Repeat(Seconds(13), Seconds(15));
+                            events.Repeat(13s, 15s);
                             break;
                         case EVENT_ENERGY_SHIELD:
-                            events.CancelEventGroup(EVENT_GROUP_PHASE_ONE);
-                            DoCast(me, SPELL_EARTH_FURY_ENERGY_SHIELD);
-                            events.ScheduleEvent(EVENT_EARTH_FURY, Milliseconds(1));
+                            events.SetPhase(PHASE_TWO);
+                            DoCastSelf(SPELL_EARTH_FURY_ENERGY_SHIELD);
+                            events.ScheduleEvent(EVENT_EARTH_FURY, 1ms, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_SUMMON_FOLLOWERS, 3s + 800ms, 0, PHASE_TWO);
                             break;
                         case EVENT_EARTH_FURY:
                             _seismicShardCount = 0;
                             me->SetReactState(REACT_PASSIVE);
-                            me->SetFacingTo(5.862942f);
-                            events.ScheduleEvent(EVENT_EARTH_FURY_FLY_UP, Seconds(1) + Milliseconds(600));
+                            me->AttackStop();
+                            events.ScheduleEvent(EVENT_EARTH_FURY_FLY_UP, 1s + 600ms, 0, PHASE_TWO);
                             break;
                         case EVENT_EARTH_FURY_FLY_UP:
                             Talk(SAY_PHASE_TWO);
-                            me->GetMotionMaster()->MovePoint(POINT_FLY_UP, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 5);
+                            me->GetMotionMaster()->MovePoint(POINT_FLY_UP, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 5.f);
                             break;
                         case EVENT_EARTH_FURY_FLY_ABOVE_PLATFORM:
                             me->GetMotionMaster()->MovePoint(POINT_ABOVE_PLATFORM, AbovePlatformPos, false);
                             break;
                         case EVENT_EARTH_FURY_PREPARE_SHARD:
                             DoCast(me, SPELL_SEISMIC_SHARD_PREPARE);
-                            events.ScheduleEvent(EVENT_EARTH_FURY_LAUNCH_SHARD, Seconds(1) + Milliseconds(800));
+                            events.ScheduleEvent(EVENT_EARTH_FURY_LAUNCH_SHARD, 1s + 800ms, 0, PHASE_TWO);
                             break;
                         case EVENT_EARTH_FURY_LAUNCH_SHARD:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
@@ -348,7 +339,7 @@ class boss_high_priestess_azil : public CreatureScript
                                 DoCast(me, SPELL_SEISMIC_SHARD_LAUNCH);
                                 _seismicShardCount++;
                             }
-                            events.ScheduleEvent(_seismicShardCount < 3 ? EVENT_EARTH_FURY_PREPARE_SHARD : EVENT_EARTH_FURY_FLY_DOWN, Seconds(4) + Milliseconds(800));
+                            events.ScheduleEvent(_seismicShardCount < 3 ? EVENT_EARTH_FURY_PREPARE_SHARD : EVENT_EARTH_FURY_FLY_DOWN, 4s + 800ms, 0, PHASE_TWO);
                             break;
                         case EVENT_EARTH_FURY_FLY_DOWN:
                         {
@@ -359,15 +350,21 @@ class boss_high_priestess_azil : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_GROUND, pos, false);
                             break;
                         }
-                        case EVENT_SUMMON_WAVE_SOUTH:
-                            if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
-                                worldtrigger->CastSpell(worldtrigger, SPELL_SUMMON_WAVE_SOUTH);
-                            events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, Seconds(12));
-                            break;
-                        case EVENT_SUMMON_WAVE_WEST:
-                            if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
-                                worldtrigger->CastSpell(worldtrigger, SPELL_SUMMON_WAVE_WEST);
-                            events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, Seconds(22));
+                        case EVENT_SUMMON_FOLLOWERS:
+                            if (events.IsInPhase(PHASE_ONE))
+                            {
+                                if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
+                                    worldtrigger->CastCustomSpell(SPELL_SUMMON_WAVE_SOUTH, SPELLVALUE_BASE_POINT0, 3, worldtrigger, true);
+                            }
+                            else
+                            {
+                                if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
+                                {
+                                    worldtrigger->CastCustomSpell(SPELL_SUMMON_WAVE_SOUTH, SPELLVALUE_BASE_POINT0, 10, worldtrigger, true);
+                                    worldtrigger->CastCustomSpell(SPELL_SUMMON_WAVE_WEST, SPELLVALUE_BASE_POINT0, 10, worldtrigger, true);
+                                    events.Repeat(10s, 13s);
+                                }
+                            }
                             break;
                         case EVENT_APPLY_IMMUNITY:
                             MakeInterruptable(false);
@@ -387,6 +384,17 @@ class boss_high_priestess_azil : public CreatureScript
             {
                 me->RemoveVehicleKit();
                 me->CreateVehicleKit(id, me->GetEntry());
+            }
+
+            void SchedulePhaseOne()
+            {
+                events.SetPhase(PHASE_ONE);
+                events.ScheduleEvent(EVENT_INTRO_MOVE, 2s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 6s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_FORCE_GRIP, 8s, 10s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, 16s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_ENERGY_SHIELD, 35s, 36s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SUMMON_FOLLOWERS, 22s + 500ms, 0, PHASE_ONE);
             }
 
             uint8 _seismicShardCount;
@@ -410,21 +418,10 @@ class npc_azil_devout_follower : public CreatureScript
 
             void IsSummonedBy(Unit* summoner) override
             {
-                if (summoner->GetEntry() != NPC_WORLDTRIGGER)
-                    return;
-
                 if (Creature* azil = _instance->GetCreature(DATA_HIGH_PRIESTESS_AZIL))
-                {
                     azil->AI()->JustSummoned(me);
 
-                    if (Unit* target = azil->SelectNearestPlayer(60.0f))
-                    {
-                        me->AddThreat(target, 0.0f);
-                        me->AI()->AttackStart(target);
-                    }
-                    else
-                        me->GetMotionMaster()->MovePoint(POINT_NONE, summoner->GetPosition());
-                }
+                DoZoneInCombat();
             }
         private:
             InstanceScript* _instance;
@@ -574,7 +571,7 @@ class spell_azil_summon_wave_south : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        for (uint8 i = 0; i < 3; i++)
+        for (uint8 i = 0; i < GetEffectValue(); i++)
             caster->CastSpell(caster, SPELL_SUMMON_ADD_SOUTH, true);
     }
 
@@ -596,13 +593,36 @@ class spell_azil_summon_wave_west : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        for (uint8 i = 0; i < 10; i++)
+        for (uint8 i = 0; i < GetEffectValue(); i++)
             caster->CastSpell(caster, SPELL_SUMMON_ADD_WEST, true);
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_azil_summon_wave_west::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class spell_azil_summon_follower : public SpellScript
+{
+    PrepareSpellScript(spell_azil_summon_follower);
+
+    void SetDestPosition(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        float angle = frand(0.f, float(M_PI * 2));
+        uint32 dist = frand(0.f, GetSpellInfo()->Effects[EFFECT_0].CalcRadius());
+        Position const pos = GetExplTargetDest()->GetPosition();
+
+        float x = pos.GetPositionX() + dist * std::cos(angle);
+        float y = pos.GetPositionY() + dist * std::sin(angle);
+        float z = caster->GetMapHeight(x, y, pos.GetPositionZ() + 5.f);
+        GetHitDest()->Relocate({ x, y, z });
+    }
+
+    void Register()
+    {
+        OnEffectLaunch += SpellEffectFn(spell_azil_summon_follower::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
@@ -788,6 +808,7 @@ void AddSC_boss_high_priestess_azil()
     new npc_azil_seismic_shard();
     RegisterSpellScript(spell_azil_summon_wave_south);
     RegisterSpellScript(spell_azil_summon_wave_west);
+    RegisterSpellScript(spell_azil_summon_follower);
     RegisterSpellScript(spell_azil_gravity_well_damage_nearby);
     RegisterSpellScript(spell_azil_gravity_well_damage);
     RegisterSpellScript(spell_azil_gravity_well_pull);
