@@ -96,6 +96,11 @@ enum Events
     EVENT_SEISMIC_SHARD_MOUNT
 };
 
+enum EventGroups
+{
+    EVENT_GROUP_PHASE_ONE = 1
+};
+
 enum Points
 {
     POINT_NONE,
@@ -158,9 +163,9 @@ class boss_high_priestess_azil : public CreatureScript
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_INTRO_MOVE, Seconds(2));
-                events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, Seconds(6));
-                events.ScheduleEvent(EVENT_FORCE_GRIP, Seconds(8), Seconds(10));
-                events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, Seconds(16));
+                events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, Seconds(6), EVENT_GROUP_PHASE_ONE);
+                events.ScheduleEvent(EVENT_FORCE_GRIP, Seconds(8), Seconds(10), EVENT_GROUP_PHASE_ONE);
+                events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, Seconds(16), EVENT_GROUP_PHASE_ONE);
                 events.ScheduleEvent(EVENT_ENERGY_SHIELD, Seconds(35), Seconds(36));
                 events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, Milliseconds(1));
                 events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, Seconds(42));
@@ -251,12 +256,10 @@ class boss_high_priestess_azil : public CreatureScript
                         me->SetDisableGravity(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoStartMovement(me->GetVictim());
-                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, Seconds(6));
-                        events.ScheduleEvent(EVENT_FORCE_GRIP, Seconds(8), Seconds(10));
-                        events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, Seconds(16));
+                        events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, Seconds(6), EVENT_GROUP_PHASE_ONE);
+                        events.ScheduleEvent(EVENT_FORCE_GRIP, Seconds(8), Seconds(10), EVENT_GROUP_PHASE_ONE);
+                        events.ScheduleEvent(EVENT_SUMMON_GRAVITY_WELL, Seconds(16), EVENT_GROUP_PHASE_ONE);
                         events.ScheduleEvent(EVENT_ENERGY_SHIELD, Seconds(35), Seconds(36));
-                        events.ScheduleEvent(EVENT_SUMMON_WAVE_SOUTH, Milliseconds(1));
-                        events.ScheduleEvent(EVENT_SUMMON_WAVE_WEST, Seconds(42));
                         break;
                     default:
                         break;
@@ -316,7 +319,7 @@ class boss_high_priestess_azil : public CreatureScript
                             events.Repeat(Seconds(13), Seconds(15));
                             break;
                         case EVENT_ENERGY_SHIELD:
-                            events.Reset();
+                            events.CancelEventGroup(EVENT_GROUP_PHASE_ONE);
                             DoCast(me, SPELL_EARTH_FURY_ENERGY_SHIELD);
                             events.ScheduleEvent(EVENT_EARTH_FURY, Milliseconds(1));
                             break;
