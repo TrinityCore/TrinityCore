@@ -7139,10 +7139,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 if (GetAuraEffect(SPELL_AURA_ABILITY_IGNORE_AURASTATE, SPELLFAMILY_MAGE, 0, 0, 0x0000000A, GetGUID()))
                                     crit_chance *= 2;
                             break;
-                        case 7: // Last Word
-                            if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
-                                crit_chance += (*i)->GetAmount();
-                            break;
                         case 57470: // Renewed Hope
                         case 57472:
                             if (victim->HasAura(6788) || victim->HasAura(47930))
@@ -7183,6 +7179,12 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                                 return 100.0f;
                             break;
                         }
+
+                        // Last Word
+                        if (AuraEffect const* effect = GetDummyAuraEffect(SPELLFAMILY_PALADIN, 2139, EFFECT_0))
+                            if (effect->IsAffectingSpell(spellProto))
+                                if (victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT))
+                                    crit_chance += effect->GetAmount();
                         break;
                     case SPELLFAMILY_SHAMAN:
                         // Lava Burst
@@ -7198,8 +7200,16 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                     {
                         // Searing Pain - Soulburn bonus
                         if (spellProto->SpellFamilyFlags[0] & 0x00000100)
-                            if (HasAura(74434))
+                            if (HasAura(74434, GetGUID()))
                                 return 100.0f;
+
+                        // Improved Searing Pain
+                        if (AuraEffect const* effect = GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 816, EFFECT_0))
+                        {
+                            if (effect->IsAffectingSpell(spellProto))
+                                if (victim->GetHealthPct() <= effect->GetSpellInfo()->Effects[EFFECT_1].CalcValue())
+                                    crit_chance += effect->GetAmount();
+                        }
                         break;
                     }
                 }

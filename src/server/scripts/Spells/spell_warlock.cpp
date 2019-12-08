@@ -37,6 +37,7 @@ enum WarlockSpells
 {
     SPELL_WARLOCK_AFTERMATH_STUN                    = 85387,
     SPELL_WARLOCK_BANE_OF_DOOM_EFFECT               = 18662,
+    SPELL_WARLOCK_BURNING_EMBERS_DAMAGE             = 85421,
     SPELL_WARLOCK_CREATE_HEALTHSTONE                = 34130,
     SPELL_WARLOCK_CORRUPTION_TRIGGERED              = 87389,
     SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
@@ -106,7 +107,8 @@ enum WarlockSpellIcons
     WARLOCK_ICON_ID_MANA_FEED                       = 1982,
 	WARLOCK_ICON_ID_DEATHS_EMBRACE                  = 3223,
 	WARLOCK_ICON_ID_SOUL_SIPHON                     = 5001,
-    WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION     = 1932
+    WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION     = 1932,
+    WARLOCK_ICON_ID_FIRE_AND_BRIMSTONE              = 3173
 };
 
 enum WarlockSkillIds
@@ -121,41 +123,33 @@ enum MiscSpells
 };
 
 // -85113 - Aftermath
-class spell_warl_aftermath : public SpellScriptLoader
+class spell_warl_aftermath : public AuraScript
 {
-    public:
-        spell_warl_aftermath() : SpellScriptLoader("spell_warl_aftermath") { }
+    PrepareAuraScript(spell_warl_aftermath);
 
-        class spell_warl_aftermath_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WARLOCK_AFTERMATH_STUN,
+                SPELL_WARLOCK_RAIN_OF_FIRE,
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo()->Id == SPELL_WARLOCK_RAIN_OF_FIRE)
         {
-            PrepareAuraScript(spell_warl_aftermath_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_WARLOCK_AFTERMATH_STUN });
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()->Id == SPELL_WARLOCK_RAIN_OF_FIRE)
-                {
-                    PreventDefaultAction();
-
-                    if (eventInfo.GetProcTarget() && roll_chance_i(aurEff->GetAmount()))
-                        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_AFTERMATH_STUN, true, nullptr, aurEff);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warl_aftermath_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warl_aftermath_AuraScript();
+            PreventDefaultAction();
+            if (eventInfo.GetProcTarget() && roll_chance_i(aurEff->GetAmount()))
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_AFTERMATH_STUN, true, nullptr, aurEff);
         }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_aftermath::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
 };
 
 // 710 - Banish
@@ -846,37 +840,30 @@ class spell_warl_healthstone_heal : public SpellScriptLoader
 };
 
 // -18119 - Improved Soul Fire
-class spell_warl_improved_soul_fire : public SpellScriptLoader
+class spell_warl_improved_soul_fire : public AuraScript
 {
-    public:
-        spell_warl_improved_soul_fire() : SpellScriptLoader("spell_warl_improved_soul_fire") { }
+    PrepareAuraScript(spell_warl_improved_soul_fire);
 
-        class spell_warl_improved_soul_fire_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_improved_soul_fire_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
             {
-                return ValidateSpellInfo({ SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT, SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE });
-            }
+                SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT,
+                SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE
+            });
+    }
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastCustomSpell(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);
-                GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE, true, nullptr, aurEff);
-            }
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastCustomSpell(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE, true, nullptr, aurEff);
+    }
 
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warl_improved_soul_fire_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warl_improved_soul_fire_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_improved_soul_fire::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
 // 1454 - Life Tap
@@ -1216,35 +1203,24 @@ class spell_warl_shadow_ward : public AuraScript
 };
 
 // -30293 - Soul Leech
-class spell_warl_soul_leech : public SpellScriptLoader
+class spell_warl_soul_leech : public AuraScript
 {
-    public:
-        spell_warl_soul_leech() : SpellScriptLoader("spell_warl_soul_leech") { }
+    PrepareAuraScript(spell_warl_soul_leech);
 
-        class spell_warl_soul_leech_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_soul_leech_AuraScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GEN_REPLENISHMENT });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_GEN_REPLENISHMENT });
-            }
+    void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        GetTarget()->CastSpell((Unit*)nullptr, SPELL_GEN_REPLENISHMENT, true, nullptr, aurEff);
+    }
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                GetTarget()->CastSpell((Unit*)nullptr, SPELL_GEN_REPLENISHMENT, true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warl_soul_leech_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warl_soul_leech_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_soul_leech::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE);
+    }
 };
 
 // 86121 - Soul Swap
@@ -1809,11 +1785,130 @@ class spell_warl_soulburn : public AuraScript
     }
 };
 
+// 29722 - Incinerate
+class spell_warl_incinerate : public SpellScript
+{
+    PrepareSpellScript(spell_warl_incinerate);
+
+    void HandleDamageBonus(SpellEffIndex /*effIndex*/)
+    {
+        int32 bp = GetEffectValue();
+        if (Unit* target = GetHitUnit())
+        {
+            if (target->HasAuraState(AURA_STATE_CONFLAGRATE))
+            {
+                if (target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x4, 0, 0))
+                {
+                    bp += bp / 6;
+                    if (AuraEffect const* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_FIRE_AND_BRIMSTONE, EFFECT_0))
+                        AddPct(bp, aurEff->GetAmount());
+                }
+            }
+        }
+
+        SetEffectValue(bp);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_incinerate::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 29341 - Shadowburn
+class spell_warl_shadowburn : public AuraScript
+{
+    PrepareAuraScript(spell_warl_shadowburn);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_SOUL_SHARD });
+    }
+
+    void OnAuraRemoveHandler(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->IsPlayer())
+            return;
+
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+            if (caster->ToPlayer()->isHonorOrXPTarget(GetTarget()))
+                caster->CastCustomSpell(SPELL_WARLOCK_SOUL_SHARD, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), caster, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warl_shadowburn::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// -91986 - Burning Embers
+class spell_warl_burning_embers : public AuraScript
+{
+    PrepareAuraScript(spell_warl_burning_embers);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_BURNING_EMBERS_DAMAGE });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo() && eventInfo.GetProcTarget();
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+        if (target->IsCreature() && target->GetOwner())
+            target = GetTarget()->GetOwner();
+
+        uint8 maxTicks = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_BURNING_EMBERS_DAMAGE)->GetMaxTicks();
+        int32 damageBp = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / maxTicks;
+        float coefficient = GetSpellInfo()->GetRank() * 0.7f;
+        int32 damageCap = (target->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE) * coefficient + GetSpellInfo()->Effects[EFFECT_1].CalcValue(target)) / maxTicks;
+        int32 bp = std::min(damageBp, damageCap);
+        target->CastCustomSpell(SPELL_WARLOCK_BURNING_EMBERS_DAMAGE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warl_burning_embers::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_warl_burning_embers::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 50796 - Chaos Bolt
+class spell_warl_chaos_bolt : public SpellScript
+{
+    PrepareSpellScript(spell_warl_chaos_bolt);
+
+    void HandleDamageBonus(SpellEffIndex /*effIndex*/)
+    {
+        int32 bp = GetEffectValue();
+        if (Unit* target = GetHitUnit())
+            if (target->HasAuraState(AURA_STATE_CONFLAGRATE))
+                if (target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x4, 0, 0))
+                    if (AuraEffect const* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_FIRE_AND_BRIMSTONE, EFFECT_0))
+                        AddPct(bp, aurEff->GetAmount());
+
+        SetEffectValue(bp);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_chaos_bolt::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
-    new spell_warl_aftermath();
+    RegisterAuraScript(spell_warl_aftermath);
     new spell_warl_bane_of_doom();
     new spell_warl_banish();
+    RegisterAuraScript(spell_warl_burning_embers);
+    RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterSpellScript(spell_warl_conflagrate);
     new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();
@@ -1831,7 +1926,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_healthstone_heal();
-    new spell_warl_improved_soul_fire();
+    RegisterAuraScript(spell_warl_improved_soul_fire);
+    RegisterSpellScript(spell_warl_incinerate);
     new spell_warl_life_tap();
     new spell_warl_nether_ward_overrride();
     new spell_warl_seduction();
@@ -1841,7 +1937,8 @@ void AddSC_warlock_spell_scripts()
     RegisterAuraScript(spell_warl_shadow_ward);
     RegisterAuraScript(spell_warl_soulburn);
     RegisterAuraScript(spell_warl_soul_harvest);
-    new spell_warl_soul_leech();
+    RegisterAuraScript(spell_warl_soul_leech);
+    RegisterAuraScript(spell_warl_shadowburn);
     new spell_warl_soul_swap();
     new spell_warl_soul_swap_dot_marker();
     new spell_warl_soul_swap_exhale();
