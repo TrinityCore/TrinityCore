@@ -7878,21 +7878,12 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
-        uint32 statType = 0;
-        int32  val = 0;
+        int32 val = proto->GetStatValue(i, this);
         // If set ScalingStatDistribution need get stats and values from it
-        if (ssd && ssv)
-        {
-            if (ssd->StatMod[i] < 0)
-                continue;
-            statType = ssd->StatMod[i];
-            val = (ssv->GetStatMultiplier(proto->InventoryType) * ssd->Modifier[i]) / 10000;
-        }
-        else
-        {
-            statType = proto->ItemStat[i].ItemStatType;
-            val = proto->ItemStat[i].ItemStatValue;
-        }
+        if (ssd && ssd->StatMod[i] < 0)
+            continue;
+
+        uint32 statType = proto->ItemStat[i].ItemStatType;
 
         if (val == 0)
             continue;
@@ -8065,11 +8056,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             ApplySpellPowerBonus(spellbonus, apply);
 
     // If set ScalingStatValue armor get it or use item armor
-    uint32 armor = proto->Armor;
+    uint32 armor = proto->GetEffectiveArmor(this);
     if (ssv && proto->Class == ITEM_CLASS_ARMOR)
         armor = ssv->GetArmor(proto->InventoryType, proto->SubClass - 1);
-    else if (armor && proto->ArmorDamageModifier)
-        armor -= uint32(proto->ArmorDamageModifier);
 
     if (armor)
     {
@@ -8127,8 +8116,8 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingSt
         attType = OFF_ATTACK;
     }
 
-    float minDamage = proto->DamageMin;
-    float maxDamage = proto->DamageMax;
+    float minDamage, maxDamage, dps;
+    proto->GetWeaponDamage(this, minDamage, maxDamage, dps);
 
     // If set dpsMod in ScalingStatValue use it for min (70% from average), max (130% from average) damage
     int32 extraDPS = 0;

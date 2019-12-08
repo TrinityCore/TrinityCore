@@ -2795,107 +2795,6 @@ void ObjectMgr::LoadItemLocales()
     TC_LOG_INFO("server.loading", ">> Loaded %u Item locale strings in %u ms", uint32(_itemLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
-void FillItemDamageFields(float* minDamage, float* maxDamage, float* dps, uint32 itemLevel, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint32 delay, float statScalingFactor, uint32 inventoryType, uint32 flags2)
-{
-    *minDamage = *maxDamage = *dps = 0.0f;
-    if (itemClass != ITEM_CLASS_WEAPON || quality > ITEM_QUALITY_ARTIFACT)
-        return;
-
-    DBCStorage<ItemDamageEntry>* store = nullptr;
-    // get the right store here
-    if (inventoryType > 0xD + 13)
-        return;
-
-    switch (inventoryType)
-    {
-        case INVTYPE_AMMO:
-            store = &sItemDamageAmmoStore;
-            break;
-        case INVTYPE_2HWEAPON:
-            if (flags2 & ITEM_FLAG2_CASTER_WEAPON)
-                store = &sItemDamageTwoHandCasterStore;
-            else
-                store = &sItemDamageTwoHandStore;
-            break;
-        case INVTYPE_RANGED:
-        case INVTYPE_THROWN:
-        case INVTYPE_RANGEDRIGHT:
-            switch (itemSubClass)
-            {
-                case ITEM_SUBCLASS_WEAPON_WAND:
-                    store = &sItemDamageWandStore;
-                    break;
-                case ITEM_SUBCLASS_WEAPON_THROWN:
-                    store = &sItemDamageThrownStore;
-                    break;
-                case ITEM_SUBCLASS_WEAPON_BOW:
-                case ITEM_SUBCLASS_WEAPON_GUN:
-                case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                    store = &sItemDamageRangedStore;
-                    break;
-                default:
-                    return;
-            }
-            break;
-        case INVTYPE_WEAPON:
-        case INVTYPE_WEAPONMAINHAND:
-        case INVTYPE_WEAPONOFFHAND:
-            if (flags2 & ITEM_FLAG2_CASTER_WEAPON)
-                store = &sItemDamageOneHandCasterStore;
-            else
-                store = &sItemDamageOneHandStore;
-            break;
-        default:
-            return;
-    }
-
-    if (!store)
-        return;
-
-    ItemDamageEntry const* damageInfo = store->LookupEntry(itemLevel);
-    if (!damageInfo)
-        return;
-
-    *dps = damageInfo->DPS[quality];
-    float avgDamage = *dps * delay * 0.001f;
-    *minDamage = (statScalingFactor * -0.5f + 1.0f) * avgDamage;
-    *maxDamage = floor(float(avgDamage* (statScalingFactor * 0.5f + 1.0f) + 0.5f));
-}
-
-uint32 FillItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, uint32 quality, uint32 inventoryType)
-{
-    if (quality > ITEM_QUALITY_ARTIFACT)
-        return 0;
-
-    // all items but shields
-    if (itemClass != ITEM_CLASS_ARMOR || itemSubclass != ITEM_SUBCLASS_ARMOR_SHIELD)
-    {
-        ItemArmorQualityEntry const* armorQuality = sItemArmorQualityStore.LookupEntry(itemlevel);
-        ItemArmorTotalEntry const* armorTotal = sItemArmorTotalStore.LookupEntry(itemlevel);
-        if (!armorQuality || !armorTotal)
-            return 0;
-
-        if (inventoryType == INVTYPE_ROBE)
-            inventoryType = INVTYPE_CHEST;
-
-        ArmorLocationEntry const* location = sArmorLocationStore.LookupEntry(inventoryType);
-        if (!location)
-            return 0;
-
-        if (itemSubclass < ITEM_SUBCLASS_ARMOR_CLOTH || itemSubclass > ITEM_SUBCLASS_ARMOR_PLATE)
-            return 0;
-
-        return uint32(armorQuality->Value[quality] * armorTotal->Value[itemSubclass - 1] * location->Value[itemSubclass - 1] + 0.5f);
-    }
-
-    // shields
-    ItemArmorShieldEntry const* shield = sItemArmorShieldStore.LookupEntry(itemlevel);
-    if (!shield)
-        return 0;
-
-    return uint32(shield->Value[quality] + 0.5f);
-}
-
 uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventoryType, uint32 quality, uint32 itemLevel)
 {
     if (itemClass != ITEM_CLASS_ARMOR && itemClass != ITEM_CLASS_WEAPON)
@@ -3068,19 +2967,14 @@ void ObjectMgr::LoadItemTemplates()
         {
             itemTemplate.ItemStat[i].ItemStatType = sparse->ItemStatType[i];
             itemTemplate.ItemStat[i].ItemStatValue = sparse->ItemStatValue[i];
-            itemTemplate.ItemStat[i].ItemStatUnk1 = sparse->ItemStatUnk1[i];
-            itemTemplate.ItemStat[i].ItemStatUnk2 = sparse->ItemStatUnk2[i];
+            itemTemplate.ItemStat[i].ItemStatAllocation = sparse->ItemStatAllocation[i];
+            itemTemplate.ItemStat[i].ItemStatSocketCostMultiplier = sparse->ItemStatSocketCostMultiplier[i];
         }
 
         itemTemplate.ScalingStatDistribution = sparse->ScalingStatDistribution;
 
         // cache item damage
-        FillItemDamageFields(&itemTemplate.DamageMin, &itemTemplate.DamageMax, &itemTemplate.DPS, sparse->ItemLevel,
-                             db2Data->Class, db2Data->SubClass, sparse->Quality, sparse->Delay, sparse->StatScalingFactor,
-                             sparse->InventoryType, sparse->Flags2);
-
         itemTemplate.DamageType = sparse->DamageType;
-        itemTemplate.Armor = FillItemArmor(sparse->ItemLevel, db2Data->Class, db2Data->SubClass, sparse->Quality, sparse->InventoryType);
         itemTemplate.Delay = sparse->Delay;
         itemTemplate.RangedModRange = sparse->RangedModRange;
         for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
@@ -3221,21 +3115,12 @@ void ObjectMgr::LoadItemTemplates()
             {
                 itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[29 + i * 4 + 0].GetUInt8());
                 itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 4 + 1].GetInt16());
-                itemTemplate.ItemStat[i].ItemStatUnk1  = fields[29 + i * 4 + 2].GetInt32();
-                itemTemplate.ItemStat[i].ItemStatUnk2  = fields[29 + i * 4 + 3].GetInt32();
+                itemTemplate.ItemStat[i].ItemStatAllocation = fields[29 + i * 4 + 2].GetInt32();
+                itemTemplate.ItemStat[i].ItemStatSocketCostMultiplier = fields[29 + i * 4 + 3].GetInt32();
             }
 
             itemTemplate.ScalingStatDistribution = uint32(fields[69].GetUInt16());
-
-            // cache item damage
-            FillItemDamageFields(&itemTemplate.DamageMin, &itemTemplate.DamageMax, &itemTemplate.DPS, itemTemplate.ItemLevel,
-                                 itemTemplate.Class, itemTemplate.SubClass, itemTemplate.Quality, fields[71].GetUInt16(),
-                                 fields[131].GetFloat(), itemTemplate.InventoryType, itemTemplate.Flags2);
-
             itemTemplate.DamageType                = fields[70].GetUInt8();
-            itemTemplate.Armor                     = FillItemArmor(itemTemplate.ItemLevel, itemTemplate.Class,
-                                                                   itemTemplate.SubClass, itemTemplate.Quality,
-                                                                   itemTemplate.InventoryType);
 
             itemTemplate.Delay                     = fields[71].GetUInt16();
             itemTemplate.RangedModRange            = fields[72].GetFloat();

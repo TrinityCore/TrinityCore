@@ -87,10 +87,10 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
         buffer << int32(proto->ItemStat[x].ItemStatValue);
 
     for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-        buffer << int32(proto->ItemStat[x].ItemStatUnk1);
+        buffer << int32(proto->ItemStat[x].ItemStatAllocation);
 
     for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-        buffer << int32(proto->ItemStat[x].ItemStatUnk2);
+        buffer << int32(proto->ItemStat[x].ItemStatSocketCostMultiplier);
 
     buffer << uint32(proto->ScalingStatDistribution);
     buffer << uint32(proto->DamageType);

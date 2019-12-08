@@ -75,8 +75,8 @@ struct ItemSparseEntry
     uint32     ContainerSlots;                               // 20
     int32      ItemStatType[MAX_ITEM_PROTO_STATS];           // 21 - 30
     uint32     ItemStatValue[MAX_ITEM_PROTO_STATS];          // 31 - 40
-    int32      ItemStatUnk1[MAX_ITEM_PROTO_STATS];           // 41 - 50
-    int32      ItemStatUnk2[MAX_ITEM_PROTO_STATS];           // 51 - 60
+    int32      ItemStatAllocation[MAX_ITEM_PROTO_STATS];     // 41 - 50
+    int32      ItemStatSocketCostMultiplier[MAX_ITEM_PROTO_STATS]; // 51 - 60
     uint32     ScalingStatDistribution;                      // 61
     uint32     DamageType;                                   // 62
     uint32     Delay;                                        // 63

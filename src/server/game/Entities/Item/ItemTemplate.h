@@ -613,8 +613,8 @@ struct _ItemStat
 {
     uint32  ItemStatType;
     int32   ItemStatValue;
-    int32   ItemStatUnk1;
-    int32   ItemStatUnk2;
+    int32   ItemStatAllocation;
+    int32   ItemStatSocketCostMultiplier;
 };
 
 struct _Spell
@@ -706,10 +706,6 @@ struct ItemTemplate
     uint32 CurrencySubstitutionCount;
 
     // extra fields, not part of db2 files
-    float  DamageMin;
-    float  DamageMax;
-    float  DPS;
-    uint32 Armor;
     float  SpellPPMRate;
     uint32 ScriptId;
     uint32 DisenchantID;
@@ -744,6 +740,10 @@ struct ItemTemplate
                SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
                SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
     }
+
+    uint32 GetStatValue(uint32 index, Player* owner = nullptr) const;
+    uint32 GetEffectiveArmor(Player * owner) const;
+    bool GetWeaponDamage(Player * owner, float& minValue, float& maxValue, float& dps) const;
 };
 
 struct ItemLocale
