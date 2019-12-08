@@ -1536,6 +1536,8 @@ uint32 GetItemScalingModifier(uint32 maxIlvl, ItemQualities quality, InventoryTy
         case ITEM_QUALITY_EPIC:
         case ITEM_QUALITY_LEGENDARY:
             return randPropEntry->EpicPropertiesPoints[suffixFactor];
+        default:
+            return 0;
     }
 
     return 0;
