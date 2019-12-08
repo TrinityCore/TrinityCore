@@ -56,6 +56,7 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
     _updateTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _resolver = Trinity::make_unique<boost::asio::ip::tcp::resolver>(ioContext);
 
+    LoadBuildInfo();
     // Get the content of the realmlist table in the database
     UpdateRealms(boost::system::error_code());
 }
@@ -63,6 +64,38 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
 void RealmList::Close()
 {
     _updateTimer->cancel();
+}
+
+void RealmList::LoadBuildInfo()
+{
+    //                                                              0             1              2              3      4              5              6
+    if (QueryResult result = LoginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed FROM build_info ORDER BY build ASC"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            _builds.emplace_back();
+            RealmBuildInfo& build = _builds.back();
+            build.MajorVersion = fields[0].GetUInt32();
+            build.MinorVersion = fields[1].GetUInt32();
+            build.BugfixVersion = fields[2].GetUInt32();
+            std::string hotfixVersion = fields[3].GetString();
+            if (hotfixVersion.length() < build.HotfixVersion.size())
+                std::copy(hotfixVersion.begin(), hotfixVersion.end(), build.HotfixVersion.begin());
+            else
+                std::fill(hotfixVersion.begin(), hotfixVersion.end(), '\0');
+
+            build.Build = fields[4].GetUInt32();
+            std::string win64AuthSeedHexStr = fields[5].GetString();
+            if (win64AuthSeedHexStr.length() == build.Win64AuthSeed.size() * 2)
+                HexStrToByteArray(win64AuthSeedHexStr, build.Win64AuthSeed.data());
+
+            std::string mac64AuthSeedHexStr = fields[6].GetString();
+            if (mac64AuthSeedHexStr.length() == build.Mac64AuthSeed.size() * 2)
+                HexStrToByteArray(mac64AuthSeedHexStr, build.Mac64AuthSeed.data());
+
+        } while (result->NextRow());
+    }
 }
 
 void RealmList::UpdateRealm(Realm& realm, Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
@@ -204,37 +237,9 @@ Realm const* RealmList::GetRealm(Battlenet::RealmHandle const& id) const
     return NULL;
 }
 
-// List of client builds for verbose version info in realmlist packet
-static RealmBuildInfo const ClientBuilds[] =
-{
-    { 32722, 8, 2, 5, ' ' },
-    { 32638, 8, 2, 5, ' ' },
-    { 32580, 8, 2, 5, ' ' },
-    { 32494, 8, 2, 5, ' ' },
-    { 28938, 8, 1, 5, ' ' },
-    { 21355, 6, 2, 4, ' ' },
-    { 20726, 6, 2, 3, ' ' },
-    { 20574, 6, 2, 2, 'a' },
-    { 20490, 6, 2, 2, 'a' },
-    { 15595, 4, 3, 4, ' ' },
-    { 14545, 4, 2, 2, ' ' },
-    { 13623, 4, 0, 6, 'a' },
-    { 13930, 3, 3, 5, 'a' },                                  // 3.3.5a China Mainland build
-    { 12340, 3, 3, 5, 'a' },
-    { 11723, 3, 3, 3, 'a' },
-    { 11403, 3, 3, 2, ' ' },
-    { 11159, 3, 3, 0, 'a' },
-    { 10505, 3, 2, 2, 'a' },
-    { 9947,  3, 1, 3, ' ' },
-    { 8606,  2, 4, 3, ' ' },
-    { 6141,  1, 12, 3, ' ' },
-    { 6005,  1, 12, 2, ' ' },
-    { 5875,  1, 12, 1, ' ' },
-};
-
 RealmBuildInfo const* RealmList::GetBuildInfo(uint32 build) const
 {
-    for (RealmBuildInfo const& clientBuild : ClientBuilds)
+    for (RealmBuildInfo const& clientBuild : _builds)
         if (clientBuild.Build == build)
             return &clientBuild;
 
@@ -243,11 +248,11 @@ RealmBuildInfo const* RealmList::GetBuildInfo(uint32 build) const
 
 uint32 RealmList::GetMinorMajorBugfixVersionForBuild(uint32 build) const
 {
-    RealmBuildInfo const* buildInfo = std::lower_bound(std::begin(ClientBuilds), std::end(ClientBuilds), build, [](RealmBuildInfo const& buildInfo, uint32 value)
+    auto buildInfo = std::lower_bound(_builds.begin(), _builds.end(), build, [](RealmBuildInfo const& buildInfo, uint32 value)
     {
         return buildInfo.Build < value;
     });
-    return buildInfo != std::end(ClientBuilds) ? (buildInfo->MajorVersion * 10000 + buildInfo->MinorVersion * 100 + buildInfo->BugfixVersion) : 0;
+    return buildInfo != _builds.end() ? (buildInfo->MajorVersion * 10000 + buildInfo->MinorVersion * 100 + buildInfo->BugfixVersion) : 0;
 }
 
 void RealmList::WriteSubRegions(bgs::protocol::game_utilities::v1::GetAllValuesForAttributeResponse* response) const
