@@ -5556,6 +5556,7 @@ void Player::UpdateRating(CombatRating cr)
         case CR_RESILIENCE_PLAYER_DAMAGE_TAKEN:
         case CR_RESILIENCE_CRIT_TAKEN:
         case CR_CRIT_TAKEN_SPELL:                           // Deprecated since Cataclysm
+        case CR_ARMOR_PENETRATION:                          // Deprecated since Cataclysm
             break;
         case CR_HASTE_MELEE:                                // Implemented in Player::ApplyRatingMod
         case CR_HASTE_RANGED:
@@ -5571,10 +5572,6 @@ void Player::UpdateRating(CombatRating cr)
                 UpdateExpertise(BASE_ATTACK);
                 UpdateExpertise(OFF_ATTACK);
             }
-            break;
-        case CR_ARMOR_PENETRATION:
-            if (affectStats)
-                UpdateArmorPenetration(amount);
             break;
         case CR_MASTERY:
             UpdateMastery();
@@ -8026,9 +8023,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             case ITEM_MOD_MANA_REGENERATION:
                 ApplyManaRegenBonus(int32(val), apply);
                 break;
-            case ITEM_MOD_ARMOR_PENETRATION_RATING:
-                ApplyRatingMod(CR_ARMOR_PENETRATION, int32(val), apply);
-                break;
+            //case ITEM_MOD_ARMOR_PENETRATION_RATING:
+            //    ApplyRatingMod(CR_ARMOR_PENETRATION, int32(val), apply);
+            //    break;
             case ITEM_MOD_SPELL_POWER:
                 ApplySpellPowerBonus(int32(val), apply);
                 break;
@@ -12136,16 +12133,6 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
             UpdateExpertise(OFF_ATTACK);
 
         UpdateArmorSpecialization();
-
-        switch (slot)
-        {
-            case EQUIPMENT_SLOT_MAINHAND:
-            case EQUIPMENT_SLOT_OFFHAND:
-            case EQUIPMENT_SLOT_RANGED:
-                RecalculateRating(CR_ARMOR_PENETRATION);
-            default:
-                break;
-        }
     }
     else
     {
@@ -12309,16 +12296,6 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                     }
                     else if (slot == EQUIPMENT_SLOT_OFFHAND)
                         UpdateExpertise(OFF_ATTACK);
-                    // update armor penetration - passive auras may need it
-                    switch (slot)
-                    {
-                        case EQUIPMENT_SLOT_MAINHAND:
-                        case EQUIPMENT_SLOT_OFFHAND:
-                        case EQUIPMENT_SLOT_RANGED:
-                            RecalculateRating(CR_ARMOR_PENETRATION);
-                        default:
-                            break;
-                    }
                 }
             }
 
@@ -12438,17 +12415,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
             if (slot < EQUIPMENT_SLOT_END)
             {
-                // update expertise and armor penetration - passive auras may need it
-                switch (slot)
-                {
-                    case EQUIPMENT_SLOT_MAINHAND:
-                    case EQUIPMENT_SLOT_OFFHAND:
-                    case EQUIPMENT_SLOT_RANGED:
-                        RecalculateRating(CR_ARMOR_PENETRATION);
-                    default:
-                        break;
-                }
-
                 if (slot == EQUIPMENT_SLOT_MAINHAND)
                     UpdateExpertise(BASE_ATTACK);
                 else if (slot == EQUIPMENT_SLOT_OFFHAND)
@@ -13721,9 +13687,9 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_MANA_REGENERATION:
             ApplyManaRegenBonus(-int32(removeValue), apply);
             break;
-        case ITEM_MOD_ARMOR_PENETRATION_RATING:
-            ApplyRatingMod(CR_ARMOR_PENETRATION, -int32(removeValue), apply);
-            break;
+        //case ITEM_MOD_ARMOR_PENETRATION_RATING:
+        //   ApplyRatingMod(CR_ARMOR_PENETRATION, -int32(removeValue), apply);
+        //   break;
         case ITEM_MOD_SPELL_POWER:
             ApplySpellPowerBonus(-int32(removeValue), apply);
             break;
@@ -13834,9 +13800,9 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_MANA_REGENERATION:
             ApplyManaRegenBonus(int32(addValue), apply);
             break;
-        case ITEM_MOD_ARMOR_PENETRATION_RATING:
-            ApplyRatingMod(CR_ARMOR_PENETRATION, int32(addValue), apply);
-            break;
+        //case ITEM_MOD_ARMOR_PENETRATION_RATING:
+        //   ApplyRatingMod(CR_ARMOR_PENETRATION, int32(addValue), apply);
+        //   break;
         case ITEM_MOD_SPELL_POWER:
             ApplySpellPowerBonus(int32(addValue), apply);
             break;
@@ -14167,10 +14133,10 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             ApplyManaRegenBonus(enchant_amount, apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u MANA_REGENERATION", enchant_amount);
                             break;
-                        case ITEM_MOD_ARMOR_PENETRATION_RATING:
-                            ApplyRatingMod(CR_ARMOR_PENETRATION, enchant_amount, apply);
-                            TC_LOG_DEBUG("entities.player.items", "+ %u ARMOR PENETRATION", enchant_amount);
-                            break;
+                        // case ITEM_MOD_ARMOR_PENETRATION_RATING:
+                        //     ApplyRatingMod(CR_ARMOR_PENETRATION, enchant_amount, apply);
+                        //     TC_LOG_DEBUG("entities.player.items", "+ %u ARMOR PENETRATION", enchant_amount);
+                        //     break;
                         case ITEM_MOD_SPELL_POWER:
                             ApplySpellPowerBonus(enchant_amount, apply);
                             TC_LOG_DEBUG("entities.player.items", "+ %u SPELL_POWER", enchant_amount);

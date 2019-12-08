@@ -1838,7 +1838,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
-        void UpdateArmorPenetration(int32 amount);
         void UpdateExpertise(WeaponAttackType attType);
         void ApplyManaRegenBonus(int32 amount, bool apply);
         void ApplyHealthRegenBonus(int32 amount, bool apply);
