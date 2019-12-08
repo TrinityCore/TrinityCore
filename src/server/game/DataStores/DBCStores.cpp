@@ -1339,13 +1339,13 @@ bool IsInArea(uint32 objectAreaId, uint32 areaId)
     return false;
 }
 
-uint32 ItemTemplate::GetEffectiveArmor(Player* owner) const
+uint32 ItemTemplate::GetEffectiveArmor(Player const* owner) const
 {
     if (Quality > ITEM_QUALITY_ARTIFACT)
         return 0;
 
     uint32 level = ItemLevel;
-    if (owner != nullptr)
+    if (owner)
     {
         uint32 maxItemLevel = owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
         if (maxItemLevel != 0 && level > maxItemLevel)
@@ -1380,14 +1380,14 @@ uint32 ItemTemplate::GetEffectiveArmor(Player* owner) const
     return uint32(shield->Value[Quality] + 0.5f);
 }
 
-bool ItemTemplate::GetWeaponDamage(Player* owner, float& minValue, float& maxValue, float& dps) const
+bool ItemTemplate::GetWeaponDamage(Player const* owner, float& minValue, float& maxValue, float& dps) const
 {
     minValue = maxValue = 0.0f;
     if (Class != ITEM_CLASS_WEAPON || Quality > ITEM_QUALITY_ARTIFACT)
         return false;
 
     uint32 level = ItemLevel;
-    if (owner != nullptr)
+    if (owner)
     {
         uint32 maxItemLevel = owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
         if (maxItemLevel != 0 && level > maxItemLevel)
@@ -1449,22 +1449,22 @@ bool ItemTemplate::GetWeaponDamage(Player* owner, float& minValue, float& maxVal
     dps = damageInfo->DPS[Quality];
 
     float avgDamage = Delay * damageInfo->DPS[Quality] * 0.001f;
-    float scaled_stat = std::floor((StatScalingFactor * 0.5f + 1.0f) * avgDamage + 0.5f);
-    if (Delay != 0 && ArmorDamageModifier != 0.0f)
+    float scaled_stat = std::floor((StatScalingFactor * 0.5f + 1.f) * avgDamage + 0.5f);
+    if (Delay && ArmorDamageModifier != 0.f)
     {
         float invMsDelay = 1000.0f / float(Delay);
 
-        float v16 = (invMsDelay * ((1.0f - (StatScalingFactor * 0.5f)) * avgDamage)) + ArmorDamageModifier;
-        v16 = std::max(v16, 1.0f);
+        float v16 = (invMsDelay * ((1.f - (StatScalingFactor * 0.5f)) * avgDamage)) + ArmorDamageModifier;
+        v16 = std::max(v16, 1.f);
 
         minValue = (1.0f / invMsDelay) * v16;
 
-        maxValue = (1.0f / invMsDelay) * (((1000.0f / float(Delay)) * scaled_stat) + ArmorDamageModifier);
+        maxValue = (1.0f / invMsDelay) * (((1000.f / float(Delay)) * scaled_stat) + ArmorDamageModifier);
     }
     else
     {
         maxValue = scaled_stat;
-        minValue = (1.0f - (StatScalingFactor * 0.5f)) * avgDamage;
+        minValue = (1.f - (StatScalingFactor * 0.5f)) * avgDamage;
     }
 
     return true;
@@ -1544,9 +1544,9 @@ uint32 GetItemScalingModifier(uint32 maxIlvl, ItemQualities quality, InventoryTy
 }
 
 
-uint32 ItemTemplate::GetStatValue(uint32 index, Player* owner /* = nullptr*/) const
+uint32 ItemTemplate::GetStatValue(uint32 index, Player const* owner /*= nullptr*/) const
 {
-    if (owner == nullptr)
+    if (!owner)
         return ItemStat[index].ItemStatValue;
 
     ScalingStatDistributionEntry const* ssd = ScalingStatDistribution ? sScalingStatDistributionStore.LookupEntry(ScalingStatDistribution) : nullptr;
@@ -1563,7 +1563,7 @@ uint32 ItemTemplate::GetStatValue(uint32 index, Player* owner /* = nullptr*/) co
     ScalingStatValuesEntry const* ssv = ssd ? sScalingStatValuesStore.LookupEntry(ssdLevel) : nullptr;
 
     uint32 statBaseValue = 0;
-    if (ssd != nullptr && ssv != nullptr)
+    if (ssd && ssv)
     {
         if (ssd->StatMod[index] < 0)
             return 0; // What do we do ?
@@ -1582,7 +1582,7 @@ uint32 ItemTemplate::GetStatValue(uint32 index, Player* owner /* = nullptr*/) co
         float minScaler = GetItemScalingModifier(ItemLevel, ItemQualities(Quality), ::InventoryType(InventoryType));
         float maxScaler = GetItemScalingModifier(maxItemLevel, ItemQualities(Quality), ::InventoryType(InventoryType));
 
-        if (maxScaler != 0.0f && minScaler != 0.0f)
+        if (maxScaler != 0.f && minScaler != 0.f)
         {
             float statAllocation = ItemStat[index].ItemStatAllocation * maxScaler * 0.0001f;
             return std::ceil(statAllocation - ((maxScaler / minScaler) * ItemStat[index].ItemStatSocketCostMultiplier));

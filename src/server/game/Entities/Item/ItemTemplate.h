@@ -741,9 +741,9 @@ struct ItemTemplate
                SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
     }
 
-    uint32 GetStatValue(uint32 index, Player* owner = nullptr) const;
-    uint32 GetEffectiveArmor(Player * owner) const;
-    bool GetWeaponDamage(Player * owner, float& minValue, float& maxValue, float& dps) const;
+    uint32 GetStatValue(uint32 index, Player const* owner = nullptr) const;
+    uint32 GetEffectiveArmor(Player const* owner) const;
+    bool GetWeaponDamage(Player const* owner, float& minValue, float& maxValue, float& dps) const;
 };
 
 struct ItemLocale
