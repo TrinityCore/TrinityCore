@@ -423,7 +423,7 @@ class TC_GAME_API Spell
         void TakePower();
         void TakeAmmo();
 
-        void TakeRunePower(bool didHit);
+        void TakeRunePower(SpellMissInfo hitInfo);
         void TakeReagents();
         void TakeCastItem();
 

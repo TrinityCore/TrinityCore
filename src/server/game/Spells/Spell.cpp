@@ -4891,16 +4891,20 @@ void Spell::TakePower()
         }
     }
 
-    if (powerType == POWER_RUNE)
+    if (powerType == POWER_RUNE && m_caster->IsPlayer())
     {
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            if (ObjectGuid targetGUID = m_targets.GetUnitTargetGUID())
-                for (auto ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                    if (ihit->targetGUID == targetGUID)
-                        if (ihit->missCondition == SPELL_MISS_DODGE || ihit->missCondition == SPELL_MISS_PARRY)
-                            return;
+        SpellMissInfo hitResult = SPELL_MISS_NONE;
+        if (ObjectGuid targetGUID = m_targets.GetUnitTargetGUID())
+        {
+            auto itr = std::find_if(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [&targetGUID](Spell::TargetInfo const& targetInfo)
+            {
+                return targetInfo.targetGUID == targetGUID;
+            });
+            if (itr != m_UniqueTargetInfo.end())
+                hitResult = itr->missCondition;
+        }
 
-        TakeRunePower(hit);
+        TakeRunePower(hitResult);
         return;
     }
 
@@ -5003,9 +5007,9 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID) const
     return SPELL_CAST_OK;
 }
 
-void Spell::TakeRunePower(bool didHit)
+void Spell::TakeRunePower(SpellMissInfo hitInfo)
 {
-    if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->getClass() != CLASS_DEATH_KNIGHT)
+    if (!m_caster->IsPlayer() || m_caster->getClass() != CLASS_DEATH_KNIGHT)
         return;
 
     SpellRuneCostEntry const* runeCostData = sSpellRuneCostStore.LookupEntry(m_spellInfo->RuneCostID);
@@ -5027,6 +5031,12 @@ void Spell::TakeRunePower(bool didHit)
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], const_cast<Spell*>(this));
     }
 
+    bool consumeRunes = hitInfo == SPELL_MISS_NONE || hitInfo == SPELL_MISS_MISS;
+    // Death Strike is special - it consumes runes on dodge and parry as well, because the healing component still goes through.
+    // There is no flag to control this and it's probably tied to how Blizzard applies spell effects and auras, which we KNOW we do wrong.
+    if (m_spellInfo->Id == 49998)
+        consumeRunes |= hitInfo == SPELL_MISS_DODGE || hitInfo == SPELL_MISS_PARRY;
+
     // Let's say we use a skill that requires a Frost rune. This is the order:
     // - Frost rune
     // - Death rune, originally a Frost rune
@@ -5038,7 +5048,7 @@ void Spell::TakeRunePower(bool didHit)
         RuneType rune = player->GetCurrentRune(i);
         if (!player->GetRuneCooldown(i) && runeCost[rune] > 0)
         {
-            player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN));
+            player->SetRuneCooldown(i, consumeRunes ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN));
             player->SetLastUsedRune(rune);
             player->SetLastUsedRuneIndex(i);
             runeCost[rune]--;
@@ -5055,13 +5065,13 @@ void Spell::TakeRunePower(bool didHit)
             RuneType rune = player->GetCurrentRune(i);
             if (!player->GetRuneCooldown(i) && rune == RUNE_DEATH)
             {
-                player->SetRuneCooldown(i, didHit ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN));
+                player->SetRuneCooldown(i, consumeRunes ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN));
                 player->SetLastUsedRune(rune);
                 player->SetLastUsedRuneIndex(i);
                 runeCost[rune]--;
 
                 // keep Death Rune type if missed
-                if (didHit)
+                if (consumeRunes)
                     player->RestoreBaseRune(i);
 
                 if (runeCost[RUNE_DEATH] == 0)
@@ -5071,7 +5081,7 @@ void Spell::TakeRunePower(bool didHit)
     }
 
     // you can gain some runic power when use runes
-    if (didHit)
+    if (consumeRunes)
     {
         if (runicPowerGain)
         {
