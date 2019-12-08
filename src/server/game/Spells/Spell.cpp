@@ -2189,7 +2189,14 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     // Calculate hit result
     if (m_originalCaster)
     {
-        targetInfo.missCondition = m_originalCaster->SpellHitResult(target, m_spellInfo, m_canReflect && !(m_spellInfo->IsPositive() && m_caster->IsFriendlyTo(target)));
+        Unit* caster = m_originalCaster;
+
+        // Totems inherit their owner's spell hit rating so we use the player as primary reference
+        if (m_originalCaster->IsCreature() && m_originalCaster->IsTotem())
+            if (Unit* owner = m_originalCaster->GetOwner())
+                caster = owner;
+
+        targetInfo.missCondition = caster->SpellHitResult(target, m_spellInfo, m_canReflect && !(m_spellInfo->IsPositive() && m_caster->IsFriendlyTo(target)));
         if (m_skipCheck && targetInfo.missCondition != SPELL_MISS_IMMUNE)
             targetInfo.missCondition = SPELL_MISS_NONE;
     }
