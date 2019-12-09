@@ -1048,6 +1048,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 HasUnitTypeMask(uint32 mask) const { return mask & m_unitTypeMask; }
         void AddUnitTypeMask(uint32 mask) { m_unitTypeMask |= mask; }
         bool IsSummon() const   { return (m_unitTypeMask & UNIT_MASK_SUMMON) != 0; }
+        bool IsMinion() const   { return (m_unitTypeMask & UNIT_MASK_MINION) != 0; }
         bool IsGuardian() const { return (m_unitTypeMask & UNIT_MASK_GUARDIAN) != 0; }
         bool IsPet() const      { return (m_unitTypeMask & UNIT_MASK_PET) != 0; }
         bool IsHunterPet() const{ return (m_unitTypeMask & UNIT_MASK_HUNTER_PET) != 0; }

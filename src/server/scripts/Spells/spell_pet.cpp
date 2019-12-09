@@ -143,7 +143,7 @@ class spell_warl_pet_scaling_01 : public AuraScript
                 int32 fire = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE);
                 int32 shadow = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW);
 
-                amount = std::max(fire, shadow) * 0.57f;
+                amount = std::max(fire, shadow);
             }
         }
     }
@@ -158,7 +158,7 @@ class spell_warl_pet_scaling_01 : public AuraScript
                 int32 fire = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE);
                 int32 shadow = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW);
 
-                amount = std::max(fire, shadow) * 0.15f;
+                amount = std::max(fire, shadow) * 0.5f;
             }
         }
     }
@@ -1057,7 +1057,7 @@ class spell_mage_water_elemental_scaling_01 : public AuraScript
         {
             if (Player* owner = pet->GetOwner())
             {
-                float bonusDamage = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST) * 0.57f;
+                float bonusDamage = owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FROST);
                 amount = int32(bonusDamage);
             }
         }

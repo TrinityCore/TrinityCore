@@ -6615,8 +6615,8 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     if (spellProto->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
         return pdamage;
 
-    // For totems and pets use owner's bonus data
-    if (IsCreature())
+    // Totems get their bonus damage from their owner
+    if (IsCreature() && IsTotem())
         if (Unit* owner = GetOwner())
             return owner->SpellDamageBonusDone(victim, spellProto, pdamage, damagetype, effIndex, stack);
 
@@ -6653,6 +6653,9 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
     if (!spellProto->HasAttribute(SPELL_ATTR6_LIMIT_PCT_DAMAGE_MODS))
         DoneTotal += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS, victim->GetCreatureTypeMask());
 
+    // Done fixed damage bonus auras
+    int32 DoneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
+
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
     {
@@ -6661,12 +6664,19 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
             if (spellProto->SpellFamilyFlags[0] & 0x00080000)
                 DoneTotal += (owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.4f) * 0.2f;
             break;
+        case SPELLFAMILY_WARLOCK:
+            // Warlock Minions inherit 50% of their owner's spell power
+            if (IsMinion() && GetOwner())
+                DoneAdvertisedBenefit = owner->SpellBaseDamageBonusDone(spellProto->GetSchoolMask()) * 0.5f;
+            break;
+        case SPELLFAMILY_MAGE:
+            // Mage Water Elementals inherit 40% of their owner's spell power
+            if (IsMinion() && GetOwner())
+                DoneAdvertisedBenefit = owner->SpellBaseDamageBonusDone(spellProto->GetSchoolMask()) * 0.4f;
+            break;
         default:
             break;
     }
-
-    // Done fixed damage bonus auras
-    int32 DoneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
 
     // Check for table values
     float coeff = spellProto->Effects[effIndex].BonusMultiplier;
