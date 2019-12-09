@@ -1827,10 +1827,6 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
     // so talents modifying chances and judgements will have properly calculated proc chance
     if (Unit* caster = GetCaster())
     {
-        // Pets, Minions etc. inherit their proc chance values from their owner
-        if (caster->IsCreature() && caster->GetOwner())
-            caster = GetCaster()->GetOwner();
-
         // calculate ppm chance if present and we're using weapon
         if (eventInfo.GetDamageInfo() && procEntry.ProcsPerMinute != 0)
         {
