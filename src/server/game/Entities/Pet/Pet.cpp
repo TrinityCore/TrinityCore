@@ -55,7 +55,7 @@ Pet::Pet(Player* owner, PetType type) :
     }
 
     m_name = "Pet";
-    m_focusRegenTimer = PET_FOCUS_REGEN_INTERVAL;
+    m_petFocusRegenTimer.Reset(PetFocusRegenInterval);
 }
 
 Pet::~Pet()
@@ -596,38 +596,16 @@ void Pet::Update(uint32 diff)
                 }
             }
 
-            //regenerate focus for hunter pets or energy for deathknight's ghoul
-            if (m_focusRegenTimer)
+            // Regenerate Focus
+            m_petFocusRegenTimer.Update(diff);
+            if (m_petFocusRegenTimer.Passed())
             {
-                if (m_focusRegenTimer > diff)
-                    m_focusRegenTimer -= diff;
-                else
-                {
-                    switch (getPowerType())
-                    {
-                        case POWER_FOCUS:
-                            Regenerate(POWER_FOCUS);
-                            m_focusRegenTimer += PET_FOCUS_REGEN_INTERVAL - diff;
-                            if (!m_focusRegenTimer) ++m_focusRegenTimer;
+                if (getPowerType() == POWER_FOCUS)
+                    Regenerate(POWER_FOCUS);
 
-                            // Reset if large diff (lag) causes focus to get 'stuck'
-                            if (m_focusRegenTimer > PET_FOCUS_REGEN_INTERVAL)
-                                m_focusRegenTimer = PET_FOCUS_REGEN_INTERVAL;
-
-                            break;
-
-                        // in creature::update
-                        //case POWER_ENERGY:
-                        //    Regenerate(POWER_ENERGY);
-                        //    m_regenTimer += CREATURE_REGEN_INTERVAL - diff;
-                        //    if (!m_regenTimer) ++m_regenTimer;
-                        //    break;
-                        default:
-                            m_focusRegenTimer = 0;
-                            break;
-                    }
-                }
+                m_petFocusRegenTimer.Reset(PetFocusRegenInterval);
             }
+
             break;
         }
         default:
@@ -649,11 +627,8 @@ void Creature::Regenerate(Powers power)
     switch (power)
     {
         case POWER_FOCUS:
-        {
-            // For hunter pets.
-            addvalue = 24 * sWorld->getRate(RATE_POWER_FOCUS);
+            addvalue = 5 * sWorld->getRate(RATE_POWER_FOCUS);
             break;
-        }
         case POWER_ENERGY:
         {
             // For Death Knight Ghouls
@@ -679,13 +654,8 @@ void Creature::Regenerate(Powers power)
     }
 
     // Apply modifiers (if any).
-    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-        if (Powers((*i)->GetMiscValue()) == power)
-            AddPct(addvalue, (*i)->GetAmount());
-
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet()? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
-
+    AddPct(addvalue, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, power));
+    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet() ? PetFocusRegenInterval : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
     ModifyPower(power, int32(addvalue));
 }
 

@@ -22,7 +22,7 @@
 #include "PetDefines.h"
 #include "TemporarySummon.h"
 
-#define PET_FOCUS_REGEN_INTERVAL 4 * IN_MILLISECONDS
+static constexpr uint32 const PetFocusRegenInterval = 1 * IN_MILLISECONDS;
 
 enum StableResultCode
 {
@@ -175,7 +175,7 @@ class TC_GAME_API Pet : public Guardian
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
         bool    m_loading;
-        uint32  m_focusRegenTimer;
+        TimeTrackerSmall m_petFocusRegenTimer;
 
         DeclinedName* m_declinedname;
         uint32 m_petSlot;
