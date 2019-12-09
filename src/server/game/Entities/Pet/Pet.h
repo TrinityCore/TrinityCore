@@ -175,7 +175,7 @@ class TC_GAME_API Pet : public Guardian
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;
         bool    m_loading;
-        TimeTrackerSmall m_petFocusRegenTimer;
+        int32   m_petFocusRegenTimer;
 
         DeclinedName* m_declinedname;
         uint32 m_petSlot;

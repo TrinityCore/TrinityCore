@@ -55,7 +55,7 @@ Pet::Pet(Player* owner, PetType type) :
     }
 
     m_name = "Pet";
-    m_petFocusRegenTimer.Reset(PetFocusRegenInterval);
+    m_petFocusRegenTimer = PetFocusRegenInterval;
 }
 
 Pet::~Pet()
@@ -597,13 +597,13 @@ void Pet::Update(uint32 diff)
             }
 
             // Regenerate Focus
-            m_petFocusRegenTimer.Update(diff);
-            if (m_petFocusRegenTimer.Passed())
+            m_petFocusRegenTimer -= diff;
+            if (m_petFocusRegenTimer <= 0)
             {
                 if (getPowerType() == POWER_FOCUS)
                     Regenerate(POWER_FOCUS);
 
-                m_petFocusRegenTimer.Reset(PetFocusRegenInterval);
+                m_petFocusRegenTimer += PetFocusRegenInterval;
             }
 
             break;
@@ -630,25 +630,12 @@ void Creature::Regenerate(Powers power)
             addvalue = 5 * sWorld->getRate(RATE_POWER_FOCUS);
             break;
         case POWER_ENERGY:
-        {
+            addvalue = 20;
             // For Death Knight Ghouls
             if (GetEntry() == 26125)
-            {
                 if (Unit* owner = GetOwner())
-                {
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        float haste = (1.0f / owner->ToPlayer()->GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN) - 1.0f) * 100.0f;
-                        addvalue += 20.0f + CalculatePct(20.0f, haste);
-                    }
-                    else
-                        addvalue += 20;
-                }
-            }
-            else
-                addvalue += 20;
+                    AddPct(addvalue, (1.0f / owner->ToPlayer()->GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN) - 1.0f) * 100.0f);
             break;
-        }
         default:
             return;
     }
