@@ -1719,7 +1719,7 @@ class spell_hun_focus_fire : public AuraScript
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_focus_fire::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RANGED_HASTE);
-        AfterEffectApply += AuraEffectApplyFn(spell_hun_focus_fire::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_focus_fire::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
