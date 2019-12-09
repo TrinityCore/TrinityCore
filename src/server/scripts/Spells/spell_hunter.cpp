@@ -46,6 +46,9 @@ enum HunterSpells
     SPELL_HUNTER_CHIMERA_SHOT                       = 53209,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_FIRE                               = 82926,
+    SPELL_HUNTER_FRENZY_EFFECT                      = 19615,
+    SPELL_HUNTER_FOCUS_FIRE_ENERGIZE                = 83468,
+    SPELL_HUNTER_FOCUS_FIRE_DUMMY                   = 88843,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
     SPELL_HUNTER_IMPROVED_SERPENT_STING_DAMAGE      = 83077,
@@ -82,6 +85,11 @@ enum HunterSpells
     SPELL_LOCK_AND_LOAD_MARKER                      = 67544
 };
 
+enum HunterIcons
+{
+    HUNTER_ICON_ID_INVIGORATION = 3487
+};
+
 enum MiscSpells
 {
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
@@ -89,7 +97,6 @@ enum MiscSpells
     SPELL_SHAMAN_EXHAUSTION                         = 57723,
     SPELL_SHAMAN_SATED                              = 57724
 };
-
 // 90355 - Ancient Hysteria
 class spell_hun_ancient_hysteria : public SpellScriptLoader
 {
@@ -401,38 +408,26 @@ class spell_hun_improved_serpent_sting : public SpellScriptLoader
 };
 
 // 53412 - Invigoration
-class spell_hun_invigoration : public SpellScriptLoader
+class spell_hun_invigoration : public SpellScript
 {
-    public:
-        spell_hun_invigoration() : SpellScriptLoader("spell_hun_invigoration") { }
+    PrepareSpellScript(spell_hun_invigoration);
 
-        class spell_hun_invigoration_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_invigoration_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_INVIGORATION_TRIGGERED });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_HUNTER_INVIGORATION_TRIGGERED });
-            }
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (AuraEffect* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_HUNTER, HUNTER_ICON_ID_INVIGORATION, EFFECT_0))
+            target->CastCustomSpell(SPELL_HUNTER_INVIGORATION_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, nullptr, aurEff);
+    }
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* unitTarget = GetHitUnit())
-                    if (AuraEffect* aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 3487, 0))
-                        if (roll_chance_i(aurEff->GetAmount()))
-                            unitTarget->CastSpell(unitTarget, SPELL_HUNTER_INVIGORATION_TRIGGERED, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_invigoration_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_hun_invigoration_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_invigoration::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 53478 - Last Stand Pet
@@ -1677,6 +1672,87 @@ class spell_hun_marked_for_death : public AuraScript
     }
 };
 
+// 82692 - Focus Fire
+class spell_hun_focus_fire : public AuraScript
+{
+    PrepareAuraScript(spell_hun_focus_fire);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_FRENZY_EFFECT,
+                SPELL_HUNTER_FOCUS_FIRE_ENERGIZE
+            });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        Player* player = GetUnitOwner()->ToPlayer();
+        if (Pet* pet = player->GetPet())
+        {
+            if (Aura* frenzy = pet->GetAura(SPELL_HUNTER_FRENZY_EFFECT, pet->GetGUID()))
+            {
+                uint8 stacks = frenzy->GetStackAmount();
+                amount = GetSpellInfo()->Effects[EFFECT_2].CalcValue() * stacks;
+            }
+            else
+                amount = 0;
+        }
+    }
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        if (Pet* pet = player->GetPet())
+        {
+            if (Aura* frenzy = pet->GetAura(SPELL_HUNTER_FRENZY_EFFECT, pet->GetGUID()))
+            {
+                uint8 stacks = frenzy->GetStackAmount();
+                int32 bp = aurEff->GetAmount() * stacks;
+                player->CastCustomSpell(SPELL_HUNTER_FOCUS_FIRE_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, pet, true, nullptr, aurEff);
+                frenzy->Remove();
+            }
+        }
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_focus_fire::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RANGED_HASTE);
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_focus_fire::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 19615 - Frenzy Effect
+class spell_hun_frenzy_effect : public AuraScript
+{
+    PrepareAuraScript(spell_hun_frenzy_effect);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_FOCUS_FIRE_DUMMY });
+    }
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetStackAmount() == GetSpellInfo()->StackAmount)
+            if (Unit* owner = GetTarget()->GetOwner())
+                owner->CastSpell(owner, SPELL_HUNTER_FOCUS_FIRE_DUMMY, true, nullptr, aurEff);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* owner = GetTarget()->GetOwner())
+            owner->RemoveAurasDueToSpell(SPELL_HUNTER_FOCUS_FIRE_DUMMY, owner->GetGUID());
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_frenzy_effect::AfterApply, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_frenzy_effect::AfterRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
@@ -1688,10 +1764,12 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_cobra_shot();
     new spell_hun_disengage();
     new spell_hun_fire();
+    RegisterAuraScript(spell_hun_focus_fire);
+    RegisterAuraScript(spell_hun_frenzy_effect);
     RegisterAuraScript(spell_hun_glyph_of_kill_shot);
     new spell_hun_improved_mend_pet();
     new spell_hun_improved_serpent_sting();
-    new spell_hun_invigoration();
+    RegisterSpellScript(spell_hun_invigoration);
     new spell_hun_last_stand_pet();
     new spell_hun_lock_and_load();
     RegisterAuraScript(spell_hun_marked_for_death);
