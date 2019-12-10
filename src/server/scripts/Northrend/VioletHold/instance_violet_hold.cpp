@@ -852,8 +852,14 @@ class instance_violet_hold : public InstanceMapScript
 
             void Update(uint32 diff) override
             {
+                // if we don't have any player in the instance
                 if (!instance->HavePlayers())
-                    return;
+                {
+                    if (EventState == IN_PROGRESS) // if event is in progress, mark as fail
+                        EventState = FAIL;
+                    else  // We don't have players and event isn't in progress, so return
+                        return;
+                }
 
                 // if main event is in progress and players have wiped then reset instance
                 if ((EventState == IN_PROGRESS && CheckWipe()) || EventState == FAIL)
