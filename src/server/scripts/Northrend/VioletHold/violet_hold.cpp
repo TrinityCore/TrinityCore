@@ -473,7 +473,6 @@ class npc_sinclari_vh : public CreatureScript
                             break;
                         case 8:
                             _instance->SetData(DATA_MAIN_EVENT_STATE, IN_PROGRESS);
-                            // [1] GUID: Full: 0xF1300077C202E6DD Type: Creature Entry: 30658 Low: 190173
                             task.Repeat(Seconds(1));
                             break;
                         case 9:
