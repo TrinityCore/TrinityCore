@@ -11254,47 +11254,28 @@ void Unit::ApplyAttackTimePercentMod(WeaponAttackType att, float val, bool apply
     m_attackTimer[att] = uint32(GetAttackTime(att) * m_modAttackSpeedPct[att] * remainingTimePct);
 }
 
-void Unit::ApplyRegenMod(WeaponAttackType att, float val, bool apply)
+void Unit::ApplyHasteRegenMod(WeaponAttackType att, float val, bool apply)
 {
     if (GetTypeId() != TYPEID_PLAYER)
         return;
 
     if (val > 0)
     {
-        if (att == BASE_ATTACK)
-        {
-            // Modify rune regeneration based on haste
-            if (getClass() == CLASS_DEATH_KNIGHT)
-                for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
-                    ApplyPercentModFloatValue(PLAYER_RUNE_REGEN_1 + i, -val, !apply);
-
-            if (getClass() != CLASS_HUNTER)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
-        }
-        else if (att == RANGED_ATTACK)
-        {
-            if (getClass() == CLASS_HUNTER)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
-        }
+        if (att == BASE_ATTACK && getClass() != CLASS_HUNTER)
+            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
+        else if (att == RANGED_ATTACK && getClass() == CLASS_HUNTER)
+            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, val, !apply);
     }
     else
     {
-        if (att == BASE_ATTACK)
-        {
-            // Modify rune regeneration based on haste
-            if (getClass() == CLASS_DEATH_KNIGHT)
-                for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
-                    ApplyPercentModFloatValue(PLAYER_RUNE_REGEN_1 + i, val, apply);
-
-            if (getClass() != CLASS_HUNTER)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
-        }
-        else if (att == RANGED_ATTACK)
-        {
-            if (getClass() == CLASS_HUNTER)
-                ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
-        }
+        if (att == BASE_ATTACK && getClass() != CLASS_HUNTER)
+            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
+        else if (att == RANGED_ATTACK && getClass() == CLASS_HUNTER)
+            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN, -val, apply);
     }
+
+    if (getClass() == CLASS_DEATH_KNIGHT)
+        ToPlayer()->UpdateRuneRegeneration();
 }
 
 void Unit::ApplyCastTimePercentMod(float val, bool apply)

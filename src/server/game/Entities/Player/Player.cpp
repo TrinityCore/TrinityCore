@@ -5470,16 +5470,16 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
             ApplyAttackTimePercentMod(BASE_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
             ApplyAttackTimePercentMod(OFF_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
             ApplyAttackTimePercentMod(OFF_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
-            ApplyRegenMod(BASE_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
-            ApplyRegenMod(BASE_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
+            ApplyHasteRegenMod(BASE_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
+            ApplyHasteRegenMod(BASE_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
             break;
         }
         case CR_HASTE_RANGED:
         {
             ApplyAttackTimePercentMod(RANGED_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
             ApplyAttackTimePercentMod(RANGED_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
-            ApplyRegenMod(RANGED_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
-            ApplyRegenMod(RANGED_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
+            ApplyHasteRegenMod(RANGED_ATTACK, m_baseRatingValue[combatRating] * GetRatingMultiplier(combatRating), false);
+            ApplyHasteRegenMod(RANGED_ATTACK, (m_baseRatingValue[combatRating] + (apply ? value : -value)) * GetRatingMultiplier(combatRating), true);
             break;
         }
         case CR_HASTE_SPELL:
@@ -25752,11 +25752,6 @@ bool Player::isTotalImmunity() const
     return false;
 }
 
-uint32 Player::GetRuneTypeBaseCooldown(RuneType /*runeType*/) const
-{
-    return RUNE_BASE_COOLDOWN;
-}
-
 void Player::SetRuneConvertAura(uint8 index, AuraEffect const* aura, AuraType auraType, SpellInfo const* spellInfo)
 {
     m_runes->runes[index].ConvertAura = aura;
@@ -25871,6 +25866,19 @@ void Player::InitRunes()
 
     for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
         SetFloatValue(PLAYER_RUNE_REGEN_1 + i, 0.1f);                  // set a base regen timer equal to 10 sec
+}
+
+void Player::UpdateRuneRegeneration()
+{
+    // Formular: base cooldown / (1 - haste)
+    float regeneration = 0.1f;
+    float haste = GetFloatValue(PLAYER_FIELD_MOD_HASTE_REGEN);
+    if (haste)
+        regeneration /= haste;
+
+    if (getClass() == CLASS_DEATH_KNIGHT)
+        for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
+            SetFloatValue(PLAYER_RUNE_REGEN_1 + i, regeneration);
 }
 
 bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const

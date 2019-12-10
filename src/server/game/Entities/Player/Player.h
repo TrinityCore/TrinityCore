@@ -2298,8 +2298,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         RuneType GetBaseRune(uint8 index) const { return RuneType(m_runes->runes[index].BaseRune); }
         RuneType GetCurrentRune(uint8 index) const { return RuneType(m_runes->runes[index].CurrentRune); }
         uint32 GetRuneCooldown(uint8 index) const { return m_runes->runes[index].Cooldown; }
-        uint32 GetRuneBaseCooldown(uint8 index) const { return GetRuneTypeBaseCooldown(GetBaseRune(index)); }
-        uint32 GetRuneTypeBaseCooldown(RuneType runeType) const;
         bool IsBaseRuneSlotsOnCooldown(RuneType runeType) const;
         RuneType GetLastUsedRune() { return m_runes->lastUsedRune; }
         uint8 GetLastUsedRuneMask() { return m_runes->lastUsedRuneMask; }
@@ -2317,6 +2315,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResyncRunes(uint8 count);
         void AddRunePower(uint8 mask);
         void InitRunes();
+        void UpdateRuneRegeneration();
 
         void SendRespondInspectAchievements(Player* player) const;
         uint32 GetAchievementPoints() const;

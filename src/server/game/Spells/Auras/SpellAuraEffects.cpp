@@ -3975,8 +3975,8 @@ void AuraEffect::HandleModMeleeRangedSpeedPct(AuraApplication const* aurApp, uin
 
     if (GetAuraType() != SPELL_AURA_MOD_MELEE_RANGED_HASTE_2 && GetAuraType() != SPELL_AURA_MOD_RANGED_HASTE_2)
     {
-        target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
-        target->ApplyRegenMod(RANGED_ATTACK, (float)GetAmount(), apply);
+        target->ApplyHasteRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
+        target->ApplyHasteRegenMod(RANGED_ATTACK, (float)GetAmount(), apply);
     }
 }
 
@@ -4003,8 +4003,8 @@ void AuraEffect::HandleModCombatSpeedPct(AuraApplication const* aurApp, uint8 mo
     target->ApplyAttackTimePercentMod(RANGED_ATTACK, float(GetAmount()), apply);
     if (GetAuraType() != SPELL_AURA_MOD_MELEE_RANGED_HASTE_2 && GetAuraType() != SPELL_AURA_MOD_RANGED_HASTE_2)
     {
-        target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
-        target->ApplyRegenMod(RANGED_ATTACK, (float)GetAmount(), apply);
+        target->ApplyHasteRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
+        target->ApplyHasteRegenMod(RANGED_ATTACK, (float)GetAmount(), apply);
     }
 }
 
@@ -4017,7 +4017,7 @@ void AuraEffect::HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode,
 
     target->ApplyAttackTimePercentMod(BASE_ATTACK, float(GetAmount()), apply);
     if (GetAuraType() != SPELL_AURA_MOD_MELEE_RANGED_HASTE_2 && GetAuraType() != SPELL_AURA_MOD_RANGED_HASTE_2)
-        target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
+        target->ApplyHasteRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
     target->UpdateDamagePhysical(BASE_ATTACK);
 }
 
@@ -4036,25 +4036,25 @@ void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mod
     if (spellGroupVal)
     {
         if (target->GetTypeId() == TYPEID_PLAYER && applyRegenPct && GetBase()->HasEffectType(SPELL_AURA_MOD_MELEE_HASTE_3))
-            target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), !apply);
+            target->ApplyHasteRegenMod(BASE_ATTACK, (float)GetAmount(), !apply);
         else
         {
             target->ApplyAttackTimePercentMod(BASE_ATTACK, (float)GetAmount(), !apply);
             target->ApplyAttackTimePercentMod(OFF_ATTACK, (float)GetAmount(), !apply);
             if (applyRegenPct)
-                target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), !apply);
+                target->ApplyHasteRegenMod(BASE_ATTACK, (float)GetAmount(), !apply);
         }
     }
 
     // Auras that only increase regeneration
     if (target->GetTypeId() == TYPEID_PLAYER && applyRegenPct && GetBase()->HasEffectType(SPELL_AURA_MOD_MELEE_HASTE_3))
-        target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
+        target->ApplyHasteRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
     else
     {
         target->ApplyAttackTimePercentMod(BASE_ATTACK, (float)GetAmount(), apply);
         target->ApplyAttackTimePercentMod(OFF_ATTACK, (float)GetAmount(), apply);
         if (applyRegenPct)
-            target->ApplyRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
+            target->ApplyHasteRegenMod(BASE_ATTACK, (float)GetAmount(), apply);
     }
 }
 
@@ -4072,12 +4072,12 @@ void AuraEffect::HandleAuraModRangedHaste(AuraApplication const* aurApp, uint8 m
     {
         target->ApplyAttackTimePercentMod(RANGED_ATTACK, (float)GetAmount(), !apply);
         if (GetAuraType() != SPELL_AURA_MOD_MELEE_RANGED_HASTE_2 && GetAuraType() != SPELL_AURA_MOD_RANGED_HASTE_2)
-            target->ApplyRegenMod(RANGED_ATTACK, (float)GetAmount(), !apply);
+            target->ApplyHasteRegenMod(RANGED_ATTACK, (float)GetAmount(), !apply);
     }
 
     target->ApplyAttackTimePercentMod(RANGED_ATTACK, (float)GetAmount(), apply);
     if (GetAuraType() != SPELL_AURA_MOD_MELEE_RANGED_HASTE_2 && GetAuraType() != SPELL_AURA_MOD_RANGED_HASTE_2)
-        target->ApplyRegenMod(RANGED_ATTACK, (float)GetAmount(), apply);
+        target->ApplyHasteRegenMod(RANGED_ATTACK, (float)GetAmount(), apply);
 }
 
 /********************************/

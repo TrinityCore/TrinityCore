@@ -4194,7 +4194,7 @@ void Spell::SendSpellStart()
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown(i));
+                float baseCd = float(uint32(RUNE_BASE_COOLDOWN));
                 data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
@@ -4320,7 +4320,7 @@ void Spell::SendSpellGo()
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
                 // float casts ensure the division is performed on floats as we need float result
-                float baseCd = float(player->GetRuneBaseCooldown(i));
+                float baseCd = float(uint32(RUNE_BASE_COOLDOWN));
                 data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
@@ -5048,7 +5048,7 @@ void Spell::TakeRunePower(SpellMissInfo hitInfo)
         RuneType rune = player->GetCurrentRune(i);
         if (!player->GetRuneCooldown(i) && runeCost[rune] > 0)
         {
-            player->SetRuneCooldown(i, consumeRunes ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN));
+            player->SetRuneCooldown(i, consumeRunes ? uint32(RUNE_BASE_COOLDOWN) : uint32(RUNE_MISS_COOLDOWN));
             player->SetLastUsedRune(rune);
             player->SetLastUsedRuneIndex(i);
             runeCost[rune]--;
@@ -5065,7 +5065,7 @@ void Spell::TakeRunePower(SpellMissInfo hitInfo)
             RuneType rune = player->GetCurrentRune(i);
             if (!player->GetRuneCooldown(i) && rune == RUNE_DEATH)
             {
-                player->SetRuneCooldown(i, consumeRunes ? player->GetRuneBaseCooldown(i) : uint32(RUNE_MISS_COOLDOWN));
+                player->SetRuneCooldown(i, consumeRunes ? uint32(RUNE_BASE_COOLDOWN) : uint32(RUNE_MISS_COOLDOWN));
                 player->SetLastUsedRune(rune);
                 player->SetLastUsedRuneIndex(i);
                 runeCost[rune]--;
