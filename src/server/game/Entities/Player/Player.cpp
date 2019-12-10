@@ -25876,9 +25876,8 @@ void Player::UpdateRuneRegeneration()
     if (haste)
         regeneration /= haste;
 
-    if (getClass() == CLASS_DEATH_KNIGHT)
-        for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
-            SetFloatValue(PLAYER_RUNE_REGEN_1 + i, regeneration);
+    for (uint8 i = 0; i < NUM_RUNE_TYPES; i++)
+        SetFloatValue(PLAYER_RUNE_REGEN_1 + i, regeneration);
 }
 
 bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
