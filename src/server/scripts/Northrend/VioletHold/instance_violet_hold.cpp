@@ -414,7 +414,7 @@ class instance_violet_hold : public InstanceMapScript
                             Scheduler.Schedule(Seconds(3), [this](TaskContext task)
                             {
                                 CheckEventState();
-                                task.Repeat();
+                                task.Repeat(Seconds(3));
                             });
                         }
                         else if (data == NOT_STARTED)
