@@ -109,6 +109,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         /// @todo Rename these properly
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
+        bool IsClassTrainerOf(Player const* player) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
         void LoadTemplateImmunities();
         bool IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster) const override;

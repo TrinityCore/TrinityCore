@@ -1119,9 +1119,12 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
 
 bool Creature::isCanTrainingAndResetTalentsOf(Player* player) const
 {
-    return player->getLevel() >= 10
-        && GetCreatureTemplate()->trainer_type == TRAINER_TYPE_CLASS
-        && player->getClass() == GetCreatureTemplate()->trainer_class;
+    return player->getLevel() >= 10 && IsClassTrainerOf(player);
+}
+
+bool Creature::IsClassTrainerOf(Player const* player) const
+{
+    return GetCreatureTemplate()->trainer_type == TRAINER_TYPE_CLASS && player->getClass() == GetCreatureTemplate()->trainer_class;
 }
 
 Player* Creature::GetLootRecipient() const
