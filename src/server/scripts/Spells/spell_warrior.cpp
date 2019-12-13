@@ -1194,6 +1194,25 @@ private:
     uint8 _hitTargets = 0;
 };
 
+class spell_warr_heroic_leap : public SpellScript
+{
+    PrepareSpellScript(spell_warr_heroic_leap);
+
+    SpellCastResult CheckLocation()
+    {
+        // The client shows an area as unreachable once the target destination is 4 yards above your position
+        if (!GetExplTargetDest() || GetExplTargetDest()->GetPositionZ() - GetCaster()->GetPositionZ() > 4.f)
+            return SPELL_FAILED_NOPATH;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap::CheckLocation);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterAuraScript(spell_warr_blood_craze);
@@ -1205,6 +1224,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_devastate);
     new spell_warr_execute();
     new spell_warr_glyph_of_sunder_armor();
+    RegisterSpellScript(spell_warr_heroic_leap);
     new spell_warr_intimidating_shout();
     new spell_warr_lambs_to_the_slaughter();
     new spell_warr_last_stand();
