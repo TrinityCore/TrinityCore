@@ -407,7 +407,6 @@ class theramore_waves_invoker : public CreatureScript
                     break;
             }
 
-            jaina->CastSpell(jaina, SPELL_TELEPORT);
             jaina->NearTeleportTo(position);
             jaina->SetHomePosition(position);
             jaina->AI()->Talk(JAINA_SAY_WAVE_ALERT);

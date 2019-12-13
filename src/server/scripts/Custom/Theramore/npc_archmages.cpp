@@ -10,6 +10,7 @@ enum Spells
     SPELL_FIREBALL              = 100003,
     SPELL_FIREBLAST             = 100004,
     SPELL_PYROBLAST             = 100005,
+    SPELL_LIVING_BOMB           = 100080,
 
     SPELL_FROSTBOLT             = 100006,
     SPELL_ICE_LANCE             = 100007,
@@ -69,6 +70,11 @@ class npc_archmage_fire : public CreatureScript
                     {
                         counterspell.Repeat(1s);
                     }
+                })
+                .Schedule(5s, [this](TaskContext living_bomb)
+                {
+                    DoCastVictim(SPELL_LIVING_BOMB);
+                    living_bomb.Repeat(20s, 28s);
                 })
                 .Schedule(8s, [this](TaskContext fireblast)
                 {
@@ -250,6 +256,12 @@ class npc_archmage_frost : public CreatureScript
 
         void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
         {
+            if (spellInfo->Id == SPELL_ICE_BARRIER
+                || spellInfo->Id == SPELL_ICE_BLOCK)
+            {
+                return;
+            }
+
             if (spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_FROST && roll_chance_i(30))
                 DoCast(target, SPELL_FROSTBITE);
         }
@@ -311,8 +323,8 @@ class npc_archmage_frost : public CreatureScript
             {
                 me->InterruptNonMeleeSpells(false);
 
-                DoCastSelf(SPELL_ICE_BLOCK);
                 DoCastSelf(SPELL_HYPOTHERMIA);
+                DoCastSelf(SPELL_ICE_BLOCK);
 
                 scheduler
                     .Schedule(6s, [this](TaskContext /*context*/)

@@ -1,22 +1,16 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Custom/AI/CustomAI.h"
 
 enum Spells
 {
 	SPELL_FIREBALL          = 100003,
 	SPELL_ICE_LANCE         = 100007,
 	SPELL_ICE_BLOCK         = 100008,
-	SPELL_BLINK             = 64662,
+	SPELL_BLINK             = 57869,
 	SPELL_ARCANE_BLAST      = 100010,
-    SPELL_PRISMATIC_BARRIER = 100069
-};
-
-enum Casting
-{
-	CASTING_FIREBALL		= 1,
-	CASTING_ICE_LANCE,
-	CASTING_BLINK,
-	CASTING_ARCANE_BLAST
+    SPELL_PRISMATIC_BARRIER = 100069,
+    SPELL_IMMOLATE          = 100079
 };
 
 class npc_hag : public CreatureScript
@@ -24,94 +18,75 @@ class npc_hag : public CreatureScript
     public:
     npc_hag() : CreatureScript("npc_hag") {}
 
-    struct npc_hagAI : public ScriptedAI
+    struct npc_hagAI : public CustomAI
     {
-        npc_hagAI(Creature* creature) : ScriptedAI(creature)
+        npc_hagAI(Creature* creature) : CustomAI(creature), hasUsedIceBlock(false)
         {
-            Initialize();
+            SetCombatMovement(false);
         }
 
-        void Initialize()
+        void Reset() override
         {
-            iceBlocked = false;
+            CustomAI::Reset();
+
+            hasUsedIceBlock = false;
+        }
+
+        void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_FIRE && roll_chance_i(70))
+                me->AddAura(SPELL_IMMOLATE, target);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             DoCast(SPELL_PRISMATIC_BARRIER);
 
-            events.ScheduleEvent(CASTING_FIREBALL, 1s);
-            events.ScheduleEvent(CASTING_ICE_LANCE, 5s);
-            events.ScheduleEvent(CASTING_BLINK, 10s);
-            events.ScheduleEvent(CASTING_ARCANE_BLAST, 3s);
-        }
-
-        void Reset() override
-        {
-            events.Reset();
-            Initialize();
+            scheduler
+                .Schedule(1s, [this](TaskContext fireball)
+                {
+                    DoCastVictim(SPELL_FIREBALL);
+                    fireball.Repeat(2s);
+                })
+                .Schedule(5s, [this](TaskContext ice_lance)
+                {
+                    me->InterruptNonMeleeSpells(true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_ICE_LANCE);
+                    ice_lance.Repeat(8s, 15s);
+                })
+                .Schedule(10s, [this](TaskContext blink)
+                {
+                    me->InterruptNonMeleeSpells(true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE))
+                        DoCast(target, SPELL_BLINK);
+                    blink.Repeat(20s, 30s);
+                })
+                .Schedule(3s, [this](TaskContext arcane_blast)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_ARCANE_BLAST);
+                    arcane_blast.Repeat(8s, 14s);
+                });
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
-            if (!iceBlocked && HealthBelowPct(30))
+            if (!hasUsedIceBlock && HealthBelowPct(30))
             {
-                me->InterruptNonMeleeSpells(false);
                 DoCastSelf(SPELL_ICE_BLOCK);
-                iceBlocked = true;
-            }
-        }
 
-        void UpdateAI(uint32 diff) override
-        {
-            // Combat
-            if (!UpdateVictim())
-                return;
+                hasUsedIceBlock = true;
 
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
+                scheduler.Schedule(1min, [this](TaskContext /*context*/)
                 {
-                    case CASTING_FIREBALL:
-                        DoCastVictim(SPELL_FIREBALL);
-                        events.RescheduleEvent(CASTING_FIREBALL, 5s, 8s);
-                        break;
-
-                    case CASTING_ICE_LANCE:
-                        me->InterruptNonMeleeSpells(true);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ICE_LANCE);
-                        events.RescheduleEvent(CASTING_ICE_LANCE, 8s, 15s);
-                        break;
-
-                    case CASTING_BLINK:
-                        me->InterruptNonMeleeSpells(true);
-                        DoCastVictim(SPELL_BLINK);
-                        events.RescheduleEvent(CASTING_BLINK, 20s, 30s);
-                        break;
-
-                    case CASTING_ARCANE_BLAST:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ARCANE_BLAST);
-                        events.RescheduleEvent(CASTING_ARCANE_BLAST, 8s, 14s);
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+                    hasUsedIceBlock = false;
+                });
             }
-
-            DoMeleeAttackIfReady();
         }
 
         private:
-        EventMap events;
-        bool iceBlocked;
+        bool hasUsedIceBlock;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
