@@ -202,11 +202,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
     m_goValue.Transport.StopFrames = new std::vector<uint32>();
 
     if (m_goInfo->transport.Timeto2ndfloor > 0)
-    {
-        // If we have a stop frame we also need an additional one at 0ms
-        m_goValue.Transport.StopFrames->push_back(0);
         m_goValue.Transport.StopFrames->push_back(m_goInfo->transport.Timeto2ndfloor);
-    }
     if (m_goInfo->transport.Timeto3rdfloor > 0)
         m_goValue.Transport.StopFrames->push_back(m_goInfo->transport.Timeto3rdfloor);
     if (m_goInfo->transport.Timeto4thfloor > 0)
@@ -234,11 +230,11 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
     if (m_goInfo->transport.startOpen)
     {
         SetGoState(GO_STATE_TRANSPORT_STOPPED);
-        stopTimer = m_goValue.Transport.StopFrames->at(m_goInfo->transport.startOpen - 1);
+        stopTimer = m_goValue.Transport.StopFrames->at(0);
+        _currentTransportTime = stopTimer;
         _initialRelocate = true;
     }
     else
-
         SetGoState(GO_STATE_TRANSPORT_ACTIVE);
 
     if (_isDynamicTransport)
@@ -495,33 +491,36 @@ void Transport::SetTransportState(GOState state, uint32 stopFrame /*= 0*/)
     ASSERT(m_goInfo->type == GAMEOBJECT_TYPE_TRANSPORT);
 
     uint32 stopTimer = 0;
+
     uint32 currentStopFrameTime = GetCurrentTransportTime();
-    if (currentStopFrameTime == _finalStopFrameTime)
-        currentStopFrameTime = m_goValue.Transport.StopFrames->at(0);
+    if (GetGoState() == GO_STATE_TRANSPORT_ACTIVE)
+    {
+        currentStopFrameTime = 0;
+        SetCurrentTransportTime(currentStopFrameTime);
+    }
 
     if (state == GO_STATE_TRANSPORT_ACTIVE)
     {
-        if (GetGoState() >= GO_STATE_TRANSPORT_STOPPED)
+        if (currentStopFrameTime)
         {
             // Returning to stop frame 0. Client expects travel time, server expects animation timestamp for special return movement
             uint32 transportTravelTime = _finalStopFrameTime - currentStopFrameTime;
             SetPeriod(getMSTime() + transportTravelTime);
-            stopTimer = m_goValue.Transport.StopFrames->at(0);
             SetDestinationStopFrameTime(_finalStopFrameTime);
         }
     }
     else
     {
         ASSERT(state < GOState(GO_STATE_TRANSPORT_STOPPED + MAX_GO_STATE_TRANSPORT_STOP_FRAMES));
-        ASSERT(stopFrame < m_goValue.Transport.StopFrames->size());
+        ASSERT(stopFrame <= m_goValue.Transport.StopFrames->size());
 
         // Moving between given stop frames
-        stopTimer = m_goValue.Transport.StopFrames->at(stopFrame);
+        stopTimer = stopFrame ? m_goValue.Transport.StopFrames->at(stopFrame - 1) : 0;
         bool backwards = stopTimer < currentStopFrameTime;
         uint32 transportTravelTime = backwards ? currentStopFrameTime - stopTimer : stopTimer - currentStopFrameTime;
         SetPeriod(getMSTime() + transportTravelTime);
         SetDestinationStopFrameTime(stopTimer);
-        state = GOState(GO_STATE_TRANSPORT_STOPPED + stopFrame);
+        state = GOState(GO_STATE_TRANSPORT_ACTIVE + stopFrame);
     }
 
     m_goValue.Transport.PathProgress = getMSTime() + stopTimer;

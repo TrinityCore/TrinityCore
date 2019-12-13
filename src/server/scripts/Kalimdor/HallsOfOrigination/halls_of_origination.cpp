@@ -95,7 +95,6 @@ struct go_hoo_the_makers_lift_controller : public GameObjectAI
 
     bool GossipSelect(Player* player, uint32 /*sender*/, uint32 action) override
     {
-
         ClearGossipMenuFor(player);
         player->PlayerTalkClass->SendCloseGossip();
 
@@ -108,7 +107,7 @@ struct go_hoo_the_makers_lift_controller : public GameObjectAI
         if (!elevator)
             return true;
 
-        if (action == 0 && elevator->GetGoState() >= GO_STATE_TRANSPORT_STOPPED + 2)
+        if (action == 0 && elevator->GetGoState() >= GO_STATE_TRANSPORT_ACTIVE + 2)
             elevator->SetTransportState(GO_STATE_TRANSPORT_ACTIVE);
         else
             elevator->SetTransportState(GO_STATE_TRANSPORT_STOPPED, action);
