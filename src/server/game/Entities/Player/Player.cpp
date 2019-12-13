@@ -22855,6 +22855,8 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         }
         price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
 
+        price /= pProto->BuyCount;
+
         // reputation discount
         price = uint32(floor(price * GetReputationPriceDiscount(creature)));
 
