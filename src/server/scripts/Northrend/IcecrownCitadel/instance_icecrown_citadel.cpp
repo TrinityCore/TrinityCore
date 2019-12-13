@@ -51,6 +51,12 @@ enum TimedEvents
     EVENT_RESPAWN_GUNSHIP       = 4
 };
 
+enum SpawnGroups
+{
+    SPAWN_GROUP_ALLIANCE_ROS   = 57,
+    SPAWN_GROUP_HORDE_ROS      = 58
+};
+
 BossBoundaryData const boundaries =
 {
     { DATA_LORD_MARROWGAR,        new CircleBoundary(Position(-428.0f,2211.0f), 95.0) },
@@ -182,6 +188,10 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 if (!TeamInInstance)
                     TeamInInstance = player->GetTeam();
+
+                uint8 spawnGroupId = TeamInInstance == ALLIANCE ? SPAWN_GROUP_ALLIANCE_ROS : SPAWN_GROUP_HORDE_ROS;
+                if (!instance->IsSpawnGroupActive(spawnGroupId))
+                    instance->SpawnGroupSpawn(spawnGroupId);
 
                 if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE && GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != DONE)
                     SpawnGunship();
