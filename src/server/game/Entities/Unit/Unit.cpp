@@ -14504,7 +14504,7 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                     if (!target->CanSeeSpellClickOn(creature))
                         appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
 
-                    if (target->IsPlayer() && !creature->IsClassTrainerOf(target->ToPlayer()))
+                    if (!creature->IsClassTrainerOf(target->ToPlayer()))
                         appendValue &= ~UNIT_NPC_FLAG_TRAINER_CLASS;
                 }
 
