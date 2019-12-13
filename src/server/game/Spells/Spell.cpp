@@ -6510,7 +6510,7 @@ SpellCastResult Spell::CheckRange(bool strict) const
         if (m_caster->GetExactDistSq(m_targets.GetDstPos()) > maxRange)
             return SPELL_FAILED_OUT_OF_RANGE;
         if (minRange > 0.0f && m_caster->GetExactDistSq(m_targets.GetDstPos()) < minRange)
-            return SPELL_FAILED_OUT_OF_RANGE;
+            return SPELL_FAILED_TOO_CLOSE;
     }
 
     return SPELL_CAST_OK;
