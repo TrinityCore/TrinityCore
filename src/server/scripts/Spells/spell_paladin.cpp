@@ -846,6 +846,7 @@ class spell_pal_judgement : public SpellScript
                 SPELL_PALADIN_JUDGEMENT_DAMAGE,
                 SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS,
                 SPELL_PALADIN_SEAL_OF_TRUTH,
+                SPELL_PALADIN_CENSURE
             });
     }
 
@@ -855,6 +856,7 @@ class spell_pal_judgement : public SpellScript
         if (!caster)
             return;
 
+        Unit* target = GetHitUnit();
         uint32 spellId = SPELL_PALADIN_JUDGEMENT_DAMAGE;
         int32 bp = 0;
         float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
@@ -877,11 +879,15 @@ class spell_pal_judgement : public SpellScript
         if (caster->HasAura(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS))
             bp = 1 + int32(1 + ap * 0.2f + 0.32f * holy);
         else if (caster->HasAura(SPELL_PALADIN_SEAL_OF_TRUTH))
-            bp = 1 + int32(1 + ap * 0.142f + 0.223f * holy);
+        {
+            bp = 1 + int32(ap * 0.142f + 0.223f * holy);
+            if (Aura const* censure = target->GetAura(SPELL_PALADIN_CENSURE, caster->GetGUID()))
+                AddPct(bp, censure->GetStackAmount() * 20);
+        }
         else
             bp = 1 + int32(1 + ap * 0.16f + 0.25f * holy);
 
-        caster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, GetHitUnit(), true, nullptr);
+        caster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr);
     }
 
     void Register() override
