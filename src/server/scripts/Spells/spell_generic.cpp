@@ -4334,7 +4334,7 @@ class spell_gen_cannon_blast : public SpellScript
 {
     PrepareSpellScript(spell_gen_cannon_blast);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CANNON_BLAST });
     }
