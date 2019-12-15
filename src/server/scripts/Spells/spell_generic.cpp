@@ -4327,7 +4327,7 @@ class spell_gen_charmed_unit_spell_cooldown : public SpellScript
 enum CannonBlast
 {
     SPELL_CANNON_BLAST          = 42578,
-	SPELL_CANNON_BLAST_DAMAGE   = 42576
+    SPELL_CANNON_BLAST_DAMAGE   = 42576
 };
 
 class spell_gen_cannon_blast : public SpellScript
