@@ -459,6 +459,7 @@ class spell_summon_schnottz : public SpellScript
 
 void AddSC_uldum()
 {
+    /*
     RegisterCreatureAI(npc_uldum_uldum_camera_bunny_04);
     RegisterCreatureAI(npc_uldum_uldum_skarf);
     RegisterSpellScript(spell_uldum_initialize_uldum_intro);
@@ -466,6 +467,7 @@ void AddSC_uldum()
     RegisterSpellScript(spell_uldum_master_summon_beam_target_02);
     RegisterSpellScript(spell_uldum_master_summon_skarf);
     RegisterSpellScript(spell_uldum_player_summon_camera);
+    */
     RegisterSpellScript(spell_gobbles_initialize);
     RegisterSpellScript(spell_summon_schnottz);
 }
