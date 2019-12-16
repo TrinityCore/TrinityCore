@@ -797,7 +797,7 @@ class spell_dk_presence : public AuraScript
 
             // Crit Hit Chance reduction bonus effect
             if (AuraEffect const* eff = target->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_IMPROVED_BLOOD_PRESENCE, EFFECT_1))
-                target->CastCustomSpell(SPELL_DK_BLOOD_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT1, -eff->GetAmount(), target, true, nullptr, aurEff);
+                target->CastCustomSpell(SPELL_DK_BLOOD_PRESENCE_TRIGGERED, SPELLVALUE_BASE_POINT1, eff->GetAmount(), target, true, nullptr, aurEff);
             else
                 target->CastSpell(target, SPELL_DK_BLOOD_PRESENCE_TRIGGERED, true, nullptr, aurEff);
         }
