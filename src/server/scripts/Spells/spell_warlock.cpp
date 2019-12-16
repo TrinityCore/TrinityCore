@@ -73,6 +73,13 @@ enum WarlockSpells
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
     SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT            = 85383,
     SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE          = 85385,
+    SPELL_WARLOCK_JINX_AOE_R1                       = 85547,
+    SPELL_WARLOCK_JINX_AOE_R2                       = 86105,
+    SPELL_WARLOCK_JINX_TRIGGERED_RAGE               = 85539,
+    SPELL_WARLOCK_JINX_TRIGGERED_ENERGY             = 85540,
+    SPELL_WARLOCK_JINX_TRIGGERED_RUNIC_POWER        = 85541,
+    SPELL_WARLOCK_JINX_TRIGGERED_FOCUS              = 85542,
+    SPELL_WARLOCK_JINX_R1                           = 18179,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
     SPELL_WARLOCK_NETHER_WARD                       = 91711,
@@ -108,7 +115,8 @@ enum WarlockSpellIcons
 	WARLOCK_ICON_ID_DEATHS_EMBRACE                  = 3223,
 	WARLOCK_ICON_ID_SOUL_SIPHON                     = 5001,
     WARLOCK_ICON_ID_SOULBURN_SEED_OF_CORRUPTION     = 1932,
-    WARLOCK_ICON_ID_FIRE_AND_BRIMSTONE              = 3173
+    WARLOCK_ICON_ID_FIRE_AND_BRIMSTONE              = 3173,
+    WARLOCK_ICON_ID_JINX                            = 5002
 };
 
 enum WarlockSkillIds
@@ -1902,6 +1910,109 @@ class spell_warl_chaos_bolt : public SpellScript
     }
 };
 
+// -18179 - Jinx
+class spell_warl_jinx : public AuraScript
+{
+    PrepareAuraScript(spell_warl_jinx);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WARLOCK_JINX_R1,
+                SPELL_WARLOCK_JINX_AOE_R1,
+                SPELL_WARLOCK_JINX_AOE_R2
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget();
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        uint8 targets = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_JINX_R1)->Effects[EFFECT_2].CalcValue();
+        uint32 spellId = GetSpellInfo()->GetRank() == 1 ? SPELL_WARLOCK_JINX_AOE_R1 : SPELL_WARLOCK_JINX_AOE_R2;
+        GetTarget()->CastCustomSpell(spellId, SPELLVALUE_MAX_TARGETS, targets, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warl_jinx::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_warl_jinx::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 702 - Curse of Weakness
+class spell_warl_curse_of_weakness : public AuraScript
+{
+    PrepareAuraScript(spell_warl_curse_of_weakness);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_WARLOCK_JINX_TRIGGERED_ENERGY,
+                SPELL_WARLOCK_JINX_TRIGGERED_FOCUS,
+                SPELL_WARLOCK_JINX_TRIGGERED_RAGE,
+                SPELL_WARLOCK_JINX_TRIGGERED_RUNIC_POWER
+            });
+    }
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (AuraEffect const* jinx = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_JINX, EFFECT_1))
+        {
+            if (Player* target = GetTarget()->ToPlayer())
+            {
+                switch (target->getClass())
+                {
+                    case CLASS_WARRIOR:
+                        _debuffSpellId = SPELL_WARLOCK_JINX_TRIGGERED_RAGE;
+                        break;
+                    case CLASS_ROGUE:
+                        _debuffSpellId = SPELL_WARLOCK_JINX_TRIGGERED_ENERGY;
+                        break;
+                    case CLASS_DEATH_KNIGHT:
+                        _debuffSpellId = SPELL_WARLOCK_JINX_TRIGGERED_RUNIC_POWER;
+                        break;
+                    case CLASS_HUNTER:
+                        _debuffSpellId = SPELL_WARLOCK_JINX_TRIGGERED_FOCUS;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (_debuffSpellId)
+                    caster->CastCustomSpell(_debuffSpellId, SPELLVALUE_BASE_POINT0, jinx->GetAmount(), target, true, nullptr);
+            }
+        }
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_WARLOCK_JINX_TRIGGERED_RAGE);
+        target->RemoveAurasDueToSpell(SPELL_WARLOCK_JINX_TRIGGERED_ENERGY);
+        target->RemoveAurasDueToSpell(SPELL_WARLOCK_JINX_TRIGGERED_RUNIC_POWER);
+        target->RemoveAurasDueToSpell(SPELL_WARLOCK_JINX_TRIGGERED_FOCUS);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_warl_curse_of_weakness::HandleApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warl_curse_of_weakness::HandleRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+    }
+private:
+    uint32 _debuffSpellId = 0;
+};
+
 void AddSC_warlock_spell_scripts()
 {
     RegisterAuraScript(spell_warl_aftermath);
@@ -1910,6 +2021,7 @@ void AddSC_warlock_spell_scripts()
     RegisterAuraScript(spell_warl_burning_embers);
     RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterSpellScript(spell_warl_conflagrate);
+    RegisterAuraScript(spell_warl_curse_of_weakness);
     new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
@@ -1928,6 +2040,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_healthstone_heal();
     RegisterAuraScript(spell_warl_improved_soul_fire);
     RegisterSpellScript(spell_warl_incinerate);
+    RegisterAuraScript(spell_warl_jinx);
     new spell_warl_life_tap();
     new spell_warl_nether_ward_overrride();
     new spell_warl_seduction();
