@@ -676,8 +676,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
 
         Tokenizer tokens(fields[10].GetString(), ' ');
-        uint8 i = 0;
-        creatureAddon.auras.resize(tokens.size());
+        creatureAddon.auras.reserve(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
             uint32 spellId = uint32(atoul(*itr));
@@ -703,7 +702,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
                 continue;
             }
 
-            creatureAddon.auras[i++] = spellId;
+            creatureAddon.auras.push_back(spellId);
         }
 
         if (creatureAddon.mount)
@@ -1217,8 +1216,7 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[9].GetUInt8());
 
         Tokenizer tokens(fields[10].GetString(), ' ');
-        uint8 i = 0;
-        creatureAddon.auras.resize(tokens.size());
+        creatureAddon.auras.reserve(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
             uint32 spellId = uint32(atoul(*itr));
@@ -1244,7 +1242,7 @@ void ObjectMgr::LoadCreatureAddons()
                 continue;
             }
 
-            creatureAddon.auras[i++] = spellId;
+            creatureAddon.auras.push_back(spellId);
         }
 
         if (creatureAddon.mount)
