@@ -762,6 +762,12 @@ void ObjectMgr::LoadCreatureTemplateAddons()
                 continue;
             }
 
+            if (AdditionalSpellInfo->GetDuration() > 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has temporary aura (spell %lu) in `auras` field in `creature_template_addon`.", entry, atoul(*itr));
+                continue;
+            }
+
             creatureAddon.auras[i++] = atoul(*itr);
         }
 
@@ -1284,6 +1290,12 @@ void ObjectMgr::LoadCreatureAddons()
             if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), atoul(*itr)) != creatureAddon.auras.end())
             {
                 TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has duplicate aura (spell %lu) in `auras` field in `creature_addon`.", guid, atoul(*itr));
+                continue;
+            }
+
+            if (AdditionalSpellInfo->GetDuration() > 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has temporary aura (spell %lu) in `auras` field in `creature_addon`.", guid, atoul(*itr));
                 continue;
             }
 
