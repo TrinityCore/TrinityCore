@@ -21,9 +21,21 @@
 
 #include "Define.h"
 #include "Realm.h"
+#include <array>
 #include <map>
 #include <vector>
 #include <unordered_set>
+
+struct RealmBuildInfo
+{
+    uint32 Build;
+    uint32 MajorVersion;
+    uint32 MinorVersion;
+    uint32 BugfixVersion;
+    std::array<char, 4> HotfixVersion;
+    std::array<uint8, 20> WindowsHash;
+    std::array<uint8, 20> MacHash;
+};
 
 namespace boost
 {
@@ -58,14 +70,18 @@ public:
     RealmMap const& GetRealms() const { return _realms; }
     Realm const* GetRealm(RealmHandle const& id) const;
 
+    RealmBuildInfo const* GetBuildInfo(uint32 build) const;
+
 private:
     RealmList();
 
+    void LoadBuildInfo();
     void UpdateRealms(boost::system::error_code const& error);
     void UpdateRealm(RealmHandle const& id, uint32 build, std::string const& name,
         boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask,
         uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
+    std::vector<RealmBuildInfo> _builds;
     RealmMap _realms;
     uint32 _updateInterval;
     std::unique_ptr<Trinity::Asio::DeadlineTimer> _updateTimer;

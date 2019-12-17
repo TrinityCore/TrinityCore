@@ -266,7 +266,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 GetPlayer()->GetGUID().GetCounter());
             return;
         }
-        
+
         // collapse multiple spaces into one
         if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
         {
@@ -576,6 +576,11 @@ void WorldSession::HandleEmoteOpcode(WorldPacket& recvData)
 
     uint32 emote;
     recvData >> emote;
+
+    // restrict to the only emotes hardcoded in client
+    if (emote != EMOTE_ONESHOT_NONE && emote != EMOTE_ONESHOT_WAVE)
+        return;
+
     sScriptMgr->OnPlayerEmote(GetPlayer(), emote);
     GetPlayer()->HandleEmoteCommand(emote);
 }

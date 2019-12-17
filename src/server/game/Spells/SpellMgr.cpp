@@ -3935,10 +3935,20 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     ApplySpellFix({
         19503, // Scatter Shot
-        34490  // Silencing Shot
+        34490, // Silencing Shot
+        44327, // Trained Rock Falcon/Hawk Hunting
+        44408  // Trained Rock Falcon/Hawk Hunting
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Speed = 0.f;
+    });
+
+    ApplySpellFix({
+        51675,  // Rogue - Unfair Advantage (Rank 1)
+        51677   // Rogue - Unfair Advantage (Rank 2)
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // 5 yards
     });
 
     ApplySpellFix({

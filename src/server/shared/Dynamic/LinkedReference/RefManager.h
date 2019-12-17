@@ -18,7 +18,6 @@
 
 #ifndef _REFMANAGER_H
 #define _REFMANAGER_H
-//=====================================================
 
 #include "Dynamic/LinkedList.h"
 #include "Dynamic/LinkedReference/Reference.h"
@@ -26,28 +25,31 @@
 template <class TO, class FROM>
 class RefManager : public LinkedListHead
 {
-    public:
-        typedef LinkedListHead::Iterator<Reference<TO, FROM>> iterator;
-        RefManager() { }
+public:
+    typedef LinkedListHead::Iterator<Reference<TO, FROM>> iterator;
+    typedef LinkedListHead::Iterator<Reference<TO, FROM> const> const_iterator;
+    RefManager() { }
 
-        Reference<TO, FROM>* getFirst()             { return static_cast<Reference<TO, FROM>*>(LinkedListHead::getFirst()); }
+    Reference<TO, FROM>* getFirst() { return static_cast<Reference<TO, FROM>*>(LinkedListHead::getFirst()); }
 
-        Reference<TO, FROM> const* getFirst() const { return static_cast<Reference<TO, FROM> const*>(LinkedListHead::getFirst()); }
+    Reference<TO, FROM> const* getFirst() const { return static_cast<Reference<TO, FROM> const*>(LinkedListHead::getFirst()); }
 
-        iterator begin() { return iterator(getFirst()); }
-        iterator end()   { return iterator(nullptr); }
+    iterator begin() { return iterator(getFirst()); }
+    iterator end() { return iterator(nullptr); }
 
-        virtual ~RefManager()
-        {
-            clearReferences();
-        }
+    const_iterator begin() const { return const_iterator(getFirst()); }
+    const_iterator end() const { return const_iterator(nullptr); }
 
-        void clearReferences()
-        {
-            while (Reference<TO, FROM>* ref = getFirst())
-                ref->invalidate();
-        }
+    virtual ~RefManager()
+    {
+        clearReferences();
+    }
+
+    void clearReferences()
+    {
+        while (Reference<TO, FROM>* ref = getFirst())
+            ref->invalidate();
+    }
 };
 
-//=====================================================
 #endif

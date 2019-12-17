@@ -137,7 +137,7 @@ class TC_DATABASE_API Field
 
     private:
         #ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
-        void SetMetadata(MYSQL_FIELD* field, uint32 fieldIndex);
+        void SetMetadata(MySQLField* field, uint32 fieldIndex);
         Metadata meta;
         #endif
 };

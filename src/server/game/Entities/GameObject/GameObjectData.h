@@ -454,6 +454,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_CHEST: return chest.losOK == 0;
             case GAMEOBJECT_TYPE_GOOBER: return goober.losOK == 0;
             case GAMEOBJECT_TYPE_FLAGSTAND: return flagstand.losOK == 0;
+            case GAMEOBJECT_TYPE_TRAP: return true;
             default: return false;
         }
     }

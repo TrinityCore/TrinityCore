@@ -31,6 +31,7 @@ EndScriptData */
 #include "GitRevision.h"
 #include "Language.h"
 #include "Log.h"
+#include "MySQLThreading.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -45,7 +46,6 @@ EndScriptData */
 #include <numeric>
 
 #include <boost/filesystem/operations.hpp>
-#include <mysql_version.h>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
 
@@ -138,7 +138,7 @@ public:
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
         handler->PSendSysMessage("Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
         handler->PSendSysMessage("Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
-        handler->PSendSysMessage("Using MySQL version: %s", MYSQL_SERVER_VERSION);
+        handler->PSendSysMessage("Using MySQL version: %s", MySQL::GetLibraryVersion());
         handler->PSendSysMessage("Using CMake version: %s", GitRevision::GetCMakeVersion());
 
         handler->PSendSysMessage("Compiled on: %s", GitRevision::GetHostOSVersion());
