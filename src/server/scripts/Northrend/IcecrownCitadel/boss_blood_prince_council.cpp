@@ -91,7 +91,7 @@ enum Spells
     SPELL_CONJURE_EMPOWERED_FLAME       = 72040,
 
     // Ball of Flame
-    SPELL_FLAME_SPHERE_SPAWN_EFFECT     = 55891, // cast from creature_template_addon (needed cast before entering world)
+    SPELL_FLAME_SPHERE_SPAWN_EFFECT     = 55891,
     SPELL_BALL_OF_FLAMES_VISUAL         = 71706,
     SPELL_BALL_OF_FLAMES                = 71714,
     SPELL_FLAMES                        = 71393,
@@ -976,6 +976,7 @@ class npc_ball_of_flame : public CreatureScript
 
             void Reset() override
             {
+                DoCastSelf(SPELL_FLAME_SPHERE_SPAWN_EFFECT, true);
                 DoCastSelf(SPELL_BALL_OF_FLAMES_VISUAL, true);
                 if (me->GetEntry() == NPC_BALL_OF_INFERNO_FLAME)
                 {

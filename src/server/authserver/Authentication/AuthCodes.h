@@ -80,23 +80,13 @@ enum ExpansionFlags
     NO_VALID_EXP_FLAG                           = 0x0
 };
 
-struct RealmBuildInfo
-{
-    int Build;
-    int MajorVersion;
-    int MinorVersion;
-    int BugfixVersion;
-    int HotfixVersion;
-    std::array<uint8, 20> WindowsHash;
-    std::array<uint8, 20> MacHash;
-};
+struct RealmBuildInfo;
 
 namespace AuthHelper
 {
-    RealmBuildInfo const* GetBuildInfo(int build);
-    bool IsAcceptedClientBuild(int build);
-    bool IsPostBCAcceptedClientBuild(int build);
-    bool IsPreBCAcceptedClientBuild(int build);
+    bool IsAcceptedClientBuild(uint32 build);
+    bool IsPostBCAcceptedClientBuild(uint32 build);
+    bool IsPreBCAcceptedClientBuild(uint32 build);
 }
 
 #endif

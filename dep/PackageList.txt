@@ -18,7 +18,7 @@ cotire (CMake module to speed up builds)
 
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
-  Version: 1.0.0 9a7cbec70b8a88b2e876a382f57c59f3796da0d9
+  Version: 1.0.0 e6afbec564e249771046c714b0c7f2154e4c7fef
 
 fmt (a small, safe and fast formatting library)
   https://github.com/fmtlib/fmt
@@ -45,8 +45,8 @@ OpenSSL (general-purpose cryptography library)
   Version: external
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
-  Based on http://agner.org/random/
-  Version: 2010-Aug-03
+  https://github.com/MersenneTwister-Lab/SFMT
+  Version: 73bcba2e483640b8d50c1275514326dd4c1b0ca4
 
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   http://utfcpp.sourceforge.net/
