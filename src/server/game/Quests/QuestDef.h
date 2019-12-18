@@ -182,6 +182,19 @@ enum QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_PLAYER_KILL          = 0x800    // Internal flag computed only
 };
 
+enum QuestStatusFlags
+{
+    QUEST_STATUS_FLAG_NONE                          = 0x0,
+    QUEST_STATUS_FLAG_UNK_1                         = 0x1, // somewhat related to repeatable quests
+    QUEST_STATUS_FLAG_KILL_OBJECTIVE_COMPLETE       = 0x2, // quest has its kill credit objectives completed
+    QUEST_STATUS_FLAG_COLLECT_OBJECTIVE_COMPLETE    = 0x4, // quest has its collect objectives completed
+    QUEST_STATUS_FLAG_UNK_4                         = 0x8,
+    QUEST_STATUS_FLAG_UNK_5                         = 0x10,
+    QUEST_STATUS_FLAG_NO_ITEM_REQUEST               = 0x20, // server wont send SMSG_QUEST_GIVER_REQUEST_ITEMS
+    QUEST_STATUS_FLAG_UNK_7                         = 0x40,
+    QUEST_STATUS_FLAG_UNK_8                         = 0x80
+};
+
 struct QuestLocale
 {
     QuestLocale() { ObjectiveText.resize(QUEST_OBJECTIVES_COUNT); }

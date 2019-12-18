@@ -738,6 +738,13 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.SuggestPartyMembers = quest->GetSuggestedPlayers();
     packet.MoneyToGet = quest->GetRewOrReqMoney() < 0 ? -quest->GetRewOrReqMoney() : 0;
 
+    QuestStatusData data;
+    QuestStatusMap statusMap = _session->GetPlayer()->getQuestStatusMap();
+    QuestStatusMap::const_iterator itr = statusMap.find(quest->GetQuestId());
+    if (itr != statusMap.end())
+        data = itr->second;
+
+    bool collectObjectiveComplete = true;
     for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
         if (!quest->RequiredItemId[i])
@@ -746,6 +753,9 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         uint32 displayId = 0;
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
             displayId = itemTemplate->DisplayInfoID;
+
+        if (data.ItemCount[i] != quest->RequiredItemCount[i])
+            collectObjectiveComplete = false;
 
         packet.Collect.emplace_back(quest->RequiredItemId[i], quest->RequiredItemCount[i], displayId);
     }
@@ -758,13 +768,21 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         packet.Currency.emplace_back(quest->RequiredCurrencyId[i], quest->RequiredCurrencyCount[i]);
     }
 
-    // incomplete: 0
-    // complete : 2
-    packet.StatusFlags[0] = canComplete ? 0x2 : 0x0;
-    packet.StatusFlags[1] = 0x4;
-    packet.StatusFlags[2] = 0x8;
-    packet.StatusFlags[3] = 0x10;
-    packet.StatusFlags[4] = 0x40;
+    bool killCreditObjectiveComplete = true;
+    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
+    {
+        if (!quest->RequiredNpcOrGo[i])
+            continue;
+
+        if (data.CreatureOrGOCount[i] != quest->RequiredNpcOrGo[i])
+            collectObjectiveComplete = false;
+    }
+
+    packet.StatusFlags[0] = killCreditObjectiveComplete ? QUEST_STATUS_FLAG_KILL_OBJECTIVE_COMPLETE : QUEST_STATUS_FLAG_NONE;
+    packet.StatusFlags[1] = collectObjectiveComplete ? QUEST_STATUS_FLAG_COLLECT_OBJECTIVE_COMPLETE : QUEST_STATUS_FLAG_NONE;
+    packet.StatusFlags[2] = QUEST_STATUS_FLAG_UNK_4;
+    packet.StatusFlags[3] = QUEST_STATUS_FLAG_UNK_5;
+    packet.StatusFlags[4] = QUEST_STATUS_FLAG_UNK_7;
 
     _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
