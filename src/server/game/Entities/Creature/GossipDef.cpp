@@ -775,7 +775,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
             continue;
 
         if (data.CreatureOrGOCount[i] != quest->RequiredNpcOrGo[i])
-            collectObjectiveComplete = false;
+            killCreditObjectiveComplete = false;
     }
 
     packet.StatusFlags[0] = killCreditObjectiveComplete ? QUEST_STATUS_FLAG_KILL_OBJECTIVE_COMPLETE : QUEST_STATUS_FLAG_NONE;
