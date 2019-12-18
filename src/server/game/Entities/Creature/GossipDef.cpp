@@ -20,6 +20,7 @@
 #include "Formulas.h"
 #include "ObjectMgr.h"
 #include "QuestDef.h"
+#include "QuestPackets.h"
 #include "WorldSession.h"
 
 GossipMenu::GossipMenu()
@@ -721,65 +722,49 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
         AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
 
-    WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 50);    // guess size
-    data << uint64(npcGUID);
-    data << uint32(quest->GetQuestId());
-    data << questTitle;
-    data << requestItemsText;
+    WorldPackets::Quest::QuestGiverRequestItems packet;
 
-    data << uint32(0);                                   // unknown
+    packet.QuestTitle = questTitle;
+    packet.CompletionText = requestItemsText;
+    packet.QuestID = quest->GetQuestId();
+    packet.QuestGiverGUID = npcGUID;
 
+    // There are no delays in any 4.x quest sniffs sent so we skip them and send them as 0
     if (canComplete)
-        data << quest->GetCompleteEmote();
-    else
-        data << quest->GetIncompleteEmote();
+        packet.CompEmoteType = canComplete ? quest->GetCompleteEmote() : quest->GetIncompleteEmote();
 
-    // Close Window after cancel
-    data << uint32(autoLaunched);
+    packet.AutoLaunched = autoLaunched;
+    packet.QuestFlags = quest->GetFlags();
+    packet.SuggestPartyMembers = quest->GetSuggestedPlayers();
+    packet.MoneyToGet = quest->GetRewOrReqMoney() < 0 ? -quest->GetRewOrReqMoney() : 0;
 
-    data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
-    data << uint32(quest->GetSuggestedPlayers());           // SuggestedGroupNum
-
-    // Required Money
-    data << uint32(quest->GetRewOrReqMoney() < 0 ? -quest->GetRewOrReqMoney() : 0);
-
-    data << uint32(quest->GetReqItemsCount());
-    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+    for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
         if (!quest->RequiredItemId[i])
             continue;
 
-        data << uint32(quest->RequiredItemId[i]);
-        data << uint32(quest->RequiredItemCount[i]);
-
+        uint32 displayId = 0;
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
-            data << uint32(itemTemplate->DisplayInfoID);
-        else
-            data << uint32(0);
+            displayId = itemTemplate->DisplayInfoID;
+
+        packet.Collect.emplace_back(quest->RequiredItemId[i], quest->RequiredItemCount[i], displayId);
     }
 
-    data << uint32(quest->GetReqCurrencyCount());
-    for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
+    for (uint8 i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
     {
         if (!quest->RequiredCurrencyId[i])
             continue;
 
-        data << uint32(quest->RequiredCurrencyId[i]);
-        data << uint32(quest->RequiredCurrencyCount[i]);
+        packet.Currency.emplace_back(quest->RequiredCurrencyId[i], quest->RequiredCurrencyCount[i]);
     }
 
-    if (!canComplete)            // Experimental; there are 6 similar flags, if any of them
-        data << uint32(0x00);    // of them is 0 player can't complete quest (still unknown meaning)
-    else
-        data << uint32(0x02);
+    // incomplete: FD
+    // incomplete quest with item objective but item objective is complete DD
+    // To-do: validate this. 4.3.4 the packet parser reads this flag as 6 seperate values which seems a bit odd for a bitmask based flag
+    packet.StatusFlags = canComplete ? 0xFF : 0xFD;
 
-    data << uint32(0x04);
-    data << uint32(0x08);
-    data << uint32(0x10);
-    data << uint32(0x40);
-
-    _session->SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
+    _session->SendPacket(packet.Write());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
 }
 
 void PlayerMenu::AddQuestLevelToTitle(std::string &title, int32 level)
