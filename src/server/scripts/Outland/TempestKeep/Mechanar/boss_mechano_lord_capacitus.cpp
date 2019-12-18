@@ -139,15 +139,11 @@ class boss_mechano_lord_capacitus : public CreatureScript
                             break;
                         case EVENT_SUMMON_NETHER_CHARGE:
                         {
-                            uint32 spellId = 0;
+                            uint32 spellId = RAND(SPELL_SUMMON_NETHER_CHARGE_NE,
+                                                  SPELL_SUMMON_NETHER_CHARGE_NW,
+                                                  SPELL_SUMMON_NETHER_CHARGE_SE,
+                                                  SPELL_SUMMON_NETHER_CHARGE_SW);
                             uint32 netherChargeTimer = DUNGEON_MODE(urand(9000, 11000), urand(2000, 5000));
-                            switch (urand(0, 3))
-                            {
-                                case 0: spellId = SPELL_SUMMON_NETHER_CHARGE_NE; break;
-                                case 1: spellId = SPELL_SUMMON_NETHER_CHARGE_NW; break;
-                                case 2: spellId = SPELL_SUMMON_NETHER_CHARGE_SE; break;
-                                case 3: spellId = SPELL_SUMMON_NETHER_CHARGE_SW; break;
-                            }
                             DoCast(me, spellId, TRIGGERED_NONE);
                             events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, netherChargeTimer);
                             break;
