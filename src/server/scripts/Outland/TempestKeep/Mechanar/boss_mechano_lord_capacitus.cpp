@@ -144,7 +144,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
                                                   SPELL_SUMMON_NETHER_CHARGE_SE,
                                                   SPELL_SUMMON_NETHER_CHARGE_SW);
                             uint32 netherChargeTimer = DUNGEON_MODE(urand(9000, 11000), urand(2000, 5000));
-                            DoCast(me, spellId, TRIGGERED_NONE);
+                            DoCastSelf(spellId);
                             events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, netherChargeTimer);
                             break;
                         }
