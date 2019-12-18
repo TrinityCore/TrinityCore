@@ -47,7 +47,8 @@ WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
         _worldPacket << uint32(cur.Amount);
     }
 
-    _worldPacket << uint32(StatusFlags);
+    for (uint8 i = 0; i < 5; i++)
+        _worldPacket << uint32(StatusFlags[i]);
 
     return &_worldPacket;
 }

@@ -57,7 +57,7 @@ namespace WorldPackets
             uint32 MoneyToGet = 0;
             std::vector<QuestObjectiveCollect> Collect;
             std::vector<QuestCurrency> Currency;
-            uint32 StatusFlags = 0;
+            uint32 StatusFlags[5] = { };
             uint32 QuestFlags = 0;
             std::string QuestTitle;
             std::string CompletionText;

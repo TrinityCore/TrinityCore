@@ -758,10 +758,13 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         packet.Currency.emplace_back(quest->RequiredCurrencyId[i], quest->RequiredCurrencyCount[i]);
     }
 
-    // incomplete: FD
-    // incomplete quest with item objective but item objective is complete DD
-    // To-do: validate this. 4.3.4 the packet parser reads this flag as 6 seperate values which seems a bit odd for a bitmask based flag
-    packet.StatusFlags = canComplete ? 0xFF : 0xFD;
+    // incomplete: 0
+    // complete : 2
+    packet.StatusFlags[0] = canComplete ? 0x2 : 0x0;
+    packet.StatusFlags[1] = 0x4;
+    packet.StatusFlags[2] = 0x8;
+    packet.StatusFlags[3] = 0x10;
+    packet.StatusFlags[4] = 0x40;
 
     _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
