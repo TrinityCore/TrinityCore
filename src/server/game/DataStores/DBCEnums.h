@@ -166,6 +166,8 @@ enum ArtifactPowerFlag : uint8
 
 #define MAX_ARTIFACT_TIER 1
 
+#define MAX_AZERITE_EMPOWERED_TIER 5
+
 #define MAX_AZERITE_ESSENCE_SLOT 3
 #define MAX_AZERITE_ESSENCE_RANK 4
 
@@ -176,7 +178,23 @@ enum class AzeriteItemMilestoneType : int32
     BonusStamina    = 2
 };
 
+enum AzeriteTierUnlockSetFlags
+{
+    AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
+};
+
 #define BATTLE_PET_SPECIES_MAX_ID 2796
+
+enum BattlemasterListFlags
+{
+    BATTLEMASTER_LIST_FLAG_DISABLED             = 0x01,
+    BATTLEMASTER_LIST_FLAG_SKIP_ROLE_CHECK      = 0x02,
+    BATTLEMASTER_LIST_FLAG_UNK04                = 0x04,
+    BATTLEMASTER_LIST_FLAG_CAN_INIT_WAR_GAME    = 0x08,
+    BATTLEMASTER_LIST_FLAG_CAN_SPECIFIC_QUEUE   = 0x10,
+    BATTLEMASTER_LIST_FLAG_BRAWL                = 0x20,
+    BATTLEMASTER_LIST_FLAG_FACTIONAL            = 0x40
+};
 
 enum ChrSpecializationFlag
 {
@@ -801,7 +819,8 @@ enum CharSectionType
 
 enum Curves
 {
-    CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS = 1718
+    CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS    = 1718,
+    CURVE_ID_AZERITE_EMPOWERED_ITEM_RESPEC_COST = 6785
 };
 
 enum Difficulty : uint8
@@ -991,6 +1010,7 @@ enum ItemBonusType
     ITEM_BONUS_BONDING                          = 16,
     ITEM_BONUS_RELIC_TYPE                       = 17,
     ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18,
+    ITEM_BONUS_AZERITE_TIER_UNLOCK_SET          = 19,
     ITEM_BONUS_OVERRIDE_CAN_DISENCHANT          = 21,
     ITEM_BONUS_OVERRIDE_CAN_SCRAP               = 22
 };

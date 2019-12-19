@@ -46,57 +46,68 @@ bool AzeriteItem::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext
 
 void AzeriteItem::SaveToDB(CharacterDatabaseTransaction& trans)
 {
-    Item::SaveToDB(trans);
-
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE);
     stmt->setUInt64(0, GetGUID().GetCounter());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_AZERITE);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    stmt->setUInt64(1, m_azeriteItemData->Xp);
-    stmt->setUInt32(2, m_azeriteItemData->Level);
-    stmt->setUInt32(3, m_azeriteItemData->KnowledgeLevel);
-    std::size_t specIndex = 0;
-    for (; specIndex < m_azeriteItemData->SelectedEssences.size(); ++specIndex)
-    {
-        stmt->setUInt32(4 + specIndex * 4, m_azeriteItemData->SelectedEssences[specIndex].SpecializationID);
-        for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
-            stmt->setUInt32(5 + specIndex * 4 + j, m_azeriteItemData->SelectedEssences[specIndex].AzeriteEssenceID[j]);
-    }
-    for (; specIndex < MAX_SPECIALIZATIONS; ++specIndex)
-    {
-        stmt->setUInt32(4 + specIndex * 4, 0);
-        for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
-            stmt->setUInt32(5 + specIndex * 4 + j, 0);
-    }
-
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
-    for (uint32 azeriteItemMilestonePowerId : m_azeriteItemData->UnlockedEssenceMilestones)
-    {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
-        stmt->setUInt64(0, GetGUID().GetCounter());
-        stmt->setUInt32(1, azeriteItemMilestonePowerId);
-        trans->Append(stmt);
-    }
-
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
-    for (UF::UnlockedAzeriteEssence const& azeriteEssence : m_azeriteItemData->UnlockedEssences)
+    switch (GetState())
     {
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
-        stmt->setUInt64(0, GetGUID().GetCounter());
-        stmt->setUInt32(1, azeriteEssence.AzeriteEssenceID);
-        stmt->setUInt32(2, azeriteEssence.Rank);
-        trans->Append(stmt);
+        case ITEM_NEW:
+        case ITEM_CHANGED:
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_AZERITE);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt64(1, m_azeriteItemData->Xp);
+            stmt->setUInt32(2, m_azeriteItemData->Level);
+            stmt->setUInt32(3, m_azeriteItemData->KnowledgeLevel);
+            std::size_t specIndex = 0;
+            for (; specIndex < m_azeriteItemData->SelectedEssences.size(); ++specIndex)
+            {
+                stmt->setUInt32(4 + specIndex * 4, m_azeriteItemData->SelectedEssences[specIndex].SpecializationID);
+                for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
+                    stmt->setUInt32(5 + specIndex * 4 + j, m_azeriteItemData->SelectedEssences[specIndex].AzeriteEssenceID[j]);
+            }
+            for (; specIndex < MAX_SPECIALIZATIONS; ++specIndex)
+            {
+                stmt->setUInt32(4 + specIndex * 4, 0);
+                for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
+                    stmt->setUInt32(5 + specIndex * 4 + j, 0);
+            }
+
+            trans->Append(stmt);
+
+            for (uint32 azeriteItemMilestonePowerId : m_azeriteItemData->UnlockedEssenceMilestones)
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
+                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt32(1, azeriteItemMilestonePowerId);
+                trans->Append(stmt);
+            }
+
+            for (UF::UnlockedAzeriteEssence const& azeriteEssence : m_azeriteItemData->UnlockedEssences)
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
+                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt32(1, azeriteEssence.AzeriteEssenceID);
+                stmt->setUInt32(2, azeriteEssence.Rank);
+                trans->Append(stmt);
+            }
+            break;
+        }
+        case ITEM_REMOVED:
+        default:
+            break;
     }
+
+    Item::SaveToDB(trans);
 }
 
 void AzeriteItem::LoadAzeriteItemData(Player const* owner, AzeriteItemData& azeriteItemData)
