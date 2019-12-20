@@ -1584,6 +1584,10 @@ bool Map::MapObjectCellRelocation(T* object, Cell new_cell, char const* objType)
         return true;
     }
 
+    if (Creature* c = object->ToCreature())
+        if (c->GetCharmerOrOwnerGUID().IsPlayer())
+            EnsureGridLoaded(new_cell);
+
     // in diff. loaded grid normal object
     if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
     {
