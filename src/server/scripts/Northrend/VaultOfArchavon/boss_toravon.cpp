@@ -36,7 +36,10 @@ enum Spells
 
     // Frost Warder
     SPELL_FROST_BLAST       = 72123,    // don't know cd... using 20 secs.
-    SPELL_FROZEN_MALLET_2   = 72122
+    SPELL_FROZEN_MALLET_2   = 72122,
+
+    // Frozen Orb Stalker
+    FROZEN_ORB_STALKER_AURA = 72094
 };
 
 enum Events
@@ -102,6 +105,20 @@ struct boss_toravon : public BossAI
 
         DoMeleeAttackIfReady();
     }
+};
+
+struct npc_frozen_orb_stalker : public ScriptedAI
+{
+    npc_frozen_orb_stalker(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+        DoCastSelf(FROZEN_ORB_STALKER_AURA);
+    }
+
+private:
+    EventMap _events;
 };
 
 struct npc_frost_warder : public ScriptedAI
@@ -199,6 +216,7 @@ void AddSC_boss_toravon()
 {
     RegisterVaultOfArchavonCreatureAI(boss_toravon);
     RegisterVaultOfArchavonCreatureAI(npc_frost_warder);
+    RegisterVaultOfArchavonCreatureAI(npc_frozen_orb_stalker);
     RegisterVaultOfArchavonCreatureAI(npc_frozen_orb);
     RegisterSpellScript(spell_toravon_random_aggro);
 }
