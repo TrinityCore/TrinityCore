@@ -556,12 +556,8 @@ struct npc_fire_bomb : public ScriptedAI
 
     void Reset() override
     {
-        _events.Reset();
         DoCastSelf(SPELL_FIRE_BOMB_AURA);
     }
-
-private:
-    EventMap _events;
 };
 
 struct npc_beasts_combat_stalker : public ScriptedAI

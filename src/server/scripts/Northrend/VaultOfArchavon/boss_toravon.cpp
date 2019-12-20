@@ -113,12 +113,8 @@ struct npc_frozen_orb_stalker : public ScriptedAI
 
     void Reset() override
     {
-        _events.Reset();
         DoCastSelf(FROZEN_ORB_STALKER_AURA);
     }
-
-private:
-    EventMap _events;
 };
 
 struct npc_frost_warder : public ScriptedAI
