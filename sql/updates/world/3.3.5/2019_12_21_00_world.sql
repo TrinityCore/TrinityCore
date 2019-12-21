@@ -34,14 +34,14 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@Machine*100+2, 9, 4, 0, 0, 0, 100, 0, 500, 500, 0, 0, 11, 50630, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '@Machine - Actionlist - cast Eject passenger'),
 (@Machine*100+2, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 5637.412, 5301.54, -109.5869, 0, '@Machine - Actionlist - Cast Cosmetic Flame Dart'),
 (@Machine, 0, 4, 5, 34, 0, 100, 0, 8, 2, 0, 0, 11, 53119, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Machine - On movement informer  - Cast Cosmetic Flame Dart'),
-(@Machine, 0, 5, 0, 61, 0, 100, 0, 8, 2, 0, 0, 41, 500, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Machine - On movement informer  - Despawns');
+(@Machine, 0, 5, 0, 61, 0, 100, 0, 8, 2, 0, 0, 41, 500, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Machine - On movement informer  - Despawns'),
 (@AirPatrol, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, @AirPatrol*100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '@AirPatrol - On Just summoned - Action List'),
 (@AirPatrol*100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 48, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '@AirPatrol - Action List - Set active'),
 (@AirPatrol*100, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 1, @AirPatrol, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '@AirPatrol - Action List - Start WP'),
 (@AirPatrol*100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 51044, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '@AirPatrol - Action List - Cast Venture Co. Air Patrol Rockets'),
 (@AirPatrol*100, 9, 3, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 51043, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '@AirPatrol - Action List - CastVenture Co. Air Patrol Periodic (Kill Shot)'),
 (@AirPatrol*100, 9, 4, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '@AirPatrol - Action List - Talk'),
-(@AirPatrol, 0, 1, 0, 40, 0, 100, 0, 11, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '@AirPatrol - On wp 11- Despawns'),
+(@AirPatrol, 0, 1, 0, 40, 0, 100, 0, 11, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, '@AirPatrol - On wp 11- Despawns');
 
 DELETE FROM `waypoints` WHERE `entry` IN (@Machine,@AirPatrol);
 INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES
