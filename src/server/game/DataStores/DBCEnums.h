@@ -1555,6 +1555,7 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_EJECTABLE                = 0x00000020,           // ejectable
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2          = 0x00000040,
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3          = 0x00000100,
+    VEHICLE_SEAT_FLAG_B_PASSENGER_MIRRORS_ANIMS  = 0x00010000,           // Passenger forced to repeat all vehicle animations
     VEHICLE_SEAT_FLAG_B_KEEP_PET                 = 0x00020000,
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4          = 0x02000000,
     VEHICLE_SEAT_FLAG_B_CAN_SWITCH               = 0x04000000,
