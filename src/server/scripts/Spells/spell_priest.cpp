@@ -78,6 +78,7 @@ enum PriestSpells
 
 enum PriestSpellIcons
 {
+    PRIEST_ICON_ID_FOCUSED_POWER                    = 2210,
     PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT           = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
@@ -95,7 +96,9 @@ enum PriestMisc
 
 enum MiscSpells
 {
-    SPELL_MAGE_ARCANE_POWER                         = 12042
+    SPELL_MAGE_ARCANE_POWER                         = 12042,
+    SPELL_GENERIC_ARENA_DAMPENING                   = 74410,
+    SPELL_GENERIC_BATTLEGROUND_DAMPENING            = 74411
 };
 
 class PowerCheck
@@ -1116,7 +1119,15 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                         AddPct(amount, twinDisciplines->GetAmount());
 
                     // Focused Power
-                    amount *= caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+                    if (AuraEffect const* focusedPower = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_PRIEST, PRIEST_ICON_ID_FOCUSED_POWER, EFFECT_2))
+                        AddPct(amount, focusedPower->GetAmount());
+
+                    // Arena - Dampening
+                    if (AuraEffect const* auraEffArenaDampening = caster->GetAuraEffect(SPELL_GENERIC_ARENA_DAMPENING, EFFECT_0))
+                        AddPct(amount, auraEffArenaDampening->GetAmount());
+                    // Battleground - Dampening
+                    else if (AuraEffect const* auraEffBattlegroudDampening = caster->GetAuraEffect(SPELL_GENERIC_BATTLEGROUND_DAMPENING, EFFECT_0))
+                        AddPct(amount, auraEffBattlegroudDampening->GetAmount());
                 }
             }
 
