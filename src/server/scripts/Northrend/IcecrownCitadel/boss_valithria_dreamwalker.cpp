@@ -988,7 +988,7 @@ class npc_gluttonous_abomination : public CreatureScript
 
             void JustDied(Unit* killer) override
             {
-                if (killer->GetEntry() == NPC_VALITHRIA_DREAMWALKER)
+                if (killer && killer->GetEntry() == NPC_VALITHRIA_DREAMWALKER)
                     return;
 
                 DoCastSelf(SPELL_ROT_WORM_SPAWNER, true);
