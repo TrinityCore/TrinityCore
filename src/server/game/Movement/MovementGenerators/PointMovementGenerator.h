@@ -42,7 +42,7 @@ class PointMovementGenerator : public MovementGeneratorMedium<T, PointMovementGe
 
         uint32 GetId() const { return _movementId; }
 
-    private:
+    protected:
         void MovementInform(T*);
 
         uint32 _movementId;
@@ -58,6 +58,7 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
     public:
         explicit AssistanceMovementGenerator(uint32 id, float x, float y, float z) : PointMovementGenerator<Creature>(id, x, y, z, true) { }
 
+        bool Initialize(Unit* owner) override;
         void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override;
 };
