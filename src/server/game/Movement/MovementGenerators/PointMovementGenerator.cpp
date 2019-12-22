@@ -181,6 +181,24 @@ template void PointMovementGenerator<Creature>::DoFinalize(Creature*, bool, bool
 
 //---- AssistanceMovementGenerator
 
+void AssistanceMovementGenerator::Initialize(Unit* owner)
+{
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
+
+    if (owner->HasUnitState(UNIT_STATE_LOST_CONTROL | UNIT_STATE_NOT_MOVE))
+        return;
+
+    if (!owner->IsStopped())
+        owner->StopMoving();
+
+    owner->AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
+    Movement::MoveSplineInit init(owner);
+    init.MoveTo(_x, _y, _z);
+    init.SetVelocity(owner->GetSpeed(MOVE_RUN) * 0.66);
+    init.Launch();
+}
+
 void AssistanceMovementGenerator::Finalize(Unit* owner, bool active, bool movementInform)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
