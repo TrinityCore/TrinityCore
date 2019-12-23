@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "blackrock_caverns.h"
+#include "GameEventMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "Spell.h"
@@ -39,6 +40,7 @@ enum Spells
     SPELL_DRAIN_ESSENSE                         = 75645,
     SPELL_AURA_OF_ACCELERATION                  = 87376,
     SPELL_TWILIGHT_EVOLUTION                    = 75732,
+    SPELL_WEAR_CHRISTMAS_HAT_RED_SELF_DND       = 61400,
 
     // Twilight Zealot
     SPELL_KNEELING_SUPPLICATION                 = 75608,
@@ -94,6 +96,11 @@ enum Data
     DATA_ARRESTED_DEVELOPMENT = 0
 };
 
+enum Misc
+{
+    GAME_EVENT_WINTER_VEIL = 2
+};
+
 Position const TwilightZealotSummonPositions[] =
 {
     { 585.0278f, 982.8993f, 155.4369f, 1.500983f },
@@ -103,18 +110,18 @@ Position const TwilightZealotSummonPositions[] =
 
 struct boss_corla_herald_of_twilight : public BossAI
 {
-    boss_corla_herald_of_twilight(Creature* creature) : BossAI(creature, DATA_CORLA_HERALD_OF_TWILIGHT) { }
+    boss_corla_herald_of_twilight(Creature* creature) : BossAI(creature, DATA_CORLA_HERALD_OF_TWILIGHT), _killedZealots(0) { }
 
-
-    void Reset() override
+    void JustAppeared() override
     {
-        _Reset();
-        _killedZealots = 0;
         events.SetPhase(PHASE_OUT_OF_COMBAT);
         events.ScheduleEvent(EVENT_DRAIN_ESSENSE, 1ms, 0, PHASE_OUT_OF_COMBAT);
 
         for (uint8 i = 0; i < (IsHeroic() ? 3 : 2); i++)
             DoSummon(NPC_TWILIGHT_ZEALOT, TwilightZealotSummonPositions[i], 0, TEMPSUMMON_MANUAL_DESPAWN);
+
+        if (sGameEventMgr->IsActiveEvent(GAME_EVENT_WINTER_VEIL))
+            DoCastSelf(SPELL_WEAR_CHRISTMAS_HAT_RED_SELF_DND);
     }
 
     void JustEngagedWith(Unit* /*who*/) override

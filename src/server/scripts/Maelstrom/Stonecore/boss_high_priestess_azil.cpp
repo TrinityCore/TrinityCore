@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "DynamicObject.h"
+#include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MoveSplineInit.h"
@@ -35,32 +36,33 @@
 
 enum Spells
 {
-    SPELL_ENERGY_SHIELD             = 82858,
-    SPELL_CURSE_OF_BLOOD            = 79345,
-    SPELL_FORCE_GRIP                = 79351,
-    SPELL_FORCE_GRIP_CHANGE_SEAT    = 79359,
-    SPELL_FORCE_GRIP_DAMAGE         = 79358,
-    SPELL_SUMMON_GRAVITY_WELL       = 79340,
-    SPELL_EARTH_FURY_ENERGY_SHIELD  = 79050,
-    SPELL_GRAVITY_WELL_VISUAL       = 79245,
-    SPELL_GRAVITY_WELL_AURA_DAMAGE  = 79244,
-    SPELL_GRAVITY_WELL_AURA_PULL    = 79333,
-    SPELL_GRAVITY_WELL_DAMAGE       = 79249,
-    SPELL_GRAVITY_WELL_PULL         = 79332,
-    SPELL_EARTH_FURY_CASTING_VISUAL = 79002,
-    SPELL_SEISMIC_SHARD_SUMMON_1    = 86860,
-    SPELL_SEISMIC_SHARD_SUMMON_2    = 86858,
-    SPELL_SEISMIC_SHARD_SUMMON_3    = 86856,
-    SPELL_SEISMIC_SHARD_VISUAL      = 79009,
-    SPELL_SEISMIC_SHARD_PREPARE     = 86862,
-    SPELL_SEISMIC_SHARD_TARGETING   = 80511,
-    SPELL_SEISMIC_SHARD_LAUNCH      = 79015,
-    SPELL_SEISMIC_SHARD_MISSLE      = 79014,
-    SPELL_EJECT_ALL_PASSENGERS      = 68576,
-    SPELL_SUMMON_WAVE_SOUTH         = 79200,
-    SPELL_SUMMON_WAVE_WEST          = 79196,
-    SPELL_SUMMON_ADD_SOUTH          = 79193,
-    SPELL_SUMMON_ADD_WEST           = 79199
+    SPELL_ENERGY_SHIELD                     = 82858,
+    SPELL_CURSE_OF_BLOOD                    = 79345,
+    SPELL_FORCE_GRIP                        = 79351,
+    SPELL_FORCE_GRIP_CHANGE_SEAT            = 79359,
+    SPELL_FORCE_GRIP_DAMAGE                 = 79358,
+    SPELL_SUMMON_GRAVITY_WELL               = 79340,
+    SPELL_EARTH_FURY_ENERGY_SHIELD          = 79050,
+    SPELL_GRAVITY_WELL_VISUAL               = 79245,
+    SPELL_GRAVITY_WELL_AURA_DAMAGE          = 79244,
+    SPELL_GRAVITY_WELL_AURA_PULL            = 79333,
+    SPELL_GRAVITY_WELL_DAMAGE               = 79249,
+    SPELL_GRAVITY_WELL_PULL                 = 79332,
+    SPELL_EARTH_FURY_CASTING_VISUAL         = 79002,
+    SPELL_SEISMIC_SHARD_SUMMON_1            = 86860,
+    SPELL_SEISMIC_SHARD_SUMMON_2            = 86858,
+    SPELL_SEISMIC_SHARD_SUMMON_3            = 86856,
+    SPELL_SEISMIC_SHARD_VISUAL              = 79009,
+    SPELL_SEISMIC_SHARD_PREPARE             = 86862,
+    SPELL_SEISMIC_SHARD_TARGETING           = 80511,
+    SPELL_SEISMIC_SHARD_LAUNCH              = 79015,
+    SPELL_SEISMIC_SHARD_MISSLE              = 79014,
+    SPELL_EJECT_ALL_PASSENGERS              = 68576,
+    SPELL_SUMMON_WAVE_SOUTH                 = 79200,
+    SPELL_SUMMON_WAVE_WEST                  = 79196,
+    SPELL_SUMMON_ADD_SOUTH                  = 79193,
+    SPELL_SUMMON_ADD_WEST                   = 79199,
+    SPELL_WEAR_CHRISTMAS_HAT_RED_SELF_DND   = 61400
 };
 
 enum Texts
@@ -123,6 +125,11 @@ enum VehicleIds
     VEHICLE_ID_FORCE_GRIP   = 892
 };
 
+enum Misc
+{
+    GAME_EVENT_WINTER_VEIL = 2
+};
+
 Position const GroundPos = { 1331.82f, 980.314f, 207.542f };
 Position const AbovePlatformPos = { 1336.21f, 960.813f, 215.0f };
 
@@ -142,6 +149,12 @@ class boss_high_priestess_azil : public CreatureScript
             {
                 _seismicShardCount = 0;
                 _isChannelingForceGrip = false;
+            }
+
+            void JustAppeared() override
+            {
+                if (sGameEventMgr->IsActiveEvent(GAME_EVENT_WINTER_VEIL))
+                    DoCastSelf(SPELL_WEAR_CHRISTMAS_HAT_RED_SELF_DND);
             }
 
             void Reset() override
