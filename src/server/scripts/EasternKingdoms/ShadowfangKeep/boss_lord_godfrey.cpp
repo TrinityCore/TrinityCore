@@ -16,6 +16,7 @@
 */
 
 #include "shadowfang_keep.h"
+#include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -55,6 +56,7 @@ enum Spells
     SPELL_SUMMON_BLOODTHIRSTY_GHOULS_AURA           = 93707,
     SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_1    = 93709,
     SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_2    = 93714,
+    SPELL_WEAR_CHRISTMAS_HAT_GREEN_SELF_DND         = 61401,
 
     SPELL_PISTOL_BARRAGE_FORCE_CAST                 = 96344,
     SPELL_PISTOL_BARRAGE_CAST                       = 93520,
@@ -69,6 +71,11 @@ enum AchievementData
     DATA_BULLET_TIME = 1,
 };
 
+enum Misc
+{
+    GAME_EVENT_WINTER_VEIL = 2
+};
+
 class boss_lord_godfrey : public CreatureScript
 {
 public:
@@ -76,14 +83,17 @@ public:
 
     struct boss_lord_godfreyAI : public BossAI
     {
-        boss_lord_godfreyAI(Creature* creature) : BossAI(creature, DATA_LORD_GODFREY)
+        boss_lord_godfreyAI(Creature* creature) : BossAI(creature, DATA_LORD_GODFREY), _killedGhoulCounter(0) { }
+
+        void JustAppeared() override
         {
+            if (sGameEventMgr->IsActiveEvent(GAME_EVENT_WINTER_VEIL))
+                DoCastSelf(SPELL_WEAR_CHRISTMAS_HAT_GREEN_SELF_DND);
         }
 
         void Reset() override
         {
             _Reset();
-            _killedGhoulCounter = 0;
             MakeInterruptable(false);
         }
 
