@@ -5552,7 +5552,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     return true;
 }
 
-bool Unit::AttackStop()
+bool Unit::AttackStop(bool fleeing /* = false*/)
 {
     if (!m_attacking)
         return false;
@@ -5577,7 +5577,8 @@ bool Unit::AttackStop()
         if (creature->HasSearchedAssistance())
         {
             creature->SetNoSearchAssistance(false);
-            UpdateSpeed(MOVE_RUN);
+            if (!fleeing)
+                UpdateSpeed(MOVE_RUN);
         }
     }
 

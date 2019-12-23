@@ -795,7 +795,7 @@ class TC_GAME_API Unit : public WorldObject
         Unit* getAttackerForHelper() const;                 // If someone wants to help, who to give them
         bool Attack(Unit* victim, bool meleeAttack);
         void CastStop(uint32 except_spellid = 0);
-        bool AttackStop();
+        bool AttackStop(bool fleeing = false);
         void RemoveAllAttackers();
         AttackerSet const& getAttackers() const { return m_attackers; }
         bool isAttackingPlayer() const;

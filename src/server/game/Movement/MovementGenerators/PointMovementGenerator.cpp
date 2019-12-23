@@ -192,6 +192,8 @@ void AssistanceMovementGenerator::Finalize(Unit* owner, bool active, bool moveme
         Creature* ownerCreature = owner->ToCreature();
         ownerCreature->SetNoCallAssistance(false);
         ownerCreature->CallAssistance();
+        // Re-calculate the speed after fleeing/seeking assistance
+        ownerCreature->UpdateSpeed(MOVE_RUN);
         if (ownerCreature->IsAlive())
             ownerCreature->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
     }
