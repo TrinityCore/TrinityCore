@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -27,26 +28,27 @@
 enum Spells
 {
     // Drahga
-   SPELL_BURNING_SHADOWBOLT         = 75245,
-   SPELL_BURNING_SHADOWBOLT_DUMMY   = 75246,
-   SPELL_INVOCATION_OF_FLAME_SUMMON = 75218,
-   SPELL_TWILIGHT_PROTECTION        = 76303,
-   SPELL_RIDE_VEHICLE               = 43671,
+   SPELL_BURNING_SHADOWBOLT                 = 75245,
+   SPELL_BURNING_SHADOWBOLT_DUMMY           = 75246,
+   SPELL_INVOCATION_OF_FLAME_SUMMON         = 75218,
+   SPELL_TWILIGHT_PROTECTION                = 76303,
+   SPELL_RIDE_VEHICLE                       = 43671,
+   SPELL_WEAR_CHRISTMAS_HAT_GREEN_SELF_DND  = 61401,
 
    // Invoked Flaming Spirit
-   SPELL_FLAMING_FIXATE             = 82850,
-   SPELL_QUIETE_SUICIDE             = 3617,
+   SPELL_FLAMING_FIXATE                     = 82850,
+   SPELL_QUIETE_SUICIDE                     = 3617,
 
    // Valiona
-   SPELL_TWILIGHT_SHIFT             = 75328,
-   SPELL_SHREDDING_SWIPE            = 75271,
-   SPELL_DEVOURING_FLAMES_AOE       = 90945,
-   SPELL_DEVOURING_FLAMES           = 90950,
-   SPELL_VALIONAS_FLAME             = 75321,
+   SPELL_TWILIGHT_SHIFT                     = 75328,
+   SPELL_SHREDDING_SWIPE                    = 75271,
+   SPELL_DEVOURING_FLAMES_AOE               = 90945,
+   SPELL_DEVOURING_FLAMES                   = 90950,
+   SPELL_VALIONAS_FLAME                     = 75321,
 
     // Battered Dragon
-    SPELL_ENGULFING_FLAMES          = 74040,
-    SPELL_ENGULFING_FLAMES_HC       = 90904,
+    SPELL_ENGULFING_FLAMES                  = 74040,
+    SPELL_ENGULFING_FLAMES_HC               = 90904
 };
 
 enum Texts
@@ -107,12 +109,17 @@ enum Points
     POINT_FLEE,
 };
 
-Position const DrahgaPos = { -402.139f, -668.642f, 266.1214f };
+enum Misc
+{
+    GAME_EVENT_WINTER_VEIL = 2
+};
+
+Position const DrahgaPos        = { -402.139f, -668.642f, 266.1214f };
 Position const ValionaSummonPos = { -377.974f, -668.2292f, 195.078f, 0.3316126f };
-Position const ValionaPos1 = { -376.5573f, -662.6962f, 263.1957f };
-Position const ValionaPos2 = { -438.9549f, -697.1077f, 284.6884f };
-Position const LandingPos = { -434.099f, -702.906f, 268.767f };
-Position const FleePos = { -364.273f, -646.503f, 286.193f };
+Position const ValionaPos1      = { -376.5573f, -662.6962f, 263.1957f };
+Position const ValionaPos2      = { -438.9549f, -697.1077f, 284.6884f };
+Position const LandingPos       = { -434.099f, -702.906f, 268.767f };
+Position const FleePos          = { -364.273f, -646.503f, 286.193f };
 
 
 class boss_drahga_shadowburner : public CreatureScript
@@ -122,22 +129,15 @@ class boss_drahga_shadowburner : public CreatureScript
 
         struct boss_drahga_shadowburnerAI : public BossAI
         {
-            boss_drahga_shadowburnerAI(Creature* creature) : BossAI(creature, DATA_DRAHGA_SHADOWBURNER)
-            {
-                Initialize();
-            }
+            boss_drahga_shadowburnerAI(Creature* creature) : BossAI(creature, DATA_DRAHGA_SHADOWBURNER), _introDone(false) { }
 
-            void Initialize()
+            void JustAppeared() override
             {
-                _introDone = false;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
                 me->GetMotionMaster()->MovePath(me->GetEntry() * 10, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, !IsHeroic() ? SPELL_ENGULFING_FLAMES : SPELL_ENGULFING_FLAMES_HC, true);
+
+                if (sGameEventMgr->IsActiveEvent(GAME_EVENT_WINTER_VEIL))
+                    DoCastSelf(SPELL_WEAR_CHRISTMAS_HAT_GREEN_SELF_DND);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
