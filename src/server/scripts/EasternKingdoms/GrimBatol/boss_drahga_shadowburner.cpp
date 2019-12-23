@@ -129,7 +129,7 @@ class boss_drahga_shadowburner : public CreatureScript
 
         struct boss_drahga_shadowburnerAI : public BossAI
         {
-            boss_drahga_shadowburnerAI(Creature* creature) : BossAI(creature, DATA_DRAHGA_SHADOWBURNER), _introDone(false) { }
+            boss_drahga_shadowburnerAI(Creature* creature) : BossAI(creature, DATA_DRAHGA_SHADOWBURNER) { }
 
             void JustAppeared() override
             {
@@ -263,8 +263,6 @@ class boss_drahga_shadowburner : public CreatureScript
                 }
                 DoMeleeAttackIfReady();
             }
-        private:
-            bool _introDone;
         };
         CreatureAI* GetAI(Creature* creature) const override
         {
