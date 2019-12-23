@@ -949,9 +949,6 @@ void Creature::DoFleeToGetAssistance()
         Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck> searcher(this, creature, u_check);
         Cell::VisitGridObjects(this, searcher, radius);
 
-        SetNoSearchAssistance(true);
-        UpdateSpeed(MOVE_RUN);
-
         if (!creature)
             /// @todo use 31365
             SetControlled(true, UNIT_STATE_FLEEING);
@@ -1956,12 +1953,6 @@ void Creature::setDeathState(DeathState s)
         SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0); // if creature is mounted on a virtual mount, remove it at death
 
         setActive(false);
-
-        if (HasSearchedAssistance())
-        {
-            SetNoSearchAssistance(false);
-            UpdateSpeed(MOVE_RUN);
-        }
 
         //Dismiss group if is leader
         if (m_formation && m_formation->GetLeader() == this)

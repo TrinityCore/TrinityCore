@@ -176,6 +176,7 @@ void FleeingMovementGenerator<T>::SetTargetLocation(T* owner)
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(_path->GetPath());
     init.SetWalk(false);
+    init.SetVelocity(owner->GetSpeed(MOVE_RUN) * 0.66f);
     int32 traveltime = init.Launch();
     _timer.Reset(traveltime + urand(800, 1500));
 }
