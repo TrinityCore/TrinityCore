@@ -185,15 +185,17 @@ void AssistanceMovementGenerator::Finalize(Unit* owner, bool active, bool moveme
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
     if (active)
+    {
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        // Re-calculate the speed after fleeing/seeking assistance
+        owner->UpdateSpeed(MOVE_RUN);
+    }
 
     if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED))
     {
         Creature* ownerCreature = owner->ToCreature();
         ownerCreature->SetNoCallAssistance(false);
         ownerCreature->CallAssistance();
-        // Re-calculate the speed after fleeing/seeking assistance
-        ownerCreature->UpdateSpeed(MOVE_RUN);
         if (ownerCreature->IsAlive())
             ownerCreature->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
     }
