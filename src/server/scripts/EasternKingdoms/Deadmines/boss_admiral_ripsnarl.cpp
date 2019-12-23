@@ -15,6 +15,7 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -38,27 +39,28 @@ enum Texts
 enum Spells
 {
     // Admiral Ripsnarl
-    SPELL_RIPSNARL_CANNON_KILL          = 95408,
-    SPELL_THIRST_FOR_BLOOD              = 88736,
-    SPELL_SWIPE                         = 88839,
-    SPELL_EMOTE_TALK                    = 79506,
-    SPELL_VANISH                        = 88840,
-    SPELL_GO_FOR_THE_THROAT_TARGETING   = 88838,
-    SPELL_SUMMON_VAPOR_TARGETING        = 88833,
+    SPELL_RIPSNARL_CANNON_KILL              = 95408,
+    SPELL_THIRST_FOR_BLOOD                  = 88736,
+    SPELL_SWIPE                             = 88839,
+    SPELL_EMOTE_TALK                        = 79506,
+    SPELL_VANISH                            = 88840,
+    SPELL_GO_FOR_THE_THROAT_TARGETING       = 88838,
+    SPELL_SUMMON_VAPOR_TARGETING            = 88833,
+    SPELL_WEAR_CHRISTMAS_HAT_RED_SELF_DND   = 61400,
 
     // Vapor
-    SPELL_STEAM_AURA                    = 95503,
-    SPELL_CONDENSATION                  = 92013,
-    SPELL_SWIRLING_VAPOR                = 92007,
-    SPELL_CONDENSING_VAPOR              = 92008,
-    SPELL_FREEZING_VAPOR                = 92011,
-    SPELL_COALESCE                      = 92042,
-    SPELL_CONDENSE_TRANSFORM_1          = 92016,
-    SPELL_CONDENSE_TRANSFORM_2          = 92020,
-    SPELL_VAPOR_ANIMUS                  = 92038,
+    SPELL_STEAM_AURA                        = 95503,
+    SPELL_CONDENSATION                      = 92013,
+    SPELL_SWIRLING_VAPOR                    = 92007,
+    SPELL_CONDENSING_VAPOR                  = 92008,
+    SPELL_FREEZING_VAPOR                    = 92011,
+    SPELL_COALESCE                          = 92042,
+    SPELL_CONDENSE_TRANSFORM_1              = 92016,
+    SPELL_CONDENSE_TRANSFORM_2              = 92020,
+    SPELL_VAPOR_ANIMUS                      = 92038,
 
     // General Purpose Bunny JMF
-    SPELL_RIPSNARLS_FOG_AURA            = 89247
+    SPELL_RIPSNARLS_FOG_AURA                = 89247
 };
 
 enum Events
@@ -81,6 +83,11 @@ enum Sounds
     SOUND_HOWL = 19881
 };
 
+enum Misc
+{
+    GAME_EVENT_WINTER_VEIL = 2
+};
+
 class boss_admiral_ripsnarl: public CreatureScript
 {
     public:
@@ -88,22 +95,13 @@ class boss_admiral_ripsnarl: public CreatureScript
 
         struct boss_admiral_ripsnarlAI : public BossAI
         {
-            boss_admiral_ripsnarlAI(Creature* creature) : BossAI(creature, DATA_ADMIRAL_RIPSNARL)
-            {
-                Initialize();
-            }
+            boss_admiral_ripsnarlAI(Creature* creature) : BossAI(creature, DATA_ADMIRAL_RIPSNARL), _vanishCounter(0) { }
 
-            void Initialize()
+            void JustAppeared() override
             {
-                _vanishCounter = 0;
-                _firstVaporGuid.Clear();
-                _bunnyGuid.Clear();
-            }
+                if (sGameEventMgr->IsActiveEvent(GAME_EVENT_WINTER_VEIL))
+                    DoCastSelf(SPELL_WEAR_CHRISTMAS_HAT_RED_SELF_DND);
 
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
                 if (Creature* bunny = me->FindNearestCreature(NPC_GENERAL_PURPOSE_DUMMY_JMF, 50.0f, true))
                     _bunnyGuid = bunny->GetGUID();
 
