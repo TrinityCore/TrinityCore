@@ -616,7 +616,7 @@ void MotionMaster::MoveConfused()
     }
 }
 
-void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
+void MotionMaster::MoveFleeing(Unit* enemy, uint32 time, bool reducedSpeed)
 {
     if (!enemy)
         return;
@@ -625,12 +625,12 @@ void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
     if (_owner->GetTypeId() == TYPEID_UNIT)
     {
         if (time)
-            Add(new TimedFleeingMovementGenerator(enemy->GetGUID(), time));
+            Add(new TimedFleeingMovementGenerator(enemy->GetGUID(), time, reducedSpeed));
         else
-            Add(new FleeingMovementGenerator<Creature>(enemy->GetGUID()));
+            Add(new FleeingMovementGenerator<Creature>(enemy->GetGUID(), reducedSpeed));
     }
     else
-        Add(new FleeingMovementGenerator<Player>(enemy->GetGUID()));
+        Add(new FleeingMovementGenerator<Player>(enemy->GetGUID(), reducedSpeed));
 }
 
 void MotionMaster::MovePoint(uint32 id, Position const& pos, bool generatePath/* = true*/, Optional<float> finalOrient/* = {}*/)

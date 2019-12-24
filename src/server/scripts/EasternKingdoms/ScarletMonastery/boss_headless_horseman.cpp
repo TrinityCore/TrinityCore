@@ -352,7 +352,7 @@ struct npc_head : public ScriptedAI
 
             _scheduler.Schedule(2s, [caster, this](TaskContext /*context*/)
             {
-                me->GetMotionMaster()->MoveFleeing(caster);
+                me->GetMotionMaster()->MoveFleeing(caster, 0, false);
             });
         }
     }

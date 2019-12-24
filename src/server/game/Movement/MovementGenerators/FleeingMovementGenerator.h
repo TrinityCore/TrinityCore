@@ -31,7 +31,7 @@ template<class T>
 class FleeingMovementGenerator : public MovementGeneratorMedium<T, FleeingMovementGenerator<T>>
 {
     public:
-        explicit FleeingMovementGenerator(ObjectGuid fleeTargetGUID);
+        explicit FleeingMovementGenerator(ObjectGuid fleeTargetGUID, bool reducedSpeed);
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
@@ -50,12 +50,13 @@ class FleeingMovementGenerator : public MovementGeneratorMedium<T, FleeingMoveme
         std::unique_ptr<PathGenerator> _path;
         ObjectGuid _fleeTargetGUID;
         TimeTracker _timer;
+        bool _reducedSpeed;
 };
 
 class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
 {
     public:
-        explicit TimedFleeingMovementGenerator(ObjectGuid fleeTargetGUID, uint32 time) : FleeingMovementGenerator<Creature>(fleeTargetGUID), _totalFleeTime(time) { }
+        explicit TimedFleeingMovementGenerator(ObjectGuid fleeTargetGUID, uint32 time, bool reducedSpeed) : FleeingMovementGenerator<Creature>(fleeTargetGUID, reducedSpeed), _totalFleeTime(time) { }
 
         bool Update(Unit*, uint32) override;
         void Finalize(Unit*, bool, bool) override;
