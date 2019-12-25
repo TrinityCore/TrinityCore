@@ -83,6 +83,9 @@ bool Player::CheckOnFlyHack()
     if (HasUnitState(UNIT_STATE_IGNORE_ANTISPEEDHACK))
         return true;
 
+    if (GetAreaId() == 4859) // Area: 4859 (Frozen Throne) 
+        return true;
+
     if (GetPlayerMovingMe())
     {
         if (GetPlayerMovingMe()->UnderACKmount())
@@ -155,8 +158,8 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
     if (sWorld->isMapDisabledForAC(GetMapId()))
         return true;
 
-    uint32 ctime = GetLastMoveClientTimestamp();
-    if (ctime)
+    uint32 oldctime = GetLastMoveClientTimestamp();
+    if (oldctime)
     {
         if (ToUnit()->IsFalling() || IsInFlight())
             return true;
@@ -224,7 +227,8 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
             }
         }
 
-        float distance, movetime, speed, difftime, normaldistance, delay, delaysentrecieve;
+        float distance, speed, difftime, normaldistance, delay, diffPacketdelay;
+        uint32 ptime;
         std::string mapname = GetMap()->GetMapName();
 
         // calculate distance - don't use func, because x,z can be offset transport coords
@@ -249,12 +253,8 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
 
         uint32 oldstime = GetLastMoveServerTimestamp();
         uint32 stime = GameTime::GetGameTimeMS();
-        uint32 ping, realping;
-        movetime = movementInfo.time;
-        realping = GetSession()->GetLatency();
-        ping = realping;
-        if (ping < 60)
-            ping = 60;
+        uint32 ping;
+        ptime = movementInfo.time;
 
         if (!vehicle)
             speed = GetSpeed(MOVE_RUN);
@@ -275,14 +275,24 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
                 speed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_FLIGHT);
         }
 
-        delaysentrecieve = (ctime - oldstime) / 10000000000;
-        delay = fabsf(movetime - stime) / 10000000000 + delaysentrecieve;
-        difftime = (movetime - ctime + ping) * 0.001f + delay;
+        delay = ptime - oldctime;
+        diffPacketdelay = 10000000 - delay;
+
+        if (oldctime > ptime)
+        {
+            TC_LOG_INFO("anticheat", "oldctime > ptime");
+            delay = 0;
+        }
+        diffPacketdelay = diffPacketdelay * 0.0000000001f;
+        difftime = delay * 0.001f + diffPacketdelay;
+
         normaldistance = speed * difftime; // if movetime faked and lower, difftime should be with "-"
         if (GetPlayerMovingMe()->UnderACKmount())
             normaldistance += 20.0f;
         if (distance < normaldistance)
             return true;
+
+        ping = uint32(diffPacketdelay * 10000.f);
 
         TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  SpeedHack Detected for Account id : %u, Player %s", GetSession()->GetAccountId(), GetName().c_str());
         TC_LOG_INFO("anticheat", "Unit::========================================================");
@@ -292,12 +302,14 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
         TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  newY = %f", npos.GetPositionY());
         TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  packetdistance = %f", distance);
         TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  available distance = %f", normaldistance);
-        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  movetime = %f", movetime);
-        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  delay sent ptk - recieve pkt (previous) = %f", delaysentrecieve);
-        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  FullDelay = %f", delay);
+        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  oldStime = %u", oldstime);
+        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  oldCtime = %u", oldctime);
+        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  serverTime = %u", stime);
+        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  packetTime = %u", ptime);
+        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  diff delay between old ptk and current pkt = %f", diffPacketdelay);
+        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  FullDelay = %f", delay / 1000.f);
         TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  difftime = %f", difftime);
-        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  real ping = %u", realping);
-        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  Fping = %u", ping);
+        TC_LOG_INFO("anticheat", "Unit::CheckMovementInfo :  ping = %u", ping);
 
         sWorld->SendGMText(LANG_GM_ANNOUNCE_ASH, GetName().c_str(), normaldistance, distance);
         AccountMgr::RecordAntiCheatLog(GetSession()->GetAccountId(), GetName().c_str(), GetDescriptionACForLogs(0, distance, normaldistance), GetPositionACForLogs(), int32(realm.Id.Realm));
