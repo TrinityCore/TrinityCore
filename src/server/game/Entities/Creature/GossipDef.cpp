@@ -774,7 +774,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         if (!quest->RequiredNpcOrGo[i])
             continue;
 
-        if (data.CreatureOrGOCount[i] != quest->RequiredNpcOrGo[i])
+        if (data.CreatureOrGOCount[i] != quest->RequiredNpcOrGoCount[i])
             killCreditObjectiveComplete = false;
     }
 
