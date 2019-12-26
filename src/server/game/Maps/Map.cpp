@@ -2958,6 +2958,12 @@ void InstanceMap::CreateInstanceData()
         i_data->Create();
 }
 
+void InstanceMap::TrySetOwningGroup(Group* group)
+{
+    if (!i_owningGroupRef.isValid())
+        i_owningGroupRef.link(group, this);
+}
+
 /*
     Returns true if there are no players in the instance
 */

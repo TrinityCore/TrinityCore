@@ -193,7 +193,8 @@ bool Group::Create(Player* leader)
 
         CharacterDatabase.Execute(stmt);
 
-        Group::ConvertLeaderInstancesToGroup(leader, this, false);
+        if (InstanceMap* leaderInstance = leader->GetMap()->ToInstanceMap())
+            leaderInstance->TrySetOwningGroup(this);
 
         bool addMemberResult = AddMember(leader);
         ASSERT(addMemberResult); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
@@ -715,9 +716,6 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
             }
         }
 
-        // Copy the permanent binds from the new leader to the group
-        Group::ConvertLeaderInstancesToGroup(newLeader, this, true);
-
         // Update the group leader
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_LEADER);
 
@@ -742,43 +740,6 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
     groupNewLeader.Name = m_leaderName;
     groupNewLeader.PartyIndex = partyIndex;
     BroadcastPacket(groupNewLeader.Write(), true);
-}
-
-/// convert the player's binds to the group
-void Group::ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader)
-{
-    // copy all binds to the group, when changing leader it's assumed the character
-    // will not have any solo binds
-    for (auto difficultyItr = player->m_boundInstances.begin(); difficultyItr != player->m_boundInstances.end(); ++difficultyItr)
-    {
-        for (auto itr = difficultyItr->second.begin(); itr != difficultyItr->second.end();)
-        {
-            if (!switchLeader || !group->GetBoundInstance(itr->second.save->GetDifficultyID(), itr->first))
-                if (itr->second.extendState) // not expired
-                    group->BindToInstance(itr->second.save, itr->second.perm, false);
-
-            // permanent binds are not removed
-            if (switchLeader && !itr->second.perm)
-            {
-                // increments itr in call
-                player->UnbindInstance(itr, difficultyItr, false);
-            }
-            else
-                ++itr;
-        }
-    }
-
-    /* if group leader is in a non-raid dungeon map and nobody is actually bound to this map then the group can "take over" the instance *
-    * (example: two-player group disbanded by disconnect where the player reconnects within 60 seconds and the group is reformed)       */
-    if (Map* playerMap = player->FindMap())
-        if (!switchLeader && playerMap->IsNonRaidDungeon())
-            if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(playerMap->GetInstanceId()))
-                if (save->GetGroupCount() == 0 && save->GetPlayerCount() == 0)
-                {
-                    TC_LOG_DEBUG("maps", "Group::ConvertLeaderInstancesToGroup: Group for player %s is taking over unbound instance map %d with Id %d", player->GetName().c_str(), playerMap->GetId(), playerMap->GetInstanceId());
-                    // if nobody is saved to this, then the save wasn't permanent
-                    group->BindToInstance(save, false, false);
-                }
 }
 
 void Group::Disband(bool hideDestroy /* = false */)
@@ -1596,37 +1557,9 @@ InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
         return nullptr;
 }
 
-InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, bool load)
+void Group::LinkOwnedInstance(GroupInstanceReference* ref)
 {
-    if (!save || isBGGroup() || isBFGroup())
-        return nullptr;
-
-    InstanceGroupBind& bind = m_boundInstances[save->GetDifficultyID()][save->GetMapId()];
-    if (!load && (!bind.save || permanent != bind.perm || save != bind.save))
-    {
-        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GROUP_INSTANCE);
-
-        stmt->setUInt32(0, m_dbStoreId);
-        stmt->setUInt32(1, save->GetInstanceId());
-        stmt->setBool(2, permanent);
-
-        CharacterDatabase.Execute(stmt);
-    }
-
-    if (bind.save != save)
-    {
-        if (bind.save)
-            bind.save->RemoveGroup(this);
-        save->AddGroup(this);
-    }
-
-    bind.save = save;
-    bind.perm = permanent;
-    if (!load)
-        TC_LOG_DEBUG("maps", "Group::BindToInstance: %s, storage id: %u is now bound to map %d, instance %d, difficulty %d",
-            GetGUID().ToString().c_str(), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), static_cast<uint32>(save->GetDifficultyID()));
-
-    return &bind;
+    m_ownedInstancesMgr.insertLast(ref);
 }
 
 void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)

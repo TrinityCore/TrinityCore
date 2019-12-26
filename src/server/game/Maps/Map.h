@@ -25,6 +25,7 @@
 #include "DynamicTree.h"
 #include "GridDefines.h"
 #include "GridRefManager.h"
+#include "GroupInstanceReference.h"
 #include "MapDefines.h"
 #include "MapReference.h"
 #include "MapRefManager.h"
@@ -831,6 +832,8 @@ class TC_GAME_API InstanceMap : public Map
         Team GetTeamInInstance() const { return GetTeamIdInInstance() == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
 
         virtual void InitVisibilityDistance() override;
+        Group* GetOwningGroup() const { return i_owningGroupRef.getTarget(); }
+        void TrySetOwningGroup(Group* group);
 
         std::string GetDebugInfo() const override;
     private:
@@ -840,6 +843,7 @@ class TC_GAME_API InstanceMap : public Map
         uint32 i_script_id;
         InstanceScenario* i_scenario;
         InstanceLock* i_instanceLock;
+        GroupInstanceReference i_owningGroupRef;
 };
 
 class TC_GAME_API BattlegroundMap : public Map
