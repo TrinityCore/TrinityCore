@@ -4352,6 +4352,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ENEMY);
     });
 
+    // Mutated Transformation (Professor Putricide)
+    ApplySpellFix({ 70402, 72511, 72512, 72513 }, [](SpellInfo* spellInfo)
+    {
+        // Resistance is calculated inside of SpellScript
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
+    });
+
     ApplySpellFix({
         71518, // Unholy Infusion Quest Credit (Professor Putricide)
         72934, // Blood Infusion Quest Credit (Blood-Queen Lana'thel)
