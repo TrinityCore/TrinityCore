@@ -504,6 +504,49 @@ class spell_gen_bandage : public SpellScript
     }
 };
 
+enum BlackMagicSpellIconId
+{
+    SPELLICON_DRUID_INFECTED_WOUNDS = 2857
+};
+
+// 59630 - Black Magic
+class spell_gen_black_magic : public AuraScript
+{
+    PrepareAuraScript(spell_gen_black_magic);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo)
+            return false;
+
+        switch (eventInfo.GetTypeMask())
+        {
+            case PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG:
+                return true;
+            case PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS:
+                // Mangle (Cat)
+                if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[1] == 0x00000400)
+                    return true;
+                // Shred
+                else if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] == 0x00008000)
+                    return true;
+                return false;
+            case PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG:
+                if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellIconID == SPELLICON_DRUID_INFECTED_WOUNDS)
+                    return true;
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_gen_black_magic::CheckProc);
+    }
+};
+
 // Blood Reserve - 64568
 enum BloodReserve
 {
@@ -4367,6 +4410,7 @@ void AddSC_generic_spell_scripts()
     RegisterAuraScript(spell_gen_aura_service_uniform);
     RegisterAuraScript(spell_gen_av_drekthar_presence);
     RegisterSpellScript(spell_gen_bandage);
+    RegisterAuraScript(spell_gen_black_magic);
     RegisterAuraScript(spell_gen_blood_reserve);
     RegisterAuraScript(spell_gen_blade_warding);
     RegisterSpellScript(spell_gen_bonked);
