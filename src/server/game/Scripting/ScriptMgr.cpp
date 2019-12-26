@@ -1373,6 +1373,11 @@ SpellScriptLoader* ScriptMgr::GetSpellScriptLoader(uint32 scriptId)
     return ScriptRegistry<SpellScriptLoader>::Instance()->GetScriptById(scriptId);
 }
 
+void ScriptMgr::ApplySpellCorrections() const
+{
+    FOREACH_SCRIPT(SpellCorrectionLoader)->ApplyCorrections();
+}
+
 void ScriptMgr::OnNetworkStart()
 {
     FOREACH_SCRIPT(ServerScript)->OnNetworkStart();
@@ -2538,6 +2543,33 @@ SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {
     ScriptRegistry<SpellScriptLoader>::Instance()->AddScript(this);
+}
+
+SpellCorrectionLoader::SpellCorrectionLoader(char const* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<SpellCorrectionLoader>::Instance()->AddScript(this);
+}
+
+void SpellCorrectionLoader::ApplySpellFix(std::initializer_list<uint32> spellIds, void(*fix)(SpellInfo*)) const
+{
+    for (uint32 spellId : spellIds)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        if (!spellInfo)
+        {
+            TC_LOG_ERROR("server.loading", "Spell info correction specified for non-existing spell %u", spellId);
+            continue;
+        }
+
+        fix(const_cast<SpellInfo*>(spellInfo));
+    }
+}
+
+void SpellCorrectionLoader::ApplyCorrections() const
+{
+    if (ShouldLoad())
+        Execute();
 }
 
 ServerScript::ServerScript(const char* name)

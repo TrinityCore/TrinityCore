@@ -2210,6 +2210,10 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading scenario poi data");
     sScenarioMgr->LoadScenarioPOI();
 
+    // We do it last to make sure everything a script might call in ShouldLoad() is initialized.
+    TC_LOG_INFO("server.loading", "Loading script-specific spell info corrections...");
+    sScriptMgr->ApplySpellCorrections();
+
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
     {

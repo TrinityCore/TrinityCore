@@ -214,6 +214,22 @@ class TC_GAME_API SpellScriptLoader : public ScriptObject
         virtual AuraScript* GetAuraScript() const { return nullptr; }
 };
 
+class TC_GAME_API SpellCorrectionLoader : public ScriptObject
+{
+    protected:
+
+        SpellCorrectionLoader(char const* name);
+
+        void ApplySpellFix(std::initializer_list<uint32> spellIds, void(*fix)(SpellInfo*)) const;
+
+    public:
+        virtual void Execute() const = 0;
+
+        virtual bool ShouldLoad() const { return true; }
+
+        void ApplyCorrections() const;
+};
+
 class TC_GAME_API ServerScript : public ScriptObject
 {
     protected:
@@ -980,6 +996,10 @@ class TC_GAME_API ScriptMgr
         void CreateSpellScripts(uint32 spellId, std::vector<SpellScript*>& scriptVector, Spell* invoker) const;
         void CreateAuraScripts(uint32 spellId, std::vector<AuraScript*>& scriptVector, Aura* invoker) const;
         SpellScriptLoader* GetSpellScriptLoader(uint32 scriptId);
+
+    public: /* SpellCorrectionLoader */
+
+        void ApplySpellCorrections() const;
 
     public: /* ServerScript */
 
