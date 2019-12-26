@@ -4425,7 +4425,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_EFFECT_LEARN_SPELL:
             case SPELL_EFFECT_SKILL_STEP:
             case SPELL_EFFECT_HEAL_PCT:
-            case SPELL_EFFECT_ENERGIZE_PCT:
                 return true;
             case SPELL_EFFECT_INSTAKILL:
                 if (otherEffect.EffectIndex != effect.EffectIndex && // for spells like 38044: instakill effect is negative but auras on target must count as buff
