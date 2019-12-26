@@ -4250,6 +4250,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Mutated Transformation (Professor Putricide)
+    ApplySpellFix({ 70402 }, [](SpellInfo* spellInfo)
+    {
+        // Resistance is calculated inside of SpellScript
+        spellInfo->AttributesEx4 |= SPELL_ATTR4_IGNORE_RESISTANCES;
+    });
+
     // Empowered Flare (Blood Prince Council)
     ApplySpellFix({ 71708 }, [](SpellInfo* spellInfo)
     {
