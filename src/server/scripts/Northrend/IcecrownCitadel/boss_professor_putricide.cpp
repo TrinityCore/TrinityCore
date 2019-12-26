@@ -1663,6 +1663,8 @@ class spell_abomination_mutated_transformation : public SpellScript
 {
     PrepareSpellScript(spell_abomination_mutated_transformation);
 
+    /* Resist system always pick the min resist value for spells with multiple schools.
+       But following some combat logs of retail, this spell is a exception and need get the sum of both schools. */
     void HandleResistance(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
