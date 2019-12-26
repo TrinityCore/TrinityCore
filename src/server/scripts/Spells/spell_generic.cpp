@@ -525,11 +525,8 @@ class spell_gen_black_magic : public AuraScript
             return true;
         else if (typeMask & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
         {
-            // Mangle (Cat)
-            if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[1] == 0x00000400)
-                return true;
-            // Shred
-            else if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] == 0x00008000)
+            // Shred and Mangle (Cat)
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && (spellInfo->SpellFamilyFlags[0] == 0x00008000 || spellInfo->SpellFamilyFlags[1] == 0x00000400))
                 return true;
         }
         else if (typeMask & PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG)
