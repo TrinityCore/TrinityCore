@@ -517,28 +517,26 @@ class spell_gen_black_magic : public AuraScript
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        uint32 typeMask = eventInfo.GetTypeMask();
         if (!spellInfo)
             return false;
 
-        switch (eventInfo.GetTypeMask())
+        if (typeMask & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
+            return true;
+        else if (typeMask & PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS)
         {
-            case PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG:
+            // Mangle (Cat)
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[1] == 0x00000400)
                 return true;
-            case PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS:
-                // Mangle (Cat)
-                if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[1] == 0x00000400)
-                    return true;
-                // Shred
-                else if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] == 0x00008000)
-                    return true;
-                return false;
-            case PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG:
-                if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellIconID == SPELLICON_DRUID_INFECTED_WOUNDS)
-                    return true;
-                return false;
-            default:
-                return false;
+            // Shred
+            else if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] == 0x00008000)
+                return true;
         }
+        else if (typeMask & PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG)
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellIconID == SPELLICON_DRUID_INFECTED_WOUNDS)
+                return true;
+
+        return false;
     }
 
     void Register() override
