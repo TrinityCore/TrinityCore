@@ -191,7 +191,7 @@ void CreatureAI::JustAppeared()
         if (TempSummon* summon = me->ToTempSummon())
         {
             // Only apply this to specific types of summons
-            if (!summon->GetVehicle() && ShouldFollowOnSpawn(summon->m_Properties))
+            if (!summon->GetVehicle() && ShouldFollowOnSpawn(summon->m_Properties) && summon->CanFollowOwner())
             {
                 if (Unit* owner = summon->GetCharmerOrOwner())
                 {

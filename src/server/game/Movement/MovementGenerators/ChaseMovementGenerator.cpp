@@ -44,7 +44,11 @@ static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance,
         return false;
     if (maxDistance && distSq > square(*maxDistance))
         return false;
-    return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
+    if (angle && !angle->IsAngleOkay(target->GetRelativeAngle(owner)))
+        return false;
+    if (!owner->IsWithinLOSInMap(target))
+        return false;
+    return true;
 }
 
 static void DoMovementInform(Unit* owner, Unit* target)

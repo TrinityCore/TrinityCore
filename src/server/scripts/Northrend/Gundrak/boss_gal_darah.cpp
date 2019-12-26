@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "gundrak.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -28,12 +29,14 @@ enum Spells
     SPELL_IMPALING_CHARGE_CONTROL_VEHICLE   = 54958,
     SPELL_STOMP                             = 55292,
     SPELL_PUNCTURE                          = 55276,
+    SPELL_PUNCTURE_HEROIC                   = 59826,
     SPELL_STAMPEDE                          = 55218,
     SPELL_WHIRLING_SLASH                    = 55250,
     SPELL_ENRAGE                            = 55285,
     SPELL_HEARTH_BEAM_VISUAL                = 54988,
     SPELL_TRANSFORM_RHINO                   = 55297,
     SPELL_TRANSFORM_BACK                    = 55299,
+    SPELL_CLEAR_PUNCTURE                    = 60022,
 
     // Rhino Spirit
     SPELL_STAMPEDE_SPIRIT                   = 55221,
@@ -109,6 +112,7 @@ class boss_gal_darah : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
+                _EnterEvadeMode();
                 summons.DespawnAll();
                 _DespawnAtEvade();
             }
@@ -161,6 +165,7 @@ class boss_gal_darah : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+                DoCastSelf(SPELL_CLEAR_PUNCTURE, true);
             }
 
             void KilledUnit(Unit* victim) override
@@ -282,6 +287,7 @@ class spell_gal_darah_impaling_charge : public SpellScriptLoader
         }
 };
 
+// 55220 - Stampede (Rhino Spirit Charge)
 // 59823 - Stampede (Rhino Spirit Charge)
 class spell_gal_darah_stampede_charge : public SpellScriptLoader
 {
@@ -310,6 +316,28 @@ public:
     }
 };
 
+// 60022 - Clear Puncture
+class spell_gal_darah_clear_puncture : public SpellScript
+{
+    PrepareSpellScript(spell_gal_darah_clear_puncture);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PUNCTURE, SPELL_PUNCTURE_HEROIC });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->RemoveAurasDueToSpell(target->GetMap()->IsHeroic() ? SPELL_PUNCTURE_HEROIC : SPELL_PUNCTURE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gal_darah_clear_puncture::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 class achievement_share_the_love : public AchievementCriteriaScript
 {
     public:
@@ -333,5 +361,6 @@ void AddSC_boss_gal_darah()
     new boss_gal_darah();
     new spell_gal_darah_impaling_charge();
     new spell_gal_darah_stampede_charge();
+    RegisterSpellScript(spell_gal_darah_clear_puncture);
     new achievement_share_the_love();
 }

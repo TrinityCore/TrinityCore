@@ -61,6 +61,8 @@ enum Spells
     SPELL_CLEAR_ALL                     = 71721,
     SPELL_AWARD_REPUTATION_BOSS_KILL    = 73843,
     SPELL_CORRUPTION_VALITHRIA          = 70904,
+    SPELL_MANA_VOID_AURA                = 71085,
+    SPELL_COLUMN_OF_FROST_AURA          = 70715,
 
     // The Lich King
     SPELL_TIMER_GLUTTONOUS_ABOMINATION  = 70915,
@@ -157,7 +159,7 @@ enum Misc
 
 Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};
 
-struct ManaVoidSelector : public std::unary_function<Unit*, bool>
+struct ManaVoidSelector
 {
         explicit ManaVoidSelector(WorldObject const* source) : _source(source) { }
 
@@ -743,9 +745,15 @@ class npc_risen_archmage : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 if (summon->GetEntry() == NPC_COLUMN_OF_FROST)
+                {
+                    summon->CastSpell(summon, SPELL_COLUMN_OF_FROST_AURA, true);
                     summon->m_Events.AddEvent(new DelayedCastEvent(summon, SPELL_COLUMN_OF_FROST_DAMAGE, ObjectGuid::Empty, 8000), summon->m_Events.CalculateTime(2000));
+                }
                 else if (summon->GetEntry() == NPC_MANA_VOID)
+                {
+                    summon->CastSpell(summon, SPELL_MANA_VOID_AURA, true);
                     summon->DespawnOrUnsummon(36000);
+                }
             }
 
             void UpdateAI(uint32 diff) override
@@ -979,7 +987,7 @@ class npc_gluttonous_abomination : public CreatureScript
 
             void JustDied(Unit* killer) override
             {
-                if (killer->GetEntry() == NPC_VALITHRIA_DREAMWALKER)
+                if (killer && killer->GetEntry() == NPC_VALITHRIA_DREAMWALKER)
                     return;
 
                 DoCastSelf(SPELL_ROT_WORM_SPAWNER, true);

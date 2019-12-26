@@ -742,8 +742,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[6].GetUInt8());
 
         Tokenizer tokens(fields[7].GetString(), ' ');
-        uint8 i = 0;
-        creatureAddon.auras.resize(tokens.size());
+        creatureAddon.auras.reserve(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(atoul(*itr));
@@ -762,7 +761,13 @@ void ObjectMgr::LoadCreatureTemplateAddons()
                 continue;
             }
 
-            creatureAddon.auras[i++] = atoul(*itr);
+            if (AdditionalSpellInfo->GetDuration() > 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has temporary aura (spell %lu) in `auras` field in `creature_template_addon`.", entry, atoul(*itr));
+                continue;
+            }
+
+            creatureAddon.auras.push_back(atoul(*itr));
         }
 
         if (creatureAddon.mount)
@@ -1267,8 +1272,7 @@ void ObjectMgr::LoadCreatureAddons()
         creatureAddon.visibilityDistanceType    = VisibilityDistanceType(fields[6].GetUInt8());
 
         Tokenizer tokens(fields[7].GetString(), ' ');
-        uint8 i = 0;
-        creatureAddon.auras.resize(tokens.size());
+        creatureAddon.auras.reserve(tokens.size());
         for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
         {
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(atoul(*itr));
@@ -1287,7 +1291,13 @@ void ObjectMgr::LoadCreatureAddons()
                 continue;
             }
 
-            creatureAddon.auras[i++] = atoul(*itr);
+            if (AdditionalSpellInfo->GetDuration() > 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has temporary aura (spell %lu) in `auras` field in `creature_addon`.", guid, atoul(*itr));
+                continue;
+            }
+
+            creatureAddon.auras.push_back(atoul(*itr));
         }
 
         if (creatureAddon.mount)
