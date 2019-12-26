@@ -20,6 +20,7 @@
 
 #include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
+#include "GroupInstanceRefManager.h"
 #include "GroupRefManager.h"
 #include "Object.h"
 #include "RaceMask.h"
@@ -216,7 +217,6 @@ class TC_GAME_API Group
         bool AddMember(Player* player);
         bool RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
         void ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
-        static void ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
         void SetLootMethod(LootMethod method);
         void SetLooterGuid(ObjectGuid guid);
         void SetMasterLooterGuid(ObjectGuid guid);
@@ -364,6 +364,8 @@ class TC_GAME_API Group
             m_recentInstances[mapId] = { instanceOwner, instanceId };
         }
 
+        void LinkOwnedInstance(GroupInstanceReference* ref);
+
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
         InstanceGroupBind* GetBoundInstance(Player* player);
         InstanceGroupBind* GetBoundInstance(Map* aMap);
@@ -410,6 +412,7 @@ class TC_GAME_API Group
         ObjectGuid          m_masterLooterGuid;
         BoundInstancesMap   m_boundInstances;
         std::unordered_map<uint32 /*mapId*/, std::pair<ObjectGuid /*instanceOwner*/, uint32 /*instanceId*/>> m_recentInstances;
+        GroupInstanceRefManager m_ownedInstancesMgr;
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)

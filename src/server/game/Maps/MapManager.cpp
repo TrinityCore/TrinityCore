@@ -103,6 +103,8 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
 
     map->LoadRespawnTimes();
     map->LoadCorpseData();
+    if (group)
+        map->TrySetOwningGroup(group);
 
     map->CreateInstanceData();
     map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenario(map, team));
