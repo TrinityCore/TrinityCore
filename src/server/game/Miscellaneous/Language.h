@@ -642,9 +642,11 @@ enum TrinityStrings
     LANG_GMLIST_HEADER                    = 598,
     LANG_GMLIST_EMPTY                     = 599,
 
+    LANG_REMOVEITEM_FAILURE               = 600,
+
     // End Level 3 list, continued at 1100
 
-    // 600-704 - free
+    // 601-704 - free
 
     LANG_WAIT_BEFORE_SPEAKING             = 705,
     LANG_NOT_EQUIPPED_ITEM                = 706,
