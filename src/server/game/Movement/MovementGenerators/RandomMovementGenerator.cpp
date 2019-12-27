@@ -124,6 +124,14 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     float angle = frand(0.f, 1.f) * float(M_PI) * 2.f;
     owner->MovePositionToFirstCollision(position, distance, angle);
 
+    // Check if the destination is in LOS
+    if (!owner->IsWithinLOS(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ()))
+    {
+        // Retry later on
+        _timer.Reset(200);
+        return;
+    }
+
     uint32 resetTimer = roll_chance_i(50) ? urand(5000, 10000) : urand(1000, 2000);
 
     if (!_path)
