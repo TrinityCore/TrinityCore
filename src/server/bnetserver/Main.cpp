@@ -159,7 +159,7 @@ int main(int argc, char** argv)
     sIpcContext->Initialize();
     std::shared_ptr<void> ipcHandle(nullptr, [](void*) { sIpcContext->Close(); });
 
-    std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_unique<Trinity::Asio::IoContext>();
+    std::shared_ptr<Trinity::Asio::IoContext> ioContext = std::make_shared<Trinity::Asio::IoContext>();
 
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
