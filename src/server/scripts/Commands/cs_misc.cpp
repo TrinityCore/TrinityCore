@@ -1276,7 +1276,7 @@ public:
                     handler->PSendSysMessage(LANG_REMOVEITEM_FAILURE, itemId, unableToDestroyItemCount, handler->GetNameLink(playerTarget).c_str());
                 }
             }
-            else if (destroyedItemCount == 0) {
+            else {
                 // failed to destroy items of the amount requested
                 handler->PSendSysMessage(LANG_REMOVEITEM_FAILURE, itemId, -count, handler->GetNameLink(playerTarget).c_str());
             }
