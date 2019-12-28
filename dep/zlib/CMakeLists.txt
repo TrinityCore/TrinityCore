@@ -38,8 +38,6 @@ else()
 
   add_library(zlib STATIC
     ${zlib_STAT_SRCS})
-	
-  set_target_properties(zlib PROPERTIES LINKER_LANGUAGE CXX)
 
   set_target_properties(zlib PROPERTIES LINKER_LANGUAGE CXX)
 

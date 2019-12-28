@@ -25,8 +25,6 @@ else()
   file(GLOB sources *.c)
   add_library(bzip2 STATIC
     ${sources})
-	
-  set_target_properties(bzip2 PROPERTIES LINKER_LANGUAGE CXX)
 
   set_target_properties(bzip2 PROPERTIES LINKER_LANGUAGE CXX)
 
