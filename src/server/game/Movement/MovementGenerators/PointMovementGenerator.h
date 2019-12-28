@@ -56,7 +56,7 @@ class PointMovementGenerator : public MovementGeneratorMedium<T, PointMovementGe
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 {
     public:
-        explicit AssistanceMovementGenerator(uint32 id, float x, float y, float z) : PointMovementGenerator<Creature>(id, x, y, z, true) { }
+        explicit AssistanceMovementGenerator(uint32 id, float x, float y, float z, float speed = 0.0f) : PointMovementGenerator<Creature>(id, x, y, z, true, speed) { }
 
         void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override;

@@ -472,12 +472,12 @@ class npc_sinclari_vh : public CreatureScript
                             task.Repeat(Seconds(5));
                             break;
                         case 8:
-                            me->SetVisible(false);
+                            _instance->SetData(DATA_MAIN_EVENT_STATE, IN_PROGRESS);
                             task.Repeat(Seconds(1));
                             break;
                         case 9:
-                            _instance->SetData(DATA_MAIN_EVENT_STATE, IN_PROGRESS);
-                            // [1] GUID: Full: 0xF1300077C202E6DD Type: Creature Entry: 30658 Low: 190173
+                            // We should teleport inside if event is in progress with GOSSIP_MENU_SEND_ME_IN
+                            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                             break;
                         default:
                             break;
