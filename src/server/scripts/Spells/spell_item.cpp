@@ -4257,6 +4257,36 @@ class spell_item_crazy_alchemists_potion : public SpellScript
     }
 };
 
+// 21149 - SPLL_EGG_NOGG
+// 21936 - SPELL_EGG_NOGG_REINDEER have 20% chance on success
+// 54732 - SPELL_EGG_NOGG_SNOWMAN have 20% chance on success
+enum Eggnogg
+{
+    SPELL_EGG_NOGG_REINDEER    = 21936,
+    SPELL_EGG_NOGG_SNOWMAN     = 21980,
+};
+
+class spell_item_eggnogg : public SpellScript
+{
+    PrepareSpellScript(spell_item_eggnogg);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+     return ValidateSpellInfo({ SPELL_EGG_NOGG_REINDEER, SPELL_EGG_NOGG_SNOWMAN});
+    }
+
+    void HandleScript(SpellEffIndex /* effIndex */)
+    {
+        if (GetCastItem() && GetHitUnit() &&  roll_chance_i(40))
+            GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(50) ? SPELL_EGG_NOGG_REINDEER : SPELL_EGG_NOGG_SNOWMAN, GetCastItem());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_eggnogg::HandleScript, EFFECT_2, SPELL_EFFECT_INEBRIATE);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4387,4 +4417,5 @@ void AddSC_item_spell_scripts()
 
     RegisterSpellScript(spell_item_mad_alchemists_potion);
     RegisterSpellScript(spell_item_crazy_alchemists_potion);
+    RegisterSpellScript(spell_item_eggnogg);
 }
