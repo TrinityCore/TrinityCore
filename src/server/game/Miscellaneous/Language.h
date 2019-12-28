@@ -685,7 +685,7 @@ enum TrinityStrings
     LANG_GMLIST_HEADER                    = 598,
     LANG_GMLIST_EMPTY                     = 599,
 
-    LANG_REMOVEITEM_FAILURE               = 600, // 3.3.5 RESERVED
+    LANG_REMOVEITEM_FAILURE               = 600,
 
     // End Level 3 list, continued at 1100
 
