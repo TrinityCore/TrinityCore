@@ -4257,7 +4257,7 @@ class spell_item_crazy_alchemists_potion : public SpellScript
     }
 };
 
-// 21149 - SPLL_EGG_NOGG
+// 21149 - SPELL_EGG_NOGG
 // 21936 - SPELL_EGG_NOGG_REINDEER have 20% chance on success
 // 54732 - SPELL_EGG_NOGG_SNOWMAN have 20% chance on success
 enum Eggnogg
@@ -4272,7 +4272,7 @@ class spell_item_eggnogg : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-     return ValidateSpellInfo({ SPELL_EGG_NOGG_REINDEER, SPELL_EGG_NOGG_SNOWMAN});
+        return ValidateSpellInfo({ SPELL_EGG_NOGG_REINDEER, SPELL_EGG_NOGG_SNOWMAN});
     }
 
     void HandleScript(SpellEffIndex /* effIndex */)
