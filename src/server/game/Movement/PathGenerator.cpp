@@ -205,23 +205,19 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: farFromPoly distToStartPoly=%.3f distToEndPoly=%.3f", distToStartPoly, distToEndPoly);
 
         bool buildShotrcut = false;
-        if (_sourceUnit->GetTypeId() == TYPEID_UNIT)
-        {
-            Creature* owner = (Creature*)_sourceUnit;
 
-            G3D::Vector3 const& p = (distToStartPoly > 7.0f) ? startPos : endPos;
-            if (_sourceUnit->GetBaseMap()->IsUnderWater(p.x, p.y, p.z))
-            {
-                TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: underWater case");
-                if (owner->CanSwim())
-                    buildShotrcut = true;
-            }
-            else
-            {
-                TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: flying case");
-                if (owner->CanFly())
-                    buildShotrcut = true;
-            }
+        G3D::Vector3 const& p = (distToStartPoly > 7.0f) ? startPos : endPos;
+        if (_sourceUnit->GetBaseMap()->IsUnderWater(p.x, p.y, p.z))
+        {
+            TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: underWater case");
+            if (_sourceUnit->CanSwim())
+                buildShotrcut = true;
+        }
+        else
+        {
+            TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: flying case");
+            if (_sourceUnit->CanFly())
+                buildShotrcut = true;
         }
 
         if (buildShotrcut)
