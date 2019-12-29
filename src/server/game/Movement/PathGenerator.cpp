@@ -218,6 +218,9 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: flying case");
             if (_sourceUnit->CanFly())
                 buildShotrcut = true;
+            // Allow to build a shortcut if the unit is falling and it's trying to move downwards towards a target (i.e. charging)
+            else if (_sourceUnit->IsFalling() && endPos.z < startPos.z)
+                buildShotrcut = true;
         }
 
         if (buildShotrcut)
