@@ -4257,15 +4257,13 @@ class spell_item_crazy_alchemists_potion : public SpellScript
     }
 };
 
-// 21149 - SPELL_EGG_NOGG
-// 21936 - SPELL_EGG_NOGG_REINDEER have 20% chance on success
-// 54732 - SPELL_EGG_NOGG_SNOWMAN have 20% chance on success
 enum Eggnogg
 {
     SPELL_EGG_NOGG_REINDEER    = 21936,
     SPELL_EGG_NOGG_SNOWMAN     = 21980,
 };
 
+// 21149 - SPELL_EGG_NOGG
 class spell_item_eggnogg : public SpellScript
 {
     PrepareSpellScript(spell_item_eggnogg);
