@@ -4277,10 +4277,8 @@ class spell_item_eggnogg : public SpellScript
 
     void HandleScript(SpellEffIndex /* effIndex */)
     {
-        if (roll_chance_i(20))
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_EGG_NOGG_REINDEER, GetCastItem());
-        else if (roll_chance_i(20))
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_EGG_NOGG_SNOWMAN, GetCastItem());
+        if (roll_chance_i(40))
+            GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(50) ? SPELL_EGG_NOGG_REINDEER : SPELL_EGG_NOGG_SNOWMAN, GetCastItem());
     }
 
     void Register() override
