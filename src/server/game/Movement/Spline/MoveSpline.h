@@ -124,7 +124,7 @@ namespace Movement
 
         bool onTransport;
         std::string ToString() const;
-        bool Started() const
+        bool HasStarted() const
         {
             return time_passed > 0;
         }
