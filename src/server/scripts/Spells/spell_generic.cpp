@@ -530,8 +530,10 @@ class spell_gen_black_magic : public AuraScript
                 return true;
         }
         else if (typeMask & PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG)
+        {
             if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellIconID == SPELLICON_DRUID_INFECTED_WOUNDS)
                 return true;
+        }
 
         return false;
     }
