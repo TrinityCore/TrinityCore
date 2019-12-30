@@ -364,7 +364,7 @@ enum MovementFlags2 : uint32
     MOVEMENTFLAG2_DOUBLE_JUMP                               = 0x00020000,
     // these flags cannot be sent (18 bits in packet)
     MOVEMENTFLAG2_UNK18                                     = 0x00040000,
-    MOVEMENTFLAG2_UNK19                                     = 0x00080000,
+    MOVEMENTFLAG2_AWAITING_LOAD                             = 0x00080000,
     MOVEMENTFLAG2_INTERPOLATED_MOVEMENT                     = 0x00100000,
     MOVEMENTFLAG2_INTERPOLATED_TURNING                      = 0x00200000,
     MOVEMENTFLAG2_INTERPOLATED_PITCHING                     = 0x00400000
