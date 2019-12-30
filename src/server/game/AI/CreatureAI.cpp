@@ -280,7 +280,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
     me->DoNotReacquireSpellFocusTarget();
-	me->GetSpellHistory()->ResetAllCooldowns();
+    me->GetSpellHistory()->ResetAllCooldowns();
     me->SetTarget(ObjectGuid::Empty);
 
     if (me->IsInEvadeMode())
