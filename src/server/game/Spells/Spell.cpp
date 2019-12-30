@@ -5508,15 +5508,8 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     m_preGeneratedPath = Trinity::make_unique<PathGenerator>(unitCaster);
                     m_preGeneratedPath->SetPathLengthLimit(range);
 
-                    /* ToDo: it's unclear why we need a Z offset, maybe because some creatures are a bit underground ?
-                     * Anyway ignore Z offset if the creature is underwater or flying as these can't be underground
-                     */
-                    float targetObjectSizeForZOffset = 0.0f;
-                    if (!target->IsUnderWater() && !target->IsFlying())
-                        targetObjectSizeForZOffset = std::min(target->GetCombatReach(), 4.0f);
-
                     // first try with raycast, if it fails fall back to normal path
-                    bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSizeForZOffset, false, false);
+                    bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), false, false);
                     if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
                         return SPELL_FAILED_OUT_OF_RANGE;
                     else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
