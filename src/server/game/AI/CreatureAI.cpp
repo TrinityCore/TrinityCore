@@ -28,6 +28,7 @@
 #include "MotionMaster.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "SpellHistory.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "World.h"
@@ -279,6 +280,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
     me->DoNotReacquireSpellFocusTarget();
+	me->GetSpellHistory()->ResetAllCooldowns();
     me->SetTarget(ObjectGuid::Empty);
 
     if (me->IsInEvadeMode())
