@@ -12654,14 +12654,16 @@ bool Unit::CanEnterWater() const
         return true;
     if (HasFlag(UNIT_FIELD_FLAGS_2, 0x1000000))
         return false;
-    if (IsPet() && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT))
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT))
         return true;
     return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME | UNIT_FLAG_SWIMMING);
 }
 
 bool Unit::CanSwim() const
 {
-    return CanEnterWater();
+    if (IsPet())
+        return true;
+    return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING) && CanEnterWater();
 }
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)

@@ -2669,6 +2669,13 @@ CreatureMovementData const& Creature::GetMovementTemplate() const
     return GetCreatureTemplate()->Movement;
 }
 
+bool Creature::CanEnterWater() const
+{
+    if (IsPet())
+        return true;
+    return GetMovementTemplate().IsSwimAllowed();
+}
+
 void Creature::AllLootRemovedFromCorpse()
 {
     if (loot.loot_type != LOOT_SKINNING && !IsPet() && GetCreatureTemplate()->SkinLootId && hasLootRecipient())
