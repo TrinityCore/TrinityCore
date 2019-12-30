@@ -12645,8 +12645,13 @@ bool Unit::IsFalling() const
     return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR) || movespline->isFalling();
 }
 
-bool Unit::CanEnterWater() const
+bool Unit::CanSwim() const
 {
+    if (IsPet())
+        return true;
+    if (!CanEnterWater())
+        return false;
+
     // Mirror client behavior, if this method returns false then client will not use swimming animation and for players will apply gravity as if there was no water
     if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CANNOT_SWIM))
         return false;
@@ -12657,13 +12662,6 @@ bool Unit::CanEnterWater() const
     if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT))
         return true;
     return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME | UNIT_FLAG_SWIMMING);
-}
-
-bool Unit::CanSwim() const
-{
-    if (IsPet())
-        return true;
-    return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING) && CanEnterWater();
 }
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)

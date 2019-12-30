@@ -3264,8 +3264,10 @@ void Creature::AtEngage(Unit* target)
     if (!(GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
         Dismount();
 
+    // Check if the creature has UNIT_FLAG_SWIMMING and add it if it's missing
+    // Creatures must be able to chase a target in water if they can enter water
     _hasSwimFlagOutOfCombat = HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
-    if (!_hasSwimFlagOutOfCombat && CanSwim())
+    if (!_hasSwimFlagOutOfCombat && CanEnterWater())
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
 
     if (IsPet() || IsGuardian()) // update pets' speed for catchup OOC speed
