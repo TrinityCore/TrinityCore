@@ -205,23 +205,22 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: farFromPoly distToStartPoly=%.3f distToEndPoly=%.3f", distToStartPoly, distToEndPoly);
 
         bool buildShotrcut = false;
-        if (_sourceUnit->GetTypeId() == TYPEID_UNIT)
-        {
-            Creature* owner = (Creature*)_sourceUnit;
 
-            G3D::Vector3 const& p = (distToStartPoly > 7.0f) ? startPos : endPos;
-            if (_sourceUnit->GetMap()->IsUnderWater(_sourceUnit->GetPhaseShift(), p.x, p.y, p.z))
-            {
-                TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: underWater case");
-                if (owner->CanSwim())
-                    buildShotrcut = true;
-            }
-            else
-            {
-                TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: flying case");
-                if (owner->CanFly())
-                    buildShotrcut = true;
-            }
+        G3D::Vector3 const& p = (distToStartPoly > 7.0f) ? startPos : endPos;
+        if (_sourceUnit->GetMap()->IsUnderWater(_sourceUnit->GetPhaseShift(), p.x, p.y, p.z))
+        {
+            TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: underWater case");
+            if (_sourceUnit->CanSwim())
+                buildShotrcut = true;
+        }
+        else
+        {
+            TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: flying case");
+            if (_sourceUnit->CanFly())
+                buildShotrcut = true;
+            // Allow to build a shortcut if the unit is falling and it's trying to move downwards towards a target (i.e. charging)
+            else if (_sourceUnit->IsFalling() && endPos.z < startPos.z)
+                buildShotrcut = true;
         }
 
         if (buildShotrcut)
