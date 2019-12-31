@@ -112,6 +112,7 @@ void WorldListener::HandleToonOnlineStatusChange(Battlenet::RealmHandle const& r
                 toonReady->Realm = realm;
                 toonReady->Guid = toonHandle.Guid;
                 toonReady->Name = toonHandle.Name;
+                session->SetToonOnline(true);
                 session->AsyncWrite(toonReady);
             }
         }
