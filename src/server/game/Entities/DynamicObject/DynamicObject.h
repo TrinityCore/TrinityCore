@@ -43,6 +43,8 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
+        void BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const override;
+
         bool CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type);
         void Update(uint32 p_time) override;
         void Remove();

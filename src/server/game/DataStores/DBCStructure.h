@@ -2393,7 +2393,7 @@ struct SpellVisualEntry
     //uint32 PersistentAreaKit;
     //DBCPosition3D MissileCastOffset;
     //DBCPosition3D MissileImpactOffset;
-    //uint32 unknown
+    uint32 AlternativeVisualID;
 };
 
 struct StableSlotPricesEntry

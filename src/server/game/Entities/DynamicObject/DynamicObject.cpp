@@ -171,6 +171,55 @@ void DynamicObject::Remove()
     }
 }
 
+void DynamicObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target) const
+{
+    if (!target)
+        return;
+
+    ByteBuffer fieldBuffer;
+    UpdateMask updateMask;
+    updateMask.SetCount(m_valuesCount);
+
+    uint32* flags = nullptr;
+    uint32 visibleFlag = GetUpdateFieldData(target, flags);
+    ASSERT(flags);
+
+    for (uint16 index = 0; index < m_valuesCount; ++index)
+    {
+        if (_fieldNotifyFlags & flags[index] ||
+            ((updateType == UPDATETYPE_VALUES ? _changesMask.GetBit(index) : m_uint32Values[index]) && (flags[index] & visibleFlag)))
+        {
+            updateMask.SetBit(index);
+
+            if (index == DYNAMICOBJECT_BYTES)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    if (SpellInfo const* spellInfo = GetSpellInfo())
+                    {
+                        SpellVisualEntry const* rootVisual = sSpellVisualStore.LookupEntry(spellInfo->SpellVisual[0]);
+                        if (rootVisual && rootVisual->AlternativeVisualID)
+                        {
+                            SpellVisualEntry const* alternativeVisual = sSpellVisualStore.LookupEntry(rootVisual->AlternativeVisualID);
+                            if (alternativeVisual && !caster->IsFriendlyTo(target))
+                            {
+                                fieldBuffer << (rootVisual->AlternativeVisualID | (DYNAMIC_OBJECT_AREA_SPELL << 28));
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            fieldBuffer << m_uint32Values[index];
+        }
+    }
+
+    *data << uint8(updateMask.GetBlockCount());
+    updateMask.AppendToPacket(data);
+    data->append(fieldBuffer);
+}
+
 int32 DynamicObject::GetDuration() const
 {
     if (!_aura)
