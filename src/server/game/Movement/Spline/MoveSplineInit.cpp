@@ -112,7 +112,12 @@ namespace Movement
             else
                 moveFlagsForSpeed &= ~MOVEMENTFLAG_WALKING;
 
-            args.velocity = unit->GetSpeed(SelectSpeedType(moveFlagsForSpeed));
+            UnitMoveType speedType = SelectSpeedType(moveFlagsForSpeed);
+            args.velocity = unit->GetSpeed(speedType);
+            if (speedType == MOVE_RUN)
+                if (Creature* creature = unit->ToCreature())
+                    if (creature->HasSearchedAssistance())
+                        args.velocity *= 0.66f;
         }
 
         // limit the speed in the same way the client does
