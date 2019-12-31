@@ -138,8 +138,8 @@ enum PaladinSpellIcons
 
 enum MiscSpellIcons
 {
-    SPELL_ICON_ID_STRENGTH_OF_WRYNN                 = 1704,
-    SPELL_ICON_ID_HELLSCREAM_WARSONG                = 937
+    SPELL_ICON_ID_STRENGTH_OF_WRYNN              = 1704,
+    SPELL_ICON_ID_HELLSCREAM_WARSONG             = 937
 };
 
 // 31850 - Ardent Defender
