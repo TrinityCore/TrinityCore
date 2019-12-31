@@ -17,6 +17,7 @@
  */
 
 #include "MoveSplineInit.h"
+#include "Creature.h"
 #include "MoveSpline.h"
 #include "MovementPacketBuilder.h"
 #include "Unit.h"
