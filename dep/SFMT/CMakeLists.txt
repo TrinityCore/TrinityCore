@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+# Copyright (C) 2008-2020 TrinityCore <https://www.trinitycore.org/>
 # Copyright 2019 Josua Mayer <josua.mayer97@gmail.com>
 #
 # This file is free software; as a special exception the author gives
