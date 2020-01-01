@@ -4777,10 +4777,9 @@ void Spell::SendChannelStart(uint32 duration)
             unitCaster->AddChannelObject(target.TargetGUID);
 
         if (m_UniqueTargetInfo.size() == 1 && m_UniqueGOTargetInfo.empty())
-            if(target.TargetGUID != unitCaster->GetGUID())
-                if (Creature* creatureCaster = unitCaster->ToCreature())
-                    if (!creatureCaster->HasSpellFocus(this))
-                        creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, target.TargetGUID));
+            if (Creature* creatureCaster = unitCaster->ToCreature())
+                if (!creatureCaster->HasSpellFocus(this))
+                    creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, target.TargetGUID));
     }
 
     for (GOTargetInfo const& target : m_UniqueGOTargetInfo)

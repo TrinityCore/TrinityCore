@@ -3175,11 +3175,11 @@ void Creature::SetTarget(ObjectGuid const& guid)
 
 void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
 {
-    // already focused
-    if (_spellFocusInfo.Spell)
+    // Pointer validation and checking for a already existing focus
+    if (_spellFocusInfo.Spell || !focusSpell)
         return;
 
-    // Prevent dead/feigning death creatures from setting a focus target, so they won't turn
+    // Prevent dead / feign death creatures from setting a focus target
     if (!IsAlive() || HasUnitFlag2(UNIT_FLAG2_FEIGN_DEATH) || HasAuraType(SPELL_AURA_FEIGN_DEATH))
         return;
 
@@ -3197,7 +3197,8 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
         return;
 
-    if ((!target || target == this) && !focusSpell->GetCastTime()) // instant cast, untargeted (or self-targeted) spell doesn't need any facing updates
+    // instant non-channeled casts and non-target spells don't need facing updates
+    if (!target && (!focusSpell->GetCastTime() && !spellInfo->IsChanneled()))
         return;
 
     // store pre-cast values for target and orientation (used to later restore)
@@ -3314,6 +3315,12 @@ void Creature::ReacquireSpellFocusTarget()
             SetFacingTo(_spellFocusInfo.Orientation, false);
     }
     _spellFocusInfo.Delay = 0;
+}
+
+void Creature::DoNotReacquireSpellFocusTarget()
+{
+    _spellFocusInfo.Delay = 0;
+    _spellFocusInfo.Spell = nullptr;
 }
 
 bool Creature::IsMovementPreventedByCasting() const
