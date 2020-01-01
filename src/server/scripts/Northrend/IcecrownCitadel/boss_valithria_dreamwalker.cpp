@@ -713,7 +713,7 @@ class npc_risen_archmage : public CreatureScript
 
             void JustEngagedWith(Unit* target) override
             {
-                me->FinishSpell(CURRENT_CHANNELED_SPELL, false);
+                me->InterruptNonMeleeSpells(false);
                 if (_isInitialArchmage && _canCallJustEngagedWith)
                 {
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_LICH_KING)))
@@ -758,7 +758,7 @@ class npc_risen_archmage : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!me->IsInCombat() && _isInitialArchmage && !me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                if (!me->IsInCombat() && me->IsAlive() && _isInitialArchmage && !me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                     DoCastSelf(SPELL_CORRUPTION);
 
                 if (!UpdateVictim())

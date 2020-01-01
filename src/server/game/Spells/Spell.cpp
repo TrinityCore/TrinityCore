@@ -4552,10 +4552,9 @@ void Spell::SendChannelStart(uint32 duration)
     {
         unitCaster->SetChannelObjectGuid(channelTarget);
 
-        if (channelTarget != unitCaster->GetGUID())
-            if (Creature* creatureCaster = unitCaster->ToCreature())
-                if (!creatureCaster->HasSpellFocus(this))
-                    creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
+        if (Creature* creatureCaster = m_caster->ToCreature())
+            if (!creatureCaster->HasSpellFocus(this))
+                creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
     }
 
     unitCaster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
@@ -5512,14 +5511,21 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     {
                         m_preGeneratedPath = Trinity::make_unique<PathGenerator>(unitCaster);
                         m_preGeneratedPath->SetPathLengthLimit(range * 2.0f);
+
+                        /* ToDo: it's unclear why we need a Z offset, maybe because some creatures are a bit underground ?
+                         * Anyway ignore Z offset if the creature is underwater or flying as these can't be underground
+                         */
+                        float targetObjectSizeForZOffset = 0.0f;
+                        if (!target->IsUnderWater() && !target->IsFlying())
+                            targetObjectSizeForZOffset = std::min(target->GetCombatReach(), 4.0f);
+
                         // first try with raycast, if it fails fall back to normal path
-                        float targetObjectSize = std::min(target->GetCombatReach(), 4.0f);
-                        bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, false, true);
+                        bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSizeForZOffset, false, true);
                         if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
                             return SPELL_FAILED_OUT_OF_RANGE;
                         else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
                         {
-                            result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, false, false);
+                            result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSizeForZOffset, false, false);
                             if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
                                 return SPELL_FAILED_OUT_OF_RANGE;
                             else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
@@ -5530,10 +5536,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                                 else
                                 {
                                     float x, y, z;
-                                    target->GetClosePoint(x, y, z, targetObjectSize);
-                                    target->GetMap()->getObjectHitPos(target->GetPhaseMask(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSize, x, y, z + targetObjectSize, x, y, z, -targetObjectSize);
-                                    result = m_preGeneratedPath->CalculatePath(x, y, z + targetObjectSize, false, false);
-
+                                    target->GetClosePoint(x, y, z, targetObjectSizeForZOffset);
+                                    target->GetMap()->getObjectHitPos(target->GetPhaseMask(), target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + targetObjectSizeForZOffset, x, y, z + targetObjectSizeForZOffset, x, y, z, -targetObjectSizeForZOffset);
+                                    result = m_preGeneratedPath->CalculatePath(x, y, z + targetObjectSizeForZOffset, false, false);
+                                    
                                     if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
                                         return SPELL_FAILED_NOPATH;
                                     else
