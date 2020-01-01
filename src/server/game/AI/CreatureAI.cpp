@@ -310,6 +310,7 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     me->SetLastDamagedTime(0);
     me->SetCannotReachTarget(false);
     me->DoNotReacquireSpellFocusTarget();
+    me->SetTarget(ObjectGuid::Empty);
     me->GetSpellHistory()->ResetAllCooldowns();
     EngagementOver();
 
