@@ -29,6 +29,7 @@
 #include "SpellMgr.h"
 #include "Timer.h"
 #include "UnitDefines.h"
+#include "Unit.h"
 #include "WaypointDefines.h"
 
 SmartWaypointMgr* SmartWaypointMgr::instance()
