@@ -90,6 +90,8 @@ void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
+    owner->SetNoSearchAssistance(false);
+
     SetTargetLocation(owner);
 }
 
