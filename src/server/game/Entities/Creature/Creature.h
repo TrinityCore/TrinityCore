@@ -341,7 +341,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid guid) override;
-        void DoNotReacquireSpellFocusTarget() { _spellFocusInfo.Delay = 0; }
+        void DoNotReacquireSpellFocusTarget();
         void SetSpellFocus(Spell const* focusSpell, WorldObject const* target);
         bool HasSpellFocus(Spell const* focusSpell = nullptr) const override;
         void ReleaseSpellFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
