@@ -80,11 +80,10 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/)
         return;
     }
 
-    Map::PlayerList const& playerList = map->GetPlayers();
-    if (playerList.isEmpty())
+    if (!map->HavePlayers())
         return;
 
-    for (auto const& ref : playerList)
+    for (MapReference const& ref : map->GetPlayers())
     {
         if (Player* player = ref.GetSource())
         {
