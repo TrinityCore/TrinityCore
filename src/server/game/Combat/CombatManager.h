@@ -106,6 +106,7 @@ class TC_GAME_API CombatManager
         Unit* GetOwner() const { return _owner; }
         bool HasCombat() const { return HasPvECombat() || HasPvPCombat(); }
         bool HasPvECombat() const { return !_pveRefs.empty(); }
+        bool HasPvECombatWithPlayers() const;
         std::unordered_map<ObjectGuid, CombatReference*> const& GetPvECombatRefs() const { return _pveRefs; }
         bool HasPvPCombat() const;
         std::unordered_map<ObjectGuid, PvPCombatReference*> const& GetPvPCombatRefs() const { return _pvpRefs; }
