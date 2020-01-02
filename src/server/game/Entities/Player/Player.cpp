@@ -68,7 +68,6 @@
 #include "GuildMgr.h"
 #include "InstanceLockMgr.h"
 #include "InstancePackets.h"
-#include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
 #include "ItemPackets.h"
 #include "KillRewarder.h"
@@ -393,11 +392,6 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
     DuelComplete(DUEL_INTERRUPTED);
 
     Unit::CleanupsBeforeDelete(finalCleanup);
-
-    // clean up player-instance binds, may unload some instance saves
-    for (auto difficultyItr = m_boundInstances.begin(); difficultyItr != m_boundInstances.end(); ++difficultyItr)
-        for (auto itr = difficultyItr->second.begin(); itr != difficultyItr->second.end(); ++itr)
-            itr->second.save->RemovePlayer(this);
 }
 
 bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::CharacterCreateInfo const* createInfo)
@@ -17235,7 +17229,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TodayHonorableKills), fields.totalKills);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::YesterdayHonorableKills), fields.yesterdayKills);
 
-    _LoadBoundInstances(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES));
     _LoadInstanceTimeRestrictions(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES));
     _LoadBGData(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_BG_DATA));
 
@@ -17419,12 +17412,6 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
                 GetName().c_str(), GetGUID().ToString().c_str(), mapId);
             RelocateToHomebind();
         }
-
-        // fix crash (because of if (Map* map = _FindMap(instanceId)) in MapInstanced::CreateInstance)
-        if (instanceId)
-            if (InstanceSave* save = GetInstanceSave(mapId))
-                if (save->GetInstanceId() != instanceId)
-                    instanceId = 0;
     }
 
     // NOW player must have valid map
@@ -17466,7 +17453,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             areaTrigger = sObjectMgr->GetGoBackTrigger(mapId);
             check = true;
         }
-        else if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId)) // ... and instance is reseted then look for entrance.
+        else if (instanceId && !sInstanceLockMgr.FindActiveInstanceLock(guid, { mapId, map->GetDifficultyID() })) // ... and instance is reseted then look for entrance.
         {
             areaTrigger = sObjectMgr->GetMapEntranceTrigger(mapId);
             check = true;
@@ -18971,235 +18958,6 @@ void Player::_LoadGroup(PreparedQueryResult result)
         RemovePlayerFlag(PLAYER_FLAGS_GROUP_LEADER);
 }
 
-void Player::_LoadBoundInstances(PreparedQueryResult result)
-{
-    m_boundInstances.clear();
-
-    Group* group = GetGroup();
-
-    //         0          1    2           3            4          5           6
-    // SELECT id, permanent, map, difficulty, extendState, resettime, entranceId FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = ?
-    if (result)
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-
-            bool perm = fields[1].GetBool();
-            uint32 mapId = fields[2].GetUInt16();
-            uint32 instanceId = fields[0].GetUInt32();
-            uint8 difficulty = fields[3].GetUInt8();
-            BindExtensionState extendState = BindExtensionState(fields[4].GetUInt8());
-
-            time_t resetTime = fields[5].GetInt64();
-            // the resettime for normal instances is only saved when the InstanceSave is unloaded
-            // so the value read from the DB may be wrong here but only if the InstanceSave is loaded
-            // and in that case it is not used
-
-            uint32 entranceId = fields[6].GetUInt32();
-
-            bool deleteInstance = false;
-
-            MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
-            std::string mapname = mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "Unknown";
-
-            if (!mapEntry || !mapEntry->IsDungeon())
-            {
-                TC_LOG_ERROR("entities.player", "Player::_LoadBoundInstances: Player '%s' (%s) has bind to not existed or not dungeon map %d (%s)",
-                    GetName().c_str(), GetGUID().ToString().c_str(), mapId, mapname.c_str());
-                deleteInstance = true;
-            }
-            else if (!sDifficultyStore.HasRecord(difficulty))
-            {
-                TC_LOG_ERROR("entities.player", "Player::_LoadBoundInstances: player '%s' (%s) has bind to not existed difficulty %d instance for map %u (%s)",
-                    GetName().c_str(), GetGUID().ToString().c_str(), difficulty, mapId, mapname.c_str());
-                deleteInstance = true;
-            }
-            else
-            {
-                MapDifficultyEntry const* mapDiff = sDB2Manager.GetMapDifficultyData(mapId, Difficulty(difficulty));
-                if (!mapDiff)
-                {
-                    TC_LOG_ERROR("entities.player", "Player::_LoadBoundInstances: player '%s' (%s) has bind to not existed difficulty %d instance for map %u (%s)",
-                        GetName().c_str(), GetGUID().ToString().c_str(), difficulty, mapId, mapname.c_str());
-                    deleteInstance = true;
-                }
-                else if (!perm && group)
-                {
-                    TC_LOG_ERROR("entities.player", "Player::_LoadBoundInstances: player '%s' (%s) is in group %s but has a non-permanent character bind to map %d (%s), %d, %d",
-                        GetName().c_str(), GetGUID().ToString().c_str(), group->GetGUID().ToString().c_str(), mapId, mapname.c_str(), instanceId, difficulty);
-                    deleteInstance = true;
-                }
-            }
-
-            if (deleteInstance)
-            {
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID);
-
-                stmt->setUInt64(0, GetGUID().GetCounter());
-                stmt->setUInt32(1, instanceId);
-
-                CharacterDatabase.Execute(stmt);
-
-                continue;
-            }
-
-            // since non permanent binds are always solo bind, they can always be reset
-            if (InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapId, instanceId, Difficulty(difficulty), resetTime, entranceId, !perm, true))
-               BindToInstance(save, perm, extendState, true);
-        }
-        while (result->NextRow());
-    }
-}
-
-InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired)
-{
-    // some instances only have one difficulty
-    MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(mapid, difficulty);
-    if (!mapDiff)
-        return nullptr;
-
-    auto difficultyItr = m_boundInstances.find(difficulty);
-    if (difficultyItr == m_boundInstances.end())
-        return nullptr;
-
-    auto itr = difficultyItr->second.find(mapid);
-    if (itr != difficultyItr->second.end())
-        if (itr->second.extendState || withExpired)
-            return &itr->second;
-    return nullptr;
-}
-
-InstancePlayerBind const* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty) const
-{
-    // some instances only have one difficulty
-    MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(mapid, difficulty);
-    if (!mapDiff)
-        return nullptr;
-
-    auto difficultyItr = m_boundInstances.find(difficulty);
-    if (difficultyItr == m_boundInstances.end())
-        return nullptr;
-
-    auto itr = difficultyItr->second.find(mapid);
-    if (itr != difficultyItr->second.end())
-        return &itr->second;
-
-    return nullptr;
-}
-
-InstanceSave* Player::GetInstanceSave(uint32 mapid)
-{
-    MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
-    InstancePlayerBind* pBind = GetBoundInstance(mapid, GetDifficultyID(mapEntry));
-    InstanceSave* pSave = pBind ? pBind->save : nullptr;
-    if (!pBind || !pBind->perm)
-        if (Group* group = GetGroup())
-            if (InstanceGroupBind* groupBind = group->GetBoundInstance(GetDifficultyID(mapEntry), mapid))
-                pSave = groupBind->save;
-
-    return pSave;
-}
-
-void Player::UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload)
-{
-    auto difficultyItr = m_boundInstances.find(difficulty);
-    if (difficultyItr != m_boundInstances.end())
-    {
-        auto itr = difficultyItr->second.find(mapid);
-        if (itr != difficultyItr->second.end())
-            UnbindInstance(itr, difficultyItr, unload);
-    }
-}
-
-void Player::UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload)
-{
-    if (itr != difficultyItr->second.end())
-    {
-        if (!unload)
-        {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INSTANCE_BY_INSTANCE_GUID);
-
-            stmt->setUInt64(0, GetGUID().GetCounter());
-            stmt->setUInt32(1, itr->second.save->GetInstanceId());
-
-            CharacterDatabase.Execute(stmt);
-        }
-
-        if (itr->second.perm)
-            GetSession()->SendCalendarRaidLockoutRemoved(itr->second.save);
-
-        itr->second.save->RemovePlayer(this);               // save can become invalid
-        difficultyItr->second.erase(itr++);
-    }
-}
-
-InstancePlayerBind* Player::BindToInstance(InstanceSave* save, bool permanent, BindExtensionState extendState, bool load)
-{
-    if (save)
-    {
-        InstancePlayerBind& bind = m_boundInstances[save->GetDifficultyID()][save->GetMapId()];
-        if (extendState == EXTEND_STATE_KEEP) // special flag, keep the player's current extend state when updating for new boss down
-        {
-            if (save == bind.save)
-                extendState = bind.extendState;
-            else
-                extendState = EXTEND_STATE_NORMAL;
-        }
-        if (!load)
-        {
-            if (bind.save)
-            {
-                // update the save when the group kills a boss
-                if (permanent != bind.perm || save != bind.save || extendState != bind.extendState)
-                {
-                    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INSTANCE);
-
-                    stmt->setUInt32(0, save->GetInstanceId());
-                    stmt->setBool(1, permanent);
-                    stmt->setUInt8(2, extendState);
-                    stmt->setUInt64(3, GetGUID().GetCounter());
-                    stmt->setUInt32(4, bind.save->GetInstanceId());
-
-                    CharacterDatabase.Execute(stmt);
-                }
-            }
-            else
-            {
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_INSTANCE);
-
-                stmt->setUInt64(0, GetGUID().GetCounter());
-                stmt->setUInt32(1, save->GetInstanceId());
-                stmt->setBool(2, permanent);
-                stmt->setUInt8(3, extendState);
-
-                CharacterDatabase.Execute(stmt);
-            }
-        }
-
-        if (bind.save != save)
-        {
-            if (bind.save)
-                bind.save->RemovePlayer(this);
-            save->AddPlayer(this);
-        }
-
-        if (permanent)
-            save->SetCanReset(false);
-
-        bind.save = save;
-        bind.perm = permanent;
-        bind.extendState = extendState;
-        if (!load)
-            TC_LOG_DEBUG("maps", "Player::BindToInstance: Player '%s' (%s) is now bound to map (ID: %d, Instance: %d, Difficulty: %d)",
-                GetName().c_str(), GetGUID().ToString().c_str(), save->GetMapId(), save->GetInstanceId(), static_cast<uint32>(save->GetDifficultyID()));
-        sScriptMgr->OnPlayerBindToInstance(this, save->GetDifficultyID(), save->GetMapId(), permanent, uint8(extendState));
-        return &bind;
-    }
-
-    return nullptr;
-}
-
 void Player::ConfirmPendingBind()
 {
     InstanceMap* map = GetMap()->ToInstanceMap();
@@ -19233,7 +18991,7 @@ void Player::SendRaidInfo()
         lockInfos.InstanceID = instanceLock->GetInstanceId();
         lockInfos.MapID = instanceLock->GetMapId();
         lockInfos.DifficultyID = instanceLock->GetDifficultyId();
-        lockInfos.TimeRemaining = int32(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count());
+        lockInfos.TimeRemaining = int32(std::max(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count(), SI64LIT(0)));
         lockInfos.CompletedMask = instanceLock->GetData()->CompletedEncountersMask;
 
         lockInfos.Locked = !instanceLock->IsExpired();
@@ -20831,63 +20589,8 @@ void Player::SendResetFailedNotify(uint32 /*mapid*/) const
 }
 
 /// Reset all solo instances and optionally send a message on success for each
-void Player::ResetInstances(uint8 method, bool isRaid, bool isLegacy)
+void Player::ResetInstances(InstanceResetMethod /*method*/, bool /*isRaid*/, bool /*isLegacy*/)
 {
-    // method can be INSTANCE_RESET_ALL, INSTANCE_RESET_CHANGE_DIFFICULTY, INSTANCE_RESET_GROUP_JOIN
-
-    // we assume that when the difficulty changes, all instances that can be reset will be
-    Difficulty diff = GetDungeonDifficultyID();
-    if (isRaid)
-    {
-        if (!isLegacy)
-            diff = GetRaidDifficultyID();
-        else
-            diff = GetLegacyRaidDifficultyID();
-    }
-
-    auto difficultyItr = m_boundInstances.find(diff);
-    if (difficultyItr == m_boundInstances.end())
-        return;
-
-    for (auto itr = difficultyItr->second.begin(); itr != difficultyItr->second.end();)
-    {
-        InstanceSave* p = itr->second.save;
-        MapEntry const* entry = sMapStore.LookupEntry(itr->first);
-        if (!entry || entry->IsRaid() != isRaid || !p->CanReset())
-        {
-            ++itr;
-            continue;
-        }
-
-        if (method == INSTANCE_RESET_ALL)
-        {
-            // the "reset all instances" method can only reset normal maps
-            if (entry->IsRaid() || diff == DIFFICULTY_HEROIC)
-            {
-                ++itr;
-                continue;
-            }
-        }
-
-        // if the map is loaded, reset it
-        Map* map = sMapMgr->FindMap(p->GetMapId(), p->GetInstanceId());
-        if (map && map->IsDungeon())
-            if (!map->ToInstanceMap()->Reset(method))
-            {
-                ++itr;
-                continue;
-            }
-
-        // since this is a solo instance there should not be any players inside
-        if (method == INSTANCE_RESET_ALL || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
-            SendResetInstanceSuccess(p->GetMapId());
-
-        p->DeleteFromDB();
-        difficultyItr->second.erase(itr++);
-
-        // the following should remove the instance save from the manager and delete it as well
-        p->RemovePlayer(this);
-    }
 }
 
 void Player::SendResetInstanceSuccess(uint32 MapId) const
@@ -23816,33 +23519,6 @@ void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8
     transferAborted.TransfertAbort = reason;
     transferAborted.MapDifficultyXConditionID = mapDifficultyXConditionID;
     SendDirectMessage(transferAborted.Write());
-}
-
-void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time, bool welcome) const
-{
-    // type of warning, based on the time remaining until reset
-    uint32 type;
-    if (welcome)
-        type = RAID_INSTANCE_WELCOME;
-    else if (time > 21600)
-        type = RAID_INSTANCE_WELCOME;
-    else if (time > 3600)
-        type = RAID_INSTANCE_WARNING_HOURS;
-    else if (time > 300)
-        type = RAID_INSTANCE_WARNING_MIN;
-    else
-        type = RAID_INSTANCE_WARNING_MIN_SOON;
-
-    WorldPackets::Instance::RaidInstanceMessage raidInstanceMessage;
-    raidInstanceMessage.Type = type;
-    raidInstanceMessage.MapID = mapid;
-    raidInstanceMessage.DifficultyID = difficulty;
-    if (InstancePlayerBind const* bind = GetBoundInstance(mapid, difficulty))
-        raidInstanceMessage.Locked = bind->perm;
-    else
-        raidInstanceMessage.Locked = false;
-    raidInstanceMessage.Extended = false;
-    SendDirectMessage(raidInstanceMessage.Write());
 }
 
 void Player::ApplyEquipCooldown(Item* pItem)

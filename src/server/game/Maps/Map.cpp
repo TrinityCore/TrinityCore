@@ -33,7 +33,6 @@
 #include "Group.h"
 #include "InstanceLockMgr.h"
 #include "InstancePackets.h"
-#include "InstanceSaveMgr.h"
 #include "InstanceScenario.h"
 #include "InstanceScript.h"
 #include "Log.h"
@@ -1813,16 +1812,14 @@ Map::EnterState Map::PlayerCannotEnter(uint32 mapid, Player* player, bool /*logi
     if (entry->Instanceable())
     {
         //Get instance where player's group is bound & its map
-        if (uint32 instanceIdToCheck = sMapMgr->FindInstanceIdForPlayer(mapid, player))
-        {
-            if (Map* boundMap = sMapMgr->FindMap(mapid, instanceIdToCheck))
-                if (EnterState denyReason = boundMap->CannotEnter(player))
-                    return denyReason;
+        uint32 instanceIdToCheck = sMapMgr->FindInstanceIdForPlayer(mapid, player);
+        if (Map* boundMap = sMapMgr->FindMap(mapid, instanceIdToCheck))
+            if (EnterState denyReason = boundMap->CannotEnter(player))
+                return denyReason;
 
-            // players are only allowed to enter 10 instances per hour
-            if (entry->IsDungeon() && !player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
-                return Map::CANNOT_ENTER_TOO_MANY_INSTANCES;
-        }
+        // players are only allowed to enter 10 instances per hour
+        if (entry->IsDungeon() && !player->CheckInstanceCount(instanceIdToCheck) && !player->isDead())
+            return CANNOT_ENTER_TOO_MANY_INSTANCES;
     }
 
     return CAN_ENTER;
@@ -2161,6 +2158,9 @@ void Map::DeleteRespawnInfo(RespawnInfo* info, CharacterDatabaseTransaction dbTr
 
 void Map::DeleteRespawnInfoFromDB(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans)
 {
+    if (Instanceable())
+        return;
+
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESPAWN);
     stmt->setUInt16(0, type);
     stmt->setUInt64(1, spawnId);
@@ -2921,7 +2921,6 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
 
     // for normal instances schedule the reset after all players have left
     SetResetSchedule(true);
-    sInstanceSaveMgr->UnloadInstanceSave(GetInstanceId());
 }
 
 void InstanceMap::CreateInstanceData()
@@ -2967,13 +2966,14 @@ void InstanceMap::TrySetOwningGroup(Group* group)
 /*
     Returns true if there are no players in the instance
 */
-bool InstanceMap::Reset(uint8 method)
+bool InstanceMap::Reset(InstanceResetMethod method)
 {
     // note: since the map may not be loaded when the instance needs to be reset
-    // the instance must be deleted from the DB by InstanceSaveManager
+    // the instance must be deleted from the DB
 
     if (HavePlayers())
     {
+        // on manual reset, fail
         if (method == INSTANCE_RESET_ALL || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
         {
             // notify the players to leave the instance so it can be reset
@@ -2982,24 +2982,15 @@ bool InstanceMap::Reset(uint8 method)
         }
         else
         {
-            bool doUnload = true;
+            // on lock expiration boot players (do we also care about extension state?)
             if (method == INSTANCE_RESET_GLOBAL)
             {
                 // set the homebind timer for players inside (1 minute)
                 for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-                {
-                    InstancePlayerBind* bind = itr->GetSource()->GetBoundInstance(GetId(), GetDifficultyID());
-                    if (bind && bind->extendState && bind->save->GetInstanceId() == GetInstanceId())
-                        doUnload = false;
-                    else
-                        itr->GetSource()->m_InstanceValid = false;
-                }
-
-                if (doUnload && HasPermBoundPlayers()) // check if any unloaded players have a nonexpired save to this
-                    doUnload = false;
+                    itr->GetSource()->m_InstanceValid = false;
             }
 
-            if (doUnload)
+            if (!HasPermBoundPlayers())
             {
                 // the unload timer is not started
                 // instead the map will unload immediately after the players have left
@@ -3107,25 +3098,8 @@ void InstanceMap::UnloadAll()
     Map::UnloadAll();
 }
 
-void InstanceMap::SendResetWarnings(uint32 timeLeft) const
+void InstanceMap::SetResetSchedule(bool /*on*/)
 {
-    for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        itr->GetSource()->SendInstanceResetWarning(GetId(), itr->GetSource()->GetDifficultyID(GetEntry()), timeLeft, true);
-}
-
-void InstanceMap::SetResetSchedule(bool on)
-{
-    // only for normal instances
-    // the reset time is only scheduled when there are no payers inside
-    // it is assumed that the reset time will rarely (if ever) change while the reset is scheduled
-    if (IsDungeon() && !HavePlayers() && !IsRaidOrHeroicDungeon())
-    {
-        if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId()))
-            sInstanceSaveMgr->ScheduleReset(on, save->GetResetTime(), InstanceSaveManager::InstResetEvent(0, GetId(), GetDifficultyID(), GetInstanceId()));
-        else
-            TC_LOG_ERROR("maps", "InstanceMap::SetResetSchedule: cannot turn schedule %s, there is no save information for instance (map [id: %u, name: %s], instance id: %u, difficulty: %u)",
-                on ? "on" : "off", GetId(), GetMapName(), GetInstanceId(), static_cast<uint32>(GetDifficultyID()));
-    }
 }
 
 MapDifficultyEntry const* Map::GetMapDifficulty() const
@@ -3168,11 +3142,6 @@ bool Map::IsNonRaidDungeon() const
 bool Map::IsRaid() const
 {
     return i_mapEntry && i_mapEntry->IsRaid();
-}
-
-bool Map::IsRaidOrHeroicDungeon() const
-{
-    return IsRaid() || IsHeroic();
 }
 
 bool Map::IsHeroic() const
@@ -3233,12 +3202,6 @@ uint32 InstanceMap::GetMaxPlayers() const
         return mapDiff->MaxPlayers;
 
     return GetEntry()->MaxPlayers;
-}
-
-uint32 InstanceMap::GetMaxResetDelay() const
-{
-    MapDifficultyEntry const* mapDiff = GetMapDifficulty();
-    return mapDiff ? mapDiff->GetRaidDuration() : 0;
 }
 
 TeamId InstanceMap::GetTeamIdInInstance() const
@@ -3451,6 +3414,9 @@ void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uin
 
 void Map::SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransaction dbTrans)
 {
+    if (Instanceable())
+        return;
+
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_RESPAWN);
     stmt->setUInt16(0, info.type);
     stmt->setUInt64(1, info.spawnId);
@@ -3462,6 +3428,9 @@ void Map::SaveRespawnInfoDB(RespawnInfo const& info, CharacterDatabaseTransactio
 
 void Map::LoadRespawnTimes()
 {
+    if (Instanceable())
+        return;
+
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_RESPAWNS);
     stmt->setUInt16(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
@@ -3490,11 +3459,14 @@ void Map::LoadRespawnTimes()
     }
 }
 
-/*static*/ void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)
+void Map::DeleteRespawnTimesInDB()
 {
+    if (Instanceable())
+        return;
+
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_RESPAWNS);
-    stmt->setUInt16(0, mapId);
-    stmt->setUInt32(1, instanceId);
+    stmt->setUInt16(0, GetId());
+    stmt->setUInt32(1, GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }
 

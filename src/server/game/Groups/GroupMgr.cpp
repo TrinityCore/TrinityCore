@@ -18,9 +18,7 @@
 #include "GroupMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
 #include "Group.h"
-#include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "World.h"
 
@@ -204,50 +202,5 @@ void GroupMgr::LoadGroups()
         while (result->NextRow());
 
         TC_LOG_INFO("server.loading", ">> Loaded %u group members in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    }
-
-    TC_LOG_INFO("server.loading", "Loading Group instance saves...");
-    {
-        uint32 oldMSTime = getMSTime();
-
-        //                                                   0        1      2            3             4             5            6
-        QueryResult result = CharacterDatabase.Query("SELECT gi.guid, i.map, gi.instance, gi.permanent, i.difficulty, i.resettime, i.entranceId, "
-            //           7
-            "(SELECT COUNT(1) FROM character_instance ci LEFT JOIN `groups` g ON ci.guid = g.leaderGuid WHERE ci.instance = gi.instance AND ci.permanent = 1 LIMIT 1) "
-            "FROM group_instance gi LEFT JOIN instance i ON gi.instance = i.id ORDER BY guid");
-
-        if (!result)
-        {
-            TC_LOG_INFO("server.loading", ">> Loaded 0 group-instance saves. DB table `group_instance` is empty!");
-            return;
-        }
-
-        uint32 count = 0;
-        do
-        {
-            Field* fields = result->Fetch();
-            Group* group = GetGroupByDbStoreId(fields[0].GetUInt32());
-            // group will never be NULL (we have run consistency sql's before loading)
-            ASSERT(group);
-
-            MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt16());
-            if (!mapEntry || !mapEntry->IsDungeon())
-            {
-                TC_LOG_ERROR("sql.sql", "Incorrect entry in group_instance table : no dungeon map %d", fields[1].GetUInt16());
-                continue;
-            }
-
-            uint32 diff = fields[4].GetUInt8();
-            DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(diff);
-            if (!difficultyEntry || difficultyEntry->InstanceType != mapEntry->InstanceType)
-                continue;
-
-            InstanceSave* save = sInstanceSaveMgr->AddInstanceSave(mapEntry->ID, fields[2].GetUInt32(), Difficulty(diff), fields[5].GetInt64(), fields[6].GetUInt32(), fields[7].GetUInt64() == 0, true);
-            group->BindToInstance(save, fields[3].GetBool(), true);
-            ++count;
-        }
-        while (result->NextRow());
-
-        TC_LOG_INFO("server.loading", ">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
 }

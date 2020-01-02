@@ -794,8 +794,6 @@ enum ArenaTeamInfoType
     ARENA_TEAM_END               = 7
 };
 
-class InstanceSave;
-
 enum TeleportToOptions
 {
     TELE_TO_GM_MODE             = 0x01,
@@ -834,7 +832,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_FROM,
     PLAYER_LOGIN_QUERY_LOAD_CUSTOMIZATIONS,
     PLAYER_LOGIN_QUERY_LOAD_GROUP,
-    PLAYER_LOGIN_QUERY_LOAD_BOUND_INSTANCES,
     PLAYER_LOGIN_QUERY_LOAD_AURAS,
     PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS,
     PLAYER_LOGIN_QUERY_LOAD_AURA_STORED_LOCATIONS,
@@ -911,29 +908,6 @@ enum PlayerDelayedOperations
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
 // Maximum money amount : 2^31 - 1
 TC_GAME_API extern uint64 const MAX_MONEY_AMOUNT;
-
-enum BindExtensionState
-{
-    EXTEND_STATE_EXPIRED  =   0,
-    EXTEND_STATE_NORMAL   =   1,
-    EXTEND_STATE_EXTENDED =   2,
-    EXTEND_STATE_KEEP     = 255   // special state: keep current save type
-};
-struct InstancePlayerBind
-{
-    InstanceSave* save;
-    /* permanent PlayerInstanceBinds are created in Raid/Heroic instances for players
-    that aren't already permanently bound when they are inside when a boss is killed
-    or when they enter an instance that the group leader is permanently bound to. */
-    bool perm;
-    /* extend state listing:
-    EXPIRED  - doesn't affect anything unless manually re-extended by player
-    NORMAL   - standard state
-    EXTENDED - won't be promoted to EXPIRED at next reset period, will instead be promoted to NORMAL */
-    BindExtensionState extendState;
-
-    InstancePlayerBind() : save(nullptr), perm(false), extendState(EXTEND_STATE_NORMAL) { }
-};
 
 enum CharDeleteMethod
 {
@@ -1160,7 +1134,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendInitialPacketsAfterAddToMap();
         void SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const;
         void SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg = 0, int32 mapDifficultyXConditionID = 0) const;
-        void SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time, bool welcome) const;
 
         bool CanInteractWithQuestGiver(Object* questGiver) const;
         Creature* GetNPCIfCanInteractWith(ObjectGuid const& guid, NPCFlags npcFlags, NPCFlags2 npcFlags2) const;
@@ -2112,7 +2085,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendDungeonDifficulty(int32 forcedDifficulty = -1) const;
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1) const;
-        void ResetInstances(uint8 method, bool isRaid, bool isLegacy);
+        void ResetInstances(InstanceResetMethod method, bool isRaid, bool isLegacy);
         void SendResetInstanceSuccess(uint32 MapId) const;
         void SendResetInstanceFailed(ResetFailedReason reason, uint32 mapID) const;
         void SendResetFailedNotify(uint32 mapid) const;
@@ -2532,8 +2505,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
 
-        typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstancePlayerBind>> BoundInstancesMap;
-
         void UpdateHomebindTime(uint32 time);
 
         uint32 m_HomebindTimer;
@@ -2550,15 +2521,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             m_recentInstances[mapId] = instanceId;
         }
 
-        BoundInstancesMap m_boundInstances;
         std::unordered_map<uint32 /*mapId*/, uint32 /*instanceId*/> m_recentInstances;
-        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired = false);
-        InstancePlayerBind const* GetBoundInstance(uint32 mapid, Difficulty difficulty) const;
-        BoundInstancesMap::iterator GetBoundInstances(Difficulty difficulty) { return m_boundInstances.find(difficulty); }
-        InstanceSave* GetInstanceSave(uint32 mapid);
-        void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
-        void UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload = false);
-        InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, BindExtensionState extendState = EXTEND_STATE_NORMAL, bool load = false);
         void ConfirmPendingBind();
         void SetPendingBind(uint32 instanceId, uint32 bindTimer);
         bool HasPendingBind() const { return _pendingBindId > 0; }
@@ -2889,7 +2852,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void _LoadActions(PreparedQueryResult result);
         void _LoadAuras(PreparedQueryResult auraResult, PreparedQueryResult effectResult, uint32 timediff);
         void _LoadGlyphAuras();
-        void _LoadBoundInstances(PreparedQueryResult result);
         void _LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, PreparedQueryResult azeriteResult,
             PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult,
             PreparedQueryResult azeriteEmpoweredItemResult, uint32 timeDiff);

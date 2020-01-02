@@ -38,6 +38,7 @@
  *   `difficulty` tinyint(3) unsigned,
  *   `data` text,                                   ALWAYS FILLED (also might not match instance data for instanceId based locks)
  *   `completedEncountersMask` int(10) unsigned,    ALWAYS FILLED (also might not match instance data for instanceId based locks)
+ *   `entranceWorldSafeLocId` int(10) unsigned,     ALWAYS FILLED (also might not match instance data for instanceId based locks)
  *   `expiryTime` bigint(20) unsigned,
  *   `extended` tinyint(1) unsigned,
  *   PRIMARY KEY (`guid`,`mapId`,`lockId`),
@@ -46,6 +47,7 @@
  *   `instanceId` int(10) unsigned NOT NULL,
  *   `data` text,                                   FILLED ONLY FOR ID BASED LOCKS
  *   `completedEncountersMask` int(10) unsigned,    FILLED ONLY FOR ID BASED LOCKS
+ *   `entranceWorldSafeLocId` int(10) unsigned,     FILLED ONLY FOR ID BASED LOCKS
  *   PRIMARY KEY (`instanceId`)
  */
 
@@ -73,6 +75,7 @@ struct InstanceLockData
 
     std::string Data;
     uint32 CompletedEncountersMask = 0;
+    uint32 EntranceWorldSafeLocId = 0;
 };
 
 class TC_GAME_API InstanceLock
@@ -185,6 +188,7 @@ struct InstanceLockUpdateEvent
     DungeonEncounterEntry const* CompletedEncounter;
 };
 
+// TOTALLY NOT THREADSAFE YET
 class TC_GAME_API InstanceLockMgr
 {
 public:
@@ -252,8 +256,9 @@ public:
        @param playerGuid Guid of player whose lock is extended
        @param entries Map.db2 + MapDifficulty.db2 data for instance
        @param extended New instance lock extension state
+       @return pair<OldExpirationTime, NewExpirationTime>
     */
-    void UpdateInstanceLockExtensionForPlayer(ObjectGuid const& playerGuid, MapDb2Entries const& entries, bool extended);
+    std::pair<InstanceResetTimePoint, InstanceResetTimePoint> UpdateInstanceLockExtensionForPlayer(ObjectGuid const& playerGuid, MapDb2Entries const& entries, bool extended);
 
     static InstanceLockMgr& Instance();
 

@@ -31,7 +31,6 @@
 class Battlefield;
 class Battleground;
 class Creature;
-class InstanceSave;
 class Map;
 class Player;
 class Unit;
@@ -155,15 +154,6 @@ enum GroupUpdatePetFlags
                             GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_AURAS // all pet flags
 };
 
-struct InstanceGroupBind
-{
-    InstanceSave* save;
-    bool perm;
-    /* permanent InstanceGroupBinds exist if the leader has a permanent
-       PlayerInstanceBind for the same instance. */
-    InstanceGroupBind() : save(nullptr), perm(false) { }
-};
-
 struct RaidMarker
 {
     WorldLocation Location;
@@ -195,7 +185,6 @@ class TC_GAME_API Group
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
 
-        typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstanceGroupBind>> BoundInstancesMap;
     protected:
         typedef MemberSlotList::iterator member_witerator;
         typedef std::set<Player*> InvitesList;
@@ -315,7 +304,7 @@ class TC_GAME_API Group
         Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
         Difficulty GetRaidDifficultyID() const { return m_raidDifficulty; }
         Difficulty GetLegacyRaidDifficultyID() const { return m_legacyRaidDifficulty; }
-        void ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* SendMsgTo);
+        void ResetInstances(InstanceResetMethod method, bool isRaid, bool isLegacy, Player* SendMsgTo);
 
         // -no description-
         //void SendInit(WorldSession* session);
@@ -345,8 +334,6 @@ class TC_GAME_API Group
         void LinkMember(GroupReference* pRef);
         void DelinkMember(ObjectGuid guid);
 
-        uint32 GetInstanceId(MapEntry const* mapEntry) const { return 0; }
-        InstanceGroupBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
         ObjectGuid GetRecentInstanceOwner(uint32 mapId) const
         {
             auto itr = m_recentInstances.find(mapId);
@@ -365,14 +352,6 @@ class TC_GAME_API Group
         }
 
         void LinkOwnedInstance(GroupInstanceReference* ref);
-
-        void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
-        InstanceGroupBind* GetBoundInstance(Player* player);
-        InstanceGroupBind* GetBoundInstance(Map* aMap);
-        InstanceGroupBind* GetBoundInstance(MapEntry const* mapEntry);
-        InstanceGroupBind* GetBoundInstance(Difficulty difficulty, uint32 mapId);
-        BoundInstancesMap::iterator GetBoundInstances(Difficulty difficulty);
-        BoundInstancesMap::iterator GetBoundInstanceEnd();
 
         void StartLeaderOfflineTimer();
         void StopLeaderOfflineTimer();
@@ -410,7 +389,6 @@ class TC_GAME_API Group
         ItemQualities       m_lootThreshold;
         ObjectGuid          m_looterGuid;
         ObjectGuid          m_masterLooterGuid;
-        BoundInstancesMap   m_boundInstances;
         std::unordered_map<uint32 /*mapId*/, std::pair<ObjectGuid /*instanceOwner*/, uint32 /*instanceId*/>> m_recentInstances;
         GroupInstanceRefManager m_ownedInstancesMgr;
         uint8*              m_subGroupsCounts;

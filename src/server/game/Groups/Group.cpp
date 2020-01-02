@@ -24,7 +24,6 @@
 #include "Formulas.h"
 #include "GameObject.h"
 #include "GroupMgr.h"
-#include "InstanceSaveMgr.h"
 #include "Item.h"
 #include "LFGMgr.h"
 #include "Log.h"
@@ -66,11 +65,6 @@ Group::~Group()
         else
             TC_LOG_ERROR("misc", "Group::~Group: battleground group is not linked to the correct battleground.");
     }
-
-    // this may unload some instance saves
-    for (auto difficultyItr = m_boundInstances.begin(); difficultyItr != m_boundInstances.end(); ++difficultyItr)
-        for (auto itr2 = difficultyItr->second.begin(); itr2 != difficultyItr->second.end(); ++itr2)
-            itr2->second.save->RemoveGroup(this);
 
     // Sub group counters clean up
     delete[] m_subGroupsCounts;
@@ -693,28 +687,6 @@ void Group::ChangeLeader(ObjectGuid newLeaderGuid, int8 partyIndex)
     if (!isBGGroup() && !isBFGroup())
     {
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-
-        // Remove the groups permanent instance bindings
-        for (auto difficultyItr = m_boundInstances.begin(); difficultyItr != m_boundInstances.end(); ++difficultyItr)
-        {
-            for (auto itr = difficultyItr->second.begin(); itr != difficultyItr->second.end();)
-            {
-                // Do not unbind saves of instances that already had map created (a newLeader entered)
-                // forcing a new instance with another leader requires group disbanding (confirmed on retail)
-                if (itr->second.perm && !sMapMgr->FindMap(itr->first, itr->second.save->GetInstanceId()))
-                {
-                    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_PERM_BINDING);
-                    stmt->setUInt32(0, m_dbStoreId);
-                    stmt->setUInt32(1, itr->second.save->GetInstanceId());
-                    trans->Append(stmt);
-
-                    itr->second.save->RemoveGroup(this);
-                    difficultyItr->second.erase(itr++);
-                }
-                else
-                    ++itr;
-            }
-        }
 
         // Update the group leader
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_LEADER);
@@ -1387,203 +1359,13 @@ Difficulty Group::GetDifficultyID(MapEntry const* mapEntry) const
     return m_raidDifficulty;
 }
 
-void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* SendMsgTo)
+void Group::ResetInstances(InstanceResetMethod /*method*/, bool /*isRaid*/, bool /*isLegacy*/, Player* /*SendMsgTo*/)
 {
-    if (isBGGroup() || isBFGroup())
-        return;
-
-    // method can be INSTANCE_RESET_ALL, INSTANCE_RESET_CHANGE_DIFFICULTY, INSTANCE_RESET_GROUP_DISBAND
-
-    // we assume that when the difficulty changes, all instances that can be reset will be
-    Difficulty diff = GetDungeonDifficultyID();
-    if (isRaid)
-    {
-        if (!isLegacy)
-            diff = GetRaidDifficultyID();
-        else
-            diff = GetLegacyRaidDifficultyID();
-    }
-
-    auto difficultyItr = m_boundInstances.find(diff);
-    if (difficultyItr == m_boundInstances.end())
-        return;
-
-    for (auto itr = difficultyItr->second.begin(); itr != difficultyItr->second.end();)
-    {
-        InstanceSave* instanceSave = itr->second.save;
-        MapEntry const* entry = sMapStore.LookupEntry(itr->first);
-        if (!entry || entry->IsRaid() != isRaid || (!instanceSave->CanReset() && method != INSTANCE_RESET_GROUP_DISBAND))
-        {
-            ++itr;
-            continue;
-        }
-
-        if (method == INSTANCE_RESET_ALL)
-        {
-            // the "reset all instances" method can only reset normal maps
-            if (entry->IsRaid() || diff == DIFFICULTY_HEROIC)
-            {
-                ++itr;
-                continue;
-            }
-        }
-
-        bool isEmpty = true;
-        // if the map is loaded, reset it
-        Map* map = sMapMgr->FindMap(instanceSave->GetMapId(), instanceSave->GetInstanceId());
-        if (map && map->IsDungeon() && !(method == INSTANCE_RESET_GROUP_DISBAND && !instanceSave->CanReset()))
-        {
-            if (instanceSave->CanReset())
-                isEmpty = ((InstanceMap*)map)->Reset(method);
-            else
-                isEmpty = !map->HavePlayers();
-        }
-
-        if (SendMsgTo)
-        {
-            if (!isEmpty)
-                SendMsgTo->SendResetInstanceFailed(INSTANCE_RESET_FAILED, instanceSave->GetMapId());
-            else if (sWorld->getBoolConfig(CONFIG_INSTANCES_RESET_ANNOUNCE))
-            {
-                if (Group* group = SendMsgTo->GetGroup())
-                {
-                    for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                        if (Player* player = groupRef->GetSource())
-                            player->SendResetInstanceSuccess(instanceSave->GetMapId());
-                }
-
-                else
-                    SendMsgTo->SendResetInstanceSuccess(instanceSave->GetMapId());
-            }
-            else
-                SendMsgTo->SendResetInstanceSuccess(instanceSave->GetMapId());
-        }
-
-        if (isEmpty || method == INSTANCE_RESET_GROUP_DISBAND || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
-        {
-            // do not reset the instance, just unbind if others are permanently bound to it
-            if (isEmpty && instanceSave->CanReset())
-            {
-                if (map && map->IsDungeon() && SendMsgTo)
-                {
-                    AreaTriggerStruct const* instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
-
-                    if (!instanceEntrance)
-                        TC_LOG_DEBUG("root", "Instance entrance not found for maps %u", map->GetId());
-                    else
-                    {
-                        WorldSafeLocsEntry const* graveyardLocation = sObjectMgr->GetClosestGraveyard(
-                            WorldLocation(instanceEntrance->target_mapId, instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z),
-                            SendMsgTo->GetTeam(), nullptr);
-                        uint32 const zoneId = sTerrainMgr.GetZoneId(PhasingHandler::GetEmptyPhaseShift(), graveyardLocation->Loc.GetMapId(),
-                            graveyardLocation->Loc.GetPositionX(), graveyardLocation->Loc.GetPositionY(), graveyardLocation->Loc.GetPositionZ());
-
-                        for (MemberSlot const& member : GetMemberSlots())
-                        {
-                            if (!ObjectAccessor::FindConnectedPlayer(member.guid))
-                            {
-                                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION_BY_MAPID);
-
-                                stmt->setFloat(0, graveyardLocation->Loc.GetPositionX());
-                                stmt->setFloat(1, graveyardLocation->Loc.GetPositionY());
-                                stmt->setFloat(2, graveyardLocation->Loc.GetPositionZ());
-                                stmt->setFloat(3, instanceEntrance->target_Orientation);
-                                stmt->setUInt32(4, graveyardLocation->Loc.GetMapId());
-                                stmt->setUInt32(5, zoneId);
-                                stmt->setUInt64(6, member.guid.GetCounter());
-                                stmt->setUInt32(7, map->GetId());
-
-                                CharacterDatabase.Execute(stmt);
-                            }
-                        }
-                    }
-                }
-
-                instanceSave->DeleteFromDB();
-            }
-            else
-            {
-                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_INSTANCE);
-
-                stmt->setUInt32(0, instanceSave->GetInstanceId());
-
-                CharacterDatabase.Execute(stmt);
-            }
-
-            itr = difficultyItr->second.erase(itr);
-            // this unloads the instance save unless online players are bound to it
-            // (eg. permanent binds or GM solo binds)
-            instanceSave->RemoveGroup(this);
-        }
-        else
-            ++itr;
-    }
-}
-
-InstanceGroupBind* Group::GetBoundInstance(Player* player)
-{
-    uint32 mapid = player->GetMapId();
-    MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
-    return GetBoundInstance(mapEntry);
-}
-
-InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
-{
-    return GetBoundInstance(aMap->GetEntry());
-}
-
-InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
-{
-    if (!mapEntry || !mapEntry->IsDungeon())
-        return nullptr;
-
-    Difficulty difficulty = GetDifficultyID(mapEntry);
-    return GetBoundInstance(difficulty, mapEntry->ID);
-}
-
-InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)
-{
-    // some instances only have one difficulty
-    sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty);
-
-    auto difficultyItr = m_boundInstances.find(difficulty);
-    if (difficultyItr == m_boundInstances.end())
-        return nullptr;
-
-    auto itr = difficultyItr->second.find(mapId);
-    if (itr != difficultyItr->second.end())
-        return &itr->second;
-    else
-        return nullptr;
 }
 
 void Group::LinkOwnedInstance(GroupInstanceReference* ref)
 {
     m_ownedInstancesMgr.insertLast(ref);
-}
-
-void Group::UnbindInstance(uint32 mapid, uint8 difficulty, bool unload)
-{
-    auto difficultyItr = m_boundInstances.find(Difficulty(difficulty));
-    if (difficultyItr == m_boundInstances.end())
-        return;
-
-    auto itr = difficultyItr->second.find(mapid);
-    if (itr != difficultyItr->second.end())
-    {
-        if (!unload)
-        {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_INSTANCE_BY_GUID);
-
-            stmt->setUInt32(0, m_dbStoreId);
-            stmt->setUInt32(1, itr->second.save->GetInstanceId());
-
-            CharacterDatabase.Execute(stmt);
-        }
-
-        itr->second.save->RemoveGroup(this);                // save can become invalid
-        difficultyItr->second.erase(itr);
-    }
 }
 
 void Group::_homebindIfInstance(Player* player)
@@ -1981,16 +1763,6 @@ void Group::DelinkMember(ObjectGuid guid)
         }
         ref = nextRef;
     }
-}
-
-Group::BoundInstancesMap::iterator Group::GetBoundInstances(Difficulty difficulty)
-{
-    return m_boundInstances.find(difficulty);
-}
-
-Group::BoundInstancesMap::iterator Group::GetBoundInstanceEnd()
-{
-    return m_boundInstances.end();
 }
 
 void Group::_initRaidSubGroupsCounter()

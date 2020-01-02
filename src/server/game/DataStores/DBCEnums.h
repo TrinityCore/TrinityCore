@@ -1020,8 +1020,9 @@ enum MapFlags
 
 enum MapDifficultyFlags : uint8
 {
-    MAP_DIFFICULTY_FLAG_LOCK_TO_ENCOUNTER   = 0x02, // Lock to single encounters
-    MAP_DIFFICULTY_FLAG_CANNOT_EXTEND       = 0x10
+    MAP_DIFFICULTY_FLAG_LOCK_TO_ENCOUNTER       = 0x02, // Lock to single encounters
+    MAP_DIFFICULTY_FLAG_RESTORE_DUNGEON_STATE   = 0x08, // Mythic dungeons with this flag zone into leaders instance instead of always using a fresh one (Return to Karazhan, Operation: Mechagon)
+    MAP_DIFFICULTY_FLAG_CANNOT_EXTEND           = 0x10
 };
 
 enum MapDifficultyResetInterval : uint8
