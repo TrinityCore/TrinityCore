@@ -451,7 +451,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             bossInfo->state = state;
             SaveToDB();
-            if (state == DONE)
+            if (state == DONE && dungeonEncounter)
                 instance->UpdateInstanceLock(dungeonEncounter, { id, state });
         }
 
@@ -779,11 +779,20 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
     return false;
 }
 
+bool InstanceScript::IsEncounterCompleted(uint32 dungeonEncounterId) const
+{
+    for (std::size_t i = 0; i < bosses.size(); ++i)
+        for (std::size_t j = 0; j < bosses[i].DungeonEncounters.size(); ++j)
+            if (bosses[i].DungeonEncounters[j] && bosses[i].DungeonEncounters[j]->ID == dungeonEncounterId)
+                return bosses[i].state == DONE;
+
+    return false;
+}
+
 void InstanceScript::SetEntranceLocation(uint32 worldSafeLocationId)
 {
     _entranceId = worldSafeLocationId;
-    if (_temporaryEntranceId)
-        _temporaryEntranceId = 0;
+    _temporaryEntranceId = 0;
 }
 
 void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= nullptr*/, uint8 priority)

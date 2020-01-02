@@ -414,10 +414,12 @@ void InstanceLockMgr::OnSharedInstanceLockDataDelete(uint32 instanceId)
     TC_LOG_DEBUG("instance.locks", "Deleting instance %u as it is no longer referenced by any player", instanceId);
 }
 
-void InstanceLockMgr::UpdateInstanceLockExtensionForPlayer(ObjectGuid const& playerGuid, MapDb2Entries const& entries, bool extended)
+std::pair<InstanceResetTimePoint, InstanceResetTimePoint> InstanceLockMgr::UpdateInstanceLockExtensionForPlayer(ObjectGuid const& playerGuid,
+    MapDb2Entries const& entries, bool extended)
 {
     if (InstanceLock* instanceLock = FindActiveInstanceLock(playerGuid, entries, true, false))
     {
+        InstanceResetTimePoint oldExpiryTime = instanceLock->GetEffectiveExpiryTime();
         instanceLock->SetExtended(extended);
         CharacterDatabase.PExecute("UPDATE character_instance_lock SET extended = %d WHERE guid = " UI64FMTD " AND mapId = %u AND lockId = %d",
             extended ? 1 : 0,
@@ -429,7 +431,11 @@ void InstanceLockMgr::UpdateInstanceLockExtensionForPlayer(ObjectGuid const& pla
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
             uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
             playerGuid.ToString().c_str(), extended ? "now" : "no longer");
+
+        return { oldExpiryTime, instanceLock->GetEffectiveExpiryTime() };
     }
+
+    return { InstanceResetTimePoint::min(), InstanceResetTimePoint::min() };
 }
 
 #include "Config.h"

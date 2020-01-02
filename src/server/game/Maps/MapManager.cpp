@@ -23,7 +23,6 @@
 #include "GarrisonMap.h"
 #include "Group.h"
 #include "InstanceLockMgr.h"
-#include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
@@ -248,6 +247,49 @@ Map* MapManager::FindMap(uint32 mapId, uint32 instanceId) const
 {
     std::shared_lock<std::shared_mutex> lock(_mapsLock);
     return FindMap_i(mapId, instanceId);
+}
+
+uint32 MapManager::FindInstanceIdForPlayer(uint32 mapId, Player const* player) const
+{
+    MapEntry const* entry = sMapStore.LookupEntry(mapId);
+    if (!entry)
+        return 0;
+
+    if (entry->IsBattlegroundOrArena())
+        return player->GetBattlegroundId();
+    else if (entry->IsDungeon())
+    {
+        Group const* group = player->GetGroup();
+        Difficulty difficulty = group ? group->GetDifficultyID(entry) : player->GetDifficultyID(entry);
+        MapDb2Entries entries{ entry, sDB2Manager.GetDownscaledMapDifficultyData(mapId, difficulty) };
+        ObjectGuid instanceOwnerGuid = group ? group->GetRecentInstanceOwner(mapId) : player->GetGUID();
+        InstanceLock* instanceLock = sInstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
+        uint32 newInstanceId = 0;
+        if (instanceLock)
+            newInstanceId = instanceLock->GetInstanceId();
+        else if (!entries.MapDifficulty->HasResetSchedule()) // Try finding instance id for normal dungeon
+            newInstanceId = group ? group->GetRecentInstanceId(mapId) : player->GetRecentInstanceId(mapId);
+
+        if (!newInstanceId)
+            return 0;
+
+        Map* map = FindMap(mapId, newInstanceId);
+
+        // is is possible that instance id is already in use by another group for boss-based locks
+        if (!entries.IsInstanceIdBound() && instanceLock && map && map->ToInstanceMap()->GetInstanceLock() != instanceLock)
+            return 0;
+
+        return newInstanceId;
+    }
+    else if (entry->IsGarrison())
+        return uint32(player->GetGUID().GetCounter());
+    else
+    {
+        if (entry->IsSplitByFaction())
+            return player->GetTeamId();
+
+        return 0;
+    }
 }
 
 void MapManager::Update(uint32 diff)
