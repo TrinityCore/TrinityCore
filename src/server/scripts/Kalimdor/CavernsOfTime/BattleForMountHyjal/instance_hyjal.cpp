@@ -30,7 +30,6 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
-#include <sstream>
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event
@@ -157,12 +156,10 @@ public:
                 case DATA_ALLIANCE_RETREAT:
                     allianceRetreat = data;
                     HandleGameObject(HordeGate, true);
-                    SaveToDB();
                     break;
                 case DATA_HORDE_RETREAT:
                     hordeRetreat = data;
                     HandleGameObject(ElfGate, true);
-                    SaveToDB();
                     break;
                 case DATA_RAIDDAMAGE:
                     RaidDamage += data;
@@ -206,16 +203,6 @@ public:
             return true;
         }
 
-        void ReadSaveDataMore(std::istringstream& loadStream) override
-        {
-            loadStream >> allianceRetreat >> hordeRetreat >> RaidDamage;
-        }
-
-        void WriteSaveDataMore(std::ostringstream& saveStream) override
-        {
-            saveStream << allianceRetreat << ' ' << hordeRetreat << ' ' << RaidDamage;
-        }
-
         uint32 GetData(uint32 type) const override
         {
             switch (type)
@@ -226,6 +213,14 @@ public:
                 case DATA_RAIDDAMAGE:           return RaidDamage;
             }
             return 0;
+        }
+
+        void AfterDataLoad() override
+        {
+            if (GetBossState(DATA_ANETHERON) == DONE)
+                allianceRetreat = 1;
+            if (GetBossState(DATA_AZGALOR) == DONE)
+                hordeRetreat = 1;
         }
 
         protected:

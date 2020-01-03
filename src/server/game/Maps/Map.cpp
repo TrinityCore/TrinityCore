@@ -3014,13 +3014,11 @@ std::string const& InstanceMap::GetScriptName() const
     return sObjectMgr->GetScriptName(i_script_id);
 }
 
-void InstanceMap::UpdateInstanceLock(DungeonEncounterEntry const* dungeonEncounter, UpdateSaveDataEvent const& updateSaveDataEvent)
+void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent)
 {
     if (i_instanceLock)
     {
-        uint32 instanceCompletedEncounters = i_instanceLock->GetData()->CompletedEncountersMask;
-        if (dungeonEncounter)
-            instanceCompletedEncounters |= 1u << dungeonEncounter->Bit;
+        uint32 instanceCompletedEncounters = i_instanceLock->GetData()->CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter->Bit);
 
         MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
 
@@ -3028,7 +3026,7 @@ void InstanceMap::UpdateInstanceLock(DungeonEncounterEntry const* dungeonEncount
 
         if (entries.IsInstanceIdBound())
             sInstanceLockMgr.UpdateSharedInstanceLock(trans,
-                { GetInstanceId(), i_data->GetSaveData(), instanceCompletedEncounters, dungeonEncounter });
+                { GetInstanceId(), i_data->GetSaveData(), instanceCompletedEncounters, updateSaveDataEvent.DungeonEncounter });
 
         for (MapReference& mapReference : m_mapRefManager)
         {
@@ -3045,7 +3043,52 @@ void InstanceMap::UpdateInstanceLock(DungeonEncounterEntry const* dungeonEncount
             bool isNewLock = !playerLock || !playerLock->GetData()->CompletedEncountersMask || playerLock->IsExpired();
 
             InstanceLock const* newLock = sInstanceLockMgr.UpdateInstanceLockForPlayer(trans, player->GetGUID(), entries,
-                { GetInstanceId(), i_data->UpdateSaveData(oldData ? *oldData : "", updateSaveDataEvent), instanceCompletedEncounters, dungeonEncounter });
+                { GetInstanceId(), i_data->UpdateBossStateSaveData(oldData ? *oldData : "", updateSaveDataEvent), instanceCompletedEncounters, updateSaveDataEvent.DungeonEncounter });
+
+            if (isNewLock)
+            {
+                WorldPackets::Instance::InstanceSaveCreated data;
+                data.Gm = player->IsGameMaster();
+                player->SendDirectMessage(data.Write());
+
+                player->GetSession()->SendCalendarRaidLockoutAdded(newLock);
+            }
+        }
+
+        CharacterDatabase.CommitTransaction(trans);
+    }
+}
+
+void InstanceMap::UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& updateSaveDataEvent)
+{
+    if (i_instanceLock)
+    {
+        uint32 instanceCompletedEncounters = i_instanceLock->GetData()->CompletedEncountersMask;
+
+        MapDb2Entries entries{ GetEntry(), GetMapDifficulty() };
+
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+        if (entries.IsInstanceIdBound())
+            sInstanceLockMgr.UpdateSharedInstanceLock(trans,
+                { GetInstanceId(), i_data->GetSaveData(), instanceCompletedEncounters, nullptr });
+
+        for (MapReference& mapReference : m_mapRefManager)
+        {
+            Player* player = mapReference.GetSource();
+            // never instance bind GMs with GM mode enabled
+            if (player->IsGameMaster())
+                continue;
+
+            InstanceLock const* playerLock = sInstanceLockMgr.FindActiveInstanceLock(player->GetGUID(), entries);
+            std::string const* oldData = nullptr;
+            if (playerLock)
+                oldData = &playerLock->GetData()->Data;
+
+            bool isNewLock = !playerLock || !playerLock->GetData()->CompletedEncountersMask || playerLock->IsExpired();
+
+            InstanceLock const* newLock = sInstanceLockMgr.UpdateInstanceLockForPlayer(trans, player->GetGUID(), entries,
+                { GetInstanceId(), i_data->UpdateAdditionalSaveData(oldData ? *oldData : "", updateSaveDataEvent), instanceCompletedEncounters, nullptr });
 
             if (isNewLock)
             {

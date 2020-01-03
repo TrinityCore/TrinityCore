@@ -20,7 +20,6 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "utgarde_keep.h"
-#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -166,9 +165,6 @@ class instance_utgarde_keep : public InstanceMapScript
                         HandleGameObject(Forges[i].BellowGUID, data != NOT_STARTED);
                         HandleGameObject(Forges[i].FireGUID, data != NOT_STARTED);
                         Forges[i].Event = data;
-
-                        if (data == DONE)
-                            SaveToDB();
                         break;
                     }
                     default:
@@ -176,16 +172,11 @@ class instance_utgarde_keep : public InstanceMapScript
                 }
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                for (uint8 i = 0; i < 3; ++i)
-                    data << Forges[i].Event << ' ';
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                for (uint8 i = 0; i < 3; ++i)
-                    data >> Forges[i].Event;
+                if (GetBossState(DATA_PRINCE_KELESETH) == DONE)
+                    for (uint8 i = 0; i < 3; ++i)
+                        Forges[i].Event = DONE;
             }
 
         protected:

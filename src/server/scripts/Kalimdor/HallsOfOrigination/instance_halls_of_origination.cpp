@@ -22,7 +22,6 @@
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -201,16 +200,10 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                data << _deadElementals;
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                uint32 deadElementals;
-                data >> deadElementals;
-                IncreaseDeadElementals(deadElementals);
+                if (GetBossState(BOSS_ANRAPHET) == DONE)
+                    IncreaseDeadElementals(4);
             }
 
         protected:

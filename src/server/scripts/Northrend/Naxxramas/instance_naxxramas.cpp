@@ -124,8 +124,6 @@ class instance_naxxramas : public InstanceMapScript
 
                 hadSapphironBirth       = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
-
-                playerDied              = false;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -250,12 +248,6 @@ class instance_naxxramas : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
-                if (!playerDied && unit->IsPlayer() && IsEncounterInProgress())
-                {
-                    playerDied = true;
-                    SaveToDB();
-                }
-
                 if (Creature* creature = unit->ToCreature())
                     if (creature->GetEntry() == NPC_BIGGLESWORTH)
                     {
@@ -544,24 +536,10 @@ class instance_naxxramas : public InstanceMapScript
                     case 13239: // Loatheb
                     case 13240: // Thaddius
                     case 7617:  // Kel'Thuzad
-                        if (AreAllEncountersDone() && !playerDied)
-                            return true;
                         return false;
                 }
 
                 return false;
-            }
-
-            void WriteSaveDataMore(std::ostringstream& data) override
-            {
-                data << uint32(playerDied ? 1 : 0);
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                uint32 tmpState;
-                data >> tmpState;
-                playerDied = tmpState != 0;
             }
 
         protected:
@@ -607,9 +585,6 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid LichKingGUID;
             bool hadSapphironBirth;
             uint8 CurrentWingTaunt;
-
-            /* The Immortal / The Undying */
-            bool playerDied;
 
             EventMap events;
         };

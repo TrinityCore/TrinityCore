@@ -24,7 +24,6 @@
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
-#include <sstream>
 
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position
 Position const SylvanasSpawnPos        = { 5236.667f, 1929.906f, 707.7781f, 0.8377581f }; // Sylvanas Spawn Position (sniffed)
@@ -457,8 +456,6 @@ class instance_halls_of_reflection : public InstanceMapScript
                     default:
                         break;
                 }
-
-                SaveToDB();
             }
 
             void SetGuidData(uint32 type, ObjectGuid data) override
@@ -728,31 +725,16 @@ class instance_halls_of_reflection : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                data << _introState << ' ' << _frostswornGeneralState << ' ' << _quelDelarState;
-            }
+                if (GetBossState(DATA_FALRIC) == DONE)
+                {
+                    _introState = DONE;
+                    _quelDelarState = DONE;
+                }
 
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                uint32 temp = 0;
-                data >> temp;
-                if (temp == DONE)
-                    SetData(DATA_INTRO_EVENT, DONE);
-                else
-                    SetData(DATA_INTRO_EVENT, NOT_STARTED);
-
-                data >> temp;
-                if (temp == DONE)
-                    SetData(DATA_FROSTSWORN_GENERAL, DONE);
-                else
-                    SetData(DATA_FROSTSWORN_GENERAL, NOT_STARTED);
-
-                data >> temp;
-                if (temp == DONE)
-                    SetData(DATA_QUEL_DELAR_EVENT, DONE);
-                else
-                    SetData(DATA_QUEL_DELAR_EVENT, NOT_STARTED);
+                if (GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE)
+                    _frostswornGeneralState = DONE;
             }
 
         private:

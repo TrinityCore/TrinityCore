@@ -29,7 +29,6 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "TransportMgr.h"
-#include <sstream>
 #include <unordered_set>
 
 enum EventIds
@@ -46,7 +45,6 @@ enum EventIds
 
 enum TimedEvents
 {
-    EVENT_UPDATE_EXECUTION_TIME = 1,
     EVENT_QUAKE_SHATTER         = 2,
     EVENT_REBUILD_PLATFORM      = 3,
     EVENT_RESPAWN_GUNSHIP       = 4
@@ -122,27 +120,6 @@ DungeonEncounterData const encounters[] =
     { DATA_THE_LICH_KING, {{ 1106 }} }
 };
 
-// this doesnt have to only store questgivers, also can be used for related quest spawns
-struct WeeklyQuest
-{
-    uint32 creatureEntry;
-    uint32 questId[2];  // 10 and 25 man versions
-};
-
-// when changing the content, remember to update SetData, DATA_BLOOD_QUICKENING_STATE case for NPC_ALRIN_THE_AGILE index
-WeeklyQuest const WeeklyQuestData[WeeklyNPCs] =
-{
-    { NPC_INFILTRATOR_MINCHAR,         { QUEST_DEPROGRAMMING_10,                 QUEST_DEPROGRAMMING_25                 } }, // Deprogramming
-    { NPC_KOR_KRON_LIEUTENANT,         { QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25         } }, // Securing the Ramparts
-    { NPC_ROTTING_FROST_GIANT_10,      { QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25         } }, // Securing the Ramparts
-    { NPC_ROTTING_FROST_GIANT_25,      { QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25         } }, // Securing the Ramparts
-    { NPC_ALCHEMIST_ADRIANNA,          { QUEST_RESIDUE_RENDEZVOUS_10,            QUEST_RESIDUE_RENDEZVOUS_25            } }, // Residue Rendezvous
-    { NPC_ALRIN_THE_AGILE,             { QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25              } }, // Blood Quickening
-    { NPC_INFILTRATOR_MINCHAR_BQ,      { QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25              } }, // Blood Quickening
-    { NPC_MINCHAR_BEAM_STALKER,        { QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25              } }, // Blood Quickening
-    { NPC_VALITHRIA_DREAMWALKER_QUEST, { QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10, QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25 } }  // Respite for a Tormented Soul
-};
-
 // NPCs spawned at Light's Hammer on Lich King dead
 Position const JainaSpawnPos    = { -48.65278f, 2211.026f, 27.98586f, 3.124139f };
 Position const MuradinSpawnPos  = { -47.34549f, 2208.087f, 27.98586f, 3.106686f };
@@ -163,11 +140,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 LoadDungeonEncounterData(encounters);
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
-                HeroicAttempts = MaxHeroicAttempts;
-                ColdflameJetsState = NOT_STARTED;
-                UpperSpireTeleporterActiveState = NOT_STARTED;
-                BloodQuickeningState = NOT_STARTED;
-                BloodQuickeningMinutes = 0;
                 BloodPrinceIntro = 1;
                 SindragosaIntro = 1;
                 IsBonedEligible = true;
@@ -358,22 +330,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_INFILTRATOR_MINCHAR_BQ:
                     case NPC_MINCHAR_BEAM_STALKER:
                     case NPC_VALITHRIA_DREAMWALKER_QUEST:
-                    {
-                        for (uint8 questIndex = 0; questIndex < WeeklyNPCs; ++questIndex)
-                        {
-                            if (WeeklyQuestData[questIndex].creatureEntry == entry)
-                            {
-                                uint8 diffIndex = instance->Is25ManRaid() ? 1 : 0;
-                                if (!sQuestPoolMgr->IsQuestActive(WeeklyQuestData[questIndex].questId[diffIndex]))
-                                    return 0;
-                                break;
-                            }
-                        }
-
-                        if (entry == NPC_KOR_KRON_LIEUTENANT && GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                            return NPC_SKYBREAKER_LIEUTENANT;
-                        break;
-                    }
+                        return 0;
                     case NPC_HORDE_GUNSHIP_CANNON:
                     case NPC_ORGRIMS_HAMMER_CREW:
                     case NPC_SKY_REAVER_KORM_BLACKSCAR:
@@ -487,9 +444,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_RIMEFANG:
                     case NPC_SPINESTALKER:
                     {
-                        if (instance->IsHeroic() && !HeroicAttempts)
-                            return;
-
                         if (GetBossState(DATA_SINDRAGOSA) == DONE)
                             return;
 
@@ -747,10 +701,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return UpperSpireTeleporterActiveState;
                     case DATA_TEAM_IN_INSTANCE:
                         return instance->GetTeamInInstance();
-                    case DATA_BLOOD_QUICKENING_STATE:
-                        return BloodQuickeningState;
-                    case DATA_HEROIC_ATTEMPTS:
-                        return HeroicAttempts;
                     case DATA_BLOOD_PRINCE_COUNCIL_INTRO:
                         return BloodPrinceIntro;
                     case DATA_SINDRAGOSA_INTRO:
@@ -836,25 +786,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
 
                 return ObjectGuid::Empty;
-            }
-
-            void HandleHeroicAttempts()
-            {
-                if (HeroicAttempts)
-                {
-                    --HeroicAttempts;
-                    DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, HeroicAttempts);
-                }
-
-                if (!HeroicAttempts)
-                {
-                    for (ObjectGuid const& bossGuid : { ProfessorPutricideGUID, BloodQueenLanaThelGUID, SindragosaGUID, TheLichKingGUID })
-                    {
-                        if (Creature* boss = instance->GetCreature(bossGuid))
-                            if (boss->IsAlive())
-                                boss->DespawnOrUnsummon();
-                    }
-                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -973,32 +904,22 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_PROFESSOR_PUTRICIDE:
                         HandleGameObject(PlagueSigilGUID, state != DONE);
-                        if (instance->IsHeroic() && state == FAIL)
-                            HandleHeroicAttempts();
-                        else if (state == DONE)
+                        if (state == DONE)
                             CheckLichKingAvailability();
                         break;
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                         HandleGameObject(BloodwingSigilGUID, state != DONE);
-                        if (instance->IsHeroic() && state == FAIL)
-                            HandleHeroicAttempts();
-                        else if (state == DONE)
+                        if (state == DONE)
                             CheckLichKingAvailability();
                         break;
                     case DATA_VALITHRIA_DREAMWALKER:
                         if (state == DONE)
-                        {
-                            if (sQuestPoolMgr->IsQuestActive(WeeklyQuestData[8].questId[instance->Is25ManRaid() ? 1 : 0]))
-                                instance->SummonCreature(NPC_VALITHRIA_DREAMWALKER_QUEST, ValithriaSpawnPos);
                             if (GameObject* teleporter = instance->GetGameObject(TeleporterSindragosaGUID))
                                 SetTeleporterState(teleporter, true);
-                        }
                         break;
                     case DATA_SINDRAGOSA:
                         HandleGameObject(FrostwingSigilGUID, state != DONE);
-                        if (instance->IsHeroic() && state == FAIL)
-                            HandleHeroicAttempts();
-                        else if (state == DONE)
+                        if (state == DONE)
                             CheckLichKingAvailability();
                         break;
                     case DATA_THE_LICH_KING:
@@ -1011,9 +932,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
                             platform->SetFarVisible(state == IN_PROGRESS);
 
-                        if (instance->IsHeroic() && state == FAIL)
-                            HandleHeroicAttempts();
-                        else if (state == DONE)
+                        if (state == DONE)
                         {
                             if (GameObject* bolvar = instance->GetGameObject(FrozenBolvarGUID))
                                 bolvar->SetRespawnTime(7 * DAY);
@@ -1065,48 +984,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_COLDFLAME_JETS:
                         ColdflameJetsState = data;
-                        if (ColdflameJetsState == DONE)
-                            SaveToDB();
                         break;
-                    case DATA_BLOOD_QUICKENING_STATE:
-                    {
-                        // skip if nothing changes
-                        if (BloodQuickeningState == data)
-                            break;
-
-                        // 5 is the index of Blood Quickening
-                        if (!sQuestPoolMgr->IsQuestActive(WeeklyQuestData[5].questId[instance->Is25ManRaid() ? 1 : 0]))
-                            break;
-
-                        switch (data)
-                        {
-                            case IN_PROGRESS:
-                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 1min);
-                                BloodQuickeningMinutes = 30;
-                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
-                                DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
-                                break;
-                            case DONE:
-                                Events.CancelEvent(EVENT_UPDATE_EXECUTION_TIME);
-                                BloodQuickeningMinutes = 0;
-                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 0);
-                                break;
-                            default:
-                                break;
-                        }
-
-                        BloodQuickeningState = data;
-                        SaveToDB();
-                        break;
-                    }
                     case DATA_UPPERSPIRE_TELE_ACT:
                         UpperSpireTeleporterActiveState = data;
                         if (UpperSpireTeleporterActiveState == DONE)
-                        {
                             if (GameObject* go = instance->GetGameObject(TeleporterUpperSpireGUID))
                                 SetTeleporterState(go, true);
-                            SaveToDB();
-                        }
                         break;
                     case DATA_BLOOD_PRINCE_COUNCIL_INTRO:
                         BloodPrinceIntro = data;
@@ -1343,36 +1226,18 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                data << HeroicAttempts << ' '
-                    << ColdflameJetsState << ' '
-                    << BloodQuickeningState << ' '
-                    << BloodQuickeningMinutes << ' '
-                    << UpperSpireTeleporterActiveState;
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                uint32 temp = 0;
-
-                data >> HeroicAttempts;
-
-                data >> temp;
-                ColdflameJetsState = temp == DONE ? DONE : NOT_STARTED;
-
-                data >> temp;
-                BloodQuickeningState = temp == DONE ? DONE : NOT_STARTED;
-
-                data >> BloodQuickeningMinutes;
-
-                data >> temp;
-                UpperSpireTeleporterActiveState = temp == DONE ? DONE : NOT_STARTED;
+                if (GetBossState(DATA_DEATHBRINGER_SAURFANG) == DONE)
+                {
+                    ColdflameJetsState = DONE;
+                    UpperSpireTeleporterActiveState = DONE;
+                }
             }
 
             void Update(uint32 diff) override
             {
-                if (BloodQuickeningState != IN_PROGRESS && GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS && GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != FAIL)
+                if (GetBossState(DATA_THE_LICH_KING) != IN_PROGRESS && GetBossState(DATA_ICECROWN_GUNSHIP_BATTLE) != FAIL)
                     return;
 
                 Events.Update(diff);
@@ -1381,25 +1246,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     switch (eventId)
                     {
-                        case EVENT_UPDATE_EXECUTION_TIME:
-                        {
-                            --BloodQuickeningMinutes;
-                            if (BloodQuickeningMinutes)
-                            {
-                                Events.ScheduleEvent(EVENT_UPDATE_EXECUTION_TIME, 1min);
-                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
-                                DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, BloodQuickeningMinutes);
-                            }
-                            else
-                            {
-                                BloodQuickeningState = DONE;
-                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 0);
-                                if (Creature* bq = instance->GetCreature(BloodQueenLanaThelGUID))
-                                    bq->AI()->DoAction(ACTION_KILL_MINCHAR);
-                            }
-                            SaveToDB();
-                            break;
-                        }
                         case EVENT_QUAKE_SHATTER:
                         {
                             if (GameObject* platform = instance->GetGameObject(ArthasPlatformGUID))
@@ -1552,9 +1398,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             std::unordered_set<ObjectGuid::LowType> FrostwyrmGUIDs;
             std::unordered_set<ObjectGuid::LowType> SpinestalkerTrash;
             std::unordered_set<ObjectGuid::LowType> RimefangTrash;
-            uint32 BloodQuickeningState;
-            uint32 HeroicAttempts;
-            uint16 BloodQuickeningMinutes;
             uint8 BloodPrinceIntro;
             uint8 SindragosaIntro;
             bool IsBonedEligible;

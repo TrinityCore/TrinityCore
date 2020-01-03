@@ -167,7 +167,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void ReadSaveDataMore(std::istringstream&) override
+        void AfterDataLoad() override
         {
             if (GetBossState(DATA_LIEUTENANT_DRAKE) == DONE)
                 mBarrelCount = 5;
