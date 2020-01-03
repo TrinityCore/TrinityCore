@@ -5773,15 +5773,7 @@ bool Unit::AttackStop()
 
     // reset only at real combat stop
     if (Creature* creature = ToCreature())
-    {
         creature->SetNoCallAssistance(false);
-
-        if (creature->HasSearchedAssistance())
-        {
-            creature->SetNoSearchAssistance(false);
-            UpdateSpeed(MOVE_RUN);
-        }
-    }
 
     SendMeleeAttackStop(victim);
 
@@ -9013,10 +9005,6 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
 
     if (Creature* creature = ToCreature())
     {
-        // for creature case, we check explicit if mob searched for assistance
-        if (creature->HasSearchedAssistance())
-            speed *= 0.66f;                                 // best guessed value, so this will be 33% reduction. Based off initial speed, mob can then "run", "walk fast" or "walk".
-
         if (creature->HasUnitTypeMask(UNIT_MASK_MINION) && !creature->IsInCombat())
         {
             MovementGenerator* top = creature->GetMotionMaster()->topOrNull();

@@ -903,7 +903,6 @@ void Creature::DoFleeToGetAssistance()
         Cell::VisitGridObjects(this, searcher, radius);
 
         SetNoSearchAssistance(true);
-        UpdateSpeed(MOVE_RUN);
 
         if (!creature)
             //SetFeared(true, EnsureVictim()->GetGUID(), 0, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY));
@@ -1865,11 +1864,7 @@ void Creature::setDeathState(DeathState s)
 
         setActive(false);
 
-        if (HasSearchedAssistance())
-        {
-            SetNoSearchAssistance(false);
-            UpdateSpeed(MOVE_RUN);
-        }
+        SetNoSearchAssistance(false);
 
         //Dismiss group if is leader
         if (m_formation && m_formation->getLeader() == this)

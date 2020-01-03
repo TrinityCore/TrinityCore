@@ -19,6 +19,7 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "MovementPacketBuilder.h"
+#include "Creature.h"
 #include "Unit.h"
 #include "PathGenerator.h"
 #include "Transport.h"
@@ -108,6 +109,9 @@ namespace Movement
                 moveFlagsForSpeed &= ~MOVEMENTFLAG_WALKING;
 
             args.velocity = unit->GetSpeed(SelectSpeedType(moveFlagsForSpeed));
+            if (Creature* creature = unit->ToCreature())
+                if (creature->HasSearchedAssistance())
+                    args.velocity *= 0.66f;
         }
 
         if (!args.Validate(unit))

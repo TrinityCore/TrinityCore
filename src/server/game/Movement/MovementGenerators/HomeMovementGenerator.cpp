@@ -70,6 +70,7 @@ void HomeMovementGenerator<T>::DoInitialize(T*) { }
 template<>
 void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
+    owner->SetNoSearchAssistance(false);
     SetTargetLocation(owner);
 }
 
