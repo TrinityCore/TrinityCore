@@ -317,7 +317,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 MissingQuestCount = 0;
-            std::array<int32, 100> MissingQuestPOIs;
+            std::array<int32, 125> MissingQuestPOIs;
         };
 
         class QuestPOIQueryResponse final : public ServerPacket
