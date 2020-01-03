@@ -62,6 +62,30 @@ namespace WorldPackets
             std::string QuestTitle;
             std::string CompletionText;
         };
+
+        class QuestGiverAcceptQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverAcceptQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_ACCEPT_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID = 0;
+            uint32 StartCheat = 0;
+        };
+
+        class QuestGiverChooseReward final : public ClientPacket
+        {
+        public:
+            QuestGiverChooseReward(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_CHOOSE_REWARD, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+            int32 ItemChoiceID = 0;
+        };
     }
 }
 

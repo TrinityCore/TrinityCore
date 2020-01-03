@@ -37,7 +37,6 @@ WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
         _worldPacket << uint32(obj.ObjectID);
         _worldPacket << uint32(obj.Amount);
         _worldPacket << uint32(obj.DisplayID);
-
     }
 
     _worldPacket << uint32(Currency.size());
@@ -51,4 +50,18 @@ WorldPacket const* WorldPackets::Quest::QuestGiverRequestItems::Write()
         _worldPacket << uint32(StatusFlags[i]);
 
     return &_worldPacket;
+}
+
+void WorldPackets::Quest::QuestGiverAcceptQuest::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    _worldPacket >> StartCheat;
+}
+
+void WorldPackets::Quest::QuestGiverChooseReward::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    _worldPacket >> ItemChoiceID;
 }

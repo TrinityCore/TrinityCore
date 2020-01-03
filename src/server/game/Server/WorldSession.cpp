@@ -1357,7 +1357,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_PLAYER_LOGOUT:                        //   0               1
         case CMSG_LOGOUT_REQUEST:                       //   0               1
         case CMSG_PET_RENAME:                           //   0               1
-        case CMSG_QUESTGIVER_REQUEST_REWARD:            //   0               1
+        case CMSG_QUEST_GIVER_REQUEST_REWARD:           //   0               1
         case CMSG_COMPLETE_CINEMATIC:                   //   0               1
         case CMSG_BANKER_ACTIVATE:                      //   0               1
         case CMSG_BUY_BANK_SLOT:                        //   0               1
@@ -1368,18 +1368,18 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_QUEST_QUERY:                          //   0               1.5
         case CMSG_GAMEOBJECT_QUERY:                     //   0               1.5
         case CMSG_CREATURE_QUERY:                       //   0               1.5
-        case CMSG_QUESTGIVER_STATUS_QUERY:              //   0               1.5
+        case CMSG_QUEST_GIVER_STATUS_QUERY:             //   0               1.5
         case CMSG_GUILD_QUERY:                          //   0               1.5
         case CMSG_ARENA_TEAM_QUERY:                     //   0               1.5
         case CMSG_TAXINODE_STATUS_QUERY:                //   0               1.5
         case CMSG_TAXIQUERYAVAILABLENODES:              //   0               1.5
-        case CMSG_QUESTGIVER_QUERY_QUEST:               //   0               1.5
+        case CMSG_QUEST_GIVER_QUERY_QUEST:              //   0               1.5
         case CMSG_PAGE_TEXT_QUERY:                      //   0               1.5
         case CMSG_GUILD_BANK_TEXT_QUERY:                //   0               1.5
         case MSG_CORPSE_QUERY:                          //   0               1.5
         case MSG_MOVE_SET_FACING:                       //   0               1.5
         case CMSG_REQUEST_PARTY_MEMBER_STATS:           //   0               1.5
-        case CMSG_QUESTGIVER_COMPLETE_QUEST:            //   0               1.5
+        case CMSG_QUEST_GIVER_COMPLETE_QUEST:           //   0               1.5
         case CMSG_SET_ACTION_BUTTON:                    //   0               1.5
         case CMSG_RESET_INSTANCES:                      //   0               1.5
         case CMSG_HEARTH_AND_RESURRECT:                 //   0               1.5
@@ -1406,7 +1406,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_QUEST_CONFIRM_ACCEPT:                 //   0               2
         case CMSG_GUILD_EVENT_LOG_QUERY:                //   0               2.5
         case CMSG_READY_FOR_ACCOUNT_DATA_TIMES:         //   0               2.5
-        case CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY:     //   0               2.5
+        case CMSG_QUEST_GIVER_STATUS_MULTIPLE_QUERY:    //   0               2.5
         case CMSG_BEGIN_TRADE:                          //   0               2.5
         case CMSG_INITIATE_TRADE:                       //   0               3
         case CMSG_MESSAGECHAT_ADDON_BATTLEGROUND:       //   0               3.5
@@ -1441,9 +1441,9 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
             break;
         }
 
-        case CMSG_QUESTGIVER_ACCEPT_QUEST:              //   0               4
+        case CMSG_QUEST_GIVER_ACCEPT_QUEST:             //   0               4
         case CMSG_QUESTLOG_REMOVE_QUEST:                //   0               4
-        case CMSG_QUESTGIVER_CHOOSE_REWARD:             //   0               4
+        case CMSG_QUEST_GIVER_CHOOSE_REWARD:            //   0               4
         case CMSG_CONTACT_LIST:                         //   0               5
         case CMSG_LEARN_PREVIEW_TALENTS:                //   0               6
         case CMSG_AUTOBANK_ITEM:                        //   0               6

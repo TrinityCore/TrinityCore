@@ -21,6 +21,7 @@
 #include "AuthenticationPackets.h"
 #include "GuildPackets.h"
 #include "LFGPackets.h"
+#include "QuestPackets.h"
 #include "SystemPackets.h"
 
 #endif // AllPackets_h__

@@ -124,6 +124,12 @@ namespace WorldPackets
         class GuildChallengeUpdateRequest;
         class RequestGuildRewardsList;
     }
+
+    namespace Quest
+    {
+        class QuestGiverAcceptQuest;
+        class QuestGiverChooseReward;
+    }
 }
 
 enum AccountDataType
@@ -856,9 +862,9 @@ class TC_GAME_API WorldSession
         void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverStatusMultipleQuery(WorldPacket& recvPacket);
         void HandleQuestgiverHelloOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestGiverAcceptQuest& packet);
         void HandleQuestgiverQueryQuestOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverChooseRewardOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::QuestGiverChooseReward& packet);
         void HandleQuestgiverRequestRewardOpcode(WorldPacket& recvPacket);
         void HandleQuestQueryOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverCancel(WorldPacket& recvData);
