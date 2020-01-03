@@ -64,6 +64,7 @@ enum Spells
     SPELL_OAFGUARD                      = 90546,
     SPELL_EMOTE_TALK                    = 79506,
     SPELL_VEHICLE_SWITCH_TO_SEAT_3      = 84225,
+    SPELL_FORCECAST_EJECT_PASSENGER_1   = 88353,
 
     // Lumbering Oaf
     SPELL_OAF_GRAB_TARGETING            = 88289,
@@ -199,6 +200,7 @@ struct boss_helix_gearbreaker : public BossAI
         Talk(SAY_DEATH);
         summons.DespawnAll();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        DoCastAOE(SPELL_FORCECAST_EJECT_PASSENGER_1, true);
     }
 
     void JustAppeared() override
