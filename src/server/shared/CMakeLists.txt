@@ -47,7 +47,8 @@ target_link_libraries(shared
   PRIVATE
     trinity-core-interface
   PUBLIC
-    database)
+    database
+    rapidjson)
 
 set_target_properties(shared
     PROPERTIES
