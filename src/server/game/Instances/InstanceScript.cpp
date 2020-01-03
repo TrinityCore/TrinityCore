@@ -27,6 +27,7 @@
 #include "Group.h"
 #include "InstancePackets.h"
 #include "InstanceScenario.h"
+#include "InstanceScriptData.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -35,11 +36,11 @@
 #include "Player.h"
 #include "RBAC.h"
 #include "ScriptReloadMgr.h"
+#include "SmartEnum.h"
 #include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 #include "WorldStateMgr.h"
-#include <sstream>
 #include <cstdarg>
 
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
@@ -83,17 +84,6 @@ void InstanceScript::SaveToDB()
 {
     if (InstanceScenario* scenario = instance->GetInstanceScenario())
         scenario->SaveToDB();
-
-    std::string data = GetSaveData();
-    if (data.empty())
-        return;
-
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_INSTANCE_DATA);
-    stmt->setUInt32(0, GetCompletedEncounterMask());
-    stmt->setString(1, data);
-    stmt->setUInt32(2, _entranceId);
-    stmt->setUInt32(3, instance->GetInstanceId());
-    CharacterDatabase.Execute(stmt);
 }
 
 bool InstanceScript::IsEncounterInProgress() const
@@ -171,9 +161,7 @@ GameObject* InstanceScript::GetGameObject(uint32 type)
 
 void InstanceScript::SetHeaders(std::string const& dataHeaders)
 {
-    for (char header : dataHeaders)
-        if (isalpha(header))
-            headers.push_back(header);
+    headers = dataHeaders;
 }
 
 void InstanceScript::LoadBossBoundaries(BossBoundaryData const& data)
@@ -451,8 +439,8 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
             bossInfo->state = state;
             SaveToDB();
-            if (state == DONE && dungeonEncounter)
-                instance->UpdateInstanceLock(dungeonEncounter, { id, state });
+            if (dungeonEncounter)
+                instance->UpdateInstanceLock({ dungeonEncounter, id, state });
         }
 
         for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
@@ -493,12 +481,11 @@ void InstanceScript::Load(char const* data)
 
     OUT_LOAD_INST_DATA(data);
 
-    std::istringstream loadStream(data);
-
-    if (ReadSaveDataHeaders(loadStream))
+    InstanceScriptDataReader reader(*this);
+    if (reader.Load(data) == InstanceScriptDataReader::Result::Ok)
     {
-        ReadSaveDataBossStates(loadStream);
-        ReadSaveDataMore(loadStream);
+        UpdateSpawnGroups();
+        AfterDataLoad();
     }
     else
         OUT_LOAD_INST_DATA_FAIL;
@@ -506,86 +493,39 @@ void InstanceScript::Load(char const* data)
     OUT_LOAD_INST_DATA_COMPLETE;
 }
 
-bool InstanceScript::ReadSaveDataHeaders(std::istringstream& data)
-{
-    for (char header : headers)
-    {
-        char buff;
-        data >> buff;
-
-        if (header != buff)
-            return false;
-    }
-
-    return true;
-}
-
-void InstanceScript::ReadSaveDataBossStates(std::istringstream& data)
-{
-    uint32 bossId = 0;
-    for (; bossId < bosses.size(); ++bossId)
-    {
-        uint32 buff;
-        data >> buff;
-        if (buff == IN_PROGRESS || buff == FAIL || buff == SPECIAL)
-            buff = NOT_STARTED;
-
-        if (buff < TO_BE_DECIDED)
-            SetBossState(bossId, EncounterState(buff));
-    }
-    UpdateSpawnGroups();
-}
-
 std::string InstanceScript::GetSaveData()
 {
     OUT_SAVE_INST_DATA;
 
-    std::ostringstream saveStream;
+    InstanceScriptDataWriter writer(*this);
 
-    WriteSaveDataHeaders(saveStream);
-    WriteSaveDataBossStates(saveStream);
-    WriteSaveDataMore(saveStream);
+    writer.FillData();
 
     OUT_SAVE_INST_DATA_COMPLETE;
 
-    return saveStream.str();
+    return writer.GetString();
 }
 
-std::string InstanceScript::UpdateSaveData(std::string const& oldData, UpdateSaveDataEvent const& event)
+std::string InstanceScript::UpdateBossStateSaveData(std::string const& oldData, UpdateBossStateSaveDataEvent const& event)
 {
     if (!instance->GetMapDifficulty()->IsUsingEncounterLocks())
         return GetSaveData();
 
-    std::size_t position = (headers.size() + event.BossId) * 2;
-    std::string newData = oldData;
-    if (position >= oldData.length())
-    {
-        // Initialize blank data
-        std::ostringstream saveStream;
-        WriteSaveDataHeaders(saveStream);
-        for (std::size_t i = 0; i < bosses.size(); ++i)
-            saveStream << uint32(NOT_STARTED) << ' ';
-
-        WriteSaveDataMore(saveStream);
-
-        newData = saveStream.str();
-    }
-
-    newData[position] = uint32(event.NewState) + '0';
-
-    return newData;
+    InstanceScriptDataWriter writer(*this);
+    writer.FillDataFrom(oldData);
+    writer.SetBossState(event);
+    return writer.GetString();
 }
 
-void InstanceScript::WriteSaveDataHeaders(std::ostringstream& data)
+std::string InstanceScript::UpdateAdditionalSaveData(std::string const& oldData, UpdateAdditionalSaveDataEvent const& event)
 {
-    for (char header : headers)
-        data << header << ' ';
-}
+    if (!instance->GetMapDifficulty()->IsUsingEncounterLocks())
+        return GetSaveData();
 
-void InstanceScript::WriteSaveDataBossStates(std::ostringstream& data)
-{
-    for (BossInfo const& bossInfo : bosses)
-        data << uint32(bossInfo.state) << ' ';
+    InstanceScriptDataWriter writer(*this);
+    writer.FillDataFrom(oldData);
+    writer.SetAdditionalData(event);
+    return writer.GetString();
 }
 
 void InstanceScript::HandleGameObject(ObjectGuid guid, bool open, GameObject* go /*= nullptr*/)
@@ -935,26 +875,9 @@ void InstanceScript::UpdatePhasing()
     });
 }
 
-/*static*/ char const* InstanceScript::GetBossStateName(uint8 state)
+char const* InstanceScript::GetBossStateName(uint8 state)
 {
-    // See enum EncounterState in InstanceScript.h
-    switch (state)
-    {
-        case NOT_STARTED:
-            return "NOT_STARTED";
-        case IN_PROGRESS:
-            return "IN_PROGRESS";
-        case FAIL:
-            return "FAIL";
-        case DONE:
-            return "DONE";
-        case SPECIAL:
-            return "SPECIAL";
-        case TO_BE_DECIDED:
-            return "TO_BE_DECIDED";
-        default:
-            return "INVALID";
-    }
+    return EnumUtils::ToConstant(EncounterState(state));
 }
 
 void InstanceScript::UpdateCombatResurrection(uint32 diff)
@@ -1010,6 +933,19 @@ uint32 InstanceScript::GetCombatResurrectionChargeInterval() const
         interval = 90 * MINUTE * IN_MILLISECONDS / playerCount;
 
     return interval;
+}
+
+PersistentInstanceScriptValueBase::PersistentInstanceScriptValueBase(InstanceScript& instance, char const* name, std::variant<int64, double> value)
+    : _instance(instance), _name(name), _value(std::move(value))
+{
+    _instance.RegisterPersistentScriptValue(this);
+}
+
+PersistentInstanceScriptValueBase::~PersistentInstanceScriptValueBase() = default;
+
+void PersistentInstanceScriptValueBase::NotifyValueChanged()
+{
+    _instance.instance->UpdateInstanceLock(CreateEvent());
 }
 
 bool InstanceHasScript(WorldObject const* obj, char const* scriptName)

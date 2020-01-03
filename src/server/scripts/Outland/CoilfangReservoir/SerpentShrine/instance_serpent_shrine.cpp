@@ -26,12 +26,10 @@ EndScriptData */
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "Player.h"
 #include "serpent_shrine.h"
 #include "TemporarySummon.h"
-#include <sstream>
 
 #define MAX_ENCOUNTER 6
 
@@ -285,7 +283,6 @@ class instance_serpent_shrine : public InstanceMapScript
                     case DATA_TRASH:
                         if (data == 1 && TrashCount < MIN_KILLS)
                             ++TrashCount;//+1 died
-                        SaveToDB();
                         break;
                     case DATA_WATER:
                         Water = data;
@@ -348,16 +345,6 @@ class instance_serpent_shrine : public InstanceMapScript
                 }
 
                 return 0;
-            }
-
-            void WriteSaveDataMore(std::ostringstream& stream) override
-            {
-                stream << TrashCount;
-            }
-
-            void ReadSaveDataMore(std::istringstream& stream) override
-            {
-                stream >> TrashCount;
             }
 
         private:

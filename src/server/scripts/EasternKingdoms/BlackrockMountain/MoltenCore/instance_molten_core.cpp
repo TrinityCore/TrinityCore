@@ -172,7 +172,7 @@ class instance_molten_core : public InstanceMapScript
                 return true;
             }
 
-            void ReadSaveDataMore(std::istringstream& /*data*/) override
+            void AfterDataLoad() override
             {
                 if (CheckMajordomoExecutus())
                     _executusSchedule = true;

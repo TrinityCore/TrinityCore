@@ -161,7 +161,7 @@ class instance_scholomance : public InstanceMapScript
                     instance->SummonCreature(NPC_DARKMASTER_GANDLING, GandlingLoc);
             }
 
-            void ReadSaveDataMore(std::istringstream& /*data*/) override
+            void AfterDataLoad() override
             {
                 CheckToSpawnGandling();
             }

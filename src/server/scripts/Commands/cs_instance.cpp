@@ -164,23 +164,23 @@ public:
 
     static bool HandleInstanceSaveDataCommand(ChatHandler* handler)
     {
-        Player* player = handler->GetSession()->GetPlayer();
-        InstanceMap* map = player->GetMap()->ToInstanceMap();
-        if (!map)
-        {
-            handler->PSendSysMessage(LANG_NOT_DUNGEON);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        //Player* player = handler->GetSession()->GetPlayer();
+        //InstanceMap* map = player->GetMap()->ToInstanceMap();
+        //if (!map)
+        //{
+        //    handler->PSendSysMessage(LANG_NOT_DUNGEON);
+        //    handler->SetSentErrorMessage(true);
+        //    return false;
+        //}
 
-        if (!map->GetInstanceScript())
-        {
-            handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        //if (!map->GetInstanceScript())
+        //{
+        //    handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
+        //    handler->SetSentErrorMessage(true);
+        //    return false;
+        //}
 
-        map->GetInstanceScript()->SaveToDB();
+        //map->GetInstanceScript()->SaveToDB();
 
         return true;
     }

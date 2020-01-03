@@ -23,7 +23,7 @@
 #include "SpellScript.h"
 
 #define ICCScriptName "instance_icecrown_citadel"
-#define DataHeader "IC"
+#define DataHeader    "ICCv1"
 
 uint32 const EncounterCount = 13;
 
@@ -103,8 +103,6 @@ enum ICDataTypes
     DATA_RIMEFANG                      = 25,
     DATA_COLDFLAME_JETS                = 26,
     DATA_TEAM_IN_INSTANCE              = 27,
-    DATA_BLOOD_QUICKENING_STATE        = 28,
-    DATA_HEROIC_ATTEMPTS               = 29,
     DATA_CROK_SCOURGEBANE              = 30,
     DATA_CAPTAIN_ARNATH                = 31,
     DATA_CAPTAIN_BRANDON               = 32,
@@ -498,9 +496,6 @@ enum ICSharedActions
     ACTION_ROTFACE_OOZE         = -366271,
     ACTION_ROTFACE_DEATH        = -366272,
     ACTION_CHANGE_PHASE         = -366780,
-
-    // Blood-Queen Lana'thel
-    ACTION_KILL_MINCHAR         = -379550,
 
     // Frostwing Halls gauntlet event
     ACTION_VRYKUL_DEATH         = 37129,
