@@ -5,7 +5,7 @@
 
 4.3.4 
 :------------:
-[![4.3.4 Build Status](https://travis-ci.com/Ovahlord/TrinityCore.svg?branch=4.3.4)](https://travis-ci.org/Ovahlord/TrinityCore)
+[![4.3.4 Build Status](https://travis-ci.com/The-Cataclysm-Preservation-Project/TrinityCore.svg?branch=master)](https://travis-ci.com/The-Cataclysm-Preservation-Project/TrinityCore)
 
 ## Introduction
 
