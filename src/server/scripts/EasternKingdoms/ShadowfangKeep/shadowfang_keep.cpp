@@ -77,36 +77,39 @@ public:
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
-            switch (waypointId)
+            if (Player* player = GetPlayerForEscort())
             {
-                case 0:
-                    if (me->GetEntry() == NPC_ASH)
-                        Talk(SAY_FREE_AS);
-                    else
-                        Talk(SAY_FREE_AD);
-                    break;
-                case 10:
-                    if (me->GetEntry() == NPC_ASH)
-                        Talk(SAY_OPEN_DOOR_AS);
-                    else
-                        Talk(SAY_OPEN_DOOR_AD);
-                    break;
-                case 11:
-                    if (me->GetEntry() == NPC_ASH)
-                        DoCast(me, SPELL_UNLOCK);
-                    break;
-                case 12:
-                    if (me->GetEntry() == NPC_ASH)
-                        Talk(SAY_POST_DOOR_AS);
-                    else
-                        Talk(SAY_POST1_DOOR_AD);
+                switch (waypointId)
+                {
+                    case 0:
+                        if (me->GetEntry() == NPC_ASH)
+                            Talk(SAY_FREE_AS, player);
+                        else
+                            Talk(SAY_FREE_AD, player);
+                        break;
+                    case 10:
+                        if (me->GetEntry() == NPC_ASH)
+                            Talk(SAY_OPEN_DOOR_AS, player);
+                        else
+                            Talk(SAY_OPEN_DOOR_AD, player);
+                        break;
+                    case 11:
+                        if (me->GetEntry() == NPC_ASH)
+                            DoCast(me, SPELL_UNLOCK);
+                        break;
+                    case 12:
+                        if (me->GetEntry() == NPC_ASH)
+                            Talk(SAY_POST_DOOR_AS, player);
+                        else
+                            Talk(SAY_POST1_DOOR_AD, player);
 
-                    instance->SetData(TYPE_FREE_NPC, DONE);
-                    break;
-                case 13:
-                    if (me->GetEntry() != NPC_ASH)
-                        Talk(SAY_POST2_DOOR_AD);
-                    break;
+                        instance->SetData(TYPE_FREE_NPC, DONE);
+                        break;
+                    case 13:
+                        if (me->GetEntry() != NPC_ASH)
+                            Talk(SAY_POST2_DOOR_AD, player);
+                        break;
+                }
             }
         }
 
@@ -120,7 +123,7 @@ public:
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
                 CloseGossipMenuFor(player);
-                Start(false, false);
+                Start(false, false, player->GetGUID());
             }
             return true;
         }
