@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -134,6 +134,12 @@ enum PaladinSpellIcons
 {
     PALADIN_ICON_ID_RETRIBUTION_AURA             = 555,
     PALADIN_ICON_ID_HAMMER_OF_THE_RIGHTEOUS      = 3023
+};
+
+enum MiscSpellIcons
+{
+    SPELL_ICON_ID_STRENGTH_OF_WRYNN              = 1704,
+    SPELL_ICON_ID_HELLSCREAM_WARSONG             = 937
 };
 
 // 31850 - Ardent Defender
@@ -1938,6 +1944,12 @@ class spell_pal_sacred_shield : public SpellScriptLoader
                     // Battleground - Dampening
                     else if (AuraEffect const* auraEffBattlegroudDampening = caster->GetAuraEffect(SPELL_GENERIC_BATTLEGROUND_DAMPENING, EFFECT_0))
                         AddPct(amount, auraEffBattlegroudDampening->GetAmount());
+
+                    // ICC buff
+                    if (AuraEffect const* auraStrengthOfWrynn = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, SPELL_ICON_ID_STRENGTH_OF_WRYNN, EFFECT_2))
+                        AddPct(amount, auraStrengthOfWrynn->GetAmount());
+                    else if (AuraEffect const* auraHellscreamsWarsong = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, SPELL_ICON_ID_HELLSCREAM_WARSONG, EFFECT_2))
+                        AddPct(amount, auraHellscreamsWarsong->GetAmount());
                 }
             }
 
