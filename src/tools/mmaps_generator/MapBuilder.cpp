@@ -877,16 +877,8 @@ namespace MMAP
             return static_cast<uint32>(m_mapid) != mapID;
 
         if (m_skipContinents)
-            switch (mapID)
-            {
-                case 0:
-                case 1:
-                case 530:
-                case 571:
-                    return true;
-                default:
-                    break;
-            }
+            if (isContinentMap(mapID))
+                return true;
 
         if (m_skipJunkMaps)
             switch (mapID)
@@ -966,6 +958,20 @@ namespace MMAP
         }
     }
 
+    bool MapBuilder::isContinentMap(uint32 mapID)
+    {
+        switch (mapID)
+        {
+            case 0:
+            case 1:
+            case 530:
+            case 571:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**************************************************************************/
     bool MapBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY)
     {
@@ -1015,6 +1021,12 @@ namespace MMAP
         config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
         config.detailSampleDist = config.cs * 16;
         config.detailSampleMaxError = config.ch * 1;
+
+        if (isContinentMap(mapID))
+        {
+            config.walkableSlopeAngle = 55.f;
+            config.walkableClimb = m_bigBaseUnit ? 2 : 4;
+        }
 
         switch (mapID)
         {
