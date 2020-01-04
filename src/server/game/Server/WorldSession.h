@@ -129,6 +129,12 @@ namespace WorldPackets
     {
         class QuestGiverAcceptQuest;
         class QuestGiverChooseReward;
+        class QuestGiverCompleteQuest;
+        class QuestGiverHello;
+        class QuestGiverQueryQuest;
+        class QuestGiverRequestReward;
+        class QuestGiverStatusMultipleQuery;
+        class QuestGiverStatusQuery;
     }
 }
 
@@ -859,19 +865,19 @@ class TC_GAME_API WorldSession
         void HandleTalentWipeConfirmOpcode(WorldPacket& recvPacket);
         void HandleUnlearnSkillOpcode(WorldPacket& recvPacket);
 
-        void HandleQuestgiverStatusQueryOpcode(WorldPacket& recvPacket);
-        void HandleQuestgiverStatusMultipleQuery(WorldPacket& recvPacket);
-        void HandleQuestgiverHelloOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet);
+        void HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& packet);
+        void HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHello& packet);
         void HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestGiverAcceptQuest& packet);
-        void HandleQuestgiverQueryQuestOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGiverQueryQuest& packet);
         void HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::QuestGiverChooseReward& packet);
-        void HandleQuestgiverRequestRewardOpcode(WorldPacket& recvPacket);
+        void HandleQuestgiverRequestRewardOpcode(WorldPackets::Quest::QuestGiverRequestReward& packet);
         void HandleQuestQueryOpcode(WorldPacket& recvPacket);
         void HandleQuestgiverCancel(WorldPacket& recvData);
         void HandleQuestLogSwapQuest(WorldPacket& recvData);
         void HandleQuestLogRemoveQuest(WorldPacket& recvData);
         void HandleQuestConfirmAccept(WorldPacket& recvData);
-        void HandleQuestgiverCompleteQuest(WorldPacket& recvData);
+        void HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet);
         void HandleQuestgiverQuestAutoLaunch(WorldPacket& recvPacket);
         void HandlePushQuestToParty(WorldPacket& recvPacket);
         void HandleQuestPushResult(WorldPacket& recvPacket);

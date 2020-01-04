@@ -86,6 +86,70 @@ namespace WorldPackets
             int32 QuestID = 0;
             int32 ItemChoiceID = 0;
         };
+
+        class QuestGiverCompleteQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverCompleteQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_COMPLETE_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID; // NPC / GameObject guid for normal quest completion. Player guid for self-completed quests
+            int32 QuestID = 0;
+            bool FromScript = false; // 0 - standart complete quest mode with npc, 1 - auto-complete mode
+        };
+
+        class QuestGiverHello final : public ClientPacket
+        {
+        public:
+            QuestGiverHello(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_HELLO, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+        };
+
+        class QuestGiverQueryQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverQueryQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_QUERY_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+            bool RespondToGiver = false;
+        };
+
+        class QuestGiverRequestReward final : public ClientPacket
+        {
+        public:
+            QuestGiverRequestReward(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_REQUEST_REWARD, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+            int32 QuestID = 0;
+        };
+
+        // Empty packet, server replies with quest giver status of visible creatures
+        class QuestGiverStatusMultipleQuery final : public ClientPacket
+        {
+        public:
+            QuestGiverStatusMultipleQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_STATUS_MULTIPLE_QUERY, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class QuestGiverStatusQuery final : public ClientPacket
+        {
+        public:
+            QuestGiverStatusQuery(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_STATUS_QUERY, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid QuestGiverGUID;
+        };
     }
 }
 

@@ -65,3 +65,33 @@ void WorldPackets::Quest::QuestGiverChooseReward::Read()
     _worldPacket >> QuestID;
     _worldPacket >> ItemChoiceID;
 }
+
+void WorldPackets::Quest::QuestGiverCompleteQuest::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    _worldPacket >> FromScript;
+}
+
+void WorldPackets::Quest::QuestGiverHello::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+}
+
+void WorldPackets::Quest::QuestGiverQueryQuest::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+    _worldPacket >> RespondToGiver;
+}
+
+void WorldPackets::Quest::QuestGiverRequestReward::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+    _worldPacket >> QuestID;
+}
+
+void WorldPackets::Quest::QuestGiverStatusQuery::Read()
+{
+    _worldPacket >> QuestGiverGUID;
+}
