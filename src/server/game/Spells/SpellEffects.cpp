@@ -3729,7 +3729,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
     unitTarget->ToPlayer()->SendSummonRequestFrom(m_caster);
 }
 
-void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
+void Spell::EffectActivateObject(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -3737,12 +3737,105 @@ void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
     if (!gameObjTarget)
         return;
 
-    ScriptInfo activateCommand;
-    activateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
+    GameObjectActions action = GameObjectActions(m_spellInfo->Effects[effIndex].MiscValue);
 
-    // int32 unk = m_spellInfo->Effects[effIndex].MiscValue; // This is set for EffectActivateObject spells; needs research
+    switch (action)
+    {
+        case GameObjectActions::AnimateCustom0:
+        case GameObjectActions::AnimateCustom1:
+        case GameObjectActions::AnimateCustom2:
+        case GameObjectActions::AnimateCustom3:
+            gameObjTarget->SendCustomAnim(uint32(action) - uint32(GameObjectActions::AnimateCustom0));
+            break;
+        case GameObjectActions::Disturb: // What's the difference with Open?
+        case GameObjectActions::Open:
+            gameObjTarget->Use(m_caster);
+            break;
+        case GameObjectActions::OpenAndUnlock:
+            gameObjTarget->UseDoorOrButton(0, false, m_caster);
+            // no break
+        case GameObjectActions::Unlock:
+        case GameObjectActions::Lock:
+            gameObjTarget->ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED, action == GameObjectActions::Lock);
+            break;
+        case GameObjectActions::Close:
+        case GameObjectActions::Rebuild:
+            gameObjTarget->ResetDoorOrButton();
+            break;
+        case GameObjectActions::Despawn:
+            gameObjTarget->DespawnOrUnsummon();
+            break;
+        case GameObjectActions::MakeInert:
+        case GameObjectActions::MakeActive:
+            gameObjTarget->ApplyModFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE, action == GameObjectActions::MakeInert);
+            break;
+        case GameObjectActions::CloseAndLock:
+            gameObjTarget->ResetDoorOrButton();
+            gameObjTarget->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+            break;
+        case GameObjectActions::Destroy:
+            gameObjTarget->UseDoorOrButton(0, true, m_caster);
+            break;
+        case GameObjectActions::UseArtKit0:
+        case GameObjectActions::UseArtKit1:
+        case GameObjectActions::UseArtKit2:
+        case GameObjectActions::UseArtKit3:
+        case GameObjectActions::UseArtKit4:
+        {
+            GameObjectTemplateAddon const* templateAddon = gameObjTarget->GetTemplateAddon();
 
-    gameObjTarget->GetMap()->ScriptCommandStart(activateCommand, 0, m_caster, gameObjTarget);
+            uint32 artKitIndex = uint32(action) - uint32(GameObjectActions::UseArtKit0);
+            // Non-sequential here
+            if (action == GameObjectActions::UseArtKit4)
+                artKitIndex = 4;
+
+            uint32 artKitValue = 0;
+            if (templateAddon != nullptr)
+                artKitValue = templateAddon->artKits[artKitIndex];
+
+            if (artKitValue == 0)
+                TC_LOG_ERROR("sql.sql", "GameObject %d hit by spell %d needs `artkit%d` in `gameobject_template_addon`", gameObjTarget->GetEntry(), m_spellInfo->Id, artKitIndex);
+            else
+                gameObjTarget->SetGoArtKit(artKitValue);
+
+            break;
+        }
+        case GameObjectActions::PlayAnimKit:
+            gameObjTarget->PlayAnimKit(m_spellInfo->Effects[effIndex].MiscValueB);
+            break;
+            break;
+        case GameObjectActions::OpenAndPlayAnimKit:
+            gameObjTarget->Use(m_caster);
+            gameObjTarget->PlayAnimKit(m_spellInfo->Effects[effIndex].MiscValueB);
+            break;
+        case GameObjectActions::CloseAndPlayAnimKit:
+            gameObjTarget->ResetDoorOrButton();
+            gameObjTarget->PlayAnimKit(m_spellInfo->Effects[effIndex].MiscValueB);
+            break;
+        case GameObjectActions::GoTo1stFloor:
+        case GameObjectActions::GoTo2ndFloor:
+        case GameObjectActions::GoTo3rdFloor:
+        case GameObjectActions::GoTo4thFloor:
+        case GameObjectActions::GoTo5thFloor:
+        case GameObjectActions::GoTo6thFloor:
+        case GameObjectActions::GoTo7thFloor:
+        case GameObjectActions::GoTo8thFloor:
+        case GameObjectActions::GoTo9thFloor:
+        case GameObjectActions::GoTo10thFloor:
+        {
+            // Cast is kind of loose but it'll do
+            if (Transport* transportTarget = gameObjTarget->ToTransport())
+                transportTarget->SetTransportState(GO_STATE_TRANSPORT_STOPPED, uint32_t(action) - uint32(GameObjectActions::GoTo1stFloor));
+            break;
+        }
+        case GameObjectActions::None:
+            TC_LOG_FATAL("spell", "Spell %d has action type NONE in effect %d", m_spellInfo->Id, int32(effIndex));
+            break;
+        default:
+            TC_LOG_ERROR("spell", "Spell %d has unhandled action %d in effect %d", m_spellInfo->Id, int32(action), int32(effIndex));
+            break;
+    }
+
 }
 
 void Spell::EffectApplyGlyph(SpellEffIndex effIndex)

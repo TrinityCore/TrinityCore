@@ -469,26 +469,8 @@ private:
     bool _firstGuardian;
 };
 
-// 45226 - Banging the Gong
-class spell_banging_the_gong : public SpellScript
-{
-    PrepareSpellScript(spell_banging_the_gong);
-
-    void Activate(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        GetHitGObj()->SendCustomAnim(0);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_banging_the_gong::Activate, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
-    }
-};
-
 void AddSC_zulaman()
 {
     RegisterZulAamanCreatureAI(npc_zulaman_voljin);
     RegisterZulAamanCreatureAI(npc_zulaman_amanishi_guardian);
-    RegisterSpellScript(spell_banging_the_gong);
 }

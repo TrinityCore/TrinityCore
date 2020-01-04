@@ -7488,8 +7488,8 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3        4
-    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold FROM gameobject_template_addon");
+    //                                                0       1       2      3        4       5        6        7        8        9
+    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3, artkit4 FROM gameobject_template_addon");
 
     if (!result)
     {
@@ -7517,6 +7517,9 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         gameObjectAddon.mingold = fields[3].GetUInt32();
         gameObjectAddon.maxgold = fields[4].GetUInt32();
 
+        for (uint32 i = 0; i < gameObjectAddon.artKits.size(); ++i)
+            gameObjectAddon.artKits[i] = fields[5 + i].GetUInt32();
+
         // checks
         if (gameObjectAddon.faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
             TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid faction (%u) defined in `gameobject_template_addon`.", entry, gameObjectAddon.faction);
@@ -7531,6 +7534,20 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
                 default:
                     TC_LOG_ERROR("sql.sql", "GameObject (Entry %u GoType: %u) cannot be looted but has maxgold set in `gameobject_template_addon`.", entry, got->type);
                     break;
+            }
+        }
+
+        uint32 artKitIndex = 0;
+        for (uint32& artKitID : gameObjectAddon.artKits)
+        {
+            ++artKitIndex;
+            if (!artKitID)
+                continue;
+
+            if (!sGameObjectArtKitStore.LookupEntry(artKitID))
+            {
+                TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid `artkit%d` (%d) defined, set to zero instead.", entry, artKitIndex - 1, artKitID);
+                artKitID = 0;
             }
         }
 

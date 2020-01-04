@@ -93,6 +93,9 @@ static FactionTeamMap sFactionTeamMap;
 DBCStorage <FactionEntry> sFactionStore(FactionEntryfmt);
 DBCStorage <FactionTemplateEntry> sFactionTemplateStore(FactionTemplateEntryfmt);
 
+// Used exclusively for data validation
+DBCStorage <GameObjectArtKitEntry> sGameObjectArtKitStore(GameObjectArtKitfmt);
+
 DBCStorage <GameObjectDisplayInfoEntry> sGameObjectDisplayInfoStore(GameObjectDisplayInfofmt);
 DBCStorage <GemPropertiesEntry> sGemPropertiesStore(GemPropertiesEntryfmt);
 DBCStorage <GlyphPropertiesEntry> sGlyphPropertiesStore(GlyphPropertiesfmt);
@@ -138,10 +141,10 @@ DBCStorage <ItemDamageEntry>              sItemDamageTwoHandCasterStore(ItemDama
 DBCStorage <ItemDamageEntry>              sItemDamageWandStore(ItemDamagefmt);
 DBCStorage <ItemDisenchantLootEntry>      sItemDisenchantLootStore(ItemDisenchantLootfmt);
 //DBCStorage <ItemDisplayInfoEntry> sItemDisplayInfoStore(ItemDisplayTemplateEntryfmt); -- not used currently
-DBCStorage <ItemLimitCategoryEntry> sItemLimitCategoryStore(ItemLimitCategoryEntryfmt);
-DBCStorage <ItemRandomPropertiesEntry> sItemRandomPropertiesStore(ItemRandomPropertiesfmt);
-DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
-DBCStorage <ItemSetEntry> sItemSetStore(ItemSetEntryfmt);
+DBCStorage <ItemLimitCategoryEntry>       sItemLimitCategoryStore(ItemLimitCategoryEntryfmt);
+DBCStorage <ItemRandomPropertiesEntry>    sItemRandomPropertiesStore(ItemRandomPropertiesfmt);
+DBCStorage <ItemRandomSuffixEntry>        sItemRandomSuffixStore(ItemRandomSuffixfmt);
+DBCStorage <ItemSetEntry>                 sItemSetStore(ItemSetEntryfmt);
 
 DBCStorage <LFGDungeonEntry> sLFGDungeonStore(LFGDungeonEntryfmt);
 DBCStorage <LFGDungeonsGroupingMapEntry> sLFGDungeonsGroupingMapStore(LFGDungeonsGroupingMapfmt);
@@ -374,6 +377,7 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sEmotesTextStore,                    "EmotesText.dbc");//15595
     LOAD_DBC(sFactionStore,                       "Faction.dbc");//15595
     LOAD_DBC(sFactionTemplateStore,               "FactionTemplate.dbc");//15595
+    LOAD_DBC(sGameObjectArtKitStore,              "GameObjectArtKit.dbc");//15595
     LOAD_DBC(sGameObjectDisplayInfoStore,         "GameObjectDisplayInfo.dbc");//15595
     LOAD_DBC(sGemPropertiesStore,                 "GemProperties.dbc");//15595
     LOAD_DBC(sGlyphPropertiesStore,               "GlyphProperties.dbc");//15595

@@ -422,33 +422,6 @@ class spell_anhuur_disable_beacon_beams : public SpellScript
     }
 };
 
-// 76599 - Activate Beacons
-// 76600 - Deactivate Beacons
-class spell_anhuur_handle_beacons : public SpellScript
-{
-    PrepareSpellScript(spell_anhuur_handle_beacons);
-
-    void HandleEffect(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        int32 script = GetSpellInfo()->Effects[effIndex].MiscValue;
-
-        GameObject* beacon = GetHitGObj();
-        if (!beacon)
-            return;
-
-        if (script == 16) // 16 => Disable
-            beacon->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-        else if (script == 17) // 17 => Activate
-            beacon->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_anhuur_handle_beacons::HandleEffect, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
-    }
-};
-
 class spell_anhuur_burning_light_forcecast : public SpellScript
 {
     PrepareSpellScript(spell_anhuur_burning_light_forcecast);
@@ -493,7 +466,6 @@ void AddSC_boss_temple_guardian_anhuur()
     RegisterSpellScript(spell_anhuur_shield_of_light),
     RegisterAuraScript(spell_anhuur_reverberating_hymn);
     RegisterSpellScript(spell_anhuur_disable_beacon_beams);
-    RegisterSpellScript(spell_anhuur_handle_beacons);
     RegisterSpellScript(spell_anhuur_burning_light_forcecast);
     new achievement_i_hate_that_song();
 }

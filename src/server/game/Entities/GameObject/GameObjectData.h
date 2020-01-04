@@ -22,9 +22,10 @@
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "WorldPacket.h"
+
+#include <array>
 #include <string>
 #include <vector>
-
 
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
 
@@ -597,6 +598,7 @@ struct GameObjectTemplateAddon
     uint32  flags;
     uint32  mingold;
     uint32  maxgold;
+    std::array<uint32, 5> artKits;
 };
 
 struct GameObjectLocale
@@ -632,6 +634,49 @@ struct GameObjectData : public SpawnData
     uint32 animprogress = 0;
     GOState goState = GO_STATE_ACTIVE;
     uint8 artKit = 0;
+};
+
+enum class GameObjectActions : uint32
+{
+    // Name from client executable      // Comments
+    None,                           // -NONE-
+    AnimateCustom0,                 // Animate Custom0
+    AnimateCustom1,                 // Animate Custom1
+    AnimateCustom2,                 // Animate Custom2
+    AnimateCustom3,                 // Animate Custom3
+    Disturb,                        // Disturb                          // Triggers trap
+    Unlock,                         // Unlock                           // Resets GO_FLAG_LOCKED
+    Lock,                           // Lock                             // Sets GO_FLAG_LOCKED
+    Open,                           // Open                             // Sets GO_STATE_ACTIVE
+    OpenAndUnlock,                  // Open + Unlock                    // Sets GO_STATE_ACTIVE and resets GO_FLAG_LOCKED
+    Close,                          // Close                            // Sets GO_STATE_READY
+    ToggleOpen,                     // Toggle Open
+    Destroy,                        // Destroy                          // Sets GO_STATE_DESTROYED
+    Rebuild,                        // Rebuild                          // Resets from GO_STATE_DESTROYED
+    Creation,                       // Creation
+    Despawn,                        // Despawn
+    MakeInert,                      // Make Inert                       // Disables interactions
+    MakeActive,                     // Make Active                      // Enables interactions
+    CloseAndLock,                   // Close + Lock                     // Sets GO_STATE_READY and sets GO_FLAG_LOCKED
+    UseArtKit0,                     // Use ArtKit0                      // 46904: 121
+    UseArtKit1,                     // Use ArtKit1                      // 36639: 81, 46903: 122
+    UseArtKit2,                     // Use ArtKit2
+    UseArtKit3,                     // Use ArtKit3
+    SetTapList,                     // Set Tap List
+    GoTo1stFloor,                   // Go to 1st floor
+    GoTo2ndFloor,                   // Go to 2nd floor
+    GoTo3rdFloor,                   // Go to 3rd floor
+    GoTo4thFloor,                   // Go to 4th floor
+    GoTo5thFloor,                   // Go to 5th floor
+    GoTo6thFloor,                   // Go to 6th floor
+    GoTo7thFloor,                   // Go to 7th floor
+    GoTo8thFloor,                   // Go to 8th floor
+    GoTo9thFloor,                   // Go to 9th floor
+    GoTo10thFloor,                  // Go to 10th floor
+    UseArtKit4,                     // Use ArtKit4
+    PlayAnimKit,                    // Play Anim Kit "%s"               // MiscValueB -> Anim Kit ID
+    OpenAndPlayAnimKit,             // Open + Play Anim Kit "%s"        // MiscValueB -> Anim Kit ID
+    CloseAndPlayAnimKit,            // Close + Play Anim Kit "%s"       // MiscValueB -> Anim Kit ID
 };
 
 #endif // GameObjectData_h__

@@ -62,6 +62,7 @@ char const EmotesTextEntryfmt[] = "nxixxxxxxxxxxxxxxxx";
 char const EmotesTextSoundEntryfmt[] = "niiii";
 char const FactionEntryfmt[] = "niiiiiiiiiiiiiiiiiiffixsxi";
 char const FactionTemplateEntryfmt[] = "niiiiiiiiiiiii";
+char const GameObjectArtKitfmt[] = "nxxxxxxx";
 char const GameObjectDisplayInfofmt[] = "nsxxxxxxxxxxffffffxxx";
 char const GemPropertiesEntryfmt[] = "nixxii";
 char const GlyphPropertiesfmt[] = "niii";
