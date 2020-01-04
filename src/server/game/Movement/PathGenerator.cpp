@@ -245,7 +245,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     // *** poly path generating logic ***
 
     // start and end are on same polygon
-    // handle this case like if they were 2 different polygons, building a line path split in few points
+    // handle this case as if they were 2 different polygons, building a line path split in some few points
     if (startPoly == endPoly)
     {
         TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: (startPoly == endPoly)");
