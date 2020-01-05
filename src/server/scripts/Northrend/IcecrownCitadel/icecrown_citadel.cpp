@@ -29,13 +29,6 @@
 #include "TemporarySummon.h"
 #include "VehicleDefines.h"
 
-// Weekly quest support
-// * Deprogramming                (DONE)
-// * Securing the Ramparts        (DONE)
-// * Residue Rendezvous           (DONE)
-// * Blood Quickening             (DONE)
-// * Respite for a Tormented Soul
-
 enum ICCTexts
 {
     // Highlord Tirion Fordring (at Light's Hammer)
@@ -70,9 +63,6 @@ enum ICCTexts
     // Deathbound Ward
     SAY_TRAP_ACTIVATE               = 0,
 
-    // Rotting Frost Giant
-    EMOTE_DEATH_PLAGUE_WARNING      = 0,
-
     // Sister Svalna
     SAY_SVALNA_KILL_CAPTAIN         = 1, // happens when she kills a captain
     SAY_SVALNA_KILL                 = 4,
@@ -103,20 +93,8 @@ enum ICCTexts
 
 enum ICCSpells
 {
-    // Rotting Frost Giant
-    SPELL_DEATH_PLAGUE              = 72879,
-    SPELL_DEATH_PLAGUE_AURA         = 72865,
-    SPELL_RECENTLY_INFECTED         = 72884,
-    SPELL_DEATH_PLAGUE_KILL         = 72867,
-    SPELL_STOMP                     = 64652,
-    SPELL_ARCTIC_BREATH             = 72848,
-
     // Frost Freeze Trap
     SPELL_COLDFLAME_JETS            = 70460,
-
-    // Alchemist Adrianna
-    SPELL_HARVEST_BLIGHT_SPECIMEN   = 72155,
-    SPELL_HARVEST_BLIGHT_SPECIMEN25 = 72162,
 
     // Crok Scourgebane
     SPELL_ICEBOUND_ARMOR            = 70714,
@@ -601,78 +579,6 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
         }
 };
 
-class npc_rotting_frost_giant : public CreatureScript
-{
-    public:
-        npc_rotting_frost_giant() : CreatureScript("npc_rotting_frost_giant") { }
-
-        struct npc_rotting_frost_giantAI : public ScriptedAI
-        {
-            npc_rotting_frost_giantAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
-
-            void Reset() override
-            {
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
-                _events.ScheduleEvent(EVENT_STOMP, urand(5000, 8000));
-                _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(10000, 15000));
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _events.Reset();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_DEATH_PLAGUE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-                            {
-                                Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
-                                DoCast(target, SPELL_DEATH_PLAGUE);
-                            }
-                            _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
-                            break;
-                        case EVENT_STOMP:
-                            DoCastVictim(SPELL_STOMP);
-                            _events.ScheduleEvent(EVENT_STOMP, urand(15000, 18000));
-                            break;
-                        case EVENT_ARCTIC_BREATH:
-                            DoCastVictim(SPELL_ARCTIC_BREATH);
-                            _events.ScheduleEvent(EVENT_ARCTIC_BREATH, urand(26000, 33000));
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetIcecrownCitadelAI<npc_rotting_frost_giantAI>(creature);
-        }
-};
-
 class npc_frost_freeze_trap : public CreatureScript
 {
     public:
@@ -716,30 +622,6 @@ class npc_frost_freeze_trap : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetIcecrownCitadelAI<npc_frost_freeze_trapAI>(creature);
-        }
-};
-
-class npc_alchemist_adrianna : public CreatureScript
-{
-    public:
-        npc_alchemist_adrianna() : CreatureScript("npc_alchemist_adrianna") { }
-
-        struct npc_alchemist_adriannaAI : public ScriptedAI
-        {
-            npc_alchemist_adriannaAI(Creature* creature) : ScriptedAI(creature) { }
-
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
-            {
-                if (!me->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN) && !me->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN25))
-                    if (player->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE) && player->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
-                        me->CastSpell(me, SPELL_HARVEST_BLIGHT_SPECIMEN, false);
-                return false;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetIcecrownCitadelAI<npc_alchemist_adriannaAI>(creature);
         }
 };
 
@@ -1888,118 +1770,6 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
         }
 };
 
-class DeathPlagueTargetSelector
-{
-    public:
-        explicit DeathPlagueTargetSelector(Unit* caster) : _caster(caster) { }
-
-        bool operator()(WorldObject* object) const
-        {
-            if (object == _caster)
-                return true;
-
-            if (object->GetTypeId() != TYPEID_PLAYER)
-                return true;
-
-            if (object->ToUnit()->HasAura(SPELL_RECENTLY_INFECTED) || object->ToUnit()->HasAura(SPELL_DEATH_PLAGUE_AURA))
-                return true;
-
-            return false;
-        }
-
-    private:
-        Unit* _caster;
-};
-
-class spell_frost_giant_death_plague : public SpellScriptLoader
-{
-    public:
-        spell_frost_giant_death_plague() : SpellScriptLoader("spell_frost_giant_death_plague") { }
-
-        class spell_frost_giant_death_plague_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_frost_giant_death_plague_SpellScript);
-
-            // First effect
-            void CountTargets(std::list<WorldObject*>& targets)
-            {
-                targets.remove(GetCaster());
-                _failed = targets.empty();
-            }
-
-            // Second effect
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                // Select valid targets for jump
-                targets.remove_if(DeathPlagueTargetSelector(GetCaster()));
-                if (!targets.empty())
-                {
-                    WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-                    targets.clear();
-                    targets.push_back(target);
-                }
-
-                targets.push_back(GetCaster());
-            }
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                if (GetHitUnit() != GetCaster())
-                    GetCaster()->CastSpell(GetHitUnit(), SPELL_DEATH_PLAGUE_AURA, true);
-                else if (_failed)
-                    GetCaster()->CastSpell(GetCaster(), SPELL_DEATH_PLAGUE_KILL, true);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
-                OnEffectHitTarget += SpellEffectFn(spell_frost_giant_death_plague_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-
-            bool _failed = false;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_frost_giant_death_plague_SpellScript();
-        }
-};
-
-class spell_icc_harvest_blight_specimen : public SpellScriptLoader
-{
-    public:
-        spell_icc_harvest_blight_specimen() : SpellScriptLoader("spell_icc_harvest_blight_specimen") { }
-
-        class spell_icc_harvest_blight_specimen_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_icc_harvest_blight_specimen_SpellScript);
-
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
-            }
-
-            void HandleQuestComplete(SpellEffIndex /*effIndex*/)
-            {
-                GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleQuestComplete, EFFECT_1, SPELL_EFFECT_QUEST_COMPLETE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_icc_harvest_blight_specimen_SpellScript();
-        }
-};
-
 class AliveCheck
 {
     public:
@@ -2203,20 +1973,6 @@ class at_icc_shutdown_traps : public AreaTriggerScript
         }
 };
 
-class at_icc_start_blood_quickening : public AreaTriggerScript
-{
-    public:
-        at_icc_start_blood_quickening() : AreaTriggerScript("at_icc_start_blood_quickening") { }
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
-        {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                if (instance->GetData(DATA_BLOOD_QUICKENING_STATE) == NOT_STARTED)
-                    instance->SetData(DATA_BLOOD_QUICKENING_STATE, IN_PROGRESS);
-            return true;
-        }
-};
-
 class at_icc_start_frostwing_gauntlet : public AreaTriggerScript
 {
     public:
@@ -2234,9 +1990,7 @@ class at_icc_start_frostwing_gauntlet : public AreaTriggerScript
 void AddSC_icecrown_citadel()
 {
     new npc_highlord_tirion_fordring_lh();
-    new npc_rotting_frost_giant();
     new npc_frost_freeze_trap();
-    new npc_alchemist_adrianna();
     new boss_sister_svalna();
     new npc_crok_scourgebane();
     new npc_captain_arnath();
@@ -2248,14 +2002,11 @@ void AddSC_icecrown_citadel()
     new npc_arthas_teleport_visual();
     new spell_icc_stoneform();
     new spell_icc_sprit_alarm();
-    new spell_frost_giant_death_plague();
-    new spell_icc_harvest_blight_specimen();
     new spell_trigger_spell_from_caster("spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
     new spell_svalna_revive_champion();
     new spell_svalna_remove_spear();
     new spell_icc_soul_missile();
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
-    new at_icc_start_blood_quickening();
     new at_icc_start_frostwing_gauntlet();
 }

@@ -29,10 +29,7 @@ enum TriggerCastFlags : uint32;
 
 uint32 const EncounterCount = 13;
 uint32 const WeeklyNPCs = 9;
-uint32 const MaxHeroicAttempts = 50;
 
-// Defined in boss_valithria_dreamwalker.cpp
-extern Position const ValithriaSpawnPos;
 // Defined in boss_sindragosa.cpp
 extern Position const SindragosaSpawnPos;
 // Defined in boss_the_lich_king.cpp
@@ -106,8 +103,6 @@ enum ICDataTypes
     DATA_RIMEFANG                      = 25,
     DATA_COLDFLAME_JETS                = 26,
     DATA_TEAM_IN_INSTANCE              = 27,
-    DATA_BLOOD_QUICKENING_STATE        = 28,
-    DATA_HEROIC_ATTEMPTS               = 29,
     DATA_CROK_SCOURGEBANE              = 30,
     DATA_CAPTAIN_ARNATH                = 31,
     DATA_CAPTAIN_BRANDON               = 32,
@@ -152,19 +147,6 @@ enum ICCreaturesIds
     NPC_MURADIN_BRONZEBEARD_QUEST               = 38607,
     NPC_UTHER_THE_LIGHTBRINGER_QUEST            = 38608,
     NPC_LADY_SYLVANAS_WINDRUNNER_QUEST          = 38609,
-
-    // Weekly quests
-    NPC_INFILTRATOR_MINCHAR                     = 38471,
-    NPC_KOR_KRON_LIEUTENANT                     = 38491,
-    NPC_SKYBREAKER_LIEUTENANT                   = 38492,
-    NPC_ROTTING_FROST_GIANT_10                  = 38490,
-    NPC_ROTTING_FROST_GIANT_25                  = 38494,
-    NPC_ALCHEMIST_ADRIANNA                      = 38501,
-    NPC_ALRIN_THE_AGILE                         = 38551,
-    NPC_INFILTRATOR_MINCHAR_BQ                  = 38558,
-    NPC_INFILTRATOR_MINCHAR_BQ_25               = 39123,
-    NPC_MINCHAR_BEAM_STALKER                    = 38557,
-    NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
 
     // Lord Marrowgar
     NPC_LORD_MARROWGAR                          = 36612,
@@ -487,9 +469,6 @@ enum ICSharedActions
     ACTION_ROTFACE_DEATH        = -366272,
     ACTION_CHANGE_PHASE         = -366780,
 
-    // Blood-Queen Lana'thel
-    ACTION_KILL_MINCHAR         = -379550,
-
     // Frostwing Halls gauntlet event
     ACTION_VRYKUL_DEATH         = 37129,
 
@@ -500,29 +479,6 @@ enum ICSharedActions
     // The Lich King
     ACTION_RESTORE_LIGHT        = -72262,
     ACTION_FROSTMOURNE_INTRO    = -36823
-};
-
-enum ICWeekliesICC
-{
-    QUEST_DEPROGRAMMING_10                  = 24869,
-    QUEST_DEPROGRAMMING_25                  = 24875,
-    QUEST_SECURING_THE_RAMPARTS_10          = 24870,
-    QUEST_SECURING_THE_RAMPARTS_25          = 24877,
-    QUEST_RESIDUE_RENDEZVOUS_10             = 24873,
-    QUEST_RESIDUE_RENDEZVOUS_25             = 24878,
-    QUEST_BLOOD_QUICKENING_10               = 24874,
-    QUEST_BLOOD_QUICKENING_25               = 24879,
-    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10  = 24872,
-    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880
-};
-
-enum ICWorldStatesICC
-{
-    WORLDSTATE_SHOW_TIMER           = 4903,
-    WORLDSTATE_EXECUTION_TIME       = 4904,
-    WORLDSTATE_SHOW_ATTEMPTS        = 4940,
-    WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
-    WORLDSTATE_ATTEMPTS_MAX         = 4942
 };
 
 enum ICAreaIds

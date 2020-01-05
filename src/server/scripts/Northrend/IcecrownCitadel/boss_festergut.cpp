@@ -459,24 +459,6 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
                 if (InstanceScript* instance = GetTarget()->GetInstanceScript())
                     if (Creature* festergut = ObjectAccessor::GetCreature(*GetTarget(), instance->GetGuidData(DATA_FESTERGUT)))
                         festergut->AI()->SetData(DATA_INOCULATED_STACK, GetStackAmount());
-
-                HandleResidue();
-            }
-
-            void HandleResidue()
-            {
-                Player* target = GetUnitOwner()->ToPlayer();
-                if (!target)
-                    return;
-
-                if (target->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE))
-                    return;
-
-                uint32 questId = target->GetMap()->Is25ManRaid() ? QUEST_RESIDUE_RENDEZVOUS_25 : QUEST_RESIDUE_RENDEZVOUS_10;
-                if (target->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE)
-                    return;
-
-                target->CastSpell(target, SPELL_ORANGE_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
             }
 
             void Register() override

@@ -151,8 +151,6 @@ enum Misc
     DATA_SUPPRESSERS_COUNT = 4
 };
 
-Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};
-
 class RisenArchmageCheck
 {
     public:

@@ -872,43 +872,6 @@ class spell_rotface_vile_gas_trigger : public SpellScriptLoader
         }
 };
 
-class spell_rotface_slime_spray : public SpellScriptLoader
-{
-    public:
-        spell_rotface_slime_spray() : SpellScriptLoader("spell_rotface_slime_spray") { }
-
-        class spell_rotface_slime_spray_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rotface_slime_spray_SpellScript);
-
-            void HandleResidue()
-            {
-                Player* target = GetHitPlayer();
-                if (!target)
-                    return;
-
-                if (target->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
-                    return;
-
-                uint32 questId = target->GetMap()->Is25ManRaid() ? QUEST_RESIDUE_RENDEZVOUS_25 : QUEST_RESIDUE_RENDEZVOUS_10;
-                if (target->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE)
-                    return;
-
-                target->CastSpell(target, SPELL_GREEN_BLIGHT_RESIDUE, TRIGGERED_FULL_MASK);
-            }
-
-            void Register() override
-            {
-                OnHit += SpellHitFn(spell_rotface_slime_spray_SpellScript::HandleResidue);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_rotface_slime_spray_SpellScript();
-        }
-};
-
 void AddSC_boss_rotface()
 {
     new boss_rotface();
@@ -924,5 +887,4 @@ void AddSC_boss_rotface()
     new spell_rotface_unstable_ooze_explosion();
     new spell_rotface_unstable_ooze_explosion_suicide();
     new spell_rotface_vile_gas_trigger();
-    new spell_rotface_slime_spray();
 }

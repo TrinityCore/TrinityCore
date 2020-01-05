@@ -48,10 +48,6 @@ enum ScriptTexts
     SAY_KILL                    = 14,
     SAY_BERSERK                 = 15,
     SAY_DEATH                   = 16,
-
-    // Darnavan
-    SAY_DARNAVAN_AGGRO          = 0,
-    SAY_DARNAVAN_RESCUED        = 1,
 };
 
 enum Spells
@@ -111,14 +107,6 @@ enum Spells
     SPELL_VENGEFUL_BLAST_25N          = 72010,
     SPELL_VENGEFUL_BLAST_10H          = 72011,
     SPELL_VENGEFUL_BLAST_25H          = 72012,
-
-    // Darnavan
-    SPELL_BLADESTORM                  = 65947,
-    SPELL_CHARGE                      = 65927,
-    SPELL_INTIMIDATING_SHOUT          = 65930,
-    SPELL_MORTAL_STRIKE               = 65926,
-    SPELL_SHATTERING_THROW            = 65940,
-    SPELL_SUNDER_ARMOR                = 65936,
 };
 
 enum EventTypes
@@ -147,25 +135,10 @@ enum Groups
     GROUP_TWO                = 2
 };
 
-enum DeprogrammingData
-{
-    NPC_DARNAVAN_10         = 38472,
-    NPC_DARNAVAN_25         = 38485,
-    NPC_DARNAVAN_CREDIT_10  = 39091,
-    NPC_DARNAVAN_CREDIT_25  = 39092,
-
-    ACTION_COMPLETE_QUEST   = -384720,
-    POINT_DESPAWN           = 384721,
-};
-
 enum Actions
 {
     ACTION_START_INTRO
 };
-
-#define NPC_DARNAVAN        RAID_MODE<uint32>(NPC_DARNAVAN_10, NPC_DARNAVAN_25, NPC_DARNAVAN_10, NPC_DARNAVAN_25)
-#define NPC_DARNAVAN_CREDIT RAID_MODE<uint32>(NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25, NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25)
-#define QUEST_DEPROGRAMMING RAID_MODE<uint32>(QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25, QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25)
 
 uint32 const SummonEntries[2] = {NPC_CULT_FANATIC, NPC_CULT_ADHERENT};
 
@@ -178,21 +151,6 @@ Position const SummonPositions[7] =
     {-598.9688f, 2269.264f, 51.01529f, 4.590216f}, // 5 Right Door 2 (Cult Fanatic)
     {-619.4323f, 2268.523f, 51.01530f, 4.590216f}, // 6 Right Door 3 (Cult Adherent)
     {-524.2480f, 2211.920f, 62.90960f, 3.141592f}, // 7 Upper (Random Cultist)
-};
-
-class DarnavanMoveEvent : public BasicEvent
-{
-    public:
-        DarnavanMoveEvent(Creature& darnavan) : _darnavan(darnavan) { }
-
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            _darnavan.GetMotionMaster()->MovePoint(POINT_DESPAWN, SummonPositions[6]);
-            return true;
-        }
-
-    private:
-        Creature& _darnavan;
 };
 
 class boss_lady_deathwhisper : public CreatureScript
@@ -343,7 +301,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 instance->SetBossState(DATA_LADY_DEATHWHISPER, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 Talk(SAY_DEATH);
 
@@ -356,35 +314,6 @@ class boss_lady_deathwhisper : public CreatureScript
 
                 if (livingAddEntries.size() >= 5)
                     instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_FULL_HOUSE, 0, me);
-
-                if (Creature* darnavan = ObjectAccessor::GetCreature(*me, _darnavanGUID))
-                {
-                    if (darnavan->IsAlive())
-                    {
-                        darnavan->SetFaction(FACTION_FRIENDLY);
-                        darnavan->CombatStop(true);
-                        darnavan->GetMotionMaster()->MoveIdle();
-                        darnavan->SetReactState(REACT_PASSIVE);
-                        darnavan->m_Events.AddEvent(new DarnavanMoveEvent(*darnavan), darnavan->m_Events.CalculateTime(10000));
-                        darnavan->AI()->Talk(SAY_DARNAVAN_RESCUED);
-
-                        if (!killer)
-                            return;
-
-                        if (Player* owner = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
-                        {
-                            if (Group* group = owner->GetGroup())
-                            {
-                                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                                    if (Player* member = itr->GetSource())
-                                        if (member->IsInMap(owner))
-                                            member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
-                            }
-                            else
-                                owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
-                        }
-                    }
-                }
 
                 _JustDied();
             }
@@ -467,11 +396,6 @@ class boss_lady_deathwhisper : public CreatureScript
             {
                 switch (summon->GetEntry())
                 {
-                    case NPC_DARNAVAN_10:
-                    case NPC_DARNAVAN_25:
-                        _darnavanGUID = summon->GetGUID();
-                        summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
-                        return;
                     case NPC_VENGEFUL_SHADE:
                         if (_nextVengefulShadeTargetGUID.empty())
                             break;
@@ -508,12 +432,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 uint8 addIndex = _waveCounter & 1;
                 uint8 addIndexOther = uint8(addIndex ^ 1);
 
-                // Summon first add, replace it with Darnavan if weekly quest is active
-                if (_waveCounter || !sPoolMgr->IsSpawnedObject<Quest>(QUEST_DEPROGRAMMING))
-                    Summon(SummonEntries[addIndex], SummonPositions[addIndex * 3]);
-                else
-                    Summon(NPC_DARNAVAN, SummonPositions[addIndex * 3]);
-
+                Summon(SummonEntries[addIndex], SummonPositions[addIndex * 3]);
                 Summon(SummonEntries[addIndexOther], SummonPositions[addIndex * 3 + 1]);
                 Summon(SummonEntries[addIndex], SummonPositions[addIndex * 3 + 2]);
                 if (Is25ManRaid())
@@ -860,138 +779,6 @@ class npc_vengeful_shade : public CreatureScript
         }
 };
 
-class npc_darnavan : public CreatureScript
-{
-    public:
-        npc_darnavan() : CreatureScript("npc_darnavan") { }
-
-        struct npc_darnavanAI : public ScriptedAI
-        {
-            npc_darnavanAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _canCharge = true;
-                _canShatter = true;
-            }
-
-            void Reset() override
-            {
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, Seconds(10));
-                _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, Seconds(20), Seconds(25));
-                _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, Seconds(25), Seconds(30));
-                _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, Seconds(5), Seconds(8));
-                Initialize();
-            }
-
-            void JustDied(Unit* killer) override
-            {
-                _events.Reset();
-
-                if (!killer)
-                    return;
-
-                if (Player* owner = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
-                {
-                    if (Group* group = owner->GetGroup())
-                    {
-                        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                            if (Player* member = itr->GetSource())
-                                if (member->IsInMap(owner))
-                                    member->FailQuest(QUEST_DEPROGRAMMING);
-                    }
-                    else
-                        owner->FailQuest(QUEST_DEPROGRAMMING);
-                }
-            }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type != POINT_MOTION_TYPE || id != POINT_DESPAWN)
-                    return;
-
-                me->DespawnOrUnsummon();
-            }
-
-            void JustEngagedWith(Unit* /*victim*/) override
-            {
-                Talk(SAY_DARNAVAN_AGGRO);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (_canShatter && me->GetVictim() && me->EnsureVictim()->IsImmunedToDamage(SPELL_SCHOOL_MASK_NORMAL))
-                {
-                    DoCastVictim(SPELL_SHATTERING_THROW);
-                    _canShatter = false;
-                    _events.ScheduleEvent(EVENT_DARNAVAN_SHATTERING_THROW, Seconds(30));
-                    return;
-                }
-
-                if (_canCharge && !me->IsWithinMeleeRange(me->GetVictim()))
-                {
-                    DoCastVictim(SPELL_CHARGE);
-                    _canCharge = false;
-                    _events.ScheduleEvent(EVENT_DARNAVAN_CHARGE, Seconds(20));
-                    return;
-                }
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_DARNAVAN_BLADESTORM:
-                            DoCast(SPELL_BLADESTORM);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_BLADESTORM, Seconds(90), Seconds(100));
-                            break;
-                        case EVENT_DARNAVAN_CHARGE:
-                            _canCharge = true;
-                            break;
-                        case EVENT_DARNAVAN_INTIMIDATING_SHOUT:
-                            DoCast(SPELL_INTIMIDATING_SHOUT);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, Seconds(90), Minutes(2));
-                            break;
-                        case EVENT_DARNAVAN_MORTAL_STRIKE:
-                            DoCastVictim(SPELL_MORTAL_STRIKE);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_MORTAL_STRIKE, Seconds(15), Seconds(30));
-                            break;
-                        case EVENT_DARNAVAN_SHATTERING_THROW:
-                            _canShatter = true;
-                            break;
-                        case EVENT_DARNAVAN_SUNDER_ARMOR:
-                            DoCastVictim(SPELL_SUNDER_ARMOR);
-                            _events.ScheduleEvent(EVENT_DARNAVAN_SUNDER_ARMOR, Seconds(3), Seconds(7));
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            bool _canCharge;
-            bool _canShatter;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetIcecrownCitadelAI<npc_darnavanAI>(creature);
-        }
-};
-
 class spell_deathwhisper_mana_barrier : public SpellScriptLoader
 {
     public:
@@ -1109,7 +896,6 @@ void AddSC_boss_lady_deathwhisper()
     new npc_cult_fanatic();
     new npc_cult_adherent();
     new npc_vengeful_shade();
-    new npc_darnavan();
     new spell_deathwhisper_mana_barrier();
     new spell_deathwhisper_dominated_mind();
     new spell_deathwhisper_summon_spirits();

@@ -68,7 +68,6 @@ enum Spells
     SPELL_TWILIGHT_BLOODBOLT                = 71446,
     SPELL_INCITE_TERROR                     = 73070,
     SPELL_BLOODBOLT_WHIRL                   = 71772,
-    SPELL_ANNIHILATE                        = 71322,
 
     // Blood Infusion
     SPELL_BLOOD_INFUSION_CREDIT             = 72934
@@ -123,12 +122,10 @@ enum Points
     POINT_CENTER    = 1,
     POINT_AIR       = 2,
     POINT_GROUND    = 3,
-    POINT_MINCHAR   = 4,
 };
 
 Position const centerPos  = {4595.7090f, 2769.4190f, 400.6368f, 0.000000f};
 Position const airPos     = {4595.7090f, 2769.4190f, 422.3893f, 0.000000f};
-Position const mincharPos = {4629.3711f, 2782.6089f, 424.6390f, 0.000000f};
 
 bool IsVampire(Unit const* unit)
 {
@@ -153,8 +150,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
             void Initialize()
             {
                 _offtankGUID.Clear();
-                _creditBloodQuickening = false;
-                _killMinchar = false;
             }
 
             void Reset() override
@@ -190,10 +185,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 DoCast(me, SPELL_SHROUD_OF_SORROW, true);
                 DoCast(me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
-                _creditBloodQuickening = instance->GetData(DATA_BLOOD_QUICKENING_STATE) == IN_PROGRESS;
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -202,25 +196,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     DoCastAOE(SPELL_BLOOD_INFUSION_CREDIT, true);
 
                 CleanAuras();
-
-                if (!killer)
-                    return;
-
-                // Blah, credit the quest
-                if (_creditBloodQuickening)
-                {
-                    instance->SetData(DATA_BLOOD_QUICKENING_STATE, DONE);
-                    if (Player* player = killer->ToPlayer())
-                        player->RewardPlayerAndGroupAtEvent(Is25ManRaid() ? NPC_INFILTRATOR_MINCHAR_BQ_25 : NPC_INFILTRATOR_MINCHAR_BQ, player);
-                    if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
-                    {
-                        minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                        minchar->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
-                        minchar->SetCanFly(false);
-                        minchar->RemoveAllAuras();
-                        minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE / 3.0f);
-                    }
-                }
             }
 
             void CleanAuras()
@@ -237,40 +212,15 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(PRESENCE_OF_THE_DARKFALLEN);
             }
 
-            void DoAction(int32 action) override
-            {
-                if (action != ACTION_KILL_MINCHAR)
-                    return;
-
-                if (instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == IN_PROGRESS)
-                    _killMinchar = true;
-                else
-                {
-                    me->SetDisableGravity(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
-                    me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
-                }
-            }
-
             void EnterEvadeMode(EvadeReason why) override
             {
                 if (!_EnterEvadeMode(why))
                     return;
 
                 CleanAuras();
-                if (_killMinchar)
-                {
-                    _killMinchar = false;
-                    me->SetDisableGravity(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
-                    me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
-                }
-                else
-                {
-                    me->AddUnitState(UNIT_STATE_EVADE);
-                    me->GetMotionMaster()->MoveTargetedHome();
-                    Reset();
-                }
+                me->AddUnitState(UNIT_STATE_EVADE);
+                me->GetMotionMaster()->MoveTargetedHome();
+                Reset();
             }
 
             void JustReachedHome() override
@@ -331,12 +281,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         if (Unit* victim = me->SelectVictim())
                             AttackStart(victim);
                         events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
-                        break;
-                    case POINT_MINCHAR:
-                        DoCast(me, SPELL_ANNIHILATE, true);
-                        // already in evade mode
-                        me->GetMotionMaster()->MoveTargetedHome();
-                        Reset();
                         break;
                     default:
                         break;
@@ -519,8 +463,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
             GuidSet _vampires;
             GuidSet _bloodboltedPlayers;
             ObjectGuid _offtankGUID;
-            bool _creditBloodQuickening;
-            bool _killMinchar;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
