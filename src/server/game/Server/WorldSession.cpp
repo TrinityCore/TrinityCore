@@ -1364,7 +1364,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_DUEL_ACCEPTED:                        //   0               1
         case CMSG_DUEL_CANCELLED:                       //   0               1
         case CMSG_CALENDAR_COMPLAIN:                    //   0               1
-        case CMSG_QUEST_QUERY:                          //   0               1.5
+        case CMSG_QUERY_QUEST_INFO:                     //   0               1.5
         case CMSG_GAMEOBJECT_QUERY:                     //   0               1.5
         case CMSG_CREATURE_QUERY:                       //   0               1.5
         case CMSG_QUEST_GIVER_STATUS_QUERY:             //   0               1.5
@@ -1441,7 +1441,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         }
 
         case CMSG_QUEST_GIVER_ACCEPT_QUEST:             //   0               4
-        case CMSG_QUESTLOG_REMOVE_QUEST:                //   0               4
+        case CMSG_QUEST_LOG_REMOVE_QUEST:               //   0               4
         case CMSG_QUEST_GIVER_CHOOSE_REWARD:            //   0               4
         case CMSG_CONTACT_LIST:                         //   0               5
         case CMSG_LEARN_PREVIEW_TALENTS:                //   0               6

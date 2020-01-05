@@ -1097,7 +1097,7 @@ enum OpcodeServer
     SMSG_QUESTGIVER_QUEST_DETAILS                     = 0x2425,
     SMSG_QUESTGIVER_QUEST_FAILED                      = 0x4236,
     SMSG_QUESTGIVER_QUEST_INVALID                     = 0x4016,
-    SMSG_QUESTGIVER_QUEST_LIST                        = 0x0134,
+    SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE               = 0x0134,
     SMSG_QUEST_GIVER_REQUEST_ITEMS                    = 0x6236,
     SMSG_QUESTGIVER_STATUS                            = 0x2115,
     SMSG_QUESTGIVER_STATUS_MULTIPLE                   = 0x4F25,

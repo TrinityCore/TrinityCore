@@ -323,8 +323,8 @@ void QuestMenu::ClearMenu()
 
 void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string& Title, ObjectGuid guid)
 {
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_LIST, 100);    // guess size
-    data << uint64(guid);
+    WorldPackets::Quest::QuestGiverQuestListMessage questList;
+    questList.QuestGiverGUID = guid;
 
     if (QuestGreeting const* questGreeting = sObjectMgr->GetQuestGreeting(guid))
     {
@@ -335,20 +335,16 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
             if (QuestGreetingLocale const* questGreetingLocale = sObjectMgr->GetQuestGreetingLocale(MAKE_PAIR32(guid.GetEntry(), guid.GetTypeId())))
                 ObjectMgr::GetLocaleString(questGreetingLocale->greeting, localeConstant, strGreeting);
 
-        data << strGreeting;
-        data << uint32(questGreeting->greetEmoteDelay);
-        data << uint32(questGreeting->greetEmoteType);
+        questList.GreetEmoteDelay = questGreeting->greetEmoteDelay;
+        questList.GreetEmoteType = questGreeting->greetEmoteType;
+        questList.Greeting = strGreeting;
     }
     else
     {
-        data << Title;
-        data << uint32(eEmote._Delay);                         // player emote
-        data << uint32(eEmote._Emote);                         // NPC emote
+        questList.GreetEmoteDelay = eEmote._Delay;
+        questList.GreetEmoteType = eEmote._Emote;
+        questList.Greeting = Title;
     }
-
-    size_t count_pos = data.wpos();
-    data << uint8(0);
-    uint32 count = 0;
 
     // Store this instead of checking the Singleton every loop iteration
     bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
@@ -361,7 +357,6 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
 
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
-            ++count;
             std::string title = quest->GetTitle();
 
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
@@ -372,18 +367,13 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
             if (questLevelInTitle)
                 AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
-            data << uint32(questID);
-            data << uint32(questMenuItem.QuestIcon);
-            data << int32(quest->GetQuestLevel());
-            data << uint32(quest->GetFlags()); // 3.3.3 quest flags
-            data << uint8(quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly()); // 3.3.3 icon changes - 0: yellow exclapamtion mark, 1: blue question mark
-            data << title;
+            bool repeatable = quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly();
+            questList.QuestDataText.emplace_back(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), repeatable, title);
         }
     }
 
-    data.put<uint8>(count_pos, count);
-    _session->SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_LIST (QuestGiver: %s)", guid.ToString().c_str());
+    _session->SendPacket(questList.Write());
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE (QuestGiverGUID: %s)", guid.ToString().c_str());
 }
 
 void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const
@@ -753,7 +743,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
             displayId = itemTemplate->DisplayInfoID;
 
-        if (data.ItemCount[i] != quest->RequiredItemCount[i])
+        if (data.ItemCount[i] < quest->RequiredItemCount[i] && !_session->GetPlayer()->HasItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i]))
             collectObjectiveComplete = false;
 
         packet.Collect.emplace_back(quest->RequiredItemId[i], quest->RequiredItemCount[i], displayId);

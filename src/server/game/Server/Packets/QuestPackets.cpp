@@ -110,3 +110,25 @@ void WorldPackets::Quest::QueryQuestInfo::Read()
 {
     _worldPacket >> QuestID;
 }
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestListMessage::Write()
+{
+    _worldPacket << QuestGiverGUID;
+    _worldPacket << Greeting;
+    _worldPacket << uint32(GreetEmoteDelay);
+    _worldPacket << uint32(GreetEmoteType);
+
+    _worldPacket << uint8(QuestDataText.size());
+    for (GossipText const& gossip : QuestDataText)
+    {
+        _worldPacket << uint32(gossip.QuestID);
+        _worldPacket << uint32(gossip.QuestType);
+        _worldPacket << int32(gossip.QuestLevel);
+        _worldPacket << uint32(gossip.QuestFlags);
+        _worldPacket << uint8(gossip.Repeatable);
+        _worldPacket << gossip.QuestTitle;
+    }
+
+    return &_worldPacket;
+}
+
