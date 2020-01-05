@@ -1024,7 +1024,6 @@ namespace MMAP
 
         if (isContinentMap(mapID))
         {
-            config.walkableSlopeAngle = 55.f;
             config.walkableClimb = m_bigBaseUnit ? 2 : 4;
         }
 
