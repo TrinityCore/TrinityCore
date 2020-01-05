@@ -518,11 +518,11 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_QUEST_GIVER_REQUEST_REWARD,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQuestgiverRequestRewardOpcode);
     DEFINE_HANDLER(CMSG_QUEST_GIVER_STATUS_MULTIPLE_QUERY,                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverStatusMultipleQuery);
     DEFINE_HANDLER(CMSG_QUEST_GIVER_STATUS_QUERY,                         STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQuestgiverStatusQueryOpcode);
-    DEFINE_HANDLER(CMSG_QUESTLOG_REMOVE_QUEST,                            STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQuestLogRemoveQuest       );
+    DEFINE_HANDLER(CMSG_QUEST_LOG_REMOVE_QUEST,                           STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQuestLogRemoveQuest       );
     DEFINE_HANDLER(CMSG_QUEST_CONFIRM_ACCEPT,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestConfirmAccept        );
     DEFINE_HANDLER(CMSG_QUEST_NPC_QUERY,                                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestNPCQuery             );
     DEFINE_HANDLER(CMSG_QUEST_POI_QUERY,                                  STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQuestPOIQuery             );
-    DEFINE_HANDLER(CMSG_QUEST_QUERY,                                      STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQuestQueryOpcode          );
+    DEFINE_HANDLER(CMSG_QUERY_QUEST_INFO,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleQuestQueryOpcode          );
     DEFINE_HANDLER(CMSG_RANDOMIZE_CHAR_NAME,                              STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleRandomizeCharNameOpcode   );
     DEFINE_HANDLER(CMSG_READY_FOR_ACCOUNT_DATA_TIMES,                     STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleReadyForAccountDataTimes  );
     DEFINE_HANDLER(CMSG_READ_ITEM,                                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleReadItem                  );

@@ -95,3 +95,18 @@ void WorldPackets::Quest::QuestGiverStatusQuery::Read()
 {
     _worldPacket >> QuestGiverGUID;
 }
+
+void WorldPackets::Quest::QuestLogRemoveQuest::Read()
+{
+    _worldPacket >> Entry;
+}
+
+void WorldPackets::Quest::QuestConfirmAccept::Read()
+{
+    _worldPacket >> QuestID;
+}
+
+void WorldPackets::Quest::QueryQuestInfo::Read()
+{
+    _worldPacket >> QuestID;
+}

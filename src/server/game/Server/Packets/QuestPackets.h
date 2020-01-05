@@ -150,6 +150,36 @@ namespace WorldPackets
 
             ObjectGuid QuestGiverGUID;
         };
+
+        class QuestLogRemoveQuest final : public ClientPacket
+        {
+        public:
+            QuestLogRemoveQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_LOG_REMOVE_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 Entry = 0;
+        };
+
+        class QuestConfirmAccept final : public ClientPacket
+        {
+        public:
+            QuestConfirmAccept(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_CONFIRM_ACCEPT, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 QuestID = 0;
+        };
+
+        class QueryQuestInfo final : public ClientPacket
+        {
+        public:
+            QueryQuestInfo(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_QUEST_INFO, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 QuestID = 0;
+        };
     }
 }
 
