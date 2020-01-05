@@ -91,7 +91,7 @@ DumpTable const DumpTables[] =
     { "character_achievement_progress", DTT_CHAR_TABLE },
     { "character_action",               DTT_CHAR_TABLE },
     { "character_aura",                 DTT_CHAR_TABLE },
-    { "character_currency",             DTT_CHAR_TABLE },
+    { "character_currency",             DTT_CURRENCY   },
     { "character_cuf_profiles",         DTT_CHAR_TABLE },
     { "character_declinedname",         DTT_CHAR_TABLE },
     { "character_equipmentsets",        DTT_EQSET_TABLE},
@@ -295,6 +295,11 @@ void PlayerDump::InitializeTables()
                 MarkWhereField(t, "guid");
 
                 MarkDependentColumn(t, "guid", GUID_TYPE_CHAR);
+                break;
+            case DTT_CURRENCY:
+                MarkWhereField(t, "CharacterGuid");
+
+                MarkDependentColumn(t, "CharacterGuid", GUID_TYPE_CHAR);
                 break;
             case DTT_EQSET_TABLE:
                 MarkWhereField(t, "guid");

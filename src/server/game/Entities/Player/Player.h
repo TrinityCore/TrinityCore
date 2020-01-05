@@ -204,10 +204,11 @@ enum PlayerCurrencyState
 
 struct PlayerCurrency
 {
-   PlayerCurrencyState state;
-   uint32 totalCount;
-   uint32 weekCount;
-   uint32 seasonCount;
+    PlayerCurrencyState state;
+    uint32 Quantity;
+    uint32 WeeklyQuantity;
+    uint32 TrackedQuantity;
+    uint8 Flags;
 };
 
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;

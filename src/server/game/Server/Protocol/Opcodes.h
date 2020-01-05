@@ -879,7 +879,7 @@ enum OpcodeServer
     SMSG_IGNORE_REQUIREMENTS_CHEAT                    = 0x4E36,
     SMSG_INITIALIZE_FACTIONS                          = 0x4634,
     SMSG_INITIAL_SPELLS                               = 0x0104,
-    SMSG_INIT_CURRENCY                                = 0x15A5,
+    SMSG_SETUP_CURRENCY                               = 0x15A5,
     SMSG_INIT_WORLD_STATES                            = 0x4C15,
     SMSG_INSPECT                                      = 0x0000,
     SMSG_INSPECT_HONOR_STATS                          = 0x79A5,
