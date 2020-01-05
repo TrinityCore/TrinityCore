@@ -27,6 +27,14 @@
 
 class Player;
 
+namespace WorldPackets
+{
+    namespace Quest
+    {
+        struct QuestRewards;
+    }
+}
+
 #define MAX_QUEST_LOG_SIZE 25
 
 #define QUEST_OBJECTIVES_COUNT 4
@@ -356,6 +364,7 @@ class TC_GAME_API Quest
         uint16 GetEventIdForQuest() const { return _eventIdForQuest; }
 
         void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
+        void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         typedef std::vector<int32> PrevQuests;
         PrevQuests prevQuests;

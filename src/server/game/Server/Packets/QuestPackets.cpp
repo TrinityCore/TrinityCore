@@ -132,3 +132,95 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestListMessage::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Quest::QuestGiverStatus::Write()
+{
+    _worldPacket << QuestGiver.Guid;
+    _worldPacket << uint32(QuestGiver.Status);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
+{
+    _worldPacket << QuestGiverGUID;
+    _worldPacket << InformUnit;
+    _worldPacket << uint32(QuestID);
+    _worldPacket << QuestTitle;
+    _worldPacket << LogDescription;
+    _worldPacket << Objectives;
+    _worldPacket << PortraitGiverText;
+    _worldPacket << PortraitGiverName;
+    _worldPacket << PortraitTurnInText;
+    _worldPacket << PortraitTurnInName;
+    _worldPacket << uint32(PortraitGiver);
+    _worldPacket << uint32(PortraitTurnIn);
+    _worldPacket << uint8(AutoLaunched);
+    _worldPacket << uint32(QuestFlags);
+    _worldPacket << uint32(SuggestedPartyMembers);
+    _worldPacket << uint8(StartCheat); // to-do: validate
+    _worldPacket << uint8(DisplayPopup);
+    _worldPacket << uint32(RequiredSpellID);
+
+    _worldPacket << Rewards;
+
+    _worldPacket << uint32(DescEmotes.size());
+    for (WorldPackets::Quest::QuestDescEmote const& emote : DescEmotes)
+    {
+        _worldPacket << uint32(emote.Type);
+        _worldPacket << uint32(emote.Delay);
+    }
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards)
+{
+    data << uint32(questRewards.ChoiceItemCount);
+    for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        data << uint32(questRewards.ChoiceItems[i].ItemID);
+    for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        data << uint32(questRewards.ChoiceItems[i].Quantity);
+    for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        data << uint32(questRewards.ChoiceItems[i].DisplayID);
+
+    data << uint32(questRewards.ItemCount);
+    for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        data << uint32(questRewards.ItemID[i]);
+    for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        data << uint32(questRewards.ItemQty[i]);
+    for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        data << uint32(questRewards.ItemDisplayID[i]);
+
+    data << uint32(questRewards.Money);
+    data << uint32(questRewards.XP);
+    data << uint32(questRewards.Title);
+    data << uint32(0); // unkown
+    data << float(0.0f); // unknown
+    data << uint32(questRewards.NumBonusTalents);
+    data << uint32(0); // unkown
+    data << uint32(questRewards.FactionFlags);
+
+
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        data << uint32(questRewards.FactionID[i]);
+
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        data << int32(questRewards.FactionValue[i]);
+
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        data << uint32(questRewards.FactionOverride[i]);
+
+    data << uint32(questRewards.SpellCompletionDisplayID);
+    data << uint32(questRewards.SpellCompletionID);
+
+    for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+        data << uint32(questRewards.CurrencyID[i]);
+
+    for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+        data << uint32(questRewards.CurrencyQty[i]);
+
+    data << uint32(questRewards.SkillLineID);
+    data << uint32(questRewards.NumSkillUps);
+
+    return data;
+}

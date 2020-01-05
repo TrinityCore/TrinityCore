@@ -1094,12 +1094,12 @@ enum OpcodeServer
     SMSG_QUERY_TIME_RESPONSE                          = 0x2124,
     SMSG_QUESTGIVER_OFFER_REWARD                      = 0x2427,
     SMSG_QUESTGIVER_QUEST_COMPLETE                    = 0x55A4,
-    SMSG_QUESTGIVER_QUEST_DETAILS                     = 0x2425,
+    SMSG_QUEST_GIVER_QUEST_DETAILS                    = 0x2425,
     SMSG_QUESTGIVER_QUEST_FAILED                      = 0x4236,
     SMSG_QUESTGIVER_QUEST_INVALID                     = 0x4016,
     SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE               = 0x0134,
     SMSG_QUEST_GIVER_REQUEST_ITEMS                    = 0x6236,
-    SMSG_QUESTGIVER_STATUS                            = 0x2115,
+    SMSG_QUEST_GIVER_STATUS                           = 0x2115,
     SMSG_QUESTGIVER_STATUS_MULTIPLE                   = 0x4F25,
     SMSG_QUESTLOG_FULL                                = 0x0E36,
     SMSG_QUESTUPDATE_ADD_ITEM                         = 0x0000,
@@ -1394,7 +1394,7 @@ inline bool IsInstanceOnlyOpcode(uint32 opcode)
         case SMSG_DUEL_INBOUNDS:
         case SMSG_DUEL_OUTOFBOUNDS:
         case SMSG_ITEM_PUSH_RESULT:
-        case SMSG_QUESTGIVER_STATUS:
+        case SMSG_QUEST_GIVER_STATUS:
         case SMSG_QUERY_TIME_RESPONSE:
         case SMSG_MOUNTRESULT:
         case SMSG_DUEL_COMPLETE:

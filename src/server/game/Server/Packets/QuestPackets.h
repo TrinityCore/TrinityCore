@@ -207,7 +207,98 @@ namespace WorldPackets
             std::vector<GossipText> QuestDataText;
             std::string Greeting;
         };
+
+        struct QuestGiverInfo
+        {
+            QuestGiverInfo() { }
+            QuestGiverInfo(ObjectGuid const& guid, uint32 status)
+                : Guid(guid), Status(status) { }
+
+            ObjectGuid Guid;
+            uint32 Status = DIALOG_STATUS_NONE;
+        };
+
+        class QuestGiverStatus final : public ServerPacket
+        {
+        public:
+            QuestGiverStatus() : ServerPacket(SMSG_QUEST_GIVER_STATUS, 12) { }
+
+            WorldPacket const* Write() override;
+
+            QuestGiverInfo QuestGiver;
+        };
+
+        struct QuestInfoChoiceItem
+        {
+            int32 ItemID = 0;
+            int32 Quantity = 0;
+            int32 DisplayID = 0;
+        };
+
+        struct QuestRewards
+        {
+            int32 ChoiceItemCount = 0;
+            int32 ItemCount = 0;
+            int32 Money = 0;
+            int32 XP = 0;
+            int32 Title = 0;
+            int32 FactionFlags = 0;
+            int32 SpellCompletionID = 0;
+            int32 SpellCompletionDisplayID = 0;
+            int32 SkillLineID = 0;
+            int32 NumSkillUps = 0;
+            int32 NumBonusTalents = 0;
+            QuestInfoChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT];
+            int32 ItemID[QUEST_REWARDS_COUNT] = { };
+            int32 ItemQty[QUEST_REWARDS_COUNT] = { };
+            int32 ItemDisplayID[QUEST_REWARDS_COUNT] = { };
+            int32 FactionID[QUEST_REPUTATIONS_COUNT] = { };
+            int32 FactionValue[QUEST_REPUTATIONS_COUNT] = { };
+            int32 FactionOverride[QUEST_REPUTATIONS_COUNT] = { };
+            int32 CurrencyID[QUEST_REWARD_CURRENCY_COUNT] = { };
+            int32 CurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = { };
+        };
+
+        struct QuestDescEmote
+        {
+            QuestDescEmote(int32 type = 0, uint32 delay = 0) : Type(type), Delay(delay) { }
+            int32 Type;
+            uint32 Delay;
+        };
+
+        class QuestGiverQuestDetails final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestDetails() : ServerPacket(SMSG_QUEST_GIVER_QUEST_DETAILS, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            ObjectGuid InformUnit;
+            int32 QuestID = 0;
+            uint32 QuestFlags = 0;
+            int32 SuggestedPartyMembers = 0;
+            QuestRewards Rewards;
+            std::vector<QuestDescEmote> DescEmotes;
+            int32 PortraitTurnIn = 0;
+            int32 PortraitGiver = 0;
+            int32 QuestStartItemID = 0;
+            int32 RequiredSpellID = 0;
+            std::string PortraitGiverText;
+            std::string PortraitGiverName;
+            std::string PortraitTurnInText;
+            std::string PortraitTurnInName;
+            std::string QuestTitle;
+            std::string LogDescription;
+            std::string DescriptionText;
+            std::string Objectives;
+            bool DisplayPopup = false;
+            bool StartCheat = false;
+            bool AutoLaunched = false;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards);
 
 #endif // SystemPackets_h__

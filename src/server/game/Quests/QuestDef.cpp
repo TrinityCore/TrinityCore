@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "QuestPackets.h"
 #include "World.h"
 
 Quest::Quest(Field* questRecord)
@@ -322,19 +323,6 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     data << uint32(0);                                      // unk
     data << uint32(GetRewardReputationMask());
 
-    /* Pre cata struct, some of these unks might be the missing values in cata:
-    // rewarded honor points. Multiply with 10 to satisfy client
-    data << 10 * Trinity::Honor::hk_honor_at_level(_session->GetPlayer()->getLevel(), quest->GetRewHonorMultiplier());
-    data << float(0);                                       // unk, honor multiplier?
-    data << uint32(0x08);                                   // unused by client?
-    data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
-    data << int32(quest->GetRewSpellCast());                // casted spell
-    data << uint32(0);                                      // unknown
-    data << uint32(quest->GetBonusTalents());               // bonus talents
-    data << uint32(quest->GetRewArenaPoints());             // arena points
-    data << uint32(0);
-    */
-
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward factions ids
         data << uint32(RewardFactionId[i]);
 
@@ -355,6 +343,50 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
 
     data << uint32(GetRewardSkillId());
     data << uint32(GetRewardSkillPoints());
+}
+
+void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
+{
+    rewards.ChoiceItemCount = GetRewChoiceItemsCount();
+    rewards.ItemCount = GetReqItemsCount();
+    rewards.Money = GetRewOrReqMoney(player);
+    rewards.XP = GetXPReward(player) * sWorld->getRate(RATE_XP_QUEST);
+    rewards.Title = GetCharTitleId();
+    rewards.FactionFlags = GetRewardReputationMask();
+    rewards.SpellCompletionDisplayID = GetRewSpell();
+    rewards.SpellCompletionID = GetRewSpellCast();
+    rewards.SkillLineID = GetRewardSkillId();
+    rewards.NumSkillUps = GetRewardSkillPoints();
+    rewards.NumBonusTalents = GetBonusTalents();
+
+    for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+    {
+        rewards.ChoiceItems[i].ItemID = RewardChoiceItemId[i];
+        rewards.ChoiceItems[i].Quantity = RewardChoiceItemCount[i];
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
+            rewards.ChoiceItems[i].DisplayID = itemTemplate->DisplayInfoID;
+    }
+
+    for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+    {
+        rewards.ItemID[i] = RewardItemId[i];
+        rewards.ItemQty[i] = RewardItemIdCount[i];
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
+            rewards.ItemDisplayID[i] = itemTemplate->DisplayInfoID;
+    }
+
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    {
+        rewards.FactionID[i] = RewardFactionId[i];
+        rewards.FactionValue[i] = RewardFactionValueId[i];
+        rewards.FactionOverride[i] = RewardFactionValueIdOverride[i];
+    }
+
+    for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+    {
+        rewards.CurrencyID[i] = RewardCurrencyId[i];
+        rewards.CurrencyQty[i] = RewardCurrencyCount[i];
+    }
 }
 
 uint32 Quest::GetRewMoneyMaxLevel() const
