@@ -44,7 +44,7 @@ bool Script_Mage::DPS_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -89,7 +89,7 @@ bool Script_Mage::Attack_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -125,7 +125,7 @@ bool Script_Mage::Buff(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}

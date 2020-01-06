@@ -49,7 +49,7 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -87,7 +87,7 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
 		{
 			return true;
 		}
-		if (me->GetObjectGuid() != pmTarget->GetSelectionGuid())
+		if (me->GetGUID() != pmTarget->GetSelectionGuid())
 		{
 			if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
 			{
@@ -114,7 +114,7 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -208,7 +208,7 @@ bool Script_Druid::Tank(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -430,7 +430,7 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -468,7 +468,7 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
 		{
 			return true;
 		}
-		if (me->GetObjectGuid() != pmTarget->GetSelectionGuid())
+		if (me->GetGUID() != pmTarget->GetSelectionGuid())
 		{
 			if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
 			{
@@ -541,7 +541,7 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -698,7 +698,7 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -790,7 +790,7 @@ bool Script_Druid::Healer(Unit* pmTarget)
 	{
 		return false;
 	}
-	if (!pmTarget->isAlive())
+	if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -931,7 +931,7 @@ bool Script_Druid::Buff(Unit* pmTarget)
 	{
 		return false;
 	}
-	if (!pmTarget->isAlive())
+	if (!pmTarget->IsAlive())
 	{
 		return false;
 	}

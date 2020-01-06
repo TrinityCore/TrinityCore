@@ -58,7 +58,7 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
 			interestsDelay = -1;
 		}
 	}
-	if (!me->isAlive())
+	if (!me->IsAlive())
 	{
 		deathDuration += pmDiff;
 		restDelay = 0;
@@ -70,7 +70,7 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
 	{
 		return;
 	}
-	if (!me->isAlive())
+	if (!me->IsAlive())
 	{
 		return;
 	}
@@ -282,7 +282,7 @@ bool Strategy_Solo_Normal::Eat()
 		me->CombatStop(true);
 		me->GetMotionMaster()->Clear();
 		me->StopMoving();
-		me->SetSelectionGuid(ObjectGuid());
+		me->SetSelection(ObjectGuid());
 
 		sourceAI->ClearShapeshift();
 		Item* pFood = sourceAI->GetItemInInventory(foodEntry);
@@ -355,7 +355,7 @@ bool Strategy_Solo_Normal::Drink()
 		me->CombatStop(true);
 		me->GetMotionMaster()->Clear();
 		me->StopMoving();
-		me->SetSelectionGuid(ObjectGuid());
+		me->SetSelection(ObjectGuid());
 
 		sourceAI->ClearShapeshift();
 		Item* pDrink = sourceAI->GetItemInInventory(drinkEntry);

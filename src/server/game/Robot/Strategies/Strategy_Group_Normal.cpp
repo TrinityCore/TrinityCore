@@ -41,7 +41,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
 		{
 			if (master) {
 				sourceAI->WhisperTo("I have come", Language::LANG_UNIVERSAL, master);
-				if (!me->isAlive())
+				if (!me->IsAlive())
 				{
 					me->ResurrectPlayer(0.1f);
 				}
@@ -60,7 +60,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
 	{
 		return;
 	}
-	if (!me->isAlive())
+	if (!me->IsAlive())
 	{
 		restDelay = 0;
 		return;
@@ -235,7 +235,7 @@ bool Strategy_Group_Normal::Eat(bool pmForce)
 		me->CombatStop(true);
 		me->GetMotionMaster()->Clear();
 		me->StopMoving();
-		me->SetSelectionGuid(ObjectGuid());
+		me->SetSelection(ObjectGuid());
 
 		sourceAI->ClearShapeshift();
 		Item* pFood = sourceAI->GetItemInInventory(foodEntry);
@@ -314,7 +314,7 @@ bool Strategy_Group_Normal::Drink(bool pmForce)
 		me->CombatStop(true);
 		me->GetMotionMaster()->Clear();
 		me->StopMoving();
-		me->SetSelectionGuid(ObjectGuid());
+		me->SetSelection(ObjectGuid());
 
 		sourceAI->ClearShapeshift();
 		Item* pDrink = sourceAI->GetItemInInventory(drinkEntry);
@@ -520,7 +520,7 @@ bool Strategy_Group_Normal::Tank()
 				float distance = me->GetDistance(pTarget);
 				if (distance < DEFAULT_VISIBILITY_DISTANCE)
 				{
-					if (pTarget->GetSelectionGuid() != me->GetObjectGuid())
+					if (pTarget->GetSelectionGuid() != me->GetGUID())
 					{
 						if (Tank(pTarget))
 						{
@@ -656,7 +656,7 @@ bool Strategy_Group_Normal::Healer()
 		for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
 		{
 			Player* member = groupRef->getSource();
-			if (!member->isAlive())
+			if (!member->IsAlive())
 			{
 				continue;
 			}
@@ -721,7 +721,7 @@ bool Strategy_Group_Normal::GroupInCombat()
 		Player* member = groupRef->getSource();
 		if (me->GetDistance(member) < 100)
 		{
-			if (member->isAlive())
+			if (member->IsAlive())
 			{
 				if (member->isInCombat())
 				{
@@ -736,7 +736,7 @@ bool Strategy_Group_Normal::GroupInCombat()
 bool Strategy_Group_Normal::Follow()
 {
 	Player* me = sourceAI->sourcePlayer;
-	if (!me->isAlive())
+	if (!me->IsAlive())
 	{
 		return false;
 	}
@@ -798,7 +798,7 @@ bool Strategy_Group_Normal::Follow()
 		{
 			me->SetStandState(UNIT_STAND_STATE_STAND);
 		}
-		if (!me->hasUnitState(UnitState::UNIT_STAT_RUNNING))
+		if (!me->HasUnitState(UnitState::UNIT_STAT_RUNNING))
 		{
 			me->addUnitState(UnitState::UNIT_STAT_RUNNING);
 		}

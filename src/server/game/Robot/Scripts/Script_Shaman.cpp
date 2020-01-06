@@ -40,7 +40,7 @@ bool Script_Shaman::Healer(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }
@@ -78,7 +78,7 @@ bool Script_Shaman::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }
@@ -113,7 +113,7 @@ bool Script_Shaman::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }

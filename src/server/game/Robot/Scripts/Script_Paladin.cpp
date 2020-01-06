@@ -68,7 +68,7 @@ bool Script_Paladin::Tank(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -104,7 +104,7 @@ bool Script_Paladin::Healer(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -181,7 +181,7 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -219,7 +219,7 @@ bool Script_Paladin::Attack_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -253,7 +253,7 @@ bool Script_Paladin::Buff(Unit* pmTarget)
 	{
 		return false;
 	}
-	if (!pmTarget->isAlive())
+	if (!pmTarget->IsAlive())
 	{
 		if (sourceAI->CastSpell(pmTarget, "Redemption", PALADIN_RANGE_DISTANCE))
 		{

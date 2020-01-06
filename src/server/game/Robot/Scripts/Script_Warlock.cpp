@@ -44,7 +44,7 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }
@@ -88,7 +88,7 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }

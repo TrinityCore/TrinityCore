@@ -9,10 +9,10 @@
 # define MELEE_MAX_DISTANCE 2.0f
 #endif
 
-#include "Entities/Unit.h"
-#include "Entities/Player.h"
-#include "Entities/Item.h"
-#include "Entities/Bag.h"
+#include "Unit.h"
+#include "Player.h"
+#include "Item.h"
+#include "Bag.h"
 #include "Globals/ObjectAccessor.h"
 #include "RobotManager.h"
 #include "Spells/Spell.h"
@@ -30,6 +30,7 @@
 #include "Scripts/Script_Mage.h"
 #include "Scripts/Script_Druid.h"
 #include "SpellInfo.h"
+#include "SpellHistory.h"
 
 class Strategy_Solo_Normal;
 class Strategy_Group_Normal;

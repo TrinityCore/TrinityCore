@@ -44,7 +44,7 @@ bool Script_Rogue::DPS_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}
@@ -100,7 +100,7 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!pmTarget->isAlive())
+	else if (!pmTarget->IsAlive())
 	{
 		return false;
 	}

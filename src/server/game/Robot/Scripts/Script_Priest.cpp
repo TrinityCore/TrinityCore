@@ -54,7 +54,7 @@ bool Script_Priest::Healer(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }
@@ -105,7 +105,7 @@ bool Script_Priest::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }
@@ -154,7 +154,7 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }
@@ -199,7 +199,7 @@ bool Script_Priest::Buff(Unit* pmTarget)
     {
         return false;
     }
-    if (!pmTarget->isAlive())
+    if (!pmTarget->IsAlive())
     {
         if (sourceAI->CastSpell(pmTarget, "Resurrection", PRIEST_RANGE_DISTANCE))
         {

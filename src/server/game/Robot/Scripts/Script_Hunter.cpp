@@ -48,7 +48,7 @@ bool Script_Hunter::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }
@@ -116,7 +116,7 @@ bool Script_Hunter::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!pmTarget->isAlive())
+    else if (!pmTarget->IsAlive())
     {
         return false;
     }
@@ -179,7 +179,7 @@ bool Script_Hunter::Buff(Unit* pmTarget)
 			return true;
 		}
 	}
-	else  if (!pet->isAlive())
+	else  if (!pet->IsAlive())
 	{
 		if (sourceAI->CastSpell(me, "Revive Pet"))
 		{
