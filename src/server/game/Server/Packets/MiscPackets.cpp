@@ -47,6 +47,17 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
             _worldPacket << uint32(*data.WeeklyQuantity);
     }
 
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::RequestPVPRewardsResponse::Write()
+{
+    _worldPacket << uint32(MaxRewardPointsThisWeek);
+    _worldPacket << uint32(RewardPointsThisWeek);
+    _worldPacket << uint32(ArenaMaxRewardPointsThisWeek);
+    _worldPacket << uint32(RatedRewardPointsThisWeek);
+    _worldPacket << uint32(ArenaRewardPointsThisWeek);
+    _worldPacket << uint32(RatedMaxRewardPointsThisWeek);
 
     return &_worldPacket;
 }

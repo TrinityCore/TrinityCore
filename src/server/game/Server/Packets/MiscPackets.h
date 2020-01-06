@@ -46,6 +46,21 @@ namespace WorldPackets
 
             std::vector<Record> Data;
         };
+
+        class RequestPVPRewardsResponse final : public ServerPacket
+        {
+        public:
+            RequestPVPRewardsResponse() : ServerPacket(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24) { }
+
+            WorldPacket const* Write() override;
+
+            int32 RatedRewardPointsThisWeek = 0;
+            int32 ArenaRewardPointsThisWeek = 0;
+            int32 RewardPointsThisWeek = 0;
+            int32 RatedMaxRewardPointsThisWeek = 0;
+            int32 ArenaMaxRewardPointsThisWeek = 0;
+            int32 MaxRewardPointsThisWeek = 0;
+        };
     }
 }
 

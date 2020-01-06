@@ -7149,15 +7149,15 @@ void Player::SendCurrencies() const
 
 void Player::SendPvpRewards() const
 {
-    WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    WorldPackets::Misc::RequestPVPRewardsResponse packet;
+    packet.ArenaMaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    packet.ArenaRewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+    packet.MaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet.RewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet.RatedMaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet.RatedRewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
 
-    SendDirectMessage(&packet);
+    SendDirectMessage(packet.Write());
 }
 
 uint32 Player::GetCurrency(uint32 id, bool usePrecision) const
