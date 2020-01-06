@@ -791,12 +791,13 @@ DROP TABLE IF EXISTS `character_currency`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_currency` (
-  `guid` int(10) unsigned NOT NULL,
-  `currency` smallint(5) unsigned NOT NULL,
-  `total_count` int(10) unsigned NOT NULL,
-  `week_count` int(10) unsigned NOT NULL,
-  `season_count` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`guid`,`currency`)
+  `CharacterGuid` int(10) unsigned NOT NULL,
+  `Currency` smallint(5) unsigned NOT NULL,
+  `Quantity` int(10) unsigned NOT NULL,
+  `WeeklyQuantity` int(10) unsigned NOT NULL,
+  `TrackedQuantity` int(10) unsigned NOT NULL,
+  `Flags` tinyint(2) unsigned NOT NULL,
+  PRIMARY KEY (`CharacterGuid`,`Currency`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3043,7 +3044,8 @@ INSERT INTO `updates` VALUES
 ('custom_2018_08_19_00_characters.sql','86E163BDA84220C6A4A6B95EABC560F7630F8589','RELEASED','2019-11-06 00:17:44',75),
 ('custom_2018_11_18_00_characters.sql','7A094FFF2E2438B664203146C16249A8ADA9736D','RELEASED','2019-11-06 00:17:44',77),
 ('custom_2019_08_01_00_characters.sql','980B1647EBB41A3644ED825E116F052EFEB6E5D1','RELEASED','2019-11-06 00:17:45',60),
-('custom_2019_08_20_00_characters.sql','09DC2B6A0E602E377F240CB29F6E1E3209FD346B','RELEASED','2019-11-06 00:17:45',86);
+('custom_2019_08_20_00_characters.sql','09DC2B6A0E602E377F240CB29F6E1E3209FD346B','RELEASED','2019-11-06 00:17:45',86),
+('custom_2020_01_05_00_character.sql','DEC981779DA0311FA1E20FF0424BE5F997D21BEE','RELEASED','2020-01-06 10:44:59',447);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
