@@ -33,6 +33,9 @@
 #include "World.h"
 #include "WorldPacket.h"
 
+ // EJ robot 
+#include "RobotAI.h"
+
 class Aura;
 
 /* differeces from off:
@@ -152,6 +155,18 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
             data << uint8(0);                                       // count
             data << uint32(0);                                      // unk
             invitedPlayer->SendDirectMessage(&data);
+        }
+
+        // EJ robot group recheck
+        if (invitedPlayer->GetSession()->isRobot)
+        {
+            if (invitedPlayer->rai)
+            {
+                if (!invitedPlayer->IsInSameGroupWith(invitedPlayer->rai->masterPlayer))
+                {
+                    invitedPlayer->RemoveFromGroup();
+                }
+            }
         }
 
         return;

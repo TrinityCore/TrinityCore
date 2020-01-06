@@ -214,18 +214,18 @@ namespace Trainer
 
         switch (GetTrainerType())
         {
-            case Type::Class:
-            case Type::Pet:
-                // check class for class trainers
-                return player->GetClass() == GetTrainerRequirement();
-            case Type::Mount:
-                // check race for mount trainers
-                return player->GetRace() == GetTrainerRequirement();
-            case Type::Tradeskill:
-                // check spell for profession trainers
-                return player->HasSpell(GetTrainerRequirement());
-            default:
-                break;
+        case Type::Class:
+        case Type::Pet:
+            // check class for class trainers
+            return player->GetClass() == GetTrainerRequirement();
+        case Type::Mount:
+            // check race for mount trainers
+            return player->GetRace() == GetTrainerRequirement();
+        case Type::Tradeskill:
+            // check spell for profession trainers
+            return player->HasSpell(GetTrainerRequirement());
+        default:
+            break;
         }
 
         return true;
@@ -259,5 +259,28 @@ namespace Trainer
     void Trainer::AddGreetingLocale(LocaleConstant locale, std::string greeting)
     {
         _greeting[locale] = std::move(greeting);
+    }
+
+    std::unordered_set<uint32> Trainer::GetAllSpellsID() const
+    {
+        std::unordered_set<uint32> idResult;
+
+        for (Spell const& eachTS : _spells)
+        {
+            idResult.insert(eachTS.SpellId);
+        }
+
+        return idResult;
+    }
+
+    bool Trainer::SpellValidToTrain(Player* pmTargetPlayer, uint32 spellId) const
+    {
+        bool validResult = false;
+        const Spell* targetTS = GetSpell(spellId);
+        if (GetSpellState(pmTargetPlayer, targetTS) == SpellState::Available)
+        {
+            validResult = true;
+        }
+        return validResult;
     }
 }

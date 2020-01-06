@@ -74,6 +74,10 @@ class ReputationMgr;
 class SpellCastTargets;
 class TradeData;
 
+
+// EJ robot ai class
+class RobotAI;
+
 enum InventoryType : uint8;
 enum ItemClass : uint8;
 enum LootError : uint8;
@@ -880,6 +884,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
     friend class CinematicMgr;
     friend void AddItemToUpdateQueueOf(Item* item, Player* player);
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
+
+    // EJ robot	
+public:
+    RobotAI* rai;
+    // 0, dps 1, tank 2, healer
+    int groupRole;
+    bool newPlayer;
+
     public:
         explicit Player(WorldSession* session);
         ~Player();

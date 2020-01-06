@@ -53,6 +53,9 @@
 #include "WorldSocket.h"
 #include <zlib.h>
 
+// EJ robot
+#include "RobotAI.h"
+
 namespace {
 
 std::string const DefaultPlayerName = "<none>";
@@ -147,6 +150,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
+    // EJ robot
+    isRobot = false;
 }
 
 /// WorldSession destructor
@@ -202,6 +207,19 @@ ObjectGuid::LowType WorldSession::GetGUIDLow() const
 void WorldSession::SendPacket(WorldPacket const* packet)
 {
     ASSERT(packet->GetOpcode() != NULL_OPCODE);
+
+    // EJ robot
+    if (isRobot)
+    {
+        if (_player)
+        {
+            if (_player->rai)
+            {
+                _player->rai->HandlePacket((packet));
+            }
+        }
+        return;
+    }
 
     if (!m_Socket)
         return;
@@ -273,6 +291,25 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
+    // EJ robot
+    if (isRobot)
+    {
+        if (_player)
+        {
+            if (_player->IsBeingTeleportedNear())
+            {
+                WorldPacket data(MSG_MOVE_TELEPORT_ACK, 10);
+                data << _player->GetGUID().WriteAsPacked();
+                data << uint32(0) << uint32(0);
+                _player->GetSession()->HandleMoveTeleportAck(data);
+            }
+            if (_player->IsBeingTeleportedFar())
+                _player->GetSession()->HandleMoveWorldportAck();
+        }
+
+        return true;
+    }
+
     ///- Before we process anything:
     /// If necessary, kick the player because the client didn't send anything for too long
     /// (or they've been idling in character select)
@@ -458,6 +495,9 @@ void WorldSession::LogoutPlayer(bool save)
 
     if (_player)
     {
+        // EJ auto remove from group when logging out
+        _player->RemoveFromGroup();
+
         if (ObjectGuid lguid = _player->GetLootGUID())
             DoLootRelease(lguid);
 

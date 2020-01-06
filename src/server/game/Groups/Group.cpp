@@ -170,6 +170,10 @@ bool Group::Create(Player* leader)
     m_looterGuid = leaderGuid;
     m_masterLooterGuid.Clear();
 
+
+    // EJ free loot
+    m_lootMethod = FREE_FOR_ALL;
+
     m_dungeonDifficulty = DUNGEON_DIFFICULTY_NORMAL;
     m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
 

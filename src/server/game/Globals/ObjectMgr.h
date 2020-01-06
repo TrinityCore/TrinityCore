@@ -1702,6 +1702,13 @@ class TC_GAME_API ObjectMgr
         std::set<uint32> _transportMaps; // Helper container storing map ids that are for transports only, loaded from gameobject_template
 
         PlayerTotemModelMap _playerTotemModel;
+
+        // EJ get trainers
+        public:
+            std::unordered_map<uint32, Trainer::Trainer> GetTrainers()
+            {
+                return _trainers;
+            }
 };
 
 #define sObjectMgr ObjectMgr::instance()

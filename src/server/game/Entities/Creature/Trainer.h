@@ -70,6 +70,12 @@ namespace Trainer
         void SendSpells(Creature const* npc, Player const* player, LocaleConstant locale) const;
         void TeachSpell(Creature const* npc, Player* player, uint32 spellId) const;
 
+        // EJ get trainer spells
+        std::unordered_set<uint32> GetAllSpellsID() const;
+
+        // EJ spell state
+        bool SpellValidToTrain(Player* pmTargetPlayer, uint32 spellId)  const;
+
         Type GetTrainerType() const { return _type; }
         uint32 GetTrainerRequirement() const { return _requirement; }
         bool IsTrainerValidForPlayer(Player const* player) const;

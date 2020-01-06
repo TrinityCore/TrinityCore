@@ -351,5 +351,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         }
         GameObjectAI* m_AI;
         bool m_respawnCompatibilityMode;
+
+
+        // EJ auto fish
+        bool fishing;
 };
 #endif

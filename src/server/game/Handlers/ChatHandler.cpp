@@ -43,6 +43,9 @@
 #include <utf8.h>
 #include <algorithm>
 
+ // EJ robot
+#include "RobotAI.h"
+
 inline bool isNasty(uint8 c)
 {
     if (c == '\t')
@@ -293,6 +296,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             sender->Say(msg, Language(lang));
+
+            // EJ robot
+            if (!GetPlayer()->GetSession()->isRobot)
+            {
+                sRobotManager->HandlePlayerSay(GetPlayer(), msg);
+            }
             break;
         }
         case CHAT_MSG_EMOTE:
@@ -369,6 +378,16 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 sender->AddWhisperWhiteList(receiver->GetGUID());
 
             GetPlayer()->Whisper(msg, Language(lang), receiver);
+
+            // EJ robot
+            if (receiver->GetSession()->isRobot)
+            {
+                if (receiver->rai)
+                {
+                    receiver->rai->HandleChatCommand(msg, GetPlayer());
+                }
+            }
+
             break;
         }
         case CHAT_MSG_PARTY:
@@ -391,6 +410,19 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             WorldPacket data;
             ChatHandler::BuildChatPacket(data, ChatMsg(type), Language(lang), sender, nullptr, msg);
             group->BroadcastPacket(&data, false, group->GetMemberGroup(GetPlayer()->GetGUID()));
+
+            // EJ robot
+            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                Player* member = groupRef->GetSource();
+                if (member->GetSession()->isRobot)
+                {
+                    if (member->rai)
+                    {
+                        member->rai->HandleChatCommand(msg, GetPlayer());
+                    }
+                }
+            }
             break;
         }
         case CHAT_MSG_GUILD:
@@ -453,6 +485,20 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             WorldPacket data;
             ChatHandler::BuildChatPacket(data, CHAT_MSG_RAID_LEADER, Language(lang), sender, nullptr, msg);
             group->BroadcastPacket(&data, false);
+
+            // EJ robot
+            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                Player* member = groupRef->GetSource();
+                if (member->GetSession()->isRobot)
+                {
+                    if (member->rai)
+                    {
+                        member->rai->HandleChatCommand(msg, GetPlayer());
+                    }
+                }
+            }
+
             break;
         }
         case CHAT_MSG_RAID_WARNING:

@@ -1004,6 +1004,19 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     TC_METRIC_EVENT("player_events", "Login", pCurrChar->GetName());
 
     delete holder;
+
+    // EJ robot
+    if (isRobot)
+    {
+        std::ostringstream loginBroadCastStream;
+        loginBroadCastStream << pCurrChar->GetName() << " logged in";
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, loginBroadCastStream.str().c_str());
+
+        if (pCurrChar->GetFreeTalentPoints() == pCurrChar->GetLevel() - 9)
+        {
+            pCurrChar->newPlayer = true;
+        }
+    }
 }
 
 void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
