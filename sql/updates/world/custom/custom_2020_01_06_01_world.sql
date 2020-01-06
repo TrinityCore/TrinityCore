@@ -119,7 +119,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 -- Remove wrong waypoints from Admiral Ripsnarl
 DELETE FROM `waypoint_data` WHERE `id`= 3758540;
 UPDATE `creature_addon` SET `path_id`= 0 WHERE `guid`= 375854;
-UPDATE `creature` SET `position_x` = -66.7813, `position_y`= -837.863, `position_z`= 41.06303, `orientation`= 4.607669 WHERE `guid`= 375854;
+UPDATE `creature` SET `position_x` = -66.7813, `position_y`= -837.863, `position_z`= 41.06303, `orientation`= 4.607669, `MovementType`= 0 WHERE `guid`= 375854;
 
 -- Pathing for  Entry: 48351 'TDB FORMAT' 
 SET @NPC := 375935;
