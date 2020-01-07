@@ -199,7 +199,7 @@ public:
                 case ACTION_UNHOLY_POWER:
                     if (IsHeroic())
                     {
-                        switch (RAND(0, 1))
+                        switch (urand(0, 1))
                         {
                             case 0:
                                 events.ScheduleEvent(EVENT_SHIELD_OF_THE_PERFIDIOUS, Seconds(1));

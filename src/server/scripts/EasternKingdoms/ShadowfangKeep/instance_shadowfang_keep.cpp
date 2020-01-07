@@ -68,6 +68,9 @@ enum SpawnGroups
     SPAWN_GROUP_LORD_GODFREY_DEAD_TROUPS_HORDE      = 420,
     SPAWN_GROUP_BARON_ASHBURY_TROUPS_ALLIANCE       = 421,
     SPAWN_GROUP_BARON_ASHBURY_TROUPS_HORDE          = 422,
+    SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_ALLIANCE   = 423,
+    SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_HORDE      = 424
+
 };
 
 class instance_shadowfang_keep : public InstanceMapScript
@@ -84,6 +87,7 @@ public:
             LoadDoorData(doorData);
             LoadBossBoundaries(boundaries);
             LoadObjectData(creatureData, gameobjectData);
+            _currentlyActiveTroupSpawnGroup = 0;
         }
 
         void OnPlayerEnter(Player* player) override
@@ -141,7 +145,12 @@ public:
                 switch (type)
                 {
                     case DATA_BARON_ASHBURY:
-                        instance->SpawnGroupSpawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_BARON_ASHBURY_TROUPS_ALLIANCE : SPAWN_GROUP_BARON_ASHBURY_TROUPS_HORDE);
+                        _currentlyActiveTroupSpawnGroup = *_teamInInstance == ALLIANCE ? SPAWN_GROUP_BARON_ASHBURY_TROUPS_ALLIANCE : SPAWN_GROUP_BARON_ASHBURY_TROUPS_HORDE;
+                        instance->SpawnGroupSpawn(_currentlyActiveTroupSpawnGroup);
+                        break;
+                    case DATA_BARON_SILVERLAINE:
+                        _currentlyActiveTroupSpawnGroup = *_teamInInstance == ALLIANCE ? SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_ALLIANCE : SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_HORDE;
+                        instance->SpawnGroupSpawn(_currentlyActiveTroupSpawnGroup);
                         break;
                     default:
                         break;
@@ -171,15 +180,16 @@ public:
                     instance->SpawnGroupSpawn(SPAWN_GROUP_DISEASE_CLOUDS_LORD_WALDEN);
             }
 
+            // Despawning previous troup
+            if (_currentlyActiveTroupSpawnGroup)
+                instance->SpawnGroupDespawn(_currentlyActiveTroupSpawnGroup);
+
             // Entrance handling
             if (GetBossState(DATA_BARON_ASHBURY) != DONE)
-                instance->SpawnGroupSpawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_ENTRANCE_ALLIANCE : SPAWN_GROUP_ENTRANCE_HORDE);
-            else if (GetBossState(DATA_BARON_ASHBURY) == DONE)
-                instance->SpawnGroupDespawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_ENTRANCE_ALLIANCE : SPAWN_GROUP_ENTRANCE_HORDE);
-
-            // Baron Ashbury troups handling
-            if (GetBossState(DATA_COMMANDER_SPRINGVALE) == DONE || GetBossState(DATA_BARON_SILVERLAINE) == DONE || GetBossState(DATA_LORD_WALDEN) == DONE)
-                instance->SpawnGroupDespawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_BARON_ASHBURY_TROUPS_ALLIANCE : SPAWN_GROUP_BARON_ASHBURY_TROUPS_HORDE);
+            {
+                _currentlyActiveTroupSpawnGroup = *_teamInInstance == ALLIANCE ? SPAWN_GROUP_ENTRANCE_ALLIANCE : SPAWN_GROUP_ENTRANCE_HORDE;
+                instance->SpawnGroupSpawn(_currentlyActiveTroupSpawnGroup);
+            }
 
             // Lord Godfrey room setup
             if (GetBossState(DATA_LORD_WALDEN) == DONE)
@@ -201,6 +211,7 @@ public:
         protected:
             EventMap events;
             Optional<uint32>_teamInInstance;
+            uint32 _currentlyActiveTroupSpawnGroup;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

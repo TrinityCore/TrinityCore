@@ -71,7 +71,10 @@ enum Texts
     SAY_IVAR_OPEN_GATE          = 10,
     SAY_IVAR_DOOR_CLOSED_1      = 11,
     SAY_IVAR_DOOR_CLOSED_2      = 12,
-    SAY_IVAR_ROOM_OPEN          = 13
+    SAY_IVAR_ROOM_OPEN          = 13,
+
+    // Bloodfang Berserker
+    SAY_SHOW_COMMANDER_SPRINGVALE = 1
 };
 
 enum SKShieldOfBones
@@ -101,23 +104,38 @@ class spell_sfk_shield_of_bones : public AuraScript
     }
 };
 
-class at_sfk_pre_walden : public AreaTriggerScript
+class at_sfk_baron_silverlaine_post_floor : public OnlyOnceAreaTriggerScript
 {
 public:
-    at_sfk_pre_walden() : AreaTriggerScript("at_sfk_pre_walden") { }
+    at_sfk_baron_silverlaine_post_floor() : OnlyOnceAreaTriggerScript("at_sfk_baron_silverlaine_post_floor") { }
 
-    bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*areaTrigger*/)
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (Creature* berserker = player->FindNearestCreature(NPC_BLOODFANG_BERSERKER, 15.f, true))
+            if (berserker->IsAIEnabled)
+                berserker->AI()->Talk(SAY_SHOW_COMMANDER_SPRINGVALE, player);
+
+        return true;
+    }
+};
+
+class at_sfk_pre_walden : public OnlyOnceAreaTriggerScript
+{
+public:
+    at_sfk_pre_walden() : OnlyOnceAreaTriggerScript("at_sfk_pre_walden") { }
+
+    bool _OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         return true;
     }
 };
 
-class at_sfk_godfrey_intro : public AreaTriggerScript
+class at_sfk_godfrey_intro : public OnlyOnceAreaTriggerScript
 {
 public:
-    at_sfk_godfrey_intro() : AreaTriggerScript("at_sfk_godfrey_intro") { }
+    at_sfk_godfrey_intro() : OnlyOnceAreaTriggerScript("at_sfk_godfrey_intro") { }
 
-    bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*areaTrigger*/)
+    bool _OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         return true;
     }
@@ -128,4 +146,5 @@ void AddSC_shadowfang_keep()
     RegisterAuraScript(spell_sfk_shield_of_bones);
     new at_sfk_pre_walden();
     new at_sfk_godfrey_intro();
+    new at_sfk_baron_silverlaine_post_floor();
 }
