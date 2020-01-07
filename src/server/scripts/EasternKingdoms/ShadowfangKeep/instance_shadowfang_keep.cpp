@@ -112,6 +112,10 @@ public:
                 case NPC_FORSAKEN_BLIGHTSPREADER:
                     creature->SetDisplayId(creature->GetCreatureTemplate()->Modelid1);
                     break;
+                case NPC_HIGH_WARLORD_CROMUSH:
+                    if (creature->ToTempSummon())
+                        _cromushGUID = creature->GetGUID();
+                    break;
                 default:
                     break;
             }
@@ -203,7 +207,13 @@ public:
 
             // Despawning previous troups
             if (_currentlyActiveTroupSpawnGroup)
+            {
                 instance->SpawnGroupDespawn(_currentlyActiveTroupSpawnGroup);
+
+                // Despawn the summoned Cromush versions as they are not a part of the spawn groups
+                if (Creature* cromush = instance->GetCreature(_cromushGUID))
+                    cromush->DespawnOrUnsummon();
+            }
 
             // Entrance handling
             if (GetBossState(DATA_BARON_ASHBURY) != DONE)
@@ -251,6 +261,7 @@ public:
             EventMap events;
             Optional<uint32>_teamInInstance;
             uint32 _currentlyActiveTroupSpawnGroup;
+            ObjectGuid _cromushGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
