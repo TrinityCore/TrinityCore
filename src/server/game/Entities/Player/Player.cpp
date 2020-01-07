@@ -17599,7 +17599,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     m_taxi.LoadTaxiMask(fields[22].GetString());                // must be before InitTaxiNodesForLevel
 
-    uint32 extraflags = fields[36].GetUInt16();
+    m_ExtraFlags = fields[36].GetUInt16();
 
     m_stableSlots = fields[37].GetUInt8();
     if (m_stableSlots > MAX_PET_STABLES)
@@ -17782,7 +17782,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             case 0:                      break;             // disable
             case 1: SetGameMaster(true); break;             // enable
             case 2:                                         // save state
-                if (extraflags & PLAYER_EXTRA_GM_ON)
+                if (m_ExtraFlags & PLAYER_EXTRA_GM_ON)
                     SetGameMaster(true);
                 break;
         }
@@ -17793,7 +17793,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             case 0: SetGMVisible(false); break;             // invisible
             case 1:                      break;             // visible
             case 2:                                         // save state
-                if (extraflags & PLAYER_EXTRA_GM_INVISIBLE)
+                if (m_ExtraFlags & PLAYER_EXTRA_GM_INVISIBLE)
                     SetGMVisible(false);
                 break;
         }
@@ -17804,7 +17804,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             case 0:                  break;                 // disable
             case 1: SetGMChat(true); break;                 // enable
             case 2:                                         // save state
-                if (extraflags & PLAYER_EXTRA_GM_CHAT)
+                if (m_ExtraFlags & PLAYER_EXTRA_GM_CHAT)
                     SetGMChat(true);
                 break;
         }
@@ -17815,7 +17815,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             case 0:                          break;         // disable
             case 1: SetAcceptWhispers(true); break;         // enable
             case 2:                                         // save state
-                if (extraflags & PLAYER_EXTRA_ACCEPT_WHISPERS)
+                if (m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS)
                     SetAcceptWhispers(true);
                 break;
         }
