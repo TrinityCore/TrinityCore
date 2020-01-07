@@ -1,7 +1,7 @@
 DELETE FROM `spawn_group_template` WHERE `groupId` IN (427, 428);
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
-(427, 'Shadowfang Keep - Commander Springvale Alliance Troups', 4),
-(428, 'Shadowfang Keep - Outside Alliance Troups', 4);
+(427, 'Shadowfang Keep - Lord Walden Alliance Troups', 4),
+(428, 'Shadowfang Keep - Lord Walden Horde Troups', 4);
 
 SET @CGUID := 395370;
 DELETE FROM `spawn_group` WHERE `groupId` IN (427, 428);
