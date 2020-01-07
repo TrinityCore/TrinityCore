@@ -30,6 +30,7 @@ ObjectData const creatureData[] =
     { BOSS_COMMANDER_SPRINGVALE,        DATA_COMMANDER_SPRINGVALE   },
     { BOSS_LORD_WALDEN,                 DATA_LORD_WALDEN            },
     { BOSS_LORD_GODFREY,                DATA_LORD_GODFREY           },
+    { NPC_DEBUG_ANNOUNCER,              DATA_DEBUG_ANNOUNCER        },
     { 0,                                0                           } // END
 };
 
@@ -57,20 +58,21 @@ BossBoundaryData const boundaries =
 
 enum SpawnGroups
 {
-    SPAWN_GROUP_ENTRANCE_ALLIANCE                   = 412,
-    SPAWN_GROUP_ENTRANCE_HORDE                      = 413,
-    SPAWN_GROUP_DISEASE_CLOUDS_ENTRANCE             = 414,
-    SPAWN_GROUP_DISEASE_CLOUDS_BARON_ASHBURY        = 415,
-    SPAWN_GROUP_DISEASE_CLOUDS_BARON_SILVERLAINE    = 416,
-    SPAWN_GROUP_DISEASE_CLOUDS_COMMANDER_SPRINGVALE = 417,
-    SPAWN_GROUP_DISEASE_CLOUDS_LORD_WALDEN          = 418,
-    SPAWN_GROUP_LORD_GODFREY_DEAD_TROUPS_ALLIANCE   = 419,
-    SPAWN_GROUP_LORD_GODFREY_DEAD_TROUPS_HORDE      = 420,
-    SPAWN_GROUP_BARON_ASHBURY_TROUPS_ALLIANCE       = 421,
-    SPAWN_GROUP_BARON_ASHBURY_TROUPS_HORDE          = 422,
-    SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_ALLIANCE   = 423,
-    SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_HORDE      = 424
-
+    SPAWN_GROUP_ENTRANCE_ALLIANCE                       = 412,
+    SPAWN_GROUP_ENTRANCE_HORDE                          = 413,
+    SPAWN_GROUP_DISEASE_CLOUDS_ENTRANCE                 = 414,
+    SPAWN_GROUP_DISEASE_CLOUDS_BARON_ASHBURY            = 415,
+    SPAWN_GROUP_DISEASE_CLOUDS_BARON_SILVERLAINE        = 416,
+    SPAWN_GROUP_DISEASE_CLOUDS_COMMANDER_SPRINGVALE     = 417,
+    SPAWN_GROUP_DISEASE_CLOUDS_LORD_WALDEN              = 418,
+    SPAWN_GROUP_LORD_GODFREY_DEAD_TROUPS_ALLIANCE       = 419,
+    SPAWN_GROUP_LORD_GODFREY_DEAD_TROUPS_HORDE          = 420,
+    SPAWN_GROUP_BARON_ASHBURY_TROUPS_ALLIANCE           = 421,
+    SPAWN_GROUP_BARON_ASHBURY_TROUPS_HORDE              = 422,
+    SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_ALLIANCE       = 423,
+    SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_HORDE          = 424,
+    SPAWN_GROUP_COMMANDER_SPRINGVALE_TROUPS_ALLIANCE    = 425,
+    SPAWN_GROUP_OUTSIDE_TROUPS_ALLIANCE                 = 426,
 };
 
 class instance_shadowfang_keep : public InstanceMapScript
@@ -152,6 +154,13 @@ public:
                         _currentlyActiveTroupSpawnGroup = *_teamInInstance == ALLIANCE ? SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_ALLIANCE : SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_HORDE;
                         instance->SpawnGroupSpawn(_currentlyActiveTroupSpawnGroup);
                         break;
+                    case DATA_COMMANDER_SPRINGVALE:
+                        if (*_teamInInstance == ALLIANCE)
+                        {
+                            _currentlyActiveTroupSpawnGroup = 0;
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_COMMANDER_SPRINGVALE_TROUPS_ALLIANCE);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -180,7 +189,7 @@ public:
                     instance->SpawnGroupSpawn(SPAWN_GROUP_DISEASE_CLOUDS_LORD_WALDEN);
             }
 
-            // Despawning previous troup
+            // Despawning previous troups
             if (_currentlyActiveTroupSpawnGroup)
                 instance->SpawnGroupDespawn(_currentlyActiveTroupSpawnGroup);
 
@@ -194,6 +203,24 @@ public:
             // Lord Godfrey room setup
             if (GetBossState(DATA_LORD_WALDEN) == DONE)
                 instance->SpawnGroupSpawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_LORD_GODFREY_DEAD_TROUPS_ALLIANCE : SPAWN_GROUP_LORD_GODFREY_DEAD_TROUPS_HORDE);
+        }
+
+        void SetData(uint32 type, uint32 value) override
+        {
+            switch (type)
+            {
+                case DATA_OUTSIDE_TROUPS_SPAWN:
+                    if (*_teamInInstance == ALLIANCE)
+                    {
+                        if (_currentlyActiveTroupSpawnGroup)
+                            instance->SpawnGroupDespawn(_currentlyActiveTroupSpawnGroup);
+
+                        instance->SpawnGroupSpawn(SPAWN_GROUP_OUTSIDE_TROUPS_ALLIANCE);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
 
         uint32 GetData(uint32 type) const override

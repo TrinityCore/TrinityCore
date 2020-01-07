@@ -74,7 +74,10 @@ enum Texts
     SAY_IVAR_ROOM_OPEN          = 13,
 
     // Bloodfang Berserker
-    SAY_SHOW_COMMANDER_SPRINGVALE = 1
+    SAY_SHOW_COMMANDER_SPRINGVALE = 1,
+
+    // DEBUG Announcer
+    SAY_ANNOUNCE_GARGOYLES      = 0
 };
 
 enum SKShieldOfBones
@@ -119,13 +122,16 @@ public:
     }
 };
 
-class at_sfk_pre_walden : public OnlyOnceAreaTriggerScript
+class at_sfk_outside_troups : public OnlyOnceAreaTriggerScript
 {
 public:
-    at_sfk_pre_walden() : OnlyOnceAreaTriggerScript("at_sfk_pre_walden") { }
+    at_sfk_outside_troups() : OnlyOnceAreaTriggerScript("at_sfk_outside_troups") { }
 
-    bool _OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            instance->SetData(DATA_OUTSIDE_TROUPS_SPAWN, DONE);
+
         return true;
     }
 };
@@ -141,10 +147,28 @@ public:
     }
 };
 
+class at_sfk_gargoyle_event : public OnlyOnceAreaTriggerScript
+{
+public:
+    at_sfk_gargoyle_event() : OnlyOnceAreaTriggerScript("at_sfk_gargoyle_event") { }
+
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())
+        {
+            if (Creature* announcer = instance->GetCreature(DATA_DEBUG_ANNOUNCER))
+                if (announcer->IsAIEnabled)
+                    announcer->AI()->Talk(SAY_ANNOUNCE_GARGOYLES);
+        }
+        return true;
+    }
+};
+
 void AddSC_shadowfang_keep()
 {
     RegisterAuraScript(spell_sfk_shield_of_bones);
-    new at_sfk_pre_walden();
+    new at_sfk_outside_troups();
     new at_sfk_godfrey_intro();
     new at_sfk_baron_silverlaine_post_floor();
+    new at_sfk_gargoyle_event();
 }
