@@ -106,7 +106,7 @@ class at_sfk_pre_walden : public AreaTriggerScript
 public:
     at_sfk_pre_walden() : AreaTriggerScript("at_sfk_pre_walden") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+    bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*areaTrigger*/)
     {
         return true;
     }
@@ -117,7 +117,7 @@ class at_sfk_godfrey_intro : public AreaTriggerScript
 public:
     at_sfk_godfrey_intro() : AreaTriggerScript("at_sfk_godfrey_intro") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+    bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*areaTrigger*/)
     {
         return true;
     }

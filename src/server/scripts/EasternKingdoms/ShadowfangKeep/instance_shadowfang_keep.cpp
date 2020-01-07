@@ -19,11 +19,9 @@
 #include "shadowfang_keep.h"
 #include "AreaBoundary.h"
 #include "GameObject.h"
+#include "Player.h"
 #include "InstanceScript.h"
 #include "shadowfang_keep.h"
-#include "TemporarySummon.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
 
 ObjectData const creatureData[] =
 {
@@ -59,9 +57,13 @@ BossBoundaryData const boundaries =
 
 enum SpawnGroups
 {
-    SPAWN_GROUP_ENTRANCE_ALLIANCE       = 412,
-    SPAWN_GROUP_ENTRANCE_HORDE          = 413,
-    SPAWN_GROUP_DISEASE_CLOUDS_ENTRANCE = 414
+    SPAWN_GROUP_ENTRANCE_ALLIANCE                   = 412,
+    SPAWN_GROUP_ENTRANCE_HORDE                      = 413,
+    SPAWN_GROUP_DISEASE_CLOUDS_ENTRANCE             = 414,
+    SPAWN_GROUP_DISEASE_CLOUDS_BARON_ASHBURY        = 415,
+    SPAWN_GROUP_DISEASE_CLOUDS_BARON_SILVERLAINE    = 416,
+    SPAWN_GROUP_DISEASE_CLOUDS_COMMANDER_SPRINGVALE = 417,
+    SPAWN_GROUP_DISEASE_CLOUDS_LORD_WALDEN          = 418
 };
 
 class instance_shadowfang_keep : public InstanceMapScript
@@ -136,15 +138,29 @@ public:
 
         void UpdateSpawnGroups()
         {
+            // Disease Cloud Spawns
             if (*_teamInInstance == HORDE)
+            {
                 instance->SpawnGroupSpawn(SPAWN_GROUP_DISEASE_CLOUDS_ENTRANCE);
 
+                if (GetBossState(DATA_BARON_ASHBURY) == DONE)
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_DISEASE_CLOUDS_BARON_ASHBURY);
+
+                if (GetBossState(DATA_BARON_SILVERLAINE) == DONE)
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_DISEASE_CLOUDS_BARON_SILVERLAINE);
+
+                if (GetBossState(DATA_COMMANDER_SPRINGVALE) == DONE)
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_DISEASE_CLOUDS_COMMANDER_SPRINGVALE);
+
+                if (GetBossState(DATA_LORD_WALDEN) == DONE)
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_DISEASE_CLOUDS_LORD_WALDEN);
+            }
+
+            // Entrance Handling
             if (GetBossState(DATA_BARON_ASHBURY) != DONE)
                 instance->SpawnGroupSpawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_ENTRANCE_ALLIANCE : SPAWN_GROUP_ENTRANCE_HORDE);
             else if (GetBossState(DATA_BARON_ASHBURY) == DONE)
                 instance->SpawnGroupDespawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_ENTRANCE_ALLIANCE : SPAWN_GROUP_ENTRANCE_HORDE);
-
-            // To-do: handle boss related event spawns here
         }
 
         uint32 GetData(uint32 type) const override
