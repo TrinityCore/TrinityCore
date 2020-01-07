@@ -73,6 +73,8 @@ enum SpawnGroups
     SPAWN_GROUP_BARON_SILVERLAINE_TROUPS_HORDE          = 424,
     SPAWN_GROUP_COMMANDER_SPRINGVALE_TROUPS_ALLIANCE    = 425,
     SPAWN_GROUP_OUTSIDE_TROUPS_ALLIANCE                 = 426,
+    SPAWN_GROUP_LORD_WALDEN_TROUPS_ALLIANCE             = 427,
+    SPAWN_GROUP_LORD_WALDEN_TROUPS_HORDE                = 428
 };
 
 class instance_shadowfang_keep : public InstanceMapScript
@@ -161,6 +163,16 @@ public:
                             instance->SpawnGroupSpawn(SPAWN_GROUP_COMMANDER_SPRINGVALE_TROUPS_ALLIANCE);
                         }
                         break;
+                    case DATA_LORD_WALDEN:
+                        if (*_teamInInstance == ALLIANCE)
+                        {
+                            instance->SpawnGroupDespawn(SPAWN_GROUP_COMMANDER_SPRINGVALE_TROUPS_ALLIANCE);
+                            instance->SpawnGroupDespawn(SPAWN_GROUP_OUTSIDE_TROUPS_ALLIANCE);
+                        }
+
+                        _currentlyActiveTroupSpawnGroup = *_teamInInstance == ALLIANCE ? SPAWN_GROUP_LORD_WALDEN_TROUPS_ALLIANCE : SPAWN_GROUP_LORD_WALDEN_TROUPS_HORDE;
+                        instance->SpawnGroupSpawn(_currentlyActiveTroupSpawnGroup);
+                        break;
                     default:
                         break;
                 }
@@ -205,7 +217,7 @@ public:
                 instance->SpawnGroupSpawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_LORD_GODFREY_DEAD_TROUPS_ALLIANCE : SPAWN_GROUP_LORD_GODFREY_DEAD_TROUPS_HORDE);
         }
 
-        void SetData(uint32 type, uint32 value) override
+        void SetData(uint32 type, uint32 /*value*/) override
         {
             switch (type)
             {
