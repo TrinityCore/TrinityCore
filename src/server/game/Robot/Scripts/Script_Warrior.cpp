@@ -25,7 +25,7 @@ bool Script_Warrior::Tank(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!me->CanAttack(pmTarget))
+	else if (!me->IsValidAttackTarget(pmTarget))
 	{
 		return false;
 	}
@@ -101,7 +101,7 @@ bool Script_Warrior::DPS_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!me->CanAttack(pmTarget))
+	else if (!me->IsValidAttackTarget(pmTarget))
 	{
 		return false;
 	}
@@ -163,7 +163,7 @@ bool Script_Warrior::Attack_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!me->CanAttack(pmTarget))
+	else if (!me->IsValidAttackTarget(pmTarget))
 	{
 		return false;
 	}

@@ -2,7 +2,7 @@
 #define ROBOT_STRATEGIES_SCRIPT_ROGUE_H
 
 #include "Script_Base.h"
-#include "Robot/RobotAI.h"
+#include "RobotAI.h"
 
 class Script_Rogue :public Script_Base
 {

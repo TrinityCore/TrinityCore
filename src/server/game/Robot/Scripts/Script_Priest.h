@@ -2,7 +2,7 @@
 #define ROBOT_STRATEGIES_SCRIPT_PRIEST_H
 
 #include "Script_Base.h"
-#include "Robot/RobotAI.h"
+#include "RobotAI.h"
 
 class Script_Priest :public Script_Base
 {

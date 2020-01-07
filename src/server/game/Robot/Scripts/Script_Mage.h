@@ -2,7 +2,7 @@
 #define ROBOT_STRATEGIES_SCRIPT_MAGE_H
 
 #include "Script_Base.h"
-#include "Robot/RobotAI.h"
+#include "RobotAI.h"
 
 class Script_Mage :public Script_Base
 {

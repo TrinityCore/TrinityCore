@@ -40,7 +40,7 @@ bool Script_Rogue::DPS_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!me->CanAttack(pmTarget))
+	else if (!me->IsValidAttackTarget(pmTarget))
 	{
 		return false;
 	}
@@ -59,7 +59,7 @@ bool Script_Rogue::DPS_Common(Unit* pmTarget)
 	uint32 energy = me->GetPower(Powers::POWER_ENERGY);
 	if (energy > 25)
 	{
-		if (pmTarget->IsNonMeleeSpellCasted(false))
+		if (pmTarget->IsNonMeleeSpellCast(false))
 		{
 			if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
 			{
@@ -96,7 +96,7 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!me->CanAttack(pmTarget))
+	else if (!me->IsValidAttackTarget(pmTarget))
 	{
 		return false;
 	}
@@ -141,7 +141,7 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
 				sourceAI->BaseMove(pmTarget);
 				if (energy > 25)
 				{
-					if (pmTarget->IsNonMeleeSpellCasted(false))
+					if (pmTarget->IsNonMeleeSpellCast(false))
 					{
 						if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
 						{
@@ -170,7 +170,7 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
 		sourceAI->BaseMove(pmTarget);
 		if (energy > 25)
 		{
-			if (pmTarget->IsNonMeleeSpellCasted(false))
+			if (pmTarget->IsNonMeleeSpellCast(false))
 			{
 				if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
 				{

@@ -2,7 +2,7 @@
 #define ROBOT_STRATEGIES_SCRIPT_WARRIOR_H
 
 #include "Script_Base.h"
-#include "Robot/RobotAI.h"
+#include "RobotAI.h"
 
 class Script_Warrior :public Script_Base
 {

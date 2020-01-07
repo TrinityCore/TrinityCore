@@ -40,7 +40,7 @@ bool Script_Mage::DPS_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!me->CanAttack(pmTarget))
+	else if (!me->IsValidAttackTarget(pmTarget))
 	{
 		return false;
 	}
@@ -85,7 +85,7 @@ bool Script_Mage::Attack_Common(Unit* pmTarget)
 	{
 		return false;
 	}
-	else if (!me->CanAttack(pmTarget))
+	else if (!me->IsValidAttackTarget(pmTarget))
 	{
 		return false;
 	}

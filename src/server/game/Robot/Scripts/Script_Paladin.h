@@ -2,7 +2,7 @@
 #define ROBOT_STRATEGIES_SCRIPT_PALADIN_H
 
 #include "Script_Base.h"
-#include "Robot/RobotAI.h"
+#include "RobotAI.h"
 
 class Script_Paladin :public Script_Base
 {

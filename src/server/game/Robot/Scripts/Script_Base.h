@@ -1,9 +1,10 @@
 #ifndef ROBOT_STRATEGIES_SCRIPT_BASE_H
 #define ROBOT_STRATEGIES_SCRIPT_BASE_H
 
-#include "Entities/Player.h"
-#include "Spells/SpellMgr.h"
-#include "Spells/SpellAuras.h"
+#include "Player.h"
+#include "SpellMgr.h"
+#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 
 class Script_Base
 {

@@ -16,7 +16,7 @@ Script_Shaman::Script_Shaman(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
 bool Script_Shaman::HealMe()
 {
     Player* me = sourceAI->sourcePlayer;
-    float healthPCT = me->GetHealthPercent();
+    float healthPCT = me->GetHealthPct();
     if (healthPCT < 30)
     {
         if (sourceAI->CastSpell(me, "Healing Wave"))
@@ -51,7 +51,7 @@ bool Script_Shaman::Healer(Unit* pmTarget)
     }
     sourceAI->BaseMove(pmTarget, SHAMAN_CLOSER_DISTANCE, false);
 
-    float healthPCT = pmTarget->GetHealthPercent();
+    float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 70)
     {
         if (sourceAI->CastSpell(pmTarget, "Healing Wave", SHAMAN_RANGE_DISTANCE))
@@ -74,7 +74,7 @@ bool Script_Shaman::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!me->CanAttack(pmTarget))
+    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -109,7 +109,7 @@ bool Script_Shaman::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!me->CanAttack(pmTarget))
+    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }

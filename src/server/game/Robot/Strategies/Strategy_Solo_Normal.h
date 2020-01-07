@@ -2,12 +2,11 @@
 #define ROBOT_STRATEGIES_SOLO_NORMAL_H
 
 #include "Robot/RobotAI.h"
-#include "Entities/Player.h"
-#include "Grids/CellImpl.h"
-#include "Grids/GridNotifiers.h"
-#include "Grids/GridNotifiersImpl.h"
+#include "Player.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Robot/Scripts/Script_Base.h"
-#include "MotionGenerators/MoveMapSharedDefines.h"
 
 enum Solo_Instruction :uint8
 {

@@ -44,7 +44,7 @@ bool Script_Hunter::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!me->CanAttack(pmTarget))
+    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -112,7 +112,7 @@ bool Script_Hunter::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!me->CanAttack(pmTarget))
+    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }

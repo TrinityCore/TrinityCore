@@ -61,7 +61,7 @@ public:
     bool UnequipItem(std::string pmEquipName);
     bool UnequipAll();
     bool EquipAll();    
-	void HandlePacket(WorldPacket pmPacket);
+	void HandlePacket(WorldPacket const* pmPacket);
 	void HandleChatCommand(std::string pmCommand, Player* pmSender);	
 	uint32 FindSpellID(std::string pmSpellName);
 	bool SpellValid(uint32 pmSpellID);

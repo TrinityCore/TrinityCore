@@ -2031,9 +2031,9 @@ void RobotAI::WhisperTo(std::string pmContent, Language pmLanguage, Player * pmT
     sourcePlayer->Whisper(pmContent, pmLanguage, pmTarget);
 }
 
-void RobotAI::HandlePacket(WorldPacket pmPacket)
+void RobotAI::HandlePacket(WorldPacket const* pmPacket)
 {
-    switch (pmPacket.GetOpcode())
+    switch (pmPacket->GetOpcode())
     {
     case SMSG_SPELL_FAILURE:
     {

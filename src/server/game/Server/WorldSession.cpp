@@ -215,7 +215,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
         {
             if (_player->rai)
             {
-                _player->rai->HandlePacket((packet));
+                _player->rai->HandlePacket(packet);
             }
         }
         return;

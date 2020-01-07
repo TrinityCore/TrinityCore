@@ -16,7 +16,7 @@ Script_Priest::Script_Priest(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
 bool Script_Priest::HealMe()
 {
     Player* me = sourceAI->sourcePlayer;
-    float healthPCT = me->GetHealthPercent();
+    float healthPCT = me->GetHealthPct();
     if (healthPCT < 90)
     {
         if (!sourceAI->HasAura(me, "Weakened Soul"))
@@ -64,7 +64,7 @@ bool Script_Priest::Healer(Unit* pmTarget)
         return false;
     }
     sourceAI->BaseMove(pmTarget, PRIEST_CLOSER_DISTANCE, false);
-    float healthPCT = pmTarget->GetHealthPercent();
+    float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 90)
     {
         if (!sourceAI->HasAura(pmTarget, "Weakened Soul"))
@@ -101,7 +101,7 @@ bool Script_Priest::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!me->CanAttack(pmTarget))
+    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -150,7 +150,7 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    else if (!me->CanAttack(pmTarget))
+    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
