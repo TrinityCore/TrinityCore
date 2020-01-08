@@ -136,6 +136,21 @@ public:
     }
 };
 
+class at_sfk_outside_ivar_bloodfang : public OnlyOnceAreaTriggerScript
+{
+public:
+    at_sfk_outside_ivar_bloodfang() : OnlyOnceAreaTriggerScript("at_sfk_outside_ivar_bloodfang") { }
+
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (Creature* ivar = player->FindNearestCreature(NPC_PACKLEADER_IVAR, 15.f))
+            if (ivar->IsAIEnabled)
+                ivar->AI()->Talk(SAY_IVAR_WALDEN_INTRO, player);
+
+        return true;
+    }
+};
+
 class at_sfk_godfrey_intro : public OnlyOnceAreaTriggerScript
 {
 public:
@@ -168,6 +183,7 @@ void AddSC_shadowfang_keep()
 {
     RegisterAuraScript(spell_sfk_shield_of_bones);
     new at_sfk_outside_troups();
+    new at_sfk_outside_ivar_bloodfang();
     new at_sfk_godfrey_intro();
     new at_sfk_baron_silverlaine_post_floor();
     new at_sfk_gargoyle_event();
