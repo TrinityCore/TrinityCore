@@ -45,7 +45,6 @@ ObjectData const gameobjectData[] =
 DoorData const doorData[] =
 {
     { GO_ARUGAL_DOOR,                    DATA_LORD_GODFREY,              DOOR_TYPE_ROOM    },
-    { GO_COURTYARD_DOOR,                 DATA_BARON_ASHBURY,             DOOR_TYPE_PASSAGE }, // Tempfix until events have been implemented
     { GO_SORCERERS_DOOR,                 DATA_LORD_WALDEN,               DOOR_TYPE_PASSAGE }, // Tempfix until events have been implemented
     { 0,                                 0,                              DOOR_TYPE_ROOM    } // END
 };
