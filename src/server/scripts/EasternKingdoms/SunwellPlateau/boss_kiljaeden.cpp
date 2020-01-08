@@ -185,9 +185,9 @@ enum KilJaedenTimers
 // Locations of the Hand of Deceiver adds
 Position DeceiverLocations[3]=
 {
-    {1682.949951, 637.75000, 28.0231, 5.717090f},
-    {1684.699951, 614.41998, 28.0580, 0.698392f},
-    {1707.609985, 612.15002, 28.0946, 1.990370f}
+    {1682.949951f, 637.75000f, 28.0231f, 5.717090f},
+    {1684.699951f, 614.41998f, 28.0580f, 0.698392f},
+    {1707.609985f, 612.15002f, 28.0946f, 1.990370f}
 };
 
 // Locations, where Shield Orbs will spawn
