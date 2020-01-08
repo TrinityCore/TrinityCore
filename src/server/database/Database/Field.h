@@ -137,7 +137,7 @@ class TC_DATABASE_API Field
 
     private:
         #ifdef TRINITY_DEBUG
-        void LogWrongType(char* getter) const;
+        void LogWrongType(char const* getter) const;
         void SetMetadata(MySQLField* field, uint32 fieldIndex);
         Metadata meta;
         #endif
