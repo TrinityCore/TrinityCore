@@ -32,11 +32,17 @@ enum Yells
 
 enum Spells
 {
-    SPELL_SLIME_SPRAY           = 30913,
-    SPELL_POISON_CLOUD          = 30916,
-    SPELL_POISON_BOLT           = 30917,
+    SPELL_SLIME_SPRAY             = 30913,
+    SPELL_POISON_CLOUD            = 30916,
+    SPELL_POISON_BOLT             = 30917,
+    SPELL_POISON_CLOUD_PASSIVE    = 30914,
+    SPELL_SUMMON_INCOMBAT_TRIGGER = 26837,
 
-    SPELL_POISON_CLOUD_PASSIVE  = 30914
+    // Prisioners
+    SPELL_STOMP                   = 31900,
+    SPELL_CONCUSSION_BLOW         = 22427,
+    SPELL_FRENZY                  = 8269,
+    SPELL_CHARGE                  = 22120
 };
 
 enum Events
@@ -58,13 +64,6 @@ class boss_broggok : public CreatureScript
             void Reset() override
             {
                 _Reset();
-
-                if (GameObject * lever = instance->GetGameObject(DATA_BROGGOK_LEVER))
-                {
-                    lever->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
-                    lever->SetGoState(GO_STATE_READY);
-                }
-
                 DoAction(ACTION_RESET_BROGGOK);
             }
 
@@ -80,6 +79,12 @@ class boss_broggok : public CreatureScript
                 {
                     summoned->SetReactState(REACT_PASSIVE);
                     summoned->CastSpell(summoned, SPELL_POISON_CLOUD_PASSIVE, true);
+                    summons.Summon(summoned);
+                }
+                else if (summoned->GetEntry() == NPC_INCOMBAT_TRIGGER)
+                {
+                    summoned->SetReactState(REACT_PASSIVE);
+                    DoZoneInCombat(summoned);
                     summons.Summon(summoned);
                 }
             }
@@ -110,12 +115,13 @@ class boss_broggok : public CreatureScript
                 switch (action)
                 {
                     case ACTION_PREPARE_BROGGOK:
-                        DoZoneInCombat();
+                        DoCastSelf(SPELL_SUMMON_INCOMBAT_TRIGGER);
                         break;
                     case ACTION_ACTIVATE_BROGGOK:
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetImmuneToAll(false);
+                        DoZoneInCombat();
                         events.ScheduleEvent(EVENT_SLIME_SPRAY, 10s);
                         events.ScheduleEvent(EVENT_POISON_BOLT, 7s);
                         events.ScheduleEvent(EVENT_POISON_CLOUD, 5s);
@@ -124,6 +130,15 @@ class boss_broggok : public CreatureScript
                         me->SetReactState(REACT_PASSIVE);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetImmuneToAll(true);
+                        summons.DespawnAll();
+                        instance->SetBossState(DATA_BROGGOK, NOT_STARTED);
+                        if (GameObject * lever = instance->GetGameObject(DATA_BROGGOK_LEVER))
+                        {
+                            lever->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
+                            lever->SetGoState(GO_STATE_READY);
+                        }
+                        break;
+                    default:
                         break;
                 }
             }
@@ -133,6 +148,99 @@ class boss_broggok : public CreatureScript
         {
             return GetBloodFurnaceAI<boss_broggokAI>(creature);
         }
+};
+
+static std::vector<uint32> const PrisionersEmotes =
+{
+    EMOTE_ONESHOT_ROAR,
+    EMOTE_ONESHOT_SHOUT,
+    EMOTE_ONESHOT_BATTLE_ROAR
+};
+
+struct BroggokPrisionersAI : public ScriptedAI
+{
+    BroggokPrisionersAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+
+    void Reset() override
+    {
+        scheduler.CancelAll();
+        scheduler.Schedule(1s, 5s, [this](TaskContext emote)
+        {
+            me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(PrisionersEmotes));
+            emote.Repeat(6s, 9s);
+        });
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        scheduler.CancelAll();
+        ScheduleEvents();
+    }
+
+    virtual void ScheduleEvents() = 0;
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        if (instance->GetBossState(DATA_BROGGOK) == IN_PROGRESS)
+        {
+            if (Creature* broggok = instance->GetCreature(DATA_BROGGOK))
+                broggok->AI()->DoAction(ACTION_RESET_BROGGOK);
+        }
+
+        ScriptedAI::EnterEvadeMode(why);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        scheduler.Update(diff);
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+protected:
+    InstanceScript* instance;
+    TaskScheduler scheduler;
+};
+
+struct npc_nascent_fel_orc : public BroggokPrisionersAI
+{
+    npc_nascent_fel_orc(Creature* creature) : BroggokPrisionersAI(creature) { }
+
+    void ScheduleEvents() override
+    {
+        scheduler.Schedule(15s, [this](TaskContext concussionBlow)
+        {
+            DoCastVictim(SPELL_CONCUSSION_BLOW);
+            concussionBlow.Repeat(8s, 11s);
+        }).Schedule(7s, [this](TaskContext stomp)
+        {
+            DoCastVictim(SPELL_STOMP);
+            stomp.Repeat(16s, 21s);
+        });
+    }
+
+};
+
+struct npc_fel_orc_neophyte : public BroggokPrisionersAI
+{
+    npc_fel_orc_neophyte(Creature* creature) : BroggokPrisionersAI(creature) { }
+
+    void ScheduleEvents() override
+    {
+        scheduler.Schedule(5s, [this](TaskContext charge)
+        {
+            DoCastVictim(SPELL_CHARGE);
+            charge.Repeat(20s);
+        }).Schedule(1s, [this](TaskContext frenzy)
+        {
+            DoCastSelf(SPELL_FRENZY);
+            frenzy.Repeat(12s, 13s);
+        });
+    }
+
 };
 
 class go_broggok_lever : public GameObjectScript
@@ -209,6 +317,8 @@ class spell_broggok_poison_cloud : public SpellScriptLoader
 void AddSC_boss_broggok()
 {
     new boss_broggok();
+    RegisterBloodFurnaceCreatureAI(npc_nascent_fel_orc);
+    RegisterBloodFurnaceCreatureAI(npc_fel_orc_neophyte);
     new go_broggok_lever();
     new spell_broggok_poison_cloud();
 }
