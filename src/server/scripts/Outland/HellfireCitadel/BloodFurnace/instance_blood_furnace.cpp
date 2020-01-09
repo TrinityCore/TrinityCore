@@ -223,6 +223,8 @@ class instance_blood_furnace : public InstanceMapScript
                     prisoner->Respawn(true);
                 prisoner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 prisoner->SetImmuneToAll(true);
+                if (prisoner->IsAIEnabled())
+                    prisoner->AI()->EnterEvadeMode();
             }
 
             void StorePrisoner(Creature* creature)
