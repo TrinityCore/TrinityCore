@@ -1022,11 +1022,6 @@ namespace MMAP
         config.detailSampleDist = config.cs * 16;
         config.detailSampleMaxError = config.ch * 1;
 
-        if (isContinentMap(mapID))
-        {
-            config.walkableClimb = m_bigBaseUnit ? 2 : 4;
-        }
-
         switch (mapID)
         {
             // Blade's Edge Arena
