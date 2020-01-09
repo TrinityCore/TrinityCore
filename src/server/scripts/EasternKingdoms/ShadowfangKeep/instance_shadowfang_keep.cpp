@@ -38,13 +38,13 @@ ObjectData const gameobjectData[] =
 {
     { GO_COURTYARD_DOOR,                DATA_COURTYARD_DOOR,        },
     { GO_SORCERERS_DOOR,                DATA_SORCERER_GATE,         },
-    { GO_ARUGAL_DOOR,                   DATA_ARUGAL_DOOR,           },
+    { GO_ARUGALS_LAIR,                  DATA_ARUGAL_DOOR,           },
     { 0,                                0                           } // END
 };
 
 DoorData const doorData[] =
 {
-    { GO_ARUGAL_DOOR,                    DATA_LORD_GODFREY,              DOOR_TYPE_ROOM    },
+    { GO_ARUGALS_LAIR,                   DATA_LORD_GODFREY,              DOOR_TYPE_ROOM    },
     { 0,                                 0,                              DOOR_TYPE_ROOM    } // END
 };
 
@@ -80,7 +80,10 @@ enum SpawnGroups
 
     SPAWN_GROUP_COMMANDER_SPRINGVALE_TROUPS_HORDE       = 428, // Spawned for Horde players when Commander Springvale or Lord Walden has been defeated
     SPAWN_GROUP_COMMANDER_SPRINGVALE_BELMONT            = 429, // Spawned for Horde players when Commander Springvale has been defeated
-    SPAWN_GROUP_LORD_WALDEN_BELMONT                     = 430  // Spawned for Horde players when Lord Walden has been defeated
+    SPAWN_GROUP_LORD_WALDEN_BELMONT                     = 430, // Spawned for Horde players when Lord Walden has been defeated
+
+    SPAWN_GROUP_LORD_GODFREY_IVAR_BLOODFANG             = 431, // Spawned for Alliance players when triggering an areatrigger near Lord Godfrey's room
+    SPAWN_GROUP_LORD_GODFREY_BELMONT                    = 432  // Spawned for Horde players when triggering an areatrigger near Lord Godfrey's room
 };
 
 struct SpawnGroupInfo
@@ -172,9 +175,12 @@ public:
                         go->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case GO_SORCERERS_DOOR:
-                case GO_ARUGAL_DOOR:
                     if (GetBossState(DATA_LORD_WALDEN) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE);
+                    break;
+                case GO_ARUGALS_LAIR:
+                    if (GetBossState(DATA_LORD_GODFREY) != DONE)
+                        go->SetGoState(GO_STATE_READY);
                     break;
                 default:
                     break;
@@ -223,6 +229,17 @@ public:
                 case DATA_OUTSIDE_TROUPS_SPAWN:
                     if (*_teamInInstance == ALLIANCE)
                         instance->SpawnGroupSpawn(SPAWN_GROUP_OUTSIDE_TROUPS_ALLIANCE);
+                    break;
+                case DATA_GODFREY_INTRO_SPAWN:
+                    if (*_teamInInstance == ALLIANCE)
+                        instance->SpawnGroupDespawn(SPAWN_GROUP_LORD_WALDEN_TROUPS_ALLIANCE);
+                    else
+                    {
+                        instance->SpawnGroupDespawn(SPAWN_GROUP_COMMANDER_SPRINGVALE_TROUPS_HORDE);
+                        instance->SpawnGroupDespawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_LORD_GODFREY_IVAR_BLOODFANG : SPAWN_GROUP_LORD_GODFREY_BELMONT);
+                    }
+
+                    instance->SpawnGroupSpawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_LORD_GODFREY_IVAR_BLOODFANG : SPAWN_GROUP_LORD_GODFREY_BELMONT);
                     break;
                 default:
                     break;

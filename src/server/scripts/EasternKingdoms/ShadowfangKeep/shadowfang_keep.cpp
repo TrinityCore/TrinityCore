@@ -36,53 +36,19 @@ enum MovePoints
 
 enum Texts
 {
-    // Deathstalker Commander Belmont
-    SAY_BELMONT_ASHBURY_DEAD    = 0,
-    SAY_BELMONT_MOVE_TO_DOOR    = 1,
-    SAY_BELMONT_UNLOCK_DOOR     = 2,
-    SAY_BELMONT_OPEN_DOOR       = 3,
-    SAY_BELMONT_SILVERLAINE_DEAD = 4,
-    SAY_BELMONT_TO_CROMUSH_1    = 5,
-    SAY_BELMONT_TO_CROMUSH_2    = 6,
-    SAY_BELMONT_TO_CROMUSH_3    = 7,
-    SAY_BELMONT_WALDEN_DEAD     = 8,
-    SAY_BELMONT_WALDEN_OUTRO    = 9,
-    SAY_BELMONT_DOOR_CLOSED     = 10,
-    SAY_BELMONT_DOOR_OPENED     = 11,
-    SAY_BELMONT_GODFREY         = 12,
-
-    // High Warlord Cromush
-    SAY_CROMUSH_TO_BELMONT_1    = 0,
-    SAY_CROMUSH_TO_BELMONT_2    = 1,
-    SAY_CROMUSH_FOR_THE_HORDE   = 2,
-    SAY_CROMUSH_TO_BELMONT_3    = 3,
-
     // Packleader Ivar Bloodfang
-    SAY_IVAR_ASHBURY_DEAD_1     = 0,
-    SAY_IVAR_ASHBURY_DEAD_2     = 1,
-    SAY_IVAR_TALK_TO_PACK_1     = 2,
-    SAY_IVAR_MOVE_TO_COURTYARD  = 3,
-    SAY_IVAR_UNLOCK_DOOR        = 4,
-    SAY_IVAR_EMOTE_BERSERKER    = 5,
-    SAY_IVAR_SILVERLAINE_DEAD   = 6,
-    SAY_IVAR_WALDEN_INTRO       = 7,
-    SAY_IVAR_WALDEN_DEAD        = 8,
-    SAY_IVAR_ATTACK_WORGEN      = 9,
-    SAY_IVAR_OPEN_GATE          = 10,
-    SAY_IVAR_DOOR_CLOSED_1      = 11,
-    SAY_IVAR_DOOR_CLOSED_2      = 12,
-    SAY_IVAR_ROOM_OPEN          = 13,
+    SAY_IVAR_WALDEN_INTRO           = 7,
 
     // Bloodfang Berserker
-    SAY_SHOW_COMMANDER_SPRINGVALE = 1,
+    SAY_SHOW_COMMANDER_SPRINGVALE   = 1,
 
     // DEBUG Announcer
-    SAY_ANNOUNCE_GARGOYLES      = 0
+    SAY_ANNOUNCE_GARGOYLES          = 0
 };
 
 enum SKShieldOfBones
 {
-    SPELL_SHIELD_OF_BONES_TRIGGERED = 91631,
+    SPELL_SHIELD_OF_BONES_TRIGGERED = 91631
 };
 
 class spell_sfk_shield_of_bones : public AuraScript
@@ -143,7 +109,7 @@ public:
 
     bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        if (Creature* ivar = player->FindNearestCreature(NPC_PACKLEADER_IVAR, 15.f))
+        if (Creature* ivar = player->FindNearestCreature(NPC_PACKLEADER_IVAR_BLOODFANG, 15.f))
             if (ivar->IsAIEnabled)
                 ivar->AI()->Talk(SAY_IVAR_WALDEN_INTRO, player);
 
@@ -156,8 +122,11 @@ class at_sfk_godfrey_intro : public OnlyOnceAreaTriggerScript
 public:
     at_sfk_godfrey_intro() : OnlyOnceAreaTriggerScript("at_sfk_godfrey_intro") { }
 
-    bool _OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            instance->SetData(DATA_GODFREY_INTRO_SPAWN, DONE);
+
         return true;
     }
 };

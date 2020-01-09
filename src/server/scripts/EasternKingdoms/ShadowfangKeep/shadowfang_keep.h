@@ -25,75 +25,6 @@
 
 uint32 const EncounterCount = 7;
 
-enum SKSpells
-{
-    // Ivar Bloodfang
-    SPELL_CLEAVE                = 87719,
-
-    // High Warlord Cromush
-    SPELL_TELEPORT_VISUAL       = 12980,
-
-    // Bloodfang Berserker
-    SPELL_STEALTH               = 58506,
-    SPELL_PERMANENT_FEIGN_DEATH = 29266,
-
-    // Plague Dummy
-    SPELL_DISEASE_CLOUD         = 88198
-};
-
-enum SKCreatures
-{
-    // Baron Ashbury
-    BOSS_BARON_ASHBURY          = 46962,
-
-    // Baron Silverlaine
-    BOSS_BARON_SILVERLAINE      = 3887,
-
-    NPC_NANDOS_DUMMY            = 51047,
-    NPC_WOLF_MASTER_NANDOS      = 50851,
-    NPC_LUPINE_SPECTRE          = 50923,
-    NPC_ODO_DUMMY               = 50934,
-    NPC_ODO_THE_BLINDWATCHER    = 50857,
-    NPC_RAZORCLAW_DUMMY         = 51080,
-    NPC_RAZORCLAW_THE_BUTCHER   = 50869,
-    NPC_RETHILGORE_DUMMY        = 51085,
-    NPC_RETHILGORE              = 50834,
-
-    // Commander Springvale
-    BOSS_COMMANDER_SPRINGVALE   = 4278,
-    NPC_TORMENTED_OFFICER       = 50615,
-    NPC_WAILING_GUARDSMAN       = 50613,
-    NPC_SHIELD_FOCUS            = 50547,
-    NPC_DESECRATION_STALKER     = 50503,
-
-    // Lord Walden
-    BOSS_LORD_WALDEN            = 46963,
-    NPC_MYSTERY_MIXTURE         = 50522,
-
-    // Lord Godfrey
-    BOSS_LORD_GODFREY           = 46964,
-    NPC_BLOODTHIRSTY_GHOUL      = 50561,
-    NPC_PISTOL_BARRAGE_DUMMY    = 52065,
-
-    // Generic NPCs
-    NPC_VETERAN_FORSAKEN_TROOPER = 47030,
-    NPC_DEATHSTALKER_BELMONT    = 47293,
-    NPC_FORSAKEN_BLIGHTSPREADER = 47031,
-    NPC_HIGH_WARLORD_CROMUSH    = 47294,
-    NPC_DISEASE_BUNNY           = 23837,
-    NPC_BLOODFANG_BERSERKER     = 47027,
-    NPC_PACKLEADER_IVAR         = 47006,
-    NPC_HIGH_MAGISTRATE_HENRY   = 47862,
-    NPC_DEBUG_ANNOUNCER         = 43679,
-};
-
-enum SKGameObjectIds
-{
-    GO_COURTYARD_DOOR   = 18895,
-    GO_SORCERERS_DOOR   = 18972,
-    GO_ARUGAL_DOOR      = 18971
-};
-
 enum SKDataTypes
 {
     // Bosses
@@ -104,14 +35,63 @@ enum SKDataTypes
     DATA_LORD_GODFREY           = 4,
     DATA_APOTHECARY_HUMMEL      = 5,
 
+    // Additional data
     DATA_TEAM_IN_INSTANCE,
     DATA_OUTSIDE_TROUPS_SPAWN,
-
+    DATA_GODFREY_INTRO_SPAWN,
     DATA_DEBUG_ANNOUNCER,
-
     DATA_ARUGAL_DOOR,
     DATA_SORCERER_GATE,
     DATA_COURTYARD_DOOR
+};
+
+enum SKCreatures
+{
+    // Bosses
+    BOSS_BARON_ASHBURY              = 46962,
+    BOSS_BARON_SILVERLAINE          = 3887,
+    BOSS_COMMANDER_SPRINGVALE       = 4278,
+    BOSS_LORD_WALDEN                = 46963,
+    BOSS_LORD_GODFREY               = 46964,
+
+    // Encounter related creatures
+    /*Baron Silverlaine*/
+    NPC_NANDOS_DUMMY                = 51047,
+    NPC_WOLF_MASTER_NANDOS          = 50851,
+    NPC_LUPINE_SPECTRE              = 50923,
+    NPC_ODO_DUMMY                   = 50934,
+    NPC_ODO_THE_BLINDWATCHER        = 50857,
+    NPC_RAZORCLAW_DUMMY             = 51080,
+    NPC_RAZORCLAW_THE_BUTCHER       = 50869,
+    NPC_RETHILGORE_DUMMY            = 51085,
+    NPC_RETHILGORE                  = 50834,
+
+    /*Commander Springvale*/
+    NPC_TORMENTED_OFFICER           = 50615,
+    NPC_WAILING_GUARDSMAN           = 50613,
+    NPC_SHIELD_FOCUS                = 50547,
+    NPC_DESECRATION_STALKER         = 50503,
+
+    /*Lord Walden*/
+    NPC_MYSTERY_MIXTURE             = 50522,
+
+    /*Lord Godfrey*/
+    NPC_BLOODTHIRSTY_GHOUL          = 50561,
+    NPC_PISTOL_BARRAGE_DUMMY        = 52065,
+
+    // Generic NPCs
+    NPC_HIGH_WARLORD_CROMUSH        = 47294,
+    NPC_PACKLEADER_IVAR_BLOODFANG   = 47006,
+    NPC_DEBUG_ANNOUNCER             = 43679,
+    NPC_BLOODFANG_BERSERKER         = 47027,
+    NPC_FORSAKEN_BLIGHTSPREADER     = 47031
+};
+
+enum SKGameObjectIds
+{
+    GO_COURTYARD_DOOR   = 18895,
+    GO_SORCERERS_DOOR   = 18972,
+    GO_ARUGALS_LAIR     = 18971
 };
 
 template<class AI>
