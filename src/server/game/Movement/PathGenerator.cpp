@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -246,19 +245,14 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     // *** poly path generating logic ***
 
     // start and end are on same polygon
-    // just need to move in straight line
+    // handle this case as if they were 2 different polygons, building a line path split in some few points
     if (startPoly == endPoly)
     {
         TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: (startPoly == endPoly)");
 
-        BuildShortcut();
-
         _pathPolyRefs[0] = startPoly;
-        _polyLength = 1;
-
-        _type = farFromPoly ? PATHFIND_INCOMPLETE : PATHFIND_NORMAL;
-        TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: path type %d", _type);
-        return;
+        _pathPolyRefs[1] = endPoly;
+        _polyLength = 2;
     }
 
     // look for startPoly/endPoly in current path
