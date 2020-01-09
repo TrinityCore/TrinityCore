@@ -164,8 +164,7 @@ bool MarketerConfig::StartMarketerSystem()
     std::string configError;
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
     enable = GetIntDefault("Enable", 0);
-    reset = GetIntDefault("Reset", 0);
-    ownerGUID = GetIntDefault("OwnerGUID", 0);
+    reset = GetIntDefault("Reset", 0);    
 
     if (enable == 0)
     {
