@@ -4254,7 +4254,11 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         if (!m_preGeneratedPath)
         {
             //unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-            Position pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetCombatReach(), unitTarget->GetRelativeAngle(m_caster));
+
+            // EJ charge distance 
+            //Position pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetCombatReach(), unitTarget->GetRelativeAngle(m_caster));
+            Position pos = unitTarget->GetFirstCollisionPosition(MIN_MELEE_REACH, unitTarget->GetRelativeAngle(m_caster));
+
             unitCaster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed);
         }
         else
@@ -4265,7 +4269,13 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
     {
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
+        {
+            // EJ reset melee after charge
+            unitCaster->resetAttackTimer(WeaponAttackType::BASE_ATTACK);
+            unitCaster->resetAttackTimer(WeaponAttackType::OFF_ATTACK);
+
             unitCaster->Attack(unitTarget, true);
+        }            
     }
 }
 
