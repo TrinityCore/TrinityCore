@@ -152,10 +152,10 @@ void MotionMaster::MovementExpired(bool reset /*= true*/)
 
 MovementSlot MotionMaster::GetCurrentSlot() const
 {
-    if (empty() || !top())
+    if (empty() || (_slot[MOTION_SLOT_IDLE] && !_slot[MOTION_SLOT_ACTIVE]))
         return MOTION_SLOT_IDLE;
 
-    if (top())
+    if (_slot[MOTION_SLOT_ACTIVE])
         return MOTION_SLOT_ACTIVE;
 
     return MAX_MOTION_SLOT;
