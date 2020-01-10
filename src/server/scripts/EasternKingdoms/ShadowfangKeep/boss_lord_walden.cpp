@@ -35,17 +35,17 @@ enum Texts
 enum Spells
 {
     // Lord Walden
-    SPELL_ICE_SHARDS                        = 93527,
-    SPELL_CONJURE_FROST_MIXTURE             = 93505,
-    SPELL_CONJURE_POISONOUS_MIXTURE         = 93697,
-    SPELL_CONJURE_MYSTERY_TOXIN             = 93695,
-    SPELL_FULLY_COAGULATED                  = 93660,
+    SPELL_ICE_SHARDS                = 93527,
+    SPELL_CONJURE_FROST_MIXTURE     = 93505,
+    SPELL_CONJURE_POISONOUS_MIXTURE = 93697,
+    SPELL_CONJURE_MYSTERY_TOXIN     = 93695,
+    SPELL_FULLY_COAGULATED          = 93660,
 
     // Mystery Toxine
-    SPELL_TOXIC_COAGULENT                   = 93572,
-    SPELL_TOXIC_CATALYST                    = 93573,
-    SPELL_TOXIC_CATALYST_AOE                = 93689,
-    SPELL_SHRINK                            = 59632
+    SPELL_TOXIC_COAGULENT           = 93572,
+    SPELL_TOXIC_CATALYST            = 93573,
+    SPELL_TOXIC_CATALYST_AOE        = 93689,
+    SPELL_SHRINK                    = 59632
 };
 
 enum Events
@@ -154,17 +154,17 @@ struct boss_lord_walden : public BossAI
             case POINT_TALK_INTRO_1:
                 Talk(SAY_INTRO);
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
-                events.ScheduleEvent(EVENT_CLEAR_EMOTE_STATE, 54s);
+                events.ScheduleEvent(EVENT_CLEAR_EMOTE_STATE, 54s, 0, PHASE_INTRO);
                 break;
             case POINT_TALK_INTRO_2:
                 Talk(SAY_INTRO);
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
-                events.ScheduleEvent(EVENT_CLEAR_EMOTE_STATE, 47s);
+                events.ScheduleEvent(EVENT_CLEAR_EMOTE_STATE, 47s, PHASE_INTRO);
                 break;
             case POINT_TALK_INTRO_3:
                 Talk(SAY_INTRO);
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
-                events.ScheduleEvent(EVENT_CLEAR_EMOTE_STATE, 46s);
+                events.ScheduleEvent(EVENT_CLEAR_EMOTE_STATE, 46s, PHASE_INTRO);
                 break;
             default:
                 break;
