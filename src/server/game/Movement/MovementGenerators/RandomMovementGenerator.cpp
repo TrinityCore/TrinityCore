@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -123,6 +122,14 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     float distance = frand(0.f, 1.f) * _wanderDistance;
     float angle = frand(0.f, 1.f) * float(M_PI) * 2.f;
     owner->MovePositionToFirstCollision(position, distance, angle);
+
+    // Check if the destination is in LOS
+    if (!owner->IsWithinLOS(position.GetPositionX(), position.GetPositionY(), position.GetPositionZ()))
+    {
+        // Retry later on
+        _timer.Reset(200);
+        return;
+    }
 
     uint32 resetTimer = roll_chance_i(50) ? urand(5000, 10000) : urand(1000, 2000);
 

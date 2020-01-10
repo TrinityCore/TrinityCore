@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -106,6 +106,7 @@ class TC_GAME_API CombatManager
         Unit* GetOwner() const { return _owner; }
         bool HasCombat() const { return HasPvECombat() || HasPvPCombat(); }
         bool HasPvECombat() const { return !_pveRefs.empty(); }
+        bool HasPvECombatWithPlayers() const;
         std::unordered_map<ObjectGuid, CombatReference*> const& GetPvECombatRefs() const { return _pveRefs; }
         bool HasPvPCombat() const;
         std::unordered_map<ObjectGuid, PvPCombatReference*> const& GetPvPCombatRefs() const { return _pvpRefs; }

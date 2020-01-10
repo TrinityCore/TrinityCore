@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,6 +93,7 @@ enum Spells
     SPELL_SHADOW_TRAP                   = 73539,
     SPELL_SHADOW_TRAP_AURA              = 73525,
     SPELL_SHADOW_TRAP_KNOCKBACK         = 73529,
+    SPELL_SHADOW_TRAP_VISUAL            = 73530,
 
     // Phase Transition
     SPELL_REMORSELESS_WINTER_1          = 68981,
@@ -741,6 +742,9 @@ class boss_the_lich_king : public CreatureScript
                         summon->SetReactState(REACT_PASSIVE);
                         summon->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
                         summon->m_Events.AddEvent(new LichKingStartMovementEvent(me, summon), summon->m_Events.CalculateTime(5000));
+                        break;
+                    case NPC_SHADOW_TRAP:
+                        summon->CastSpell(summon, SPELL_SHADOW_TRAP_VISUAL, true);
                         break;
                     case NPC_ICE_SPHERE:
                     {

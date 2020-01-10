@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -92,6 +91,14 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
         float distance = 4.0f * frand(0.0f, 1.0f) - 2.0f;
         float angle = frand(0.0f, 1.0f) * float(M_PI) * 2.0f;
         owner->MovePositionToFirstCollision(destination, distance, angle);
+
+        // Check if the destination is in LOS
+        if (!owner->IsWithinLOS(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()))
+        {
+            // Retry later on
+            _timer.Reset(200);
+            return true;
+        }
 
         if (!_path)
         {
