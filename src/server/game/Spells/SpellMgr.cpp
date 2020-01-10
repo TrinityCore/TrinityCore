@@ -4744,6 +4744,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_MOVE;
     });
+
     // END OF SHADOWFANG KEEP SPELLS
 
     // Threatening Gaze

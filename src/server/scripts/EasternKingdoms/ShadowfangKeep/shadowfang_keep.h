@@ -73,7 +73,7 @@ enum SKCreatures
     NPC_DESECRATION_STALKER         = 50503,
 
     /*Lord Walden*/
-    NPC_MYSTERY_MIXTURE             = 50522,
+    NPC_MYSTERY_TOXIN               = 50522,
 
     /*Lord Godfrey*/
     NPC_BLOODTHIRSTY_GHOUL          = 50561,
