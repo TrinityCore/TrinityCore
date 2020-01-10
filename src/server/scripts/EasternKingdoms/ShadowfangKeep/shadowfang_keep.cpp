@@ -125,7 +125,8 @@ public:
     bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
-            instance->SetData(DATA_GODFREY_INTRO_SPAWN, DONE);
+            if (instance->GetBossState(DATA_LORD_GODFREY) != DONE)
+                instance->SetData(DATA_GODFREY_INTRO_SPAWN, DONE);
 
         return true;
     }

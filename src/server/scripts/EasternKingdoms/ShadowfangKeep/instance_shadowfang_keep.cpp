@@ -236,7 +236,7 @@ public:
                     else
                     {
                         instance->SpawnGroupDespawn(SPAWN_GROUP_COMMANDER_SPRINGVALE_TROUPS_HORDE);
-                        instance->SpawnGroupDespawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_LORD_GODFREY_IVAR_BLOODFANG : SPAWN_GROUP_LORD_GODFREY_BELMONT);
+                        instance->SpawnGroupDespawn(SPAWN_GROUP_LORD_WALDEN_BELMONT);
                     }
 
                     instance->SpawnGroupSpawn(*_teamInInstance == ALLIANCE ? SPAWN_GROUP_LORD_GODFREY_IVAR_BLOODFANG : SPAWN_GROUP_LORD_GODFREY_BELMONT);
