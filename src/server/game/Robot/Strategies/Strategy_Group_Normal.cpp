@@ -1,5 +1,13 @@
 #include "Strategy_Group_Normal.h"
 
+#include "RobotAI.h"
+#include "Player.h"
+#include "Script_Base.h"
+#include "Group.h"
+#include "Item.h"
+#include "MotionMaster.h"
+#include "Pet.h"
+
 Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
 {
     sourceAI = pmSourceAI;

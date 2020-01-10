@@ -1,12 +1,10 @@
 #ifndef ROBOT_STRATEGIES_SOLO_NORMAL_H
 #define ROBOT_STRATEGIES_SOLO_NORMAL_H
 
-#include "Robot/RobotAI.h"
+#include "RobotAI.h"
 #include "Player.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Robot/Scripts/Script_Base.h"
+
+class RobotAI;
 
 enum Solo_Instruction :uint8
 {

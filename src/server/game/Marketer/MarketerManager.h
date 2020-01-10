@@ -15,7 +15,8 @@ class MarketerManager
 	~MarketerManager() = default;
 
 public:
-    void ResetMarketer();	
+    void ResetMarketer();
+    bool UpdateMarketer(uint32 pmDiff);
 	bool UpdateSeller(uint32 pmDiff);
 	bool UpdateBuyer(uint32 pmDiff);
 	static MarketerManager* instance();

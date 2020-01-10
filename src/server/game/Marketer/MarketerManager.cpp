@@ -215,12 +215,18 @@ void MarketerManager::ResetMarketer()
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Marketer seller reset");
 }
 
-bool MarketerManager::UpdateSeller(uint32 pmDiff)
+bool MarketerManager::UpdateMarketer(uint32 pmDiff)
 {
     if (!sMarketerConfig->enable)
     {
         return false;
     }
+    UpdateSeller(pmDiff);
+    UpdateBuyer(pmDiff);
+}
+
+bool MarketerManager::UpdateSeller(uint32 pmDiff)
+{    
     if (sellerCheckDelay > 0)
     {
         sellerCheckDelay -= pmDiff;
@@ -496,10 +502,6 @@ bool MarketerManager::MarketEmpty()
 
 bool MarketerManager::UpdateBuyer(uint32 pmDiff)
 {
-    if (!sMarketerConfig->enable)
-    {
-        return false;
-    }
     if (buyerCheckDelay > 0)
     {
         buyerCheckDelay -= pmDiff;

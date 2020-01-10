@@ -1,5 +1,14 @@
 #include "Strategy_Solo_Normal.h"
 
+#include "Script_Base.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "Pet.h"
+#include "Item.h"
+#include "Strategy_Group_Normal.h"
+
 Strategy_Solo_Normal::Strategy_Solo_Normal(RobotAI* pmSourceAI)
 {
     sourceAI = pmSourceAI;
@@ -65,6 +74,14 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
         waitDelay = 0;
         strollDelay = 0;
         confuseDelay = 0;
+        if (deathDuration > TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS)
+        {
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Revive solo robot %s", me->GetName());
+            sourceAI->Refresh();
+            sourceAI->RandomTeleport();
+            deathDuration = 0;
+            return;
+        }
     }
     if (me->IsBeingTeleported())
     {

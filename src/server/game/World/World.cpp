@@ -2516,12 +2516,10 @@ void World::Update(uint32 diff)
     TC_METRIC_VALUE("update_time_diff", diff);
 
     // EJ marketer
-    sMarketerManager->UpdateSeller(diff);
-    sMarketerManager->UpdateBuyer(diff);
+    sMarketerManager->UpdateMarketer(diff);    
 
     // EJ robot
     sRobotManager->UpdateManager(diff);
-    sRobotManager->UpdateRobots();
 }
 
 void World::ForceGameEventUpdate()

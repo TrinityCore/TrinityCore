@@ -99,9 +99,6 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
- // EJ robot
-#include "RobotAI.h"
-
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
 #define PLAYER_SKILL_INDEX(x)       (PLAYER_SKILL_INFO_1_1 + ((x)*3))
@@ -171,9 +168,6 @@ uint32 const MAX_MONEY_AMOUNT = static_cast<uint32>(std::numeric_limits<int32>::
 
 Player::Player(WorldSession* session): Unit(true)
 {
-    // EJ robot
-    rai = NULL;
-
     m_speakTime = 0;
     m_speakCount = 0;
 
@@ -410,6 +404,9 @@ Player::Player(WorldSession* session): Unit(true)
     m_reputationMgr = new ReputationMgr(this);
 
     m_groupUpdateTimer.Reset(5000);
+
+    // EJ robot
+    groupRole = 0;
 }
 
 Player::~Player()

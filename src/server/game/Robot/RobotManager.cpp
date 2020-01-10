@@ -1,485 +1,43 @@
 #include "RobotManager.h"
 
+#include "Log.h"
+#include "AccountMgr.h"
+#include "Player.h"
+#include "Pet.h"
+#include "WorldSession.h"
+#include "ObjectMgr.h"
+#include "MotionMaster.h"
+#include "MapManager.h"
+#include "Group.h"
+#include "Item.h"
+#include "World.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "RobotConfig.h"
+#include "RobotAI.h"
+#include "Strategy_Solo_Normal.h"
+
 RobotManager::RobotManager()
 {
-    Preparation();
+
 }
 
-RobotManager* RobotManager::instance()
-{
-    static RobotManager instance;
-    return &instance;
-}
-
-void RobotManager::UpdateManager(uint32 pmDiff)
+void RobotManager::InitializeManager()
 {
     if (sRobotConfig->enable == 0)
     {
         return;
     }
-    if (activeRobotsCheckDelay > 0)
+
+    if (sRobotConfig->resetRobots == 1)
     {
-        activeRobotsCheckDelay -= pmDiff;
-    }
-    if (checkDelay > 0)
-    {
-        checkDelay -= pmDiff;
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Reset robots");
+        DeleteRobots();
+        sWorld->ShutdownServ(10, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
         return;
     }
-    checkDelay = 1000;
 
-    switch (managerState)
-    {
-    case 0:
-    {
-        if (sRobotConfig->resetRobots == 0)
-        {
-            managerState = 3;
-        }
-        else
-        {
-            managerState = 1;
-        }
-        break;
-    }
-    case 1:
-    {
-        if (DeleteRobots())
-        {
-            managerState = 2;
-        }
-        else
-        {
-            managerState = 3;
-        }
-        break;
-    }
-    case 2:
-    {
-        if (RobotsDeleted())
-        {
-            sWorld->ShutdownServ(5, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
-            return;
-        }
-        break;
-    }
-    case 3:
-    {
-        if (!ProcessRobots())
-        {
-            managerState = 20;
-        }
-        checkDelay = 60000;
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-void RobotManager::UpdateRobots()
-{
-    if (sRobotConfig->enable == 0)
-    {
-        return;
-    }
-    if (managerState != 3)
-    {
-        return;
-    }
-    if (updateIndex >= activeRobotSessionMap.size())
-    {
-        updateIndex = 0;
-    }
-    uint32 endIndex = updateIndex + 50;
-    if (endIndex > activeRobotSessionMap.size())
-    {
-        endIndex = activeRobotSessionMap.size();
-    }
-    while (updateIndex < endIndex)
-    {
-        if (activeRobotSessionMap[updateIndex]->GetPlayer())
-        {
-            if (activeRobotSessionMap[updateIndex]->GetPlayer()->rai)
-            {
-                activeRobotSessionMap[updateIndex]->GetPlayer()->rai->Update();
-            }
-        }
-        updateIndex++;
-    }
-
-    return;
-}
-
-bool RobotManager::DeleteRobots()
-{
-    QueryResult accountQR = LoginDatabase.PQuery("SELECT id, username FROM account where username like '%s%%'", sRobotConfig->robotAccountNamePrefix.c_str());
-
-    if (accountQR)
-    {
-        do
-        {
-            Field* fields = accountQR->Fetch();
-            uint32 id = fields[0].GetUInt32();
-            std::string userName = fields[1].GetString();
-            deleteRobotAccountSet.insert(id);
-            sAccountMgr->DeleteAccount(id);
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Delete robot account %d - %s", id, userName.c_str());
-        } while (accountQR->NextRow());
-        return true;
-    }
-
-    return false;
-}
-
-bool RobotManager::RobotsDeleted()
-{
-    for (std::set<uint32>::iterator it = deleteRobotAccountSet.begin(); it != deleteRobotAccountSet.end(); it++)
-    {
-        QueryResult accountQR = LoginDatabase.PQuery("SELECT id FROM account where id = '%d'", (*it));
-        if (accountQR)
-        {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Account %d is under deleting", (*it));
-            return false;
-        }
-        QueryResult characterQR = CharacterDatabase.PQuery("SELECT count(*) FROM characters where account = '%d'", (*it));
-        if (characterQR)
-        {
-            Field* fields = characterQR->Fetch();
-            uint32 count = fields[0].GetUInt32();
-            if (count > 0)
-            {
-                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Characters for account %d are under deleting", (*it));
-                return false;
-            }
-        }
-    }
-
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot accounts are deleted");
-    return true;
-}
-
-bool RobotManager::CreateRobotAccount(std::string pmAccountName)
-{
-    QueryResult accountQR = LoginDatabase.PQuery("SELECT id FROM account where username = '%s'", pmAccountName.c_str());
-    if (accountQR)
-    {
-        return false;
-    }
-    AccountOpResult aor = sAccountMgr->CreateAccount(pmAccountName, "robot");
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create robot account %s", pmAccountName.c_str());
-
-    return true;
-}
-
-bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint8 pmCharacterClass, uint8 pmCharacterRace, uint8 pmCharacterLevel)
-{
-    std::string currentName = "";
-    bool nameValid = false;
-    while (nameIndex < robotNameMap.size())
-    {
-        currentName = robotNameMap[nameIndex];
-        QueryResult checkNameQR = CharacterDatabase.PQuery("SELECT count(*) FROM characters where name = '%s'", currentName.c_str());
-
-        if (!checkNameQR)
-        {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Name %s is available", currentName.c_str());
-            nameValid = true;
-        }
-        else
-        {
-            Field* nameCountFields = checkNameQR->Fetch();
-            uint32 nameCount = nameCountFields[0].GetUInt32();
-            if (nameCount == 0)
-            {
-                nameValid = true;
-            }
-        }
-        nameIndex++;
-        if (nameValid)
-        {
-            break;
-        }
-    }
-    if (!nameValid)
-    {
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "No available names");
-        return false;
-    }
-
-    uint8 gender = 0, skin = 0, face = 0, hairStyle = 0, hairColor = 0, facialHair = 0;
-    while (true)
-    {
-        gender = urand(0, 1);
-        face = urand(0, 5);
-        hairStyle = urand(0, 5);
-        hairColor = urand(0, 5);
-        facialHair = urand(0, 5);
-
-        CharacterCreateInfo* cci = new CharacterCreateInfo();
-        cci->Name = currentName;
-        cci->Race = pmCharacterRace;
-        cci->Class = pmCharacterClass;
-        cci->Gender = gender;
-        cci->Skin = skin;
-        cci->Face = face;
-        cci->HairStyle = hairStyle;
-        cci->HairColor = hairColor;
-        cci->FacialHair = facialHair;
-        cci->OutfitId = 0;
-
-        WorldSession* eachSession = new WorldSession(pmAccountID, "robot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
-        eachSession->isRobot = true;
-        Player* newPlayer = new Player(eachSession);
-        if (!newPlayer->Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), cci))
-        {
-            newPlayer->CleanupsBeforeDelete();
-            delete eachSession;
-            delete newPlayer;
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Character create failed, %s %d %d", currentName.c_str(), pmCharacterRace, pmCharacterClass);
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Try again");
-            continue;
-        }
-        newPlayer->GetMotionMaster()->Initialize();
-        newPlayer->GiveLevel(pmCharacterLevel);
-        newPlayer->setCinematic(2);
-        newPlayer->SetAtLoginFlag(AT_LOGIN_NONE);
-        newPlayer->SaveToDB();
-        sWorld->AddSession(eachSession);
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create character %d - %s for account %d", newPlayer->GetGUID().GetCounter(), currentName.c_str(), pmAccountID);
-        break;
-    }
-
-    return true;
-}
-
-bool RobotManager::LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID)
-{
-    Player* currentPlayer = ObjectAccessor::FindPlayer(pmGUID);
-    if (currentPlayer)
-    {
-        if (currentPlayer->IsInWorld())
-        {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot %d %s is already in world", pmGUID, currentPlayer->GetName());
-            return false;
-        }
-    }
-    QueryResult characterQR = CharacterDatabase.PQuery("SELECT name, level FROM characters where guid = '%d'", pmGUID);
-    if (!characterQR)
-    {
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Found zero robot characters for account %d while processing logging in", pmAccountID);
-        return false;
-    }
-    Field* characterFields = characterQR->Fetch();
-    std::string characterName = characterFields[0].GetString();
-    uint8 characterLevel = characterFields[1].GetUInt8();
-    WorldSession* loginSession = sWorld->FindSession(pmAccountID);
-    if (!loginSession)
-    {
-        loginSession = new WorldSession(pmAccountID, "robot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
-        loginSession->isRobot = true;
-        sWorld->AddSession(loginSession);
-    }
-    WorldPacket loginWP(CMSG_PLAYER_LOGIN, 8);
-    loginWP << pmGUID;
-    loginSession->HandlePlayerLoginOpcode(loginWP);
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmGUID, characterName.c_str(), characterLevel);
-
-    return true;
-}
-
-bool RobotManager::ProcessRobots()
-{
-    std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
-    if (updateActiveRobotSessionMap)
-    {
-        updateActiveRobotSessionMap = false;
-        activeRobotSessionMap.clear();
-        for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
-        {
-            if (it->second->GetPlayer())
-            {
-                if (it->second->isRobot)
-                {
-                    activeRobotSessionMap[activeRobotSessionMap.size()] = it->second;
-                }
-            }
-        }
-    }
-    if (AdjustActiveRobots(allSessionMap))
-    {
-        updateActiveRobotSessionMap = true;
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Active robots changed");
-        activeRobotsCheckDelay = 300000;
-        return true;
-    }
-    for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
-    {
-        if (it->second->isRobot)
-        {
-            Player* eachPlayer = it->second->GetPlayer();
-            if (eachPlayer)
-            {
-                if (eachPlayer->IsInWorld())
-                {
-                    ProcessRobot(eachPlayer);
-                }
-            }
-        }
-    }
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "All robots processed.");
-    return true;
-}
-
-bool RobotManager::ProcessRobot(Player* pmPlayer)
-{
-    if (!pmPlayer->rai)
-    {
-        pmPlayer->rai = new RobotAI(pmPlayer);
-        std::ostringstream msgStream;
-        msgStream << pmPlayer->GetName() << " activated";
-        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
-        pmPlayer->rai->Refresh();
-        pmPlayer->rai->Prepare();
-        pmPlayer->rai->RandomTeleport();
-        return true;
-    }
-    pmPlayer->rai->Prepare();
-    pmPlayer->SetPvP(true);
-    Group* playerGroup = pmPlayer->GetGroup();
-    if (!playerGroup)
-    {
-        if (!pmPlayer->IsAlive())
-        {
-            if (pmPlayer->rai->st_Solo_Normal->deathDuration > 60)
-            {
-                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Revive robot %s", pmPlayer->GetName());
-                pmPlayer->rai->Refresh();
-                pmPlayer->rai->RandomTeleport();
-                pmPlayer->rai->st_Solo_Normal->deathDuration = 0;
-            }
-        }
-    }
-
-    return true;
-}
-
-bool RobotManager::AdjustActiveRobots(std::unordered_map<uint32, WorldSession*> pmActiveSessionMap)
-{
-    if (activeRobotsCheckDelay > 0)
-    {
-        return false;
-    }
-    std::set<uint32> activeRobotLevelSet;
-    activeRobotLevelSet.clear();
-    for (std::unordered_map<uint32, WorldSession*>::iterator it = pmActiveSessionMap.begin(); it != pmActiveSessionMap.end(); it++)
-    {
-        if (it->second->isRobot)
-        {
-            continue;
-        }
-        Player* eachPlayer = it->second->GetPlayer();
-        if (eachPlayer)
-        {
-            if (eachPlayer->IsInWorld())
-            {
-                uint8 eachLevel = eachPlayer->GetLevel();
-                uint8 checkLevelRange = eachLevel;
-                while (checkLevelRange <= eachLevel + 2)
-                {
-                    if (checkLevelRange >= 20)
-                    {
-                        if (activeRobotLevelSet.find(checkLevelRange) == activeRobotLevelSet.end())
-                        {
-                            activeRobotLevelSet.insert(checkLevelRange);
-                        }
-                    }
-                    checkLevelRange++;
-                }
-            }
-        }
-    }
-    // logout robots not in level range
-    for (std::unordered_map<uint32, WorldSession*>::iterator it = pmActiveSessionMap.begin(); it != pmActiveSessionMap.end(); it++)
-    {
-        if (it->second->isRobot)
-        {
-            Player* eachPlayer = it->second->GetPlayer();
-            if (eachPlayer)
-            {
-                if (eachPlayer->IsInWorld())
-                {
-                    uint8 eachLevel = eachPlayer->GetLevel();
-                    if (activeRobotLevelSet.find(eachLevel) == activeRobotLevelSet.end())
-                    {
-                        LogoutRobot(eachPlayer);
-                    }
-                }
-            }
-        }
-    }
-    for (std::set<uint32>::iterator levelIT = activeRobotLevelSet.begin(); levelIT != activeRobotLevelSet.end(); levelIT++)
-    {
-        for (int checkClass = Classes::CLASS_WARRIOR; checkClass <= Classes::CLASS_DRUID; checkClass++)
-        {
-            if (checkClass == 6 || checkClass == 10)
-            {
-                continue;
-            }
-
-            std::vector<uint32> targetRaces = availableRaces[checkClass];
-            for (std::vector<uint32>::iterator raceIT = targetRaces.begin(); raceIT != targetRaces.end(); raceIT++)
-            {
-                std::stringstream accountNameStream;
-                accountNameStream << sRobotConfig->robotAccountNamePrefix << "l" << *levelIT << "r" << *raceIT << "c" << checkClass;
-                std::string eachName = accountNameStream.str();
-                QueryResult accountQR = LoginDatabase.PQuery("SELECT id FROM account where username = '%s'", eachName.c_str());
-                if (!accountQR)
-                {
-                    if (CreateRobotAccount(eachName))
-                    {
-                        std::ostringstream msgStream;
-                        msgStream << "Create account " << eachName;
-                        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
-                    }
-                    continue;
-                }
-                Field* accountField = accountQR->Fetch();
-                uint32 accountID = accountField[0].GetUInt32();
-                QueryResult characterQR = CharacterDatabase.PQuery("SELECT guid FROM characters where account = %d", accountID);
-                if (!characterQR)
-                {
-                    if (CreateRobotCharacter(accountID, checkClass, *raceIT, *levelIT))
-                    {
-                        std::ostringstream msgStream;
-                        msgStream << "Create character for account " << accountID << " (class " << checkClass << ") (level " << *levelIT << ")";
-                        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
-                    }
-                    continue;
-                }
-                Field* characterField = characterQR->Fetch();
-                uint32 lowGUID = characterField[0].GetUInt32();
-                ObjectGuid checkGUID;
-                checkGUID.Set(lowGUID);
-                Player* currentPlayer = ObjectAccessor::FindPlayer(checkGUID);
-                if (currentPlayer)
-                {
-                    if (currentPlayer->IsInWorld())
-                    {
-                        continue;
-                    }
-                }
-                LoginRobot(accountID, checkGUID);
-            }
-        }
-    }
-
-    return true;
-}
-
-void RobotManager::Preparation()
-{
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Prepare robot manager");
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Initialize robot manager");
 
     QueryResult robotNamesQR = WorldDatabase.Query("SELECT name FROM robot_names order by rand()");
     if (!robotNamesQR)
@@ -497,10 +55,7 @@ void RobotManager::Preparation()
 
     nameIndex = 0;
 
-    managerState = 0;
-    updateIndex = 0;
-    checkDelay = 1000;
-    activeRobotsCheckDelay = 300000;
+    checkDelay = 1 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
     availableRaces[CLASS_WARRIOR].push_back(RACE_HUMAN);
     availableRaces[CLASS_WARRIOR].push_back(RACE_NIGHTELF);
     availableRaces[CLASS_WARRIOR].push_back(RACE_GNOME);
@@ -549,7 +104,7 @@ void RobotManager::Preparation()
     availableRaces[CLASS_DRUID].push_back(RACE_NIGHTELF);
     availableRaces[CLASS_DRUID].push_back(RACE_TAUREN);
 
-    robotAccountMap.clear();
+    robotSet.clear();
     deleteRobotAccountSet.clear();
 
     armorInventorySet.insert(InventoryType::INVTYPE_CHEST);
@@ -783,44 +338,265 @@ void RobotManager::Preparation()
             spellNameEntryMap[eachSI->SpellName[0]].insert(eachSI->Id);
         }
     }
-    activeRobotSessionMap.clear();
-    updateActiveRobotSessionMap = false;
+
+    uint32 checkLevel = 11;
+    uint32 maxLevel = 60;
+    while (checkLevel <= maxLevel)
+    {
+        for (std::map<uint32, std::vector<uint32>>::iterator raceIT = availableRaces.begin(); raceIT != availableRaces.end(); raceIT++)
+        {
+            std::vector<uint32> classVector = raceIT->second;
+            for (std::vector<uint32>::iterator classIT = classVector.begin(); classIT != classVector.end(); classIT++)
+            {
+                RobotAI* eachRAI = new RobotAI();
+                eachRAI->targetClass = *classIT;
+                eachRAI->targetRace = raceIT->first;
+                eachRAI->targetLevel = checkLevel;
+                std::ostringstream accountNameStream;
+                accountNameStream << sRobotConfig->robotAccountNamePrefix << "l" << std::to_string(checkLevel) << "r" << std::to_string(eachRAI->targetRace) << "c" << std::to_string(eachRAI->targetClass);
+                eachRAI->accountName = accountNameStream.str();
+                robotSet.insert(eachRAI);
+            }
+        }
+        checkLevel++;
+    }
 
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot system ready");
 }
 
-void RobotManager::LogoutRobots()
+RobotManager* RobotManager::instance()
 {
-    std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
-    for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
-    {
-        if (it->second->isRobot)
-        {
-            Player* eachPlayer = it->second->GetPlayer();
-            LogoutRobot(eachPlayer);
-        }
-    }
-    managerState = 12;
+    static RobotManager instance;
+    return &instance;
 }
 
-bool RobotManager::LogoutRobot(Player* pmPlayer)
+void RobotManager::UpdateManager(uint32 pmDiff)
 {
-    if (pmPlayer)
+    if (sRobotConfig->enable == 0)
     {
-        if (pmPlayer->IsInWorld())
+        return;
+    }
+    if (checkDelay > 0)
+    {
+        checkDelay -= pmDiff;
+        return;
+    }
+    checkDelay = ROBOT_MANAGER_UPDATE_GAP;
+
+    std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
+
+    std::unordered_set<uint32> activePlayerLevelSet;
+    for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
+    {
+        if (!it->second->isRobot)
         {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", pmPlayer->GetName());
-
-            std::ostringstream msgStream;
-            msgStream << pmPlayer->GetName() << " logged out";
-            sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
-
-            pmPlayer->GetSession()->LogoutPlayer(true);
-            return true;
+            Player* eachPlayer = it->second->GetPlayer();
+            if (eachPlayer)
+            {
+                if (eachPlayer->IsInWorld())
+                {
+                    uint32 eachPlayerLevel = eachPlayer->GetLevel();
+                    if (eachPlayerLevel > 10)
+                    {
+                        if (activePlayerLevelSet.find(eachPlayer->GetLevel()) == activePlayerLevelSet.end())
+                        {
+                            activePlayerLevelSet.insert(eachPlayerLevel);
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
+    {
+        (*rit)->Update(pmDiff);
+    }
+}
+
+bool RobotManager::DeleteRobots()
+{
+    QueryResult accountQR = LoginDatabase.PQuery("SELECT id, username FROM account where username like '%s%%'", sRobotConfig->robotAccountNamePrefix.c_str());
+
+    if (accountQR)
+    {
+        do
+        {
+            Field* fields = accountQR->Fetch();
+            uint32 id = fields[0].GetUInt32();
+            std::string userName = fields[1].GetString();
+            deleteRobotAccountSet.insert(id);
+            sAccountMgr->DeleteAccount(id);
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Delete robot account %d - %s", id, userName.c_str());
+        } while (accountQR->NextRow());
+        return true;
     }
 
     return false;
+}
+
+bool RobotManager::RobotsDeleted()
+{
+    for (std::set<uint32>::iterator it = deleteRobotAccountSet.begin(); it != deleteRobotAccountSet.end(); it++)
+    {
+        QueryResult accountQR = LoginDatabase.PQuery("SELECT id FROM account where id = '%d'", (*it));
+        if (accountQR)
+        {
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Account %d is under deleting", (*it));
+            return false;
+        }
+        QueryResult characterQR = CharacterDatabase.PQuery("SELECT count(*) FROM characters where account = '%d'", (*it));
+        if (characterQR)
+        {
+            Field* fields = characterQR->Fetch();
+            uint32 count = fields[0].GetUInt32();
+            if (count > 0)
+            {
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Characters for account %d are under deleting", (*it));
+                return false;
+            }
+        }
+    }
+
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot accounts are deleted");
+    return true;
+}
+
+bool RobotManager::CreateRobotAccount(std::string pmAccountName)
+{
+    QueryResult accountQR = LoginDatabase.PQuery("SELECT id FROM account where username = '%s'", pmAccountName.c_str());
+    if (accountQR)
+    {
+        return false;
+    }
+    AccountOpResult aor = sAccountMgr->CreateAccount(pmAccountName, "robot");
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create robot account %s", pmAccountName.c_str());
+
+    return true;
+}
+
+bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint8 pmCharacterClass, uint8 pmCharacterRace, uint8 pmCharacterLevel)
+{
+    std::string currentName = "";
+    bool nameValid = false;
+    while (nameIndex < robotNameMap.size())
+    {
+        currentName = robotNameMap[nameIndex];
+        QueryResult checkNameQR = CharacterDatabase.PQuery("SELECT count(*) FROM characters where name = '%s'", currentName.c_str());
+
+        if (!checkNameQR)
+        {
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Name %s is available", currentName.c_str());
+            nameValid = true;
+        }
+        else
+        {
+            Field* nameCountFields = checkNameQR->Fetch();
+            uint32 nameCount = nameCountFields[0].GetUInt32();
+            if (nameCount == 0)
+            {
+                nameValid = true;
+            }
+        }
+        nameIndex++;
+        if (nameValid)
+        {
+            break;
+        }
+    }
+    if (!nameValid)
+    {
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "No available names");
+        return false;
+    }
+
+    uint8 gender = 0, skin = 0, face = 0, hairStyle = 0, hairColor = 0, facialHair = 0;
+    while (true)
+    {
+        gender = urand(0, 1);
+        face = urand(0, 5);
+        hairStyle = urand(0, 5);
+        hairColor = urand(0, 5);
+        facialHair = urand(0, 5);
+
+        CharacterCreateInfo* cci = new CharacterCreateInfo();
+        cci->Name = currentName;
+        cci->Race = pmCharacterRace;
+        cci->Class = pmCharacterClass;
+        cci->Gender = gender;
+        cci->Skin = skin;
+        cci->Face = face;
+        cci->HairStyle = hairStyle;
+        cci->HairColor = hairColor;
+        cci->FacialHair = facialHair;
+        cci->OutfitId = 0;
+
+        WorldSession* eachSession = new WorldSession(pmAccountID, "robot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
+        eachSession->isRobot = true;
+        Player* newPlayer = new Player(eachSession);
+        if (!newPlayer->Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), cci))
+        {
+            newPlayer->CleanupsBeforeDelete();
+            delete eachSession;
+            delete newPlayer;
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Character create failed, %s %d %d", currentName.c_str(), pmCharacterRace, pmCharacterClass);
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Try again");
+            continue;
+        }
+        newPlayer->GetMotionMaster()->Initialize();
+        newPlayer->GiveLevel(pmCharacterLevel);
+        newPlayer->setCinematic(2);
+        newPlayer->SetAtLoginFlag(AT_LOGIN_NONE);
+        newPlayer->SaveToDB();
+        sWorld->AddSession(eachSession);
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create character %d - %s for account %d", newPlayer->GetGUID().GetCounter(), currentName.c_str(), pmAccountID);
+        break;
+    }
+
+    return true;
+}
+
+bool RobotManager::LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID)
+{
+    Player* currentPlayer = ObjectAccessor::FindPlayer(pmGUID);
+    if (currentPlayer)
+    {
+        if (currentPlayer->IsInWorld())
+        {
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot %d %s is already in world", pmGUID, currentPlayer->GetName());
+            return false;
+        }
+    }
+    QueryResult characterQR = CharacterDatabase.PQuery("SELECT name, level FROM characters where guid = '%d'", pmGUID);
+    if (!characterQR)
+    {
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Found zero robot characters for account %d while processing logging in", pmAccountID);
+        return false;
+    }
+    Field* characterFields = characterQR->Fetch();
+    std::string characterName = characterFields[0].GetString();
+    uint8 characterLevel = characterFields[1].GetUInt8();
+    WorldSession* loginSession = sWorld->FindSession(pmAccountID);
+    if (!loginSession)
+    {
+        loginSession = new WorldSession(pmAccountID, "robot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
+        loginSession->isRobot = true;
+        sWorld->AddSession(loginSession);
+    }
+    WorldPacket loginWP(CMSG_PLAYER_LOGIN, 8);
+    loginWP << pmGUID;
+    loginSession->HandlePlayerLoginOpcode(loginWP);
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmGUID, characterName.c_str(), characterLevel);
+
+    return true;
+}
+
+void RobotManager::LogoutRobots()
+{
+    for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
+    {
+        (*rit)->Logout();
+    }
 }
 
 void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
@@ -884,6 +660,22 @@ bool RobotManager::StringEndWith(const std::string &str, const std::string &tail
 bool RobotManager::StringStartWith(const std::string &str, const std::string &head)
 {
     return str.compare(0, head.size(), head) == 0;
+}
+
+Player* RobotManager::GetMaster(Player* pmRobotPlayer)
+{
+    for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
+    {
+        if ((*rit)->sourcePlayer)
+        {
+            if ((*rit)->sourcePlayer->GetGUID() == pmRobotPlayer->GetGUID())
+            {
+                return (*rit)->masterPlayer;
+            }
+        }
+    }
+
+    return NULL;
 }
 
 std::vector<std::string> RobotManager::SplitString(std::string srcStr, std::string delimStr, bool repeatedCharIgnored)

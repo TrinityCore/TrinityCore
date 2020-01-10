@@ -2,7 +2,6 @@
 #define ROBOT_STRATEGIES_SCRIPT_DRUID_H
 
 #include "Script_Base.h"
-#include "RobotAI.h"
 
 class Script_Druid :public Script_Base
 {

@@ -35,6 +35,7 @@
 
  // EJ robot 
 #include "RobotAI.h"
+#include "RobotManager.h"
 
 class Aura;
 
@@ -159,13 +160,10 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 
         // EJ robot group recheck
         if (invitedPlayer->GetSession()->isRobot)
-        {
-            if (invitedPlayer->rai)
+        {            
+            if (!invitedPlayer->IsInSameGroupWith(sRobotManager->GetMaster(invitedPlayer)))
             {
-                if (!invitedPlayer->IsInSameGroupWith(invitedPlayer->rai->masterPlayer))
-                {
-                    invitedPlayer->RemoveFromGroup();
-                }
+                invitedPlayer->RemoveFromGroup();
             }
         }
 

@@ -2,9 +2,12 @@
 #define ROBOT_STRATEGIES_SCRIPT_BASE_H
 
 #include "Player.h"
+#include "RobotAI.h"
 #include "SpellMgr.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+
+class RobotAI;
 
 class Script_Base
 {
@@ -17,6 +20,6 @@ public:
 	virtual bool Buff(Unit* pmTarget) = 0;
 	virtual bool HealMe() = 0;
 
-	RobotAI * sourceAI;
+	RobotAI* sourceAI;
 };
 #endif

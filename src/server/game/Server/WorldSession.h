@@ -47,6 +47,10 @@ class SpellCastTargets;
 class Unit;
 class Warden;
 class WorldPacket;
+
+// EJ robot
+class RobotChatCommand;
+
 class WorldSocket;
 struct AddonInfo;
 struct AreaTableEntry;
@@ -280,14 +284,17 @@ struct PacketCounter
 /// Player session in the World
 class TC_GAME_API WorldSession
 {
-    // EJ robot
-public:
-    bool isRobot;
-
     public:
         WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
+        // EJ robot
+        bool isRobot;
+        std::queue<const WorldPacket*> robotPacketQueue;
+        std::queue<const RobotChatCommand*> robotChatCommandQueue;
+        std::mutex robotPacketQueue_m;
+        std::mutex robotChatCommandQueue_m;
+            
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
         bool PlayerLogoutWithSave() const { return m_playerLogout && m_playerSave; }

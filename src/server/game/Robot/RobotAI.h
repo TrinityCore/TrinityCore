@@ -9,38 +9,31 @@
 # define MELEE_MAX_DISTANCE 2.0f
 #endif
 
-#include "Unit.h"
-#include "Player.h"
-#include "Item.h"
-#include "Bag.h"
-#include "Globals/ObjectAccessor.h"
-#include "RobotManager.h"
-#include "Spells/Spell.h"
-#include "Chat/Chat.h"
-#include "Strategies/Strategy_Group_Normal.h"
-#include "Strategies/Strategy_Solo_Normal.h"
-#include "Scripts/Script_Base.h"
-#include "Scripts/Script_Warrior.h"
-#include "Scripts/Script_Hunter.h"
-#include "Scripts/Script_Shaman.h"
-#include "Scripts/Script_Paladin.h"
-#include "Scripts/Script_Warlock.h"
-#include "Scripts/Script_Priest.h"
-#include "Scripts/Script_Rogue.h"
-#include "Scripts/Script_Mage.h"
-#include "Scripts/Script_Druid.h"
-#include "SpellInfo.h"
-#include "SpellHistory.h"
-
+class Script_Base;
 class Strategy_Solo_Normal;
 class Strategy_Group_Normal;
+
+enum RobotState:uint32
+{
+    RobotState_None = 0,
+    RobotState_OffLine,
+    RobotState_CheckAccount,
+    RobotState_CreateAccount,
+    RobotState_CheckCharacter,
+    RobotState_CreateCharacter,
+    RobotState_CheckLogin,
+    RobotState_DoLogin,
+    RobotState_Online,
+    RobotState_CheckLogoff,
+    RobotState_DoLogoff,
+};
 
 class RobotAI
 {
 public:
-	RobotAI(Player* pmSourcePlayer);
+	RobotAI();
 	~RobotAI();
-	void Update();
+    void Update(uint32 pmDiff);
 	Item* GetItemInInventory(uint32 pmEntry);
 	void InitializeCharacter();
 	void SetStrategy(std::string pmStrategyName, bool pmEnable);
@@ -61,23 +54,34 @@ public:
     bool UnequipItem(std::string pmEquipName);
     bool UnequipAll();
     bool EquipAll();    
-	void HandlePacket(WorldPacket const* pmPacket);
-	void HandleChatCommand(std::string pmCommand, Player* pmSender);	
+	bool HandlePacket();
+    void HandleChatCommand();
 	uint32 FindSpellID(std::string pmSpellName);
 	bool SpellValid(uint32 pmSpellID);
 	bool CancelAura(std::string pmSpellName);
 	void CancelAura(uint32 pmSpellID);
 	void ClearShapeshift();
 	void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
+    void Logout();
 
 public:
 	time_t prevUpdate;
+    WorldSession* sourceSession;
 	Player * sourcePlayer;
 	Player* masterPlayer;
 	std::unordered_map<std::string, bool> strategiesMap;
 	uint8 characterTalentTab;
 	// 0 dps, 1 tank, 2 healer
-	uint8 characterType;
+	uint32 characterType;
+    std::string accountName;
+    uint32 targetLevel;
+    uint32 targetRace;
+    uint32 targetClass;
+    int32 onlineDelay;
+    int32 offlineDelay;
+    uint32 robotState;
+    std::mutex robotPacketQueue_m;
+    std::mutex robotChatCommandQueue_m;
 
 	std::unordered_map<std::string, uint32> spellIDMap;
 	std::unordered_map<std::string, uint8> spellLevelMap;

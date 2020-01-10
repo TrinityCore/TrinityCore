@@ -1,10 +1,7 @@
 #ifndef ROBOT_STRATEGIES_GROUP_NORMAL_H
 #define ROBOT_STRATEGIES_GROUP_NORMAL_H
 
-#include "RobotAI.h"
-#include "Player.h"
-#include "GridNotifiers.h"
-#include "Robot/Scripts/Script_Base.h"
+class RobotAI;
 
 enum Group_Instruction :uint8
 {

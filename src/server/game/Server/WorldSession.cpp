@@ -54,7 +54,7 @@
 #include <zlib.h>
 
 // EJ robot
-#include "RobotAI.h"
+#include "RobotManager.h"
 
 namespace {
 
@@ -151,7 +151,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     }
 
     // EJ robot
-    isRobot = false;
+    isRobot = false;    
 }
 
 /// WorldSession destructor
@@ -211,13 +211,8 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     // EJ robot
     if (isRobot)
     {
-        if (_player)
-        {
-            if (_player->rai)
-            {
-                _player->rai->HandlePacket(packet);
-            }
-        }
+        std::lock_guard<std::mutex> lock(robotPacketQueue_m);
+        robotPacketQueue.push(packet);
         return;
     }
 
@@ -294,19 +289,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     // EJ robot
     if (isRobot)
     {
-        if (_player)
-        {
-            if (_player->IsBeingTeleportedNear())
-            {
-                WorldPacket data(MSG_MOVE_TELEPORT_ACK, 10);
-                data << _player->GetGUID().WriteAsPacked();
-                data << uint32(0) << uint32(0);
-                _player->GetSession()->HandleMoveTeleportAck(data);
-            }
-            if (_player->IsBeingTeleportedFar())
-                _player->GetSession()->HandleMoveWorldportAck();
-        }
-
         return true;
     }
 

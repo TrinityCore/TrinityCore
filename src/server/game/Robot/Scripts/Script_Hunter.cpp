@@ -1,4 +1,5 @@
 #include "Script_Hunter.h"
+#include "Pet.h"
 
 #ifndef HUNTER_PREPARE_DISTANCE
 # define HUNTER_PREPARE_DISTANCE 9
@@ -171,7 +172,7 @@ bool Script_Hunter::Attack_Common(Unit* pmTarget)
 bool Script_Hunter::Buff(Unit* pmTarget)
 {
 	Player* me = sourceAI->sourcePlayer;
-	Unit* pet = me->GetPet();
+	Pet* pet = me->GetPet();
 	if (!pet)
 	{
 		if (sourceAI->CastSpell(me, "Call Pet"))

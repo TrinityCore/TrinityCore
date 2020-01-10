@@ -45,6 +45,7 @@
 
  // EJ robot
 #include "RobotAI.h"
+#include "RobotManager.h"
 
 inline bool isNasty(uint8 c)
 {
@@ -382,10 +383,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             // EJ robot
             if (receiver->GetSession()->isRobot)
             {
-                if (receiver->rai)
-                {
-                    receiver->rai->HandleChatCommand(msg, GetPlayer());
-                }
+                std::lock_guard<std::mutex> lock(robotChatCommandQueue_m);
+                RobotChatCommand* newRCC = new RobotChatCommand();
+                newRCC->chatCommandContent = msg;
+                newRCC->sender = GetPlayer();
+                robotChatCommandQueue.push(newRCC);
             }
 
             break;
@@ -417,10 +419,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 Player* member = groupRef->GetSource();
                 if (member->GetSession()->isRobot)
                 {
-                    if (member->rai)
-                    {
-                        member->rai->HandleChatCommand(msg, GetPlayer());
-                    }
+                    std::lock_guard<std::mutex> lock(robotChatCommandQueue_m);
+                    RobotChatCommand* newRCC = new RobotChatCommand();
+                    newRCC->chatCommandContent = msg;
+                    newRCC->sender = GetPlayer();
+                    member->GetSession()->robotChatCommandQueue.push(newRCC);
                 }
             }
             break;
@@ -492,10 +495,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 Player* member = groupRef->GetSource();
                 if (member->GetSession()->isRobot)
                 {
-                    if (member->rai)
-                    {
-                        member->rai->HandleChatCommand(msg, GetPlayer());
-                    }
+                    std::lock_guard<std::mutex> lock(robotChatCommandQueue_m);
+                    RobotChatCommand* newRCC = new RobotChatCommand();
+                    newRCC->chatCommandContent = msg;
+                    newRCC->sender = GetPlayer();
+                    member->GetSession()->robotChatCommandQueue.push(newRCC);
                 }
             }
 
