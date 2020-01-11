@@ -92,6 +92,8 @@ class SpellCastTargets;
 class TradeData;
 
 enum GroupCategory : uint8;
+enum class InstanceResetMethod : uint8;
+enum class InstanceResetResult : uint8;
 enum InventoryType : uint8;
 enum ItemClass : uint8;
 enum LootError : uint8;
@@ -2085,7 +2087,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SendDungeonDifficulty(int32 forcedDifficulty = -1) const;
         void SendRaidDifficulty(bool legacy, int32 forcedDifficulty = -1) const;
-        void ResetInstances(InstanceResetMethod method, bool isRaid, bool isLegacy);
+        void ResetInstances(InstanceResetMethod method);
         void SendResetInstanceSuccess(uint32 MapId) const;
         void SendResetInstanceFailed(ResetFailedReason reason, uint32 mapID) const;
         void SendResetFailedNotify(uint32 mapid) const;

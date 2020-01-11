@@ -481,12 +481,6 @@ bool Group::AddMember(Player* player)
 
     if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
     {
-        // reset the new member's instances, unless he is currently in one of them
-        // including raid/heroic instances that they are not permanently bound to!
-        player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, false, false);
-        player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, false);
-        player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, true);
-
         if (player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
         {
             player->SetDungeonDifficultyID(GetDungeonDifficultyID());
@@ -768,15 +762,11 @@ void Group::Disband(bool hideDestroy /* = false */)
         stmt->setUInt32(0, m_dbStoreId);
         trans->Append(stmt);
 
-        CharacterDatabase.CommitTransaction(trans);
-
-        ResetInstances(INSTANCE_RESET_GROUP_DISBAND, false, false, nullptr);
-        ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, false, nullptr);
-        ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, true, nullptr);
-
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
         stmt->setUInt32(0, m_dbStoreId);
-        CharacterDatabase.Execute(stmt);
+        trans->Append(stmt);
+
+        CharacterDatabase.CommitTransaction(trans);
 
         sGroupMgr->FreeGroupDbStoreId(this);
     }
@@ -1359,8 +1349,30 @@ Difficulty Group::GetDifficultyID(MapEntry const* mapEntry) const
     return m_raidDifficulty;
 }
 
-void Group::ResetInstances(InstanceResetMethod /*method*/, bool /*isRaid*/, bool /*isLegacy*/, Player* /*SendMsgTo*/)
+void Group::ResetInstances(InstanceResetMethod method, Player* notifyPlayer)
 {
+    for (GroupInstanceReference& ref : m_ownedInstancesMgr)
+    {
+        InstanceMap* map = ref.GetSource();
+        switch (map->Reset(method))
+        {
+            case InstanceResetResult::Success:
+                notifyPlayer->SendResetInstanceSuccess(map->GetId());
+                m_recentInstances.erase(map->GetId());
+                break;
+            case InstanceResetResult::NotEmpty:
+                if (method == InstanceResetMethod::Manual)
+                    notifyPlayer->SendResetInstanceFailed(INSTANCE_RESET_FAILED, map->GetId());
+                else if (method == InstanceResetMethod::OnChangeDifficulty)
+                    m_recentInstances.erase(map->GetId()); // map might not have been reset on difficulty change but we still don't want to zone in there again
+                break;
+            case InstanceResetResult::CannotReset:
+                m_recentInstances.erase(map->GetId()); // forget the instance, allows retrying different lockout with a new leader
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void Group::LinkOwnedInstance(GroupInstanceReference* ref)
