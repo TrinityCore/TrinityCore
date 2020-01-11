@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "NPCHandler.h"
@@ -82,8 +83,8 @@ void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recvData*/)
 void WorldSession::SendQueryTimeResponse()
 {
     WorldPacket data(SMSG_QUERY_TIME_RESPONSE, 4+4);
-    data << uint32(time(nullptr));
-    data << uint32(sWorld->GetNextDailyQuestsResetTime() - time(nullptr));
+    data << uint32(GameTime::GetGameTime());
+    data << uint32(sWorld->GetNextDailyQuestsResetTime() - GameTime::GetGameTime());
     SendPacket(&data);
 }
 

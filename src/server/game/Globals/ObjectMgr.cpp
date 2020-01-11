@@ -27,6 +27,7 @@
 #include "DB2Structure.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
+#include "GameTime.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
 #include "GossipDef.h"
@@ -6075,7 +6076,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
     uint32 oldMSTime = getMSTime();
 
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
     tm lt;
     localtime_r(&curTime, &lt);
     uint64 basetime(curTime);
@@ -7290,6 +7291,17 @@ inline void CheckGOConsumable(GameObjectTemplate const* goInfo, uint32 dataN, ui
 
     TC_LOG_ERROR("sql.sql", "Gameobject (Entry: %u GoType: %u) have data%d=%u but expected boolean (0/1) consumable field value.",
         goInfo->entry, goInfo->type, N, dataN);
+}
+
+time_t ObjectMgr::GetHotfixDate(uint32 entry, uint32 type) const
+{
+    time_t ret = 0;
+    for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)
+        if (itr->Entry == entry && itr->Type == type)
+            if (time_t(itr->Timestamp) > ret)
+                ret = time_t(itr->Timestamp);
+
+    return ret ? ret : GameTime::GetGameTime();
 }
 
 void ObjectMgr::LoadGameObjectTemplate()

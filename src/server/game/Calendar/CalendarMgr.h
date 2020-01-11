@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
+#include "GameTime.h"
 #include "ObjectGuid.h"
 #include <deque>
 #include <map>
@@ -147,7 +148,7 @@ struct TC_GAME_API CalendarInvite
             _text = calendarInvite.GetText();
         }
 
-        CalendarInvite() : _inviteId(1), _eventId(0), _invitee(), _senderGUID(), _statusTime(time(nullptr)),
+        CalendarInvite() : _inviteId(1), _eventId(0), _invitee(), _senderGUID(), _statusTime(GameTime::GetGameTime()),
             _status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _text("") { }
 
         CalendarInvite(uint64 inviteId, uint64 eventId, ObjectGuid invitee, ObjectGuid senderGUID, time_t statusTime,

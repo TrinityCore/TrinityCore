@@ -17,6 +17,7 @@
 
 #include "AuctionHouseBotBuyer.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "ItemTemplate.h"
 #include "Log.h"
@@ -97,7 +98,6 @@ bool AuctionBotBuyer::Update(AuctionHouseType houseType)
 uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
 {
     config.SameItemInfo.clear();
-    time_t now = time(nullptr);
     uint32 count = 0;
 
     AuctionHouseObject* house = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
@@ -146,7 +146,7 @@ uint32 AuctionBotBuyer::GetItemInformation(BuyerConfiguration& config)
         // * bid from player
         if (!entry->bid || entry->bidder)
         {
-            config.EligibleItems[entry->Id].LastExist = now;
+            config.EligibleItems[entry->Id].LastExist = GameTime::GetGameTime();
             config.EligibleItems[entry->Id].AuctionId = entry->Id;
             ++count;
         }
@@ -237,11 +237,10 @@ bool AuctionBotBuyer::RollBidChance(BuyerItemInfo const* ahInfo, Item const* ite
 void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 {
     // now - 5 seconds to leave out all old entries but keep the ones just updated a moment ago
-    time_t now = time(nullptr) - 5;
 
     for (CheckEntryMap::iterator itr = config.EligibleItems.begin(); itr != config.EligibleItems.end();)
     {
-        if (itr->second.LastExist < now)
+        if (itr->second.LastExist < GameTime::GetGameTime() - 5)
             config.EligibleItems.erase(itr++);
         else
             ++itr;
@@ -253,7 +252,6 @@ void AuctionBotBuyer::PrepareListOfEntry(BuyerConfiguration& config)
 // Tries to bid and buy items based on their prices and chances set in configs
 void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
 {
-    time_t now = time(nullptr);
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(config.GetHouseType());
     CheckEntryMap& items = config.EligibleItems;
 
@@ -280,7 +278,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
 
         // Check if the item has been checked once before
         // If it has been checked and it was recently, skip it
-        if (itr->second.LastChecked && (now - itr->second.LastChecked) <= _checkInterval)
+        if (itr->second.LastChecked && (GameTime::GetGameTime() - itr->second.LastChecked) <= _checkInterval)
         {
             TC_LOG_DEBUG("ahbot", "AHBot: In time interval wait for entry %u!", auction->Id);
             ++itr;
@@ -330,7 +328,7 @@ void AuctionBotBuyer::BuyAndBidItems(BuyerConfiguration& config)
         else if (successBid)
             PlaceBidToEntry(auction, bidPrice); // bid
 
-        itr->second.LastChecked = now;
+        itr->second.LastChecked = GameTime::GetGameTime();
         --cycles;
         ++itr;
     }

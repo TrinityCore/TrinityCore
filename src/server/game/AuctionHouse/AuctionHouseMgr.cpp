@@ -548,7 +548,7 @@ void AuctionHouseMgr::UpdatePendingAuctions()
             {
                 AuctionEntry* AH = (*AHitr);
                 ++AHitr;
-                AH->expire_time = time(nullptr);
+                AH->expire_time = GameTime::GetGameTime();
                 AH->DeleteFromDB(trans);
                 AH->SaveToDB(trans);
             }
@@ -615,7 +615,7 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction)
 
 void AuctionHouseObject::Update()
 {
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
     ///- Handle expired auctions
 
     // If storage is empty, no need to update. next == nullptr in this case.
@@ -710,7 +710,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     LocaleConstant localeConstant = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
-    time_t curTime = time(nullptr);
+    time_t curTime = GameTime::GetGameTime();
 
     PlayerGetAllThrottleMap::const_iterator itr = GetAllThrottleMap.find(player->GetGUID());
     time_t throttleTime = itr != GetAllThrottleMap.end() ? itr->second : curTime;
@@ -863,7 +863,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data, Item* sourceItem) const
     data << uint64(bid ? GetAuctionOutBid() : 0);
     // Minimal outbid
     data << uint64(buyout);                                         // Auction->buyout
-    data << uint32((expire_time - time(nullptr)) * IN_MILLISECONDS);   // time left
+    data << uint32((expire_time - GameTime::GetGameTime()) * IN_MILLISECONDS);   // time left
     data << uint64(bidder);                                         // auction->bidder current
     data << uint64(bid);                                            // current bid
     return true;

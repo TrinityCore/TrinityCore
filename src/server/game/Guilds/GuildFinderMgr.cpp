@@ -19,6 +19,7 @@
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Log.h"
@@ -26,7 +27,7 @@
 #include "Player.h"
 #include "World.h"
 
-MembershipRequest::MembershipRequest() : _guildId(0), _availability(0), _classRoles(0), _interests(0), _time(time(nullptr))
+MembershipRequest::MembershipRequest() : _guildId(0), _availability(0), _classRoles(0), _interests(0), _time(GameTime::GetGameTime())
 {
 }
 

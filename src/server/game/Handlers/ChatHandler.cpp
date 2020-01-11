@@ -24,6 +24,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
@@ -212,7 +213,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             if (!sender->CanSpeak())
             {
-                std::string timeStr = secsToTimeString(m_muteTime - time(nullptr));
+                std::string timeStr = secsToTimeString(m_muteTime - GameTime::GetGameTime());
                 SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
                 recvData.rfinish(); // Prevent warnings
                 return;
@@ -759,7 +760,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
 
     if (!GetPlayer()->CanSpeak())
     {
-        std::string timeStr = secsToTimeString(m_muteTime - time(nullptr));
+        std::string timeStr = secsToTimeString(m_muteTime - GameTime::GetGameTime());
         SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
         return;
     }
