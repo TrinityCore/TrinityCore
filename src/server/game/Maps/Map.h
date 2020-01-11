@@ -276,6 +276,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             CANNOT_ENTER_TOO_MANY_INSTANCES, // Player has entered too many instances recently
             CANNOT_ENTER_MAX_PLAYERS, // Target map already has the maximum number of players allowed
             CANNOT_ENTER_ZONE_IN_COMBAT, // A boss encounter is currently in progress on the target map
+            CANNOT_ENTER_INSTANCE_SHUTTING_DOWN,
             CANNOT_ENTER_UNSPECIFIED_REASON
         };
         static EnterState PlayerCannotEnter(uint32 mapid, Player* player, bool loginCheck = false);
@@ -787,14 +788,18 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         WorldStateValueContainer _worldStateValues;
 };
 
-enum InstanceResetMethod
+enum class InstanceResetMethod : uint8
 {
-    INSTANCE_RESET_ALL,
-    INSTANCE_RESET_CHANGE_DIFFICULTY,
-    INSTANCE_RESET_GLOBAL,
-    INSTANCE_RESET_GROUP_DISBAND,
-    INSTANCE_RESET_GROUP_JOIN,
-    INSTANCE_RESET_RESPAWN_DELAY
+    Manual,
+    OnChangeDifficulty,
+    Expire
+};
+
+enum class InstanceResetResult : uint8
+{
+    Success,
+    NotEmpty,
+    CannotReset
 };
 
 class TC_GAME_API InstanceMap : public Map
@@ -806,7 +811,7 @@ class TC_GAME_API InstanceMap : public Map
         void RemovePlayerFromMap(Player*, bool) override;
         void Update(uint32) override;
         void CreateInstanceData();
-        bool Reset(InstanceResetMethod method);
+        InstanceResetResult Reset(InstanceResetMethod method);
         uint32 GetScriptId() const { return i_script_id; }
         std::string const& GetScriptName() const;
         InstanceScript* GetInstanceScript() { return i_data; }
@@ -818,13 +823,8 @@ class TC_GAME_API InstanceMap : public Map
         void UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent);
         void UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& updateSaveDataEvent);
         void CreateInstanceLockForPlayer(Player* player);
-        void UnloadAll() override;
         EnterState CannotEnter(Player* player) override;
-        void SetResetSchedule(bool on);
 
-        /* this checks if any players have a permanent bind (included reactivatable expired binds) to the instance ID
-        it needs a DB query, so use sparingly */
-        bool HasPermBoundPlayers() const;
         uint32 GetMaxPlayers() const;
         TeamId GetTeamIdInInstance() const;
         Team GetTeamInInstance() const { return GetTeamIdInInstance() == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
@@ -836,8 +836,7 @@ class TC_GAME_API InstanceMap : public Map
 
         std::string GetDebugInfo() const override;
     private:
-        bool m_resetAfterUnload;
-        bool m_unloadWhenEmpty;
+        bool m_shuttingDown;
         InstanceScript* i_data;
         uint32 i_script_id;
         InstanceScenario* i_scenario;

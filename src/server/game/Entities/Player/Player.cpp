@@ -17400,6 +17400,11 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             // flight will started later
         }
     }
+    else if (mapEntry->IsDungeon() && instanceId)
+    {
+        // try finding instance by id first
+        map = sMapMgr->FindMap(mapId, instanceId);
+    }
 
     // Map could be changed before
     mapEntry = sMapStore.LookupEntry(mapId);
@@ -17446,6 +17451,9 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
                     break;
                 case Map::CANNOT_ENTER_ZONE_IN_COMBAT:
                     SendTransferAborted(map->GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
+                    break;
+                case Map::CANNOT_ENTER_INSTANCE_SHUTTING_DOWN:
+                    SendTransferAborted(map->GetId(), TRANSFER_ABORT_NOT_FOUND);
                     break;
                 default:
                     break;
@@ -20589,8 +20597,41 @@ void Player::SendResetFailedNotify(uint32 /*mapid*/) const
 }
 
 /// Reset all solo instances and optionally send a message on success for each
-void Player::ResetInstances(InstanceResetMethod /*method*/, bool /*isRaid*/, bool /*isLegacy*/)
+void Player::ResetInstances(InstanceResetMethod method)
 {
+    for (auto itr = m_recentInstances.begin(); itr != m_recentInstances.end(); )
+    {
+        Map* map = sMapMgr->FindMap(itr->first, itr->second);
+        bool forgetInstance = false;
+        if (map)
+        {
+            if (InstanceMap* instance = map->ToInstanceMap())
+            {
+                switch (instance->Reset(method))
+                {
+                    case InstanceResetResult::Success:
+                        SendResetInstanceSuccess(map->GetId());
+                        forgetInstance = true;
+                        break;
+                    case InstanceResetResult::NotEmpty:
+                        if (method == InstanceResetMethod::Manual)
+                            SendResetInstanceFailed(INSTANCE_RESET_FAILED, map->GetId());
+                        else if (method == InstanceResetMethod::OnChangeDifficulty)
+                            forgetInstance = true;
+                        break;
+                    case InstanceResetResult::CannotReset:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if (forgetInstance)
+            itr = m_recentInstances.erase(itr);
+        else
+            ++itr;
+    }
 }
 
 void Player::SendResetInstanceSuccess(uint32 MapId) const

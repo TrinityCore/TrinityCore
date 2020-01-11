@@ -2769,7 +2769,7 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock)
   : Map(id, expiry, InstanceId, SpawnMode),
-    m_resetAfterUnload(false), m_unloadWhenEmpty(false),
+    m_shuttingDown(false),
     i_data(nullptr), i_script_id(0), i_scenario(nullptr), i_instanceLock(instanceLock)
 {
     //lets initialize visibility distance for dungeons
@@ -2807,6 +2807,9 @@ Map::EnterState InstanceMap::CannotEnter(Player* player)
         ABORT();
         return CANNOT_ENTER_ALREADY_IN_MAP;
     }
+
+    if (m_shuttingDown)
+        return CANNOT_ENTER_INSTANCE_SHUTTING_DOWN;
 
     // allow GM's to enter
     if (player->IsGameMaster())
@@ -2867,15 +2870,9 @@ bool InstanceMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
         }
     }
 
-    // for normal instances cancel the reset schedule when the
-    // first player enters (no players yet)
-    SetResetSchedule(false);
-
     TC_LOG_DEBUG("maps", "MAP: Player '%s' entered instance '%u' of map '%s'", player->GetName().c_str(), GetInstanceId(), GetMapName());
     // initialize unload state
     m_unloadTimer = 0;
-    m_resetAfterUnload = false;
-    m_unloadWhenEmpty = false;
 
     // this will acquire the same mutex so it cannot be in the previous block
     Map::AddPlayerToMap(player, initPlayer);
@@ -2912,15 +2909,12 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
 
     // if last player set unload timer
     if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
-        m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
+        m_unloadTimer = m_shuttingDown ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
 
     if (i_scenario)
         i_scenario->OnPlayerExit(player);
 
     Map::RemovePlayerFromMap(player, remove);
-
-    // for normal instances schedule the reset after all players have left
-    SetResetSchedule(true);
 }
 
 void InstanceMap::CreateInstanceData()
@@ -2966,47 +2960,45 @@ void InstanceMap::TrySetOwningGroup(Group* group)
 /*
     Returns true if there are no players in the instance
 */
-bool InstanceMap::Reset(InstanceResetMethod method)
+InstanceResetResult InstanceMap::Reset(InstanceResetMethod method)
 {
-    // note: since the map may not be loaded when the instance needs to be reset
-    // the instance must be deleted from the DB
+    // raids can be reset if no boss was killed
+    if (method != InstanceResetMethod::Expire && i_instanceLock && i_instanceLock->GetData()->CompletedEncountersMask)
+        return InstanceResetResult::CannotReset;
 
     if (HavePlayers())
     {
-        // on manual reset, fail
-        if (method == INSTANCE_RESET_ALL || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
+        switch (method)
         {
-            // notify the players to leave the instance so it can be reset
-            for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-                itr->GetSource()->SendResetFailedNotify(GetId());
-        }
-        else
-        {
-            // on lock expiration boot players (do we also care about extension state?)
-            if (method == INSTANCE_RESET_GLOBAL)
-            {
+            case InstanceResetMethod::Manual:
+                // notify the players to leave the instance so it can be reset
+                for (MapReference& ref : m_mapRefManager)
+                    ref.GetSource()->SendResetFailedNotify(GetId());
+                break;
+            case InstanceResetMethod::OnChangeDifficulty:
+                // no client notification
+                break;
+            case InstanceResetMethod::Expire:
+                // on lock expiration boot players (do we also care about extension state?)
                 // set the homebind timer for players inside (1 minute)
-                for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-                    itr->GetSource()->m_InstanceValid = false;
-            }
+                for (MapReference& ref : m_mapRefManager)
+                    ref.GetSource()->m_InstanceValid = false;
 
-            if (!HasPermBoundPlayers())
-            {
-                // the unload timer is not started
-                // instead the map will unload immediately after the players have left
-                m_unloadWhenEmpty = true;
-                m_resetAfterUnload = true;
-            }
+                m_shuttingDown = true;
+                break;
+            default:
+                break;
         }
+
+        return InstanceResetResult::NotEmpty;
     }
     else
     {
         // unloaded at next update
         m_unloadTimer = MIN_UNLOAD_DELAY;
-        m_resetAfterUnload = !(method == INSTANCE_RESET_GLOBAL && HasPermBoundPlayers());
     }
 
-    return m_mapRefManager.isEmpty();
+    return InstanceResetResult::Success;
 }
 
 std::string const& InstanceMap::GetScriptName() const
@@ -3128,23 +3120,6 @@ void InstanceMap::CreateInstanceLockForPlayer(Player* player)
     }
 }
 
-void InstanceMap::UnloadAll()
-{
-    ASSERT(!HavePlayers());
-
-    if (m_resetAfterUnload)
-    {
-        DeleteRespawnTimes();
-        DeleteCorpseData();
-    }
-
-    Map::UnloadAll();
-}
-
-void InstanceMap::SetResetSchedule(bool /*on*/)
-{
-}
-
 MapDifficultyEntry const* Map::GetMapDifficulty() const
 {
     return sDB2Manager.GetMapDifficultyData(GetId(), GetDifficultyID());
@@ -3229,13 +3204,6 @@ bool Map::GetEntrancePos(int32 &mapid, float &x, float &y)
     if (!i_mapEntry)
         return false;
     return i_mapEntry->GetEntrancePos(mapid, x, y);
-}
-
-bool InstanceMap::HasPermBoundPlayers() const
-{
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PERM_BIND_BY_INSTANCE);
-    stmt->setUInt16(0,GetInstanceId());
-    return !!CharacterDatabase.Query(stmt);
 }
 
 uint32 InstanceMap::GetMaxPlayers() const
