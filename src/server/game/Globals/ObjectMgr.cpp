@@ -599,6 +599,12 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     if (!fields[49].IsNull())
         creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[49].GetUInt8());
 
+    // EJ swim fix
+    if (creatureTemplate.Movement.Swim)
+    {
+        creatureTemplate.unit_flags = creatureTemplate.unit_flags | UnitFlags::UNIT_FLAG_SWIMMING;
+    }
+
     creatureTemplate.HoverHeight    = fields[50].GetFloat();
     creatureTemplate.ModHealth      = fields[51].GetFloat();
     creatureTemplate.ModMana        = fields[52].GetFloat();
