@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,6 +66,7 @@ enum BossSpells
     SPELL_HEAD_CRACK            = 66407,
     SPELL_JUMP_TO_HAND          = 66342,
     SPELL_RIDE_PLAYER           = 66245,
+    SPELL_FIRE_BOMB_AURA        = 66318,
 
     // Acidmaw & Dreadscale Generic
     SPELL_SWEEP                 = 66794,
@@ -547,6 +548,16 @@ private:
     InstanceScript* _instance;
     ObjectGuid _targetGUID;
     bool _mountedOnPlayer;
+};
+
+struct npc_fire_bomb : public ScriptedAI
+{
+    npc_fire_bomb(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        DoCastSelf(SPELL_FIRE_BOMB_AURA);
+    }
 };
 
 struct npc_beasts_combat_stalker : public ScriptedAI
@@ -1350,6 +1361,7 @@ void AddSC_boss_northrend_beasts()
     RegisterTrialOfTheCrusaderCreatureAI(boss_dreadscale);
     RegisterTrialOfTheCrusaderCreatureAI(npc_jormungars_slime_pool);
     RegisterTrialOfTheCrusaderCreatureAI(boss_icehowl);
+    RegisterTrialOfTheCrusaderCreatureAI(npc_fire_bomb);
 
     RegisterAuraScript(spell_gormok_jump_to_hand);
     RegisterAuraScript(spell_gormok_ride_player);
