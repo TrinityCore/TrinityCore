@@ -945,8 +945,8 @@ void GameEventMgr::LoadHolidayDates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1         2
-    QueryResult result = WorldDatabase.Query("SELECT id, date_id, date_value FROM holiday_dates");
+    //                                               0   1         2          3
+    QueryResult result = WorldDatabase.Query("SELECT id, date_id, date_value, holiday_duration FROM holiday_dates");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 holiday dates. DB table `holiday_dates` is empty.");
@@ -971,6 +971,9 @@ void GameEventMgr::LoadHolidayDates()
             continue;
         }
         entry->Date[dateId] = fields[2].GetUInt32();
+
+        if (uint32 duration = fields[3].GetUInt32())
+            entry->Duration[0] = duration;
 
         auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->Id);
         if (itr == modifiedHolidays.end() || *itr != entry->Id)
