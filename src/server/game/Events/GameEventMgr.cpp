@@ -1223,7 +1223,8 @@ void GameEventMgr::UpdateBattlegroundSettings()
     sBattlegroundMgr->ResetHolidays();
 
     for (uint32 activeEventId : m_ActiveEvents)
-        sBattlegroundMgr->SetHolidayActive(mGameEventBattlegroundHolidays[activeEventId]);
+        if (uint32 battleGroundId = mGameEventBattlegroundHolidays[activeEventId])
+            sBattlegroundMgr->SetHolidayActive(battleGroundId);
 }
 
 void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
