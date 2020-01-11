@@ -535,7 +535,10 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void JustExitedCombat() override
             {
+                EngagementOver();
+
                 me->setActive(false);
+
                 // JustExitedCombat is called on death too, so if creature is dead, avoid "respawn" event
                 if (!me->IsAlive())
                     return;
