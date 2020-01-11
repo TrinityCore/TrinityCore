@@ -159,6 +159,11 @@ public:
                     if (creature->ToTempSummon())
                         _cromushGUID = creature->GetGUID();
                     break;
+                case NPC_PISTOL_BARRAGE_DUMMY:
+                    if (Creature* godfrey = GetCreature(DATA_LORD_GODFREY))
+                        if (godfrey->IsAIEnabled)
+                            godfrey->AI()->JustSummoned(creature);
+                    break;
                 default:
                     break;
             }

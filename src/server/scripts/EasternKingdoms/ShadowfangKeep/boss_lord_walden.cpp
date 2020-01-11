@@ -113,7 +113,6 @@ struct boss_lord_walden : public BossAI
     {
         _EnterEvadeMode();
         summons.DespawnAll();
-        instance->SetBossState(DATA_LORD_WALDEN, FAIL);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         _DespawnAtEvade();
     }

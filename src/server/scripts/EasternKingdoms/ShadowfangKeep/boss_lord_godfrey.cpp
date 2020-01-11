@@ -42,7 +42,6 @@ enum Events
     EVENT_SUMMON_BLOODTHIRSTY_GHOULS,
     EVENT_PISTOL_BARRAGE,
     EVENT_PISTOL_BARRAGE_CAST,
-    EVENT_APPLY_IMMUNITY,
 
     // Bloodthirsty Ghoul
     EVENT_ATTACK
@@ -53,22 +52,19 @@ enum Spells
     SPELL_CURSED_BULLETS                            = 93629,
     SPELL_CURSED_BULLETS_HC                         = 93761,
     SPELL_MORTAL_WOUND                              = 93675,
-    SPELL_SUMMON_BLOODTHIRSTY_GHOULS_AURA           = 93707,
+    SPELL_SUMMON_BLOODTHIRSTY_GHOULS                = 93707,
     SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_1    = 93709,
     SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_2    = 93714,
     SPELL_WEAR_CHRISTMAS_HAT_GREEN_SELF_DND         = 61401,
 
-    SPELL_PISTOL_BARRAGE_FORCE_CAST                 = 96344,
-    SPELL_PISTOL_BARRAGE_CAST                       = 93520,
+    SPELL_PISTOL_BARRAGE_AOE                        = 96344,
+    SPELL_PISTOL_BARRAGE                            = 93520,
     SPELL_BULLET_TIME_CREDIT                        = 95929,
+    SPELL_BULLET_TIME_RESET_CREDIT                  = 95930,
 
-    SPELL_PISTOL_BARRAGE_TRIGGER_1                  = 93566,
-    SPELL_PISTOL_BARRAGE_TRIGGER_2                  = 93558
-};
-
-enum AchievementData
-{
-    DATA_BULLET_TIME = 1,
+    SPELL_PISTOL_BARRAGE_PERIODIC                   = 93566,
+    SPELL_PISTOL_BARRAGE_MISSILE_1                  = 93557,
+    SPELL_PISTOL_BARRAGE_MISSILE_2                  = 93558
 };
 
 enum Misc
@@ -76,59 +72,181 @@ enum Misc
     GAME_EVENT_WINTER_VEIL = 2
 };
 
-class boss_lord_godfrey : public CreatureScript
+struct boss_lord_godfrey : public BossAI
 {
-public:
-    boss_lord_godfrey() : CreatureScript("boss_lord_godfrey") { }
+    boss_lord_godfrey(Creature* creature) : BossAI(creature, DATA_LORD_GODFREY) { }
 
-    struct boss_lord_godfreyAI : public BossAI
+    void JustAppeared() override
     {
-        boss_lord_godfreyAI(Creature* creature) : BossAI(creature, DATA_LORD_GODFREY), _killedGhoulCounter(0) { }
+        if (sGameEventMgr->IsActiveEvent(GAME_EVENT_WINTER_VEIL))
+            DoCastSelf(SPELL_WEAR_CHRISTMAS_HAT_GREEN_SELF_DND);
+    }
 
-        void JustAppeared() override
+    void Reset() override
+    {
+        _Reset();
+        MakeInterruptable(false);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        Talk(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? SAY_AGGRO_ALLIANCE : SAY_AGGRO_HORDE);
+        DoCastAOE(SPELL_BULLET_TIME_RESET_CREDIT);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        events.ScheduleEvent(EVENT_MORTAL_WOUND, 3s, 4s);
+        events.ScheduleEvent(EVENT_SUMMON_BLOODTHIRSTY_GHOULS, 6s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _JustDied();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+
+        switch (summon->GetEntry())
         {
-            if (sGameEventMgr->IsActiveEvent(GAME_EVENT_WINTER_VEIL))
-                DoCastSelf(SPELL_WEAR_CHRISTMAS_HAT_GREEN_SELF_DND);
+            case NPC_PISTOL_BARRAGE_DUMMY:
+                _pistolBarrageDummyGUID = summon->GetGUID();
+                events.ScheduleEvent(EVENT_PISTOL_BARRAGE_CAST, 500ms);
+                break;
+            case NPC_BLOODTHIRSTY_GHOUL:
+                summon->SetReactState(REACT_PASSIVE);
+                summon->m_Events.AddEventAtOffset([summon]()
+                {
+                    if (summon->IsAIEnabled)
+                        summon->AI()->DoZoneInCombat();
+                }, 1s + 300ms);
+
+                summon->m_Events.AddEventAtOffset([summon]()
+                {
+                    summon->SetReactState(REACT_AGGRESSIVE);
+                }, 5s);
+                break;
+            default:
+                break;
         }
+    }
 
-        void Reset() override
+
+    void SummonedCreatureDies(Creature* summon, Unit* killer) override
+    {
+        switch (summon->GetEntry())
         {
-            _Reset();
-            MakeInterruptable(false);
+            case NPC_BLOODTHIRSTY_GHOUL:
+                if (killer->GetEntry() == BOSS_LORD_GODFREY && IsHeroic())
+                {
+                    DoCastAOE(SPELL_BULLET_TIME_CREDIT, true);
+                    _killedGhoulCounter++;
+                }
+                break;
+            default:
+                break;
         }
+    }
 
-        void JustEngagedWith(Unit* /*who*/) override
+    void KilledUnit(Unit* target) override
+    {
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        summons.DespawnAll();
+        me->SetReactState(REACT_AGGRESSIVE);
+        instance->SetBossState(DATA_LORD_GODFREY, FAIL);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _DespawnAtEvade();
+    }
+
+    void MakeInterruptable(bool apply)
+    {
+        me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !apply);
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
+    }
+
+    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    {
+        switch (spell->Id)
         {
-            if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                Talk(SAY_AGGRO_ALLIANCE);
-            else
-                Talk(SAY_AGGRO_HORDE);
-
-            _JustEngagedWith();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-            events.ScheduleEvent(EVENT_CURSED_BULLETS, Seconds(10) + Milliseconds(800));
-            events.ScheduleEvent(EVENT_MORTAL_WOUND, Seconds(3) + Milliseconds(500));
-            events.ScheduleEvent(EVENT_SUMMON_BLOODTHIRSTY_GHOULS, Seconds(6));
-            if (IsHeroic())
-                events.ScheduleEvent(EVENT_PISTOL_BARRAGE, Seconds(12) + Milliseconds(500));
+            case SPELL_CURSED_BULLETS:
+            case SPELL_CURSED_BULLETS_HC:
+                MakeInterruptable(false);
+                break;
+            default:
+                break;
         }
+    }
 
-        void JustDied(Unit* /*killer*/) override
+    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    {
+        switch (spell->Id)
         {
-            Talk(SAY_DEATH);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            _JustDied();
+            case SPELL_CURSED_BULLETS:
+            case SPELL_CURSED_BULLETS_HC:
+                MakeInterruptable(false);
+                break;
+            default:
+                break;
         }
+    }
 
-        void SummonedCreatureDies(Creature* summon, Unit* killer) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            switch (summon->GetEntry())
+            switch (eventId)
             {
-                case NPC_BLOODTHIRSTY_GHOUL:
-                    if (killer->GetEntry() == BOSS_LORD_GODFREY && IsHeroic())
+                case EVENT_CURSED_BULLETS:
+                    MakeInterruptable(true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        DoCast(target, SPELL_CURSED_BULLETS);
+                    events.Repeat(12s);
+                    break;
+                case EVENT_MORTAL_WOUND:
+                    DoCastVictim(SPELL_MORTAL_WOUND);
+                    events.Repeat(5s);
+                    break;
+                case EVENT_SUMMON_BLOODTHIRSTY_GHOULS:
+                    me->StopMoving();
+                    DoCastSelf(SPELL_SUMMON_BLOODTHIRSTY_GHOULS);
+                    events.Repeat(30s);
+
+                    // Bloodthirsty summon casts re-allign the other basic abilities
+                    events.RescheduleEvent(EVENT_CURSED_BULLETS, 7s);
+                    events.RescheduleEvent(EVENT_MORTAL_WOUND, 5s);
+
+                    if (IsHeroic())
+                        events.ScheduleEvent(EVENT_PISTOL_BARRAGE, 5s);
+                    break;
+                case EVENT_PISTOL_BARRAGE:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    DoCastAOE(SPELL_PISTOL_BARRAGE_AOE);
+                    events.RescheduleEvent(EVENT_MORTAL_WOUND, 8s + 500ms);
+
+                    break;
+                case EVENT_PISTOL_BARRAGE_CAST:
+                    if (Creature* target = ObjectAccessor::GetCreature(*me, _pistolBarrageDummyGUID))
                     {
-                        DoCastAOE(SPELL_BULLET_TIME_CREDIT, true);
-                        _killedGhoulCounter++;
+                        Talk(SAY_ANNOUNCE_PISTOL_BARRAGE);
+                        me->SetFacingToObject(target);
+                        DoCastSelf(SPELL_PISTOL_BARRAGE);
                     }
                     break;
                 default:
@@ -136,360 +254,135 @@ public:
             }
         }
 
-        void KilledUnit(Unit* target) override
-        {
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                Talk(SAY_SLAY);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            _EnterEvadeMode();
-            summons.DespawnAll();
-            me->SetReactState(REACT_AGGRESSIVE);
-            instance->SetBossState(DATA_LORD_GODFREY, FAIL);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            _DespawnAtEvade();
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            summons.Summon(summon);
-        }
-
-        uint32 GetData(uint32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_BULLET_TIME:
-                    return _killedGhoulCounter;;
-                default:
-                    break;
-            }
-            return 0;
-        }
-
-        void MakeInterruptable(bool apply)
-        {
-            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !apply);
-            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
-        }
-
-        void OnSpellCastInterrupt(SpellInfo const* spell) override
-        {
-            switch (spell->Id)
-            {
-                case SPELL_CURSED_BULLETS:
-                case SPELL_CURSED_BULLETS_HC:
-                    events.CancelEvent(EVENT_APPLY_IMMUNITY);
-                    MakeInterruptable(false);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_CURSED_BULLETS:
-                        MakeInterruptable(true);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                            DoCast(target, SPELL_CURSED_BULLETS);
-                        events.ScheduleEvent(EVENT_CURSED_BULLETS, Seconds(12));
-                        events.ScheduleEvent(EVENT_APPLY_IMMUNITY, Seconds(1) + Milliseconds(500));
-                        break;
-                    case EVENT_MORTAL_WOUND:
-                        DoCastVictim(SPELL_MORTAL_WOUND);
-                        events.Repeat(Seconds(6));
-                        break;
-                    case EVENT_SUMMON_BLOODTHIRSTY_GHOULS:
-                        DoCastAOE(SPELL_SUMMON_BLOODTHIRSTY_GHOULS_AURA, true);
-                        events.Repeat(Seconds(30));
-                        break;
-                    case EVENT_PISTOL_BARRAGE:
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        DoCastAOE(SPELL_PISTOL_BARRAGE_FORCE_CAST);
-                        events.ScheduleEvent(EVENT_PISTOL_BARRAGE_CAST, Milliseconds(500));
-                        break;
-                    case EVENT_PISTOL_BARRAGE_CAST:
-                        if (Creature* target = me->FindNearestCreature(NPC_PISTOL_BARRAGE_DUMMY, 500.0f, true))
-                        {
-                            Talk(SAY_ANNOUNCE_PISTOL_BARRAGE);
-                            me->SetFacingToObject(target);
-                            DoCastAOE(SPELL_PISTOL_BARRAGE_CAST);
-                        }
-                        events.ScheduleEvent(EVENT_PISTOL_BARRAGE, Seconds(30) + Milliseconds(100));
-                        break;
-                    case EVENT_APPLY_IMMUNITY:
-                        MakeInterruptable(false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        uint8 _killedGhoulCounter;
-    };
-
-    CreatureAI* GetAI(Creature *creature) const override
-    {
-        return GetShadowfangKeepAI<boss_lord_godfreyAI>(creature);
+        DoMeleeAttackIfReady();
     }
+
+private:
+    ObjectGuid _pistolBarrageDummyGUID;
+    uint8 _killedGhoulCounter;
 };
 
-class npc_sfk_bloodthirsty_ghoul : public CreatureScript
+class spell_godfrey_summon_bloodthirsty_ghouls : public AuraScript
 {
-public:
-    npc_sfk_bloodthirsty_ghoul() : CreatureScript("npc_sfk_bloodthirsty_ghoul") { }
+    PrepareAuraScript(spell_godfrey_summon_bloodthirsty_ghouls);
 
-    struct npc_sfk_bloodthirsty_ghoulAI : public ScriptedAI
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        npc_sfk_bloodthirsty_ghoulAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-        void IsSummonedBy(Unit* summoner) override
-        {
-            if (!summoner->IsInCombat())
-                me->DespawnOrUnsummon();
-            me->SetReactState(REACT_PASSIVE);
-
-            me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-            DoZoneInCombat();
-            _events.ScheduleEvent(EVENT_ATTACK, Seconds(4));
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            me->DespawnOrUnsummon(Seconds(5));
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_ATTACK:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        if (Unit* target = me->SelectNearestPlayer(100.0f))
-                            me->AI()->AttackStart(target);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-    private:
-        InstanceScript* _instance;
-        EventMap _events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetShadowfangKeepAI<npc_sfk_bloodthirsty_ghoulAI>(creature);
-    }
-};
-
-class spell_sfk_summon_bloodthirsty_ghouls : public SpellScriptLoader
-{
-public:
-    spell_sfk_summon_bloodthirsty_ghouls() : SpellScriptLoader("spell_sfk_summon_bloodthirsty_ghouls") { }
-
-    class spell_sfk_summon_bloodthirsty_ghouls_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_sfk_summon_bloodthirsty_ghouls_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo(
+        return ValidateSpellInfo(
             {
                 SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_1,
                 SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_2
             });
-        }
-
-        void OnPeriodic(AuraEffect const* /*aurEff*/)
-        {
-            switch (RAND(0, 1))
-            {
-                case 0:
-                    GetCaster()->CastSpell((Unit*)NULL, SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_1, true);
-                    break;
-                case 1:
-                    GetCaster()->CastSpell((Unit*)NULL, SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_2, true);
-                    break;
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sfk_summon_bloodthirsty_ghouls_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_sfk_summon_bloodthirsty_ghouls_AuraScript();
     }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        uint32 spellId = _useLeftGun ? SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_1 : SPELL_SUMMON_BLOODTHIRSTY_GHOULS_TRIGGERED_2;
+        _useLeftGun = _useLeftGun ? false : true;
+        GetTarget()->CastSpell(GetTarget(), spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_godfrey_summon_bloodthirsty_ghouls::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+private:
+    bool _useLeftGun = true;
 };
 
-class spell_sfk_pistol_barrage : public SpellScriptLoader
+class spell_godfrey_pistol_barrage : public AuraScript
 {
-public:
-    spell_sfk_pistol_barrage() : SpellScriptLoader("spell_sfk_pistol_barrage") { }
+    PrepareAuraScript(spell_godfrey_pistol_barrage);
 
-    class spell_sfk_pistol_barrage_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_sfk_pistol_barrage_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo(
+        return ValidateSpellInfo(
             {
-                SPELL_PISTOL_BARRAGE_TRIGGER_1,
-                SPELL_PISTOL_BARRAGE_TRIGGER_2
+                SPELL_PISTOL_BARRAGE_PERIODIC,
+                SPELL_PISTOL_BARRAGE_MISSILE_1,
+                SPELL_PISTOL_BARRAGE_MISSILE_2
             });
-        }
+    }
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, SPELL_PISTOL_BARRAGE_TRIGGER_1, true);
-        }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                if (caster->ToCreature())
-                    caster->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-                caster->RemoveAurasDueToSpell(SPELL_PISTOL_BARRAGE_TRIGGER_1);
-            }
-        }
-
-        void OnPeriodic(AuraEffect const* /*aurEff*/)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                float ori = caster->GetOrientation() + frand(-0.5236f, 0.5236f);
-                float posX = caster->GetPositionX() + cos(ori) * 60;
-                float posY = caster->GetPositionY() + sin(ori) * 60;
-                float posZ = caster->GetPositionZ();
-                GetCaster()->CastSpell(posX, posY, posZ, SPELL_PISTOL_BARRAGE_TRIGGER_2, true);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectApply += AuraEffectApplyFn(spell_sfk_pistol_barrage_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_sfk_pistol_barrage_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sfk_pistol_barrage_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        return new spell_sfk_pistol_barrage_AuraScript();
+        GetTarget()->CastSpell(GetTarget(), SPELL_PISTOL_BARRAGE_PERIODIC, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_PISTOL_BARRAGE_PERIODIC);
+
+        if (target->ToCreature())
+            target->ToCreature()->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void OnPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+        float maxOffset = float(M_PI / 6);
+        float offset = _useLeftGun ? frand(0.f, maxOffset) : frand(--maxOffset, 0.f);
+        uint32 spellId = _useLeftGun ? SPELL_PISTOL_BARRAGE_MISSILE_1 : SPELL_PISTOL_BARRAGE_MISSILE_2;
+
+        float ori = target->GetOrientation() + offset;
+        float posX = target->GetPositionX() + cos(ori) * 60;
+        float posY = target->GetPositionY() + sin(ori) * 60;
+        float posZ = target->GetPositionZ();
+        target->CastSpell(posX, posY, posZ, spellId, true);
+        _useLeftGun = _useLeftGun ? false : true;
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_godfrey_pistol_barrage::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_godfrey_pistol_barrage::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_godfrey_pistol_barrage::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+private:
+    bool _useLeftGun = true;
+};
+
+class spell_godfrey_pistol_barrage_aoe : public SpellScript
+{
+    PrepareSpellScript(spell_godfrey_pistol_barrage_aoe);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_godfrey_pistol_barrage_aoe::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
-class spell_sfk_pistol_barrage_summon : public SpellScriptLoader
+class spell_godfrey_cursed_bullets : public AuraScript
 {
-public:
-    spell_sfk_pistol_barrage_summon() : SpellScriptLoader("spell_sfk_pistol_barrage_summon") { }
+    PrepareAuraScript(spell_godfrey_cursed_bullets);
 
-    class spell_sfk_pistol_barrage_summon_SpellScript : public SpellScript
+    void OnPeriodic(AuraEffect const* aurEff)
     {
-        PrepareSpellScript(spell_sfk_pistol_barrage_summon_SpellScript);
+        if (aurEff->GetTickNumber() == 1)
+            _baseDamage = aurEff->GetAmount();
 
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            Trinity::Containers::RandomResize(targets, 1);
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sfk_pistol_barrage_summon_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_sfk_pistol_barrage_summon_SpellScript();
+        GetEffect(EFFECT_1)->ChangeAmount(_baseDamage * aurEff->GetTickNumber());
     }
-};
 
-class spell_sfk_cursed_bullets : public SpellScriptLoader
-{
-public:
-    spell_sfk_cursed_bullets() : SpellScriptLoader("spell_sfk_cursed_bullets") { }
-
-    class spell_sfk_cursed_bullets_AuraScript : public AuraScript
+    void Register() override
     {
-        PrepareAuraScript(spell_sfk_cursed_bullets_AuraScript);
-
-        void OnPeriodic(AuraEffect const* aurEff)
-        {
-            uint64 damage;
-            damage = aurEff->GetBaseAmount() * aurEff->GetTickNumber();
-            GetEffect(EFFECT_1)->ChangeAmount(damage);
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sfk_cursed_bullets_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_sfk_cursed_bullets_AuraScript();
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_godfrey_cursed_bullets::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
     }
-};
-
-class achievement_bullet_time : public AchievementCriteriaScript
-{
-public:
-    achievement_bullet_time() : AchievementCriteriaScript("achievement_bullet_time") { }
-
-    bool OnCheck(Player* /*source*/, Unit* target)
-    {
-        if (!target)
-            return false;
-
-        if (target->GetMap()->IsHeroic())
-            return target->GetAI()->GetData(DATA_BULLET_TIME) >= 12;
-
-        return false;
-    }
+private:
+    uint32 _baseDamage = 0;
 };
 
 void AddSC_boss_lord_godfrey()
 {
-    new boss_lord_godfrey();
-    new npc_sfk_bloodthirsty_ghoul();
-    new spell_sfk_summon_bloodthirsty_ghouls();
-    new spell_sfk_pistol_barrage();
-    new spell_sfk_pistol_barrage_summon();
-    new spell_sfk_cursed_bullets();
-    new achievement_bullet_time();
+    RegisterShadowfangKeepCreatureAI(boss_lord_godfrey);
+    RegisterAuraScript(spell_godfrey_summon_bloodthirsty_ghouls);
+    RegisterAuraScript(spell_godfrey_pistol_barrage);
+    RegisterSpellScript(spell_godfrey_pistol_barrage_aoe);
+    RegisterAuraScript(spell_godfrey_cursed_bullets);
 }
