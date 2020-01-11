@@ -3463,7 +3463,7 @@ class spell_gen_turkey_marker : public AuraScript
 
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
-        int removeCount = 0;
+        int32 removeCount = 0;
 
         // pop expired times off of the stack
         while(!_applyTimes.empty() && _applyTimes.front() + GetMaxDuration() < GameTime::GetGameTimeMS())
