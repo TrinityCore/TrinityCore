@@ -1203,7 +1203,7 @@ class spell_dreamwalker_decay_periodic_timer : public SpellScriptLoader
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dreamwalker_decay_periodic_timer_AuraScript::DecayPeriodicTimer, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
 
-            int32 _decayRate;
+            int32 _decayRate = 0;
         };
 
         AuraScript* GetAuraScript() const override
