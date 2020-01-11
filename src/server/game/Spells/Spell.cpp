@@ -5501,6 +5501,12 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                         return SPELL_FAILED_LINE_OF_SIGHT;
 
                     float objSize = target->GetCombatReach();
+                    // EJ charge dest distance
+                    float chargeDestDistance = NOMINAL_MELEE_RANGE / MIN_MELEE_REACH;
+                    if (objSize < chargeDestDistance)
+                    {
+                        objSize = chargeDestDistance;
+                    }
                     float range = m_spellInfo->GetMaxRange(true, unitCaster, this) * 1.5f + objSize; // can't be overly strict
 
                     m_preGeneratedPath = Trinity::make_unique<PathGenerator>(unitCaster);

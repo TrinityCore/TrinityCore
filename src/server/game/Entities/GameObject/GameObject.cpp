@@ -1736,7 +1736,7 @@ void GameObject::Use(Unit* user)
                     int32 chance;
                     if (skill < zone_skill)
                     {
-                        chance = int32(pow((double)skill/zone_skill, 2) * 100);
+                        chance = int32(pow((double)skill / zone_skill, 2) * 100);
                         if (chance < 1)
                             chance = 1;
                     }
@@ -1777,12 +1777,6 @@ void GameObject::Use(Unit* user)
                         player->SendLoot(GetGUID(), LOOT_FISHING_JUNK);
                     }
 
-                    // EJ auto fish
-                    uint32 maxSlot = loot.GetMaxSlotInLootFor(player);
-                    for (uint32 checkSlot = 0; checkSlot < maxSlot; checkSlot++)
-                    {
-                        loot.LootItemInSlot(checkSlot, player);
-                    }                    
                     fishing = true;
 
                     break;
@@ -1801,6 +1795,14 @@ void GameObject::Use(Unit* user)
                     break;
                 }
             }
+
+            // EJ auto fish
+            uint32 maxSlot = loot.GetMaxSlotInLootFor(player);
+            for (uint32 checkSlot = 0; checkSlot < maxSlot; checkSlot++)
+            {
+                player->StoreLootItem(checkSlot, &loot);
+            }
+            player->SendLootRelease(player->GetLootGUID());
 
             player->FinishSpell(CURRENT_CHANNELED_SPELL);
 
