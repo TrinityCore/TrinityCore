@@ -218,14 +218,6 @@ typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
 
 typedef std::unordered_map<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTimeMap;
 
-enum TrainerSpellState
-{
-    TRAINER_SPELL_GRAY  = 0,
-    TRAINER_SPELL_GREEN = 1,
-    TRAINER_SPELL_RED   = 2,
-    TRAINER_SPELL_GREEN_DISABLED = 10                       // custom value, not send to client: formally green but learn not allowed
-};
-
 enum ActionButtonUpdateState
 {
     ACTIONBUTTON_UNCHANGED = 0,
@@ -1595,13 +1587,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendRemoveControlBar() const;
         bool HasSpell(uint32 spell) const override;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
-        TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
         bool HandlePassiveSpellLearn(SpellInfo const* spellInfo);
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const;
         void SendInitialSpells();
+        void SendUnlearnSpells();
         bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, uint32 fromSkill = 0);
         void LearnSpell(uint32 spell_id, bool dependent, uint32 fromSkill = 0);
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
@@ -1878,10 +1870,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdatePosition(Position const& pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData) override;
 
-        void SendMessageToSet(WorldPacket* data, bool self) override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
-        void SendMessageToSetInRange(WorldPacket* data, float dist, bool self) override;
-        void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
-        void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr) override;
+        void SendMessageToSet(WorldPacket* data, bool self) const override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
+        void SendMessageToSetInRange(WorldPacket* data, float dist, bool self) const override;
+        void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only) const;
+        void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr) const override;
 
         Corpse* GetCorpse() const;
         void SpawnCorpseBones(bool triggerSave = true);
@@ -1918,6 +1910,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         typedef std::list<Channel*> JoinedChannelsList;
         JoinedChannelsList const& GetJoinedChannels() const { return m_channels; }
 
+        void InitializeSkillFields();
         void SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal);
         uint16 GetMaxSkillValue(uint32 skill) const;        // max + perm. bonus + temp bonus
         uint16 GetPureMaxSkillValue(uint32 skill) const;    // max
@@ -1929,6 +1922,14 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint16 GetSkillStep(uint16 skill) const;            // 0...6
         bool HasSkill(uint32 skill) const;
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue);
+
+        uint32 GetSkillRank(uint8 pos) const;
+        void SetSkillLineId(uint8 pos, uint16 value);
+        void SetSkillStep(uint8 pos, uint16 value);
+        void SetSkillRank(uint8 pos, uint16 value);
+        void SetSkillMaxRank(uint8 pos, uint16 value);
+        void SetSkillTempBonus(uint8 pos, uint16 value);
+        void SetSkillPermBonus(uint8 pos, uint16 value);
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
         Transport* GetTeleportTransport() const { return m_teleport_transport; }
@@ -2391,7 +2392,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetTransportSpawnID(uint32 spawnId) { _transportSpawnID = spawnId; }
 
         void ResetHolyPowerRegenerationTimer() { m_holyPowerRegenTimerCount = 0; }
-
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;

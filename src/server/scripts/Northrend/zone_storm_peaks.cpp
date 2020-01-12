@@ -118,7 +118,8 @@ class npc_injured_goblin : public CreatureScript
 enum RoxiRamrocket
 {
     SPELL_MECHANO_HOG               = 60866,
-    SPELL_MEKGINEERS_CHOPPER        = 60867
+    SPELL_MEKGINEERS_CHOPPER        = 60867,
+    TRAINER_ID_ROXI_RAMROCKET       = 102
 };
 
 class npc_roxi_ramrocket : public CreatureScript
@@ -156,7 +157,7 @@ class npc_roxi_ramrocket : public CreatureScript
                 switch (action)
                 {
                     case GOSSIP_ACTION_TRAIN:
-                        player->GetSession()->SendTrainerList(me->GetGUID());
+                        player->GetSession()->SendTrainerList(me, TRAINER_ID_ROXI_RAMROCKET);
                         break;
                     case GOSSIP_ACTION_TRADE:
                         player->GetSession()->SendListInventory(me->GetGUID());

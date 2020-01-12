@@ -21,6 +21,7 @@
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GossipDef.h"
 #include "GameTime.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -456,7 +457,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
     recvData >> mailId;
     recvData.read_skip<uint64>();                          // original sender GUID for return to, not used
 
-    if (!CanOpenMailBox(mailbox))
+    if (!CanOpenMailBox(_player->PlayerTalkClass->GetInteractionData().SourceGuid))
         return;
 
     Player* player = _player;
@@ -765,6 +766,10 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
 
     data.put<uint32>(0, realCount);                         // this will display warning about undelivered mail to player if realCount > mailsCount
     data.put<uint8>(4, mailsCount);                        // set real send mails to client
+
+    player->PlayerTalkClass->GetInteractionData().Reset();
+    player->PlayerTalkClass->GetInteractionData().SourceGuid = mailbox;
+
     SendPacket(&data);
 
     // recalculate m_nextMailDelivereTime and unReadMails

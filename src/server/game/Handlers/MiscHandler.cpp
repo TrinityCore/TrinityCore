@@ -106,7 +106,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         recvData >> code;
 
     // Prevent cheating on C++ scripted menus
-    if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != guid)
+    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid != guid)
         return;
 
     Creature* unit = nullptr;

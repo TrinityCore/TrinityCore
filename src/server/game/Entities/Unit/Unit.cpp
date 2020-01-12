@@ -12562,7 +12562,7 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration)
+void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const
 {
     ObjectGuid guid = GetGUID();
 
