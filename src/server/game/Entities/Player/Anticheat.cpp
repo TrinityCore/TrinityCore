@@ -233,7 +233,7 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
             }
         }
 
-        float distance, speed, difftime, normaldistance, delay, diffPacketdelay;
+        float distance, runspeed, flyspeed, difftime, normaldistance, delay, diffPacketdelay;
         uint32 ptime;
         std::string mapname = GetMap()->GetMapName();
 
@@ -263,23 +263,28 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
         ptime = movementInfo.time;
 
         if (!vehicle)
-            speed = GetSpeed(MOVE_RUN);
+            runspeed = GetSpeed(MOVE_RUN);
         else
-            speed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_RUN);
+            runspeed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_RUN);
+
         if (isSwimming())
         {
             if (!vehicle)
-                speed = GetSpeed(MOVE_SWIM);
+                runspeed = GetSpeed(MOVE_SWIM);
             else
-                speed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_SWIM);
+                runspeed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_SWIM);
         }
+
         if (IsFlying() || GetPlayerMovingMe()->CanFly())
         {
             if (!vehicle)
-                speed = GetSpeed(MOVE_FLIGHT);
+                flyspeed = GetSpeed(MOVE_FLIGHT);
             else
-                speed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_FLIGHT);
+                flyspeed = GetVehicleKit()->GetBase()->GetSpeed(MOVE_FLIGHT);
         }
+
+        if (flyspeed > runspeed)
+            runspeed = flyspeed;
 
         delay = ptime - oldctime;
         diffPacketdelay = 10000000 - delay;
@@ -292,7 +297,7 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
         diffPacketdelay = diffPacketdelay * 0.0000000001f;
         difftime = delay * 0.001f + diffPacketdelay;
 
-        normaldistance = speed * difftime; // if movetime faked and lower, difftime should be with "-"
+        normaldistance = runspeed * difftime; // if movetime faked and lower, difftime should be with "-"
         if (GetPlayerMovingMe()->UnderACKmount())
             normaldistance += 20.0f;
         if (distance < normaldistance)
