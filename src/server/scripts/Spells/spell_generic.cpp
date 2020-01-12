@@ -3472,9 +3472,8 @@ class spell_gen_turkey_marker : public AuraScript
             removeCount++;
         }
 
-        if (removeCount){
+        if (removeCount)
             ModStackAmount(-removeCount, AURA_REMOVE_BY_EXPIRE);
-        }
     }
 
     void Register() override
