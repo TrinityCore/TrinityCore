@@ -5638,7 +5638,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ProfessionSkillLine, 1), 0);
         }
     }
-    else if (itr != mSkillStatus.end())                 //add
+    else                            //add
     {
         // Check if the player already has a skill, otherwise pick a empty skill slot if available
         uint8 skillSlot = itr != mSkillStatus.end() ? itr->second.pos : 0;
