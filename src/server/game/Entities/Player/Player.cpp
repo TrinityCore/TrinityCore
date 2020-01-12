@@ -595,6 +595,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     InitTaxiNodesForLevel();
     InitGlyphsForLevel();
     InitTalentForLevel();
+    InitializeSkillFields();
     InitPrimaryProfessions();                               // to max set before any spell added
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
