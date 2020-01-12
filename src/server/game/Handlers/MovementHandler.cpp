@@ -433,7 +433,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             if (plrMover->IsWaitingLandOrSwimOpcode() || plrMover->IsUnderLastChanceForLandOrSwimOpcode())
                 plrMover->SetSuccessfullyLanded();
             plrMover->SetJumpingbyOpcode(false);
-            plrMover->SetFallInformation(movementInfo.pos.GetPositionZ()); // for MSG_MOVE_START_SWIM (no HandleFall(movementInfo))
+            plrMover->SetFallInformation(movementInfo.pos.GetPositionZ());
         }
     }
 
