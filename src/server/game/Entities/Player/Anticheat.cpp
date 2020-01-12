@@ -233,7 +233,8 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
             }
         }
 
-        float distance, runspeed, flyspeed, difftime, normaldistance, delay, diffPacketdelay;
+        float flyspeed = 0.f;
+        float distance, runspeed, difftime, normaldistance, delay, diffPacketdelay;
         uint32 ptime;
         std::string mapname = GetMap()->GetMapName();
 
