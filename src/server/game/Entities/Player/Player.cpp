@@ -5638,98 +5638,87 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ProfessionSkillLine, 1), 0);
         }
     }
-    else                                        //add
+    else if (itr != mSkillStatus.end())                 //add
     {
-        currVal = 0;
-        for (uint32 i = 0; i < PLAYER_MAX_SKILLS; ++i)
+        /*
+            A player already has all skills stored that are available to him. If we want to
+            "add" a skill, we just pick up the skill's already assigned slot and use it again
+        */
+
+        SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
+        if (!skillEntry)
         {
-            if (!m_activePlayerData->Skill->SkillLineID[i])
+            TC_LOG_ERROR("misc", "Player::SetSkill: Skill (SkillID: %u) not found in SkillLineStore for player '%s' (%s)",
+                id, GetName().c_str(), GetGUID().ToString().c_str());
+            return;
+        }
+
+        if (skillEntry->ParentSkillLineID)
+        {
+            if (skillEntry->ParentTierIndex > 0)
             {
-                SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
-                if (!skillEntry)
+                if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, getRace(), getClass()))
                 {
-                    TC_LOG_ERROR("misc", "Player::SetSkill: Skill (SkillID: %u) not found in SkillLineStore for player '%s' (%s)",
-                        id, GetName().c_str(), GetGUID().ToString().c_str());
-                    return;
-                }
-
-                if (skillEntry->ParentSkillLineID)
-                {
-                    if (skillEntry->ParentTierIndex > 0)
+                    if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
                     {
-                        if (SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(skillEntry->ParentSkillLineID, getRace(), getClass()))
-                        {
-                            if (SkillTiersEntry const* tier = sObjectMgr->GetSkillTier(rcEntry->SkillTierID))
-                            {
-                                uint16 skillval = GetPureSkillValue(skillEntry->ParentSkillLineID);
-                                SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(skillval, 1), tier->Value[skillEntry->ParentTierIndex - 1]);
-                            }
-                        }
+                        uint16 skillval = GetPureSkillValue(skillEntry->ParentSkillLineID);
+                        SetSkill(skillEntry->ParentSkillLineID, skillEntry->ParentTierIndex, std::max<uint16>(skillval, 1), tier->Value[skillEntry->ParentTierIndex - 1]);
                     }
                 }
-                else
-                {
-                    // also learn missing child skills at 0 value
-                    if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(id))
-                        for (SkillLineEntry const* childSkillLine : *childSkillLines)
-                            if (!HasSkill(childSkillLine->ID))
-                                SetSkill(childSkillLine->ID, 0, 0, 0);
-
-                    if (skillEntry->CategoryID == SKILL_CATEGORY_PROFESSION)
-                    {
-                        int32 freeProfessionSlot = FindProfessionSlotFor(id);
-                        if (freeProfessionSlot != -1)
-                            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ProfessionSkillLine, freeProfessionSlot), id);
-                    }
-                }
-
-                SetSkillLineId(i, id);
-
-                SetSkillStep(i, step);
-                SetSkillRank(i, newVal);
-                SetSkillStartingRank(i, 1);
-                SetSkillMaxRank(i, maxVal);
-
-                // apply skill bonuses
-                SetSkillTempBonus(i, 0);
-                SetSkillPermBonus(i, 0);
-
-                UpdateSkillEnchantments(id, currVal, newVal);
-                // insert new entry or update if not deleted old entry yet
-                if (itr != mSkillStatus.end())
-                {
-                    itr->second.pos = i;
-                    itr->second.uState = SKILL_CHANGED;
-                }
-                else
-                    mSkillStatus.insert(SkillStatusMap::value_type(id, SkillStatusData(i, SKILL_NEW)));
-
-                if (newVal)
-                {
-                    UpdateCriteria(CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
-                    UpdateCriteria(CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
-
-                    // temporary bonuses
-                    AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
-                    for (AuraEffectList::const_iterator j = mModSkill.begin(); j != mModSkill.end(); ++j)
-                        if ((*j)->GetMiscValue() == int32(id))
-                            (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
-                    AuraEffectList const& mModSkill2 = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_2);
-                    for (AuraEffectList::const_iterator j = mModSkill2.begin(); j != mModSkill2.end(); ++j)
-                        if ((*j)->GetMiscValue() == int32(id))
-                            (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
-
-                    // permanent bonuses
-                    AuraEffectList const& mModSkillTalent = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_TALENT);
-                    for (AuraEffectList::const_iterator j = mModSkillTalent.begin(); j != mModSkillTalent.end(); ++j)
-                        if ((*j)->GetMiscValue() == int32(id))
-                            (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
-
-                    // Learn all spells for skill
-                    LearnSkillRewardedSpells(id, newVal);
-                }
-                return;
             }
+        }
+        else
+        {
+            // also learn missing child skills at 0 value
+            if (std::vector<SkillLineEntry const*> const* childSkillLines = sDB2Manager.GetSkillLinesForParentSkill(id))
+                for (SkillLineEntry const* childSkillLine : *childSkillLines)
+                    if (!HasSkill(childSkillLine->ID))
+                        SetSkill(childSkillLine->ID, 0, 0, 0);
+
+            if (skillEntry->CategoryID == SKILL_CATEGORY_PROFESSION)
+            {
+                int32 freeProfessionSlot = FindProfessionSlotFor(id);
+                if (freeProfessionSlot != -1)
+                    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ProfessionSkillLine, freeProfessionSlot), id);
+            }
+        }
+
+        SetSkillStep(itr->second.pos, step);
+        SetSkillRank(itr->second.pos, newVal);
+        SetSkillStartingRank(itr->second.pos, 1);
+        SetSkillMaxRank(itr->second.pos, maxVal);
+
+        // apply skill bonuses
+        SetSkillTempBonus(itr->second.pos, 0);
+        SetSkillPermBonus(itr->second.pos, 0);
+
+        UpdateSkillEnchantments(id, 0, newVal);
+        // update entry
+        itr->second.uState = SKILL_CHANGED;
+
+        if (newVal)
+        {
+            UpdateCriteria(CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
+            UpdateCriteria(CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
+
+            // temporary bonuses
+            AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
+            for (AuraEffectList::const_iterator j = mModSkill.begin(); j != mModSkill.end(); ++j)
+                if ((*j)->GetMiscValue() == int32(id))
+                    (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+            AuraEffectList const& mModSkill2 = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_2);
+            for (AuraEffectList::const_iterator j = mModSkill2.begin(); j != mModSkill2.end(); ++j)
+                if ((*j)->GetMiscValue() == int32(id))
+                    (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+
+            // permanent bonuses
+            AuraEffectList const& mModSkillTalent = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_TALENT);
+            for (AuraEffectList::const_iterator j = mModSkillTalent.begin(); j != mModSkillTalent.end(); ++j)
+                if ((*j)->GetMiscValue() == int32(id))
+                    (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+
+            // Learn all spells for skill
+            LearnSkillRewardedSpells(id, newVal);
         }
     }
 }
