@@ -3466,13 +3466,13 @@ class spell_gen_turkey_marker : public AuraScript
         int32 removeCount = 0;
 
         // pop expired times off of the stack
-        while(!_applyTimes.empty() && _applyTimes.front() + GetMaxDuration() < GameTime::GetGameTimeMS())
+        while (!_applyTimes.empty() && _applyTimes.front() + GetMaxDuration() < GameTime::GetGameTimeMS())
         {
             _applyTimes.pop_front();
             removeCount++;
         }
 
-        if(removeCount){
+        if (removeCount){
             ModStackAmount(-removeCount, AURA_REMOVE_BY_EXPIRE);
         }
     }
