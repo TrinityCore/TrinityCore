@@ -12565,7 +12565,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     if (player)
     {
-        player->SetFallInformation(0, GetPositionZ());
+        player->SetFallInformation(GetPositionZ());
         player->SetUnderACKmount();
         player->SetSkipOnePacketForASH(true);
     }

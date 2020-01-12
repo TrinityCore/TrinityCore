@@ -243,7 +243,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
         return;
 
     GetPlayer()->CleanupAfterTaxiFlight();
-    GetPlayer()->SetFallInformation(0, GetPlayer()->GetPositionZ());
+    GetPlayer()->SetFallInformation(GetPlayer()->GetPositionZ());
     if (GetPlayer()->pvpInfo.IsHostile)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 }

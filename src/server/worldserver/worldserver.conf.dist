@@ -4164,6 +4164,13 @@ AntiCheats.FakeJumper.Kick.Enabled = 1
 
 AntiCheats.FakeFlyingmode.Kick.Enabled = 1
 
+#    AntiCheats.NoFallingDmg.Kick.Enabled
+#        Description: Enable AntiCheats.NoFallingDmg Kick when detected
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+AntiCheats.NoFallingDmg.Kick.Enabled = 1
+
 #
 ###################################################################################################
 

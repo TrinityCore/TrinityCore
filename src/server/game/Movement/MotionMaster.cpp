@@ -929,7 +929,7 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
     // Don't run spline movement for players
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        _owner->ToPlayer()->SetFallInformation(0, _owner->GetPositionZ());
+        _owner->ToPlayer()->SetFallInformation(_owner->GetPositionZ());
         return;
     }
 

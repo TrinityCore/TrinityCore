@@ -1438,6 +1438,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ASH_KICK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.SpeedHack.Kick.Enabled", false);
     m_bool_configs[CONFIG_FAKEJUMPER_KICK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.FakeJumper.Kick.Enabled", false);
     m_bool_configs[CONFIG_FAKEFLYINGMODE_KICK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.FakeFlyingmode.Kick.Enabled", false);
+    m_bool_configs[CONFIG_ANTICHEAT_NOFALLINGDMG_KICK_ENABLED] = sConfigMgr->GetBoolDefault("AntiCheats.NoFallingDmg.Kick.Enabled", false);
     // Anticheat AFH timer
     m_int_configs[CONFIG_ANTICHEAT_FLYHACK_TIMER] = sConfigMgr->GetIntDefault("AntiCheats.FlyHackTimer", 3000);
     // Exclude some mapIDs for ASH and AFH

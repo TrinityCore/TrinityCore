@@ -27,7 +27,7 @@
 #include "World.h"
 #include "WorldSession.h"
 
-// Anticheat System 
+// Anticheat System
 void Player::SetUnderACKmount()
 {
     m_mountTimer = 3000;
@@ -44,6 +44,12 @@ void Player::UpdateMovementInfo(MovementInfo const& movementInfo)
 {
     SetLastMoveClientTimestamp(movementInfo.time);
     SetLastMoveServerTimestamp(GameTime::GetGameTimeMS());
+}
+
+void Player::StartWaitingLandOrSwimOpcode()
+{
+    m_antiNoFallDmgTimer = 1500;
+    m_antiNoFallDmg = true;
 }
 
 bool Player::CheckOnFlyHack()
@@ -188,7 +194,7 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
         else
             return true;
 
-        bool transportflag = movementInfo.GetMovementFlags() & MOVEMENTFLAG_ONTRANSPORT;
+        bool transportflag = movementInfo.GetMovementFlags() & MOVEMENTFLAG_ONTRANSPORT || HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         float x, y, z;
         Position npos;
 
@@ -233,7 +239,7 @@ bool Player::CheckMovementInfo(MovementInfo const& movementInfo, bool jump)
 
         // calculate distance - don't use func, because x,z can be offset transport coords
         distance = sqrt((npos.GetPositionY() - y) * (npos.GetPositionY() - y) + (npos.GetPositionX() - x) * (npos.GetPositionX() - x));
-        
+
         if (!jump && !CanFly() && !isSwimming() && !transportflag)
         {
             float diffz = fabs(movementInfo.pos.GetPositionZ() - z);
@@ -369,6 +375,11 @@ std::string Player::GetDescriptionACForLogs(uint8 type, float param1, float para
         case 8: // fakeflying
         {
             str << "FakeFlying mode detected";
+            break;
+        }
+        case 9: // NoFallingDmg
+        {
+            str << "NoFallingDamage mode detected";
             break;
         }
         default:

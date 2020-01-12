@@ -1101,6 +1101,7 @@ enum TrinityStrings
     LANG_GM_ANNOUNCE_JUMPER_FLYING        = 6623,  // Hitchhiker's Hack and others can set fly unrestricted flag
     LANG_GM_ANNOUNCE_WALLCLIMB            = 6624,  // Wallclimb
     LANG_GM_ANNOUNCE_MOVE_UNDER_CONTROL   = 6625,  // Movement under Controll (not restricted)
+    LANG_GM_ANNOUNCE_NOFALLINGDMG         = 6626,  // Falling without opcode of land/swim (not restricted)
 
     LANG_WORLD_CLOSED                     = 7523,
     LANG_WORLD_OPENED                     = 7524,

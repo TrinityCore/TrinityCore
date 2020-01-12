@@ -98,7 +98,7 @@ void WorldSession::HandleMoveWorldportAck()
 
     float z = loc.GetPositionZ() + player->GetHoverOffset();
     player->Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
-    player->SetFallInformation(0, player->GetPositionZ());
+    player->SetFallInformation(player->GetPositionZ());
 
     player->ResetMap();
     player->SetMap(newMap);
@@ -238,7 +238,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
     WorldLocation const& dest = plMover->GetTeleportDest();
 
     plMover->UpdatePosition(dest, true);
-    plMover->SetFallInformation(0, GetPlayer()->GetPositionZ());
+    plMover->SetFallInformation(GetPlayer()->GetPositionZ());
 
     uint32 newzone, newarea;
     plMover->GetZoneAndAreaId(newzone, newarea);
@@ -279,6 +279,30 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         return;
     }
 
+    if (plrMover && plrMover->IsUnderLastChanceForLandOrSwimOpcode())
+    {
+        bool checkNorm = false;
+        switch (opcode)
+        {
+            case MSG_MOVE_FALL_LAND:
+            case MSG_MOVE_START_SWIM:
+                checkNorm = true;
+                break;
+        }
+
+        if (!checkNorm)
+        {
+            TC_LOG_INFO("anticheat", "MovementHandler::NoFallingDamage by Account id : %u, Player %s", plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str());
+            sWorld->SendGMText(LANG_GM_ANNOUNCE_NOFALLINGDMG, plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str());
+            AccountMgr::RecordAntiCheatLog(plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str(), plrMover->GetDescriptionACForLogs(9), plrMover->GetPositionACForLogs(), int32(realm.Id.Realm));
+            if (sWorld->getBoolConfig(CONFIG_ANTICHEAT_NOFALLINGDMG_KICK_ENABLED))
+            {
+                plrMover->GetSession()->KickPlayer();
+                recvData.rfinish();                     // prevent warnings spam
+                return;
+            }
+        }
+    }
     /* extract packet */
     ObjectGuid guid;
 
@@ -371,6 +395,28 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         movementInfo.transport.Reset();
     }
 
+    // start falling time
+    if (plrMover && !plrMover->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) && movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR))
+        plrMover->SetFallInformation(movementInfo.pos.GetPositionZ());
+
+    // check on NoFallingDamage
+    if (plrMover && plrMover->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) && !movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR))
+    {
+        bool checkNorm = false;
+        switch (opcode)
+        {
+            case MSG_MOVE_HEARTBEAT:
+            case MSG_MOVE_SET_FACING:
+            case MSG_MOVE_FALL_LAND:
+            case MSG_MOVE_START_SWIM:
+                checkNorm = true;
+                break;
+        }
+
+        if (!checkNorm && !plrMover->IsWaitingLandOrSwimOpcode())
+            plrMover->StartWaitingLandOrSwimOpcode();
+    }
+
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
     if (opcode == MSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
     {
@@ -383,7 +429,12 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     {
         mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
         if (plrMover)
+        {
+            if (plrMover->IsWaitingLandOrSwimOpcode() || plrMover->IsUnderLastChanceForLandOrSwimOpcode())
+                plrMover->SetSuccessfullyLanded();
             plrMover->SetJumpingbyOpcode(false);
+            plrMover->SetFallInformation(movementInfo.pos.GetPositionZ()); // for MSG_MOVE_START_SWIM (no HandleFall(movementInfo))
+        }
     }
 
     if (plrMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plrMover->IsInWater())
@@ -510,8 +561,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     {
         if (plrMover->IsSitState() && (movementInfo.flags & (MOVEMENTFLAG_MASK_MOVING | MOVEMENTFLAG_MASK_TURNING)))
             plrMover->SetStandState(UNIT_STAND_STATE_STAND);
-
-        plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
         if (movementInfo.pos.GetPositionZ() < plrMover->GetMap()->GetMinHeight(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY()))
         {
