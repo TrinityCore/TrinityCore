@@ -5640,10 +5640,25 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
     }
     else if (itr != mSkillStatus.end())                 //add
     {
-        /*
-            A player already has all skills stored that are available to him. If we want to
-            "add" a skill, we just pick up the skill's already assigned slot and use it again
-        */
+        // Check if the player already has a skill, otherwise pick a empty skill slot if available
+        uint8 skillSlot = itr != mSkillStatus.end() ? itr->second.pos : 0;
+        if (!skillSlot)
+        {
+            for (uint32 i = 0; i < PLAYER_MAX_SKILLS; ++i)
+            {
+                if (!m_activePlayerData->Skill->SkillLineID[i])
+                {
+                    skillSlot = i;
+                    break;
+                }
+            }
+        }
+
+        if (!skillSlot)
+        {
+            TC_LOG_ERROR("misc", "Tried to add skill #%u but the player cannot have additional skills", id);
+            return;
+        }
 
         SkillLineEntry const* skillEntry = sSkillLineStore.LookupEntry(id);
         if (!skillEntry)
@@ -5683,18 +5698,25 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             }
         }
 
-        SetSkillStep(itr->second.pos, step);
-        SetSkillRank(itr->second.pos, newVal);
-        SetSkillStartingRank(itr->second.pos, 1);
-        SetSkillMaxRank(itr->second.pos, maxVal);
+        if (itr == mSkillStatus.end())
+            SetSkillLineId(skillSlot, id);
+
+        SetSkillStep(skillSlot, step);
+        SetSkillRank(skillSlot, newVal);
+        SetSkillStartingRank(skillSlot, 1);
+        SetSkillMaxRank(skillSlot, maxVal);
 
         // apply skill bonuses
         SetSkillTempBonus(itr->second.pos, 0);
         SetSkillPermBonus(itr->second.pos, 0);
 
         UpdateSkillEnchantments(id, 0, newVal);
-        // update entry
-        itr->second.uState = SKILL_CHANGED;
+
+        // update or add entry
+        if (itr != mSkillStatus.end())
+            itr->second.uState = SKILL_CHANGED;
+        else
+            mSkillStatus.insert(SkillStatusMap::value_type(id, SkillStatusData(skillSlot, SKILL_NEW)));
 
         if (newVal)
         {
