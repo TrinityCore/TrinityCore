@@ -409,9 +409,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         bool checkNorm = false;
         switch (opcode)
         {
-            case MSG_MOVE_HEARTBEAT:
-            case MSG_MOVE_SET_FACING:
-            case CMSG_MOVE_CHNG_TRANSPORT:
             case MSG_MOVE_FALL_LAND:
             case MSG_MOVE_START_SWIM:
                 checkNorm = true;
@@ -452,6 +449,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     if (opcode == MSG_MOVE_JUMP)
     {
         jumpopcode = true;
+        plrMover->SetFallInformation(plrMover->GetPositionZ());
         if (plrMover)
         {
             plrMover->SetUnderACKmount();
