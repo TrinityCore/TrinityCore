@@ -1111,22 +1111,13 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
 
 bool Creature::CanResetTalents(Player* player, bool pet) const
 {
-    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(sObjectMgr->GetCreatureDefaultTrainer(GetEntry()));
-    if (!trainer)
-        return false;
-
-    return player->getLevel() >= 10 &&
-        (trainer->GetTrainerType() == (pet ? Trainer::Type::Pet : Trainer::Type::Class)) &&
-        trainer->IsTrainerValidForPlayer(player);
+    return player->getLevel() >= 15
+        && player->getClass() == GetCreatureTemplate()->trainer_class;
 }
 
 bool Creature::IsClassTrainerOf(Player const* player) const
 {
-    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(sObjectMgr->GetCreatureDefaultTrainer(GetEntry()));
-    if (!trainer)
-        return false;
-
-    return trainer->GetTrainerType() == Trainer::Type::Class && trainer->IsTrainerValidForPlayer(player);
+    return player->getClass() == GetCreatureTemplate()->trainer_class;
 }
 
 Player* Creature::GetLootRecipient() const

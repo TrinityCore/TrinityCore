@@ -14399,6 +14399,9 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     canTalk = false;
                     break;
                 case GOSSIP_OPTION_TRAINER:
+                    if (creature->GetCreatureTemplate()->trainer_class && !creature->IsClassTrainerOf(this))
+                        canTalk = false;
+                    break;
                 case GOSSIP_OPTION_GOSSIP:
                 case GOSSIP_OPTION_SPIRITGUIDE:
                 case GOSSIP_OPTION_INNKEEPER:

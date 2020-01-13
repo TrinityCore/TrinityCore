@@ -2984,6 +2984,12 @@ enum LockType
     LOCKTYPE_ARCHAEOLOGY           = 22,
 };
 
+// this is important type for npcs!
+enum TrainerType
+{
+    TRAINER_TYPE_CLASS             = 0,
+};
+
 // CreatureType.dbc
 enum CreatureType
 {
