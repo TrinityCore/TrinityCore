@@ -1111,7 +1111,7 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
 
 bool Creature::CanResetTalents(Player* player, bool pet) const
 {
-    return player->getLevel() >= 15
+    return player->getLevel() >= 10
         && player->getClass() == GetCreatureTemplate()->trainer_class;
 }
 
