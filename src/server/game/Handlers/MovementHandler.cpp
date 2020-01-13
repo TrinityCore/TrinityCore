@@ -318,6 +318,16 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     if (guid != mover->GetGUID())
         return;
 
+    // [CMSG_MOVE_CHNG_TRANSPORT 0x038D (909)]
+    if (plrMover && opcode == CMSG_MOVE_CHNG_TRANSPORT)
+    {
+        plrMover->SetSkipOnePacketForASH(true);
+        // leave elevator or transport
+        if (!movementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT)
+            && plrMover->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            plrMover->SetFallInformation(movementInfo.pos.GetPositionZ());
+    }
+
     if (!movementInfo.pos.IsPositionValid())
     {
         if (plrMover)
@@ -325,15 +335,11 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             plrMover->SetSkipOnePacketForASH(true);
             plrMover->UpdateMovementInfo(movementInfo);
         }
-        recvData.rfinish();                     // prevent warnings spam
         return;
     }
 
     if (!mover->movespline->Finalized())
-    {
-        recvData.rfinish();                     // prevent warnings spam
         return;
-    }
 
     /* handle special cases */
     if (movementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
@@ -346,7 +352,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 plrMover->SetSkipOnePacketForASH(true);
                 plrMover->UpdateMovementInfo(movementInfo);
             }
-            recvData.rfinish();                 // prevent warnings spam
             return;
         }
 
@@ -358,7 +363,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 plrMover->SetSkipOnePacketForASH(true);
                 plrMover->UpdateMovementInfo(movementInfo);
             }
-            recvData.rfinish();                 // prevent warnings spam
             return;
         }
 
@@ -407,6 +411,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         {
             case MSG_MOVE_HEARTBEAT:
             case MSG_MOVE_SET_FACING:
+            case CMSG_MOVE_CHNG_TRANSPORT:
             case MSG_MOVE_FALL_LAND:
             case MSG_MOVE_START_SWIM:
                 checkNorm = true;
