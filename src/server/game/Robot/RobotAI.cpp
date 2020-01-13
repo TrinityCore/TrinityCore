@@ -40,12 +40,20 @@ RobotAI::RobotAI()
     strategiesMap["solo_normal"] = true;
     strategiesMap["group_normal"] = false;
     characterTalentTab = 0;
+
     accountName = "";
+    accountID = 0;
+    characterID = 0;
     characterType = 0;
     targetLevel = 10;
     targetRace = 0;
     targetClass = 0;
-    robotState = RobotState::RobotState_None;
+    
+    checkDelay = urand(TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
+    onlineDelay = 0;
+    offlineDelay = 0;
+
+    robotState = RobotState::RobotState_OffLine;
 
     spellIDMap.clear();
     spellLevelMap.clear();
@@ -2270,21 +2278,157 @@ void RobotAI::Update(uint32 pmDiff)
     switch (robotState)
     {
     case RobotState_None:
+    {
         break;
+    }
     case RobotState_OffLine:
+    {
+        if (onlineDelay > 0)
+        {
+            onlineDelay -= pmDiff;
+            if (onlineDelay <= 0)
+            {
+                onlineDelay = 0;
+                robotState = RobotState::RobotState_CheckAccount;
+            }
+            break;
+        }
+        else if (checkDelay > 0)
+        {
+            checkDelay -= pmDiff;
+            if (checkDelay <= 0)
+            {
+                checkDelay = urand(TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
+                bool levelPlayerOnline = false;
+                std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
+                for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
+                {
+                    if (!it->second->isRobot)
+                    {
+                        Player* eachPlayer = it->second->GetPlayer();
+                        if (eachPlayer)
+                        {
+                            if (eachPlayer->IsInWorld())
+                            {
+                                uint32 eachPlayerLevel = eachPlayer->GetLevel();
+                                if (eachPlayerLevel > 10)
+                                {
+                                    if (eachPlayerLevel == targetLevel)
+                                    {
+                                        levelPlayerOnline = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (levelPlayerOnline)
+                {
+                    onlineDelay = urand(5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
+                    break;
+                }
+            }
+        }
         break;
+    }
     case RobotState_CheckAccount:
+    {
+        allDelay -= pmDiff;
+        if (allDelay <= 0)
+        {
+            allDelay = 0;
+            accountID = sRobotManager->CheckRobotAccount(accountName);
+            if (accountID > 0)
+            {
+                robotState = RobotState::RobotState_CheckCharacter;
+            }
+            else
+            {
+                robotState = RobotState::RobotState_CreateAccount;
+            }
+        }
         break;
+    }
     case RobotState_CreateAccount:
+    {
+        if (sRobotManager->CreateRobotAccount(accountName))
+        {
+            robotState = RobotState::RobotState_CheckAccount;
+            allDelay = 5 * TimeConstants::IN_MILLISECONDS;
+        }
+        else
+        {
+            robotState = RobotState::RobotState_None;
+        }
         break;
+    }
     case RobotState_CheckCharacter:
+    {
+        allDelay -= pmDiff;
+        if (allDelay <= 0)
+        {
+            allDelay = 0;
+            characterID = sRobotManager->CheckAccountCharacter(accountID);
+            if (characterID > 0)
+            {
+                robotState = RobotState::RobotState_DoLogin;
+                allDelay = 5 * TimeConstants::IN_MILLISECONDS;
+            }
+            else
+            {
+                robotState = RobotState::RobotState_CreateCharacter;
+            }
+        }
         break;
+    }
     case RobotState_CreateCharacter:
+    {
+        if (sRobotManager->CreateRobotCharacter(accountID, targetClass, targetRace))
+        {
+            robotState = RobotState::RobotState_CheckCharacter;
+            allDelay = 5 * TimeConstants::IN_MILLISECONDS;
+        }
+        else
+        {
+            robotState = RobotState::RobotState_None;
+        }
         break;
+    }
     case RobotState_CheckLogin:
+    {
+        sourcePlayer = sRobotManager->CheckLogin(accountID, characterID);
+        if (sourcePlayer)
+        {
+            robotState = RobotState::RobotState_Online;
+            checkDelay = urand(TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
+            allDelay = 0;
+        }
+        else
+        {
+            robotState = RobotState::RobotState_DoLogin;
+            allDelay = 10 * TimeConstants::MINUTE* TimeConstants::IN_MILLISECONDS;
+        }
         break;
+    }
     case RobotState_DoLogin:
+    {
+        allDelay -= pmDiff;
+        if (allDelay <= 0)
+        {
+            allDelay = 0;
+            if (sRobotManager->LoginRobot(accountID, characterID))
+            {
+                robotState = RobotState::RobotState_CheckLogin;
+                allDelay = 10 * TimeConstants::IN_MILLISECONDS;
+            }
+            else
+            {
+                allDelay = 10 * TimeConstants::MINUTE* TimeConstants::IN_MILLISECONDS;
+            }
+        }
         break;
+    }
     case RobotState_Online:
     {
         if (HandlePacket())
@@ -2320,14 +2464,90 @@ void RobotAI::Update(uint32 pmDiff)
                 }
             }
         }
+        if (offlineDelay > 0)
+        {
+            offlineDelay -= pmDiff;
+            if (offlineDelay <= 0)
+            {
+                offlineDelay = 0;
+                robotState = RobotState::RobotState_DoLogoff;
+                allDelay = 5 * TimeConstants::IN_MILLISECONDS;
+            }
+            break;
+        }
+        else if (checkDelay > 0)
+        {
+            checkDelay -= pmDiff;
+            if (checkDelay <= 0)
+            {
+                checkDelay = urand(TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
+                bool levelPlayerOnline = false;
+                std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
+                for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
+                {
+                    if (!it->second->isRobot)
+                    {
+                        Player* eachPlayer = it->second->GetPlayer();
+                        if (eachPlayer)
+                        {
+                            if (eachPlayer->IsInWorld())
+                            {
+                                uint32 eachPlayerLevel = eachPlayer->GetLevel();
+                                if (eachPlayerLevel > 10)
+                                {
+                                    if (eachPlayerLevel == targetLevel)
+                                    {
+                                        levelPlayerOnline = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (!levelPlayerOnline)
+                {
+                    offlineDelay = urand(5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
+                    break;
+                }
+            }
+        }
         break;
     }
     case RobotState_CheckLogoff:
+    {
+        allDelay -= pmDiff;
+        if (allDelay <= 0)
+        {
+            allDelay = 0;
+            if (sourcePlayer)
+            {
+                if (sourcePlayer->IsInWorld())
+                {
+                    robotState = RobotState::RobotState_DoLogoff;
+                    allDelay = 10 * TimeConstants::MINUTE* TimeConstants::IN_MILLISECONDS;
+                    break;
+                }
+            }
+            robotState = RobotState::RobotState_OffLine;
+        }
         break;
+    }
     case RobotState_DoLogoff:
+    {
+        allDelay -= pmDiff;
+        if (allDelay <= 0)
+        {
+            allDelay = 0;
+            robotState = RobotState::RobotState_CheckLogoff;
+            allDelay = 10 * TimeConstants::IN_MILLISECONDS;
+        }
         break;
+    }
     default:
+    {
         break;
+    }
     }
 }
 

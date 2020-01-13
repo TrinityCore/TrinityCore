@@ -383,31 +383,6 @@ void RobotManager::UpdateManager(uint32 pmDiff)
     }
     checkDelay = ROBOT_MANAGER_UPDATE_GAP;
 
-    std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
-
-    std::unordered_set<uint32> activePlayerLevelSet;
-    for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
-    {
-        if (!it->second->isRobot)
-        {
-            Player* eachPlayer = it->second->GetPlayer();
-            if (eachPlayer)
-            {
-                if (eachPlayer->IsInWorld())
-                {
-                    uint32 eachPlayerLevel = eachPlayer->GetLevel();
-                    if (eachPlayerLevel > 10)
-                    {
-                        if (activePlayerLevelSet.find(eachPlayer->GetLevel()) == activePlayerLevelSet.end())
-                        {
-                            activePlayerLevelSet.insert(eachPlayerLevel);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
     {
         (*rit)->Update(pmDiff);
@@ -462,20 +437,44 @@ bool RobotManager::RobotsDeleted()
     return true;
 }
 
-bool RobotManager::CreateRobotAccount(std::string pmAccountName)
+uint32 RobotManager::CheckRobotAccount(std::string pmAccountName)
 {
+    uint32 accountID = 0;
+
     QueryResult accountQR = LoginDatabase.PQuery("SELECT id FROM account where username = '%s'", pmAccountName.c_str());
     if (accountQR)
     {
-        return false;
-    }
-    AccountOpResult aor = sAccountMgr->CreateAccount(pmAccountName, "robot");
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create robot account %s", pmAccountName.c_str());
-
-    return true;
+        Field* idFields = accountQR->Fetch();
+        accountID = idFields[0].GetUInt32();        
+    }    
+    return accountID;
 }
 
-bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint8 pmCharacterClass, uint8 pmCharacterRace, uint8 pmCharacterLevel)
+bool RobotManager::CreateRobotAccount(std::string pmAccountName)
+{    
+    AccountOpResult aor = sAccountMgr->CreateAccount(pmAccountName, "robot");
+    if (aor == AccountOpResult::AOR_OK)
+    {
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create robot account %s", pmAccountName.c_str());
+        return true;
+    }
+    return false;
+}
+
+uint32 RobotManager::CheckAccountCharacter(uint32 pmAccountID)
+{
+    uint32 characterID = 0;
+
+    QueryResult characterQR = LoginDatabase.PQuery("SELECT guid FROM characters where account = '%d'", pmAccountID);
+    if (characterQR)
+    {
+        Field* characterFields = characterQR->Fetch();
+        characterID = characterFields[0].GetUInt32();
+    }
+    return characterID;
+}
+
+bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace)
 {
     std::string currentName = "";
     bool nameValid = false;
@@ -543,8 +542,7 @@ bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint8 pmCharacterCla
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Try again");
             continue;
         }
-        newPlayer->GetMotionMaster()->Initialize();
-        newPlayer->GiveLevel(pmCharacterLevel);
+        newPlayer->GetMotionMaster()->Initialize();        
         newPlayer->setCinematic(2);
         newPlayer->SetAtLoginFlag(AT_LOGIN_NONE);
         newPlayer->SaveToDB();
@@ -556,9 +554,24 @@ bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint8 pmCharacterCla
     return true;
 }
 
-bool RobotManager::LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID)
+Player* RobotManager::CheckLogin(uint32 pmAccountID, uint32 pmGUID)
 {
-    Player* currentPlayer = ObjectAccessor::FindPlayer(pmGUID);
+    ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, pmGUID);
+    Player* currentPlayer = ObjectAccessor::FindPlayer(playerGUID);
+    if (currentPlayer)
+    {
+        if (currentPlayer->IsInWorld())
+        {
+            return currentPlayer;
+        }
+    }
+    return NULL;
+}
+
+bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmGUID)
+{
+    ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, pmGUID);
+    Player* currentPlayer = ObjectAccessor::FindPlayer(playerGUID);
     if (currentPlayer)
     {
         if (currentPlayer->IsInWorld())
