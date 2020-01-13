@@ -8146,9 +8146,14 @@ void Unit::EngageWithTarget(Unit* enemy)
         return;
 
     if (CanHaveThreatList())
-        m_threatManager.AddThreat(enemy, 0.0f, nullptr, true, true);
+    {
+        if (!IsEngagedBy(enemy))
+            GetThreatManager().AddThreat(enemy, 0.0f, nullptr, true, true);
+    }
     else
+    {
         SetInCombatWith(enemy);
+    }
 }
 
 void Unit::SetImmuneToAll(bool apply, bool keepCombat)
