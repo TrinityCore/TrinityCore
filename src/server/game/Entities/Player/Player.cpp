@@ -5707,8 +5707,8 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
         SetSkillMaxRank(skillSlot, maxVal);
 
         // apply skill bonuses
-        SetSkillTempBonus(itr->second.pos, 0);
-        SetSkillPermBonus(itr->second.pos, 0);
+        SetSkillTempBonus(skillSlot, 0);
+        SetSkillPermBonus(skillSlot, 0);
 
         UpdateSkillEnchantments(id, 0, newVal);
 
