@@ -47,9 +47,9 @@ public:
     {
         boss_flamegorAI(Creature* creature) : BossAI(creature, DATA_FLAMEGOR) { }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_SHADOWFLAME, 10s, 20s);
             events.ScheduleEvent(EVENT_WINGBUFFET, 30s);

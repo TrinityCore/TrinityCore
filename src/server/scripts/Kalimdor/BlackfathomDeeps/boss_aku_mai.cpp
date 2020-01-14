@@ -54,9 +54,9 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             events.ScheduleEvent(EVENT_POISON_CLOUD, 5s, 9s);
         }
 

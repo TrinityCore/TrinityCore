@@ -59,16 +59,6 @@ class boss_renataki : public CreatureScript
                 Initialize();
             }
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-            }
-
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())

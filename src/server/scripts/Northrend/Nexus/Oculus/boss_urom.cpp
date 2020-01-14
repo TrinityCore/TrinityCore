@@ -144,9 +144,9 @@ class boss_urom : public CreatureScript
                 DoCastSelf(SPELL_EVOCATE);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 StartAttack();
             }
 

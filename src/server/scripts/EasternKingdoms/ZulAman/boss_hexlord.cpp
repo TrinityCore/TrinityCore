@@ -290,9 +290,9 @@ class boss_hexlord_malacrass : public CreatureScript
                 me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(YELL_AGGRO);
 
                 for (uint8 i = 0; i < 4; ++i)

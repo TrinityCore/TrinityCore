@@ -160,9 +160,9 @@ public:
             instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
             events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);

@@ -88,9 +88,9 @@ class boss_general_zarithrian : public CreatureScript
                 return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE && BossAI::CanAIAttack(target));
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_CLEAVE, 8s);
                 events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 14s);

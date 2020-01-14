@@ -58,10 +58,10 @@ class boss_meathook : public CreatureScript
                     me->RemoveLootMode(LOOT_MODE_DEFAULT);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_CHAIN, Seconds(7), Seconds(11));
                 events.ScheduleEvent(EVENT_DISEASE, Seconds(2));
                 events.ScheduleEvent(EVENT_FRENZY, Seconds(13), Seconds(17));

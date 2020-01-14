@@ -86,9 +86,9 @@ class boss_jindo : public CreatureScript
                 _JustDied();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_BRAIN_WASH_TOTEM, 20s);
                 events.ScheduleEvent(EVENT_POWERFULL_HEALING_WARD, 15s);
                 events.ScheduleEvent(EVENT_HEX, 8s);
