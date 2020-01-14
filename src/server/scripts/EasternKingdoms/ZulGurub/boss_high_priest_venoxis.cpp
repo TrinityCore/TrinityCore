@@ -210,9 +210,9 @@ struct boss_high_priest_venoxis : public BossAI
                 eyes->CastSpell(eyes, SPELL_SNAKE_EYES);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         Talk(SAY_AGGRO);
         me->RemoveAurasDueToSpell(SPELL_TOTEM_BEAM_LEFT);

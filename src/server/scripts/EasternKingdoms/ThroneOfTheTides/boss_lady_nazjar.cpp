@@ -155,9 +155,9 @@ struct boss_lady_nazjar : public BossAI
 {
     boss_lady_nazjar(Creature* creature) : BossAI(creature, DATA_LADY_NAZJAR), _waterspoutPhaseCount(0), _killedAdds(0), _isInTransition(false) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         HandleDoor(false);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

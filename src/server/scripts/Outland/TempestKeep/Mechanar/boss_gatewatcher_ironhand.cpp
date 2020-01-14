@@ -61,9 +61,9 @@ class boss_gatewatcher_iron_hand : public CreatureScript
         {
             boss_gatewatcher_iron_handAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_IRON_HAND) { }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 55000);
                 events.ScheduleEvent(EVENT_JACKHAMMER, 45000);
                 events.ScheduleEvent(EVENT_SHADOW_POWER, 25000);

@@ -93,9 +93,9 @@ struct boss_karsh_steelbender : public BossAI
         DoCastSelf(SPELL_SUPERHEATED_QUICKSILVER_ARMOR_PROC_AURA);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_CLEAVE, 10s, 12s);

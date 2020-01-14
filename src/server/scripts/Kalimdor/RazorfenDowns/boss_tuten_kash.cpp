@@ -51,9 +51,9 @@ public:
                 DoCast(me, SPELL_VIRULENT_POISON);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             events.ScheduleEvent(EVENT_WEB_SPRAY, urand(3000, 5000));
             events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, urand(9000, 14000));
         }

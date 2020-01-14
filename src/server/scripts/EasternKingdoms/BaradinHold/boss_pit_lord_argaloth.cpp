@@ -63,9 +63,9 @@ struct boss_pit_lord_argaloth : public BossAI
 {
     boss_pit_lord_argaloth(Creature* creature) : BossAI(creature, DATA_ARGALOTH), _felFirestormCount(0) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_METEOR_SLASH, 10s + 800ms);
         events.ScheduleEvent(EVENT_CONSUMING_DARKNESS, 6s);

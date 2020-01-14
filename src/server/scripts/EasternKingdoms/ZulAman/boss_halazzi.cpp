@@ -51,9 +51,9 @@ struct boss_halazzi : public BossAI
         _Reset();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
     }
 
     void JustDied(Unit* /*killer*/) override

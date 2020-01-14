@@ -194,10 +194,10 @@ class boss_vanessa_van_cleef : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
                 DoCastAOE(SPELL_VANESSA_ACHIEVEMENT_SPELL, true);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_DEFLECTION, Seconds(11));

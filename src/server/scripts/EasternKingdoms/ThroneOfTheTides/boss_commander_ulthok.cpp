@@ -71,9 +71,9 @@ struct boss_commander_ulthok : public BossAI
 {
     boss_commander_ulthok(Creature* creature) : BossAI(creature, DATA_COMMANDER_ULTHOK) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         Talk(SAY_AGGRO);
         DoCastAOE(SPELL_ULTHOK_VO_AGGRO, true);

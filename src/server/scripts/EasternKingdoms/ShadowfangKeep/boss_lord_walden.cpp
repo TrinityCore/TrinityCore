@@ -82,10 +82,10 @@ struct boss_lord_walden : public BossAI
         events.SetPhase(PHASE_INTRO);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        _JustEngagedWith();
         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
 
         events.SetPhase(PHASE_COMBAT);

@@ -107,10 +107,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->InterruptNonMeleeSpells(false);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_CLEAVE, Seconds(13), 0, PHASE_COMBAT);

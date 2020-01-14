@@ -126,9 +126,9 @@ struct boss_corla_herald_of_twilight : public BossAI
             DoCastSelf(SPELL_WEAR_CHRISTMAS_HAT_RED_SELF_DND);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         Talk(SAY_AGGRO);
         me->CastStop();

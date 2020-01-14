@@ -130,9 +130,9 @@ class boss_erudax : public CreatureScript
         {
             boss_erudaxAI(Creature* creature) : BossAI(creature, DATA_ERUDAX), _achievementEnligible(true) { }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_BINDING_SHADOWS, Seconds(10) + Milliseconds(500));

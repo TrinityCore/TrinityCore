@@ -130,10 +130,10 @@ public:
             BossAI::AttackStart(who);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
-            _JustEngagedWith();
             events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
             events.ScheduleEvent(EVENT_CHANGE_PHASE, Seconds(60));
             ScheduleEvents();

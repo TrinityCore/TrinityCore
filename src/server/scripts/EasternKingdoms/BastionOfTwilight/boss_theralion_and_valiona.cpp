@@ -249,7 +249,7 @@ class boss_theralion : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.ScheduleEvent(EVENT_BERSERK, 10min);
 
@@ -500,7 +500,7 @@ class boss_valiona : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.SetPhase(PHASE_GROUND);
                 events.ScheduleEvent(EVENT_BLACKOUT, Seconds(10) + Milliseconds(500));

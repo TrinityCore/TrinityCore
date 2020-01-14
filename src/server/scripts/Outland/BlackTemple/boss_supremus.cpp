@@ -87,9 +87,9 @@ public:
             _DespawnAtEvade();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             ChangePhase();
             events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
             events.ScheduleEvent(EVENT_FLAME, Seconds(20));

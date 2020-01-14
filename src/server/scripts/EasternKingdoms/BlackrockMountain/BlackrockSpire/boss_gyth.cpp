@@ -78,9 +78,9 @@ public:
             }
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_CORROSIVE_ACID, urand(8000, 16000));
             events.ScheduleEvent(EVENT_FREEZE, urand(8000, 16000));

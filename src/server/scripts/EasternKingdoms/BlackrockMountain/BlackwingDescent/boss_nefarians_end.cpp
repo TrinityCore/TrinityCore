@@ -380,7 +380,7 @@ struct boss_nefarians_end : public BossAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
         // Attacking Nefarian while Onyxia is not engaged is not suposed to trigger anything
         if (instance->GetBossState(DATA_NEFARIANS_END) != IN_PROGRESS)
@@ -389,8 +389,7 @@ struct boss_nefarians_end : public BossAI
             me->CombatStop();
             return;
         }
-
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
     }
 
     void JustAppeared() override

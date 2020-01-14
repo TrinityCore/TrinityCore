@@ -54,9 +54,9 @@ class boss_grobbulus : public CreatureScript
         {
             boss_grobbulusAI(Creature* creature) : BossAI(creature, BOSS_GROBBULUS) { }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_CLOUD, Seconds(15));
                 events.ScheduleEvent(EVENT_INJECT, Seconds(20));
                 events.ScheduleEvent(EVENT_SPRAY, randtime(Seconds(15), Seconds(30))); // not sure

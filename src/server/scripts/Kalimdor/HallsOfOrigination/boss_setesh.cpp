@@ -124,9 +124,9 @@ class boss_setesh : public CreatureScript
         {
             boss_seteshAI(Creature* creature) : BossAI(creature, DATA_SETESH) { }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 

@@ -306,9 +306,9 @@ struct boss_chogall : public BossAI
         _achievementEnligibe = true;
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         DoCastSelf(SPELL_CORRUPTED_BLOOD);

@@ -88,9 +88,9 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Enraged = false;
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_HATEFUL, Seconds(1));

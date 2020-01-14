@@ -55,10 +55,10 @@ struct boss_houndmaster_loksey : public BossAI
        instance->instance->SpawnGroupSpawn(SPAWN_GROUP_ID_HOUNDS, true);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        _JustEngagedWith();
         events.ScheduleEvent(EVENT_BATTLE_SHOUT, 7s);
         events.ScheduleEvent(EVENT_BLOODLUST, 10s);
     }

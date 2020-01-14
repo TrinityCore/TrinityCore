@@ -107,9 +107,9 @@ class boss_prince_taldaram : public CreatureScript
                 _embraceTakenDamage = 0;
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
                 events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));

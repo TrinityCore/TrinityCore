@@ -58,10 +58,10 @@ struct boss_bloodmage_thalnos : public BossAI
         _Reset();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        _JustEngagedWith();
         events.ScheduleEvent(EVENT_FLAME_SPIKE, 8s, 10s);
         events.ScheduleEvent(EVENT_SHADOW_BOLT, 1ms);
     }

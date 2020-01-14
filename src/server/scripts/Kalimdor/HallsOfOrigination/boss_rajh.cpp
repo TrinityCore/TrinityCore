@@ -115,9 +115,9 @@ struct boss_rajh : public BossAI
         me->MakeInterruptable(false);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         me->SetReactState(REACT_AGGRESSIVE);

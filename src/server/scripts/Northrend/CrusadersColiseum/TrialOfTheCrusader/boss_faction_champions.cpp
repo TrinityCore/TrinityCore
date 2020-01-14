@@ -643,10 +643,10 @@ struct boss_faction_championsAI : public BossAI
                 pChampionController->AI()->SetData(2, DONE);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
+        BossAI::JustEngagedWith(who);
         DoCast(me, SPELL_ANTI_AOE, true);
-        _JustEngagedWith();
         if (Creature* pChampionController = ObjectAccessor::GetCreature((*me), instance->GetGuidData(NPC_CHAMPIONS_CONTROLLER)))
             pChampionController->AI()->SetData(2, IN_PROGRESS);
     }

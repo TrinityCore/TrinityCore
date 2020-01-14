@@ -181,9 +181,9 @@ public:
             me->SetControlled(true, UNIT_STATE_ROOT);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             events.ScheduleEvent(EVENT_INITIAL_EMERGE, Milliseconds(4));
             events.ScheduleEvent(EVENT_SYNCH_HEALTH, Seconds(3));
         }

@@ -47,10 +47,10 @@ public:
     {
         boss_lord_serpentisAI(Creature* creature) : BossAI(creature, DATA_LORD_SERPENTIS) { }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
-            _JustEngagedWith();
 
             events.ScheduleEvent(EVENT_LIGHTNING_BOLT, Seconds(1));
             events.ScheduleEvent(EVENT_HEALING_TOUCH, Seconds(27));

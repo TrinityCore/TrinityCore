@@ -90,9 +90,9 @@ struct boss_lord_godfrey : public BossAI
         me->MakeInterruptable(false);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? SAY_AGGRO_ALLIANCE : SAY_AGGRO_HORDE);
         DoCastAOE(SPELL_BULLET_TIME_RESET_CREDIT);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

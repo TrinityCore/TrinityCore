@@ -308,9 +308,9 @@ struct boss_alakir : public BossAI
         _useTempoaryCloudSpawns = false;
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         me->SetReactState(REACT_AGGRESSIVE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

@@ -166,9 +166,9 @@ class boss_high_priestess_azil : public CreatureScript
                 MakeInterruptable(false);
             }
 
-            void JustEngagedWith(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
                 DoCast(me, SPELL_ENERGY_SHIELD);

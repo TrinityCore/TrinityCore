@@ -128,9 +128,9 @@ class boss_urom : public CreatureScript
                 me->GetMotionMaster()->MoveIdle();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 StartAttack();
             }

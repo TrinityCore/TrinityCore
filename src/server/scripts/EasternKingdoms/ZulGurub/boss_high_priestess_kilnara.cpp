@@ -112,9 +112,9 @@ struct boss_high_priestess_kilnara : public BossAI
         me->SummonCreatureGroup(SUMMON_GROUP_PRIDE_OF_BETHEK);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         DoCastAOE(SPELL_CLEAR_ACHIEVEMENT_CREDITS);
 

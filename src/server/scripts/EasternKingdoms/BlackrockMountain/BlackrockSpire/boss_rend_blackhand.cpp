@@ -181,9 +181,9 @@ public:
             portcullisGUID.Clear();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             events.ScheduleEvent(EVENT_WHIRLWIND,     urand(13000, 15000));
             events.ScheduleEvent(EVENT_CLEAVE,        urand(15000, 17000));
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(17000, 19000));

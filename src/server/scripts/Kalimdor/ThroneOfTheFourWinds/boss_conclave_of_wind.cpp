@@ -243,7 +243,7 @@ struct boss_anshal : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         me->SetReactState(REACT_AGGRESSIVE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_WEST);
@@ -491,7 +491,7 @@ struct boss_nezir : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         me->SetReactState(REACT_AGGRESSIVE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_NORTH);
@@ -725,7 +725,7 @@ struct boss_rohash : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         me->SetReactState(REACT_AGGRESSIVE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         me->RemoveAurasDueToSpell(SPELL_PRE_FIGHT_VISUAL_EAST);

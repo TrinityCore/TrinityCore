@@ -75,9 +75,9 @@ class boss_pathaleon_the_calculator : public CreatureScript
         {
             boss_pathaleon_the_calculatorAI(Creature* creature) : BossAI(creature, DATA_PATHALEON_THE_CALCULATOR) { }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
                 events.ScheduleEvent(EVENT_MANA_TAP, urand(12000, 20000));
                 events.ScheduleEvent(EVENT_ARCANE_TORRENT, urand(16000, 25000));

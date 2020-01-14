@@ -143,9 +143,9 @@ class boss_drahga_shadowburner : public CreatureScript
                     DoCastSelf(SPELL_WEAR_CHRISTMAS_HAT_GREEN_SELF_DND);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 events.SetPhase(PHASE_1);

@@ -111,9 +111,9 @@ class boss_admiral_ripsnarl: public CreatureScript
                 DoCastSelf(SPELL_THIRST_FOR_BLOOD, true);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 DoCastAOE(SPELL_RIPSNARL_CANNON_KILL, true);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);

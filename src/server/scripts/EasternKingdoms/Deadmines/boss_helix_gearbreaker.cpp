@@ -176,9 +176,9 @@ struct boss_helix_gearbreaker : public BossAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
 

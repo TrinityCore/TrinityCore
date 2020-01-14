@@ -90,11 +90,11 @@ struct boss_earthrager_ptah : public BossAI
 {
     boss_earthrager_ptah(Creature* creature) : BossAI(creature, DATA_EARTHRAGER_PTAH), _hasDispersed(false), _summonCount(0), _summonsDeadCount(0) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         Talk(SAY_AGGRO);
-        _JustEngagedWith();
         events.SetPhase(PHASE_FIGHT);
         events.ScheduleEvent(EVENT_RAGING_SMASH, 7s, 0, PHASE_FIGHT); // Seconds(12)
         events.ScheduleEvent(EVENT_FLAME_BOLT, 8s, 0, PHASE_FIGHT);

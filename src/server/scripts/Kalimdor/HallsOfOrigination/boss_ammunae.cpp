@@ -106,9 +106,9 @@ struct boss_ammunae : public BossAI
         me->AddAura(SPELL_ZERO_ENERGY_ZERO_REGEN, me);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_SUMMON_SEEDLING_POD, 7s);

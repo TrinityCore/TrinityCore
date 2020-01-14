@@ -163,10 +163,10 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_SARTHARION_AGGRO);
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             DoZoneInCombat();
 
             FetchDragons();

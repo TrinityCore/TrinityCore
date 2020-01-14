@@ -38,9 +38,9 @@ public:
     {
         boss_skumAI(Creature* creature) : BossAI(creature, DATA_SKUM) { }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_CHAINED_BOLT, Seconds(3), Seconds(4));
         }

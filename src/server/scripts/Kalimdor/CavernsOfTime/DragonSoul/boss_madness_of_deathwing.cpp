@@ -467,9 +467,9 @@ struct boss_madness_of_deathwing : public BossAI
         DoZoneInCombat();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         DoSummon(NPC_TAIL_TENTACLE, TailTentacleSummonPosition, 0, TEMPSUMMON_MANUAL_DESPAWN);
 
         Talk(SAY_AGGRO);

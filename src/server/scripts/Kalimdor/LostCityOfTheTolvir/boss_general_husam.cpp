@@ -109,9 +109,9 @@ struct boss_general_husam : public BossAI
 {
     boss_general_husam(Creature* creature) : BossAI(creature, DATA_GENERAL_HUSAM), _shockwaveStalkerCount(0) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         Talk(SAY_AGGRO);
 

@@ -102,9 +102,9 @@ struct boss_grand_vizier_ertan : public BossAI
 {
     boss_grand_vizier_ertan(Creature* creature) : BossAI(creature, DATA_GRAND_VIZIER_ERTAN) { }
 
-    void JustEngagedWith(Unit* /*target*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         DoCastSelf(SPELL_STORMS_EDGE_PERIODIC);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         Talk(SAY_AGGRO);

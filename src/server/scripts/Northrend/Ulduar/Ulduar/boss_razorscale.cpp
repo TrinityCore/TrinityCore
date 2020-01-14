@@ -386,9 +386,9 @@ class boss_razorscale : public CreatureScript
                     commander->AI()->DoAction(ACTION_COMMANDER_RESET);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 if (Creature* controller = instance->GetCreature(DATA_RAZORSCALE_CONTROL))
                     controller->AI()->DoAction(ACTION_HARPOON_BUILD);
                 me->SetSpeedRate(MOVE_FLIGHT, 3.0f);

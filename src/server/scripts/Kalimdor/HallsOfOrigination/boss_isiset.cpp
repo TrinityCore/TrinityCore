@@ -145,13 +145,13 @@ public:
             instance->SetData(DATA_ISISET_VEIL_OF_SKY_ALIVE, 1);
         }
 
-        void JustEngagedWith(Unit* /*victim*/) override
+        void JustEngagedWith(Unit* who) override
         {
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             if (IsHeroic())
                 DoCastSelf(SPELL_CALL_OF_SKY);
             RescheduleEvents();
-            _JustEngagedWith();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT, 0);
         }
 

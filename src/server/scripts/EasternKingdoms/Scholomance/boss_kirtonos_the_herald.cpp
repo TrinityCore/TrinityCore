@@ -87,8 +87,9 @@ class boss_kirtonos_the_herald : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_SWOOP, urand(8000, 8000));
                 events.ScheduleEvent(EVENT_WING_FLAP, urand(15000, 15000));
                 events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(18000, 18000));
@@ -97,7 +98,6 @@ class boss_kirtonos_the_herald : public CreatureScript
                 events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, urand(53000, 53000));
                 events.ScheduleEvent(EVENT_DOMINATE_MIND, urand(34000, 48000));
                 events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(20000, 20000));
-                _JustEngagedWith();
             }
 
             void JustDied(Unit* /*killer*/) override

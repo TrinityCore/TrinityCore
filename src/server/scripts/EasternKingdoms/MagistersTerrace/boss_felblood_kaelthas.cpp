@@ -141,9 +141,9 @@ struct boss_felblood_kaelthas : public BossAI
         _firstGravityLapse = true;
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         events.SetPhase(PHASE_ONE);
         events.ScheduleEvent(EVENT_FIREBALL, 1ms, 0, PHASE_ONE);
         events.ScheduleEvent(EVENT_FLAME_STRIKE, 44s, 0, PHASE_ONE);

@@ -130,9 +130,9 @@ class boss_skeram : public CreatureScript
                     me->RemoveCorpse();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.Reset();
 
                 events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(6000, 12000));

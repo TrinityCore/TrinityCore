@@ -128,10 +128,10 @@ class boss_siamat : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_STATIC_SHOCK, Milliseconds(1), 0, PHASE_1);
                 events.ScheduleEvent(EVENT_DEFLECTING_WINDS, Seconds(6), 0, PHASE_1);

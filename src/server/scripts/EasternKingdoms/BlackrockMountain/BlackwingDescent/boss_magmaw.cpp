@@ -215,9 +215,9 @@ struct boss_magmaw : public BossAI
         events.SetPhase(PHASE_OUT_OF_COMBAT);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_PRIORITY_MAGMAW);
         me->SetReactState(REACT_AGGRESSIVE);
 

@@ -147,9 +147,9 @@ class boss_captain_cookie : public CreatureScript
                 DoCastSelf(SPELL_COOKIES_HAT, true);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 me->RemoveAurasDueToSpell(SPELL_WHOS_THAT);
                 me->AttackStop();

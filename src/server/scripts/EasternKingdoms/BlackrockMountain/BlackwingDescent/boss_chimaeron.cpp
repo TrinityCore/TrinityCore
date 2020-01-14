@@ -151,9 +151,9 @@ struct boss_chimaeron : public BossAI
         events.SetPhase(PHASE_ASLEEP);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         me->SetReactState(REACT_AGGRESSIVE);
         events.SetPhase(PHASE_1);

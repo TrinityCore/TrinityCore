@@ -48,9 +48,9 @@ public:
     {
         boss_lord_overheatAI(Creature* creature) : BossAI(creature, DATA_LORD_OVERHEAT) { }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_PULL);
             events.ScheduleEvent(EVENT_FIREBALL, Seconds(2));
             events.ScheduleEvent(EVENT_OVERHEAT, Seconds(9), Seconds(11));

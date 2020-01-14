@@ -53,9 +53,9 @@ struct boss_hexlord_malacrass : public BossAI
         _Reset();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
     }
 
     void KilledUnit(Unit* /*victim*/) override

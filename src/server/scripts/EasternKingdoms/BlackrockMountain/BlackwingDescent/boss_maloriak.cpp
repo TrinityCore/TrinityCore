@@ -262,9 +262,9 @@ struct boss_maloriak : public BossAI
         me->SummonCreatureGroup(SUMMON_GROUP_EXPERIMENTS);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.SetPhase(PHASE_ONE);

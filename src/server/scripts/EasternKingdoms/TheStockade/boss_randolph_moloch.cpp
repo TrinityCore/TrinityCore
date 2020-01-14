@@ -70,9 +70,9 @@ public:
             secondVanish = false;
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_PULL);
             events.ScheduleEvent(EVENT_WILDLY_STABBING, Seconds(4), Seconds(5));
             events.ScheduleEvent(EVENT_SWEEP, Seconds(2), Seconds(3));

@@ -148,12 +148,12 @@ public:
             DoCastSelf(SPELL_EMPYREAL_BALANCE, true);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             if (!_inCombat)
             {
                 _inCombat = true;
-                _JustEngagedWith();
+                _JustEngagedWith(who);
                 for (uint32 bossData : CouncilData)
                 {
                     if (Creature* council = instance->GetCreature(bossData))

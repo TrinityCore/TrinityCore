@@ -76,11 +76,11 @@ class boss_herod : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_RUSHINGCHARGE);
-                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_CLEAVE, 12000);
                 events.ScheduleEvent(EVENT_WHIRLWIND, 60000);

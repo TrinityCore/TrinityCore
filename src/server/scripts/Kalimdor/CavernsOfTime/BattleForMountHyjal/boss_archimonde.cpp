@@ -299,10 +299,10 @@ public:
             me->RemoveAllAuras();                              // Reset Soul Charge auras.
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
-            _JustEngagedWith();
             events.ScheduleEvent(EVENT_FEAR, 42000);
             events.ScheduleEvent(EVENT_AIR_BURST, 30000);
             events.ScheduleEvent(EVENT_GRIP_OF_THE_LEGION, urand(5000, 25000));

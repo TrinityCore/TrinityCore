@@ -147,9 +147,9 @@ class boss_slabhide : public CreatureScript
                     damage = me->GetHealth() - 1; // Let creature health fall to 1 hp but prevent it from dying during air phase.
             }
 
-            void JustEngagedWith(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
                 events.SetPhase(PHASE_COMBAT);

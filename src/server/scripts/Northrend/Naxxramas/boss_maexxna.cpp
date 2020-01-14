@@ -99,9 +99,9 @@ public:
     {
         boss_maexxnaAI(Creature* creature) : BossAI(creature, BOSS_MAEXXNA)  {  }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             events.ScheduleEvent(EVENT_WRAP, Seconds(20));
             events.ScheduleEvent(EVENT_SPRAY, Seconds(40));
             events.ScheduleEvent(EVENT_SHOCK, randtime(Seconds(5), Seconds(10)));

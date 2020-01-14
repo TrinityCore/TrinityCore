@@ -71,9 +71,9 @@ class boss_mennu_the_betrayer : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_TAINTED_STONESKIN_TOTEM, 30000);
                 events.ScheduleEvent(EVENT_TAINTED_EARTHGRAB_TOTEM, 20000);
                 events.ScheduleEvent(EVENT_CORRUPTED_NOVA_TOTEM, 60000);

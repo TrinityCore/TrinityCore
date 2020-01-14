@@ -106,9 +106,9 @@ public:
             SetBubbled(false);
         }
 
-        void JustEngagedWith(Unit* /* victim */) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
 
             SetCrystalsStatus(true);

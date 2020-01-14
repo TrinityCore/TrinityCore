@@ -106,9 +106,9 @@ struct boss_altairus : public BossAI
         me->SetHover(true);
     }
 
-    void JustEngagedWith(Unit* /*target*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_CALL_THE_WIND, 6s);
         events.ScheduleEvent(EVENT_CHILLING_BREATH, 10s, 14s);

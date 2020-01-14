@@ -66,9 +66,9 @@ class boss_amanitar : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 events.ScheduleEvent(EVENT_ROOT, urand(5, 9) * IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_BASH, urand(10, 14) * IN_MILLISECONDS);

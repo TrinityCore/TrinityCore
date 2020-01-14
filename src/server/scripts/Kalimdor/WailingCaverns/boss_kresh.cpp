@@ -38,9 +38,9 @@ public:
     {
         boss_kreshAI(Creature* creature) : BossAI(creature, DATA_KRESH) { }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_CRUSHING_BITE, Seconds(6));
         }

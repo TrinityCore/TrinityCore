@@ -72,9 +72,9 @@ class boss_ozruk : public CreatureScript
         {
             boss_ozrukAI(Creature* creature) : BossAI(creature, DATA_OZRUK), _enraged(false) { }
 
-            void JustEngagedWith(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 

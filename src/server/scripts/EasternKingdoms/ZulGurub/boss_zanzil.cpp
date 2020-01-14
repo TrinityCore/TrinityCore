@@ -164,9 +164,9 @@ struct boss_zanzil : public BossAI
             DoSummon(NPC_ZANZILI_BERSERKER, ZanziliBerserkerPositions[i], 4000);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_ZANZILI_FIRE, 13s, 14s);
         events.ScheduleEvent(EVENT_TERRIBLE_TONIC, 10s, 11s);

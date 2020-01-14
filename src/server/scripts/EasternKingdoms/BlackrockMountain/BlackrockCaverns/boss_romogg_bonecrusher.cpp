@@ -115,9 +115,9 @@ struct boss_romogg_bonecrusher : public BossAI
             _killedElementals++;
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         Talk(SAY_AGGRO);
         Talk(SAY_EMOTE_CALL_FOR_HELP);

@@ -494,11 +494,9 @@ class npc_green_dragon_combat_trigger : public CreatureScript
             {
             }
 
-            void Reset() override
+            void JustAppeared() override
             {
-                _Reset();
                 me->SetReactState(REACT_PASSIVE);
-                summons.DespawnAll();
                 // Setup Archmages
                 me->SummonCreatureGroup(SUMMON_GROUP_ALL);
                 if (Is25ManRaid())
@@ -509,6 +507,8 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 EntryCheckPredicate pred(NPC_RISEN_ARCHMAGE);
                 summons.DoAction(ACTION_SETUP_ARCHMAGES, pred);
             }
+
+            void JustEngagedWith(Unit* who) override { } // JustEnteredCombat is already doing all of this hook's default actions so no need to execute it twice
 
             void JustEnteredCombat(Unit* target) override
             {
@@ -525,6 +525,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 EngagementStart(target);
 
                 me->setActive(true);
+                me->SetCombatPulseDelay(5);
                 DoZoneInCombat();
                 instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
                 if (Creature* valithria = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)))

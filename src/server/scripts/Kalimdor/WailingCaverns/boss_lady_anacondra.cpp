@@ -64,9 +64,9 @@ public:
             DoCastSelf(SPELL_NATURE_CHANNELING);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
 
             me->RemoveAurasDueToSpell(SPELL_NATURE_CHANNELING);

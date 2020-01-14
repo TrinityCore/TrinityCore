@@ -111,10 +111,10 @@ public:
             _worgenCounter = 0;
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
-            _JustEngagedWith();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             if (IsHeroic())
                 events.ScheduleEvent(EVENT_CURSED_VEIL, Seconds(6));

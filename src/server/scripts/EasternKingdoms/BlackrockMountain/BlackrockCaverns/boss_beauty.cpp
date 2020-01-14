@@ -89,9 +89,9 @@ struct boss_beauty : public BossAI
         DoSummon(NPC_RUNTY, RuntyPos);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_BERSERKER_CHARGE, 15s);
         events.ScheduleEvent(EVENT_FLAMEBREAK, 21s);

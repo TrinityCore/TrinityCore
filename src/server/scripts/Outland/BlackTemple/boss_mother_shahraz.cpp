@@ -122,9 +122,9 @@ public:
             _enraged = false;
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_SILENCING_SHRIEK, Seconds(22));
             events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, Seconds(15));
