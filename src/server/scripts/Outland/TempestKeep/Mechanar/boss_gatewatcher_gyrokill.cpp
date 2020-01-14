@@ -65,9 +65,9 @@ class boss_gatewatcher_gyrokill : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 10s);
                 events.ScheduleEvent(EVENT_SAW_BLADE, 20s);
                 events.ScheduleEvent(EVENT_SHADOW_POWER, 25000);

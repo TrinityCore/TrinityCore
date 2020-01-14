@@ -191,9 +191,9 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_SHIMMER, 0);
             events.ScheduleEvent(EVENT_BREATH_1, 30000);

@@ -276,9 +276,9 @@ public:
             });
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             DoCast(me, SPELL_OPEN_PORTAL_PERIODIC, true);
             DoCast(me, SPELL_DARKNESS_PERIODIC, true);
             DoCast(me, SPELL_NEGATIVE_ENERGY_PERIODIC, true);

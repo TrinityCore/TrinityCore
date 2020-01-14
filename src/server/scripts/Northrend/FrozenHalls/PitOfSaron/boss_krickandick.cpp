@@ -160,9 +160,9 @@ struct boss_ick : public BossAI
         BossAI::JustSummoned(summon);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
 
         if (Creature* krick = GetKrick())
             krick->AI()->Talk(SAY_KRICK_AGGRO);

@@ -46,9 +46,9 @@ struct boss_azshir_the_sleepless : public BossAI
         _siphon = false;
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         events.ScheduleEvent(EVENT_CALL_OF_GRAVE, 30s);
         events.ScheduleEvent(EVENT_TERRIFY, 20s);
     }

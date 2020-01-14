@@ -79,10 +79,10 @@ class boss_void_reaver : public CreatureScript
                 _JustDied();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 events.ScheduleEvent(EVENT_POUNDING, 15000);
                 events.ScheduleEvent(EVENT_ARCANE_ORB, 3s);

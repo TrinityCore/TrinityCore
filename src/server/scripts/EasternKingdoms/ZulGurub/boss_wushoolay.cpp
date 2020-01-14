@@ -42,16 +42,9 @@ class boss_wushoolay : public CreatureScript
             {
             }
 
-            void Reset() override
+            void JustEngagedWith(Unit* who) override
             {
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
+                BossAI::JustEngagedWith(who);
             }
 
             void UpdateAI(uint32 diff) override

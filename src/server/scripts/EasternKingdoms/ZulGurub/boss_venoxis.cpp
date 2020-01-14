@@ -55,16 +55,16 @@ class boss_venoxis : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-                Talk(SAY_AGGRO);
-            }
-
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+            }
+
+            void JustEngagedWith(Unit* who) override
+            {
+                BossAI::JustEngagedWith(who);
+                Talk(SAY_AGGRO);
             }
 
             void KilledUnit(Unit* victim) override

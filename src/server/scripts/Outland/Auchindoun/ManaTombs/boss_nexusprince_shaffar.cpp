@@ -105,10 +105,10 @@ class boss_nexusprince_shaffar : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 events.ScheduleEvent(EVENT_BEACON, 10s);
                 events.ScheduleEvent(EVENT_FIREBALL, 8s);

@@ -137,9 +137,9 @@ class boss_grandmaster_vorpil : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 7s, 14s);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_BANISH, 15s);

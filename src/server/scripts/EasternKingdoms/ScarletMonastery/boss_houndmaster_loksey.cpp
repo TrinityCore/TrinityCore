@@ -39,9 +39,9 @@ struct boss_houndmaster_loksey : public BossAI
 {
     boss_houndmaster_loksey(Creature* creature) : BossAI(creature, DATA_HOUNDMASTER_LOKSEY) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         DoCast(SPELL_SUMMON_SCARLET_HOUND);
         events.ScheduleEvent(EVENT_BLOODLUST, 20s);

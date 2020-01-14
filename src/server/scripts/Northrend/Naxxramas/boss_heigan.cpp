@@ -113,9 +113,9 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
 
             _safeSection = 0;

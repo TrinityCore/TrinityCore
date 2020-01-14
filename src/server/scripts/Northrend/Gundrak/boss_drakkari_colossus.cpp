@@ -117,9 +117,9 @@ class boss_drakkari_colossus : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 me->RemoveAura(SPELL_FREEZE_ANIM);
             }
 

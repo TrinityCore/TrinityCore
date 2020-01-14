@@ -142,9 +142,9 @@ class boss_ignis : public CreatureScript
                 instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEVEMENT_IGNIS_START_EVENT);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_JET, 30s);
                 events.ScheduleEvent(EVENT_SCORCH, 25000);

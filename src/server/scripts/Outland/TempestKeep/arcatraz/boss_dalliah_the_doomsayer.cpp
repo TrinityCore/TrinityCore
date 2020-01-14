@@ -84,9 +84,9 @@ class boss_dalliah_the_doomsayer : public CreatureScript
                         soccothrates->AI()->SetData(1, 1);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_GIFT_OF_THE_DOOMSAYER, 1s, 4s);
                 events.ScheduleEvent(EVENT_WHIRLWIND, 7s, 9s);
                 if (IsHeroic())
