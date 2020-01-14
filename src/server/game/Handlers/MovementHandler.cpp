@@ -420,7 +420,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     }
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-    if (opcode == MSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight() && plrMover->IsFlying())
+    if (opcode == MSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight() && !plrMover->IsFlying())
     {
         plrMover->HandleFall(movementInfo);
         plrMover->SetJumpingbyOpcode(false);
