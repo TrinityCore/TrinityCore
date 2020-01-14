@@ -45,6 +45,7 @@ namespace Trainer
         trainerList.TrainerID = _trainerId;
         trainerList.Greeting = GetGreeting(locale);
         trainerList.Spells.reserve(_spells.size());
+
         for (Spell const& trainerSpell : _spells)
         {
             if (!player->IsSpellFitByClassAndRace(trainerSpell.SpellId))
@@ -68,7 +69,10 @@ namespace Trainer
             trainerListSpell.SpellID = trainerSpell.SpellId;
             trainerListSpell.Usable = AsUnderlyingType(GetSpellState(player, &trainerSpell));
             trainerListSpell.MoneyCost = int32(trainerSpell.MoneyCost * reputationDiscount);
-            trainerListSpell.ReqLevel = trainerSpell.ReqLevel;
+
+            if (_type != Type::Class || (_type == Type::Class && player->getLevel() < trainerSpell.ReqLevel))
+                trainerListSpell.ReqLevel = trainerSpell.ReqLevel;
+
             trainerListSpell.ReqSkillLine = trainerSpell.ReqSkillLine;
             trainerListSpell.ReqSkillRank = trainerSpell.ReqSkillRank;
             trainerListSpell.ProfessionDialog = primaryProfessionFirstRank;
