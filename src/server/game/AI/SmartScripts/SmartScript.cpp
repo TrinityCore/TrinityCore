@@ -2312,7 +2312,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (WorldObject* target : targets)
                 if (IsCreature(target))
-                    me->SetSpeed(UnitMoveType(e.action.movementSpeed.movementType), speed);
+                    target->ToCreature()->SetSpeed(UnitMoveType(e.action.movementSpeed.movementType), speed);
 
             break;
         }
