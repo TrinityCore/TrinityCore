@@ -1725,6 +1725,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsWaitingLandOrSwimOpcode() const { return m_antiNoFallDmg; }
         bool IsUnderLastChanceForLandOrSwimOpcode() const { return m_antiNoFallDmgLastChance; }
         void SetSuccessfullyLanded() { m_antiNoFallDmgLastChance = false; }
+        void ResetFallingData(float z);
+        void UpdateFallInformationIfNeed(float newZ) { m_lastFallZ = newZ; }
         // END AntiCheat system
 
         // Walking data from move packets
@@ -2001,7 +2003,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
         // only changed for direct client control (possess, vehicle etc.), not stuff you control using pet commands
         WorldObject* m_seer;
-        void SetFallInformation(float z);
         void HandleFall(MovementInfo const& movementInfo);
 
         bool CanFlyInZone(uint32 mapid, uint32 zone, SpellInfo const* bySpell) const;

@@ -98,7 +98,7 @@ void WorldSession::HandleMoveWorldportAck()
 
     float z = loc.GetPositionZ() + player->GetHoverOffset();
     player->Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
-    player->SetFallInformation(player->GetPositionZ());
+    player->ResetFallingData(player->GetPositionZ());
 
     player->ResetMap();
     player->SetMap(newMap);
@@ -238,7 +238,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
     WorldLocation const& dest = plMover->GetTeleportDest();
 
     plMover->UpdatePosition(dest, true);
-    plMover->SetFallInformation(GetPlayer()->GetPositionZ());
+    plMover->ResetFallingData(GetPlayer()->GetPositionZ());
 
     uint32 newzone, newarea;
     plMover->GetZoneAndAreaId(newzone, newarea);
@@ -320,13 +320,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 
     // [CMSG_MOVE_CHNG_TRANSPORT 0x038D (909)]
     if (plrMover && opcode == CMSG_MOVE_CHNG_TRANSPORT)
-    {
         plrMover->SetSkipOnePacketForASH(true);
-        // leave elevator or transport
-        if (!movementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT)
-            && plrMover->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
-            plrMover->SetFallInformation(movementInfo.pos.GetPositionZ());
-    }
 
     if (!movementInfo.pos.IsPositionValid())
     {
@@ -401,7 +395,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
 
     // start falling time
     if (plrMover && !plrMover->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) && movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR))
-        plrMover->SetFallInformation(movementInfo.pos.GetPositionZ());
+        plrMover->ResetFallingData(movementInfo.pos.GetPositionZ());
 
     // check on NoFallingDamage
     if (plrMover && plrMover->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) && !movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR))
@@ -435,7 +429,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
             if (plrMover->IsWaitingLandOrSwimOpcode() || plrMover->IsUnderLastChanceForLandOrSwimOpcode())
                 plrMover->SetSuccessfullyLanded();
             plrMover->SetJumpingbyOpcode(false);
-            plrMover->SetFallInformation(movementInfo.pos.GetPositionZ());
+            plrMover->ResetFallingData(movementInfo.pos.GetPositionZ()); // for MSG_MOVE_START_SWIM (no HandleFall(movementInfo))
         }
     }
 
@@ -451,7 +445,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         jumpopcode = true;
         if (plrMover)
         {
-            plrMover->SetFallInformation(plrMover->GetPositionZ());
             plrMover->SetUnderACKmount();
             if (mover->IsFalling())
             {
@@ -564,6 +557,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     {
         if (plrMover->IsSitState() && (movementInfo.flags & (MOVEMENTFLAG_MASK_MOVING | MOVEMENTFLAG_MASK_TURNING)))
             plrMover->SetStandState(UNIT_STAND_STATE_STAND);
+
+        if (!movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR))
+            plrMover->UpdateFallInformationIfNeed(movementInfo.pos.GetPositionZ()); // don't use SetFallInformation
 
         if (movementInfo.pos.GetPositionZ() < plrMover->GetMap()->GetMinHeight(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY()))
         {

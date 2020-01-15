@@ -4253,7 +4253,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
     {
         // charge changes fall time
         if (unitCaster->GetTypeId() == TYPEID_PLAYER)
-            unitCaster->ToPlayer()->SetFallInformation(unitCaster->GetPositionZ());
+            unitCaster->ToPlayer()->ResetFallingData(unitCaster->GetPositionZ());
 
         float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
         // Spell is not using explicit target - no generated path
@@ -4372,7 +4372,7 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
 
     // changes fall time
     if (unitCaster && unitCaster->ToPlayer())
-        unitCaster->ToPlayer()->SetFallInformation(unitCaster->GetPositionZ());
+        unitCaster->ToPlayer()->ResetFallingData(unitCaster->GetPositionZ());
 }
 
 void Spell::EffectQuestClear(SpellEffIndex effIndex)
