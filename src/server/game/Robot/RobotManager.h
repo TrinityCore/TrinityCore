@@ -28,7 +28,7 @@ class RobotManager
 
 public:
     void InitializeManager();
-    void UpdateManager(uint32 pmDiff);
+    void UpdateManager();
     bool DeleteRobots();
     bool RobotsDeleted();
     Player* GetMaster(Player* pmRobotPlayer);
@@ -48,8 +48,7 @@ public:
 
 public:
     std::map<uint32, std::vector<uint32>> availableRaces;
-    std::unordered_map<uint32, std::string> robotNameMap;
-    int32 checkDelay;
+    std::unordered_map<uint32, std::string> robotNameMap;    
 
     std::unordered_map<uint8, std::unordered_map<uint8, std::string>> characterTalentTabNameMap;
     std::set<uint32> deleteRobotAccountSet;
@@ -76,6 +75,8 @@ public:
 
     std::unordered_map<uint32, uint32> tamableBeastEntryMap;
     std::unordered_map<std::string, std::set<uint32>> spellNameEntryMap;
+
+    uint32 realPrevTime;
 };
 
 #define sRobotManager RobotManager::instance()

@@ -19,7 +19,18 @@
 
 RobotManager::RobotManager()
 {
+    realPrevTime = 0;
 
+    nameIndex = 0;
+    robotSet.clear();
+    deleteRobotAccountSet.clear();
+    meleeWeaponMap.clear();
+    rangeWeaponMap.clear();
+    armorMap.clear();
+    miscMap.clear();
+    teleportCacheMap.clear();
+    tamableBeastEntryMap.clear();
+    spellNameEntryMap.clear();
 }
 
 void RobotManager::InitializeManager()
@@ -32,9 +43,11 @@ void RobotManager::InitializeManager()
     if (sRobotConfig->resetRobots == 1)
     {
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Reset robots");
-        DeleteRobots();
-        sWorld->ShutdownServ(10, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
-        return;
+        if (DeleteRobots())
+        {
+            sWorld->ShutdownServ(10, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
+            return;
+        }        
     }
 
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Initialize robot manager");
@@ -52,10 +65,7 @@ void RobotManager::InitializeManager()
         std::string eachName = fields[0].GetString();
         robotNameMap[robotNameMap.size()] = eachName;
     } while (robotNamesQR->NextRow());
-
-    nameIndex = 0;
-
-    checkDelay = 1 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+    
     availableRaces[CLASS_WARRIOR].push_back(RACE_HUMAN);
     availableRaces[CLASS_WARRIOR].push_back(RACE_NIGHTELF);
     availableRaces[CLASS_WARRIOR].push_back(RACE_GNOME);
@@ -104,8 +114,6 @@ void RobotManager::InitializeManager()
     availableRaces[CLASS_DRUID].push_back(RACE_NIGHTELF);
     availableRaces[CLASS_DRUID].push_back(RACE_TAUREN);
 
-    robotSet.clear();
-    deleteRobotAccountSet.clear();
 
     armorInventorySet.insert(InventoryType::INVTYPE_CHEST);
     armorInventorySet.insert(InventoryType::INVTYPE_FEET);
@@ -158,10 +166,6 @@ void RobotManager::InitializeManager()
     characterTalentTabNameMap[Classes::CLASS_DRUID][1] = "Feral";
     characterTalentTabNameMap[Classes::CLASS_DRUID][2] = "Restoration";
 
-    meleeWeaponMap.clear();
-    rangeWeaponMap.clear();
-    armorMap.clear();
-    miscMap.clear();
     uint8 levelRange = 0;
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
@@ -296,7 +300,6 @@ void RobotManager::InitializeManager()
         }
     }
 
-    teleportCacheMap.clear();
     QueryResult normalCreatureQR = WorldDatabase.Query("SELECT CT.maxlevel, C.map, C.position_x, C.position_y, C.position_z FROM creature_template CT join creature C on CT.entry = C.id where CT.rank = 0 and (C.map <> 0 or C.map <> 1 or C.map <> 530 or C.map <> 571)");
     if (normalCreatureQR)
     {
@@ -314,7 +317,6 @@ void RobotManager::InitializeManager()
         } while (normalCreatureQR->NextRow());
     }
 
-    tamableBeastEntryMap.clear();
     CreatureTemplateContainer const& ctc = sObjectMgr->GetCreatureTemplates();
     for (auto const& creatureTemplatePair : ctc)
     {
@@ -329,7 +331,6 @@ void RobotManager::InitializeManager()
         }
     }
 
-    spellNameEntryMap.clear();
     SpellInfoMap const& sim = sSpellMgr->GetSpellInfoStore();
     for (auto const& eachSI : sim)
     {
@@ -343,18 +344,12 @@ void RobotManager::InitializeManager()
     uint32 maxLevel = 60;
     while (checkLevel <= maxLevel)
     {
-        for (std::map<uint32, std::vector<uint32>>::iterator raceIT = availableRaces.begin(); raceIT != availableRaces.end(); raceIT++)
+        for (std::map<uint32, std::vector<uint32>>::iterator classIT = availableRaces.begin(); classIT != availableRaces.end(); classIT++)
         {
-            std::vector<uint32> classVector = raceIT->second;
-            for (std::vector<uint32>::iterator classIT = classVector.begin(); classIT != classVector.end(); classIT++)
+            std::vector<uint32> raceVector = classIT->second;
+            for (std::vector<uint32>::iterator raceIT = raceVector.begin(); raceIT != raceVector.end(); raceIT++)
             {
-                RobotAI* eachRAI = new RobotAI();
-                eachRAI->targetClass = *classIT;
-                eachRAI->targetRace = raceIT->first;
-                eachRAI->targetLevel = checkLevel;
-                std::ostringstream accountNameStream;
-                accountNameStream << sRobotConfig->robotAccountNamePrefix << "l" << std::to_string(checkLevel) << "r" << std::to_string(eachRAI->targetRace) << "c" << std::to_string(eachRAI->targetClass);
-                eachRAI->accountName = accountNameStream.str();
+                RobotAI* eachRAI = new RobotAI(checkLevel, classIT->first, *raceIT);
                 robotSet.insert(eachRAI);
             }
         }
@@ -370,23 +365,25 @@ RobotManager* RobotManager::instance()
     return &instance;
 }
 
-void RobotManager::UpdateManager(uint32 pmDiff)
+void RobotManager::UpdateManager()
 {
     if (sRobotConfig->enable == 0)
     {
         return;
     }
-    if (checkDelay > 0)
-    {
-        checkDelay -= pmDiff;
+    uint32 realCurrTime = getMSTime();
+    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);    
+
+    if (diff < ROBOT_MANAGER_UPDATE_GAP)
+    {        
         return;
-    }
-    checkDelay = ROBOT_MANAGER_UPDATE_GAP;
+    }    
 
     for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
     {
-        (*rit)->Update(pmDiff);
+        (*rit)->Update(diff);
     }
+    realPrevTime = realCurrTime;
 }
 
 bool RobotManager::DeleteRobots()
@@ -465,7 +462,7 @@ uint32 RobotManager::CheckAccountCharacter(uint32 pmAccountID)
 {
     uint32 characterID = 0;
 
-    QueryResult characterQR = LoginDatabase.PQuery("SELECT guid FROM characters where account = '%d'", pmAccountID);
+    QueryResult characterQR = CharacterDatabase.PQuery("SELECT guid FROM characters where account = '%d'", pmAccountID);
     if (characterQR)
     {
         Field* characterFields = characterQR->Fetch();
@@ -545,7 +542,7 @@ bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterCl
         newPlayer->GetMotionMaster()->Initialize();        
         newPlayer->setCinematic(2);
         newPlayer->SetAtLoginFlag(AT_LOGIN_NONE);
-        newPlayer->SaveToDB();
+        newPlayer->SaveToDB(true);
         sWorld->AddSession(eachSession);
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create character %d - %s for account %d", newPlayer->GetGUID().GetCounter(), currentName.c_str(), pmAccountID);
         break;
@@ -597,7 +594,7 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmGUID)
         sWorld->AddSession(loginSession);
     }
     WorldPacket loginWP(CMSG_PLAYER_LOGIN, 8);
-    loginWP << pmGUID;
+    loginWP << playerGUID;
     loginSession->HandlePlayerLoginOpcode(loginWP);
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmGUID, characterName.c_str(), characterLevel);
 

@@ -151,7 +151,9 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     }
 
     // EJ robot
-    isRobot = false;    
+    isRobot = false;
+    robotPacketVector.clear();
+    robotChatCommandVector.clear();
 }
 
 /// WorldSession destructor
@@ -211,8 +213,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     // EJ robot
     if (isRobot)
     {
-        std::lock_guard<std::mutex> lock(robotPacketQueue_m);
-        robotPacketQueue.push(packet);
+        robotPacketVector.push_back(packet);
         return;
     }
 

@@ -1,7 +1,11 @@
 #include "MarketerManager.h"
 
+#include "GameTime.h"
+
 MarketerManager::MarketerManager()
 {
+    realPrevTime = 0;
+
     buyerCheckDelay = 120000;
     sellerCheckDelay = 60000;
 
@@ -215,18 +219,28 @@ void MarketerManager::ResetMarketer()
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Marketer seller reset");
 }
 
-bool MarketerManager::UpdateMarketer(uint32 pmDiff)
+bool MarketerManager::UpdateMarketer()
 {
     if (!sMarketerConfig->enable)
     {
         return false;
     }
-    UpdateSeller(pmDiff);
-    UpdateBuyer(pmDiff);
+
+    uint32 realCurrTime = getMSTime();
+    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
+
+    if (diff < MARKETER_MANAGER_UPDATE_GAP)
+    {
+        return false;
+    }    
+
+    UpdateSeller(diff);
+    UpdateBuyer(diff);
+    realPrevTime = realCurrTime;
 }
 
 bool MarketerManager::UpdateSeller(uint32 pmDiff)
-{    
+{
     if (sellerCheckDelay > 0)
     {
         sellerCheckDelay -= pmDiff;
@@ -426,7 +440,7 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                                 auctionEntry->bid = 0;
                                 auctionEntry->deposit = dep;
                                 //auctionEntry->depositTime = time(NULL);
-                                auctionEntry->expire_time = (time_t)86400 + time(NULL);
+                                auctionEntry->expire_time = GameTime::GetGameTime() + 48 * HOUR;
                                 item->SaveToDB(trans);
                                 sAuctionMgr->AddAItem(item);
                                 aho->AddAuction(auctionEntry);

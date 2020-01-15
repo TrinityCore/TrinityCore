@@ -30,7 +30,9 @@
 #include "Script_Mage.h"
 #include "Script_Druid.h"
 
-RobotAI::RobotAI()
+#include "RobotConfig.h"
+
+RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace)
 {
     prevUpdate = time(NULL);
     sourcePlayer = NULL;
@@ -41,14 +43,18 @@ RobotAI::RobotAI()
     strategiesMap["group_normal"] = false;
     characterTalentTab = 0;
 
-    accountName = "";
+    targetLevel = pmTargetLevel;
+    targetClass = pmTargetClass;
+    targetRace = pmTargetRace;
+
+    std::ostringstream accountNameStream;
+    accountNameStream << sRobotConfig->robotAccountNamePrefix << "l" << std::to_string(targetLevel) << "r" << std::to_string(targetRace) << "c" << std::to_string(targetClass);
+    accountName = accountNameStream.str();
+
     accountID = 0;
     characterID = 0;
     characterType = 0;
-    targetLevel = 10;
-    targetRace = 0;
-    targetClass = 0;
-    
+
     checkDelay = urand(TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
     onlineDelay = 0;
     offlineDelay = 0;
@@ -62,7 +68,7 @@ RobotAI::RobotAI()
     st_Solo_Normal = new Strategy_Solo_Normal(this);
     st_Group_Normal = new Strategy_Group_Normal(this);
 
-    switch (sourcePlayer->GetClass())
+    switch (targetClass)
     {
     case Classes::CLASS_WARRIOR:
     {
@@ -110,8 +116,6 @@ RobotAI::RobotAI()
         break;
     }
     }
-
-    InitializeCharacter();
 }
 
 RobotAI::~RobotAI()
@@ -2073,9 +2077,8 @@ bool RobotAI::HandlePacket()
 {
     if (sourceSession)
     {
-        std::lock_guard<std::mutex> lock(robotPacketQueue_m);
-        WorldPacket const* destPacket = sourceSession->robotPacketQueue.front();
-        sourceSession->robotPacketQueue.pop();
+        WorldPacket const* destPacket = sourceSession->robotPacketVector.back();
+        sourceSession->robotPacketVector.pop_back();
         if (destPacket)
         {
             switch (destPacket->GetOpcode())
@@ -2323,6 +2326,13 @@ void RobotAI::Update(uint32 pmDiff)
                         }
                     }
                 }
+
+                // EJ debug
+                if (targetLevel == 22)
+                {
+                    levelPlayerOnline = true;
+                }
+
                 if (levelPlayerOnline)
                 {
                     onlineDelay = urand(5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
@@ -2400,6 +2410,7 @@ void RobotAI::Update(uint32 pmDiff)
         sourcePlayer = sRobotManager->CheckLogin(accountID, characterID);
         if (sourcePlayer)
         {
+            InitializeCharacter();
             robotState = RobotState::RobotState_Online;
             checkDelay = urand(TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
             allDelay = 0;
@@ -2505,6 +2516,13 @@ void RobotAI::Update(uint32 pmDiff)
                         }
                     }
                 }
+
+                // EJ debug
+                if (targetLevel == 22)
+                {
+                    levelPlayerOnline = true;
+                }
+
                 if (!levelPlayerOnline)
                 {
                     offlineDelay = urand(5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
@@ -2813,9 +2831,8 @@ bool RobotAI::UnequipItem(std::string pmEquipName)
 
 void RobotAI::HandleChatCommand()
 {
-    std::lock_guard<std::mutex> lock(robotChatCommandQueue_m);
-    const RobotChatCommand* destRCC = sourceSession->robotChatCommandQueue.front();
-    sourceSession->robotChatCommandQueue.pop();
+    const RobotChatCommand* destRCC = sourceSession->robotChatCommandVector.back();
+    sourceSession->robotChatCommandVector.pop_back();
 
     std::vector<std::string> commandVector = sRobotManager->SplitString(destRCC->chatCommandContent, " ", true);
     std::string commandName = commandVector.at(0);

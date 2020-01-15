@@ -290,10 +290,8 @@ class TC_GAME_API WorldSession
 
         // EJ robot
         bool isRobot;
-        std::queue<const WorldPacket*> robotPacketQueue;
-        std::queue<const RobotChatCommand*> robotChatCommandQueue;
-        std::mutex robotPacketQueue_m;
-        std::mutex robotChatCommandQueue_m;
+        std::vector<const WorldPacket*> robotPacketVector;
+        std::vector<const RobotChatCommand*> robotChatCommandVector;
             
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }

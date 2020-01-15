@@ -31,7 +31,7 @@ enum RobotState:uint32
 class RobotAI
 {
 public:
-	RobotAI();
+	RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace);
 	~RobotAI();
     void Update(uint32 pmDiff);
 	Item* GetItemInInventory(uint32 pmEntry);
