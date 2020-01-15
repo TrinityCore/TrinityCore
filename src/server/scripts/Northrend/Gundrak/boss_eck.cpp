@@ -65,9 +65,9 @@ class boss_eck : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_BITE, 5s);
                 events.ScheduleEvent(EVENT_SPIT, 10s);
                 events.ScheduleEvent(EVENT_SPRING, 8s);

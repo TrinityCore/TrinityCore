@@ -145,9 +145,9 @@ struct boss_the_beast : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         events.ScheduleEvent(EVENT_FLAME_BREAK, 12s);
         events.ScheduleEvent(EVENT_IMMOLATE, 3s);
         events.ScheduleEvent(EVENT_TERRIFYING_ROAR, 23s);

@@ -82,9 +82,9 @@ class boss_hakkar : public CreatureScript
                 _JustDied();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_BLOOD_SIPHON, 90s);
                 events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 25s);
                 events.ScheduleEvent(EVENT_CAUSE_INSANITY, 15s);
