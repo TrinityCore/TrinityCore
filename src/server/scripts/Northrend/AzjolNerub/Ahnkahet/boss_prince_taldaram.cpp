@@ -111,9 +111,9 @@ class boss_prince_taldaram : public CreatureScript
                     me->SummonCreatureGroup(SUMMON_GROUP_CONTROLLERS);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_BLOODTHIRST, 10s);
                 events.ScheduleEvent(EVENT_VANISH, 25s, 35s);

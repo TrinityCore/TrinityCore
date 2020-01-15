@@ -53,9 +53,9 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             events.ScheduleEvent(EVENT_SNAP_KICK, 8s);
             events.ScheduleEvent(EVENT_CLEAVE,   14 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_UPPERCUT, 20s);

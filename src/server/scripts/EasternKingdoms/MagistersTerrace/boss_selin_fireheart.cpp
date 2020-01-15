@@ -131,10 +131,10 @@ class boss_selin_fireheart : public CreatureScript
                     crystal->KillSelf();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 events.SetPhase(PHASE_NORMAL);
                 events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2100ms, 0, PHASE_NORMAL);

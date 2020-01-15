@@ -421,12 +421,12 @@ class boss_mimiron : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (!me->GetVehicleBase())
                     return;
 
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveAurasDueToSpell(SPELL_WELD);
                 DoCast(me->GetVehicleBase(), SPELL_SEAT_6);

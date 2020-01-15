@@ -237,9 +237,9 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 Talk(YELL_AGGRO);
             }

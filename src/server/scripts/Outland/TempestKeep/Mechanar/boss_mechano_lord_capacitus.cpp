@@ -81,9 +81,9 @@ class boss_mechano_lord_capacitus : public CreatureScript
         {
             boss_mechano_lord_capacitusAI(Creature* creature) : BossAI(creature, DATA_MECHANOLORD_CAPACITUS) { }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(YELL_AGGRO);
                 events.ScheduleEvent(EVENT_HEADCRACK, 10s);
                 events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 15s);
