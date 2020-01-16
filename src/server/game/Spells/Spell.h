@@ -100,6 +100,13 @@ enum SpellRangeFlag
     SPELL_RANGE_RANGED              = 2      //hunter range and ranged weapon
 };
 
+enum SpellFinishReason
+{
+    SPELL_FINISHED_SUCCESSFUL_CAST      = 0, // spell has sucessfully launched
+    SPELL_FINISHED_CANCELED             = 1, // spell has been canceled (interrupts)
+    SPELL_FINISHED_FINISHED             = 2  // spell has been finished (channeling finished)
+};
+
 struct TC_GAME_API SpellDestination
 {
     SpellDestination();

@@ -160,8 +160,11 @@ struct boss_high_priestess_kilnara : public BossAI
         }
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
+        if (reason != SPELL_FINISHED_SUCCESSFUL_CAST)
+            return;
+
         if (spell->Id == SPELL_CAMOUFLAGE)
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
     }

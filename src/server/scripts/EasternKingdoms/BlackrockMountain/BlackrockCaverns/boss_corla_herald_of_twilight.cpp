@@ -164,7 +164,7 @@ struct boss_corla_herald_of_twilight : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
     {
         if (spell->Id == SPELL_DARK_COMMAND)
             me->MakeInterruptable(false);
@@ -173,12 +173,6 @@ struct boss_corla_herald_of_twilight : public BossAI
     void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override
     {
         _killedZealots++;
-    }
-
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-    {
-        if (spell->Id == SPELL_DARK_COMMAND)
-            me->MakeInterruptable(false);
     }
 
     uint32 GetData(uint32 type) const override

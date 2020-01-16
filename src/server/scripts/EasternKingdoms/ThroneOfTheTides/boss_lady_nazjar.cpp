@@ -251,13 +251,7 @@ struct boss_lady_nazjar : public BossAI
         }
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-    {
-        if (spell->Id == SPELL_SHOCK_BLAST)
-            me->MakeInterruptable(false);
-    }
-
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
     {
         if (spell->Id == SPELL_SHOCK_BLAST)
             me->MakeInterruptable(false);
@@ -439,13 +433,7 @@ struct npc_nazjar_nazjar_tempest_witch : public ScriptedAI
         _events.ScheduleEvent(EVENT_LIGHTNING_SURGE, 14s, 16s);
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-    {
-        if (spell->Id == SPELL_CHAIN_LIGHTNING)
-            me->MakeInterruptable(false);
-    }
-
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
     {
         if (spell->Id == SPELL_CHAIN_LIGHTNING)
             me->MakeInterruptable(false);

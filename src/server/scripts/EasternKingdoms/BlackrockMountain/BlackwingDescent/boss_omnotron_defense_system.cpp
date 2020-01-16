@@ -942,16 +942,10 @@ struct npc_omnotron_arcanotron : public ScriptedAI
         }
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
     {
         if (spell->Id == SPELL_ARCANE_ANNIHILATION)
-            me->MakeInterruptable(true);
-    }
-
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
-    {
-        if (spell->Id == SPELL_ARCANE_ANNIHILATION)
-            me->MakeInterruptable(true);
+            me->MakeInterruptable(false);
     }
 
     void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override

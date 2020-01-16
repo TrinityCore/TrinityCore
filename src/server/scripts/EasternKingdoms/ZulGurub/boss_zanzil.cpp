@@ -218,25 +218,13 @@ struct boss_zanzil : public BossAI
         }
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-    {
-        switch (spell->Id)
-        {
-            case SPELL_ZANZILI_FIRE:
-                _zanzilPosition = me->GetPosition();
-                break;
-            default:
-                break;
-        }
-
-        if (spell->Id == SPELL_VOODOO_BOLT)
-            me->MakeInterruptable(false);
-    }
-
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
         if (spell->Id == SPELL_VOODOO_BOLT)
             me->MakeInterruptable(false);
+
+        if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && spell->Id == SPELL_ZANZILI_FIRE)
+            _zanzilPosition = me->GetPosition();
     }
 
     void DoAction(int32 action) override

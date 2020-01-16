@@ -3552,7 +3552,7 @@ void Spell::_cast(bool skipCheck)
     // Call CreatureAI hook OnSuccessfulSpellCast
     if (Creature* caster = m_originalCaster->ToCreature())
         if (caster->IsAIEnabled)
-            caster->AI()->OnSuccessfulSpellCast(GetSpellInfo());
+            caster->AI()->OnSpellCastFinished(GetSpellInfo(), SPELL_FINISHED_SUCCESSFUL_CAST);
 }
 
 void Spell::handle_immediate()
@@ -3843,6 +3843,10 @@ void Spell::update(uint32 difftime)
             {
                 SendChannelUpdate(0);
                 finish();
+
+                if (Creature* creatureCaster = m_caster->ToCreature())
+                    if (creatureCaster->IsAIEnabled)
+                        creatureCaster->AI()->OnSpellCastFinished(m_spellInfo, SPELL_FINISHED_FINISHED);
             }
             break;
         }

@@ -30,7 +30,6 @@ enum Spells
     SPELL_ASPHYXIATE                = 93423,
     SPELL_ASPHYXIATE_ROOT           = 93422,
     SPELL_ASPHYXIATE_DAMAGE         = 93424,
-    SPELL_PAIN_AND_SUFFERING        = 93581,
     SPELL_PAIN_AND_SUFFERING_DUMMY  = 93605,
     SPELL_WRACKING_PAIN             = 93720,
     SPELL_DARK_ARCHANGEL_FORM       = 93757,
@@ -38,6 +37,7 @@ enum Spells
 };
 
 #define SPELL_STAY_OF_EXECUTION RAID_MODE<uint32>(93468, 93705)
+#define SPELL_PAIN_AND_SUFFERING RAID_MODE<uint32>(93581, 93712)
 
 enum Texts
 {
@@ -57,9 +57,7 @@ enum Events
     EVENT_STAY_OF_EXECUTION,
     EVENT_PAIN_AND_SUFFERING,
     EVENT_WRACKING_PAIN,
-    EVENT_DARK_ARCHANGEL_FORM,
-    EVENT_DISABLE_ACHIEVEMENT,
-    EVENT_APPLY_INTERRUPT_IMMUNITY
+    EVENT_DARK_ARCHANGEL_FORM
 };
 
 enum AchievementData
@@ -77,7 +75,6 @@ struct boss_baron_ashbury : public BossAI
     void Initialize()
     {
         _phaseTwoTriggered = false;
-        _canAttack = true;
         _pardonDenied = true;
         me->MakeInterruptable(false);
     }
@@ -94,10 +91,8 @@ struct boss_baron_ashbury : public BossAI
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
-        events.ScheduleEvent(EVENT_ASPHYXIATE, 20s);
-        events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 5s + 500ms);
-        if (IsHeroic())
-            events.ScheduleEvent(EVENT_WRACKING_PAIN, 14s);
+        events.ScheduleEvent(EVENT_ASPHYXIATE, IsHeroic() ? 20s + 500ms : 15s + 500ms);
+        events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 6s);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -124,27 +119,29 @@ struct boss_baron_ashbury : public BossAI
             events.CancelEvent(EVENT_PAIN_AND_SUFFERING);
             events.CancelEvent(EVENT_ASPHYXIATE);
             events.CancelEvent(EVENT_STAY_OF_EXECUTION);
-            events.CancelEvent(EVENT_APPLY_INTERRUPT_IMMUNITY);
             events.ScheduleEvent(EVENT_DARK_ARCHANGEL_FORM, 1ms);
             _phaseTwoTriggered = true;
         }
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
+        if (spell->Id != SPELL_STAY_OF_EXECUTION && spell->Id != SPELL_PAIN_AND_SUFFERING)
+            return;
+
+        if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && (spell->Id != SPELL_STAY_OF_EXECUTION || IsHeroic()))
+            return;
+
         me->MakeInterruptable(false);
-        events.CancelEvent(EVENT_APPLY_INTERRUPT_IMMUNITY);
-
-        if (spell->Id == SPELL_STAY_OF_EXECUTION && IsHeroic())
-            events.CancelEvent(EVENT_DISABLE_ACHIEVEMENT);
-    }
-
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-    {
-        if (spell->Id == SPELL_STAY_OF_EXECUTION && !IsHeroic())
+        if (spell->Id == SPELL_STAY_OF_EXECUTION)
         {
-            me->MakeInterruptable(false);
-            events.CancelEvent(EVENT_APPLY_INTERRUPT_IMMUNITY);
+            // Failing achievement when Baron Ashbury finished channeling Stay of Execution
+            if (reason == SPELL_FINISHED_FINISHED && IsHeroic())
+                _pardonDenied = false;
+
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->resetAttackTimer();
+            events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 500ms);
         }
     }
 
@@ -175,39 +172,32 @@ struct boss_baron_ashbury : public BossAI
             switch (eventId)
             {
                 case EVENT_ASPHYXIATE:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    me->StopMoving();
                     Talk(SAY_ASPHYXIATE);
-                    DoCastAOE(SPELL_ASPHYXIATE);
+                    DoCastSelf(SPELL_ASPHYXIATE);
+                    events.CancelEvent(EVENT_PAIN_AND_SUFFERING);
                     events.ScheduleEvent(EVENT_STAY_OF_EXECUTION, 7s);
-                    events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 12s);
-                    if (IsHeroic())
-                        events.ScheduleEvent(EVENT_WRACKING_PAIN, 13s);
-                    events.Repeat(52s);
-                    _canAttack = false;
+                    events.Repeat(47s);
                     break;
                 case EVENT_STAY_OF_EXECUTION:
-                    me->StopMoving();
                     me->MakeInterruptable(true);
                     Talk(SAY_STAY_OF_EXECUTION);
                     Talk(SAY_ANNOUNCE_STAY_OF_EXECUTION);
-                    DoCastAOE(SPELL_STAY_OF_EXECUTION);
-                    _canAttack = true;
-                    if (IsHeroic())
-                    {
-                        events.ScheduleEvent(EVENT_DISABLE_ACHIEVEMENT, 8s);
-                        events.ScheduleEvent(EVENT_APPLY_INTERRUPT_IMMUNITY, 8s);
-                    }
+                    DoCastSelf(SPELL_STAY_OF_EXECUTION);
                     break;
                 case EVENT_PAIN_AND_SUFFERING:
                     me->MakeInterruptable(true);
-                    me->StopMoving();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    {
                         DoCast(target, SPELL_PAIN_AND_SUFFERING);
-                        events.ScheduleEvent(EVENT_APPLY_INTERRUPT_IMMUNITY, 6s);
-                    }
+
+                    if (IsHeroic() && events.GetTimeUntilEvent(EVENT_ASPHYXIATE) > 10 * IN_MILLISECONDS)
+                        events.ScheduleEvent(EVENT_WRACKING_PAIN, 8s + 100ms);
+                    events.Repeat(23s);
                     break;
                 case EVENT_WRACKING_PAIN:
-                    DoCastAOE(SPELL_WRACKING_PAIN, true);
+                    DoCastAOE(SPELL_WRACKING_PAIN);
                     break;
                 case EVENT_DARK_ARCHANGEL_FORM:
                     me->AttackStop();
@@ -216,22 +206,14 @@ struct boss_baron_ashbury : public BossAI
                     Talk(SAY_ARCHANGEL_FORM);
                     DoCastAOE(SPELL_DARK_ARCHANGEL_FORM);
                     break;
-                case EVENT_DISABLE_ACHIEVEMENT:
-                    _pardonDenied = false;
-                    break;
-                case EVENT_APPLY_INTERRUPT_IMMUNITY:
-                    me->MakeInterruptable(false);
-                    break;
                 default:
                     break;
             }
         }
-        if (_canAttack)
-            DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
     }
 private:
     bool _phaseTwoTriggered;
-    bool _canAttack;
     bool _pardonDenied;
 };
 

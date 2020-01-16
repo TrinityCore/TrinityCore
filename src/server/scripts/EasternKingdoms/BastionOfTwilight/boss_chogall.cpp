@@ -595,17 +595,12 @@ struct npc_chogall_corrupting_adherent : public ScriptedAI
         _events.ScheduleEvent(EVENT_DEPRAVITY, 8s, 9s);
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
     {
         if (spell->Id == SPELL_DEPRAVITY)
             me->MakeInterruptable(false);
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-    {
-        if (spell->Id == SPELL_DEPRAVITY)
-            me->MakeInterruptable(false);
-    }
 
     void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {

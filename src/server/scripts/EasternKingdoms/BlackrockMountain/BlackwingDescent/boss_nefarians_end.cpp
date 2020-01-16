@@ -545,8 +545,11 @@ struct boss_nefarians_end : public BossAI
         }
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
+        if (reason != SPELL_FINISHED_SUCCESSFUL_CAST)
+            return;
+
         switch (spell->Id)
         {
             case SPELL_BRUSHFIRE_START:
@@ -1014,7 +1017,7 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
             damage = me->GetHealth() - 1;
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
     {
         switch (spell->Id)
         {

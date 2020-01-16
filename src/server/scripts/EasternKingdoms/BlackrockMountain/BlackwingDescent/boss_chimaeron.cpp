@@ -249,8 +249,11 @@ struct boss_chimaeron : public BossAI
         }
     }
 
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
+        if (reason != SPELL_FINISHED_SUCCESSFUL_CAST)
+            return;
+
         switch (spell->Id)
         {
             case SPELL_MASSACRE:

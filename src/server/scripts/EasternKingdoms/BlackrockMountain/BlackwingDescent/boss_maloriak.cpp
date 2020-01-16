@@ -315,7 +315,7 @@ struct boss_maloriak : public BossAI
         }
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
         switch (spell->Id)
         {
@@ -325,19 +325,8 @@ struct boss_maloriak : public BossAI
                 break;
             case SPELL_RELEASE_ABERRATIONS:
                 me->MakeInterruptable(false);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-    {
-        switch (spell->Id)
-        {
-            case SPELL_RELEASE_ABERRATIONS:
-                Talk(SAY_RELEASE_ABERRATIONS);
-                me->MakeInterruptable(false);
+                if (reason == SPELL_FINISHED_SUCCESSFUL_CAST)
+                    Talk(SAY_RELEASE_ABERRATIONS);
                 break;
             default:
                 break;

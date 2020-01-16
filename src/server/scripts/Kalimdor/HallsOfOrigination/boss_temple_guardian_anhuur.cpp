@@ -138,8 +138,11 @@ struct boss_temple_guardian_anhuur : public BossAI
         _DespawnAtEvade();
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
+        if (reason != SPELL_FINISHED_CANCELED)
+            return;
+
         me->MakeInterruptable(false);
 
         if (spell->Id == SPELL_REVERBERATING_HYMN)

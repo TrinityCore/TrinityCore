@@ -65,7 +65,6 @@ enum Events
     EVENT_BLESSING_OF_THE_SUN,
     EVENT_TALK_BLESSING,
     EVENT_REENGAGE,
-    EVENT_APPLY_INTERRUPT_IMMUNITY,
 
     // Solar Winds
     EVENT_GROW,
@@ -146,13 +145,10 @@ struct boss_rajh : public BossAI
         _DespawnAtEvade();
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
     {
         if (spell->Id == SPELL_SUMMON_SUN_ORB || spell->Id == SPELL_INFERNO_LEAP_VEHICLE)
-        {
             me->MakeInterruptable(false);
-            events.CancelEvent(EVENT_APPLY_INTERRUPT_IMMUNITY);
-        }
     }
 
     uint32 GetData(uint32 type) const override
@@ -222,7 +218,6 @@ struct boss_rajh : public BossAI
                     me->StopMoving();
                     me->MakeInterruptable(true);
                     DoCastSelf(SPELL_SUMMON_SUN_ORB);
-                    events.ScheduleEvent(EVENT_APPLY_INTERRUPT_IMMUNITY, 3s);
                     events.Repeat(_randomTimerCase == 0 ? 35s, 36s : 31s, 37s);
                     break;
                 case EVENT_SUN_STRIKE:
@@ -264,11 +259,7 @@ struct boss_rajh : public BossAI
                     break;
                 case EVENT_INFERNO_LEAP_CAST:
                     me->MakeInterruptable(true);
-                    events.ScheduleEvent(EVENT_APPLY_INTERRUPT_IMMUNITY, 1s + 500ms);
                     DoCastAOE(SPELL_INFERNO_LEAP_VEHICLE);
-                    break;
-                case EVENT_APPLY_INTERRUPT_IMMUNITY:
-                    me->MakeInterruptable(false);
                     break;
                 default:
                     break;

@@ -522,6 +522,10 @@ void Unit::Update(uint32 p_time)
     UpdateSplineMovement(p_time);
     i_motionMaster->UpdateMotion(p_time);
 
+    // Wait with the cleanup until we have updated our movement generators and position
+    if (!movespline->Finalized() || isMoving() || isTurning())
+        InterruptMovementBasedAuras();
+
     // Update serverside orientation of channeled spells that are suposed to track the channel target
     if (Spell const* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if (spell->GetSpellInfo()->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET))
@@ -594,6 +598,16 @@ void Unit::UpdateSplinePosition()
         loc.orientation = GetOrientation();
 
     UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
+}
+
+void Unit::InterruptMovementBasedAuras()
+{
+    // TODO: Check if orientation transport offset changed instead of only global orientation
+    if (m_positionUpdateInfo.Turned)
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+
+    if (m_positionUpdateInfo.Relocated && !GetVehicle())
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
 }
 
 void Unit::DisableSpline()
@@ -3139,7 +3153,7 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
             spell->cancel();
 
         if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
-            ToCreature()->AI()->OnSpellCastInterrupt(spell->GetSpellInfo());
+            ToCreature()->AI()->OnSpellCastFinished(spell->GetSpellInfo(), SPELL_FINISHED_CANCELED);
 
         spell->SetReferencedFromCurrent(false);
     }
@@ -13861,15 +13875,8 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
         std::fabs(GetPositionY() - y) > 0.001f ||
         std::fabs(GetPositionZ() - z) > 0.001f);
 
-    // TODO: Check if orientation transport offset changed instead of only global orientation
-    if (turn)
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
-
     if (relocated)
     {
-        if (!GetVehicle())
-            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
-
         // move and update visible state if need
         if (GetTypeId() == TYPEID_PLAYER)
             GetMap()->PlayerRelocation(ToPlayer(), x, y, z, orientation);
@@ -13880,6 +13887,9 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
         UpdateOrientation(orientation);
 
     UpdatePositionData();
+
+    m_positionUpdateInfo.Relocated = relocated;
+    m_positionUpdateInfo.Turned = turn;
 
     return (relocated || turn);
 }

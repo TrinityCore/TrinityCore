@@ -1988,10 +1988,18 @@ class TC_GAME_API Unit : public WorldObject
 
         void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
         virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
+
+        void InterruptMovementBasedAuras();
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
+
+        struct
+        {
+            bool Relocated = false;
+            bool Turned = false;
+        } m_positionUpdateInfo;
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;

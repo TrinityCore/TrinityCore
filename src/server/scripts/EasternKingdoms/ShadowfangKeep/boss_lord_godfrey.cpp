@@ -85,7 +85,7 @@ struct boss_lord_godfrey : public BossAI
     void Reset() override
     {
         _Reset();
-        MakeInterruptable(false);
+        me->MakeInterruptable(false);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -166,32 +166,13 @@ struct boss_lord_godfrey : public BossAI
         _DespawnAtEvade();
     }
 
-    void MakeInterruptable(bool apply)
-    {
-        me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, !apply);
-        me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
-    }
-
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
     {
         switch (spell->Id)
         {
             case SPELL_CURSED_BULLETS:
             case SPELL_CURSED_BULLETS_HC:
-                MakeInterruptable(false);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void OnSuccessfulSpellCast(SpellInfo const* spell) override
-    {
-        switch (spell->Id)
-        {
-            case SPELL_CURSED_BULLETS:
-            case SPELL_CURSED_BULLETS_HC:
-                MakeInterruptable(false);
+                me->MakeInterruptable(false);
                 break;
             default:
                 break;
@@ -213,7 +194,7 @@ struct boss_lord_godfrey : public BossAI
             switch (eventId)
             {
                 case EVENT_CURSED_BULLETS:
-                    MakeInterruptable(true);
+                    me->MakeInterruptable(true);
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         DoCast(target, SPELL_CURSED_BULLETS);
                     events.Repeat(12s);

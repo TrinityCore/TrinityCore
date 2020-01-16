@@ -616,13 +616,7 @@ class npc_feludius : public CreatureScript
                 }
             }
 
-            void OnSuccessfulSpellCast(SpellInfo const* spell) override
-            {
-                if (spell->Id == SPELL_HYDRO_LANCE)
-                    me->MakeInterruptable(false);
-            }
-
-            void OnSpellCastInterrupt(SpellInfo const* spell) override
+            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
             {
                 if (spell->Id == SPELL_HYDRO_LANCE)
                     me->MakeInterruptable(false);
@@ -773,7 +767,7 @@ class npc_ignacious : public CreatureScript
                     Talk(SAY_ABILITY);
             }
 
-            void OnSpellCastInterrupt(SpellInfo const* spell) override
+            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
             {
                 if (spell->Id == SPELL_RISING_FLAMES)
                     me->MakeInterruptable(false);
@@ -1048,13 +1042,7 @@ class npc_arion : public CreatureScript
                 }
             }
 
-            void OnSuccessfulSpellCast(SpellInfo const* spell) override
-            {
-                if (spell->Id == SPELL_LIGHTNING_BLAST)
-                    me->MakeInterruptable(false);
-            }
-
-            void OnSpellCastInterrupt(SpellInfo const* spell) override
+            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
             {
                 if (spell->Id == SPELL_LIGHTNING_BLAST)
                     me->MakeInterruptable(false);

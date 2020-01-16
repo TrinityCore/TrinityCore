@@ -86,7 +86,6 @@ enum Events
     EVENT_SUMMON_FOLLOWERS,
     EVENT_GRAVITY_WELL_AURA_DAMAGE,
     EVENT_GRAVITY_WELL_AURA_PULL,
-    EVENT_APPLY_IMMUNITY,
     EVENT_EARTH_FURY_FLY_UP,
     EVENT_EARTH_FURY_FLY_ABOVE_PLATFORM,
     EVENT_EARTH_FURY_PREPARE_SHARD,
@@ -198,13 +197,12 @@ class boss_high_priestess_azil : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, !apply);
             }
 
-            void OnSpellCastInterrupt(SpellInfo const* spell) override
+            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
             {
                 if (spell->Id == SPELL_FORCE_GRIP)
                 {
                     MakeInterruptable(false);
                     SetVehicleId(VEHICLE_ID_DEFAULT);
-                    events.CancelEvent(EVENT_APPLY_IMMUNITY);
                     _isChannelingForceGrip = false;
                 }
             }
@@ -295,7 +293,6 @@ class boss_high_priestess_azil : public CreatureScript
                             MakeInterruptable(true);
                             SetVehicleId(VEHICLE_ID_FORCE_GRIP);
                             DoCastVictim(SPELL_FORCE_GRIP);
-                            events.ScheduleEvent(EVENT_APPLY_IMMUNITY, 6s + 500ms, 0, PHASE_ONE);
                             events.Repeat(13s, 15s);
                             break;
                         case EVENT_FORCE_GRIP_SMASH:
@@ -378,11 +375,6 @@ class boss_high_priestess_azil : public CreatureScript
                                     events.Repeat(10s, 13s);
                                 }
                             }
-                            break;
-                        case EVENT_APPLY_IMMUNITY:
-                            MakeInterruptable(false);
-                            _isChannelingForceGrip = false;
-                            SetVehicleId(VEHICLE_ID_DEFAULT);
                             break;
                         default:
                             break;
