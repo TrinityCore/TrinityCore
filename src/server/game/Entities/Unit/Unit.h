@@ -1763,7 +1763,7 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
 
-         void InterruptMovementBasedAuras();
+        void InterruptMovementBasedAuras();
 
         struct
         {
