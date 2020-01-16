@@ -91,7 +91,7 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     {
         return;
     }
-    if (soloDuration > 1800)
+    if (soloDuration > TimeConstants::HOUR*TimeConstants::IN_MILLISECONDS)
     {
         soloDuration = 0;
         sourceAI->Refresh();
@@ -182,7 +182,7 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
         else
         {
             // check again
-            if (restDelay < 28)
+            if (restDelay < 20 * TimeConstants::IN_MILLISECONDS)
             {
                 if (!eating)
                 {
@@ -308,7 +308,7 @@ bool Strategy_Solo_Normal::Eat()
             if (sourceAI->UseItem(pFood, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 30;
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
                 eating = true;
                 return true;
             }
@@ -381,7 +381,7 @@ bool Strategy_Solo_Normal::Drink()
             if (sourceAI->UseItem(pDrink, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 30;
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
                 drinking = true;
                 return true;
             }
@@ -534,7 +534,7 @@ bool Strategy_Solo_Normal::Wait()
     Player* me = sourceAI->sourcePlayer;
     me->GetMotionMaster()->Clear();
     me->StopMoving();
-    waitDelay = 5;
+    waitDelay = 5 * TimeConstants::IN_MILLISECONDS;
     instruction = Solo_Instruction::Solo_Instruction_Wait;
 
     return true;
@@ -548,7 +548,7 @@ bool Strategy_Solo_Normal::Stroll()
     float destZ = 0;
     Position rdp = me->GetRandomPoint(me->GetPosition(), DEFAULT_VISIBILITY_DISTANCE);
     me->GetMotionMaster()->MovePoint(0, rdp);
-    strollDelay = 5;
+    strollDelay = 5 * TimeConstants::IN_MILLISECONDS;
     instruction = Solo_Instruction::Solo_Instruction_Stroll;
     return true;
 }
@@ -558,7 +558,7 @@ bool Strategy_Solo_Normal::Confuse()
     Player* me = sourceAI->sourcePlayer;
     me->SetStandState(UNIT_STAND_STATE_STAND);
     me->GetMotionMaster()->MoveConfused();
-    confuseDelay = 5;
+    confuseDelay = 5 * TimeConstants::IN_MILLISECONDS;
     instruction = Solo_Instruction::Solo_Instruction_Confuse;
     return true;
 }

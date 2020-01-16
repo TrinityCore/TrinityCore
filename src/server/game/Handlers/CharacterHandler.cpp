@@ -683,6 +683,27 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     SendCharDelete(CHAR_DELETE_SUCCESS);
 }
 
+// EJ robot 
+void WorldSession::HandlePlayerLogin_Simple(ObjectGuid pmPlayerGUID)
+{
+    if (PlayerLoading() || GetPlayer() != nullptr)
+    {
+        TC_LOG_ERROR("network", "Player tries to login again, AccountId = %d", GetAccountId());
+        KickPlayer();
+        return;
+    }
+    m_playerLoading = true;
+    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), pmPlayerGUID);
+    if (!holder->Initialize())
+    {
+        delete holder;                                      // delete all unprocessed queries
+        m_playerLoading = false;
+        return;
+    }
+
+    _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
+}
+
 void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 {
     if (PlayerLoading() || GetPlayer() != nullptr)

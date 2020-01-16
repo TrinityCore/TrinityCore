@@ -171,6 +171,7 @@ void RobotAI::InitializeCharacter()
     if (sourcePlayer->GetLevel() != targetLevel)
     {
         initialEquip = true;
+        sourcePlayer->GiveLevel(targetLevel);
         sourcePlayer->LearnDefaultSkills();
         for (std::set<uint32>::iterator questIT = sRobotManager->spellRewardClassQuestIDSet.begin(); questIT != sRobotManager->spellRewardClassQuestIDSet.end(); questIT++)
         {
@@ -2077,201 +2078,203 @@ bool RobotAI::HandlePacket()
 {
     if (sourceSession)
     {
-        WorldPacket const* destPacket = sourceSession->robotPacketVector.back();
-        sourceSession->robotPacketVector.pop_back();
-        if (destPacket)
+        for (std::set<const WorldPacket*>::iterator wpIT = sourceSession->robotPacketSet.begin(); wpIT != sourceSession->robotPacketSet.end(); wpIT++)
         {
-            switch (destPacket->GetOpcode())
+            const WorldPacket* destPacket = *wpIT;
+
+            if (destPacket)
             {
-            case SMSG_SPELL_FAILURE:
-            {
-                break;
-            }
-            case SMSG_SPELL_DELAYED:
-            {
-                break;
-            }
-            case SMSG_GROUP_INVITE:
-            {
-                Group* grp = sourcePlayer->GetGroupInvite();
-                if (!grp)
+                switch (destPacket->GetOpcode())
+                {
+                case SMSG_SPELL_FAILURE:
                 {
                     break;
                 }
-                Player* inviter = ObjectAccessor::FindPlayer(grp->GetLeaderGUID());
-                if (!inviter)
+                case SMSG_SPELL_DELAYED:
                 {
                     break;
                 }
-                bool acceptInvite = true;
-                if (inviter->GetLevel() < sourcePlayer->GetLevel())
+                case SMSG_GROUP_INVITE:
                 {
-                    uint32 lowGUID = inviter->GetGUID().GetCounter();
-                    if (interestMap.find(lowGUID) == interestMap.end())
+                    Group* grp = sourcePlayer->GetGroupInvite();
+                    if (!grp)
                     {
-                        uint8 levelGap = sourcePlayer->GetLevel() - inviter->GetLevel();
-                        if (urand(0, levelGap) > 0)
+                        break;
+                    }
+                    Player* inviter = ObjectAccessor::FindPlayer(grp->GetLeaderGUID());
+                    if (!inviter)
+                    {
+                        break;
+                    }
+                    bool acceptInvite = true;
+                    if (inviter->GetLevel() < sourcePlayer->GetLevel())
+                    {
+                        uint32 lowGUID = inviter->GetGUID().GetCounter();
+                        if (interestMap.find(lowGUID) == interestMap.end())
                         {
-                            acceptInvite = false;
+                            uint8 levelGap = sourcePlayer->GetLevel() - inviter->GetLevel();
+                            if (urand(0, levelGap) > 0)
+                            {
+                                acceptInvite = false;
+                            }
+                            interestMap[lowGUID] = acceptInvite;
                         }
-                        interestMap[lowGUID] = acceptInvite;
+                        else
+                        {
+                            acceptInvite = interestMap[lowGUID];
+                        }
+                        if (st_Solo_Normal->interestsDelay <= 0)
+                        {
+                            st_Solo_Normal->interestsDelay = 300 * TimeConstants::IN_MILLISECONDS;
+                        }
+                    }
+                    if (acceptInvite)
+                    {
+                        WorldPacket p;
+                        uint32 roles_mask = 0;
+                        p << roles_mask;
+                        sourcePlayer->GetSession()->HandleGroupAcceptOpcode(p);
+                        SetStrategy("solo_normal", false);
+                        SetStrategy("group_normal", true);
+                        WhisperTo("Strategy set to group", Language::LANG_UNIVERSAL, inviter);
+                        masterPlayer = inviter;
+                        WhisperTo("You are my master", Language::LANG_UNIVERSAL, inviter);
+                        std::ostringstream replyStream_Talent;
+                        replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[sourcePlayer->GetClass()][characterTalentTab];
+                        WhisperTo(replyStream_Talent.str(), Language::LANG_UNIVERSAL, inviter);
+                        std::ostringstream replyStream_GroupRole;
+                        replyStream_GroupRole << "My group role is ";
+                        switch (sourcePlayer->groupRole)
+                        {
+                        case 0:
+                        {
+                            replyStream_GroupRole << "dps";
+                            break;
+                        }
+                        case 1:
+                        {
+                            replyStream_GroupRole << "tank";
+                            break;
+                        }
+                        case 2:
+                        {
+                            replyStream_GroupRole << "healer";
+                            break;
+                        }
+                        default:
+                        {
+                            replyStream_GroupRole << "dps";
+                            break;
+                        }
+                        }
+                        WhisperTo(replyStream_GroupRole.str(), Language::LANG_UNIVERSAL, inviter);
+                        sourcePlayer->GetMotionMaster()->Clear();
+                        break;
                     }
                     else
                     {
-                        acceptInvite = interestMap[lowGUID];
-                    }
-                    if (st_Solo_Normal->interestsDelay <= 0)
-                    {
-                        st_Solo_Normal->interestsDelay = 300;
+                        WorldPacket p;
+                        sourcePlayer->GetSession()->HandleGroupDeclineOpcode(p);
+                        std::ostringstream timeLeftStream;
+                        timeLeftStream << "Not interested. I will reconsider in " << st_Solo_Normal->interestsDelay << " seconds";
+                        WhisperTo(timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
+                        break;
                     }
                 }
-                if (acceptInvite)
+                case SMSG_GROUP_UNINVITE:
                 {
-                    WorldPacket p;
-                    uint32 roles_mask = 0;
-                    p << roles_mask;
-                    sourcePlayer->GetSession()->HandleGroupAcceptOpcode(p);
-                    SetStrategy("solo_normal", false);
-                    SetStrategy("group_normal", true);
-                    WhisperTo("Strategy set to group", Language::LANG_UNIVERSAL, inviter);
-                    masterPlayer = inviter;
-                    WhisperTo("You are my master", Language::LANG_UNIVERSAL, inviter);
-                    std::ostringstream replyStream_Talent;
-                    replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[sourcePlayer->GetClass()][characterTalentTab];
-                    WhisperTo(replyStream_Talent.str(), Language::LANG_UNIVERSAL, inviter);
-                    std::ostringstream replyStream_GroupRole;
-                    replyStream_GroupRole << "My group role is ";
-                    switch (sourcePlayer->groupRole)
-                    {
-                    case 0:
-                    {
-                        replyStream_GroupRole << "dps";
-                        break;
-                    }
-                    case 1:
-                    {
-                        replyStream_GroupRole << "tank";
-                        break;
-                    }
-                    case 2:
-                    {
-                        replyStream_GroupRole << "healer";
-                        break;
-                    }
-                    default:
-                    {
-                        replyStream_GroupRole << "dps";
-                        break;
-                    }
-                    }
-                    WhisperTo(replyStream_GroupRole.str(), Language::LANG_UNIVERSAL, inviter);
-                    sourcePlayer->GetMotionMaster()->Clear();
+                    //masterPlayer = NULL;
+                    //ResetStrategy();
+                    //sourcePlayer->Say("Strategy set to solo", Language::LANG_UNIVERSAL);
+                    //sRobotManager->RefreshRobot(sourcePlayer);
                     break;
                 }
-                else
-                {
-                    WorldPacket p;
-                    sourcePlayer->GetSession()->HandleGroupDeclineOpcode(p);
-                    std::ostringstream timeLeftStream;
-                    timeLeftStream << "Not interested. I will reconsider in " << st_Solo_Normal->interestsDelay << " seconds";
-                    WhisperTo(timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
-                    break;
-                }
-            }
-            case SMSG_GROUP_UNINVITE:
-            {
-                //masterPlayer = NULL;
-                //ResetStrategy();
-                //sourcePlayer->Say("Strategy set to solo", Language::LANG_UNIVERSAL);
-                //sRobotManager->RefreshRobot(sourcePlayer);
-                break;
-            }
-            case BUY_ERR_NOT_ENOUGHT_MONEY:
-            {
-                break;
-            }
-            case BUY_ERR_REPUTATION_REQUIRE:
-            {
-                break;
-            }
-            case SMSG_GROUP_SET_LEADER:
-            {
-                //std::string leaderName = "";
-                //pmPacket >> leaderName;
-                //Player* newLeader = ObjectAccessor::FindPlayerByName(leaderName);
-                //if (newLeader)
-                //{
-                //    if (newLeader->GetGUID() == sourcePlayer->GetGUID())
-                //    {
-                //        WorldPacket data(CMSG_GROUP_SET_LEADER, 8);
-                //        data << masterPlayer->GetGUID().WriteAsPacked();
-                //        sourcePlayer->GetSession()->HandleGroupSetLeaderOpcode(data);
-                //    }
-                //    else
-                //    {
-                //        if (!newLeader->isRobot)
-                //        {
-                //            masterPlayer = newLeader;
-                //        }
-                //    }
-                //}
-                break;
-            }
-            case SMSG_FORCE_RUN_SPEED_CHANGE:
-            {
-                break;
-            }
-            case SMSG_RESURRECT_REQUEST:
-            {
-                if (!sourcePlayer->IsAlive())
-                {
-                    st_Solo_Normal->deathDuration = 0;
-                }
-                sourcePlayer->ResurrectUsingRequestData();
-                break;
-            }
-            case SMSG_INVENTORY_CHANGE_FAILURE:
-            {
-                break;
-            }
-            case SMSG_TRADE_STATUS:
-            {
-                break;
-            }
-            case SMSG_LOOT_RESPONSE:
-            {
-                break;
-            }
-            case SMSG_QUESTUPDATE_ADD_KILL:
-            {
-                break;
-            }
-            case SMSG_ITEM_PUSH_RESULT:
-            {
-                break;
-            }
-            case SMSG_PARTY_COMMAND_RESULT:
-            {
-                break;
-            }
-            case SMSG_DUEL_REQUESTED:
-            {
-                if (!sourcePlayer->duel)
+                case BUY_ERR_NOT_ENOUGHT_MONEY:
                 {
                     break;
                 }
-                sourcePlayer->DuelComplete(DuelCompleteType::DUEL_INTERRUPTED);
-                WhisperTo("Not interested", Language::LANG_UNIVERSAL, sourcePlayer->duel->Opponent);
-                break;
+                case BUY_ERR_REPUTATION_REQUIRE:
+                {
+                    break;
+                }
+                case SMSG_GROUP_SET_LEADER:
+                {
+                    //std::string leaderName = "";
+                    //pmPacket >> leaderName;
+                    //Player* newLeader = ObjectAccessor::FindPlayerByName(leaderName);
+                    //if (newLeader)
+                    //{
+                    //    if (newLeader->GetGUID() == sourcePlayer->GetGUID())
+                    //    {
+                    //        WorldPacket data(CMSG_GROUP_SET_LEADER, 8);
+                    //        data << masterPlayer->GetGUID().WriteAsPacked();
+                    //        sourcePlayer->GetSession()->HandleGroupSetLeaderOpcode(data);
+                    //    }
+                    //    else
+                    //    {
+                    //        if (!newLeader->isRobot)
+                    //        {
+                    //            masterPlayer = newLeader;
+                    //        }
+                    //    }
+                    //}
+                    break;
+                }
+                case SMSG_FORCE_RUN_SPEED_CHANGE:
+                {
+                    break;
+                }
+                case SMSG_RESURRECT_REQUEST:
+                {
+                    if (!sourcePlayer->IsAlive())
+                    {
+                        st_Solo_Normal->deathDuration = 0;
+                    }
+                    sourcePlayer->ResurrectUsingRequestData();
+                    break;
+                }
+                case SMSG_INVENTORY_CHANGE_FAILURE:
+                {
+                    break;
+                }
+                case SMSG_TRADE_STATUS:
+                {
+                    break;
+                }
+                case SMSG_LOOT_RESPONSE:
+                {
+                    break;
+                }
+                case SMSG_QUESTUPDATE_ADD_KILL:
+                {
+                    break;
+                }
+                case SMSG_ITEM_PUSH_RESULT:
+                {
+                    break;
+                }
+                case SMSG_PARTY_COMMAND_RESULT:
+                {
+                    break;
+                }
+                case SMSG_DUEL_REQUESTED:
+                {
+                    if (!sourcePlayer->duel)
+                    {
+                        break;
+                    }
+                    sourcePlayer->DuelComplete(DuelCompleteType::DUEL_INTERRUPTED);
+                    WhisperTo("Not interested", Language::LANG_UNIVERSAL, sourcePlayer->duel->Opponent);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
             }
-            default:
-            {
-                break;
-            }
-            }
-
-            return true;
         }
+        sourceSession->robotPacketSet.clear();
     }
     return false;
 }
@@ -2410,6 +2413,7 @@ void RobotAI::Update(uint32 pmDiff)
         sourcePlayer = sRobotManager->CheckLogin(accountID, characterID);
         if (sourcePlayer)
         {
+            sourceSession = sourcePlayer->GetSession();
             InitializeCharacter();
             robotState = RobotState::RobotState_Online;
             checkDelay = urand(TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
@@ -2428,24 +2432,15 @@ void RobotAI::Update(uint32 pmDiff)
         if (allDelay <= 0)
         {
             allDelay = 0;
-            if (sRobotManager->LoginRobot(accountID, characterID))
-            {
-                robotState = RobotState::RobotState_CheckLogin;
-                allDelay = 10 * TimeConstants::IN_MILLISECONDS;
-            }
-            else
-            {
-                allDelay = 10 * TimeConstants::MINUTE* TimeConstants::IN_MILLISECONDS;
-            }
+            sRobotManager->LoginRobot(accountID, characterID);
+            robotState = RobotState::RobotState_CheckLogin;
+            allDelay = 10 * TimeConstants::IN_MILLISECONDS;
         }
         break;
     }
     case RobotState_Online:
     {
-        if (HandlePacket())
-        {
-            break;
-        }
+        HandlePacket();
         if (sourcePlayer)
         {
             if (sourcePlayer->IsBeingTeleportedNear())
@@ -2636,7 +2631,7 @@ bool RobotAI::EquipNewItem(uint32 pmEntry)
         InventoryResult storeResult = sourcePlayer->CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, pmEntry, 1);
         if (storeResult == EQUIP_ERR_OK)
         {
-            Item* pItem = sourcePlayer->StoreNewItem(sDest, pmEntry, true, pItem->GetItemRandomPropertyId());
+            Item* pItem = sourcePlayer->StoreNewItem(sDest, pmEntry, true, GenerateItemRandomPropertyId(pmEntry));
             if (pItem)
             {
                 InventoryResult equipResult = sourcePlayer->CanEquipItem(NULL_SLOT, eDest, pItem, false);
@@ -2667,7 +2662,7 @@ bool RobotAI::EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot)
         InventoryResult storeResult = sourcePlayer->CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, pmEntry, 1);
         if (storeResult == EQUIP_ERR_OK)
         {
-            Item* pItem = sourcePlayer->StoreNewItem(sDest, pmEntry, true, pItem->GetItemRandomPropertyId());
+            Item* pItem = sourcePlayer->StoreNewItem(sDest, pmEntry, true, GenerateItemRandomPropertyId(pmEntry));
             if (pItem)
             {
                 InventoryResult equipResult = sourcePlayer->CanEquipItem(NULL_SLOT, eDest, pItem, false);
@@ -2831,601 +2826,607 @@ bool RobotAI::UnequipItem(std::string pmEquipName)
 
 void RobotAI::HandleChatCommand()
 {
-    const RobotChatCommand* destRCC = sourceSession->robotChatCommandVector.back();
-    sourceSession->robotChatCommandVector.pop_back();
+    if (sourceSession)
+    {
+        for (std::set<const RobotChatCommand*>::iterator rccIT = sourceSession->robotChatCommandSet.begin(); rccIT != sourceSession->robotChatCommandSet.end(); rccIT++)
+        {
+            const RobotChatCommand* destRCC = *rccIT;
 
-    std::vector<std::string> commandVector = sRobotManager->SplitString(destRCC->chatCommandContent, " ", true);
-    std::string commandName = commandVector.at(0);
-    if (commandName == "role")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-
-        std::ostringstream replyStream;
-        if (commandVector.size() > 1)
-        {
-            std::string newRole = commandVector.at(1);
-            if (newRole == "dps")
+            std::vector<std::string> commandVector = sRobotManager->SplitString(destRCC->chatCommandContent, " ", true);
+            std::string commandName = commandVector.at(0);
+            if (commandName == "role")
             {
-                sourcePlayer->groupRole = 0;
-            }
-            else if (newRole == "tank")
-            {
-                sourcePlayer->groupRole = 1;
-            }
-            else if (newRole == "healer")
-            {
-                sourcePlayer->groupRole = 2;
-            }
-        }
-
-        replyStream << "My group role is ";
-        switch (sourcePlayer->groupRole)
-        {
-        case 0:
-        {
-            replyStream << "dps";
-            break;
-        }
-        case 1:
-        {
-            replyStream << "tank";
-            break;
-        }
-        case 2:
-        {
-            replyStream << "healer";
-            break;
-        }
-        default:
-        {
-            replyStream << "dps";
-            break;
-        }
-        }
-        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, destRCC->sender);
-    }
-    else if (commandName == "follow")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (st_Group_Normal->Follow())
-        {
-            st_Group_Normal->staying = false;
-            WhisperTo("Following", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-        else
-        {
-            WhisperTo("I will not follow you", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-    }
-    else if (commandName == "stay")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (st_Group_Normal->Stay())
-        {
-            st_Group_Normal->staying = true;
-            WhisperTo("Staying", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-        else
-        {
-            WhisperTo("I will not stay", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-    }
-    else if (commandName == "attack")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        Unit* senderTarget = destRCC->sender->GetSelectedUnit();
-        if (st_Group_Normal->Attack(senderTarget))
-        {
-            st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
-            st_Group_Normal->staying = false;
-            sourcePlayer->SetSelection(senderTarget->GetGUID());
-            WhisperTo("Attack your target", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-        else
-        {
-            WhisperTo("Can not attack your target", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-    }
-    else if (commandName == "rest")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (st_Group_Normal->Rest(true))
-        {
-            st_Group_Normal->staying = false;
-            WhisperTo("Resting", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-        else
-        {
-            WhisperTo("Do not rest", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-    }
-    else if (commandName == "eat")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (st_Group_Normal->Eat(true))
-        {
-            st_Group_Normal->staying = false;
-            WhisperTo("Eating", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-        else
-        {
-            WhisperTo("Do not eat", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-    }
-    else if (commandName == "drink")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (st_Group_Normal->Drink(true))
-        {
-            st_Group_Normal->staying = false;
-            WhisperTo("Drinking", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-        else
-        {
-            WhisperTo("Do not drink", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-    }
-    else if (commandName == "who")
-    {
-        WhisperTo(sRobotManager->characterTalentTabNameMap[sourcePlayer->GetClass()][characterTalentTab], Language::LANG_UNIVERSAL, destRCC->sender);
-    }
-    else if (commandName == "assemble")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (st_Group_Normal->assembleDelay > 0)
-        {
-            WhisperTo("I am coming", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (sourcePlayer->IsAlive())
-        {
-            if (sourcePlayer->GetDistance(destRCC->sender) < 40)
-            {
-                st_Group_Normal->assembleDelay = 5;
-                WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, destRCC->sender);
-            }
-            else
-            {
-                st_Group_Normal->assembleDelay = 30;
-                WhisperTo("I will come to you in 30 seconds", Language::LANG_UNIVERSAL, destRCC->sender);
-            }
-        }
-        else
-        {
-            st_Group_Normal->assembleDelay = 60;
-            WhisperTo("I will revive and come to you in 60 seconds", Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-    }
-    else if (commandName == "tank")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (sourcePlayer->groupRole == 1)
-        {
-            Unit* senderTarget = destRCC->sender->GetSelectedUnit();
-            if (st_Group_Normal->Tank(senderTarget))
-            {
-                st_Group_Normal->staying = false;
-                st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
-                sourcePlayer->SetSelection(senderTarget->GetGUID());
-                WhisperTo("Tank your target", Language::LANG_UNIVERSAL, destRCC->sender);
-            }
-            else
-            {
-                WhisperTo("Can not tank your target", Language::LANG_UNIVERSAL, destRCC->sender);
-            }
-        }
-    }
-    else if (commandName == "prepare")
-    {
-        Prepare();
-        sourcePlayer->Say("I am prepared", Language::LANG_UNIVERSAL);
-    }
-    else if (commandName == "growl")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (commandVector.size() > 1)
-        {
-            if (sourcePlayer->GetClass() != Classes::CLASS_HUNTER)
-            {
-                WhisperTo("I am not hunter", Language::LANG_UNIVERSAL, destRCC->sender);
-                return;
-            }
-            std::string growlState = commandVector.at(1);
-            if (growlState == "on")
-            {
-                Pet* checkPet = sourcePlayer->GetPet();
-                if (!checkPet)
+                if (!masterPlayer)
                 {
-                    WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, destRCC->sender);
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
                     return;
                 }
-                std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
-                for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
                 {
-                    if (it->second.active == ACT_DISABLED)
-                    {
-                        const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
-                        if (pST)
-                        {
-                            std::string checkNameStr = std::string(pST->SpellName[0]);
-                            if (checkNameStr == "Growl")
-                            {
-                                continue;
-                            }
-                            checkPet->ToggleAutocast(pST, true);
-                        }
-                    }
-                }
-                WhisperTo("Switched", Language::LANG_UNIVERSAL, destRCC->sender);
-                return;
-            }
-            else if (growlState == "off")
-            {
-                Pet* checkPet = sourcePlayer->GetPet();
-                if (!checkPet)
-                {
-                    WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, destRCC->sender);
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
                     return;
                 }
-                std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
-                for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+
+                std::ostringstream replyStream;
+                if (commandVector.size() > 1)
                 {
-                    if (it->second.active == ACT_DISABLED)
+                    std::string newRole = commandVector.at(1);
+                    if (newRole == "dps")
                     {
-                        const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
-                        if (pST)
-                        {
-                            std::string checkNameStr = std::string(pST->SpellName[0]);
-                            if (checkNameStr == "Growl")
-                            {
-                                continue;
-                            }
-                            checkPet->ToggleAutocast(pST, false);
-                        }
+                        sourcePlayer->groupRole = 0;
+                    }
+                    else if (newRole == "tank")
+                    {
+                        sourcePlayer->groupRole = 1;
+                    }
+                    else if (newRole == "healer")
+                    {
+                        sourcePlayer->groupRole = 2;
                     }
                 }
-                WhisperTo("Switched", Language::LANG_UNIVERSAL, destRCC->sender);
-                return;
-            }
-            else
-            {
-                WhisperTo("Unknown command", Language::LANG_UNIVERSAL, destRCC->sender);
-                return;
-            }
-        }
-        else
-        {
-            WhisperTo("Unknown command", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-    }
-    else if (commandName == "strip")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        UnequipAll();
-        WhisperTo("Stripped", Language::LANG_UNIVERSAL, destRCC->sender);
-    }
-    else if (commandName == "unequip")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (commandVector.size() > 1)
-        {
-            std::ostringstream targetStream;
-            uint8 arrayCount = 0;
-            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
-            {
-                if (arrayCount > 0)
+
+                replyStream << "My group role is ";
+                switch (sourcePlayer->groupRole)
                 {
-                    targetStream << (*it) << " ";
+                case 0:
+                {
+                    replyStream << "dps";
+                    break;
                 }
-                arrayCount++;
+                case 1:
+                {
+                    replyStream << "tank";
+                    break;
+                }
+                case 2:
+                {
+                    replyStream << "healer";
+                    break;
+                }
+                default:
+                {
+                    replyStream << "dps";
+                    break;
+                }
+                }
+                WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, destRCC->sender);
             }
-            std::string unequipTarget = sRobotManager->TrimString(targetStream.str());
-            if (unequipTarget == "all")
+            else if (commandName == "follow")
             {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (st_Group_Normal->Follow())
+                {
+                    st_Group_Normal->staying = false;
+                    WhisperTo("Following", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+                else
+                {
+                    WhisperTo("I will not follow you", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+            }
+            else if (commandName == "stay")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (st_Group_Normal->Stay())
+                {
+                    st_Group_Normal->staying = true;
+                    WhisperTo("Staying", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+                else
+                {
+                    WhisperTo("I will not stay", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+            }
+            else if (commandName == "attack")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                Unit* senderTarget = destRCC->sender->GetSelectedUnit();
+                if (st_Group_Normal->Attack(senderTarget))
+                {
+                    st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
+                    st_Group_Normal->staying = false;
+                    sourcePlayer->SetSelection(senderTarget->GetGUID());
+                    WhisperTo("Attack your target", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+                else
+                {
+                    WhisperTo("Can not attack your target", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+            }
+            else if (commandName == "rest")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (st_Group_Normal->Rest(true))
+                {
+                    st_Group_Normal->staying = false;
+                    WhisperTo("Resting", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+                else
+                {
+                    WhisperTo("Do not rest", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+            }
+            else if (commandName == "eat")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (st_Group_Normal->Eat(true))
+                {
+                    st_Group_Normal->staying = false;
+                    WhisperTo("Eating", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+                else
+                {
+                    WhisperTo("Do not eat", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+            }
+            else if (commandName == "drink")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (st_Group_Normal->Drink(true))
+                {
+                    st_Group_Normal->staying = false;
+                    WhisperTo("Drinking", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+                else
+                {
+                    WhisperTo("Do not drink", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+            }
+            else if (commandName == "who")
+            {
+                WhisperTo(sRobotManager->characterTalentTabNameMap[sourcePlayer->GetClass()][characterTalentTab], Language::LANG_UNIVERSAL, destRCC->sender);
+            }
+            else if (commandName == "assemble")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (st_Group_Normal->assembleDelay > 0)
+                {
+                    WhisperTo("I am coming", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (sourcePlayer->IsAlive())
+                {
+                    if (sourcePlayer->GetDistance(destRCC->sender) < 40)
+                    {
+                        st_Group_Normal->assembleDelay = 5 * TimeConstants::IN_MILLISECONDS;
+                        WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, destRCC->sender);
+                    }
+                    else
+                    {
+                        st_Group_Normal->assembleDelay = 30 * TimeConstants::IN_MILLISECONDS;
+                        WhisperTo("I will come to you in 30 seconds", Language::LANG_UNIVERSAL, destRCC->sender);
+                    }
+                }
+                else
+                {
+                    st_Group_Normal->assembleDelay = 60 * TimeConstants::IN_MILLISECONDS;
+                    WhisperTo("I will revive and come to you in 60 seconds", Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+            }
+            else if (commandName == "tank")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (sourcePlayer->groupRole == 1)
+                {
+                    Unit* senderTarget = destRCC->sender->GetSelectedUnit();
+                    if (st_Group_Normal->Tank(senderTarget))
+                    {
+                        st_Group_Normal->staying = false;
+                        st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
+                        sourcePlayer->SetSelection(senderTarget->GetGUID());
+                        WhisperTo("Tank your target", Language::LANG_UNIVERSAL, destRCC->sender);
+                    }
+                    else
+                    {
+                        WhisperTo("Can not tank your target", Language::LANG_UNIVERSAL, destRCC->sender);
+                    }
+                }
+            }
+            else if (commandName == "prepare")
+            {
+                Prepare();
+                sourcePlayer->Say("I am prepared", Language::LANG_UNIVERSAL);
+            }
+            else if (commandName == "growl")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (commandVector.size() > 1)
+                {
+                    if (sourcePlayer->GetClass() != Classes::CLASS_HUNTER)
+                    {
+                        WhisperTo("I am not hunter", Language::LANG_UNIVERSAL, destRCC->sender);
+                        return;
+                    }
+                    std::string growlState = commandVector.at(1);
+                    if (growlState == "on")
+                    {
+                        Pet* checkPet = sourcePlayer->GetPet();
+                        if (!checkPet)
+                        {
+                            WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, destRCC->sender);
+                            return;
+                        }
+                        std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
+                        for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                        {
+                            if (it->second.active == ACT_DISABLED)
+                            {
+                                const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                                if (pST)
+                                {
+                                    std::string checkNameStr = std::string(pST->SpellName[0]);
+                                    if (checkNameStr == "Growl")
+                                    {
+                                        continue;
+                                    }
+                                    checkPet->ToggleAutocast(pST, true);
+                                }
+                            }
+                        }
+                        WhisperTo("Switched", Language::LANG_UNIVERSAL, destRCC->sender);
+                        return;
+                    }
+                    else if (growlState == "off")
+                    {
+                        Pet* checkPet = sourcePlayer->GetPet();
+                        if (!checkPet)
+                        {
+                            WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, destRCC->sender);
+                            return;
+                        }
+                        std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
+                        for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                        {
+                            if (it->second.active == ACT_DISABLED)
+                            {
+                                const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                                if (pST)
+                                {
+                                    std::string checkNameStr = std::string(pST->SpellName[0]);
+                                    if (checkNameStr == "Growl")
+                                    {
+                                        continue;
+                                    }
+                                    checkPet->ToggleAutocast(pST, false);
+                                }
+                            }
+                        }
+                        WhisperTo("Switched", Language::LANG_UNIVERSAL, destRCC->sender);
+                        return;
+                    }
+                    else
+                    {
+                        WhisperTo("Unknown command", Language::LANG_UNIVERSAL, destRCC->sender);
+                        return;
+                    }
+                }
+                else
+                {
+                    WhisperTo("Unknown command", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+            }
+            else if (commandName == "strip")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
                 UnequipAll();
+                WhisperTo("Stripped", Language::LANG_UNIVERSAL, destRCC->sender);
             }
-            else
+            else if (commandName == "unequip")
             {
-                UnequipItem(unequipTarget);
-            }
-        }
-        WhisperTo("Unequiped", Language::LANG_UNIVERSAL, destRCC->sender);
-    }
-    else if (commandName == "equip")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (commandVector.size() > 1)
-        {
-            std::ostringstream targetStream;
-            uint8 arrayCount = 0;
-            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
-            {
-                if (arrayCount > 0)
+                if (!masterPlayer)
                 {
-                    targetStream << (*it) << " ";
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
                 }
-                arrayCount++;
-            }
-            std::string equipTarget = sRobotManager->TrimString(targetStream.str());
-            if (equipTarget == "all")
-            {
-                EquipAll();
-            }
-            else
-            {
-                EquipItem(equipTarget);
-            }
-        }
-        WhisperTo("Equiped", Language::LANG_UNIVERSAL, destRCC->sender);
-    }
-    else if (commandName == "cast")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        Unit* senderTarget = destRCC->sender->GetSelectedUnit();
-        if (!senderTarget)
-        {
-            WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (commandVector.size() > 1)
-        {
-            std::ostringstream targetStream;
-            uint8 arrayCount = 0;
-            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
-            {
-                if (arrayCount > 0)
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
                 {
-                    targetStream << (*it) << " ";
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
                 }
-                arrayCount++;
-            }
-            std::string spellName = sRobotManager->TrimString(targetStream.str());
-            std::ostringstream replyStream;
-            if (CastSpell(senderTarget, spellName))
-            {
-                replyStream << "Cast spell " << spellName << " on " << senderTarget->GetName();
-            }
-            else
-            {
-                replyStream << "Can not cast spell " << spellName << " on " << senderTarget->GetName();
-            }
-            WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, destRCC->sender);
-        }
-    }
-    else if (commandName == "cancel")
-    {
-        if (!masterPlayer)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (!sourcePlayer->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        Unit* senderTarget = destRCC->sender->GetSelectedUnit();
-        if (!senderTarget)
-        {
-            WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, destRCC->sender);
-            return;
-        }
-        if (commandVector.size() > 1)
-        {
-            std::ostringstream targetStream;
-            uint8 arrayCount = 0;
-            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
-            {
-                if (arrayCount > 0)
+                if (!sourcePlayer->IsAlive())
                 {
-                    targetStream << (*it) << " ";
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
                 }
-                arrayCount++;
+                if (commandVector.size() > 1)
+                {
+                    std::ostringstream targetStream;
+                    uint8 arrayCount = 0;
+                    for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                    {
+                        if (arrayCount > 0)
+                        {
+                            targetStream << (*it) << " ";
+                        }
+                        arrayCount++;
+                    }
+                    std::string unequipTarget = sRobotManager->TrimString(targetStream.str());
+                    if (unequipTarget == "all")
+                    {
+                        UnequipAll();
+                    }
+                    else
+                    {
+                        UnequipItem(unequipTarget);
+                    }
+                }
+                WhisperTo("Unequiped", Language::LANG_UNIVERSAL, destRCC->sender);
             }
-            std::string spellName = sRobotManager->TrimString(targetStream.str());
-            std::ostringstream replyStream;
-            if (CancelAura(spellName))
+            else if (commandName == "equip")
             {
-                replyStream << "Cancel aura " << spellName;
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (commandVector.size() > 1)
+                {
+                    std::ostringstream targetStream;
+                    uint8 arrayCount = 0;
+                    for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                    {
+                        if (arrayCount > 0)
+                        {
+                            targetStream << (*it) << " ";
+                        }
+                        arrayCount++;
+                    }
+                    std::string equipTarget = sRobotManager->TrimString(targetStream.str());
+                    if (equipTarget == "all")
+                    {
+                        EquipAll();
+                    }
+                    else
+                    {
+                        EquipItem(equipTarget);
+                    }
+                }
+                WhisperTo("Equiped", Language::LANG_UNIVERSAL, destRCC->sender);
             }
-            else
+            else if (commandName == "cast")
             {
-                replyStream << "Unknown spell " << spellName;
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                Unit* senderTarget = destRCC->sender->GetSelectedUnit();
+                if (!senderTarget)
+                {
+                    WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (commandVector.size() > 1)
+                {
+                    std::ostringstream targetStream;
+                    uint8 arrayCount = 0;
+                    for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                    {
+                        if (arrayCount > 0)
+                        {
+                            targetStream << (*it) << " ";
+                        }
+                        arrayCount++;
+                    }
+                    std::string spellName = sRobotManager->TrimString(targetStream.str());
+                    std::ostringstream replyStream;
+                    if (CastSpell(senderTarget, spellName))
+                    {
+                        replyStream << "Cast spell " << spellName << " on " << senderTarget->GetName();
+                    }
+                    else
+                    {
+                        replyStream << "Can not cast spell " << spellName << " on " << senderTarget->GetName();
+                    }
+                    WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, destRCC->sender);
+                }
             }
-            WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, destRCC->sender);
+            else if (commandName == "cancel")
+            {
+                if (!masterPlayer)
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (destRCC->sender->GetGUID() != masterPlayer->GetGUID())
+                {
+                    WhisperTo("You are not my master", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (!sourcePlayer->IsAlive())
+                {
+                    WhisperTo("I am dead", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                Unit* senderTarget = destRCC->sender->GetSelectedUnit();
+                if (!senderTarget)
+                {
+                    WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, destRCC->sender);
+                    return;
+                }
+                if (commandVector.size() > 1)
+                {
+                    std::ostringstream targetStream;
+                    uint8 arrayCount = 0;
+                    for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+                    {
+                        if (arrayCount > 0)
+                        {
+                            targetStream << (*it) << " ";
+                        }
+                        arrayCount++;
+                    }
+                    std::string spellName = sRobotManager->TrimString(targetStream.str());
+                    std::ostringstream replyStream;
+                    if (CancelAura(spellName))
+                    {
+                        replyStream << "Cancel aura " << spellName;
+                    }
+                    else
+                    {
+                        replyStream << "Unknown spell " << spellName;
+                    }
+                    WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, destRCC->sender);
+                }
+            }
         }
+        sourceSession->robotChatCommandSet.clear();
     }
 }
 

@@ -47,7 +47,7 @@ void RobotManager::InitializeManager()
         {
             sWorld->ShutdownServ(10, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
             return;
-        }        
+        }
     }
 
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Initialize robot manager");
@@ -65,7 +65,7 @@ void RobotManager::InitializeManager()
         std::string eachName = fields[0].GetString();
         robotNameMap[robotNameMap.size()] = eachName;
     } while (robotNamesQR->NextRow());
-    
+
     availableRaces[CLASS_WARRIOR].push_back(RACE_HUMAN);
     availableRaces[CLASS_WARRIOR].push_back(RACE_NIGHTELF);
     availableRaces[CLASS_WARRIOR].push_back(RACE_GNOME);
@@ -372,12 +372,12 @@ void RobotManager::UpdateManager()
         return;
     }
     uint32 realCurrTime = getMSTime();
-    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);    
+    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
 
     if (diff < ROBOT_MANAGER_UPDATE_GAP)
-    {        
+    {
         return;
-    }    
+    }
 
     for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
     {
@@ -442,13 +442,13 @@ uint32 RobotManager::CheckRobotAccount(std::string pmAccountName)
     if (accountQR)
     {
         Field* idFields = accountQR->Fetch();
-        accountID = idFields[0].GetUInt32();        
-    }    
+        accountID = idFields[0].GetUInt32();
+    }
     return accountID;
 }
 
 bool RobotManager::CreateRobotAccount(std::string pmAccountName)
-{    
+{
     AccountOpResult aor = sAccountMgr->CreateAccount(pmAccountName, "robot");
     if (aor == AccountOpResult::AOR_OK)
     {
@@ -539,7 +539,7 @@ bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterCl
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Try again");
             continue;
         }
-        newPlayer->GetMotionMaster()->Initialize();        
+        newPlayer->GetMotionMaster()->Initialize();
         newPlayer->setCinematic(2);
         newPlayer->SetAtLoginFlag(AT_LOGIN_NONE);
         newPlayer->SaveToDB(true);
@@ -593,9 +593,8 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmGUID)
         loginSession->isRobot = true;
         sWorld->AddSession(loginSession);
     }
-    WorldPacket loginWP(CMSG_PLAYER_LOGIN, 8);
-    loginWP << playerGUID;
-    loginSession->HandlePlayerLoginOpcode(loginWP);
+
+    loginSession->HandlePlayerLogin_Simple(playerGUID);
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmGUID, characterName.c_str(), characterLevel);
 
     return true;

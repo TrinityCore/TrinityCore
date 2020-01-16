@@ -290,8 +290,8 @@ class TC_GAME_API WorldSession
 
         // EJ robot
         bool isRobot;
-        std::vector<const WorldPacket*> robotPacketVector;
-        std::vector<const RobotChatCommand*> robotChatCommandVector;
+        std::set<const WorldPacket*> robotPacketSet;
+        std::set<const RobotChatCommand*> robotChatCommandSet;
             
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
@@ -484,6 +484,10 @@ class TC_GAME_API WorldSession
         void HandleCharEnumOpcode(WorldPacket& recvPacket);
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
+
+        // EJ robot 
+        void HandlePlayerLogin_Simple(ObjectGuid pmPlayerGUID);
+
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(PreparedQueryResult result);
         void HandlePlayerLogin(LoginQueryHolder* holder);

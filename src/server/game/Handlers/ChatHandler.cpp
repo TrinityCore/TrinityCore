@@ -386,7 +386,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 RobotChatCommand* newRCC = new RobotChatCommand();
                 newRCC->chatCommandContent = msg;
                 newRCC->sender = GetPlayer();
-                robotChatCommandVector.push_back(newRCC);
+                robotChatCommandSet.insert(newRCC);
             }
 
             break;
@@ -421,7 +421,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     RobotChatCommand* newRCC = new RobotChatCommand();
                     newRCC->chatCommandContent = msg;
                     newRCC->sender = GetPlayer();
-                    member->GetSession()->robotChatCommandVector.push_back(newRCC);
+                    member->GetSession()->robotChatCommandSet.insert(newRCC);
                 }
             }
             break;
@@ -496,7 +496,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     RobotChatCommand* newRCC = new RobotChatCommand();
                     newRCC->chatCommandContent = msg;
                     newRCC->sender = GetPlayer();
-                    member->GetSession()->robotChatCommandVector.push_back(newRCC);
+                    member->GetSession()->robotChatCommandSet.insert(newRCC);
                 }
             }
 
