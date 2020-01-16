@@ -89,8 +89,8 @@ void AddSC_boss_admiral_ripsnarl();
 void AddSC_boss_captain_cookie();
 void AddSC_boss_vanessa_van_cleef();
 void AddSC_deadmines();
-void AddSC_gilneas_c1();                     //Gilneas
-void AddSC_gilneas_c2();
+void AddSC_gilneas_chapter_1();              //Gilneas
+void AddSC_gilneas_chapter_2();
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_instance_grim_batol();            //Grim Batol
@@ -129,9 +129,9 @@ void AddSC_boss_majordomo();
 void AddSC_boss_ragnaros();
 void AddSC_instance_molten_core();
 void AddSC_the_scarlet_enclave();            //Scarlet Enclave
-void AddSC_the_scarlet_enclave_c1();
-void AddSC_the_scarlet_enclave_c2();
-void AddSC_the_scarlet_enclave_c5();
+void AddSC_the_scarlet_enclave_chapter_1();
+void AddSC_the_scarlet_enclave_chapter_2();
+void AddSC_the_scarlet_enclave_chapter_5();
 void AddSC_boss_arcanist_doan();             //Scarlet Monastery
 void AddSC_boss_azshir_the_sleepless();
 void AddSC_boss_bloodmage_thalnos();
@@ -320,8 +320,8 @@ void AddEasternKingdomsScripts()
     AddSC_boss_captain_cookie();
     AddSC_boss_vanessa_van_cleef();
     AddSC_deadmines();
-    AddSC_gilneas_c1();                     //Gilneas
-    AddSC_gilneas_c2();
+    AddSC_gilneas_chapter_1();              //Gilneas
+    AddSC_gilneas_chapter_2();
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
     AddSC_instance_grim_batol();            //Grim Batol
@@ -360,9 +360,9 @@ void AddEasternKingdomsScripts()
     AddSC_boss_ragnaros();
     AddSC_instance_molten_core();
     AddSC_the_scarlet_enclave();            //Scarlet Enclave
-    AddSC_the_scarlet_enclave_c1();
-    AddSC_the_scarlet_enclave_c2();
-    AddSC_the_scarlet_enclave_c5();
+    AddSC_the_scarlet_enclave_chapter_1();
+    AddSC_the_scarlet_enclave_chapter_2();
+    AddSC_the_scarlet_enclave_chapter_5();
     AddSC_boss_arcanist_doan();             //Scarlet Monastery
     AddSC_boss_azshir_the_sleepless();
     AddSC_boss_bloodmage_thalnos();

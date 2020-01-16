@@ -746,7 +746,7 @@ public:
     };
 };
 
-void AddSC_the_scarlet_enclave_c2()
+void AddSC_the_scarlet_enclave_chapter_2()
 {
     new npc_crusade_persuaded();
     new npc_scarlet_courier();

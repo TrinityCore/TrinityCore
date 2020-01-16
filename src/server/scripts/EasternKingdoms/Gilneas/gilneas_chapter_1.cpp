@@ -752,7 +752,7 @@ private:
     EventMap _events;
 };
 
-void AddSC_gilneas_c1()
+void AddSC_gilneas_chapter_1()
 {
     new npc_frightened_citizen();
     new npc_worgen_runt();

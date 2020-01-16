@@ -633,7 +633,7 @@ class spell_gilneas_worgen_intro_completion : public SpellScript
     }
 };
 
-void AddSC_gilneas_c2()
+void AddSC_gilneas_chapter_2()
 {
     RegisterGameObjectAI(go_gilneas_invasion_camera);
     RegisterCreatureAI(npc_gilneas_horrid_abomination);

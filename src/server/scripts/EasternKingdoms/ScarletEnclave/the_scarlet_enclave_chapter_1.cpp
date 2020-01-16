@@ -1261,7 +1261,7 @@ class npc_scarlet_miner : public CreatureScript
 
 // npc 28912 quest 17217 boss 29001 mob 29007 go 191092
 
-void AddSC_the_scarlet_enclave_c1()
+void AddSC_the_scarlet_enclave_chapter_1()
 {
     new npc_unworthy_initiate();
     new npc_unworthy_initiate_anchor();
