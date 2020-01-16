@@ -29,7 +29,7 @@ class GameObject;
 class PlayerAI;
 class WorldObject;
 struct Position;
-enum SpellFinishReason;
+enum SpellFinishReason : uint8;
 
 typedef std::vector<AreaBoundary const*> CreatureBoundary;
 

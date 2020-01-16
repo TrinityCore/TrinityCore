@@ -100,7 +100,7 @@ enum SpellRangeFlag
     SPELL_RANGE_RANGED              = 2      //hunter range and ranged weapon
 };
 
-enum SpellFinishReason
+enum SpellFinishReason : uint8
 {
     SPELL_FINISHED_SUCCESSFUL_CAST      = 0, // spell has sucessfully launched
     SPELL_FINISHED_CANCELED             = 1, // spell has been canceled (interrupts)
