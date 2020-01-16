@@ -2230,7 +2230,10 @@ bool RobotAI::HandlePacket()
                     {
                         st_Solo_Normal->deathDuration = 0;
                     }
-                    sourcePlayer->ResurrectUsingRequestData();
+                    if (sourcePlayer->IsResurrectRequested())
+                    {
+                        sourcePlayer->ResurrectUsingRequestData();
+                    }
                     break;
                 }
                 case SMSG_INVENTORY_CHANGE_FAILURE:

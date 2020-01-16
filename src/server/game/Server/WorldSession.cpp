@@ -212,7 +212,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 
     // EJ robot
     if (isRobot)
-    {
+    {        
         robotPacketSet.insert(packet);
         return;
     }
