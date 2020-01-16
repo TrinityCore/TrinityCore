@@ -1763,6 +1763,14 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
 
+         void InterruptMovementBasedAuras();
+
+        struct
+        {
+            bool Relocated = false;
+            bool Turned = false;
+        } m_positionUpdateInfo;
+
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
