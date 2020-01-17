@@ -3351,7 +3351,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         43109, // Throw Torch
         58552, // Return to Orgrimmar
         58533, // Return to Stormwind
-        21855  // Challenge Flag
+        21855, // Challenge Flag
+        51122  // Fierce Lightning Stike
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
