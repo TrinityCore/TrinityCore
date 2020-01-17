@@ -1493,7 +1493,7 @@ float WorldObject::GetGridActivationRange() const
 float WorldObject::GetVisibilityRange() const
 {
     if (IsVisibilityOverridden() && !ToPlayer())
-        return *m_visibilityDistanceOverride;
+        return GetMap()->GetVisibilityRange() + *m_visibilityDistanceOverride;
     else if (IsFarVisible() && !ToPlayer())
         return MAX_VISIBILITY_DISTANCE;
     else
