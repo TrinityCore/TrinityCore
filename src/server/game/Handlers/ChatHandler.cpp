@@ -382,12 +382,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             // EJ robot
             if (receiver->GetSession()->isRobot)
-            {
-                std::lock_guard<std::mutex> lock(robotChatCommandQueue_m);
+            {                
                 RobotChatCommand* newRCC = new RobotChatCommand();
                 newRCC->chatCommandContent = msg;
                 newRCC->sender = GetPlayer();
-                robotChatCommandQueue.push(newRCC);
+                robotChatCommandSet.insert(newRCC);
             }
 
             break;
@@ -418,12 +417,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             {
                 Player* member = groupRef->GetSource();
                 if (member->GetSession()->isRobot)
-                {
-                    std::lock_guard<std::mutex> lock(robotChatCommandQueue_m);
+                {                    
                     RobotChatCommand* newRCC = new RobotChatCommand();
                     newRCC->chatCommandContent = msg;
                     newRCC->sender = GetPlayer();
-                    member->GetSession()->robotChatCommandQueue.push(newRCC);
+                    member->GetSession()->robotChatCommandSet.insert(newRCC);
                 }
             }
             break;
@@ -494,12 +492,11 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             {
                 Player* member = groupRef->GetSource();
                 if (member->GetSession()->isRobot)
-                {
-                    std::lock_guard<std::mutex> lock(robotChatCommandQueue_m);
+                {                    
                     RobotChatCommand* newRCC = new RobotChatCommand();
                     newRCC->chatCommandContent = msg;
                     newRCC->sender = GetPlayer();
-                    member->GetSession()->robotChatCommandQueue.push(newRCC);
+                    member->GetSession()->robotChatCommandSet.insert(newRCC);
                 }
             }
 

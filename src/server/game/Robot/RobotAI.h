@@ -31,7 +31,7 @@ enum RobotState:uint32
 class RobotAI
 {
 public:
-	RobotAI();
+	RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace);
 	~RobotAI();
     void Update(uint32 pmDiff);
 	Item* GetItemInInventory(uint32 pmEntry);
@@ -74,9 +74,13 @@ public:
 	// 0 dps, 1 tank, 2 healer
 	uint32 characterType;
     std::string accountName;
+    uint32 accountID;
+    uint32 characterID;
     uint32 targetLevel;
     uint32 targetRace;
     uint32 targetClass;
+    int32 allDelay;
+    int32 checkDelay;    
     int32 onlineDelay;
     int32 offlineDelay;
     uint32 robotState;

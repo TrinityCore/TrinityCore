@@ -2213,6 +2213,7 @@ void World::SetInitialWorldSettings()
 
     // EJ robot
     sRobotConfig->StartRobotSystem();
+    sRobotManager->InitializeManager();
 }
 
 void World::DetectDBCLang()
@@ -2516,10 +2517,10 @@ void World::Update(uint32 diff)
     TC_METRIC_VALUE("update_time_diff", diff);
 
     // EJ marketer
-    sMarketerManager->UpdateMarketer(diff);    
+    sMarketerManager->UpdateMarketer();    
 
     // EJ robot
-    sRobotManager->UpdateManager(diff);
+    sRobotManager->UpdateManager();
 }
 
 void World::ForceGameEventUpdate()

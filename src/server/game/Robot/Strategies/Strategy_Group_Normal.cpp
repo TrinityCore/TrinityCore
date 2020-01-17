@@ -153,7 +153,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
         else
         {
             // check again
-            if (restDelay < 28)
+            if (restDelay < 20 * TimeConstants::IN_MILLISECONDS)
             {
                 if (!eating)
                 {
@@ -252,7 +252,7 @@ bool Strategy_Group_Normal::Eat(bool pmForce)
             if (sourceAI->UseItem(pFood, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 30;
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
                 eating = true;
                 return true;
             }
@@ -331,7 +331,7 @@ bool Strategy_Group_Normal::Drink(bool pmForce)
             if (sourceAI->UseItem(pDrink, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 30;
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
                 drinking = true;
                 return true;
             }

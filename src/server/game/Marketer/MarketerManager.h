@@ -1,6 +1,10 @@
 #ifndef MARKETER_MANAGER_H
 #define MARKETER_MANAGER_H
 
+#ifndef MARKETER_MANAGER_UPDATE_GAP
+#define MARKETER_MANAGER_UPDATE_GAP 500
+#endif
+
 #include <string>
 #include "Log.h"
 #include "MarketerConfig.h"
@@ -16,7 +20,7 @@ class MarketerManager
 
 public:
     void ResetMarketer();
-    bool UpdateMarketer(uint32 pmDiff);
+    bool UpdateMarketer();
 	bool UpdateSeller(uint32 pmDiff);
 	bool UpdateBuyer(uint32 pmDiff);
 	static MarketerManager* instance();
@@ -36,7 +40,11 @@ private:
     uint32 sellingIndex;
 	Player* pMarketer;
 
+<<<<<<< HEAD
     std::set<uint32> auctionHouseIDSet;
+=======
+    uint32 realPrevTime;
+>>>>>>> 4caa787c51f36c1b16049a962875cdfb879ad9db
 };
 
 #define sMarketerManager MarketerManager::instance()

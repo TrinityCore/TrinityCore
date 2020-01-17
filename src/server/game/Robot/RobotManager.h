@@ -28,13 +28,16 @@ class RobotManager
 
 public:
     void InitializeManager();
-    void UpdateManager(uint32 pmDiff);
+    void UpdateManager();
     bool DeleteRobots();
     bool RobotsDeleted();
     Player* GetMaster(Player* pmRobotPlayer);
+    uint32 CheckRobotAccount(std::string pmAccountName);
     bool CreateRobotAccount(std::string pmAccountName);
-    bool CreateRobotCharacter(uint32 pmAccountID, uint8 pmCharacterClass, uint8 pmCharacterRace, uint8 pmCharacterLevel);
-    bool LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID);
+    uint32 CheckAccountCharacter(uint32 pmAccountID);
+    bool CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace);
+    Player* CheckLogin(uint32 pmAccountID, uint32 pmGUID);
+    bool LoginRobot(uint32 pmAccountID, uint32 pmGUID);
     void LogoutRobots();
     void HandlePlayerSay(Player* pmPlayer, std::string pmContent);
     bool StringEndWith(const std::string &str, const std::string &tail);
@@ -45,8 +48,7 @@ public:
 
 public:
     std::map<uint32, std::vector<uint32>> availableRaces;
-    std::unordered_map<uint32, std::string> robotNameMap;
-    int32 checkDelay;
+    std::unordered_map<uint32, std::string> robotNameMap;    
 
     std::unordered_map<uint8, std::unordered_map<uint8, std::string>> characterTalentTabNameMap;
     std::set<uint32> deleteRobotAccountSet;
@@ -73,6 +75,8 @@ public:
 
     std::unordered_map<uint32, uint32> tamableBeastEntryMap;
     std::unordered_map<std::string, std::set<uint32>> spellNameEntryMap;
+
+    uint32 realPrevTime;
 };
 
 #define sRobotManager RobotManager::instance()

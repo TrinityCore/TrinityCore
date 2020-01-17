@@ -151,7 +151,9 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     }
 
     // EJ robot
-    isRobot = false;    
+    isRobot = false;
+    robotPacketSet.clear();
+    robotChatCommandSet.clear();
 }
 
 /// WorldSession destructor
@@ -210,9 +212,8 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 
     // EJ robot
     if (isRobot)
-    {
-        std::lock_guard<std::mutex> lock(robotPacketQueue_m);
-        robotPacketQueue.push(packet);
+    {        
+        robotPacketSet.insert(packet);
         return;
     }
 
@@ -289,6 +290,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     // EJ robot
     if (isRobot)
     {
+        ProcessQueryCallbacks();
         return true;
     }
 
