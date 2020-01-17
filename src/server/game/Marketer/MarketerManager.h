@@ -35,6 +35,8 @@ private:
     bool selling;
     uint32 sellingIndex;
 	Player* pMarketer;
+
+    std::set<uint32> auctionHouseIDSet;
 };
 
 #define sMarketerManager MarketerManager::instance()

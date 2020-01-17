@@ -1,9 +1,16 @@
 #include "MarketerManager.h"
 
+#include "GameTime.h"
+
 MarketerManager::MarketerManager()
 {
     buyerCheckDelay = 120000;
     sellerCheckDelay = 60000;
+
+    auctionHouseIDSet.clear();
+    auctionHouseIDSet.insert(AuctionHouses::AUCTIONHOUSE_ALLIANCE);
+    auctionHouseIDSet.insert(AuctionHouses::AUCTIONHOUSE_HORDE);
+    auctionHouseIDSet.insert(AuctionHouses::AUCTIONHOUSE_NEUTRAL);
 
     vendorUnlimitItemSet.clear();
     QueryResult vendorItemQR = WorldDatabase.Query("SELECT distinct item FROM npc_vendor where maxcount = 0");
@@ -142,6 +149,12 @@ MarketerManager::MarketerManager()
             {
                 sellThis = true;
             }
+            break;
+        }
+        case ItemClass::ITEM_CLASS_GLYPH:
+        {
+            sellThis = true;
+            break;
         }
         default:
         {
@@ -169,19 +182,15 @@ void MarketerManager::ResetMarketer()
     {
         return;
     }
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to reset marketer seller");
-    std::set<uint32> factionSet;
-    factionSet.insert(1);
-    factionSet.insert(6);
-    factionSet.insert(7);
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to reset marketer seller");    
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    for (std::set<uint32>::iterator factionIT = factionSet.begin(); factionIT != factionSet.end(); factionIT++)
+    for (std::set<uint32>::iterator ahIDIT = auctionHouseIDSet.begin(); ahIDIT != auctionHouseIDSet.end(); ahIDIT++)
     {
-        uint32 factionID = *factionIT;
-        AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(*factionIT);
-        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(factionID);
+        uint32 ahID = *ahIDIT;
+        AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(*ahIDIT);
+        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(ahID);
         if (!aho)
         {
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "AuctionHouseObject is null");
@@ -204,7 +213,7 @@ void MarketerManager::ResetMarketer()
                     sAuctionMgr->RemoveAItem(eachAE->itemGUIDLow, true, &trans);
                     aho->RemoveAuction(eachAE);
                     eachAE->DeleteFromDB(trans);
-                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Auction %d removed for auctionhouse %d", itemEntry, factionID);
+                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Auction %d removed for auctionhouse %d", itemEntry, ahID);
                 }
             }
         }
@@ -234,11 +243,6 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
     }
     if (selling)
     {
-        std::set<uint32> factionSet;
-        factionSet.insert(1);
-        factionSet.insert(6);
-        factionSet.insert(7);
-
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
         int checkTotalSellCount = 0;
@@ -358,6 +362,12 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                         sellThis = true;
                         stackCount = 1;
                     }
+                    break;
+                }
+                case ItemClass::ITEM_CLASS_GLYPH:
+                {
+                    sellThis = true;
+                    break;
                 }
                 default:
                 {
@@ -369,11 +379,11 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                     sellingIndex++;
                     continue;
                 }
-                for (std::set<uint32>::iterator factionIT = factionSet.begin(); factionIT != factionSet.end(); factionIT++)
+                for (std::set<uint32>::iterator ahIDIT = auctionHouseIDSet.begin(); ahIDIT != auctionHouseIDSet.end(); ahIDIT++)
                 {
-                    uint32 factionID = *factionIT;
-                    AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(*factionIT);
-                    AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(factionID);
+                    uint32 ahID = *ahIDIT;
+                    AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(*ahIDIT);
+                    AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(ahID);
                     if (!aho)
                     {
                         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "AuctionHouseObject is null");
@@ -413,25 +423,27 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                             if (finalPrice > 100)
                             {
                                 uint32 dep = sAuctionMgr->GetAuctionDeposit(ahEntry, 86400, item, item->GetCount());
-                                AuctionEntry* auctionEntry = new AuctionEntry;
+
+                                AuctionEntry* auctionEntry = new AuctionEntry();
                                 auctionEntry->Id = sObjectMgr->GenerateAuctionID();
-                                //auctionEntry->auctioneer       = config->auctionnerguid;
-                                auctionEntry->auctionHouseEntry = ahEntry;
+                                auctionEntry->owner = 0;
                                 auctionEntry->itemGUIDLow = item->GetGUID().GetCounter();
                                 auctionEntry->itemEntry = item->GetEntry();
-                                auctionEntry->owner = 0;
                                 auctionEntry->startbid = finalPrice / 2;
                                 auctionEntry->buyout = finalPrice;
+                                auctionEntry->houseId = ahID;
                                 auctionEntry->bidder = 0;
                                 auctionEntry->bid = 0;
                                 auctionEntry->deposit = dep;
-                                //auctionEntry->depositTime = time(NULL);
-                                auctionEntry->expire_time = (time_t)86400 + time(NULL);
+                                auctionEntry->auctionHouseEntry = ahEntry;
+                                auctionEntry->expire_time = GameTime::GetGameTime() + 24 * HOUR;
+
                                 item->SaveToDB(trans);
                                 sAuctionMgr->AddAItem(item);
                                 aho->AddAuction(auctionEntry);
                                 auctionEntry->SaveToDB(trans);
-                                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Auction %s added for auctionhouse %d", proto->Name1, factionID);
+
+                                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Auction %s added for auctionhouse %d", proto->Name1, ahID);
                             }
                         }
                         unitCount--;
@@ -469,16 +481,12 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
 }
 
 bool MarketerManager::MarketEmpty()
-{
-    std::set<uint32> factionSet;
-    factionSet.insert(1);
-    factionSet.insert(6);
-    factionSet.insert(7);
-    for (std::set<uint32>::iterator factionIT = factionSet.begin(); factionIT != factionSet.end(); factionIT++)
+{    
+    for (std::set<uint32>::iterator ahIDIT = auctionHouseIDSet.begin(); ahIDIT != auctionHouseIDSet.end(); ahIDIT++)
     {
-        uint32 factionID = *factionIT;
-        AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(*factionIT);
-        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(factionID);
+        uint32 ahID = *ahIDIT;
+        AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(*ahIDIT);
+        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(ahID);
         if (!aho)
         {
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "AuctionHouseObject is null");
@@ -508,19 +516,15 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
         return true;
     }
     buyerCheckDelay = 2 * HOUR * IN_MILLISECONDS;
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to update marketer buyer");
-    std::set<uint32> factionSet;
-    factionSet.insert(1);
-    factionSet.insert(6);
-    factionSet.insert(7);
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to update marketer buyer");    
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     std::set<uint32> toBuyAuctionIDSet;
-    for (std::set<uint32>::iterator factionIT = factionSet.begin(); factionIT != factionSet.end(); factionIT++)
+    for (std::set<uint32>::iterator ahIDIT = auctionHouseIDSet.begin(); ahIDIT != auctionHouseIDSet.end(); ahIDIT++)
     {
-        uint32 factionID = *factionIT;
-        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(factionID);
+        uint32 ahID = *ahIDIT;
+        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(ahID);
         if (!aho)
         {
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "AuctionHouseObject is null");

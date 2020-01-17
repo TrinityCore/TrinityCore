@@ -379,6 +379,9 @@ Unit::Unit(bool isWorldObject) :
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
     _instantCast = false;
+
+    // EJ attack charge 
+    attackChargeTarget = NULL;
 }
 
 ////////////////////////////////////////////////////////////
@@ -2862,8 +2865,12 @@ void Unit::_UpdateAutoRepeatSpell()
     }
 
     // apply delay (Auto Shot (spellID 75) not affected)
-    if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 && autoRepeatSpellInfo->Id != 75)
+    // EJ auto shot will be affected
+    //if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 && autoRepeatSpellInfo->Id != 75)
+    if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500)
+    {
         setAttackTimer(RANGED_ATTACK, 500);
+    }
     m_AutoRepeatFirstCast = false;
 
     // castroutine

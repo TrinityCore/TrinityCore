@@ -720,6 +720,10 @@ enum ReactiveType
 
 class TC_GAME_API Unit : public WorldObject
 {
+    // EJ charge 
+public:
+    Unit* attackChargeTarget;
+
     public:
         typedef std::set<Unit*> AttackerSet;
         typedef std::set<Unit*> ControlList;

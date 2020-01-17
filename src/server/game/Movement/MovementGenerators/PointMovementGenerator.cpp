@@ -97,6 +97,19 @@ bool PointMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
         if (owner->movespline->Finalized())
         {
             MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+
+            // EJ attack charge handling
+            Unit* ownerUnit = (Unit*)owner;
+            if (ownerUnit)
+            {
+                if (ownerUnit->attackChargeTarget)
+                {
+                    ownerUnit->Attack(ownerUnit->attackChargeTarget, true);
+                    ownerUnit->setAttackTimer(WeaponAttackType::BASE_ATTACK, 0);
+                    ownerUnit->setAttackTimer(WeaponAttackType::OFF_ATTACK, 0);
+                    ownerUnit->attackChargeTarget = NULL;
+                }
+            }
             return false;
         }
         return true;

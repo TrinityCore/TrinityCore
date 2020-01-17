@@ -4272,11 +4272,9 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
         // not all charge effects used in negative spells
         if (!m_spellInfo->IsPositive() && m_caster->GetTypeId() == TYPEID_PLAYER)
         {
-            unitCaster->Attack(unitTarget, true);
-
-            // EJ reset melee after charge
-            unitCaster->setAttackTimer(WeaponAttackType::BASE_ATTACK, 0);
-            unitCaster->setAttackTimer(WeaponAttackType::OFF_ATTACK, 0);
+            // EJ attack charge 
+            //unitCaster->Attack(unitTarget, true);
+            unitCaster->attackChargeTarget = unitTarget;            
         }
     }
 }
