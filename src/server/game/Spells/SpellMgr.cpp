@@ -3262,6 +3262,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     switch (spellEffectInfo.ApplyAuraName)
                     {
                         case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                        case SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT:
                         case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
                             if (SpellInfo const* triggerSpell = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell, DIFFICULTY_NONE))
                             {

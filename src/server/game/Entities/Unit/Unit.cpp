@@ -4431,6 +4431,14 @@ bool Unit::HasAuraTypeWithValue(AuraType auraType, int32 value) const
     return false;
 }
 
+bool Unit::HasAuraTypeWithTriggerSpell(AuraType auratype, uint32 triggerSpell) const
+{
+    for (AuraEffect const* aura : GetAuraEffectsByType(auratype))
+        if (aura->GetSpellEffectInfo().TriggerSpell == triggerSpell)
+            return true;
+    return false;
+}
+
 template <typename InterruptFlags>
 bool Unit::HasNegativeAuraWithInterruptFlag(InterruptFlags flag, ObjectGuid guid) const
 {

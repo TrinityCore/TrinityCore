@@ -686,13 +686,30 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
         return;
     }
 
-    // do not cast not learned spells
-    if (!caster->HasSpell(spellInfo->Id) || spellInfo->IsPassive())
-        return;
-
     SpellCastTargets targets(caster, petCastSpell.Cast);
 
-    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);
+    TriggerCastFlags triggerCastFlags = TRIGGERED_NONE;
+
+    if (spellInfo->IsPassive())
+        return;
+
+    // cast only learned spells
+    if (!caster->HasSpell(spellInfo->Id))
+    {
+        bool allow = false;
+
+        // allow casting of spells triggered by clientside periodic trigger auras
+        if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellInfo->Id))
+        {
+            allow = true;
+            triggerCastFlags = TRIGGERED_FULL_MASK;
+        }
+
+        if (!allow)
+            return;
+    }
+
+    Spell* spell = new Spell(caster, spellInfo, triggerCastFlags);
     spell->m_fromClient = true;
     spell->m_misc.Raw.Data[0] = petCastSpell.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = petCastSpell.Cast.Misc[1];
