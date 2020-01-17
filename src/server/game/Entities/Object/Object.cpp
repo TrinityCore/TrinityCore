@@ -1507,7 +1507,7 @@ float WorldObject::GetSightRange(WorldObject const* target) const
         if (ToPlayer())
         {
             if (target && target->IsVisibilityOverridden() && !target->ToPlayer())
-                return *target->m_visibilityDistanceOverride;
+                return GetMap()->GetVisibilityRange() + *target->m_visibilityDistanceOverride;
             else if (target && target->IsFarVisible() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
             else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
