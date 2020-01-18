@@ -5360,10 +5360,10 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         }
     }
 
-    Unit::AuraEffectList const& blockSpells = m_caster->GetAuraEffectsByType(SPELL_AURA_BLOCK_SPELL_FAMILY);
-    for (Unit::AuraEffectList::const_iterator blockItr = blockSpells.begin(); blockItr != blockSpells.end(); ++blockItr)
-        if (uint32((*blockItr)->GetMiscValue()) == m_spellInfo->SpellFamilyName)
-            return SPELL_FAILED_SPELL_UNAVAILABLE;
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_BLOCKED_SPELL_FAMILY))
+        for (AuraEffect const* blocked : m_caster->GetAuraEffectsByType(SPELL_AURA_BLOCK_SPELL_FAMILY))
+            if (!blocked->GetMiscValue() || uint32(blocked->GetMiscValue()) == m_spellInfo->SpellFamilyName)
+                return SPELL_FAILED_SPELL_UNAVAILABLE;
 
     bool reqCombat = true;
     Unit::AuraEffectList const& stateAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
