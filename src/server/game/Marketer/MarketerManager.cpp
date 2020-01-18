@@ -192,7 +192,7 @@ void MarketerManager::ResetMarketer()
     {
         uint32 ahID = *ahIDIT;
         AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(*ahIDIT);
-        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(ahID);
+        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMapByHouseId(ahID);
         if (!aho)
         {
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "AuctionHouseObject is null");
@@ -395,7 +395,7 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                 {
                     uint32 ahID = *ahIDIT;
                     AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(*ahIDIT);
-                    AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(ahID);
+                    AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMapByHouseId(ahID);
                     if (!aho)
                     {
                         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "AuctionHouseObject is null");
@@ -447,14 +447,9 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                                 auctionEntry->bidder = 0;
                                 auctionEntry->bid = 0;
                                 auctionEntry->deposit = dep;
-<<<<<<< HEAD
-                                auctionEntry->auctionHouseEntry = ahEntry;
-                                auctionEntry->expire_time = GameTime::GetGameTime() + 24 * HOUR;
-
-=======
+                                auctionEntry->auctionHouseEntry = ahEntry;                                
                                 //auctionEntry->depositTime = time(NULL);
                                 auctionEntry->expire_time = GameTime::GetGameTime() + 48 * HOUR;
->>>>>>> 4caa787c51f36c1b16049a962875cdfb879ad9db
                                 item->SaveToDB(trans);
                                 sAuctionMgr->AddAItem(item);
                                 aho->AddAuction(auctionEntry);
@@ -503,7 +498,7 @@ bool MarketerManager::MarketEmpty()
     {
         uint32 ahID = *ahIDIT;
         AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(*ahIDIT);
-        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(ahID);
+        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMapByHouseId(ahID);
         if (!aho)
         {
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "AuctionHouseObject is null");
@@ -541,7 +536,7 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
     for (std::set<uint32>::iterator ahIDIT = auctionHouseIDSet.begin(); ahIDIT != auctionHouseIDSet.end(); ahIDIT++)
     {
         uint32 ahID = *ahIDIT;
-        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMap(ahID);
+        AuctionHouseObject* aho = sAuctionMgr->GetAuctionsMapByHouseId(ahID);
         if (!aho)
         {
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "AuctionHouseObject is null");
@@ -727,13 +722,17 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
             if (destAE)
             {
                 destAE->bid = destAE->buyout;
+                // Mails must be under transaction control too to prevent data loss
+                sAuctionMgr->SendAuctionSalePendingMail(destAE, trans);
                 sAuctionMgr->SendAuctionSuccessfulMail(destAE, trans);
                 sAuctionMgr->SendAuctionWonMail(destAE, trans);
+                // Delete auction from DB
+                destAE->DeleteFromDB(trans);
+                // Remove auction item and auction from memory
                 sAuctionMgr->RemoveAItem(destAE->itemGUIDLow);
                 aho->RemoveAuction(destAE);
-                destAE->DeleteFromDB(trans);
-                delete destAE;
-                destAE = nullptr;
+                // Run SQLs
+                CharacterDatabase.CommitTransaction(trans);
                 sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Auction %d was bought by marketer buyer", *toBuyIT);
             }
         }

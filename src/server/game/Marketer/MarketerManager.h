@@ -39,12 +39,8 @@ private:
     bool selling;
     uint32 sellingIndex;
 	Player* pMarketer;
-
-<<<<<<< HEAD
     std::set<uint32> auctionHouseIDSet;
-=======
     uint32 realPrevTime;
->>>>>>> 4caa787c51f36c1b16049a962875cdfb879ad9db
 };
 
 #define sMarketerManager MarketerManager::instance()

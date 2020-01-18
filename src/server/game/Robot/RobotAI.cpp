@@ -2333,12 +2333,6 @@ void RobotAI::Update(uint32 pmDiff)
                     }
                 }
 
-                // EJ debug
-                if (targetLevel == 22)
-                {
-                    levelPlayerOnline = true;
-                }
-
                 if (levelPlayerOnline)
                 {
                     onlineDelay = urand(5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
@@ -2513,13 +2507,7 @@ void RobotAI::Update(uint32 pmDiff)
                             }
                         }
                     }
-                }
-
-                // EJ debug
-                if (targetLevel == 22)
-                {
-                    levelPlayerOnline = true;
-                }
+                }                
 
                 if (!levelPlayerOnline)
                 {
