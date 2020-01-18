@@ -944,6 +944,14 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_AIR   = 83
 };
 
+struct PositionUpdateInfo
+{
+    PositionUpdateInfo() : Relocated(false), Turned(false) { }
+
+    bool Relocated;
+    bool Turned;
+};
+
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
 #define MAX_PLAYER_STEALTH_DETECT_RANGE 30.0f               // max distance for detection targets by player
@@ -1995,12 +2003,6 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
 
-        struct
-        {
-            bool Relocated = false;
-            bool Turned = false;
-        } m_positionUpdateInfo;
-
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
@@ -2040,6 +2042,8 @@ class TC_GAME_API Unit : public WorldObject
         time_t _lastDamagedTime; // Part of Evade mechanics
 
         SpellHistory* m_spellHistory;
+
+        PositionUpdateInfo _positionUpdateInfo;
 };
 
 namespace Trinity

@@ -409,6 +409,8 @@ Unit::Unit(bool isWorldObject) :
 
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
+
+    _positionUpdateInfo = PositionUpdateInfo();
 }
 
 ////////////////////////////////////////////////////////////
@@ -603,10 +605,10 @@ void Unit::UpdateSplinePosition()
 void Unit::InterruptMovementBasedAuras()
 {
     // TODO: Check if orientation transport offset changed instead of only global orientation
-    if (m_positionUpdateInfo.Turned)
+    if (_positionUpdateInfo.Turned)
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
 
-    if (m_positionUpdateInfo.Relocated && !GetVehicle())
+    if (_positionUpdateInfo.Relocated && !GetVehicle())
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
 }
 
@@ -13888,8 +13890,8 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
 
     UpdatePositionData();
 
-    m_positionUpdateInfo.Relocated = relocated;
-    m_positionUpdateInfo.Turned = turn;
+    _positionUpdateInfo.Relocated = relocated;
+    _positionUpdateInfo.Turned = turn;
 
     return (relocated || turn);
 }
