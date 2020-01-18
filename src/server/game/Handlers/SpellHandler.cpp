@@ -386,15 +386,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             if (go->GetSpellForLock(caster->ToPlayer()) == spellInfo)
                 allow = true;
 
-        // TODO: Preparation for #23204
         // allow casting of spells triggered by clientside periodic trigger auras
-        /*
-         if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
+        if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
         {
             allow = true;
             triggerFlag = TRIGGERED_FULL_MASK;
         }
-        */
 
         if (!allow)
             return;
