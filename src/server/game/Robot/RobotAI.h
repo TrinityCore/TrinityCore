@@ -54,8 +54,8 @@ public:
     bool UnequipItem(std::string pmEquipName);
     bool UnequipAll();
     bool EquipAll();    
-	bool HandlePacket();
-    void HandleChatCommand();
+    void HandlePacket(WorldPacket const* packet);
+    void HandleChatCommand(Player* pmSender, std::string pmCMD);
 	uint32 FindSpellID(std::string pmSpellName);
 	bool SpellValid(uint32 pmSpellID);
 	bool CancelAura(std::string pmSpellName);

@@ -16,6 +16,7 @@
 #include "RobotConfig.h"
 #include "RobotAI.h"
 #include "Strategy_Solo_Normal.h"
+#include "CharacterCache.h"
 
 RobotManager::RobotManager()
 {
@@ -594,6 +595,11 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmGUID)
         sWorld->AddSession(loginSession);
     }
 
+    if (!sCharacterCache->HasCharacterCacheEntry(playerGUID))
+    {
+        sCharacterCache->AddCharacterCacheEntry(playerGUID, pmAccountID, currentPlayer->GetName(), currentPlayer->GetGender(), currentPlayer->GetRace(), currentPlayer->GetClass(), currentPlayer->GetLevel());
+    }
+
     loginSession->HandlePlayerLogin_Simple(playerGUID);
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmGUID, characterName.c_str(), characterLevel);
 
@@ -661,12 +667,12 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
     }
 }
 
-bool RobotManager::StringEndWith(const std::string &str, const std::string &tail)
+bool RobotManager::StringEndWith(const std::string& str, const std::string& tail)
 {
     return str.compare(str.size() - tail.size(), tail.size(), tail) == 0;
 }
 
-bool RobotManager::StringStartWith(const std::string &str, const std::string &head)
+bool RobotManager::StringStartWith(const std::string& str, const std::string& head)
 {
     return str.compare(0, head.size(), head) == 0;
 }

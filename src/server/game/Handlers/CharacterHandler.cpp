@@ -700,7 +700,6 @@ void WorldSession::HandlePlayerLogin_Simple(ObjectGuid pmPlayerGUID)
         m_playerLoading = false;
         return;
     }
-
     _charLoginCallback = CharacterDatabase.DelayQueryHolder(holder);
 }
 
@@ -1027,7 +1026,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     delete holder;
 
     // EJ robot
-    if (isRobot)
+    if (rai)
     {
         std::ostringstream loginBroadCastStream;
         loginBroadCastStream << pCurrChar->GetName() << " logged in";

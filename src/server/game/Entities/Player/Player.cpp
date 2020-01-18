@@ -2540,7 +2540,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
         return;
 
     // EJ robot
-    if (GetSession()->isRobot)
+    if (GetSession()->rai)
     {
         return;
     }

@@ -151,9 +151,8 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     }
 
     // EJ robot
+    rai = NULL;
     isRobot = false;
-    robotPacketSet.clear();
-    robotChatCommandSet.clear();
 }
 
 /// WorldSession destructor
@@ -211,9 +210,9 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     ASSERT(packet->GetOpcode() != NULL_OPCODE);
 
     // EJ robot
-    if (isRobot)
-    {        
-        robotPacketSet.insert(packet);
+    if (rai)
+    {
+        rai->HandlePacket(packet);
         return;
     }
 

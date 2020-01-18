@@ -299,7 +299,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sender->Say(msg, Language(lang));
 
             // EJ robot
-            if (!GetPlayer()->GetSession()->isRobot)
+            if (!GetPlayer()->GetSession()->rai)
             {
                 sRobotManager->HandlePlayerSay(GetPlayer(), msg);
             }
@@ -381,12 +381,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             GetPlayer()->Whisper(msg, Language(lang), receiver);
 
             // EJ robot
-            if (receiver->GetSession()->isRobot)
-            {                
-                RobotChatCommand* newRCC = new RobotChatCommand();
-                newRCC->chatCommandContent = msg;
-                newRCC->sender = GetPlayer();
-                robotChatCommandSet.insert(newRCC);
+            if (receiver->GetSession()->rai)
+            {
+                receiver->GetSession()->rai->HandleChatCommand(GetPlayer(), msg);
             }
 
             break;
@@ -416,12 +413,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
             {
                 Player* member = groupRef->GetSource();
-                if (member->GetSession()->isRobot)
-                {                    
-                    RobotChatCommand* newRCC = new RobotChatCommand();
-                    newRCC->chatCommandContent = msg;
-                    newRCC->sender = GetPlayer();
-                    member->GetSession()->robotChatCommandSet.insert(newRCC);
+                if (member->GetSession()->rai)
+                {
+                    member->GetSession()->rai->HandleChatCommand(GetPlayer(), msg);
                 }
             }
             break;
@@ -491,12 +485,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
             {
                 Player* member = groupRef->GetSource();
-                if (member->GetSession()->isRobot)
-                {                    
-                    RobotChatCommand* newRCC = new RobotChatCommand();
-                    newRCC->chatCommandContent = msg;
-                    newRCC->sender = GetPlayer();
-                    member->GetSession()->robotChatCommandSet.insert(newRCC);
+                if (member->GetSession()->rai)
+                {
+                    member->GetSession()->rai->HandleChatCommand(GetPlayer(), msg);
                 }
             }
 

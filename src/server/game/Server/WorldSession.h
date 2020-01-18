@@ -34,6 +34,9 @@
 #include <unordered_map>
 #include <boost/circular_buffer.hpp>
 
+// EJ robot
+#include "RobotAI.h"
+
 class BigNumber;
 class Creature;
 class GameObject;
@@ -289,9 +292,8 @@ class TC_GAME_API WorldSession
         ~WorldSession();
 
         // EJ robot
+        RobotAI* rai;
         bool isRobot;
-        std::set<const WorldPacket*> robotPacketSet;
-        std::set<const RobotChatCommand*> robotChatCommandSet;
             
         bool PlayerLoading() const { return m_playerLoading; }
         bool PlayerLogout() const { return m_playerLogout; }
