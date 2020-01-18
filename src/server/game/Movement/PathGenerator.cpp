@@ -250,9 +250,14 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     {
         TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: (startPoly == endPoly)");
 
+        BuildShortcut();
+
         _pathPolyRefs[0] = startPoly;
-        _pathPolyRefs[1] = endPoly;
-        _polyLength = 2;
+        _polyLength = 1;
+
+        _type = farFromPoly ? PATHFIND_INCOMPLETE : PATHFIND_NORMAL;
+        TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: path type %d", _type);
+        return;
     }
 
     // look for startPoly/endPoly in current path
