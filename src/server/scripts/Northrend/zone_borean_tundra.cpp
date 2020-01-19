@@ -2043,119 +2043,6 @@ public:
     }
 };
 
-/*******************************************************
- * npc_warmage_coldarra
- *******************************************************/
-
-enum Spells
-{
-    SPELL_TRANSITUS_SHIELD_BEAM = 48310
-};
-
-enum NPCs
-{
-    NPC_TRANSITUS_SHIELD_DUMMY   = 27306,
-    NPC_WARMAGE_HOLLISTER        = 27906,
-    NPC_WARMAGE_CALANDRA         = 27173,
-    NPC_WARMAGE_WATKINS          = 27904
-};
-
-class npc_warmage_coldarra : public CreatureScript
-{
-public:
-    npc_warmage_coldarra() : CreatureScript("npc_warmage_coldarra") { }
-
-    struct npc_warmage_coldarraAI : public ScriptedAI
-    {
-        npc_warmage_coldarraAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            m_uiTimer = 0;
-        }
-
-        uint32 m_uiTimer;                 //Timer until recast
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void AttackStart(Unit* /*who*/) override { }
-
-        void UpdateAI(uint32 uiDiff) override
-        {
-            if (m_uiTimer <= uiDiff)
-            {
-                std::list<Creature*> orbList;
-                GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
-
-                switch (me->GetEntry())
-                {
-                    case NPC_WARMAGE_HOLLISTER:
-                    {
-                        if (!orbList.empty())
-                        {
-                            for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
-                            {
-                                if (Creature* pOrb = *itr)
-                                    if (pOrb->GetPositionY() > 6680)
-                                        DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
-                            }
-                        }
-                        m_uiTimer = urand(90000, 120000);
-                    }
-                        break;
-                    case NPC_WARMAGE_CALANDRA:
-                    {
-                        if (!orbList.empty())
-                        {
-                            for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
-                            {
-                                if (Creature* pOrb = *itr)
-                                    if ((pOrb->GetPositionY() < 6680) && (pOrb->GetPositionY() > 6630))
-                                        DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
-                            }
-                        }
-                        m_uiTimer = urand(90000, 120000);
-                    }
-                        break;
-                    case NPC_WARMAGE_WATKINS:
-                    {
-                        if (!orbList.empty())
-                        {
-                            for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
-                            {
-                                if (Creature* pOrb = *itr)
-                                    if (pOrb->GetPositionY() < 6630)
-                                        DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
-                            }
-                        }
-                        m_uiTimer = urand(90000, 120000);
-                    }
-                        break;
-                }
-            }
-            else m_uiTimer -= uiDiff;
-
-            ScriptedAI::UpdateAI(uiDiff);
-
-            if (!UpdateVictim())
-                return;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_warmage_coldarraAI(creature);
-    }
-};
-
 /*######
 ## npc_hidden_cultist
 ######*/
@@ -2604,7 +2491,6 @@ void AddSC_borean_tundra()
     new npc_bonker_togglevolt();
     new npc_trapped_mammoth_calf();
     new npc_valiance_keep_cannoneer();
-    new npc_warmage_coldarra();
     new npc_hidden_cultist();
     new spell_windsoul_totem_aura();
     new spell_q11719_bloodspore_ruination_45997();
