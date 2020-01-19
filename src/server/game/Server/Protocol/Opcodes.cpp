@@ -256,7 +256,6 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_CHAR_CREATE,                                      STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharCreateOpcode          );
     DEFINE_HANDLER(CMSG_CHAR_CUSTOMIZE,                                   STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharCustomize             );
     DEFINE_HANDLER(CMSG_CHAR_DELETE,                                      STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharDeleteOpcode          );
-    DEFINE_HANDLER(CMSG_CHAR_ENUM,                                        STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharEnumOpcode            );
     DEFINE_HANDLER(CMSG_CHAR_FACTION_CHANGE,                              STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharFactionOrRaceChange   );
     DEFINE_HANDLER(CMSG_CHAR_RACE_CHANGE,                                 STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharFactionOrRaceChange   );
     DEFINE_HANDLER(CMSG_CHAR_RENAME,                                      STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharRenameOpcode          );
@@ -294,6 +293,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_EMOTE,                                            STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleEmoteOpcode               );
     DEFINE_HANDLER(CMSG_ENABLETAXI,                                       STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleTaxiQueryAvailableNodes   );
     DEFINE_HANDLER(CMSG_ENABLE_NAGLE,                                     STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
+    DEFINE_HANDLER(CMSG_ENUM_CHARACTERS,                                  STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleCharEnumOpcode            );
     DEFINE_HANDLER(CMSG_EQUIPMENT_SET_DELETE,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetDelete        );
     DEFINE_HANDLER(CMSG_EQUIPMENT_SET_SAVE,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetSave          );
     DEFINE_HANDLER(CMSG_EQUIPMENT_SET_USE,                                STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleEquipmentSetUse           );
@@ -757,7 +757,6 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_CREATE,                                      STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_CUSTOMIZE,                                   STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_DELETE,                                      STATUS_NEVER,       CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_ENUM,                                        STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_FACTION_CHANGE,                              STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAR_RENAME,                                      STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAT_IGNORED_ACCOUNT_MUTED,                       STATUS_NEVER,       CONNECTION_TYPE_REALM);
@@ -829,6 +828,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_EMOTE,                                            STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ENABLE_BARBER_SHOP,                               STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ENCHANTMENTLOG,                                   STATUS_NEVER,       CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_ENUM_CHARACTERS_RESULT,                           STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_ENVIRONMENTALDAMAGELOG,                           STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_LIST,                               STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_EQUIPMENT_SET_SAVED,                              STATUS_NEVER,       CONNECTION_TYPE_REALM);

@@ -1047,8 +1047,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void Update(uint32 time) override;
 
-        static bool BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, ByteBuffer* bitBuffer);
-
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const override;
 
         void SetInWater(bool apply);

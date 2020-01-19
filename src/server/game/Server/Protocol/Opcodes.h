@@ -149,7 +149,6 @@ enum OpcodeClient : uint16
     CMSG_CHAR_CREATE                                  = 0x4A36,
     CMSG_CHAR_CUSTOMIZE                               = 0x2C34,
     CMSG_CHAR_DELETE                                  = 0x6425,
-    CMSG_CHAR_ENUM                                    = 0x0502,
     CMSG_CHAR_FACTION_CHANGE                          = 0x2735,
     CMSG_CHAR_RACE_CHANGE                             = 0x0D24,
     CMSG_CHAR_RENAME                                  = 0x2327,
@@ -188,6 +187,7 @@ enum OpcodeClient : uint16
     CMSG_EMOTE                                        = 0x4C26,
     CMSG_ENABLETAXI                                   = 0x0C16,
     CMSG_ENABLE_NAGLE                                 = 0x4449,
+    CMSG_ENUM_CHARACTERS                              = 0x0502,
     CMSG_EQUIPMENT_SET_DELETE                         = 0x4D07,
     CMSG_EQUIPMENT_SET_SAVE                           = 0x4F27,
     CMSG_EQUIPMENT_SET_USE                            = 0x0417,
@@ -691,7 +691,6 @@ enum OpcodeServer
     SMSG_CHAR_CREATE                                  = 0x2D05,
     SMSG_CHAR_CUSTOMIZE                               = 0x4F16,
     SMSG_CHAR_DELETE                                  = 0x0304,
-    SMSG_CHAR_ENUM                                    = 0x10B0,
     SMSG_CHAR_FACTION_CHANGE                          = 0x4C06,
     SMSG_CHAR_RENAME                                  = 0x2024,
     SMSG_CHAT_IGNORED_ACCOUNT_MUTED                   = 0x15A4,
@@ -768,6 +767,7 @@ enum OpcodeServer
     SMSG_EMOTE                                        = 0x0A34,
     SMSG_ENABLE_BARBER_SHOP                           = 0x2D16,
     SMSG_ENCHANTMENTLOG                               = 0x6035,
+    SMSG_ENUM_CHARACTERS_RESULT                       = 0x10B0,
     SMSG_ENVIRONMENTALDAMAGELOG                       = 0x6C05,
     SMSG_EQUIPMENT_SET_LIST                           = 0x2E04,
     SMSG_EQUIPMENT_SET_SAVED                          = 0x2216,
@@ -1431,9 +1431,6 @@ enum OpcodeMisc : uint16
     COMPRESSED_OPCODE_MASK                            = 0x8000
 };
 
-typedef OpcodeClient OpcodeClient;
-typedef OpcodeServer OpcodeServer;
-
 /// Player state
 enum SessionStatus
 {
@@ -1452,7 +1449,7 @@ enum PacketProcessing
     PROCESS_THREADSAFE                                      //packet is thread-safe - process it in Map::Update()
 };
 
-class WorldSession;
+class WorldPacket;
 class WorldSession;
 
 class OpcodeHandler

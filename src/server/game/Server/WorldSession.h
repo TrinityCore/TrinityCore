@@ -80,6 +80,11 @@ namespace WorldPackets
         enum class ConnectToSerial : uint32;
     }
 
+    namespace Character
+    {
+        class EnumCharacters;
+    }
+
     namespace LFG
     {
         class LFGJoin;
@@ -550,13 +555,13 @@ class TC_GAME_API WorldSession
         void Handle_ServerSide(WorldPacket& recvPacket);    // sever side only, can't be accepted from client
         void Handle_Deprecated(WorldPacket& recvPacket);    // never used anymore by client
 
-        void HandleCharEnumOpcode(WorldPacket& recvPacket);
+        void HandleCharEnum(PreparedQueryResult result);
+        void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
         void HandleContinuePlayerLogin();
         void HandleLoadScreenOpcode(WorldPacket& recvPacket);
-        void HandleCharEnum(PreparedQueryResult result);
         void HandlePlayerLogin(LoginQueryHolder* holder);
         void HandleCharFactionOrRaceChange(WorldPacket& recvData);
         void HandleCharFactionOrRaceChangeCallback(std::shared_ptr<CharacterFactionChangeInfo> factionChangeInfo, PreparedQueryResult result);

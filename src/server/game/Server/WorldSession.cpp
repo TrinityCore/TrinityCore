@@ -411,8 +411,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     }
 
                     // some auth opcodes can be recieved before STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT opcodes
-                    // however when we recieve CMSG_CHAR_ENUM we are surely no longer during the logout process.
-                    if (packet->GetOpcode() == CMSG_CHAR_ENUM)
+                    // however when we recieve CMSG_ENUM_CHARACTERS we are surely no longer during the logout process.
+                    if (packet->GetOpcode() == CMSG_ENUM_CHARACTERS)
                         m_playerRecentlyLogout = false;
 
                     if (AntiDOS.EvaluateOpcode(*packet, currentTime))
@@ -1521,7 +1521,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         }
 
         case CMSG_CHAR_CREATE:                          //   7               5         3 async db queries
-        case CMSG_CHAR_ENUM:                            //  22               3         2 async db queries
+        case CMSG_ENUM_CHARACTERS:                      //  22               3         2 async db queries
         case CMSG_GMTICKET_CREATE:                      //   1              25         1 async db query
         case CMSG_GMTICKET_UPDATETEXT:                  //   0              15         1 async db query
         case CMSG_GMTICKET_DELETETICKET:                //   1              25         1 async db query

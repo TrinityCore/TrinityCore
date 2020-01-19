@@ -19,6 +19,7 @@
 #define AllPackets_h__
 
 #include "AuthenticationPackets.h"
+#include "CharacterPackets.h"
 #include "GuildPackets.h"
 #include "LFGPackets.h"
 #include "NPCPackets.h"

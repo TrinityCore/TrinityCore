@@ -23,6 +23,7 @@
 #include "BattlenetServerManager.h"
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
+#include "CharacterPackets.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
@@ -242,53 +243,56 @@ bool LoginQueryHolder::Initialize()
 
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
-    uint32 charCount = 0;
-    ByteBuffer bitBuffer;
-    ByteBuffer dataBuffer;
+    WorldPackets::Character::EnumCharactersResult charEnum;
+    charEnum.Success = true;
 
-    bitBuffer.WriteBits(0, 23);
-    bitBuffer.WriteBit(1);
+    _legitCharacters.clear();
+
     if (result)
     {
-        _legitCharacters.clear();
-
-        charCount = uint32(result->GetRowCount());
-        bitBuffer.reserve(24 * charCount / 8);
-        dataBuffer.reserve(charCount * 381);
-
-        bitBuffer.WriteBits(charCount, 17);
-
         do
         {
-            ObjectGuid guid(HighGuid::Player, (*result)[0].GetUInt32());
+            charEnum.Characters.emplace_back(result->Fetch());
 
-            TC_LOG_INFO("network", "Loading char guid %s from account %u.", guid.ToString().c_str(), GetAccountId());
+            WorldPackets::Character::EnumCharactersResult::CharacterInfo& charInfo = charEnum.Characters.back();
 
-            Player::BuildEnumData(result, &dataBuffer, &bitBuffer);
+            TC_LOG_INFO("network", "Loading char guid %s from account %u.", charInfo.Guid.ToString().c_str(), GetAccountId());
 
-            // Do not allow banned characters to log in
-            if (!(*result)[23].GetUInt32())
-                _legitCharacters.insert(guid);
+            if (!Player::ValidateAppearance(charInfo.RaceID, charInfo.ClassID, charInfo.SexID, charInfo.HairStyle, charInfo.HairColor, charInfo.FaceID, charInfo.FacialHair, charInfo.SkinID))
+            {
+                TC_LOG_ERROR("entities.player.loading", "Player %s has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString().c_str());
 
-            if (!sCharacterCache->HasCharacterCacheEntry(guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-                sCharacterCache->AddCharacterCacheEntry(guid, GetAccountId(), (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[10].GetUInt8());
+                // Make sure customization always works properly - send all zeroes instead
+                charInfo.SkinID = 0;
+                charInfo.FaceID = 0;
+                charInfo.HairStyle = 0;
+                charInfo.HairColor = 0;
+                charInfo.FacialHair = 0;
 
-        } while (result->NextRow());
+                if (!(charInfo.Flags2 == CHAR_CUSTOMIZE_FLAG_CUSTOMIZE))
+                {
+                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+                    stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
+                    stmt->setUInt32(1, charInfo.Guid.GetCounter());
+                    CharacterDatabase.Execute(stmt);
+                    charInfo.Flags2 = CHAR_CUSTOMIZE_FLAG_CUSTOMIZE;
+                }
+            }
+
+            // Do not allow locked characters to login
+            if (!(charInfo.Flags & (CHARACTER_FLAG_LOCKED_FOR_TRANSFER | CHARACTER_FLAG_LOCKED_BY_BILLING)))
+                _legitCharacters.insert(charInfo.Guid);
+
+            if (!sCharacterCache->HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                sCharacterCache->AddCharacterCacheEntry(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.SexID, charInfo.RaceID, charInfo.ClassID, charInfo.ExperienceLevel);
+        }
+        while (result->NextRow());
     }
-    else
-        bitBuffer.WriteBits(0, 17);
 
-    bitBuffer.FlushBits();
-
-    WorldPacket data(SMSG_CHAR_ENUM, 7 + bitBuffer.size() + dataBuffer.size());
-    data.append(bitBuffer);
-    if (charCount)
-        data.append(dataBuffer);
-
-    SendPacket(&data);
+    SendPacket(charEnum.Write());
 }
 
-void WorldSession::HandleCharEnumOpcode(WorldPacket& /*recvData*/)
+void WorldSession::HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/)
 {
     // remove expired bans
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
