@@ -225,7 +225,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         if (buildShotrcut)
         {
             BuildShortcut();
-            _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+            _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH | PATHFIND_FARFROMPOLY);
             return;
         }
         else
@@ -238,7 +238,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
                 SetActualEndPosition(G3D::Vector3(endPoint[2], endPoint[0], endPoint[1]));
             }
 
-            _type = PATHFIND_INCOMPLETE;
+            _type = PathType(PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY);
         }
     }
 
@@ -252,7 +252,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         _pathPolyRefs[0] = startPoly;
         _polyLength = 1;
 
-        _type = farFromPoly ? PATHFIND_INCOMPLETE : PATHFIND_NORMAL;
+        _type = farFromPoly ? PathType(PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY) : PATHFIND_NORMAL;
 
         BuildPointPath(startPoint, endPoint);
         return;
