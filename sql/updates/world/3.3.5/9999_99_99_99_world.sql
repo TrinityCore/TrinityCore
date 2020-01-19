@@ -5,4 +5,3 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (27906,0,0,0,1,0,100,0,1000,1000,0,0,0,11,48310,0,0,0,0,0,11,27306,32,0,0,0,0,0,0,'Warmage Hollister - Out of Combat - Cast \'Transitus Shield Beam\''),
 (27173,0,0,0,1,0,100,0,1000,1000,0,0,0,11,48310,0,0,0,0,0,11,27306,32,0,0,0,0,0,0,'Warmage Calandra - Out of Combat - Cast \'Transitus Shield Beam\''),
 (27904,0,0,0,1,0,100,0,1000,1000,0,0,0,11,48310,0,0,0,0,0,11,27306,32,0,0,0,0,0,0,'Warmage Watkins - Out of Combat - Cast \'Transitus Shield Beam\'');
-
