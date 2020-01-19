@@ -465,6 +465,9 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     else
         _type = PATHFIND_INCOMPLETE;
 
+    if (farFromPoly)
+        _type = PathType(_type | PATHFIND_FARFROMPOLY);
+
     // generate the point-path out of our up-to-date poly-path
     BuildPointPath(startPoint, endPoint);
 }
