@@ -396,5 +396,4 @@ void AddNorthrendScripts()
     AddSC_storm_peaks();
     AddSC_wintergrasp();
     AddSC_zuldrak();
-    AddSC_crystalsong_forest();
 }
