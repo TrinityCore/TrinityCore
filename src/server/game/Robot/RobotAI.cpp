@@ -2433,35 +2433,6 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_Online:
     {
-        if (sourcePlayer)
-        {
-            if (sourcePlayer->IsBeingTeleportedNear())
-            {
-                WorldPacket data(MSG_MOVE_TELEPORT_ACK, 10);
-                data << sourcePlayer->GetGUID().WriteAsPacked();
-                data << uint32(0) << uint32(0);
-                sourcePlayer->GetSession()->HandleMoveTeleportAck(data);
-                break;
-            }
-            else if (sourcePlayer->IsBeingTeleportedFar())
-            {
-                sourcePlayer->GetSession()->HandleMoveWorldportAck();
-                break;
-            }
-            else
-            {
-                if (strategiesMap["solo_normal"])
-                {
-                    st_Solo_Normal->Update(pmDiff);
-                    break;
-                }
-                if (strategiesMap["group_normal"])
-                {
-                    st_Group_Normal->Update(pmDiff);
-                    break;
-                }
-            }
-        }
         if (offlineDelay > 0)
         {
             offlineDelay -= pmDiff;
@@ -2506,8 +2477,32 @@ void RobotAI::Update(uint32 pmDiff)
 
                 if (!levelPlayerOnline)
                 {
-                    offlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-                    break;
+                    offlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);                    
+                }
+            }
+        }
+        if (sourcePlayer)
+        {
+            if (sourcePlayer->IsBeingTeleportedNear())
+            {
+                WorldPacket data(MSG_MOVE_TELEPORT_ACK, 10);
+                data << sourcePlayer->GetGUID().WriteAsPacked();
+                data << uint32(0) << uint32(0);
+                sourcePlayer->GetSession()->HandleMoveTeleportAck(data);
+            }
+            else if (sourcePlayer->IsBeingTeleportedFar())
+            {
+                sourcePlayer->GetSession()->HandleMoveWorldportAck();
+            }
+            else
+            {
+                if (strategiesMap["solo_normal"])
+                {
+                    st_Solo_Normal->Update(pmDiff);
+                }
+                if (strategiesMap["group_normal"])
+                {
+                    st_Group_Normal->Update(pmDiff);
                 }
             }
         }
