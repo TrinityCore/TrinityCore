@@ -1064,7 +1064,7 @@ struct go_empowering_blood_orb : public GameObjectAI
     {
         me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         me->SetGoAnimProgress(255);
-        me->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+        me->SetGoState(GO_STATE_DESTROYED);
         if (Creature* trigger = ObjectAccessor::GetCreature(*me, _triggerGuid))
             trigger->DespawnOrUnsummon();
         _scheduler.Schedule(3s, [this](TaskContext /*context*/)
