@@ -1615,7 +1615,7 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
         RemoveFlag(GO_FLAG_IN_USE);
 
     if (GetGoState() == GO_STATE_READY)                      //if closed -> open
-        SetGoState(alternative ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_ACTIVE);
+        SetGoState(alternative ? GO_STATE_DESTROYED : GO_STATE_ACTIVE);
     else                                                    //if open -> close
         SetGoState(GO_STATE_READY);
 }
