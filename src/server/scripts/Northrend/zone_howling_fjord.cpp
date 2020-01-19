@@ -250,83 +250,6 @@ public:
 };
 
 /*######
-## npc_razael_and_lyana
-######*/
-
-enum Razael
-{
-    QUEST_REPORTS_FROM_THE_FIELD    = 11221,
-
-    NPC_RAZAEL                      = 23998,
-    NPC_LYANA                       = 23778,
-
-    GOSSIP_RAZAEL_REPORT            = 8870,
-    GOSSIP_TEXTID_RAZAEL1           = 11562,
-    GOSSIP_TEXTID_RAZAEL2           = 11564,
-
-    GOSSIP_LYANA_REPORT             = 8879,
-    GOSSIP_TEXTID_LYANA1            = 11586,
-    GOSSIP_TEXTID_LYANA2            = 11588,
-
-    GOSSIP_MENU_ID                  = 0
-};
-
-struct npc_razael_and_lyana : public ScriptedAI {
-    npc_razael_and_lyana(Creature *creature) : ScriptedAI(creature)
-    {
-    }
-
-    bool GossipHello(Player* player) override
-    {
-        if (me->IsQuestGiver())
-            player->PrepareQuestMenu(me->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
-        {
-            switch (me->GetEntry())
-            {
-                case NPC_RAZAEL:
-                    if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
-                    {
-                        AddGossipItemFor(player, GOSSIP_RAZAEL_REPORT, GOSSIP_MENU_ID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL1, me->GetGUID());
-                        return true;
-                    }
-                    break;
-                case NPC_LYANA:
-                    if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
-                    {
-                        AddGossipItemFor(player, GOSSIP_LYANA_REPORT, GOSSIP_MENU_ID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA1, me->GetGUID());
-                        return true;
-                    }
-                    break;
-            }
-        }
-        SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-        return true;
-    }
-
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-    {
-        uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-        ClearGossipMenuFor(player);
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL2, me->GetGUID());
-                player->TalkedToCreature(NPC_RAZAEL, me->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA2, me->GetGUID());
-                player->TalkedToCreature(NPC_LYANA, me->GetGUID());
-                break;
-        }
-        return true;
-    }
-};
-
-/*######
 ## npc_daegarn
 ######*/
 
@@ -664,7 +587,6 @@ public:
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes();
-    RegisterCreatureAI(npc_razael_and_lyana);
     RegisterCreatureAI(npc_daegarn);
     new npc_mindless_abomination();
     new spell_mindless_abomination_explosion_fx_master();
