@@ -4503,6 +4503,14 @@ bool Unit::HasAuraTypeWithValue(AuraType auraType, int32 value) const
     return false;
 }
 
+bool Unit::HasAuraTypeWithTriggerSpell(AuraType auratype, uint32 triggerSpell) const
+{
+    for (AuraEffect const* aura : GetAuraEffectsByType(auratype))
+        if (aura->GetSpellInfo()->Effects[aura->GetEffIndex()].TriggerSpell == triggerSpell)
+            return true;
+    return false;
+}
+
 bool Unit::HasNegativeAuraWithInterruptFlag(uint32 flag, ObjectGuid guid) const
 {
     if (!(m_interruptMask & flag))
@@ -8140,9 +8148,6 @@ bool Unit::IsServiceProvider() const
 void Unit::EngageWithTarget(Unit* enemy)
 {
     if (!enemy)
-        return;
-
-    if (IsEngagedBy(enemy))
         return;
 
     if (CanHaveThreatList())

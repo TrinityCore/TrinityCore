@@ -340,7 +340,7 @@ class boss_freya : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 DoZoneInCombat();
                 Creature* Elder[3];
                 for (uint8 n = 0; n < 3; ++n)
@@ -727,9 +727,9 @@ class boss_elder_brightleaf : public CreatureScript
                 Talk(SAY_ELDER_DEATH);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
                     Talk(SAY_ELDER_AGGRO);
             }
@@ -830,9 +830,9 @@ class boss_elder_stonebark : public CreatureScript
                 Talk(SAY_ELDER_DEATH);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
                     Talk(SAY_ELDER_AGGRO);
             }
@@ -939,9 +939,9 @@ class boss_elder_ironbranch : public CreatureScript
                 Talk(SAY_ELDER_DEATH);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
                     Talk(SAY_ELDER_AGGRO);
             }

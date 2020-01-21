@@ -101,9 +101,9 @@ struct boss_najentus : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_NEEDLE, 2s);
         events.ScheduleEvent(EVENT_SHIELD, 1min);

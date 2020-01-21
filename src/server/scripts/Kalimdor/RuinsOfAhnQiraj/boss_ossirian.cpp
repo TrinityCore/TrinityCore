@@ -140,9 +140,9 @@ class boss_ossirian : public CreatureScript
                             Trigger->CastSpell(Trigger, SpellWeakness[urand(0, 4)], false);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.Reset();
                 events.ScheduleEvent(EVENT_SILENCE, 30s);
                 events.ScheduleEvent(EVENT_CYCLONE, 20s);

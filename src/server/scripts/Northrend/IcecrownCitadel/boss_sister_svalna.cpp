@@ -350,9 +350,9 @@ struct boss_sister_svalna : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*attacker*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CROK_SCOURGEBANE)))
             crok->AI()->Talk(SAY_CROK_COMBAT_SVALNA);
         DoCastSelf(SPELL_DIVINE_SURGE, true);
