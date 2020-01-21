@@ -4367,8 +4367,7 @@ void Spell::SendSpellGo()
     /*
     if (castData.Target.Flags & TARGET_FLAG_EXTRA_TARGETS)
     {
-            data << uint32(0); // Extra targets count
-        /*
+         data << uint32(0); // Extra targets count
         for (uint8 i = 0; i < count; ++i)
         {
             data << float(0);   // Target Position X

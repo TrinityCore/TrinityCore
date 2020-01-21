@@ -74,12 +74,6 @@ namespace WorldPackets
             std::array<int32, 2> Id = { };
         };
 
-        class SpellPowerData
-        {
-            int32 Cost = 0;
-            int8 Type = 0;
-        };
-
         struct SpellTargetData
         {
             uint32 Flags = 0;
