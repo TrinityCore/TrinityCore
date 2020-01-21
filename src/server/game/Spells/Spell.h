@@ -25,6 +25,16 @@
 #include "SharedDefines.h"
 #include <memory>
 
+namespace WorldPackets
+{
+    namespace Spells
+    {
+        struct SpellTargetData;
+        struct SpellAmmo;
+        struct SpellHitInfo;
+    }
+}
+
 class Aura;
 class AuraEffect;
 class ByteBuffer;
@@ -129,7 +139,7 @@ class TC_GAME_API SpellCastTargets
         ~SpellCastTargets();
 
         void Read(ByteBuffer& data, Unit* caster);
-        void Write(ByteBuffer& data);
+        void Write(WorldPackets::Spells::SpellTargetData& data);
 
         uint32 GetTargetMask() const { return m_targetMask; }
         void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
@@ -467,8 +477,6 @@ class TC_GAME_API Spell
         void setState(uint32 state) { m_spellState = state; }
 
         void DoCreateItem(uint32 i, uint32 itemtype);
-        void WriteSpellGoTargets(WorldPacket* data);
-        void GetProjectileData(uint32& projectileDisplayId, uint32& projectileInventoryType);
 
         bool CheckEffectTarget(Unit const* target, uint32 eff, Position const* losPosition) const;
         bool CanAutoCast(Unit* target);
@@ -728,6 +736,9 @@ class TC_GAME_API Spell
         // effect helpers
         void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons);
         void CalculateJumpSpeeds(uint8 i, float dist, float & speedxy, float & speedz);
+
+        void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellHitInfo& data);
+        void UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& data);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
