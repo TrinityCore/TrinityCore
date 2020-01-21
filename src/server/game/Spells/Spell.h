@@ -520,6 +520,7 @@ class TC_GAME_API Spell
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
         SpellCustomErrors m_customError;
+        uint32 m_castFlagsEx;
 
         UsedSpellMods m_appliedMods;
 

@@ -550,6 +550,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     m_comboPointGain = 0;
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
+    m_castFlagsEx = 0;
 
     m_applyMultiplierMask = 0;
     m_auraScaleMask = 0;
@@ -4178,6 +4179,7 @@ void Spell::SendSpellStart()
     castData.CastID = m_cast_count;
     castData.SpellID = m_spellInfo->Id;
     castData.CastFlags = castFlags;
+    castData.CastFlagsEx = m_castFlagsEx;
     castData.CastTime = m_casttime;
 
     //data << uint32(m_timer);                                // delay?
@@ -4304,6 +4306,7 @@ void Spell::SendSpellGo()
     castData.CastID = m_cast_count;
     castData.SpellID = m_spellInfo->Id;
     castData.CastFlags = castFlags;
+    castData.CastFlagsEx = m_castFlagsEx;
     castData.CastTime = GameTime::GetGameTimeMS();
 
     castData.HitInfo = boost::in_place();

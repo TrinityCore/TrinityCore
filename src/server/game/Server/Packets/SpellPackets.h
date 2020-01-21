@@ -104,6 +104,7 @@ namespace WorldPackets
             uint8 CastID = 0;
             uint32 SpellID = 0;
             uint32 CastFlags = 0;
+            uint32 CastFlagsEx = 0;
             uint32 CastTime = 0;
             SpellTargetData Target;
             Optional<SpellHitInfo> HitInfo;

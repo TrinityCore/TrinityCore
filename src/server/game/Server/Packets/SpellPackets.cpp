@@ -117,7 +117,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << uint8(spellCastData.CastID);
     data << uint32(spellCastData.SpellID);
     data << uint32(spellCastData.CastFlags);
-    data << uint32(0); // m_timer Todo: research
+    data << uint32(spellCastData.CastFlagsEx);
     data << uint32(spellCastData.CastTime);
 
     if (spellCastData.HitInfo)
