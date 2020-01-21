@@ -225,7 +225,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         if (buildShotrcut)
         {
             BuildShortcut();
-            _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+            _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH | PATHFIND_FARFROMPOLY);
             return;
         }
         else
@@ -238,7 +238,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
                 SetActualEndPosition(G3D::Vector3(endPoint[2], endPoint[0], endPoint[1]));
             }
 
-            _type = PATHFIND_INCOMPLETE;
+            _type = PathType(PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY);
         }
     }
 
@@ -249,14 +249,12 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     if (startPoly == endPoly)
     {
         TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: (startPoly == endPoly)");
-
-        BuildShortcut();
-
         _pathPolyRefs[0] = startPoly;
         _polyLength = 1;
 
-        _type = farFromPoly ? PATHFIND_INCOMPLETE : PATHFIND_NORMAL;
-        TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: path type %d", _type);
+        _type = farFromPoly ? PathType(PATHFIND_INCOMPLETE | PATHFIND_FARFROMPOLY) : PATHFIND_NORMAL;
+
+        BuildPointPath(startPoint, endPoint);
         return;
     }
 
@@ -467,6 +465,9 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
     else
         _type = PATHFIND_INCOMPLETE;
 
+    if (farFromPoly)
+        _type = PathType(_type | PATHFIND_FARFROMPOLY);
+
     // generate the point-path out of our up-to-date poly-path
     BuildPointPath(startPoint, endPoint);
 }
@@ -527,7 +528,14 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pointPathLimit);    // maximum number of points
     }
 
-    if (pointCount < 2 || dtStatusFailed(dtResult))
+    // Special case with start and end positions very close to each other
+    if (_polyLength == 1 && pointCount == 1)
+    {
+        // First point is start position, append end position
+        dtVcopy(&pathPoints[1 * VERTEX_SIZE], endPoint);
+        pointCount++;
+    }
+    else if ( pointCount < 2 || dtStatusFailed(dtResult))
     {
         // only happens if pass bad data to findStraightPath or navmesh is broken
         // single point paths can be generated here
@@ -772,11 +780,22 @@ dtStatus PathGenerator::FindSmoothPath(float const* startPos, float const* endPo
     uint32 npolys = polyPathSize;
 
     float iterPos[VERTEX_SIZE], targetPos[VERTEX_SIZE];
-    if (dtStatusFailed(_navMeshQuery->closestPointOnPolyBoundary(polys[0], startPos, iterPos)))
-        return DT_FAILURE;
 
-    if (dtStatusFailed(_navMeshQuery->closestPointOnPolyBoundary(polys[npolys-1], endPos, targetPos)))
-        return DT_FAILURE;
+    if (polyPathSize > 1)
+    {
+        // Pick the closest poitns on poly border
+        if (dtStatusFailed(_navMeshQuery->closestPointOnPolyBoundary(polys[0], startPos, iterPos)))
+            return DT_FAILURE;
+
+        if (dtStatusFailed(_navMeshQuery->closestPointOnPolyBoundary(polys[npolys - 1], endPos, targetPos)))
+            return DT_FAILURE;
+    }
+    else
+    {
+        // Case where the path is on the same poly
+        dtVcopy(iterPos, startPos);
+        dtVcopy(targetPos, endPos);
+    }
 
     dtVcopy(&smoothPath[nsmoothPath*VERTEX_SIZE], iterPos);
     nsmoothPath++;
