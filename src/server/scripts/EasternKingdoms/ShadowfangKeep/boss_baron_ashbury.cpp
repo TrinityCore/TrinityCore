@@ -192,7 +192,7 @@ struct boss_baron_ashbury : public BossAI
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_PAIN_AND_SUFFERING);
 
-                    if (IsHeroic() && events.GetTimeUntilEvent(EVENT_ASPHYXIATE) > 10 * IN_MILLISECONDS)
+                    if (IsHeroic() && events.GetTimeUntilEvent(EVENT_ASPHYXIATE) > 15 * IN_MILLISECONDS)
                         events.ScheduleEvent(EVENT_WRACKING_PAIN, 8s + 100ms);
                     events.Repeat(23s);
                     break;
