@@ -524,8 +524,10 @@ void Unit::Update(uint32 p_time)
     UpdateSplineMovement(p_time);
     i_motionMaster->UpdateMotion(p_time);
 
-    // Wait with the cleanup until we have updated our movement generators and position
-    if (!movespline->Finalized() || isMoving() || isTurning())
+    // Wait with the aura interrupts until we have updated our movement generators and position6
+    if (IsPlayer())
+        InterruptMovementBasedAuras();
+    else if (!movespline->Finalized())
         InterruptMovementBasedAuras();
 
     // Update serverside orientation of channeled spells that are suposed to track the channel target
