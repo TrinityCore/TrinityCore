@@ -171,7 +171,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     init.SetWalk(walk);
     int32 splineDuration = init.Launch();
 
-    _wanderSteps--;
+    --_wanderSteps;
     if (_wanderSteps) // Creature has yet to do steps before pausing
         _timer.Reset(splineDuration);
     else
