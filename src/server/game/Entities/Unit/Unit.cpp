@@ -456,7 +456,9 @@ void Unit::Update(uint32 p_time)
     i_motionMaster->Update(p_time);
 
     // Wait with the aura interrupts until we have updated our movement generators and position
-    if (!movespline->Finalized() || isMoving() || isTurning())
+    if (GetTypeId() == TYPEID_PLAYER)
+        InterruptMovementBasedAuras();
+    else if (!movespline->Finalized())
         InterruptMovementBasedAuras();
 
     if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || (IsCharmed() && GetCharmerGUID().IsCreature())))
