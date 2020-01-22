@@ -409,8 +409,6 @@ Unit::Unit(bool isWorldObject) :
 
     _oldFactionId = 0;
     _isWalkingBeforeCharm = false;
-
-    _positionUpdateInfo = PositionUpdateInfo();
 }
 
 ////////////////////////////////////////////////////////////
@@ -529,6 +527,9 @@ void Unit::Update(uint32 p_time)
         InterruptMovementBasedAuras();
     else if (!movespline->Finalized())
         InterruptMovementBasedAuras();
+
+    // All position info based actions have been executed, reset info
+    _positionUpdateInfo.Reset();
 
     // Update serverside orientation of channeled spells that are suposed to track the channel target
     if (Spell const* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])

@@ -946,10 +946,14 @@ enum PlayerTotemType
 
 struct PositionUpdateInfo
 {
-    PositionUpdateInfo() : Relocated(false), Turned(false) { }
+    void Reset()
+    {
+        Relocated = false;
+        Turned = false;
+    }
 
-    bool Relocated;
-    bool Turned;
+    bool Relocated = false;
+    bool Turned = false;
 };
 
 // delay time next attack to prevent client attack animation problems
