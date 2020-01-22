@@ -1455,6 +1455,7 @@ CREATE TABLE `holiday_dates` (
   `id` int(10) unsigned NOT NULL,
   `date_id` tinyint(3) unsigned NOT NULL,
   `date_value` int(10) unsigned NOT NULL,
+  `holiday_duration` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`,`date_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3843,4 +3844,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-12-15 18:26:23
+-- Dump completed on 2020-01-15  7:45:20

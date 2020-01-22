@@ -159,9 +159,9 @@ class boss_steelbreaker : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_STEELBREAKER_AGGRO);
                 DoCast(me, SPELL_HIGH_VOLTAGE);
                 events.SetPhase(++phase);
@@ -307,9 +307,9 @@ class boss_runemaster_molgeim : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_MOLGEIM_AGGRO);
                 events.SetPhase(++phase);
                 events.ScheduleEvent(EVENT_BERSERK, 15min);
@@ -486,9 +486,9 @@ class boss_stormcaller_brundir : public CreatureScript
                 return 0;
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_BRUNDIR_AGGRO);
                 events.SetPhase(++phase);
                 events.ScheduleEvent(EVENT_MOVE_POSITION, 1s);

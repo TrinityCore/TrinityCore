@@ -82,17 +82,6 @@ class boss_rajaxx : public CreatureScript
                 events.ScheduleEvent(EVENT_THUNDERCRASH, 12s);
             }
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                //SAY_DEATH
-                _JustDied();
-            }
-
-            void JustEngagedWith(Unit* /*victim*/) override
-            {
-                _JustEngagedWith();
-            }
-
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())

@@ -72,9 +72,9 @@ class boss_loatheb : public CreatureScript
                 _sporeLoser = true;
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_NECROTIC_AURA, 17s);
                 events.ScheduleEvent(EVENT_DEATHBLOOM, 5s);
                 events.ScheduleEvent(EVENT_SPORE, 18s);
