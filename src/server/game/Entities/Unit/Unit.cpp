@@ -461,6 +461,9 @@ void Unit::Update(uint32 p_time)
     else if (!movespline->Finalized())
         InterruptMovementBasedAuras();
 
+    // All position info based actions have been executed, reset info
+    _positionUpdateInfo.Reset();
+
     if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || (IsCharmed() && GetCharmerGUID().IsCreature())))
         UpdateCharmAI();
     RefreshAI();

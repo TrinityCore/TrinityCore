@@ -716,6 +716,12 @@ enum ReactiveType
 
 struct PositionUpdateInfo
 {
+    void Reset()
+    {
+        Relocated = false;
+        Turned = false;
+    }
+
     bool Relocated = false;
     bool Turned = false;
 };
