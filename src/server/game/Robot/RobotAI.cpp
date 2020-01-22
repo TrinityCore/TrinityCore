@@ -2304,30 +2304,36 @@ void RobotAI::Update(uint32 pmDiff)
             {
                 checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
                 bool levelPlayerOnline = false;
-                std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
-                for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
+                if (sRobotConfig->onlineLevel == targetLevel)
                 {
-                    if (!it->second->isRobot)
+                    levelPlayerOnline = true;
+                }
+                else
+                {
+                    std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
+                    for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
                     {
-                        Player* eachPlayer = it->second->GetPlayer();
-                        if (eachPlayer)
+                        if (!it->second->isRobot)
                         {
-                            if (eachPlayer->IsInWorld())
+                            Player* eachPlayer = it->second->GetPlayer();
+                            if (eachPlayer)
                             {
-                                uint32 eachPlayerLevel = eachPlayer->GetLevel();
-                                if (eachPlayerLevel > 10)
+                                if (eachPlayer->IsInWorld())
                                 {
-                                    if (eachPlayerLevel == targetLevel)
+                                    uint32 eachPlayerLevel = eachPlayer->GetLevel();
+                                    if (eachPlayerLevel > 10)
                                     {
-                                        levelPlayerOnline = true;
-                                        break;
+                                        if (eachPlayerLevel == targetLevel)
+                                        {
+                                            levelPlayerOnline = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-
                 if (levelPlayerOnline)
                 {
                     onlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
@@ -2451,23 +2457,30 @@ void RobotAI::Update(uint32 pmDiff)
             {
                 checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
                 bool levelPlayerOnline = false;
-                std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
-                for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
+                if (sRobotConfig->onlineLevel == targetLevel)
                 {
-                    if (!it->second->isRobot)
+                    levelPlayerOnline = true;
+                }
+                else
+                {
+                    std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
+                    for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
                     {
-                        Player* eachPlayer = it->second->GetPlayer();
-                        if (eachPlayer)
+                        if (!it->second->isRobot)
                         {
-                            if (eachPlayer->IsInWorld())
+                            Player* eachPlayer = it->second->GetPlayer();
+                            if (eachPlayer)
                             {
-                                uint32 eachPlayerLevel = eachPlayer->GetLevel();
-                                if (eachPlayerLevel > 10)
+                                if (eachPlayer->IsInWorld())
                                 {
-                                    if (eachPlayerLevel == targetLevel)
+                                    uint32 eachPlayerLevel = eachPlayer->GetLevel();
+                                    if (eachPlayerLevel > 10)
                                     {
-                                        levelPlayerOnline = true;
-                                        break;
+                                        if (eachPlayerLevel == targetLevel)
+                                        {
+                                            levelPlayerOnline = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -2477,7 +2490,7 @@ void RobotAI::Update(uint32 pmDiff)
 
                 if (!levelPlayerOnline)
                 {
-                    offlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);                    
+                    offlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
                 }
             }
         }
@@ -2533,6 +2546,7 @@ void RobotAI::Update(uint32 pmDiff)
         if (allDelay <= 0)
         {
             allDelay = 0;
+            Logout();
             robotState = RobotState::RobotState_CheckLogoff;
             allDelay = 10 * TimeConstants::IN_MILLISECONDS;
         }
@@ -3499,6 +3513,7 @@ void RobotAI::Logout()
     {
         if (sourcePlayer->IsInWorld())
         {
+            robotState = RobotState::RobotState_DoLogoff;
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", sourcePlayer->GetName());
             std::ostringstream msgStream;
             msgStream << sourcePlayer->GetName() << " logged out";

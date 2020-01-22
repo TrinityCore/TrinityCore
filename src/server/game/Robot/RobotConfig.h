@@ -37,8 +37,9 @@ private:
 public:
 
     bool StartRobotSystem();
-    uint8 enable;
-    uint8 resetRobots;
+    uint32 enable;
+    uint32 resetRobots;
+    uint32 onlineLevel;
     std::string robotAccountNamePrefix;
 };
 

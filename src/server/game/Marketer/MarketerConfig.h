@@ -38,8 +38,8 @@ public :
 
     bool StartMarketerSystem();
 
-    uint8 enable;
-    uint8 reset;    
+    uint32 enable;
+    uint32 reset;
 };
 
 #define sMarketerConfig MarketerConfig::instance()

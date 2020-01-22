@@ -527,7 +527,7 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
         buyerCheckDelay -= pmDiff;
         return true;
     }
-    buyerCheckDelay = 2 * HOUR * IN_MILLISECONDS;
+    buyerCheckDelay = HOUR * IN_MILLISECONDS;
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to update marketer buyer");    
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
