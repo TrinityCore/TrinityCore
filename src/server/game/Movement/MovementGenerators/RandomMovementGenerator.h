@@ -26,7 +26,7 @@ template<class T>
 class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
 {
     public:
-        explicit RandomMovementGenerator(float distance = 0.0f) : _path(nullptr), _timer(0), _reference(), _wanderDistance(distance), _interrupt(false), _stalled(false){ }
+        explicit RandomMovementGenerator(float distance = 0.0f) : _path(nullptr), _timer(0), _reference(), _wanderDistance(distance), _wanderSteps(0), _interrupt(false), _stalled(false) { }
         ~RandomMovementGenerator();
 
         MovementGeneratorType GetMovementGeneratorType() const override { return RANDOM_MOTION_TYPE; }
@@ -46,6 +46,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
         TimeTracker _timer;
         Position _reference;
         float _wanderDistance;
+        uint8 _wanderSteps;
         bool _interrupt;
         bool _stalled;
 };
