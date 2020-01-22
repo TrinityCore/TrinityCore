@@ -595,11 +595,6 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmGUID)
         sWorld->AddSession(loginSession);
     }
 
-    if (!sCharacterCache->HasCharacterCacheEntry(playerGUID))
-    {
-        sCharacterCache->AddCharacterCacheEntry(playerGUID, pmAccountID, currentPlayer->GetName(), currentPlayer->GetGender(), currentPlayer->GetRace(), currentPlayer->GetClass(), currentPlayer->GetLevel());
-    }
-
     loginSession->HandlePlayerLogin_Simple(playerGUID);
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmGUID, characterName.c_str(), characterLevel);
 
