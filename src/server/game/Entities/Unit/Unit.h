@@ -716,10 +716,8 @@ enum ReactiveType
 
 struct PositionUpdateInfo
 {
-    PositionUpdateInfo() : Relocated(false), Turned(false) { }
-
-    bool Relocated;
-    bool Turned;
+    bool Relocated = false;
+    bool Turned = false;
 };
 
 // delay time next attack to prevent client attack animation problems
@@ -1818,7 +1816,7 @@ class TC_GAME_API Unit : public WorldObject
         bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
 
         SpellHistory* m_spellHistory;
-		PositionUpdateInfo _positionUpdateInfo;
+        PositionUpdateInfo _positionUpdateInfo;
 };
 
 namespace Trinity
