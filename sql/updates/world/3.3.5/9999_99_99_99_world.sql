@@ -169,7 +169,6 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (28936,9,4,"Let the purging begin!, Let the purging begin!",12,0,100,0,0,0,28601,0,'Scarlet Commander'),
 (28936,9,5,"By the Light be cleansed!, By the Light be cleansed!",12,0,100,0,0,0,28602,0,'Scarlet Commander');
 
-
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=17 AND `SourceEntry`=52781;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=52805;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -188,38 +187,30 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 UPDATE `creature_template` SET `ScriptName`='',`AIName`='SmartAI' WHERE `entry` IN (28610,28939,28940,28936);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (28610,28939,28940,28936) AND `source_type`=0;
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (2861000,2861001) AND `source_type`=9;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (2861000,2861001,2861002) AND `source_type`=9;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (28610,0,0,0,0,0,100,0,2000,3900,2500,3900,0,11,6660,64,0,0,0,0,2,0,0,0,0,0,0,0,0,'Scarlet Marksman - IC CMC - Cast shot'),
 (28610,0,1,0,0,0,100,0,4000,8000,4000,8000,0,11,32915,0,0,0,0,0,2,0,0,0,0,0,0,0,0,'Scarlet Marksman - IC - Cast Raptor Strike'),
 (28610,0,2,0,0,0,100,0,8000,10000,8000,10000,0,11,18651,64,0,0,0,0,2,0,0,0,0,0,0,0,0,'Scarlet Marksman - IC - Cast Multi-Shot'),
 (28610,0,3,0,8,0,100,0,52781,0,10000,10000,0,87,2861000,2861001,2861000,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Marksman - On spellhit - Random action list'),
-(28610,0,4,5,25,0,100,0,0,0,0,0,0,90,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Marksman - On reset - Restore state'),
-(28610,0,5,6,61,0,100,0,0,0,0,0,0,8,2,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Marksman - On reset - Restore react state'),
-(28610,0,6,0,61,0,100,0,0,0,0,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Marksman - On reset - Enable combat movement'),
-(28610,0,7,0,4,0,10,0,0,0,0,0,0,1,9,0,1,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet Marksman - On aggro - say text'),
+(28610,0,4,0,4,0,10,0,0,0,0,0,0,1,9,0,1,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet Marksman - On aggro - say text'),
+(28610,0,5,0,7,0,100,0,0,0,0,0,0,80,2861002,2,1,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Marksman - On evade - action list'),
 (28939,0,0,0,0,0,100,0,2000,3900,2500,3900,0,11,15498,64,0,0,0,0,2,0,0,0,0,0,0,0,0,'Scarlet Preacher - IC CMC - Cast Holy Smite'),
 (28939,0,1,0,0,0,100,0,4000,6000,60000,60000,0,11,34809,1,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Preacher - IC - Cast Holy Fury'),
 (28939,0,2,0,0,0,100,0,8000,10000,25000,30000,0,11,19725,0,0,0,0,0,2,0,0,0,0,0,0,0,0,'Scarlet Preacher - IC - Cast Turn Undead'),
 (28939,0,3,0,8,0,100,0,52781,0,10000,10000,0,87,2861000,2861001,2861000,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Preacher - On spellhit - Random action list'),
-(28939,0,4,5,25,0,100,0,0,0,0,0,0,90,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Preacher - On reset - Restore state'),
-(28939,0,5,6,61,0,100,0,0,0,0,0,0,8,2,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Preacher - On reset - Restore react state'),
-(28939,0,6,0,61,0,100,0,0,0,0,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Preacher - On reset - Enable combat movement'),
-(28939,0,7,0,4,0,10,0,0,0,0,0,0,1,9,0,1,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet Preacher - On aggro - say text'),
+(28939,0,4,0,4,0,10,0,0,0,0,0,0,1,9,0,1,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet Preacher - On aggro - say text'),
+(28939,0,5,0,7,0,100,0,0,0,0,0,0,80,2861002,2,1,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Preacher - On evade - action list'),
 (28940,0,0,0,0,0,100,0,2300,3900,2300,3900,0,11,52818,64,0,0,0,0,2,0,0,0,0,0,0,0,0,'Scarlet Crusader - IC CMC - Cast shot'),
 (28940,0,1,0,0,0,100,0,5000,8000,5000,8000,0,11,52221,0,0,0,0,0,2,0,0,0,0,0,0,0,0,'Scarlet Crusader - IC - Cast Heroic Strike'),
 (28940,0,2,0,8,0,100,0,52781,0,10000,10000,0,87,2861000,2861001,2861000,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Crusader - On spellhit - Random action list'),
-(28940,0,3,4,25,0,100,0,0,0,0,0,0,90,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Crusader - On reset - Restore state'),
-(28940,0,4,5,61,0,100,0,0,0,0,0,0,8,2,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Crusader - On reset - Restore react state'),
-(28940,0,5,0,61,0,100,0,0,0,0,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Crusader - On reset - Enable combat movement'),
-(28940,0,6,0,4,0,10,0,0,0,0,0,0,1,9,0,1,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet Crusader - On aggro - say text'),
+(28940,0,3,0,4,0,10,0,0,0,0,0,0,1,9,0,1,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet Marksman - On aggro - say text'),
+(28940,0,4,0,7,0,100,0,0,0,0,0,0,80,2861002,2,1,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Marksman - On evade - action list'),
 (28936,0,0,0,0,0,100,0,2300,3900,2300,3900,0,11,52818,64,0,0,0,0,2,0,0,0,0,0,0,0,0,'Scarlet Commander - IC CMC - Cast shot'),
 (28936,0,1,0,0,0,100,0,5000,8000,5000,8000,0,11,52221,0,0,0,0,0,2,0,0,0,0,0,0,0,0,'Scarlet Commander - IC - Cast Heroic Strike'),
 (28936,0,2,0,8,0,100,0,52781,0,10000,10000,0,87,2861000,2861001,2861000,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Commander - On spellhit - Random action list'),
-(28936,0,3,4,25,0,100,0,0,0,0,0,0,90,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Commander - On reset - Restore state'),
-(28936,0,4,5,61,0,100,0,0,0,0,0,0,8,2,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Commander - On reset - Restore react state'),
-(28936,0,5,0,61,0,100,0,0,0,0,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Commander - On reset - Enable combat movement'),
-(28936,0,6,0,4,0,10,0,0,0,0,0,0,1,9,0,1,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet Commander - On aggro - say text'),
+(28936,0,3,0,4,0,10,0,0,0,0,0,0,1,9,0,1,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet Commander - On aggro - say text'),
+(28936,0,4,0,7,0,100,0,0,0,0,0,0,80,2861002,2,1,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet Commander - On evade - action list'),
 (2861000,9,0,0,0,0,100,0,0,0,0,0,0,84,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet unit - Action list 0 - Player say line 0'),
 (2861000,9,1,0,0,0,100,0,4000,4000,0,0,0,1,1,0,0,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet unit - Action list 0 - Say line 1'),
 (2861001,9,0,0,0,0,100,0,0,0,0,0,0,84,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet unit - Action list 0 - Player say line 0'),
@@ -237,4 +228,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2861001,9,12,0,0,0,100,0,4000,4000,0,0,0,1,7,0,0,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet unit - Action list 1 - Say line 7'),
 (2861001,9,13,0,0,0,100,0,2000,2000,0,0,0,11,52794,0,0,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet unit - Action list 1 - Cast \'Interrogation Quest Credit\''),
 (2861001,9,14,0,0,0,100,0,1000,1000,0,0,0,1,8,0,0,0,0,0,7,0,0,0,0,0,0,0,0,'Scarlet unit - Action list 1 - Say line 8'),
-(2861001,9,15,0,0,0,100,0,0,0,0,0,0,11,3617,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet unit - Action list 1 - Cast kill self');
+(2861001,9,15,0,0,0,100,0,0,0,0,0,0,11,3617,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet unit - Action list 1 - Cast kill self'),
+(2861002,9,0,0,0,0,100,0,0,0,0,0,0,17,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet unit - On action list - Reset emote state'),
+(2861002,9,1,0,0,0,100,0,0,0,0,0,0,91,8,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet unit - On action list - Restore state'),
+(2861002,9,2,0,0,0,100,0,0,0,0,0,0,8,2,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet unit - On action list - Restore react state'),
+(2861002,9,3,0,0,0,100,0,0,0,0,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'Scarlet unit - On action list - Enable combat movement');
