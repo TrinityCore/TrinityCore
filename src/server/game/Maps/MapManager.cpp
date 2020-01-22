@@ -371,7 +371,7 @@ uint32 MapManager::GenerateInstanceId()
     ASSERT(newInstanceId < _freeInstanceIds.size());
     _freeInstanceIds[newInstanceId] = false;
 
-    // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
+    // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId())
     size_t nextFreedId = _freeInstanceIds.find_next(_nextInstanceId++);
     if (nextFreedId == InstanceIds::npos)
     {
