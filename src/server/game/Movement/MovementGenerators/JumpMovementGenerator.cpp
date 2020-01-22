@@ -64,6 +64,8 @@ void JumpMovementGenerator<T>::DoInitialize(T* owner)
     
     owner->SetIsJumping(true);
     init.Launch();
+    // update position for server and others units/players
+    owner->UpdateSplinePosition();
 }
 
 template<class T>
