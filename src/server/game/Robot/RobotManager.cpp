@@ -605,7 +605,25 @@ void RobotManager::LogoutRobots()
 {
     for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
     {
-        (*rit)->Logout();
+        ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, (*rit)->characterID);
+        Player* checkP = ObjectAccessor::FindPlayer(playerGUID);
+        if (checkP)
+        {
+            if (checkP->IsInWorld())
+            {                                
+                (*rit)->robotState = RobotState::RobotState_None;
+
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
+                std::ostringstream msgStream;
+                msgStream << checkP->GetName() << " logged out";
+                sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
+                WorldSession* checkWS = checkP->GetSession();
+                if (checkWS)
+                {
+                    checkWS->LogoutPlayer(true);
+                }
+            }
+        }
     }
 }
 

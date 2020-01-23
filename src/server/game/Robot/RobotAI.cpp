@@ -15,6 +15,7 @@
 #include "MapManager.h"
 #include "Group.h"
 #include "MotionMaster.h"
+#include "AccountMgr.h"
 
 #include "RobotManager.h"
 #include "Strategy_Group_Normal.h"
@@ -1740,6 +1741,8 @@ void RobotAI::InitializeCharacter()
 
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s equip info initialized", sourcePlayer->GetName());
     }
+
+    sourcePlayer->UpdateWeaponsSkillsToMaxSkillsForLevel();
 }
 
 void RobotAI::Prepare()
@@ -2488,6 +2491,9 @@ void RobotAI::Update(uint32 pmDiff)
                     }
                 }
 
+                // EJ debug
+                levelPlayerOnline = false;
+
                 if (!levelPlayerOnline)
                 {
                     offlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
@@ -2527,12 +2533,14 @@ void RobotAI::Update(uint32 pmDiff)
         if (allDelay <= 0)
         {
             allDelay = 0;
-            if (sourcePlayer)
+            ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, characterID);
+            Player* checkP = ObjectAccessor::FindPlayer(playerGUID);
+            if (checkP)
             {
-                if (sourcePlayer->IsInWorld())
+                if (checkP->IsInWorld())
                 {
-                    robotState = RobotState::RobotState_DoLogoff;
-                    allDelay = 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Log out robot %s failed", checkP->GetName());
+                    robotState = RobotState::RobotState_None;
                     break;
                 }
             }
@@ -3509,16 +3517,25 @@ void RobotAI::DoAttack(Unit* pmTarget, bool pmMelee)
 
 void RobotAI::Logout()
 {
-    if (sourcePlayer)
+    ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, characterID);
+    Player* checkP = ObjectAccessor::FindPlayer(playerGUID);
+    if (checkP)
     {
-        if (sourcePlayer->IsInWorld())
+        if (checkP->IsInWorld())
         {
-            robotState = RobotState::RobotState_DoLogoff;
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", sourcePlayer->GetName());
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
             std::ostringstream msgStream;
-            msgStream << sourcePlayer->GetName() << " logged out";
+            msgStream << checkP->GetName() << " logged out";
             sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
-            sourceSession->LogoutPlayer(true);
+            WorldSession* checkWS = checkP->GetSession();
+            if (checkWS)
+            {
+                checkWS->LogoutPlayer(true);
+            }
         }
     }
+
+
+    sourceSession = NULL;
+    sourcePlayer = NULL;
 }
