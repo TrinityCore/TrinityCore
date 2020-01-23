@@ -2492,7 +2492,7 @@ void RobotAI::Update(uint32 pmDiff)
                 }
 
                 // EJ debug
-                levelPlayerOnline = false;
+                //levelPlayerOnline = false;
 
                 if (!levelPlayerOnline)
                 {
