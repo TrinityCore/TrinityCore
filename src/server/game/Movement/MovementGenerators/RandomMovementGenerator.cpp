@@ -25,7 +25,7 @@
 #include "Random.h"
 
 template<class T>
-RandomMovementGenerator<T>::RandomMovementGenerator(float distance) : _timer(0), _reference(), _wanderDistance(distance)
+RandomMovementGenerator<T>::RandomMovementGenerator(float distance) : _timer(0), _reference(), _wanderDistance(distance), _wanderSteps(0)
 {
     this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
@@ -83,8 +83,11 @@ void RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
     _reference = owner->GetPosition();
     owner->StopMoving();
 
-    if (!_wanderDistance)
+    if (_wanderDistance == 0.f)
         _wanderDistance = owner->GetRespawnRadius();
+
+    // Retail seems to let a creature walk 2 up to 10 splines before triggering a pause
+    _wanderSteps = urand(2, 10);
 
     _timer.Reset(0);
     _path = nullptr;
@@ -119,8 +122,8 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     }
 
     Position position(_reference);
-    float distance = frand(0.f, 1.f) * _wanderDistance;
-    float angle = frand(0.f, 1.f) * float(M_PI) * 2.f;
+    float distance = frand(0.f, _wanderDistance);
+    float angle = frand(0.f, float(M_PI * 2));
     owner->MovePositionToFirstCollision(position, distance, angle);
 
     // Check if the destination is in LOS
@@ -130,8 +133,6 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
         _timer.Reset(200);
         return;
     }
-
-    uint32 resetTimer = roll_chance_i(50) ? urand(5000, 10000) : urand(1000, 2000);
 
     if (!_path)
     {
@@ -168,8 +169,17 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(_path->GetPath());
     init.SetWalk(walk);
-    time_t traveltime = init.Launch();
-    _timer.Reset(traveltime + resetTimer);
+    int32 splineDuration = init.Launch();
+
+    --_wanderSteps;
+    if (_wanderSteps) // Creature has yet to do steps before pausing
+        _timer.Reset(splineDuration);
+    else
+    {
+        // Creature has made all its steps, time for a little break
+        _timer.Reset(splineDuration + urand(4, 10) * IN_MILLISECONDS); // Retails seems to use rounded numbers so we do as well
+        _wanderSteps = urand(2, 10);
+    }
 
     // Call for creature group update
     owner->SignalFormationMovement(position);
