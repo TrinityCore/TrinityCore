@@ -136,7 +136,10 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
         {
             return;
         }
-        instruction = Group_Instruction::Group_Instruction_Wander;
+        if (!GroupInCombat())
+        {
+            instruction = Group_Instruction::Group_Instruction_Wander;
+        }        
         break;
     }
     case Group_Instruction::Group_Instruction_Rest:
