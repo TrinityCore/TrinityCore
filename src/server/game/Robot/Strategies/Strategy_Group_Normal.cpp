@@ -786,7 +786,7 @@ bool Strategy_Group_Normal::Follow()
         uint8 myClass = me->GetClass();
         if (myClass == Classes::CLASS_HUNTER || myClass == Classes::CLASS_MAGE || myClass == Classes::CLASS_PRIEST || myClass == Classes::CLASS_WARLOCK)
         {
-            followDistance = 20;
+            followDistance = 10;
         }
     }
     else
@@ -830,7 +830,6 @@ bool Strategy_Group_Normal::Follow()
         if (me->isMoving())
         {
             me->StopMoving();
-            me->GetMotionMaster()->Clear();
         }
     }
 

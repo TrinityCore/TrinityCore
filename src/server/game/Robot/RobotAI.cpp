@@ -170,6 +170,8 @@ void RobotAI::ResetStrategy()
             }
         }
     }
+
+    RandomTeleport();
 }
 
 void RobotAI::InitializeCharacter()
@@ -2032,7 +2034,7 @@ void RobotAI::MoveMelee(Unit* pmTarget)
     if (sourcePlayer->GetDistance(pmTarget) > MELEE_MAX_DISTANCE)
     {
         sourcePlayer->Attack(pmTarget, true);
-        sourcePlayer->GetMotionMaster()->MoveChase(pmTarget, MELEE_COMBAT_DISTANCE);
+        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
     }
     else
     {
