@@ -1709,6 +1709,9 @@ class TC_GAME_API ObjectMgr
             {
                 return _trainers;
             }
+
+            // EJ instance_encounter 
+            std::unordered_set<uint32> ieSet;
 };
 
 #define sObjectMgr ObjectMgr::instance()
