@@ -48,7 +48,7 @@ void Player::UpdateMovementInfo(MovementInfo const& movementInfo)
 
 void Player::StartWaitingLandOrSwimOpcode()
 {
-    m_antiNoFallDmgTimer = 1500;
+    m_antiNoFallDmgTimer = 3000;
     m_antiNoFallDmg = true;
 }
 
