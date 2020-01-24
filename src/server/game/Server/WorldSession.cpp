@@ -49,7 +49,6 @@
 #include "Transport.h"
 #include "Vehicle.h"
 #include "WardenMac.h"
-#include "WardenMac.h"
 #include "WardenWin.h"
 #include "World.h"
 #include "WorldPacket.h"
