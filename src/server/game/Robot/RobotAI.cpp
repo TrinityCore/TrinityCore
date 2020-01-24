@@ -2452,8 +2452,8 @@ void RobotAI::Update(uint32 pmDiff)
                 offlineDelay = 0;
                 robotState = RobotState::RobotState_DoLogoff;
                 allDelay = 5 * TimeConstants::IN_MILLISECONDS;
+                break;
             }
-            break;
         }
         else if (checkDelay > 0)
         {
@@ -2466,7 +2466,7 @@ void RobotAI::Update(uint32 pmDiff)
                 {
                     levelPlayerOnline = true;
                 }
-                else
+                else if (!sourcePlayer->GetGroup())
                 {
                     std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
                     for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
