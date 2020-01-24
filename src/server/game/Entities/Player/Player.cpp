@@ -22601,6 +22601,7 @@ void Player::SetGroup(Group* group, int8 subgroup)
 void Player::SendInitialPacketsBeforeAddToMap()
 {
     /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
+    /// SMSG_CONTACT_LIST
     GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
 
     // guild bank list wtf?
@@ -22616,7 +22617,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// SMSG_TALENTS_INFO
     SendTalentsInfoData(false);
 
-    // SMSG_INSTANCE_DIFFICULTY
+    /// SMSG_INSTANCE_DIFFICULTY
     WorldPacket data(SMSG_INSTANCE_DIFFICULTY, 4+4);
     data << uint32(GetMap()->GetDifficulty());
     data << uint32(GetMap()->GetEntry()->IsDynamicDifficultyMap() && GetMap()->IsHeroic()); // Raid dynamic difficulty
@@ -22633,6 +22634,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// SMSG_INITIALIZE_FACTIONS
     m_reputationMgr->SendInitialReputations();
 
+    /// SMSG_ALL_ACHIEVEMENT_DATA
     m_achievementMgr->SendAllAchievementData();
 
     /// SMSG_EQUIPMENT_SET_LIST
@@ -22654,6 +22656,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
 
+    /// SMSG_RESYNC_RUNES
     ResyncRunes();
 
     SetMovedUnit(this);

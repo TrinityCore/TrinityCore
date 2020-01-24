@@ -68,6 +68,7 @@ namespace WorldPackets
         {
         public:
             InvalidatePlayer() : ServerPacket(SMSG_INVALIDATE_PLAYER, 8) { }
+            InvalidatePlayer(ObjectGuid guid) : ServerPacket(SMSG_INVALIDATE_PLAYER, 8), Guid(guid) { }
 
             WorldPacket const* Write() override;
 

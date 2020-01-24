@@ -131,9 +131,8 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     if (race)
         itr->second.Race = *race;
 
-    WorldPackets::Misc::InvalidatePlayer data;
-    data.Guid = guid;
-    sWorld->SendGlobalMessage(data.Write());
+    WorldPackets::Misc::InvalidatePlayer packet(guid);
+    sWorld->SendGlobalMessage(packet.Write());
 
     // Correct name -> pointer storage
     _characterCacheByNameStore.erase(oldName);
