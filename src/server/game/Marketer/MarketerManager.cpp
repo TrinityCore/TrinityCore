@@ -184,7 +184,7 @@ void MarketerManager::ResetMarketer()
     {
         return;
     }
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to reset marketer seller");    
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to reset marketer seller");
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -239,7 +239,7 @@ bool MarketerManager::UpdateMarketer()
     if (diff < MARKETER_MANAGER_UPDATE_GAP)
     {
         return false;
-    }    
+    }
 
     UpdateSeller(diff);
     UpdateBuyer(diff);
@@ -447,7 +447,7 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                                 auctionEntry->bidder = 0;
                                 auctionEntry->bid = 0;
                                 auctionEntry->deposit = dep;
-                                auctionEntry->auctionHouseEntry = ahEntry;                                
+                                auctionEntry->auctionHouseEntry = ahEntry;
                                 //auctionEntry->depositTime = time(NULL);
                                 auctionEntry->expire_time = GameTime::GetGameTime() + 48 * HOUR;
                                 item->SaveToDB(trans);
@@ -493,7 +493,7 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
 }
 
 bool MarketerManager::MarketEmpty()
-{    
+{
     for (std::set<uint32>::iterator ahIDIT = auctionHouseIDSet.begin(); ahIDIT != auctionHouseIDSet.end(); ahIDIT++)
     {
         uint32 ahID = *ahIDIT;
@@ -528,7 +528,11 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
         return true;
     }
     buyerCheckDelay = HOUR * IN_MILLISECONDS;
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to update marketer buyer");    
+
+    // EJ debug 
+    //buyerCheckDelay = 60000;
+
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Ready to update marketer buyer");
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -731,8 +735,6 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
                 // Remove auction item and auction from memory
                 sAuctionMgr->RemoveAItem(destAE->itemGUIDLow);
                 aho->RemoveAuction(destAE);
-                // Run SQLs
-                CharacterDatabase.CommitTransaction(trans);
                 sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Auction %d was bought by marketer buyer", *toBuyIT);
             }
         }
