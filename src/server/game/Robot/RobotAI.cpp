@@ -2466,7 +2466,11 @@ void RobotAI::Update(uint32 pmDiff)
                 {
                     levelPlayerOnline = true;
                 }
-                else if (!sourcePlayer->GetGroup())
+                else if (sourcePlayer->GetGroup())
+                {
+                    levelPlayerOnline = true;
+                }
+                else
                 {
                     std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
                     for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
