@@ -2665,7 +2665,7 @@ CreatureMovementData const& Creature::GetMovementTemplate() const
 
 bool Creature::CanEnterWater() const
 {
-    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+    if (IsPet())
         return true;
     return GetMovementTemplate().IsSwimAllowed();
 }
