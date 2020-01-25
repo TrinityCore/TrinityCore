@@ -1920,11 +1920,10 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
             {
                 return false;
             }
-            if (!sourcePlayer->isInFront(target, pmDistance))
+            if (!sourcePlayer->isInFront(pmTarget, M_PI / 4))
             {
-                sourcePlayer->SetInFront(target);
+                sourcePlayer->SetInFront(pmTarget);
             }
-            sourcePlayer->SetSelection(target->GetGUID());
         }
     }
     if (pmClearShapeshift)
@@ -1948,7 +1947,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     {
         if (pST->CalcCastTime() > 0)
         {
-            sourcePlayer->GetMotionMaster()->MoveIdle();
+            sourcePlayer->StopMoving();
         }
     }
     for (size_t i = 0; i < MAX_SPELL_REAGENTS; i++)
@@ -2031,23 +2030,21 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmMelee, bool pmAt
 
 void RobotAI::MoveMelee(Unit* pmTarget)
 {
-    if (sourcePlayer->GetDistance(pmTarget) > MELEE_MAX_DISTANCE)
+    float currentDistance = sourcePlayer->GetDistance(pmTarget);
+    if (currentDistance > MELEE_MAX_DISTANCE)
     {
         sourcePlayer->Attack(pmTarget, true);
         sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
     }
+    else if (!sourcePlayer->IsWithinLOSInMap(pmTarget))
+    {
+        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 1.0f);
+    }
     else
     {
-        if (!sourcePlayer->isTurning())
+        if (!sourcePlayer->isInFront(pmTarget, M_PI / 4))
         {
-            if (!sourcePlayer->isInFront(pmTarget, M_PI / 4))
-            {
-                sourcePlayer->SetInFront(pmTarget);
-            }
-            else if (sourcePlayer->isMoving())
-            {
-                sourcePlayer->StopMoving();
-            }
+            sourcePlayer->SetInFront(pmTarget);
         }
     }
 }
@@ -2061,20 +2058,13 @@ void RobotAI::MoveCLose(Unit* pmTarget, float pmDistance)
     }
     else if (!sourcePlayer->IsWithinLOSInMap(pmTarget))
     {
-        sourcePlayer->GetMotionMaster()->MovePoint(0, pmTarget->GetPositionX(), pmTarget->GetPositionY(), pmTarget->GetPositionZ(), true);
+        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 1.0f);
     }
     else
     {
-        if (!sourcePlayer->isTurning())
+        if (!sourcePlayer->isInFront(pmTarget, M_PI / 4))
         {
-            if (!sourcePlayer->isInFront(pmTarget, M_PI / 4))
-            {
-                sourcePlayer->SetInFront(pmTarget);
-            }
-            else if (sourcePlayer->isMoving())
-            {
-                sourcePlayer->StopMoving();
-            }
+            sourcePlayer->SetInFront(pmTarget);
         }
     }
 }
