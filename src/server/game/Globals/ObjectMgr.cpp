@@ -2947,7 +2947,7 @@ void ObjectMgr::LoadItemTemplates()
     }
 
     for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
-        TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist in `item_template` but is referenced in `CharStartOutfit.dbc`", *itr);
+        TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist but is referenced in `CharStartOutfit.dbc`", *itr);
 
     TC_LOG_INFO("server.loading", ">> Loaded %u item templates in %u ms", sparseCount, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3382,7 +3382,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (!GetItemTemplate(item_id))
                 {
-                    TC_LOG_ERROR("sql.sql", "Item id %u (race %u class %u) in `playercreateinfo_item` table but not listed in `item_template`, ignoring.", item_id, current_race, current_class);
+                    TC_LOG_ERROR("sql.sql", "Item id %u (race %u class %u) in `playercreateinfo_item` table but it does not exist, ignoring.", item_id, current_race, current_class);
                     continue;
                 }
 
@@ -4098,7 +4098,7 @@ void ObjectMgr::LoadQuests()
 
         Quest* qinfo = iter->second;
 
-        // additional quest integrity checks (GO, creature_template and item_template must be loaded already)
+        // additional quest integrity checks (GO, creature_template and items must be loaded already)
 
         if (qinfo->GetQuestType() >= MAX_QUEST_TYPES)
             TC_LOG_ERROR("sql.sql", "Quest %u has `Method` = %u, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestType());
