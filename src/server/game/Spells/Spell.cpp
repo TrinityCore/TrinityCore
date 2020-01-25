@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -4552,10 +4551,9 @@ void Spell::SendChannelStart(uint32 duration)
     {
         unitCaster->SetChannelObjectGuid(channelTarget);
 
-        if (channelTarget != unitCaster->GetGUID())
-            if (Creature* creatureCaster = unitCaster->ToCreature())
-                if (!creatureCaster->HasSpellFocus(this))
-                    creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
+        if (Creature* creatureCaster = m_caster->ToCreature())
+            if (!creatureCaster->HasSpellFocus(this))
+                creatureCaster->SetSpellFocus(this, ObjectAccessor::GetWorldObject(*creatureCaster, channelTarget));
     }
 
     unitCaster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
@@ -5511,7 +5509,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     // first try with raycast, if it fails fall back to normal path
                     bool result = m_preGeneratedPath->CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), false, false);
                     if (m_preGeneratedPath->GetPathType() & PATHFIND_SHORT)
-                        return SPELL_FAILED_OUT_OF_RANGE;
+                        return SPELL_FAILED_NOPATH;
                     else if (!result || m_preGeneratedPath->GetPathType() & (PATHFIND_NOPATH | PATHFIND_INCOMPLETE))
                         return SPELL_FAILED_NOPATH;
                     else if (m_preGeneratedPath->IsInvalidDestinationZ(target)) // Check position z, if not in a straight line

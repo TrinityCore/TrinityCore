@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,9 +67,9 @@ public:
             Talk(SAY_KILL);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_DARK_SHELL, 20s);
             events.ScheduleEvent(EVENT_VOID_BLAST, 8s, 23s);

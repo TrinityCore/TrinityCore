@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,9 +81,9 @@ public:
             BossAI::MoveInLineOfSight(who);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 5s);
             events.ScheduleEvent(EVENT_POLYMORPH, 8s);

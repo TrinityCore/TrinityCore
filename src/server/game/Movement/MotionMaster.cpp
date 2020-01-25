@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -929,13 +928,14 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
 
 void MotionMaster::MoveSeekAssistance(float x, float y, float z)
 {
-    if (_owner->GetTypeId() == TYPEID_UNIT)
+    if (Creature* creature = _owner->ToCreature())
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '%s', seeks assistance (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), x, y, z);
-        _owner->AttackStop();
-        _owner->CastStop();
-        _owner->ToCreature()->SetReactState(REACT_PASSIVE);
-        Add(new AssistanceMovementGenerator(EVENT_ASSIST_MOVE, x, y, z, _owner->GetSpeed(MOVE_RUN) * 0.66f));
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '%s', seeks assistance (X: %f, Y: %f, Z: %f)", creature->GetGUID().ToString().c_str(), x, y, z);
+        creature->AttackStop();
+        creature->CastStop();
+        creature->DoNotReacquireSpellFocusTarget();
+        creature->SetReactState(REACT_PASSIVE);
+        Add(new AssistanceMovementGenerator(EVENT_ASSIST_MOVE, x, y, z));
     }
     else
         TC_LOG_ERROR("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '%s', attempted to seek assistance.", _owner->GetGUID().ToString().c_str());

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -3463,12 +3463,17 @@ class spell_gen_turkey_marker : public AuraScript
 
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
-        if (_applyTimes.empty())
-            return;
+        int32 removeCount = 0;
 
-        // pop stack if it expired for us
-        if (_applyTimes.front() + GetMaxDuration() < GameTime::GetGameTimeMS())
-            ModStackAmount(-1, AURA_REMOVE_BY_EXPIRE);
+        // pop expired times off of the stack
+        while (!_applyTimes.empty() && _applyTimes.front() + GetMaxDuration() < GameTime::GetGameTimeMS())
+        {
+            _applyTimes.pop_front();
+            removeCount++;
+        }
+
+        if (removeCount)
+            ModStackAmount(-removeCount, AURA_REMOVE_BY_EXPIRE);
     }
 
     void Register() override

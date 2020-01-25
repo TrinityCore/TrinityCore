@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -386,15 +385,12 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             if (go->GetSpellForLock(caster->ToPlayer()) == spellInfo)
                 allow = true;
 
-        // TODO: Preparation for #23204
         // allow casting of spells triggered by clientside periodic trigger auras
-        /*
-         if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
+        if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
         {
             allow = true;
             triggerFlag = TRIGGERED_FULL_MASK;
         }
-        */
 
         if (!allow)
             return;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -541,6 +541,9 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                if (!me->GetCombatManager().HasPvECombatWithPlayers())
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+
                 events.Update(diff);
                 // don't summon tentacles when illusion is shattered, delay them
                 if (_illusionShattered)
@@ -767,6 +770,14 @@ class boss_sara : public CreatureScript
                 _events.ScheduleEvent(EVENT_SARAS_FERVOR, 5s, 0, PHASE_ONE);
                 _events.ScheduleEvent(EVENT_SARAS_BLESSING, urand(10000, 30000), 0, PHASE_ONE);
                 _events.ScheduleEvent(EVENT_SARAS_ANGER, urand(15000, 25000), 0, PHASE_ONE);
+            }
+
+            void JustEnteredCombat(Unit* who) override
+            {
+                if (IsEngaged())
+                    return;
+
+                EngagementStart(who);
             }
 
             void Reset() override
@@ -1152,10 +1163,25 @@ class npc_ominous_cloud : public CreatureScript
 
             void UpdateAI(uint32 /*diff*/) override { }
 
-            void DoAction(int32 /*action*/) override
+            void DoAction(int32 action) override
             {
-                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), true, 16);
+                clockwise = bool(action);
+                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), clockwise, 16);
             }
+
+            void MovementInform(uint32 type, uint32 /*id*/) override
+            {
+                if (type != EFFECT_MOTION_TYPE)
+                    return;
+
+                /* MoveCirclePath() add a GenericMovementGenerator that doesn't handle cyclic splines, handling only 1 round of the circle.
+                 * This means we have to reschedule another MoveCirclePath() every time the previous one ends.
+                 * Remove this code once GenericMovementGenerator properly handles cyclic splines.
+                 */ 
+                me->GetMotionMaster()->MoveCirclePath(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY(), me->GetPositionZ() + 5.0f, me->GetDistance2d(YoggSaronSpawnPos.GetPositionX(), YoggSaronSpawnPos.GetPositionY()), clockwise, 16);
+            }
+
+            bool clockwise = false;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1607,8 +1633,13 @@ class npc_yogg_saron_keeper : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEnteredCombat(Unit* who) override
             {
+                if (IsEngaged())
+                    return;
+
+                EngagementStart(who);
+
                 switch (me->GetEntry())
                 {
                     case NPC_FREYA_YS:

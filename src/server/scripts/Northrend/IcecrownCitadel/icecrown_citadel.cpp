@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1064,7 +1064,7 @@ struct go_empowering_blood_orb : public GameObjectAI
     {
         me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         me->SetGoAnimProgress(255);
-        me->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+        me->SetGoState(GO_STATE_DESTROYED);
         if (Creature* trigger = ObjectAccessor::GetCreature(*me, _triggerGuid))
             trigger->DespawnOrUnsummon();
         _scheduler.Schedule(3s, [this](TaskContext /*context*/)

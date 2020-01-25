@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -129,7 +129,7 @@ class instance_gundrak : public InstanceMapScript
                         go->SetGoState(MoorabiStatueState);
                         break;
                     case GO_GAL_DARAH_STATUE:
-                        go->SetGoState(CheckRequiredBosses(DATA_GAL_DARAH) ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY);
+                        go->SetGoState(CheckRequiredBosses(DATA_GAL_DARAH) ? GO_STATE_DESTROYED : GO_STATE_READY);
                         break;
                     case GO_DRAKKARI_COLOSSUS_STATUE:
                         go->SetGoState(DrakkariColossusStatueState);
@@ -204,9 +204,9 @@ class instance_gundrak : public InstanceMapScript
                             return false;
                         break;
                     case DATA_GAL_DARAH:
-                        if (SladRanStatueState != GO_STATE_ACTIVE_ALTERNATIVE
-                            || DrakkariColossusStatueState != GO_STATE_ACTIVE_ALTERNATIVE
-                            || MoorabiStatueState != GO_STATE_ACTIVE_ALTERNATIVE)
+                        if (SladRanStatueState != GO_STATE_DESTROYED
+                            || DrakkariColossusStatueState != GO_STATE_DESTROYED
+                            || MoorabiStatueState != GO_STATE_DESTROYED)
                             return false;
                         break;
                     default:
@@ -311,7 +311,7 @@ class instance_gundrak : public InstanceMapScript
                             break;
                         case DATA_BRIDGE:
                             for (uint32 type = DATA_SLAD_RAN_STATUE; type <= DATA_GAL_DARAH_STATUE; ++type)
-                                ToggleGameObject(type, GO_STATE_ACTIVE_ALTERNATIVE);
+                                ToggleGameObject(type, GO_STATE_DESTROYED);
                             ToggleGameObject(DATA_TRAPDOOR, GO_STATE_READY);
                             ToggleGameObject(DATA_COLLISION, GO_STATE_ACTIVE);
                             SaveToDB();

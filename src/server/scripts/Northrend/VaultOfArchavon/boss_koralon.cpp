@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,7 +60,7 @@ class boss_koralon : public CreatureScript
             {
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 DoCast(me, SPELL_BURNING_FURY);
 
@@ -69,7 +69,7 @@ class boss_koralon : public CreatureScript
                 events.ScheduleEvent(EVENT_METEOR_FISTS, 75s);    // 1st after 75sec, then every 45sec
                 events.ScheduleEvent(EVENT_FLAME_CINDER, 30s);    /// @todo check timer
 
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
             }
 
             void UpdateAI(uint32 diff) override

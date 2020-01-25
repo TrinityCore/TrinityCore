@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -56,7 +55,7 @@ class PointMovementGenerator : public MovementGeneratorMedium<T, PointMovementGe
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 {
     public:
-        explicit AssistanceMovementGenerator(uint32 id, float x, float y, float z, float speed = 0.0f) : PointMovementGenerator<Creature>(id, x, y, z, true, speed) { }
+        explicit AssistanceMovementGenerator(uint32 id, float x, float y, float z) : PointMovementGenerator<Creature>(id, x, y, z, true) { }
 
         void Finalize(Unit*, bool, bool) override;
         MovementGeneratorType GetMovementGeneratorType() const override;

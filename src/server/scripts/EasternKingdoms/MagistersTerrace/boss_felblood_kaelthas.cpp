@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -141,9 +141,9 @@ struct boss_felblood_kaelthas : public BossAI
         _firstGravityLapse = true;
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         events.SetPhase(PHASE_ONE);
         events.ScheduleEvent(EVENT_FIREBALL, 1ms, 0, PHASE_ONE);
         events.ScheduleEvent(EVENT_FLAME_STRIKE, 44s, 0, PHASE_ONE);

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -788,15 +787,32 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    // do not cast not learned spells
-    if (!caster->HasSpell(spellId) || spellInfo->IsPassive())
-        return;
-
     SpellCastTargets targets;
     targets.Read(recvPacket, caster);
     HandleClientCastFlags(recvPacket, castFlags, targets);
 
-    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE);
+    TriggerCastFlags triggerCastFlags = TRIGGERED_NONE;
+
+    if (spellInfo->IsPassive())
+        return;
+
+    // cast only learned spells
+    if (!caster->HasSpell(spellId))
+    {
+        bool allow = false;
+
+        // allow casting of spells triggered by clientside periodic trigger auras
+        if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
+        {
+            allow = true;
+            triggerCastFlags = TRIGGERED_FULL_MASK;
+        }
+
+        if (!allow)
+            return;
+    }
+
+    Spell* spell = new Spell(caster, spellInfo, triggerCastFlags);
     spell->m_cast_count = castCount; // probably pending spell cast
     spell->m_targets = targets;
 

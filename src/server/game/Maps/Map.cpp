@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -337,7 +336,10 @@ template<>
 void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
+    if (obj->IsWorldObject())
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
+    else
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
 
     obj->SetCurrentCell(cell);
 }

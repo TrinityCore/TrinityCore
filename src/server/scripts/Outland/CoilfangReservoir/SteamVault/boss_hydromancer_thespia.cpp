@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,10 +67,10 @@ class boss_hydromancer_thespia : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 15000);
                 events.ScheduleEvent(EVENT_LUNG_BURST, 7s);
