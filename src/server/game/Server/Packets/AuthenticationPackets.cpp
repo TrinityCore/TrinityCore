@@ -18,6 +18,40 @@
 #include "AuthenticationPackets.h"
 #include "HmacHash.h"
 
+bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
+{
+    try
+    {
+        Read();
+        return true;
+    }
+    catch (ByteBufferPositionException const& /*ex*/)
+    {
+    }
+
+    return false;
+}
+
+void WorldPackets::Auth::Ping::Read()
+{
+    _worldPacket >> Latency;
+    _worldPacket >> Serial;
+}
+
+WorldPacket const* WorldPackets::Auth::Pong::Write()
+{
+    _worldPacket << uint32(Serial);
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
+{
+    _worldPacket.append(DosChallenge.data(), DosChallenge.size());
+    _worldPacket << uint32(Challenge);
+    _worldPacket << uint8(DosZeroBits);
+    return &_worldPacket;
+}
+
 void WorldPackets::Auth::AuthSession::Read()
 {
     uint32 addonDataSize;
@@ -73,6 +107,41 @@ void WorldPackets::Auth::AuthSession::Read()
     UseIPv6 = _worldPacket.ReadBit(); // UseIPv6
     uint8 accountNameLength = _worldPacket.ReadBits(12);
     Account = _worldPacket.ReadString(accountNameLength);
+}
+
+WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
+{
+    _worldPacket.WriteBit(WaitInfo.is_initialized());
+
+    if (WaitInfo)
+        _worldPacket.WriteBit(WaitInfo->HasFCM);
+
+    _worldPacket.WriteBit(SuccessInfo.is_initialized());
+    _worldPacket.FlushBits();
+
+    if (SuccessInfo)
+    {
+        _worldPacket << uint32(SuccessInfo->TimeRemain);
+        _worldPacket << uint8(SuccessInfo->ActiveExpansionLevel);
+        _worldPacket << uint32(SuccessInfo->TimeSecondsUntilPCKick);
+        _worldPacket << uint8(SuccessInfo->AccountExpansionLevel);
+        _worldPacket << uint32(SuccessInfo->TimeRested);
+        _worldPacket << uint8(SuccessInfo->TimeOptions);
+    }
+
+    _worldPacket << uint8(Result);
+
+    if (WaitInfo)
+        _worldPacket << uint32(WaitInfo->WaitCount);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Auth::WaitQueueUpdate::Write()
+{
+    _worldPacket << uint32(WaitInfo.WaitCount);
+    _worldPacket.WriteBit(WaitInfo.HasFCM);
+    return &_worldPacket;
 }
 
 void WorldPackets::Auth::AuthContinuedSession::Read()
@@ -238,7 +307,7 @@ uint8 const WherePacketHmac[] =
     0x83, 0x95, 0x81, 0x69, 0xB0, 0x5A, 0xB4, 0x9D, 0xA8, 0x55, 0xFF, 0xFC, 0xEE, 0x58, 0x0A, 0x2F
 };
 
-WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_REDIRECT_CLIENT, 8 + 4 + 256 + 1)
+WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 8 + 4 + 256 + 1)
 {
     Payload.Adler32 = 0xA0A66C10;
 
@@ -550,4 +619,10 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
     _worldPacket.append(m.AsByteArray(256).get(), 256);
     _worldPacket << uint8(Con);
     return &_worldPacket;
+}
+
+void WorldPackets::Auth::ConnectToFailed::Read()
+{
+    Serial = _worldPacket.read<ConnectToSerial>();
+    _worldPacket >> Con;
 }

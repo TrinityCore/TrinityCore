@@ -43,6 +43,7 @@ namespace WorldPackets
         class AuthSession;
         class AuthContinuedSession;
         class ConnectToFailed;
+        class Ping;
     }
 }
 
@@ -107,15 +108,15 @@ private:
     /// accessing WorldSession is not threadsafe, only do it when holding _worldSessionLock
     void LogOpcodeText(OpcodeClient opcode, std::unique_lock<std::mutex> const& guard) const;
     /// sends and logs network.opcode without accessing WorldSession
-    void SendPacketAndLogOpcode(WorldPacket& packet);
+    void SendPacketAndLogOpcode(WorldPacket const& packet);
     void HandleSendAuthSession();
-    void HandleAuthSession(WorldPackets::Auth::AuthSession& authSession);
+    void HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession);
+    void HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession, PreparedQueryResult result);
     void HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession);
     void HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result);
-    void HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSession, PreparedQueryResult result);
     void LoadSessionPermissionsCallback(PreparedQueryResult result);
-
-    bool HandlePing(WorldPacket& recvPacket);
+    void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
+    bool HandlePing(WorldPackets::Auth::Ping& ping);
 
     ConnectionType _type;
 

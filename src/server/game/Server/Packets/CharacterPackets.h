@@ -101,6 +101,30 @@ namespace WorldPackets
             std::vector<CharacterInfo> Characters; ///< all characters on the list
             std::vector<RestrictedFactionChangeRuleInfo> FactionChangeRestrictions; ///< @todo: research
         };
+
+        enum class LoginFailureReason : uint8
+        {
+            Failed             = 0,
+            NoWorld            = 1,
+            DuplicateCharacter = 2,
+            NoInstances        = 3,
+            Disabled           = 4,
+            NoCharacter        = 5,
+            LockedForTransfer  = 6,
+            LockedByBilling    = 7,
+            LockedByMobileAH   = 8,
+            TemporaryGMLock    = 9
+        };
+
+        class CharacterLoginFailed final : public ServerPacket
+        {
+        public:
+            CharacterLoginFailed(LoginFailureReason code) : ServerPacket(SMSG_CHARACTER_LOGIN_FAILED, 1), Code(code) { }
+
+            WorldPacket const* Write() override;
+
+            LoginFailureReason Code = LoginFailureReason::Failed;
+        };
     }
 }
 

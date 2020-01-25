@@ -209,3 +209,9 @@ WorldPacket const* WorldPackets::Character::EnumCharactersResult::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::CharacterLoginFailed::Write()
+{
+    _worldPacket << uint8(Code);
+    return &_worldPacket;
+}
