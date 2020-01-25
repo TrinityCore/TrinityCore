@@ -547,20 +547,20 @@ public:
                                         Field* fields3          = result3->Fetch();
                                         uint32 item_entry       = fields3[0].GetUInt32();
                                         uint32 item_count       = fields3[1].GetUInt32();
-                                        QueryResult result4;
-                                        result4 = WorldDatabase.PQuery("SELECT name, quality FROM item_template WHERE entry = '%u'", item_entry);
-                                        Field* fields1          = result4->Fetch();
-                                        std::string item_name   = fields1[0].GetString();
-                                        int item_quality        = fields1[1].GetUInt8();
+                                        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item_entry);
+                                        if (!itemTemplate)
+                                            continue;
+
                                         if (handler->GetSession())
                                         {
-                                            uint32 color = ItemQualityColors[item_quality];
+                                            uint32 color = ItemQualityColors[itemTemplate->GetQuality()];
                                             std::ostringstream itemStr;
-                                            itemStr << "|c" << std::hex << color << "|Hitem:" << item_entry << ":0:0:0:0:0:0:0:0:0|h[" << item_name << "]|h|r";
+                                            itemStr << "|c" << std::hex << color << "|Hitem:" << item_entry << ":0:0:0:0:0:0:0:" << handler->GetSession()->GetPlayer()->getLevel()
+                                                << ":0:0:0:0:0|h[" << itemTemplate->GetName(handler->GetSessionDbcLocale()) << "]|h|r";
                                             handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemStr.str().c_str(), item_entry, item_guid, item_count);
                                         }
                                         else
-                                            handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, item_name.c_str(), item_entry, item_guid, item_count);
+                                            handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemTemplate->GetName(handler->GetSessionDbcLocale()), item_entry, item_guid, item_count);
                                     }
                                     while (result3->NextRow());
                                 }

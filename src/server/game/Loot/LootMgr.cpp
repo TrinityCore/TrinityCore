@@ -311,7 +311,7 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
         if (!proto)
         {
-            TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: item entry not listed in `item_template` - skipped", store.GetName(), entry, itemid);
+            TC_LOG_ERROR("sql.sql", "Table '%s' Entry %d Item %d: item does not exist - skipped", store.GetName(), entry, itemid);
             return false;
         }
 
