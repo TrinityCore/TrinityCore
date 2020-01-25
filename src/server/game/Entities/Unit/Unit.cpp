@@ -12660,8 +12660,6 @@ bool Unit::IsFalling() const
 
 bool Unit::CanSwim() const
 {
-    if (IsPet())
-        return true;
     if (!CanEnterWater())
         return false;
 
