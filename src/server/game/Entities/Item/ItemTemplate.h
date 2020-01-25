@@ -112,7 +112,7 @@ enum ItemSpelltriggerType
      * death" of spell 57348 makes me think so)
      */
     ITEM_SPELLTRIGGER_ON_OBTAIN       = 5,
-    ITEM_SPELLTRIGGER_LEARN_SPELL_ID  = 6                   // used in item_template.spell_2 with spell_id with SPELL_GENERIC_LEARN in spell_1
+    ITEM_SPELLTRIGGER_LEARN_SPELL_ID  = 6                   // used in ItemEffect in second slot with spell_id with SPELL_GENERIC_LEARN in spell_1
 };
 
 #define MAX_ITEM_SPELLTRIGGER           7

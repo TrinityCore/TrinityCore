@@ -411,7 +411,7 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        // Search in `item_template`
+        // Search in ItemSparse
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
         for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
         {
