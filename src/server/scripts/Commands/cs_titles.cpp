@@ -93,9 +93,9 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         target->SetTitle(titleInfo);                            // to be sure that title now known
-        target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
+        target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->Mask_ID);
 
-        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, target->getGender() == GENDER_MALE ? titleInfo->nameMale : titleInfo->nameFemale, tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1, tNameLink.c_str());
         return true;
     }
 
@@ -135,7 +135,7 @@ public:
         }
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Trinity::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->nameMale : titleInfo->nameFemale, target->GetName().c_str());
+        std::string titleNameStr = Trinity::StringFormat(target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1, target->GetName().c_str());
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr.c_str(), tNameLink.c_str());
@@ -183,7 +183,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, target->getGender() == GENDER_MALE ? titleInfo->nameMale : titleInfo->nameFemale, target->GetName().c_str());
+        snprintf(titleNameStr, 80, target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1, target->GetName().c_str());
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
 
@@ -218,7 +218,7 @@ public:
 
         uint64 allValidTitleMask = 0;
         for (CharTitlesEntry const* tEntry : sCharTitlesStore)
-            allValidTitleMask |= (uint64(1) << tEntry->bit_index);
+            allValidTitleMask |= (uint64(1) << tEntry->Mask_ID);
 
         titles &= allValidTitleMask;                // remove non-existing titles
 

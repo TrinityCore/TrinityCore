@@ -213,11 +213,11 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, Map* map, uint
     uint32 finalStopFrameTime = 0;
     for (TransportAnimationEntry const* animation : sTransportAnimationStore)
     {
-        if (animation->TransportEntry != entry)
+        if (animation->TransportID != entry)
             continue;
 
-        if (animation->TimeSeg > finalStopFrameTime)
-            finalStopFrameTime = animation->TimeSeg;
+        if (animation->TimeIndex > finalStopFrameTime)
+            finalStopFrameTime = animation->TimeIndex;
     }
 
     _finalStopFrameTime = finalStopFrameTime;
@@ -378,10 +378,10 @@ void Transport::RelocateToProgress(uint32 progress)
     if (m_goValue.Transport.AnimationInfo->GetAnimNode(progress, curr, next, percPos))
     {
         // curr node offset
-        G3D::Vector3 pos = G3D::Vector3(curr->X, curr->Y, curr->Z);
+        G3D::Vector3 pos = G3D::Vector3(curr->Pos.X, curr->Pos.Y, curr->Pos.Z);
 
         // move by percentage of segment already passed
-        pos += G3D::Vector3(percPos * (next->X - curr->X), percPos * (next->Y - curr->Y), percPos * (next->Z - curr->Z));
+        pos += G3D::Vector3(percPos * (next->Pos.X - curr->Pos.X), percPos * (next->Pos.Y - curr->Pos.Y), percPos * (next->Pos.Z - curr->Pos.Z));
 
         // rotate path by PathRotation
         // PathRotation in db is only simple orientation rotation, so don't use sophisticated and not working code
@@ -641,13 +641,13 @@ void MapTransport::Update(uint32 diff)
 
         MoveToNextWaypoint();
 
-        sScriptMgr->OnRelocate(this, _currentFrame->Node->NodeIndex, _currentFrame->Node->MapID, _currentFrame->Node->LocX, _currentFrame->Node->LocY, _currentFrame->Node->LocZ);
+        sScriptMgr->OnRelocate(this, _currentFrame->Node->NodeIndex, _currentFrame->Node->ContinentID, _currentFrame->Node->Loc.X, _currentFrame->Node->Loc.Y, _currentFrame->Node->Loc.Z);
 
-        TC_LOG_DEBUG("entities.transport", "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName().c_str(), _currentFrame->Node->NodeIndex, _currentFrame->Node->MapID, _currentFrame->Node->LocX, _currentFrame->Node->LocY, _currentFrame->Node->LocZ);
+        TC_LOG_DEBUG("entities.transport", "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName().c_str(), _currentFrame->Node->NodeIndex, _currentFrame->Node->ContinentID, _currentFrame->Node->Loc.X, _currentFrame->Node->Loc.Y, _currentFrame->Node->Loc.Z);
 
         // Departure event
         if (_currentFrame->IsTeleportFrame())
-            if (TeleportTransport(_nextFrame->Node->MapID, _nextFrame->Node->LocX, _nextFrame->Node->LocY, _nextFrame->Node->LocZ, _nextFrame->InitialOrientation))
+            if (TeleportTransport(_nextFrame->Node->ContinentID, _nextFrame->Node->Loc.X, _nextFrame->Node->Loc.Y, _nextFrame->Node->Loc.Z, _nextFrame->InitialOrientation))
                 return; // Update more in new map thread
     }
 
@@ -673,7 +673,7 @@ void MapTransport::Update(uint32 diff)
             UpdatePosition(pos.x, pos.y, pos.z, std::atan2(dir.y, dir.x) + float(M_PI));
         }
         else if (justStopped)
-            UpdatePosition(_currentFrame->Node->LocX, _currentFrame->Node->LocY, _currentFrame->Node->LocZ, _currentFrame->InitialOrientation);
+            UpdatePosition(_currentFrame->Node->Loc.X, _currentFrame->Node->Loc.Y, _currentFrame->Node->Loc.Z, _currentFrame->InitialOrientation);
         else
         {
             /* There are four possible scenarios that trigger loading/unloading passengers:
@@ -855,7 +855,7 @@ TempSummon* MapTransport::SummonPassenger(uint32 entry, Position const& pos, Tem
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
     {
-        switch (properties->Category)
+        switch (properties->Control)
         {
             case SUMMON_CATEGORY_PET:
                 mask = UNIT_MASK_GUARDIAN;
@@ -870,7 +870,7 @@ TempSummon* MapTransport::SummonPassenger(uint32 entry, Position const& pos, Tem
             case SUMMON_CATEGORY_ALLY:
             case SUMMON_CATEGORY_UNK:
             {
-                switch (properties->Type)
+                switch (properties->Title)
                 {
                     case SUMMON_TYPE_MINION:
                     case SUMMON_TYPE_GUARDIAN:
@@ -1090,13 +1090,13 @@ void MapTransport::DelayedTeleportTransport()
         return;
 
     _delayedTeleport = false;
-    Map* newMap = sMapMgr->CreateBaseMap(_nextFrame->Node->MapID);
+    Map* newMap = sMapMgr->CreateBaseMap(_nextFrame->Node->ContinentID);
     GetMap()->RemoveFromMap<MapTransport>(this, false);
     SetMap(newMap);
 
-    float x = _nextFrame->Node->LocX,
-          y = _nextFrame->Node->LocY,
-          z = _nextFrame->Node->LocZ,
+    float x = _nextFrame->Node->Loc.X,
+          y = _nextFrame->Node->Loc.Y,
+          z = _nextFrame->Node->Loc.Z,
           o =_nextFrame->InitialOrientation;
 
     for (_passengerTeleportItr = _passengers.begin(); _passengerTeleportItr != _passengers.end();)
@@ -1110,7 +1110,7 @@ void MapTransport::DelayedTeleportTransport()
         switch (obj->GetTypeId())
         {
             case TYPEID_PLAYER:
-                if (!obj->ToPlayer()->TeleportTo(_nextFrame->Node->MapID, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
+                if (!obj->ToPlayer()->TeleportTo(_nextFrame->Node->ContinentID, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
                     RemovePassenger(obj);
                 break;
             case TYPEID_DYNAMICOBJECT:

@@ -121,16 +121,16 @@ void Loot::AddItem(LootStoreItem const& item)
         if (!currency)
             return;
 
-        uint32 totalCap = currency->TotalCap > 0 ? currency->TotalCap : 1;
+        uint32 totalCap = currency->MaxQty > 0 ? currency->MaxQty : 1;
         uint32 count = urand(item.mincount, item.maxcount);
         uint32 stacks = count / totalCap + ((count % totalCap) ? 1 : 0);
 
         for (uint32 i = 0; i < stacks && lootItems.size() < limit; ++i)
         {
             LootItem generatedLoot(item);
-            generatedLoot.count = std::min(count, currency->TotalCap);
+            generatedLoot.count = std::min(count, currency->MaxQty);
             lootItems.push_back(generatedLoot);
-            count -= currency->TotalCap;
+            count -= currency->MaxQty;
 
             // Never seen a currency that needs a quest but just in case
             if (!item.needs_quest)

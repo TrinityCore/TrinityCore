@@ -459,7 +459,7 @@ uint8 PlayerAI::GetPlayerSpec(Player const* who)
     if (!tabEntry)
         return 0;
 
-    return tabEntry->tabpage;
+    return tabEntry->OrderIndex;
 }
 
 bool PlayerAI::IsPlayerHealer(Player const* who)

@@ -296,7 +296,7 @@ public:
             {
                 FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : nullptr;
 
-                std::string name = factionEntry->name;
+                std::string name = factionEntry->Name;
                 if (name.empty())
                     continue;
 
@@ -458,7 +458,7 @@ public:
             ItemSetEntry const* set = sItemSetStore.LookupEntry(id);
             if (set)
             {
-                std::string name = set->name;
+                std::string name = set->Name;
                 if (name.empty())
                     continue;
 
@@ -721,7 +721,7 @@ public:
             SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(id);
             if (skillInfo)
             {
-                std::string name = skillInfo->name;
+                std::string name = skillInfo->DisplayName;
                 if (name.empty())
                     continue;
 
@@ -950,7 +950,7 @@ public:
             TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(id);
             if (nodeEntry)
             {
-                std::string name = nodeEntry->name;
+                std::string name = nodeEntry->Name;
                 if (name.empty())
                     continue;
 
@@ -966,10 +966,10 @@ public:
                 // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
                 if (handler->GetSession())
                     handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CHAT, id, id, name.c_str(), "",
-                        nodeEntry->map_id, nodeEntry->x, nodeEntry->y, nodeEntry->z);
+                        nodeEntry->ContinentID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
                 else
                     handler->PSendSysMessage(LANG_TAXINODE_ENTRY_LIST_CONSOLE, id, name.c_str(), "",
-                        nodeEntry->map_id, nodeEntry->x, nodeEntry->y, nodeEntry->z);
+                        nodeEntry->ContinentID, nodeEntry->Pos.X, nodeEntry->Pos.Y, nodeEntry->Pos.Z);
 
                 if (!found)
                     found = true;
@@ -1069,7 +1069,7 @@ public:
             CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
             if (titleInfo)
             {
-                std::string name = target->getGender() == GENDER_MALE ? titleInfo->nameMale : titleInfo->nameFemale;
+                std::string name = target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1;
 
                 if (name.empty())
                     continue;
@@ -1085,7 +1085,7 @@ public:
 
                 char const* knownStr = target && target->HasTitle(titleInfo) ? handler->GetTrinityString(LANG_KNOWN) : "";
 
-                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
+                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->Mask_ID
                     ? handler->GetTrinityString(LANG_ACTIVE)
                     : "";
 
@@ -1094,9 +1094,9 @@ public:
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->bit_index, id, titleNameStr, "", knownStr, activeStr);
+                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->Mask_ID, id, titleNameStr, "", knownStr, activeStr);
                 else
-                    handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->bit_index, titleNameStr, "", knownStr, activeStr);
+                    handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->Mask_ID, titleNameStr, "", knownStr, activeStr);
 
                 ++counter;
             }
@@ -1129,7 +1129,7 @@ public:
         {
             if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
             {
-                std::string name = mapInfo->Name;
+                std::string name = mapInfo->MapName;
                 if (name.empty())
                     continue;
 

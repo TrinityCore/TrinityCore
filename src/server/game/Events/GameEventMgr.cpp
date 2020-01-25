@@ -975,9 +975,9 @@ void GameEventMgr::LoadHolidayDates()
         if (uint32 duration = fields[3].GetUInt32())
             entry->Duration[0] = duration;
 
-        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->Id);
-        if (itr == modifiedHolidays.end() || *itr != entry->Id)
-            modifiedHolidays.insert(itr, entry->Id);
+        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->ID);
+        if (itr == modifiedHolidays.end() || *itr != entry->ID)
+            modifiedHolidays.insert(itr, entry->ID);
         ++count;
 
     } while (result->NextRow());
@@ -1581,10 +1581,10 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
         if (bgTypeId != BATTLEGROUND_TYPE_NONE)
         {
             BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-            if (bl && bl->HolidayWorldStateId)
+            if (bl && bl->HolidayWorldState)
             {
                 WorldPacket data;
-                sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, bl->HolidayWorldStateId, Activate ? 1 : 0);
+                sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, bl->HolidayWorldState, Activate ? 1 : 0);
                 sWorld->SendGlobalMessage(&data);
             }
         }

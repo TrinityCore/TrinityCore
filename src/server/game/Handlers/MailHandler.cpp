@@ -809,7 +809,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     {
         MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
         ASSERT(mailTemplateEntry);
-        bodyItem->SetText(mailTemplateEntry->content);
+        bodyItem->SetText(mailTemplateEntry->Body);
     }
     else
         bodyItem->SetText(m->body);

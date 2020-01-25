@@ -334,11 +334,11 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     uint16 index_mult = ranged ? UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER : UNIT_FIELD_ATTACK_POWER_MULTIPLIER;
 
     if (ranged)
-        val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * entry->RAPPerAgility;
+        val2 = (level + std::max(GetStat(STAT_AGILITY) - 10.0f, 0.0f)) * entry->RangedAttackPowerPerAgility;
     else
     {
-        float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->APPerStrength, 0.0f);
-        float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerAgility, 0.0f);
+        float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->AttackPowerPerStrength, 0.0f);
+        float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->AttackPowerPerAgility, 0.0f);
 
         // Druids in Bear and Cat form get two points attack power per agility point
         if (GetShapeshiftForm() == FORM_BEAR || GetShapeshiftForm() == FORM_CAT)
@@ -539,10 +539,10 @@ void Player::UpdateMastery()
 
     for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
     {
-        if (!talentTab->MasterySpellId[i])
+        if (!talentTab->MasterySpellID[i])
             continue;
 
-        if (Aura* aura = GetAura(talentTab->MasterySpellId[i]))
+        if (Aura* aura = GetAura(talentTab->MasterySpellID[i]))
         {
             for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
             {

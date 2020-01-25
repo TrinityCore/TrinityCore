@@ -743,16 +743,16 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         DungeonEncounter const* encounter = *itr;
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
-            completedEncounters |= 1 << encounter->dbcEntry->encounterIndex;
-            encounterId = encounter->dbcEntry->id;
+            completedEncounters |= 1 << encounter->dbcEntry->Bit;
+            encounterId = encounter->dbcEntry->ID;
             if (encounter->lastEncounterDungeon)
             {
-                if (instance->GetDifficulty() != sLFGDungeonStore.LookupEntry(encounter->lastEncounterDungeon)->difficulty)
+                if (instance->GetDifficulty() != sLFGDungeonStore.LookupEntry(encounter->lastEncounterDungeon)->DifficultyID)
                     dungeonId = sLFGMgr->GetDungeonIdForDifficulty(encounter->lastEncounterDungeon, instance->GetDifficulty());
                 else
                     dungeonId = encounter->lastEncounterDungeon;
 
-                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName, dungeonId);
+                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name, dungeonId);
                 break;
             }
         }
@@ -779,7 +779,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
                         {
                             if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
                             {
-                                if (grp->MemberLevelIsInRange(dungeon->minlevel, dungeon->maxlevel))
+                                if (grp->MemberLevelIsInRange(dungeon->MinLevel, dungeon->Maxlevel))
                                 {
                                     if (dungeonId)
                                         guild->CompleteChallenge(instance->IsNonRaidDungeon() ? GUILD_CHALLENGE_TYPE_DUNGEON : GUILD_CHALLENGE_TYPE_RAID, player);

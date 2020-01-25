@@ -44,12 +44,12 @@
 
 namespace lfg
 {
-LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(dbc->name), map(dbc->map),
-    type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
-    minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
-    seasonal((dbc->flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-    requiredItemLevel(0), requiredTanks(dbc->requiredTanks), requiredHealers(dbc->requiredHealers),
-    requiredDamageDealers(dbc->requiredDamageDealers)
+LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(dbc->Name), map(dbc->MapID),
+    type(dbc->TypeID), expansion(dbc->ExpansionLevel), group(dbc->Group_ID),
+    minlevel(dbc->MinLevel), maxlevel(dbc->Maxlevel), difficulty(Difficulty(dbc->DifficultyID)),
+    seasonal((dbc->Flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
+    requiredItemLevel(0), requiredTanks(dbc->Count_tank), requiredHealers(dbc->Count_healer),
+    requiredDamageDealers(dbc->Count_damage)
 {
 }
 
@@ -205,7 +205,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         if (!dungeon)
             continue;
 
-        switch (dungeon->type)
+        switch (dungeon->TypeID)
         {
             case LFG_TYPE_DUNGEON:
             case LFG_TYPE_HEROIC:
@@ -397,7 +397,7 @@ void LFGMgr::Update(uint32 diff)
             // Update shortages
             for (LFGDungeonEntry const* dungeon : sLFGDungeonStore)
             {
-                if (dungeon->type != LFG_TYPE_RANDOM)
+                if (dungeon->TypeID != LFG_TYPE_RANDOM)
                     continue;
 
                 uint32 dpsCount = 0;
@@ -1053,7 +1053,7 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         {
             uint32 rDungeonId = (*dungeons.begin());
             LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId);
-            if (dungeon && dungeon->type == LFG_TYPE_RANDOM)
+            if (dungeon && dungeon->TypeID == LFG_TYPE_RANDOM)
                 player->CastSpell(player, LFG_SPELL_DUNGEON_COOLDOWN, false);
         }
     }
@@ -2260,10 +2260,10 @@ void LFGMgr::AddDungeonsFromGroupingMap(LfgCachedDungeonContainer& container, ui
     // Check for grouped dungeons from grouping map
     for (auto itr : sLFGDungeonsGroupingMapStore)
     {
-        if (itr->randomLfgDungeonId == dungeonId)
+        if (itr->Random_lfgDungeonsID == dungeonId)
         {
-            if (container[groupId].find(itr->dungeonId) == container[groupId].end())
-                container[groupId].insert(itr->dungeonId);
+            if (container[groupId].find(itr->LfgDungeonsID) == container[groupId].end())
+                container[groupId].insert(itr->LfgDungeonsID);
         }
     }
 }

@@ -985,7 +985,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             if (rank >= MAX_TALENT_RANK)
                 return 0;
 
-            return talentEntry->RankID[rank];
+            return talentEntry->SpellRank[rank];
         }
         case SPELL_LINK_ENCHANT:
         case SPELL_LINK_TRADE:
@@ -998,7 +998,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
             if (!glyphPropEntry)
                 return 0;
 
-            return glyphPropEntry->SpellId;
+            return glyphPropEntry->SpellID;
         }
     }
 

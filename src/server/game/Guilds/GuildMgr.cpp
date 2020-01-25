@@ -585,15 +585,15 @@ void GuildMgr::LoadGuildProfessionData()
 {
     for (SkillLineAbilityEntry const* entry : sSkillLineAbilityStore)
     {
-        SkillLineEntry const* skill = sSkillLineStore.LookupEntry(entry->skillId);
-        if (!skill || skill->categoryId != SKILL_CATEGORY_PROFESSION)
+        SkillLineEntry const* skill = sSkillLineStore.LookupEntry(entry->SkillLine);
+        if (!skill || skill->CategoryID != SKILL_CATEGORY_PROFESSION)
             continue;
 
         GuildProfession prof;
-        prof.SpellId = entry->spellId;
-        prof.UniqueBits = entry->UniqueBits;
-        prof.AutoLearn = entry->AutolearnType == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE;
-        GuildProfessionStore[skill->id].push_back(prof);
+        prof.SpellId = entry->Spell;
+        prof.UniqueBits = entry->UniqueBit;
+        prof.AutoLearn = entry->AcquireMethod == SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE;
+        GuildProfessionStore[skill->ID].push_back(prof);
     }
 }
 

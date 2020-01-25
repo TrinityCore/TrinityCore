@@ -95,7 +95,7 @@ void GuildFinderMgr::LoadGuildSettings()
 
         TeamId guildTeam = TEAM_ALLIANCE;
         if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(fields[7].GetUInt8()))
-            if (raceEntry->TeamID == 1)
+            if (raceEntry->BaseLanguage == 1)
                 guildTeam = TEAM_HORDE;
 
         LFGuildSettings settings(listed, guildTeam, guildId, classRoles, availability, interests, level, comment);

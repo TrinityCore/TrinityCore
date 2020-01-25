@@ -3960,7 +3960,7 @@ public:
             {
                 target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
                 if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->getRace(), target->getGender()))
-                    target->PlayDistanceSound(soundEntry->SoundId);
+                    target->PlayDistanceSound(soundEntry->ID);
             }
         }
 

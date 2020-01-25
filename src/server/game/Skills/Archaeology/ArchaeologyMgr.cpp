@@ -103,7 +103,7 @@ void ArchaeologyMgr::LoadData()
 
         for (std::list<std::pair<uint16, uint32> >::iterator itr = sites.begin(); itr != sites.end();)
         {
-            if (itr->second == entry->blobId)
+            if (itr->second == entry->QuestPOIBlobID)
             {
                 uint16 site = itr->first;
                 uint16 poiRel = itr->second;
@@ -116,19 +116,19 @@ void ArchaeologyMgr::LoadData()
 
                 // Create Site Polygon
                 _polygonMap[site] = new SitePolygonGraph();
-                _polygonMap[site]->add_node(entry->x, entry->y);
+                _polygonMap[site]->add_node(entry->X, entry->Y);
 
                 for (uint32 j = 1; j < 12; j++)
                 {
                     entry = sQuestPOIPointStore.LookupEntry(++i);
-                    if (poiRel != entry->blobId)
+                    if (poiRel != entry->QuestPOIBlobID)
                     {
-                        TC_LOG_ERROR("server.loading", "Archaeology: Tried to use POI %u not related to site %u", entry->id, poiRel);
+                        TC_LOG_ERROR("server.loading", "Archaeology: Tried to use POI %u not related to site %u", entry->ID, poiRel);
                         break;
                     }
 
                     // Add new perimeter point
-                    _polygonMap[site]->add_node(entry->x, entry->y);
+                    _polygonMap[site]->add_node(entry->X, entry->Y);
                 }
 
                 // Generate ALL inscribed and boundary geometries for the polygon!

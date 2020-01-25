@@ -829,7 +829,7 @@ void Guild::Member::LoadProfessionDataFromDB(ObjectGuid guid)
             uint16 max = fields[2].GetUInt16();
 
             SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skill);
-            if (!skillLine || skillLine->categoryId != SKILL_CATEGORY_PROFESSION)
+            if (!skillLine || skillLine->CategoryID != SKILL_CATEGORY_PROFESSION)
                 continue;
 
             GuildMemberProfessionData profession;
@@ -2604,8 +2604,8 @@ void Guild::SendLoginInfo(WorldSession* session)
 
     for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
         if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-            if (entry->Level <= GetLevel())
-                player->LearnSpell(entry->SpellId, true);
+            if (entry->GuildLevel <= GetLevel())
+                player->LearnSpell(entry->SpellID, true);
 
     SendGuildReputationWeeklyCap(session, member->GetWeekReputation());
 
@@ -3165,8 +3165,8 @@ void Guild::DeleteMember(SQLTransaction& trans, ObjectGuid guid, bool isDisbandi
 
         for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
             if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-                if (entry->Level <= GetLevel())
-                    player->RemoveSpell(entry->SpellId, false, false);
+                if (entry->GuildLevel <= GetLevel())
+                    player->RemoveSpell(entry->SpellID, false, false);
 
         // Update GuildId in group
         if (Group* group = player->GetGroup())
@@ -3990,8 +3990,8 @@ void Guild::GiveXP(uint32 xp, Player* source, bool rewardedByChallenge)
         std::vector<uint32> perksToLearn;
         for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
             if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-                if (entry->Level > oldLevel && entry->Level <= GetLevel())
-                    perksToLearn.push_back(entry->SpellId);
+                if (entry->GuildLevel > oldLevel && entry->GuildLevel <= GetLevel())
+                    perksToLearn.push_back(entry->SpellID);
 
         // Notify all online players that guild level changed and learn perks
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)

@@ -238,7 +238,6 @@ TC_GAME_API extern DBCStorage <SpellReagentsEntry>           sSpellReagentsStore
 TC_GAME_API extern DBCStorage <SpellScalingEntry>            sSpellScalingStore;
 TC_GAME_API extern DBCStorage <SpellTargetRestrictionsEntry> sSpellTargetRestrictionsStore;
 TC_GAME_API extern DBCStorage <SpellTotemsEntry>             sSpellTotemsStore;
-//TC_GAME_API extern DBCStorage <StableSlotPricesEntry>        sStableSlotPricesStore;
 TC_GAME_API extern DBCStorage <SummonPropertiesEntry>        sSummonPropertiesStore;
 TC_GAME_API extern DBCStorage <TalentEntry>                  sTalentStore;
 TC_GAME_API extern DBCStorage <TalentTabEntry>               sTalentTabStore;

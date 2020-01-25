@@ -2153,7 +2153,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     // check for min / max count
     uint32 memberscount = GetMembersCount();
 
-    if (memberscount > bgEntry->maxGroupSize)                // no MinPlayerCount for battlegrounds
+    if (memberscount > bgEntry->MaxGroupSize)                // no MinPlayerCount for battlegrounds
         return ERR_BATTLEGROUND_NONE;                        // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 
     // get a player as reference, to compare other players' stats to (arena team id, queue id based on level, etc.)
@@ -2183,7 +2183,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if (member->GetTeam() != team)
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // not in the same battleground level braket, don't let join
-        PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->getLevel());
+        PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->MapID, member->getLevel());
         if (memberBracketEntry != bracketEntry)
             return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
         // don't let join rated matches if the arena team id doesn't match
@@ -2366,7 +2366,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                     {
                         WorldLocation graveyard = WorldLocation(instanceEntrance->target_mapId, instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z);
                         WorldSafeLocsEntry const* graveyardLocation = sObjectMgr->GetClosestGraveyard(graveyard, SendMsgTo->GetTeam(), nullptr);
-                        uint32 const zoneId = sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), graveyardLocation->map_id, graveyardLocation->x, graveyardLocation->y, graveyardLocation->z);
+                        uint32 const zoneId = sMapMgr->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), graveyardLocation->Continent, graveyardLocation->Loc.X, graveyardLocation->Loc.Y, graveyardLocation->Loc.Z);
 
                         for (const MemberSlot &member : this->GetMemberSlots())
                         {
@@ -2374,11 +2374,11 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                             {
                                 PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION_BY_MAPID);
 
-                                stmt->setFloat(0, graveyardLocation->x);
-                                stmt->setFloat(1, graveyardLocation->y);
-                                stmt->setFloat(2, graveyardLocation->z);
+                                stmt->setFloat(0, graveyardLocation->Loc.X);
+                                stmt->setFloat(1, graveyardLocation->Loc.Y);
+                                stmt->setFloat(2, graveyardLocation->Loc.Z);
                                 stmt->setFloat(3, instanceEntrance->target_Orientation);
-                                stmt->setUInt32(4, graveyardLocation->map_id);
+                                stmt->setUInt32(4, graveyardLocation->Continent);
                                 stmt->setUInt32(5, zoneId);
                                 stmt->setUInt32(6, member.guid);
                                 stmt->setUInt32(7, map->GetId());

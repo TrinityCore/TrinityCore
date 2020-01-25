@@ -192,9 +192,9 @@ public:
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(gy->map_id, gy->x, gy->y, gy->z))
+        if (!MapManager::IsValidMapCoord(gy->Continent, gy->Loc.X, gy->Loc.Y, gy->Loc.Z))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, gy->x, gy->y, gy->map_id);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, gy->Loc.X, gy->Loc.Y, gy->Continent);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -210,7 +210,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(gy->map_id, gy->x, gy->y, gy->z, player->GetOrientation());
+        player->TeleportTo(gy->Continent, gy->Loc.X, gy->Loc.Y, gy->Loc.Z, player->GetOrientation());
         return true;
     }
 
@@ -259,7 +259,7 @@ public:
             return false;
         }
 
-        return DoTeleport(handler, { node->map_id, { node->x, node->y, node->z } });
+        return DoTeleport(handler, { node->ContinentID, { node->Pos.X, node->Pos.Y, node->Pos.Z } });
     }
 
     static bool HandleGoAreaTriggerCommand(ChatHandler* handler, Variant<Hyperlink<areatrigger>, uint32> areaTriggerId)
@@ -272,7 +272,7 @@ public:
             return false;
         }
 
-        return DoTeleport(handler, { at->mapid, { at->x, at->y, at->z } });
+        return DoTeleport(handler, { at->ContinentID, { at->Pos.X, at->Pos.Y, at->Pos.Z } });
     }
 
     //teleport at coordinates

@@ -65,7 +65,7 @@ void Totem::InitStats(uint32 duration)
         GetOwner()->ToPlayer()->SendDirectMessage(&data);
 
         // set display id depending on caster's race
-        SetDisplayId(GetOwner()->GetModelForTotem(PlayerTotemType(m_Properties->Id)));
+        SetDisplayId(GetOwner()->GetModelForTotem(PlayerTotemType(m_Properties->ID)));
     }
 
     Minion::InitStats(duration);
@@ -89,7 +89,7 @@ void Totem::InitSummon()
     if (GetSpell(1))
         CastSpell(this, GetSpell(1), true);
 
-    if (m_Properties->Id == SUMMON_TYPE_TOTEM_FIRE && GetOwner()->HasAura(SPELL_TOTEMIC_WRATH_TALENT))
+    if (m_Properties->ID == SUMMON_TYPE_TOTEM_FIRE && GetOwner()->HasAura(SPELL_TOTEMIC_WRATH_TALENT))
         CastSpell(this, SPELL_TOTEMIC_WRATH, true);
 }
 

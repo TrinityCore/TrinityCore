@@ -78,9 +78,9 @@ public:
         uint32 channelId = 0;
         for (ChatChannelsEntry const* entry : sChatChannelsStore)
         {
-            if (strstr(entry->pattern, channelStr))
+            if (strstr(entry->Name, channelStr))
             {
-                channelId = entry->ChannelID;
+                channelId = entry->ID;
                 break;
             }
         }

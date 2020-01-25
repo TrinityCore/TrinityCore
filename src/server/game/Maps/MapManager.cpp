@@ -176,7 +176,7 @@ Map::EnterState MapManager::PlayerCannotEnter(uint32 mapid, Player* player, bool
     if (player->IsGameMaster())
         return Map::CAN_ENTER;
 
-    char const* mapName = entry->Name;
+    char const* mapName = entry->MapName;
     Group* group = player->GetGroup();
 
     // Cannot enter raid maps when not in a raid-group. Ignore rule when CONFIG_INSTANCE_IGNORE_RAID = true

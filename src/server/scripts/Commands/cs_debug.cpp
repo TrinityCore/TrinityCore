@@ -136,9 +136,9 @@ public:
         }
 
         // Dump camera locations
-        if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(cineSeq->cinematicCamera))
+        if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(cineSeq->Camera[0]))
         {
-            handler->PSendSysMessage("Waypoints for sequence %u, camera %u", cinematicId, cineSeq->cinematicCamera);
+            handler->PSendSysMessage("Waypoints for sequence %u, camera %u", cinematicId, cineSeq->Camera[0]);
             uint32 count = 1;
             for (FlyByCamera const& cam : *flyByCameras)
             {
@@ -1530,7 +1530,7 @@ public:
         }
         if (!mEntry->IsDungeon())
         {
-            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->Name[LOCALE_enUS]);
+            handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->MapName[LOCALE_enUS]);
             return true;
         }
         int32 difficulty = difficulty_str ? atoi(difficulty_str) : -1;
@@ -1541,29 +1541,29 @@ public:
         }
         if (difficulty >= 0 && !GetMapDifficultyData(mEntry->ID, Difficulty(difficulty)))
         {
-            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", difficulty, mEntry->Name[LOCALE_enUS]);
+            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", difficulty, mEntry->MapName[LOCALE_enUS]);
             return true;
         }
 
         if (difficulty == -1)
         {
-            handler->PSendSysMessage("Resetting all difficulties for '%s'.", mEntry->Name[LOCALE_enUS]);
+            handler->PSendSysMessage("Resetting all difficulties for '%s'.", mEntry->MapName[LOCALE_enUS]);
             for (uint8 diff = (mEntry->IsRaid() ? 0 : 1); diff < (mEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY); ++diff)
             {
                 if (GetMapDifficultyData(mEntry->ID, Difficulty(diff)))
                 {
-                    handler->PSendSysMessage("Resetting difficulty %d for '%s'.", diff, mEntry->Name[LOCALE_enUS]);
+                    handler->PSendSysMessage("Resetting difficulty %d for '%s'.", diff, mEntry->MapName[LOCALE_enUS]);
                     sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(diff));
                 }
             }
         }
         else if (mEntry->IsNonRaidDungeon() && difficulty == DUNGEON_DIFFICULTY_NORMAL)
         {
-            handler->PSendSysMessage("'%s' does not have any permanent saves for difficulty %d.", mEntry->Name[LOCALE_enUS], difficulty);
+            handler->PSendSysMessage("'%s' does not have any permanent saves for difficulty %d.", mEntry->MapName[LOCALE_enUS], difficulty);
         }
         else
         {
-            handler->PSendSysMessage("Resetting difficulty %d for '%s'.", difficulty, mEntry->Name[LOCALE_enUS]);
+            handler->PSendSysMessage("Resetting difficulty %d for '%s'.", difficulty, mEntry->MapName[LOCALE_enUS]);
             sInstanceSaveMgr->ForceGlobalReset(mEntry->ID, Difficulty(difficulty));
         }
         return true;
@@ -1596,9 +1596,9 @@ public:
             for (uint32 i = 0; i < sWorldSafeLocsStore.GetNumRows(); ++i)
             {
                 WorldSafeLocsEntry const* loc = sWorldSafeLocsStore.LookupEntry(i);
-                if (loc && loc->map_id == player->GetMapId())
+                if (loc && loc->Continent == player->GetMapId())
                 {
-                    float dist = (loc->x - x) * (loc->x - x) + (loc->y - y) * (loc->y - y) + (loc->z - z) * (loc->z - z);
+                    float dist = (loc->Loc.X - x) * (loc->Loc.X - x) + (loc->Loc.Y - y) * (loc->Loc.Y - y) + (loc->Loc.Z - z) * (loc->Loc.Z - z);
                     if (dist < distNearest)
                     {
                         distNearest = dist;
@@ -1609,7 +1609,7 @@ public:
         }
 
         if (nearestLoc)
-            handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD, nearestLoc->ID, nearestLoc->x, nearestLoc->y, nearestLoc->z);
+            handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD, nearestLoc->ID, nearestLoc->Loc.X, nearestLoc->Loc.Y, nearestLoc->Loc.Z);
         else
             handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD_NOTFOUND);
 

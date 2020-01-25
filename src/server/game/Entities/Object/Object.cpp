@@ -554,7 +554,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     if (flags & UPDATEFLAG_VEHICLE)
     {
         *data << float(self->GetTransport() ? self->GetTransOffsetO() : self->GetOrientation());
-        *data << uint32(self->GetVehicleKit()->GetVehicleInfo()->m_ID);
+        *data << uint32(self->GetVehicleKit()->GetVehicleInfo()->ID);
     }
 
     if (flags & UPDATEFLAG_GO_TRANSPORT_POSITION)
@@ -2041,7 +2041,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     uint32 mask = UNIT_MASK_SUMMON;
     if (properties)
     {
-        switch (properties->Category)
+        switch (properties->Control)
         {
             case SUMMON_CATEGORY_PET:
                 mask = UNIT_MASK_GUARDIAN;
@@ -2056,7 +2056,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             case SUMMON_CATEGORY_ALLY:
             case SUMMON_CATEGORY_UNK:
             {
-                switch (properties->Type)
+                switch (properties->Title)
                 {
                     case SUMMON_TYPE_MINION:
                     case SUMMON_TYPE_GUARDIAN:

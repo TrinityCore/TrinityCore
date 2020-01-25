@@ -2053,9 +2053,9 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
     float cosB = dy / dist;
     dx = dist * (cosA * cosB + sinA * sinB);
     dy = dist * (cosA * sinB - sinA * cosB);
-    return dx < info->maxX + radius && dx > info->minX - radius
-        && dy < info->maxY + radius && dy > info->minY - radius
-        && dz < info->maxZ + radius && dz > info->minZ - radius;
+    return dx < info->GeoBoxMax.X + radius && dx > info->GeoBoxMin.X - radius
+        && dy < info->GeoBoxMax.Y + radius && dy > info->GeoBoxMin.Y - radius
+        && dz < info->GeoBoxMax.Z + radius && dz > info->GeoBoxMin.Z - radius;
 }
 
 void GameObject::EventInform(uint32 eventId, WorldObject* invoker /*= nullptr*/)
@@ -2231,8 +2231,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
-                if (modelData->DamagedDisplayId)
-                    modelId = modelData->DamagedDisplayId;
+                if (modelData->State0WMO)
+                    modelId = modelData->State0WMO;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2260,8 +2260,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
-                if (modelData->DestroyedDisplayId)
-                    modelId = modelData->DestroyedDisplayId;
+                if (modelData->State1WMO)
+                    modelId = modelData->State1WMO;
             SetDisplayId(modelId);
 
             if (setHealth)
@@ -2279,8 +2279,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
 
             uint32 modelId = m_goInfo->displayId;
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
-                if (modelData->RebuildingDisplayId)
-                    modelId = modelData->RebuildingDisplayId;
+                if (modelData->State2WMO)
+                    modelId = modelData->State2WMO;
             SetDisplayId(modelId);
 
             // restores to full health
@@ -2706,12 +2706,12 @@ bool GameObject::IsAtInteractDistance(Position const& pos, float radius) const
     {
         float scale = GetObjectScale();
 
-        float minX = displayInfo->minX * scale - radius;
-        float minY = displayInfo->minY * scale - radius;
-        float minZ = displayInfo->minZ * scale - radius;
-        float maxX = displayInfo->maxX * scale + radius;
-        float maxY = displayInfo->maxY * scale + radius;
-        float maxZ = displayInfo->maxZ * scale + radius;
+        float minX = displayInfo->GeoBoxMin.X * scale - radius;
+        float minY = displayInfo->GeoBoxMin.Y * scale - radius;
+        float minZ = displayInfo->GeoBoxMin.Z * scale - radius;
+        float maxX = displayInfo->GeoBoxMax.X * scale + radius;
+        float maxY = displayInfo->GeoBoxMax.Y * scale + radius;
+        float maxZ = displayInfo->GeoBoxMax.Z * scale + radius;
 
         QuaternionData worldRotation = GetWorldRotation();
         G3D::Quat worldRotationQuat(worldRotation.x, worldRotation.y, worldRotation.z, worldRotation.w);

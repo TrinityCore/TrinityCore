@@ -1213,7 +1213,7 @@ class spell_maloriak_master_adventurer_award : public AuraScript
             return;
 
         player->SetTitle(titleInfo);
-        player->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
+        player->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->Mask_ID);
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
