@@ -359,7 +359,7 @@ struct boss_algalon_the_observer : public BossAI
         return type == DATA_HAS_FED_ON_TEARS ? _fedOnTears : 1;
     }
 
-    void JustEngagedWith(Unit* /*target*/) override
+    void JustEngagedWith(Unit* who) override
     {
         uint32 introDelay = 0;
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -371,7 +371,7 @@ struct boss_algalon_the_observer : public BossAI
         {
             Talk(SAY_ALGALON_AGGRO);
             me->PlayDirectMusic(ENGAGE_MUSIC_ID);
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             introDelay = 8000;
         }
         else

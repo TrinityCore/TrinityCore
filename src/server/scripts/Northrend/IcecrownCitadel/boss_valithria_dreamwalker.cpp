@@ -490,7 +490,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
         struct npc_green_dragon_combat_triggerAI : public BossAI
         {
-            npc_green_dragon_combat_triggerAI(Creature* creature) : BossAI(creature, DATA_VALITHRIA_DREAMWALKER), _evadeCheck(false)
+            npc_green_dragon_combat_triggerAI(Creature* creature) : BossAI(creature, DATA_VALITHRIA_DREAMWALKER)
             {
             }
 
@@ -533,20 +533,12 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 summons.DoAction(ACTION_ENTER_COMBAT, pred);
             }
 
-            void AttackStart(Unit* target) override
-            {
-                if (target->GetTypeId() == TYPEID_PLAYER)
-                    BossAI::AttackStart(target);
-            }
-
-            bool CanAIAttack(Unit const* target) const override
-            {
-                return target->GetTypeId() == TYPEID_PLAYER;
-            }
-
             void JustExitedCombat() override
             {
+                EngagementOver();
+
                 me->setActive(false);
+
                 // JustExitedCombat is called on death too, so if creature is dead, avoid "respawn" event
                 if (!me->IsAlive())
                     return;
@@ -563,26 +555,6 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                         lichKing->AI()->EnterEvadeMode();
                 }
             }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (!me->IsInCombat())
-                    return;
-
-                // check evade every second tick
-                _evadeCheck ^= true;
-                if (!_evadeCheck)
-                    return;
-
-                // check if there is any player engaged, if not - evade
-                if (me->GetCombatManager().HasPvECombatWithPlayers())
-                    return;
-
-                EnterEvadeMode();
-            }
-
-        private:
-            bool _evadeCheck;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1203,7 +1175,7 @@ class spell_dreamwalker_decay_periodic_timer : public SpellScriptLoader
                 OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dreamwalker_decay_periodic_timer_AuraScript::DecayPeriodicTimer, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
 
-            int32 _decayRate;
+            int32 _decayRate = 0;
         };
 
         AuraScript* GetAuraScript() const override

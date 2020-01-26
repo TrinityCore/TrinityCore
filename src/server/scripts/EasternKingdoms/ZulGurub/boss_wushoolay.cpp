@@ -40,19 +40,9 @@ class boss_wushoolay : public CreatureScript
         {
             boss_wushoolayAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
 
-            void Reset() override
+            void JustEngagedWith(Unit* who) override
             {
-                _Reset();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, 5s, 10s);
                 events.ScheduleEvent(EVENT_LIGHTNINGWAVE, 8s, 16s);
             }

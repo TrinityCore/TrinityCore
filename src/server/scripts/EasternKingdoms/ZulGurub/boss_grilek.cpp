@@ -50,9 +50,9 @@ class boss_grilek : public CreatureScript // grilek
                 _JustDied();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_AVATAR, 15s, 25s);
                 events.ScheduleEvent(EVENT_GROUND_TREMOR, 15s, 25s);
             }
