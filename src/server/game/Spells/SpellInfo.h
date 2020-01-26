@@ -379,6 +379,7 @@ class TC_GAME_API SpellInfo
         uint32 ManaCostPerlevel;
         uint32 ManaPerSecond;
         uint32 ManaCostPercentage;
+        float  ManaCostPercentage2;
         uint32 RuneCostID;
         SpellRangeEntry const* RangeEntry;
         float  Speed;
@@ -556,6 +557,7 @@ class TC_GAME_API SpellInfo
         uint32 GetRecoveryTime() const;
 
         int32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
+        float GetSpellScalingMultiplier(Unit const* caster, SpellScalingEntry const* scalingEntry, bool isPowerCostRelated = false) const;
 
         bool IsRanked() const;
         uint8 GetRank() const;

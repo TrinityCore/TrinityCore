@@ -2233,7 +2233,7 @@ struct SpellPowerEntry
     uint32  ManaPerSecond;                                  // 4
     //uint32  PowerDisplayID;                               // 5
     //uint32  AltPowerBarID;                                // 6
-    //float   PowerCostPct;                                 // 7 ??
+    float   PowerCostPct2;                                  // 7
 };
 
 struct SpellRuneCostEntry

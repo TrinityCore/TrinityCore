@@ -980,6 +980,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     ManaCost = _power ? _power->ManaCost : 0;
     ManaCostPerlevel = _power ? _power->ManaCostPerLevel : 0;
     ManaCostPercentage = _power ? _power->PowerCostPct : 0;
+    ManaCostPercentage2 = _power ? _power->PowerCostPct2 : 0.f;
     ManaPerSecond = _power ? _power->ManaPerSecond : 0;
 
     // SpellReagentsEntry
@@ -3307,36 +3308,66 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, S
         // Else drain all power
         if (PowerType < MAX_POWERS)
             return caster->GetPower(Powers(PowerType));
+
         TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", PowerType, Id);
         return 0;
     }
 
-    // Base powerCost
-    int32 powerCost = ManaCost;
-    // PCT cost from total amount
-    if (ManaCostPercentage)
+    bool invertSign = false;
+    int32 powerCost = 0;
+
+    if (SpellPowerId)
     {
-        switch (PowerType)
+        int32 manaCost = ManaCost;
+        powerCost = manaCost;
+        float powerCostPct = ManaCostPercentage2 != 0.f ? ManaCostPercentage2 : (float)ManaCostPercentage;
+
+        if (manaCost < 0 || powerCostPct < 0.f)
         {
-            // health as power used
-            case POWER_HEALTH:
-                powerCost += int32(CalculatePct(caster->GetCreateHealth(), ManaCostPercentage));
-                break;
-            case POWER_MANA:
-                powerCost += int32(CalculatePct(caster->GetCreateMana(), ManaCostPercentage));
-                break;
-            case POWER_RAGE:
-            case POWER_FOCUS:
-            case POWER_ENERGY:
-                powerCost += int32(CalculatePct(caster->GetMaxPower(Powers(PowerType)), ManaCostPercentage));
-                break;
-            case POWER_RUNE:
-            case POWER_RUNIC_POWER:
-                TC_LOG_DEBUG("spells", "CalculateManaCost: Not implemented yet!");
-                break;
-            default:
-                TC_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
-                return 0;
+            manaCost = std::abs(manaCost);
+            powerCostPct = std::fabs(powerCostPct);
+            invertSign = true;
+            powerCost = manaCost;
+        }
+
+        // Base calculation
+        if (ManaCostPercentage)
+        {
+            int32 ressource = 0;
+            switch (PowerType)
+            {
+                // health as power used
+                case POWER_HEALTH:
+                    ressource = caster->GetCreateHealth();
+                    break;
+                case POWER_MANA:
+                    ressource = caster->GetCreateMana();
+                    break;
+                case POWER_RAGE:
+                case POWER_FOCUS:
+                case POWER_ENERGY:
+                    ressource = caster->GetMaxPower(Powers(PowerType));
+                    break;
+                case POWER_RUNE:
+                case POWER_RUNIC_POWER:
+                    TC_LOG_DEBUG("spells", "CalculateManaCost: Not implemented yet!");
+                    break;
+                default:
+                    TC_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
+                    return 0;
+            }
+
+            manaCost += int32((ressource * powerCostPct) / 100);
+            powerCost = manaCost;
+        }
+
+        // Scaling
+        if (SpellScalingId)
+            powerCost = int32(ceilf(GetSpellScalingMultiplier(caster, GetSpellScaling(), true) * (double)powerCost));
+        else
+        {
+            uint32 manaCostPerLevel = invertSign ? -int32(ManaCostPerlevel) : ManaCostPerlevel;
+            powerCost = manaCostPerLevel * SpellLevel + manaCost;
         }
     }
 
@@ -3355,11 +3386,9 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, S
     if (HasAttribute(SPELL_ATTR4_SPELL_VS_EXTEND_COST))
     {
         uint32 speed = 0;
-/* REVIEW - MERGE
-        if (SpellShapeshiftEntry const* ss = sSpellShapeshiftStore.LookupEntry(caster->GetShapeshiftForm()))
-            speed = ss->attackSpeed;
+        if (SpellShapeshiftFormEntry const* ss = sSpellShapeshiftFormStore.LookupEntry(caster->GetShapeshiftForm()))
+            speed = ss->CombatRoundTime;
         else
-*/
         {
             WeaponAttackType slot = BASE_ATTACK;
             if (HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
@@ -3381,10 +3410,13 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, S
         {
             GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(SpellLevel - 1);
             GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(caster->getLevel() - 1);
-            if (spellScaler && casterScaler)
+            if (spellScaler && spellScaler->ratio > 0.f && casterScaler && casterScaler->ratio > 0.f)
                 powerCost *= casterScaler->ratio / spellScaler->ratio;
         }
     }
+
+    if (invertSign)
+        powerCost = -powerCost;
 
     // PCT mod from user auras by spell school and power type
     Unit::AuraEffectList const& aurasPct = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT);
@@ -3399,6 +3431,35 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, S
     if (powerCost < 0)
         powerCost = 0;
     return powerCost;
+}
+
+float SpellInfo::GetSpellScalingMultiplier(Unit const* caster, SpellScalingEntry const* scalingEntry, bool isPowerCostRelated /*= false*/) const
+{
+    if (!caster || !scalingEntry)
+        return 1.f;
+
+    float multiplier = 1.f;
+    float scalingMultiplier = 1.f;
+
+    int32 castTimeMaxLevel = scalingEntry->CastTimeMaxLevel;
+    uint8 casterLevel = caster->getLevel();
+
+    if (casterLevel < castTimeMaxLevel && scalingEntry->CastTimeMax)
+    {
+        float castTimeMax = (float)scalingEntry->CastTimeMax;
+        int32 castTime = scalingEntry->CastTimeMin + ((casterLevel - 1) * (scalingEntry->CastTimeMax - scalingEntry->CastTimeMin)) / (castTimeMaxLevel - 1);
+        multiplier = castTime / castTimeMax;
+        scalingMultiplier = castTime / castTimeMax;
+    }
+
+    if (!isPowerCostRelated)
+    {
+        int32 nerfMaxLevel = scalingEntry->NerfMaxLevel;
+        if (casterLevel < nerfMaxLevel)
+            scalingMultiplier = ((((1.f - scalingEntry->NerfFactor) * (casterLevel - 1)) / (nerfMaxLevel - 1)) + scalingEntry->NerfFactor) * multiplier;
+    }
+
+    return scalingMultiplier;
 }
 
 bool SpellInfo::IsRanked() const
