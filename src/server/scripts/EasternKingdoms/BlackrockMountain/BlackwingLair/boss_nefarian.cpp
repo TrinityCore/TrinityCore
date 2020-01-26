@@ -204,7 +204,7 @@ public:
 
         void BeginEvent(Player* target)
         {
-            _JustEngagedWith();
+            _JustEngagedWith(target);
 
             Talk(SAY_GAMESBEGIN_2);
 

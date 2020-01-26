@@ -52,9 +52,9 @@ class boss_gahzranka : public CreatureScript // gahzranka
                 _JustDied();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_FROSTBREATH, 8s);
                 events.ScheduleEvent(EVENT_MASSIVEGEYSER, 25s);
                 events.ScheduleEvent(EVENT_SLAM, 15s);

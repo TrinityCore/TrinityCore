@@ -75,12 +75,12 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, 5s);
                 events.ScheduleEvent(EVENT_SURGE, 4s);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
             }
 
             void MoveInLineOfSight(Unit* who) override

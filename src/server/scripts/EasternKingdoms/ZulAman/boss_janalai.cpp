@@ -178,9 +178,9 @@ class boss_janalai : public CreatureScript
                 Talk(SAY_SLAY);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 Talk(SAY_AGGRO);
             }

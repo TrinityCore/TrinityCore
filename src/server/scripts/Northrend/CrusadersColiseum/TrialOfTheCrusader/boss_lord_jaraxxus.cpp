@@ -130,9 +130,9 @@ struct boss_jaraxxus : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_FEL_FIREBALL, 6s);
         events.ScheduleEvent(EVENT_FEL_LIGHTNING, 17s);

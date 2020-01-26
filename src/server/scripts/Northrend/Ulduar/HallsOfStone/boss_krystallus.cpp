@@ -63,10 +63,10 @@ class boss_krystallus : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 events.ScheduleEvent(EVENT_BOULDER_TOSS, 3s, 9s);
                 events.ScheduleEvent(EVENT_GROUND_SLAM, 15s, 18s);

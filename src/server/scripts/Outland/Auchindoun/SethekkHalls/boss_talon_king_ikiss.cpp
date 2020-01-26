@@ -81,9 +81,9 @@ public:
             BossAI::MoveInLineOfSight(who);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 5s);
             events.ScheduleEvent(EVENT_POLYMORPH, 8s);

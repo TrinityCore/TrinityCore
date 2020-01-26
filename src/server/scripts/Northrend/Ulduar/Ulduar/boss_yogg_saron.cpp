@@ -541,6 +541,9 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
+                if (!me->GetCombatManager().HasPvECombatWithPlayers())
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+
                 events.Update(diff);
                 // don't summon tentacles when illusion is shattered, delay them
                 if (_illusionShattered)
@@ -767,6 +770,14 @@ class boss_sara : public CreatureScript
                 _events.ScheduleEvent(EVENT_SARAS_FERVOR, 5s, 0, PHASE_ONE);
                 _events.ScheduleEvent(EVENT_SARAS_BLESSING, urand(10000, 30000), 0, PHASE_ONE);
                 _events.ScheduleEvent(EVENT_SARAS_ANGER, urand(15000, 25000), 0, PHASE_ONE);
+            }
+
+            void JustEnteredCombat(Unit* who) override
+            {
+                if (IsEngaged())
+                    return;
+
+                EngagementStart(who);
             }
 
             void Reset() override
@@ -1607,8 +1618,13 @@ class npc_yogg_saron_keeper : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEnteredCombat(Unit* who) override
             {
+                if (IsEngaged())
+                    return;
+
+                EngagementStart(who);
+
                 switch (me->GetEntry())
                 {
                     case NPC_FREYA_YS:
