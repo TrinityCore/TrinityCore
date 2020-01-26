@@ -1413,13 +1413,13 @@ void Creature::UpdateLevelDependantStats()
 
     switch (GetClass())
     {
-        case UNIT_CLASS_PALADIN:
-        case UNIT_CLASS_MAGE:
-            SetMaxPower(POWER_MANA, mana);
-            SetFullPower(POWER_MANA);
-            break;
-        default: // We don't set max power here, 0 makes power bar hidden
-            break;
+    case UNIT_CLASS_PALADIN:
+    case UNIT_CLASS_MAGE:
+        SetMaxPower(POWER_MANA, mana);
+        SetFullPower(POWER_MANA);
+        break;
+    default: // We don't set max power here, 0 makes power bar hidden
+        break;
     }
 
     SetStatFlatModifier(UNIT_MOD_HEALTH, BASE_VALUE, (float)health);
@@ -1441,6 +1441,79 @@ void Creature::UpdateLevelDependantStats()
 
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
+
+    // EJ ap mod    
+    if (cInfo->rank == 1 || cInfo->rank == 2 || cInfo->rank == 4)
+    {
+        int32 checkAP = stats->AttackPower;
+        if (checkAP < stats->RangedAttackPower)
+        {
+            checkAP = stats->RangedAttackPower;
+        }
+        if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
+        {
+            if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+            {
+                checkAP = checkAP * 2.5;
+            }
+            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+            {
+                checkAP = checkAP * 2;
+            }
+            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
+            {
+                checkAP = checkAP * 1;
+            }
+        }
+        else if (cInfo->rank == 1)
+        {
+            if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+            {
+                checkAP = checkAP * 1.5;
+            }
+            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+            {
+                checkAP = checkAP * 1.3;
+            }
+            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
+            {
+                checkAP = checkAP * 1;
+            }
+        }
+        else if (cInfo->rank == 2)
+        {
+            if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+            {
+                checkAP = checkAP * 2.5;
+            }
+            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+            {
+                checkAP = checkAP * 2;
+            }
+            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
+            {
+                checkAP = checkAP * 1;
+            }
+        }
+        else if (cInfo->rank == 4)
+        {
+            if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+            {
+                checkAP = checkAP * 1.5;
+            }
+            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+            {
+                checkAP = checkAP * 1.3;
+            }
+            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
+            {
+                checkAP = checkAP * 1;
+            }
+        }
+
+        SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, checkAP);
+        SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, checkAP);
+    }
 
     float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
     SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, armor);

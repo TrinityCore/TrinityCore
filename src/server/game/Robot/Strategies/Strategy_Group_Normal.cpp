@@ -817,14 +817,14 @@ bool Strategy_Group_Normal::Follow()
         {
             if (me->GetMapId() == tank->GetMapId())
             {
-                sourceAI->MoveCLose(tank, followDistance);
+                sourceAI->BaseMove(tank, followDistance, false, false);
             }
         }
         else
         {
             if (me->GetMapId() == sourceAI->masterPlayer->GetMapId())
             {
-                sourceAI->MoveCLose(sourceAI->masterPlayer, followDistance);
+                sourceAI->BaseMove(tank, followDistance, false, false);
             }
         }
     }
