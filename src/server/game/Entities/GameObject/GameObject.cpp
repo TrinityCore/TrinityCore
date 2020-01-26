@@ -418,6 +418,10 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     if (goinfo->IsLargeGameObject())
         SetVisibilityDistanceOverride(VisibilityDistanceType::Large);
 
+    // Check if GameObject is Infinite
+    if (goinfo->IsInfiniteGameObject())
+        SetVisibilityDistanceOverride(VisibilityDistanceType::Infinite);
+
     return true;
 }
 
@@ -1472,7 +1476,7 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
         RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
 
     if (GetGoState() == GO_STATE_READY)                      //if closed -> open
-        SetGoState(alternative ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_ACTIVE);
+        SetGoState(alternative ? GO_STATE_DESTROYED : GO_STATE_ACTIVE);
     else                                                    //if open -> close
         SetGoState(GO_STATE_READY);
 }
