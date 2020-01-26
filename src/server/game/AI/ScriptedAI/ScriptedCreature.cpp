@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -526,12 +525,12 @@ void BossAI::_JustReachedHome()
     me->setActive(false);
 }
 
-void BossAI::_JustEngagedWith()
+void BossAI::_JustEngagedWith(Unit* who)
 {
     if (instance)
     {
         // bosses do not respawn, check only on enter combat
-        if (!instance->CheckRequiredBosses(_bossId))
+        if (!instance->CheckRequiredBosses(_bossId, who->ToPlayer()))
         {
             EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
             return;

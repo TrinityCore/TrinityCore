@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -72,9 +72,9 @@ class boss_loatheb : public CreatureScript
                 _sporeLoser = true;
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.ScheduleEvent(EVENT_NECROTIC_AURA, 17s);
                 events.ScheduleEvent(EVENT_DEATHBLOOM, 5s);
                 events.ScheduleEvent(EVENT_SPORE, 18s);

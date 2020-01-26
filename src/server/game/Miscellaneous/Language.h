@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -642,9 +641,11 @@ enum TrinityStrings
     LANG_GMLIST_HEADER                    = 598,
     LANG_GMLIST_EMPTY                     = 599,
 
+    LANG_REMOVEITEM_FAILURE               = 600,
+
     // End Level 3 list, continued at 1100
 
-    // 600-704 - free
+    // 601-704 - free
 
     LANG_WAIT_BEFORE_SPEAKING             = 705,
     LANG_NOT_EQUIPPED_ITEM                = 706,

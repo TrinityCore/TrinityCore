@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,9 +36,10 @@ struct B32Impl
     {
         if (v == '0') return Decode('O');
         if (v == '1') return Decode('l');
+        if (v == '8') return Decode('B');
         if (('A' <= v) && (v <= 'Z')) return (v-'A');
         if (('a' <= v) && (v <= 'z')) return (v-'a');
-        if (('2' <= v) && (v <= '8')) return (v-'2')+26;
+        if (('2' <= v) && (v <= '7')) return (v-'2')+26;
         return DECODE_ERROR;
     }
 };

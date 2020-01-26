@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,9 +73,9 @@ struct boss_high_inquisitor_fairbanks : public BossAI
         me->SetStandState(UNIT_STAND_STATE_DEAD);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         events.ScheduleEvent(EVENT_CURSE_BLOOD, 10s);
         events.ScheduleEvent(EVENT_DIPEL_MAGIC, 30s);
         events.ScheduleEvent(EVENT_FEAR, 40s);

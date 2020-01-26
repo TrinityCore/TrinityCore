@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -87,7 +87,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 events.ScheduleEvent(EVENT_SWOOP, 8s, 8s);
                 events.ScheduleEvent(EVENT_WING_FLAP, 15s, 15s);
@@ -97,7 +97,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 53s, 53s);
                 events.ScheduleEvent(EVENT_DOMINATE_MIND, 34s, 48s);
                 events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, 20s, 20s);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
             }
 
             void JustDied(Unit* /*killer*/) override
