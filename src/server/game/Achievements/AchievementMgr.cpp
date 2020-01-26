@@ -3354,6 +3354,10 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
     if (AchievementEntry const* achievement = sAchievementMgr->GetAchievement(4539))
         const_cast<AchievementEntry*>(achievement)->Instance_ID = 631;    // Correct map requirement (currently has Ulduar)
 
+    // Straw That Broke the Camel's Back - Halls of Origination
+    if (AchievementEntry const* achievement = sAchievementMgr->GetAchievement(5294))
+        const_cast<AchievementEntry*>(achievement)->Instance_ID = 644;    // Correct map requirement
+
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement references in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
