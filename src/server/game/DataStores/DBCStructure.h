@@ -1504,7 +1504,7 @@ struct ItemRandomPropertiesEntry
 {
     uint32  ID;                                             // 0 
     //char* Name                                            // 1
-    uint32  Enchantment[MAX_ITEM_ENCHANTMENT_EFFECTS];      // 2 - 6
+    uint32  Enchantment[5];                                 // 2 - 6
     char*   Name;                                           // 7
 };
 
@@ -2227,13 +2227,13 @@ struct SpellLevelsEntry
 struct SpellPowerEntry
 {
     //uint32  ID;                                           // 0
-    uint32    ManaCost;                                     // 1
-    uint32    ManaCostPerLevel;                             // 2
-    uint32    PowerCostPct;                                 // 3
-    uint32    ManaPerSecond;                                // 4
+    uint32  ManaCost;                                       // 1
+    uint32  ManaCostPerLevel;                               // 2
+    uint32  PowerCostPct;                                   // 3
+    uint32  ManaPerSecond;                                  // 4
     //uint32  PowerDisplayID;                               // 5
     //uint32  AltPowerBarID;                                // 6
-    //float   PowerCostPct;                                 // 7
+    //float   PowerCostPct;                                 // 7 ??
 };
 
 struct SpellRuneCostEntry
