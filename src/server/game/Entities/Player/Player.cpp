@@ -7657,23 +7657,18 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
-        int32 statType = proto->ItemStat[i].ItemStatType;
-
-        // Fallback to stat scaling distribution stat ID. If no entry, skip
-        if (statType == -1 && !ssd)
+        int32 statID = proto->ItemStat[i].ItemStatType;
+        if ((statID < 0 && !ssd) || (statID < 0 && ssd && ssd->StatID[i] < 0))
             continue;
-        else if (ssd)
-            statType = ssd->StatID[i];
+
+        if (statID < 0 && ssd)
+            statID = ssd->StatID[i];
 
         int32 val = proto->GetStatValue(i, this);
         if (!val)
             continue;
 
-        // If set ScalingStatDistribution need get stats and values from it
-        if (ssd && ssd->StatID[i] < 0)
-            continue;
-
-        switch (statType)
+        switch (statID)
         {
             case ITEM_MOD_MANA:
                 HandleStatModifier(UNIT_MOD_MANA, BASE_VALUE, float(val), apply);
