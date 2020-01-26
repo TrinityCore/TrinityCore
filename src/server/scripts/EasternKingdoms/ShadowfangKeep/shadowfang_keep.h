@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,13 +29,14 @@ enum SKDataTypes
     TYPE_RETHILGORE             = 2,
     TYPE_FENRUS                 = 3,
     TYPE_NANDOS                 = 4,
-    BOSS_ARUGAL                 = 5
+    BOSS_ARUGAL                 = 5,
+    DATA_APOTHECARY_HUMMEL      = 6
 };
 
-template<typename AI>
-inline AI* GetShadowfangKeepAI(Creature* creature)
+template<typename AI, typename T>
+inline AI* GetShadowfangKeepAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SFKScriptName);
+    return GetInstanceAI<AI>(obj, SFKScriptName);
 }
 
 #endif

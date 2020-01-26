@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -102,16 +101,18 @@ Map* MapManager::CreateBaseMap_i(MapEntry const* mapEntry)
     if (mapEntry->Instanceable())
         map = new MapInstanced(mapEntry->ID, i_gridCleanUpDelay);
     else
-    {
         map = new Map(mapEntry->ID, i_gridCleanUpDelay, 0, DIFFICULTY_NONE);
-        map->LoadRespawnTimes();
-        map->LoadCorpseData();
-    }
 
     i_maps[mapEntry->ID] = map;
 
     for (uint32 childMapId : _parentMapData[mapEntry->ID])
         map->AddChildTerrainMap(CreateBaseMap_i(sMapStore.AssertEntry(childMapId)));
+
+    if (!mapEntry->Instanceable())
+    {
+        map->LoadRespawnTimes();
+        map->LoadCorpseData();
+    }
 
     return map;
 }

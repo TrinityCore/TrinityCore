@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -181,7 +181,7 @@ class npc_harbinger_of_flame : public CreatureScript
 
             void EnterCombat(Unit* /*target*/) override
             {
-                for (ObjectGuid const& birdGuid : me->GetChannelObjects())
+                for (ObjectGuid const& birdGuid : me->m_unitData->ChannelObjects)
                     if (Creature* bird = ObjectAccessor::GetCreature(*me, birdGuid))
                         DoZoneInCombat(bird, 200.0f);
 
@@ -298,7 +298,7 @@ class npc_blazing_monstrosity : public CreatureScript
                 // Our passenger is another vehicle (boardable by players)
                 DoCast(passenger, SPELL_SHARE_HEALTH, true);
                 passenger->setFaction(35);
-                passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                passenger->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 // Hack to relocate vehicle on vehicle so exiting players are not moved under map
                 Movement::MoveSplineInit init(passenger);

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,12 +30,12 @@ class MessageBuffer;
 class TC_SHARED_API ByteBufferException : public std::exception
 {
 public:
-    ~ByteBufferException() throw() { }
+    ~ByteBufferException() noexcept { }
 
-    char const* what() const throw() override { return msg_.c_str(); }
+    char const* what() const noexcept override { return msg_.c_str(); }
 
 protected:
-    std::string & message() throw() { return msg_; }
+    std::string& message() { return msg_; }
 
 private:
     std::string msg_;
@@ -47,7 +46,7 @@ class TC_SHARED_API ByteBufferPositionException : public ByteBufferException
 public:
     ByteBufferPositionException(size_t pos, size_t size, size_t valueSize);
 
-    ~ByteBufferPositionException() throw() { }
+    ~ByteBufferPositionException() noexcept { }
 };
 
 class TC_SHARED_API ByteBuffer
@@ -98,7 +97,7 @@ class TC_SHARED_API ByteBuffer
             return *this;
         }
 
-        ByteBuffer& operator=(ByteBuffer&& right)
+        ByteBuffer& operator=(ByteBuffer&& right) noexcept
         {
             if (this != &right)
             {
@@ -123,11 +122,17 @@ class TC_SHARED_API ByteBuffer
             _storage.clear();
         }
 
-        template <typename T> void append(T value)
+        template <typename T>
+        void append(T value)
         {
-            static_assert(std::is_fundamental<T>::value, "append(compound)");
+            static_assert(std::is_trivially_copyable<T>::value, "append(T) must be used with trivially copyable types");
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
+        }
+
+        bool HasUnfinishedBitPack() const
+        {
+            return _bitpos != 8;
         }
 
         void FlushBits()
@@ -194,23 +199,10 @@ class TC_SHARED_API ByteBuffer
             return value;
         }
 
-        // Reads a byte (if needed) in-place
-        void ReadByteSeq(uint8& b)
-        {
-            if (b != 0)
-                b ^= read<uint8>();
-        }
-
-        void WriteByteSeq(uint8 b)
-        {
-            if (b != 0)
-                append<uint8>(b ^ 1);
-        }
-
         template <typename T>
         void put(std::size_t pos, T value)
         {
-            static_assert(std::is_fundamental<T>::value, "append(compound)");
+            static_assert(std::is_trivially_copyable<T>::value, "put(size_t, T) must be used with trivially copyable types");
             EndianConvert(value);
             put(pos, (uint8 *)&value, sizeof(value));
         }
@@ -435,7 +427,8 @@ class TC_SHARED_API ByteBuffer
             _rpos += skip;
         }
 
-        template <typename T> T read()
+        template <typename T>
+        T read()
         {
             ResetBitPos();
             T r = read<T>(_rpos);
@@ -443,13 +436,21 @@ class TC_SHARED_API ByteBuffer
             return r;
         }
 
-        template <typename T> T read(size_t pos) const
+        template <typename T>
+        T read(size_t pos) const
         {
             if (pos + sizeof(T) > size())
                 throw ByteBufferPositionException(pos, sizeof(T), size());
             T val = *((T const*)&_storage[pos]);
             EndianConvert(val);
             return val;
+        }
+
+        template<class T>
+        void read(T* dest, size_t count)
+        {
+            static_assert(std::is_trivially_copyable<T>::value, "read(T*, size_t) must be used with trivially copyable types");
+            return read(reinterpret_cast<uint8*>(dest), count * sizeof(T));
         }
 
         void read(uint8 *dest, size_t len)
@@ -540,7 +541,8 @@ class TC_SHARED_API ByteBuffer
             return append((const uint8 *)src, cnt);
         }
 
-        template<class T> void append(const T *src, size_t cnt)
+        template<class T>
+        void append(const T *src, size_t cnt)
         {
             return append((const uint8 *)src, cnt * sizeof(T));
         }

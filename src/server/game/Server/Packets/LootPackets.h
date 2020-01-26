@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,7 +89,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector<LootRequest> Loot;
+            Array<LootRequest, 1000> Loot;
         };
 
         class LootRemoved final : public ServerPacket
@@ -129,7 +129,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Money = 0;
+            uint64 Money = 0;
+            uint64 MoneyMod = 0;
             bool SoleLooter = false;
         };
 

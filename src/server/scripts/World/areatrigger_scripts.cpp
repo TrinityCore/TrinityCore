@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,6 +37,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "DB2Structure.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
@@ -320,7 +320,7 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
         {
             uint32 triggerId = areaTrigger->ID;
             // Second trigger happened too early after first, skip for now
-            if (sWorld->GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
+            if (GameTime::GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
                 return false;
 
             switch (triggerId)
@@ -337,7 +337,7 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
                     break;
             }
 
-            _triggerTimes[triggerId] = sWorld->GetGameTime();
+            _triggerTimes[triggerId] = GameTime::GetGameTime();
             return false;
         }
 
@@ -376,7 +376,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
             if (!player->IsAlive())
                 return false;
 
-            if (sWorld->GetGameTime() - _triggerTimes[areaTrigger->ID] < SUMMON_COOLDOWN)
+            if (GameTime::GetGameTime() - _triggerTimes[areaTrigger->ID] < SUMMON_COOLDOWN)
                 return false;
 
             switch (areaTrigger->ID)
@@ -405,7 +405,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
 
             player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
             player->AddAura(SPELL_A52_NEURALYZER, player);
-            _triggerTimes[areaTrigger->ID] = sWorld->GetGameTime();
+            _triggerTimes[areaTrigger->ID] = GameTime::GetGameTime();
             return false;
         }
 

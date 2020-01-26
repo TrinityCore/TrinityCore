@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -98,17 +98,6 @@ namespace WorldPackets
 
             ObjectGuid ArtifactGUID;
             uint64 Amount = 0;
-        };
-
-        class ArtifactKnowledge final : public ServerPacket
-        {
-        public:
-            ArtifactKnowledge() : ServerPacket(SMSG_ARTIFACT_KNOWLEDGE, 1 + 4) { }
-
-            WorldPacket const* Write() override;
-
-            int32 ArtifactCategoryID = 0;
-            int8 KnowledgeLevel = 0;
         };
     }
 }

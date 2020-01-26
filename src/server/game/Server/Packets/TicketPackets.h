@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -132,6 +132,31 @@ namespace WorldPackets
                 Optional<uint32> ReportLineIndex;
             };
 
+            struct SupportTicketHorusChatLine
+            {
+                SupportTicketHorusChatLine(ByteBuffer& data);
+
+                struct SenderRealm
+                {
+                    uint32 VirtualRealmAddress;
+                    uint16 field_4;
+                    uint8 field_6;
+                };
+
+                int32 Timestamp;
+                ObjectGuid AuthorGUID;
+                Optional<uint64> ClubID;
+                Optional<ObjectGuid> ChannelGUID;
+                Optional<SenderRealm> RealmAddress;
+                Optional<int32> SlashCmd;
+                std::string Text;
+            };
+
+            struct SupportTicketHorusChatLog
+            {
+                std::vector<SupportTicketHorusChatLine> Lines;
+            };
+
             struct SupportTicketMailInfo
             {
                 int32 MailID = 0;
@@ -178,6 +203,19 @@ namespace WorldPackets
                 std::string Comment;
             };
 
+            struct SupportTicketCommunityMessage
+            {
+                bool IsPlayerUsingVoice = false;
+            };
+
+            struct SupportTicketClubFinderResult
+            {
+                uint64 ClubFinderPostingID;
+                uint64 ClubID;
+                ObjectGuid ClubFinderGUID;
+                std::string ClubName;
+            };
+
             SupportTicketSubmitComplaint(WorldPacket&& packet) : ClientPacket(CMSG_SUPPORT_TICKET_SUBMIT_COMPLAINT, std::move(packet)) { }
 
             void Read() override;
@@ -186,6 +224,7 @@ namespace WorldPackets
             SupportTicketChatLog ChatLog;
             ObjectGuid TargetCharacterGUID;
             uint8 ComplaintType = 0;
+            SupportTicketHorusChatLog HorusChatLog;
             std::string Note;
             Optional<SupportTicketMailInfo> MailInfo;
             Optional<SupportTicketCalendarEventInfo> CalenderInfo;
@@ -193,7 +232,8 @@ namespace WorldPackets
             Optional<SupportTicketGuildInfo> GuildInfo;
             Optional<SupportTicketLFGListSearchResult> LFGListSearchResult;
             Optional<SupportTicketLFGListApplicant> LFGListApplicant;
-
+            Optional<SupportTicketCommunityMessage> CommunityMessage;
+            Optional<SupportTicketClubFinderResult> ClubFinderResult;
         };
 
         class Complaint final : public ClientPacket

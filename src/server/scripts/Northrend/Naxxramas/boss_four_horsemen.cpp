@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
@@ -276,7 +277,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))
                 {
-                    cBoss->DespawnOrUnsummon(0);
+                    cBoss->DespawnOrUnsummon();
                     cBoss->SetRespawnTime(15);
                 }
                 else
@@ -339,7 +340,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             }
 
             Talk(SAY_DEATH);
-            _timeDied = getMSTime();
+            _timeDied = GameTime::GetGameTimeMS();
             for (Horseman boss : horsemen)
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))

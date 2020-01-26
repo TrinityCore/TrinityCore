@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,7 +38,7 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, Ap
 
     if (flags & APPENDER_FLAGS_USE_TIMESTAMP)
     {
-        size_t dot_pos = _fileName.find_last_of(".");
+        size_t dot_pos = _fileName.find_last_of('.');
         if (dot_pos != std::string::npos)
             _fileName.insert(dot_pos, sLog->GetLogsTimestamp());
         else

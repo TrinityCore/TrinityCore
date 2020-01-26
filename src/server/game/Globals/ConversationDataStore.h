@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,7 +28,6 @@ enum ConversationLineFlags
     CONVERSATION_LINE_FLAG_NOTIFY_STARTED = 0x1 // Client will send CMSG_CONVERSATION_LINE_STARTED when it runs this line
 };
 
-#pragma pack(push, 1)
 struct ConversationActorTemplate
 {
     uint32 Id;
@@ -36,6 +35,7 @@ struct ConversationActorTemplate
     uint32 CreatureModelId;
 };
 
+#pragma pack(push, 1)
 struct ConversationLineTemplate
 {
     uint32 Id;          // Link to ConversationLine.db2
@@ -52,6 +52,7 @@ struct ConversationTemplate
     uint32 Id;
     uint32 FirstLineId;     // Link to ConversationLine.db2
     uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
+    uint32 TextureKitId;    // Background texture
 
     std::vector<ConversationActorTemplate const*> Actors;
     std::vector<ObjectGuid::LowType> ActorGuids;

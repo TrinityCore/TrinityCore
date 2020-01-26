@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "DB2Stores.h"
 #include "WorldSession.h"
 #include "Group.h"
@@ -276,6 +277,7 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
     lfgUpdateStatus.Joined = join;
     lfgUpdateStatus.LfgJoined = updateData.updateType != lfg::LFG_UPDATETYPE_REMOVED_FROM_QUEUE;
     lfgUpdateStatus.Queued = queued;
+    lfgUpdateStatus.QueueMapID = sLFGMgr->GetDungeonMapId(_player->GetGUID());
 
     SendPacket(lfgUpdateStatus.Write());
 }
@@ -308,13 +310,12 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
     {
         return sLFGMgr->GetLFGDungeonEntry(dungeonId);
     });
-    lfgRoleCheckUpdate.BgQueueID = 0;
     lfgRoleCheckUpdate.GroupFinderActivityID = 0;
     if (!roleCheck.roles.empty())
     {
         // Leader info MUST be sent 1st :S
         uint8 roles = roleCheck.roles.find(roleCheck.leader)->second;
-        lfgRoleCheckUpdate.Members.emplace_back(roleCheck.leader, roles, ASSERT_NOTNULL(sWorld->GetCharacterInfo(roleCheck.leader))->Level, roles > 0);
+        lfgRoleCheckUpdate.Members.emplace_back(roleCheck.leader, roles, ASSERT_NOTNULL(sCharacterCache->GetCharacterCacheByGuid(roleCheck.leader))->Level, roles > 0);
 
         for (lfg::LfgRolesMap::const_iterator it = roleCheck.roles.begin(); it != roleCheck.roles.end(); ++it)
         {
@@ -322,7 +323,7 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
                 continue;
 
             roles = it->second;
-            lfgRoleCheckUpdate.Members.emplace_back(it->first, roles, ASSERT_NOTNULL(sWorld->GetCharacterInfo(it->first))->Level, roles > 0);
+            lfgRoleCheckUpdate.Members.emplace_back(it->first, roles, ASSERT_NOTNULL(sCharacterCache->GetCharacterCacheByGuid(it->first))->Level, roles > 0);
         }
     }
 
@@ -340,6 +341,8 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
     lfgJoinResult.Result = joinData.result;
     if (joinData.result == lfg::LFG_JOIN_ROLE_CHECK_FAILED)
         lfgJoinResult.ResultDetail = joinData.state;
+    else if (joinData.result == lfg::LFG_JOIN_NO_SLOTS)
+        lfgJoinResult.BlackListNames = joinData.playersMissingRequirement;
 
     for (lfg::LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
     {

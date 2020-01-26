@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,7 +42,8 @@ bool ExtractSingleModel(std::string& fname)
     std::string originalName = fname;
 
     char* name = GetPlainName((char*)fname.c_str());
-    FixNameCase(name, strlen(name));
+    if (fname.substr(0, 4) != "FILE")
+        FixNameCase(name, strlen(name));
     FixNameSpaces(name, strlen(name));
 
     std::string output(szWorkDirWmo);
@@ -76,7 +76,7 @@ bool GetHeaderMagic(std::string const& fileName, uint32* magic)
     if (!file)
         return false;
 
-    DWORD bytesRead = 0;
+    uint32 bytesRead = 0;
     if (!CASC::ReadFile(file, magic, 4, &bytesRead) || bytesRead != 4)
         return false;
 
@@ -87,7 +87,7 @@ void ExtractGameobjectModels()
 {
     printf("Extracting GameObject models...\n");
 
-    DB2CascFileSource source(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.db2");
+    DB2CascFileSource source(CascStorage, GameobjectDisplayInfoLoadInfo::Instance()->Meta->FileDataId);
     DB2FileLoader db2;
     if (!db2.Load(&source, GameobjectDisplayInfoLoadInfo::Instance()))
     {
@@ -111,6 +111,9 @@ void ExtractGameobjectModels()
     for (uint32 rec = 0; rec < db2.GetRecordCount(); ++rec)
     {
         DB2Record record = db2.GetRecord(rec);
+        if (!record)
+            continue;
+
         uint32 fileId = record.GetUInt32("FileDataID");
         if (!fileId)
             continue;

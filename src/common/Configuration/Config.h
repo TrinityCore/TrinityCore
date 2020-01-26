@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +39,8 @@ public:
 
     std::string GetStringDefault(std::string const& name, const std::string& def) const;
     bool GetBoolDefault(std::string const& name, bool def) const;
-    int GetIntDefault(std::string const& name, int def) const;
+    int32 GetIntDefault(std::string const& name, int32 def) const;
+    int64 GetInt64Default(std::string const& name, int64 def) const;
     float GetFloatDefault(std::string const& name, float def) const;
 
     std::string const& GetFilename();

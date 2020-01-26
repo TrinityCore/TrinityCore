@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -294,12 +293,12 @@ struct BattlegroundABScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PlayerData& playerData) const override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
-            playerData.Stats.push_back(BasesAssaulted);
-            playerData.Stats.push_back(BasesDefended);
+            playerData.Stats.emplace_back(AB_OBJECTIVE_ASSAULT_BASE, BasesAssaulted);
+            playerData.Stats.emplace_back(AB_OBJECTIVE_DEFEND_BASE, BasesDefended);
         }
 
         uint32 GetAttr1() const final override { return BasesAssaulted; }

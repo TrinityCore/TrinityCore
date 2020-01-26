@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AreaTrigger::AreaTriggerS
 
 ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerCircularMovementInfo const& areaTriggerCircularMovement)
 {
-    data.WriteBit(areaTriggerCircularMovement.TargetGUID.is_initialized());
+    data.WriteBit(areaTriggerCircularMovement.PathTarget.is_initialized());
     data.WriteBit(areaTriggerCircularMovement.Center.is_initialized());
     data.WriteBit(areaTriggerCircularMovement.CounterClockwise);
     data.WriteBit(areaTriggerCircularMovement.CanLoop);
@@ -46,8 +46,8 @@ ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerCircularMovementInfo const& 
     data << float(areaTriggerCircularMovement.InitialAngle);
     data << float(areaTriggerCircularMovement.ZOffset);
 
-    if (areaTriggerCircularMovement.TargetGUID)
-        data << *areaTriggerCircularMovement.TargetGUID;
+    if (areaTriggerCircularMovement.PathTarget)
+        data << *areaTriggerCircularMovement.PathTarget;
 
     if (areaTriggerCircularMovement.Center)
         data << *areaTriggerCircularMovement.Center;
@@ -72,14 +72,6 @@ WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerDenied::Write()
 }
 
 WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerRePath::Write()
-{
-    _worldPacket << TriggerGUID;
-    _worldPacket << AreaTriggerSpline;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerReShape::Write()
 {
     _worldPacket << TriggerGUID;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,15 +40,20 @@ bool DB2FileSystemSource::Read(void* buffer, std::size_t numBytes)
     return fread(buffer, numBytes, 1, _file) == 1;
 }
 
-std::size_t DB2FileSystemSource::GetPosition() const
+int64 DB2FileSystemSource::GetPosition() const
 {
     return ftell(_file);
 }
 
-std::size_t DB2FileSystemSource::GetFileSize() const
+bool DB2FileSystemSource::SetPosition(int64 position)
+{
+    return fseek(_file, position, SEEK_SET) == 0;
+}
+
+int64 DB2FileSystemSource::GetFileSize() const
 {
     boost::system::error_code error;
-    std::size_t size = boost::filesystem::file_size(_fileName, error);
+    int64 size = boost::filesystem::file_size(_fileName, error);
     return !error ? size : 0;
 }
 

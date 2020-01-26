@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #include "Log.h"
 #include "QueryResult.h"
 
-bool SQLQueryHolder::SetPreparedQuery(size_t index, PreparedStatement* stmt)
+bool SQLQueryHolderBase::SetPreparedQueryImpl(size_t index, PreparedStatementBase* stmt)
 {
     if (m_queries.size() <= index)
     {
@@ -33,7 +33,7 @@ bool SQLQueryHolder::SetPreparedQuery(size_t index, PreparedStatement* stmt)
     return true;
 }
 
-PreparedQueryResult SQLQueryHolder::GetPreparedResult(size_t index)
+PreparedQueryResult SQLQueryHolderBase::GetPreparedResult(size_t index)
 {
     // Don't call to this function if the index is of a prepared statement
     if (index < m_queries.size())
@@ -42,7 +42,7 @@ PreparedQueryResult SQLQueryHolder::GetPreparedResult(size_t index)
         return PreparedQueryResult(nullptr);
 }
 
-void SQLQueryHolder::SetPreparedResult(size_t index, PreparedResultSet* result)
+void SQLQueryHolderBase::SetPreparedResult(size_t index, PreparedResultSet* result)
 {
     if (result && !result->GetRowCount())
     {
@@ -55,7 +55,7 @@ void SQLQueryHolder::SetPreparedResult(size_t index, PreparedResultSet* result)
         m_queries[index].second = PreparedQueryResult(result);
 }
 
-SQLQueryHolder::~SQLQueryHolder()
+SQLQueryHolderBase::~SQLQueryHolderBase()
 {
     for (size_t i = 0; i < m_queries.size(); i++)
     {
@@ -65,7 +65,7 @@ SQLQueryHolder::~SQLQueryHolder()
     }
 }
 
-void SQLQueryHolder::SetSize(size_t size)
+void SQLQueryHolderBase::SetSize(size_t size)
 {
     /// to optimize push_back, reserve the number of queries about to be executed
     m_queries.resize(size);
@@ -86,7 +86,7 @@ bool SQLQueryHolderTask::Execute()
 
     /// execute all queries in the holder and pass the results
     for (size_t i = 0; i < m_holder->m_queries.size(); i++)
-        if (PreparedStatement* stmt = m_holder->m_queries[i].first)
+        if (PreparedStatementBase* stmt = m_holder->m_queries[i].first)
             m_holder->SetPreparedResult(i, m_conn->Query(stmt));
 
     m_result.set_value(m_holder);

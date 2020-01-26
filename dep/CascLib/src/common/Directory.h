@@ -14,15 +14,13 @@
 //-----------------------------------------------------------------------------
 // Scanning a directory
 
-typedef bool (*INDEX_FILE_FOUND)(const TCHAR * szFileName, PDWORD IndexArray, PDWORD OldIndexArray, void * pvContext);
+bool DirectoryExists(LPCTSTR szDirectory);
 
-bool DirectoryExists(const TCHAR * szDirectory);
+bool MakeDirectory(LPCTSTR szDirectory);
 
 int ScanIndexDirectory(
-    const TCHAR * szIndexPath,
+    LPCTSTR szIndexPath,
     INDEX_FILE_FOUND pfnOnFileFound,
-    PDWORD IndexArray,
-    PDWORD OldIndexArray,
     void * pvContext
     );
 

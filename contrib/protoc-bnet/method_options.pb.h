@@ -20,8 +20,10 @@
 #endif
 
 #include <google/protobuf/generated_message_util.h>
+#include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
+#include <google/protobuf/unknown_field_set.h>
 #include "google/protobuf/descriptor.pb.h"
 // @@protoc_insertion_point(includes)
 
@@ -32,18 +34,108 @@ void  protobuf_AddDesc_method_5foptions_2eproto();
 void protobuf_AssignDesc_method_5foptions_2eproto();
 void protobuf_ShutdownFile_method_5foptions_2eproto();
 
+class BGSMethodOptions;
 
 // ===================================================================
 
+class BGSMethodOptions : public ::google::protobuf::Message {
+ public:
+  BGSMethodOptions();
+  virtual ~BGSMethodOptions();
 
+  BGSMethodOptions(const BGSMethodOptions& from);
+
+  inline BGSMethodOptions& operator=(const BGSMethodOptions& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const BGSMethodOptions& default_instance();
+
+  void Swap(BGSMethodOptions* other);
+
+  // implements Message ----------------------------------------------
+
+  BGSMethodOptions* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional uint32 id = 1;
+  inline bool has_id() const;
+  inline void clear_id();
+  static const int kIdFieldNumber = 1;
+  inline ::google::protobuf::uint32 id() const;
+  inline void set_id(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:Battlenet.BGSMethodOptions)
+ private:
+  inline void set_has_id();
+  inline void clear_has_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint32 id_;
+  friend void  protobuf_AddDesc_method_5foptions_2eproto();
+  friend void protobuf_AssignDesc_method_5foptions_2eproto();
+  friend void protobuf_ShutdownFile_method_5foptions_2eproto();
+
+  void InitAsDefaultInstance();
+  static BGSMethodOptions* default_instance_;
+};
 // ===================================================================
 
-static const int kMethodIdFieldNumber = 50000;
+static const int kMethodOptionsFieldNumber = 90000;
 extern ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::MethodOptions,
-    ::google::protobuf::internal::PrimitiveTypeTraits< ::google::protobuf::uint32 >, 13, false >
-  method_id;
+    ::google::protobuf::internal::MessageTypeTraits< ::Battlenet::BGSMethodOptions >, 11, false >
+  method_options;
 
 // ===================================================================
+
+// BGSMethodOptions
+
+// optional uint32 id = 1;
+inline bool BGSMethodOptions::has_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void BGSMethodOptions::set_has_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void BGSMethodOptions::clear_has_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void BGSMethodOptions::clear_id() {
+  id_ = 0u;
+  clear_has_id();
+}
+inline ::google::protobuf::uint32 BGSMethodOptions::id() const {
+  // @@protoc_insertion_point(field_get:Battlenet.BGSMethodOptions.id)
+  return id_;
+}
+inline void BGSMethodOptions::set_id(::google::protobuf::uint32 value) {
+  set_has_id();
+  id_ = value;
+  // @@protoc_insertion_point(field_set:Battlenet.BGSMethodOptions.id)
+}
 
 
 // @@protoc_insertion_point(namespace_scope)

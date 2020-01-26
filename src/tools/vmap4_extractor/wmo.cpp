@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +18,8 @@
 #include "vmapexport.h"
 #include "adtfile.h"
 #include "cascfile.h"
+#include "Errors.h"
+#include "StringFormat.h"
 #include "vec3d.h"
 #include "VMapDefinitions.h"
 #include "wmo.h"
@@ -26,7 +27,6 @@
 #include <map>
 #include <cstdio>
 #include <cstdlib>
-#include "Errors.h"
 
 WMORoot::WMORoot(std::string const& filename)
     : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),
@@ -83,6 +83,8 @@ bool WMORoot::open()
         }
         else if (!strcmp(fourcc,"MODN"))
         {
+            ASSERT(!DoodadData.FileDataIds);
+
             char* ptr = f.getPointer();
             char* end = ptr + size;
             DoodadData.Paths = std::make_unique<char[]>(size);
@@ -100,6 +102,23 @@ bool WMORoot::open()
 
                 if (ExtractSingleModel(path))
                     ValidDoodadNames.insert(doodadNameIndex);
+            }
+        }
+        else if (!strcmp(fourcc, "MODI"))
+        {
+            ASSERT(!DoodadData.Paths);
+
+            uint32 fileDataIdCount = size / sizeof(uint32);
+            DoodadData.FileDataIds = std::make_unique<uint32[]>(fileDataIdCount);
+            f.read(DoodadData.FileDataIds.get(), size);
+            for (uint32 i = 0; i < fileDataIdCount; ++i)
+            {
+                if (!DoodadData.FileDataIds[i])
+                    continue;
+
+                std::string path = Trinity::StringFormat("FILE%08X.xxx", DoodadData.FileDataIds[i]);
+                if (ExtractSingleModel(path))
+                    ValidDoodadNames.insert(i);
             }
         }
         else if (!strcmp(fourcc,"MODD"))

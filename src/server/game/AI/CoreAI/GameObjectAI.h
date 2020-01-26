@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +23,7 @@
 #include <list>
 
 class GameObject;
+class SpellInfo;
 class Unit;
 
 class TC_GAME_API GameObjectAI
@@ -47,7 +47,7 @@ class TC_GAME_API GameObjectAI
 
         static int Permissible(GameObject const* go);
 
-        virtual bool GossipHello(Player* /*player*/, bool /*isUse*/) { return false; }
+        virtual bool GossipHello(Player* /*player*/, bool /*reportUse*/) { return false; }
         virtual bool GossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
         virtual bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) { return false; }
         virtual bool QuestAccept(Player* /*player*/, Quest const* /*quest*/) { return false; }
@@ -61,6 +61,7 @@ class TC_GAME_API GameObjectAI
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
         virtual void OnStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
         virtual void EventInform(uint32 /*eventId*/) { }
+        virtual void SpellHit(Unit* /*unit*/, const SpellInfo* /*spellInfo*/) { }
 };
 
 class TC_GAME_API NullGameObjectAI : public GameObjectAI

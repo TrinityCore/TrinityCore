@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -109,6 +109,9 @@ namespace WorldPackets
             Optional<int32> WeeklyQuantity;
             Optional<int32> TrackedQuantity;
             Optional<int32> MaxQuantity;
+            Optional<int32> QuantityChange;
+            Optional<int32> QuantityGainSource;
+            Optional<int32> QuantityLostSource;
             bool SuppressChatLog = false;
         };
 
@@ -258,7 +261,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 DifficultyID = 0;
+            uint32 DifficultyID = 0;
         };
 
         class SetRaidDifficulty final : public ClientPacket
@@ -417,6 +420,17 @@ namespace WorldPackets
             UnitStandStateType State = UnitStandStateType(0);
         };
 
+        class SetAnimTier final : public ServerPacket
+        {
+        public:
+            SetAnimTier(): ServerPacket(SMSG_SET_ANIM_TIER, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            int32 Tier = 0;
+        };
+
         class StartMirrorTimer final : public ServerPacket
         {
         public:
@@ -480,7 +494,8 @@ namespace WorldPackets
             int32 HealthDelta = 0;
             std::array<int32, 6> PowerDelta = { };
             std::array<int32, MAX_STATS> StatDelta = { };
-            int32 Cp = 0;
+            int32 NumNewTalents = 0;
+            int32 NumNewPvpTalentSlots = 0;
         };
 
         class PlayMusic final : public ServerPacket
@@ -551,7 +566,7 @@ namespace WorldPackets
             ObjectGuid Client;
             PhaseShiftData Phaseshift;
             std::vector<uint16> PreloadMapIDs;
-            std::vector<uint16> UiWorldMapAreaIDSwaps;
+            std::vector<uint16> UiMapPhaseIDs;
             std::vector<uint16> VisibleMapIDs;
         };
 
@@ -876,14 +891,6 @@ namespace WorldPackets
 
             uint32 MountSpellID = 0;
             bool IsFavorite = false;
-        };
-
-        class PvpPrestigeRankUp final : public ClientPacket
-        {
-        public:
-            PvpPrestigeRankUp(WorldPacket&& packet) : ClientPacket(CMSG_PVP_PRESTIGE_RANK_UP, std::move(packet)) { }
-
-            void Read() override { }
         };
 
         class CloseInteraction final : public ClientPacket

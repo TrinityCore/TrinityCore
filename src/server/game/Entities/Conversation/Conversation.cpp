@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,15 +25,13 @@
 #include "Unit.h"
 #include "UpdateData.h"
 
-Conversation::Conversation() : WorldObject(false), _duration(0)
+Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
 {
     m_objectType |= TYPEMASK_CONVERSATION;
     m_objectTypeId = TYPEID_CONVERSATION;
 
-    m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
-
-    m_valuesCount = CONVERSATION_END;
-    _dynamicValuesCount = CONVERSATION_DYNAMIC_END;
+    m_updateFlag.Stationary = true;
+    m_updateFlag.Conversation = true;
 }
 
 Conversation::~Conversation()
@@ -121,17 +119,18 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     SetEntry(conversationEntry);
     SetObjectScale(1.0f);
 
-    SetUInt32Value(CONVERSATION_LAST_LINE_END_TIME, conversationTemplate->LastLineEndTime);
+    SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::LastLineEndTime), conversationTemplate->LastLineEndTime);
     _duration = conversationTemplate->LastLineEndTime;
+    _textureKitId = conversationTemplate->TextureKitId;
 
     for (uint16 actorIndex = 0; actorIndex < conversationTemplate->Actors.size(); ++actorIndex)
     {
         if (ConversationActorTemplate const* actor = conversationTemplate->Actors[actorIndex])
         {
-            ConversationDynamicFieldActor actorField;
-            actorField.ActorTemplate = *actor;
-            actorField.Type = ConversationDynamicFieldActor::ActorType::CreatureActor;
-            SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIndex, &actorField);
+            UF::ConversationActor& actorField = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors));
+            actorField.CreatureID = actor->CreatureId;
+            actorField.CreatureDisplayInfoID = actor->CreatureModelId;
+            actorField.Type = AsUnderlyingType(ActorType::CreatureActor);
         }
     }
 
@@ -149,19 +148,28 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     }
 
     std::set<uint16> actorIndices;
+    std::vector<UF::ConversationLine> lines;
     for (ConversationLineTemplate const* line : conversationTemplate->Lines)
     {
         actorIndices.insert(line->ActorIdx);
-        AddDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, line);
+        lines.emplace_back();
+        UF::ConversationLine& lineField = lines.back();
+        lineField.ConversationLineID = line->Id;
+        lineField.StartTime = line->StartTime;
+        lineField.UiCameraID = line->UiCameraID;
+        lineField.ActorIndex = line->ActorIdx;
+        lineField.Flags = line->Flags;
     }
+
+    SetUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Lines), std::move(lines));
 
     sScriptMgr->OnConversationCreate(this, creator);
 
     // All actors need to be set
     for (uint16 actorIndex : actorIndices)
     {
-        ConversationDynamicFieldActor const* actor = GetDynamicStructuredValue<ConversationDynamicFieldActor>(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIndex);
-        if (!actor || actor->IsEmpty())
+        UF::ConversationActor const* actor = actorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[actorIndex] : nullptr;
+        if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty()))
         {
             TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", conversationEntry, actorIndex);
             return false;
@@ -176,10 +184,9 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
 void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
 {
-    ConversationDynamicFieldActor actorField;
-    actorField.ActorGuid = actorGuid;
-    actorField.Type = ConversationDynamicFieldActor::ActorType::WorldObjectActor;
-    SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx, &actorField);
+    auto actorField = m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors, actorIdx);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::ActorGUID), actorGuid);
+    SetUpdateFieldValue(actorField.ModifyValue(&UF::ConversationActor::Type), AsUnderlyingType(ActorType::WorldObjectActor));
 }
 
 void Conversation::AddParticipant(ObjectGuid const& participantGuid)
@@ -190,4 +197,37 @@ void Conversation::AddParticipant(ObjectGuid const& participantGuid)
 uint32 Conversation::GetScriptId() const
 {
     return sConversationDataStore->GetConversationTemplate(GetEntry())->ScriptId;
+}
+
+void Conversation::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+{
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
+    std::size_t sizePos = data->wpos();
+    *data << uint32(0);
+    *data << uint8(flags);
+    m_objectData->WriteCreate(*data, flags, this, target);
+    m_conversationData->WriteCreate(*data, flags, this, target);
+    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+}
+
+void Conversation::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+{
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
+    std::size_t sizePos = data->wpos();
+    *data << uint32(0);
+    *data << uint32(m_values.GetChangedObjectTypeMask());
+
+    if (m_values.HasChanged(TYPEID_OBJECT))
+        m_objectData->WriteUpdate(*data, flags, this, target);
+
+    if (m_values.HasChanged(TYPEID_CONVERSATION))
+        m_conversationData->WriteUpdate(*data, flags, this, target);
+
+    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+}
+
+void Conversation::ClearUpdateMask(bool remove)
+{
+    m_values.ClearChangesMask(&Conversation::m_conversationData);
+    Object::ClearUpdateMask(remove);
 }

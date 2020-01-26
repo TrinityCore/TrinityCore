@@ -74,7 +74,7 @@ void protobuf_AssignDesc_report_5ftypes_2eproto() {
   GOOGLE_CHECK(file != NULL);
   ReportType_descriptor_ = file->message_type(0);
   static const int ReportType_offsets_[9] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReportType, note_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ReportType, user_description_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(ReportType_default_oneof_instance_, custom_report_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(ReportType_default_oneof_instance_, spam_report_),
     PROTO2_GENERATED_DEFAULT_ONEOF_FIELD_OFFSET(ReportType_default_oneof_instance_, harassment_report_),
@@ -100,7 +100,7 @@ void protobuf_AssignDesc_report_5ftypes_2eproto() {
   CustomReport_descriptor_ = file->message_type(1);
   static const int CustomReport_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CustomReport, type_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CustomReport, programid_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CustomReport, program_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(CustomReport, attribute_),
   };
   CustomReport_reflection_ =
@@ -299,45 +299,46 @@ void protobuf_AddDesc_report_5ftypes_2eproto() {
     "\n\022report_types.proto\022\026bgs.protocol.repor"
     "t.v1\032\023account_types.proto\032\025attribute_typ"
     "es.proto\032\022entity_types.proto\032\017rpc_types."
-    "proto\"\227\004\n\nReportType\022\014\n\004note\030\001 \001(\t\022=\n\rcu"
-    "stom_report\030\n \001(\0132$.bgs.protocol.report."
-    "v1.CustomReportH\000\0229\n\013spam_report\030\013 \001(\0132\""
-    ".bgs.protocol.report.v1.SpamReportH\000\022E\n\021"
-    "harassment_report\030\014 \001(\0132(.bgs.protocol.r"
-    "eport.v1.HarassmentReportH\000\022O\n\027real_life"
-    "_threat_report\030\r \001(\0132,.bgs.protocol.repo"
-    "rt.v1.RealLifeThreatReportH\000\022_\n\037inapprop"
-    "riate_battle_tag_report\030\016 \001(\01324.bgs.prot"
-    "ocol.report.v1.InappropriateBattleTagRep"
-    "ortH\000\022\?\n\016hacking_report\030\017 \001(\0132%.bgs.prot"
-    "ocol.report.v1.HackingReportH\000\022\?\n\016bottin"
-    "g_report\030\020 \001(\0132%.bgs.protocol.report.v1."
-    "BottingReportH\000B\006\n\004type\"[\n\014CustomReport\022"
-    "\014\n\004type\030\001 \001(\t\022\021\n\tprogramId\030\002 \001(\t\022*\n\tattr"
-    "ibute\030\003 \003(\0132\027.bgs.protocol.Attribute\"\321\001\n"
-    "\nSpamReport\022:\n\006target\030\001 \001(\0132*.bgs.protoc"
-    "ol.account.v1.GameAccountHandle\022D\n\006sourc"
-    "e\030\002 \001(\0162-.bgs.protocol.report.v1.SpamRep"
-    "ort.SpamSource:\005OTHER\"A\n\nSpamSource\022\t\n\005O"
-    "THER\020\001\022\021\n\rFRIEND_INVITE\020\002\022\013\n\007WHISPER\020\003\022\010"
-    "\n\004CHAT\020\004\"\\\n\020HarassmentReport\022:\n\006target\030\001"
+    "proto\"\243\004\n\nReportType\022\030\n\020user_description"
+    "\030\001 \001(\t\022=\n\rcustom_report\030\n \001(\0132$.bgs.prot"
+    "ocol.report.v1.CustomReportH\000\0229\n\013spam_re"
+    "port\030\013 \001(\0132\".bgs.protocol.report.v1.Spam"
+    "ReportH\000\022E\n\021harassment_report\030\014 \001(\0132(.bg"
+    "s.protocol.report.v1.HarassmentReportH\000\022"
+    "O\n\027real_life_threat_report\030\r \001(\0132,.bgs.p"
+    "rotocol.report.v1.RealLifeThreatReportH\000"
+    "\022_\n\037inappropriate_battle_tag_report\030\016 \001("
+    "\01324.bgs.protocol.report.v1.Inappropriate"
+    "BattleTagReportH\000\022\?\n\016hacking_report\030\017 \001("
+    "\0132%.bgs.protocol.report.v1.HackingReport"
+    "H\000\022\?\n\016botting_report\030\020 \001(\0132%.bgs.protoco"
+    "l.report.v1.BottingReportH\000B\006\n\004type\"`\n\014C"
+    "ustomReport\022\014\n\004type\030\001 \001(\t\022\026\n\nprogram_id\030"
+    "\002 \001(\tB\002\030\001\022*\n\tattribute\030\003 \003(\0132\027.bgs.proto"
+    "col.Attribute\"\325\001\n\nSpamReport\022:\n\006target\030\001"
     " \001(\0132*.bgs.protocol.account.v1.GameAccou"
-    "ntHandle\022\014\n\004text\030\002 \001(\t\"`\n\024RealLifeThreat"
-    "Report\022:\n\006target\030\001 \001(\0132*.bgs.protocol.ac"
-    "count.v1.GameAccountHandle\022\014\n\004text\030\002 \001(\t"
-    "\"n\n\034InappropriateBattleTagReport\022:\n\006targ"
-    "et\030\001 \001(\0132*.bgs.protocol.account.v1.GameA"
-    "ccountHandle\022\022\n\nbattle_tag\030\002 \001(\t\"K\n\rHack"
-    "ingReport\022:\n\006target\030\001 \001(\0132*.bgs.protocol"
-    ".account.v1.GameAccountHandle\"K\n\rBotting"
-    "Report\022:\n\006target\030\001 \001(\0132*.bgs.protocol.ac"
-    "count.v1.GameAccountHandle\"\345\001\n\006Report\022\023\n"
-    "\013report_type\030\001 \002(\t\022*\n\tattribute\030\002 \003(\0132\027."
-    "bgs.protocol.Attribute\022\025\n\nreport_qos\030\003 \001"
-    "(\005:\0010\0221\n\021reporting_account\030\004 \001(\0132\026.bgs.p"
-    "rotocol.EntityId\0226\n\026reporting_game_accou"
-    "nt\030\005 \001(\0132\026.bgs.protocol.EntityId\022\030\n\020repo"
-    "rt_timestamp\030\006 \001(\006B\005H\001\200\001\000", 1665);
+    "ntHandle\022D\n\006source\030\002 \001(\0162-.bgs.protocol."
+    "report.v1.SpamReport.SpamSource:\005OTHER\"E"
+    "\n\nSpamSource\022\t\n\005OTHER\020\001\022\025\n\021FRIEND_INVITA"
+    "TION\020\002\022\013\n\007WHISPER\020\003\022\010\n\004CHAT\020\004\"\\\n\020Harassm"
+    "entReport\022:\n\006target\030\001 \001(\0132*.bgs.protocol"
+    ".account.v1.GameAccountHandle\022\014\n\004text\030\002 "
+    "\001(\t\"`\n\024RealLifeThreatReport\022:\n\006target\030\001 "
+    "\001(\0132*.bgs.protocol.account.v1.GameAccoun"
+    "tHandle\022\014\n\004text\030\002 \001(\t\"n\n\034InappropriateBa"
+    "ttleTagReport\022:\n\006target\030\001 \001(\0132*.bgs.prot"
+    "ocol.account.v1.GameAccountHandle\022\022\n\nbat"
+    "tle_tag\030\002 \001(\t\"K\n\rHackingReport\022:\n\006target"
+    "\030\001 \001(\0132*.bgs.protocol.account.v1.GameAcc"
+    "ountHandle\"K\n\rBottingReport\022:\n\006target\030\001 "
+    "\001(\0132*.bgs.protocol.account.v1.GameAccoun"
+    "tHandle\"\345\001\n\006Report\022\023\n\013report_type\030\001 \002(\t\022"
+    "*\n\tattribute\030\002 \003(\0132\027.bgs.protocol.Attrib"
+    "ute\022\025\n\nreport_qos\030\003 \001(\005:\0010\0221\n\021reporting_"
+    "account\030\004 \001(\0132\026.bgs.protocol.EntityId\0226\n"
+    "\026reporting_game_account\030\005 \001(\0132\026.bgs.prot"
+    "ocol.EntityId\022\030\n\020report_timestamp\030\006 \001(\006B"
+    "\005H\001\200\001\000", 1686);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "report_types.proto", &protobuf_RegisterTypes);
   ReportType::default_instance_ = new ReportType();
@@ -372,7 +373,7 @@ struct StaticDescriptorInitializer_report_5ftypes_2eproto {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int ReportType::kNoteFieldNumber;
+const int ReportType::kUserDescriptionFieldNumber;
 const int ReportType::kCustomReportFieldNumber;
 const int ReportType::kSpamReportFieldNumber;
 const int ReportType::kHarassmentReportFieldNumber;
@@ -408,7 +409,7 @@ ReportType::ReportType(const ReportType& from)
 void ReportType::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  note_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  user_description_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   clear_has_type();
 }
@@ -419,8 +420,8 @@ ReportType::~ReportType() {
 }
 
 void ReportType::SharedDtor() {
-  if (note_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete note_;
+  if (user_description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete user_description_;
   }
   if (has_type()) {
     clear_type();
@@ -489,9 +490,9 @@ void ReportType::clear_type() {
 
 
 void ReportType::Clear() {
-  if (has_note()) {
-    if (note_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-      note_->clear();
+  if (has_user_description()) {
+    if (user_description_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+      user_description_->clear();
     }
   }
   clear_type();
@@ -509,15 +510,15 @@ bool ReportType::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string note = 1;
+      // optional string user_description = 1;
       case 1: {
         if (tag == 10) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_note()));
+                input, this->mutable_user_description()));
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->note().data(), this->note().length(),
+            this->user_description().data(), this->user_description().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "note");
+            "user_description");
         } else {
           goto handle_unusual;
         }
@@ -641,14 +642,14 @@ failure:
 void ReportType::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:bgs.protocol.report.v1.ReportType)
-  // optional string note = 1;
-  if (has_note()) {
+  // optional string user_description = 1;
+  if (has_user_description()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->note().data(), this->note().length(),
+      this->user_description().data(), this->user_description().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "note");
+      "user_description");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->note(), output);
+      1, this->user_description(), output);
   }
 
   // optional .bgs.protocol.report.v1.CustomReport custom_report = 10;
@@ -703,15 +704,15 @@ void ReportType::SerializeWithCachedSizes(
 ::google::protobuf::uint8* ReportType::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.report.v1.ReportType)
-  // optional string note = 1;
-  if (has_note()) {
+  // optional string user_description = 1;
+  if (has_user_description()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->note().data(), this->note().length(),
+      this->user_description().data(), this->user_description().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "note");
+      "user_description");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->note(), target);
+        1, this->user_description(), target);
   }
 
   // optional .bgs.protocol.report.v1.CustomReport custom_report = 10;
@@ -775,11 +776,11 @@ int ReportType::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string note = 1;
-    if (has_note()) {
+    // optional string user_description = 1;
+    if (has_user_description()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->note());
+          this->user_description());
     }
 
   }
@@ -896,8 +897,8 @@ void ReportType::MergeFrom(const ReportType& from) {
     }
   }
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_note()) {
-      set_note(from.note());
+    if (from.has_user_description()) {
+      set_user_description(from.user_description());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -943,7 +944,7 @@ bool ReportType::IsInitialized() const {
 
 void ReportType::Swap(ReportType* other) {
   if (other != this) {
-    std::swap(note_, other->note_);
+    std::swap(user_description_, other->user_description_);
     std::swap(type_, other->type_);
     std::swap(_oneof_case_[0], other->_oneof_case_[0]);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
@@ -989,7 +990,7 @@ void CustomReport::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   type_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  programid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  program_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1002,8 +1003,8 @@ void CustomReport::SharedDtor() {
   if (type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete type_;
   }
-  if (programid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete programid_;
+  if (program_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete program_id_;
   }
   if (this != default_instance_) {
   }
@@ -1037,9 +1038,9 @@ void CustomReport::Clear() {
         type_->clear();
       }
     }
-    if (has_programid()) {
-      if (programid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        programid_->clear();
+    if (has_program_id()) {
+      if (program_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        program_id_->clear();
       }
     }
   }
@@ -1070,20 +1071,20 @@ bool CustomReport::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(18)) goto parse_programId;
+        if (input->ExpectTag(18)) goto parse_program_id;
         break;
       }
 
-      // optional string programId = 2;
+      // optional string program_id = 2 [deprecated = true];
       case 2: {
         if (tag == 18) {
-         parse_programId:
+         parse_program_id:
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_programid()));
+                input, this->mutable_program_id()));
           ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->programid().data(), this->programid().length(),
+            this->program_id().data(), this->program_id().length(),
             ::google::protobuf::internal::WireFormat::PARSE,
-            "programid");
+            "program_id");
         } else {
           goto handle_unusual;
         }
@@ -1140,14 +1141,14 @@ void CustomReport::SerializeWithCachedSizes(
       1, this->type(), output);
   }
 
-  // optional string programId = 2;
-  if (has_programid()) {
+  // optional string program_id = 2 [deprecated = true];
+  if (has_program_id()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->programid().data(), this->programid().length(),
+      this->program_id().data(), this->program_id().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "programid");
+      "program_id");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      2, this->programid(), output);
+      2, this->program_id(), output);
   }
 
   // repeated .bgs.protocol.Attribute attribute = 3;
@@ -1177,15 +1178,15 @@ void CustomReport::SerializeWithCachedSizes(
         1, this->type(), target);
   }
 
-  // optional string programId = 2;
-  if (has_programid()) {
+  // optional string program_id = 2 [deprecated = true];
+  if (has_program_id()) {
     ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->programid().data(), this->programid().length(),
+      this->program_id().data(), this->program_id().length(),
       ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "programid");
+      "program_id");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->programid(), target);
+        2, this->program_id(), target);
   }
 
   // repeated .bgs.protocol.Attribute attribute = 3;
@@ -1214,11 +1215,11 @@ int CustomReport::ByteSize() const {
           this->type());
     }
 
-    // optional string programId = 2;
-    if (has_programid()) {
+    // optional string program_id = 2 [deprecated = true];
+    if (has_program_id()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->programid());
+          this->program_id());
     }
 
   }
@@ -1260,8 +1261,8 @@ void CustomReport::MergeFrom(const CustomReport& from) {
     if (from.has_type()) {
       set_type(from.type());
     }
-    if (from.has_programid()) {
-      set_programid(from.programid());
+    if (from.has_program_id()) {
+      set_program_id(from.program_id());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -1288,7 +1289,7 @@ bool CustomReport::IsInitialized() const {
 void CustomReport::Swap(CustomReport* other) {
   if (other != this) {
     std::swap(type_, other->type_);
-    std::swap(programid_, other->programid_);
+    std::swap(program_id_, other->program_id_);
     attribute_.Swap(&other->attribute_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -1325,7 +1326,7 @@ bool SpamReport_SpamSource_IsValid(int value) {
 
 #ifndef _MSC_VER
 const SpamReport_SpamSource SpamReport::OTHER;
-const SpamReport_SpamSource SpamReport::FRIEND_INVITE;
+const SpamReport_SpamSource SpamReport::FRIEND_INVITATION;
 const SpamReport_SpamSource SpamReport::WHISPER;
 const SpamReport_SpamSource SpamReport::CHAT;
 const SpamReport_SpamSource SpamReport::SpamSource_MIN;

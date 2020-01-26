@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,7 +82,7 @@ namespace Movement
         bool isSmooth() const { return (raw() & Catmullrom) != 0; }
         bool isLinear() const { return !isSmooth(); }
 
-        uint8 getAnimationId() const { return animId; }
+        uint8 getAnimTier() const { return animTier; }
         bool hasAllFlags(uint32 f) const { return (raw() & f) == f; }
         bool hasFlag(uint32 f) const { return (raw() & f) != 0; }
         uint32 operator & (uint32 f) const { return (raw() & f); }
@@ -103,7 +102,7 @@ namespace Movement
         void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
 
-        uint8 animId             : 3;
+        uint8 animTier           : 3;
         bool unknown0            : 1;
         bool fallingSlow         : 1;
         bool done                : 1;

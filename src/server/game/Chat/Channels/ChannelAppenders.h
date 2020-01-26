@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 
 #include "Channel.h"
 #include "ChannelPackets.h"
+#include "CharacterCache.h"
 #include "World.h"
 
 // initial packet data (notify type and channel name)
@@ -184,7 +185,7 @@ struct ChannelOwnerAppend
 {
     explicit ChannelOwnerAppend(Channel const* channel, ObjectGuid const& ownerGuid) : _channel(channel), _ownerGuid(ownerGuid)
     {
-        if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(_ownerGuid))
+        if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(_ownerGuid))
             _ownerName = characterInfo->Name;
     }
 

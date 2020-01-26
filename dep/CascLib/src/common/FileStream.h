@@ -28,6 +28,8 @@
 #define STREAM_FLAG_READ_ONLY       0x00000100  // Stream is read only
 #define STREAM_FLAG_WRITE_SHARE     0x00000200  // Allow write sharing when open for write
 #define STREAM_FLAG_USE_BITMAP      0x00000400  // If the file has a file bitmap, load it and use it
+#define STREAM_FLAG_FILL_MISSING    0x00000800  // If less than expected was read from the file, fill the missing part with zeros
+#define STREAM_FLAG_USE_PORT_1119   0x00001000  // For HTTP streams, use port 1119
 #define STREAM_OPTIONS_MASK         0x0000FF00  // Mask for stream options
 
 #define STREAM_PROVIDERS_MASK       0x000000FF  // Mask to get stream providers
@@ -99,6 +101,12 @@ typedef bool (*BLOCK_CHECK)(
 
 typedef void (*BLOCK_SAVEMAP)(
     struct TFileStream * pStream        // Pointer to a block-oriented stream
+    );
+
+typedef void (WINAPI * STREAM_DOWNLOAD_CALLBACK)(
+    void * pvUserData,
+    ULONGLONG ByteOffset,
+    DWORD dwTotalBytes
     );
 
 //-----------------------------------------------------------------------------
@@ -239,10 +247,10 @@ struct TEncryptedStream : public TBlockStream
 //-----------------------------------------------------------------------------
 // Public functions for file stream
 
-TFileStream * FileStream_CreateFile(const TCHAR * szFileName, DWORD dwStreamFlags);
-TFileStream * FileStream_OpenFile(const TCHAR * szFileName, DWORD dwStreamFlags);
+TFileStream * FileStream_CreateFile(LPCTSTR szFileName, DWORD dwStreamFlags);
+TFileStream * FileStream_OpenFile(LPCTSTR szFileName, DWORD dwStreamFlags);
 const TCHAR * FileStream_GetFileName(TFileStream * pStream);
-size_t FileStream_Prefix(const TCHAR * szFileName, DWORD * pdwProvider);
+size_t FileStream_Prefix(LPCTSTR szFileName, DWORD * pdwProvider);
 
 bool FileStream_SetCallback(TFileStream * pStream, STREAM_DOWNLOAD_CALLBACK pfnCallback, void * pvUserData);
 

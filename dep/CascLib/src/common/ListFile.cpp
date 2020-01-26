@@ -15,11 +15,14 @@
 //-----------------------------------------------------------------------------
 // Listfile cache structure
 
+#define LISTFILE_FLAG_USES_FILEDATAID   0x0001   // A new CSV format, containing FileDataId; FullFileName
+
 typedef struct _LISTFILE_CACHE
 {
-    char * pBegin;                      // The begin of the listfile cache
-    char * pPos;                        // Current position in the cache
-    char * pEnd;                        // The last character in the file cache
+    char * pBegin;                              // The begin of the listfile cache
+    char * pPos;                                // Current position in the cache
+    char * pEnd;                                // The last character in the file cache
+    DWORD Flags;
 
     // Followed by the cache (variable length)
 
@@ -28,22 +31,91 @@ typedef struct _LISTFILE_CACHE
 //-----------------------------------------------------------------------------
 // Creating the listfile cache for the given amount of data
 
-static PLISTFILE_CACHE CreateListFileCache(DWORD dwFileSize)
+static PLISTFILE_CACHE ListFile_CreateCache(DWORD dwFileSize)
 {
     PLISTFILE_CACHE pCache;
 
     // Allocate cache for one file block
-    pCache = (PLISTFILE_CACHE)CASC_ALLOC(BYTE, sizeof(LISTFILE_CACHE) + dwFileSize);
+    pCache = (PLISTFILE_CACHE)CASC_ALLOC<BYTE>(sizeof(LISTFILE_CACHE) + dwFileSize);
     if(pCache != NULL)
     {
         // Set the initial pointers
         pCache->pBegin =
         pCache->pPos   = (char *)(pCache + 1);
         pCache->pEnd   = pCache->pBegin + dwFileSize;
+        pCache->Flags  = 0;
     }
 
     // Return the cache
     return pCache;
+}
+
+static char * ListFile_SkipSpaces(PLISTFILE_CACHE pCache)
+{
+    // Skip newlines, spaces, tabs and another non-printable stuff
+    while(pCache->pPos < pCache->pEnd && pCache->pPos[0] <= 0x20)
+        pCache->pPos++;
+
+    // Remember the begin of the line
+    return pCache->pPos;
+}
+
+static void ListFile_CheckFormat(PLISTFILE_CACHE pCache)
+{
+    // Only if the listfile is greatger than 2 MB
+    if((pCache->pEnd - pCache->pBegin) > 0x100000)
+    {
+        char * szPtr = pCache->pBegin;
+        size_t nDigitCount = 0;
+
+        // Calculate the amount of digits
+        while(nDigitCount <= 20 && '0' <= szPtr[nDigitCount] && szPtr[nDigitCount] <= '9')
+            nDigitCount++;
+
+        // There must be a semicolon after
+        if(nDigitCount <= 10 && szPtr[nDigitCount] == ';')
+        {
+            pCache->Flags |= LISTFILE_FLAG_USES_FILEDATAID;
+        }
+    }
+}
+
+static int ListFile_GetFileDataId(PLISTFILE_CACHE pCache, PDWORD PtrFileDataId)
+{
+    char * szLineBegin = ListFile_SkipSpaces(pCache);
+    char * szLineEnd;
+    DWORD dwNewInt32 = 0;
+    DWORD dwInt32 = 0;
+
+    // Set the limit for loading the number
+    szLineEnd = CASCLIB_MIN((szLineBegin + 20), pCache->pEnd);
+
+    // Extract decimal digits from the string
+    while(szLineBegin < szLineEnd && '0' <= szLineBegin[0] && szLineBegin[0] <= '9')
+    {
+        // Check integer overflow
+        dwNewInt32 = (dwInt32 * 10) + (szLineBegin[0] - '0');
+        if(dwNewInt32 < dwInt32)
+            return ERROR_BAD_FORMAT;
+
+        dwInt32 = dwNewInt32;
+        szLineBegin++;
+    }
+
+    // There must still be some space
+    if(szLineBegin < szLineEnd)
+    {
+        // There must be a semicolon after the decimal integer
+        // The decimal integer must be smaller than 10 MB (files)
+        if(szLineBegin[0] != ';' || dwInt32 >= 0xA00000)
+            return ERROR_BAD_FORMAT;
+
+        pCache->pPos = szLineBegin + 1;
+        PtrFileDataId[0] = dwInt32;
+        return ERROR_SUCCESS;
+    }
+
+    return ERROR_NO_MORE_FILES;
 }
 
 //-----------------------------------------------------------------------------
@@ -65,13 +137,16 @@ void * ListFile_OpenExternal(const TCHAR * szListFile)
         {
             // Create the in-memory cache for the entire listfile
             // The listfile does not have any data loaded yet
-            pCache = CreateListFileCache((DWORD)FileSize);
+            pCache = ListFile_CreateCache((DWORD)FileSize);
             if(pCache != NULL)
             {
-                if(!FileStream_Read(pStream, NULL, pCache->pBegin, (DWORD)FileSize))
+                if(FileStream_Read(pStream, NULL, pCache->pBegin, (DWORD)FileSize))
                 {
-                    ListFile_Free(pCache);
-                    pCache = NULL;
+                    ListFile_CheckFormat(pCache);
+                }
+                else
+                {
+                    CASC_FREE(pCache);
                 }
             }
         }
@@ -89,7 +164,7 @@ void * ListFile_FromBuffer(LPBYTE pbBuffer, DWORD cbBuffer)
 
     // Create the in-memory cache for the entire listfile
     // The listfile does not have any data loaded yet
-    pCache = CreateListFileCache(cbBuffer);
+    pCache = ListFile_CreateCache(cbBuffer);
     if(pCache != NULL)
         memcpy(pCache->pBegin, pbBuffer, cbBuffer);
 
@@ -105,7 +180,7 @@ bool ListFile_VerifyMD5(void * pvListFile, LPBYTE pbHashMD5)
     assert(pCache->pPos == pCache->pBegin);
 
     // Verify the MD5 hash for the entire block
-    return VerifyDataBlockHash(pCache->pBegin, (DWORD)(pCache->pEnd - pCache->pBegin), pbHashMD5);
+    return CascVerifyDataBlockHash(pCache->pBegin, (DWORD)(pCache->pEnd - pCache->pBegin), pbHashMD5);
 }
 
 size_t ListFile_GetNextLine(void * pvListFile, const char ** pszLineBegin, const char ** pszLineEnd)
@@ -116,17 +191,15 @@ size_t ListFile_GetNextLine(void * pvListFile, const char ** pszLineBegin, const
     char * szLineEnd;
 
     // Skip newlines, spaces, tabs and another non-printable stuff
-    while(pCache->pPos < pCache->pEnd && pCache->pPos[0] <= 0x20)
-        pCache->pPos++;
-
     // Remember the begin of the line
-    szLineBegin = pCache->pPos;
+    szLineBegin = ListFile_SkipSpaces(pCache);
 
     // Copy the remaining characters
     while(pCache->pPos < pCache->pEnd)
     {
         // If we have found a newline, stop loading
-        if(pCache->pPos[0] == 0x0D || pCache->pPos[0] == 0x0A)
+        // Note: the 0x85 char came from Overwatch build 24919
+        if(pCache->pPos[0] == '\x0A' || pCache->pPos[0] == '\x0D' || pCache->pPos[0] == '\x85')
             break;
 
         // Blizzard listfiles can also contain information about patch:
@@ -152,209 +225,93 @@ size_t ListFile_GetNextLine(void * pvListFile, char * szBuffer, size_t nMaxChars
     const char * szLineBegin = NULL;
     const char * szLineEnd = NULL;
     size_t nLength;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Retrieve the next line
     nLength = ListFile_GetNextLine(pvListFile, &szLineBegin, &szLineEnd);
 
     // Check the length
-    if(nLength > nMaxChars)
+    if(nLength < nMaxChars)
     {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
-        return 0;
+        // Copy the line to the user buffer
+        memcpy(szBuffer, szLineBegin, nLength);
+        szBuffer[nLength] = 0;
+    }
+    else
+    {
+        dwErrCode = ERROR_INSUFFICIENT_BUFFER;
+        nLength = 0;
     }
 
-    // Copy the line to the user buffer
-    memcpy(szBuffer, szLineBegin, nLength);
-    szBuffer[nLength] = 0;
+    // If we didn't read anything, set the error code
+    if(nLength == 0)
+        SetLastError(dwErrCode);
     return nLength;
 }
 
-size_t ListFile_GetNext(void * pvListFile, const char * szMask, char * szBuffer, size_t nMaxChars)
+size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PDWORD PtrFileDataId)
 {
+    PLISTFILE_CACHE pCache = (PLISTFILE_CACHE)pvListFile;
+    const char * szTemp;
     size_t nLength = 0;
-    int nError = ERROR_SUCCESS;
+    DWORD dwErrCode = ERROR_SUCCESS;
 
     // Check for parameters
     for(;;)
     {
+        DWORD FileDataId = CASC_INVALID_ID;
+
+        // If this is a CSV-format listfile, we need to extract the FileDataId
+        // Lines that contain bogus data, invalid numbers or too big values will be skipped
+        if(pCache->Flags & LISTFILE_FLAG_USES_FILEDATAID)
+        {
+            // Retrieve the data ID from the current position
+            dwErrCode = ListFile_GetFileDataId(pCache, &FileDataId);
+            if(dwErrCode == ERROR_NO_MORE_FILES)
+                break;
+            
+            // If there was an error, skip the current line
+            if(dwErrCode != ERROR_SUCCESS || FileDataId == CASC_INVALID_ID)
+            {
+                ListFile_GetNextLine(pvListFile, &szTemp, &szTemp);
+                continue;
+            }
+        }
+
         // Read the (next) line
         nLength = ListFile_GetNextLine(pvListFile, szBuffer, nMaxChars);
         if(nLength == 0)
         {
-            nError = ERROR_NO_MORE_FILES;
+            dwErrCode = GetLastError();
             break;
         }
 
-        // If some mask entered, check it
-        if(CheckWildCard(szBuffer, szMask))
-        {
-            nError = ERROR_SUCCESS;
-            break;
-        }
+        // Give the file data id and return true
+        PtrFileDataId[0] = FileDataId;
+        return nLength;
     }
 
-    if(nError != ERROR_SUCCESS)
-        SetLastError(nError);
+    if(dwErrCode != ERROR_SUCCESS)
+        SetLastError(dwErrCode);
     return nLength;
 }
 
-void ListFile_Free(void * pvListFile)
+LPBYTE ListFile_GetData(void * pvListFile, PDWORD PtrDataSize)
 {
-    if(pvListFile != NULL)
+    PLISTFILE_CACHE pCache = (PLISTFILE_CACHE)pvListFile;
+    LPBYTE pbData = NULL;
+    DWORD cbData = 0;
+
+    // Get data from the list file cache
+    if (pvListFile != NULL)
     {
-        CASC_FREE(pvListFile);
-    }
-}
-
-//-----------------------------------------------------------------------------
-// Functions for creating a listfile map
-
-#define LISTMAP_INITIAL   0x100000
-
-static PLISTFILE_MAP ListMap_Create()
-{
-    PLISTFILE_MAP pListMap;
-    size_t cbToAllocate;
-
-    // Create buffer for the listfile
-    // Note that because the listfile is quite big and CASC_REALLOC
-    // is a costly operation, we want to have as few reallocs as possible.
-    cbToAllocate = sizeof(LISTFILE_MAP) + LISTMAP_INITIAL;
-    pListMap = (PLISTFILE_MAP)CASC_ALLOC(BYTE, cbToAllocate);
-    if(pListMap != NULL)
-    {
-        // Fill the listfile buffer
-        memset(pListMap, 0, sizeof(LISTFILE_MAP));
-        pListMap->cbBufferMax = LISTMAP_INITIAL;
+        pbData = (LPBYTE)pCache->pBegin;
+        cbData = (DWORD)(pCache->pEnd - pCache->pBegin);
     }
 
-    return pListMap;
+    // Give the data to the caller
+    if (PtrDataSize != NULL)
+        PtrDataSize[0] = cbData;
+    return pbData;
 }
 
-static PLISTFILE_MAP ListMap_InsertName(PLISTFILE_MAP pListMap, const char * szFileName, size_t nLength)
-{
-    PLISTFILE_ENTRY pListEntry;
-    size_t cbToAllocate;
-    size_t cbEntrySize;
-
-    // Make sure there is enough space in the list map
-    cbEntrySize = sizeof(LISTFILE_ENTRY) + nLength;
-    cbEntrySize = ALIGN_TO_SIZE(cbEntrySize, 8);
-    if((pListMap->cbBuffer + cbEntrySize) > pListMap->cbBufferMax)
-    {
-        cbToAllocate = sizeof(LISTFILE_MAP) + (pListMap->cbBufferMax * 3) / 2;
-        pListMap = (PLISTFILE_MAP)CASC_REALLOC(BYTE, pListMap, cbToAllocate);
-        if(pListMap == NULL)
-            return NULL;
-
-        pListMap->cbBufferMax = (pListMap->cbBufferMax * 3) / 2;
-    }
-
-    // Get the pointer to the first entry
-    pListEntry = (PLISTFILE_ENTRY)((LPBYTE)(pListMap + 1) + pListMap->cbBuffer);
-    pListEntry->FileNameHash = CalcFileNameHash(szFileName);
-    pListEntry->cbEntrySize = (DWORD)cbEntrySize;
-
-    // Copy the file name to the entry
-    memcpy(pListEntry->szFileName, szFileName, nLength);
-    pListEntry->szFileName[nLength] = 0;
-
-    // Move the next entry
-    pListMap->cbBuffer += cbEntrySize;
-    pListMap->nEntries++;
-    return pListMap;
-}
-
-static PLISTFILE_MAP ListMap_Finish(PLISTFILE_MAP pListMap)
-{
-    PLISTFILE_ENTRY pListEntry;
-    PCASC_MAP pMap;
-    LPBYTE pbEntry;
-
-    // Sanity check
-    assert(pListMap->pNameMap == NULL);
-
-    // Create the map
-    pListMap->pNameMap = pMap = Map_Create((DWORD)pListMap->nEntries, sizeof(ULONGLONG), 0);
-    if(pListMap->pNameMap == NULL)
-    {
-        ListFile_FreeMap(pListMap);
-        return NULL;
-    }
-
-    // Fill the map
-    pbEntry = (LPBYTE)(pListMap + 1);
-    for(size_t i = 0; i < pListMap->nEntries; i++)
-    {
-        // Get the listfile entry
-        pListEntry = (PLISTFILE_ENTRY)pbEntry;
-        pbEntry += pListEntry->cbEntrySize;
-
-        // Insert the entry to the map
-        Map_InsertObject(pMap, pListEntry, &pListEntry->FileNameHash);
-    }
-
-    return pListMap;
-}
-
-PLISTFILE_MAP ListFile_CreateMap(const TCHAR * szListFile)
-{
-    PLISTFILE_MAP pListMap = NULL;
-    void * pvListFile;
-    char szFileName[MAX_PATH+1];
-    size_t nLength;
-
-    // Only if the listfile name has been given
-    if(szListFile != NULL)
-    {
-        // Create map for the listfile
-        pListMap = ListMap_Create();
-        if(pListMap != NULL)
-        {
-            // Open the external listfile
-            pvListFile = ListFile_OpenExternal(szListFile);
-            if(pvListFile != NULL)
-            {
-                // Go through the entire listfile and insert each name to the map
-                while((nLength = ListFile_GetNext(pvListFile, "*", szFileName, MAX_PATH)) != 0)
-                {
-                    // Insert the file name to the map
-                    pListMap = ListMap_InsertName(pListMap, szFileName, nLength);
-                    if(pListMap == NULL)
-                        break;
-                }
-
-                if(pListMap == NULL)
-                {
-                    // Finish the listfile map
-                    pListMap = ListMap_Finish(pListMap);
-                }
-
-                // Free the listfile
-                ListFile_Free(pvListFile);
-            }
-        }
-    }
-
-    // Return the created map
-    return pListMap;
-}
-
-const char * ListFile_FindName(PLISTFILE_MAP pListMap, ULONGLONG FileNameHash)
-{
-    PLISTFILE_ENTRY pListEntry = NULL;
-
-    if(pListMap != NULL)
-        pListEntry = (PLISTFILE_ENTRY)Map_FindObject(pListMap->pNameMap, &FileNameHash, NULL);
-    return (pListEntry != NULL) ? pListEntry->szFileName : "";
-}
-
-void ListFile_FreeMap(PLISTFILE_MAP pListMap)
-{
-    if(pListMap != NULL)
-    {
-        if(pListMap->pNameMap != NULL)
-            Map_Free(pListMap->pNameMap);
-        CASC_FREE(pListMap);
-    }
-}

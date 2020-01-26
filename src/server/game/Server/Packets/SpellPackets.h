@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -57,6 +57,8 @@ namespace WorldPackets
             void Read() override;
 
             int32 ChannelSpell = 0;
+            int32 Reason = 0;       // 40 = /run SpellStopCasting(), 16 = movement/AURA_INTERRUPT_FLAG_MOVE, 41 = turning/AURA_INTERRUPT_FLAG_TURNING
+                                    // does not match SpellCastResult enum
         };
 
         class CancelGrowthAura final : public ClientPacket
@@ -177,7 +179,8 @@ namespace WorldPackets
             uint32 ActiveFlags = 0;
             uint16 CastLevel = 1;
             uint8 Applications = 1;
-            Optional<SandboxScalingData> SandboxScaling;
+            int32 ContentTuningID = 0;
+            Optional<ContentTuningParams> ContentTuning;
             Optional<ObjectGuid> CastUnit;
             Optional<int32> Duration;
             Optional<int32> Remaining;
@@ -245,7 +248,7 @@ namespace WorldPackets
             MissileTrajectoryRequest MissileTrajectory;
             Optional<MovementInfo> MoveUpdate;
             std::vector<SpellWeight> Weight;
-            ObjectGuid Charmer;
+            ObjectGuid CraftingNPC;
             int32 Misc[2] = { };
         };
 
@@ -294,8 +297,19 @@ namespace WorldPackets
             ObjectGuid ServerCastID;
         };
 
+        struct SpellHitStatus
+        {
+            SpellHitStatus() { }
+            SpellHitStatus(uint8 reason) : Reason(reason) { }
+
+            uint8 Reason;
+        };
+
         struct SpellMissStatus
         {
+            SpellMissStatus() { }
+            SpellMissStatus(uint8 reason, uint8 reflectStatus) : Reason(reason), ReflectStatus(reflectStatus) { }
+
             uint8 Reason = 0;
             uint8 ReflectStatus = 0;
         };
@@ -351,6 +365,7 @@ namespace WorldPackets
             uint32 CastTime     = 0;
             std::vector<ObjectGuid> HitTargets;
             std::vector<ObjectGuid> MissTargets;
+            std::vector<SpellHitStatus> HitStatus;
             std::vector<SpellMissStatus> MissStatus;
             SpellTargetData Target;
             std::vector<SpellPowerData> RemainingPower;
@@ -613,7 +628,7 @@ namespace WorldPackets
         class SetSpellCharges final : public ServerPacket
         {
         public:
-            SetSpellCharges() : ServerPacket(SMSG_SET_SPELL_CHARGES, 1 + 4 + 4) { }
+            SetSpellCharges() : ServerPacket(SMSG_SET_SPELL_CHARGES, 4 + 4 + 1 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -696,7 +711,8 @@ namespace WorldPackets
             int32 SpellVisualID = 0;
             bool SpeedAsTime = false;
             float TravelSpeed = 0.0f;
-            float UnkZero = 0.0f; // Always zero
+            float LaunchDelay = 0.0f;
+            float MinDuration = 0.0f;
             TaggedPosition<Position::XYZ> SourceRotation; // Vector of rotations, Orientation is z
             TaggedPosition<Position::XYZ> TargetLocation; // Exclusive with Target
         };
@@ -710,13 +726,16 @@ namespace WorldPackets
 
             ObjectGuid Source;
             ObjectGuid Target; // Exclusive with TargetPosition
-            uint16 MissReason = 0;
-            uint32 SpellVisualID = 0;
-            bool SpeedAsTime = false;
-            uint16 ReflectStatus = 0;
-            float TravelSpeed = 0.0f;
+            ObjectGuid Transport; // Used when Target = Empty && (SpellVisual::Flags & 0x400) == 0
             TaggedPosition<Position::XYZ> TargetPosition; // Exclusive with Target
-            float Orientation = 0.0f;
+            uint32 SpellVisualID = 0;
+            float TravelSpeed = 0.0f;
+            uint16 HitReason = 0;
+            uint16 MissReason = 0;
+            uint16 ReflectStatus = 0;
+            float LaunchDelay = 0.0f;
+            float MinDuration = 0.0f;
+            bool SpeedAsTime = false;
         };
 
         class PlaySpellVisualKit final : public ServerPacket

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 #include "EventMap.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "GameTime.h"
 #include "CreatureAIImpl.h"
 #include "GameEventMgr.h"
 #include "World.h"
@@ -796,7 +797,7 @@ public:
         {
             _events.Update(diff);
 
-            time_t time = sWorld->GetGameTime();
+            time_t time = GameTime::GetGameTime();
             tm localTm;
             localtime_r(&time, &localTm);
 

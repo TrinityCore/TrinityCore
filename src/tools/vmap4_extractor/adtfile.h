@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,11 +60,11 @@ class ADTFile
 {
 private:
     CASCFile _file;
-    std::string Adtfilename;
     bool cacheable;
     std::vector<ADTOutputCache>* dirfileCache;
 public:
-    ADTFile(char* filename, bool cache);
+    ADTFile(std::string const& filename, bool cache);
+    ADTFile(uint32 fileDataId, std::string const& description, bool cache);
     ~ADTFile();
     std::vector<std::string> WmoInstanceNames;
     std::vector<std::string> ModelInstanceNames;

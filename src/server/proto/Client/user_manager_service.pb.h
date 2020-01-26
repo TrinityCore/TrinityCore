@@ -48,9 +48,7 @@ class SubscribeRequest;
 class SubscribeResponse;
 class UnsubscribeRequest;
 class AddRecentPlayersRequest;
-class AddRecentPlayersResponse;
 class ClearRecentPlayersRequest;
-class ClearRecentPlayersResponse;
 class BlockPlayerRequest;
 class UnblockPlayerRequest;
 class BlockedPlayerAddedNotification;
@@ -454,101 +452,6 @@ class TC_PROTO_API AddRecentPlayersRequest : public ::google::protobuf::Message 
 };
 // -------------------------------------------------------------------
 
-class TC_PROTO_API AddRecentPlayersResponse : public ::google::protobuf::Message {
- public:
-  AddRecentPlayersResponse();
-  virtual ~AddRecentPlayersResponse();
-
-  AddRecentPlayersResponse(const AddRecentPlayersResponse& from);
-
-  inline AddRecentPlayersResponse& operator=(const AddRecentPlayersResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const AddRecentPlayersResponse& default_instance();
-
-  void Swap(AddRecentPlayersResponse* other);
-
-  // implements Message ----------------------------------------------
-
-  AddRecentPlayersResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const AddRecentPlayersResponse& from);
-  void MergeFrom(const AddRecentPlayersResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer players_added = 1;
-  inline int players_added_size() const;
-  inline void clear_players_added();
-  static const int kPlayersAddedFieldNumber = 1;
-  inline const ::bgs::protocol::user_manager::v1::RecentPlayer& players_added(int index) const;
-  inline ::bgs::protocol::user_manager::v1::RecentPlayer* mutable_players_added(int index);
-  inline ::bgs::protocol::user_manager::v1::RecentPlayer* add_players_added();
-  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer >&
-      players_added() const;
-  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer >*
-      mutable_players_added();
-
-  // repeated fixed32 players_removed = 3;
-  inline int players_removed_size() const;
-  inline void clear_players_removed();
-  static const int kPlayersRemovedFieldNumber = 3;
-  inline ::google::protobuf::uint32 players_removed(int index) const;
-  inline void set_players_removed(int index, ::google::protobuf::uint32 value);
-  inline void add_players_removed(::google::protobuf::uint32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      players_removed() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_players_removed();
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
- private:
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer > players_added_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > players_removed_;
-  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
-  friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static AddRecentPlayersResponse* default_instance_;
-};
-// -------------------------------------------------------------------
-
 class TC_PROTO_API ClearRecentPlayersRequest : public ::google::protobuf::Message {
  public:
   ClearRecentPlayersRequest();
@@ -637,88 +540,6 @@ class TC_PROTO_API ClearRecentPlayersRequest : public ::google::protobuf::Messag
 
   void InitAsDefaultInstance();
   static ClearRecentPlayersRequest* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class TC_PROTO_API ClearRecentPlayersResponse : public ::google::protobuf::Message {
- public:
-  ClearRecentPlayersResponse();
-  virtual ~ClearRecentPlayersResponse();
-
-  ClearRecentPlayersResponse(const ClearRecentPlayersResponse& from);
-
-  inline ClearRecentPlayersResponse& operator=(const ClearRecentPlayersResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const ClearRecentPlayersResponse& default_instance();
-
-  void Swap(ClearRecentPlayersResponse* other);
-
-  // implements Message ----------------------------------------------
-
-  ClearRecentPlayersResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ClearRecentPlayersResponse& from);
-  void MergeFrom(const ClearRecentPlayersResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // repeated fixed32 players_removed = 1;
-  inline int players_removed_size() const;
-  inline void clear_players_removed();
-  static const int kPlayersRemovedFieldNumber = 1;
-  inline ::google::protobuf::uint32 players_removed(int index) const;
-  inline void set_players_removed(int index, ::google::protobuf::uint32 value);
-  inline void add_players_removed(::google::protobuf::uint32 value);
-  inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-      players_removed() const;
-  inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-      mutable_players_removed();
-
-  // @@protoc_insertion_point(class_scope:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
- private:
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > players_removed_;
-  friend void TC_PROTO_API protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
-  friend void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto();
-  friend void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto();
-
-  void InitAsDefaultInstance();
-  static ClearRecentPlayersResponse* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1307,12 +1128,11 @@ class TC_PROTO_API UserManagerService : public ServiceBase
   // client methods --------------------------------------------------
 
   void Subscribe(::bgs::protocol::user_manager::v1::SubscribeRequest const* request, std::function<void(::bgs::protocol::user_manager::v1::SubscribeResponse const*)> responseCallback);
-  void AddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, std::function<void(::bgs::protocol::user_manager::v1::AddRecentPlayersResponse const*)> responseCallback);
-  void ClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, std::function<void(::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse const*)> responseCallback);
+  void AddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
+  void ClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void BlockPlayer(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void UnblockPlayer(::bgs::protocol::user_manager::v1::UnblockPlayerRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void BlockPlayerForSession(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void LoadBlockList(::bgs::protocol::EntityId const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   void Unsubscribe(::bgs::protocol::user_manager::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
   // server methods --------------------------------------------------
 
@@ -1320,12 +1140,11 @@ class TC_PROTO_API UserManagerService : public ServiceBase
 
  protected:
   virtual uint32 HandleSubscribe(::bgs::protocol::user_manager::v1::SubscribeRequest const* request, ::bgs::protocol::user_manager::v1::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
-  virtual uint32 HandleAddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, ::bgs::protocol::user_manager::v1::AddRecentPlayersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
-  virtual uint32 HandleClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, ::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleAddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleBlockPlayer(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleUnblockPlayer(::bgs::protocol::user_manager::v1::UnblockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleBlockPlayerForSession(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
-  virtual uint32 HandleLoadBlockList(::bgs::protocol::EntityId const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleUnsubscribe(::bgs::protocol::user_manager::v1::UnsubscribeRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
@@ -1706,70 +1525,6 @@ inline void AddRecentPlayersRequest::set_program(::google::protobuf::uint32 valu
 
 // -------------------------------------------------------------------
 
-// AddRecentPlayersResponse
-
-// repeated .bgs.protocol.user_manager.v1.RecentPlayer players_added = 1;
-inline int AddRecentPlayersResponse::players_added_size() const {
-  return players_added_.size();
-}
-inline void AddRecentPlayersResponse::clear_players_added() {
-  players_added_.Clear();
-}
-inline const ::bgs::protocol::user_manager::v1::RecentPlayer& AddRecentPlayersResponse::players_added(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_added)
-  return players_added_.Get(index);
-}
-inline ::bgs::protocol::user_manager::v1::RecentPlayer* AddRecentPlayersResponse::mutable_players_added(int index) {
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_added)
-  return players_added_.Mutable(index);
-}
-inline ::bgs::protocol::user_manager::v1::RecentPlayer* AddRecentPlayersResponse::add_players_added() {
-  // @@protoc_insertion_point(field_add:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_added)
-  return players_added_.Add();
-}
-inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer >&
-AddRecentPlayersResponse::players_added() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_added)
-  return players_added_;
-}
-inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::user_manager::v1::RecentPlayer >*
-AddRecentPlayersResponse::mutable_players_added() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_added)
-  return &players_added_;
-}
-
-// repeated fixed32 players_removed = 3;
-inline int AddRecentPlayersResponse::players_removed_size() const {
-  return players_removed_.size();
-}
-inline void AddRecentPlayersResponse::clear_players_removed() {
-  players_removed_.Clear();
-}
-inline ::google::protobuf::uint32 AddRecentPlayersResponse::players_removed(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_removed)
-  return players_removed_.Get(index);
-}
-inline void AddRecentPlayersResponse::set_players_removed(int index, ::google::protobuf::uint32 value) {
-  players_removed_.Set(index, value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_removed)
-}
-inline void AddRecentPlayersResponse::add_players_removed(::google::protobuf::uint32 value) {
-  players_removed_.Add(value);
-  // @@protoc_insertion_point(field_add:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_removed)
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-AddRecentPlayersResponse::players_removed() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_removed)
-  return players_removed_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-AddRecentPlayersResponse::mutable_players_removed() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.user_manager.v1.AddRecentPlayersResponse.players_removed)
-  return &players_removed_;
-}
-
-// -------------------------------------------------------------------
-
 // ClearRecentPlayersRequest
 
 // optional .bgs.protocol.EntityId agent_id = 1;
@@ -1835,40 +1590,6 @@ inline void ClearRecentPlayersRequest::set_program(::google::protobuf::uint32 va
   set_has_program();
   program_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.user_manager.v1.ClearRecentPlayersRequest.program)
-}
-
-// -------------------------------------------------------------------
-
-// ClearRecentPlayersResponse
-
-// repeated fixed32 players_removed = 1;
-inline int ClearRecentPlayersResponse::players_removed_size() const {
-  return players_removed_.size();
-}
-inline void ClearRecentPlayersResponse::clear_players_removed() {
-  players_removed_.Clear();
-}
-inline ::google::protobuf::uint32 ClearRecentPlayersResponse::players_removed(int index) const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse.players_removed)
-  return players_removed_.Get(index);
-}
-inline void ClearRecentPlayersResponse::set_players_removed(int index, ::google::protobuf::uint32 value) {
-  players_removed_.Set(index, value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse.players_removed)
-}
-inline void ClearRecentPlayersResponse::add_players_removed(::google::protobuf::uint32 value) {
-  players_removed_.Add(value);
-  // @@protoc_insertion_point(field_add:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse.players_removed)
-}
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >&
-ClearRecentPlayersResponse::players_removed() const {
-  // @@protoc_insertion_point(field_list:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse.players_removed)
-  return players_removed_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::uint32 >*
-ClearRecentPlayersResponse::mutable_players_removed() {
-  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse.players_removed)
-  return &players_removed_;
 }
 
 // -------------------------------------------------------------------

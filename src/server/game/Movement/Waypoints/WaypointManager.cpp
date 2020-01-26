@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +23,19 @@
 
 WaypointMgr::WaypointMgr() { }
 
+WaypointMgr::~WaypointMgr()
+{
+    for (WaypointPathContainer::iterator itr = _waypointStore.begin(); itr != _waypointStore.end(); ++itr)
+    {
+        for (WaypointPath::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+            delete *it;
+
+        itr->second.clear();
+    }
+
+    _waypointStore.clear();
+}
+
 void WaypointMgr::Load()
 {
     uint32 oldMSTime = getMSTime();
@@ -42,6 +54,7 @@ void WaypointMgr::Load()
     do
     {
         Field* fields = result->Fetch();
+        WaypointData* wp = new WaypointData();
 
         uint32 pathId = fields[0].GetUInt32();
         WaypointPath& path = _waypointStore[pathId];
@@ -54,25 +67,25 @@ void WaypointMgr::Load()
         Trinity::NormalizeMapCoord(x);
         Trinity::NormalizeMapCoord(y);
 
-        WaypointNode wp;
-        wp.id = fields[1].GetUInt32();
-        wp.x = x;
-        wp.y = y;
-        wp.z = z;
-        wp.orientation = o;
-        wp.moveType = fields[6].GetUInt32();
+        wp->id = fields[1].GetUInt32();
+        wp->x = x;
+        wp->y = y;
+        wp->z = z;
+        wp->orientation = o;
+        wp->move_type = fields[6].GetUInt32();
 
-        if (wp.moveType >= WAYPOINT_MOVE_TYPE_MAX)
+        if (wp->move_type >= WAYPOINT_MOVE_TYPE_MAX)
         {
-            TC_LOG_ERROR("sql.sql", "Waypoint %u in waypoint_data has invalid move_type, ignoring", wp.id);
+            TC_LOG_ERROR("sql.sql", "Waypoint %u in waypoint_data has invalid move_type, ignoring", wp->id);
+            delete wp;
             continue;
         }
 
-        wp.delay = fields[7].GetUInt32();
-        wp.eventId = fields[8].GetUInt32();
-        wp.eventChance = fields[9].GetInt16();
+        wp->delay = fields[7].GetUInt32();
+        wp->event_id = fields[8].GetUInt32();
+        wp->event_chance = fields[9].GetInt16();
 
-        path.nodes.push_back(std::move(wp));
+        path.push_back(wp);
         ++count;
     }
     while (result->NextRow());
@@ -91,10 +104,13 @@ void WaypointMgr::ReloadPath(uint32 id)
     WaypointPathContainer::iterator itr = _waypointStore.find(id);
     if (itr != _waypointStore.end())
     {
+        for (WaypointPath::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+            delete *it;
+
         _waypointStore.erase(itr);
     }
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_BY_ID);
 
     stmt->setUInt32(0, id);
 
@@ -108,6 +124,7 @@ void WaypointMgr::ReloadPath(uint32 id)
     do
     {
         Field* fields = result->Fetch();
+        WaypointData* wp = new WaypointData();
 
         float x = fields[1].GetFloat();
         float y = fields[2].GetFloat();
@@ -117,25 +134,25 @@ void WaypointMgr::ReloadPath(uint32 id)
         Trinity::NormalizeMapCoord(x);
         Trinity::NormalizeMapCoord(y);
 
-        WaypointNode wp;
-        wp.id = fields[0].GetUInt32();
-        wp.x = x;
-        wp.y = y;
-        wp.z = z;
-        wp.orientation = o;
-        wp.moveType = fields[5].GetUInt32();
+        wp->id = fields[0].GetUInt32();
+        wp->x = x;
+        wp->y = y;
+        wp->z = z;
+        wp->orientation = o;
+        wp->move_type = fields[5].GetUInt32();
 
-        if (wp.moveType >= WAYPOINT_MOVE_TYPE_MAX)
+        if (wp->move_type >= WAYPOINT_MOVE_TYPE_MAX)
         {
-            TC_LOG_ERROR("sql.sql", "Waypoint %u in waypoint_data has invalid move_type, ignoring", wp.id);
+            TC_LOG_ERROR("sql.sql", "Waypoint %u in waypoint_data has invalid move_type, ignoring", wp->id);
+            delete wp;
             continue;
         }
 
-        wp.delay = fields[6].GetUInt32();
-        wp.eventId = fields[7].GetUInt32();
-        wp.eventChance = fields[8].GetUInt8();
+        wp->delay = fields[6].GetUInt32();
+        wp->event_id = fields[7].GetUInt32();
+        wp->event_chance = fields[8].GetUInt8();
 
-        path.nodes.push_back(std::move(wp));
+        path.push_back(wp);
 
     }
     while (result->NextRow());

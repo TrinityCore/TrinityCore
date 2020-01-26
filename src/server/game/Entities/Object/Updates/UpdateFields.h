@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,426 +15,789 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _UPDATEFIELDS_H
-#define _UPDATEFIELDS_H
+#ifndef UpdateFields_h__
+#define UpdateFields_h__
 
-// Auto generated for version 7, 3, 5, 25928
+#include "EnumClassFlag.h"
+#include "ObjectGuid.h"
+#include "Position.h"
+#include "QuaternionData.h"
+#include "UpdateField.h"
+#include "UpdateMask.h"
 
-enum ObjectFields
+class AreaTrigger;
+class AzeriteEmpoweredItem;
+class AzeriteItem;
+class Bag;
+class ByteBuffer;
+class Conversation;
+class Corpse;
+class DynamicObject;
+class GameObject;
+class Item;
+class Object;
+class Player;
+class Unit;
+
+namespace UF
 {
-    OBJECT_FIELD_GUID                                      = 0x000, // Size: 4, Flags: PUBLIC
-    OBJECT_FIELD_DATA                                      = 0x004, // Size: 4, Flags: PUBLIC
-    OBJECT_FIELD_TYPE                                      = 0x008, // Size: 1, Flags: PUBLIC
-    OBJECT_FIELD_ENTRY                                     = 0x009, // Size: 1, Flags: DYNAMIC
-    OBJECT_DYNAMIC_FLAGS                                   = 0x00A, // Size: 1, Flags: DYNAMIC, URGENT
-    OBJECT_FIELD_SCALE_X                                   = 0x00B, // Size: 1, Flags: PUBLIC
-    OBJECT_END                                             = 0x00C,
+struct ObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<4>
+{
+    UpdateField<int32, 0, 1> EntryID;
+    UpdateField<uint32, 0, 2> DynamicFlags;
+    struct DynamicFlagsTag : ViewerDependentValueTag<uint32> {};
+    UpdateField<float, 0, 3> Scale;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum ObjectDynamicFields
+struct ItemEnchantment : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 {
-    OBJECT_DYNAMIC_END                                     = 0x000,
+    UpdateField<int32, 0, 1> ID;
+    UpdateField<uint32, 0, 2> Duration;
+    UpdateField<int16, 0, 3> Charges;
+    UpdateField<uint16, 0, 4> Inactive;
+
+    void WriteCreate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum ItemFields
+struct ArtifactPower : public IsUpdateFieldStructureTag
 {
-    ITEM_FIELD_OWNER                                       = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    ITEM_FIELD_CONTAINED                                   = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
-    ITEM_FIELD_CREATOR                                     = OBJECT_END + 0x008, // Size: 4, Flags: PUBLIC
-    ITEM_FIELD_GIFTCREATOR                                 = OBJECT_END + 0x00C, // Size: 4, Flags: PUBLIC
-    ITEM_FIELD_STACK_COUNT                                 = OBJECT_END + 0x010, // Size: 1, Flags: OWNER
-    ITEM_FIELD_DURATION                                    = OBJECT_END + 0x011, // Size: 1, Flags: OWNER
-    ITEM_FIELD_SPELL_CHARGES                               = OBJECT_END + 0x012, // Size: 5, Flags: OWNER
-    ITEM_FIELD_FLAGS                                       = OBJECT_END + 0x017, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_ENCHANTMENT                                 = OBJECT_END + 0x018, // Size: 39, Flags: PUBLIC
-    ITEM_FIELD_PROPERTY_SEED                               = OBJECT_END + 0x03F, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_RANDOM_PROPERTIES_ID                        = OBJECT_END + 0x040, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_DURABILITY                                  = OBJECT_END + 0x041, // Size: 1, Flags: OWNER
-    ITEM_FIELD_MAXDURABILITY                               = OBJECT_END + 0x042, // Size: 1, Flags: OWNER
-    ITEM_FIELD_CREATE_PLAYED_TIME                          = OBJECT_END + 0x043, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_MODIFIERS_MASK                              = OBJECT_END + 0x044, // Size: 1, Flags: OWNER
-    ITEM_FIELD_CONTEXT                                     = OBJECT_END + 0x045, // Size: 1, Flags: PUBLIC
-    ITEM_FIELD_ARTIFACT_XP                                 = OBJECT_END + 0x046, // Size: 2, Flags: OWNER
-    ITEM_FIELD_APPEARANCE_MOD_ID                           = OBJECT_END + 0x048, // Size: 1, Flags: OWNER
-    ITEM_END                                               = OBJECT_END + 0x049,
+    int16 ArtifactPowerID;
+    uint8 PurchasedRank;
+    uint8 CurrentRankWithBonus;
+
+    void WriteCreate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
 };
 
-enum ItemDynamicFields
+struct SocketedGem : public IsUpdateFieldStructureTag, public HasChangesMask<20>
 {
-    ITEM_DYNAMIC_FIELD_MODIFIERS                           = OBJECT_DYNAMIC_END + 0x000, // Flags: OWNER
-    ITEM_DYNAMIC_FIELD_BONUSLIST_IDS                       = OBJECT_DYNAMIC_END + 0x001, // Flags: OWNER, 0x100
-    ITEM_DYNAMIC_FIELD_ARTIFACT_POWERS                     = OBJECT_DYNAMIC_END + 0x002, // Flags: OWNER
-    ITEM_DYNAMIC_FIELD_GEMS                                = OBJECT_DYNAMIC_END + 0x003, // Flags: OWNER
-    ITEM_DYNAMIC_FIELD_RELIC_TALENT_DATA                   = OBJECT_DYNAMIC_END + 0x004, // Flags: OWNER
-    ITEM_DYNAMIC_END                                       = OBJECT_DYNAMIC_END + 0x005,
+    UpdateField<int32, 0, 1> ItemID;
+    UpdateField<uint8, 0, 2> Context;
+    UpdateFieldArray<uint16, 16, 3, 4> BonusListIDs;
+
+    void WriteCreate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Item const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum ContainerFields
+struct ItemData : public IsUpdateFieldStructureTag, public HasChangesMask<40>
 {
-    CONTAINER_FIELD_SLOT_1                                 = ITEM_END + 0x000, // Size: 144, Flags: PUBLIC
-    CONTAINER_FIELD_NUM_SLOTS                              = ITEM_END + 0x090, // Size: 1, Flags: PUBLIC
-    CONTAINER_END                                          = ITEM_END + 0x091,
+    UpdateField<std::vector<int32>, 0, 1> BonusListIDs;
+    DynamicUpdateField<int32, 0, 2> Modifiers;
+    DynamicUpdateField<UF::ArtifactPower, 0, 3> ArtifactPowers;
+    DynamicUpdateField<UF::SocketedGem, 0, 4> Gems;
+    UpdateField<ObjectGuid, 0, 5> Owner;
+    UpdateField<ObjectGuid, 0, 6> ContainedIn;
+    UpdateField<ObjectGuid, 0, 7> Creator;
+    UpdateField<ObjectGuid, 0, 8> GiftCreator;
+    UpdateField<uint32, 0, 9> StackCount;
+    UpdateField<uint32, 0, 10> Expiration;
+    UpdateField<uint32, 0, 11> DynamicFlags;
+    UpdateField<uint32, 0, 12> Durability;
+    UpdateField<uint32, 0, 13> MaxDurability;
+    UpdateField<uint32, 0, 14> CreatePlayedTime;
+    UpdateField<uint32, 0, 15> ModifiersMask;
+    UpdateField<int32, 0, 16> Context;
+    UpdateField<uint64, 0, 17> ArtifactXP;
+    UpdateField<uint8, 0, 18> ItemAppearanceModID;
+    UpdateField<uint32, 0, 19> DynamicFlags2;
+    UpdateFieldArray<int32, 5, 20, 21> SpellCharges;
+    UpdateFieldArray<UF::ItemEnchantment, 13, 26, 27> Enchantment;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
+    void AppendAllowedFieldsMaskForFlag(UpdateMask<40>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
+    void WriteUpdate(ByteBuffer& data, UpdateMask<40> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum ContainerDynamicFields
+struct ContainerData : public IsUpdateFieldStructureTag, public HasChangesMask<39>
 {
-    CONTAINER_DYNAMIC_END                                  = ITEM_DYNAMIC_END + 0x000,
+    UpdateField<uint32, 0, 1> NumSlots;
+    UpdateFieldArray<ObjectGuid, 36, 2, 3> Slots;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Bag const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Bag const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum UnitFields
+struct AzeriteEmpoweredItemData : public IsUpdateFieldStructureTag, public HasChangesMask<6>
 {
-    UNIT_FIELD_CHARM                                       = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_SUMMON                                      = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_CRITTER                                     = OBJECT_END + 0x008, // Size: 4, Flags: PRIVATE
-    UNIT_FIELD_CHARMEDBY                                   = OBJECT_END + 0x00C, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_SUMMONEDBY                                  = OBJECT_END + 0x010, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_CREATEDBY                                   = OBJECT_END + 0x014, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_DEMON_CREATOR                               = OBJECT_END + 0x018, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_TARGET                                      = OBJECT_END + 0x01C, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_BATTLE_PET_COMPANION_GUID                   = OBJECT_END + 0x020, // Size: 4, Flags: PUBLIC
-    UNIT_FIELD_BATTLE_PET_DB_ID                            = OBJECT_END + 0x024, // Size: 2, Flags: PUBLIC
-    UNIT_FIELD_CHANNEL_DATA                                = OBJECT_END + 0x026, // Size: 2, Flags: PUBLIC, URGENT
-    UNIT_FIELD_SUMMONED_BY_HOME_REALM                      = OBJECT_END + 0x028, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_BYTES_0                                     = OBJECT_END + 0x029, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_DISPLAY_POWER                               = OBJECT_END + 0x02A, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID                   = OBJECT_END + 0x02B, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_HEALTH                                      = OBJECT_END + 0x02C, // Size: 2, Flags: PUBLIC
-    UNIT_FIELD_POWER                                       = OBJECT_END + 0x02E, // Size: 6, Flags: PUBLIC, URGENT_SELF_ONLY
-    UNIT_FIELD_MAXHEALTH                                   = OBJECT_END + 0x034, // Size: 2, Flags: PUBLIC
-    UNIT_FIELD_MAXPOWER                                    = OBJECT_END + 0x036, // Size: 6, Flags: PUBLIC
-    UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER                   = OBJECT_END + 0x03C, // Size: 6, Flags: PRIVATE, OWNER, UNIT_ALL
-    UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER       = OBJECT_END + 0x042, // Size: 6, Flags: PRIVATE, OWNER, UNIT_ALL
-    UNIT_FIELD_LEVEL                                       = OBJECT_END + 0x048, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_EFFECTIVE_LEVEL                             = OBJECT_END + 0x049, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SANDBOX_SCALING_ID                          = OBJECT_END + 0x04A, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SCALING_LEVEL_MIN                           = OBJECT_END + 0x04B, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SCALING_LEVEL_MAX                           = OBJECT_END + 0x04C, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_SCALING_LEVEL_DELTA                         = OBJECT_END + 0x04D, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_FACTIONTEMPLATE                             = OBJECT_END + 0x04E, // Size: 1, Flags: PUBLIC
-    UNIT_VIRTUAL_ITEM_SLOT_ID                              = OBJECT_END + 0x04F, // Size: 6, Flags: PUBLIC
-    UNIT_FIELD_FLAGS                                       = OBJECT_END + 0x055, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_FLAGS_2                                     = OBJECT_END + 0x056, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_FLAGS_3                                     = OBJECT_END + 0x057, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_AURASTATE                                   = OBJECT_END + 0x058, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_BASEATTACKTIME                              = OBJECT_END + 0x059, // Size: 2, Flags: PUBLIC
-    UNIT_FIELD_RANGEDATTACKTIME                            = OBJECT_END + 0x05B, // Size: 1, Flags: PRIVATE
-    UNIT_FIELD_BOUNDINGRADIUS                              = OBJECT_END + 0x05C, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_COMBATREACH                                 = OBJECT_END + 0x05D, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_DISPLAYID                                   = OBJECT_END + 0x05E, // Size: 1, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_NATIVEDISPLAYID                             = OBJECT_END + 0x05F, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_MOUNTDISPLAYID                              = OBJECT_END + 0x060, // Size: 1, Flags: PUBLIC, URGENT
-    UNIT_FIELD_MINDAMAGE                                   = OBJECT_END + 0x061, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_MAXDAMAGE                                   = OBJECT_END + 0x062, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_MINOFFHANDDAMAGE                            = OBJECT_END + 0x063, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_MAXOFFHANDDAMAGE                            = OBJECT_END + 0x064, // Size: 1, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_BYTES_1                                     = OBJECT_END + 0x065, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_PETNUMBER                                   = OBJECT_END + 0x066, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_PET_NAME_TIMESTAMP                          = OBJECT_END + 0x067, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_PETEXPERIENCE                               = OBJECT_END + 0x068, // Size: 1, Flags: OWNER
-    UNIT_FIELD_PETNEXTLEVELEXP                             = OBJECT_END + 0x069, // Size: 1, Flags: OWNER
-    UNIT_MOD_CAST_SPEED                                    = OBJECT_END + 0x06A, // Size: 1, Flags: PUBLIC
-    UNIT_MOD_CAST_HASTE                                    = OBJECT_END + 0x06B, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MOD_HASTE                                   = OBJECT_END + 0x06C, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MOD_RANGED_HASTE                            = OBJECT_END + 0x06D, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MOD_HASTE_REGEN                             = OBJECT_END + 0x06E, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MOD_TIME_RATE                               = OBJECT_END + 0x06F, // Size: 1, Flags: PUBLIC
-    UNIT_CREATED_BY_SPELL                                  = OBJECT_END + 0x070, // Size: 1, Flags: PUBLIC
-    UNIT_NPC_FLAGS                                         = OBJECT_END + 0x071, // Size: 2, Flags: PUBLIC, DYNAMIC
-    UNIT_NPC_EMOTESTATE                                    = OBJECT_END + 0x073, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_STAT                                        = OBJECT_END + 0x074, // Size: 4, Flags: PRIVATE, OWNER
-    UNIT_FIELD_POSSTAT                                     = OBJECT_END + 0x078, // Size: 4, Flags: PRIVATE, OWNER
-    UNIT_FIELD_NEGSTAT                                     = OBJECT_END + 0x07C, // Size: 4, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RESISTANCES                                 = OBJECT_END + 0x080, // Size: 7, Flags: PRIVATE, OWNER, SPECIAL_INFO
-    UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE                  = OBJECT_END + 0x087, // Size: 7, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE                  = OBJECT_END + 0x08E, // Size: 7, Flags: PRIVATE, OWNER
-    UNIT_FIELD_MOD_BONUS_ARMOR                             = OBJECT_END + 0x095, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_BASE_MANA                                   = OBJECT_END + 0x096, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_BASE_HEALTH                                 = OBJECT_END + 0x097, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_BYTES_2                                     = OBJECT_END + 0x098, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_ATTACK_POWER                                = OBJECT_END + 0x099, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_ATTACK_POWER_MOD_POS                        = OBJECT_END + 0x09A, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_ATTACK_POWER_MOD_NEG                        = OBJECT_END + 0x09B, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_ATTACK_POWER_MULTIPLIER                     = OBJECT_END + 0x09C, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RANGED_ATTACK_POWER                         = OBJECT_END + 0x09D, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS                 = OBJECT_END + 0x09E, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG                 = OBJECT_END + 0x09F, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER              = OBJECT_END + 0x0A0, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_ATTACK_SPEED_AURA                           = OBJECT_END + 0x0A1, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_MINRANGEDDAMAGE                             = OBJECT_END + 0x0A2, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_MAXRANGEDDAMAGE                             = OBJECT_END + 0x0A3, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_POWER_COST_MODIFIER                         = OBJECT_END + 0x0A4, // Size: 7, Flags: PRIVATE, OWNER
-    UNIT_FIELD_POWER_COST_MULTIPLIER                       = OBJECT_END + 0x0AB, // Size: 7, Flags: PRIVATE, OWNER
-    UNIT_FIELD_MAXHEALTHMODIFIER                           = OBJECT_END + 0x0B2, // Size: 1, Flags: PRIVATE, OWNER
-    UNIT_FIELD_HOVERHEIGHT                                 = OBJECT_END + 0x0B3, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF                       = OBJECT_END + 0x0B4, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MIN_ITEM_LEVEL                              = OBJECT_END + 0x0B5, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_MAXITEMLEVEL                                = OBJECT_END + 0x0B6, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_WILD_BATTLEPET_LEVEL                        = OBJECT_END + 0x0B7, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_BATTLEPET_COMPANION_NAME_TIMESTAMP          = OBJECT_END + 0x0B8, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_INTERACT_SPELLID                            = OBJECT_END + 0x0B9, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_STATE_SPELL_VISUAL_ID                       = OBJECT_END + 0x0BA, // Size: 1, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_STATE_ANIM_ID                               = OBJECT_END + 0x0BB, // Size: 1, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_STATE_ANIM_KIT_ID                           = OBJECT_END + 0x0BC, // Size: 1, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_STATE_WORLD_EFFECT_ID                       = OBJECT_END + 0x0BD, // Size: 4, Flags: DYNAMIC, URGENT
-    UNIT_FIELD_SCALE_DURATION                              = OBJECT_END + 0x0C1, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_LOOKS_LIKE_MOUNT_ID                         = OBJECT_END + 0x0C2, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_LOOKS_LIKE_CREATURE_ID                      = OBJECT_END + 0x0C3, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_LOOK_AT_CONTROLLER_ID                       = OBJECT_END + 0x0C4, // Size: 1, Flags: PUBLIC
-    UNIT_FIELD_LOOK_AT_CONTROLLER_TARGET                   = OBJECT_END + 0x0C5, // Size: 4, Flags: PUBLIC
-    UNIT_END                                               = OBJECT_END + 0x0C9,
+    UpdateFieldArray<int32, 5, 0, 1> Selections;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteEmpoweredItem const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteEmpoweredItem const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum UnitDynamicFields
+struct UnlockedAzeriteEssence : public IsUpdateFieldStructureTag
 {
-    UNIT_DYNAMIC_FIELD_PASSIVE_SPELLS                      = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC, URGENT
-    UNIT_DYNAMIC_FIELD_WORLD_EFFECTS                       = OBJECT_DYNAMIC_END + 0x001, // Flags: PUBLIC, URGENT
-    UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS                     = OBJECT_DYNAMIC_END + 0x002, // Flags: PUBLIC, URGENT
-    UNIT_DYNAMIC_END                                       = OBJECT_DYNAMIC_END + 0x003,
+    uint32 AzeriteEssenceID;
+    uint32 Rank;
+
+    void WriteCreate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
 };
 
-enum PlayerFields
+struct SelectedAzeriteEssences : public IsUpdateFieldStructureTag, public HasChangesMask<7>
 {
-    PLAYER_DUEL_ARBITER                                    = UNIT_END + 0x000, // Size: 4, Flags: PUBLIC
-    PLAYER_WOW_ACCOUNT                                     = UNIT_END + 0x004, // Size: 4, Flags: PUBLIC
-    PLAYER_LOOT_TARGET_GUID                                = UNIT_END + 0x008, // Size: 4, Flags: PUBLIC
-    PLAYER_FLAGS                                           = UNIT_END + 0x00C, // Size: 1, Flags: PUBLIC
-    PLAYER_FLAGS_EX                                        = UNIT_END + 0x00D, // Size: 1, Flags: PUBLIC
-    PLAYER_GUILDRANK                                       = UNIT_END + 0x00E, // Size: 1, Flags: PUBLIC
-    PLAYER_GUILDDELETE_DATE                                = UNIT_END + 0x00F, // Size: 1, Flags: PUBLIC
-    PLAYER_GUILDLEVEL                                      = UNIT_END + 0x010, // Size: 1, Flags: PUBLIC
-    PLAYER_BYTES                                           = UNIT_END + 0x011, // Size: 1, Flags: PUBLIC
-    PLAYER_BYTES_2                                         = UNIT_END + 0x012, // Size: 1, Flags: PUBLIC
-    PLAYER_BYTES_3                                         = UNIT_END + 0x013, // Size: 1, Flags: PUBLIC
-    PLAYER_BYTES_4                                         = UNIT_END + 0x014, // Size: 1, Flags: PUBLIC
-    PLAYER_DUEL_TEAM                                       = UNIT_END + 0x015, // Size: 1, Flags: PUBLIC
-    PLAYER_GUILD_TIMESTAMP                                 = UNIT_END + 0x016, // Size: 1, Flags: PUBLIC
-    PLAYER_QUEST_LOG                                       = UNIT_END + 0x017, // Size: 800, Flags: PARTY_MEMBER
-    PLAYER_VISIBLE_ITEM                                    = UNIT_END + 0x337, // Size: 38, Flags: PUBLIC
-    PLAYER_CHOSEN_TITLE                                    = UNIT_END + 0x35D, // Size: 1, Flags: PUBLIC
-    PLAYER_FAKE_INEBRIATION                                = UNIT_END + 0x35E, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_VIRTUAL_PLAYER_REALM                      = UNIT_END + 0x35F, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_CURRENT_SPEC_ID                           = UNIT_END + 0x360, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_TAXI_MOUNT_ANIM_KIT_ID                    = UNIT_END + 0x361, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_AVG_ITEM_LEVEL                            = UNIT_END + 0x362, // Size: 4, Flags: PUBLIC
-    PLAYER_FIELD_CURRENT_BATTLE_PET_BREED_QUALITY          = UNIT_END + 0x366, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_PRESTIGE                                  = UNIT_END + 0x367, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_HONOR_LEVEL                               = UNIT_END + 0x368, // Size: 1, Flags: PUBLIC
-    PLAYER_FIELD_INV_SLOT_HEAD                             = UNIT_END + 0x369, // Size: 780, Flags: PRIVATE
-    PLAYER_FIELD_END_NOT_SELF                              = UNIT_END + 0x369,
-    PLAYER_FARSIGHT                                        = UNIT_END + 0x675, // Size: 4, Flags: PRIVATE
-    PLAYER_FIELD_SUMMONED_BATTLE_PET_ID                    = UNIT_END + 0x679, // Size: 4, Flags: PRIVATE
-    PLAYER__FIELD_KNOWN_TITLES                             = UNIT_END + 0x67D, // Size: 12, Flags: PRIVATE
-    PLAYER_FIELD_COINAGE                                   = UNIT_END + 0x689, // Size: 2, Flags: PRIVATE
-    PLAYER_XP                                              = UNIT_END + 0x68B, // Size: 1, Flags: PRIVATE
-    PLAYER_NEXT_LEVEL_XP                                   = UNIT_END + 0x68C, // Size: 1, Flags: PRIVATE
-    PLAYER_TRIAL_XP                                        = UNIT_END + 0x68D, // Size: 1, Flags: PRIVATE
-    PLAYER_SKILL_LINEID                                    = UNIT_END + 0x68E, // Size: 448, Flags: PRIVATE
-    PLAYER_CHARACTER_POINTS                                = UNIT_END + 0x84E, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_MAX_TALENT_TIERS                          = UNIT_END + 0x84F, // Size: 1, Flags: PRIVATE
-    PLAYER_TRACK_CREATURES                                 = UNIT_END + 0x850, // Size: 1, Flags: PRIVATE
-    PLAYER_TRACK_RESOURCES                                 = UNIT_END + 0x851, // Size: 1, Flags: PRIVATE
-    PLAYER_EXPERTISE                                       = UNIT_END + 0x852, // Size: 1, Flags: PRIVATE
-    PLAYER_OFFHAND_EXPERTISE                               = UNIT_END + 0x853, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_RANGED_EXPERTISE                          = UNIT_END + 0x854, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_COMBAT_RATING_EXPERTISE                   = UNIT_END + 0x855, // Size: 1, Flags: PRIVATE
-    PLAYER_BLOCK_PERCENTAGE                                = UNIT_END + 0x856, // Size: 1, Flags: PRIVATE
-    PLAYER_DODGE_PERCENTAGE                                = UNIT_END + 0x857, // Size: 1, Flags: PRIVATE
-    PLAYER_DODGE_PERCENTAGE_FROM_ATTRIBUTE                 = UNIT_END + 0x858, // Size: 1, Flags: PRIVATE
-    PLAYER_PARRY_PERCENTAGE                                = UNIT_END + 0x859, // Size: 1, Flags: PRIVATE
-    PLAYER_PARRY_PERCENTAGE_FROM_ATTRIBUTE                 = UNIT_END + 0x85A, // Size: 1, Flags: PRIVATE
-    PLAYER_CRIT_PERCENTAGE                                 = UNIT_END + 0x85B, // Size: 1, Flags: PRIVATE
-    PLAYER_RANGED_CRIT_PERCENTAGE                          = UNIT_END + 0x85C, // Size: 1, Flags: PRIVATE
-    PLAYER_OFFHAND_CRIT_PERCENTAGE                         = UNIT_END + 0x85D, // Size: 1, Flags: PRIVATE
-    PLAYER_SPELL_CRIT_PERCENTAGE1                          = UNIT_END + 0x85E, // Size: 1, Flags: PRIVATE
-    PLAYER_SHIELD_BLOCK                                    = UNIT_END + 0x85F, // Size: 1, Flags: PRIVATE
-    PLAYER_SHIELD_BLOCK_CRIT_PERCENTAGE                    = UNIT_END + 0x860, // Size: 1, Flags: PRIVATE
-    PLAYER_MASTERY                                         = UNIT_END + 0x861, // Size: 1, Flags: PRIVATE
-    PLAYER_SPEED                                           = UNIT_END + 0x862, // Size: 1, Flags: PRIVATE
-    PLAYER_LIFESTEAL                                       = UNIT_END + 0x863, // Size: 1, Flags: PRIVATE
-    PLAYER_AVOIDANCE                                       = UNIT_END + 0x864, // Size: 1, Flags: PRIVATE
-    PLAYER_STURDINESS                                      = UNIT_END + 0x865, // Size: 1, Flags: PRIVATE
-    PLAYER_VERSATILITY                                     = UNIT_END + 0x866, // Size: 1, Flags: PRIVATE
-    PLAYER_VERSATILITY_BONUS                               = UNIT_END + 0x867, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_PVP_POWER_DAMAGE                          = UNIT_END + 0x868, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_PVP_POWER_HEALING                         = UNIT_END + 0x869, // Size: 1, Flags: PRIVATE
-    PLAYER_EXPLORED_ZONES_1                                = UNIT_END + 0x86A, // Size: 320, Flags: PRIVATE
-    PLAYER_FIELD_REST_INFO                                 = UNIT_END + 0x9AA, // Size: 4, Flags: PRIVATE
-    PLAYER_FIELD_MOD_DAMAGE_DONE_POS                       = UNIT_END + 0x9AE, // Size: 7, Flags: PRIVATE
-    PLAYER_FIELD_MOD_DAMAGE_DONE_NEG                       = UNIT_END + 0x9B5, // Size: 7, Flags: PRIVATE
-    PLAYER_FIELD_MOD_DAMAGE_DONE_PCT                       = UNIT_END + 0x9BC, // Size: 7, Flags: PRIVATE
-    PLAYER_FIELD_MOD_HEALING_DONE_POS                      = UNIT_END + 0x9C3, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_MOD_HEALING_PCT                           = UNIT_END + 0x9C4, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_MOD_HEALING_DONE_PCT                      = UNIT_END + 0x9C5, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_MOD_PERIODIC_HEALING_DONE_PERCENT         = UNIT_END + 0x9C6, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS                    = UNIT_END + 0x9C7, // Size: 3, Flags: PRIVATE
-    PLAYER_FIELD_WEAPON_ATK_SPEED_MULTIPLIERS              = UNIT_END + 0x9CA, // Size: 3, Flags: PRIVATE
-    PLAYER_FIELD_MOD_SPELL_POWER_PCT                       = UNIT_END + 0x9CD, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_MOD_RESILIENCE_PERCENT                    = UNIT_END + 0x9CE, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT            = UNIT_END + 0x9CF, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_OVERRIDE_AP_BY_SPELL_POWER_PERCENT        = UNIT_END + 0x9D0, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_MOD_TARGET_RESISTANCE                     = UNIT_END + 0x9D1, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_MOD_TARGET_PHYSICAL_RESISTANCE            = UNIT_END + 0x9D2, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_LOCAL_FLAGS                               = UNIT_END + 0x9D3, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_BYTES                                     = UNIT_END + 0x9D4, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_PVP_MEDALS                                = UNIT_END + 0x9D5, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_BUYBACK_PRICE_1                           = UNIT_END + 0x9D6, // Size: 12, Flags: PRIVATE
-    PLAYER_FIELD_BUYBACK_TIMESTAMP_1                       = UNIT_END + 0x9E2, // Size: 12, Flags: PRIVATE
-    PLAYER_FIELD_KILLS                                     = UNIT_END + 0x9EE, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_LIFETIME_HONORABLE_KILLS                  = UNIT_END + 0x9EF, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_WATCHED_FACTION_INDEX                     = UNIT_END + 0x9F0, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_COMBAT_RATING_1                           = UNIT_END + 0x9F1, // Size: 32, Flags: PRIVATE
-    PLAYER_FIELD_ARENA_TEAM_INFO_1_1                       = UNIT_END + 0xA11, // Size: 42, Flags: PRIVATE
-    PLAYER_FIELD_MAX_LEVEL                                 = UNIT_END + 0xA3B, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA                = UNIT_END + 0xA3C, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_MAX_CREATURE_SCALING_LEVEL                = UNIT_END + 0xA3D, // Size: 1, Flags: PRIVATE
-    PLAYER_NO_REAGENT_COST_1                               = UNIT_END + 0xA3E, // Size: 4, Flags: PRIVATE
-    PLAYER_PET_SPELL_POWER                                 = UNIT_END + 0xA42, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_RESEARCHING_1                             = UNIT_END + 0xA43, // Size: 10, Flags: PRIVATE
-    PLAYER_PROFESSION_SKILL_LINE_1                         = UNIT_END + 0xA4D, // Size: 2, Flags: PRIVATE
-    PLAYER_FIELD_UI_HIT_MODIFIER                           = UNIT_END + 0xA4F, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_UI_SPELL_HIT_MODIFIER                     = UNIT_END + 0xA50, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_HOME_REALM_TIME_OFFSET                    = UNIT_END + 0xA51, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_MOD_PET_HASTE                             = UNIT_END + 0xA52, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_BYTES2                                    = UNIT_END + 0xA53, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_BYTES3                                    = UNIT_END + 0xA54, // Size: 1, Flags: PRIVATE, URGENT_SELF_ONLY
-    PLAYER_FIELD_LFG_BONUS_FACTION_ID                      = UNIT_END + 0xA55, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_LOOT_SPEC_ID                              = UNIT_END + 0xA56, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_OVERRIDE_ZONE_PVP_TYPE                    = UNIT_END + 0xA57, // Size: 1, Flags: PRIVATE, URGENT_SELF_ONLY
-    PLAYER_FIELD_BAG_SLOT_FLAGS                            = UNIT_END + 0xA58, // Size: 4, Flags: PRIVATE
-    PLAYER_FIELD_BANK_BAG_SLOT_FLAGS                       = UNIT_END + 0xA5C, // Size: 7, Flags: PRIVATE
-    PLAYER_FIELD_INSERT_ITEMS_LEFT_TO_RIGHT                = UNIT_END + 0xA63, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_QUEST_COMPLETED                           = UNIT_END + 0xA64, // Size: 1750, Flags: PRIVATE
-    PLAYER_FIELD_HONOR                                     = UNIT_END + 0x113A, // Size: 1, Flags: PRIVATE
-    PLAYER_FIELD_HONOR_NEXT_LEVEL                          = UNIT_END + 0x113B, // Size: 1, Flags: PRIVATE
-    PLAYER_END                                             = UNIT_END + 0x113C,
+    UpdateField<uint32, 0, 1> SpecializationID;
+    UpdateField<uint32, 0, 2> Enabled;
+    UpdateFieldArray<uint32, 3, 3, 4> AzeriteEssenceID;
+
+    void WriteCreate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum PlayerDynamicFields
+struct AzeriteItemData : public IsUpdateFieldStructureTag, public HasChangesMask<9>
 {
-    PLAYER_DYNAMIC_FIELD_RESERACH_SITE                     = UNIT_DYNAMIC_END + 0x000, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_RESEARCH_SITE_PROGRESS            = UNIT_DYNAMIC_END + 0x001, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_DAILY_QUESTS                      = UNIT_DYNAMIC_END + 0x002, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_AVAILABLE_QUEST_LINE_X_QUEST_ID   = UNIT_DYNAMIC_END + 0x003, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_HEIRLOOMS                         = UNIT_DYNAMIC_END + 0x004, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_HEIRLOOM_FLAGS                    = UNIT_DYNAMIC_END + 0x005, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_TOYS                              = UNIT_DYNAMIC_END + 0x006, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_TRANSMOG                          = UNIT_DYNAMIC_END + 0x007, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG              = UNIT_DYNAMIC_END + 0x008, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_SELF_RES_SPELLS                   = UNIT_DYNAMIC_END + 0x009, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_CHARACTER_RESTRICTIONS            = UNIT_DYNAMIC_END + 0x00A, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_SPELL_PCT_MOD_BY_LABEL            = UNIT_DYNAMIC_END + 0x00B, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_SPELL_FLAT_MOD_BY_LABEL           = UNIT_DYNAMIC_END + 0x00C, // Flags: PRIVATE
-    PLAYER_DYNAMIC_FIELD_ARENA_COOLDOWNS                   = UNIT_DYNAMIC_END + 0x00D, // Flags: PUBLIC
-    PLAYER_DYNAMIC_END                                     = UNIT_DYNAMIC_END + 0x00E,
+    DynamicUpdateField<UF::UnlockedAzeriteEssence, 0, 1> UnlockedEssences;
+    DynamicUpdateField<uint32, 0, 3> UnlockedEssenceMilestones;
+    DynamicUpdateField<UF::SelectedAzeriteEssences, 0, 2> SelectedEssences;
+    UpdateField<uint64, 0, 4> Xp;
+    UpdateField<uint32, 0, 5> Level;
+    UpdateField<uint32, 0, 6> AuraLevel;
+    UpdateField<uint32, 0, 7> KnowledgeLevel;
+    UpdateField<int32, 0, 8> DEBUGknowledgeWeek;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const;
+    void AppendAllowedFieldsMaskForFlag(UpdateMask<9>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
+    void WriteUpdate(ByteBuffer& data, UpdateMask<9> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AzeriteItem const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum GameObjectFields
+struct UnitChannel : public IsUpdateFieldStructureTag
 {
-    GAMEOBJECT_FIELD_CREATED_BY                            = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    GAMEOBJECT_DISPLAYID                                   = OBJECT_END + 0x004, // Size: 1, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_FLAGS                                       = OBJECT_END + 0x005, // Size: 1, Flags: PUBLIC, URGENT
-    GAMEOBJECT_PARENTROTATION                              = OBJECT_END + 0x006, // Size: 4, Flags: PUBLIC
-    GAMEOBJECT_FACTION                                     = OBJECT_END + 0x00A, // Size: 1, Flags: PUBLIC
-    GAMEOBJECT_LEVEL                                       = OBJECT_END + 0x00B, // Size: 1, Flags: PUBLIC
-    GAMEOBJECT_BYTES_1                                     = OBJECT_END + 0x00C, // Size: 1, Flags: PUBLIC, URGENT
-    GAMEOBJECT_SPELL_VISUAL_ID                             = OBJECT_END + 0x00D, // Size: 1, Flags: PUBLIC, DYNAMIC, URGENT
-    GAMEOBJECT_STATE_SPELL_VISUAL_ID                       = OBJECT_END + 0x00E, // Size: 1, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_STATE_ANIM_ID                               = OBJECT_END + 0x00F, // Size: 1, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_STATE_ANIM_KIT_ID                           = OBJECT_END + 0x010, // Size: 1, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_STATE_WORLD_EFFECT_ID                       = OBJECT_END + 0x011, // Size: 4, Flags: DYNAMIC, URGENT
-    GAMEOBJECT_END                                         = OBJECT_END + 0x015,
+    int32 SpellID;
+    int32 SpellXSpellVisualID;
+
+    void WriteCreate(ByteBuffer& data, Unit const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Unit const* owner, Player const* receiver) const;
 };
 
-enum GameObjectDynamicFields
+struct VisibleItem : public IsUpdateFieldStructureTag, public HasChangesMask<4>
 {
-    GAMEOBJECT_DYNAMIC_ENABLE_DOODAD_SETS                  = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC
-    GAMEOBJECT_DYNAMIC_END                                 = OBJECT_DYNAMIC_END + 0x001,
+    UpdateField<int32, 0, 1> ItemID;
+    UpdateField<uint16, 0, 2> ItemAppearanceModID;
+    UpdateField<uint16, 0, 3> ItemVisual;
+
+    void WriteCreate(ByteBuffer& data, Unit const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Unit const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum DynamicObjectFields
+struct PassiveSpellHistory : public IsUpdateFieldStructureTag
 {
-    DYNAMICOBJECT_CASTER                                   = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    DYNAMICOBJECT_TYPE                                     = OBJECT_END + 0x004, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID                  = OBJECT_END + 0x005, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_SPELLID                                  = OBJECT_END + 0x006, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_RADIUS                                   = OBJECT_END + 0x007, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_CASTTIME                                 = OBJECT_END + 0x008, // Size: 1, Flags: PUBLIC
-    DYNAMICOBJECT_END                                      = OBJECT_END + 0x009,
+    int32 SpellID;
+    int32 AuraSpellID;
+
+    void WriteCreate(ByteBuffer& data, Unit const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Unit const* owner, Player const* receiver) const;
 };
 
-enum DynamicObjectDynamicFields
+struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<191>
 {
-    DYNAMICOBJECT_DYNAMIC_END                              = OBJECT_DYNAMIC_END + 0x000,
+    UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
+    DynamicUpdateField<UF::PassiveSpellHistory, 0, 2> PassiveSpells;
+    DynamicUpdateField<int32, 0, 3> WorldEffects;
+    DynamicUpdateField<ObjectGuid, 0, 4> ChannelObjects;
+    UpdateField<int32, 0, 5> DisplayID;
+    struct DisplayIDTag : ViewerDependentValueTag<int32> {};
+    UpdateField<uint32, 0, 6> StateSpellVisualID;
+    UpdateField<uint32, 0, 7> StateAnimID;
+    UpdateField<uint32, 0, 8> StateAnimKitID;
+    UpdateField<uint32, 0, 9> StateWorldEffectsQuestObjectiveID;
+    UpdateField<ObjectGuid, 0, 10> Charm;
+    UpdateField<ObjectGuid, 0, 11> Summon;
+    UpdateField<ObjectGuid, 0, 12> Critter;
+    UpdateField<ObjectGuid, 0, 13> CharmedBy;
+    UpdateField<ObjectGuid, 0, 14> SummonedBy;
+    UpdateField<ObjectGuid, 0, 15> CreatedBy;
+    UpdateField<ObjectGuid, 0, 16> DemonCreator;
+    UpdateField<ObjectGuid, 0, 17> LookAtControllerTarget;
+    UpdateField<ObjectGuid, 0, 18> Target;
+    UpdateField<ObjectGuid, 0, 19> BattlePetCompanionGUID;
+    UpdateField<uint64, 0, 20> BattlePetDBID;
+    UpdateField<UF::UnitChannel, 0, 21> ChannelData;
+    UpdateField<uint32, 0, 22> SummonedByHomeRealm;
+    UpdateField<uint8, 0, 23> Race;
+    UpdateField<uint8, 0, 24> ClassId;
+    UpdateField<uint8, 0, 25> PlayerClassId;
+    UpdateField<uint8, 0, 26> Sex;
+    UpdateField<uint8, 0, 27> DisplayPower;
+    UpdateField<uint32, 0, 28> OverrideDisplayPowerID;
+    UpdateField<int64, 0, 29> Health;
+    UpdateField<int64, 0, 30> MaxHealth;
+    UpdateField<int32, 0, 31> Level;
+    UpdateField<int32, 32, 33> EffectiveLevel;
+    UpdateField<int32, 32, 34> ContentTuningID;
+    UpdateField<int32, 32, 35> ScalingLevelMin;
+    UpdateField<int32, 32, 36> ScalingLevelMax;
+    UpdateField<int32, 32, 37> ScalingLevelDelta;
+    UpdateField<int32, 32, 38> ScalingFactionGroup;
+    UpdateField<int32, 32, 39> ScalingHealthItemLevelCurveID;
+    UpdateField<int32, 32, 40> ScalingDamageItemLevelCurveID;
+    UpdateField<int32, 32, 41> FactionTemplate;
+    struct FactionTemplateTag : ViewerDependentValueTag<int32> {};
+    UpdateField<uint32, 32, 42> Flags;
+    struct FlagsTag : ViewerDependentValueTag<uint32> {};
+    UpdateField<uint32, 32, 43> Flags2;
+    UpdateField<uint32, 32, 44> Flags3;
+    UpdateField<uint32, 32, 45> AuraState;
+    struct AuraStateTag : ViewerDependentValueTag<uint32> {};
+    UpdateField<uint32, 32, 46> RangedAttackRoundBaseTime;
+    UpdateField<float, 32, 47> BoundingRadius;
+    UpdateField<float, 32, 48> CombatReach;
+    UpdateField<float, 32, 49> DisplayScale;
+    UpdateField<int32, 32, 50> NativeDisplayID;
+    UpdateField<float, 32, 51> NativeXDisplayScale;
+    UpdateField<int32, 32, 52> MountDisplayID;
+    UpdateField<int32, 32, 53> CosmeticMountDisplayID;
+    UpdateField<float, 32, 54> MinDamage;
+    UpdateField<float, 32, 55> MaxDamage;
+    UpdateField<float, 32, 56> MinOffHandDamage;
+    UpdateField<float, 32, 57> MaxOffHandDamage;
+    UpdateField<uint8, 32, 58> StandState;
+    UpdateField<uint8, 32, 59> PetTalentPoints;
+    UpdateField<uint8, 32, 60> VisFlags;
+    UpdateField<uint8, 32, 61> AnimTier;
+    UpdateField<uint32, 32, 62> PetNumber;
+    UpdateField<uint32, 32, 63> PetNameTimestamp;
+    UpdateField<uint32, 64, 65> PetExperience;
+    UpdateField<uint32, 64, 66> PetNextLevelExperience;
+    UpdateField<float, 64, 67> ModCastingSpeed;
+    UpdateField<float, 64, 68> ModSpellHaste;
+    UpdateField<float, 64, 69> ModHaste;
+    UpdateField<float, 64, 70> ModRangedHaste;
+    UpdateField<float, 64, 71> ModHasteRegen;
+    UpdateField<float, 64, 72> ModTimeRate;
+    UpdateField<int32, 64, 73> CreatedBySpell;
+    UpdateField<int32, 64, 74> EmoteState;
+    UpdateField<int32, 64, 75> BaseMana;
+    UpdateField<int32, 64, 76> BaseHealth;
+    UpdateField<uint8, 64, 77> SheatheState;
+    UpdateField<uint8, 64, 78> PvpFlags;
+    struct PvpFlagsTag : ViewerDependentValueTag<uint8> {};
+    UpdateField<uint8, 64, 79> PetFlags;
+    UpdateField<uint8, 64, 80> ShapeshiftForm;
+    UpdateField<int32, 64, 81> AttackPower;
+    UpdateField<int32, 64, 82> AttackPowerModPos;
+    UpdateField<int32, 64, 83> AttackPowerModNeg;
+    UpdateField<float, 64, 84> AttackPowerMultiplier;
+    UpdateField<int32, 64, 85> RangedAttackPower;
+    UpdateField<int32, 64, 86> RangedAttackPowerModPos;
+    UpdateField<int32, 64, 87> RangedAttackPowerModNeg;
+    UpdateField<float, 64, 88> RangedAttackPowerMultiplier;
+    UpdateField<int32, 64, 89> MainHandWeaponAttackPower;
+    UpdateField<int32, 64, 90> OffHandWeaponAttackPower;
+    UpdateField<int32, 64, 91> RangedWeaponAttackPower;
+    UpdateField<int32, 64, 92> SetAttackSpeedAura;
+    UpdateField<float, 64, 93> Lifesteal;
+    UpdateField<float, 64, 94> MinRangedDamage;
+    UpdateField<float, 64, 95> MaxRangedDamage;
+    UpdateField<float, 96, 97> ManaCostModifierModifier;
+    UpdateField<float, 96, 98> MaxHealthModifier;
+    UpdateField<float, 96, 99> HoverHeight;
+    UpdateField<int32, 96, 100> MinItemLevelCutoff;
+    UpdateField<int32, 96, 101> MinItemLevel;
+    UpdateField<int32, 96, 102> MaxItemLevel;
+    UpdateField<int32, 96, 103> AzeriteItemLevel;
+    UpdateField<int32, 96, 104> WildBattlePetLevel;
+    UpdateField<uint32, 96, 105> BattlePetCompanionNameTimestamp;
+    UpdateField<int32, 96, 106> InteractSpellID;
+    UpdateField<int32, 96, 107> ScaleDuration;
+    UpdateField<int32, 96, 108> SpellOverrideNameID;
+    UpdateField<int32, 96, 109> LooksLikeMountID;
+    UpdateField<int32, 96, 110> LooksLikeCreatureID;
+    UpdateField<int32, 96, 111> LookAtControllerID;
+    UpdateField<int32, 96, 112> TaxiNodesID;
+    UpdateField<ObjectGuid, 96, 113> GuildGUID;
+    UpdateFieldArray<uint32, 2, 114, 115> NpcFlags;
+    struct NpcFlagsTag : ViewerDependentValueTag<uint32> {};
+    UpdateFieldArray<int32, 6, 117, 118> Power;
+    UpdateFieldArray<int32, 6, 117, 124> MaxPower;
+    UpdateFieldArray<float, 6, 117, 130> PowerRegenFlatModifier;
+    UpdateFieldArray<float, 6, 117, 136> PowerRegenInterruptedFlatModifier;
+    UpdateFieldArray<UF::VisibleItem, 3, 142, 143> VirtualItems;
+    UpdateFieldArray<uint32, 2, 146, 147> AttackRoundBaseTime;
+    UpdateFieldArray<int32, 4, 149, 150> Stats;
+    UpdateFieldArray<int32, 4, 149, 154> StatPosBuff;
+    UpdateFieldArray<int32, 4, 149, 158> StatNegBuff;
+    UpdateFieldArray<int32, 7, 162, 163> Resistances;
+    UpdateFieldArray<int32, 7, 162, 170> BonusResistanceMods;
+    UpdateFieldArray<int32, 7, 162, 177> PowerCostModifier;
+    UpdateFieldArray<float, 7, 162, 184> PowerCostMultiplier;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
+    void AppendAllowedFieldsMaskForFlag(UpdateMask<191>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
+    void WriteUpdate(ByteBuffer& data, UpdateMask<191> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum CorpseFields
+struct QuestLog : public IsUpdateFieldStructureTag, public HasChangesMask<31>
 {
-    CORPSE_FIELD_OWNER                                     = OBJECT_END + 0x000, // Size: 4, Flags: PUBLIC
-    CORPSE_FIELD_PARTY                                     = OBJECT_END + 0x004, // Size: 4, Flags: PUBLIC
-    CORPSE_FIELD_DISPLAY_ID                                = OBJECT_END + 0x008, // Size: 1, Flags: PUBLIC
-    CORPSE_FIELD_ITEM                                      = OBJECT_END + 0x009, // Size: 19, Flags: PUBLIC
-    CORPSE_FIELD_BYTES_1                                   = OBJECT_END + 0x01C, // Size: 1, Flags: PUBLIC
-    CORPSE_FIELD_BYTES_2                                   = OBJECT_END + 0x01D, // Size: 1, Flags: PUBLIC
-    CORPSE_FIELD_FLAGS                                     = OBJECT_END + 0x01E, // Size: 1, Flags: PUBLIC
-    CORPSE_FIELD_DYNAMIC_FLAGS                             = OBJECT_END + 0x01F, // Size: 1, Flags: DYNAMIC
-    CORPSE_FIELD_FACTIONTEMPLATE                           = OBJECT_END + 0x020, // Size: 1, Flags: PUBLIC
-    CORPSE_FIELD_CUSTOM_DISPLAY_OPTION                     = OBJECT_END + 0x021, // Size: 1, Flags: PUBLIC
-    CORPSE_END                                             = OBJECT_END + 0x022,
+    UpdateField<int32, 0, 1> QuestID;
+    UpdateField<uint32, 0, 2> StateFlags;
+    UpdateField<uint32, 0, 3> EndTime;
+    UpdateField<uint32, 0, 4> AcceptTime;
+    UpdateField<uint32, 0, 5> Field_10;
+    UpdateFieldArray<int16, 24, 6, 7> ObjectiveProgress;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum CorpseDynamicFields
+struct ArenaCooldown : public IsUpdateFieldStructureTag, public HasChangesMask<8>
 {
-    CORPSE_DYNAMIC_END                                     = OBJECT_DYNAMIC_END + 0x000,
+    UpdateField<int32, 0, 1> SpellID;
+    UpdateField<int32, 0, 2> Charges;
+    UpdateField<uint32, 0, 3> Flags;
+    UpdateField<uint32, 0, 4> StartTime;
+    UpdateField<uint32, 0, 5> EndTime;
+    UpdateField<uint32, 0, 6> NextChargeTime;
+    UpdateField<uint8, 0, 7> MaxCharges;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum AreaTriggerFields
+struct PlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<192>
 {
-    AREATRIGGER_OVERRIDE_SCALE_CURVE                       = OBJECT_END + 0x000, // Size: 7, Flags: PUBLIC, URGENT
-    AREATRIGGER_EXTRA_SCALE_CURVE                          = OBJECT_END + 0x007, // Size: 7, Flags: PUBLIC, URGENT
-    AREATRIGGER_CASTER                                     = OBJECT_END + 0x00E, // Size: 4, Flags: PUBLIC
-    AREATRIGGER_DURATION                                   = OBJECT_END + 0x012, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_TIME_TO_TARGET                             = OBJECT_END + 0x013, // Size: 1, Flags: PUBLIC, URGENT
-    AREATRIGGER_TIME_TO_TARGET_SCALE                       = OBJECT_END + 0x014, // Size: 1, Flags: PUBLIC, URGENT
-    AREATRIGGER_TIME_TO_TARGET_EXTRA_SCALE                 = OBJECT_END + 0x015, // Size: 1, Flags: PUBLIC, URGENT
-    AREATRIGGER_SPELLID                                    = OBJECT_END + 0x016, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_SPELL_FOR_VISUALS                          = OBJECT_END + 0x017, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_SPELL_X_SPELL_VISUAL_ID                    = OBJECT_END + 0x018, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_BOUNDS_RADIUS_2D                           = OBJECT_END + 0x019, // Size: 1, Flags: DYNAMIC, URGENT
-    AREATRIGGER_DECAL_PROPERTIES_ID                        = OBJECT_END + 0x01A, // Size: 1, Flags: PUBLIC
-    AREATRIGGER_CREATING_EFFECT_GUID                       = OBJECT_END + 0x01B, // Size: 4, Flags: PUBLIC
-    AREATRIGGER_END                                        = OBJECT_END + 0x01F,
+    UpdateField<bool, 0, 1> HasQuestSession;
+    UpdateField<bool, 0, 2> HasLevelLink;
+    DynamicUpdateField<UF::QuestLog, 0, 3> QuestSessionQuestLog;
+    DynamicUpdateField<UF::ArenaCooldown, 0, 4> ArenaCooldowns;
+    UpdateField<ObjectGuid, 0, 5> DuelArbiter;
+    UpdateField<ObjectGuid, 0, 6> WowAccount;
+    UpdateField<ObjectGuid, 0, 7> LootTargetGUID;
+    UpdateField<uint32, 0, 8> PlayerFlags;
+    UpdateField<uint32, 0, 9> PlayerFlagsEx;
+    UpdateField<uint32, 0, 10> GuildRankID;
+    UpdateField<uint32, 0, 11> GuildDeleteDate;
+    UpdateField<int32, 0, 12> GuildLevel;
+    UpdateField<uint8, 0, 13> SkinID;
+    UpdateField<uint8, 0, 14> FaceID;
+    UpdateField<uint8, 0, 15> HairStyleID;
+    UpdateField<uint8, 0, 16> HairColorID;
+    UpdateField<uint8, 0, 17> FacialHairStyleID;
+    UpdateField<uint8, 0, 18> PartyType;
+    UpdateField<uint8, 0, 19> NativeSex;
+    UpdateField<uint8, 0, 20> Inebriation;
+    UpdateField<uint8, 0, 21> PvpTitle;
+    UpdateField<uint8, 0, 22> ArenaFaction;
+    UpdateField<uint32, 0, 23> DuelTeam;
+    UpdateField<int32, 0, 24> GuildTimeStamp;
+    UpdateField<int32, 0, 25> PlayerTitle;
+    UpdateField<int32, 0, 26> FakeInebriation;
+    UpdateField<uint32, 0, 27> VirtualPlayerRealm;
+    UpdateField<uint32, 0, 28> CurrentSpecID;
+    UpdateField<int32, 0, 29> TaxiMountAnimKitID;
+    UpdateField<uint8, 0, 30> CurrentBattlePetBreedQuality;
+    UpdateField<int32, 0, 31> HonorLevel;
+    UpdateField<int32, 32, 33> Field_B0;
+    UpdateField<int32, 32, 34> Field_B4;
+    UpdateField<ObjectGuid, 32, 35> Field_F8;
+    UpdateField<int32, 32, 36> Field_108;
+    UpdateFieldArray<uint8, 3, 37, 38> CustomDisplayOption;
+    UpdateFieldArray<UF::QuestLog, 125, 41, 42> QuestLog;
+    UpdateFieldArray<UF::VisibleItem, 19, 167, 168> VisibleItems;
+    UpdateFieldArray<float, 4, 187, 188> AvgItemLevel;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
+    void AppendAllowedFieldsMaskForFlag(UpdateMask<192>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
+    void WriteUpdate(ByteBuffer& data, UpdateMask<192> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+    bool IsQuestLogChangesMaskSkipped() const { return false; } // bandwidth savings aren't worth the cpu time
 };
 
-enum AreaTriggerDynamicFields
+struct SkillInfo : public IsUpdateFieldStructureTag, public HasChangesMask<1793>
 {
-    AREATRIGGER_DYNAMIC_END                                = OBJECT_DYNAMIC_END + 0x000,
+    UpdateFieldArray<uint16, 256, 0, 1> SkillLineID;
+    UpdateFieldArray<uint16, 256, 0, 257> SkillStep;
+    UpdateFieldArray<uint16, 256, 0, 513> SkillRank;
+    UpdateFieldArray<uint16, 256, 0, 769> SkillStartingRank;
+    UpdateFieldArray<uint16, 256, 0, 1025> SkillMaxRank;
+    UpdateFieldArray<int16, 256, 0, 1281> SkillTempBonus;
+    UpdateFieldArray<uint16, 256, 0, 1537> SkillPermBonus;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum SceneObjectFields
+struct RestInfo : public IsUpdateFieldStructureTag, public HasChangesMask<3>
 {
-    SCENEOBJECT_FIELD_SCRIPT_PACKAGE_ID                    = OBJECT_END + 0x000, // Size: 1, Flags: PUBLIC
-    SCENEOBJECT_FIELD_RND_SEED_VAL                         = OBJECT_END + 0x001, // Size: 1, Flags: PUBLIC
-    SCENEOBJECT_FIELD_CREATEDBY                            = OBJECT_END + 0x002, // Size: 4, Flags: PUBLIC
-    SCENEOBJECT_FIELD_SCENE_TYPE                           = OBJECT_END + 0x006, // Size: 1, Flags: PUBLIC
-    SCENEOBJECT_END                                        = OBJECT_END + 0x007,
+    UpdateField<uint32, 0, 1> Threshold;
+    UpdateField<uint8, 0, 2> StateID;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum SceneObjectDynamicFields
+struct PVPInfo : public IsUpdateFieldStructureTag, public HasChangesMask<10>
 {
-    SCENEOBJECT_DYNAMIC_END                                = OBJECT_DYNAMIC_END + 0x000,
+    UpdateField<uint32, 0, 1> Field_0;
+    UpdateField<uint32, 0, 2> Field_4;
+    UpdateField<uint32, 0, 3> Field_8;
+    UpdateField<uint32, 0, 4> Field_C;
+    UpdateField<uint32, 0, 5> Rating;
+    UpdateField<uint32, 0, 6> Field_14;
+    UpdateField<uint32, 0, 7> Field_18;
+    UpdateField<uint32, 0, 8> PvpTierID;
+    UpdateField<uint32, 0, 9> Field_20;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
 };
 
-enum ConversationFields
+struct CharacterRestriction : public IsUpdateFieldStructureTag
 {
-    CONVERSATION_LAST_LINE_END_TIME                        = OBJECT_END + 0x000, // Size: 1, Flags: DYNAMIC
-    CONVERSATION_END                                       = OBJECT_END + 0x001,
+    int32 Field_0;
+    int32 Field_4;
+    int32 Field_8;
+    uint32 Type;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
 };
 
-enum ConversationDynamicFields
+struct SpellPctModByLabel : public IsUpdateFieldStructureTag
 {
-    CONVERSATION_DYNAMIC_FIELD_ACTORS                      = OBJECT_DYNAMIC_END + 0x000, // Flags: PUBLIC
-    CONVERSATION_DYNAMIC_FIELD_LINES                       = OBJECT_DYNAMIC_END + 0x001, // Flags: 0x100
-    CONVERSATION_DYNAMIC_END                               = OBJECT_DYNAMIC_END + 0x002,
+    int32 ModIndex;
+    float ModifierValue;
+    int32 LabelID;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
 };
 
-#endif // _UPDATEFIELDS_H
+struct SpellFlatModByLabel : public IsUpdateFieldStructureTag
+{
+    int32 ModIndex;
+    int32 ModifierValue;
+    int32 LabelID;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+};
+
+struct Research : public IsUpdateFieldStructureTag
+{
+    int16 ResearchProjectID;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+};
+
+struct ReplayedQuest : public IsUpdateFieldStructureTag, public HasChangesMask<3>
+{
+    UpdateField<int32, 0, 1> QuestID;
+    UpdateField<uint32, 0, 2> ReplayTime;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct QuestSession : public IsUpdateFieldStructureTag, public HasChangesMask<878>
+{
+    UpdateField<ObjectGuid, 0, 1> Owner;
+    UpdateFieldArray<uint64, 875, 2, 3> QuestCompleted;
+
+    void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1490>
+{
+    UpdateField<bool, 0, 1> BackpackAutoSortDisabled;
+    UpdateField<bool, 0, 2> BankAutoSortDisabled;
+    UpdateField<bool, 0, 3> SortBagsRightToLeft;
+    UpdateField<bool, 0, 4> InsertItemsLeftToRight;
+    UpdateFieldArray<DynamicUpdateField<UF::Research, -1, -1>, 1, 22, 23> Research;
+    DynamicUpdateField<uint64, 0, 5> KnownTitles;
+    DynamicUpdateField<uint16, 0, 6> ResearchSites;
+    DynamicUpdateField<uint32, 0, 7> ResearchSiteProgress;
+    DynamicUpdateField<int32, 0, 8> DailyQuestsCompleted;
+    DynamicUpdateField<int32, 0, 9> AvailableQuestLineXQuestIDs;
+    DynamicUpdateField<int32, 0, 10> Heirlooms;
+    DynamicUpdateField<uint32, 0, 11> HeirloomFlags;
+    DynamicUpdateField<int32, 0, 12> Toys;
+    DynamicUpdateField<uint32, 0, 13> ToyFlags;
+    DynamicUpdateField<uint32, 0, 14> Transmog;
+    DynamicUpdateField<int32, 0, 15> ConditionalTransmog;
+    DynamicUpdateField<int32, 0, 16> SelfResSpells;
+    DynamicUpdateField<UF::SpellPctModByLabel, 0, 18> SpellPctModByLabel;
+    DynamicUpdateField<UF::SpellFlatModByLabel, 0, 19> SpellFlatModByLabel;
+    DynamicUpdateField<UF::ReplayedQuest, 0, 20> ReplayedQuests;
+    DynamicUpdateField<int32, 0, 21> DisabledSpells;
+    DynamicUpdateField<UF::CharacterRestriction, 0, 17> CharacterRestrictions;
+    UpdateField<ObjectGuid, 0, 24> FarsightObject;
+    UpdateField<ObjectGuid, 0, 25> SummonedBattlePetGUID;
+    UpdateField<uint64, 0, 26> Coinage;
+    UpdateField<int32, 0, 27> XP;
+    UpdateField<int32, 0, 28> NextLevelXP;
+    UpdateField<int32, 0, 29> TrialXP;
+    UpdateField<UF::SkillInfo, 0, 30> Skill;
+    UpdateField<int32, 0, 31> CharacterPoints;
+    UpdateField<int32, 0, 32> MaxTalentTiers;
+    UpdateField<int32, 0, 33> TrackCreatureMask;
+    UpdateField<float, 34, 35> MainhandExpertise;
+    UpdateField<float, 34, 36> OffhandExpertise;
+    UpdateField<float, 34, 37> RangedExpertise;
+    UpdateField<float, 34, 38> CombatRatingExpertise;
+    UpdateField<float, 34, 39> BlockPercentage;
+    UpdateField<float, 34, 40> DodgePercentage;
+    UpdateField<float, 34, 41> DodgePercentageFromAttribute;
+    UpdateField<float, 34, 42> ParryPercentage;
+    UpdateField<float, 34, 43> ParryPercentageFromAttribute;
+    UpdateField<float, 34, 44> CritPercentage;
+    UpdateField<float, 34, 45> RangedCritPercentage;
+    UpdateField<float, 34, 46> OffhandCritPercentage;
+    UpdateField<float, 34, 47> SpellCritPercentage;
+    UpdateField<int32, 34, 48> ShieldBlock;
+    UpdateField<float, 34, 49> ShieldBlockCritPercentage;
+    UpdateField<float, 34, 50> Mastery;
+    UpdateField<float, 34, 51> Speed;
+    UpdateField<float, 34, 52> Avoidance;
+    UpdateField<float, 34, 53> Sturdiness;
+    UpdateField<int32, 34, 54> Versatility;
+    UpdateField<float, 34, 55> VersatilityBonus;
+    UpdateField<float, 34, 56> PvpPowerDamage;
+    UpdateField<float, 34, 57> PvpPowerHealing;
+    UpdateField<int32, 34, 58> ModHealingDonePos;
+    UpdateField<float, 34, 59> ModHealingPercent;
+    UpdateField<float, 34, 60> ModHealingDonePercent;
+    UpdateField<float, 34, 61> ModPeriodicHealingDonePercent;
+    UpdateField<float, 34, 62> ModSpellPowerPercent;
+    UpdateField<float, 34, 63> ModResiliencePercent;
+    UpdateField<float, 34, 64> OverrideSpellPowerByAPPercent;
+    UpdateField<float, 34, 65> OverrideAPBySpellPowerPercent;
+    UpdateField<int32, 66, 67> ModTargetResistance;
+    UpdateField<int32, 66, 68> ModTargetPhysicalResistance;
+    UpdateField<int32, 66, 69> LocalFlags;
+    UpdateField<uint8, 66, 70> GrantableLevels;
+    UpdateField<uint8, 66, 71> MultiActionBars;
+    UpdateField<uint8, 66, 72> LifetimeMaxRank;
+    UpdateField<uint8, 66, 73> NumRespecs;
+    UpdateField<uint32, 66, 74> PvpMedals;
+    UpdateField<uint16, 66, 75> TodayHonorableKills;
+    UpdateField<uint16, 66, 76> YesterdayHonorableKills;
+    UpdateField<uint32, 66, 77> LifetimeHonorableKills;
+    UpdateField<int32, 66, 78> WatchedFactionIndex;
+    UpdateField<int32, 66, 79> MaxLevel;
+    UpdateField<int32, 66, 80> ScalingPlayerLevelDelta;
+    UpdateField<int32, 66, 81> MaxCreatureScalingLevel;
+    UpdateField<int32, 66, 82> PetSpellPower;
+    UpdateField<float, 66, 83> UiHitModifier;
+    UpdateField<float, 66, 84> UiSpellHitModifier;
+    UpdateField<int32, 66, 85> HomeRealmTimeOffset;
+    UpdateField<float, 66, 86> ModPetHaste;
+    UpdateField<uint8, 66, 87> LocalRegenFlags;
+    UpdateField<uint8, 66, 88> AuraVision;
+    UpdateField<uint8, 66, 89> NumBackpackSlots;
+    UpdateField<int32, 66, 90> OverrideSpellsID;
+    UpdateField<int32, 66, 91> LfgBonusFactionID;
+    UpdateField<uint16, 66, 92> LootSpecID;
+    UpdateField<uint32, 66, 93> OverrideZonePVPType;
+    UpdateField<int32, 66, 94> Honor;
+    UpdateField<int32, 66, 95> HonorNextLevel;
+    UpdateField<int32, 66, 96> PvpRewardAchieved;
+    UpdateField<int32, 66, 97> PvpTierMaxFromWins;
+    UpdateField<int32, 98, 99> PvpLastWeeksRewardAchieved;
+    UpdateField<int32, 98, 100> PvpLastWeeksTierMaxFromWins;
+    UpdateField<int32, 98, 101> PvpLastWeeksRewardClaimed;
+    UpdateField<uint8, 98, 102> NumBankSlots;
+    OptionalUpdateField<UF::QuestSession, 98, 103> QuestSession;
+    UpdateFieldArray<ObjectGuid, 195, 104, 105> InvSlots;
+    UpdateFieldArray<uint32, 2, 300, 301> TrackResourceMask;
+    UpdateFieldArray<uint64, 192, 303, 304> ExploredZones;
+    UpdateFieldArray<UF::RestInfo, 2, 496, 497> RestInfo;
+    UpdateFieldArray<int32, 7, 499, 500> ModDamageDonePos;
+    UpdateFieldArray<int32, 7, 499, 507> ModDamageDoneNeg;
+    UpdateFieldArray<float, 7, 499, 514> ModDamageDonePercent;
+    UpdateFieldArray<float, 3, 521, 522> WeaponDmgMultipliers;
+    UpdateFieldArray<float, 3, 521, 525> WeaponAtkSpeedMultipliers;
+    UpdateFieldArray<uint32, 12, 528, 529> BuybackPrice;
+    UpdateFieldArray<uint32, 12, 528, 541> BuybackTimestamp;
+    UpdateFieldArray<int32, 32, 553, 554> CombatRatings;
+    UpdateFieldArray<UF::PVPInfo, 6, 586, 587> PvpInfo;
+    UpdateFieldArray<uint32, 4, 593, 594> NoReagentCostMask;
+    UpdateFieldArray<int32, 2, 598, 599> ProfessionSkillLine;
+    UpdateFieldArray<uint32, 4, 601, 602> BagSlotFlags;
+    UpdateFieldArray<uint32, 7, 606, 607> BankBagSlotFlags;
+    UpdateFieldArray<uint64, 875, 614, 615> QuestCompleted;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<20>
+{
+    UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
+    DynamicUpdateField<int32, 0, 2> EnableDoodadSets;
+    UpdateField<int32, 0, 3> DisplayID;
+    UpdateField<uint32, 0, 4> SpellVisualID;
+    UpdateField<uint32, 0, 5> StateSpellVisualID;
+    UpdateField<uint32, 0, 6> SpawnTrackingStateAnimID;
+    UpdateField<uint32, 0, 7> SpawnTrackingStateAnimKitID;
+    UpdateField<uint32, 0, 8> StateWorldEffectsQuestObjectiveID;
+    UpdateField<ObjectGuid, 0, 9> CreatedBy;
+    UpdateField<ObjectGuid, 0, 10> GuildGUID;
+    UpdateField<uint32, 0, 11> Flags;
+    struct FlagsTag : ViewerDependentValueTag<uint32> {};
+    UpdateField<QuaternionData, 0, 12> ParentRotation;
+    UpdateField<int32, 0, 13> FactionTemplate;
+    UpdateField<int32, 0, 14> Level;
+    struct LevelTag : ViewerDependentValueTag<int32> {};
+    UpdateField<int8, 0, 15> State;
+    struct StateTag : ViewerDependentValueTag<int8> {};
+    UpdateField<int8, 0, 16> TypeID;
+    UpdateField<uint8, 0, 17> PercentHealth;
+    UpdateField<uint32, 0, 18> ArtKit;
+    UpdateField<uint32, 0, 19> CustomParam;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, GameObject const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, GameObject const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct DynamicObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<7>
+{
+    UpdateField<ObjectGuid, 0, 1> Caster;
+    UpdateField<int32, 0, 2> SpellXSpellVisualID;
+    UpdateField<int32, 0, 3> SpellID;
+    UpdateField<float, 0, 4> Radius;
+    UpdateField<uint32, 0, 5> CastTime;
+    UpdateField<uint8, 0, 6> Type;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, DynamicObject const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, DynamicObject const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct CorpseData : public IsUpdateFieldStructureTag, public HasChangesMask<40>
+{
+    UpdateField<uint32, 0, 1> DynamicFlags;
+    UpdateField<ObjectGuid, 0, 2> Owner;
+    UpdateField<ObjectGuid, 0, 3> PartyGUID;
+    UpdateField<ObjectGuid, 0, 4> GuildGUID;
+    UpdateField<uint32, 0, 5> DisplayID;
+    UpdateField<uint8, 0, 6> Unused;
+    UpdateField<uint8, 0, 7> RaceID;
+    UpdateField<uint8, 0, 8> Sex;
+    UpdateField<uint8, 0, 9> SkinID;
+    UpdateField<uint8, 0, 10> FaceID;
+    UpdateField<uint8, 0, 11> HairStyleID;
+    UpdateField<uint8, 0, 12> HairColorID;
+    UpdateField<uint8, 0, 13> FacialHairStyleID;
+    UpdateField<uint32, 0, 14> Flags;
+    UpdateField<int32, 0, 15> FactionTemplate;
+    UpdateFieldArray<uint32, 19, 16, 17> Items;
+    UpdateFieldArray<uint8, 3, 36, 37> CustomDisplayOption;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Corpse const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Corpse const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct ScaleCurve : public IsUpdateFieldStructureTag, public HasChangesMask<7>
+{
+    UpdateField<bool, 0, 1> OverrideActive;
+    UpdateField<uint32, 0, 2> StartTimeOffset;
+    UpdateField<uint32, 0, 3> ParameterCurve;
+    UpdateFieldArray<TaggedPosition<Position::XY>, 2, 4, 5> Points;
+
+    void WriteCreate(ByteBuffer& data, AreaTrigger const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, AreaTrigger const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct AreaTriggerData : public IsUpdateFieldStructureTag, public HasChangesMask<14>
+{
+    UpdateField<UF::ScaleCurve, 0, 1> OverrideScaleCurve;
+    UpdateField<UF::ScaleCurve, 0, 2> ExtraScaleCurve;
+    UpdateField<ObjectGuid, 0, 3> Caster;
+    UpdateField<uint32, 0, 4> Duration;
+    UpdateField<uint32, 0, 5> TimeToTarget;
+    UpdateField<uint32, 0, 6> TimeToTargetScale;
+    UpdateField<uint32, 0, 7> TimeToTargetExtraScale;
+    UpdateField<int32, 0, 8> SpellID;
+    UpdateField<int32, 0, 9> SpellForVisuals;
+    UpdateField<int32, 0, 10> SpellXSpellVisualID;
+    UpdateField<float, 0, 11> BoundsRadius2D;
+    UpdateField<uint32, 0, 12> DecalPropertiesID;
+    UpdateField<ObjectGuid, 0, 13> CreatingEffectGUID;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct SceneObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<5>
+{
+    UpdateField<int32, 0, 1> ScriptPackageID;
+    UpdateField<uint32, 0, 2> RndSeedVal;
+    UpdateField<ObjectGuid, 0, 3> CreatedBy;
+    UpdateField<uint32, 0, 4> SceneType;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+struct ConversationLine : public IsUpdateFieldStructureTag
+{
+    int32 ConversationLineID;
+    uint32 StartTime;
+    int32 UiCameraID;
+    uint8 ActorIndex;
+    uint8 Flags;
+
+    void WriteCreate(ByteBuffer& data, Conversation const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Conversation const* owner, Player const* receiver) const;
+};
+
+struct ConversationActor : public IsUpdateFieldStructureTag
+{
+    uint32 CreatureID;
+    uint32 CreatureDisplayInfoID;
+    ObjectGuid ActorGUID;
+    int32 Field_18;
+    uint32 Type;
+
+    void WriteCreate(ByteBuffer& data, Conversation const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Conversation const* owner, Player const* receiver) const;
+};
+
+struct ConversationData : public IsUpdateFieldStructureTag, public HasChangesMask<5>
+{
+    UpdateField<std::vector<UF::ConversationLine>, 0, 1> Lines;
+    DynamicUpdateField<UF::ConversationActor, 0, 2> Actors;
+    UpdateField<int32, 0, 3> LastLineEndTime;
+    UpdateField<uint32, 0, 4> Field_1C;
+
+    void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Conversation const* owner, Player const* receiver) const;
+    void ClearChangesMask();
+};
+
+}
+
+#endif // UpdateFields_h__

@@ -9,14 +9,18 @@ LIBRARY CascLib.dll
 EXPORTS
 
     CascOpenStorage
+    CascOpenStorageEx
+    CascOpenOnlineStorage
     CascGetStorageInfo
     CascCloseStorage
 
-    CascOpenFileByIndexKey
-    CascOpenFileByEncodingKey
     CascOpenFile
+    CascOpenLocalFile
+    CascGetFileInfo
     CascGetFileSize
+    CascGetFileSize64
     CascSetFilePointer
+    CascSetFilePointer64
     CascReadFile
     CascCloseFile
 
@@ -24,6 +28,10 @@ EXPORTS
     CascFindNextFile
     CascFindClose
 
+    CascAddEncryptionKey
+    CascAddStringEncryptionKey
+    CascFindEncryptionKey
+    CascGetNotFoundEncryptionKey
+
     GetLastError=Kernel32.GetLastError
     SetLastError=Kernel32.SetLastError
-    

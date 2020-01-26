@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +20,7 @@
 #include "ChannelPackets.h"
 #include "DB2Stores.h"
 #include "Player.h"
+#include "Realm.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -77,18 +77,13 @@ Channel* ChannelMgr::GetJoinChannel(uint32 channelId, std::string const& name, A
 {
     if (channelId) // builtin
     {
-        ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
-        uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
-        if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
-            zoneId = 0;
-
-        std::pair<uint32, uint32> key = std::make_pair(channelId, zoneId);
-        auto itr = _channels.find(key);
+        ObjectGuid channelGuid = CreateBuiltinChannelGuid(channelId, zoneEntry);
+        auto itr = _channels.find(channelGuid);
         if (itr != _channels.end())
             return itr->second;
 
-        Channel* newChannel = new Channel(channelId, _team, zoneEntry);
-        _channels[key] = newChannel;
+        Channel* newChannel = new Channel(channelGuid, channelId, _team, zoneEntry);
+        _channels[channelGuid] = newChannel;
         return newChannel;
     }
     else // custom
@@ -103,7 +98,7 @@ Channel* ChannelMgr::GetJoinChannel(uint32 channelId, std::string const& name, A
         if (itr != _customChannels.end())
             return itr->second;
 
-        Channel* newChannel = new Channel(name, _team);
+        Channel* newChannel = new Channel(CreateCustomChannelGuid(), name, _team);
         _customChannels[channelName] = newChannel;
         return newChannel;
     }
@@ -114,13 +109,7 @@ Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Playe
     Channel* result = nullptr;
     if (channelId) // builtin
     {
-        ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
-        uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
-        if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
-            zoneId = 0;
-
-        std::pair<uint32, uint32> key = std::make_pair(channelId, zoneId);
-        auto itr = _channels.find(key);
+        auto itr = _channels.find(CreateBuiltinChannelGuid(channelId, zoneEntry));
         if (itr != _channels.end())
             result = itr->second;
     }
@@ -169,13 +158,7 @@ void ChannelMgr::LeftChannel(std::string const& name)
 
 void ChannelMgr::LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry)
 {
-    ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
-    uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
-    if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
-        zoneId = 0;
-
-    std::pair<uint32, uint32> key = std::make_pair(channelId, zoneId);
-    auto itr = _channels.find(key);
+    auto itr = _channels.find(CreateBuiltinChannelGuid(channelId, zoneEntry));
     if (itr == _channels.end())
         return;
 
@@ -193,4 +176,39 @@ void ChannelMgr::SendNotOnChannelNotify(Player const* player, std::string const&
     notify.Type = CHAT_NOT_MEMBER_NOTICE;
     notify._Channel = name;
     player->SendDirectMessage(notify.Write());
+}
+
+ObjectGuid ChannelMgr::CreateCustomChannelGuid()
+{
+    uint64 high = 0;
+    high |= uint64(HighGuid::ChatChannel) << 58;
+    high |= uint64(realm.Id.Realm) << 42;
+    high |= uint64(_team == ALLIANCE ? 3 : 5) << 4;
+
+    ObjectGuid channelGuid;
+    channelGuid.SetRawValue(high, _guidGenerator.Generate());
+    return channelGuid;
+}
+
+ObjectGuid ChannelMgr::CreateBuiltinChannelGuid(uint32 channelId, AreaTableEntry const* zoneEntry /*= nullptr*/) const
+{
+
+    ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
+    uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
+    if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
+        zoneId = 0;
+
+    uint64 high = 0;
+    high |= uint64(HighGuid::ChatChannel) << 58;
+    high |= uint64(realm.Id.Realm) << 42;
+    high |= uint64(1) << 25; // built-in
+    if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2)
+        high |= uint64(1) << 24; // trade
+
+    high |= uint64(zoneId) << 10;
+    high |= uint64(_team == ALLIANCE ? 3 : 5) << 4;
+
+    ObjectGuid channelGuid;
+    channelGuid.SetRawValue(high, channelId);
+    return channelGuid;
 }

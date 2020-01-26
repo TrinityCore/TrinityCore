@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,8 @@
 //                                                                        - client, item icon shift click
 // |color|Hitemset:itemset_id|h[name]|h|r
 // |color|Hplayer:name|h[name]|h|r                                        - client, in some messages, at click copy only name instead link
-// |color|Hquest:quest_id:quest_level|h[name]|h|r                         - client, quest list name shift-click
+// |color|Hquest:quest_id:quest_level:min_level:max_level:scaling_faction|h[name]|h|r
+//                                                                        - client, quest list name shift-click
 // |color|Hskill:skill_id|h[name]|h|r
 // |color|Hspell:spell_id|h[name]|h|r                                     - client, spellbook spell icon shift-click
 // |color|Htalent:talent_id, rank|h[name]|h|r                              - client, talent icon shift-click
@@ -185,35 +186,16 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
     if (!CheckDelimiter(iss, DELIMITER, "item"))
         return false;
 
-    if (HasValue(iss) && !ReadInt32(iss, _randomPropertyId))
+    if (HasValue(iss) && !ReadInt32(iss, zero))
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item random property id", iss.str().c_str());
         return false;
     }
 
-    if (_randomPropertyId > 0)
-    {
-        _property = sItemRandomPropertiesStore.LookupEntry(_randomPropertyId);
-        if (!_property)
-        {
-            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item property id %u in |item command", iss.str().c_str(), _randomPropertyId);
-            return false;
-        }
-    }
-    else if (_randomPropertyId < 0)
-    {
-        _suffix = sItemRandomSuffixStore.LookupEntry(-_randomPropertyId);
-        if (!_suffix)
-        {
-            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item suffix id %u in |item command", iss.str().c_str(), -_randomPropertyId);
-            return false;
-        }
-    }
-
     if (!CheckDelimiter(iss, DELIMITER, "item"))
         return false;
 
-    if (HasValue(iss) && !ReadInt32(iss, _randomPropertySeed))
+    if (HasValue(iss) && !ReadInt32(iss, zero))
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item random property seed", iss.str().c_str());
         return false;
@@ -380,7 +362,8 @@ bool ItemChatLink::ValidateName(char* buffer, char const* context)
 {
     ChatLink::ValidateName(buffer, context);
 
-    LocalizedString* suffixStrings = _suffix ? _suffix->Name : (_property ? _property->Name : nullptr);
+    // TODO: use suffix from ItemNameDescription
+    LocalizedString* suffixStrings = nullptr;
 
     for (uint8 locale = LOCALE_enUS; locale < TOTAL_LOCALES; ++locale)
     {
@@ -395,8 +378,8 @@ bool ItemChatLink::ValidateName(char* buffer, char const* context)
     return false;
 }
 
-// |color|Hquest:quest_id:quest_level|h[name]|h|r
-// |cff808080|Hquest:2278:47|h[The Platinum Discs]|h|r
+// |color|Hquest:quest_id:quest_level:min_level:max_level:scaling_faction|h[name]|h|r
+// |cffffff00|Hquest:51101:-1:110:120:5|h[The Wounded King]|h|r
 bool QuestChatLink::Initialize(std::istringstream& iss)
 {
     // Read quest id
@@ -426,6 +409,21 @@ bool QuestChatLink::Initialize(std::istringstream& iss)
     if (_questLevel >= STRONG_MAX_LEVEL)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): quest level %d is too big", iss.str().c_str(), _questLevel);
+        return false;
+    }
+    if (!ReadInt32(iss, _minLevel))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading quest min level", iss.str().c_str());
+        return false;
+    }
+    if (!ReadInt32(iss, _maxLevel))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading quest max level", iss.str().c_str());
+        return false;
+    }
+    if (!ReadInt32(iss, _scalingFaction))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading quest scaling faction", iss.str().c_str());
         return false;
     }
     return true;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,12 @@
 
 #include "Battleground.h"
 #include "BattlegroundScore.h"
+
+enum BG_BFG_Objectives
+{
+    BFG_OBJECTIVE_BASES_ASSAULTED   = 370,
+    BFG_OBJECTIVE_BASES_DEFENDED    = 371
+};
 
 class BattlegroundBFGScore final : public BattlegroundScore
 {
@@ -42,12 +48,12 @@ class BattlegroundBFGScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PlayerData& playerData) const override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
-            playerData.Stats.push_back(BasesAssaulted);
-            playerData.Stats.push_back(BasesDefended);
+            playerData.Stats.emplace_back(BFG_OBJECTIVE_BASES_ASSAULTED, BasesAssaulted);
+            playerData.Stats.emplace_back(BFG_OBJECTIVE_BASES_DEFENDED, BasesDefended);
         }
 
         uint32 GetAttr1() const final override { return BasesAssaulted; }

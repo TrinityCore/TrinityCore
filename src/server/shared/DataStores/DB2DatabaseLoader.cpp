@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -112,7 +112,7 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
 
         for (uint32 x = 0; x < _loadInfo->Meta->FieldCount; ++x)
         {
-            for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
+            for (uint32 z = 0; z < _loadInfo->Meta->Fields[x].ArraySize; ++z)
             {
                 switch (_loadInfo->TypesString[f])
                 {
@@ -165,7 +165,8 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], _storageName.c_str());
+                        ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                            _loadInfo->TypesString[f], _storageName.c_str(), _loadInfo->Fields[f].Name);
                         break;
                 }
                 ++f;
@@ -201,7 +202,7 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
 
 void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexTable, std::vector<char*>& stringPool)
 {
-    PreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + 1));
+    HotfixDatabasePreparedStatement* stmt = HotfixDatabase.GetPreparedStatement(HotfixDatabaseStatements(_loadInfo->Statement + 1));
     stmt->setString(0, localeNames[locale]);
     PreparedQueryResult result = HotfixDatabase.Query(stmt);
     if (!result)
@@ -236,7 +237,7 @@ void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexT
 
             for (uint32 x = 0; x < fieldCount; ++x)
             {
-                for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
+                for (uint32 z = 0; z < _loadInfo->Meta->Fields[x].ArraySize; ++z)
                 {
                     switch (_loadInfo->TypesString[fieldIndex])
                     {
@@ -269,7 +270,8 @@ void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexT
                             offset += sizeof(char*);
                             break;
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], _storageName.c_str());
+                            ASSERT(false, "Unknown format character '%c' found in %s meta for field %s",
+                                _loadInfo->TypesString[fieldIndex], _storageName.c_str(), _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }
                     ++fieldIndex;

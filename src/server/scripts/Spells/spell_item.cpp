@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "AzeritePackets.h"
 #include "Battleground.h"
 #include "CreatureAIImpl.h"
 #include "DB2Stores.h"
@@ -1366,7 +1367,7 @@ class spell_item_mingos_fortune_generator : public SpellScriptLoader
                         return;
                 }
 
-                CreateItem(effIndex, newitemid);
+                CreateItem(effIndex, newitemid, ItemContext::NONE);
             }
 
             void Register() override
@@ -4634,6 +4635,175 @@ class spell_item_brutal_kinship : public SpellScriptLoader
         }
 };
 
+// 45051 - Mad Alchemist's Potion (34440)
+class spell_item_mad_alchemists_potion : public SpellScriptLoader
+{
+public:
+    spell_item_mad_alchemists_potion() : SpellScriptLoader("spell_item_mad_alchemists_potion") {}
+
+    class mad_alchemists_potion_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(mad_alchemists_potion_SpellScript);
+
+        void SecondaryEffect()
+        {
+            std::vector<uint32> availableElixirs =
+            {
+                // Battle Elixirs
+                33720, // Onslaught Elixir (28102)
+                54452, // Adept's Elixir (28103)
+                33726, // Elixir of Mastery (28104)
+                28490, // Elixir of Major Strength (22824)
+                28491, // Elixir of Healing Power (22825)
+                28493, // Elixir of Major Frost Power (22827)
+                54494, // Elixir of Major Agility (22831)
+                28501, // Elixir of Major Firepower (22833)
+                28503,// Elixir of Major Shadow Power (22835)
+                38954, // Fel Strength Elixir (31679)
+                // Guardian Elixirs
+                39625, // Elixir of Major Fortitude (32062)
+                39626, // Earthen Elixir (32063)
+                39627, // Elixir of Draenic Wisdom (32067)
+                39628, // Elixir of Ironskin (32068)
+                28502, // Elixir of Major Defense (22834)
+                28514, // Elixir of Empowerment (22848)
+                // Other
+                28489, // Elixir of Camouflage (22823)
+                28496  // Elixir of the Searching Eye (22830)
+            };
+
+            Unit* target = GetCaster();
+
+            if (target->GetPowerType() == POWER_MANA)
+                availableElixirs.push_back(28509); // Elixir of Major Mageblood (22840)
+
+            uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);
+
+            bool useElixir = true;
+
+            SpellGroup chosenSpellGroup = SPELL_GROUP_NONE;
+            if (sSpellMgr->IsSpellMemberOfSpellGroup(chosenElixir, SPELL_GROUP_ELIXIR_BATTLE))
+                chosenSpellGroup = SPELL_GROUP_ELIXIR_BATTLE;
+            if (sSpellMgr->IsSpellMemberOfSpellGroup(chosenElixir, SPELL_GROUP_ELIXIR_GUARDIAN))
+                chosenSpellGroup = SPELL_GROUP_ELIXIR_GUARDIAN;
+            // If another spell of the same group is already active the elixir should not be cast
+            if (chosenSpellGroup != SPELL_GROUP_NONE)
+            {
+                Unit::AuraApplicationMap const& auraMap = target->GetAppliedAuras();
+                for (auto itr = auraMap.begin(); itr != auraMap.end(); ++itr)
+                {
+                    uint32 spellId = itr->second->GetBase()->GetId();
+                    if (sSpellMgr->IsSpellMemberOfSpellGroup(spellId, chosenSpellGroup) && spellId != chosenElixir)
+                    {
+                        useElixir = false;
+                        break;
+                    }
+                }
+            }
+
+            if (useElixir)
+                target->CastSpell(target, chosenElixir, true, GetCastItem());
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(mad_alchemists_potion_SpellScript::SecondaryEffect);
+        }
+
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new mad_alchemists_potion_SpellScript();
+    }
+};
+
+// 53750 - Crazy Alchemist's Potion (40077)
+class spell_item_crazy_alchemists_potion : public SpellScriptLoader
+{
+public:
+    spell_item_crazy_alchemists_potion() : SpellScriptLoader("spell_item_crazy_alchemists_potion") {}
+
+    class crazy_alchemists_potion_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(crazy_alchemists_potion_SpellScript);
+
+        void SecondaryEffect()
+        {
+            std::vector<uint32> availableElixirs =
+            {
+                43185, // Runic Healing Potion (33447)
+                53750, // Crazy Alchemist's Potion (40077)
+                53761, // Powerful Rejuvenation Potion (40087)
+                53762, // Indestructible Potion (40093)
+                53908, // Potion of Speed (40211)
+                53909, // Potion of Wild Magic (40212)
+                53910, // Mighty Arcane Protection Potion (40213)
+                53911, // Mighty Fire Protection Potion (40214)
+                53913, // Mighty Frost Protection Potion (40215)
+                53914, // Mighty Nature Protection Potion (40216)
+                53915  // Mighty Shadow Protection Potion (40217)
+            };
+
+            Unit* target = GetCaster();
+
+            if (!target->IsInCombat())
+                availableElixirs.push_back(53753); // Potion of Nightmares (40081)
+            if (target->GetPowerType() == POWER_MANA)
+                availableElixirs.push_back(43186); // Runic Mana Potion(33448)
+
+            uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);
+
+            target->CastSpell(target, chosenElixir, true, GetCastItem());
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(crazy_alchemists_potion_SpellScript::SecondaryEffect);
+        }
+
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new crazy_alchemists_potion_SpellScript();
+    }
+};
+
+// 277253 - Heart of Azeroth
+class spell_item_heart_of_azeroth : public AuraScript
+{
+    PrepareAuraScript(spell_item_heart_of_azeroth);
+
+    void SetEquippedFlag(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+    {
+        SetState(true);
+    }
+
+    void ClearEquippedFlag(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+    {
+        SetState(false);
+    }
+
+    void SetState(bool equipped)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+        {
+            target->ApplyAllAzeriteEmpoweredItemMods(equipped);
+
+            WorldPackets::Azerite::AzeriteEmpoweredItemEquippedStatusChanged statusChanged;
+            statusChanged.IsHeartEquipped = equipped;
+            target->SendDirectMessage(statusChanged.Write());
+        }
+    }
+
+    void Register()
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_item_heart_of_azeroth::SetEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_item_heart_of_azeroth::ClearEquippedFlag, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4750,4 +4920,9 @@ void AddSC_item_spell_scripts()
     new spell_item_world_queller_focus();
     new spell_item_water_strider();
     new spell_item_brutal_kinship();
+
+    new spell_item_mad_alchemists_potion();
+    new spell_item_crazy_alchemists_potion();
+
+    RegisterAuraScript(spell_item_heart_of_azeroth);
 }

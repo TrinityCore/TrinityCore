@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,7 +53,7 @@ void FleeingMovementGenerator<T>::_setTargetLocation(T* owner)
     Position mypos = owner->GetPosition();
     bool isInLOS = VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(
         PhasingHandler::GetTerrainMapId(owner->GetPhaseShift(), owner->GetMap(), mypos.m_positionX, mypos.m_positionY),
-        mypos.m_positionX, mypos.m_positionY, mypos.m_positionZ + 2.0f, x, y, z + 2.0f);
+        mypos.m_positionX, mypos.m_positionY, mypos.m_positionZ + 2.0f, x, y, z + 2.0f, VMAP::ModelIgnoreFlags::Nothing);
     if (!isInLOS)
     {
         i_nextCheckTime.Reset(200);
@@ -124,7 +123,7 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
     if (!owner)
         return;
 
-    owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+    owner->AddUnitFlag(UNIT_FLAG_FLEEING);
     owner->AddUnitState(UNIT_STATE_FLEEING | UNIT_STATE_FLEEING_MOVE);
     _setTargetLocation(owner);
 }
@@ -132,7 +131,7 @@ void FleeingMovementGenerator<T>::DoInitialize(T* owner)
 template<>
 void FleeingMovementGenerator<Player>::DoFinalize(Player* owner)
 {
-    owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+    owner->RemoveUnitFlag(UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING | UNIT_STATE_FLEEING_MOVE);
     owner->StopMoving();
 }
@@ -140,7 +139,7 @@ void FleeingMovementGenerator<Player>::DoFinalize(Player* owner)
 template<>
 void FleeingMovementGenerator<Creature>::DoFinalize(Creature* owner)
 {
-    owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+    owner->RemoveUnitFlag(UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
     if (owner->GetVictim())
         owner->SetTarget(owner->EnsureVictim()->GetGUID());
@@ -184,7 +183,7 @@ template bool FleeingMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 
 void TimedFleeingMovementGenerator::Finalize(Unit* owner)
 {
-    owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+    owner->RemoveUnitFlag(UNIT_FLAG_FLEEING);
     owner->ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
     if (Unit* victim = owner->GetVictim())
     {

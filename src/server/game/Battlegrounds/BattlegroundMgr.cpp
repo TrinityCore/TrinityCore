@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -543,9 +542,9 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         if (bgTemplate.Id != BATTLEGROUND_AA && bgTemplate.Id != BATTLEGROUND_RB)
         {
             uint32 startId = fields[5].GetUInt32();
-            if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
+            if (WorldSafeLocsEntry const* start = sObjectMgr->GetWorldSafeLoc(startId))
             {
-                bgTemplate.StartLocation[TEAM_ALLIANCE].Relocate(start->Loc.X, start->Loc.Y, start->Loc.Z, (start->Facing * M_PI) / 180);
+                bgTemplate.StartLocation[TEAM_ALLIANCE].Relocate(start->Loc);
             }
             else
             {
@@ -554,9 +553,9 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
             }
 
             startId = fields[6].GetUInt32();
-            if (WorldSafeLocsEntry const* start = sWorldSafeLocsStore.LookupEntry(startId))
+            if (WorldSafeLocsEntry const* start = sObjectMgr->GetWorldSafeLoc(startId))
             {
-                bgTemplate.StartLocation[TEAM_HORDE].Relocate(start->Loc.X, start->Loc.Y, start->Loc.Z, (start->Facing * M_PI) / 180);
+                bgTemplate.StartLocation[TEAM_HORDE].Relocate(start->Loc);
             }
             else
             {

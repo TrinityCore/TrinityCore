@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaProg
     data << uint32(criteria.TimeFromStart);
     data << uint32(criteria.TimeFromCreate);
     data.WriteBits(criteria.Flags, 4);
+    data.WriteBit(criteria.RafAcceptanceID.is_initialized());
     data.FlushBits();
+
+    if (criteria.RafAcceptanceID)
+        data << uint64(*criteria.RafAcceptanceID);
+
     return data;
 }
 
@@ -111,7 +116,7 @@ WorldPacket const* WorldPackets::Achievement::AchievementEarned::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Achievement::ServerFirstAchievement::Write()
+WorldPacket const* WorldPackets::Achievement::BroadcastAchievement::Write()
 {
     _worldPacket.WriteBits(Name.length(), 7);
     _worldPacket.WriteBit(GuildAchievement);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -78,6 +78,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid GuildGuid;
+            ObjectGuid PlayerGuid;
             Optional<GuildInfo> Info;
         };
 
@@ -224,6 +225,18 @@ namespace WorldPackets
             std::string InviterName;
             std::string GuildName;
             std::string OldGuildName;
+        };
+
+        class GuildEventAwayChange final : public ServerPacket
+        {
+        public:
+            GuildEventAwayChange() : ServerPacket(SMSG_GUILD_EVENT_AWAY_CHANGE, 16 + 1) {  }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            bool AFK = false;
+            bool DND = false;
         };
 
         class GuildEventPresenceChange final : public ServerPacket
@@ -430,13 +443,13 @@ namespace WorldPackets
 
             void Read() override;
 
-            int32 RankID = 0;
+            uint8 RankID = 0;
             int32 RankOrder = 0;
-            int32 WithdrawGoldLimit = 0;
+            uint32 WithdrawGoldLimit = 0;
             uint32 Flags = 0;
             uint32 OldFlags = 0;
-            int32 TabFlags[GUILD_BANK_MAX_TABS];
-            int32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS];
+            uint32 TabFlags[GUILD_BANK_MAX_TABS];
+            uint32 TabWithdrawItemLimit[GUILD_BANK_MAX_TABS];
             std::string RankName;
         };
 
@@ -484,8 +497,8 @@ namespace WorldPackets
 
         struct GuildRankData
         {
-            uint32 RankID = 0;
-            uint32 RankOrder = 0;
+            uint8 RankID = 0;
+            int32 RankOrder = 0;
             uint32 Flags = 0;
             uint32 WithdrawGoldLimit = 0;
             std::string RankName;
@@ -687,7 +700,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<GuildRewardItem> RewardItems;
-            uint32 Version = 0;
+            int32 Version = 0;
         };
 
         class GuildBankActivate final : public ClientPacket
@@ -813,10 +826,11 @@ namespace WorldPackets
             bool FullUpdate = false;
         };
 
+        // TODO: research new guild bank opcodes
         class GuildBankSwapItems final : public ClientPacket
         {
         public:
-            GuildBankSwapItems(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_BANK_SWAP_ITEMS, std::move(packet)) { }
+            GuildBankSwapItems(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 
@@ -882,7 +896,7 @@ namespace WorldPackets
         class GuildBankTextQueryResult : public ServerPacket
         {
         public:
-            GuildBankTextQueryResult() : ServerPacket(SMSG_GUILD_BANK_TEXT_QUERY_RESULT, 5) { }
+            GuildBankTextQueryResult() : ServerPacket(SMSG_GUILD_BANK_TEXT_QUERY_RESULT, 4 + 2) { }
 
             WorldPacket const* Write() override;
 
@@ -917,9 +931,9 @@ namespace WorldPackets
             uint32 CompletedDate = 0;
             int32 Type = 0;
             int32 Flags = 0;
-            int32 Data[2];
+            std::array<int32, 2> Data;
             ObjectGuid MemberGuid;
-            GuidList MemberList;
+            std::vector<ObjectGuid> MemberList;
             Optional<Item::ItemInstance> Item;
         };
 
@@ -1016,7 +1030,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::set<uint32> AchievementIDs;
+            Array<uint32, 10> AchievementIDs;
         };
 
         class GuildNameChanged final : ServerPacket

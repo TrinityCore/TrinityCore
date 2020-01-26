@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,6 +25,8 @@
 #include "Player.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -256,7 +257,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
                     ObjectMgr::GetLocaleString(localeData->LogTitle, localeConstant, text.QuestTitle);
 
             if (questLevelInTitle)
-                AddQuestLevelToTitle(text.QuestTitle, quest->GetQuestLevel());
+                Quest::AddQuestLevelToTitle(text.QuestTitle, quest->GetQuestLevel());
 
             ++count;
         }
@@ -286,6 +287,7 @@ void PlayerMenu::SendPointOfInterest(uint32 id) const
     }
 
     WorldPackets::NPC::GossipPOI packet;
+    packet.ID = pointOfInterest->ID;
     packet.Name = pointOfInterest->Name;
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
@@ -381,7 +383,7 @@ void PlayerMenu::SendQuestGiverQuestListMessage(Object* questgiver)
                     ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, localeConstant, title);
 
             if (questLevelInTitle)
-                AddQuestLevelToTitle(title, quest->GetQuestLevel());
+                Quest::AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
             bool repeatable = false; // NYI
 
@@ -432,21 +434,35 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     }
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        AddQuestLevelToTitle(packet.QuestTitle, quest->GetQuestLevel());
+        Quest::AddQuestLevelToTitle(packet.QuestTitle, quest->GetQuestLevel());
 
     packet.QuestGiverGUID = npcGUID;
     packet.InformUnit = _session->GetPlayer()->GetDivider();
     packet.QuestID = quest->GetQuestId();
     packet.PortraitGiver = quest->GetQuestGiverPortrait();
+    packet.PortraitGiverMount = quest->GetQuestGiverPortraitMount();
     packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
+    packet.QuestSessionBonus = 0; //quest->GetQuestSessionBonus(); // this is only sent while quest session is active
     packet.AutoLaunched = autoLaunched;
     packet.DisplayPopup = displayPopup;
-    packet.QuestFlags[0] = quest->GetFlags();
+    packet.QuestFlags[0] = quest->GetFlags() & (sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? ~QUEST_FLAGS_AUTO_ACCEPT : ~0);
     packet.QuestFlags[1] = quest->GetFlagsEx();
     packet.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
-    if (quest->GetSrcSpell())
-        packet.LearnSpells.push_back(quest->GetSrcSpell());
+    // RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
+    if (quest->GetRewSpell())
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell());
+        if (spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
+        {
+            SpellEffectInfoVector effects = spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE);
+            for (SpellEffectInfoVector::const_iterator itr = effects.begin(); itr != effects.end(); ++itr)
+            {
+                if ((*itr)->IsEffect(SPELL_EFFECT_LEARN_SPELL))
+                    packet.LearnSpells.push_back((*itr)->TriggerSpell);
+            }
+        }
+    }
 
     quest->BuildQuestRewards(packet.Rewards, _session->GetPlayer());
 
@@ -474,143 +490,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 {
-    WorldPackets::Quest::QueryQuestInfoResponse packet;
-
-    packet.Allow = true;
-    packet.QuestID = quest->GetQuestId();
-
-    packet.Info.LogTitle = quest->GetLogTitle();
-    packet.Info.LogDescription = quest->GetLogDescription();
-    packet.Info.QuestDescription = quest->GetQuestDescription();
-    packet.Info.AreaDescription = quest->GetAreaDescription();
-    packet.Info.QuestCompletionLog = quest->GetQuestCompletionLog();
-    packet.Info.PortraitGiverText = quest->GetPortraitGiverText();
-    packet.Info.PortraitGiverName = quest->GetPortraitGiverName();
-    packet.Info.PortraitTurnInText = quest->GetPortraitTurnInText();
-    packet.Info.PortraitTurnInName = quest->GetPortraitTurnInName();
-
-    LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
-    if (localeConstant != LOCALE_enUS)
+    if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
+        _session->SendPacket(&quest->QueryData[static_cast<uint32>(_session->GetSessionDbLocaleIndex())]);
+    else
     {
-        if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
-            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle,           localeConstant, packet.Info.LogTitle);
-            ObjectMgr::GetLocaleString(questTemplateLocale->LogDescription,     localeConstant, packet.Info.LogDescription);
-            ObjectMgr::GetLocaleString(questTemplateLocale->QuestDescription,   localeConstant, packet.Info.QuestDescription);
-            ObjectMgr::GetLocaleString(questTemplateLocale->AreaDescription,    localeConstant, packet.Info.AreaDescription);
-            ObjectMgr::GetLocaleString(questTemplateLocale->QuestCompletionLog, localeConstant, packet.Info.QuestCompletionLog);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverText,  localeConstant, packet.Info.PortraitGiverText);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverName,  localeConstant, packet.Info.PortraitGiverName);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInText, localeConstant, packet.Info.PortraitTurnInText);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInName, localeConstant, packet.Info.PortraitTurnInName);
-        }
+        WorldPacket queryPacket = quest->BuildQueryData(_session->GetSessionDbLocaleIndex());
+        _session->SendPacket(&queryPacket);
     }
-
-    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        AddQuestLevelToTitle(packet.Info.LogTitle, quest->GetQuestLevel());
-
-    packet.Info.QuestID = quest->GetQuestId();
-    packet.Info.QuestType = quest->GetQuestType();
-    packet.Info.QuestLevel = quest->GetQuestLevel();
-    packet.Info.QuestMaxScalingLevel = quest->GetQuestMaxScalingLevel();
-    packet.Info.QuestPackageID = quest->GetQuestPackageID();
-    packet.Info.QuestMinLevel = quest->GetMinLevel();
-    packet.Info.QuestSortID = quest->GetZoneOrSort();
-    packet.Info.QuestInfoID = quest->GetQuestInfoID();
-    packet.Info.SuggestedGroupNum = quest->GetSuggestedPlayers();
-    packet.Info.RewardNextQuest = quest->GetNextQuestInChain();
-    packet.Info.RewardXPDifficulty = quest->GetXPDifficulty();
-    packet.Info.RewardXPMultiplier = quest->GetXPMultiplier();
-
-    if (!quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
-        packet.Info.RewardMoney = quest->RewardMoney < 0 ? quest->RewardMoney : _session->GetPlayer()->GetQuestMoneyReward(quest);
-
-    packet.Info.RewardMoneyDifficulty = quest->GetRewMoneyDifficulty();
-    packet.Info.RewardMoneyMultiplier = quest->GetMoneyMultiplier();
-    packet.Info.RewardBonusMoney = quest->GetRewMoneyMaxLevel();
-    for (uint8 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
-        packet.Info.RewardDisplaySpell[i] = quest->RewardDisplaySpell[i];
-
-    packet.Info.RewardSpell = quest->GetRewSpell();
-
-    packet.Info.RewardHonor = quest->GetRewHonor();
-    packet.Info.RewardKillHonor = quest->GetRewKillHonor();
-
-    packet.Info.RewardArtifactXPDifficulty = quest->GetArtifactXPDifficulty();
-    packet.Info.RewardArtifactXPMultiplier = quest->GetArtifactXPMultiplier();
-    packet.Info.RewardArtifactCategoryID = quest->GetArtifactCategoryId();
-
-    packet.Info.StartItem = quest->GetSrcItemId();
-    packet.Info.Flags = quest->GetFlags();
-    packet.Info.FlagsEx = quest->GetFlagsEx();
-    packet.Info.RewardTitle = quest->GetRewTitle();
-    packet.Info.RewardArenaPoints = quest->GetRewArenaPoints();
-    packet.Info.RewardSkillLineID = quest->GetRewardSkillId();
-    packet.Info.RewardNumSkillUps = quest->GetRewardSkillPoints();
-    packet.Info.RewardFactionFlags = quest->GetRewardReputationMask();
-    packet.Info.PortraitGiver = quest->GetQuestGiverPortrait();
-    packet.Info.PortraitTurnIn = quest->GetQuestTurnInPortrait();
-
-    for (uint8 i = 0; i < QUEST_ITEM_DROP_COUNT; ++i)
-    {
-        packet.Info.ItemDrop[i] = quest->ItemDrop[i];
-        packet.Info.ItemDropQuantity[i] = quest->ItemDropQuantity[i];
-    }
-
-    if (!quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
-    {
-        for (uint8 i = 0; i < QUEST_REWARD_ITEM_COUNT; ++i)
-        {
-            packet.Info.RewardItems[i] = quest->RewardItemId[i];
-            packet.Info.RewardAmount[i] = quest->RewardItemCount[i];
-        }
-        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        {
-            packet.Info.UnfilteredChoiceItems[i].ItemID = quest->RewardChoiceItemId[i];
-            packet.Info.UnfilteredChoiceItems[i].Quantity = quest->RewardChoiceItemCount[i];
-        }
-    }
-
-    for (uint8 i = 0; i < QUEST_REWARD_REPUTATIONS_COUNT; ++i)
-    {
-        packet.Info.RewardFactionID[i] = quest->RewardFactionId[i];
-        packet.Info.RewardFactionValue[i] = quest->RewardFactionValue[i];
-        packet.Info.RewardFactionOverride[i] = quest->RewardFactionOverride[i];
-        packet.Info.RewardFactionCapIn[i] = quest->RewardFactionCapIn[i];
-    }
-
-    packet.Info.POIContinent = quest->GetPOIContinent();
-    packet.Info.POIx = quest->GetPOIx();
-    packet.Info.POIy = quest->GetPOIy();
-    packet.Info.POIPriority = quest->GetPOIPriority();
-
-    packet.Info.AllowableRaces = quest->GetAllowableRaces();
-    packet.Info.QuestRewardID = quest->GetRewardId();
-    packet.Info.Expansion = quest->GetExpansion();
-
-    for (QuestObjective const& questObjective : quest->GetObjectives())
-    {
-        packet.Info.Objectives.push_back(questObjective);
-
-        if (localeConstant != LOCALE_enUS)
-        {
-            if (QuestObjectivesLocale const* questObjectivesLocale = sObjectMgr->GetQuestObjectivesLocale(questObjective.ID))
-                ObjectMgr::GetLocaleString(questObjectivesLocale->Description, localeConstant, packet.Info.Objectives.back().Description);
-        }
-    }
-
-    for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
-    {
-        packet.Info.RewardCurrencyID[i] = quest->RewardCurrencyId[i];
-        packet.Info.RewardCurrencyQty[i] = quest->RewardCurrencyCount[i];
-    }
-
-    packet.Info.AcceptedSoundKitID = quest->GetSoundAccept();
-    packet.Info.CompleteSoundKitID = quest->GetSoundTurnIn();
-    packet.Info.AreaGroupID = quest->GetAreaGroupID();
-    packet.Info.TimeAllowed = quest->GetLimitTime();
-
-    _session->SendPacket(packet.Write());
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
 }
@@ -643,7 +529,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     }
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        AddQuestLevelToTitle(packet.QuestTitle, quest->GetQuestLevel());
+        Quest::AddQuestLevelToTitle(packet.QuestTitle, quest->GetQuestLevel());
 
     WorldPackets::Quest::QuestGiverOfferReward& offer = packet.QuestData;
 
@@ -666,6 +552,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
 
     packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
     packet.PortraitGiver = quest->GetQuestGiverPortrait();
+    packet.PortraitGiverMount = quest->GetQuestGiverPortraitMount();
     packet.QuestPackageID = quest->GetQuestPackageID();
 
     _session->SendPacket(packet.Write());
@@ -699,7 +586,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     }
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        AddQuestLevelToTitle(packet.QuestTitle, quest->GetQuestLevel());
+        Quest::AddQuestLevelToTitle(packet.QuestTitle, quest->GetQuestLevel());
 
     packet.QuestGiverGUID = npcGUID;
 
@@ -751,14 +638,4 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
 
     _session->SendPacket(packet.Write());
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());
-}
-
-void PlayerMenu::AddQuestLevelToTitle(std::string &title, int32 level)
-{
-    // Adds the quest level to the front of the quest title
-    // example: [13] Westfall Stew
-
-    std::stringstream questTitlePretty;
-    questTitlePretty << "[" << level << "] " << title;
-    title = questTitlePretty.str();
 }

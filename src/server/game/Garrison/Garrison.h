@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -191,7 +191,7 @@ public:
     {
         GameObject* CreateGameObject(Map* map, GarrisonFactionIndex faction);
         void DeleteGameObject(Map* map);
-        void ClearBuildingInfo(Player* owner);
+        void ClearBuildingInfo(GarrisonType garrisonType, Player* owner);
         void SetBuildingInfo(WorldPackets::Garrison::GarrisonBuildingInfo const& buildingInfo, Player* owner);
 
         WorldPackets::Garrison::GarrisonPlotInfo PacketInfo;
@@ -204,6 +204,7 @@ public:
     struct Follower
     {
         uint32 GetItemLevel() const;
+        bool HasAbility(uint32 garrAbilityId) const;
 
         WorldPackets::Garrison::GarrisonFollower PacketInfo;
     };
@@ -212,8 +213,8 @@ public:
 
     bool LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blueprints, PreparedQueryResult buildings,
         PreparedQueryResult followers, PreparedQueryResult abilities);
-    void SaveToDB(SQLTransaction trans);
-    static void DeleteFromDB(ObjectGuid::LowType ownerGuid, SQLTransaction trans);
+    void SaveToDB(CharacterDatabaseTransaction trans);
+    static void DeleteFromDB(ObjectGuid::LowType ownerGuid, CharacterDatabaseTransaction trans);
 
     bool Create(uint32 garrSiteId);
     void Delete();
@@ -223,6 +224,8 @@ public:
     void Leave() const;
 
     GarrisonFactionIndex GetFaction() const;
+    GarrisonType GetType() const { return GARRISON_TYPE_GARRISON; }
+    GarrSiteLevelEntry const* GetSiteLevel() const { return _siteLevel; }
 
     // Plots
     std::vector<Plot*> GetPlots();
@@ -232,6 +235,7 @@ public:
     // Buildings
     void LearnBlueprint(uint32 garrBuildingId);
     void UnlearnBlueprint(uint32 garrBuildingId);
+    bool HasBlueprint(uint32 garrBuildingId) const { return _knownBuildings.find(garrBuildingId) != _knownBuildings.end(); }
     void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId);
     void CancelBuildingConstruction(uint32 garrPlotInstanceId);
     void ActivateBuilding(uint32 garrPlotInstanceId);
@@ -239,6 +243,16 @@ public:
     // Followers
     void AddFollower(uint32 garrFollowerId);
     Follower const* GetFollower(uint64 dbId) const;
+    template<typename Predicate>
+    uint32 CountFollowers(Predicate&& predicate) const
+    {
+        uint32 count = 0;
+        for (auto itr = _followers.begin(); itr != _followers.end(); ++itr)
+            if (predicate(itr->second))
+                ++count;
+
+        return count;
+    }
 
     void SendInfo();
     void SendRemoteInfo() const;

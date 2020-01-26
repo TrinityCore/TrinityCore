@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,8 +41,12 @@ WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::W
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.WriteBit(IsSetFavorite);
     _worldPacket << uint32(FavoriteAppearances.size());
-    for (uint32 itemModifiedAppearanceId : FavoriteAppearances)
-        _worldPacket << uint32(itemModifiedAppearanceId);
+    _worldPacket << uint32(NewAppearances.size());
+    if (!FavoriteAppearances.empty())
+        _worldPacket.append(FavoriteAppearances.data(), FavoriteAppearances.size());
+
+    if (!NewAppearances.empty())
+        _worldPacket.append(NewAppearances.data(), NewAppearances.size());
 
     return &_worldPacket;
 }

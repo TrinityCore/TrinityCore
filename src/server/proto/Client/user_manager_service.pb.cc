@@ -39,15 +39,9 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* AddRecentPlayersRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   AddRecentPlayersRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* AddRecentPlayersResponse_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  AddRecentPlayersResponse_reflection_ = NULL;
 const ::google::protobuf::Descriptor* ClearRecentPlayersRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ClearRecentPlayersRequest_reflection_ = NULL;
-const ::google::protobuf::Descriptor* ClearRecentPlayersResponse_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  ClearRecentPlayersResponse_reflection_ = NULL;
 const ::google::protobuf::Descriptor* BlockPlayerRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   BlockPlayerRequest_reflection_ = NULL;
@@ -144,23 +138,7 @@ void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(AddRecentPlayersRequest));
-  AddRecentPlayersResponse_descriptor_ = file->message_type(4);
-  static const int AddRecentPlayersResponse_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddRecentPlayersResponse, players_added_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddRecentPlayersResponse, players_removed_),
-  };
-  AddRecentPlayersResponse_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      AddRecentPlayersResponse_descriptor_,
-      AddRecentPlayersResponse::default_instance_,
-      AddRecentPlayersResponse_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddRecentPlayersResponse, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(AddRecentPlayersResponse, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(AddRecentPlayersResponse));
-  ClearRecentPlayersRequest_descriptor_ = file->message_type(5);
+  ClearRecentPlayersRequest_descriptor_ = file->message_type(4);
   static const int ClearRecentPlayersRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClearRecentPlayersRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClearRecentPlayersRequest, program_),
@@ -176,22 +154,7 @@ void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClearRecentPlayersRequest));
-  ClearRecentPlayersResponse_descriptor_ = file->message_type(6);
-  static const int ClearRecentPlayersResponse_offsets_[1] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClearRecentPlayersResponse, players_removed_),
-  };
-  ClearRecentPlayersResponse_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      ClearRecentPlayersResponse_descriptor_,
-      ClearRecentPlayersResponse::default_instance_,
-      ClearRecentPlayersResponse_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClearRecentPlayersResponse, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClearRecentPlayersResponse, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(ClearRecentPlayersResponse));
-  BlockPlayerRequest_descriptor_ = file->message_type(7);
+  BlockPlayerRequest_descriptor_ = file->message_type(5);
   static const int BlockPlayerRequest_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BlockPlayerRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BlockPlayerRequest, target_id_),
@@ -208,7 +171,7 @@ void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BlockPlayerRequest));
-  UnblockPlayerRequest_descriptor_ = file->message_type(8);
+  UnblockPlayerRequest_descriptor_ = file->message_type(6);
   static const int UnblockPlayerRequest_offsets_[2] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnblockPlayerRequest, agent_id_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(UnblockPlayerRequest, target_id_),
@@ -224,7 +187,7 @@ void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(UnblockPlayerRequest));
-  BlockedPlayerAddedNotification_descriptor_ = file->message_type(9);
+  BlockedPlayerAddedNotification_descriptor_ = file->message_type(7);
   static const int BlockedPlayerAddedNotification_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BlockedPlayerAddedNotification, player_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BlockedPlayerAddedNotification, game_account_id_),
@@ -241,7 +204,7 @@ void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BlockedPlayerAddedNotification));
-  BlockedPlayerRemovedNotification_descriptor_ = file->message_type(10);
+  BlockedPlayerRemovedNotification_descriptor_ = file->message_type(8);
   static const int BlockedPlayerRemovedNotification_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BlockedPlayerRemovedNotification, player_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(BlockedPlayerRemovedNotification, game_account_id_),
@@ -258,7 +221,7 @@ void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(BlockedPlayerRemovedNotification));
-  RecentPlayersAddedNotification_descriptor_ = file->message_type(11);
+  RecentPlayersAddedNotification_descriptor_ = file->message_type(9);
   static const int RecentPlayersAddedNotification_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RecentPlayersAddedNotification, player_),
   };
@@ -273,7 +236,7 @@ void protobuf_AssignDesc_user_5fmanager_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(RecentPlayersAddedNotification));
-  RecentPlayersRemovedNotification_descriptor_ = file->message_type(12);
+  RecentPlayersRemovedNotification_descriptor_ = file->message_type(10);
   static const int RecentPlayersRemovedNotification_offsets_[1] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RecentPlayersRemovedNotification, player_),
   };
@@ -311,11 +274,7 @@ void protobuf_RegisterTypes(const ::std::string&) {
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     AddRecentPlayersRequest_descriptor_, &AddRecentPlayersRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    AddRecentPlayersResponse_descriptor_, &AddRecentPlayersResponse::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ClearRecentPlayersRequest_descriptor_, &ClearRecentPlayersRequest::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    ClearRecentPlayersResponse_descriptor_, &ClearRecentPlayersResponse::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     BlockPlayerRequest_descriptor_, &BlockPlayerRequest::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
@@ -341,12 +300,8 @@ void protobuf_ShutdownFile_user_5fmanager_5fservice_2eproto() {
   delete UnsubscribeRequest_reflection_;
   delete AddRecentPlayersRequest::default_instance_;
   delete AddRecentPlayersRequest_reflection_;
-  delete AddRecentPlayersResponse::default_instance_;
-  delete AddRecentPlayersResponse_reflection_;
   delete ClearRecentPlayersRequest::default_instance_;
   delete ClearRecentPlayersRequest_reflection_;
-  delete ClearRecentPlayersResponse::default_instance_;
-  delete ClearRecentPlayersResponse_reflection_;
   delete BlockPlayerRequest::default_instance_;
   delete BlockPlayerRequest_reflection_;
   delete UnblockPlayerRequest::default_instance_;
@@ -388,79 +343,71 @@ void protobuf_AddDesc_user_5fmanager_5fservice_2eproto() {
     "quest\022;\n\007players\030\001 \003(\0132*.bgs.protocol.us"
     "er_manager.v1.RecentPlayer\022(\n\010agent_id\030\002"
     " \001(\0132\026.bgs.protocol.EntityId\022\017\n\007program\030"
-    "\003 \001(\r\"v\n\030AddRecentPlayersResponse\022A\n\rpla"
-    "yers_added\030\001 \003(\0132*.bgs.protocol.user_man"
-    "ager.v1.RecentPlayer\022\027\n\017players_removed\030"
-    "\003 \003(\007\"V\n\031ClearRecentPlayersRequest\022(\n\010ag"
+    "\003 \001(\r\"V\n\031ClearRecentPlayersRequest\022(\n\010ag"
     "ent_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022\017\n\007"
-    "program\030\002 \001(\r\"5\n\032ClearRecentPlayersRespo"
-    "nse\022\027\n\017players_removed\030\001 \003(\007\"w\n\022BlockPla"
-    "yerRequest\022(\n\010agent_id\030\001 \001(\0132\026.bgs.proto"
-    "col.EntityId\022)\n\ttarget_id\030\002 \002(\0132\026.bgs.pr"
-    "otocol.EntityId\022\014\n\004role\030\003 \001(\r\"k\n\024Unblock"
-    "PlayerRequest\022(\n\010agent_id\030\001 \001(\0132\026.bgs.pr"
-    "otocol.EntityId\022)\n\ttarget_id\030\002 \002(\0132\026.bgs"
-    ".protocol.EntityId\"\272\001\n\036BlockedPlayerAdde"
-    "dNotification\022;\n\006player\030\001 \002(\0132+.bgs.prot"
-    "ocol.user_manager.v1.BlockedPlayer\022/\n\017ga"
-    "me_account_id\030\002 \001(\0132\026.bgs.protocol.Entit"
-    "yId\022*\n\naccount_id\030\003 \001(\0132\026.bgs.protocol.E"
-    "ntityId\"\274\001\n BlockedPlayerRemovedNotifica"
-    "tion\022;\n\006player\030\001 \002(\0132+.bgs.protocol.user"
-    "_manager.v1.BlockedPlayer\022/\n\017game_accoun"
-    "t_id\030\002 \001(\0132\026.bgs.protocol.EntityId\022*\n\nac"
-    "count_id\030\003 \001(\0132\026.bgs.protocol.EntityId\"\\"
-    "\n\036RecentPlayersAddedNotification\022:\n\006play"
-    "er\030\001 \003(\0132*.bgs.protocol.user_manager.v1."
-    "RecentPlayer\"^\n RecentPlayersRemovedNoti"
-    "fication\022:\n\006player\030\001 \003(\0132*.bgs.protocol."
-    "user_manager.v1.RecentPlayer2\233\007\n\022UserMan"
-    "agerService\022r\n\tSubscribe\022..bgs.protocol."
-    "user_manager.v1.SubscribeRequest\032/.bgs.p"
-    "rotocol.user_manager.v1.SubscribeRespons"
-    "e\"\004\200\265\030\001\022\207\001\n\020AddRecentPlayers\0225.bgs.proto"
-    "col.user_manager.v1.AddRecentPlayersRequ"
-    "est\0326.bgs.protocol.user_manager.v1.AddRe"
-    "centPlayersResponse\"\004\200\265\030\n\022\215\001\n\022ClearRecen"
-    "tPlayers\0227.bgs.protocol.user_manager.v1."
-    "ClearRecentPlayersRequest\0328.bgs.protocol"
-    ".user_manager.v1.ClearRecentPlayersRespo"
-    "nse\"\004\200\265\030\013\022[\n\013BlockPlayer\0220.bgs.protocol."
-    "user_manager.v1.BlockPlayerRequest\032\024.bgs"
-    ".protocol.NoData\"\004\200\265\030\024\022_\n\rUnblockPlayer\022"
-    "2.bgs.protocol.user_manager.v1.UnblockPl"
-    "ayerRequest\032\024.bgs.protocol.NoData\"\004\200\265\030\025\022"
-    "e\n\025BlockPlayerForSession\0220.bgs.protocol."
-    "user_manager.v1.BlockPlayerRequest\032\024.bgs"
-    ".protocol.NoData\"\004\200\265\030(\022C\n\rLoadBlockList\022"
-    "\026.bgs.protocol.EntityId\032\024.bgs.protocol.N"
-    "oData\"\004\200\265\0302\022[\n\013Unsubscribe\0220.bgs.protoco"
-    "l.user_manager.v1.UnsubscribeRequest\032\024.b"
-    "gs.protocol.NoData\"\004\200\265\0303\0320\312>-bnet.protoc"
-    "ol.user_manager.UserManagerService2\252\004\n\023U"
-    "serManagerListener\022u\n\024OnBlockedPlayerAdd"
-    "ed\022<.bgs.protocol.user_manager.v1.Blocke"
-    "dPlayerAddedNotification\032\031.bgs.protocol."
-    "NO_RESPONSE\"\004\200\265\030\001\022y\n\026OnBlockedPlayerRemo"
-    "ved\022>.bgs.protocol.user_manager.v1.Block"
-    "edPlayerRemovedNotification\032\031.bgs.protoc"
-    "ol.NO_RESPONSE\"\004\200\265\030\002\022u\n\024OnRecentPlayersA"
-    "dded\022<.bgs.protocol.user_manager.v1.Rece"
-    "ntPlayersAddedNotification\032\031.bgs.protoco"
-    "l.NO_RESPONSE\"\004\200\265\030\013\022y\n\026OnRecentPlayersRe"
-    "moved\022>.bgs.protocol.user_manager.v1.Rec"
-    "entPlayersRemovedNotification\032\031.bgs.prot"
-    "ocol.NO_RESPONSE\"\004\200\265\030\014\032/\312>,bnet.protocol"
-    ".user_manager.UserManagerNotifyB\005H\001\200\001\000", 3198);
+    "program\030\002 \001(\r\"w\n\022BlockPlayerRequest\022(\n\010a"
+    "gent_id\030\001 \001(\0132\026.bgs.protocol.EntityId\022)\n"
+    "\ttarget_id\030\002 \002(\0132\026.bgs.protocol.EntityId"
+    "\022\014\n\004role\030\003 \001(\r\"k\n\024UnblockPlayerRequest\022("
+    "\n\010agent_id\030\001 \001(\0132\026.bgs.protocol.EntityId"
+    "\022)\n\ttarget_id\030\002 \002(\0132\026.bgs.protocol.Entit"
+    "yId\"\272\001\n\036BlockedPlayerAddedNotification\022;"
+    "\n\006player\030\001 \002(\0132+.bgs.protocol.user_manag"
+    "er.v1.BlockedPlayer\022/\n\017game_account_id\030\002"
+    " \001(\0132\026.bgs.protocol.EntityId\022*\n\naccount_"
+    "id\030\003 \001(\0132\026.bgs.protocol.EntityId\"\274\001\n Blo"
+    "ckedPlayerRemovedNotification\022;\n\006player\030"
+    "\001 \002(\0132+.bgs.protocol.user_manager.v1.Blo"
+    "ckedPlayer\022/\n\017game_account_id\030\002 \001(\0132\026.bg"
+    "s.protocol.EntityId\022*\n\naccount_id\030\003 \001(\0132"
+    "\026.bgs.protocol.EntityId\"\\\n\036RecentPlayers"
+    "AddedNotification\022:\n\006player\030\001 \003(\0132*.bgs."
+    "protocol.user_manager.v1.RecentPlayer\"^\n"
+    " RecentPlayersRemovedNotification\022:\n\006pla"
+    "yer\030\001 \003(\0132*.bgs.protocol.user_manager.v1"
+    ".RecentPlayer2\263\006\n\022UserManagerService\022t\n\t"
+    "Subscribe\022..bgs.protocol.user_manager.v1"
+    ".SubscribeRequest\032/.bgs.protocol.user_ma"
+    "nager.v1.SubscribeResponse\"\006\202\371+\002\010\001\022g\n\020Ad"
+    "dRecentPlayers\0225.bgs.protocol.user_manag"
+    "er.v1.AddRecentPlayersRequest\032\024.bgs.prot"
+    "ocol.NoData\"\006\202\371+\002\010\n\022k\n\022ClearRecentPlayer"
+    "s\0227.bgs.protocol.user_manager.v1.ClearRe"
+    "centPlayersRequest\032\024.bgs.protocol.NoData"
+    "\"\006\202\371+\002\010\013\022]\n\013BlockPlayer\0220.bgs.protocol.u"
+    "ser_manager.v1.BlockPlayerRequest\032\024.bgs."
+    "protocol.NoData\"\006\202\371+\002\010\024\022a\n\rUnblockPlayer"
+    "\0222.bgs.protocol.user_manager.v1.UnblockP"
+    "layerRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002"
+    "\010\025\022g\n\025BlockPlayerForSession\0220.bgs.protoc"
+    "ol.user_manager.v1.BlockPlayerRequest\032\024."
+    "bgs.protocol.NoData\"\006\202\371+\002\010(\022]\n\013Unsubscri"
+    "be\0220.bgs.protocol.user_manager.v1.Unsubs"
+    "cribeRequest\032\024.bgs.protocol.NoData\"\006\202\371+\002"
+    "\0103\032G\202\371+=\n-bnet.protocol.user_manager.Use"
+    "rManagerService*\014user_manager\212\371+\002\020\0012\273\004\n\023"
+    "UserManagerListener\022w\n\024OnBlockedPlayerAd"
+    "ded\022<.bgs.protocol.user_manager.v1.Block"
+    "edPlayerAddedNotification\032\031.bgs.protocol"
+    ".NO_RESPONSE\"\006\202\371+\002\010\001\022{\n\026OnBlockedPlayerR"
+    "emoved\022>.bgs.protocol.user_manager.v1.Bl"
+    "ockedPlayerRemovedNotification\032\031.bgs.pro"
+    "tocol.NO_RESPONSE\"\006\202\371+\002\010\002\022w\n\024OnRecentPla"
+    "yersAdded\022<.bgs.protocol.user_manager.v1"
+    ".RecentPlayersAddedNotification\032\031.bgs.pr"
+    "otocol.NO_RESPONSE\"\006\202\371+\002\010\013\022{\n\026OnRecentPl"
+    "ayersRemoved\022>.bgs.protocol.user_manager"
+    ".v1.RecentPlayersRemovedNotification\032\031.b"
+    "gs.protocol.NO_RESPONSE\"\006\202\371+\002\010\014\0328\202\371+.\n,b"
+    "net.protocol.user_manager.UserManagerNot"
+    "ify\212\371+\002\010\001B\005H\001\200\001\000", 2936);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "user_manager_service.proto", &protobuf_RegisterTypes);
   SubscribeRequest::default_instance_ = new SubscribeRequest();
   SubscribeResponse::default_instance_ = new SubscribeResponse();
   UnsubscribeRequest::default_instance_ = new UnsubscribeRequest();
   AddRecentPlayersRequest::default_instance_ = new AddRecentPlayersRequest();
-  AddRecentPlayersResponse::default_instance_ = new AddRecentPlayersResponse();
   ClearRecentPlayersRequest::default_instance_ = new ClearRecentPlayersRequest();
-  ClearRecentPlayersResponse::default_instance_ = new ClearRecentPlayersResponse();
   BlockPlayerRequest::default_instance_ = new BlockPlayerRequest();
   UnblockPlayerRequest::default_instance_ = new UnblockPlayerRequest();
   BlockedPlayerAddedNotification::default_instance_ = new BlockedPlayerAddedNotification();
@@ -471,9 +418,7 @@ void protobuf_AddDesc_user_5fmanager_5fservice_2eproto() {
   SubscribeResponse::default_instance_->InitAsDefaultInstance();
   UnsubscribeRequest::default_instance_->InitAsDefaultInstance();
   AddRecentPlayersRequest::default_instance_->InitAsDefaultInstance();
-  AddRecentPlayersResponse::default_instance_->InitAsDefaultInstance();
   ClearRecentPlayersRequest::default_instance_->InitAsDefaultInstance();
-  ClearRecentPlayersResponse::default_instance_->InitAsDefaultInstance();
   BlockPlayerRequest::default_instance_->InitAsDefaultInstance();
   UnblockPlayerRequest::default_instance_->InitAsDefaultInstance();
   BlockedPlayerAddedNotification::default_instance_->InitAsDefaultInstance();
@@ -1648,268 +1593,6 @@ void AddRecentPlayersRequest::Swap(AddRecentPlayersRequest* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int AddRecentPlayersResponse::kPlayersAddedFieldNumber;
-const int AddRecentPlayersResponse::kPlayersRemovedFieldNumber;
-#endif  // !_MSC_VER
-
-AddRecentPlayersResponse::AddRecentPlayersResponse()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-}
-
-void AddRecentPlayersResponse::InitAsDefaultInstance() {
-}
-
-AddRecentPlayersResponse::AddRecentPlayersResponse(const AddRecentPlayersResponse& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-}
-
-void AddRecentPlayersResponse::SharedCtor() {
-  _cached_size_ = 0;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-AddRecentPlayersResponse::~AddRecentPlayersResponse() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-  SharedDtor();
-}
-
-void AddRecentPlayersResponse::SharedDtor() {
-  if (this != default_instance_) {
-  }
-}
-
-void AddRecentPlayersResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* AddRecentPlayersResponse::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return AddRecentPlayersResponse_descriptor_;
-}
-
-const AddRecentPlayersResponse& AddRecentPlayersResponse::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
-  return *default_instance_;
-}
-
-AddRecentPlayersResponse* AddRecentPlayersResponse::default_instance_ = NULL;
-
-AddRecentPlayersResponse* AddRecentPlayersResponse::New() const {
-  return new AddRecentPlayersResponse;
-}
-
-void AddRecentPlayersResponse::Clear() {
-  players_added_.Clear();
-  players_removed_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool AddRecentPlayersResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.user_manager.v1.RecentPlayer players_added = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_players_added:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_players_added()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_players_added;
-        if (input->ExpectTag(29)) goto parse_players_removed;
-        break;
-      }
-
-      // repeated fixed32 players_removed = 3;
-      case 3: {
-        if (tag == 29) {
-         parse_players_removed:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 1, 29, input, this->mutable_players_removed())));
-        } else if (tag == 26) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 input, this->mutable_players_removed())));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(29)) goto parse_players_removed;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-  return false;
-#undef DO_
-}
-
-void AddRecentPlayersResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer players_added = 1;
-  for (int i = 0; i < this->players_added_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->players_added(i), output);
-  }
-
-  // repeated fixed32 players_removed = 3;
-  for (int i = 0; i < this->players_removed_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed32(
-      3, this->players_removed(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-}
-
-::google::protobuf::uint8* AddRecentPlayersResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer players_added = 1;
-  for (int i = 0; i < this->players_added_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->players_added(i), target);
-  }
-
-  // repeated fixed32 players_removed = 3;
-  for (int i = 0; i < this->players_removed_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteFixed32ToArray(3, this->players_removed(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.AddRecentPlayersResponse)
-  return target;
-}
-
-int AddRecentPlayersResponse::ByteSize() const {
-  int total_size = 0;
-
-  // repeated .bgs.protocol.user_manager.v1.RecentPlayer players_added = 1;
-  total_size += 1 * this->players_added_size();
-  for (int i = 0; i < this->players_added_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->players_added(i));
-  }
-
-  // repeated fixed32 players_removed = 3;
-  {
-    int data_size = 0;
-    data_size = 4 * this->players_removed_size();
-    total_size += 1 * this->players_removed_size() + data_size;
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void AddRecentPlayersResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const AddRecentPlayersResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const AddRecentPlayersResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void AddRecentPlayersResponse::MergeFrom(const AddRecentPlayersResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  players_added_.MergeFrom(from.players_added_);
-  players_removed_.MergeFrom(from.players_removed_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void AddRecentPlayersResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void AddRecentPlayersResponse::CopyFrom(const AddRecentPlayersResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool AddRecentPlayersResponse::IsInitialized() const {
-
-  if (!::google::protobuf::internal::AllAreInitialized(this->players_added())) return false;
-  return true;
-}
-
-void AddRecentPlayersResponse::Swap(AddRecentPlayersResponse* other) {
-  if (other != this) {
-    players_added_.Swap(&other->players_added_);
-    players_removed_.Swap(&other->players_removed_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata AddRecentPlayersResponse::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = AddRecentPlayersResponse_descriptor_;
-  metadata.reflection = AddRecentPlayersResponse_reflection_;
-  return metadata;
-}
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
 const int ClearRecentPlayersRequest::kAgentIdFieldNumber;
 const int ClearRecentPlayersRequest::kProgramFieldNumber;
 #endif  // !_MSC_VER
@@ -2174,228 +1857,6 @@ void ClearRecentPlayersRequest::Swap(ClearRecentPlayersRequest* other) {
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = ClearRecentPlayersRequest_descriptor_;
   metadata.reflection = ClearRecentPlayersRequest_reflection_;
-  return metadata;
-}
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int ClearRecentPlayersResponse::kPlayersRemovedFieldNumber;
-#endif  // !_MSC_VER
-
-ClearRecentPlayersResponse::ClearRecentPlayersResponse()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-}
-
-void ClearRecentPlayersResponse::InitAsDefaultInstance() {
-}
-
-ClearRecentPlayersResponse::ClearRecentPlayersResponse(const ClearRecentPlayersResponse& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-}
-
-void ClearRecentPlayersResponse::SharedCtor() {
-  _cached_size_ = 0;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-ClearRecentPlayersResponse::~ClearRecentPlayersResponse() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-  SharedDtor();
-}
-
-void ClearRecentPlayersResponse::SharedDtor() {
-  if (this != default_instance_) {
-  }
-}
-
-void ClearRecentPlayersResponse::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* ClearRecentPlayersResponse::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return ClearRecentPlayersResponse_descriptor_;
-}
-
-const ClearRecentPlayersResponse& ClearRecentPlayersResponse::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_user_5fmanager_5fservice_2eproto();
-  return *default_instance_;
-}
-
-ClearRecentPlayersResponse* ClearRecentPlayersResponse::default_instance_ = NULL;
-
-ClearRecentPlayersResponse* ClearRecentPlayersResponse::New() const {
-  return new ClearRecentPlayersResponse;
-}
-
-void ClearRecentPlayersResponse::Clear() {
-  players_removed_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool ClearRecentPlayersResponse::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated fixed32 players_removed = 1;
-      case 1: {
-        if (tag == 13) {
-         parse_players_removed:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 1, 13, input, this->mutable_players_removed())));
-        } else if (tag == 10) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitiveNoInline<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 input, this->mutable_players_removed())));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(13)) goto parse_players_removed;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-  return false;
-#undef DO_
-}
-
-void ClearRecentPlayersResponse::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-  // repeated fixed32 players_removed = 1;
-  for (int i = 0; i < this->players_removed_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed32(
-      1, this->players_removed(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-}
-
-::google::protobuf::uint8* ClearRecentPlayersResponse::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-  // repeated fixed32 players_removed = 1;
-  for (int i = 0; i < this->players_removed_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteFixed32ToArray(1, this->players_removed(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.user_manager.v1.ClearRecentPlayersResponse)
-  return target;
-}
-
-int ClearRecentPlayersResponse::ByteSize() const {
-  int total_size = 0;
-
-  // repeated fixed32 players_removed = 1;
-  {
-    int data_size = 0;
-    data_size = 4 * this->players_removed_size();
-    total_size += 1 * this->players_removed_size() + data_size;
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void ClearRecentPlayersResponse::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const ClearRecentPlayersResponse* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const ClearRecentPlayersResponse*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void ClearRecentPlayersResponse::MergeFrom(const ClearRecentPlayersResponse& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  players_removed_.MergeFrom(from.players_removed_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void ClearRecentPlayersResponse::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void ClearRecentPlayersResponse::CopyFrom(const ClearRecentPlayersResponse& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool ClearRecentPlayersResponse::IsInitialized() const {
-
-  return true;
-}
-
-void ClearRecentPlayersResponse::Swap(ClearRecentPlayersResponse* other) {
-  if (other != this) {
-    players_removed_.Swap(&other->players_removed_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata ClearRecentPlayersResponse::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = ClearRecentPlayersResponse_descriptor_;
-  metadata.reflection = ClearRecentPlayersResponse_reflection_;
   return metadata;
 }
 
@@ -4117,22 +3578,22 @@ void UserManagerService::Subscribe(::bgs::protocol::user_manager::v1::SubscribeR
   SendRequest(service_hash_, 1, request, std::move(callback));
 }
 
-void UserManagerService::AddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, std::function<void(::bgs::protocol::user_manager::v1::AddRecentPlayersResponse const*)> responseCallback) {
+void UserManagerService::AddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.AddRecentPlayers(bgs.protocol.user_manager.v1.AddRecentPlayersRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::user_manager::v1::AddRecentPlayersResponse response;
+    ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
       responseCallback(&response);
   };
   SendRequest(service_hash_, 10, request, std::move(callback));
 }
 
-void UserManagerService::ClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, std::function<void(::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse const*)> responseCallback) {
+void UserManagerService::ClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.ClearRecentPlayers(bgs.protocol.user_manager.v1.ClearRecentPlayersRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse response;
+    ::bgs::protocol::NoData response;
     if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
       responseCallback(&response);
   };
@@ -4170,17 +3631,6 @@ void UserManagerService::BlockPlayerForSession(::bgs::protocol::user_manager::v1
       responseCallback(&response);
   };
   SendRequest(service_hash_, 40, request, std::move(callback));
-}
-
-void UserManagerService::LoadBlockList(::bgs::protocol::EntityId const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method UserManagerService.LoadBlockList(bgs.protocol.EntityId{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::NoData response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 50, request, std::move(callback));
 }
 
 void UserManagerService::Unsubscribe(::bgs::protocol::user_manager::v1::UnsubscribeRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
@@ -4233,16 +3683,16 @@ void UserManagerService::CallServerMethod(uint32 token, uint32 methodId, Message
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::user_manager::v1::AddRecentPlayersResponse::descriptor());
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.AddRecentPlayers() returned bgs.protocol.user_manager.v1.AddRecentPlayersResponse{ %s } status %u.",
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.AddRecentPlayers() returned bgs.protocol.NoData{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
           self->SendResponse(self->service_hash_, 10, token, response);
         else
           self->SendResponse(self->service_hash_, 10, token, status);
       };
-      ::bgs::protocol::user_manager::v1::AddRecentPlayersResponse response;
+      ::bgs::protocol::NoData response;
       uint32 status = HandleAddRecentPlayers(&request, &response, continuation);
       if (continuation)
         continuation(this, status, &response);
@@ -4259,16 +3709,16 @@ void UserManagerService::CallServerMethod(uint32 token, uint32 methodId, Message
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
       std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse::descriptor());
+        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.ClearRecentPlayers() returned bgs.protocol.user_manager.v1.ClearRecentPlayersResponse{ %s } status %u.",
+        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.ClearRecentPlayers() returned bgs.protocol.NoData{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
           self->SendResponse(self->service_hash_, 11, token, response);
         else
           self->SendResponse(self->service_hash_, 11, token, status);
       };
-      ::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse response;
+      ::bgs::protocol::NoData response;
       uint32 status = HandleClearRecentPlayers(&request, &response, continuation);
       if (continuation)
         continuation(this, status, &response);
@@ -4352,32 +3802,6 @@ void UserManagerService::CallServerMethod(uint32 token, uint32 methodId, Message
         continuation(this, status, &response);
       break;
     }
-    case 50: {
-      ::bgs::protocol::EntityId request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for UserManagerService.LoadBlockList server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 50, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.LoadBlockList(bgs.protocol.EntityId{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
-        UserManagerService* self = static_cast<UserManagerService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method UserManagerService.LoadBlockList() returned bgs.protocol.NoData{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, 50, token, response);
-        else
-          self->SendResponse(self->service_hash_, 50, token, status);
-      };
-      ::bgs::protocol::NoData response;
-      uint32 status = HandleLoadBlockList(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
-      break;
-    }
     case 51: {
       ::bgs::protocol::user_manager::v1::UnsubscribeRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
@@ -4417,13 +3841,13 @@ uint32 UserManagerService::HandleSubscribe(::bgs::protocol::user_manager::v1::Su
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 UserManagerService::HandleAddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, ::bgs::protocol::user_manager::v1::AddRecentPlayersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
+uint32 UserManagerService::HandleAddRecentPlayers(::bgs::protocol::user_manager::v1::AddRecentPlayersRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.AddRecentPlayers({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }
 
-uint32 UserManagerService::HandleClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, ::bgs::protocol::user_manager::v1::ClearRecentPlayersResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
+uint32 UserManagerService::HandleClearRecentPlayers(::bgs::protocol::user_manager::v1::ClearRecentPlayersRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.ClearRecentPlayers({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
@@ -4443,12 +3867,6 @@ uint32 UserManagerService::HandleUnblockPlayer(::bgs::protocol::user_manager::v1
 
 uint32 UserManagerService::HandleBlockPlayerForSession(::bgs::protocol::user_manager::v1::BlockPlayerRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
   TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.BlockPlayerForSession({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 UserManagerService::HandleLoadBlockList(::bgs::protocol::EntityId const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method UserManagerService.LoadBlockList({ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
   return ERROR_RPC_NOT_IMPLEMENTED;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -63,12 +63,12 @@ namespace WorldPackets
         class AuthChallenge final : public ServerPacket
         {
         public:
-            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 4 + 32 + 1) { }
+            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 16 + 4 * 8 + 1) { }
 
             WorldPacket const* Write() override;
 
             std::array<uint8, 16> Challenge = { };
-            uint32 DosChallenge[8] = { }; ///< Encryption seeds
+            std::array<uint32, 8> DosChallenge = { };
             uint8 DosZeroBits = 0;
         };
 
@@ -83,8 +83,6 @@ namespace WorldPackets
                 Digest.fill(0);
             }
 
-            uint16 Build = 0;
-            int8 BuildType = 0;
             uint32 RegionID = 0;
             uint32 BattlegroupID = 0;
             uint32 RealmID = 0;
@@ -159,6 +157,7 @@ namespace WorldPackets
                 bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
                 Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
                 Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
+                Optional<int32> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
             };
 
             AuthResponse();
@@ -201,26 +200,32 @@ namespace WorldPackets
 
         class ConnectTo final : public ServerPacket
         {
-            static std::string const Haiku;
-            static uint8 const PiDigits[130];
-
         public:
             static bool InitializeEncryption();
 
             enum AddressType : uint8
             {
                 IPv4 = 1,
-                IPv6 = 2
+                IPv6 = 2,
+                NamedSocket = 3 // not supported by windows client
+            };
+
+            struct SocketAddress
+            {
+                AddressType Type;
+                union
+                {
+                    std::array<uint8, 4> V4;
+                    std::array<uint8, 16> V6;
+                    std::array<char, 128> Name;
+                } Address;
             };
 
             struct ConnectPayload
             {
-                std::array<uint8, 16> Where;
+                SocketAddress Where;
                 uint16 Port;
-                AddressType Type;
-                uint32 Adler32 = 0;
-                uint8 XorMagic = 0x2A;
-                uint8 PanamaKey[32];
+                std::array<uint8, 256> Signature;
             };
 
             ConnectTo();
@@ -276,9 +281,15 @@ namespace WorldPackets
         class EnableEncryption final : public ServerPacket
         {
         public:
-            EnableEncryption() : ServerPacket(SMSG_ENABLE_ENCRYPTION, 0) { }
+            EnableEncryption(uint8 const* encryptionKey, bool enabled) : ServerPacket(SMSG_ENABLE_ENCRYPTION, 256 + 1),
+                EncryptionKey(encryptionKey), Enabled(enabled)
+            {
+            }
 
-            WorldPacket const* Write() override { return &_worldPacket; }
+            WorldPacket const* Write() override;
+
+            uint8 const* EncryptionKey;
+            bool Enabled = false;
         };
     }
 }

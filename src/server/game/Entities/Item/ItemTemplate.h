@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -113,7 +112,7 @@ enum ItemSpelltriggerType
      * death" of spell 57348 makes me think so)
      */
     ITEM_SPELLTRIGGER_ON_OBTAIN       = 5,
-    ITEM_SPELLTRIGGER_LEARN_SPELL_ID  = 6                   // used in item_template.spell_2 with spell_id with SPELL_GENERIC_LEARN in spell_1
+    ITEM_SPELLTRIGGER_LEARN_SPELL_ID  = 6                   // used in ItemEffect in second slot with spell_id with SPELL_GENERIC_LEARN in spell_1
 };
 
 #define MAX_ITEM_SPELLTRIGGER           7
@@ -157,7 +156,7 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_CHILD         = 0x00080000,
     ITEM_FIELD_FLAG_UNK15         = 0x00100000,
     ITEM_FIELD_FLAG_NEW_ITEM      = 0x00200000, // Item glows in inventory
-    ITEM_FIELD_FLAG_UNK17         = 0x00400000,
+    ITEM_FIELD_FLAG_AZERITE_EMPOWERED_ITEM_VIEWED = 0x00400000, // Won't play azerite powers animation when viewing it
     ITEM_FIELD_FLAG_UNK18         = 0x00800000,
     ITEM_FIELD_FLAG_UNK19         = 0x01000000,
     ITEM_FIELD_FLAG_UNK20         = 0x02000000,
@@ -167,6 +166,11 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK24         = 0x20000000,
     ITEM_FIELD_FLAG_UNK25         = 0x40000000,
     ITEM_FIELD_FLAG_UNK26         = 0x80000000
+};
+
+enum ItemFieldFlags2 : uint32
+{
+    ITEM_FIELD_FLAG2_EQUIPPED   = 0x1
 };
 
 enum ItemFlags : uint32
@@ -243,31 +247,53 @@ enum ItemFlags2 : uint32
 
 enum ItemFlags3
 {
-    ITEM_FLAG3_DONT_DESTROY_ON_QUEST_ACCEPT                 = 0x00000001,
-    ITEM_FLAG3_ITEM_CAN_BE_UPGRADED                         = 0x00000002,
-    ITEM_FLAG3_UPGRADE_FROM_ITEM_OVERRIDES_DROP_UPGRADE     = 0x00000004,
-    ITEM_FLAG3_ALWAYS_FFA_IN_LOOT                           = 0x00000008,
-    ITEM_FLAG3_HIDE_UPGRADE_LEVELS_IF_NOT_UPGRADED          = 0x00000010,
-    ITEM_FLAG3_UPDATE_INTERACTIONS                          = 0x00000020,
-    ITEM_FLAG3_UPDATE_DOESNT_LEAVE_PROGRESSIVE_WIN_HISTORY  = 0x00000040,
-    ITEM_FLAG3_IGNORE_ITEM_HISTORY_TRACKER                  = 0x00000080,
-    ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP                 = 0x00000100,
-    ITEM_FLAG3_DISPLAY_AS_HEIRLOOM                          = 0x00000200, // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
-    ITEM_FLAG3_SKIP_USE_CHECK_ON_PICKUP                     = 0x00000400,
-    ITEM_FLAG3_OBSOLETE                                     = 0x00000800,
-    ITEM_FLAG3_DONT_DISPLAY_IN_GUILD_NEWS                   = 0x00001000, // Item is not included in the guild news panel
-    ITEM_FLAG3_PVP_TOURNAMENT_GEAR                          = 0x00002000,
-    ITEM_FLAG3_REQUIRES_STACK_CHANGE_LOG                    = 0x00004000,
-    ITEM_FLAG3_UNUSED_FLAG                                  = 0x00008000,
-    ITEM_FLAG3_HIDE_NAME_SUFFIX                             = 0x00010000,
-    ITEM_FLAG3_PUSH_LOOT                                    = 0x00020000,
-    ITEM_FLAG3_DONT_REPORT_LOOT_LOG_TO_PARTY                = 0x00040000,
-    ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD                      = 0x00080000,
-    ITEM_FLAG3_OBLITERATABLE                                = 0x00100000,
-    ITEM_FLAG3_ACTS_AS_TRANSMOG_HIDDEN_VISUAL_OPTION        = 0x00200000,
-    ITEM_FLAG3_EXPIRE_ON_WEEKLY_RESET                       = 0x00400000,
-    ITEM_FLAG3_DOESNT_SHOW_UP_IN_TRANSMOG_UNTIL_COLLECTED   = 0x00800000,
-    ITEM_FLAG3_CAN_STORE_ENCHANTS                           = 0x01000000
+    ITEM_FLAG3_DONT_DESTROY_ON_QUEST_ACCEPT                         = 0x00000001,
+    ITEM_FLAG3_ITEM_CAN_BE_UPGRADED                                 = 0x00000002,
+    ITEM_FLAG3_UPGRADE_FROM_ITEM_OVERRIDES_DROP_UPGRADE             = 0x00000004,
+    ITEM_FLAG3_ALWAYS_FFA_IN_LOOT                                   = 0x00000008,
+    ITEM_FLAG3_HIDE_UPGRADE_LEVELS_IF_NOT_UPGRADED                  = 0x00000010,
+    ITEM_FLAG3_UPDATE_INTERACTIONS                                  = 0x00000020,
+    ITEM_FLAG3_UPDATE_DOESNT_LEAVE_PROGRESSIVE_WIN_HISTORY          = 0x00000040,
+    ITEM_FLAG3_IGNORE_ITEM_HISTORY_TRACKER                          = 0x00000080,
+    ITEM_FLAG3_IGNORE_ITEM_LEVEL_CAP_IN_PVP                         = 0x00000100,
+    ITEM_FLAG3_DISPLAY_AS_HEIRLOOM                                  = 0x00000200, // Item appears as having heirloom quality ingame regardless of its real quality (does not affect stat calculation)
+    ITEM_FLAG3_SKIP_USE_CHECK_ON_PICKUP                             = 0x00000400,
+    ITEM_FLAG3_OBSOLETE                                             = 0x00000800,
+    ITEM_FLAG3_DONT_DISPLAY_IN_GUILD_NEWS                           = 0x00001000, // Item is not included in the guild news panel
+    ITEM_FLAG3_PVP_TOURNAMENT_GEAR                                  = 0x00002000,
+    ITEM_FLAG3_REQUIRES_STACK_CHANGE_LOG                            = 0x00004000,
+    ITEM_FLAG3_UNUSED_FLAG                                          = 0x00008000,
+    ITEM_FLAG3_HIDE_NAME_SUFFIX                                     = 0x00010000,
+    ITEM_FLAG3_PUSH_LOOT                                            = 0x00020000,
+    ITEM_FLAG3_DONT_REPORT_LOOT_LOG_TO_PARTY                        = 0x00040000,
+    ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD                              = 0x00080000,
+    ITEM_FLAG3_OBLITERATABLE                                        = 0x00100000,
+    ITEM_FLAG3_ACTS_AS_TRANSMOG_HIDDEN_VISUAL_OPTION                = 0x00200000,
+    ITEM_FLAG3_EXPIRE_ON_WEEKLY_RESET                               = 0x00400000,
+    ITEM_FLAG3_DOESNT_SHOW_UP_IN_TRANSMOG_UNTIL_COLLECTED           = 0x00800000,
+    ITEM_FLAG3_CAN_STORE_ENCHANTS                                   = 0x01000000,
+    ITEM_FLAG3_HIDE_QUEST_ITEM_FROM_OBJECT_TOOLTIP                  = 0x02000000,
+    ITEM_FLAG3_DO_NOT_TOAST                                         = 0x04000000,
+    ITEM_FLAG3_IGNORE_CREATION_CONTEXT_FOR_PROGRESSIVE_WIN_HISTORY  = 0x08000000,
+    ITEM_FLAG3_FORCE_ALL_SPECS_FOR_ITEM_HISTORY                     = 0x10000000,
+    ITEM_FLAG3_SAVE_ON_CONSUME                                      = 0x20000000,
+    ITEM_FLAG3_CONTAINER_SAVES_PLAYER_DATA                          = 0x40000000,
+    ITEM_FLAG3_NO_VOID_STORAGE                                      = 0x80000000
+};
+
+enum ItemFlags4
+{
+    ITEM_FLAG4_HANDLE_ON_USE_EFFECT_IMMEDIATELY                 = 0x00000001,
+    ITEM_FLAG4_ALWAYS_SHOW_ITEM_LEVEL_IN_TOOLTIP                = 0x00000002,
+    ITEM_FLAG4_SHOWS_GENERATION_WITH_RANDOM_STATS               = 0x00000004,
+    ITEM_FLAG4_ACTIVATE_ON_EQUIP_EFFECTS_WHEN_TRANSMOGRIFIED    = 0x00000008,
+    ITEM_FLAG4_ENFORCE_TRANSMOG_WITH_CHILD_ITEM                 = 0x00000010,
+    ITEM_FLAG4_SCRAPABLE                                        = 0x00000020,
+    ITEM_FLAG4_BYPASS_REP_REQUIREMENTS_FOR_TRANSMOG             = 0x00000040,
+    ITEM_FLAG4_DISPLAY_ONLY_ON_DEFINED_RACES                    = 0x00000080,
+    ITEM_FLAG4_REGULATED_COMMODITY                              = 0x00000100,
+    ITEM_FLAG4_CREATE_LOOT_IMMEDIATELY                          = 0x00000200,
+    ITEM_FLAG4_GENERATE_LOOT_SPEC_ITEM                          = 0x00000400
 };
 
 enum ItemFlagsCustom
@@ -337,7 +363,7 @@ enum SocketColor
     SOCKET_COLOR_RELIC_HOLY                     = 0x10000
 };
 
-extern uint32 const SocketColorToGemTypeMask[19];
+extern int32 const SocketColorToGemTypeMask[19];
 
 #define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
@@ -732,7 +758,6 @@ struct TC_GAME_API ItemTemplate
     uint32 GetMaxCount() const { return ExtendedData->MaxCount; }
     uint32 GetContainerSlots() const { return ExtendedData->ContainerSlots; }
     int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatModifierBonusStat[index]; }
-    int32 GetItemStatValue(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatValue[index]; }
     int32 GetItemStatAllocation(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentEditor[index]; }
     float GetItemStatSocketCostMultiplier(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentageOfSocket[index]; }
     uint32 GetScalingStatDistribution() const { return ExtendedData->ScalingStatDistributionID; }
@@ -744,10 +769,8 @@ struct TC_GAME_API ItemTemplate
     uint32 GetPageText() const { return ExtendedData->PageID; }
     uint32 GetStartQuest() const { return ExtendedData->StartQuestID; }
     uint32 GetLockID() const { return ExtendedData->LockID; }
-    uint32 GetRandomProperty() const { return ExtendedData->RandomSelect; }
-    uint32 GetRandomSuffix() const { return ExtendedData->ItemRandomSuffixGroupID; }
     uint32 GetItemSet() const { return ExtendedData->ItemSet; }
-    uint32 GetArea() const { return ExtendedData->ZoneBound; }
+    uint32 GetArea(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_ZONES); return ExtendedData->ZoneBound[index]; }
     uint32 GetMap() const { return ExtendedData->InstanceBound; }
     uint32 GetBagFamily() const { return ExtendedData->BagFamily; }
     uint32 GetTotemCategory() const { return ExtendedData->TotemCategoryID; }
@@ -772,6 +795,7 @@ struct TC_GAME_API ItemTemplate
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
     float SpellPPMRate;
+    uint32 RandomBonusListTemplateId;
     std::bitset<MAX_CLASSES * MAX_SPECIALIZATIONS> Specializations[3];  // one set for 1-40 level range and another for 41-109 and one for 110
     uint32 ItemSpecClassMask;
 
@@ -788,7 +812,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetSkill() const;
 
     bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
-    bool IsVellum() const { return GetClass() == ITEM_CLASS_TRADE_GOODS && GetSubClass() == ITEM_SUBCLASS_ENCHANTMENT; }
+    bool IsVellum() const { return GetFlags3() & ITEM_FLAG3_CAN_STORE_ENCHANTS; }
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
     bool IsCraftingReagent() const { return (GetFlags2() & ITEM_FLAG2_USED_IN_A_TRADESKILL) != 0; }
 

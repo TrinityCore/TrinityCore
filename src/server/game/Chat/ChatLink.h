@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,8 +59,7 @@ protected:
 class TC_GAME_API ItemChatLink : public ChatLink
 {
 public:
-    ItemChatLink() : ChatLink(), _item(nullptr), _enchantId(0), _randomPropertyId(0), _randomPropertySeed(0), _reporterLevel(0), _reporterSpec(0), _context(0),
-        _suffix(nullptr), _property(nullptr)
+    ItemChatLink() : ChatLink(), _item(nullptr), _enchantId(0), _reporterLevel(0), _reporterSpec(0), _context(0)
     {
         memset(_gemItemId, 0, sizeof(_gemItemId));
     }
@@ -74,29 +73,28 @@ protected:
     ItemTemplate const* _item;
     int32 _enchantId;
     int32 _gemItemId[3];
-    int32 _randomPropertyId;
-    int32 _randomPropertySeed;
     int32 _reporterLevel;
     int32 _reporterSpec;
     int32 _context;
     std::vector<int32> _bonusListIDs;
     std::vector<std::pair<uint32, int32>> _modifiers;
     std::vector<int32> _gemBonusListIDs[3];
-    ItemRandomSuffixEntry const* _suffix;
-    ItemRandomPropertiesEntry const* _property;
 };
 
 // QuestChatLink - link to quest
 class TC_GAME_API QuestChatLink : public ChatLink
 {
 public:
-    QuestChatLink() : ChatLink(), _quest(nullptr), _questLevel(0) { }
+    QuestChatLink() : ChatLink(), _quest(nullptr), _questLevel(0), _minLevel(0), _maxLevel(0), _scalingFaction(0) { }
     virtual bool Initialize(std::istringstream& iss) override;
     virtual bool ValidateName(char* buffer, const char* context) override;
 
 protected:
     Quest const* _quest;
     int32 _questLevel;
+    int32 _minLevel;
+    int32 _maxLevel;
+    int32 _scalingFaction;
 };
 
 // SpellChatLink - link to quest

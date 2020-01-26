@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -147,6 +146,32 @@ namespace Trinity
                 return;
 
             if (!player->HaveAtClient(i_source))
+                return;
+
+            player->SendDirectMessage(i_message);
+        }
+    };
+
+    struct TC_GAME_API MessageDistDelivererToHostile
+    {
+        Unit* i_source;
+        WorldPacket const* i_message;
+        float i_distSq;
+
+        MessageDistDelivererToHostile(Unit* src, WorldPacket const* msg, float dist)
+            : i_source(src), i_message(msg), i_distSq(dist * dist)
+        {
+        }
+
+        void Visit(PlayerMapType &m);
+        void Visit(CreatureMapType &m);
+        void Visit(DynamicObjectMapType &m);
+        template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
+
+        void SendPacket(Player* player)
+        {
+            // never send packet to self
+            if (player == i_source || !player->HaveAtClient(i_source) || player->IsFriendlyTo(i_source))
                 return;
 
             player->SendDirectMessage(i_message);

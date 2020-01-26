@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -314,10 +314,10 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
             }
             case LOCATION_DOWNLOAD:
             {
-                const char* filename = base.filename().generic_string().c_str();
-                const char* workdir = boost::filesystem::current_path().generic_string().c_str();
+                std::string const filename = base.filename().generic_string();
+                std::string const workdir = boost::filesystem::current_path().generic_string();
                 TC_LOG_ERROR("sql.updates", ">> File \"%s\" is missing, download it from \"https://github.com/TrinityCore/TrinityCore/releases\"" \
-                    " uncompress it and place the file \"%s\" in the directory \"%s\".", filename, filename, workdir);
+                    " uncompress it and place the file \"%s\" in the directory \"%s\".", filename.c_str(), filename.c_str(), workdir.c_str());
                 break;
             }
         }
@@ -378,7 +378,10 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
     // Check if we want to connect through ip or socket (Unix only)
 #ifdef _WIN32
 
-    args.push_back("-P" + port_or_socket);
+    if (host == ".")
+        args.push_back("--protocol=PIPE");
+    else
+        args.push_back("-P" + port_or_socket);
 
 #else
 

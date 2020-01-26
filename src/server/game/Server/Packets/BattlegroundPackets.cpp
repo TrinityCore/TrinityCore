@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,8 +19,10 @@
 
 WorldPacket const* WorldPackets::Battleground::PVPSeason::Write()
 {
-    _worldPacket << uint32(CurrentSeason);
-    _worldPacket << uint32(PreviousSeason);
+    _worldPacket << int32(MythicPlusSeasonID);
+    _worldPacket << int32(CurrentSeason);
+    _worldPacket << int32(PreviousSeason);
+    _worldPacket << int32(PvpSeasonID);
 
     return &_worldPacket;
 }
@@ -45,9 +47,12 @@ WorldPacket const* WorldPackets::Battleground::AreaSpiritHealerTime::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::RatingData const& ratingData)
 {
-    data.append(ratingData.Prematch, 2);
-    data.append(ratingData.Postmatch, 2);
-    data.append(ratingData.PrematchMMR, 2);
+    for (std::size_t i = 0; i < 2; ++i)
+    {
+        data << int32(ratingData.Prematch[i]);
+        data << int32(ratingData.Postmatch[i]);
+        data << int32(ratingData.PrematchMMR[i]);
+    }
     return data;
 }
 
@@ -59,7 +64,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::PlayerData const& playerData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::PVPMatchPlayerPVPStat const& pvpStat)
+{
+    data << int32(pvpStat.PvpStatID);
+    data << int32(pvpStat.PvpStatValue);
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics const& playerData)
 {
     data << playerData.PlayerGUID;
     data << uint32(playerData.Kills);
@@ -67,11 +79,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
     data << uint32(playerData.HealingDone);
     data << uint32(playerData.Stats.size());
     data << int32(playerData.PrimaryTalentTree);
-    data << int32(playerData.PrimaryTalentTreeNameIndex);
+    data << int32(playerData.Sex);
     data << int32(playerData.Race);
-    data << uint32(playerData.Prestige);
-    if (!playerData.Stats.empty())
-        data.append(playerData.Stats.data(), playerData.Stats.size());
+    data << int32(playerData.Class);
+    data << int32(playerData.CreatureID);
+    data << int32(playerData.HonorLevel);
+    for (WorldPackets::Battleground::PVPLogData::PVPMatchPlayerPVPStat const& pvpStat : playerData.Stats)
+        data << pvpStat;
 
     data.WriteBit(playerData.Faction != 0);
     data.WriteBit(playerData.IsInWorld);
@@ -89,33 +103,29 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData:
         data << uint32(*playerData.PreMatchRating);
 
     if (playerData.RatingChange)
-        data << uint32(*playerData.RatingChange);
+        data << int32(*playerData.RatingChange);
 
     if (playerData.PreMatchMMR)
         data << uint32(*playerData.PreMatchMMR);
 
     if (playerData.MmrChange)
-        data << uint32(*playerData.MmrChange);
+        data << int32(*playerData.MmrChange);
 
     return data;
 }
 
 WorldPacket const* WorldPackets::Battleground::PVPLogData::Write()
 {
-    _worldPacket.reserve(Players.size() * sizeof(PlayerData) + sizeof(PVPLogData));
+    _worldPacket.reserve(Statistics.size() * sizeof(PVPMatchPlayerStatistics) + sizeof(PVPLogData));
 
     _worldPacket.WriteBit(Ratings.is_initialized());
-    _worldPacket.WriteBit(Winner.is_initialized());
-    _worldPacket << uint32(Players.size());
-    _worldPacket.append(PlayerCount, 2);
+    _worldPacket << uint32(Statistics.size());
+    _worldPacket.append(PlayerCount.data(), PlayerCount.size());
 
     if (Ratings.is_initialized())
         _worldPacket << *Ratings;
 
-    if (Winner)
-        _worldPacket << uint8(*Winner);
-
-    for (PlayerData const& player : Players)
+    for (PVPMatchPlayerStatistics const& player : Statistics)
         _worldPacket << player;
 
     return &_worldPacket;
@@ -123,10 +133,11 @@ WorldPacket const* WorldPackets::Battleground::PVPLogData::Write()
 
 void WorldPackets::Battleground::BattlemasterJoin::Read()
 {
-    _worldPacket >> QueueID;
+    QueueIDs.resize(_worldPacket.read<uint32>());
     _worldPacket >> Roles;
     _worldPacket >> BlacklistMap[0] >> BlacklistMap[1];
-    JoinAsGroup = _worldPacket.ReadBit();
+    for (uint64& queueId : QueueIDs)
+        _worldPacket >> queueId;
 }
 
 void WorldPackets::Battleground::BattlemasterJoinArena::Read()

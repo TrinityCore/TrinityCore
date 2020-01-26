@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,35 +29,41 @@
 
 enum TypeID
 {
-    TYPEID_OBJECT        = 0,
-    TYPEID_ITEM          = 1,
-    TYPEID_CONTAINER     = 2,
-    TYPEID_UNIT          = 3,
-    TYPEID_PLAYER        = 4,
-    TYPEID_GAMEOBJECT    = 5,
-    TYPEID_DYNAMICOBJECT = 6,
-    TYPEID_CORPSE        = 7,
-    TYPEID_AREATRIGGER   = 8,
-    TYPEID_SCENEOBJECT   = 9,
-    TYPEID_CONVERSATION  = 10
+    TYPEID_OBJECT                 = 0,
+    TYPEID_ITEM                   = 1,
+    TYPEID_CONTAINER              = 2,
+    TYPEID_AZERITE_EMPOWERED_ITEM = 3,
+    TYPEID_AZERITE_ITEM           = 4,
+    TYPEID_UNIT                   = 5,
+    TYPEID_PLAYER                 = 6,
+    TYPEID_ACTIVE_PLAYER          = 7,
+    TYPEID_GAMEOBJECT             = 8,
+    TYPEID_DYNAMICOBJECT          = 9,
+    TYPEID_CORPSE                 = 10,
+    TYPEID_AREATRIGGER            = 11,
+    TYPEID_SCENEOBJECT            = 12,
+    TYPEID_CONVERSATION           = 13
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             11
+#define NUM_CLIENT_OBJECT_TYPES             14
 
 enum TypeMask
 {
-    TYPEMASK_OBJECT         = 0x0001,
-    TYPEMASK_ITEM           = 0x0002,
-    TYPEMASK_CONTAINER      = 0x0004,
-    TYPEMASK_UNIT           = 0x0008,
-    TYPEMASK_PLAYER         = 0x0010,
-    TYPEMASK_GAMEOBJECT     = 0x0020,
-    TYPEMASK_DYNAMICOBJECT  = 0x0040,
-    TYPEMASK_CORPSE         = 0x0080,
-    TYPEMASK_AREATRIGGER    = 0x0100,
-    TYPEMASK_SCENEOBJECT    = 0x0200,
-    TYPEMASK_CONVERSATION   = 0x0400,
-    TYPEMASK_SEER           = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
+    TYPEMASK_OBJECT                 = 0x0001,
+    TYPEMASK_ITEM                   = 0x0002,
+    TYPEMASK_CONTAINER              = 0x0004,
+    TYPEMASK_AZERITE_EMPOWERED_ITEM = 0x0008,
+    TYPEMASK_AZERITE_ITEM           = 0x0010,
+    TYPEMASK_UNIT                   = 0x0020,
+    TYPEMASK_PLAYER                 = 0x0040,
+    TYPEMASK_ACTIVE_PLAYER          = 0x0080,
+    TYPEMASK_GAMEOBJECT             = 0x0100,
+    TYPEMASK_DYNAMICOBJECT          = 0x0200,
+    TYPEMASK_CORPSE                 = 0x0400,
+    TYPEMASK_AREATRIGGER            = 0x0800,
+    TYPEMASK_SCENEOBJECT            = 0x1000,
+    TYPEMASK_CONVERSATION           = 0x2000,
+    TYPEMASK_SEER                   = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
 };
 
 enum class HighGuid
@@ -111,6 +116,8 @@ enum class HighGuid
     CommerceObj      = 45,
     ClientSession    = 46,
     Cast             = 47,
+    ClientConnection = 48,
+    ClubFinder       = 49,
 
     Count,
 };
@@ -164,6 +171,7 @@ GUID_TRAIT_GLOBAL(HighGuid::CommerceObj)
 GUID_TRAIT_GLOBAL(HighGuid::ClientSession)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Player)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Item)       // This is not exactly correct, there are 2 more unknown parts in highguid: (high >> 10 & 0xFF), (high >> 18 & 0xFFFFFF)
+GUID_TRAIT_REALM_SPECIFIC(HighGuid::ChatChannel)
 GUID_TRAIT_REALM_SPECIFIC(HighGuid::Guild)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::WorldTransaction)
 GUID_TRAIT_MAP_SPECIFIC(HighGuid::Conversation)
@@ -225,7 +233,7 @@ class TC_GAME_API ObjectGuid
         static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific && type != HighGuid::Transport, ObjectGuid>::type Create(uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, 0, mapId, 0, entry, counter); }
 
         template<HighGuid type>
-        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific, ObjectGuid>::type Create(uint8 subType, uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, subType, mapId, 0, entry, counter); }
+        static typename std::enable_if<ObjectGuidTraits<type>::MapSpecific && type != HighGuid::Transport, ObjectGuid>::type Create(uint8 subType, uint16 mapId, uint32 entry, LowType counter) { return MapSpecific(type, subType, mapId, 0, entry, counter); }
 
         ObjectGuid() : _low(0), _high(0) { }
 
@@ -238,10 +246,27 @@ class TC_GAME_API ObjectGuid
         uint32 GetRealmId() const { return uint32((_high >> 42) & 0x1FFF); }
         uint32 GetMapId() const { return uint32((_high >> 29) & 0x1FFF); }
         uint32 GetEntry() const { return uint32((_high >> 6) & 0x7FFFFF); }
-        LowType GetCounter() const { return _low & UI64LIT(0x000000FFFFFFFFFF); }
-
-        static LowType GetMaxCounter(HighGuid /*high*/)
+        LowType GetCounter() const
         {
+            switch (GetHigh())
+            {
+                case HighGuid::Transport:
+                    return (_high >> 38) & UI64LIT(0xFFFFF);
+                default:
+                    break;
+            }
+            return _low & UI64LIT(0x000000FFFFFFFFFF);
+        }
+
+        static LowType GetMaxCounter(HighGuid high)
+        {
+            switch (high)
+            {
+                case HighGuid::Transport:
+                    return UI64LIT(0xFFFFF);
+                default:
+                    break;
+            }
             return UI64LIT(0xFFFFFFFFFF);
         }
 
@@ -309,7 +334,7 @@ class TC_GAME_API ObjectGuid
         std::string ToString() const;
         std::size_t GetHash() const;
 
-    private:
+    protected:
         static bool HasEntry(HighGuid high)
         {
             switch (high)
@@ -330,11 +355,16 @@ class TC_GAME_API ObjectGuid
         static ObjectGuid MapSpecific(HighGuid type, uint8 subType, uint16 mapId, uint32 serverId, uint32 entry, LowType counter);
 
         ObjectGuid(uint64 high, uint64 low) : _low(low), _high(high) { }
-        explicit ObjectGuid(uint32 const&) = delete;                 // no implementation, used to catch wrong type assignment
 
         uint64 _low;
         uint64 _high;
 };
+
+template<>
+inline typename std::enable_if<ObjectGuidTraits<HighGuid::Transport>::RealmSpecific, ObjectGuid>::type ObjectGuid::Create<HighGuid::Transport>(LowType counter)
+{
+    return ObjectGuid(uint64((uint64(HighGuid::Transport) << 58) | uint64(counter << 38)), UI64LIT(0));
+}
 
 #pragma pack(pop)
 
@@ -349,6 +379,7 @@ class TC_GAME_API ObjectGuidGeneratorBase
 {
 public:
     ObjectGuidGeneratorBase(ObjectGuid::LowType start = UI64LIT(1)) : _nextGuid(start) { }
+    virtual ~ObjectGuidGeneratorBase() { }
 
     virtual void Set(uint64 val) { _nextGuid = val; }
     virtual ObjectGuid::LowType Generate() = 0;
@@ -389,6 +420,69 @@ namespace std
             return key.GetHash();
         }
     };
+}
+
+namespace Trinity
+{
+    namespace Legacy
+    {
+        enum class TypeID
+        {
+            Object          = 0,
+            Item            = 1,
+            Container       = 2,
+            Unit            = 3,
+            Player          = 4,
+            GameObject      = 5,
+            DynamicObject   = 6,
+            Corpse          = 7,
+            AreaTrigger     = 8,
+            SceneObject     = 9,
+            Conversation    = 10,
+            Max
+        };
+
+        constexpr inline ::TypeID ConvertLegacyTypeID(TypeID legacyTypeID)
+        {
+            switch (legacyTypeID)
+            {
+                case TypeID::Object:
+                    return TYPEID_OBJECT;
+                case TypeID::Item:
+                    return TYPEID_ITEM;
+                case TypeID::Container:
+                    return TYPEID_CONTAINER;
+                case TypeID::Unit:
+                    return TYPEID_UNIT;
+                case TypeID::Player:
+                    return TYPEID_PLAYER;
+                case TypeID::GameObject:
+                    return TYPEID_GAMEOBJECT;
+                case TypeID::DynamicObject:
+                    return TYPEID_DYNAMICOBJECT;
+                case TypeID::Corpse:
+                    return TYPEID_CORPSE;
+                case TypeID::AreaTrigger:
+                    return TYPEID_AREATRIGGER;
+                case TypeID::SceneObject:
+                    return TYPEID_SCENEOBJECT;
+                case TypeID::Conversation:
+                    return TYPEID_CONVERSATION;
+                default:
+                    return TYPEID_OBJECT;
+            }
+        }
+
+        constexpr inline TypeMask ConvertLegacyTypeMask(uint32 legacyTypeMask)
+        {
+            uint32 typeMask = 0;
+            for (TypeID i = TypeID::Object; i < TypeID::Max; i = TypeID(uint32(i) + 1))
+                if (legacyTypeMask & (1 << uint32(i)))
+                    typeMask |= 1u << ConvertLegacyTypeID(i);
+
+            return TypeMask(typeMask);
+        }
+    }
 }
 
 #endif // ObjectGuid_h__

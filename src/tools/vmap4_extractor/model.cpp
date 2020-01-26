@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -243,7 +242,13 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
         WMO::MODD const& doodad = doodadData.Spawns[doodadIndex];
 
         char ModelInstName[1024];
-        sprintf(ModelInstName, "%s", GetPlainName(&doodadData.Paths[doodad.NameIndex]));
+        if (doodadData.Paths)
+            sprintf(ModelInstName, "%s", GetPlainName(&doodadData.Paths[doodad.NameIndex]));
+        else if (doodadData.FileDataIds)
+            sprintf(ModelInstName, "FILE%08X.xxx", doodadData.FileDataIds[doodad.NameIndex]);
+        else
+            ASSERT(false);
+
         uint32 nlen = strlen(ModelInstName);
         FixNameCase(ModelInstName, nlen);
         FixNameSpaces(ModelInstName, nlen);

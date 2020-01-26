@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +18,7 @@
 #define __TRINITY_CHANNELMGR_H
 
 #include "Define.h"
-#include "Hash.h"
+#include "ObjectGuid.h"
 #include <string>
 #include <unordered_map>
 
@@ -30,7 +29,7 @@ struct AreaTableEntry;
 class TC_GAME_API ChannelMgr
 {
     typedef std::unordered_map<std::wstring, Channel*> CustomChannelContainer; // custom channels only differ in name
-    typedef std::unordered_map<std::pair<uint32 /*channelId*/, uint32 /*zoneId*/>, Channel*> BuiltinChannelContainer; // identify builtin (DBC) channels by zoneId instead, since name changes by client locale
+    typedef std::unordered_map<ObjectGuid, Channel*> BuiltinChannelContainer;
 
     protected:
         explicit ChannelMgr(uint32 team) : _team(team) { }
@@ -49,8 +48,11 @@ class TC_GAME_API ChannelMgr
         CustomChannelContainer _customChannels;
         BuiltinChannelContainer _channels;
         uint32 const _team;
+        ObjectGuidGenerator<HighGuid::ChatChannel> _guidGenerator;
 
         static void SendNotOnChannelNotify(Player const* player, std::string const& name);
+        ObjectGuid CreateCustomChannelGuid();
+        ObjectGuid CreateBuiltinChannelGuid(uint32 channelId, AreaTableEntry const* zoneEntry = nullptr) const;
 };
 
 #endif

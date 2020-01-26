@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -658,9 +658,9 @@ Item* SpellScript::GetCastItem() const
     return m_spell->m_CastItem;
 }
 
-void SpellScript::CreateItem(uint32 effIndex, uint32 itemId)
+void SpellScript::CreateItem(uint32 effIndex, uint32 itemId, ItemContext context)
 {
-    m_spell->DoCreateItem(effIndex, itemId);
+    m_spell->DoCreateItem(effIndex, itemId, context);
 }
 
 SpellInfo const* SpellScript::GetTriggeringSpell() const

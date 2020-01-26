@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -333,9 +332,9 @@ class HookList final
         typedef typename ContainerType::const_iterator const_iterator;
         typedef typename ContainerType::iterator iterator;
 
-        HookList<T>& operator+=(T t)
+        HookList<T>& operator+=(T&& t)
         {
-            _container.push_back(t);
+            _container.push_back(std::move(t));
             return *this;
         }
 
@@ -538,10 +537,20 @@ bool CompareValues(ComparisionType type, T val1, T val2)
 }
 
 template<typename E>
-typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
+constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
 {
     static_assert(std::is_enum<E>::value, "AsUnderlyingType can only be used with enums");
     return static_cast<typename std::underlying_type<E>::type>(enumValue);
 }
+
+template<typename T>
+struct NonDefaultConstructible
+{
+    constexpr /*implicit*/ NonDefaultConstructible(T value) : Value(std::move(value))
+    {
+    }
+
+    T Value;
+};
 
 #endif

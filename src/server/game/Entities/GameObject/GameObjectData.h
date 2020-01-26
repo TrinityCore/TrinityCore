@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,10 @@
 #define GameObjectData_h__
 
 #include "Common.h"
+#include "DBCEnums.h"
+#include "QuaternionData.h"
 #include "SharedDefines.h"
+#include "WorldPacket.h"
 #include <string>
 #include <vector>
 
@@ -104,7 +107,7 @@ struct GameObjectTemplate
             uint32 usegrouplootrules;                       // 15 use group loot rules, enum { false, true, }; Default: false
             uint32 floatingTooltip;                         // 16 floatingTooltip, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 17 conditionID1, References: PlayerCondition, NoValue = 0
-            int32 xpLevel;                                  // 18 xpLevel, int, Min value: -1, Max value: 123, Default value: 0
+            uint32 XPLevelRange;                            // 18 XP Level Range, References: ContentTuning, NoValue = 0
             uint32 xpDifficulty;                            // 19 xpDifficulty, enum { No Exp, Trivial, Very Small, Small, Substandard, Standard, High, Epic, Dungeon, 5, }; Default: No Exp
             uint32 lootLevel;                               // 20 lootLevel, int, Min value: 0, Max value: 123, Default value: 0
             uint32 GroupXP;                                 // 21 Group XP, enum { false, true, }; Default: false
@@ -119,6 +122,7 @@ struct GameObjectTemplate
             uint32 chestPersonalLoot;                       // 30 chest Personal Loot, References: Treasure, NoValue = 0
             uint32 turnpersonallootsecurityoff;             // 31 turn personal loot security off, enum { false, true, }; Default: false
             uint32 ChestProperties;                         // 32 Chest Properties, References: ChestProperties, NoValue = 0
+            uint32 chestPushLoot;                           // 33 chest Push Loot, References: Treasure, NoValue = 0
         } chest;
         // 4 GAMEOBJECT_TYPE_BINDER
         struct
@@ -159,6 +163,8 @@ struct GameObjectTemplate
             uint32 playerCast;                              // 16 playerCast, enum { false, true, }; Default: false
             uint32 SummonerTriggered;                       // 17 Summoner Triggered, enum { false, true, }; Default: false
             uint32 requireLOS;                              // 18 require LOS, enum { false, true, }; Default: false
+            uint32 TriggerCondition;                        // 19 Trigger Condition, References: PlayerCondition, NoValue = 0
+            uint32 Checkallunits;                           // 20 Check all units (spawned traps only check players), enum { false, true, }; Default: false
         } trap;
         // 7 GAMEOBJECT_TYPE_CHAIR
         struct
@@ -331,6 +337,7 @@ struct GameObjectTemplate
         {
             uint32 creatureID;                              // 0 creatureID, References: Creature, NoValue = 0
             uint32 charges;                                 // 1 charges, int, Min value: 0, Max value: 65535, Default value: 1
+            uint32 Preferonlyifinlineofsight;               // 2 Prefer only if in line of sight (expensive), enum { false, true, }; Default: false
         } guardPost;
         // 22 GAMEOBJECT_TYPE_SPELLCASTER
         struct
@@ -429,6 +436,7 @@ struct GameObjectTemplate
             uint32 speedWorldState2;                        // 24 speedWorldState2, References: WorldState, NoValue = 0
             uint32 UncontestedTime;                         // 25 Uncontested Time, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 FrequentHeartbeat;                       // 26 Frequent Heartbeat, enum { false, true, }; Default: false
+            uint32 EnablingWorldStateExpression;            // 27 Enabling World State Expression, References: WorldStateExpression, NoValue = 0
         } controlZone;
         // 30 GAMEOBJECT_TYPE_AURA_GENERATOR
         struct
@@ -489,6 +497,10 @@ struct GameObjectTemplate
             int32 Unused9;                                  // 20 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             int32 Unused10;                                 // 21 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 DamageEvent;                             // 22 Damage Event, References: GameEvents, NoValue = 0
+            uint32 Displaymouseoverasanameplate;            // 23 Display mouseover as a nameplate, enum { false, true, }; Default: false
+            int32 Thexoffsetofthedestructiblenameplateifitisenabled;// 24 The x offset (in hundredths) of the destructible nameplate, if it is enabled, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Theyoffsetofthedestructiblenameplateifitisenabled;// 25 The y offset (in hundredths) of the destructible nameplate, if it is enabled, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 Thezoffsetofthedestructiblenameplateifitisenabled;// 26 The z offset (in hundredths) of the destructible nameplate, if it is enabled, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
         } destructibleBuilding;
         // 34 GAMEOBJECT_TYPE_GUILD_BANK
         struct
@@ -502,7 +514,10 @@ struct GameObjectTemplate
             uint32 startOpen;                               // 1 startOpen, enum { false, true, }; Default: false
             uint32 autoClose;                               // 2 autoClose (ms), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 BlocksPathsDown;                         // 3 Blocks Paths Down, enum { false, true, }; Default: false
-            uint32 PathBlockerBump;                         // 4 Path Blocker Bump (ft), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 PathBlockerBump;                          // 4 Path Blocker Bump (ft), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            uint32 GiganticAOI;                             // 5 Gigantic AOI, enum { false, true, }; Default: false
+            uint32 InfiniteAOI;                             // 6 Infinite AOI, enum { false, true, }; Default: false
+            uint32 DoorisOpaque;                            // 7 Door is Opaque (Disable portal on close), enum { false, true, }; Default: false
         } trapdoor;
         // 36 GAMEOBJECT_TYPE_NEW_FLAG
         struct
@@ -520,11 +535,13 @@ struct GameObjectTemplate
             int32 ExclusiveCategory;                        // 10 Exclusive Category (BGs Only), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 worldState1;                             // 11 worldState1, References: WorldState, NoValue = 0
             uint32 ReturnonDefenderInteract;                // 12 Return on Defender Interact, enum { false, true, }; Default: false
+            uint32 SpawnVignette;                           // 13 Spawn Vignette, References: vignette, NoValue = 0
         } newflag;
         // 37 GAMEOBJECT_TYPE_NEW_FLAG_DROP
         struct
         {
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
+            uint32 SpawnVignette;                           // 1 Spawn Vignette, References: vignette, NoValue = 0
         } newflagdrop;
         // 38 GAMEOBJECT_TYPE_GARRISON_BUILDING
         struct
@@ -580,7 +597,7 @@ struct GameObjectTemplate
         struct
         {
             int32 SpawnMap;                                 // 0 Spawn Map, References: Map, NoValue = -1
-            uint32 AreaNameSet;                             // 1 Area Name Set (Index), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            int32 AreaNameSet;                              // 1 Area Name Set (Index), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 DoodadSetA;                              // 2 Doodad Set A, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 DoodadSetB;                              // 3 Doodad Set B, int, Min value: 0, Max value: 2147483647, Default value: 0
         } phaseableMO;
@@ -602,7 +619,7 @@ struct GameObjectTemplate
         {
             uint32 TrophyInstanceID;                        // 0 Trophy Instance ID, References: TrophyInstance, NoValue = 0
         } garrisonMonumentPlaque;
-        // 47 GAMEOBJECT_TYPE_ARTIFACT_FORGE
+        // 47 GAMEOBJECT_TYPE_ITEM_FORGE
         struct
         {
             uint32 conditionID1;                            // 0 conditionID1, References: PlayerCondition, NoValue = 0
@@ -610,12 +627,12 @@ struct GameObjectTemplate
             uint32 IgnoreBoundingBox;                       // 2 Ignore Bounding Box, enum { false, true, }; Default: false
             uint32 CameraMode;                              // 3 Camera Mode, References: CameraMode, NoValue = 0
             uint32 FadeRegionRadius;                        // 4 Fade Region Radius, int, Min value: 0, Max value: 2147483647, Default value: 0
-            uint32 ForgeType;                               // 5 Forge Type, enum { Artifact Forge, Relic Forge, }; Default: Relic Forge
-        } artifactForge;
+            uint32 ForgeType;                               // 5 Forge Type, enum { Artifact Forge, Relic Forge, Heart Forge, }; Default: Relic Forge
+        } itemForge;
         // 48 GAMEOBJECT_TYPE_UI_LINK
         struct
         {
-            uint32 UILinkType;                              // 0 UI Link Type, enum { Adventure Journal, Obliterum Forge, }; Default: Adventure Journal
+            uint32 UILinkType;                              // 0 UI Link Type, enum { Adventure Journal, Obliterum Forge, Scrapping Machine, }; Default: Adventure Journal
             uint32 allowMounted;                            // 1 allowMounted, enum { false, true, }; Default: false
             uint32 GiganticAOI;                             // 2 Gigantic AOI, enum { false, true, }; Default: false
             uint32 spellFocusType;                          // 3 spellFocusType, References: SpellFocusObject, NoValue = 0
@@ -640,7 +657,7 @@ struct GameObjectTemplate
             uint32 openTextID;                              // 9 openTextID, References: BroadcastText, NoValue = 0
             uint32 floatingTooltip;                         // 10 floatingTooltip, enum { false, true, }; Default: false
             uint32 conditionID1;                            // 11 conditionID1, References: PlayerCondition, NoValue = 0
-            uint32 xpLevel;                                 // 12 xpLevel, int, Min value: -1, Max value: 123, Default value: 0
+            uint32 XPLevelRange;                            // 12 XP Level Range, References: ContentTuning, NoValue = 0
             uint32 xpDifficulty;                            // 13 xpDifficulty, enum { No Exp, Trivial, Very Small, Small, Substandard, Standard, High, Epic, Dungeon, 5, }; Default: No Exp
             uint32 spell;                                   // 14 spell, References: Spell, NoValue = 0
             uint32 GiganticAOI;                             // 15 Gigantic AOI, enum { false, true, }; Default: false
@@ -649,13 +666,54 @@ struct GameObjectTemplate
             uint32 MaxNumberofLoots;                        // 18 Max Number of Loots, int, Min value: 1, Max value: 40, Default value: 10
             uint32 logloot;                                 // 19 log loot, enum { false, true, }; Default: false
             uint32 linkedTrap;                              // 20 linkedTrap, References: GameObjects, NoValue = 0
+            uint32 PlayOpenAnimationonOpening;              // 21 Play Open Animation on Opening, enum { false, true, }; Default: false
+            uint32 turnpersonallootsecurityoff;             // 22 turn personal loot security off, enum { false, true, }; Default: false
         } gatheringNode;
         // 51 GAMEOBJECT_TYPE_CHALLENGE_MODE_REWARD
         struct
         {
-            uint32 chestLoot;                               // 0 chestLoot, References: Treasure, NoValue = 0
+            int32 Unused;                                   // 0 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 WhenAvailable;                           // 1 When Available, References: GameObjectDisplayInfo, NoValue = 0
+            uint32 open;                                    // 2 open, References: Lock_, NoValue = 0
+            uint32 openTextID;                              // 3 openTextID, References: BroadcastText, NoValue = 0
         } challengeModeReward;
+        // 52 GAMEOBJECT_TYPE_MULTI
+        struct
+        {
+            uint32 MultiProperties;                         // 0 Multi Properties, References: MultiProperties, NoValue = 0
+        } multi;
+        // 53 GAMEOBJECT_TYPE_SIEGEABLE_MULTI
+        struct
+        {
+            uint32 MultiProperties;                         // 0 Multi Properties, References: MultiProperties, NoValue = 0
+            uint32 InitialDamage;                           // 1 Initial Damage, enum { None, Raw, Ratio, }; Default: None
+        } siegeableMulti;
+        // 54 GAMEOBJECT_TYPE_SIEGEABLE_MO
+        struct
+        {
+            uint32 SiegeableProperties;                     // 0 Siegeable Properties, References: SiegeableProperties, NoValue = 0
+            uint32 DoodadSetA;                              // 1 Doodad Set A, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 DoodadSetB;                              // 2 Doodad Set B, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 DoodadSetC;                              // 3 Doodad Set C, int, Min value: 0, Max value: 2147483647, Default value: 0
+            int32 SpawnMap;                                 // 4 Spawn Map, References: Map, NoValue = -1
+            int32 AreaNameSet;                              // 5 Area Name Set (Index), int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+        } siegeableMO;
+        // 55 GAMEOBJECT_TYPE_PVP_REWARD
+        struct
+        {
+            int32 Unused;                                   // 0 Unused, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
+            uint32 WhenAvailable;                           // 1 When Available, References: GameObjectDisplayInfo, NoValue = 0
+            uint32 open;                                    // 2 open, References: Lock_, NoValue = 0
+            uint32 openTextID;                              // 3 openTextID, References: BroadcastText, NoValue = 0
+        } pvpReward;
+        // 56 GAMEOBJECT_TYPE_FUTURE_PATCH_1
+        struct
+        {
+        } futurePatch1;
+        // 57 GAMEOBJECT_TYPE_FUTURE_PATCH_2
+        struct
+        {
+        } futurePatch2;
         struct
         {
             uint32 data[MAX_GAMEOBJECT_DATA];
@@ -664,6 +722,7 @@ struct GameObjectTemplate
 
     std::string AIName;
     uint32 ScriptId;
+    WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers
     bool IsDespawnAtAction() const
@@ -708,6 +767,8 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_NEW_FLAG_DROP:     return newflagdrop.open;
             case GAMEOBJECT_TYPE_CAPTURE_POINT:     return capturePoint.open;
             case GAMEOBJECT_TYPE_GATHERING_NODE:    return gatheringNode.open;
+            case GAMEOBJECT_TYPE_CHALLENGE_MODE_REWARD: return challengeModeReward.open;
+            case GAMEOBJECT_TYPE_PVP_REWARD:        return pvpReward.open;
             default: return 0;
         }
     }
@@ -764,7 +825,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_TRAPDOOR:      autoCloseTime = trapdoor.autoClose; break;
             default: break;
         }
-        return autoCloseTime / IN_MILLISECONDS;              // prior to 3.0.3, conversion was / 0x10000;
+        return autoCloseTime;              // prior to 3.0.3, conversion was / 0x10000;
     }
 
     uint32 GetLootId() const
@@ -774,7 +835,6 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_CHEST:                 return chest.chestLoot;
             case GAMEOBJECT_TYPE_FISHINGHOLE:           return fishingHole.chestLoot;
             case GAMEOBJECT_TYPE_GATHERING_NODE:        return gatheringNode.chestLoot;
-            case GAMEOBJECT_TYPE_CHALLENGE_MODE_REWARD: return challengeModeReward.chestLoot;
             default: return 0;
         }
     }
@@ -810,6 +870,63 @@ struct GameObjectTemplate
             default: return 0;
         }
     }
+
+    bool IsInfiniteGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:          return door.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND:     return flagStand.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_FLAGDROP:      return flagDrop.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_TRAPDOOR:      return trapdoor.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_NEW_FLAG:      return newflag.InfiniteAOI != 0;
+            default: return false;
+        }
+    }
+
+    bool IsGiganticGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:                  return door.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_BUTTON:                return button.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER:            return questgiver.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_CHEST:                 return chest.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GENERIC:               return generic.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_TRAP:                  return trap.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:           return spellFocus.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GOOBER:                return goober.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_SPELLCASTER:           return spellCaster.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND:             return flagStand.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_FLAGDROP:              return flagDrop.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_CONTROL_ZONE:          return controlZone.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:    return dungeonDifficulty.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_TRAPDOOR:              return trapdoor.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_NEW_FLAG:              return newflag.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:         return capturePoint.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GARRISON_SHIPMENT:     return garrisonShipment.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_UI_LINK:               return UILink.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:        return gatheringNode.GiganticAOI != 0;
+            default: return false;
+        }
+    }
+
+    bool IsLargeGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST:                 return chest.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_GENERIC:               return generic.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:    return dungeonDifficulty.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_GARRISON_SHIPMENT:     return garrisonShipment.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_ITEM_FORGE:            return itemForge.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_GATHERING_NODE:        return gatheringNode.LargeAOI != 0;
+            default: return false;
+        }
+    }
+
+    void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
 // From `gameobject_template_addon`
@@ -829,17 +946,6 @@ struct GameObjectLocale
     std::vector<std::string> Name;
     std::vector<std::string> CastBarCaption;
     std::vector<std::string> Unk1;
-};
-
-struct TC_GAME_API QuaternionData
-{
-    float x, y, z, w;
-
-    QuaternionData() : x(0.0f), y(0.0f), z(0.0f), w(1.0f) {}
-    QuaternionData(float X, float Y, float Z, float W) : x(X), y(Y), z(Z), w(W) {}
-
-    bool isUnit() const;
-    static QuaternionData fromEulerAnglesZYX(float Z, float Y, float X);
 };
 
 // `gameobject_addon` table

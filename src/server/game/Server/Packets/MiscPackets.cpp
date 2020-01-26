@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,6 +54,9 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
     _worldPacket.WriteBit(TrackedQuantity.is_initialized());
     _worldPacket.WriteBit(MaxQuantity.is_initialized());
     _worldPacket.WriteBit(SuppressChatLog);
+    _worldPacket.WriteBit(QuantityChange.is_initialized());
+    _worldPacket.WriteBit(QuantityGainSource.is_initialized());
+    _worldPacket.WriteBit(QuantityLostSource.is_initialized());
     _worldPacket.FlushBits();
 
     if (WeeklyQuantity)
@@ -64,6 +67,15 @@ WorldPacket const* WorldPackets::Misc::SetCurrency::Write()
 
     if (MaxQuantity)
         _worldPacket << int32(*MaxQuantity);
+
+    if (QuantityChange)
+        _worldPacket << int32(*QuantityChange);
+
+    if (QuantityGainSource)
+        _worldPacket << int32(*QuantityGainSource);
+
+    if (QuantityLostSource)
+        _worldPacket << int32(*QuantityLostSource);
 
     return &_worldPacket;
 }
@@ -283,6 +295,15 @@ WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::SetAnimTier::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket.WriteBits(Tier, 3);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Misc::PlayerBound::Write()
 {
     _worldPacket << BinderID;
@@ -346,7 +367,8 @@ WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
     for (int32 stat : StatDelta)
         _worldPacket << stat;
 
-    _worldPacket << int32(Cp);
+    _worldPacket << int32(NumNewTalents);
+    _worldPacket << int32(NumNewPvpTalentSlots);
 
     return &_worldPacket;
 }
@@ -404,11 +426,11 @@ WorldPacket const* WorldPackets::Misc::PhaseShiftChange::Write()
 
     _worldPacket << uint32(PreloadMapIDs.size() * 2);           // size in bytes
     for (uint16 preloadMapId : PreloadMapIDs)
-        _worldPacket << uint16(preloadMapId);                            // Inactive terrain swap map id
+        _worldPacket << uint16(preloadMapId);                   // Inactive terrain swap map id
 
-    _worldPacket << uint32(UiWorldMapAreaIDSwaps.size() * 2);   // size in bytes
-    for (uint16 uiWorldMapAreaIDSwap : UiWorldMapAreaIDSwaps)
-        _worldPacket << uint16(uiWorldMapAreaIDSwap);          // UI map id, WorldMapArea.db2, controls map display
+    _worldPacket << uint32(UiMapPhaseIDs.size() * 2);           // size in bytes
+    for (uint16 uiMapPhaseId : UiMapPhaseIDs)
+        _worldPacket << uint16(uiMapPhaseId);                   // phase id, controls only map display (visible on all maps)
 
     return &_worldPacket;
 }

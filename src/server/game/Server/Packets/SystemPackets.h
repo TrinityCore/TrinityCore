@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #define SystemPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
 #include "Optional.h"
 
 namespace WorldPackets
@@ -80,6 +81,23 @@ namespace WorldPackets
                 float ThrottleDfBestPriority = 0.0f;
             };
 
+            struct VoiceChatProxySettings
+            {
+                bool Enabled = false;
+                ObjectGuid BnetAccountGuid;
+                ObjectGuid GuildGuid;
+            };
+
+            struct RafSystemFeatureInfo
+            {
+                bool Enabled = false;
+                bool RecruitingEnabled = false;
+                uint32 MaxRecruits = 0;
+                uint32 MaxRecruitMonths = 0;
+                uint32 MaxRecruitmentUses = 0;
+                uint32 DaysInCycle = 0;
+            };
+
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 48) { }
 
             WorldPacket const* Write() override;
@@ -87,7 +105,6 @@ namespace WorldPackets
             bool VoiceEnabled                        = false;
             bool BrowserEnabled                      = false;
             bool BpayStoreAvailable                  = false;
-            bool RecruitAFriendSendingEnabled        = false;
             bool BpayStoreEnabled                    = false;
             Optional<SessionAlertConfig> SessionAlert;
             uint32 ScrollOfResurrectionMaxRequestsPerDay = 0;
@@ -100,9 +117,10 @@ namespace WorldPackets
             uint32 TwitterPostThrottleLimit              = 0; ///< Number of twitter posts the client can send before they start being throttled
             uint32 TwitterPostThrottleCooldown           = 0; ///< Time in seconds the client has to wait before posting again after hitting post limit
             uint32 TokenPollTimeSeconds                  = 0;
-            uint32 TokenRedeemIndex                      = 0;
             int64 TokenBalanceAmount                     = 0;
             uint32 BpayStoreProductDeliveryDelay         = 0;
+            uint32 ClubsPresenceUpdateTimer              = 0;
+            uint32 HiddenUIClubsPresenceUpdateTimer      = 0; ///< Timer for updating club presence when communities ui frame is hidden
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -110,16 +128,27 @@ namespace WorldPackets
             bool CommerceSystemEnabled               = false;
             bool Unk67                               = false;
             bool WillKickFromWorld                   = false;
-
             bool RestrictedAccount                   = false;
             bool TutorialsEnabled                    = false;
             bool NPETutorialsEnabled                 = false;
             bool KioskModeEnabled                    = false;
             bool CompetitiveModeEnabled              = false;
             bool TokenBalanceEnabled                 = false;
+            bool WarModeFeatureEnabled               = false;
+            bool ClubsEnabled                        = false;
+            bool ClubsBattleNetClubTypeAllowed       = false;
+            bool ClubsCharacterClubTypeAllowed       = false;
+            bool ClubsPresenceUpdateEnabled          = false;
+            bool VoiceChatDisabledByParentalControl  = false;
+            bool VoiceChatMutedByParentalControl     = false;
+            bool QuestSessionEnabled                 = false;
+            bool Unused825                           = false;
+            bool ClubFinderEnabled                   = false;
 
             Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;
+            VoiceChatProxySettings VoiceChatManagerSettings;
+            RafSystemFeatureInfo RAFSystem;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -144,10 +173,14 @@ namespace WorldPackets
             bool LiveRegionCharacterListEnabled      = false; // NYI
             bool LiveRegionCharacterCopyEnabled      = false; // NYI
             bool LiveRegionAccountCopyEnabled        = false; // NYI
-            int32 TokenPollTimeSeconds               = 0;     // NYI
-            int32 TokenRedeemIndex                   = 0;     // NYI
+            uint32 TokenPollTimeSeconds              = 0;     // NYI
             int64 TokenBalanceAmount                 = 0;     // NYI
+            int32 MaxCharactersPerRealm              = 0;
             uint32 BpayStoreProductDeliveryDelay     = 0;     // NYI
+            int32 ActiveCharacterUpgradeBoostType    = 0;     // NYI
+            int32 ActiveClassTrialBoostType          = 0;     // NYI
+            int32 MinimumExpansionLevel              = 0;
+            int32 MaximumExpansionLevel              = 0;
         };
 
         class MOTD final : public ServerPacket

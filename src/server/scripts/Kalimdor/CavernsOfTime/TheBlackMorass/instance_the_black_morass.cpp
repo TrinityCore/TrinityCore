@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -299,8 +298,8 @@ public:
                     TEMPSUMMON_CORPSE_DESPAWN, 0);
                 if (temp)
                 {
-                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    temp->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                    temp->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                     if (Creature* boss = SummonedPortalBoss(temp))
                     {

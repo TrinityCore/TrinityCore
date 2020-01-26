@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -699,7 +699,7 @@ class spell_rog_vanish : public SpellScriptLoader
 
                 Unit* target = GetHitUnit();
 
-                target->RemoveMovementImpairingAuras();
+                target->RemoveMovementImpairingAuras(true);
                 target->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
                 if (target->GetTypeId() != TYPEID_PLAYER)
                     return;

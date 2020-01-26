@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,10 +65,11 @@ WorldPacket const* WorldPackets::Channel::ChannelNotify::Write()
 WorldPacket const* WorldPackets::Channel::ChannelNotifyJoined::Write()
 {
     _worldPacket.WriteBits(_Channel.length(), 7);
-    _worldPacket.WriteBits(ChannelWelcomeMsg.length(), 10);
+    _worldPacket.WriteBits(ChannelWelcomeMsg.length(), 11);
     _worldPacket << uint32(_ChannelFlags);
     _worldPacket << int32(ChatChannelID);
     _worldPacket << uint64(InstanceID);
+    _worldPacket << ChannelGUID;
     _worldPacket.WriteString(_Channel);
     _worldPacket.WriteString(ChannelWelcomeMsg);
 
@@ -128,7 +129,6 @@ WorldPackets::Channel::ChannelCommand::ChannelCommand(WorldPacket&& packet) : Cl
         case CMSG_CHAT_CHANNEL_DECLINE_INVITE:
         case CMSG_CHAT_CHANNEL_DISPLAY_LIST:
         case CMSG_CHAT_CHANNEL_LIST:
-        case CMSG_CHAT_CHANNEL_MODERATE:
         case CMSG_CHAT_CHANNEL_OWNER:
             break;
         default:
@@ -150,12 +150,10 @@ WorldPackets::Channel::ChannelPlayerCommand::ChannelPlayerCommand(WorldPacket&& 
         case CMSG_CHAT_CHANNEL_INVITE:
         case CMSG_CHAT_CHANNEL_KICK:
         case CMSG_CHAT_CHANNEL_MODERATOR:
-        case CMSG_CHAT_CHANNEL_MUTE:
         case CMSG_CHAT_CHANNEL_SET_OWNER:
         case CMSG_CHAT_CHANNEL_SILENCE_ALL:
         case CMSG_CHAT_CHANNEL_UNBAN:
         case CMSG_CHAT_CHANNEL_UNMODERATOR:
-        case CMSG_CHAT_CHANNEL_UNMUTE:
         case CMSG_CHAT_CHANNEL_UNSILENCE_ALL:
             break;
         default:

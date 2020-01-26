@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "GameTables.h"
+#include "ItemTemplate.h"
 #include "Timer.h"
 #include "Log.h"
 #include "Util.h"
@@ -29,13 +30,13 @@ GameTable<GtBarberShopCostBaseEntry>            sBarberShopCostBaseGameTable;
 GameTable<GtBaseMPEntry>                        sBaseMPGameTable;
 GameTable<GtCombatRatingsEntry>                 sCombatRatingsGameTable;
 GameTable<GtCombatRatingsMultByILvl>            sCombatRatingsMultByILvlGameTable;
-GameTable<GtHonorLevelEntry>                    sHonorLevelGameTable;
 GameTable<GtHpPerStaEntry>                      sHpPerStaGameTable;
 GameTable<GtItemSocketCostPerLevelEntry>        sItemSocketCostPerLevelGameTable;
 GameTable<GtNpcDamageByClassEntry>              sNpcDamageByClassGameTable[MAX_EXPANSIONS];
 GameTable<GtNpcManaCostScalerEntry>             sNpcManaCostScalerGameTable;
 GameTable<GtNpcTotalHpEntry>                    sNpcTotalHpGameTable[MAX_EXPANSIONS];
 GameTable<GtSpellScalingEntry>                  sSpellScalingGameTable;
+GameTable<GtStaminaMultByILvl>                  sStaminaMultByILvlGameTable;
 GameTable<GtXpEntry>                            sXpGameTable;
 
 template<class T>
@@ -118,7 +119,6 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sCombatRatingsGameTable, "CombatRatings.txt");
     LOAD_GT(sCombatRatingsMultByILvlGameTable, "CombatRatingsMultByILvl.txt");
     LOAD_GT(sItemSocketCostPerLevelGameTable, "ItemSocketCostPerLevel.txt");
-    LOAD_GT(sHonorLevelGameTable, "HonorLevel.txt");
     LOAD_GT(sHpPerStaGameTable, "HpPerSta.txt");
     LOAD_GT(sNpcDamageByClassGameTable[0], "NpcDamageByClass.txt");
     LOAD_GT(sNpcDamageByClassGameTable[1], "NpcDamageByClassExp1.txt");
@@ -127,6 +127,7 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sNpcDamageByClassGameTable[4], "NpcDamageByClassExp4.txt");
     LOAD_GT(sNpcDamageByClassGameTable[5], "NpcDamageByClassExp5.txt");
     LOAD_GT(sNpcDamageByClassGameTable[6], "NpcDamageByClassExp6.txt");
+    LOAD_GT(sNpcDamageByClassGameTable[7], "NpcDamageByClassExp7.txt");
     LOAD_GT(sNpcManaCostScalerGameTable, "NPCManaCostScaler.txt");
     LOAD_GT(sNpcTotalHpGameTable[0], "NpcTotalHp.txt");
     LOAD_GT(sNpcTotalHpGameTable[1], "NpcTotalHpExp1.txt");
@@ -135,7 +136,9 @@ void LoadGameTables(std::string const& dataPath)
     LOAD_GT(sNpcTotalHpGameTable[4], "NpcTotalHpExp4.txt");
     LOAD_GT(sNpcTotalHpGameTable[5], "NpcTotalHpExp5.txt");
     LOAD_GT(sNpcTotalHpGameTable[6], "NpcTotalHpExp6.txt");
+    LOAD_GT(sNpcTotalHpGameTable[7], "NpcTotalHpExp7.txt");
     LOAD_GT(sSpellScalingGameTable, "SpellScaling.txt");
+    LOAD_GT(sStaminaMultByILvlGameTable, "StaminaMultByILvl.txt");
     LOAD_GT(sXpGameTable, "xp.txt");
 
 #undef LOAD_GT
@@ -152,3 +155,34 @@ void LoadGameTables(std::string const& dataPath)
 
     TC_LOG_INFO("server.loading", ">> Initialized %d GameTables in %u ms", gameTableCount, GetMSTimeDiffToNow(oldMSTime));
 }
+
+template<class T>
+float GetIlvlStatMultiplier(T const* row, InventoryType invType)
+{
+    switch (invType)
+    {
+        case INVTYPE_NECK:
+        case INVTYPE_FINGER:
+            return row->JewelryMultiplier;
+            break;
+        case INVTYPE_TRINKET:
+            return row->TrinketMultiplier;
+            break;
+        case INVTYPE_WEAPON:
+        case INVTYPE_SHIELD:
+        case INVTYPE_RANGED:
+        case INVTYPE_2HWEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_WEAPONOFFHAND:
+        case INVTYPE_HOLDABLE:
+        case INVTYPE_RANGEDRIGHT:
+            return row->WeaponMultiplier;
+            break;
+        default:
+            return row->ArmorMultiplier;
+            break;
+    }
+}
+
+template float GetIlvlStatMultiplier(GtCombatRatingsMultByILvl const* row, InventoryType invType);
+template float GetIlvlStatMultiplier(GtStaminaMultByILvl const* row, InventoryType invType);

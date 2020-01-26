@@ -45,6 +45,7 @@ class RichPresenceLocalizationKey;
 class FieldKey;
 class Field;
 class FieldOperation;
+class PresenceState;
 class ChannelState;
 
 enum FieldOperation_OperationType {
@@ -481,6 +482,100 @@ class TC_PROTO_API FieldOperation : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static FieldOperation* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API PresenceState : public ::google::protobuf::Message {
+ public:
+  PresenceState();
+  virtual ~PresenceState();
+
+  PresenceState(const PresenceState& from);
+
+  inline PresenceState& operator=(const PresenceState& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const PresenceState& default_instance();
+
+  void Swap(PresenceState* other);
+
+  // implements Message ----------------------------------------------
+
+  PresenceState* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const PresenceState& from);
+  void MergeFrom(const PresenceState& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional .bgs.protocol.EntityId entity_id = 1;
+  inline bool has_entity_id() const;
+  inline void clear_entity_id();
+  static const int kEntityIdFieldNumber = 1;
+  inline const ::bgs::protocol::EntityId& entity_id() const;
+  inline ::bgs::protocol::EntityId* mutable_entity_id();
+  inline ::bgs::protocol::EntityId* release_entity_id();
+  inline void set_allocated_entity_id(::bgs::protocol::EntityId* entity_id);
+
+  // repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
+  inline int field_operation_size() const;
+  inline void clear_field_operation();
+  static const int kFieldOperationFieldNumber = 2;
+  inline const ::bgs::protocol::presence::v1::FieldOperation& field_operation(int index) const;
+  inline ::bgs::protocol::presence::v1::FieldOperation* mutable_field_operation(int index);
+  inline ::bgs::protocol::presence::v1::FieldOperation* add_field_operation();
+  inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::FieldOperation >&
+      field_operation() const;
+  inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::FieldOperation >*
+      mutable_field_operation();
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.presence.v1.PresenceState)
+ private:
+  inline void set_has_entity_id();
+  inline void clear_has_entity_id();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::bgs::protocol::EntityId* entity_id_;
+  ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::FieldOperation > field_operation_;
+  friend void TC_PROTO_API protobuf_AddDesc_presence_5ftypes_2eproto();
+  friend void protobuf_AssignDesc_presence_5ftypes_2eproto();
+  friend void protobuf_ShutdownFile_presence_5ftypes_2eproto();
+
+  void InitAsDefaultInstance();
+  static PresenceState* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -926,6 +1021,81 @@ inline void FieldOperation::set_operation(::bgs::protocol::presence::v1::FieldOp
   set_has_operation();
   operation_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.presence.v1.FieldOperation.operation)
+}
+
+// -------------------------------------------------------------------
+
+// PresenceState
+
+// optional .bgs.protocol.EntityId entity_id = 1;
+inline bool PresenceState::has_entity_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void PresenceState::set_has_entity_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void PresenceState::clear_has_entity_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void PresenceState::clear_entity_id() {
+  if (entity_id_ != NULL) entity_id_->::bgs::protocol::EntityId::Clear();
+  clear_has_entity_id();
+}
+inline const ::bgs::protocol::EntityId& PresenceState::entity_id() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.PresenceState.entity_id)
+  return entity_id_ != NULL ? *entity_id_ : *default_instance_->entity_id_;
+}
+inline ::bgs::protocol::EntityId* PresenceState::mutable_entity_id() {
+  set_has_entity_id();
+  if (entity_id_ == NULL) entity_id_ = new ::bgs::protocol::EntityId;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.PresenceState.entity_id)
+  return entity_id_;
+}
+inline ::bgs::protocol::EntityId* PresenceState::release_entity_id() {
+  clear_has_entity_id();
+  ::bgs::protocol::EntityId* temp = entity_id_;
+  entity_id_ = NULL;
+  return temp;
+}
+inline void PresenceState::set_allocated_entity_id(::bgs::protocol::EntityId* entity_id) {
+  delete entity_id_;
+  entity_id_ = entity_id;
+  if (entity_id) {
+    set_has_entity_id();
+  } else {
+    clear_has_entity_id();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.presence.v1.PresenceState.entity_id)
+}
+
+// repeated .bgs.protocol.presence.v1.FieldOperation field_operation = 2;
+inline int PresenceState::field_operation_size() const {
+  return field_operation_.size();
+}
+inline void PresenceState::clear_field_operation() {
+  field_operation_.Clear();
+}
+inline const ::bgs::protocol::presence::v1::FieldOperation& PresenceState::field_operation(int index) const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.presence.v1.PresenceState.field_operation)
+  return field_operation_.Get(index);
+}
+inline ::bgs::protocol::presence::v1::FieldOperation* PresenceState::mutable_field_operation(int index) {
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.presence.v1.PresenceState.field_operation)
+  return field_operation_.Mutable(index);
+}
+inline ::bgs::protocol::presence::v1::FieldOperation* PresenceState::add_field_operation() {
+  // @@protoc_insertion_point(field_add:bgs.protocol.presence.v1.PresenceState.field_operation)
+  return field_operation_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::FieldOperation >&
+PresenceState::field_operation() const {
+  // @@protoc_insertion_point(field_list:bgs.protocol.presence.v1.PresenceState.field_operation)
+  return field_operation_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::bgs::protocol::presence::v1::FieldOperation >*
+PresenceState::mutable_field_operation() {
+  // @@protoc_insertion_point(field_mutable_list:bgs.protocol.presence.v1.PresenceState.field_operation)
+  return &field_operation_;
 }
 
 // -------------------------------------------------------------------

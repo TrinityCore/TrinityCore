@@ -100,7 +100,7 @@ inline float dtQueryFilter::getCost(const float* pa, const float* pb,
 }
 #endif	
 	
-static const float H_SCALE = 2.0f; // Search heuristic scale.
+static const float H_SCALE = 0.999f; // Search heuristic scale.
 
 
 dtNavMeshQuery* dtAllocNavMeshQuery()

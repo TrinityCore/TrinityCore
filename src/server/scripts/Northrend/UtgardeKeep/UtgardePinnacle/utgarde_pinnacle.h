@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,6 +49,7 @@ enum UPDataTypes
 
 enum UPCreatureIds
 {
+    // Bosses
     NPC_SVALA_SORROWGRAVE           = 26668,
     NPC_GORTOK_PALEHOOF             = 26687,
     NPC_SKADI_THE_RUTHLESS          = 26693,
@@ -62,7 +63,8 @@ enum UPCreatureIds
     NPC_RAVENOUS_FURBOLG            = 26684,
     NPC_MASSIVE_JORMUNGAR           = 26685,
     NPC_FEROCIOUS_RHINO             = 26686,
-    NPC_PALEHOOF_ORB                = 26688,
+    NPC_PALEHOOF_ORB                = 22515, // World Trigger
+    NPC_JORMUNGAR_WORM              = 27228,
 
     // Skadi
     NPC_GRAUF                       = 26893,

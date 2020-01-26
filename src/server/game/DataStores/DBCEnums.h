@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,11 +43,11 @@ enum LevelLimit
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
     // use as default max player level, must be fit max level for used client
     // also see MAX_LEVEL and STRONG_MAX_LEVEL define
-    DEFAULT_MAX_LEVEL = 110,
+    DEFAULT_MAX_LEVEL = 120,
 
     // client supported max level for player/pets/etc. Avoid overflow or client stability affected.
     // also see GT_MAX_LEVEL define
-    MAX_LEVEL = 110,
+    MAX_LEVEL = 120,
 
     // Server side limitation. Base at used code requirements.
     // also see MAX_LEVEL and GT_MAX_LEVEL define
@@ -58,7 +57,7 @@ enum LevelLimit
 enum BattlegroundBracketId                                  // bracketId for level ranges
 {
     BG_BRACKET_ID_FIRST          = 0,
-    BG_BRACKET_ID_LAST           = 11,
+    BG_BRACKET_ID_LAST           = 12,
 
     // must be max value in PvPDificulty slot + 1
     MAX_BATTLEGROUND_BRACKETS
@@ -166,7 +165,35 @@ enum ArtifactPowerFlag : uint8
 
 #define MAX_ARTIFACT_TIER 1
 
-#define BATTLE_PET_SPECIES_MAX_ID 2164
+#define MAX_AZERITE_EMPOWERED_TIER 5
+
+#define MAX_AZERITE_ESSENCE_SLOT 3
+#define MAX_AZERITE_ESSENCE_RANK 4
+
+enum class AzeriteItemMilestoneType : int32
+{
+    MajorEssence    = 0,
+    MinorEssence    = 1,
+    BonusStamina    = 2
+};
+
+enum AzeriteTierUnlockSetFlags
+{
+    AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
+};
+
+#define BATTLE_PET_SPECIES_MAX_ID 2796
+
+enum BattlemasterListFlags
+{
+    BATTLEMASTER_LIST_FLAG_DISABLED             = 0x01,
+    BATTLEMASTER_LIST_FLAG_SKIP_ROLE_CHECK      = 0x02,
+    BATTLEMASTER_LIST_FLAG_UNK04                = 0x04,
+    BATTLEMASTER_LIST_FLAG_CAN_INIT_WAR_GAME    = 0x08,
+    BATTLEMASTER_LIST_FLAG_CAN_SPECIFIC_QUEUE   = 0x10,
+    BATTLEMASTER_LIST_FLAG_BRAWL                = 0x20,
+    BATTLEMASTER_LIST_FLAG_FACTIONAL            = 0x40
+};
 
 enum ChrSpecializationFlag
 {
@@ -195,23 +222,29 @@ enum CriteriaCondition
 
 enum CriteriaAdditionalCondition
 {
-    CRITERIA_ADDITIONAL_CONDITION_SOURCE_DRUNK_VALUE            = 1, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_UNK2                          = 2,
-    CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL                    = 3, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_DRUNK_VALUE            = 1,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_PLAYER_CONDITION       = 2,
+    CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL                    = 3,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_ENTRY         = 4,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_PLAYER         = 5,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_DEAD           = 6,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_ENEMY          = 7,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_HAS_AURA               = 8,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_HAS_AURA_TYPE          = 9,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA               = 10,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA_TYPE          = 11,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_AURA_STATE             = 12,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_AURA_STATE             = 13,
     CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_MIN              = 14,
     CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_EQUALS           = 15,
-    CRITERIA_ADDITIONAL_CONDITION_UNK16                         = 16,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_IS_ALIVE               = 16,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_AREA_OR_ZONE           = 17,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_AREA_OR_ZONE           = 18,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_19                      = 19,
     CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY_OLD            = 20,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_YIELDS_XP     = 21, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_ABOVE_TARGET     = 22,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_EQUAL_TARGET     = 23,
     CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE                    = 24,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_RACE                   = 25,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_CLASS                  = 26,
@@ -219,54 +252,261 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_TARGET_CLASS                  = 28,
     CRITERIA_ADDITIONAL_CONDITION_MAX_GROUP_MEMBERS             = 29,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_TYPE          = 30,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_FAMILY        = 31,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_MAP                    = 32,
-    CRITERIA_ADDITIONAL_CONDITION_ITEM_CLASS                    = 33, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_ITEM_SUBCLASS                 = 34, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_COMPLETE_QUEST_NOT_IN_GROUP   = 35, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_MIN_PERSONAL_RATING           = 37, // NYI (when implementing don't forget about CRITERIA_CONDITION_NO_LOSE)
+    CRITERIA_ADDITIONAL_CONDITION_CLIENT_VERSION                = 33,
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_TEAM_LEVEL         = 34,
+    CRITERIA_ADDITIONAL_CONDITION_NOT_IN_GROUP                  = 35,
+    CRITERIA_ADDITIONAL_CONDITION_IN_GROUP                      = 36,
+    CRITERIA_ADDITIONAL_CONDITION_MIN_PERSONAL_RATING           = 37, // NYI
     CRITERIA_ADDITIONAL_CONDITION_TITLE_BIT_INDEX               = 38,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL                  = 39,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL                  = 40,
-    CRITERIA_ADDITIONAL_CONDITION_TARGET_ZONE                   = 41,
-    CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PERCENT_BELOW   = 46,
-    CRITERIA_ADDITIONAL_CONDITION_UNK55                         = 55,
-    CRITERIA_ADDITIONAL_CONDITION_MIN_ACHIEVEMENT_POINTS        = 56, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_REQUIRES_LFG_GROUP            = 58, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_UNK60                         = 60,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_ZONE                   = 41,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_ZONE                   = 42,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_HEALTH_PCT_LOWER       = 43,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_HEALTH_PCT_GREATER     = 44,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_HEALTH_PCT_EQUAL       = 45,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PCT_LOWER       = 46,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PCT_GREATER     = 47,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PCT_EQUAL       = 48,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_HEALTH_LOWER           = 49,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_HEALTH_GREATER         = 50,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_HEALTH_EQUAL           = 51,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_LOWER           = 52,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_GREATER         = 53,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_EQUAL           = 54,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_PLAYER_CONDITION       = 55,
+    CRITERIA_ADDITIONAL_CONDITION_MIN_ACHIEVEMENT_POINTS        = 56,
+    CRITERIA_ADDITIONAL_CONDITION_IN_LFG_DUNGEON                = 57,
+    CRITERIA_ADDITIONAL_CONDITION_IN_LFG_RANDOM_DUNGEON         = 58,
+    CRITERIA_ADDITIONAL_CONDITION_IN_LFG_FIRST_RANDOM_DUNGEON   = 59,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_60                      = 60, // NYI
     CRITERIA_ADDITIONAL_CONDITION_REQUIRES_GUILD_GROUP          = 61, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_GUILD_REPUTATION              = 62, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_GUILD_REPUTATION              = 62,
     CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND            = 63, // NYI
     CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND_RATING     = 64,
     CRITERIA_ADDITIONAL_CONDITION_PROJECT_RARITY                = 65,
     CRITERIA_ADDITIONAL_CONDITION_PROJECT_RACE                  = 66,
-    CRITERIA_ADDITIONAL_CONDITION_WORLD_STATE                   = 67, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY                = 68, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_PLAYER_LEVEL                  = 69, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_TARGET_PLAYER_LEVEL           = 70, // NYI
-    //CRITERIA_ADDITIONAL_CONDITION_PLAYER_LEVEL_ON_ACCOUNT       = 71, // Not verified
-    //CRITERIA_ADDITIONAL_CONDITION_UNK73       = 73, // References another modifier tree id
-    CRITERIA_ADDITIONAL_CONDITION_SCENARIO_ID                   = 74, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_WORLD_STATE_EXPRESSION        = 67,
+    CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY                = 68,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_GREATER          = 69,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL_GREATER          = 70,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_LOWER            = 71,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL_LOWER            = 72,
+    CRITERIA_ADDITIONAL_CONDITION_MODIFIER_TREE                 = 73,
+    CRITERIA_ADDITIONAL_CONDITION_SCENARIO_ID                   = 74,
+    CRITERIA_ADDITIONAL_CONDITION_THE_TILLERS_REPUTATION        = 75,
+    CRITERIA_ADDITIONAL_CONDITION_PET_BATTLE_ACHIEVEMENT_POINTS = 76, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_77                      = 77, // NYI
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_FAMILY             = 78, // NYI
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_HEALTH_PCT         = 79, // NYI
-    //CRITERIA_ADDITIONAL_CONDITION_UNK80                         = 80 // Something to do with world bosses
+    CRITERIA_ADDITIONAL_CONDITION_GUILD_GROUP_MEMBERS           = 80, // NYI
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_ENTRY              = 81, // NYI
-    //CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_ENTRY_ID           = 82, // Some sort of data id?
+    CRITERIA_ADDITIONAL_CONDITION_SCENARIO_STEP_INDEX           = 82,
     CRITERIA_ADDITIONAL_CONDITION_CHALLENGE_MODE_MEDAL          = 83, // NYI
-    //CRITERIA_ADDITIONAL_CONDITION_UNK84                         = 84, // Quest id
-    //CRITERIA_ADDITIONAL_CONDITION_UNK86                         = 86, // Some external event id
-    //CRITERIA_ADDITIONAL_CONDITION_UNK87                         = 87, // Achievement id
+    CRITERIA_ADDITIONAL_CONDITION_IS_ON_QUEST                   = 84,
+    CRITERIA_ADDITIONAL_CONDITION_EXALTED_WITH_FACTION          = 85, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_HAS_ACHIEVEMENT               = 86,
+    CRITERIA_ADDITIONAL_CONDITION_HAS_ACHIEVEMENT_ON_CHARACTER  = 87, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_CLOUD_SERPENT_REPUTATION      = 88,
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_BREED_QUALITY_ID   = 89, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_PET_BATTLE_IS_PVP             = 90, // NYI
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES            = 91,
-    CRITERIA_ADDITIONAL_CONDITION_EXPANSION                     = 92,
-    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY       = 144,
-    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY     = 145,
-    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL       = 146,
+    CRITERIA_ADDITIONAL_CONDITION_ACTIVE_EXPANSION              = 92,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_93                      = 93, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_FRIENDSHIP_REP_REACTION       = 94, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_FACTION_STANDING              = 95,
+    CRITERIA_ADDITIONAL_CONDITION_ITEM_CLASS_AND_SUBCLASS       = 96, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_SEX                    = 97,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_NATIVE_SEX             = 98,
+    CRITERIA_ADDITIONAL_CONDITION_SKILL                         = 99,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_100                     = 100, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_NORMAL_PHASE_SHIFT            = 101,
+    CRITERIA_ADDITIONAL_CONDITION_IN_PHASE                      = 102,
+    CRITERIA_ADDITIONAL_CONDITION_NOT_IN_PHASE                  = 103,
+    CRITERIA_ADDITIONAL_CONDITION_HAS_SPELL                     = 104,
+    CRITERIA_ADDITIONAL_CONDITION_ITEM_COUNT                    = 105,
+    CRITERIA_ADDITIONAL_CONDITION_ACCOUNT_EXPANSION             = 106,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_HAS_AURA_LABEL         = 107, // NYI, SpellLabel
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_108                     = 108, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_TIME_IN_RANGE                 = 109, // NYI, packed time between asset and secondaryAsset
+    CRITERIA_ADDITIONAL_CONDITION_REWARDED_QUEST                = 110,
+    CRITERIA_ADDITIONAL_CONDITION_COMPLETED_QUEST               = 111,
+    CRITERIA_ADDITIONAL_CONDITION_COMPLETED_QUEST_OBJECTIVE     = 112, // NYI, QuestObjectiveID
+    CRITERIA_ADDITIONAL_CONDITION_EXPLORED_AREA                 = 113,
+    CRITERIA_ADDITIONAL_CONDITION_ITEM_COUNT_INCLUDING_BANK     = 114,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_115                     = 115, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_PVP_FACTION_INDEX      = 116,
+    CRITERIA_ADDITIONAL_CONDITION_LFG_VALUE_EQUAL               = 117,
+    CRITERIA_ADDITIONAL_CONDITION_LFG_VALUE_GREATER             = 118,
+    CRITERIA_ADDITIONAL_CONDITION_CURRENCY_AMOUNT               = 119,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_120                     = 120, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_CURRENCY_TRACKED_AMOUNT       = 121,
+    CRITERIA_ADDITIONAL_CONDITION_MAP_INSTANCE_TYPE             = 122,
+    CRITERIA_ADDITIONAL_CONDITION_MENTOR                        = 123,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_124                     = 124, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_125                     = 125, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_LEVEL_ABOVE          = 126, // asset: garrLevel, secondaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWERS_ABOVE_LEVEL = 127, // asset: count, secondaryAsset: followerLevel, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWERS_ABOVE_QUALITY = 128, // asset: count, secondaryAsset: followerQuality, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ABOVE_LEVEL_WITH_ABILITY = 129, // asset: followerLevel, secondaryAsset: ability, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ABOVE_LEVEL_WITH_TRAIT  = 130, // asset: followerLevel, secondaryAsset: ability, tertiaryAsset: garrType (same as above but ability must have GARRISON_ABILITY_FLAG_TRAIT)
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_WITH_ABILITY_IN_BUILDING = 131, // asset: ability, secondaryAsset: buildingType, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_WITH_TRAIT_IN_BUILDING = 132, // asset: ability, secondaryAsset: buildingType, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ABOVE_LEVEL_IN_BUILDING = 133, // asset: followerLevel, secondaryAsset: buildingType, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_BUILDING_ABOVE_LEVEL = 134, // asset: buildingType, secondaryAsset: buildingLevel, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_BLUEPRINT            = 135, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_136                     = 136, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_137                     = 137, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_138                     = 138, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_139                     = 139, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_BUILDING_INACTIVE    = 140,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_141                     = 141, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_BUILDING_EQUAL_LEVEL = 142, // asset: buildingType, secondaryAsset: buildingLevel, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_WITH_ABILITY= 143, // asset: ability, secondaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_WITH_TRAIT  = 144, // asset: ability, secondaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ABOVE_QUALITY_WOD = 145, // asset: followerQuality
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_EQUAL_LEVEL = 146, // asset: followerLevel, secondaryAsset: garrType
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_RARE_MISSION         = 147, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_148                     = 148, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_BUILDING_LEVEL       = 149, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_150                     = 150, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES_IN_TEAM    = 151, // asset: count, secondaryAsset: battlePetSpeciesId
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_FAMILY_IN_TEAM     = 152, // asset: count, secondaryAsset: battlePetFamily
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_153                     = 153, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_154                     = 154, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_155                     = 155, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_156                     = 156, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ID          = 157, // follower with id, in any garrison
+    CRITERIA_ADDITIONAL_CONDITION_QUEST_OBJECTIVE_PROGRESS_EQUAL= 158, // NYI asset: questObjectiveId, secondaryAsset: progress
+    CRITERIA_ADDITIONAL_CONDITION_QUEST_OBJECTIVE_PROGRESS_ABOVE= 159, // NYI asset: questObjectiveId, secondaryAsset: progress
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_160                     = 160, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_161                     = 161, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_162                     = 162, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_163                     = 163, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_164                     = 164, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_165                     = 165, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_166                     = 166, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_MISSION_TYPE         = 167, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_PLAYER_ITEM_LEVEL             = 169, // NYI
-    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL        = 184,
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ABOVE_ITEM_LEVEL = 168, // asset: followerItemLevel
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWERS_ABOVE_ITEM_LEVEL = 169, // asset: count, secondaryAsset: followerItemLevel, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_LEVEL_EQUAL          = 170, // asset: count
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_GROUP_SIZE           = 171, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_172                     = 172, // NYI something to do with currency but only used on criterias that require the same currency
+    CRITERIA_ADDITIONAL_CONDITION_TARGETING_CORPSE              = 173,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_174                     = 174, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWERS_LEVEL_EQUAL= 175, // asset: count, secondaryAsset: followerLevel, tertiaryAsset: garrType
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ID_IN_BUILDING = 176, // asset: followerId, secondaryAsset: buildingType
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_177                     = 177, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_178                     = 178, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_WORLD_PVP_AREA                = 179, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_NON_OWN_GARRISON              = 180, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_181                     = 181, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_182                     = 183, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_183                     = 183, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWERS_ITEM_LEVEL_ABOVE = 184,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_185                     = 185, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_186                     = 186, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_TYPE        = 187, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_188                     = 188, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_189                     = 189, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_190                     = 190, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_191                     = 191, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_192                     = 192, // NYI
     CRITERIA_ADDITIONAL_CONDITION_HONOR_LEVEL                   = 193,
-    CRITERIA_ADDITIONAL_CONDITION_PRESTIGE_LEVEL                = 194
+    CRITERIA_ADDITIONAL_CONDITION_PRESTIGE_LEVEL                = 194,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_195                     = 195, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_196                     = 196, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_197                     = 197, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_198                     = 198, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_198                     = 199, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_ITEM_MODIFIED_APPEARANCE      = 200,
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_SELECTED_TALENT      = 201, // NYI asset: garrTalentId (talent selected, research timer doesn't matter)
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_RESEARCHED_TALENT    = 202, // NYI asset: garrTalentId (talent selected, research must be finished)
+    CRITERIA_ADDITIONAL_CONDITION_HAS_CHARACTER_RESTRICTIONS    = 203,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_204                     = 204, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_205                     = 205, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_QUEST_INFO_ID                 = 206,
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_RESEARCHING_TALENT   = 207, // NYI asset: garrTalentId (talent selected, research must be in progress)
+    CRITERIA_ADDITIONAL_CONDITION_ARTIFACT_APPEARANCE_SET_USED  = 208,
+    CRITERIA_ADDITIONAL_CONDITION_CURRENCY_AMOUNT_EQUAL         = 209,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_210                     = 210, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_SCENARIO_TYPE                 = 211,
+    CRITERIA_ADDITIONAL_CONDITION_ACCOUNT_EXPANSION_EQUAL       = 212,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_213                     = 213, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_214                     = 214, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_215                     = 215, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_CHALLENGE_MODE_MEDAL_2        = 216, // NYI keystone master, asset = 3
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_217                     = 217, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_218                     = 218, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_219                     = 219, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_220                     = 220, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_221                     = 221, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_222                     = 222, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_223                     = 223, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_224                     = 224, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_225                     = 225, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_USED_LEVEL_BOOST              = 226, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_USED_RACE_CHANGE              = 227, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_USED_FACTION_CHANGE           = 228, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_229                     = 229, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_230                     = 230, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_ACHIEVEMENT_GLOBALLY_INCOMPLETED = 231, // hall of fame stuff, asset: unk, secondaryAsset: achievementId
+    CRITERIA_ADDITIONAL_CONDITION_MAIN_HAND_VISIBLE_SUBCLASS    = 232,
+    CRITERIA_ADDITIONAL_CONDITION_OFF_HAND_VISIBLE_SUBCLASS     = 233,
+    CRITERIA_ADDITIONAL_CONDITION_PVP_TIER                      = 234, // NYI asset: pvpTierId
+    CRITERIA_ADDITIONAL_CONDITION_AZERITE_ITEM_LEVEL            = 235,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_236                     = 236, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_237                     = 237, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_238                     = 238, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_PVP_TIER_GREATER              = 239, // NYI asset: pvpTierEnum, secondaryAsset: pvpBracket
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_240                     = 240, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_241                     = 241, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_242                     = 242, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_243                     = 243, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_244                     = 244, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_IN_WAR_MODE                   = 245,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_246                     = 246, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_KEYSTONE_LEVEL                = 247, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_248                     = 248, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_KEYSTONE_DUNGEON              = 249, // NYI asset: mapChallengeModeId
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_250                     = 250, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_PVP_SEASON                    = 251, // NYI asset: that unknown column in PvpSeason.db2
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_DISPLAY_RACE           = 252,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_DISPLAY_RACE           = 253,
+    CRITERIA_ADDITIONAL_CONDITION_FRIENDSHIP_REP_REACTION_EXACT = 254, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_AURA_COUNT_EQUAL       = 255,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_AURA_COUNT_EQUAL       = 256,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_AURA_COUNT_GREATER     = 257,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_AURA_COUNT_GREATER     = 258,
+    CRITERIA_ADDITIONAL_CONDITION_UNLOCKED_AZERITE_ESSENCE_RANK_LOWER = 259,
+    CRITERIA_ADDITIONAL_CONDITION_UNLOCKED_AZERITE_ESSENCE_RANK_EQUAL = 260,
+    CRITERIA_ADDITIONAL_CONDITION_UNLOCKED_AZERITE_ESSENCE_RANK_GREATER = 261,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_HAS_AURA_EFFECT_INDEX  = 262, // asset: spellId, secondaryAsset: index
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_SPECIALIZATION_ROLE    = 263,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_120              = 264,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_265                     = 265,
+    CRITERIA_ADDITIONAL_CONDITION_SELECTED_AZERITE_ESSENCE_RANK_LOWER = 266,
+    CRITERIA_ADDITIONAL_CONDITION_SELECTED_AZERITE_ESSENCE_RANK_GREATER = 267,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_268                     = 268,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_269                     = 269,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_270                     = 270,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_271                     = 271,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_272                     = 272,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_273                     = 273,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_274                     = 274,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_275                     = 275,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_276                     = 276,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_277                     = 277,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_278                     = 278,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_279                     = 279,
+    CRITERIA_ADDITIONAL_CONDITION_MAP_OR_COSMETIC_MAP           = 280,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_281                     = 281,
+    CRITERIA_ADDITIONAL_CONDITION_HAS_ENTITLEMENT               = 282,
+    CRITERIA_ADDITIONAL_CONDITION_HAS_QUEST_SESSION             = 283,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_284                     = 284,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_285                     = 285,
 };
 
 enum CriteriaFlags
@@ -502,10 +742,13 @@ enum CriteriaTypes : uint8
     CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED                 = 205,
     CRITERIA_TYPE_GAIN_PARAGON_REPUTATION               = 206,
     CRITERIA_TYPE_EARN_HONOR_XP                         = 207,
-    CRITERIA_TYPE_RELIC_TALENT_UNLOCKED                 = 211
+    CRITERIA_TYPE_RELIC_TALENT_UNLOCKED                 = 211,
+    CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL             = 213,
+    CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED= 214,
+    CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED        = 215
 };
 
-#define CRITERIA_TYPE_TOTAL 213
+#define CRITERIA_TYPE_TOTAL 219
 
 enum CriteriaTreeFlags : uint16
 {
@@ -547,7 +790,8 @@ enum CharSectionFlags
 {
     SECTION_FLAG_PLAYER = 0x01,
     SECTION_FLAG_DEATH_KNIGHT = 0x04,
-    SECTION_FLAG_DEMON_HUNTER = 0x20
+    SECTION_FLAG_DEMON_HUNTER = 0x20,
+    SECTION_FLAG_CONDITIONAL = 0x400
 };
 
 enum CharSectionType
@@ -574,7 +818,8 @@ enum CharSectionType
 
 enum Curves
 {
-    CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS = 1718
+    CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS    = 1718,
+    CURVE_ID_AZERITE_EMPOWERED_ITEM_RESPEC_COST = 6785
 };
 
 enum Difficulty : uint8
@@ -608,6 +853,13 @@ enum Difficulty : uint8
     DIFFICULTY_WORLD_PVP_SCENARIO_2 = 32,
     DIFFICULTY_TIMEWALKING_RAID     = 33,
     DIFFICULTY_PVP                  = 34,
+    DIFFICULTY_NORMAL_ISLAND        = 38,
+    DIFFICULTY_HEROIC_ISLAND        = 39,
+    DIFFICULTY_MYTHIC_ISLAND        = 40,
+    DIFFICULTY_PVP_ISLAND           = 45,
+    DIFFICULTY_NORMAL_WARFRONT      = 147,
+    DIFFICULTY_HEROIC_WARFRONT      = 149,
+    DIFFICULTY_LFR_15TH_ANNIVERSARY = 151,
 
     MAX_DIFFICULTY
 };
@@ -643,9 +895,22 @@ enum SpawnMask
     SPAWNMASK_RAID_ALL          = (SPAWNMASK_RAID_NORMAL_ALL | SPAWNMASK_RAID_HEROIC_ALL)
 };
 
+enum class ExpectedStatType : uint8
+{
+    CreatureHealth          = 0,
+    PlayerHealth            = 1,
+    CreatureAutoAttackDps   = 2,
+    CreatureArmor           = 3,
+    PlayerMana              = 4,
+    PlayerPrimaryStat       = 5,
+    PlayerSecondaryStat     = 6,
+    ArmorConstant           = 7,
+    None                    = 8,
+    CreatureSpellDamage     = 9
+};
+
 enum FactionTemplateFlags
 {
-    FACTION_TEMPLATE_ENEMY_SPAR             = 0x00000020,   // guessed, sparring with enemies?
     FACTION_TEMPLATE_FLAG_PVP               = 0x00000800,   // flagged for PvP
     FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   = 0x00001000,   // faction will attack players that were involved in PvP combats
     FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000
@@ -661,6 +926,7 @@ enum FactionMasks
 };
 
 #define MAX_ITEM_PROTO_FLAGS 4
+#define MAX_ITEM_PROTO_ZONES 2
 #define MAX_ITEM_PROTO_SOCKETS 3
 #define MAX_ITEM_PROTO_STATS  10
 
@@ -742,7 +1008,72 @@ enum ItemBonusType
     ITEM_BONUS_RANDOM_ENCHANTMENT               = 15,             // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
     ITEM_BONUS_BONDING                          = 16,
     ITEM_BONUS_RELIC_TYPE                       = 17,
-    ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18
+    ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18,
+    ITEM_BONUS_AZERITE_TIER_UNLOCK_SET          = 19,
+    ITEM_BONUS_OVERRIDE_CAN_DISENCHANT          = 21,
+    ITEM_BONUS_OVERRIDE_CAN_SCRAP               = 22
+};
+
+enum class ItemContext : uint8
+{
+    NONE                    = 0,
+    Dungeon_Normal          = 1,
+    Dungeon_Heroic          = 2,
+    Raid_Normal             = 3,
+    Raid_Raid_Finder        = 4,
+    Raid_Heroic             = 5,
+    Raid_Mythic             = 6,
+    PVP_Unranked_1          = 7,
+    PVP_Ranked_1            = 8,
+    Scenario_Normal         = 9,
+    Scenario_Heroic         = 10,
+    Quest_Reward            = 11,
+    Store                   = 12,
+    Trade_Skill             = 13,
+    Vendor                  = 14,
+    Black_Market            = 15,
+    Challenge_Mode_1        = 16,
+    Dungeon_Lvl_Up_1        = 17,
+    Dungeon_Lvl_Up_2        = 18,
+    Dungeon_Lvl_Up_3        = 19,
+    Dungeon_Lvl_Up_4        = 20,
+    Force_to_NONE           = 21,
+    TimeWalker              = 22,
+    Dungeon_Mythic          = 23,
+    Pvp_Honor_Reward        = 24,
+    World_Quest_1           = 25,
+    World_Quest_2           = 26,
+    World_Quest_3           = 27,
+    World_Quest_4           = 28,
+    World_Quest_5           = 29,
+    World_Quest_6           = 30,
+    Mission_Reward_1        = 31,
+    Mission_Reward_2        = 32,
+    Challenge_Mode_2        = 33,
+    Challenge_Mode_3        = 34,
+    Challenge_Mode_Jackpot  = 35,
+    World_Quest_7           = 36,
+    World_Quest_8           = 37,
+    PVP_Ranked_2            = 38,
+    PVP_Ranked_3            = 39,
+    PVP_Ranked_4            = 40,
+    PVP_Unranked_2          = 41,
+    World_Quest_9           = 42,
+    World_Quest_10          = 43,
+    PVP_Ranked_5            = 44,
+    PVP_Ranked_6            = 45,
+    PVP_Ranked_7            = 46,
+    PVP_Unranked_3          = 47,
+    PVP_Unranked_4          = 48,
+    PVP_Unranked_5          = 49,
+    PVP_Unranked_6          = 50,
+    PVP_Unranked_7          = 51,
+    PVP_Ranked_8            = 52,
+    World_Quest_11          = 53,
+    World_Quest_12          = 54,
+    World_Quest_13          = 55,
+    PVP_Ranked_Jackpot      = 56,
+    Tournament_Realm        = 57,
 };
 
 enum ItemLimitCategoryMode
@@ -807,6 +1138,14 @@ enum MapDifficultyFlags : uint8
     MAP_DIFFICULTY_FLAG_CANNOT_EXTEND   = 0x10
 };
 
+enum class ModifierTreeOperator : int8
+{
+    SingleTrue  = 2,
+    SingleFalse = 3,
+    All         = 4,
+    Some        = 8
+};
+
 enum MountCapabilityFlags
 {
     MOUNT_CAPABILITY_FLAG_GROUND                = 0x1,
@@ -840,6 +1179,18 @@ enum PhaseUseFlagsValues : uint8
     PHASE_USE_FLAGS_INVERSE         = 0x2,
 
     PHASE_USE_FLAGS_ALL             = PHASE_USE_FLAGS_ALWAYS_VISIBLE | PHASE_USE_FLAGS_INVERSE
+};
+
+enum class PlayerConditionLfgStatus : uint8
+{
+    InLFGDungeon            = 1,
+    InLFGRandomDungeon      = 2,
+    InLFGFirstRandomDungeon = 3,
+    PartialClear            = 4,
+    StrangerCount           = 5,
+    VoteKickCount           = 6,
+    BootCount               = 7,
+    GearDiff                = 8
 };
 
 enum PrestigeLevelInfoFlags : uint8
@@ -917,7 +1268,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 258
+#define TaxiMaskSize 311
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -989,8 +1340,7 @@ enum SummonPropFlags
 
 #define MAX_TALENT_TIERS 7
 #define MAX_TALENT_COLUMNS 3
-#define MAX_PVP_TALENT_TIERS 6
-#define MAX_PVP_TALENT_COLUMNS 3
+#define MAX_PVP_TALENT_SLOTS 4
 
 enum TaxiNodeFlags
 {
@@ -1005,11 +1355,30 @@ enum TaxiPathNodeFlags
     TAXI_PATH_NODE_FLAG_STOP        = 0x2
 };
 
+enum UiMapSystem : int8
+{
+    UI_MAP_SYSTEM_WORLD     = 0,
+    UI_MAP_SYSTEM_TAXI      = 1,
+    UI_MAP_SYSTEM_ADVENTURE = 2,
+    MAX_UI_MAP_SYSTEM       = 3
+};
+
+enum UiMapType : int8
+{
+    UI_MAP_TYPE_COSMIC      = 0,
+    UI_MAP_TYPE_WORLD       = 1,
+    UI_MAP_TYPE_CONTINENT   = 2,
+    UI_MAP_TYPE_ZONE        = 3,
+    UI_MAP_TYPE_DUNGEON     = 4,
+    UI_MAP_TYPE_MICRO       = 5,
+    UI_MAP_TYPE_ORPHAN      = 6,
+};
+
 enum VehicleSeatFlags
 {
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER                         = 0x00000001,
     VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE                          = 0x00000002,
-    VEHICLE_SEAT_FLAG_UNK3                                             = 0x00000004,
+    VEHICLE_SEAT_FLAG_DISABLE_GRAVITY                                  = 0x00000004, // Passenger will not be affected by gravity
     VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIM_ON_VOLUNTARY_EXIT  = 0x00000008,
     VEHICLE_SEAT_FLAG_UNK5                                             = 0x00000010,
     VEHICLE_SEAT_FLAG_UNK6                                             = 0x00000020,
@@ -1061,11 +1430,92 @@ enum CurrencyTypes
     CURRENCY_TYPE_JUSTICE_POINTS        = 395,
     CURRENCY_TYPE_VALOR_POINTS          = 396,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
+    CURRENCY_TYPE_AZERITE               = 1553
 };
 
 enum WorldMapTransformsFlags
 {
     WORLD_MAP_TRANSFORMS_FLAG_DUNGEON   = 0x04
+};
+
+enum class WorldStateExpressionValueType : uint8
+{
+    Constant    = 1,
+    WorldState  = 2,
+    Function    = 3
+};
+
+enum class WorldStateExpressionLogic : uint8
+{
+    None    = 0,
+    And     = 1,
+    Or      = 2,
+    Xor     = 3,
+};
+
+enum class WorldStateExpressionComparisonType : uint8
+{
+    None            = 0,
+    Equal           = 1,
+    NotEqual        = 2,
+    Less            = 3,
+    LessOrEqual     = 4,
+    Greater         = 5,
+    GreaterOrEqual  = 6,
+};
+
+enum class WorldStateExpressionOperatorType : uint8
+{
+    None            = 0,
+    Sum             = 1,
+    Substraction    = 2,
+    Multiplication  = 3,
+    Division        = 4,
+    Remainder       = 5,
+};
+
+enum WorldStateExpressionFunctions
+{
+    WSE_FUNCTION_NONE = 0,
+    WSE_FUNCTION_RANDOM,
+    WSE_FUNCTION_MONTH,
+    WSE_FUNCTION_DAY,
+    WSE_FUNCTION_TIME_OF_DAY,
+    WSE_FUNCTION_REGION,
+    WSE_FUNCTION_CLOCK_HOUR,
+    WSE_FUNCTION_OLD_DIFFICULTY_ID,
+    WSE_FUNCTION_HOLIDAY_START,
+    WSE_FUNCTION_HOLIDAY_LEFT,
+    WSE_FUNCTION_HOLIDAY_ACTIVE,
+    WSE_FUNCTION_TIMER_CURRENT_TIME,
+    WSE_FUNCTION_WEEK_NUMBER,
+    WSE_FUNCTION_UNK13,
+    WSE_FUNCTION_UNK14,
+    WSE_FUNCTION_DIFFICULTY_ID,
+    WSE_FUNCTION_WAR_MODE_ACTIVE,
+    WSE_FUNCTION_UNK17,
+    WSE_FUNCTION_UNK18,
+    WSE_FUNCTION_UNK19,
+    WSE_FUNCTION_UNK20,
+    WSE_FUNCTION_UNK21,
+    WSE_FUNCTION_WORLD_STATE_EXPRESSION,
+    WSE_FUNCTION_KEYSTONE_AFFIX,
+    WSE_FUNCTION_UNK24,
+    WSE_FUNCTION_UNK25,
+    WSE_FUNCTION_UNK26,
+    WSE_FUNCTION_UNK27,
+    WSE_FUNCTION_KEYSTONE_LEVEL,
+    WSE_FUNCTION_UNK29,
+    WSE_FUNCTION_UNK30,
+    WSE_FUNCTION_UNK31,
+    WSE_FUNCTION_UNK32,
+    WSE_FUNCTION_MERSENNE_RANDOM,
+    WSE_FUNCTION_UNK34,
+    WSE_FUNCTION_UNK35,
+    WSE_FUNCTION_UNK36,
+    WSE_FUNCTION_UI_WIDGET_DATA,
+
+    WSE_FUNCTION_MAX,
 };
 
 #endif

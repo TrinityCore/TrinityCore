@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,8 @@
 #include "SharedDefines.h"
 #include "Common.h"
 #include <vector>
+
+enum InventoryType : uint8;
 
 struct GtArmorMitigationByLvlEntry
 {
@@ -103,12 +105,6 @@ struct GtCombatRatingsMultByILvl
     float JewelryMultiplier = 0.0f;
 };
 
-uint8 constexpr PRESTIGE_COLUMN_COUNT = 33;
-struct GtHonorLevelEntry
-{
-    float Prestige[PRESTIGE_COLUMN_COUNT] = { };
-};
-
 struct GtHpPerStaEntry
 {
     float Health = 0.0f;
@@ -176,6 +172,16 @@ struct GtSpellScalingEntry
     float Gem2 = 0.0f;
     float Gem3 = 0.0f;
     float Health = 0.0f;
+    float DamageReplaceStat = 0.0f;
+    float DamageSecondary = 0.0f;
+};
+
+struct GtStaminaMultByILvl
+{
+    float ArmorMultiplier = 0.0f;
+    float WeaponMultiplier = 0.0f;
+    float TrinketMultiplier = 0.0f;
+    float JewelryMultiplier = 0.0f;
 };
 
 struct GtXpEntry
@@ -214,13 +220,13 @@ TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopC
 TC_GAME_API extern GameTable<GtBaseMPEntry>                         sBaseMPGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
-TC_GAME_API extern GameTable<GtHonorLevelEntry>                     sHonorLevelGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcDamageByClassEntry>               sNpcDamageByClassGameTable[MAX_EXPANSIONS];
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
 TC_GAME_API extern GameTable<GtNpcTotalHpEntry>                     sNpcTotalHpGameTable[MAX_EXPANSIONS];
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
+TC_GAME_API extern GameTable<GtStaminaMultByILvl>                   sStaminaMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;
 
 TC_GAME_API void LoadGameTables(std::string const& dataPath);
@@ -290,6 +296,7 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
         case CLASS_DEMON_HUNTER:
             return row->DemonHunter;
         case -1:
+        case -7:
             return row->Item;
         case -2:
             return row->Consumable;
@@ -301,11 +308,18 @@ inline float GetSpellScalingColumnForClass(GtSpellScalingEntry const* row, int32
             return row->Gem3;
         case -6:
             return row->Health;
+        case -8:
+            return row->DamageReplaceStat;
+        case -9:
+            return row->DamageSecondary;
         default:
             break;
     }
 
     return 0.0f;
 }
+
+template<class T>
+float GetIlvlStatMultiplier(T const* row, InventoryType invType);
 
 #endif // GameTables_h__

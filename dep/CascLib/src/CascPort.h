@@ -37,12 +37,20 @@
     #define WIN32_LEAN_AND_MEAN
   #endif
 
+//#pragma warning(disable:4995)     // warning C4995: 'sprintf': name was marked as #pragma deprecated
+
   #include <tchar.h>
   #include <assert.h>
+  #include <intrin.h>       // Support for intrinsic functions
   #include <ctype.h>
+  #include <io.h>
   #include <stdio.h>
+  #include <stdlib.h>
+  #include <direct.h>
+  #include <malloc.h>
   #include <windows.h>
   #include <wininet.h>
+  #include <strsafe.h>
   #include <sys/types.h>
   #define PLATFORM_LITTLE_ENDIAN
 
@@ -52,8 +60,11 @@
     #define PLATFORM_32BIT
   #endif
 
-  #define PATH_SEPARATOR     '\\'
-  #define CREATE_DIRECTORY(name)    CreateDirectory(name, NULL);
+  #define URL_SEP_CHAR              '/'
+  #define PATH_SEP_CHAR             '\\'
+  #define PATH_SEP_STRING           "\\"
+  
+  #pragma intrinsic(memcmp, memcpy)
 
   #define PLATFORM_WINDOWS
   #define PLATFORM_DEFINED                  // The platform is known now
@@ -69,12 +80,19 @@
   #include <sys/types.h>
   #include <sys/stat.h>
   #include <sys/mman.h>
-  #include <unistd.h>
   #include <fcntl.h>
-  #include <stdlib.h>
   #include <dirent.h>
-  #include <errno.h>
+  #include <unistd.h>
   #include <stddef.h>
+  #include <stdint.h>
+  #include <stdlib.h>
+  #include <stdio.h>
+  #include <stdarg.h>
+  #include <string.h>
+  #include <ctype.h>
+  #include <wchar.h>
+  #include <cassert>
+  #include <errno.h>
 
   // Support for PowerPC on Max OS X
   #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
@@ -90,9 +108,10 @@
     #define PLATFORM_LITTLE_ENDIAN
   #endif
 
-  #define PATH_SEPARATOR     '/'
-  #define CREATE_DIRECTORY(name)    mkdir(name, 0755)
-
+  #define URL_SEP_CHAR              '/'
+  #define PATH_SEP_CHAR             '/'
+  #define PATH_SEP_STRING           "/"
+  
   #define PLATFORM_MAC
   #define PLATFORM_DEFINED                  // The platform is known now
 
@@ -103,7 +122,6 @@
 // Assumption: we are not on Windows nor Macintosh, so this must be linux *grin*
 
 #if !defined(PLATFORM_DEFINED)
-
   #include <sys/types.h>
   #include <sys/stat.h>
   #include <sys/mman.h>
@@ -117,12 +135,14 @@
   #include <stdarg.h>
   #include <string.h>
   #include <ctype.h>
+  #include <wchar.h>
   #include <assert.h>
   #include <errno.h>
 
-  #define PATH_SEPARATOR     '/'
-  #define CREATE_DIRECTORY(name)    mkdir(name, 0755)
-
+  #define URL_SEP_CHAR              '/'
+  #define PATH_SEP_CHAR             '/'
+  #define PATH_SEP_STRING           "/"
+  
   #define PLATFORM_LITTLE_ENDIAN
   #define PLATFORM_LINUX
   #define PLATFORM_DEFINED
@@ -145,20 +165,21 @@
   typedef unsigned short USHORT;
   typedef int            LONG;
   typedef unsigned int   DWORD;
-  typedef unsigned long  DWORD_PTR;
-  typedef long           LONG_PTR;
-  typedef long           INT_PTR;
   typedef long long      LONGLONG;
+  typedef signed long long LONGLONG;
+  typedef signed long long *PLONGLONG;
   typedef unsigned long long ULONGLONG;
   typedef unsigned long long *PULONGLONG;
   typedef void         * HANDLE;
-  typedef void         * LPOVERLAPPED; // Unsupported on Linux and Mac
   typedef char           TCHAR;
   typedef unsigned int   LCID;
   typedef LONG         * PLONG;
   typedef DWORD        * PDWORD;
   typedef BYTE         * LPBYTE;
   typedef char         * LPSTR;
+  typedef const char   * LPCSTR;
+  typedef TCHAR        * LPTSTR;
+  typedef const TCHAR  * LPCTSTR;
 
   #ifdef PLATFORM_32BIT
     #define _LZMA_UINT32_IS_ULONG
@@ -179,7 +200,6 @@
 
   #define _T(x)     x
   #define _tcslen   strlen
-  #define _tcscpy   strcpy
   #define _tcscat   strcat
   #define _tcschr   strchr
   #define _tcsrchr  strrchr
@@ -187,9 +207,9 @@
   #define _tcsspn   strspn
   #define _tcsncmp  strncmp
   #define _tprintf  printf
-  #define _stprintf sprintf
   #define _tremove  remove
-  #define _tmkdir   mkdir
+  #define _taccess  access
+  #define _access   access
 
   #define _stricmp  strcasecmp
   #define _strnicmp strncasecmp
@@ -212,6 +232,7 @@
 #if defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
   #define ERROR_SUCCESS                  0
   #define ERROR_FILE_NOT_FOUND           ENOENT
+  #define ERROR_PATH_NOT_FOUND           ENOENT
   #define ERROR_ACCESS_DENIED            EPERM
   #define ERROR_INVALID_HANDLE           EBADF
   #define ERROR_NOT_ENOUGH_MEMORY        ENOMEM
@@ -220,18 +241,38 @@
   #define ERROR_DISK_FULL                ENOSPC
   #define ERROR_ALREADY_EXISTS           EEXIST
   #define ERROR_INSUFFICIENT_BUFFER      ENOBUFS
-  #define ERROR_BAD_FORMAT               1000        // No such error code under Linux
-  #define ERROR_NO_MORE_FILES            1001        // No such error code under Linux
-  #define ERROR_HANDLE_EOF               1002        // No such error code under Linux
-  #define ERROR_CAN_NOT_COMPLETE         1003        // No such error code under Linux
-  #define ERROR_FILE_CORRUPT             1004        // No such error code under Linux
-  #define ERROR_FILE_ENCRYPTED           1005        // Returned by encrypted stream when can't find file key
+  #define ERROR_BAD_FORMAT               1000       // No such error code under Linux
+  #define ERROR_NO_MORE_FILES            1001       // No such error code under Linux
+  #define ERROR_HANDLE_EOF               1002       // No such error code under Linux
+  #define ERROR_CAN_NOT_COMPLETE         1003       // No such error code under Linux
+  #define ERROR_FILE_CORRUPT             1004       // No such error code under Linux
+  #define ERROR_FILE_ENCRYPTED           1005       // Returned by encrypted stream when can't find file key
 #endif
 
 #ifndef ERROR_FILE_INCOMPLETE
-#define ERROR_FILE_INCOMPLETE            1006        // The required file part is missing
+#define ERROR_FILE_INCOMPLETE            1006       // The required file part is missing
 #endif
 
+#ifndef ERROR_FILE_OFFLINE
+#define ERROR_FILE_OFFLINE               1007       // The file is not available in the local storage
+#endif
+
+#ifndef ERROR_BUFFER_OVERFLOW
+#define ERROR_BUFFER_OVERFLOW            1008
+#endif
+
+#ifndef ERROR_CANCELLED
+#define ERROR_CANCELLED                  1009
+#endif
+
+#ifndef ERROR_INDEX_PARSING_DONE
+#define ERROR_INDEX_PARSING_DONE         1010
+#endif
+
+#ifndef _countof
+#define _countof(x)   (sizeof(x) / sizeof(x[0]))  
+#endif
+  
 //-----------------------------------------------------------------------------
 // Swapping functions
 
@@ -271,6 +312,36 @@
     #define    BSWAP_ARRAY16_UNSIGNED(a,b)      ConvertUInt16Buffer((a),(b))
     #define    BSWAP_ARRAY32_UNSIGNED(a,b)      ConvertUInt32Buffer((a),(b))
     #define    BSWAP_ARRAY64_UNSIGNED(a,b)      ConvertUInt64Buffer((a),(b))
+#endif
+
+//-----------------------------------------------------------------------------
+// Interlocked operations
+
+inline DWORD CascInterlockedIncrement(PDWORD PtrValue)
+{
+#ifdef PLATFORM_WINDOWS
+    return (DWORD)InterlockedIncrement((LONG *)(PtrValue));
+#else
+    return ++PtrValue[0];
+#endif
+}
+
+inline DWORD CascInterlockedDecrement(PDWORD PtrValue)
+{
+#ifdef PLATFORM_WINDOWS
+    return (DWORD)InterlockedDecrement((LONG *)(PtrValue));
+#else
+    return --PtrValue[0];
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Forbidden functions, do not use
+
+#ifdef __CASCLIB_SELF__
+#define strcpy  UNSAFE_DO_NOT_USE_STRCPY
+#define strcat  UNSAFE_DO_NOT_USE_STRCAT
+#define sprintf UNSAFE_DO_NOT_USE_SPRINTF
 #endif
 
 #endif // __CASCPORT_H__

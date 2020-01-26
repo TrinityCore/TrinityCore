@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,8 +27,9 @@ struct TC_COMMON_API DB2FileSystemSource : public DB2FileSource
     ~DB2FileSystemSource();
     bool IsOpen() const override;
     bool Read(void* buffer, std::size_t numBytes) override;
-    std::size_t GetPosition() const override;
-    std::size_t GetFileSize() const override;
+    int64 GetPosition() const override;
+    bool SetPosition(int64 position) override;
+    int64 GetFileSize() const override;
     char const* GetFileName() const override;
 
 private:
