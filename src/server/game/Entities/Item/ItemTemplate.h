@@ -610,7 +610,7 @@ inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemS
 
 struct _ItemStat
 {
-    uint32  ItemStatType;
+    int32   ItemStatType;
     int32   ItemStatValue;
     int32   ItemStatAllocation;
     int32   ItemStatSocketCostMultiplier;
