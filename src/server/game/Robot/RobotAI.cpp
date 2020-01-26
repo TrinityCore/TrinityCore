@@ -1938,18 +1938,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     if (target->IsImmunedToSpell(pST, sourcePlayer))
     {
         return false;
-    }
-    if (pST->IsChanneled())
-    {
-        sourcePlayer->StopMoving();
-    }
-    else
-    {
-        if (pST->CalcCastTime() > 0)
-        {
-            sourcePlayer->StopMoving();
-        }
-    }
+    }    
     for (size_t i = 0; i < MAX_SPELL_REAGENTS; i++)
     {
         if (pST->Reagent[i] > 0)
@@ -1959,11 +1948,12 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
                 sourcePlayer->StoreNewItemInBestSlots(pST->Reagent[i], pST->ReagentCount[i] * 10);
             }
         }
-    }
+    }    
     if (sourcePlayer->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
     {
         sourcePlayer->SetStandState(UNIT_STAND_STATE_STAND);
     }
+    sourcePlayer->StopMoving();
     sourcePlayer->CastSpell(target, spellID, TriggerCastFlags::TRIGGERED_NONE);
 
     return true;

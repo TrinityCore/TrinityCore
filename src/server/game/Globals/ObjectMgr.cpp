@@ -637,8 +637,29 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     {
         if (ieSet.find(creatureTemplate.Entry) != ieSet.end())
         {
-            creatureTemplate.ModDamage = 4;
-        }        
+            creatureTemplate.ModDamage = 5;
+        }
+        else if (creatureTemplate.rank == 1)
+        {
+            if (creatureTemplate.ModDamage < 2)
+            {
+                creatureTemplate.ModDamage = 2;
+            }
+        }
+        else if (creatureTemplate.rank == 2)
+        {
+            if (creatureTemplate.ModDamage < 4)
+            {
+                creatureTemplate.ModDamage = 4;
+            }
+        }
+        else if (creatureTemplate.rank == 4)
+        {
+            if (creatureTemplate.ModDamage < 3)
+            {
+                creatureTemplate.ModDamage = 3;
+            }
+        }
     }
 }
 
@@ -9842,6 +9863,9 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         stats.AttackPower = fields[7].GetUInt16();
         stats.RangedAttackPower = fields[8].GetUInt16();
+
+        // EJ create range ap is the same as melee
+        stats.RangedAttackPower = stats.AttackPower;
 
         _creatureBaseStatsStore[MAKE_PAIR16(Level, Class)] = stats;
 
