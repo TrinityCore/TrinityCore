@@ -4718,7 +4718,6 @@ void Spell::SendChannelStart(uint32 duration)
         castFlags |= CAST_FLAG_HEAL_PREDICTION;
 
         WorldPackets::Spells::SpellHealPrediction predict;
-        predict.BeaconGUID = m_caster->GetGUID();
         predict.Type = DIRECT_DAMAGE;
         predict.Points = predictedHealing;
         packet.HealPrediction.emplace(channelTarget, predict);
