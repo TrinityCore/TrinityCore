@@ -128,27 +128,6 @@ public:
 };
 
 /*#####
-# item_incendiary_explosives
-#####*/
-
-class item_incendiary_explosives : public ItemScript
-{
-public:
-    item_incendiary_explosives() : ItemScript("item_incendiary_explosives") { }
-
-    bool OnUse(Player* player, Item* item, SpellCastTargets const & /*targets*/) override
-    {
-        if (player->FindNearestCreature(26248, 15) || player->FindNearestCreature(26249, 15))
-            return false;
-        else
-        {
-            player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, nullptr);
-            return true;
-        }
-    }
-};
-
-/*#####
 # item_mysterious_egg
 #####*/
 
@@ -350,7 +329,6 @@ void AddSC_item_scripts()
     new item_only_for_flight();
     new item_nether_wraith_beacon();
     new item_gor_dreks_ointment();
-    new item_incendiary_explosives();
     new item_mysterious_egg();
     new item_disgusting_jar();
     new item_petrov_cluster_bombs();
