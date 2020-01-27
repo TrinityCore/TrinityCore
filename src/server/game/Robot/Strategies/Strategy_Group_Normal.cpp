@@ -803,20 +803,13 @@ bool Strategy_Group_Normal::Follow()
             }
         }
     }
-    if (targetDistance > followDistance + MELEE_COMBAT_DISTANCE)
-    {
-        if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
-        {
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-        }
-        if (me->IsWalking())
-        {
-            me->SetWalk(false);
-        }
+    if (targetDistance > followDistance)
+    {        
         if (followTank)
         {
             if (me->GetMapId() == tank->GetMapId())
             {
+                //me->GetMotionMaster()->MoveFollow(tank, followDistance, me->GetFollowAngle());
                 sourceAI->BaseMove(tank, followDistance, false, false);
             }
         }

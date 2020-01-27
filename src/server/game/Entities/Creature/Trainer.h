@@ -74,6 +74,7 @@ namespace Trainer
         std::unordered_set<uint32> GetAllSpellsID() const;
 
         // EJ spell state
+        bool SpellRequireLevelValid(Player* pmTargetPlayer, uint32 spellId)  const;
         bool SpellValidToTrain(Player* pmTargetPlayer, uint32 spellId)  const;
 
         Type GetTrainerType() const { return _type; }

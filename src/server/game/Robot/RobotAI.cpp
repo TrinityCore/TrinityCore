@@ -57,6 +57,10 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
     characterType = 0;
 
     checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+
+    // EJ debug 
+    //checkDelay = 30 * TimeConstants::IN_MILLISECONDS;
+
     onlineDelay = 0;
     offlineDelay = 0;
 
@@ -292,8 +296,14 @@ void RobotAI::InitializeCharacter()
             {
                 continue;
             }
-            if (!tInfo->IsTrainerValidForPlayer(sourcePlayer))
+            if (tInfo->GetTrainerType() != Trainer::Type::Class)
+            {
                 continue;
+            }
+            if (!tInfo->IsTrainerValidForPlayer(sourcePlayer))
+            {
+                continue;
+            }
             std::unordered_set<uint32> trainerSpellIDs = tInfo->GetAllSpellsID();
 
             for (std::unordered_set<uint32>::const_iterator itr = trainerSpellIDs.begin(); itr != trainerSpellIDs.end(); ++itr)
@@ -303,7 +313,7 @@ void RobotAI::InitializeCharacter()
                 {
                     continue;
                 }
-                if (!tInfo->SpellValidToTrain(sourcePlayer, eachSpellID))
+                if (!tInfo->SpellRequireLevelValid(sourcePlayer, eachSpellID))
                 {
                     continue;
                 }
@@ -1890,6 +1900,10 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     {
         return true;
     }
+    if (sourcePlayer->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
+    {
+        return true;
+    }
     if (pmCheckAura)
     {
         if (HasAura(pmTarget, pmSpellName, pmOnlyMyAura))
@@ -1938,7 +1952,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     if (target->IsImmunedToSpell(pST, sourcePlayer))
     {
         return false;
-    }    
+    }
     for (size_t i = 0; i < MAX_SPELL_REAGENTS; i++)
     {
         if (pST->Reagent[i] > 0)
@@ -1948,7 +1962,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
                 sourcePlayer->StoreNewItemInBestSlots(pST->Reagent[i], pST->ReagentCount[i] * 10);
             }
         }
-    }    
+    }
     if (sourcePlayer->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
     {
         sourcePlayer->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1984,7 +1998,10 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmMelee, bool pmAt
     {
         sourcePlayer->SetWalk(false);
     }
-    sourcePlayer->SetSelection(pmTarget->GetGUID());
+    if (sourcePlayer->GetTarget() != pmTarget->GetGUID())
+    {
+        sourcePlayer->SetSelection(pmTarget->GetGUID());
+    }
     if (pmMelee)
     {
         MoveMelee(pmTarget);
@@ -1997,38 +2014,18 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmMelee, bool pmAt
     {
         MoveCLose(pmTarget, pmDistance);
     }
-    Pet* myPet = sourcePlayer->GetPet();
-    if (myPet)
-    {
-        CharmInfo* charmInfo = myPet->GetCharmInfo();
-        charmInfo->SetCommandState(CommandStates::COMMAND_FOLLOW);
-
-        myPet->SetReactState(ReactStates::REACT_DEFENSIVE);
-
-        //10% chance to play special pet attack talk, else growl
-        if (myPet->IsPet() && ((Pet*)myPet)->getPetType() == SUMMON_PET && myPet != pmTarget && urand(0, 100) < 10)
-        {
-            myPet->SendPetTalk((uint32)PET_TALK_ATTACK);
-        }
-        else
-        {
-            // 90% chance for pet and 100% chance for charmed creature
-            myPet->SendPetAIReaction(myPet->GetGUID());
-        }
-    }
 }
 
 void RobotAI::MoveMelee(Unit* pmTarget)
 {
     float currentDistance = sourcePlayer->GetDistance(pmTarget);
-    if (currentDistance > MELEE_MAX_DISTANCE)
+    if (currentDistance > MELEE_COMBAT_DISTANCE)
     {
-        sourcePlayer->Attack(pmTarget, true);
         sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
     }
     else if (!sourcePlayer->IsWithinLOSInMap(pmTarget))
     {
-        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 1.0f);
+        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
     }
     else
     {
@@ -2042,13 +2039,13 @@ void RobotAI::MoveMelee(Unit* pmTarget)
 void RobotAI::MoveCLose(Unit* pmTarget, float pmDistance)
 {
     float currentDistance = sourcePlayer->GetDistance(pmTarget);
-    if (currentDistance > pmDistance + MELEE_MAX_DISTANCE)
+    if (currentDistance > pmDistance + MELEE_COMBAT_DISTANCE)
     {
         sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
     }
     else if (!sourcePlayer->IsWithinLOSInMap(pmTarget))
     {
-        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 1.0f);
+        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
     }
     else
     {
@@ -2322,6 +2319,10 @@ void RobotAI::Update(uint32 pmDiff)
                 if (levelPlayerOnline)
                 {
                     onlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+
+                    // EJ debug 
+                    //onlineDelay = 5 * TimeConstants::IN_MILLISECONDS;
+
                     break;
                 }
             }

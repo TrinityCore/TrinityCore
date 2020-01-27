@@ -283,4 +283,15 @@ namespace Trainer
         }
         return validResult;
     }
+
+    bool Trainer::SpellRequireLevelValid(Player* pmTargetPlayer, uint32 spellId) const
+    {
+        const Spell* targetTS = GetSpell(spellId);
+        if (targetTS->ReqLevel > pmTargetPlayer->GetLevel())
+        {
+            return false;
+        }
+
+        return true;
+    }
 }
