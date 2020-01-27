@@ -3860,8 +3860,8 @@ void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
         return;
     }
 
-    // Do NOT allow to start a new actionlist if a previous one is already running. We need to always finish the current actionlist
-    if (!mTimedActionList.empty())
+    // Do NOT allow to start a new actionlist if a previous one is already running, unless explicitly allowed. We need to always finish the current actionlist
+    if (!e.action.timedActionList.allowOverride && !mTimedActionList.empty())
         return;
 
     mTimedActionList.clear();
