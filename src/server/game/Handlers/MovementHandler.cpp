@@ -400,17 +400,20 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     // check on NoFallingDamage
     if (plrMover && plrMover->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) && !movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING_FAR))
     {
-        bool checkNorm = false;
-        switch (opcode)
+        if (!plrMover->IsCanFlybyServer())
         {
-            case MSG_MOVE_FALL_LAND:
-            case MSG_MOVE_START_SWIM:
-                checkNorm = true;
-                break;
-        }
+            bool checkNorm = false;
+            switch (opcode)
+            {
+                case MSG_MOVE_FALL_LAND:
+                case MSG_MOVE_START_SWIM:
+                    checkNorm = true;
+                    break;
+            }
 
-        if (!checkNorm && !plrMover->IsWaitingLandOrSwimOpcode())
-            plrMover->StartWaitingLandOrSwimOpcode();
+            if (!checkNorm && !plrMover->IsWaitingLandOrSwimOpcode())
+                plrMover->StartWaitingLandOrSwimOpcode();
+        }
     }
 
     // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
