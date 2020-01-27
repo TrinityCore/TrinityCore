@@ -137,6 +137,35 @@ namespace WorldPackets
 
             SpellCastData Cast;
         };
+
+        struct ChannelStartInterruptImmunities
+        {
+            int32 SchoolImmunities = 0;
+            int32 Immunities = 0;
+        };
+
+        struct TargetedHealPrediction
+        {
+            TargetedHealPrediction() { }
+            TargetedHealPrediction(ObjectGuid targetGuid, SpellHealPrediction prediction) : TargetGUID(targetGuid), Predict(prediction) { }
+
+            ObjectGuid TargetGUID;
+            SpellHealPrediction Predict;
+        };
+
+        class ChannelStart final : public ServerPacket
+        {
+        public:
+            ChannelStart() : ServerPacket(OpcodeServer(MSG_CHANNEL_START)) { }
+
+            WorldPacket const* Write() override;
+
+            Optional<TargetedHealPrediction> HealPrediction;
+            Optional<ChannelStartInterruptImmunities> InterruptImmunities;
+            ObjectGuid CasterGUID;
+            int32 SpellID = 0;
+            uint32 ChannelDuration = 0;
+        };
     }
 }
 

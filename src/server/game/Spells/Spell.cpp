@@ -4669,51 +4669,62 @@ void Spell::SendChannelStart(uint32 duration)
     uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
     uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
     uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+
     if (schoolImmunityMask || mechanicImmunityMask)
         castFlags |= CAST_FLAG_IMMUNITY;
 
-    if (m_spellInfo->HasAura(SPELL_AURA_PERIODIC_HEAL))
-        castFlags |= CAST_FLAG_HEAL_PREDICTION;
-
-    WorldPacket data(MSG_CHANNEL_START, (8+4+4));
-    data << m_caster->GetPackGUID();
-    data << uint32(m_spellInfo->Id);
-    data << uint32(duration);
-
-    data << uint8(castFlags & CAST_FLAG_IMMUNITY);
-    if (castFlags & CAST_FLAG_IMMUNITY)
+    // Determining triggered healing spells and store their healing amount for heal prediction
+    uint32 predictedHealing = 0;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
-        data << uint32(schoolImmunityMask);     // CastSchoolImmunities
-        data << uint32(mechanicImmunityMask);   // CastImmunities
-    }
+        if (!m_spellInfo->Effects[i].TriggerSpell)
+            continue;
 
-    data << uint8(castFlags & CAST_FLAG_HEAL_PREDICTION);
-    if (castFlags & CAST_FLAG_HEAL_PREDICTION)
-    {
-        uint8 type = DOT;
-        int32 amount = 0;
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[i].TriggerSpell);
+        if (!spell)
+            continue;
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; j++)
         {
-            if (m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_PERIODIC_HEAL)
+            if (spell->Effects[j].Effect == SPELL_EFFECT_HEAL || spell->Effects[j].Effect == SPELL_EFFECT_HEAL_PCT)
             {
-                type = 0;
                 Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
-
-                amount = m_spellInfo->Effects[i].CalcValue(m_caster);
-                amount = m_caster->SpellHealingBonusDone(target, m_spellInfo, amount, DOT, i);
-                break;
+                int32 heal = spell->Effects[j].CalcValue(m_caster);
+                predictedHealing += m_caster->SpellHealingBonusDone(target, spell, heal, SPELL_DIRECT_DAMAGE, j);
             }
         }
-
-        data.appendPackGUID(channelTarget);
-        data << uint32(amount);
-        data << uint8(type);
-        if (type == DOT)
-            data.appendPackGUID(m_caster->GetGUID());
     }
 
-    m_caster->SendMessageToSet(&data, true);
+    uint8 ticks = m_spellInfo->GetMaxTicks();
+    if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+        ++ticks;
+
+    predictedHealing *= ticks;
+
+    WorldPackets::Spells::ChannelStart packet;
+    packet.CasterGUID = m_caster->GetGUID();
+    packet.SpellID = m_spellInfo->Id;
+    packet.ChannelDuration = duration;
+
+    if (castFlags & CAST_FLAG_IMMUNITY)
+    {
+        packet.InterruptImmunities = boost::in_place();
+        packet.InterruptImmunities->SchoolImmunities = schoolImmunityMask; // CastSchoolImmunities
+        packet.InterruptImmunities->SchoolImmunities = mechanicImmunityMask; // CastImmunities
+    }
+
+    if (predictedHealing)
+    {
+        castFlags |= CAST_FLAG_HEAL_PREDICTION;
+
+        WorldPackets::Spells::SpellHealPrediction predict;
+        predict.BeaconGUID = m_caster->GetGUID();
+        predict.Type = DIRECT_DAMAGE;
+        predict.Points = predictedHealing;
+        packet.HealPrediction.emplace(channelTarget, predict);
+    }
+
+    m_caster->SendMessageToSet(packet.Write(), true);
 
     m_timer = duration;
     if (channelTarget)

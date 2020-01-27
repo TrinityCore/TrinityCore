@@ -167,3 +167,34 @@ WorldPacket const* WorldPackets::Spells::SpellGo::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::TargetedHealPrediction const& predict)
+{
+    data << predict.TargetGUID.WriteAsPacked();
+    data << predict.Predict;
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ChannelStartInterruptImmunities const& immunity)
+{
+    data << immunity.SchoolImmunities;
+    data << immunity.Immunities;
+    return data;
+}
+
+WorldPacket const* WorldPackets::Spells::ChannelStart::Write()
+{
+    _worldPacket << CasterGUID.WriteAsPacked();
+    _worldPacket << uint32(SpellID);
+    _worldPacket << int32(ChannelDuration);
+
+    _worldPacket << uint8(InterruptImmunities.is_initialized());
+    if (InterruptImmunities)
+        _worldPacket << *InterruptImmunities;
+
+    _worldPacket << uint8(HealPrediction.is_initialized());
+    if (HealPrediction)
+        _worldPacket << *HealPrediction;
+
+    return &_worldPacket;
+}
