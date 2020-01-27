@@ -531,13 +531,13 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
     {
         init.SetFly();
         init.SetUncompressed();
+        init.SetSmooth();
     }
 
     if (velocity > 0.0f)
         init.SetVelocity(velocity);
 
     init.MovebyPath(path);
-    init.SetSmooth();
     init.SetWalk(walk);
 
     // This code is not correct
