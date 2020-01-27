@@ -290,6 +290,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 break;
         }
 
+        if (plrMover->IsCanFlybyServer())
+            checkNorm = true;
+
         if (!checkNorm)
         {
             TC_LOG_INFO("anticheat", "MovementHandler::NoFallingDamage by Account id : %u, Player %s", plrMover->GetSession()->GetAccountId(), plrMover->GetName().c_str());
@@ -302,6 +305,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
                 return;
             }
         }
+        else
+            plrMover->SetSuccessfullyLanded();
     }
     /* extract packet */
     ObjectGuid guid;
