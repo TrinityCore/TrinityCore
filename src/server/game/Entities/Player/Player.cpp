@@ -18794,7 +18794,7 @@ void Player::UpdateMountCapabilities()
             if (!capability)
                 continue;
 
-            if (capability->ID != aurEff->GetAmount())
+            if (capability->ID != uint32(aurEff->GetAmount()))
             {
                 if (MountCapabilityEntry const* oldMountCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))
                     RemoveAurasDueToSpell(oldMountCapability->ModSpellAuraID, aurEff->GetCasterGUID());
