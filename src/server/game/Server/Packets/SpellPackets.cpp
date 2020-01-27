@@ -20,7 +20,7 @@
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHealPrediction const& predict)
 {
     data << int32(predict.Points);
-    data << int32(predict.Type);
+    data << uint8(predict.Type);
     if (predict.BeaconGUID.is_initialized())
         data << predict.BeaconGUID->WriteAsPacked();
     return data;
