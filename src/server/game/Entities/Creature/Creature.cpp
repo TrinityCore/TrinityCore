@@ -53,6 +53,9 @@
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
 
+// EJ mod
+#include "JokerConfig.h"
+
 std::string CreatureMovementData::ToString() const
 {
     char const* const GroundStates[] = { "None", "Run", "Hover" };
@@ -1442,77 +1445,107 @@ void Creature::UpdateLevelDependantStats()
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
 
-    // EJ ap mod    
-    if (cInfo->rank == 1 || cInfo->rank == 2 || cInfo->rank == 4)
+    // EJ mod ap
+    if (sJokerConfig->enable)
     {
-        int32 checkAP = stats->AttackPower;
-        if (checkAP < stats->RangedAttackPower)
+        if (cInfo->rank == 1 || cInfo->rank == 2 || cInfo->rank == 4)
         {
-            checkAP = stats->RangedAttackPower;
-        }
-        if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
-        {
-            if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+            float checkAP = stats->AttackPower;
+            if (checkAP < stats->RangedAttackPower)
             {
-                checkAP = checkAP * 2.5;
+                checkAP = stats->RangedAttackPower;
             }
-            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+            if (sObjectMgr->ieSet.find(cInfo->Entry) != sObjectMgr->ieSet.end())
             {
-                checkAP = checkAP * 2;
+                if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+                {
+                    checkAP = checkAP * sJokerConfig->InstanceEncounterAPMod_Warrior;
+                }
+                else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+                {
+                    checkAP = checkAP * sJokerConfig->InstanceEncounterAPMod_Paladin;
+                }
+                else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
+                {
+                    checkAP = checkAP * sJokerConfig->InstanceEncounterAPMod_Mage;
+                }
             }
-            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
+            else if (cInfo->rank == 1)
             {
-                checkAP = checkAP * 1;
+                if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+                {
+                    if (checkAP < checkAP *  sJokerConfig->EliteAPMod_Warrior)
+                    {
+                        checkAP = checkAP * sJokerConfig->EliteAPMod_Warrior;
+                    }
+                }
+                else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+                {
+                    if (checkAP < checkAP *  sJokerConfig->EliteAPMod_Paladin)
+                    {
+                        checkAP = checkAP * sJokerConfig->EliteAPMod_Paladin;
+                    }
+                }
+                else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
+                {
+                    if (checkAP < checkAP *  sJokerConfig->EliteAPMod_Mage)
+                    {
+                        checkAP = checkAP * sJokerConfig->EliteAPMod_Mage;
+                    }
+                }
             }
-        }
-        else if (cInfo->rank == 1)
-        {
-            if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+            else if (cInfo->rank == 2)
             {
-                checkAP = checkAP * 1.5;
+                if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+                {
+                    if (checkAP < checkAP *  sJokerConfig->RareEliteAPMod_Warrior)
+                    {
+                        checkAP = checkAP * sJokerConfig->RareEliteAPMod_Warrior;
+                    }
+                }
+                else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+                {
+                    if (checkAP < checkAP *  sJokerConfig->RareEliteAPMod_Paladin)
+                    {
+                        checkAP = checkAP * sJokerConfig->RareEliteAPMod_Paladin;
+                    }
+                }
+                else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
+                {
+                    if (checkAP < checkAP *  sJokerConfig->RareEliteAPMod_Mage)
+                    {
+                        checkAP = checkAP * sJokerConfig->RareEliteAPMod_Mage;
+                    }
+                }
             }
-            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+            else if (cInfo->rank == 4)
             {
-                checkAP = checkAP * 1.3;
+                if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
+                {
+                    if (checkAP < checkAP *  sJokerConfig->RareAPMod_Warrior)
+                    {
+                        checkAP = checkAP * sJokerConfig->RareAPMod_Warrior;
+                    }
+                }
+                else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
+                {
+                    if (checkAP < checkAP * sJokerConfig->RareAPMod_Paladin)
+                    {
+                        checkAP = checkAP * sJokerConfig->RareAPMod_Paladin;
+                    }
+                }
+                else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
+                {
+                    if (checkAP < checkAP *  sJokerConfig->RareAPMod_Mage)
+                    {
+                        checkAP = checkAP * sJokerConfig->RareAPMod_Mage;
+                    }
+                }
             }
-            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
-            {
-                checkAP = checkAP * 1;
-            }
-        }
-        else if (cInfo->rank == 2)
-        {
-            if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
-            {
-                checkAP = checkAP * 2.5;
-            }
-            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
-            {
-                checkAP = checkAP * 2;
-            }
-            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
-            {
-                checkAP = checkAP * 1;
-            }
-        }
-        else if (cInfo->rank == 4)
-        {
-            if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
-            {
-                checkAP = checkAP * 1.5;
-            }
-            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
-            {
-                checkAP = checkAP * 1.3;
-            }
-            else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
-            {
-                checkAP = checkAP * 1;
-            }
-        }
 
-        SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, checkAP);
-        SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, checkAP);
+            SetStatFlatModifier(UNIT_MOD_ATTACK_POWER, BASE_VALUE, checkAP);
+            SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, checkAP);
+        }
     }
 
     float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
