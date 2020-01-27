@@ -250,7 +250,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     if (sound)
         finalSound = sound;
     else if (BroadcastText const* bct = sObjectMgr->GetBroadcastText(iter->BroadcastTextId))
-        if (uint32 broadcastTextSoundId = bct->SoundId)
+        if (uint32 broadcastTextSoundId = bct->SoundEntriesID)
             finalSound = broadcastTextSoundId;
 
     if (range == TEXT_RANGE_NORMAL)
