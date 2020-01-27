@@ -18788,21 +18788,19 @@ void Player::UpdateMountCapabilities()
 {
     if (HasAuraType(SPELL_AURA_MOUNTED))
     {
-        Unit::AuraEffectList const& auraList = GetAuraEffectsByType(SPELL_AURA_MOUNTED);
-        if (!auraList.empty())
+        for (AuraEffect* aurEff : GetAuraEffectsByType(SPELL_AURA_MOUNTED))
         {
-            AuraEffect* mountEffect = auraList.front();
-            if (MountCapabilityEntry const* mountCapability = mountEffect->GetBase()->GetUnitOwner()->GetMountCapability(uint32(mountEffect->GetMiscValueB())))
-            {
-                if (mountCapability->ID != uint32(mountEffect->GetAmount()))
-                {
-                    Unit* target = mountEffect->GetBase()->GetApplicationOfTarget(GetGUID())->GetTarget();
-                    if (MountCapabilityEntry const* oldMountCapability = sMountCapabilityStore.LookupEntry(mountEffect->GetAmount()))
-                        RemoveAurasDueToSpell(oldMountCapability->ModSpellAuraID, target->GetGUID());
+            MountCapabilityEntry const* capability = GetMountCapability(uint32(aurEff->GetMiscValueB()));
+            if (!capability)
+                continue;
 
-                    CastSpell(target, mountCapability->ModSpellAuraID, true);
-                    mountEffect->SetAmount(mountCapability->ID);
-                }
+            if (capability->ID != aurEff->GetAmount())
+            {
+                if (MountCapabilityEntry const* oldMountCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))
+                    RemoveAurasDueToSpell(oldMountCapability->ModSpellAuraID, aurEff->GetCasterGUID());
+
+                CastSpell(this, capability->ModSpellAuraID, true);
+                aurEff->SetAmount(capability->ID);
             }
         }
     }

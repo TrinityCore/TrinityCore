@@ -3312,10 +3312,6 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData>
 
         if (curLiquid && curLiquid->SpellID && (!player || !player->IsGameMaster()))
             CastSpell(this, curLiquid->SpellID, true);
-
-        // Update mount capabilities when changing liquidstatus (enabling / disabling flight auras for example)
-        if (player)
-            player->UpdateMountCapabilities();
     }
 }
 void Unit::DeMorph()
