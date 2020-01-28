@@ -1075,6 +1075,31 @@ public:
 
 };
 
+enum GiftOfTheHarvester
+{
+    SPELL_GHOUL_TRANFORM    = 52490,
+    SPELL_GHOST_TRANSFORM   = 52505
+};
+
+class spell_gift_of_the_harvester : public SpellScript
+{
+    PrepareSpellScript(spell_gift_of_the_harvester);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* originalCaster = GetOriginalCaster();
+        Unit* target = GetHitUnit();
+
+        if (originalCaster && target)
+            originalCaster->CastSpell(target, RAND(SPELL_GHOUL_TRANFORM, SPELL_GHOST_TRANSFORM), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gift_of_the_harvester::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 /*####
 ## npc_scarlet_miner_cart
 ####*/
@@ -1315,6 +1340,7 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_ros_dark_rider();
     new npc_dkc1_gothik();
     new npc_scarlet_ghoul();
+    RegisterSpellScript(spell_gift_of_the_harvester);
     new npc_scarlet_miner();
     new npc_scarlet_miner_cart();
 }
