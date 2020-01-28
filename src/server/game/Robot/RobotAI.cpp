@@ -2400,6 +2400,7 @@ void RobotAI::Update(uint32 pmDiff)
             sourceSession = sourcePlayer->GetSession();
             sourceSession->rai = this;
             InitializeCharacter();
+            sourcePlayer->SetPvP(true);
             robotState = RobotState::RobotState_Online;
             checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             allDelay = 0;
