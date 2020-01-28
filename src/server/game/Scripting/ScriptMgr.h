@@ -419,6 +419,8 @@ class TC_GAME_API CreatureScript : public ScriptObject
         CreatureScript(char const* name);
 
     public:
+        // Called when an unit exits a vehicle
+        virtual void ModifyVehiclePassengerExitPos(Unit* /*passenger*/, Vehicle* /*vehicle*/, Position& /*pos*/) { }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const = 0;
