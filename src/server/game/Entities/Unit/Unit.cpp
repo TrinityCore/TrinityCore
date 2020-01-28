@@ -13465,7 +13465,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         return;
 
     // This should be done before dismiss, because there may be some aura removal
-    VehicleSeatAddon const seatAddon = m_vehicle->GetSeatAddonForSeatOfPassenger(this);
+    VehicleSeatAddon const* seatAddon = m_vehicle->GetSeatAddonForSeatOfPassenger(this);
     Vehicle* vehicle = m_vehicle->RemovePassenger(this);
     Player* player = ToPlayer();
 
@@ -13491,10 +13491,13 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         pos.SetOrientation(GetOrientation());
 
         // Change exit position based on seat entry
-        if (seatAddon.ExitParameter == VehicleExitParameters::VehicleExitParamOffset)
-            pos.RelocateOffset({ seatAddon.ExitParameterX, seatAddon.ExitParameterY, seatAddon.ExitParameterZ, seatAddon.ExitParameterO });
-        else if (seatAddon.ExitParameter == VehicleExitParameters::VehicleExitParamDest)
-            pos.Relocate({ seatAddon.ExitParameterX, seatAddon.ExitParameterY, seatAddon.ExitParameterZ, seatAddon.ExitParameterO });
+        if (seatAddon)
+        {
+            if (seatAddon->ExitParameter == VehicleExitParameters::VehicleExitParamOffset)
+                pos.RelocateOffset({ seatAddon->ExitParameterX, seatAddon->ExitParameterY, seatAddon->ExitParameterZ, seatAddon->ExitParameterO });
+            else if (seatAddon->ExitParameter == VehicleExitParameters::VehicleExitParamDest)
+                pos.Relocate({ seatAddon->ExitParameterX, seatAddon->ExitParameterY, seatAddon->ExitParameterZ, seatAddon->ExitParameterO });
+        }
     }
 
     float height = pos.GetPositionZ() + vehicle->GetBase()->GetCollisionHeight();

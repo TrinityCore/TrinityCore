@@ -77,9 +77,9 @@ enum VehicleSpells
 
 enum class VehicleExitParameters
 {
-    VehicleExitParamNone,   // provided parameters will be ignored
-    VehicleExitParamOffset, // provided parameters will be used as offset values
-    VehicleExitParamDest,   // provided parameters will be used as absolute destination
+    VehicleExitParamNone    = 0, // provided parameters will be ignored
+    VehicleExitParamOffset  = 1, // provided parameters will be used as offset values
+    VehicleExitParamDest    = 2, // provided parameters will be used as absolute destination
     VehicleExitParamMax
 };
 
@@ -114,7 +114,7 @@ struct VehicleSeatAddon
 
 struct VehicleSeat
 {
-    explicit VehicleSeat(VehicleSeatEntry const* seatInfo, VehicleSeatAddon const seatAddon) : SeatInfo(seatInfo), SeatAddon(seatAddon)
+    explicit VehicleSeat(VehicleSeatEntry const* seatInfo, VehicleSeatAddon const* seatAddon) : SeatInfo(seatInfo), SeatAddon(seatAddon)
     {
         Passenger.Reset();
     }
@@ -122,7 +122,7 @@ struct VehicleSeat
     bool IsEmpty() const { return Passenger.Guid.IsEmpty(); }
 
     VehicleSeatEntry const* SeatInfo;
-    VehicleSeatAddon const SeatAddon;
+    VehicleSeatAddon const* SeatAddon;
     PassengerInfo Passenger;
 };
 

@@ -1557,13 +1557,13 @@ class TC_GAME_API ObjectMgr
 
         uint32 GetGameObjectTypeByEntry(uint32 entry) const;
 
-        VehicleSeatAddon const GetVehicleSeatAddon(uint32 seatId) const
+        VehicleSeatAddon const* GetVehicleSeatAddon(uint32 seatId) const
         {
             VehicleSeatAddonContainer::const_iterator itr = _vehicleSeatAddonStore.find(seatId);
             if (itr == _vehicleSeatAddonStore.end())
-                return VehicleSeatAddon();
+                return nullptr;
 
-            return itr->second;
+            return &itr->second;
         }
 
     private:
