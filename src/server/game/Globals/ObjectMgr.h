@@ -1543,13 +1543,13 @@ class TC_GAME_API ObjectMgr
 
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
 
-        VehicleSeatAddon const GetVehicleSeatAddon(uint32 seatId) const
+        VehicleSeatAddon const* GetVehicleSeatAddon(uint32 seatId) const
         {
             VehicleSeatAddonContainer::const_iterator itr = _vehicleSeatAddonStore.find(seatId);
             if (itr == _vehicleSeatAddonStore.end())
-                return VehicleSeatAddon();
+                return nullptr;
 
-            return itr->second;
+            return &itr->second;
         }
 
     private:

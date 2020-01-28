@@ -41,7 +41,7 @@ UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry
         if (uint32 seatId = _vehicleInfo->m_seatID[i])
             if (VehicleSeatEntry const* veSeat = sVehicleSeatStore.LookupEntry(seatId))
             {
-                VehicleSeatAddon addon = sObjectMgr->GetVehicleSeatAddon(seatId);
+                VehicleSeatAddon const* addon = sObjectMgr->GetVehicleSeatAddon(seatId);
                 Seats.insert(std::make_pair(i, VehicleSeat(veSeat, addon)));
                 if (veSeat->CanEnterOrExit())
                     ++UsableSeatNum;
@@ -347,7 +347,7 @@ SeatMap::const_iterator Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 }
 
 /**
- * @fn VehicleSeatAddon const Vehicle::GetSeatAddonForSeatOfPassenger(Unit const* passenger) const
+ * @fn VehicleSeatAddon const* Vehicle::GetSeatAddonForSeatOfPassenger(Unit const* passenger) const
  *
  * @brief Gets the vehicle seat addon data for the seat of a passenger
  *
@@ -359,15 +359,13 @@ SeatMap::const_iterator Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
  * @return The seat addon data for the currently used seat of a passenger
  */
 
-VehicleSeatAddon const Vehicle::GetSeatAddonForSeatOfPassenger(Unit const* passenger) const
+VehicleSeatAddon const* Vehicle::GetSeatAddonForSeatOfPassenger(Unit const* passenger) const
 {
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); itr++)
-    {
         if (!itr->second.IsEmpty() && itr->second.Passenger.Guid == passenger->GetGUID())
             return itr->second.SeatAddon;
-    }
 
-    return VehicleSeatAddon();
+    return nullptr;
 }
 
 /**
@@ -834,7 +832,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     Passenger->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     VehicleSeatEntry const* veSeat = Seat->second.SeatInfo;
-    VehicleSeatAddon const veSeatAddon = Seat->second.SeatAddon;
+    VehicleSeatAddon const* veSeatAddon = Seat->second.SeatAddon;
 
     Player* player = Passenger->ToPlayer();
     if (player)
@@ -854,7 +852,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
 
-    float o = veSeatAddon.SeatOrientationOffset;
+    float o = veSeatAddon ? veSeatAddon->SeatOrientationOffset : 0.f;
     float x = veSeat->m_attachmentOffsetX;
     float y = veSeat->m_attachmentOffsetY;
     float z = veSeat->m_attachmentOffsetZ;
