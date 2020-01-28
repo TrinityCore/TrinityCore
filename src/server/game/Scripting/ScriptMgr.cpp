@@ -2329,6 +2329,7 @@ void ScriptMgr::OnQuestObjectiveChange(Player* player, Quest const* quest, Quest
 void ScriptMgr::ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* vehicle, Position& pos)
 {
     FOREACH_SCRIPT(UnitScript)->ModifyVehiclePassengerExitPos(passenger, vehicle, pos);
+    FOREACH_SCRIPT(CreatureScript)->ModifyVehiclePassengerExitPos(passenger, vehicle, pos);
 }
 
 SpellScriptLoader::SpellScriptLoader(char const* name)
