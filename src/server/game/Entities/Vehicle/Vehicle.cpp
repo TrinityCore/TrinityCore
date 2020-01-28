@@ -855,9 +855,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
 
     float o = veSeatAddon.SeatOrientationOffset;
-    float x = veSeat->AttachmentOffset.X;
-    float y = veSeat->AttachmentOffset.Y;
-    float z = veSeat->AttachmentOffset.Z;
+    float x = veSeat->m_attachmentOffsetX;
+    float y = veSeat->m_attachmentOffsetY;
+    float z = veSeat->m_attachmentOffsetZ;
 
     Passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     Passenger->m_movementInfo.transport.pos.Relocate(x, y, z, o);
