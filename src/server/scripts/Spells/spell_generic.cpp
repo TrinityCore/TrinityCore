@@ -3830,6 +3830,12 @@ class spell_gen_eject_all_passengers : public SpellScriptLoader
         }
 };
 
+enum EjectPassenger
+{
+    SPELL_GEN_EJECT_PASSENGER_1 = 77946,
+    SPELL_GEN_EJECT_PASSENGER_3 = 95204
+};
+
 class spell_gen_eject_passenger : public SpellScriptLoader
 {
     public:
@@ -3842,7 +3848,17 @@ class spell_gen_eject_passenger : public SpellScriptLoader
             bool Validate(SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Effects[EFFECT_0].CalcValue() < 1)
+                {
+                    switch (spellInfo->Id)
+                    {
+                        case SPELL_GEN_EJECT_PASSENGER_1:
+                        case SPELL_GEN_EJECT_PASSENGER_3:
+                            return ValidateSpellInfo({ spellInfo->Id });
+                        default:
+                            return false;
+                    }
                     return false;
+                }
                 return true;
             }
 
@@ -3850,7 +3866,21 @@ class spell_gen_eject_passenger : public SpellScriptLoader
             {
                 if (Vehicle* vehicle = GetHitUnit()->GetVehicleKit())
                 {
-                    if (Unit* passenger = vehicle->GetPassenger(GetEffectValue() - 1))
+                    uint8 seatId = 0;
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case SPELL_GEN_EJECT_PASSENGER_1:
+                            seatId = 0;
+                            break;
+                        case SPELL_GEN_EJECT_PASSENGER_3:
+                            seatId = 2;
+                            break;
+                        default:
+                            seatId = GetEffectValue() - 1;
+                            break;
+                    }
+
+                    if (Unit* passenger = vehicle->GetPassenger(seatId))
                         passenger->ExitVehicle();
                 }
             }
