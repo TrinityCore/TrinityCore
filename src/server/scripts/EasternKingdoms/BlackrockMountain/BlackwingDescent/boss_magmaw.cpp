@@ -174,421 +174,387 @@ Position const NefarianIntroSummonPos   = { -390.1042f, 40.88411f,  207.8586f, 0
 
 #define SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE RAID_MODE<uint32>(78941, 91913, 94678, 94679)
 
-class boss_magmaw : public CreatureScript, public UnitScript
+struct boss_magmaw : public BossAI
 {
-public:
-    boss_magmaw() : CreatureScript("boss_magmaw"), UnitScript("boss_magmaw_vehicle") { }
-
-    void ModifyVehiclePassengerExitPos(Unit* /*passenger*/, Vehicle* vehicle, Position& pos) override
+    boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW)
     {
-        if (vehicle->GetBase()->GetEntry() != BOSS_MAGMAW)
-            return;
-
-        pos.Relocate(MagmawVehicleExitPos);
+        Initialize();
     }
 
-    struct boss_magmawAI : public BossAI
+    void Initialize()
     {
-        boss_magmawAI(Creature* creature) : BossAI(creature, DATA_MAGMAW)
+        _magmaProjectileCount = 0;
+        _exposedHead1 = nullptr;
+        _exposedHead2 = nullptr;
+        _pincer1 = nullptr;
+        _pincer2 = nullptr;
+        _hasExposedHead = false;
+        _headEngaged = false;
+        _achievementEnligible = true;
+        _heroicPhaseTwoActive = !IsHeroic();
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        Initialize();
+    }
+
+    void JustAppeared() override
+    {
+        SetupBody();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        me->SetReactState(REACT_AGGRESSIVE);
+        events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 6s);
+        events.ScheduleEvent(EVENT_LAVA_SPEW, 19s);
+        events.ScheduleEvent(EVENT_MANGLE, 1min + 30s);
+
+        _exposedHead1->SetInCombatWithZone();
+        _exposedHead2->SetInCombatWithZone();
+
+        if (IsHeroic())
+            DoSummon(NPC_NEFARIAN_MAGMAW, NefarianIntroSummonPos, 0, TEMPSUMMON_MANUAL_DESPAWN);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        if (_headEngaged)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, _exposedHead1);
+
+        DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
+        _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
+        _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
+
+        instance->SetBossState(DATA_MAGMAW, FAIL);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_VOMIT);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE);
+        _exposedHead1->DespawnOrUnsummon();
+        summons.DespawnAll();
+
+        if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
+            nefarian->DespawnOrUnsummon();
+        _DespawnAtEvade();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (_headEngaged)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, _exposedHead1);
+
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_VOMIT);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
+            nefarian->AI()->DoAction(ACTION_MAGMAW_DEAD);
+
+        me->StopMoving(); // Tempfix to prevent Magmaw from falling into the lava
+        _JustDied();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        switch (summon->GetEntry())
         {
-            Initialize();
+            case NPC_PILLAR_OF_FLAME:
+                summon->CastSpell(summon, SPELL_PILLAR_OF_FLAME_DUMMY);
+                summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid1);
+                summon->DespawnOrUnsummon(7s);
+                Talk(SAY_ANNOUNCE_LAVA_PARASITES);
+                summons.Summon(summon);
+                break;
+            case NPC_NEFARIAN_MAGMAW:
+            case NPC_EXPOSED_HEAD_OF_MAGMAW:
+                break;
+            default:
+                summons.Summon(summon);
+                break;
+        }
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_MASSIVE_CRASH:
+            {
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_HEAD, true);
+                _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
+                _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
+
+                events.ScheduleEvent(EVENT_ANNOUNCE_PINCERS_EXPOSED, 1s);
+                events.ScheduleEvent(EVENT_FINISH_MASSIVE_CRASH, 7s);
+
+                Unit* head = _exposedHead1;
+                head->m_Events.AddEventAtOffset([head]()
+                    {
+                        head->CastSpell(head, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
+                    }, 6s);
+
+                break;
+            }
+            case SPELL_IMPALE_SELF:
+                DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
+                Talk(SAY_ANNOUNCE_EXPOSED_HEAD);
+                me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_1);
+                me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_2);
+                events.ScheduleEvent(EVENT_HIDE_HEAD, 29s);
+                events.ScheduleEvent(EVENT_FINISH_IMPALE_SELF, 33s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_ACHIEVEMENT_STATE)
+            return _achievementEnligible;
+
+        return 0;
+    }
+
+    ObjectGuid GetGUID(int32 type) const override
+    {
+        switch (type)
+        {
+            case DATA_FREE_PINCER:
+                if (_pincer1->GetVehicleKit() && _pincer1->GetVehicleKit()->GetAvailableSeatCount())
+                    return _pincer1->GetGUID();
+                else if (_pincer2->GetVehicleKit() && _pincer2->GetVehicleKit()->GetAvailableSeatCount())
+                    return _pincer2->GetGUID();
+            default:
+                return ObjectGuid::Empty;
         }
 
-        void Initialize()
+        return ObjectGuid::Empty;
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(30, damage) && !_heroicPhaseTwoActive)
         {
-            _magmaProjectileCount = 0;
-            _exposedHead1 = nullptr;
-            _exposedHead2 = nullptr;
-            _pincer1 = nullptr;
-            _pincer2 = nullptr;
-            _hasExposedHead = false;
-            _headEngaged = false;
-            _achievementEnligible = true;
-            _heroicPhaseTwoActive = !IsHeroic();
-            me->SetReactState(REACT_PASSIVE);
+            if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
+                nefarian->AI()->DoAction(ACTION_SCHEDULE_SHADOW_BREATH);
+            _heroicPhaseTwoActive = true;
         }
 
-        void Reset() override
+        if (damage >= me->GetHealth())
         {
-            _Reset();
-            Initialize();
-        }
-
-        void JustAppeared() override
-        {
-            SetupBody();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _JustEngagedWith();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-            me->SetReactState(REACT_AGGRESSIVE);
-            events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 6s);
-            events.ScheduleEvent(EVENT_LAVA_SPEW, 19s);
-            events.ScheduleEvent(EVENT_MANGLE, 1min + 30s);
-
-            _exposedHead1->SetInCombatWithZone();
-            _exposedHead2->SetInCombatWithZone();
-
-            if (IsHeroic())
-                DoSummon(NPC_NEFARIAN_MAGMAW, NefarianIntroSummonPos, 0, TEMPSUMMON_MANUAL_DESPAWN);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            _EnterEvadeMode();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            if (_headEngaged)
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, _exposedHead1);
-
+            // Make sure we eject all passengers nicely before we die so they wont end up in the lava
             DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
             _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
             _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
-
-            instance->SetBossState(DATA_MAGMAW, FAIL);
-            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_VOMIT);
-            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE);
-            _exposedHead1->DespawnOrUnsummon();
-            summons.DespawnAll();
-
-            if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
-                nefarian->DespawnOrUnsummon();
-            _DespawnAtEvade();
         }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (_headEngaged)
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, _exposedHead1);
-
-            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_VOMIT);
-            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
-            if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
-                nefarian->AI()->DoAction(ACTION_MAGMAW_DEAD);
-
-            me->StopMoving(); // Tempfix to prevent Magmaw from falling into the lava
-            _JustDied();
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            switch (summon->GetEntry())
-            {
-                case NPC_PILLAR_OF_FLAME:
-                    summon->CastSpell(summon, SPELL_PILLAR_OF_FLAME_DUMMY);
-                    summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid1);
-                    summon->DespawnOrUnsummon(7s);
-                    Talk(SAY_ANNOUNCE_LAVA_PARASITES);
-                    summons.Summon(summon);
-                    break;
-                case NPC_NEFARIAN_MAGMAW:
-                case NPC_EXPOSED_HEAD_OF_MAGMAW:
-                    break;
-                default:
-                    summons.Summon(summon);
-                    break;
-            }
-        }
-
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-        {
-            switch (spell->Id)
-            {
-                case SPELL_MASSIVE_CRASH:
-                {
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                    me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
-                    _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_HEAD, true);
-                    _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
-                    _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
-
-                    events.ScheduleEvent(EVENT_ANNOUNCE_PINCERS_EXPOSED, 1s);
-                    events.ScheduleEvent(EVENT_FINISH_MASSIVE_CRASH, 7s);
-
-                    Unit* head = _exposedHead1;
-                    head->m_Events.AddEventAtOffset([head]()
-                        {
-                            head->CastSpell(head, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
-                        }, 6s);
-
-                    break;
-                }
-                case SPELL_IMPALE_SELF:
-                    DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
-                    Talk(SAY_ANNOUNCE_EXPOSED_HEAD);
-                    me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_1);
-                    me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_2);
-                    events.ScheduleEvent(EVENT_HIDE_HEAD, 29s);
-                    events.ScheduleEvent(EVENT_FINISH_IMPALE_SELF, 33s);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        uint32 GetData(uint32 type) const override
-        {
-            if (type == DATA_ACHIEVEMENT_STATE)
-                return _achievementEnligible;
-
-            return 0;
-        }
-
-        ObjectGuid GetGUID(int32 type) const override
-        {
-            switch (type)
-            {
-                case DATA_FREE_PINCER:
-                    if (_pincer1->GetVehicleKit() && _pincer1->GetVehicleKit()->GetAvailableSeatCount())
-                        return _pincer1->GetGUID();
-                    else if (_pincer2->GetVehicleKit() && _pincer2->GetVehicleKit()->GetAvailableSeatCount())
-                        return _pincer2->GetGUID();
-                default:
-                    return ObjectGuid::Empty;
-            }
-
-            return ObjectGuid::Empty;
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (me->HealthBelowPctDamaged(30, damage) && !_heroicPhaseTwoActive)
-            {
-                if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
-                    nefarian->AI()->DoAction(ACTION_SCHEDULE_SHADOW_BREATH);
-                _heroicPhaseTwoActive = true;
-            }
-
-            if (damage >= me->GetHealth())
-            {
-                // Make sure we eject all passengers nicely before we die so they wont end up in the lava
-                DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
-                _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
-                _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
-            }
-        }
-
-        void DoAction(int32 action) override
-        {
-            switch (action)
-            {
-                case ACTION_IMPALE_MAGMAW:
-                    events.CancelEvent(EVENT_MAGMA_PROJECTILE);
-                    events.CancelEvent(EVENT_LAVA_SPEW);
-                    me->AttackStop();
-                    me->SetReactState(REACT_PASSIVE);
-                    me->CastStop();
-                    me->RemoveAurasDueToSpell(SPELL_MASSIVE_CRASH);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
-                    me->RemoveAurasDueToSpell(SPELL_PILLAR_OF_FLAME_MISSILE_PERIODIC);
-
-                    if (Creature* spikeStalker = me->FindNearestCreature(NPC_MAGMAW_SPIKE_STALKER, 60.0f))
-                        me->SetFacingToObject(spikeStalker);
-
-                    events.ScheduleEvent(EVENT_IMPALE_SELF, 1s);
-                    events.ScheduleEvent(EVENT_EXPOSE_HEAD, 4s + 700ms);
-                    _hasExposedHead = true;
-                    break;
-                case ACTION_FAIL_ACHIEVEMT:
-                    _achievementEnligible = false;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING) && !_hasExposedHead)
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_MAGMA_PROJECTILE:
-                        if (_magmaProjectileCount < 4)
-                        {
-                            DoCastAOE(SPELL_MAGMA_SPIT_TARGETING);
-                            _magmaProjectileCount++;
-                            events.Repeat(6s);
-                        }
-                        else
-                        {
-                            DoCastAOE(SPELL_PILLAR_OF_FLAME);
-                            DoCastAOE(SPELL_PILLAR_OF_FLAME_SET_VEHICLE_ID);
-                            _magmaProjectileCount = 0;
-                            events.Repeat(8s);
-                        }
-                        break;
-                    case EVENT_LAVA_SPEW:
-                        DoCastAOE(SPELL_LAVA_SPEW);
-                        events.Repeat(27s, 28s);
-                        break;
-                    case EVENT_MANGLE:
-                        if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                            DoCastAOE(SPELL_MANGLE_TARGETING);
-
-                        events.CancelEvent(EVENT_MAGMA_PROJECTILE);
-                        events.CancelEvent(EVENT_LAVA_SPEW);
-                        events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 3s + 500ms);
-                        events.Repeat(1min + 35s);
-                        break;
-                    case EVENT_PREPARE_MASSIVE_CRASH:
-                        if (ObjectGuid guid = instance->GetGuidData(DATA_PREPARE_MASSIVE_CRASH_AND_GET_TARGET_GUID))
-                        {
-                            if (Creature* stalker = ObjectAccessor::GetCreature(*me, guid))
-                            {
-                                me->AttackStop();
-                                me->SetReactState(REACT_PASSIVE);
-                                me->ReleaseSpellFocus(nullptr, false);
-                                me->SetFacingToObject(stalker, true);
-                                events.ScheduleEvent(EVENT_MASSIVE_CRASH, 5s);
-                            }
-                        }
-                        break;
-                    case EVENT_MASSIVE_CRASH:
-                        DoCast(SPELL_MASSIVE_CRASH);
-                        _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
-                        _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
-                        break;
-                    case EVENT_ANNOUNCE_PINCERS_EXPOSED:
-                        Talk(SAY_ANNOUNCE_EXPOSE_PINCERS);
-                        break;
-                    case EVENT_FINISH_MASSIVE_CRASH:
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
-                        events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 8s);
-                        break;
-                    case EVENT_IMPALE_SELF:
-                        DoCastSelf(SPELL_IMPALE_SELF);
-                        break;
-                    case EVENT_EXPOSE_HEAD:
-                        if (!_headEngaged)
-                        {
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, _exposedHead1, 2);
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me);
-                            _headEngaged = true;
-                        }
-                        _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_HEAD, true);
-                        _exposedHead1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        break;
-                    case EVENT_HIDE_HEAD:
-                        _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
-                        _exposedHead1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        break;
-                    case EVENT_FINISH_IMPALE_SELF:
-                        _hasExposedHead = false;
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
-                        events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 4s);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            if (Unit* victim = me->GetVictim())
-            {
-                if (me->IsWithinMeleeRange(victim))
-                    DoMeleeAttackIfReady();
-                else
-                    DoSpellAttackIfReady(SPELL_MAGMA_SPIT_MOLTEN_TANTRUM);
-            }
-        }
-
-    private:
-        void SetupBody()
-        {
-            _pincer1 = DoSummon(NPC_MAGMAWS_PINCER_1, me->GetPosition());
-            if (_pincer1)
-            {
-                _pincer1->EnterVehicle(me, SEAT_MAGMAWS_PINCER_1);
-                _pincer1->SetDisplayId(_pincer1->GetCreatureTemplate()->Modelid3);
-            }
-
-            _pincer2 = DoSummon(NPC_MAGMAWS_PINCER_2, me->GetPosition());
-            if (_pincer2)
-            {
-                _pincer2->EnterVehicle(me, SEAT_MAGMAWS_PINCER_2);
-                _pincer2->SetDisplayId(_pincer2->GetCreatureTemplate()->Modelid3);
-            }
-
-            _exposedHead1 = DoSummon(NPC_EXPOSED_HEAD_OF_MAGMAW, ExposedHeadOfMagmawPos);
-            _exposedHead2 = DoSummon(NPC_EXPOSED_HEAD_OF_MAGMAW_2, me->GetPosition());
-
-            if (!_exposedHead1 || !_exposedHead2)
-                return;
-
-            _exposedHead1->SetReactState(REACT_PASSIVE);
-            _exposedHead2->SetReactState(REACT_PASSIVE);
-
-            _exposedHead2->EnterVehicle(me, SEAT_EXPOSED_HEAD_OF_MAGMAW_2);
-            DoCastSelf(SPELL_BIRTH);
-
-            // First we link the real exposed head
-            _exposedHead1->CastSpell(me, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
-            _exposedHead1->CastSpell(_exposedHead1, SPELL_POINT_OF_VULNERABILITY);
-            _exposedHead1->CastSpell(_exposedHead2, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
-            // ... now the dummy exposed head
-            _exposedHead2->CastSpell(me, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
-            _exposedHead2->CastSpell(_exposedHead2, SPELL_POINT_OF_VULNERABILITY);
-            // ... and now Magmaw
-            DoCast(_exposedHead2, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
-            DoCast(_exposedHead1, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
-
-            _exposedHead2->CastSpell(_exposedHead2, SPELL_QUEST_INVIS_5);
-
-            ObjectGuid guid = me->GetGUID();
-            Unit* head = _exposedHead1;
-            head->m_Events.AddEventAtOffset([head, guid]()
-                {
-                    if (Unit* target = ObjectAccessor::GetUnit(*head, guid))
-                        head->CastSpell(target, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
-                }, 1s + 200ms);
-        }
-
-        Creature* _exposedHead1;
-        Creature* _exposedHead2;
-        Creature* _pincer1;
-        Creature* _pincer2;
-        uint8 _magmaProjectileCount;
-        bool _achievementEnligible;
-        bool _hasExposedHead;
-        bool _headEngaged;
-        bool _heroicPhaseTwoActive;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackwingDescentAI<boss_magmawAI>(creature);
     }
-};
 
-class npc_magmaw_magmaws_pincer : public UnitScript
-{
-public:
-    npc_magmaw_magmaws_pincer() : UnitScript("npc_magmaw_magmaws_pincer") { }
-
-    void ModifyVehiclePassengerExitPos(Unit* /*passenger*/, Vehicle* vehicle, Position& pos)
+    void DoAction(int32 action) override
     {
-        Unit* base = vehicle->GetBase();
-        if (base->GetEntry() != NPC_MAGMAWS_PINCER_1 && base->GetEntry() != NPC_MAGMAWS_PINCER_2)
+        switch (action)
+        {
+            case ACTION_IMPALE_MAGMAW:
+                events.CancelEvent(EVENT_MAGMA_PROJECTILE);
+                events.CancelEvent(EVENT_LAVA_SPEW);
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                me->CastStop();
+                me->RemoveAurasDueToSpell(SPELL_MASSIVE_CRASH);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                me->RemoveAurasDueToSpell(SPELL_PILLAR_OF_FLAME_MISSILE_PERIODIC);
+
+                if (Creature* spikeStalker = me->FindNearestCreature(NPC_MAGMAW_SPIKE_STALKER, 60.0f))
+                    me->SetFacingToObject(spikeStalker);
+
+                events.ScheduleEvent(EVENT_IMPALE_SELF, 1s);
+                events.ScheduleEvent(EVENT_EXPOSE_HEAD, 4s + 700ms);
+                _hasExposedHead = true;
+                break;
+            case ACTION_FAIL_ACHIEVEMT:
+                _achievementEnligible = false;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
             return;
 
-        pos.Relocate(MagmawVehicleExitPos);
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING) && !_hasExposedHead)
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MAGMA_PROJECTILE:
+                    if (_magmaProjectileCount < 4)
+                    {
+                        DoCastAOE(SPELL_MAGMA_SPIT_TARGETING);
+                        _magmaProjectileCount++;
+                        events.Repeat(6s);
+                    }
+                    else
+                    {
+                        DoCastAOE(SPELL_PILLAR_OF_FLAME);
+                        DoCastAOE(SPELL_PILLAR_OF_FLAME_SET_VEHICLE_ID);
+                        _magmaProjectileCount = 0;
+                        events.Repeat(8s);
+                    }
+                    break;
+                case EVENT_LAVA_SPEW:
+                    DoCastAOE(SPELL_LAVA_SPEW);
+                    events.Repeat(27s, 28s);
+                    break;
+                case EVENT_MANGLE:
+                    if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                        DoCastAOE(SPELL_MANGLE_TARGETING);
+
+                    events.CancelEvent(EVENT_MAGMA_PROJECTILE);
+                    events.CancelEvent(EVENT_LAVA_SPEW);
+                    events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 3s + 500ms);
+                    events.Repeat(1min + 35s);
+                    break;
+                case EVENT_PREPARE_MASSIVE_CRASH:
+                    if (ObjectGuid guid = instance->GetGuidData(DATA_PREPARE_MASSIVE_CRASH_AND_GET_TARGET_GUID))
+                    {
+                        if (Creature* stalker = ObjectAccessor::GetCreature(*me, guid))
+                        {
+                            me->AttackStop();
+                            me->SetReactState(REACT_PASSIVE);
+                            me->ReleaseSpellFocus(nullptr, false);
+                            me->SetFacingToObject(stalker, true);
+                            events.ScheduleEvent(EVENT_MASSIVE_CRASH, 5s);
+                        }
+                    }
+                    break;
+                case EVENT_MASSIVE_CRASH:
+                    DoCast(SPELL_MASSIVE_CRASH);
+                    _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
+                    _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
+                    break;
+                case EVENT_ANNOUNCE_PINCERS_EXPOSED:
+                    Talk(SAY_ANNOUNCE_EXPOSE_PINCERS);
+                    break;
+                case EVENT_FINISH_MASSIVE_CRASH:
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
+                    events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 8s);
+                    break;
+                case EVENT_IMPALE_SELF:
+                    DoCastSelf(SPELL_IMPALE_SELF);
+                    break;
+                case EVENT_EXPOSE_HEAD:
+                    if (!_headEngaged)
+                    {
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, _exposedHead1, 2);
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me);
+                        _headEngaged = true;
+                    }
+                    _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_HEAD, true);
+                    _exposedHead1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    break;
+                case EVENT_HIDE_HEAD:
+                    _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
+                    _exposedHead1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    break;
+                case EVENT_FINISH_IMPALE_SELF:
+                    _hasExposedHead = false;
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
+                    events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 4s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (Unit* victim = me->GetVictim())
+        {
+            if (me->IsWithinMeleeRange(victim))
+                DoMeleeAttackIfReady();
+            else
+                DoSpellAttackIfReady(SPELL_MAGMA_SPIT_MOLTEN_TANTRUM);
+        }
     }
+
+private:
+    void SetupBody()
+    {
+        _pincer1 = DoSummon(NPC_MAGMAWS_PINCER_1, me->GetPosition());
+        if (_pincer1)
+        {
+            _pincer1->EnterVehicle(me, SEAT_MAGMAWS_PINCER_1);
+            _pincer1->SetDisplayId(_pincer1->GetCreatureTemplate()->Modelid3);
+        }
+
+        _pincer2 = DoSummon(NPC_MAGMAWS_PINCER_2, me->GetPosition());
+        if (_pincer2)
+        {
+            _pincer2->EnterVehicle(me, SEAT_MAGMAWS_PINCER_2);
+            _pincer2->SetDisplayId(_pincer2->GetCreatureTemplate()->Modelid3);
+        }
+
+        _exposedHead1 = DoSummon(NPC_EXPOSED_HEAD_OF_MAGMAW, ExposedHeadOfMagmawPos);
+        _exposedHead2 = DoSummon(NPC_EXPOSED_HEAD_OF_MAGMAW_2, me->GetPosition());
+
+        if (!_exposedHead1 || !_exposedHead2)
+            return;
+
+        _exposedHead1->SetReactState(REACT_PASSIVE);
+        _exposedHead2->SetReactState(REACT_PASSIVE);
+
+        _exposedHead2->EnterVehicle(me, SEAT_EXPOSED_HEAD_OF_MAGMAW_2);
+        DoCastSelf(SPELL_BIRTH);
+
+        // First we link the real exposed head
+        _exposedHead1->CastSpell(me, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
+        _exposedHead1->CastSpell(_exposedHead1, SPELL_POINT_OF_VULNERABILITY);
+        _exposedHead1->CastSpell(_exposedHead2, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
+        // ... now the dummy exposed head
+        _exposedHead2->CastSpell(me, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
+        _exposedHead2->CastSpell(_exposedHead2, SPELL_POINT_OF_VULNERABILITY);
+        // ... and now Magmaw
+        DoCast(_exposedHead2, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
+        DoCast(_exposedHead1, SPELL_POINT_OF_VULNERABILITY_SHARE_DAMAGE);
+
+        _exposedHead2->CastSpell(_exposedHead2, SPELL_QUEST_INVIS_5);
+
+        ObjectGuid guid = me->GetGUID();
+        Unit* head = _exposedHead1;
+        head->m_Events.AddEventAtOffset([head, guid]()
+            {
+                if (Unit* target = ObjectAccessor::GetUnit(*head, guid))
+                    head->CastSpell(target, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
+            }, 1s + 200ms);
+    }
+
+    Creature* _exposedHead1;
+    Creature* _exposedHead2;
+    Creature* _pincer1;
+    Creature* _pincer2;
+    uint8 _magmaProjectileCount;
+    bool _achievementEnligible;
+    bool _hasExposedHead;
+    bool _headEngaged;
+    bool _heroicPhaseTwoActive;
 };
 
 struct npc_magmaw_nefarian : public ScriptedAI
@@ -1233,8 +1199,7 @@ class achievement_parasite_evening : public AchievementCriteriaScript
 
 void AddSC_boss_magmaw()
 {
-    new boss_magmaw();
-    new npc_magmaw_magmaws_pincer();
+    RegisterBlackwingDescentCreatureAI(boss_magmaw);
     RegisterBlackwingDescentCreatureAI(npc_magmaw_nefarian);
     RegisterBlackwingDescentCreatureAI(npc_magmaw_lava_parasite);
     RegisterBlackwingDescentCreatureAI(npc_magmaw_blazing_bone_construct);

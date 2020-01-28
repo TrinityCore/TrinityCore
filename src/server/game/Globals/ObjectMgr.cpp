@@ -3347,8 +3347,8 @@ void ObjectMgr::LoadVehicleSeatAddon()
 
     uint32 count = 0;
 
-    //                                                  0            1
-    QueryResult result = WorldDatabase.Query("SELECT `SeatID`, `Angle` FROM `vehicle_seat_addon`");
+    //                                                0            1
+    QueryResult result = WorldDatabase.Query("SELECT `SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue` FROM `vehicle_seat_addon`");
 
     if (!result)
     {
@@ -3361,7 +3361,12 @@ void ObjectMgr::LoadVehicleSeatAddon()
         Field* fields = result->Fetch();
 
         uint32 seatID       = fields[0].GetUInt32();
-        float orientation   = fields[1].GetFloat() * float(M_PI) / 180;
+        float orientation   = fields[1].GetFloat();
+        float exitX         = fields[2].GetFloat();
+        float exitY         = fields[3].GetFloat();
+        float exitZ         = fields[4].GetFloat();
+        float exitO         = fields[5].GetFloat();
+        uint8 exitParam     = fields[6].GetUInt8();
 
         if (!sVehicleSeatStore.LookupEntry(seatID))
         {
@@ -3372,12 +3377,18 @@ void ObjectMgr::LoadVehicleSeatAddon()
         // Sanitizing values
         if (orientation > float(M_PI * 2))
         {
-            TC_LOG_ERROR("sql.sql", "Table `vehicle_seat_addon`: SeatID: %u is using invalid angle offset value (%f). Setting to 0.", seatID, fields[1].GetFloat());
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_seat_addon`: SeatID: %u is using invalid angle offset value (%f). Setting to 0.", seatID, orientation);
             orientation = 0.0f;
             continue;
         }
 
-        _vehicleSeatAddonStore.emplace(seatID, orientation);
+        if (exitParam >= AsUnderlyingType(VehicleExitParameters::VehicleExitParamMax))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_seat_addon`: SeatID: %u is using invalid exit parameter value (%u). Setting to 0 (none).", seatID, exitParam);
+            continue;
+        }
+
+        _vehicleSeatAddonStore[seatID] = VehicleSeatAddon(orientation, exitX, exitY, exitZ, exitO, exitParam);
 
         ++count;
     }

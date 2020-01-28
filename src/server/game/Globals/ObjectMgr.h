@@ -560,7 +560,7 @@ typedef std::unordered_map<uint32, QuestLocale> QuestLocaleContainer;
 typedef std::unordered_map<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef std::unordered_map<uint32, uint8> TaxiNodeLevelDataContainer;
-typedef std::unordered_map<uint32, float> VehicleSeatAddonContainer;
+typedef std::unordered_map<uint32, VehicleSeatAddon> VehicleSeatAddonContainer;
 
 struct GossipMenuItemsLocale
 {
@@ -1557,13 +1557,13 @@ class TC_GAME_API ObjectMgr
 
         uint32 GetGameObjectTypeByEntry(uint32 entry) const;
 
-        float GetVehicleSeatOrientationOffset(uint32 seatId) const
+        VehicleSeatAddon const GetVehicleSeatAddon(uint32 seatId) const
         {
             VehicleSeatAddonContainer::const_iterator itr = _vehicleSeatAddonStore.find(seatId);
-            if (itr != _vehicleSeatAddonStore.end())
-                return itr->second;
+            if (itr == _vehicleSeatAddonStore.end())
+                return VehicleSeatAddon();
 
-            return 0.0f;
+            return itr->second;
         }
 
     private:
