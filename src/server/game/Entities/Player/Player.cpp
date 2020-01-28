@@ -5796,6 +5796,10 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
         // Activate and update skill line
         if (newVal)
         {
+            // if skill value is going down, update enchantments before setting the new value
+            if (newVal < currVal)
+                UpdateSkillEnchantments(id, currVal, newVal);
+
             // update step
             SetSkillStep(itr->second.pos, step);
             // update value
