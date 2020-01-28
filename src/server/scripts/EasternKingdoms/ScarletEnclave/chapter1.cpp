@@ -1086,6 +1086,15 @@ class spell_gift_of_the_harvester : public SpellScript
 {
     PrepareSpellScript(spell_gift_of_the_harvester);
 
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+                {
+                        SPELL_GHOUL_TRANFORM,
+                        SPELL_GHOST_TRANSFORM
+                });
+    }
+
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         Unit* originalCaster = GetOriginalCaster();
