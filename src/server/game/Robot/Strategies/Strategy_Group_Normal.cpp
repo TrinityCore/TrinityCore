@@ -23,13 +23,7 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
 void Strategy_Group_Normal::Update(uint32 pmDiff)
 {
     Player* me = sourceAI->sourcePlayer;
-    Player* master = sourceAI->masterPlayer;
-    if (!me->IsInSameGroupWith(master))
-    {
-        me->RemoveFromGroup();
-        sourceAI->ResetStrategy();
-        return;
-    }
+    Player* master = sourceAI->masterPlayer;    
     if (restDelay > 0)
     {
         restDelay -= pmDiff;
