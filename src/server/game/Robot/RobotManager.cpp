@@ -610,7 +610,7 @@ void RobotManager::LogoutRobots()
         if (checkP)
         {
             if (checkP->IsInWorld())
-            {                                
+            {
                 (*rit)->robotState = RobotState::RobotState_None;
 
                 sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
@@ -694,11 +694,13 @@ Player* RobotManager::GetMaster(Player* pmRobotPlayer)
 {
     for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
     {
-        if ((*rit)->sourcePlayer)
+        Player* me = ObjectAccessor::FindPlayerByLowGUID((*rit)->characterID);
+        if (me)
         {
-            if ((*rit)->sourcePlayer->GetGUID() == pmRobotPlayer->GetGUID())
+            if (me->GetGUID() == pmRobotPlayer->GetGUID())
             {
-                return (*rit)->masterPlayer;
+                Player* myMaster = ObjectAccessor::FindPlayerByLowGUID((*rit)->masterID);
+                return myMaster;
             }
         }
     }

@@ -25,7 +25,11 @@ Strategy_Solo_Normal::Strategy_Solo_Normal(RobotAI* pmSourceAI)
 
 void Strategy_Solo_Normal::Update(uint32 pmDiff)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return;
+    }
     soloDuration += pmDiff;
     if (restDelay > 0)
     {
@@ -251,7 +255,11 @@ bool Strategy_Solo_Normal::Rest()
 
 bool Strategy_Solo_Normal::Eat()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (me->IsEngaged())
     {
         return false;
@@ -264,8 +272,7 @@ bool Strategy_Solo_Normal::Eat()
         {
             return false;
         }
-        uint32 foodEntry = 0;
-        Player* me = sourceAI->sourcePlayer;
+        uint32 foodEntry = 0;        
         if (me->GetLevel() >= 55)
         {
             foodEntry = 21023;
@@ -320,7 +327,11 @@ bool Strategy_Solo_Normal::Eat()
 
 bool Strategy_Solo_Normal::Drink()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (me->IsEngaged())
     {
         return false;
@@ -337,8 +348,7 @@ bool Strategy_Solo_Normal::Drink()
         {
             return false;
         }
-        uint32 drinkEntry = 0;
-        Player* me = sourceAI->sourcePlayer;
+        uint32 drinkEntry = 0;        
         if (me->GetLevel() >= 55)
         {
             drinkEntry = 18300;
@@ -394,7 +404,11 @@ bool Strategy_Solo_Normal::Drink()
 bool Strategy_Solo_Normal::Battle()
 {
     bool result = false;
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!result)
     {
         Unit* myTarget = me->GetSelectedUnit();
@@ -531,7 +545,11 @@ bool Strategy_Solo_Normal::Heal()
 
 bool Strategy_Solo_Normal::Wait()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     me->GetMotionMaster()->Clear();
     me->StopMoving();
     waitDelay = 5 * TimeConstants::IN_MILLISECONDS;
@@ -542,7 +560,11 @@ bool Strategy_Solo_Normal::Wait()
 
 bool Strategy_Solo_Normal::Stroll()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     float destX = 0;
     float destY = 0;
     float destZ = 0;
@@ -555,7 +577,11 @@ bool Strategy_Solo_Normal::Stroll()
 
 bool Strategy_Solo_Normal::Confuse()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     me->SetStandState(UNIT_STAND_STATE_STAND);
     me->GetMotionMaster()->MoveConfused();
     confuseDelay = 5 * TimeConstants::IN_MILLISECONDS;

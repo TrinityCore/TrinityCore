@@ -22,8 +22,26 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
 
 void Strategy_Group_Normal::Update(uint32 pmDiff)
 {
-    Player* me = sourceAI->sourcePlayer;
-    Player* master = sourceAI->masterPlayer;    
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return;
+    }
+    Player* master = ObjectAccessor::FindPlayerByLowGUID(sourceAI->masterID);
+    if (!master)
+    {
+        // wait for checking to reset
+        return;
+    }
+    if (!master->IsInWorld())
+    {
+        // wait for checking to reset
+        return;
+    }
+    if (!me->IsInSameGroupWith(master))
+    {
+        return;
+    }
     if (restDelay > 0)
     {
         restDelay -= pmDiff;
@@ -77,7 +95,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     if (!myGroup)
     {
         sourceAI->ResetStrategy();
-        sourceAI->masterPlayer = NULL;
+        sourceAI->masterID = 0;
         me->Say("I am not in a group. I will reset my strategy", Language::LANG_UNIVERSAL);
         return;
     }
@@ -133,7 +151,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
         if (!GroupInCombat())
         {
             instruction = Group_Instruction::Group_Instruction_Wander;
-        }        
+        }
         break;
     }
     case Group_Instruction::Group_Instruction_Rest:
@@ -186,7 +204,7 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
 
 bool Strategy_Group_Normal::Eat(bool pmForce)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     if (GroupInCombat())
     {
         return false;
@@ -206,7 +224,6 @@ bool Strategy_Group_Normal::Eat(bool pmForce)
             }
         }
         uint32 foodEntry = 0;
-        Player* me = sourceAI->sourcePlayer;
         if (me->GetLevel() >= 55)
         {
             foodEntry = 21023;
@@ -261,7 +278,7 @@ bool Strategy_Group_Normal::Eat(bool pmForce)
 
 bool Strategy_Group_Normal::Drink(bool pmForce)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     if (GroupInCombat())
     {
         return false;
@@ -285,7 +302,6 @@ bool Strategy_Group_Normal::Drink(bool pmForce)
             }
         }
         uint32 drinkEntry = 0;
-        Player* me = sourceAI->sourcePlayer;
         if (me->GetLevel() >= 55)
         {
             drinkEntry = 18300;
@@ -340,7 +356,7 @@ bool Strategy_Group_Normal::Drink(bool pmForce)
 
 bool Strategy_Group_Normal::Buff()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     Group* myGroup = me->GetGroup();
     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
     {
@@ -361,7 +377,7 @@ bool Strategy_Group_Normal::Buff(Player* pmTarget)
 bool Strategy_Group_Normal::Battle()
 {
     bool result = false;
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     switch (me->groupRole)
     {
     case 0:
@@ -399,7 +415,8 @@ bool Strategy_Group_Normal::Battle()
 bool Strategy_Group_Normal::DPS()
 {
     bool result = false;
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* master = ObjectAccessor::FindPlayerByLowGUID(sourceAI->masterID);
     if (!result)
     {
         if (GroupInCombat())
@@ -423,9 +440,9 @@ bool Strategy_Group_Normal::DPS()
 
     if (!result)
     {
-        if (sourceAI->masterPlayer)
+        if (master)
         {
-            Unit* masterTarget = sourceAI->masterPlayer->GetSelectedUnit();
+            Unit* masterTarget = master->GetSelectedUnit();
             if (DPS(masterTarget))
             {
                 result = true;
@@ -507,7 +524,8 @@ bool Strategy_Group_Normal::DPS(Unit* pmTarget)
 bool Strategy_Group_Normal::Tank()
 {
     bool result = false;
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* master = ObjectAccessor::FindPlayerByLowGUID(sourceAI->masterID);
     Group* myGroup = me->GetGroup();
     // tank OT target first
     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
@@ -544,9 +562,9 @@ bool Strategy_Group_Normal::Tank()
 
     if (!result)
     {
-        if (sourceAI->masterPlayer)
+        if (master)
         {
-            Unit* masterTarget = sourceAI->masterPlayer->GetSelectedUnit();
+            Unit* masterTarget = master->GetSelectedUnit();
             if (Tank(masterTarget))
             {
                 result = true;
@@ -627,7 +645,7 @@ bool Strategy_Group_Normal::Tank(Unit* pmTarget)
 
 bool Strategy_Group_Normal::Attack(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     switch (me->groupRole)
     {
     case 0:
@@ -650,8 +668,8 @@ bool Strategy_Group_Normal::Attack(Unit* pmTarget)
 bool Strategy_Group_Normal::Healer()
 {
     bool result = false;
-    Player* me = sourceAI->sourcePlayer;
-    //Player* master = sourceAI->masterPlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    //Player* master = master;
     Group* myGroup = me->GetGroup();
     Player* tank = NULL;
     Player* lowestMember = NULL;
@@ -719,8 +737,12 @@ bool Strategy_Group_Normal::Healer(Unit* pmTarget)
 
 bool Strategy_Group_Normal::GroupInCombat()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     Group* myGroup = me->GetGroup();
+    if (!myGroup)
+    {
+        return false;
+    }
     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
     {
         Player* member = groupRef->GetSource();
@@ -740,12 +762,13 @@ bool Strategy_Group_Normal::GroupInCombat()
 
 bool Strategy_Group_Normal::Follow()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     if (!me->IsAlive())
     {
         return false;
     }
-    if (!sourceAI->masterPlayer)
+    Player* master = ObjectAccessor::FindPlayerByLowGUID(sourceAI->masterID);
+    if (!master)
     {
         return false;
     }
@@ -788,9 +811,9 @@ bool Strategy_Group_Normal::Follow()
     }
     else
     {
-        if (me->GetMapId() == sourceAI->masterPlayer->GetMapId())
+        if (me->GetMapId() == master->GetMapId())
         {
-            targetDistance = me->GetDistance(sourceAI->masterPlayer);
+            targetDistance = me->GetDistance(master);
             if (targetDistance > 200)
             {
                 return false;
@@ -798,7 +821,7 @@ bool Strategy_Group_Normal::Follow()
         }
     }
     if (targetDistance > followDistance)
-    {        
+    {
         if (followTank)
         {
             if (me->GetMapId() == tank->GetMapId())
@@ -809,9 +832,9 @@ bool Strategy_Group_Normal::Follow()
         }
         else
         {
-            if (me->GetMapId() == sourceAI->masterPlayer->GetMapId())
+            if (me->GetMapId() == master->GetMapId())
             {
-                sourceAI->BaseMove(tank, followDistance, false, false);
+                sourceAI->BaseMove(master, followDistance, false, false);
             }
         }
     }
@@ -828,7 +851,7 @@ bool Strategy_Group_Normal::Follow()
 
 bool Strategy_Group_Normal::Stay()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     me->StopMoving();
     me->GetMotionMaster()->Clear();
     return true;

@@ -35,7 +35,11 @@ bool Script_Warlock::DPS(Unit* pmTarget)
 
 bool Script_Warlock::DPS_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -79,7 +83,11 @@ bool Script_Warlock::Attack(Unit* pmTarget)
 
 bool Script_Warlock::Attack_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -118,7 +126,11 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
 
 bool Script_Warlock::Buff(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     Pet* myPet = me->GetPet();
     if (!myPet)
     {

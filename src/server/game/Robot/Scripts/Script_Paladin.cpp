@@ -14,8 +14,12 @@ Script_Paladin::Script_Paladin(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
 }
 
 bool Script_Paladin::HealMe()
-{
-    Player* me = sourceAI->sourcePlayer;
+{    
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     float healthPCT = me->GetHealthPct();
     if (healthPCT < 30)
     {
@@ -59,7 +63,11 @@ bool Script_Paladin::HealMe()
 
 bool Script_Paladin::Tank(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -99,7 +107,11 @@ bool Script_Paladin::Tank(Unit* pmTarget)
 
 bool Script_Paladin::Healer(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -172,7 +184,11 @@ bool Script_Paladin::DPS(Unit* pmTarget)
 
 bool Script_Paladin::DPS_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -210,7 +226,11 @@ bool Script_Paladin::Attack(Unit* pmTarget)
 
 bool Script_Paladin::Attack_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -243,7 +263,11 @@ bool Script_Paladin::Attack_Common(Unit* pmTarget)
 
 bool Script_Paladin::Buff(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;

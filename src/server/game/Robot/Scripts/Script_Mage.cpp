@@ -35,7 +35,11 @@ bool Script_Mage::DPS(Unit* pmTarget)
 
 bool Script_Mage::DPS_Common(Unit* pmTarget)
 {
-	Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
 	if (!pmTarget)
 	{
 		return false;
@@ -80,7 +84,11 @@ bool Script_Mage::Attack(Unit* pmTarget)
 
 bool Script_Mage::Attack_Common(Unit* pmTarget)
 {
-	Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
 	if (!pmTarget)
 	{
 		return false;
@@ -120,7 +128,11 @@ bool Script_Mage::Attack_Common(Unit* pmTarget)
 
 bool Script_Mage::Buff(Unit* pmTarget)
 {
-	Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
 	if (!pmTarget)
 	{
 		return false;

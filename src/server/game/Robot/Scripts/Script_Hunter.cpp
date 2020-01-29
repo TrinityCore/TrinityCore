@@ -40,7 +40,11 @@ bool Script_Hunter::DPS(Unit* pmTarget)
 
 bool Script_Hunter::DPS_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -108,7 +112,11 @@ bool Script_Hunter::Attack(Unit* pmTarget)
 
 bool Script_Hunter::Attack_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -171,7 +179,11 @@ bool Script_Hunter::Attack_Common(Unit* pmTarget)
 
 bool Script_Hunter::Buff(Unit* pmTarget)
 {
-	Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
 	Pet* pet = me->GetPet();
 	if (!pet)
 	{

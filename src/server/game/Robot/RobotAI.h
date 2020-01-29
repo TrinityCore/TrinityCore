@@ -65,10 +65,7 @@ public:
     void Logout();
 
 public:
-	time_t prevUpdate;
-    WorldSession* sourceSession;
-	Player * sourcePlayer;
-	Player* masterPlayer;
+	time_t prevUpdate;    
 	std::unordered_map<std::string, bool> strategiesMap;
 	uint8 characterTalentTab;
 	// 0 dps, 1 tank, 2 healer
@@ -76,6 +73,7 @@ public:
     std::string accountName;
     uint32 accountID;
     uint32 characterID;
+    uint32 masterID;
     uint32 targetLevel;
     uint32 targetRace;
     uint32 targetClass;

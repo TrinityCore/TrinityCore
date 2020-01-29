@@ -16,6 +16,7 @@
 #include "Group.h"
 #include "MotionMaster.h"
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 
 #include "RobotManager.h"
 #include "Strategy_Group_Normal.h"
@@ -36,9 +37,6 @@
 RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace)
 {
     prevUpdate = time(NULL);
-    sourcePlayer = NULL;
-    sourceSession = NULL;
-    masterPlayer = NULL;
     strategiesMap.clear();
     strategiesMap["solo_normal"] = true;
     strategiesMap["group_normal"] = false;
@@ -54,6 +52,7 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
 
     accountID = 0;
     characterID = 0;
+    masterID = 0;
     characterType = 0;
 
     checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
@@ -148,11 +147,17 @@ void RobotAI::ResetStrategy()
     st_Solo_Normal->soloDuration = 0;
     strategiesMap["group_normal"] = false;
     st_Group_Normal->staying = false;
-    sourcePlayer->Say("Strategy reset", Language::LANG_UNIVERSAL);
-
-    if (sourcePlayer->GetClass() == Classes::CLASS_HUNTER)
+    masterID = 0;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
     {
-        Pet* checkPet = sourcePlayer->GetPet();
+        return;
+    }
+    me->Say("Strategy reset", Language::LANG_UNIVERSAL);
+
+    if (me->GetClass() == Classes::CLASS_HUNTER)
+    {
+        Pet* checkPet = me->GetPet();
         if (checkPet)
         {
             std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
@@ -181,15 +186,20 @@ void RobotAI::ResetStrategy()
 void RobotAI::InitializeCharacter()
 {
     bool initialEquip = false;
-    if (sourcePlayer->GetLevel() != targetLevel)
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return;
+    }
+    if (me->GetLevel() != targetLevel)
     {
         initialEquip = true;
-        sourcePlayer->GiveLevel(targetLevel);
-        sourcePlayer->LearnDefaultSkills();
+        me->GiveLevel(targetLevel);
+        me->LearnDefaultSkills();
         for (std::set<uint32>::iterator questIT = sRobotManager->spellRewardClassQuestIDSet.begin(); questIT != sRobotManager->spellRewardClassQuestIDSet.end(); questIT++)
         {
             const Quest* eachQuest = sObjectMgr->GetQuestTemplate((*questIT));
-            if (sourcePlayer->SatisfyQuestLevel(eachQuest, false) && sourcePlayer->SatisfyQuestClass(eachQuest, false) && sourcePlayer->SatisfyQuestRace(eachQuest, false))
+            if (me->SatisfyQuestLevel(eachQuest, false) && me->SatisfyQuestClass(eachQuest, false) && me->SatisfyQuestRace(eachQuest, false))
             {
                 const SpellInfo* pSTCast = sSpellMgr->GetSpellInfo(eachQuest->GetRewSpellCast());
                 if (pSTCast)
@@ -209,7 +219,7 @@ void RobotAI::InitializeCharacter()
                     }
                     for (std::set<uint32>::iterator toLearnIT = spellToLearnIDSet.begin(); toLearnIT != spellToLearnIDSet.end(); toLearnIT++)
                     {
-                        sourcePlayer->LearnSpell((*toLearnIT), false);
+                        me->LearnSpell((*toLearnIT), false);
                     }
                 }
                 const SpellInfo* pST = sSpellMgr->GetSpellInfo(eachQuest->GetRewSpell());
@@ -230,13 +240,13 @@ void RobotAI::InitializeCharacter()
                     }
                     for (std::set<uint32>::iterator toLearnIT = spellToLearnIDSet.begin(); toLearnIT != spellToLearnIDSet.end(); toLearnIT++)
                     {
-                        sourcePlayer->LearnSpell((*toLearnIT), false);
+                        me->LearnSpell((*toLearnIT), false);
                     }
                 }
             }
         }
         uint8 specialty = urand(0, 2);
-        uint32 classMask = sourcePlayer->GetClassMask();
+        uint32 classMask = me->GetClassMask();
         std::map<uint32, std::vector<TalentEntry const*> > talentsMap;
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         {
@@ -258,7 +268,7 @@ void RobotAI::InitializeCharacter()
             std::vector<TalentEntry const*> eachRowTalents = i->second;
             if (eachRowTalents.empty())
             {
-                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "%s: No spells for talent row %d", sourcePlayer->GetName(), i->first);
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "%s: No spells for talent row %d", me->GetName(), i->first);
                 continue;
             }
             for (std::vector<TalentEntry const*>::iterator it = eachRowTalents.begin(); it != eachRowTalents.end(); it++)
@@ -284,7 +294,7 @@ void RobotAI::InitializeCharacter()
                 {
                     maxRank = 0;
                 }
-                sourcePlayer->LearnTalent((*it)->TalentID, maxRank);
+                me->LearnTalent((*it)->TalentID, maxRank);
             }
         }
 
@@ -300,7 +310,7 @@ void RobotAI::InitializeCharacter()
             {
                 continue;
             }
-            if (!tInfo->IsTrainerValidForPlayer(sourcePlayer))
+            if (!tInfo->IsTrainerValidForPlayer(me))
             {
                 continue;
             }
@@ -309,11 +319,11 @@ void RobotAI::InitializeCharacter()
             for (std::unordered_set<uint32>::const_iterator itr = trainerSpellIDs.begin(); itr != trainerSpellIDs.end(); ++itr)
             {
                 uint32 eachSpellID = *itr;
-                if (!sourcePlayer->IsSpellFitByClassAndRace(eachSpellID))
+                if (!me->IsSpellFitByClassAndRace(eachSpellID))
                 {
                     continue;
                 }
-                if (!tInfo->SpellRequireLevelValid(sourcePlayer, eachSpellID))
+                if (!tInfo->SpellRequireLevelValid(me, eachSpellID))
                 {
                     continue;
                 }
@@ -334,14 +344,14 @@ void RobotAI::InitializeCharacter()
                         break;
                     }
                 }
-                sourcePlayer->LearnSpell(checkSpellID, false);
+                me->LearnSpell(checkSpellID, false);
             }
         }
-        sourcePlayer->UpdateSkillsForLevel();
+        me->UpdateSkillsForLevel();
 
-        if (sourcePlayer->GetClass() == Classes::CLASS_HUNTER)
+        if (me->GetClass() == Classes::CLASS_HUNTER)
         {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create pet for player %s", sourcePlayer->GetName());
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create pet for player %s", me->GetName());
             uint32 beastEntry = urand(0, sRobotManager->tamableBeastEntryMap.size() - 1);
             beastEntry = sRobotManager->tamableBeastEntryMap[beastEntry];
             CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(beastEntry);
@@ -350,50 +360,50 @@ void RobotAI::InitializeCharacter()
                 return;
             }
 
-            Pet* pet = new Pet(sourcePlayer, HUNTER_PET);
-            uint32 guid = sourcePlayer->GetMap()->GenerateLowGuid<HighGuid::Pet>();
+            Pet* pet = new Pet(me, HUNTER_PET);
+            uint32 guid = me->GetMap()->GenerateLowGuid<HighGuid::Pet>();
             uint32 pet_number = sObjectMgr->GeneratePetNumber();
-            if (!pet->Create(guid, sourcePlayer->GetMap(), 0, cinfo->Entry, pet_number))
+            if (!pet->Create(guid, me->GetMap(), 0, cinfo->Entry, pet_number))
             {
                 delete pet;
                 return;
             }
             pet->SetReactState(REACT_DEFENSIVE);
-            pet->SetFaction(sourcePlayer->GetFaction());
+            pet->SetFaction(me->GetFaction());
             pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, 1515);
-            if (sourcePlayer->IsPvP())
+            if (me->IsPvP())
             {
                 pet->SetPvP(true);
             }
-            pet->InitStatsForLevel(sourcePlayer->GetLevel());
+            pet->InitStatsForLevel(me->GetLevel());
             pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
             // this enables pet details window (Shift+P)
             pet->AIM_Initialize();
             pet->InitPetCreateSpells();
             pet->SetHealth(pet->GetMaxHealth());
             // prepare visual effect for levelup
-            pet->SetUInt32Value(UNIT_FIELD_LEVEL, sourcePlayer->GetLevel());
+            pet->SetUInt32Value(UNIT_FIELD_LEVEL, me->GetLevel());
             // add to world
             pet->GetMap()->AddToMap((Creature*)pet);
 
             // caster have pet now
-            sourcePlayer->SetPetGUID(pet->GetGUID());
+            me->SetPetGUID(pet->GetGUID());
 
             pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-            sourcePlayer->PetSpellInitialize();
+            me->PetSpellInitialize();
         }
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s basic info initialized", sourcePlayer->GetName());
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s basic info initialized", me->GetName());
 
         std::ostringstream msgStream;
-        msgStream << sourcePlayer->GetName() << " initialized";
+        msgStream << me->GetName() << " initialized";
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
     }
 
     spellLevelMap.clear();
     bool typeChecked = false;
     characterType = 0;
-    sourcePlayer->groupRole = 0;
-    for (PlayerSpellMap::iterator it = sourcePlayer->GetSpellMap().begin(); it != sourcePlayer->GetSpellMap().end(); it++)
+    me->groupRole = 0;
+    for (PlayerSpellMap::iterator it = me->GetSpellMap().begin(); it != me->GetSpellMap().end(); it++)
     {
         const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
         if (pST)
@@ -401,7 +411,7 @@ void RobotAI::InitializeCharacter()
             std::string checkNameStr = std::string(pST->SpellName[0]);
             if (!typeChecked)
             {
-                switch (sourcePlayer->GetClass())
+                switch (me->GetClass())
                 {
                 case Classes::CLASS_WARRIOR:
                 {
@@ -419,7 +429,7 @@ void RobotAI::InitializeCharacter()
                     {
                         characterTalentTab = 2;
                         characterType = 1;
-                        sourcePlayer->groupRole = 1;
+                        me->groupRole = 1;
                         typeChecked = true;
                     }
                     break;
@@ -459,7 +469,7 @@ void RobotAI::InitializeCharacter()
                     {
                         characterTalentTab = 2;
                         characterType = 2;
-                        sourcePlayer->groupRole = 2;
+                        me->groupRole = 2;
                         typeChecked = true;
                     }
                     break;
@@ -470,14 +480,14 @@ void RobotAI::InitializeCharacter()
                     {
                         characterTalentTab = 0;
                         characterType = 2;
-                        sourcePlayer->groupRole = 2;
+                        me->groupRole = 2;
                         typeChecked = true;
                     }
                     if (checkNameStr == "Improved Devotion Aura")
                     {
                         characterTalentTab = 1;
                         characterType = 1;
-                        sourcePlayer->groupRole = 1;
+                        me->groupRole = 1;
                         typeChecked = true;
                     }
                     if (checkNameStr == "Improved Blessing of Might")
@@ -512,14 +522,14 @@ void RobotAI::InitializeCharacter()
                     {
                         characterTalentTab = 0;
                         characterType = 2;
-                        sourcePlayer->groupRole = 2;
+                        me->groupRole = 2;
                         typeChecked = true;
                     }
                     if (checkNameStr == "Healing Focus")
                     {
                         characterTalentTab = 1;
                         characterType = 2;
-                        sourcePlayer->groupRole = 2;
+                        me->groupRole = 2;
                         typeChecked = true;
                     }
                     if (checkNameStr == "Spirit Tap")
@@ -578,14 +588,14 @@ void RobotAI::InitializeCharacter()
                     {
                         characterTalentTab = 1;
                         characterType = 1;
-                        sourcePlayer->groupRole = 1;
+                        me->groupRole = 1;
                         typeChecked = true;
                     }
                     if (checkNameStr == "Improved Mark of the Wild")
                     {
                         characterTalentTab = 2;
                         characterType = 2;
-                        sourcePlayer->groupRole = 2;
+                        me->groupRole = 2;
                         typeChecked = true;
                     }
                     break;
@@ -616,17 +626,17 @@ void RobotAI::InitializeCharacter()
     {
         for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; i++)
         {
-            if (Item* pItem = sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (Item* pItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             {
-                sourcePlayer->DestroyItem(INVENTORY_SLOT_BAG_0, i, true);
+                me->DestroyItem(INVENTORY_SLOT_BAG_0, i, true);
             }
         }
 
-        switch (sourcePlayer->GetClass())
+        switch (me->GetClass())
         {
         case Classes::CLASS_WARRIOR:
         {
-            int levelRange = sourcePlayer->GetLevel() / 10;
+            int levelRange = me->GetLevel() / 10;
             int checkLevelRange = levelRange;
             bool validEquip = false;
             int maxTryTimes = 5;
@@ -683,7 +693,7 @@ void RobotAI::InitializeCharacter()
             }
             else
             {
-                int levelRange = sourcePlayer->GetLevel() / 10;
+                int levelRange = me->GetLevel() / 10;
                 int checkLevelRange = levelRange;
                 bool validEquip = false;
                 int maxTryTimes = 5;
@@ -712,7 +722,7 @@ void RobotAI::InitializeCharacter()
             }
 
             int armorType = 2;
-            if (sourcePlayer->GetLevel() < 40)
+            if (me->GetLevel() < 40)
             {
                 // use mail armor
                 armorType = 2;
@@ -781,7 +791,7 @@ void RobotAI::InitializeCharacter()
         case Classes::CLASS_HUNTER:
         {
             // set two hand axe, two hand sword, polearms		
-            int levelRange = sourcePlayer->GetLevel() / 10;
+            int levelRange = me->GetLevel() / 10;
             int checkLevelRange = levelRange;
             bool validEquip = false;
             int maxTryTimes = 5;
@@ -881,7 +891,7 @@ void RobotAI::InitializeCharacter()
                 checkLevelRange--;
             }
             int armorType = 1;
-            if (sourcePlayer->GetLevel() < 40)
+            if (me->GetLevel() < 40)
             {
                 // use leather armor
                 armorType = 1;
@@ -947,17 +957,17 @@ void RobotAI::InitializeCharacter()
             }
 
             // quiver and ammo pouch
-            Item* weapon = sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
+            Item* weapon = me->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
             if (weapon)
             {
                 uint32 subClass = weapon->GetTemplate()->SubClass;
                 if (subClass == ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_BOW || subClass == ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_CROSSBOW)
                 {
-                    sourcePlayer->StoreNewItemInBestSlots(2101, 1);
+                    me->StoreNewItemInBestSlots(2101, 1);
                 }
                 else if (subClass == ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_GUN)
                 {
-                    sourcePlayer->StoreNewItemInBestSlots(2102, 1);
+                    me->StoreNewItemInBestSlots(2102, 1);
                 }
             }
             break;
@@ -965,7 +975,7 @@ void RobotAI::InitializeCharacter()
         case Classes::CLASS_SHAMAN:
         {
             // set staff		
-            int levelRange = sourcePlayer->GetLevel() / 10;
+            int levelRange = me->GetLevel() / 10;
             int checkLevelRange = levelRange;
             bool validEquip = false;
             int maxTryTimes = 5;
@@ -993,7 +1003,7 @@ void RobotAI::InitializeCharacter()
             }
 
             int armorType = 1;
-            if (sourcePlayer->GetLevel() < 40)
+            if (me->GetLevel() < 40)
             {
                 // use leather armor
                 armorType = 1;
@@ -1061,7 +1071,7 @@ void RobotAI::InitializeCharacter()
         }
         case Classes::CLASS_PALADIN:
         {
-            int levelRange = sourcePlayer->GetLevel() / 10;
+            int levelRange = me->GetLevel() / 10;
             int checkLevelRange = levelRange;
             bool validEquip = false;
             int maxTryTimes = 5;
@@ -1143,7 +1153,7 @@ void RobotAI::InitializeCharacter()
             }
 
             int armorType = 2;
-            if (sourcePlayer->GetLevel() < 40)
+            if (me->GetLevel() < 40)
             {
                 // use mail armor
                 armorType = 2;
@@ -1212,7 +1222,7 @@ void RobotAI::InitializeCharacter()
         case Classes::CLASS_WARLOCK:
         {
             // set staff		
-            int levelRange = sourcePlayer->GetLevel() / 10;
+            int levelRange = me->GetLevel() / 10;
             int checkLevelRange = levelRange;
             bool validEquip = false;
             int maxTryTimes = 5;
@@ -1325,7 +1335,7 @@ void RobotAI::InitializeCharacter()
         case Classes::CLASS_PRIEST:
         {
             // set staff		
-            int levelRange = sourcePlayer->GetLevel() / 10;
+            int levelRange = me->GetLevel() / 10;
             int checkLevelRange = levelRange;
             bool validEquip = false;
             int maxTryTimes = 5;
@@ -1438,7 +1448,7 @@ void RobotAI::InitializeCharacter()
         case Classes::CLASS_ROGUE:
         {
             // set dagger		
-            int levelRange = sourcePlayer->GetLevel() / 10;
+            int levelRange = me->GetLevel() / 10;
             int checkLevelRange = levelRange;
             bool validEquip = false;
             int maxTryTimes = 5;
@@ -1548,7 +1558,7 @@ void RobotAI::InitializeCharacter()
         case Classes::CLASS_MAGE:
         {
             // set staff		
-            int levelRange = sourcePlayer->GetLevel() / 10;
+            int levelRange = me->GetLevel() / 10;
             int checkLevelRange = levelRange;
             bool validEquip = false;
             int maxTryTimes = 5;
@@ -1661,7 +1671,7 @@ void RobotAI::InitializeCharacter()
         case Classes::CLASS_DRUID:
         {
             // set staff		
-            int levelRange = sourcePlayer->GetLevel() / 10;
+            int levelRange = me->GetLevel() / 10;
             int checkLevelRange = levelRange;
             bool validEquip = false;
             int maxTryTimes = 5;
@@ -1751,23 +1761,28 @@ void RobotAI::InitializeCharacter()
         }
         }
 
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s equip info initialized", sourcePlayer->GetName());
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s equip info initialized", me->GetName());
     }
 
-    sourcePlayer->UpdateWeaponsSkillsToMaxSkillsForLevel();
+    me->UpdateWeaponsSkillsToMaxSkillsForLevel();
 }
 
 void RobotAI::Prepare()
 {
-    sourcePlayer->DurabilityRepairAll(false, 0, false);
-    if (sourcePlayer->GetClass() == Classes::CLASS_HUNTER)
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return;
+    }
+    me->DurabilityRepairAll(false, 0, false);
+    if (me->GetClass() == Classes::CLASS_HUNTER)
     {
         uint32 ammoEntry = 0;
-        Item* weapon = sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
+        Item* weapon = me->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
         if (weapon)
         {
             uint32 subClass = weapon->GetTemplate()->SubClass;
-            uint8 playerLevel = sourcePlayer->GetLevel();
+            uint8 playerLevel = me->GetLevel();
             if (subClass == ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_BOW || subClass == ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_CROSSBOW)
             {
                 if (playerLevel >= 40)
@@ -1800,15 +1815,15 @@ void RobotAI::Prepare()
             }
             if (ammoEntry > 0)
             {
-                if (!sourcePlayer->HasItemCount(ammoEntry, 100))
+                if (!me->HasItemCount(ammoEntry, 100))
                 {
-                    sourcePlayer->StoreNewItemInBestSlots(ammoEntry, 1000);
-                    sourcePlayer->SetAmmo(ammoEntry);
+                    me->StoreNewItemInBestSlots(ammoEntry, 1000);
+                    me->SetAmmo(ammoEntry);
                 }
             }
         }
     }
-    Pet* checkPet = sourcePlayer->GetPet();
+    Pet* checkPet = me->GetPet();
     if (checkPet)
     {
         checkPet->SetReactState(REACT_DEFENSIVE);
@@ -1838,46 +1853,61 @@ void RobotAI::Prepare()
 
 void RobotAI::Refresh()
 {
-    if (!sourcePlayer->IsAlive())
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
     {
-        sourcePlayer->ResurrectPlayer(100);
+        return;
     }
-    sourcePlayer->SetFullHealth();
-    sourcePlayer->ClearInCombat();
-    sourcePlayer->GetThreatManager().ClearAllThreat();
-    sourcePlayer->GetMotionMaster()->Clear();
+    if (!me->IsAlive())
+    {
+        me->ResurrectPlayer(100);
+    }
+    me->SetFullHealth();
+    me->ClearInCombat();
+    me->GetThreatManager().ClearAllThreat();
+    me->GetMotionMaster()->Clear();
 }
 
 void RobotAI::RandomTeleport()
 {
-    if (sourcePlayer->IsBeingTeleported())
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
     {
         return;
     }
-    uint8 levelRange = sourcePlayer->GetLevel() / 10;
+    if (me->IsBeingTeleported())
+    {
+        return;
+    }
+    uint8 levelRange = me->GetLevel() / 10;
     uint32 destIndex = urand(0, sRobotManager->teleportCacheMap[levelRange].size() - 1);
     WorldLocation destWL = sRobotManager->teleportCacheMap[levelRange][destIndex];
     Map* targetMap = sMapMgr->FindBaseNonInstanceMap(destWL.m_mapId);
     if (targetMap)
     {
-        sourcePlayer->TeleportTo(destWL);
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", sourcePlayer->GetName(), sourcePlayer->GetLevel());
+        me->TeleportTo(destWL);
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Teleport robot %s (level %d)", me->GetName(), me->GetLevel());
     }
 }
 
 bool RobotAI::HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura)
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
     Unit* target = pmTarget;
     if (!pmTarget)
     {
-        target = sourcePlayer;
+        target = me;
     }
     std::set<uint32> spellIDSet = sRobotManager->spellNameEntryMap[pmSpellName];
     for (std::set<uint32>::iterator it = spellIDSet.begin(); it != spellIDSet.end(); it++)
     {
         if (pmOnlyMyAura)
         {
-            if (target->HasAura((*it), sourcePlayer->GetGUID()))
+            if (target->HasAura((*it), me->GetGUID()))
             {
                 return true;
             }
@@ -1896,11 +1926,16 @@ bool RobotAI::HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura
 
 bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance, bool pmCheckAura, bool pmOnlyMyAura, bool pmClearShapeshift)
 {
-    if (sourcePlayer->IsNonMeleeSpellCast(true))
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
+    if (me->IsNonMeleeSpellCast(true))
     {
         return true;
     }
-    if (sourcePlayer->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
+    if (me->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
     {
         return true;
     }
@@ -1919,24 +1954,24 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     Unit* target = pmTarget;
     if (!target)
     {
-        target = sourcePlayer;
+        target = me;
     }
-    if (target->GetGUID() != sourcePlayer->GetGUID())
+    if (target->GetGUID() != me->GetGUID())
     {
-        float currentDistance = sourcePlayer->GetDistance(target);
+        float currentDistance = me->GetDistance(target);
         if (currentDistance > pmDistance)
         {
             return false;
         }
         else
         {
-            if (!sourcePlayer->IsWithinLOSInMap(target))
+            if (!me->IsWithinLOSInMap(target))
             {
                 return false;
             }
-            if (!sourcePlayer->isInFront(pmTarget, M_PI / 4))
+            if (!me->isInFront(pmTarget, M_PI / 4))
             {
-                sourcePlayer->SetInFront(pmTarget);
+                me->SetInFront(pmTarget);
             }
         }
     }
@@ -1949,7 +1984,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     {
         return false;
     }
-    if (target->IsImmunedToSpell(pST, sourcePlayer))
+    if (target->IsImmunedToSpell(pST, me))
     {
         return false;
     }
@@ -1957,57 +1992,62 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     {
         if (pST->Reagent[i] > 0)
         {
-            if (!sourcePlayer->HasItemCount(pST->Reagent[i], pST->ReagentCount[i]))
+            if (!me->HasItemCount(pST->Reagent[i], pST->ReagentCount[i]))
             {
-                sourcePlayer->StoreNewItemInBestSlots(pST->Reagent[i], pST->ReagentCount[i] * 10);
+                me->StoreNewItemInBestSlots(pST->Reagent[i], pST->ReagentCount[i] * 10);
             }
         }
     }
-    if (sourcePlayer->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+    if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
     {
-        sourcePlayer->SetStandState(UNIT_STAND_STATE_STAND);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
     }
-    sourcePlayer->StopMoving();
-    sourcePlayer->CastSpell(target, spellID, TriggerCastFlags::TRIGGERED_NONE);
+    me->StopMoving();
+    me->CastSpell(target, spellID, TriggerCastFlags::TRIGGERED_NONE);
 
     return true;
 }
 
 void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmMelee, bool pmAttack)
 {
-    if (sourcePlayer->HasUnitState(UnitState::UNIT_STATE_NOT_MOVE))
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
     {
         return;
     }
-    if (sourcePlayer->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
+    if (me->HasUnitState(UnitState::UNIT_STATE_NOT_MOVE))
+    {
+        return;
+    }
+    if (me->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
     {
         return;
     }
     // Can't attack if owner is pacified
-    if (sourcePlayer->HasAuraType(SPELL_AURA_MOD_PACIFY))
+    if (me->HasAuraType(SPELL_AURA_MOD_PACIFY))
     {
         //pet->SendPetCastFail(spellid, SPELL_FAILED_PACIFIED);
         /// @todo Send proper error message to client
         return;
     }
-    if (sourcePlayer->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+    if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
     {
-        sourcePlayer->SetStandState(UNIT_STAND_STATE_STAND);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
     }
-    if (sourcePlayer->IsWalking())
+    if (me->IsWalking())
     {
-        sourcePlayer->SetWalk(false);
+        me->SetWalk(false);
     }
-    if (sourcePlayer->GetTarget() != pmTarget->GetGUID())
+    if (me->GetTarget() != pmTarget->GetGUID())
     {
-        sourcePlayer->SetSelection(pmTarget->GetGUID());
+        me->SetSelection(pmTarget->GetGUID());
     }
     if (pmMelee)
     {
         MoveMelee(pmTarget);
         if (pmAttack)
         {
-            sourcePlayer->Attack(pmTarget, pmMelee);
+            me->Attack(pmTarget, pmMelee);
         }
     }
     else
@@ -2018,53 +2058,73 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmMelee, bool pmAt
 
 void RobotAI::MoveMelee(Unit* pmTarget)
 {
-    float currentDistance = sourcePlayer->GetDistance(pmTarget);
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return;
+    }
+    float currentDistance = me->GetDistance(pmTarget);
     if (currentDistance > MELEE_COMBAT_DISTANCE)
     {
-        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
+        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
     }
-    else if (!sourcePlayer->IsWithinLOSInMap(pmTarget))
+    else if (!me->IsWithinLOSInMap(pmTarget))
     {
-        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
+        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
     }
     else
     {
-        if (!sourcePlayer->isInFront(pmTarget, M_PI / 4))
+        if (!me->isInFront(pmTarget, M_PI / 4))
         {
-            sourcePlayer->SetInFront(pmTarget);
+            me->SetInFront(pmTarget);
         }
     }
 }
 
 void RobotAI::MoveCLose(Unit* pmTarget, float pmDistance)
 {
-    float currentDistance = sourcePlayer->GetDistance(pmTarget);
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return;
+    }
+    float currentDistance = me->GetDistance(pmTarget);
     if (currentDistance > pmDistance + MELEE_COMBAT_DISTANCE)
     {
-        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
+        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
     }
-    else if (!sourcePlayer->IsWithinLOSInMap(pmTarget))
+    else if (!me->IsWithinLOSInMap(pmTarget))
     {
-        sourcePlayer->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
+        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
     }
     else
     {
-        if (!sourcePlayer->isInFront(pmTarget, M_PI / 4))
+        if (!me->isInFront(pmTarget, M_PI / 4))
         {
-            sourcePlayer->SetInFront(pmTarget);
+            me->SetInFront(pmTarget);
         }
     }
 }
 
 void RobotAI::WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget)
 {
-    sourcePlayer->Whisper(pmContent, pmLanguage, pmTarget);
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return;
+    }
+    me->Whisper(pmContent, pmLanguage, pmTarget);
 }
 
 void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
 {
     if (pmDestPacket)
     {
+        Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+        if (!me)
+        {
+            return;
+        }
         switch (pmDestPacket->GetOpcode())
         {
         case SMSG_SPELL_FAILURE:
@@ -2077,7 +2137,7 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
         }
         case SMSG_GROUP_INVITE:
         {
-            Group* grp = sourcePlayer->GetGroupInvite();
+            Group* grp = me->GetGroupInvite();
             if (!grp)
             {
                 break;
@@ -2088,12 +2148,12 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
                 break;
             }
             bool acceptInvite = true;
-            if (inviter->GetLevel() < sourcePlayer->GetLevel())
+            if (inviter->GetLevel() < me->GetLevel())
             {
                 uint32 lowGUID = inviter->GetGUID().GetCounter();
                 if (interestMap.find(lowGUID) == interestMap.end())
                 {
-                    uint8 levelGap = sourcePlayer->GetLevel() - inviter->GetLevel();
+                    uint8 levelGap = me->GetLevel() - inviter->GetLevel();
                     if (urand(0, levelGap) > 0)
                     {
                         acceptInvite = false;
@@ -2111,21 +2171,21 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
             }
             if (acceptInvite)
             {
+                masterID = inviter->GetGUID().GetRawValue();
                 WorldPacket p;
                 uint32 roles_mask = 0;
                 p << roles_mask;
-                sourcePlayer->GetSession()->HandleGroupAcceptOpcode(p);
+                me->GetSession()->HandleGroupAcceptOpcode(p);
                 SetStrategy("solo_normal", false);
                 SetStrategy("group_normal", true);
                 WhisperTo("Strategy set to group", Language::LANG_UNIVERSAL, inviter);
-                masterPlayer = inviter;
                 WhisperTo("You are my master", Language::LANG_UNIVERSAL, inviter);
                 std::ostringstream replyStream_Talent;
-                replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[sourcePlayer->GetClass()][characterTalentTab];
+                replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[me->GetClass()][characterTalentTab];
                 WhisperTo(replyStream_Talent.str(), Language::LANG_UNIVERSAL, inviter);
                 std::ostringstream replyStream_GroupRole;
                 replyStream_GroupRole << "My group role is ";
-                switch (sourcePlayer->groupRole)
+                switch (me->groupRole)
                 {
                 case 0:
                 {
@@ -2149,13 +2209,13 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
                 }
                 }
                 WhisperTo(replyStream_GroupRole.str(), Language::LANG_UNIVERSAL, inviter);
-                sourcePlayer->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->Clear();
                 break;
             }
             else
             {
                 WorldPacket p;
-                sourcePlayer->GetSession()->HandleGroupDeclineOpcode(p);
+                me->GetSession()->HandleGroupDeclineOpcode(p);
                 std::ostringstream timeLeftStream;
                 timeLeftStream << "Not interested. I will reconsider in " << st_Solo_Normal->interestsDelay << " seconds";
                 WhisperTo(timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
@@ -2164,10 +2224,10 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
         }
         case SMSG_GROUP_UNINVITE:
         {
-            //masterPlayer = NULL;
+            //master = NULL;
             //ResetStrategy();
-            //sourcePlayer->Say("Strategy set to solo", Language::LANG_UNIVERSAL);
-            //sRobotManager->RefreshRobot(sourcePlayer);
+            //me->Say("Strategy set to solo", Language::LANG_UNIVERSAL);
+            //sRobotManager->RefreshRobot(me);
             break;
         }
         case BUY_ERR_NOT_ENOUGHT_MONEY:
@@ -2185,17 +2245,17 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
             //Player* newLeader = ObjectAccessor::FindPlayerByName(leaderName);
             //if (newLeader)
             //{
-            //    if (newLeader->GetGUID() == sourcePlayer->GetGUID())
+            //    if (newLeader->GetGUID() == me->GetGUID())
             //    {
             //        WorldPacket data(CMSG_GROUP_SET_LEADER, 8);
-            //        data << masterPlayer->GetGUID().WriteAsPacked();
-            //        sourcePlayer->GetSession()->HandleGroupSetLeaderOpcode(data);
+            //        data << master->GetGUID().WriteAsPacked();
+            //        me->GetSession()->HandleGroupSetLeaderOpcode(data);
             //    }
             //    else
             //    {
             //        if (!newLeader->isRobot)
             //        {
-            //            masterPlayer = newLeader;
+            //            master = newLeader;
             //        }
             //    }
             //}
@@ -2207,13 +2267,13 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
         }
         case SMSG_RESURRECT_REQUEST:
         {
-            if (!sourcePlayer->IsAlive())
+            if (!me->IsAlive())
             {
                 st_Solo_Normal->deathDuration = 0;
             }
-            if (sourcePlayer->IsResurrectRequested())
+            if (me->IsResurrectRequested())
             {
-                sourcePlayer->ResurrectUsingRequestData();
+                me->ResurrectUsingRequestData();
             }
             break;
         }
@@ -2243,12 +2303,12 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
         }
         case SMSG_DUEL_REQUESTED:
         {
-            if (!sourcePlayer->duel)
+            if (!me->duel)
             {
                 break;
             }
-            sourcePlayer->DuelComplete(DuelCompleteType::DUEL_INTERRUPTED);
-            WhisperTo("Not interested", Language::LANG_UNIVERSAL, sourcePlayer->duel->Opponent);
+            me->DuelComplete(DuelCompleteType::DUEL_INTERRUPTED);
+            WhisperTo("Not interested", Language::LANG_UNIVERSAL, me->duel->Opponent);
             break;
         }
         default:
@@ -2394,13 +2454,13 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_CheckLogin:
     {
-        sourcePlayer = sRobotManager->CheckLogin(accountID, characterID);
-        if (sourcePlayer)
+        Player* me = sRobotManager->CheckLogin(accountID, characterID);
+        if (me)
         {
-            sourceSession = sourcePlayer->GetSession();
-            sourceSession->rai = this;
+            WorldSession* mySession = me->GetSession();
+            mySession->rai = this;
             InitializeCharacter();
-            sourcePlayer->SetPvP(true);
+            me->SetPvP(true);
             robotState = RobotState::RobotState_Online;
             checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             allDelay = 0;
@@ -2426,6 +2486,12 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_Online:
     {
+        Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+        if (!me)
+        {
+            robotState = RobotState::RobotState_None;
+            break;
+        }
         if (offlineDelay > 0)
         {
             offlineDelay -= pmDiff;
@@ -2450,13 +2516,14 @@ void RobotAI::Update(uint32 pmDiff)
                 }
                 if (!levelPlayerOnline)
                 {
-                    if (sourcePlayer->GetGroup())
+                    if (me->GetGroup())
                     {
-                        if (masterPlayer)
+                        Player* master = ObjectAccessor::FindPlayerByLowGUID(masterID);
+                        if (master)
                         {
-                            if (masterPlayer->IsInWorld())
+                            if (master->IsInWorld())
                             {
-                                if (sourcePlayer->IsInSameGroupWith(masterPlayer))
+                                if (me->IsInSameGroupWith(master))
                                 {
                                     levelPlayerOnline = true;
                                 }
@@ -2465,7 +2532,7 @@ void RobotAI::Update(uint32 pmDiff)
 
                         if (!levelPlayerOnline)
                         {
-                            sourcePlayer->RemoveFromGroup();
+                            me->RemoveFromGroup();
                             ResetStrategy();
                         }
                     }
@@ -2506,18 +2573,18 @@ void RobotAI::Update(uint32 pmDiff)
                 }
             }
         }
-        if (sourcePlayer)
+        if (me)
         {
-            if (sourcePlayer->IsBeingTeleportedNear())
+            if (me->IsBeingTeleportedNear())
             {
                 WorldPacket data(MSG_MOVE_TELEPORT_ACK, 10);
-                data << sourcePlayer->GetGUID().WriteAsPacked();
+                data << me->GetGUID().WriteAsPacked();
                 data << uint32(0) << uint32(0);
-                sourcePlayer->GetSession()->HandleMoveTeleportAck(data);
+                me->GetSession()->HandleMoveTeleportAck(data);
             }
-            else if (sourcePlayer->IsBeingTeleportedFar())
+            else if (me->IsBeingTeleportedFar())
             {
-                sourcePlayer->GetSession()->HandleMoveWorldportAck();
+                me->GetSession()->HandleMoveWorldportAck();
             }
             else
             {
@@ -2575,9 +2642,14 @@ void RobotAI::Update(uint32 pmDiff)
 
 Item* RobotAI::GetItemInInventory(uint32 pmEntry)
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        NULL;
+    }
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
     {
-        Item* pItem = sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        Item* pItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
         if (pItem)
         {
             if (pItem->GetEntry() == pmEntry)
@@ -2589,11 +2661,11 @@ Item* RobotAI::GetItemInInventory(uint32 pmEntry)
 
     for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
     {
-        if (Bag* pBag = (Bag*)sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        if (Bag* pBag = (Bag*)me->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             for (uint32 j = 0; j < pBag->GetBagSize(); j++)
             {
-                Item* pItem = sourcePlayer->GetItemByPos(i, j);
+                Item* pItem = me->GetItemByPos(i, j);
                 if (pItem)
                 {
                     if (pItem->GetEntry() == pmEntry)
@@ -2610,49 +2682,60 @@ Item* RobotAI::GetItemInInventory(uint32 pmEntry)
 
 bool RobotAI::UseItem(Item* pmItem, Unit* pmTarget)
 {
-    if (sourcePlayer->CanUseItem(pmItem) != EQUIP_ERR_OK)
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
+    if (me->CanUseItem(pmItem) != EQUIP_ERR_OK)
     {
         return false;
     }
 
-    if (sourcePlayer->IsNonMeleeSpellCast(true))
+    if (me->IsNonMeleeSpellCast(true))
     {
         return false;
     }
     SpellCastTargets targets;
     targets.Update(pmTarget);
-    sourcePlayer->CastItemUseSpell(pmItem, targets, 0, 0);
+    me->CastItemUseSpell(pmItem, targets, 0, 0);
 
     std::ostringstream useRemarksStream;
     useRemarksStream << "Prepare to use item " << pmItem->GetTemplate()->Name1;
 
-    sourcePlayer->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
+    me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
     return true;
 }
 
 bool RobotAI::EquipNewItem(uint32 pmEntry)
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
+
     uint16 eDest;
-    InventoryResult tryEquipResult = sourcePlayer->CanEquipNewItem(NULL_SLOT, eDest, pmEntry, false);
+    InventoryResult tryEquipResult = me->CanEquipNewItem(NULL_SLOT, eDest, pmEntry, false);
     if (tryEquipResult == EQUIP_ERR_OK)
     {
         ItemPosCountVec sDest;
-        InventoryResult storeResult = sourcePlayer->CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, pmEntry, 1);
+        InventoryResult storeResult = me->CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, pmEntry, 1);
         if (storeResult == EQUIP_ERR_OK)
         {
-            Item* pItem = sourcePlayer->StoreNewItem(sDest, pmEntry, true, GenerateItemRandomPropertyId(pmEntry));
+            Item* pItem = me->StoreNewItem(sDest, pmEntry, true, GenerateItemRandomPropertyId(pmEntry));
             if (pItem)
             {
-                InventoryResult equipResult = sourcePlayer->CanEquipItem(NULL_SLOT, eDest, pItem, false);
+                InventoryResult equipResult = me->CanEquipItem(NULL_SLOT, eDest, pItem, false);
                 if (equipResult == EQUIP_ERR_OK)
                 {
-                    sourcePlayer->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
-                    sourcePlayer->EquipItem(eDest, pItem, true);
+                    me->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
+                    me->EquipItem(eDest, pItem, true);
                     return true;
                 }
                 else
                 {
-                    pItem->DestroyForPlayer(sourcePlayer);
+                    pItem->DestroyForPlayer(me);
                 }
             }
         }
@@ -2663,27 +2746,33 @@ bool RobotAI::EquipNewItem(uint32 pmEntry)
 
 bool RobotAI::EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot)
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
+
     uint16 eDest;
-    InventoryResult tryEquipResult = sourcePlayer->CanEquipNewItem(NULL_SLOT, eDest, pmEntry, false);
+    InventoryResult tryEquipResult = me->CanEquipNewItem(NULL_SLOT, eDest, pmEntry, false);
     if (tryEquipResult == EQUIP_ERR_OK)
     {
         ItemPosCountVec sDest;
-        InventoryResult storeResult = sourcePlayer->CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, pmEntry, 1);
+        InventoryResult storeResult = me->CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, pmEntry, 1);
         if (storeResult == EQUIP_ERR_OK)
         {
-            Item* pItem = sourcePlayer->StoreNewItem(sDest, pmEntry, true, GenerateItemRandomPropertyId(pmEntry));
+            Item* pItem = me->StoreNewItem(sDest, pmEntry, true, GenerateItemRandomPropertyId(pmEntry));
             if (pItem)
             {
-                InventoryResult equipResult = sourcePlayer->CanEquipItem(NULL_SLOT, eDest, pItem, false);
+                InventoryResult equipResult = me->CanEquipItem(NULL_SLOT, eDest, pItem, false);
                 if (equipResult == EQUIP_ERR_OK)
                 {
-                    sourcePlayer->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
-                    sourcePlayer->EquipItem(pmEquipSlot, pItem, true);
+                    me->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
+                    me->EquipItem(pmEquipSlot, pItem, true);
                     return true;
                 }
                 else
                 {
-                    pItem->DestroyForPlayer(sourcePlayer);
+                    pItem->DestroyForPlayer(me);
                 }
             }
         }
@@ -2694,43 +2783,55 @@ bool RobotAI::EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot)
 
 bool RobotAI::UnequipAll()
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
+
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
     {
-        if (Item* pItem = sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        if (Item* pItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             uint8 bagIndex = pItem->GetBagSlot();
             uint8 slot = pItem->GetSlot();
             uint8 dstBag = NULL_BAG;
             WorldPacket data(CMSG_AUTOSTORE_BAG_ITEM, 3);
             data << bagIndex << slot << dstBag;
-            sourcePlayer->GetSession()->HandleAutoStoreBagItemOpcode(data);
+            me->GetSession()->HandleAutoStoreBagItemOpcode(data);
         }
     }
-    sourcePlayer->UpdateAllStats();
+    me->UpdateAllStats();
     return true;
 }
 
 bool RobotAI::EquipAll()
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
+
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
-        if (Item* pItem = sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        if (Item* pItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             if (pItem)
             {
                 uint16 eDest;
-                InventoryResult equipResult = sourcePlayer->CanEquipItem(NULL_SLOT, eDest, pItem, false);
+                InventoryResult equipResult = me->CanEquipItem(NULL_SLOT, eDest, pItem, false);
                 if (equipResult == EQUIP_ERR_OK)
                 {
-                    sourcePlayer->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
-                    sourcePlayer->EquipItem(eDest, pItem, true);
+                    me->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
+                    me->EquipItem(eDest, pItem, true);
                 }
             }
         }
     }
     for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
     {
-        if (Bag* pBag = (Bag*)sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        if (Bag* pBag = (Bag*)me->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
             {
@@ -2739,39 +2840,45 @@ bool RobotAI::EquipAll()
                     if (pItem)
                     {
                         uint16 eDest;
-                        InventoryResult equipResult = sourcePlayer->CanEquipItem(NULL_SLOT, eDest, pItem, false);
+                        InventoryResult equipResult = me->CanEquipItem(NULL_SLOT, eDest, pItem, false);
                         if (equipResult == EQUIP_ERR_OK)
                         {
-                            sourcePlayer->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
-                            sourcePlayer->EquipItem(eDest, pItem, true);
+                            me->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
+                            me->EquipItem(eDest, pItem, true);
                         }
                     }
                 }
             }
         }
     }
-    sourcePlayer->UpdateAllStats();
+    me->UpdateAllStats();
 
     return true;
 }
 
 bool RobotAI::EquipItem(std::string pmEquipName)
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
+
     for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
-        if (Item* pItem = sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        if (Item* pItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             if (pItem)
             {
                 if (pItem->GetTemplate()->Name1 == pmEquipName)
                 {
                     uint16 eDest;
-                    InventoryResult equipResult = sourcePlayer->CanEquipItem(NULL_SLOT, eDest, pItem, false);
+                    InventoryResult equipResult = me->CanEquipItem(NULL_SLOT, eDest, pItem, false);
                     if (equipResult == EQUIP_ERR_OK)
                     {
-                        sourcePlayer->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
-                        sourcePlayer->EquipItem(eDest, pItem, true);
-                        sourcePlayer->UpdateAllStats();
+                        me->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
+                        me->EquipItem(eDest, pItem, true);
+                        me->UpdateAllStats();
                     }
                     return true;
                 }
@@ -2780,7 +2887,7 @@ bool RobotAI::EquipItem(std::string pmEquipName)
     }
     for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
     {
-        if (Bag* pBag = (Bag*)sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        if (Bag* pBag = (Bag*)me->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
             {
@@ -2791,12 +2898,12 @@ bool RobotAI::EquipItem(std::string pmEquipName)
                         if (pItem->GetTemplate()->Name1 == pmEquipName)
                         {
                             uint16 eDest;
-                            InventoryResult equipResult = sourcePlayer->CanEquipItem(NULL_SLOT, eDest, pItem, false);
+                            InventoryResult equipResult = me->CanEquipItem(NULL_SLOT, eDest, pItem, false);
                             if (equipResult == EQUIP_ERR_OK)
                             {
-                                sourcePlayer->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
-                                sourcePlayer->EquipItem(eDest, pItem, true);
-                                sourcePlayer->UpdateAllStats();
+                                me->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
+                                me->EquipItem(eDest, pItem, true);
+                                me->UpdateAllStats();
                             }
                             return true;
                         }
@@ -2811,9 +2918,15 @@ bool RobotAI::EquipItem(std::string pmEquipName)
 
 bool RobotAI::UnequipItem(std::string pmEquipName)
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
+
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
     {
-        if (Item* pItem = sourcePlayer->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        if (Item* pItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
         {
             if (pItem->GetTemplate()->Name1 == pmEquipName)
             {
@@ -2822,12 +2935,12 @@ bool RobotAI::UnequipItem(std::string pmEquipName)
                 uint8 dstBag = NULL_BAG;
                 WorldPacket data(CMSG_AUTOSTORE_BAG_ITEM, 3);
                 data << bagIndex << slot << dstBag;
-                sourcePlayer->GetSession()->HandleAutoStoreBagItemOpcode(data);
+                me->GetSession()->HandleAutoStoreBagItemOpcode(data);
 
                 return true;
             }
         }
-        sourcePlayer->UpdateAllStats();
+        me->UpdateAllStats();
     }
 
     return true;
@@ -2835,16 +2948,22 @@ bool RobotAI::UnequipItem(std::string pmEquipName)
 
 void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return;
+    }
+    Player* master = ObjectAccessor::FindPlayerByLowGUID(masterID);
     std::vector<std::string> commandVector = sRobotManager->SplitString(pmCMD, " ", true);
     std::string commandName = commandVector.at(0);
     if (commandName == "role")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -2856,20 +2975,20 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             std::string newRole = commandVector.at(1);
             if (newRole == "dps")
             {
-                sourcePlayer->groupRole = 0;
+                me->groupRole = 0;
             }
             else if (newRole == "tank")
             {
-                sourcePlayer->groupRole = 1;
+                me->groupRole = 1;
             }
             else if (newRole == "healer")
             {
-                sourcePlayer->groupRole = 2;
+                me->groupRole = 2;
             }
         }
 
         replyStream << "My group role is ";
-        switch (sourcePlayer->groupRole)
+        switch (me->groupRole)
         {
         case 0:
         {
@@ -2896,17 +3015,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "follow")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -2923,17 +3042,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "stay")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -2950,17 +3069,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "attack")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -2970,7 +3089,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         {
             st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
             st_Group_Normal->staying = false;
-            sourcePlayer->SetSelection(senderTarget->GetGUID());
+            me->SetSelection(senderTarget->GetGUID());
             WhisperTo("Attack your target", Language::LANG_UNIVERSAL, pmSender);
         }
         else
@@ -2980,17 +3099,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "rest")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -3007,17 +3126,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "eat")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -3034,17 +3153,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "drink")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -3061,16 +3180,16 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "who")
     {
-        WhisperTo(sRobotManager->characterTalentTabNameMap[sourcePlayer->GetClass()][characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
+        WhisperTo(sRobotManager->characterTalentTabNameMap[me->GetClass()][characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
     }
     else if (commandName == "assemble")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -3080,9 +3199,9 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I am coming", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (sourcePlayer->IsAlive())
+        if (me->IsAlive())
         {
-            if (sourcePlayer->GetDistance(pmSender) < 40)
+            if (me->GetDistance(pmSender) < 40)
             {
                 st_Group_Normal->assembleDelay = 5 * TimeConstants::IN_MILLISECONDS;
                 WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, pmSender);
@@ -3101,29 +3220,29 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "tank")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (sourcePlayer->groupRole == 1)
+        if (me->groupRole == 1)
         {
             Unit* senderTarget = pmSender->GetSelectedUnit();
             if (st_Group_Normal->Tank(senderTarget))
             {
                 st_Group_Normal->staying = false;
                 st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
-                sourcePlayer->SetSelection(senderTarget->GetGUID());
+                me->SetSelection(senderTarget->GetGUID());
                 WhisperTo("Tank your target", Language::LANG_UNIVERSAL, pmSender);
             }
             else
@@ -3135,28 +3254,28 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     else if (commandName == "prepare")
     {
         Prepare();
-        sourcePlayer->Say("I am prepared", Language::LANG_UNIVERSAL);
+        me->Say("I am prepared", Language::LANG_UNIVERSAL);
     }
     else if (commandName == "growl")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
         if (commandVector.size() > 1)
         {
-            if (sourcePlayer->GetClass() != Classes::CLASS_HUNTER)
+            if (me->GetClass() != Classes::CLASS_HUNTER)
             {
                 WhisperTo("I am not hunter", Language::LANG_UNIVERSAL, pmSender);
                 return;
@@ -3164,7 +3283,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             std::string growlState = commandVector.at(1);
             if (growlState == "on")
             {
-                Pet* checkPet = sourcePlayer->GetPet();
+                Pet* checkPet = me->GetPet();
                 if (!checkPet)
                 {
                     WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, pmSender);
@@ -3192,7 +3311,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             }
             else if (growlState == "off")
             {
-                Pet* checkPet = sourcePlayer->GetPet();
+                Pet* checkPet = me->GetPet();
                 if (!checkPet)
                 {
                     WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, pmSender);
@@ -3232,17 +3351,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "strip")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -3252,17 +3371,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "unequip")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -3293,17 +3412,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "equip")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -3334,17 +3453,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "cast")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -3382,17 +3501,17 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
     }
     else if (commandName == "cancel")
     {
-        if (!masterPlayer)
+        if (!master)
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (pmSender->GetGUID() != masterPlayer->GetGUID())
+        if (pmSender->GetGUID() != master->GetGUID())
         {
             WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (!sourcePlayer->IsAlive())
+        if (!me->IsAlive())
         {
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
@@ -3446,7 +3565,12 @@ bool RobotAI::SpellValid(uint32 pmSpellID)
     {
         return false;
     }
-    if (sourcePlayer->GetSpellHistory()->HasCooldown(pmSpellID))
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
+    if (me->GetSpellHistory()->HasCooldown(pmSpellID))
     {
         return false;
     }
@@ -3455,10 +3579,15 @@ bool RobotAI::SpellValid(uint32 pmSpellID)
 
 bool RobotAI::CancelAura(std::string pmSpellName)
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return false;
+    }
     std::set<uint32> spellIDSet = sRobotManager->spellNameEntryMap[pmSpellName];
     for (std::set<uint32>::iterator it = spellIDSet.begin(); it != spellIDSet.end(); it++)
     {
-        if (sourcePlayer->HasAura((*it)))
+        if (me->HasAura((*it)))
         {
             CancelAura((*it));
             return true;
@@ -3474,15 +3603,26 @@ void RobotAI::CancelAura(uint32 pmSpellID)
     {
         return;
     }
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return;
+    }
     WorldPacket data(CMSG_CANCEL_AURA, 4);
     data << pmSpellID;
-    sourcePlayer->GetSession()->HandleCancelAuraOpcode(data);
+    me->GetSession()->HandleCancelAuraOpcode(data);
 }
 
 void RobotAI::ClearShapeshift()
 {
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    if (!me)
+    {
+        return;
+    }
+
     uint32 spellID = 0;
-    switch (sourcePlayer->GetShapeshiftForm())
+    switch (me->GetShapeshiftForm())
     {
     case ShapeshiftForm::FORM_NONE:
     {
@@ -3540,8 +3680,4 @@ void RobotAI::Logout()
             }
         }
     }
-
-
-    sourceSession = NULL;
-    sourcePlayer = NULL;
 }

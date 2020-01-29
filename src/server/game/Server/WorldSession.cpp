@@ -479,7 +479,7 @@ void WorldSession::LogoutPlayer(bool save)
     if (_player)
     {
         // EJ auto remove from group when logging out
-        _player->RemoveFromGroup();
+        //_player->RemoveFromGroup();
 
         if (ObjectGuid lguid = _player->GetLootGUID())
             DoLootRelease(lguid);

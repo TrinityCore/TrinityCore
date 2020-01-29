@@ -20,7 +20,11 @@ bool Script_Warrior::HealMe()
 
 bool Script_Warrior::Tank(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -96,7 +100,11 @@ bool Script_Warrior::DPS(Unit* pmTarget)
 
 bool Script_Warrior::DPS_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -158,7 +166,11 @@ bool Script_Warrior::Attack(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -214,7 +226,11 @@ bool Script_Warrior::Attack_Common(Unit* pmTarget)
 
 bool Script_Warrior::Buff(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     switch (me->groupRole)
     {
         //case 1:

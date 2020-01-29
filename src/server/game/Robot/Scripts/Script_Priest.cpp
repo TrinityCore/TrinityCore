@@ -15,7 +15,11 @@ Script_Priest::Script_Priest(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
 
 bool Script_Priest::HealMe()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     float healthPCT = me->GetHealthPct();
     if (healthPCT < 90)
     {
@@ -49,7 +53,11 @@ bool Script_Priest::Tank(Unit* pmTarget)
 
 bool Script_Priest::Healer(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -96,7 +104,11 @@ bool Script_Priest::DPS(Unit* pmTarget)
 
 bool Script_Priest::DPS_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -145,7 +157,11 @@ bool Script_Priest::Attack(Unit* pmTarget)
 
 bool Script_Priest::Attack_Common(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -189,7 +205,11 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
 
 bool Script_Priest::Buff(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -199,19 +219,10 @@ bool Script_Priest::Buff(Unit* pmTarget)
     {
         return false;
     }
-    if (!pmTarget->IsAlive())
+
+    if (sourceAI->CastSpell(pmTarget, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
     {
-        if (sourceAI->CastSpell(pmTarget, "Resurrection", PRIEST_RANGE_DISTANCE))
-        {
-            return true;
-        }
-    }
-    else
-    {
-        if (sourceAI->CastSpell(pmTarget, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
-        {
-            return true;
-        }
+        return true;
     }
 
     return false;

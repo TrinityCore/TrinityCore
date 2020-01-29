@@ -160,8 +160,13 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
 
         // EJ robot group recheck
         if (invitedPlayer->GetSession()->rai)
-        {            
-            if (!invitedPlayer->IsInSameGroupWith(sRobotManager->GetMaster(invitedPlayer)))
+        {
+            Player* invitedMaster = sRobotManager->GetMaster(invitedPlayer);
+            if (!invitedMaster)
+            {
+                invitedPlayer->RemoveFromGroup();
+            }
+            else if (!invitedPlayer->IsInSameGroupWith(invitedMaster))
             {
                 invitedPlayer->RemoveFromGroup();
             }

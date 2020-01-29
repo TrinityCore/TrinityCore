@@ -40,7 +40,11 @@ bool Script_Druid::DPS(Unit* pmTarget)
 
 bool Script_Druid::DPS_Balance(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -105,7 +109,11 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
 
 bool Script_Druid::DPS_Feral(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -199,7 +207,11 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
 
 bool Script_Druid::Tank(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -421,7 +433,11 @@ bool Script_Druid::Attack(Unit* pmTarget)
 
 bool Script_Druid::Attack_Balance(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -486,7 +502,11 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
 
 bool Script_Druid::Attack_Feral(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     switch (me->GetShapeshiftForm())
     {
     case ShapeshiftForm::FORM_NONE:
@@ -532,7 +552,11 @@ bool Script_Druid::Attack_Feral(Unit* pmTarget)
 
 bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -689,7 +713,11 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
 
 bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
@@ -794,7 +822,11 @@ bool Script_Druid::Healer(Unit* pmTarget)
     {
         return false;
     }
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
     if (targetDistance > 200)
     {
@@ -872,7 +904,11 @@ bool Script_Druid::Healer(Unit* pmTarget)
 
 bool Script_Druid::HealMe()
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     float healthPCT = me->GetHealthPct();
     if (healthPCT < 20)
     {
@@ -921,7 +957,11 @@ bool Script_Druid::HealMe()
 
 bool Script_Druid::Buff(Unit* pmTarget)
 {
-    Player* me = sourceAI->sourcePlayer;
+    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    if (!me)
+    {
+        return false;
+    }
     if (!pmTarget)
     {
         return false;
