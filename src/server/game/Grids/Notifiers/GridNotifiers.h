@@ -1196,6 +1196,11 @@ namespace Trinity
                 if (_useLOS && !u->IsWithinLOSInMap(_me))
                     return false;
 
+                // pets in aggressive do not attack civilians
+                if (Creature* c = u->ToCreature())
+                    if (c->IsCivilian())
+                        return false;
+
                 return true;
             }
 
