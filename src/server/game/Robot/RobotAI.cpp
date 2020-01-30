@@ -2336,8 +2336,9 @@ void RobotAI::Update(uint32 pmDiff)
             {
                 onlineDelay = 0;
                 robotState = RobotState::RobotState_CheckAccount;
-            }
-            break;
+                allDelay = 5 * TimeConstants::IN_MILLISECONDS;
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s is ready to go online.", accountName);
+            }            
         }
         else if (checkDelay > 0)
         {
@@ -2349,8 +2350,9 @@ void RobotAI::Update(uint32 pmDiff)
                 if (sRobotConfig->onlineLevel == targetLevel)
                 {
                     levelPlayerOnline = true;
+                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s is at online level.", accountName);
                 }
-                else
+                if (!levelPlayerOnline)
                 {
                     std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
                     for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
@@ -2368,6 +2370,7 @@ void RobotAI::Update(uint32 pmDiff)
                                         if (eachPlayerLevel == targetLevel)
                                         {
                                             levelPlayerOnline = true;
+                                            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s is same level as active player.", accountName);
                                             break;
                                         }
                                     }
@@ -2383,7 +2386,7 @@ void RobotAI::Update(uint32 pmDiff)
                     // EJ debug 
                     //onlineDelay = 5 * TimeConstants::IN_MILLISECONDS;
 
-                    break;
+                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s online delay is set to %d.", accountName, onlineDelay);
                 }
             }
         }
@@ -2393,15 +2396,17 @@ void RobotAI::Update(uint32 pmDiff)
     {
         allDelay -= pmDiff;
         if (allDelay <= 0)
-        {
-            allDelay = 0;
-            accountID = sRobotManager->CheckRobotAccount(accountName);
+        {            
+            allDelay = 5 * TimeConstants::IN_MILLISECONDS;
+            accountID = sRobotManager->CheckRobotAccount(accountName);            
             if (accountID > 0)
             {
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s account ready.", accountName);
                 robotState = RobotState::RobotState_CheckCharacter;
             }
             else
             {
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s account not ready.", accountName);
                 robotState = RobotState::RobotState_CreateAccount;
             }
         }
@@ -2409,14 +2414,18 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_CreateAccount:
     {
-        if (sRobotManager->CreateRobotAccount(accountName))
-        {
-            robotState = RobotState::RobotState_CheckAccount;
+        allDelay -= pmDiff;
+        if (allDelay <= 0)
+        {            
             allDelay = 5 * TimeConstants::IN_MILLISECONDS;
-        }
-        else
-        {
-            robotState = RobotState::RobotState_None;
+            if (sRobotManager->CreateRobotAccount(accountName))
+            {
+                robotState = RobotState::RobotState_CheckAccount;                
+            }
+            else
+            {
+                robotState = RobotState::RobotState_None;
+            }
         }
         break;
     }
@@ -2424,16 +2433,17 @@ void RobotAI::Update(uint32 pmDiff)
     {
         allDelay -= pmDiff;
         if (allDelay <= 0)
-        {
-            allDelay = 0;
-            characterID = sRobotManager->CheckAccountCharacter(accountID);
+        {            
+            allDelay = 5 * TimeConstants::IN_MILLISECONDS;
+            characterID = sRobotManager->CheckAccountCharacter(accountID);            
             if (characterID > 0)
             {
-                robotState = RobotState::RobotState_DoLogin;
-                allDelay = 5 * TimeConstants::IN_MILLISECONDS;
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s character ready.", accountName);
+                robotState = RobotState::RobotState_DoLogin;                
             }
             else
             {
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s character not ready.", accountName);
                 robotState = RobotState::RobotState_CreateCharacter;
             }
         }
@@ -2441,34 +2451,42 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_CreateCharacter:
     {
-        if (sRobotManager->CreateRobotCharacter(accountID, targetClass, targetRace))
-        {
-            robotState = RobotState::RobotState_CheckCharacter;
+        allDelay -= pmDiff;
+        if (allDelay <= 0)
+        {            
             allDelay = 5 * TimeConstants::IN_MILLISECONDS;
-        }
-        else
-        {
-            robotState = RobotState::RobotState_None;
+            if (sRobotManager->CreateRobotCharacter(accountID, targetClass, targetRace))
+            {
+                robotState = RobotState::RobotState_CheckCharacter;                
+            }
+            else
+            {
+                robotState = RobotState::RobotState_None;
+            }
         }
         break;
     }
     case RobotState_CheckLogin:
     {
-        Player* me = sRobotManager->CheckLogin(accountID, characterID);
-        if (me)
+        allDelay -= pmDiff;
+        if (allDelay <= 0)
         {
-            WorldSession* mySession = me->GetSession();
-            mySession->rai = this;
-            InitializeCharacter();
-            me->SetPvP(true);
-            robotState = RobotState::RobotState_Online;
-            checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-            allDelay = 0;
-        }
-        else
-        {
-            robotState = RobotState::RobotState_DoLogin;
-            allDelay = 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+            allDelay = 10 * TimeConstants::IN_MILLISECONDS;
+            Player* me = sRobotManager->CheckLogin(accountID, characterID);
+            if (me)
+            {
+                WorldSession* mySession = me->GetSession();
+                mySession->rai = this;
+                InitializeCharacter();
+                me->SetPvP(true);
+                robotState = RobotState::RobotState_Online;
+                checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);                
+            }
+            else
+            {
+                robotState = RobotState::RobotState_DoLogin;
+                allDelay = 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+            }
         }
         break;
     }
@@ -2477,10 +2495,9 @@ void RobotAI::Update(uint32 pmDiff)
         allDelay -= pmDiff;
         if (allDelay <= 0)
         {
-            allDelay = 0;
-            sRobotManager->LoginRobot(accountID, characterID);
-            robotState = RobotState::RobotState_CheckLogin;
             allDelay = 10 * TimeConstants::IN_MILLISECONDS;
+            sRobotManager->LoginRobot(accountID, characterID);
+            robotState = RobotState::RobotState_CheckLogin;            
         }
         break;
     }
@@ -2492,6 +2509,28 @@ void RobotAI::Update(uint32 pmDiff)
             robotState = RobotState::RobotState_None;
             break;
         }
+        if (me->IsBeingTeleportedNear())
+        {
+            WorldPacket data(MSG_MOVE_TELEPORT_ACK, 10);
+            data << me->GetGUID().WriteAsPacked();
+            data << uint32(0) << uint32(0);
+            me->GetSession()->HandleMoveTeleportAck(data);
+        }
+        else if (me->IsBeingTeleportedFar())
+        {
+            me->GetSession()->HandleMoveWorldportAck();
+        }
+        else
+        {
+            if (strategiesMap["solo_normal"])
+            {
+                st_Solo_Normal->Update(pmDiff);
+            }
+            if (strategiesMap["group_normal"])
+            {
+                st_Group_Normal->Update(pmDiff);
+            }
+        }
         if (offlineDelay > 0)
         {
             offlineDelay -= pmDiff;
@@ -2499,8 +2538,7 @@ void RobotAI::Update(uint32 pmDiff)
             {
                 offlineDelay = 0;
                 robotState = RobotState::RobotState_DoLogoff;
-                allDelay = 5 * TimeConstants::IN_MILLISECONDS;
-                break;
+                allDelay = 5 * TimeConstants::IN_MILLISECONDS;                
             }
         }
         else if (checkDelay > 0)
@@ -2570,31 +2608,8 @@ void RobotAI::Update(uint32 pmDiff)
                 if (!levelPlayerOnline)
                 {
                     offlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-                }
-            }
-        }
-        if (me)
-        {
-            if (me->IsBeingTeleportedNear())
-            {
-                WorldPacket data(MSG_MOVE_TELEPORT_ACK, 10);
-                data << me->GetGUID().WriteAsPacked();
-                data << uint32(0) << uint32(0);
-                me->GetSession()->HandleMoveTeleportAck(data);
-            }
-            else if (me->IsBeingTeleportedFar())
-            {
-                me->GetSession()->HandleMoveWorldportAck();
-            }
-            else
-            {
-                if (strategiesMap["solo_normal"])
-                {
-                    st_Solo_Normal->Update(pmDiff);
-                }
-                if (strategiesMap["group_normal"])
-                {
-                    st_Group_Normal->Update(pmDiff);
+
+                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s offline delay is set to %d.", accountName, offlineDelay);
                 }
             }
         }
@@ -2605,7 +2620,7 @@ void RobotAI::Update(uint32 pmDiff)
         allDelay -= pmDiff;
         if (allDelay <= 0)
         {
-            allDelay = 0;
+            allDelay = 5 * TimeConstants::IN_MILLISECONDS;
             ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, characterID);
             Player* checkP = ObjectAccessor::FindPlayer(playerGUID);
             if (checkP)
