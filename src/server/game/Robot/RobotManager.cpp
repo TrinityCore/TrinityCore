@@ -543,6 +543,7 @@ bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterCl
         newPlayer->GetMotionMaster()->Initialize();
         newPlayer->setCinematic(2);
         newPlayer->SetAtLoginFlag(AT_LOGIN_NONE);
+        newPlayer->SetPvP(true);
         newPlayer->SaveToDB(true);
         sWorld->AddSession(eachSession);
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create character %d - %s for account %d", newPlayer->GetGUID().GetCounter(), currentName.c_str(), pmAccountID);

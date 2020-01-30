@@ -1765,6 +1765,10 @@ void RobotAI::InitializeCharacter()
     }
 
     me->UpdateWeaponsSkillsToMaxSkillsForLevel();
+    if (!me->IsPvP())
+    {
+        me->SetPvP(true);
+    }
 }
 
 void RobotAI::Prepare()

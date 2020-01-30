@@ -651,6 +651,16 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.flags_extra = fields[61].GetUInt32();
     creatureTemplate.ScriptID = GetScriptId(fields[62].GetString());
 
+    // EJ rare exp
+    if (creatureTemplate.rank == 2)
+    {
+        creatureTemplate.ModExperience = 20.0f;
+    }
+    else if (creatureTemplate.rank == 4)
+    {
+        creatureTemplate.ModExperience = 10.0f;
+    }
+
     // EJ mod
     if (sJokerConfig->enable)
     {
@@ -2278,6 +2288,13 @@ void ObjectMgr::LoadCreatures()
         data.displayid      = fields[7].GetUInt32();
         data.equipmentId    = fields[8].GetInt8();
         data.spawntimesecs  = fields[9].GetUInt32();
+
+        // EJ rare spawn time
+        if (cInfo->rank == 2 || cInfo->rank == 4)
+        {
+            data.spawntimesecs = data.spawntimesecs * 4;
+        }
+
         data.spawndist      = fields[10].GetFloat();
         data.currentwaypoint= fields[11].GetUInt32();
         data.curhealth      = fields[12].GetUInt32();
