@@ -373,16 +373,32 @@ void ObjectMgr::LoadCreatureTemplates()
     //  a.find    "\/\/[ ]+
     //  b.replace "\r\n\t\t\/\/ 
     
-    // EJ mod temp instance_encounters    
+    // EJ mod temp instance_encounters and unique elite 
     ieSet.clear();
+    ueSet.clear();
     QueryResult ieQR = WorldDatabase.Query("SELECT creditEntry FROM instance_encounters");
     if (ieQR)
     {
         do
         {
             Field* ieField = ieQR->Fetch();
-            uint32 eachEntry = ieField[0].GetUInt32(); ieSet.insert(eachEntry);
+            uint32 eachEntry = ieField[0].GetUInt32();
+            ieSet.insert(eachEntry);
         } while (ieQR->NextRow());
+    }
+    QueryResult ccQR = WorldDatabase.Query("SELECT id, count(*) cc FROM creature where id in (SELECT entry FROM creature_template where rank = 1) group by id");
+    if (ccQR)
+    {
+        do
+        {
+            Field* ccField = ccQR->Fetch();
+            uint32 eachEntry = ccField[0].GetUInt32();
+            uint32 eachCount = ccField[1].GetUInt32();
+            if (eachCount == 1)
+            {
+                ueSet.insert(eachEntry);
+            }
+        } while (ccQR->NextRow());
     }
 
     QueryResult result = WorldDatabase.Query(
@@ -646,7 +662,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
                 {
                     creatureTemplate.ModDamage = sJokerConfig->InstanceEncounterDamageMod_Warrior;
                 }
-                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_PALADIN )
+                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_PALADIN)
                 {
                     creatureTemplate.ModDamage = sJokerConfig->InstanceEncounterDamageMod_Paladin;
                 }
@@ -659,25 +675,55 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
             {
                 if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_WARRIOR || creatureTemplate.unit_class == UnitClass::UNIT_CLASS_ROGUE)
                 {
-                    if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod_Warrior)
+                    if (sObjectMgr->ueSet.find(creatureTemplate.Entry) != sObjectMgr->ueSet.end())
                     {
-                        creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod_Warrior;
-                    }                    
+                        if (creatureTemplate.ModDamage < sJokerConfig->UniqueEliteDamageMod_Warrior)
+                        {
+                            creatureTemplate.ModDamage = sJokerConfig->UniqueEliteDamageMod_Warrior;
+                        }
+                    }
+                    else
+                    {
+                        if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod_Warrior)
+                        {
+                            creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod_Warrior;
+                        }
+                    }
                 }
                 else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_PALADIN)
                 {
-                    if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod_Paladin)
+                    if (sObjectMgr->ueSet.find(creatureTemplate.Entry) != sObjectMgr->ueSet.end())
                     {
-                        creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod_Paladin;
+                        if (creatureTemplate.ModDamage < sJokerConfig->UniqueEliteDamageMod_Paladin)
+                        {
+                            creatureTemplate.ModDamage = sJokerConfig->UniqueEliteDamageMod_Paladin;
+                        }
+                    }
+                    else
+                    {
+                        if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod_Paladin)
+                        {
+                            creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod_Paladin;
+                        }
                     }
                 }
                 else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_MAGE)
                 {
-                    if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod_Mage)
+                    if (sObjectMgr->ueSet.find(creatureTemplate.Entry) != sObjectMgr->ueSet.end())
                     {
-                        creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod_Mage;
+                        if (creatureTemplate.ModDamage < sJokerConfig->UniqueEliteDamageMod_Mage)
+                        {
+                            creatureTemplate.ModDamage = sJokerConfig->UniqueEliteDamageMod_Mage;
+                        }
                     }
-                }              
+                    else
+                    {
+                        if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod_Mage)
+                        {
+                            creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod_Mage;
+                        }
+                    }
+                }
             }
             else if (creatureTemplate.rank == 2)
             {
@@ -728,7 +774,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
                 }
             }
         }
-    }    
+    }
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()

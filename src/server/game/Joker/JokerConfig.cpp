@@ -171,6 +171,9 @@ bool JokerConfig::StartJokerSystem()
     EliteDamageMod_Warrior = GetFloatDefault("EliteDamageMod_Warrior", 1);
     EliteDamageMod_Paladin = GetFloatDefault("EliteDamageMod_Paladin", 1);
     EliteDamageMod_Mage = GetFloatDefault("EliteDamageMod_Mage", 1);
+    UniqueEliteDamageMod_Warrior = GetFloatDefault("UniqueEliteDamageMod_Warrior", 1);
+    UniqueEliteDamageMod_Paladin = GetFloatDefault("UniqueEliteDamageMod_Paladin", 1);
+    UniqueEliteDamageMod_Mage = GetFloatDefault("UniqueEliteDamageMod_Mage", 1);
     RareDamageMod_Warrior = GetFloatDefault("RareDamageMod_Warrior", 1);
     RareDamageMod_Paladin = GetFloatDefault("RareDamageMod_Paladin", 1);
     RareDamageMod_Mage = GetFloatDefault("RareDamageMod_Mage", 1);
@@ -184,6 +187,9 @@ bool JokerConfig::StartJokerSystem()
     EliteAPMod_Warrior = GetFloatDefault("EliteAPMod_Warrior", 1);
     EliteAPMod_Paladin = GetFloatDefault("EliteAPMod_Paladin", 1);
     EliteAPMod_Mage = GetFloatDefault("EliteAPMod_Mage", 1);
+    UniqueEliteAPMod_Warrior = GetFloatDefault("UniqueEliteAPMod_Warrior", 1);
+    UniqueEliteAPMod_Paladin = GetFloatDefault("UniqueEliteAPMod_Paladin", 1);
+    UniqueEliteAPMod_Mage = GetFloatDefault("UniqueEliteAPMod_Mage", 1);
     RareAPMod_Warrior = GetFloatDefault("RareAPMod_Warrior", 1);
     RareAPMod_Paladin = GetFloatDefault("RareAPMod_Paladin", 1);
     RareAPMod_Mage = GetFloatDefault("RareAPMod_Mage", 1);

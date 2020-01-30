@@ -46,6 +46,9 @@ public :
     float EliteDamageMod_Warrior;
     float EliteDamageMod_Paladin;
     float EliteDamageMod_Mage;
+    float UniqueEliteDamageMod_Warrior;
+    float UniqueEliteDamageMod_Paladin;
+    float UniqueEliteDamageMod_Mage;
     float RareDamageMod_Warrior;
     float RareDamageMod_Paladin;
     float RareDamageMod_Mage;
@@ -59,6 +62,9 @@ public :
     float EliteAPMod_Warrior;
     float EliteAPMod_Paladin;
     float EliteAPMod_Mage;
+    float UniqueEliteAPMod_Warrior;
+    float UniqueEliteAPMod_Paladin;
+    float UniqueEliteAPMod_Mage;
     float RareAPMod_Warrior;
     float RareAPMod_Paladin;
     float RareAPMod_Mage;

@@ -1474,21 +1474,33 @@ void Creature::UpdateLevelDependantStats()
             {
                 if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
                 {
-                    if (checkAP < checkAP *  sJokerConfig->EliteAPMod_Warrior)
+                    if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
+                    {
+                        checkAP = checkAP * sJokerConfig->UniqueEliteAPMod_Mage;
+                    }
+                    else
                     {
                         checkAP = checkAP * sJokerConfig->EliteAPMod_Warrior;
                     }
                 }
                 else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
                 {
-                    if (checkAP < checkAP *  sJokerConfig->EliteAPMod_Paladin)
+                    if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
+                    {
+                        checkAP = checkAP * sJokerConfig->UniqueEliteAPMod_Paladin;
+                    }
+                    else
                     {
                         checkAP = checkAP * sJokerConfig->EliteAPMod_Paladin;
                     }
                 }
                 else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
                 {
-                    if (checkAP < checkAP *  sJokerConfig->EliteAPMod_Mage)
+                    if (sObjectMgr->ueSet.find(cInfo->Entry) != sObjectMgr->ueSet.end())
+                    {
+                        checkAP = checkAP * sJokerConfig->UniqueEliteAPMod_Mage;
+                    }
+                    else
                     {
                         checkAP = checkAP * sJokerConfig->EliteAPMod_Mage;
                     }
@@ -1498,48 +1510,30 @@ void Creature::UpdateLevelDependantStats()
             {
                 if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
                 {
-                    if (checkAP < checkAP *  sJokerConfig->RareEliteAPMod_Warrior)
-                    {
-                        checkAP = checkAP * sJokerConfig->RareEliteAPMod_Warrior;
-                    }
+                    checkAP = checkAP * sJokerConfig->RareEliteAPMod_Warrior;
                 }
                 else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
                 {
-                    if (checkAP < checkAP *  sJokerConfig->RareEliteAPMod_Paladin)
-                    {
-                        checkAP = checkAP * sJokerConfig->RareEliteAPMod_Paladin;
-                    }
+                    checkAP = checkAP * sJokerConfig->RareEliteAPMod_Paladin;
                 }
                 else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
                 {
-                    if (checkAP < checkAP *  sJokerConfig->RareEliteAPMod_Mage)
-                    {
-                        checkAP = checkAP * sJokerConfig->RareEliteAPMod_Mage;
-                    }
+                    checkAP = checkAP * sJokerConfig->RareEliteAPMod_Mage;
                 }
             }
             else if (cInfo->rank == 4)
             {
                 if (cInfo->unit_class == UnitClass::UNIT_CLASS_WARRIOR || cInfo->unit_class == UnitClass::UNIT_CLASS_ROGUE)
                 {
-                    if (checkAP < checkAP *  sJokerConfig->RareAPMod_Warrior)
-                    {
-                        checkAP = checkAP * sJokerConfig->RareAPMod_Warrior;
-                    }
+                    checkAP = checkAP * sJokerConfig->RareAPMod_Warrior;
                 }
                 else if (cInfo->unit_class == UnitClass::UNIT_CLASS_PALADIN)
                 {
-                    if (checkAP < checkAP * sJokerConfig->RareAPMod_Paladin)
-                    {
-                        checkAP = checkAP * sJokerConfig->RareAPMod_Paladin;
-                    }
+                    checkAP = checkAP * sJokerConfig->RareAPMod_Paladin;
                 }
                 else if (cInfo->unit_class == UnitClass::UNIT_CLASS_MAGE)
                 {
-                    if (checkAP < checkAP *  sJokerConfig->RareAPMod_Mage)
-                    {
-                        checkAP = checkAP * sJokerConfig->RareAPMod_Mage;
-                    }
+                    checkAP = checkAP * sJokerConfig->RareAPMod_Mage;
                 }
             }
 
