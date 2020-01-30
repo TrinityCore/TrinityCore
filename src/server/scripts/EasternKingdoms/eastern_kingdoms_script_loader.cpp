@@ -241,6 +241,7 @@ void AddSC_tirisfal_glades();
 void AddSC_tol_barad();
 void AddSC_undercity();
 void AddSC_western_plaguelands();
+void AddSC_westfall();
 void AddSC_wetlands();
 
 // The name of this function should match:
@@ -472,5 +473,6 @@ void AddEasternKingdomsScripts()
     AddSC_tol_barad();
     AddSC_undercity();
     AddSC_western_plaguelands();
+    AddSC_westfall();
     AddSC_wetlands();
 }
