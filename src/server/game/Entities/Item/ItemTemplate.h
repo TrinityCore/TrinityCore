@@ -98,15 +98,14 @@ enum ItemSpelltriggerType
 
 enum ItemBondingType
 {
-    NO_BIND                                     = 0,
-    BIND_WHEN_PICKED_UP                         = 1,
-    BIND_WHEN_EQUIPED                           = 2,
-    BIND_WHEN_USE                               = 3,
-    BIND_QUEST_ITEM                             = 4,
-    BIND_QUEST_ITEM1                            = 5         // not used in game
+    BIND_NONE                                   = 0,
+    BIND_ON_ACQUIRE                             = 1,
+    BIND_ON_EQUIP                               = 2,
+    BIND_ON_USE                                 = 3,
+    BIND_QUEST                                  = 4,
 };
 
-#define MAX_BIND_TYPE                             6
+#define MAX_BIND_TYPE                             5
 
 /* /// @todo: Requiring actual cases in which using (an) item isn't allowed while shapeshifted. Else, this flag would need an implementation.
     ITEM_FLAG_USE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms */
@@ -224,7 +223,7 @@ enum ItemFlags2 : uint32
 
 enum ItemFlagsCustom
 {
-    ITEM_FLAGS_CU_DURATION_REAL_TIME    = 0x0001,   // Item duration will tick even if player is offline
+    ITEM_FLAGS_CU_UNUSED                = 0x0001,
     ITEM_FLAGS_CU_IGNORE_QUEST_STATUS   = 0x0002,   // No quest status will be checked when this item drops
     ITEM_FLAGS_CU_FOLLOW_LOOT_RULES     = 0x0004    // Item will always follow group/master/need before greed looting rules
 };
