@@ -500,8 +500,6 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 
                 for (uint8 i = 0; i < 10; ++i)
                     caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
-
-                caster->DespawnOrUnsummon(4000);
             }
 
             void Register() override
