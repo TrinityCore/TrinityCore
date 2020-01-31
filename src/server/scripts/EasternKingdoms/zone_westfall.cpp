@@ -153,10 +153,27 @@ class spell_westfall_wake_harvest_golem : public SpellScript
     }
 };
 
+class spell_westfall_quest_credit_jangolode_event : public SpellScript
+{
+    PrepareSpellScript(spell_westfall_quest_credit_jangolode_event);
+
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->ExitVehicle();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_westfall_quest_credit_jangolode_event::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_westfall()
 {
     RegisterSpellScript(spell_westfall_unbound_energy);
     RegisterCreatureAI(npc_westfall_overloaded_harvest_golem);
     RegisterAuraScript(spell_westfall_reaping_blows);
     RegisterSpellScript(spell_westfall_wake_harvest_golem);
+    RegisterSpellScript(spell_westfall_quest_credit_jangolode_event);
 }
