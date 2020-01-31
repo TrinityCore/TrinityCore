@@ -202,6 +202,11 @@ static bool ShouldFollowOnSpawn(SummonPropertiesEntry const* properties)
         case SUMMON_CATEGORY_UNK:
             if (properties->Flags & 512)
                 return true;
+
+            // Guides. They have their own movement
+            if (properties->Flags & SUMMON_PROP_FLAG_UNK14)
+                return false;
+
             switch (properties->Title)
             {
                 case SUMMON_TYPE_PET:
