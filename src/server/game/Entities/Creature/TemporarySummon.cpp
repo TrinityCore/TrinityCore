@@ -182,8 +182,7 @@ void TempSummon::InitStats(uint32 duration)
 
     if (owner)
     {
-        int32 slot = m_Properties->Slot;
-        if (slot > 0)
+        if (int32 slot = m_Properties->Slot)
         {
             if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
             {
@@ -193,11 +192,20 @@ void TempSummon::InitStats(uint32 duration)
             }
             owner->m_SummonSlot[slot] = GetGUID();
         }
+
+        if (m_Properties->Control == SUMMON_CATEGORY_ALLY)
+        {
+            if (!m_Properties->Faction)
+                SetFaction(owner->GetFaction());
+
+            SetOwnerGUID(owner->GetGUID());
+        }
     }
 
+    // If property has a faction defined, use it. Otherwise fallback to owner faction whe summon is a vehicle
     if (m_Properties->Faction)
         SetFaction(m_Properties->Faction);
-    else if (IsVehicle() && owner) // properties should be vehicle
+    else if (IsVehicle() && owner)
         SetFaction(owner->GetFaction());
 }
 

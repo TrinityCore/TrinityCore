@@ -2125,16 +2125,13 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
         }
     }
 
-    // Set the summon to the summoner's phase
+    // Inherit summoner's Phaseshift
     if (summoner)
         PhasingHandler::InheritPhaseShift(summon, summoner);
 
     summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, spellId);
-
     summon->SetHomePosition(pos);
-
     summon->InitStats(duration);
-
     summon->SetVisibleBySummonerOnly(visibleBySummonerOnly);
 
     AddToMap(summon->ToCreature());

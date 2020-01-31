@@ -1935,8 +1935,6 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 {
                     float radius = m_spellInfo->Effects[effIndex].CalcRadius();
 
-                    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
-
                     for (uint32 count = 0; count < numSummons; ++count)
                     {
                         Position pos;
@@ -1946,16 +1944,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             // randomize position for multiple summons
                             pos = m_caster->GetRandomPoint(*destTarget, radius);
 
-                        summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration, 0, personalSpawn);
+                        m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, personalSpawn);
                         if (!summon)
                             continue;
-
-                        if (properties->Control == SUMMON_CATEGORY_ALLY)
-                        {
-                            summon->SetOwnerGUID(m_originalCaster->GetGUID());
-                            summon->SetFaction(m_originalCaster->GetFaction());
-                            summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
-                        }
 
                         ExecuteLogEffectSummonObject(effIndex, summon);
                     }
