@@ -299,7 +299,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             sender->Say(msg, Language(lang));
 
             // EJ robot
-            if (!GetPlayer()->GetSession()->rai)
+            if (!sRobotManager->IsRobot(GetPlayer()->GetSession()->GetAccountId()))
             {
                 sRobotManager->HandlePlayerSay(GetPlayer(), msg);
             }
@@ -381,9 +381,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             GetPlayer()->Whisper(msg, Language(lang), receiver);
 
             // EJ robot
-            if (receiver->GetSession()->rai)
+            RobotAI* rai = sRobotManager->GetRobotAI(receiver->GetSession()->GetAccountId());
+            if (rai)
             {
-                receiver->GetSession()->rai->HandleChatCommand(GetPlayer(), msg);
+                rai->HandleChatCommand(GetPlayer(), msg);
             }
 
             break;
@@ -413,9 +414,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
             {
                 Player* member = groupRef->GetSource();
-                if (member->GetSession()->rai)
+                RobotAI* rai = sRobotManager->GetRobotAI(member->GetSession()->GetAccountId());
+                if (rai)
                 {
-                    member->GetSession()->rai->HandleChatCommand(GetPlayer(), msg);
+                    rai->HandleChatCommand(GetPlayer(), msg);
                 }
             }
             break;
@@ -485,9 +487,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
             {
                 Player* member = groupRef->GetSource();
-                if (member->GetSession()->rai)
+                RobotAI* rai = sRobotManager->GetRobotAI(member->GetSession()->GetAccountId());
+                if (rai)
                 {
-                    member->GetSession()->rai->HandleChatCommand(GetPlayer(), msg);
+                    rai->HandleChatCommand(GetPlayer(), msg);
                 }
             }
 

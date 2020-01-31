@@ -167,10 +167,12 @@ bool RobotConfig::StartRobotSystem()
     enable = GetIntDefault("Enable", 0);
     resetRobots = GetIntDefault("ResetRobots", 0);
     robotAccountNamePrefix = GetStringDefault("RobotAccountNamePrefix", "ROBOT");
-    onlineLevel = GetIntDefault("OnlineLevel", 0); 
+    onlineLevel = GetIntDefault("OnlineLevel", 0);
 
     if (enable == 0)
     {
         return false;
     }
+
+    return true;
 }

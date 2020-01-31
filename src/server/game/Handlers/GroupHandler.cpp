@@ -159,9 +159,9 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         }
 
         // EJ robot group recheck
-        if (invitedPlayer->GetSession()->rai)
+        if (sRobotManager->IsRobot(invitedPlayer->GetSession()->GetAccountId()))
         {
-            Player* invitedMaster = sRobotManager->GetMaster(invitedPlayer);
+            Player* invitedMaster = sRobotManager->GetMaster(invitedPlayer->GetGUID().GetRawValue());
             if (!invitedMaster)
             {
                 invitedPlayer->RemoveFromGroup();

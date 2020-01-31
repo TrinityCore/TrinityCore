@@ -201,4 +201,6 @@ bool JokerConfig::StartJokerSystem()
     {
         return false;
     }
+
+    return true;
 }

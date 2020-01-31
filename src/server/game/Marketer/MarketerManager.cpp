@@ -244,6 +244,8 @@ bool MarketerManager::UpdateMarketer()
     UpdateSeller(diff);
     UpdateBuyer(diff);
     realPrevTime = realCurrTime;
+
+    return true;
 }
 
 bool MarketerManager::UpdateSeller(uint32 pmDiff)
@@ -682,6 +684,10 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
             {
                 break;
             }
+            case ItemClass::ITEM_CLASS_GLYPH:
+            {
+                buyThis = urand(0, 5);
+            }
             default:
             {
                 break;
@@ -694,10 +700,10 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
             uint32 basePrice = 0;
             uint32 priceMultiple = 0;
             uint8 qualityMuliplier = 1;
-            if (destIT->Quality > 2)
+            if (destIT->Quality > 3)
             {
-                qualityMuliplier = destIT->Quality - 1;
-            }
+                qualityMuliplier = 2;
+            }            
             uint32 finalPrice = 0;
             if (destIT->SellPrice > 0)
             {
@@ -712,7 +718,7 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
             priceMultiple = aeIT->second->buyout / finalPrice;
             if (priceMultiple > 10)
             {
-                priceMultiple = priceMultiple * 2;
+                priceMultiple = priceMultiple * priceMultiple;
             }
             if (urand(0, priceMultiple) == 0)
             {

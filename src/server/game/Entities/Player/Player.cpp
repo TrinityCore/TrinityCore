@@ -99,6 +99,9 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
+// EJ robot 
+#include "RobotManager.h"
+
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
 #define PLAYER_SKILL_INDEX(x)       (PLAYER_SKILL_INFO_1_1 + ((x)*3))
@@ -2540,7 +2543,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
         return;
 
     // EJ robot
-    if (GetSession()->rai)
+    if (sRobotManager->IsRobot(GetSession()->GetAccountId()))
     {
         return;
     }

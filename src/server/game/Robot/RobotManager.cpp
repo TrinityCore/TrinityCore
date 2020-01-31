@@ -20,10 +20,11 @@
 
 RobotManager::RobotManager()
 {
-    realPrevTime = 0;
+    updateRobotGroupIndex = 0;
 
     nameIndex = 0;
-    robotSet.clear();
+    robotMap.clear();
+    robotAICache.clear();
     deleteRobotAccountSet.clear();
     meleeWeaponMap.clear();
     rangeWeaponMap.clear();
@@ -343,6 +344,7 @@ void RobotManager::InitializeManager()
 
     uint32 checkLevel = 11;
     uint32 maxLevel = 60;
+    uint32 checkGroupIndex = 0;
     while (checkLevel <= maxLevel)
     {
         for (std::map<uint32, std::vector<uint32>>::iterator classIT = availableRaces.begin(); classIT != availableRaces.end(); classIT++)
@@ -351,7 +353,12 @@ void RobotManager::InitializeManager()
             for (std::vector<uint32>::iterator raceIT = raceVector.begin(); raceIT != raceVector.end(); raceIT++)
             {
                 RobotAI* eachRAI = new RobotAI(checkLevel, classIT->first, *raceIT);
-                robotSet.insert(eachRAI);
+                robotMap[checkGroupIndex].insert(eachRAI);
+                checkGroupIndex++;
+                if (checkGroupIndex >= ROBOT_GROUP_COUNT)
+                {
+                    checkGroupIndex = 0;
+                }
             }
         }
         checkLevel++;
@@ -372,19 +379,17 @@ void RobotManager::UpdateManager()
     {
         return;
     }
-    uint32 realCurrTime = getMSTime();
-    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
 
-    if (diff < ROBOT_MANAGER_UPDATE_GAP)
+    if (updateRobotGroupIndex >= ROBOT_GROUP_COUNT)
     {
-        return;
+        updateRobotGroupIndex = 0;
     }
-
-    for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
+    std::unordered_set<RobotAI*> eachRobotGroup = robotMap[updateRobotGroupIndex];
+    for (std::unordered_set<RobotAI*>::iterator rit = eachRobotGroup.begin(); rit != eachRobotGroup.end(); rit++)
     {
-        (*rit)->Update(diff);
+        (*rit)->Update();
     }
-    realPrevTime = realCurrTime;
+    updateRobotGroupIndex++;
 }
 
 bool RobotManager::DeleteRobots()
@@ -529,7 +534,6 @@ bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterCl
         cci->OutfitId = 0;
 
         WorldSession* eachSession = new WorldSession(pmAccountID, "robot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
-        eachSession->isRobot = true;
         Player* newPlayer = new Player(eachSession);
         if (!newPlayer->Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), cci))
         {
@@ -592,7 +596,6 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmGUID)
     if (!loginSession)
     {
         loginSession = new WorldSession(pmAccountID, "robot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
-        loginSession->isRobot = true;
         sWorld->AddSession(loginSession);
     }
 
@@ -604,16 +607,13 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmGUID)
 
 void RobotManager::LogoutRobots()
 {
-    for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
+    for (std::unordered_map<uint32, RobotAI*>::iterator rit = sRobotManager->robotAICache.begin(); rit != sRobotManager->robotAICache.end(); rit++)
     {
-        ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, (*rit)->characterID);
-        Player* checkP = ObjectAccessor::FindPlayer(playerGUID);
+        Player* checkP = ObjectAccessor::FindPlayerByLowGUID(rit->second->characterID);
         if (checkP)
         {
             if (checkP->IsInWorld())
             {
-                (*rit)->robotState = RobotState::RobotState_None;
-
                 sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
                 std::ostringstream msgStream;
                 msgStream << checkP->GetName() << " logged out";
@@ -691,22 +691,35 @@ bool RobotManager::StringStartWith(const std::string& str, const std::string& he
     return str.compare(0, head.size(), head) == 0;
 }
 
-Player* RobotManager::GetMaster(Player* pmRobotPlayer)
+Player* RobotManager::GetMaster(uint32 pmSessionID)
 {
-    for (std::unordered_set<RobotAI*>::iterator rit = robotSet.begin(); rit != robotSet.end(); rit++)
+    if (sRobotManager->robotAICache.find(pmSessionID) != sRobotManager->robotAICache.end())
     {
-        Player* me = ObjectAccessor::FindPlayerByLowGUID((*rit)->characterID);
-        if (me)
-        {
-            if (me->GetGUID() == pmRobotPlayer->GetGUID())
-            {
-                Player* myMaster = ObjectAccessor::FindPlayerByLowGUID((*rit)->masterID);
-                return myMaster;
-            }
-        }
+        uint32 masterID = sRobotManager->robotAICache[pmSessionID]->masterID;
+        Player* masterPlayer = ObjectAccessor::FindPlayerByLowGUID(masterID);
+        return masterPlayer;
     }
 
     return NULL;
+}
+
+RobotAI* RobotManager::GetRobotAI(uint32 pmSessionID)
+{
+    if (sRobotManager->robotAICache.find(pmSessionID) != sRobotManager->robotAICache.end())
+    {
+        return sRobotManager->robotAICache[pmSessionID];
+    }
+
+    return NULL;
+}
+
+bool RobotManager::IsRobot(uint32 pmSessionID)
+{
+    if (sRobotManager->robotAICache.find(pmSessionID) != sRobotManager->robotAICache.end())
+    {
+        return true;
+    }
+    return false;
 }
 
 std::vector<std::string> RobotManager::SplitString(std::string srcStr, std::string delimStr, bool repeatedCharIgnored)

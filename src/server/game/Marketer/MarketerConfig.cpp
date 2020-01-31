@@ -170,4 +170,6 @@ bool MarketerConfig::StartMarketerSystem()
     {
         return false;
     }
+
+    return true;
 }

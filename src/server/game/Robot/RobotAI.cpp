@@ -36,11 +36,14 @@
 
 RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace)
 {
-    prevUpdate = time(NULL);
+    realPrevTime = 0;
     strategiesMap.clear();
     strategiesMap["solo_normal"] = true;
     strategiesMap["group_normal"] = false;
     characterTalentTab = 0;
+
+
+    realPrevTime = 0;
 
     targetLevel = pmTargetLevel;
     targetClass = pmTargetClass;
@@ -2221,7 +2224,7 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
                 WorldPacket p;
                 me->GetSession()->HandleGroupDeclineOpcode(p);
                 std::ostringstream timeLeftStream;
-                timeLeftStream << "Not interested. I will reconsider in " << st_Solo_Normal->interestsDelay << " seconds";
+                timeLeftStream << "Not interested.";
                 WhisperTo(timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
                 break;
             }
@@ -2323,19 +2326,23 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
     }
 }
 
-void RobotAI::Update(uint32 pmDiff)
+void RobotAI::Update()
 {
+    uint32 realCurrTime = getMSTime();
+    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
+
+    realPrevTime = realCurrTime;
     switch (robotState)
     {
     case RobotState_None:
-    {        
+    {
         break;
     }
     case RobotState_OffLine:
     {
         if (onlineDelay > 0)
         {
-            onlineDelay -= pmDiff;
+            onlineDelay -= diff;
             if (onlineDelay <= 0)
             {
                 onlineDelay = 0;
@@ -2346,7 +2353,7 @@ void RobotAI::Update(uint32 pmDiff)
         }
         else if (checkDelay > 0)
         {
-            checkDelay -= pmDiff;
+            checkDelay -= diff;
             if (checkDelay <= 0)
             {
                 checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
@@ -2361,7 +2368,7 @@ void RobotAI::Update(uint32 pmDiff)
                     std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
                     for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
                     {
-                        if (!it->second->isRobot)
+                        if (!sRobotManager->IsRobot(it->first))
                         {
                             Player* eachPlayer = it->second->GetPlayer();
                             if (eachPlayer)
@@ -2398,13 +2405,14 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_CheckAccount:
     {
-        allDelay -= pmDiff;
+        allDelay -= diff;
         if (allDelay <= 0)
         {
             allDelay = 5 * TimeConstants::IN_MILLISECONDS;
             accountID = sRobotManager->CheckRobotAccount(accountName);
             if (accountID > 0)
             {
+                sRobotManager->robotAICache[accountID] = this;
                 sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s account ready.", accountName);
                 robotState = RobotState::RobotState_CheckCharacter;
             }
@@ -2418,7 +2426,7 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_CreateAccount:
     {
-        allDelay -= pmDiff;
+        allDelay -= diff;
         if (allDelay <= 0)
         {
             allDelay = 5 * TimeConstants::IN_MILLISECONDS;
@@ -2435,7 +2443,7 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_CheckCharacter:
     {
-        allDelay -= pmDiff;
+        allDelay -= diff;
         if (allDelay <= 0)
         {
             allDelay = 5 * TimeConstants::IN_MILLISECONDS;
@@ -2455,7 +2463,7 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_CreateCharacter:
     {
-        allDelay -= pmDiff;
+        allDelay -= diff;
         if (allDelay <= 0)
         {
             allDelay = 5 * TimeConstants::IN_MILLISECONDS;
@@ -2472,7 +2480,7 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_CheckLogin:
     {
-        allDelay -= pmDiff;
+        allDelay -= diff;
         if (allDelay <= 0)
         {
             allDelay = 10 * TimeConstants::IN_MILLISECONDS;
@@ -2480,7 +2488,6 @@ void RobotAI::Update(uint32 pmDiff)
             if (me)
             {
                 WorldSession* mySession = me->GetSession();
-                mySession->rai = this;
                 InitializeCharacter();
                 me->SetPvP(true);
                 robotState = RobotState::RobotState_Online;
@@ -2496,7 +2503,7 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_DoLogin:
     {
-        allDelay -= pmDiff;
+        allDelay -= diff;
         if (allDelay <= 0)
         {
             allDelay = 10 * TimeConstants::IN_MILLISECONDS;
@@ -2509,20 +2516,20 @@ void RobotAI::Update(uint32 pmDiff)
     {
         Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
         if (!me)
-        {            
+        {
             break;
         }
         if (strategiesMap["solo_normal"])
         {
-            st_Solo_Normal->Update(pmDiff);
+            st_Solo_Normal->Update(diff);
         }
         if (strategiesMap["group_normal"])
         {
-            st_Group_Normal->Update(pmDiff);
+            st_Group_Normal->Update(diff);
         }
         if (offlineDelay > 0)
         {
-            offlineDelay -= pmDiff;
+            offlineDelay -= diff;
             if (offlineDelay <= 0)
             {
                 offlineDelay = 0;
@@ -2532,7 +2539,7 @@ void RobotAI::Update(uint32 pmDiff)
         }
         else if (checkDelay > 0)
         {
-            checkDelay -= pmDiff;
+            checkDelay -= diff;
             if (checkDelay <= 0)
             {
                 checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
@@ -2569,7 +2576,7 @@ void RobotAI::Update(uint32 pmDiff)
                     std::unordered_map<uint32, WorldSession*> allSessionMap = sWorld->GetAllSessions();
                     for (std::unordered_map<uint32, WorldSession*>::iterator it = allSessionMap.begin(); it != allSessionMap.end(); it++)
                     {
-                        if (!it->second->isRobot)
+                        if (!sRobotManager->IsRobot(it->first))
                         {
                             Player* eachPlayer = it->second->GetPlayer();
                             if (eachPlayer)
@@ -2606,7 +2613,7 @@ void RobotAI::Update(uint32 pmDiff)
     }
     case RobotState_CheckLogoff:
     {
-        allDelay -= pmDiff;
+        allDelay -= diff;
         if (allDelay <= 0)
         {
             allDelay = 5 * TimeConstants::IN_MILLISECONDS;
@@ -2621,13 +2628,15 @@ void RobotAI::Update(uint32 pmDiff)
                     break;
                 }
             }
+            sRobotManager->robotAICache.erase(accountID);
+
             robotState = RobotState::RobotState_OffLine;
         }
         break;
     }
     case RobotState_DoLogoff:
     {
-        allDelay -= pmDiff;
+        allDelay -= diff;
         if (allDelay <= 0)
         {
             allDelay = 0;

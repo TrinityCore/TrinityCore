@@ -33,7 +33,7 @@ class RobotAI
 public:
 	RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace);
 	~RobotAI();
-    void Update(uint32 pmDiff);
+    void Update();
 	Item* GetItemInInventory(uint32 pmEntry);
 	void InitializeCharacter();
 	void SetStrategy(std::string pmStrategyName, bool pmEnable);
@@ -82,6 +82,9 @@ public:
     int32 onlineDelay;
     int32 offlineDelay;
     uint32 robotState;
+
+    uint32 realPrevTime;
+
     std::mutex robotPacketQueue_m;
     std::mutex robotChatCommandQueue_m;
 

@@ -1,8 +1,8 @@
 #ifndef ROBOT_MANAGER_H
 #define ROBOT_MANAGER_H
 
-#ifndef ROBOT_MANAGER_UPDATE_GAP
-#define ROBOT_MANAGER_UPDATE_GAP 500
+#ifndef ROBOT_GROUP_COUNT
+#define ROBOT_GROUP_COUNT 5
 #endif
 
 #include <string>
@@ -31,7 +31,9 @@ public:
     void UpdateManager();
     bool DeleteRobots();
     bool RobotsDeleted();
-    Player* GetMaster(Player* pmRobotPlayer);
+    bool IsRobot(uint32 pmSessionID);
+    RobotAI* GetRobotAI(uint32 pmSessionID);
+    Player* GetMaster(uint32 pmSessionID);
     uint32 CheckRobotAccount(std::string pmAccountName);
     bool CreateRobotAccount(std::string pmAccountName);
     uint32 CheckAccountCharacter(uint32 pmAccountID);
@@ -48,11 +50,13 @@ public:
 
 public:
     std::map<uint32, std::vector<uint32>> availableRaces;
-    std::unordered_map<uint32, std::string> robotNameMap;    
+    std::unordered_map<uint32, std::string> robotNameMap;
 
     std::unordered_map<uint8, std::unordered_map<uint8, std::string>> characterTalentTabNameMap;
     std::set<uint32> deleteRobotAccountSet;
-    std::unordered_set<RobotAI*> robotSet;
+    std::unordered_map<uint32, std::unordered_set<RobotAI*>> robotMap;
+    uint32 updateRobotGroupIndex;
+    std::unordered_map<uint32, RobotAI*> robotAICache;
 
     uint32 nameIndex;
     std::set<uint8> armorInventorySet;
@@ -75,8 +79,6 @@ public:
 
     std::unordered_map<uint32, uint32> tamableBeastEntryMap;
     std::unordered_map<std::string, std::set<uint32>> spellNameEntryMap;
-
-    uint32 realPrevTime;
 };
 
 #define sRobotManager RobotManager::instance()

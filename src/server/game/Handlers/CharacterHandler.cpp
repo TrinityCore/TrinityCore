@@ -50,6 +50,9 @@
 #include "QueryHolder.h"
 #include "World.h"
 
+// EJ robot
+#include "RobotManager.h"
+
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:
@@ -1026,7 +1029,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     delete holder;
 
     // EJ robot
-    if (isRobot)
+    if (sRobotManager->IsRobot(GetAccountId()))
     {
         if (!sCharacterCache->HasCharacterCacheEntry(pCurrChar->GetGUID()))
         {

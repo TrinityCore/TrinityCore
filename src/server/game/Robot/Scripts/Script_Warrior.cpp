@@ -240,15 +240,12 @@ bool Script_Warrior::Buff(Unit* pmTarget)
         //        return true;
         //    }
         //    break;
-        //}
-    default:
-    {
-        if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
-        break;
+        //}    
     }
+
+    if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+    {
+        return true;
     }
 
     return false;

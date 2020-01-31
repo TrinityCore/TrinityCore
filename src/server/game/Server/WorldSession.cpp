@@ -149,10 +149,6 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
         ResetTimeOutTime(false);
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
-
-    // EJ robot
-    rai = NULL;
-    isRobot = false;
 }
 
 /// WorldSession destructor
@@ -210,6 +206,7 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     ASSERT(packet->GetOpcode() != NULL_OPCODE);
 
     // EJ robot
+    RobotAI* rai = sRobotManager->GetRobotAI(GetAccountId());
     if (rai)
     {
         rai->HandlePacket(packet);
@@ -286,8 +283,8 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
-    // EJ robot
-    if (isRobot)
+    // EJ robot    
+    if (sRobotManager->IsRobot(GetAccountId()))
     {
         ProcessQueryCallbacks();
 
@@ -304,7 +301,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             {
                 HandleMoveWorldportAck();
             }
-        }        
+        }
 
         return true;
     }
