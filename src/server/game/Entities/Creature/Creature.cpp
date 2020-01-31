@@ -3154,12 +3154,11 @@ bool Creature::CanGiveExperience() const
         && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
 }
 
-bool Creature::IsEscortNPC(bool onlyIfActive)
+bool Creature::IsEscorted() const
 {
-    if (!IsAIEnabled)
-        return false;
-
-    return AI()->IsEscortNPC(onlyIfActive);
+    if (IsAIEnabled)
+        return AI()->IsEscorted();
+    return false;
 }
 
 bool Creature::IsAllowedToRepostionAgainst(Unit* target) const

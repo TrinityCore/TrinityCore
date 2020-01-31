@@ -88,6 +88,7 @@ void FollowerAI::OwnerAttackedBy(Unit* other)
     if (!me->HasReactState(REACT_PASSIVE) && ShouldAssistPlayerInCombatAgainst(other))
         AttackStart(other);
 }
+
 void FollowerAI::UpdateAI(uint32 uiDiff)
 {
     if (HasFollowState(STATE_FOLLOW_INPROGRESS) && !me->GetVictim())

@@ -313,10 +313,10 @@ class npc_tooga : public CreatureScript
 
             ObjectGuid TortaGUID;
 
-            void QuestAccept(Player* player, const Quest* quest) override
+            void QuestAccept(Player* player, Quest const* quest) override
             {
                 if (quest->GetQuestId() == QUEST_TOOGA)
-                    StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
+                    StartFollow(player, FACTION_ESCORTEE_N_NEUTRAL_PASSIVE, QUEST_TOOGA);
             }
 
             void Reset() override
@@ -333,7 +333,7 @@ class npc_tooga : public CreatureScript
                     if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
                     {
                         Player* player = GetLeaderForFollower();
-                        if (player && player->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
+                        if (player)
                             player->GroupEventHappens(QUEST_TOOGA, me);
 
                         TortaGUID = who->GetGUID();
@@ -346,10 +346,7 @@ class npc_tooga : public CreatureScript
             {
                 FollowerAI::MovementInform(MotionType, PointId);
 
-                if (MotionType != POINT_MOTION_TYPE)
-                    return;
-
-                if (PointId == POINT_ID_TO_WATER)
+                if ((MotionType == POINT_MOTION_TYPE) && (PointId == POINT_ID_TO_WATER))
                     SetFollowComplete();
             }
 
