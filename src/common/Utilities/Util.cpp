@@ -17,6 +17,7 @@
 
 #include "Util.h"
 #include "Common.h"
+#include "Containers.h"
 #include "IpAddress.h"
 #include <utf8.h>
 #include <algorithm>
@@ -285,20 +286,12 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
 {
     try
     {
-        size_t len = utf8::distance(utf8str, utf8str+csize);
-        if (len > wsize)
-        {
-            if (wsize > 0)
-                wstr[0] = L'\0';
-            wsize = 0;
-            return false;
-        }
-
-        wsize = len;
-        utf8::utf8to16(utf8str, utf8str+csize, wstr);
-        wstr[len] = L'\0';
+        Trinity::BufferWriteGuard<wchar_t> guard(wstr, wsize);
+        guard = utf8::utf8to16(utf8str, utf8str + csize, guard);
+        wsize -= guard.size(); // remaining unused space
+        wstr[wsize] = L'\0';
     }
-    catch(std::exception)
+    catch (std::exception)
     {
         if (wsize > 0)
             wstr[0] = L'\0';
@@ -311,15 +304,12 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
 
 bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr)
 {
+    wstr.clear();
     try
     {
-        if (size_t len = utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size()))
-        {
-            wstr.resize(len);
-            utf8::utf8to16(utf8str.c_str(), utf8str.c_str()+utf8str.size(), &wstr[0]);
-        }
+        utf8::utf8to16(utf8str.c_str(), utf8str.c_str() + utf8str.size(), std::back_inserter(wstr));
     }
-    catch(std::exception)
+    catch (std::exception)
     {
         wstr.clear();
         return false;
