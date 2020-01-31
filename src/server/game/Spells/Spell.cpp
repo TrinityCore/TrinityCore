@@ -3045,6 +3045,16 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
     else
         m_casttime = m_spellInfo->CalcCastTime(this);
 
+    if (Unit* unitCaster = m_caster->ToUnit())
+    {
+        if (unitCaster->IsJumping() && m_casttime != 0)
+        {
+            SendCastResult(SPELL_FAILED_SPELL_IN_PROGRESS);
+            finish(false);
+            return SPELL_FAILED_SPELL_IN_PROGRESS;
+        }
+    }
+
     // don't allow channeled spells / spells with cast time to be cast while moving
     // exception are only channeled spells that have no casttime and SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
