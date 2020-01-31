@@ -1433,78 +1433,58 @@ enum BerylSorcerer
     SPELL_COSMETIC_ENSLAVE_CHAINS_SELF  = 45631
 };
 
-class npc_beryl_sorcerer : public CreatureScript
+// To-do: this entire thing is a hack clusterfuck. Rewrite recommended
+struct npc_beryl_sorcerer : public FollowerAI
 {
-public:
-    npc_beryl_sorcerer() : CreatureScript("npc_beryl_sorcerer") { }
+    npc_beryl_sorcerer(Creature* creature) : FollowerAI(creature), _enslaved(false) { }
 
-    struct npc_beryl_sorcererAI : public FollowerAI
+    void Reset() override
     {
-        npc_beryl_sorcererAI(Creature* creature) : FollowerAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            bEnslaved = false;
-        }
-
-        bool bEnslaved;
-
-        void Reset() override
-        {
-            me->SetReactState(REACT_AGGRESSIVE);
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            if (me->IsValidAttackTarget(who))
-                AttackStart(who);
-        }
-
-        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
-        {
-            if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !HealthAbovePct(50) && !bEnslaved)
-            {
-                EnterEvadeMode(); //We make sure that the npc is not attacking the player!
-                me->SetReactState(REACT_PASSIVE);
-                StartFollow(pCaster->ToPlayer());
-                me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);
-                DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
-
-                if (Player* player = pCaster->ToPlayer())
-                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
-
-                bEnslaved = true;
-            }
-        }
-
-        void MoveInLineOfSight(Unit* who) override
-        {
-            FollowerAI::MoveInLineOfSight(who);
-
-            if (who->GetEntry() == NPC_LIBRARIAN_DONATHAN && me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
-            {
-                SetFollowComplete();
-                me->DisappearAndDie();
-            }
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_beryl_sorcererAI(creature);
+        me->SetReactState(REACT_AGGRESSIVE);
+        _enslaved = false;
     }
+
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        if (spell->Id != SPELL_ARCANE_CHAINS || !caster->IsPlayer() || HealthAbovePct(50) && !_enslaved)
+            return;
+
+        Player* player = caster->ToPlayer();
+
+        me->AttackStop();
+        me->SetReactState(REACT_PASSIVE);
+        me->DeleteThreatList();
+        me->CombatStop(true);
+        StartFollow(player);
+        me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);
+        DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
+        player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
+        _enslaved = true;
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        FollowerAI::MoveInLineOfSight(who);
+
+        if (!_enslaved)
+            return;
+
+        if (who->GetEntry() == NPC_LIBRARIAN_DONATHAN && me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
+        {
+            SetFollowComplete();
+            me->DisappearAndDie();
+        }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (_enslaved || !UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    bool _enslaved;
 };
 
 /*######
@@ -2510,7 +2490,7 @@ void AddSC_borean_tundra()
     new npc_counselor_talbot();
     new npc_leryssa();
     new npc_general_arlos();
-    new npc_beryl_sorcerer();
+    RegisterCreatureAI(npc_beryl_sorcerer);
     new npc_imprisoned_beryl_sorcerer();
     new npc_mootoo_the_younger();
     new npc_bonker_togglevolt();
