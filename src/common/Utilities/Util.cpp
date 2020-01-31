@@ -254,7 +254,7 @@ size_t utf8length(std::string& utf8str)
     {
         return utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size());
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         utf8str.clear();
         return 0;
@@ -276,7 +276,7 @@ void utf8truncate(std::string& utf8str, size_t len)
         char* oend = utf8::utf16to8(wstr.c_str(), wstr.c_str()+wstr.size(), &utf8str[0]);
         utf8str.resize(oend-(&utf8str[0]));                 // remove unused tail
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         utf8str.clear();
     }
@@ -291,7 +291,7 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
         wsize -= out.remaining(); // remaining unused space
         wstr[wsize] = L'\0';
     }
-    catch (std::exception)
+    catch (std::exception const&)
     {
         // Replace the converted string with an error message if there is enough space
         // Otherwise just return an empty string
@@ -323,7 +323,7 @@ bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr)
     {
         utf8::utf8to16(utf8str.c_str(), utf8str.c_str() + utf8str.size(), std::back_inserter(wstr));
     }
-    catch (std::exception)
+    catch (std::exception const&)
     {
         wstr.clear();
         return false;
@@ -346,7 +346,7 @@ bool WStrToUtf8(wchar_t* wstr, size_t size, std::string& utf8str)
         }
         utf8str = utf8str2;
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         utf8str.clear();
         return false;
@@ -369,7 +369,7 @@ bool WStrToUtf8(std::wstring const& wstr, std::string& utf8str)
         }
         utf8str = utf8str2;
     }
-    catch(std::exception)
+    catch(std::exception const&)
     {
         utf8str.clear();
         return false;
@@ -397,31 +397,31 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
         return wname;
 
     // Important: end length must be <= MAX_INTERNAL_PLAYER_NAME-MAX_PLAYER_NAME (3 currently)
-    static std::wstring const a_End = { wchar_t(0x0430), wchar_t(0x0000) };
-    static std::wstring const o_End = { wchar_t(0x043E), wchar_t(0x0000) };
-    static std::wstring const ya_End = { wchar_t(0x044F), wchar_t(0x0000) };
-    static std::wstring const ie_End = { wchar_t(0x0435), wchar_t(0x0000) };
-    static std::wstring const i_End = { wchar_t(0x0438), wchar_t(0x0000) };
+    static std::wstring const a_End    = { wchar_t(0x0430), wchar_t(0x0000) };
+    static std::wstring const o_End    = { wchar_t(0x043E), wchar_t(0x0000) };
+    static std::wstring const ya_End   = { wchar_t(0x044F), wchar_t(0x0000) };
+    static std::wstring const ie_End   = { wchar_t(0x0435), wchar_t(0x0000) };
+    static std::wstring const i_End    = { wchar_t(0x0438), wchar_t(0x0000) };
     static std::wstring const yeru_End = { wchar_t(0x044B), wchar_t(0x0000) };
-    static std::wstring const u_End = { wchar_t(0x0443), wchar_t(0x0000) };
-    static std::wstring const yu_End = { wchar_t(0x044E), wchar_t(0x0000) };
-    static std::wstring const oj_End = { wchar_t(0x043E), wchar_t(0x0439), wchar_t(0x0000) };
+    static std::wstring const u_End    = { wchar_t(0x0443), wchar_t(0x0000) };
+    static std::wstring const yu_End   = { wchar_t(0x044E), wchar_t(0x0000) };
+    static std::wstring const oj_End   = { wchar_t(0x043E), wchar_t(0x0439), wchar_t(0x0000) };
     static std::wstring const ie_j_End = { wchar_t(0x0435), wchar_t(0x0439), wchar_t(0x0000) };
     static std::wstring const io_j_End = { wchar_t(0x0451), wchar_t(0x0439), wchar_t(0x0000) };
-    static std::wstring const o_m_End = { wchar_t(0x043E), wchar_t(0x043C), wchar_t(0x0000) };
+    static std::wstring const o_m_End  = { wchar_t(0x043E), wchar_t(0x043C), wchar_t(0x0000) };
     static std::wstring const io_m_End = { wchar_t(0x0451), wchar_t(0x043C), wchar_t(0x0000) };
     static std::wstring const ie_m_End = { wchar_t(0x0435), wchar_t(0x043C), wchar_t(0x0000) };
     static std::wstring const soft_End = { wchar_t(0x044C), wchar_t(0x0000) };
-    static std::wstring const j_End = { wchar_t(0x0439), wchar_t(0x0000) };
+    static std::wstring const j_End    = { wchar_t(0x0439), wchar_t(0x0000) };
 
-    static std::array<std::array<std::wstring const*, 7>, 6> const dropEnds = { {
+    static std::array<std::array<std::wstring const*, 7>, 6> const dropEnds = {{
         { &a_End,  &o_End,    &ya_End,   &ie_End,  &soft_End, &j_End,    nullptr },
         { &a_End,  &ya_End,   &yeru_End, &i_End,   nullptr,   nullptr,   nullptr },
         { &ie_End, &u_End,    &yu_End,   &i_End,   nullptr,   nullptr,   nullptr },
         { &u_End,  &yu_End,   &o_End,    &ie_End,  &soft_End, &ya_End,   &a_End  },
         { &oj_End, &io_j_End, &ie_j_End, &o_m_End, &io_m_End, &ie_m_End, &yu_End },
         { &ie_End, &i_End,    nullptr,   nullptr,  nullptr,   nullptr,   nullptr }
-    } };
+    }};
 
     std::size_t const thisLen = wname.length();
     std::array<std::wstring const*, 7> const& endings = dropEnds[declension];
@@ -432,8 +432,8 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
         if (!(endLen <= thisLen))
             continue;
 
-        if (wname.substr(thisLen - endLen, thisLen) == ending)
-            return wname.substr(0, thisLen - endLen);
+        if (wname.substr(thisLen-endLen, thisLen) == ending)
+            return wname.substr(0, thisLen-endLen);
     }
 
     return wname;

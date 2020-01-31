@@ -7251,7 +7251,7 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                         break;
                 }
             }
-        /// Intentional fallback. Calculate critical strike chance for both Ranged and Melee spells
+            /* fallthrough - Calculate critical strike chance for both Ranged and Melee spells*/
         case SPELL_DAMAGE_CLASS_RANGED:
         {
             if (victim)

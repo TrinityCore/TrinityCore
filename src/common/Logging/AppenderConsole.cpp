@@ -184,10 +184,11 @@ void AppenderConsole::_write(LogMessage const* message)
             case LOG_LEVEL_FATAL:
                index = 0;
                break;
-            case LOG_LEVEL_ERROR: // No break on purpose
+            case LOG_LEVEL_ERROR:
+                /* fallthrough */
             default:
-               index = 1;
-               break;
+                index = 1;
+                break;
         }
 
         SetColor(stdout_stream, _colors[index]);

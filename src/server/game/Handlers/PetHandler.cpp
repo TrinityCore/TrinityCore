@@ -291,7 +291,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 case REACT_PASSIVE:                         //passive
                     pet->AttackStop();
                     pet->ClearInPetCombat();
-                    // no break;
+                    /* fallthrough */
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
                 case REACT_ASSIST:
