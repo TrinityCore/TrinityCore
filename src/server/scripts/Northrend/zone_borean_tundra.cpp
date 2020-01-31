@@ -1446,7 +1446,7 @@ struct npc_beryl_sorcerer : public FollowerAI
 
     void SpellHit(Unit* caster, SpellInfo const* spell) override
     {
-        if (spell->Id != SPELL_ARCANE_CHAINS || !caster->IsPlayer() || HealthAbovePct(50) && !_enslaved)
+        if (spell->Id != SPELL_ARCANE_CHAINS || !caster->IsPlayer() || HealthAbovePct(50) || _enslaved)
             return;
 
         Player* player = caster->ToPlayer();
