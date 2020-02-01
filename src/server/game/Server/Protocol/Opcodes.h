@@ -1313,7 +1313,7 @@ enum OpcodeServer
 
 enum OpcodeServerClient
 {
-        MSG_AUCTION_HELLO                                 = 0x2307,
+    MSG_AUCTION_HELLO                                 = 0x2307,
     MSG_CHANNEL_START                                 = 0x0A15, // SMSG only?
     MSG_CHANNEL_UPDATE                                = 0x2417, // SMSG only?
     MSG_CORPSE_QUERY                                  = 0x4336,

@@ -16903,8 +16903,6 @@ void Player::SendQuestGiverStatusMultiple()
 
     for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
     {
-        uint32 questStatus = DIALOG_STATUS_NONE;
-
         if (itr->IsAnyTypeCreature())
         {
             // need also pet quests case support
