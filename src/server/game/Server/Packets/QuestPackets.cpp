@@ -189,6 +189,32 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestComplete::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Quest::QuestConfirmAcceptResponse::Write()
+{
+    _worldPacket << uint32(QuestID);
+    _worldPacket << QuestTitle;
+    _worldPacket << InitiatedBy;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestUpdateAddCredit::Write()
+{
+    _worldPacket << uint32(QuestID);
+    _worldPacket << uint32(ObjectID);
+    _worldPacket << uint32(Count);
+    _worldPacket << uint32(Required);
+    _worldPacket << VictimGUID;
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestUpdateAddPvPCredit::Write()
+{
+    _worldPacket << uint32(QuestID);
+    _worldPacket << uint32(Count);
+    _worldPacket << uint32(Required);
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards)
 {
     data << uint32(questRewards.ChoiceItemCount);

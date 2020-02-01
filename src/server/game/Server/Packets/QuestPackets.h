@@ -221,7 +221,7 @@ namespace WorldPackets
         class QuestGiverStatus final : public ServerPacket
         {
         public:
-            QuestGiverStatus() : ServerPacket(SMSG_QUEST_GIVER_STATUS, 12) { }
+            QuestGiverStatus() : ServerPacket(SMSG_QUEST_GIVER_STATUS, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -300,7 +300,7 @@ namespace WorldPackets
         class QuestGiverQuestComplete final : public ServerPacket
         {
         public:
-            QuestGiverQuestComplete() : ServerPacket(SMSG_QUEST_GIVER_QUEST_COMPLETE, 20) { }
+            QuestGiverQuestComplete() : ServerPacket(SMSG_QUEST_GIVER_QUEST_COMPLETE, 26) { }
 
             WorldPacket const* Write() override;
 
@@ -312,6 +312,44 @@ namespace WorldPackets
             int32 TalentReward = 0;
             bool  LaunchGossip = false;
             bool  UseQuestReward =  false;
+        };
+
+        class QuestConfirmAcceptResponse final : public ServerPacket
+        {
+        public:
+            QuestConfirmAcceptResponse() : ServerPacket(SMSG_QUEST_CONFIRM_ACCEPT, 13) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid InitiatedBy;
+            int32 QuestID = 0;
+            std::string QuestTitle;
+        };
+
+        class QuestUpdateAddCredit final : public ServerPacket
+        {
+        public:
+            QuestUpdateAddCredit() : ServerPacket(SMSG_QUEST_UPDATE_ADD_CREDIT, 8 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VictimGUID;
+            int32 ObjectID = 0;
+            int32 QuestID  = 0;
+            uint32 Count = 0;
+            uint32 Required = 0;
+        };
+
+        class QuestUpdateAddPvPCredit final : public ServerPacket
+        {
+        public:
+            QuestUpdateAddPvPCredit() : ServerPacket(SMSG_QUEST_UPDATE_ADD_PVP_CREDIT, 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
+            uint32 Count = 0;
+            uint32 Required = 0;
         };
     }
 }

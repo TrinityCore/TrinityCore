@@ -1443,8 +1443,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendCanTakeQuestResponse(QuestFailedReason msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver) const;
         void SendPushToPartyResponse(Player* player, uint8 msg) const;
-        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid, uint32 creatureOrGOIdx, uint16 oldCount, uint16 addCount);
-        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 oldCount, uint16 addCount);
+        void SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, uint32 creatureOrGOIdx, uint16 count);
+        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount);
         void SendQuestGiverStatusMultiple();
 
         uint32 GetSharedQuestID() const { return m_sharedQuestId; }

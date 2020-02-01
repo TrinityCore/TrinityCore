@@ -16439,7 +16439,11 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid /*= ObjectGuid::E
 
                             m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
 
-                            SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curkillcount, addkillcount);
+                            uint16 log_slot = FindQuestSlot(questid);
+                            if (log_slot < MAX_QUEST_LOG_SIZE)
+                                SetQuestSlotCounter(log_slot, j, curkillcount + addkillcount);
+
+                            SendQuestUpdateAddCredit(qInfo, guid, j, curkillcount + addkillcount);
                         }
                         if (CanCompleteQuest(questid))
                             CompleteQuest(questid);
@@ -16495,7 +16499,11 @@ void Player::KilledPlayerCreditForQuest(uint16 count, Quest const* quest)
 
         m_QuestStatusSave[quest->GetQuestId()] = QUEST_DEFAULT_SAVE_TYPE;
 
-        SendQuestUpdateAddPlayer(quest, curKill, count);
+        uint16 log_slot = FindQuestSlot(quest->GetQuestId());
+        if (log_slot < MAX_QUEST_LOG_SIZE)
+            SetQuestSlotCounter(log_slot, QUEST_PVP_KILL_SLOT, curKill + count);
+
+        SendQuestUpdateAddPlayer(quest, curKill + count);
     }
 
     if (CanCompleteQuest(questId))
@@ -16542,7 +16550,11 @@ void Player::KillCreditGO(uint32 entry, ObjectGuid guid)
 
                         m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
 
-                        SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curCastCount, addCastCount);
+                        uint16 log_slot = FindQuestSlot(questid);
+                        if (log_slot < MAX_QUEST_LOG_SIZE)
+                            SetQuestSlotCounter(log_slot, j, curCastCount + addCastCount);
+
+                        SendQuestUpdateAddCredit(qInfo, guid, j, curCastCount + addCastCount);
                     }
 
                     if (CanCompleteQuest(questid))
@@ -16599,7 +16611,11 @@ void Player::TalkedToCreature(uint32 entry, ObjectGuid guid)
 
                             m_QuestStatusSave[questid] = QUEST_DEFAULT_SAVE_TYPE;
 
-                            SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curTalkCount, addTalkCount);
+                            uint16 log_slot = FindQuestSlot(questid);
+                            if (log_slot < MAX_QUEST_LOG_SIZE)
+                                SetQuestSlotCounter(log_slot, j, curTalkCount + addTalkCount);
+
+                            SendQuestUpdateAddCredit(qInfo, guid, j, curTalkCount + addTalkCount);
                         }
                         if (CanCompleteQuest(questid))
                             CompleteQuest(questid);
@@ -16827,25 +16843,25 @@ void Player::SendCanTakeQuestResponse(QuestFailedReason msg) const
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_INVALID");
 }
 
-void Player::SendQuestConfirmAccept(Quest const* quest, Player* pReceiver) const
+void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver) const
 {
-    if (pReceiver)
-    {
-        std::string strTitle = quest->GetTitle();
+    if (!receiver)
+        return;
 
-        LocaleConstant localeConstant = pReceiver->GetSession()->GetSessionDbLocaleIndex();
-        if (localeConstant != LOCALE_enUS)
-            if (QuestLocale const* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-                ObjectMgr::GetLocaleString(pLocale->Title, localeConstant, strTitle);
+    WorldPackets::Quest::QuestConfirmAcceptResponse packet;
 
-        WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
-        data << uint32(quest->GetQuestId());
-        data << strTitle;
-        data << uint64(GetGUID());
-        pReceiver->SendDirectMessage(&data);
+    packet.QuestTitle = quest->GetTitle();
+    uint32 questID = quest->GetQuestId();
 
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_CONFIRM_ACCEPT");
-    }
+    LocaleConstant localeConstant = receiver->GetSession()->GetSessionDbLocaleIndex();
+    if (localeConstant != LOCALE_enUS)
+        if (QuestLocale const* pLocale = sObjectMgr->GetQuestLocale(questID))
+            ObjectMgr::GetLocaleString(pLocale->Title, localeConstant, packet.QuestTitle);
+
+    packet.QuestID = questID;
+    packet.InitiatedBy = GetGUID();
+
+    receiver->GetSession()->SendPacket(packet.Write());
 }
 
 void Player::SendPushToPartyResponse(Player* player, uint8 msg) const
@@ -16860,42 +16876,29 @@ void Player::SendPushToPartyResponse(Player* player, uint8 msg) const
     }
 }
 
-void Player::SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
+void Player::SendQuestUpdateAddCredit(Quest const* quest, ObjectGuid guid, uint32 creatureOrGOIdx, uint16 count)
 {
-    ASSERT(old_count + add_count < 65536 && "mob/GO count store in 16 bits 2^16 = 65536 (0..65536)");
-
-    int32 entry = quest->RequiredNpcOrGo[creatureOrGO_idx];
+    int32 entry = quest->RequiredNpcOrGo[creatureOrGOIdx];
     if (entry < 0)
         // client expected gameobject template id in form (id|0x80000000)
         entry = (-entry) | 0x80000000;
 
-    WorldPacket data(SMSG_QUESTUPDATE_ADD_KILL, (4*4+8));
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTUPDATE_ADD_KILL");
-    data << uint32(quest->GetQuestId());
-    data << uint32(entry);
-    data << uint32(old_count + add_count);
-    data << uint32(quest->RequiredNpcOrGoCount[ creatureOrGO_idx ]);
-    data << uint64(guid);
-    SendDirectMessage(&data);
-
-    uint16 log_slot = FindQuestSlot(quest->GetQuestId());
-    if (log_slot < MAX_QUEST_LOG_SIZE)
-        SetQuestSlotCounter(log_slot, creatureOrGO_idx, GetQuestSlotCounter(log_slot, creatureOrGO_idx) + add_count);
+    WorldPackets::Quest::QuestUpdateAddCredit packet;
+    packet.VictimGUID = guid;
+    packet.QuestID = quest->GetQuestId();
+    packet.ObjectID = entry;
+    packet.Count = count;
+    packet.Required = quest->RequiredNpcOrGoCount[creatureOrGOIdx];
+    SendDirectMessage(packet.Write());
 }
 
-void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint16 add_count)
+void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount)
 {
-    ASSERT(old_count + add_count < 65536 && "player count store in 16 bits");
-
-    WorldPacket data(SMSG_QUESTUPDATE_ADD_PVP_KILL, (3*4));
-    data << uint32(quest->GetQuestId());
-    data << uint32(old_count + add_count);
-    data << uint32(quest->GetPlayersSlain());
-    SendDirectMessage(&data);
-
-    uint16 log_slot = FindQuestSlot(quest->GetQuestId());
-    if (log_slot < MAX_QUEST_LOG_SIZE)
-        SetQuestSlotCounter(log_slot, QUEST_PVP_KILL_SLOT, GetQuestSlotCounter(log_slot, QUEST_PVP_KILL_SLOT) + add_count);
+    WorldPackets::Quest::QuestUpdateAddPvPCredit packet;
+    packet.QuestID = quest->GetQuestId();
+    packet.Count = newCount;
+    packet.Required = quest->GetPlayersSlain();
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendQuestGiverStatusMultiple()
