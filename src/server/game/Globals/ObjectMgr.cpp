@@ -9896,10 +9896,10 @@ void ObjectMgr::LoadFactionChangeItems()
         if (!itemPair.second.GetOtherFactionItemId())
             continue;
 
-        if (itemPair.second.GetFlags2() & ITEM_FLAG2_FACTION_HORDE)
+        if (itemPair.second.HasFlag(ITEM_FLAG2_FACTION_HORDE))
             FactionChangeItemsHordeToAlliance[itemPair.first] = itemPair.second.GetOtherFactionItemId();
 
-        if (itemPair.second.GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE)
+        if (itemPair.second.HasFlag(ITEM_FLAG2_FACTION_ALLIANCE))
             FactionChangeItemsAllianceToHorde[itemPair.first] = itemPair.second.GetOtherFactionItemId();
 
         ++count;
