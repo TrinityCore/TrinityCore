@@ -15430,8 +15430,8 @@ bool Player::SatisfyQuestLog(bool msg) const
 
     if (msg)
     {
-        WorldPacket data(SMSG_QUESTLOG_FULL, 0);
-        SendDirectMessage(&data);
+        WorldPackets::Quest::QuestLogFull packet;
+        SendDirectMessage(packet.Write());
     }
     return false;
 }
@@ -16778,10 +16778,9 @@ void Player::SendQuestComplete(Quest const* quest) const
 {
     if (quest)
     {
-        WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
-        data << uint32(quest->GetQuestId());
-        SendDirectMessage(&data);
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
+        WorldPackets::Quest::QuestUpdateComplete packet;
+        packet.QuestID = quest->GetQuestId();
+        SendDirectMessage(packet.Write());
     }
 }
 
@@ -16817,30 +16816,28 @@ void Player::SendQuestFailed(uint32 questId, InventoryResult reason) const
 {
     if (questId)
     {
-        WorldPacket data(SMSG_QUESTGIVER_QUEST_FAILED, 4 + 4);
-        data << uint32(questId);
-        data << uint32(reason);                             // failed reason (valid reasons: 4, 16, 50, 17, 74, other values show default message)
-        SendDirectMessage(&data);
+        WorldPackets::Quest::QuestGiverQuestFailed packet;
+        packet.QuestID = questId;
+        packet.Reason = reason;
+        SendDirectMessage(packet.Write());
     }
 }
 
-void Player::SendQuestTimerFailed(uint32 quest_id) const
+void Player::SendQuestTimerFailed(uint32 questId) const
 {
-    if (quest_id)
+    if (questId)
     {
-        WorldPacket data(SMSG_QUESTUPDATE_FAILEDTIMER, 4);
-        data << uint32(quest_id);
-        SendDirectMessage(&data);
-        TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTUPDATE_FAILEDTIMER");
+        WorldPackets::Quest::QuestUpdateFailedTimer packet;
+        packet.QuestID = questId;
+        SendDirectMessage(packet.Write());
     }
 }
 
-void Player::SendCanTakeQuestResponse(QuestFailedReason msg) const
+void Player::SendCanTakeQuestResponse(QuestFailedReason reason) const
 {
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_INVALID, 4);
-    data << uint32(msg);
-    SendDirectMessage(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_QUEST_INVALID");
+    WorldPackets::Quest::QuestGiverInvalidQuest packet;
+    packet.Reason = reason;
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver) const
@@ -16868,11 +16865,10 @@ void Player::SendPushToPartyResponse(Player* player, uint8 msg) const
 {
     if (player)
     {
-        WorldPacket data(MSG_QUEST_PUSH_RESULT, 8 + 1);
-        data << uint64(player->GetGUID());
-        data << uint8(msg);                                 // valid values: 0-8
-        SendDirectMessage(&data);
-        TC_LOG_DEBUG("network", "WORLD: Sent MSG_QUEST_PUSH_RESULT");
+        WorldPackets::Quest::QuestPushResultResponse packet;
+        packet.SenderGUID = player->GetGUID();
+        packet.Result = msg;
+        SendDirectMessage(packet.Write());
     }
 }
 
@@ -16903,10 +16899,7 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 newCount)
 
 void Player::SendQuestGiverStatusMultiple()
 {
-    uint32 count = 0;
-
-    WorldPacket data(SMSG_QUESTGIVER_STATUS_MULTIPLE, 4);
-    data << uint32(count);                                  // placeholder
+    WorldPackets::Quest::QuestGiverStatusMultiple response;
 
     for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
     {
@@ -16921,11 +16914,7 @@ void Player::SendQuestGiverStatusMultiple()
             if (!questgiver->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
                 continue;
 
-            questStatus = GetQuestDialogStatus(questgiver);
-
-            data << uint64(questgiver->GetGUID());
-            data << int32(questStatus);
-            ++count;
+            response.QuestGiver.emplace_back(questgiver->GetGUID(), GetQuestDialogStatus(questgiver));
         }
         else if (itr->IsGameObject())
         {
@@ -16933,16 +16922,11 @@ void Player::SendQuestGiverStatusMultiple()
             if (!questgiver || questgiver->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
                 continue;
 
-            questStatus = GetQuestDialogStatus(questgiver);
-
-            data << uint64(questgiver->GetGUID());
-            data << int32(questStatus);
-            ++count;
+            response.QuestGiver.emplace_back(questgiver->GetGUID(), GetQuestDialogStatus(questgiver));
         }
     }
 
-    data.put<uint32>(0, count);                             // write real count
-    SendDirectMessage(&data);
+    SendDirectMessage(response.Write());
 }
 
 bool Player::HasPvPForcingQuest() const

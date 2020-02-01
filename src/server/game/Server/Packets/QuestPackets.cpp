@@ -194,6 +194,7 @@ WorldPacket const* WorldPackets::Quest::QuestConfirmAcceptResponse::Write()
     _worldPacket << uint32(QuestID);
     _worldPacket << QuestTitle;
     _worldPacket << InitiatedBy;
+
     return &_worldPacket;
 }
 
@@ -204,6 +205,7 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateAddCredit::Write()
     _worldPacket << uint32(Count);
     _worldPacket << uint32(Required);
     _worldPacket << VictimGUID;
+
     return &_worldPacket;
 }
 
@@ -212,6 +214,56 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateAddPvPCredit::Write()
     _worldPacket << uint32(QuestID);
     _worldPacket << uint32(Count);
     _worldPacket << uint32(Required);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestUpdateComplete::Write()
+{
+    _worldPacket << uint32(QuestID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestUpdateFailedTimer::Write()
+{
+    _worldPacket << uint32(QuestID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverInvalidQuest::Write()
+{
+    _worldPacket << uint32(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestFailed::Write()
+{
+    _worldPacket << uint32(QuestID);
+    _worldPacket << uint32(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestPushResultResponse::Write()
+{
+    _worldPacket << SenderGUID;
+    _worldPacket << uint8(Result);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverStatusMultiple::Write()
+{
+    _worldPacket << int32(QuestGiver.size());
+    for (QuestGiverInfo const& questGiver : QuestGiver)
+    {
+        _worldPacket << questGiver.Guid;
+        _worldPacket << uint32(questGiver.Status);
+    }
+
     return &_worldPacket;
 }
 

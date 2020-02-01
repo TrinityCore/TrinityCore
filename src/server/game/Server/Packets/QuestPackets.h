@@ -351,6 +351,76 @@ namespace WorldPackets
             uint32 Count = 0;
             uint32 Required = 0;
         };
+
+        class QuestUpdateComplete final : public ServerPacket
+        {
+        public:
+            QuestUpdateComplete() : ServerPacket(SMSG_QUEST_UPDATE_COMPLETE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
+        };
+
+        class QuestUpdateFailedTimer final : public ServerPacket
+        {
+        public:
+            QuestUpdateFailedTimer() : ServerPacket(SMSG_QUEST_UPDATE_FAILED_TIMER, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+        };
+
+        class QuestGiverInvalidQuest final : public ServerPacket
+        {
+        public:
+            QuestGiverInvalidQuest() : ServerPacket(SMSG_QUEST_GIVER_INVALID_QUEST, 6) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Reason = 0;
+        };
+
+        class QuestGiverQuestFailed final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestFailed() : ServerPacket(SMSG_QUEST_GIVER_QUEST_FAILED, 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 QuestID = 0;
+            uint32 Reason = 0;
+        };
+
+        class QuestPushResultResponse final : public ServerPacket
+        {
+        public:
+            QuestPushResultResponse() : ServerPacket(OpcodeServer(MSG_QUEST_PUSH_RESULT), 8 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SenderGUID;
+            uint8 Result = 0;
+        };
+
+        class QuestGiverStatusMultiple final : public ServerPacket
+        {
+        public:
+            QuestGiverStatusMultiple() : ServerPacket(SMSG_QUEST_GIVER_STATUS_MULTIPLE, 24) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<QuestGiverInfo> QuestGiver;
+        };
+
+        class QuestLogFull final : public ServerPacket
+        {
+        public:
+            QuestLogFull() : ServerPacket(SMSG_QUEST_LOG_FULL, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 
