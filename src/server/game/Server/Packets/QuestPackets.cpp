@@ -166,8 +166,8 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << uint32(DescEmotes.size());
     for (WorldPackets::Quest::QuestDescEmote const& emote : DescEmotes)
     {
-        _worldPacket << uint32(emote.Type);
         _worldPacket << uint32(emote.Delay);
+        _worldPacket << uint32(emote.Type);
     }
 
     return &_worldPacket;
@@ -263,6 +263,36 @@ WorldPacket const* WorldPackets::Quest::QuestGiverStatusMultiple::Write()
         _worldPacket << questGiver.Guid;
         _worldPacket << uint32(questGiver.Status);
     }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
+{
+    _worldPacket << QuestData.QuestGiverGUID;
+    _worldPacket << uint32(QuestData.QuestID);
+
+    _worldPacket << QuestTitle;
+    _worldPacket << RewardText;
+    _worldPacket << PortraitGiverText;
+    _worldPacket << PortraitGiverName;
+    _worldPacket << PortraitTurnInText;
+    _worldPacket << PortraitTurnInName;
+
+    _worldPacket << uint32(PortraitGiver);
+    _worldPacket << uint32(PortraitTurnIn);
+    _worldPacket << uint8(QuestData.AutoLaunched);
+    _worldPacket << uint32(QuestData.QuestFlags);
+    _worldPacket << uint32(QuestData.SuggestedPartyMembers);
+
+    _worldPacket << uint32(QuestData.Emotes.size());
+    for (WorldPackets::Quest::QuestDescEmote const& emote : QuestData.Emotes)
+    {
+        _worldPacket << uint32(emote.Delay);
+        _worldPacket << uint32(emote.Type);
+    }
+
+    _worldPacket << QuestData.Rewards;
 
     return &_worldPacket;
 }

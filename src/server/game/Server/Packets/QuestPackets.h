@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SystemPackets_h__
-#define SystemPackets_h__
+#ifndef QuestPackets_h__
+#define QuestPackets_h__
 
 #include "Packet.h"
 #include "ObjectGuid.h"
@@ -421,9 +421,38 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        struct QuestGiverOfferReward
+        {
+            ObjectGuid QuestGiverGUID;
+            int32 QuestFlags                = 0;
+            int32 QuestID                   = 0;
+            int32 SuggestedPartyMembers     = 0;
+            QuestRewards Rewards;
+            std::vector<QuestDescEmote> Emotes;
+            bool AutoLaunched = false;
+        };
+
+        class QuestGiverOfferRewardMessage final : public ServerPacket
+        {
+        public:
+            QuestGiverOfferRewardMessage() : ServerPacket(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 600) { }
+
+            WorldPacket const* Write() override;
+
+            QuestGiverOfferReward QuestData;
+            int32 PortraitTurnIn = 0;
+            int32 PortraitGiver = 0;
+            std::string QuestTitle;
+            std::string RewardText;
+            std::string PortraitGiverText;
+            std::string PortraitGiverName;
+            std::string PortraitTurnInText;
+            std::string PortraitTurnInName;
+        };
     }
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards);
 
-#endif // SystemPackets_h__
+#endif // QuestPackets_h__
