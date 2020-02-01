@@ -173,6 +173,22 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestComplete::Write()
+{
+    _worldPacket << uint32(TalentReward);
+    _worldPacket << uint32(NumSkillUpsReward);
+    _worldPacket << uint32(MoneyReward);
+    _worldPacket << uint32(XPReward);
+    _worldPacket << uint32(QuestID);
+    _worldPacket << uint32(SkillLineIDReward);
+
+    _worldPacket.WriteBit(LaunchGossip);
+    _worldPacket.WriteBit(UseQuestReward);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Quest::QuestRewards const& questRewards)
 {
     data << uint32(questRewards.ChoiceItemCount);

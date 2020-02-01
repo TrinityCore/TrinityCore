@@ -296,6 +296,23 @@ namespace WorldPackets
             bool StartCheat = false;
             bool AutoLaunched = false;
         };
+
+        class QuestGiverQuestComplete final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestComplete() : ServerPacket(SMSG_QUEST_GIVER_QUEST_COMPLETE, 20) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SkillLineIDReward = 0;
+            int32 MoneyReward = 0;
+            int32 NumSkillUpsReward = 0;
+            int32 XPReward = 0;
+            int32 QuestID = 0;
+            int32 TalentReward = 0;
+            bool  LaunchGossip = false;
+            bool  UseQuestReward =  false;
+        };
     }
 }
 

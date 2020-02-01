@@ -1437,7 +1437,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanShareQuest(uint32 questId) const;
 
         void SendQuestComplete(Quest const* quest) const;
-        void SendQuestReward(Quest const* quest, uint32 XP);
+        void SendQuestReward(Quest const* quest, Creature const* questGiver, uint32 xp);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK) const;
         void SendQuestTimerFailed(uint32 questId) const;
         void SendCanTakeQuestResponse(QuestFailedReason msg) const;

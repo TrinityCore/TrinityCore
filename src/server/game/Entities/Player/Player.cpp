@@ -78,6 +78,7 @@
 #include "QueryCallback.h"
 #include "QueryHolder.h"
 #include "QuestDef.h"
+#include "QuestPackets.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
 #include "SkillDiscovery.h"
@@ -15251,7 +15252,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     _SaveQuestStatus(trans);
 
     if (announce)
-        SendQuestReward(quest, XP);
+        SendQuestReward(quest, questGiver ? questGiver->ToCreature() : nullptr, XP);
 
     RewardReputation(quest);
 
@@ -16768,33 +16769,32 @@ void Player::SendQuestComplete(Quest const* quest) const
     }
 }
 
-void Player::SendQuestReward(Quest const* quest, uint32 XP)
+void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uint32 xp)
 {
     uint32 questId = quest->GetQuestId();
     sGameEventMgr->HandleQuestComplete(questId);
 
-    uint32 xp = 0;
+    uint32 XP = 0;
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        xp = XP;
+        XP = xp;
 
-    WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4 + 4 + 4 + 4 + 4));
-    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
-    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
-    data << uint32(quest->GetRewOrReqMoney(this));
-    data << uint32(xp);
-    data << uint32(questId);
-    data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
+    WorldPackets::Quest::QuestGiverQuestComplete packet;
+    packet.QuestID = questId;
+    packet.XPReward = XP;
+    packet.MoneyReward = quest->GetRewOrReqMoney(this);
+    packet.NumSkillUpsReward = quest->GetRewardSkillPoints();
+    packet.TalentReward = quest->GetBonusTalents();
+    packet.SkillLineIDReward = quest->GetRewardSkillId();
 
-    bool canTakeNextRewardQuest = false;
-    if (uint32 nextQuestId = quest->GetNextQuestInChain())
-        if (Quest const* quest = sObjectMgr->GetQuestTemplate(nextQuestId))
-            canTakeNextRewardQuest = CanTakeQuest(quest, false);
+    if (questGiver)
+    {
+        if (questGiver->IsGossip())
+            packet.LaunchGossip = true;
+        else if (quest->GetNextQuestInChain() && !quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+            packet.UseQuestReward = true;
+    }
 
-    data.WriteBit(0);                                      // FIXME: unknown bit, common values sent
-    data.WriteBit(canTakeNextRewardQuest);                 // Can take next reward quest
-    data.FlushBits();
-
-    SendDirectMessage(&data);
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendQuestFailed(uint32 questId, InventoryResult reason) const

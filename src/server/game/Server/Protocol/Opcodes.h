@@ -1094,7 +1094,7 @@ enum OpcodeServer
     SMSG_QUERY_QUESTS_COMPLETED_RESPONSE              = 0x6314,
     SMSG_QUERY_TIME_RESPONSE                          = 0x2124,
     SMSG_QUESTGIVER_OFFER_REWARD                      = 0x2427,
-    SMSG_QUESTGIVER_QUEST_COMPLETE                    = 0x55A4,
+    SMSG_QUEST_GIVER_QUEST_COMPLETE                   = 0x55A4,
     SMSG_QUEST_GIVER_QUEST_DETAILS                    = 0x2425,
     SMSG_QUESTGIVER_QUEST_FAILED                      = 0x4236,
     SMSG_QUESTGIVER_QUEST_INVALID                     = 0x4016,
