@@ -3067,11 +3067,6 @@ void Spell::EffectScriptEffect()
                     if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->IsSummon())
                         unitTarget->ToTempSummon()->UnSummon();
                     return;
-                case 52479: // Gift of the Harvester
-                    if (unitTarget && unitCaster)
-                        unitCaster->CastSpell(unitTarget, urand(0, 1) ? damage : 52505, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                            .SetOriginalCastId(m_castId));
-                    return;
                 case 57347: // Retrieving (Wintergrasp RP-GG pickup spell)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || m_caster->GetTypeId() != TYPEID_PLAYER)
