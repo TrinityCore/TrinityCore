@@ -43,8 +43,7 @@
 
 enum UnworthyInitiate
 {
-    SPELL_SOUL_PRISON_CHAIN_SELF    = 54612,
-    SPELL_SOUL_PRISON_CHAIN         = 54613,
+    SPELL_SOUL_PRISON_CHAIN         = 54612,
     SPELL_DK_INITIATE_VISUAL        = 51519,
 
     SPELL_ICY_TOUCH                 = 52372,
@@ -170,7 +169,6 @@ public:
             phase = PHASE_TO_EQUIP;
 
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN_SELF);
             me->RemoveAurasDueToSpell(SPELL_SOUL_PRISON_CHAIN);
 
             float z;
