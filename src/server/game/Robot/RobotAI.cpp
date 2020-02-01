@@ -2628,7 +2628,7 @@ void RobotAI::Update()
                     break;
                 }
             }
-            sRobotManager->robotAICache.erase(accountID);
+            //sRobotManager->robotAICache.erase(accountID);
 
             robotState = RobotState::RobotState_OffLine;
         }
