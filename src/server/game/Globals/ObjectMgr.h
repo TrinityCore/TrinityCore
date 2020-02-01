@@ -474,41 +474,41 @@ struct AccessRequirement
 
 struct BroadcastText
 {
-    BroadcastText() : Id(0), Language(0), EmoteId0(0), EmoteId1(0), EmoteId2(0),
-                      EmoteDelay0(0), EmoteDelay1(0), EmoteDelay2(0), SoundId(0), Unk1(0), Unk2(0)
+    BroadcastText() : Id(0), LanguageID(0), EmoteId1(0), EmoteId2(0), EmoteId3(0),
+                      EmoteDelay1(0), EmoteDelay2(0), EmoteDelay3(0), SoundEntriesID(0), EmotesID(0), Flags(0)
     {
-        MaleText.resize(DEFAULT_LOCALE + 1);
-        FemaleText.resize(DEFAULT_LOCALE + 1);
+        Text.resize(DEFAULT_LOCALE + 1);
+        Text1.resize(DEFAULT_LOCALE + 1);
     }
 
     uint32 Id;
-    uint32 Language;
-    std::vector<std::string> MaleText;
-    std::vector<std::string> FemaleText;
-    uint32 EmoteId0;
+    uint32 LanguageID;
+    std::vector<std::string> Text;
+    std::vector<std::string> Text1;
     uint32 EmoteId1;
     uint32 EmoteId2;
-    uint32 EmoteDelay0;
+    uint32 EmoteId3;
     uint32 EmoteDelay1;
     uint32 EmoteDelay2;
-    uint32 SoundId;
-    uint32 Unk1;
-    uint32 Unk2;
+    uint32 EmoteDelay3;
+    uint32 SoundEntriesID;
+    uint32 EmotesID;
+    uint32 Flags;
     // uint32 VerifiedBuild;
 
     std::string const& GetText(LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false) const
     {
-        if ((gender == GENDER_FEMALE || gender == GENDER_NONE) && (forceGender || !FemaleText[DEFAULT_LOCALE].empty()))
+        if ((gender == GENDER_FEMALE || gender == GENDER_NONE) && (forceGender || !Text1[DEFAULT_LOCALE].empty()))
         {
-            if (FemaleText.size() > size_t(locale) && !FemaleText[locale].empty())
-                return FemaleText[locale];
-            return FemaleText[DEFAULT_LOCALE];
+            if (Text1.size() > size_t(locale) && !Text1[locale].empty())
+                return Text1[locale];
+            return Text1[DEFAULT_LOCALE];
         }
         // else if (gender == GENDER_MALE)
         {
-            if (MaleText.size() > size_t(locale) && !MaleText[locale].empty())
-                return MaleText[locale];
-            return MaleText[DEFAULT_LOCALE];
+            if (Text.size() > size_t(locale) && !Text[locale].empty())
+                return Text[locale];
+            return Text[DEFAULT_LOCALE];
         }
     }
 };
