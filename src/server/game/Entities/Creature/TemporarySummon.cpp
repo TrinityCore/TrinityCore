@@ -182,7 +182,8 @@ void TempSummon::InitStats(uint32 duration)
 
     if (owner)
     {
-        if (int32 slot = m_Properties->Slot)
+        int32 slot = m_Properties->Slot;
+        if (slot > 0)
         {
             if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
             {
