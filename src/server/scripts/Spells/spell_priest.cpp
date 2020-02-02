@@ -108,7 +108,8 @@ enum PriestSpellIcons
     PRIEST_ICON_ID_GLYPH_OF_POWER_WORD_SHIELD       = 566,
     PRIEST_ICON_ID_HARNESSED_SHADOWS                = 554,
     PRIEST_ICON_ID_IMPROVED_MIND_BLAST              = 95,
-    PRIEST_ICON_ID_MIND_MELT                        = 3139
+    PRIEST_ICON_ID_MIND_MELT                        = 3139,
+    PRIEST_ICON_ID_SHADOW_ORB                       = 4941
 };
 
 enum MiscSpells
@@ -1064,10 +1065,11 @@ class spell_pri_shadow_orbs : public AuraScript
         return roll_chance_i(procChance);
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
+        int32 basePoints = 10;
+        GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, SPELLVALUE_BASE_POINT0, basePoints, GetTarget(), true, nullptr, aurEff);
     }
 
     void Register() override
@@ -1090,11 +1092,7 @@ class spell_pri_shadow_orb_power : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        int32 amount = GetEffect(EFFECT_0)->GetAmount();
-
-        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell))
-            amount += spell->Effects[EFFECT_0].BasePoints;
-
+        int32 amount = 10 + aurEff->GetAmount();
         GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, SPELLVALUE_BASE_POINT0, amount, GetTarget(), true, nullptr, aurEff);
     }
 
@@ -1134,11 +1132,7 @@ class spell_pri_shadow_orb : public AuraScript
         PreventDefaultAction();
 
         Unit* target = GetTarget();
-        int32 bp = 10;
-        if (AuraEffect const* powerEff = target->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_PRIEST, 0x0, 0x0, 0x00100000))
-            bp += powerEff->GetAmount();
-
-        bp *= GetStackAmount();
+        int32 bp = aurEff->GetAmount();
         target->CastCustomSpell(target, SPELL_PRIEST_EMPOWERED_SHADOW, &bp, &bp, 0, true, nullptr, aurEff);
         target->RemoveAurasDueToSpell(SPELL_PRIEST_SHADOW_ORB_MARKER);
         Remove();
@@ -1654,7 +1648,23 @@ class spell_pri_mind_blast : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_MIND_TRAUMA });
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_MIND_TRAUMA,
+                SPELL_PRIEST_EMPOWERED_SHADOW
+            });
+    }
+
+    void HandleDamageBonus(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (AuraEffect const* effect = caster->GetDummyAuraEffect(SPELLFAMILY_GENERIC, PRIEST_ICON_ID_SHADOW_ORB, EFFECT_0))
+        {
+            int32 damage = GetEffectValue();
+            int32 bp = effect->GetAmount();
+            AddPct(damage, bp);
+            SetEffectValue(damage);
+        }
     }
 
     void HandleImprovedMindBlast(SpellEffIndex /*effIndex*/)
@@ -1670,7 +1680,36 @@ class spell_pri_mind_blast : public SpellScript
 
     void Register() override
     {
+        OnEffectLaunchTarget += SpellEffectFn(spell_pri_mind_blast::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast::HandleImprovedMindBlast, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 73510 - Mind Spike
+class spell_pri_mind_spike : public SpellScript
+{
+    PrepareSpellScript(spell_pri_mind_spike);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_EMPOWERED_SHADOW });
+    }
+
+    void HandleDamageBonus(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (AuraEffect const* effect = caster->GetDummyAuraEffect(SPELLFAMILY_GENERIC, PRIEST_ICON_ID_SHADOW_ORB, EFFECT_0))
+        {
+            int32 damage = GetEffectValue();
+            int32 bp = effect->GetAmount();
+            AddPct(damage, bp);
+            SetEffectValue(damage);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_pri_mind_spike::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1707,6 +1746,32 @@ class spell_pri_masochism : public AuraScript
     }
 };
 
+class spell_pri_harnessed_shadows : public AuraScript
+{
+    PrepareAuraScript(spell_pri_harnessed_shadows);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_1].TriggerSpell });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        Unit* target = GetTarget();
+        PreventDefaultAction();
+        int32 basePoints = 10;
+        if (AuraEffect const* effect = target->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_PRIEST, 0, 0, 0x00100000))
+            basePoints += effect->GetAmount();
+
+        GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, SPELLVALUE_BASE_POINT0, basePoints, GetTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_harnessed_shadows::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     RegisterSpellScript(spell_pri_archangel);
@@ -1724,6 +1789,7 @@ void AddSC_priest_spell_scripts()
     RegisterAuraScript(spell_pri_evangelism);
     RegisterAuraScript(spell_pri_evangelism_triggered);
     RegisterAuraScript(spell_pri_glyph_of_prayer_of_healing);
+    RegisterAuraScript(spell_pri_harnessed_shadows);
     RegisterSpellScript(spell_pri_hymn_of_hope);
     RegisterAuraScript(spell_pri_improved_power_word_shield);
     RegisterAuraScript(spell_pri_item_greater_heal_refund);
@@ -1736,6 +1802,7 @@ void AddSC_priest_spell_scripts()
     RegisterAuraScript(spell_pri_masochism);
     RegisterSpellScript(spell_pri_mind_blast);
     RegisterSpellScript(spell_pri_mind_sear);
+    RegisterSpellScript(spell_pri_mind_spike);
     RegisterSpellScript(spell_pri_pain_and_suffering_proc);
     RegisterSpellScript(spell_pri_penance);
     RegisterAuraScript(spell_pri_phantasm);
