@@ -679,6 +679,48 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
 
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
+    else if (commandName == "join")
+    {
+        std::ostringstream replyStream;
+        Group* myGroup = pmPlayer->GetGroup();
+        if (myGroup)
+        {
+            ObjectGuid targetGUID = pmPlayer->GetTarget();
+            if (!targetGUID.IsEmpty())
+            {
+                bool validTarget = false;
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    Player* member = groupRef->GetSource();
+                    if (member)
+                    {
+                        if (member->GetGUID() != pmPlayer->GetGUID())
+                        {
+                            if (member->GetGUID() == targetGUID)
+                            {
+                                validTarget = true;
+                                replyStream << "Joining " << member->GetName();
+                                pmPlayer->TeleportTo(member->GetWorldLocation());
+                            }
+                        }
+                    }
+                }
+                if (!validTarget)
+                {
+                    replyStream << "Target is no group member";
+                }
+            }
+            else
+            {
+                replyStream << "You have no target";
+            }
+        }
+        else
+        {
+            replyStream << "You are not in a group";
+        }
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
+    }
 }
 
 bool RobotManager::StringEndWith(const std::string& str, const std::string& tail)
