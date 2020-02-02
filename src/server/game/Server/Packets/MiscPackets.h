@@ -19,6 +19,7 @@
 #define MiscPackets_h__
 
 #include "Packet.h"
+#include "Position.h"
 #include "ObjectGuid.h"
 #include "Weather.h"
 
@@ -28,6 +29,64 @@ namespace WorldPackets
 {
     namespace Misc
     {
+        class BindPointUpdate final : public ServerPacket
+        {
+        public:
+            BindPointUpdate() : ServerPacket(SMSG_BIND_POINT_UPDATE, 20) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 BindMapID = 0;
+            TaggedPosition<Position::XYZ> BindPosition;
+            uint32 BindAreaID = 0;
+        };
+
+        class PlayerBound final : public ServerPacket
+        {
+        public:
+            PlayerBound() : ServerPacket(SMSG_PLAYER_BOUND, 8 + 4) { }
+            PlayerBound(ObjectGuid binderId, uint32 areaId) : ServerPacket(SMSG_PLAYER_BOUND, 8 + 4), BinderID(binderId), AreaID(areaId) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid BinderID;
+            uint32 AreaID = 0;
+        };
+
+        class BinderConfirm final : public ServerPacket
+        {
+        public:
+            BinderConfirm() : ServerPacket(SMSG_BINDER_CONFIRM, 8) { }
+            BinderConfirm(ObjectGuid unit) : ServerPacket(SMSG_BINDER_CONFIRM, 8), Unit(unit) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+        };
+
+        class InvalidatePlayer final : public ServerPacket
+        {
+        public:
+            InvalidatePlayer() : ServerPacket(SMSG_INVALIDATE_PLAYER, 8) { }
+            InvalidatePlayer(ObjectGuid guid) : ServerPacket(SMSG_INVALIDATE_PLAYER, 8), Guid(guid) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class LoginSetTimeSpeed final : public ServerPacket
+        {
+        public:
+            LoginSetTimeSpeed() : ServerPacket(SMSG_LOGIN_SET_TIME_SPEED, 12) { }
+
+            WorldPacket const* Write() override;
+
+            float NewSpeed = 0.0f;
+            uint32 GameTime = 0;
+            int32 GameTimeHolidayOffset = 0;
+        };
+
         class TC_GAME_API Weather final : public ServerPacket
         {
         public:
