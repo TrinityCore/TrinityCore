@@ -1852,6 +1852,13 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (properties->Flags & SUMMON_PROP_FLAG_TOTEM)
         numSummons = 1;
 
+    // Spells with SPELL_ATTR8_UNK21 have either a insane summon number in their basepoints or just 0.
+    // We assume that this attribute is setting the summon count to 1 if SPELL_ATTR8_UNK13 is not given
+    // SPELL_ATTR8_UNK13 seems to be indicating that we may summon multiple units at once outside of this rule
+    // To-do: give these attributes a name for their meaning
+    if (m_spellInfo->HasAttribute(SPELL_ATTR8_UNK21) && !m_spellInfo->HasAttribute(SPELL_ATTR8_UNK13))
+        numSummons = 1;
+
     switch (properties->Control)
     {
         case SUMMON_CATEGORY_WILD:
