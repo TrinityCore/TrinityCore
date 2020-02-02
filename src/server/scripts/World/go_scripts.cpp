@@ -1915,7 +1915,7 @@ enum BellHourlySoundZones
     TELDRASSIL_ZONE     = 141,
     DARNASSUS_ZONE      = 1657,
     ASHENVALE_ZONE      = 331,
-    HILLSBARD_FOOTHILLS = 267,
+    HILLSBRAD_FOOTHILLS = 267,
     DUSKWOOD_ZONE       = 42
 };
 
@@ -1952,7 +1952,7 @@ public:
                     switch (zoneId) {
                     case TIRISFAL_ZONE:
                     case UNDERCITY_ZONE:
-                    case HILLSBARD_FOOTHILLS:
+                    case HILLSBRAD_FOOTHILLS:
                     case DUSKWOOD_ZONE:
                         _soundId = BELLTOLLHORDE;  // undead bell sound
                         break;
