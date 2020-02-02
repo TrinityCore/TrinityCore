@@ -1856,7 +1856,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     // We assume that this attribute is setting the summon count to 1 if SPELL_ATTR8_UNK13 is not given
     // SPELL_ATTR8_UNK13 seems to be indicating that we may summon multiple units at once outside of this rule
     // To-do: give these attributes a name for their meaning
-    if (m_spellInfo->HasAttribute(SPELL_ATTR8_UNK21) && (!m_spellInfo->HasAttribute(SPELL_ATTR8_UNK13) && !m_spellInfo->HasAttribute(SPELL_ATTR10_UNK6)))
+    if (m_spellInfo->HasAttribute(SPELL_ATTR8_UNK21) && (!m_spellInfo->HasAttribute(SPELL_ATTR8_UNK13) || m_spellInfo->HasAttribute(SPELL_ATTR10_UNK6)))
         numSummons = 1;
 
     switch (properties->Control)
