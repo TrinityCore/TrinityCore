@@ -1846,37 +1846,11 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     TempSummon* summon = nullptr;
 
     // determine how many units should be summoned
-    uint32 numSummons;
+    uint32 numSummons = std::max(1, damage);
 
-    // some spells need to summon many units, for those spells number of summons is stored in effect value
-    // however so far noone found a generic check to find all of those (there's no related data in summonproperties.dbc
-    // and in spell attributes, possibly we need to add a table for those)
-    // so here's a list of MiscValueB values, which is currently most generic check
-    switch (properties->ID)
-    {
-        case 64:
-        case 61:
-        case 1101:
-        case 66:
-        case 648:
-        case 2301:
-        case 1061:
-        case 1261:
-        case 629:
-        case 181:
-        case 715:
-        case 1562:
-        case 833:
-        case 1161:
-        case 713:
-        case 3097:
-        case 2929:
-            numSummons = (damage > 0) ? damage : 1;
-            break;
-        default:
-            numSummons = 1;
-            break;
-    }
+    // Totem basepoints are the health amount, not the summon number
+    if (properties->Flags & SUMMON_PROP_FLAG_TOTEM)
+        numSummons = 1;
 
     switch (properties->Control)
     {
@@ -1944,7 +1918,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             // randomize position for multiple summons
                             pos = m_caster->GetRandomPoint(*destTarget, radius);
 
-                        m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, personalSpawn);
+                        m_originalCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, personalSpawn);
                         if (!summon)
                             continue;
 

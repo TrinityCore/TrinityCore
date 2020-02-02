@@ -198,7 +198,22 @@ void TempSummon::InitStats(uint32 duration)
             if (!m_Properties->Faction)
                 SetFaction(owner->GetFaction());
 
-            SetOwnerGUID(owner->GetGUID());
+            switch (m_Properties->Title)
+            {
+                case SUMMON_TYPE_PET:
+                case SUMMON_TYPE_GUARDIAN:
+                case SUMMON_TYPE_GUARDIAN2:
+                case SUMMON_TYPE_MINION:
+                case SUMMON_TYPE_VEHICLE:
+                case SUMMON_TYPE_VEHICLE2:
+                case SUMMON_TYPE_LIGHTWELL:
+                case SUMMON_TYPE_TOTEM:
+                case SUMMON_TYPE_MINIPET:
+                    break;
+                default:
+                    SetOwnerGUID(owner->GetGUID());
+                    break;
+            }
         }
     }
 
