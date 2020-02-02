@@ -15,9 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <AI/ScriptedAI/ScriptedGossip.h>
+#include "ScriptedGossip.h"
 #include "ScriptMgr.h"
-#include "CreatureTextMgr.h"
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -35,45 +34,62 @@ enum BloodyBreakoutTexts
     SAY_KOLTIRA_4 = 4,
     SAY_KOLTIRA_5 = 5,
     SAY_KOLTIRA_6 = 6,
+    SAY_KOLTIRA_7 = 7,
+    SAY_KOLTIRA_8 = 8,
+    SAY_KOLTIRA_9 = 9,
 
     SAY_VALROTH_0 = 0,
     SAY_VALROTH_1 = 1,
     SAY_VALROTH_2 = 2,
     SAY_VALROTH_3 = 3,
+
+    TEXT_ID_EVENT = 13425
 };
 
 enum BloodyBreakoutEvents
 {
-    EVENT_INTRO_0       = 1,
-    EVENT_INTRO_1       = 2,
-    EVENT_INTRO_2       = 3,
-    EVENT_INTRO_3       = 4,
-    EVENT_INTRO_4       = 5,
-    EVENT_INTRO_5       = 6,
-    EVENT_INTRO_6       = 7,
-    EVENT_SPAWN_WAVE_1  = 8,
-    EVENT_SPAWN_WAVE_2  = 9,
-    EVENT_SPAWN_WAVE_3  = 10,
-    EVENT_SPAWN_WAVE_4  = 11,
+    EVENT_INTRO_0           = 1,
+    EVENT_INTRO_1           = 2,
+    EVENT_INTRO_2           = 3,
+    EVENT_INTRO_3           = 4,
+    EVENT_INTRO_4           = 5,
+    EVENT_INTRO_5           = 6,
+    EVENT_INTRO_6           = 7,
+
+    EVENT_SPAWN_WAVE_1      = 8,
+    EVENT_SPAWN_WAVE_2      = 9,
+    EVENT_SPAWN_WAVE_3      = 10,
+    EVENT_SPAWN_VALROTH     = 11,
+
+    EVENT_OUTRO_1           = 12,
+    EVENT_OUTRO_2           = 13,
+    EVENT_OUTRO_3           = 14,
+    EVENT_OUTRO_4           = 15
 };
 
 enum BloodyBreakout
 {
-    POINT_ID_1                  = 0,
-    POINT_ID_2                  = 1,
+    POINT_ID_1                  = 1,
+    POINT_ID_2                  = 2,
+    POINT_ID_6                  = 6,
+    POINT_ID_10                 = 10,
 
     SUMMON_ACOLYTES_0           = 0,
     SUMMON_ACOLYTES_1           = 1,
     SUMMON_ACOLYTES_2           = 2,
-    SUMMON_VALROTH           = 3,
+    SUMMON_VALROTH              = 3,
 
     QUEST_BREAKOUT              = 12727,
 
     NPC_FAKE_VALROTH            = 29011,
+    NPC_VALROTH                 = 29001,
     NPC_ACOLYTE                 = 29007,
+    NPC_KOLTIRA                 = 28912,
+    NPC_KOLTIRA_MOUNT           = 25445,
 
     SPELL_KOLTIRA_TRANSFORM     = 52899,
-    SPELL_ANTI_MAGIC_ZONE       = 52894
+    SPELL_ANTI_MAGIC_ZONE       = 52894,
+    SPELL_HERO_AGGRO            = 53628
 };
 
 Position const koltiraPos[3] =
@@ -96,9 +112,10 @@ struct npc_koltira_deathweaver : public ScriptedAI
         if (me->IsQuestGiver())
             player->PrepareQuestMenu(guid);
 
+        // override default gossip
         if (_eventGossip)
         {
-            SendGossipMenuFor(player, 13425, guid);
+            SendGossipMenuFor(player, TEXT_ID_EVENT, guid);
             return true;
         }
 
@@ -113,9 +130,14 @@ struct npc_koltira_deathweaver : public ScriptedAI
 
     void Reset() override
     {
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_DEAD);
-        me->RemoveAllAuras();
+        me->SetSpeed(MOVE_RUN, 1.14286f);
+
+        me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
+        me->RemoveAurasDueToSpell(SPELL_KOLTIRA_TRANSFORM);
+        DoCastSelf(SPELL_HERO_AGGRO);
 
         _events.Reset();
         _summons.DespawnAll();
@@ -124,7 +146,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
 
     void FakeValrothTalk(uint32 id)
     {
-        if (Creature* fakeValroth = me->FindNearestCreature(NPC_FAKE_VALROTH, 30))
+        if (Creature* fakeValroth = me->FindNearestCreature(NPC_FAKE_VALROTH, INSPECT_DISTANCE * 2))
             fakeValroth->AI()->Talk(id);
     }
 
@@ -197,12 +219,36 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     FakeValrothTalk(SAY_VALROTH_2);
                     me->SummonCreatureGroup(SUMMON_ACOLYTES_2);
 
-                    _events.ScheduleEvent(EVENT_SPAWN_WAVE_4, 26s);
+                    _events.ScheduleEvent(EVENT_SPAWN_VALROTH, 24s);
                     break;
-                case EVENT_SPAWN_WAVE_4:
+                case EVENT_SPAWN_VALROTH:
                     Talk(SAY_KOLTIRA_6);
                     FakeValrothTalk(SAY_VALROTH_3);
                     me->SummonCreatureGroup(SUMMON_VALROTH);
+
+                    break;
+                case EVENT_OUTRO_1:
+                    me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
+                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    Talk(SAY_KOLTIRA_7);
+
+                    _events.ScheduleEvent(EVENT_OUTRO_2, 7s);
+                    break;
+                case EVENT_OUTRO_2:
+                    Talk(SAY_KOLTIRA_8);
+
+                    _events.ScheduleEvent(EVENT_OUTRO_3, 4s);
+                    break;
+                case EVENT_OUTRO_3:
+                    Talk(SAY_KOLTIRA_9);
+
+                    _events.ScheduleEvent(EVENT_OUTRO_4, 4s);
+                    break;
+                case EVENT_OUTRO_4:
+                    me->SetWalk(false);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->GetMotionMaster()->MovePath(NPC_KOLTIRA, false);
 
                     break;
             }
@@ -211,19 +257,29 @@ struct npc_koltira_deathweaver : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (type != POINT_MOTION_TYPE)
-            return;
-
-        if (pointId == POINT_ID_1)
+        if (type == POINT_MOTION_TYPE)
         {
-            me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_KNEEL);
-            FakeValrothTalk(SAY_VALROTH_0);
+            if (pointId == POINT_ID_1)
+            {
+                me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_KNEEL);
+                FakeValrothTalk(SAY_VALROTH_0);
 
-            _events.ScheduleEvent(EVENT_SPAWN_WAVE_1, 1s);
-            _events.ScheduleEvent(EVENT_INTRO_4, 3s);
+                _events.ScheduleEvent(EVENT_SPAWN_WAVE_1, 1s);
+                _events.ScheduleEvent(EVENT_INTRO_4, 3s);
+            }
+            else if (pointId == POINT_ID_2)
+                _events.ScheduleEvent(EVENT_INTRO_5, 1s);
         }
-        else if (pointId == POINT_ID_2)
-            _events.ScheduleEvent(EVENT_INTRO_5, 1s);
+        else
+        {
+            if (pointId == POINT_ID_6)
+            {
+                me->Mount(NPC_KOLTIRA_MOUNT);
+                me->SetSpeed(MOVE_RUN, 1.2897f);
+            }
+            else if (pointId == POINT_ID_10)
+                me->DespawnOrUnsummon();
+        }
     }
 
     void JustSummoned(Creature* summon) override
@@ -233,6 +289,9 @@ struct npc_koltira_deathweaver : public ScriptedAI
 
     void SummonedCreatureDespawn(Creature* summon) override
     {
+        if (summon->GetEntry() == NPC_VALROTH)
+            _events.ScheduleEvent(EVENT_OUTRO_1, 1s);
+
         _summons.Despawn(summon);
     }
 
