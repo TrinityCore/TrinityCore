@@ -81,6 +81,9 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
     st_Solo_Normal = new Strategy_Solo_Normal(this);
     st_Group_Normal = new Strategy_Group_Normal(this);
 
+    combatDistance = false;
+    combatMinDistance = MELEE_COMBAT_DISTANCE;
+    combatMaxDistance = MELEE_MAX_DISTANCE;
     switch (targetClass)
     {
     case Classes::CLASS_WARRIOR:
@@ -90,11 +93,15 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
     }
     case Classes::CLASS_HUNTER:
     {
+        combatMinDistance = RANGED_MIN_DISTANCE;
+        combatMaxDistance = RANGED_MAX_DISTANCE;
         s_base = new Script_Hunter(this);
         break;
     }
     case Classes::CLASS_SHAMAN:
     {
+        combatMinDistance = RANGED_MIN_DISTANCE;
+        combatMaxDistance = RANGED_MAX_DISTANCE;
         s_base = new Script_Shaman(this);
         break;
     }
@@ -105,11 +112,15 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
     }
     case Classes::CLASS_WARLOCK:
     {
+        combatMinDistance = RANGED_MIN_DISTANCE;
+        combatMaxDistance = RANGED_MAX_DISTANCE;
         s_base = new Script_Warlock(this);
         break;
     }
     case Classes::CLASS_PRIEST:
     {
+        combatMinDistance = RANGED_MIN_DISTANCE;
+        combatMaxDistance = RANGED_MAX_DISTANCE;
         s_base = new Script_Priest(this);
         break;
     }
@@ -120,6 +131,8 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
     }
     case Classes::CLASS_MAGE:
     {
+        combatMinDistance = RANGED_MIN_DISTANCE;
+        combatMaxDistance = RANGED_MAX_DISTANCE;
         s_base = new Script_Mage(this);
         break;
     }
@@ -249,6 +262,29 @@ void RobotAI::InitializeCharacter()
             }
         }
         uint8 specialty = urand(0, 2);
+
+        // EJ fixed specialty
+        if (me->GetClass() == Classes::CLASS_MAGE)
+        {
+            specialty = 2;
+        }
+        else if (me->GetClass() == Classes::CLASS_ROGUE)
+        {
+            specialty = 1;
+        }
+        else if (me->GetClass() == Classes::CLASS_WARRIOR)
+        {
+            specialty = 0;
+        }
+        else if (me->GetClass() == Classes::CLASS_SHAMAN)
+        {
+            specialty = 2;
+        }
+        else if (me->GetClass() == Classes::CLASS_PRIEST)
+        {
+            specialty = 1;
+        }
+
         uint32 classMask = me->GetClassMask();
         std::map<uint32, std::vector<TalentEntry const*> > talentsMap;
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
@@ -2071,21 +2107,46 @@ void RobotAI::MoveMelee(Unit* pmTarget)
         return;
     }
     float currentDistance = me->GetDistance(pmTarget);
-    if (currentDistance > MELEE_COMBAT_DISTANCE)
+    if (combatDistance)
     {
-        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
-    }
-    else if (!me->IsWithinLOSInMap(pmTarget))
-    {
-        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
+        if (currentDistance > combatMaxDistance)
+        {
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
+        }
+        else if (currentDistance < combatMinDistance)
+        {
+            float destX = 0;
+            float destY = 0;
+            float destZ = 0;
+            pmTarget->GetNearPoint(me, destX, destY, destZ, combatMaxDistance, pmTarget->ToAbsoluteAngle(pmTarget->GetRelativeAngle(me)));
+            me->GetMotionMaster()->MovePoint(destX, destY, destZ);
+        }
+        else
+        {
+            if (!me->isInFront(pmTarget, M_PI / 4))
+            {
+                me->SetInFront(pmTarget);
+            }
+        }
     }
     else
     {
-        if (!me->isInFront(pmTarget, M_PI / 4))
+        if (currentDistance > MELEE_COMBAT_DISTANCE)
         {
-            me->SetInFront(pmTarget);
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
         }
-    }
+        else if (!me->IsWithinLOSInMap(pmTarget))
+        {
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
+        }
+        else
+        {
+            if (!me->isInFront(pmTarget, M_PI / 4))
+            {
+                me->SetInFront(pmTarget);
+            }
+        }
+    }  
 }
 
 void RobotAI::MoveCLose(Unit* pmTarget, float pmDistance)
@@ -2096,19 +2157,44 @@ void RobotAI::MoveCLose(Unit* pmTarget, float pmDistance)
         return;
     }
     float currentDistance = me->GetDistance(pmTarget);
-    if (currentDistance > pmDistance + MELEE_COMBAT_DISTANCE)
+    if (combatDistance)
     {
-        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
-    }
-    else if (!me->IsWithinLOSInMap(pmTarget))
-    {
-        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
+        if (currentDistance > pmDistance + combatMaxDistance)
+        {
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
+        }
+        else if (currentDistance < combatMinDistance)
+        {
+            float destX = 0;
+            float destY = 0;
+            float destZ = 0;
+            pmTarget->GetNearPoint(me, destX, destY, destZ, combatMaxDistance, pmTarget->ToAbsoluteAngle(pmTarget->GetRelativeAngle(me)));
+            me->GetMotionMaster()->MovePoint(destX, destY, destZ);
+        }
+        else
+        {
+            if (!me->isInFront(pmTarget, M_PI / 4))
+            {
+                me->SetInFront(pmTarget);
+            }
+        }
     }
     else
     {
-        if (!me->isInFront(pmTarget, M_PI / 4))
+        if (currentDistance > pmDistance + MELEE_COMBAT_DISTANCE)
         {
-            me->SetInFront(pmTarget);
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
+        }
+        else if (!me->IsWithinLOSInMap(pmTarget))
+        {
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
+        }
+        else
+        {
+            if (!me->isInFront(pmTarget, M_PI / 4))
+            {
+                me->SetInFront(pmTarget);
+            }
         }
     }
 }
@@ -3511,6 +3597,43 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             }
             WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
         }
+    }
+    else if (commandName == "distance")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        std::ostringstream replyStream;
+        if (commandVector.size() > 1)
+        {
+            std::string distanceState = commandVector.at(1);
+            if (distanceState == "on")
+            {
+                combatDistance = true;
+            }
+            else if (distanceState == "off")
+            {
+                combatDistance = false;
+            }
+        }
+        if (combatDistance)
+        {
+            replyStream << "Combat distance is on";
+        }
+        else
+        {
+            replyStream << "Combat distance is off";
+        }
+
+        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+        return;
     }
     else if (commandName == "cancel")
     {

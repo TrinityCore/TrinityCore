@@ -3059,6 +3059,20 @@ SpellCastResult Spell::prepare(SpellCastTargets const& targets, AuraEffect const
         }
     }
 
+    // EJ fix 
+    // auto stop moving for creature 
+    if (m_spellInfo->IsChanneled() || m_casttime)
+    {
+        if (m_casttime || !m_spellInfo->IsMoveAllowedChannel())
+        {
+            Creature* casterCreature = m_caster->ToCreature();
+            if (casterCreature)
+            {
+                casterCreature->StopMoving();
+            }
+        }
+    }
+
     // focus if not controlled creature
     if (m_caster->GetTypeId() == TYPEID_UNIT && !m_caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED))
     {

@@ -9,6 +9,14 @@
 # define MELEE_MAX_DISTANCE 2.0f
 #endif
 
+#ifndef RANGED_MIN_DISTANCE
+# define RANGED_MIN_DISTANCE 15.0f
+#endif
+
+#ifndef RANGED_MAX_DISTANCE
+# define RANGED_MAX_DISTANCE 25.0f
+#endif
+
 class Script_Base;
 class Strategy_Solo_Normal;
 class Strategy_Group_Normal;
@@ -98,5 +106,10 @@ public:
 
 	Script_Base* s_base;
 	//std::unordered_map<int, Script_Base*> scriptMap;
+
+    bool combatDistance;
+
+    float combatMinDistance;
+    float combatMaxDistance;
 };
 #endif

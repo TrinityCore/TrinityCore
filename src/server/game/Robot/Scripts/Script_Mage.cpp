@@ -68,7 +68,7 @@ bool Script_Mage::DPS_Common(Unit* pmTarget)
 				return true;
 			}
 		}
-	}
+	}    
 	if (sourceAI->CastSpell(pmTarget, "Frostbolt", MAGE_RANGE_DISTANCE))
 	{
 		return true;
