@@ -23,9 +23,7 @@ public:
 	Strategy_Solo_Normal(RobotAI* pmSourceAI);
 	void Update(uint32 pmDiff);
 
-	bool Buff(Unit* pmTarget);
-	bool Eat();
-	bool Drink();
+	bool Buff(Unit* pmTarget);	
 	bool Rest();
 	bool Battle();
 	bool Attack(Unit* pmTarget);
@@ -40,9 +38,7 @@ public:
 	uint8 instruction;
 	int32 deathDuration;
 	int32 soloDuration;
-	int32 restDelay;
-	bool eating;
-	bool drinking;
+	int32 restDelay;	
 	int32 waitDelay;
 	int32 strollDelay;
 	int32 confuseDelay;

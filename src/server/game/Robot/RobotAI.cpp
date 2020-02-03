@@ -2553,6 +2553,7 @@ void RobotAI::Update()
             checkDelay -= diff;
             if (checkDelay <= 0)
             {
+                Prepare();
                 checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
                 bool levelPlayerOnline = false;
                 if (sRobotConfig->onlineLevel == targetLevel)
@@ -3146,60 +3147,6 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         else
         {
             WhisperTo("Do not rest", Language::LANG_UNIVERSAL, pmSender);
-        }
-    }
-    else if (commandName == "eat")
-    {
-        if (!master)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (pmSender->GetGUID() != master->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (!me->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (st_Group_Normal->Eat(true))
-        {
-            st_Group_Normal->staying = false;
-            WhisperTo("Eating", Language::LANG_UNIVERSAL, pmSender);
-        }
-        else
-        {
-            WhisperTo("Do not eat", Language::LANG_UNIVERSAL, pmSender);
-        }
-    }
-    else if (commandName == "drink")
-    {
-        if (!master)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (pmSender->GetGUID() != master->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (!me->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (st_Group_Normal->Drink(true))
-        {
-            st_Group_Normal->staying = false;
-            WhisperTo("Drinking", Language::LANG_UNIVERSAL, pmSender);
-        }
-        else
-        {
-            WhisperTo("Do not drink", Language::LANG_UNIVERSAL, pmSender);
         }
     }
     else if (commandName == "who")

@@ -109,10 +109,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     }
     if (GroupInCombat())
     {
-        restDelay = 0;
-        forceResting = false;
-        eating = false;
-        drinking = false;
+        restDelay = 0;        
         instruction = Group_Instruction::Group_Instruction_Battle;
     }
     switch (instruction)
@@ -158,28 +155,11 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     {
         if (restDelay <= 0)
         {
-            restDelay = 0;
-            forceResting = false;
-            eating = false;
-            drinking = false;
+            restDelay = 0;            
             instruction = Group_Instruction::Group_Instruction_Wander;
             return;
         }
-        else
-        {
-            // check again
-            if (restDelay < 20 * TimeConstants::IN_MILLISECONDS)
-            {
-                if (!eating)
-                {
-                    Eat();
-                }
-                if (!drinking)
-                {
-                    Drink();
-                }
-            }
-        }
+        break;
     }
     default:
     {
@@ -190,41 +170,36 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
 
 bool Strategy_Group_Normal::Rest(bool pmForce)
 {
-    if (pmForce)
-    {
-        forceResting = true;
-    }
-    bool result = Eat();
-    if (!result)
-    {
-        result = Drink();
-    }
-    return result;
-}
-
-bool Strategy_Group_Normal::Eat(bool pmForce)
-{
     Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     if (GroupInCombat())
     {
         return false;
     }
     else
-    {
-        if (pmForce)
-        {
-            forceResting = true;
-        }
-        if (!forceResting)
+    {        
+        if (!pmForce)
         {
             float hpRate = me->GetHealthPct();
-            if (hpRate > 30)
+            float mpRate = 100;
+            if (me->GetPowerType() == Powers::POWER_MANA)
+            {
+                mpRate = me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA);
+            }
+            if (hpRate > 50 && mpRate > 50)
             {
                 return false;
             }
         }
         uint32 foodEntry = 0;
-        if (me->GetLevel() >= 55)
+        if (me->GetLevel() >= 75)
+        {
+            foodEntry = 35950;
+        }
+        else if (me->GetLevel() >= 65)
+        {
+            foodEntry = 33449;
+        }
+        else if (me->GetLevel() >= 55)
         {
             foodEntry = 21023;
         }
@@ -244,67 +219,22 @@ bool Strategy_Group_Normal::Eat(bool pmForce)
         {
             foodEntry = 422;
         }
-        else
-        {
-            return false;
-        }
-
-        if (!me->HasItemCount(foodEntry, 1))
-        {
-            me->StoreNewItemInBestSlots(foodEntry, 20);
-        }
-
-        me->CombatStop(true);
-        me->GetMotionMaster()->Clear();
-        me->StopMoving();
-        me->SetSelection(ObjectGuid());
-
-        sourceAI->ClearShapeshift();
-        Item* pFood = sourceAI->GetItemInInventory(foodEntry);
-        if (pFood && !pFood->IsInTrade())
-        {
-            if (sourceAI->UseItem(pFood, me))
-            {
-                instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
-                eating = true;
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool Strategy_Group_Normal::Drink(bool pmForce)
-{
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
-    if (GroupInCombat())
-    {
-        return false;
-    }
-    else
-    {
-        if (pmForce)
-        {
-            forceResting = true;
-        }
-        if (!forceResting)
-        {
-            float mpRate = 100;
-            if (me->GetPowerType() == Powers::POWER_MANA)
-            {
-                mpRate = me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA);
-            }
-            if (mpRate > 30)
-            {
-                return false;
-            }
-        }
         uint32 drinkEntry = 0;
-        if (me->GetLevel() >= 55)
+        if (me->GetLevel() >= 75)
+        {
+            drinkEntry = 33445;
+        }
+        else if (me->GetLevel() >= 65)
+        {
+            drinkEntry = 35954;
+        }
+        else if (me->GetLevel() >= 55)
         {
             drinkEntry = 18300;
+        }
+        else if (me->GetLevel() >= 45)
+        {
+            drinkEntry = 8766;
         }
         else if (me->GetLevel() >= 45)
         {
@@ -322,11 +252,11 @@ bool Strategy_Group_Normal::Drink(bool pmForce)
         {
             drinkEntry = 1205;
         }
-        else
-        {
-            return false;
-        }
 
+        if (!me->HasItemCount(foodEntry, 1))
+        {
+            me->StoreNewItemInBestSlots(foodEntry, 20);
+        }
         if (!me->HasItemCount(drinkEntry, 1))
         {
             me->StoreNewItemInBestSlots(drinkEntry, 20);
@@ -338,16 +268,27 @@ bool Strategy_Group_Normal::Drink(bool pmForce)
         me->SetSelection(ObjectGuid());
 
         sourceAI->ClearShapeshift();
+        Item* pFood = sourceAI->GetItemInInventory(foodEntry);
+        if (pFood && !pFood->IsInTrade())
+        {
+            if (sourceAI->UseItem(pFood, me))
+            {
+                instruction = Group_Instruction::Group_Instruction_Rest;
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;                
+            }
+        }
         Item* pDrink = sourceAI->GetItemInInventory(drinkEntry);
         if (pDrink && !pDrink->IsInTrade())
         {
             if (sourceAI->UseItem(pDrink, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
-                drinking = true;
-                return true;
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;                
             }
+        }
+        if (restDelay > 0)
+        {
+            return true;
         }
     }
 

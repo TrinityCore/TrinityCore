@@ -109,9 +109,7 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     if (me->IsEngaged())
     {
         instruction = Solo_Instruction::Solo_Instruction_Battle;
-        restDelay = 0;
-        eating = false;
-        drinking = false;
+        restDelay = 0;        
         waitDelay = 0;
         strollDelay = 0;
     }
@@ -177,26 +175,9 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     {
         if (restDelay < 0)
         {
-            restDelay = 0;
-            eating = false;
-            drinking = false;
+            restDelay = 0;            
             instruction = Solo_Instruction::Solo_Instruction_Wander;
             return;
-        }
-        else
-        {
-            // check again
-            if (restDelay < 20 * TimeConstants::IN_MILLISECONDS)
-            {
-                if (!eating)
-                {
-                    Eat();
-                }
-                if (!drinking)
-                {
-                    Drink();
-                }
-            }
         }
         break;
     }
@@ -244,17 +225,6 @@ bool Strategy_Solo_Normal::Buff(Unit* pmTarget)
 
 bool Strategy_Solo_Normal::Rest()
 {
-    bool result = Eat();
-    if (!result)
-    {
-        result = Drink();
-    }
-
-    return result;
-}
-
-bool Strategy_Solo_Normal::Eat()
-{
     Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
     if (!me)
     {
@@ -266,14 +236,26 @@ bool Strategy_Solo_Normal::Eat()
     }
     else
     {
-        bool needEat = false;
         float hpRate = me->GetHealthPct();
-        if (hpRate > 50)
+        float mpRate = 100;
+        if (me->GetPowerType() == Powers::POWER_MANA)
+        {
+            mpRate = me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA);
+        }
+        if (hpRate > 50 && mpRate > 50)
         {
             return false;
         }
         uint32 foodEntry = 0;        
-        if (me->GetLevel() >= 55)
+        if (me->GetLevel() >= 75)
+        {
+            foodEntry = 35950;
+        }
+        else if (me->GetLevel() >= 65)
+        {
+            foodEntry = 33449;
+        }
+        else if (me->GetLevel() >= 55)
         {
             foodEntry = 21023;
         }
@@ -297,61 +279,22 @@ bool Strategy_Solo_Normal::Eat()
         {
             return false;
         }
-
-        if (!me->HasItemCount(foodEntry, 1))
+        uint32 drinkEntry = 0;
+        if (me->GetLevel() >= 75)
         {
-            me->StoreNewItemInBestSlots(foodEntry, 20);
+            drinkEntry = 33445;
         }
-
-        me->CombatStop(true);
-        me->GetMotionMaster()->Clear();
-        me->StopMoving();
-        me->SetSelection(ObjectGuid());
-
-        sourceAI->ClearShapeshift();
-        Item* pFood = sourceAI->GetItemInInventory(foodEntry);
-        if (pFood && !pFood->IsInTrade())
+        else if (me->GetLevel() >= 65)
         {
-            if (sourceAI->UseItem(pFood, me))
-            {
-                instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
-                eating = true;
-                return true;
-            }
+            drinkEntry = 35954;
         }
-    }
-
-    return false;
-}
-
-bool Strategy_Solo_Normal::Drink()
-{
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
-    if (!me)
-    {
-        return false;
-    }
-    if (me->IsEngaged())
-    {
-        return false;
-    }
-    else
-    {
-        bool needDrink = false;
-        float mpRate = 100;
-        if (me->GetPowerType() == Powers::POWER_MANA)
-        {
-            mpRate = me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA);
-        }
-        if (mpRate > 50)
-        {
-            return false;
-        }
-        uint32 drinkEntry = 0;        
-        if (me->GetLevel() >= 55)
+        else if (me->GetLevel() >= 55)
         {
             drinkEntry = 18300;
+        }
+        else if (me->GetLevel() >= 45)
+        {
+            drinkEntry = 8766;
         }
         else if (me->GetLevel() >= 45)
         {
@@ -369,11 +312,11 @@ bool Strategy_Solo_Normal::Drink()
         {
             drinkEntry = 1205;
         }
-        else
-        {
-            return false;
-        }
 
+        if (!me->HasItemCount(foodEntry, 1))
+        {
+            me->StoreNewItemInBestSlots(foodEntry, 20);
+        }
         if (!me->HasItemCount(drinkEntry, 1))
         {
             me->StoreNewItemInBestSlots(drinkEntry, 20);
@@ -385,6 +328,15 @@ bool Strategy_Solo_Normal::Drink()
         me->SetSelection(ObjectGuid());
 
         sourceAI->ClearShapeshift();
+        Item* pFood = sourceAI->GetItemInInventory(foodEntry);
+        if (pFood && !pFood->IsInTrade())
+        {
+            if (sourceAI->UseItem(pFood, me))
+            {
+                instruction = Group_Instruction::Group_Instruction_Rest;
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;                
+            }
+        }
         Item* pDrink = sourceAI->GetItemInInventory(drinkEntry);
         if (pDrink && !pDrink->IsInTrade())
         {
@@ -392,9 +344,11 @@ bool Strategy_Solo_Normal::Drink()
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
                 restDelay = 20 * TimeConstants::IN_MILLISECONDS;
-                drinking = true;
-                return true;
             }
+        }
+        if (restDelay > 0)
+        {
+            return true;
         }
     }
 

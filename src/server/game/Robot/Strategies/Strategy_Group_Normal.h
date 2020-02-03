@@ -17,8 +17,6 @@ public:
 	Strategy_Group_Normal(RobotAI* pmSourceAI);
 	void Update(uint32 pmDiff);    
 	bool Rest(bool pmForce = false);
-	bool Eat(bool pmForce = false);
-	bool Drink(bool pmForce = false);
 	bool Buff();
 	bool Buff(Player* pmTarget);
 	bool Battle();
@@ -41,9 +39,6 @@ public:
 
 	uint8 instruction;	
 	int32 assembleDelay;
-	int32 restDelay;
-	bool eating;
-	bool drinking;
-	bool forceResting;
+    int32 restDelay;
 };
 #endif
