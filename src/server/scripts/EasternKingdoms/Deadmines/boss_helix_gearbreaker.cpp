@@ -170,7 +170,7 @@ Position const HelixSecondCrewPositions[HelixCrewPositionCount] =
 
 struct boss_helix_gearbreaker : public BossAI
 {
-    boss_helix_gearbreaker(Creature* creature) : BossAI(creature, DATA_HELIX_GEARBREAKER)
+    boss_helix_gearbreaker(Creature* creature) : BossAI(creature, DATA_HELIX_GEARBREAKER), _firstStickyBomb(false)
     {
         me->SetReactState(REACT_PASSIVE);
     }
@@ -295,6 +295,11 @@ struct boss_helix_gearbreaker : public BossAI
                     break;
                 case EVENT_STICKY_BOMB:
                     DoCastAOE(SPELL_THROW_BOMB_TARGETING);
+                    if (!_firstStickyBomb)
+                    {
+                        Talk(SAY_STICKY_BOMB);
+                        _firstStickyBomb = true;
+                    }
                     events.Repeat(3s + 500ms);
                     break;
                 case EVENT_OAF_SMASH:
@@ -323,6 +328,8 @@ struct boss_helix_gearbreaker : public BossAI
 
         DoMeleeAttackIfReady();
     }
+private:
+    bool _firstStickyBomb;
 };
 
 struct npc_helix_lumbering_oaf : public ScriptedAI
