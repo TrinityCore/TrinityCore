@@ -5,11 +5,11 @@
 #endif
 
 #ifndef DRUID_CLOSER_DISTANCE
-# define DRUID_CLOSER_DISTANCE 20
+# define DRUID_CLOSER_DISTANCE 25
 #endif
 
 #ifndef DRUID_RANGE_DISTANCE
-# define DRUID_RANGE_DISTANCE 25
+# define DRUID_RANGE_DISTANCE 30
 #endif
 
 Script_Druid::Script_Druid(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
@@ -580,7 +580,7 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
     {
         if (targetDistance > DRUID_PREPARE_DISTANCE)
         {
-            sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true, false);
+            sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
             if (targetDistance < DRUID_RANGE_DISTANCE)
             {
                 if (sourceAI->CastSpell(me, "Prowl", MELEE_MAX_DISTANCE, true))
@@ -593,7 +593,7 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
         {
             if (sourceAI->HasAura(me, "Prowl"))
             {
-                sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true, false);
+                sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
                 if (energy > 50)
                 {
                     if (sourceAI->CastSpell(pmTarget, "Pounce", MELEE_MAX_DISTANCE))

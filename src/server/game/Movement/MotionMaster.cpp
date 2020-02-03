@@ -671,6 +671,27 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
     }
 }
 
+// EJ move further 
+void MotionMaster::MoveFutherAndStop(uint32 id, Unit* target, float distance)
+{
+    float distanceToTravel = distance - _owner->GetExactDist2d(target);
+    if (distanceToTravel > 0.0f)
+    {
+        float angle = _owner->GetAbsoluteAngle(target);        
+        float destx = _owner->GetPositionX() - distanceToTravel * std::cos(angle);
+        float desty = _owner->GetPositionY() - distanceToTravel * std::sin(angle);
+        MovePoint(id, destx, desty, target->GetPositionZ());
+    }
+    else
+    {
+        // We are already far enough. We just need to turn toward the target without changing position.
+        Movement::MoveSplineInit init(_owner);
+        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+        init.SetFacing(target);
+        Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id));
+    }
+}
+
 void MotionMaster::MoveLand(uint32 id, Position const& pos)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveLand: '%s', landing point Id: %u (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());

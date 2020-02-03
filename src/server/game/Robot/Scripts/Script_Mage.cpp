@@ -1,11 +1,11 @@
 #include "Script_Mage.h"
 
 #ifndef MAGE_CLOSER_DISTANCE
-# define MAGE_CLOSER_DISTANCE 20
+# define MAGE_CLOSER_DISTANCE 25
 #endif
 
 #ifndef MAGE_RANGE_DISTANCE
-# define MAGE_RANGE_DISTANCE 25
+# define MAGE_RANGE_DISTANCE 30
 #endif
 
 Script_Mage::Script_Mage(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)

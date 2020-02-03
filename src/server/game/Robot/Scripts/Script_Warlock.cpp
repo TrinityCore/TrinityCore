@@ -1,11 +1,11 @@
 #include "Script_Warlock.h"
 
 #ifndef WARLOCK_CLOSER_DISTANCE
-# define WARLOCK_CLOSER_DISTANCE 20
+# define WARLOCK_CLOSER_DISTANCE 25
 #endif
 
 #ifndef WARLOCK_RANGE_DISTANCE
-# define WARLOCK_RANGE_DISTANCE 25
+# define WARLOCK_RANGE_DISTANCE 30
 #endif
 
 Script_Warlock::Script_Warlock(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)

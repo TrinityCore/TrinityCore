@@ -1,11 +1,11 @@
 #include "Script_Priest.h"
 
 #ifndef PRIEST_CLOSER_DISTANCE
-# define PRIEST_CLOSER_DISTANCE 20
+# define PRIEST_CLOSER_DISTANCE 25
 #endif
 
 #ifndef PRIEST_RANGE_DISTANCE
-# define PRIEST_RANGE_DISTANCE 25
+# define PRIEST_RANGE_DISTANCE 30
 #endif
 
 Script_Priest::Script_Priest(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)

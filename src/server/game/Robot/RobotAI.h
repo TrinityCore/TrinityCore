@@ -10,18 +10,18 @@
 #endif
 
 #ifndef RANGED_MIN_DISTANCE
-# define RANGED_MIN_DISTANCE 15.0f
+# define RANGED_MIN_DISTANCE 20.0f
 #endif
 
 #ifndef RANGED_MAX_DISTANCE
-# define RANGED_MAX_DISTANCE 25.0f
+# define RANGED_MAX_DISTANCE 30.0f
 #endif
 
 class Script_Base;
 class Strategy_Solo_Normal;
 class Strategy_Group_Normal;
 
-enum RobotState:uint32
+enum RobotState :uint32
 {
     RobotState_None = 0,
     RobotState_OffLine,
@@ -39,45 +39,44 @@ enum RobotState:uint32
 class RobotAI
 {
 public:
-	RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace);
-	~RobotAI();
+    RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace);
+    ~RobotAI();
     void Update();
-	Item* GetItemInInventory(uint32 pmEntry);
-	void InitializeCharacter();
-	void SetStrategy(std::string pmStrategyName, bool pmEnable);
-	void ResetStrategy();
+    Item* GetItemInInventory(uint32 pmEntry);
+    void InitializeCharacter();
+    void SetStrategy(std::string pmStrategyName, bool pmEnable);
+    void ResetStrategy();
     void Prepare();
     void Refresh();
-    void RandomTeleport();
-	void MoveMelee(Unit* pmTarget);
-	void MoveCLose(Unit* pmTarget, float pmDistance);
-	void DoAttack(Unit* pmTarget, bool pmMelee = true);
-	void BaseMove(Unit* pmTarget, float pmDistance = ATTACK_DISTANCE, bool pmMelee = true, bool pmAttack = true);
-	bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = 100, bool pmCheckAura = false, bool pmOnlyMyAura = false, bool pmClearShapeshift = false);
-	bool HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
-	bool UseItem(Item* pmItem, Unit* pmTarget);
+    void RandomTeleport();    
+    void MoveCLose(Unit* pmTarget, float pmDistance);
+    void DoAttack(Unit* pmTarget, bool pmMelee = true);
+    void BaseMove(Unit* pmTarget, float pmDistance = MELEE_MAX_DISTANCE, bool pmAttack = true);
+    bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = 100, bool pmCheckAura = false, bool pmOnlyMyAura = false, bool pmClearShapeshift = false);
+    bool HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
+    bool UseItem(Item* pmItem, Unit* pmTarget);
     bool EquipNewItem(uint32 pmEntry);
     bool EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot);
     bool EquipItem(std::string pmEquipName);
     bool UnequipItem(std::string pmEquipName);
     bool UnequipAll();
-    bool EquipAll();    
+    bool EquipAll();
     void HandlePacket(WorldPacket const* packet);
     void HandleChatCommand(Player* pmSender, std::string pmCMD);
-	uint32 FindSpellID(std::string pmSpellName);
-	bool SpellValid(uint32 pmSpellID);
-	bool CancelAura(std::string pmSpellName);
-	void CancelAura(uint32 pmSpellID);
-	void ClearShapeshift();
-	void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
+    uint32 FindSpellID(std::string pmSpellName);
+    bool SpellValid(uint32 pmSpellID);
+    bool CancelAura(std::string pmSpellName);
+    void CancelAura(uint32 pmSpellID);
+    void ClearShapeshift();
+    void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
     void Logout();
 
 public:
-	time_t prevUpdate;    
-	std::unordered_map<std::string, bool> strategiesMap;
-	uint8 characterTalentTab;
-	// 0 dps, 1 tank, 2 healer
-	uint32 characterType;
+    time_t prevUpdate;
+    std::unordered_map<std::string, bool> strategiesMap;
+    uint8 characterTalentTab;
+    // 0 dps, 1 tank, 2 healer
+    uint32 characterType;
     std::string accountName;
     uint32 accountID;
     uint32 characterID;
@@ -86,7 +85,7 @@ public:
     uint32 targetRace;
     uint32 targetClass;
     int32 allDelay;
-    int32 checkDelay;    
+    int32 checkDelay;
     int32 onlineDelay;
     int32 offlineDelay;
     uint32 robotState;
@@ -96,16 +95,16 @@ public:
     std::mutex robotPacketQueue_m;
     std::mutex robotChatCommandQueue_m;
 
-	std::unordered_map<std::string, uint32> spellIDMap;
-	std::unordered_map<std::string, uint8> spellLevelMap;
-	std::unordered_map<uint64, bool> interestMap;
+    std::unordered_map<std::string, uint32> spellIDMap;
+    std::unordered_map<std::string, uint8> spellLevelMap;
+    std::unordered_map<uint64, bool> interestMap;
 
 
-	Strategy_Solo_Normal* st_Solo_Normal;
-	Strategy_Group_Normal* st_Group_Normal;
+    Strategy_Solo_Normal* st_Solo_Normal;
+    Strategy_Group_Normal* st_Group_Normal;
 
-	Script_Base* s_base;
-	//std::unordered_map<int, Script_Base*> scriptMap;
+    Script_Base* s_base;
+    //std::unordered_map<int, Script_Base*> scriptMap;
 
     bool combatDistance;
 

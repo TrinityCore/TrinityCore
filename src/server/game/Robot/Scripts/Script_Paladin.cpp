@@ -1,11 +1,11 @@
 #include "Script_Paladin.h"
 
 #ifndef PALADIN_CLOSER_DISTANCE
-# define PALADIN_CLOSER_DISTANCE 20
+# define PALADIN_CLOSER_DISTANCE 25
 #endif
 
 #ifndef PALADIN_RANGE_DISTANCE
-# define PALADIN_RANGE_DISTANCE 25
+# define PALADIN_RANGE_DISTANCE 30
 #endif
 
 Script_Paladin::Script_Paladin(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)

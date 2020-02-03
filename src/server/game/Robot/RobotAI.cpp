@@ -2051,7 +2051,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     return true;
 }
 
-void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmMelee, bool pmAttack)
+void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
 {
     Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
     if (!me)
@@ -2085,68 +2085,11 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmMelee, bool pmAt
     {
         me->SetSelection(pmTarget->GetGUID());
     }
-    if (pmMelee)
+    MoveCLose(pmTarget, pmDistance);
+    if (pmAttack)
     {
-        MoveMelee(pmTarget);
-        if (pmAttack)
-        {
-            me->Attack(pmTarget, pmMelee);
-        }
+        me->Attack(pmTarget, true);
     }
-    else
-    {
-        MoveCLose(pmTarget, pmDistance);
-    }
-}
-
-void RobotAI::MoveMelee(Unit* pmTarget)
-{
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
-    if (!me)
-    {
-        return;
-    }
-    float currentDistance = me->GetDistance(pmTarget);
-    if (combatDistance)
-    {
-        if (currentDistance > combatMaxDistance)
-        {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
-        }
-        else if (currentDistance < combatMinDistance)
-        {
-            float destX = 0;
-            float destY = 0;
-            float destZ = 0;
-            pmTarget->GetNearPoint(me, destX, destY, destZ, combatMaxDistance, pmTarget->ToAbsoluteAngle(pmTarget->GetRelativeAngle(me)));
-            me->GetMotionMaster()->MovePoint(destX, destY, destZ);
-        }
-        else
-        {
-            if (!me->isInFront(pmTarget, M_PI / 4))
-            {
-                me->SetInFront(pmTarget);
-            }
-        }
-    }
-    else
-    {
-        if (currentDistance > MELEE_COMBAT_DISTANCE)
-        {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
-        }
-        else if (!me->IsWithinLOSInMap(pmTarget))
-        {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
-        }
-        else
-        {
-            if (!me->isInFront(pmTarget, M_PI / 4))
-            {
-                me->SetInFront(pmTarget);
-            }
-        }
-    }  
 }
 
 void RobotAI::MoveCLose(Unit* pmTarget, float pmDistance)
@@ -2159,42 +2102,24 @@ void RobotAI::MoveCLose(Unit* pmTarget, float pmDistance)
     float currentDistance = me->GetDistance(pmTarget);
     if (combatDistance)
     {
-        if (currentDistance > pmDistance + combatMaxDistance)
+        if (currentDistance > combatMaxDistance)
         {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, combatMaxDistance);
         }
         else if (currentDistance < combatMinDistance)
         {
-            float destX = 0;
-            float destY = 0;
-            float destZ = 0;
-            pmTarget->GetNearPoint(me, destX, destY, destZ, combatMaxDistance, pmTarget->ToAbsoluteAngle(pmTarget->GetRelativeAngle(me)));
-            me->GetMotionMaster()->MovePoint(destX, destY, destZ);
-        }
-        else
-        {
-            if (!me->isInFront(pmTarget, M_PI / 4))
-            {
-                me->SetInFront(pmTarget);
-            }
+            me->GetMotionMaster()->MoveFutherAndStop(0, pmTarget, combatMinDistance);
         }
     }
     else
     {
-        if (currentDistance > pmDistance + MELEE_COMBAT_DISTANCE)
+        if (currentDistance > pmDistance)
         {
             me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
         }
         else if (!me->IsWithinLOSInMap(pmTarget))
         {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, 0.5f);
-        }
-        else
-        {
-            if (!me->isInFront(pmTarget, M_PI / 4))
-            {
-                me->SetInFront(pmTarget);
-            }
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
         }
     }
 }

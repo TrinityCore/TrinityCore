@@ -122,7 +122,7 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
 	{
 		if (targetDistance > ROGUE_PREPARE_DISTANCE)
 		{
-			sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true, false);
+			sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
 			if (targetDistance < ROGUE_RANGE_DISTANCE)
 			{
 				if (sourceAI->CastSpell(me, "Stealth", MELEE_MAX_DISTANCE, true))
@@ -135,7 +135,7 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
 		{
 			if (sourceAI->HasAura(me, "Stealth"))
 			{
-				sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true, false);
+				sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
 				if (energy > 60)
 				{
 					if (sourceAI->CastSpell(pmTarget, "Cheap Shot", MELEE_MAX_DISTANCE))

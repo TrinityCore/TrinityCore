@@ -772,79 +772,35 @@ bool Strategy_Group_Normal::Follow()
     {
         return false;
     }
-    Player* tank = NULL;
-    Group* myGroup = me->GetGroup();
-    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+    Player* followTarget = master;
+    if (me->groupRole != 1)
     {
-        Player* member = groupRef->GetSource();
-        if (member->groupRole == 1)
+        Group* myGroup = me->GetGroup();
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
-            tank = member;
-            break;
-        }
-    }
-    bool followTank = false;
-    float followDistance = MELEE_COMBAT_DISTANCE;
-    float targetDistance = 0;
-    if (me->groupRole == 0 || me->groupRole == 2)
-    {
-        if (tank)
-        {
-            if (me->GetMapId() == tank->GetMapId())
+            Player* member = groupRef->GetSource();
+            if (member->groupRole == 1)
             {
-                float tankDistance = me->GetDistance(tank);
-                if (tankDistance < 200)
-                {
-                    targetDistance = tankDistance;
-                    followTank = true;
-                }
+                followTarget = member;
+                break;
             }
         }
     }
-    if (followTank)
+    if (!followTarget)
     {
-        uint8 myClass = me->GetClass();
-        if (myClass == Classes::CLASS_HUNTER || myClass == Classes::CLASS_MAGE || myClass == Classes::CLASS_PRIEST || myClass == Classes::CLASS_WARLOCK)
-        {
-            followDistance = 10;
-        }
+        return false;
     }
-    else
+    float targetDistance = me->GetDistance(followTarget);
+    if (targetDistance > 200)
     {
-        if (me->GetMapId() == master->GetMapId())
-        {
-            targetDistance = me->GetDistance(master);
-            if (targetDistance > 200)
-            {
-                return false;
-            }
-        }
+        return false;
     }
-    if (targetDistance > followDistance)
+    float followDistance = MELEE_MAX_DISTANCE;
+    if (sourceAI->combatDistance)
     {
-        if (followTank)
-        {
-            if (me->GetMapId() == tank->GetMapId())
-            {
-                //me->GetMotionMaster()->MoveFollow(tank, followDistance, me->GetFollowAngle());
-                sourceAI->BaseMove(tank, followDistance, false, false);
-            }
-        }
-        else
-        {
-            if (me->GetMapId() == master->GetMapId())
-            {
-                sourceAI->BaseMove(master, followDistance, false, false);
-            }
-        }
+        followDistance = sourceAI->combatMaxDistance;
     }
-    else if (targetDistance < followDistance)
-    {
-        if (me->isMoving())
-        {
-            me->StopMoving();
-        }
-    }
+    sourceAI->BaseMove(followTarget, followDistance, false);
 
     return true;
 }

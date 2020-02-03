@@ -1,11 +1,11 @@
 #include "Script_Shaman.h"
 
 #ifndef SHAMAN_CLOSER_DISTANCE
-# define SHAMAN_CLOSER_DISTANCE 20
+# define SHAMAN_CLOSER_DISTANCE 25
 #endif
 
 #ifndef SHAMAN_RANGE_DISTANCE
-# define SHAMAN_RANGE_DISTANCE 25
+# define SHAMAN_RANGE_DISTANCE 30
 #endif
 
 Script_Shaman::Script_Shaman(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)

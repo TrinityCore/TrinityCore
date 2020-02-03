@@ -167,6 +167,10 @@ class TC_GAME_API MotionMaster
          *  This method doesn't account for any movement done by the target. in other words, it only works if the target is stationary.
          */
         void MoveCloserAndStop(uint32 id, Unit* target, float distance);
+
+        // EJ move further
+        void MoveFutherAndStop(uint32 id, Unit* target, float distance);
+
         // These two movement types should only be used with creatures having landing/takeoff animations
         void MoveLand(uint32 id, Position const& pos);
         void MoveTakeoff(uint32 id, Position const& pos);
