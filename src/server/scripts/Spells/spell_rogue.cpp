@@ -35,10 +35,13 @@
 
 enum RogueSpells
 {
+    SPELL_ROGUE_ADRENALIN_RUSH                      = 13750,
+    SPELL_ROGUE_BANDITS_GUILE                       = 84748,
     SPELL_ROGUE_BLADE_FLURRY                        = 13877,
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
     SPELL_ROGUE_CHEAT_DEATH_COOLDOWN                = 31231,
     SPELL_ROGUE_CRIPPLING_POISON                    = 3409,
+    SPELL_ROGUE_DEEP_INSIGHT                        = 84747,
     SPELL_ROGUE_ENERGETIC_RECOVERY                  = 4893,
     SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE = 37169,
     SPELL_ROGUE_EXPOSE_ARMOR                        = 8647,
@@ -53,14 +56,18 @@ enum RogueSpells
     SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC         = 31666,
+    SPELL_ROGUE_MODERATE_INSIGHT                    = 84746,
     SPELL_ROGUE_MURDEROUS_INTENT                    = 79132,
     SPELL_ROGUE_OVERKILL_TALENT                     = 58426,
     SPELL_ROGUE_OVERKILL_PERIODIC                   = 58428,
     SPELL_ROGUE_OVERKILL_POWER_REGEN                = 58427,
     SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
     SPELL_ROGUE_REVEALING_STRIKE                    = 84617,
+    SPELL_ROGUE_REDIRECT                            = 73981,
+    SPELL_ROGUE_SHALLOW_INSIGHT                     = 84745,
     SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
     SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
+    SPELL_ROGUE_SPRINT                              = 2983,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
     SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
@@ -1372,13 +1379,18 @@ class spell_rog_improved_expose_armor : public AuraScript
             });
     }
 
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         // Expose Armor shares its family mask with all other finishing moves so there is no way arround an ID check
         if (!eventInfo.GetSpellInfo() || eventInfo.GetSpellInfo()->Id != SPELL_ROGUE_EXPOSE_ARMOR)
             return false;
 
-        return eventInfo.GetProcTarget() && GetTarget()->IsPlayer();
+        return eventInfo.GetProcTarget();
     }
 
     void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -1423,12 +1435,141 @@ class spell_rog_murderous_intent : public AuraScript
     }
 };
 
+// -35541 - Combat Potency
+class spell_rog_combat_potency : public AuraScript
+{
+    PrepareAuraScript(spell_rog_combat_potency);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo())
+            return eventInfo.GetSpellInfo()->SpellFamilyFlags[2] == 0x00000002;
+        else if (eventInfo.GetDamageInfo())
+            return eventInfo.GetDamageInfo()->GetAttackType() == OFF_ATTACK;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_rog_combat_potency::CheckProc);
+    }
+};
+
+// -79095 - Restless Blades
+class spell_rog_restless_blades : public AuraScript
+{
+    PrepareAuraScript(spell_rog_restless_blades);
+
+    bool Load() override
+    {
+        return GetUnitOwner()->IsPlayer();
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_ROGUE_ADRENALIN_RUSH,
+                SPELL_ROGUE_KILLING_SPREE,
+                SPELL_ROGUE_REDIRECT,
+                SPELL_ROGUE_SPRINT
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        Player* player = GetTarget()->ToPlayer();
+        int32 cooldownReduction = 0;
+        cooldownReduction -= player->GetComboPoints() * aurEff->GetAmount();
+        player->GetSpellHistory()->ModifyCooldown(SPELL_ROGUE_ADRENALIN_RUSH, cooldownReduction);
+        player->GetSpellHistory()->ModifyCooldown(SPELL_ROGUE_KILLING_SPREE, cooldownReduction);
+        player->GetSpellHistory()->ModifyCooldown(SPELL_ROGUE_REDIRECT, cooldownReduction);
+        player->GetSpellHistory()->ModifyCooldown(SPELL_ROGUE_SPRINT, cooldownReduction);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_rog_restless_blades::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// -84652 - Bandit's Guile
+class spell_rog_bandits_guile : public AuraScript
+{
+    PrepareAuraScript(spell_rog_bandits_guile);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_ROGUE_SHALLOW_INSIGHT,
+                SPELL_ROGUE_MODERATE_INSIGHT,
+                SPELL_ROGUE_DEEP_INSIGHT,
+                SPELL_ROGUE_BANDITS_GUILE
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (GetTarget()->HasAura(SPELL_ROGUE_DEEP_INSIGHT, GetTarget()->GetGUID()))
+            return false;
+
+        return eventInfo.GetProcTarget();
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+        Unit* procTarget = eventInfo.GetProcTarget();
+        uint32 spellId = SPELL_ROGUE_SHALLOW_INSIGHT;
+        int32 basepoints = 10;
+
+        // We are striking a new opponent, reset progress
+        if (_recentTargetGUID != procTarget->GetGUID())
+        {
+            target->RemoveAurasDueToSpell(SPELL_ROGUE_SHALLOW_INSIGHT, target->GetGUID());
+            target->RemoveAurasDueToSpell(SPELL_ROGUE_MODERATE_INSIGHT, target->GetGUID());
+            _recentTargetGUID = procTarget->GetGUID();
+        }
+
+        // We are increasing our insight on the opponent
+        if (target->HasAura(SPELL_ROGUE_SHALLOW_INSIGHT, target->GetGUID()))
+        {
+            target->RemoveAurasDueToSpell(SPELL_ROGUE_SHALLOW_INSIGHT, target->GetGUID());
+            spellId = SPELL_ROGUE_MODERATE_INSIGHT;
+            basepoints = 20;
+        }
+        else if (target->HasAura(SPELL_ROGUE_MODERATE_INSIGHT, target->GetGUID()))
+        {
+            target->RemoveAurasDueToSpell(SPELL_ROGUE_MODERATE_INSIGHT, target->GetGUID());
+            spellId = SPELL_ROGUE_DEEP_INSIGHT;
+            basepoints = 30;
+        }
+
+        target->CastSpell(target, spellId, true);
+        target->CastCustomSpell(procTarget, SPELL_ROGUE_BANDITS_GUILE, &basepoints, &basepoints, nullptr, true);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_rog_bandits_guile::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_rog_bandits_guile::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+private:
+    ObjectGuid _recentTargetGUID;
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    RegisterAuraScript(spell_rog_bandits_guile);
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
     new spell_rog_crippling_poison();
     new spell_rog_cut_to_the_chase();
+    RegisterAuraScript(spell_rog_combat_potency);
     RegisterAuraScript(spell_rog_deadly_momentum);
     new spell_rog_deadly_poison();
     RegisterSpellScript(spell_rog_envenom);
@@ -1444,6 +1585,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
     RegisterAuraScript(spell_rog_recuperate);
+    RegisterAuraScript(spell_rog_restless_blades);
     new spell_rog_rupture();
     new spell_rog_glyph_of_backstab_triggered();
     RegisterAuraScript(spell_rog_sap);

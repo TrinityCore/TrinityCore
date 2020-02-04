@@ -5623,6 +5623,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE;
     });
 
+    // Blade Twisting
+    ApplySpellFix({
+        31125,
+        51585,
+    }, [](SpellInfo* spellInfo)
+    {
+       spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(2); // 5 yards (combat range)
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
