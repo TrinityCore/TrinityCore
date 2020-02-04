@@ -8088,17 +8088,20 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         }
     }
 
-    // .. taken pct: class scripts
-    //*AuraEffectList const& mclassScritAuras = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-    //for (AuraEffectList::const_iterator i = mclassScritAuras.begin(); i != mclassScritAuras.end(); ++i)
-    //{
-    //    switch ((*i)->GetMiscValue())
-    //    {
-    //    }
-    //}*/
 
     if (attType != RANGED_ATTACK)
+    {
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
+
+        if (!spellProto)
+        {
+            // This aura name is a bit misleading but it's actually only suposed to increase melee auto attack damage
+            TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MELEE_DAMAGE_FROM_CASTER, [attacker](AuraEffect const* effect)->bool
+            {
+                return effect->GetCasterGUID() == attacker->GetGUID();
+            });
+        }
+    }
     else
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
 
