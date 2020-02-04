@@ -18,6 +18,10 @@
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+
 #include "RobotManager.h"
 #include "Strategy_Group_Normal.h"
 #include "Strategy_Solo_Normal.h"
@@ -2408,8 +2412,8 @@ void RobotAI::Update()
                 {
                     onlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
 
-                    // EJ debug 
-                    //onlineDelay = 5 * TimeConstants::IN_MILLISECONDS;
+                    // EJ debug
+                    onlineDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);                    
 
                     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s online delay is set to %d.", accountName, onlineDelay);
                 }
@@ -3557,6 +3561,100 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             }
             WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
         }
+    }
+    else if (commandName == "use")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+
+        std::ostringstream replyStream;
+        if (commandVector.size() > 1)
+        {
+            std::string useType = commandVector.at(1);
+            if (useType == "go")
+            {
+                if (commandVector.size() > 2)
+                {
+                    std::ostringstream goNameStream;
+                    uint32 checkPos = 2;
+                    while (checkPos < commandVector.size())
+                    {
+                        goNameStream << commandVector.at(checkPos) << " ";
+                        checkPos++;
+                    }
+                    std::string goName = sRobotManager->TrimString(goNameStream.str());
+
+                    bool validToUse = false;
+                    std::list<GameObject*> nearGOList;
+                    Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), MELEE_MAX_DISTANCE);
+                    Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(me, nearGOList, check);
+                    Cell::VisitGridObjects(me, searcher, SIZE_OF_GRIDS);
+                    for (std::list<GameObject*>::iterator it = nearGOList.begin(); it != nearGOList.end(); it++)
+                    {
+                        if ((*it)->GetName() == goName)
+                        {
+                            me->SetInFront((*it));
+                            WorldPacket* const packetgouse = new WorldPacket(CMSG_GAMEOBJ_REPORT_USE, 8);
+                            *packetgouse << (*it)->GetGUID();
+                            me->GetSession()->HandleGameObjectUseOpcode(*packetgouse);
+                            replyStream << "Use game object : " << goName;
+                            validToUse = true;
+                            break;
+                        }
+                    }
+                    if (!validToUse)
+                    {
+                        replyStream << "No go with name " << goName << " nearby";
+                    }
+                }
+                else
+                {
+                    replyStream << "No go name";
+                }
+            }
+            else if (useType == "item")
+            {
+
+            }
+            else
+            {
+                replyStream << "Unknown type";
+            }
+        }
+        else
+        {
+            replyStream << "Use what?";
+        }
+        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+    }
+    else if (commandName == "stop")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        me->StopMoving();
+        me->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+        me->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+        me->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+        me->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+        std::ostringstream replyStream;
+        replyStream << "Stopped";
+        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
     }
 }
 
