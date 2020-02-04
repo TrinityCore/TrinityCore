@@ -1519,7 +1519,7 @@ class spell_rog_bandits_guile : public AuraScript
         return eventInfo.GetProcTarget();
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         Unit* target = GetTarget();
