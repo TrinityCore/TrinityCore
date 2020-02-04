@@ -76,9 +76,12 @@ void RobotManager::InitializeManager()
     availableRaces[CLASS_WARRIOR].push_back(RACE_UNDEAD_PLAYER);
     availableRaces[CLASS_WARRIOR].push_back(RACE_TAUREN);
     availableRaces[CLASS_WARRIOR].push_back(RACE_TROLL);
+    availableRaces[CLASS_WARRIOR].push_back(Races::RACE_DRAENEI);
 
     availableRaces[CLASS_PALADIN].push_back(RACE_HUMAN);
     availableRaces[CLASS_PALADIN].push_back(RACE_DWARF);
+    availableRaces[CLASS_PALADIN].push_back(Races::RACE_DRAENEI);
+    availableRaces[CLASS_PALADIN].push_back(Races::RACE_BLOODELF);
 
     availableRaces[CLASS_ROGUE].push_back(RACE_HUMAN);
     availableRaces[CLASS_ROGUE].push_back(RACE_DWARF);
@@ -86,32 +89,41 @@ void RobotManager::InitializeManager()
     availableRaces[CLASS_ROGUE].push_back(RACE_GNOME);
     availableRaces[CLASS_ROGUE].push_back(RACE_ORC);
     availableRaces[CLASS_ROGUE].push_back(RACE_TROLL);
+    availableRaces[CLASS_ROGUE].push_back(Races::RACE_BLOODELF);
 
     availableRaces[CLASS_PRIEST].push_back(RACE_HUMAN);
     availableRaces[CLASS_PRIEST].push_back(RACE_DWARF);
     availableRaces[CLASS_PRIEST].push_back(RACE_NIGHTELF);
     availableRaces[CLASS_PRIEST].push_back(RACE_TROLL);
     availableRaces[CLASS_PRIEST].push_back(RACE_UNDEAD_PLAYER);
+    availableRaces[CLASS_PRIEST].push_back(Races::RACE_DRAENEI);
+    availableRaces[CLASS_PRIEST].push_back(Races::RACE_BLOODELF);
 
     availableRaces[CLASS_MAGE].push_back(RACE_HUMAN);
     availableRaces[CLASS_MAGE].push_back(RACE_GNOME);
     availableRaces[CLASS_MAGE].push_back(RACE_UNDEAD_PLAYER);
     availableRaces[CLASS_MAGE].push_back(RACE_TROLL);
+    availableRaces[CLASS_MAGE].push_back(Races::RACE_DRAENEI);
+    availableRaces[CLASS_MAGE].push_back(Races::RACE_BLOODELF);
 
     availableRaces[CLASS_WARLOCK].push_back(RACE_HUMAN);
     availableRaces[CLASS_WARLOCK].push_back(RACE_GNOME);
     availableRaces[CLASS_WARLOCK].push_back(RACE_UNDEAD_PLAYER);
     availableRaces[CLASS_WARLOCK].push_back(RACE_ORC);
+    availableRaces[CLASS_WARLOCK].push_back(Races::RACE_BLOODELF);
 
     availableRaces[CLASS_SHAMAN].push_back(RACE_ORC);
     availableRaces[CLASS_SHAMAN].push_back(RACE_TAUREN);
     availableRaces[CLASS_SHAMAN].push_back(RACE_TROLL);
+    availableRaces[CLASS_SHAMAN].push_back(Races::RACE_DRAENEI);
 
     availableRaces[CLASS_HUNTER].push_back(RACE_DWARF);
     availableRaces[CLASS_HUNTER].push_back(RACE_NIGHTELF);
     availableRaces[CLASS_HUNTER].push_back(RACE_ORC);
     availableRaces[CLASS_HUNTER].push_back(RACE_TAUREN);
     availableRaces[CLASS_HUNTER].push_back(RACE_TROLL);
+    availableRaces[CLASS_HUNTER].push_back(Races::RACE_DRAENEI);
+    availableRaces[CLASS_HUNTER].push_back(Races::RACE_BLOODELF);
 
     availableRaces[CLASS_DRUID].push_back(RACE_NIGHTELF);
     availableRaces[CLASS_DRUID].push_back(RACE_TAUREN);
@@ -342,13 +354,18 @@ void RobotManager::InitializeManager()
         }
     }
 
-    uint32 checkLevel = 11;
-    uint32 maxLevel = 60;
+    uint32 checkLevel = 20;
+    uint32 maxLevel = 80;
     uint32 checkGroupIndex = 0;
     while (checkLevel <= maxLevel)
     {
         for (std::map<uint32, std::vector<uint32>>::iterator classIT = availableRaces.begin(); classIT != availableRaces.end(); classIT++)
         {
+            // EJ debug hunter and warlock and paladin will be ignored for now
+            if (classIT->first == Classes::CLASS_HUNTER || classIT->first == Classes::CLASS_WARLOCK || classIT->first == Classes::CLASS_PALADIN)
+            {
+                continue;
+            }
             std::vector<uint32> raceVector = classIT->second;
             for (std::vector<uint32>::iterator raceIT = raceVector.begin(); raceIT != raceVector.end(); raceIT++)
             {

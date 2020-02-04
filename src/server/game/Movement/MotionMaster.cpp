@@ -663,11 +663,15 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
     }
     else
     {
-        // We are already close enough. We just need to turn toward the target without changing position.
-        Movement::MoveSplineInit init(_owner);
-        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
-        init.SetFacing(target);
-        Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id));
+        // EJ check front first 
+        if (!_owner->isInFront(target))
+        {
+            // We are already close enough. We just need to turn toward the target without changing position.
+            Movement::MoveSplineInit init(_owner);
+            init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+            init.SetFacing(target);
+            Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id));
+        }
     }
 }
 
@@ -684,11 +688,15 @@ void MotionMaster::MoveFutherAndStop(uint32 id, Unit* target, float distance)
     }
     else
     {
-        // We are already far enough. We just need to turn toward the target without changing position.
-        Movement::MoveSplineInit init(_owner);
-        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
-        init.SetFacing(target);
-        Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id));
+        // EJ check front first 
+        if (!_owner->isInFront(target))
+        {
+            // We are already far enough. We just need to turn toward the target without changing position.
+            Movement::MoveSplineInit init(_owner);
+            init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+            init.SetFacing(target);
+            Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id));
+        }
     }
 }
 

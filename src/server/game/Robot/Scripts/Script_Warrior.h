@@ -17,5 +17,13 @@ public:
 
 	bool DPS_Common(Unit* pmTarget);
 	bool Attack_Common(Unit* pmTarget);
+
+    bool DPS_Arms(Unit* pmTarget);
+    bool Attack_Arms(Unit* pmTarget);
+
+    bool DPS_Fury(Unit* pmTarget);
+    bool Attack_Fury(Unit* pmTarget);
+
+    bool Attack_Protection(Unit* pmTarget);
 };
 #endif

@@ -68,12 +68,6 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
 
     robotState = RobotState::RobotState_OffLine;
 
-    // EJ debug hunter and warlock will be ignored for now
-    if (targetClass == Classes::CLASS_HUNTER || targetClass == Classes::CLASS_WARLOCK)
-    {
-        robotState = RobotState::RobotState_None;
-    }
-
     spellIDMap.clear();
     spellLevelMap.clear();
     interestMap.clear();
@@ -274,7 +268,7 @@ void RobotAI::InitializeCharacter()
         }
         else if (me->GetClass() == Classes::CLASS_WARRIOR)
         {
-            specialty = 0;
+            specialty = 1;
         }
         else if (me->GetClass() == Classes::CLASS_SHAMAN)
         {
@@ -1808,6 +1802,7 @@ void RobotAI::InitializeCharacter()
     {
         me->SetPvP(true);
     }
+    me->SaveToDB();
 }
 
 void RobotAI::Prepare()
@@ -1974,6 +1969,10 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     {
         return false;
     }
+    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+    {
+        return true;
+    }
     if (me->IsNonMeleeSpellCast(true))
     {
         return true;
@@ -2012,7 +2011,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
             {
                 return false;
             }
-            if (!me->isInFront(pmTarget, M_PI / 4))
+            if (!me->isInFront(pmTarget))
             {
                 me->SetInFront(pmTarget);
             }
@@ -2066,6 +2065,10 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     {
         return;
     }
+    if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+    {
+        return;
+    }
     // Can't attack if owner is pacified
     if (me->HasAuraType(SPELL_AURA_MOD_PACIFY))
     {
@@ -2102,24 +2105,24 @@ void RobotAI::MoveCLose(Unit* pmTarget, float pmDistance)
     float currentDistance = me->GetDistance(pmTarget);
     if (combatDistance)
     {
-        if (currentDistance > combatMaxDistance)
-        {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, combatMaxDistance);
-        }
-        else if (currentDistance < combatMinDistance)
+        if (currentDistance < combatMinDistance)
         {
             me->GetMotionMaster()->MoveFutherAndStop(0, pmTarget, combatMinDistance);
+        }
+        else
+        {
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, combatMaxDistance);
         }
     }
     else
     {
-        if (currentDistance > pmDistance)
+        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
+        if (currentDistance < pmDistance)
         {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
-        }
-        else if (!me->IsWithinLOSInMap(pmTarget))
-        {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
+            if (!me->IsWithinLOSInMap(pmTarget))
+            {
+                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
+            }
         }
     }
 }

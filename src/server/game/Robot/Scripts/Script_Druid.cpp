@@ -984,13 +984,6 @@ bool Script_Druid::Buff(Unit* pmTarget)
                 return true;
             }
         }
-        if (!sourceAI->HasAura(pmTarget, "Thorns", false))
-        {
-            if (sourceAI->CastSpell(pmTarget, "Thorns", DRUID_RANGE_DISTANCE, true, false, true))
-            {
-                return true;
-            }
-        }
     }
 
     return false;
