@@ -62,7 +62,8 @@ enum RogueSpells
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
     SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
     SPELL_ROGUE_RUPTURE                             = 1943,
-    SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED       = 51699
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED       = 51699,
+    SPELL_ROGUE_BLACKJACK_R1                        = 79123
 };
 
 enum RogueSpellIcons
@@ -673,11 +674,19 @@ class spell_rog_recuperate : public AuraScript
         }
     }
 
+    void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Duration = aurEff->GetBase()->GetDuration();
+    }
+
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_recuperate::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
+public:
+    int32 Duration = 0;
 };
 
 // -1943 - Rupture
@@ -1276,12 +1285,83 @@ class spell_rog_envenom : public SpellScript
     }
 };
 
+// 5171 - Slice and Dice
+class spell_rog_slice_and_dice : public AuraScript
+{
+    PrepareAuraScript(spell_rog_slice_and_dice);
+
+    void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Duration = aurEff->GetBase()->GetDuration();
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_slice_and_dice::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+public:
+    int32 Duration = 0;
+};
+
+// -79121 - Deadly Momentum
+class spell_rog_deadly_momentum : public AuraScript
+{
+    PrepareAuraScript(spell_rog_deadly_momentum);
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        Unit* target = GetTarget();
+
+        // Slice and Dice duration refreshing
+        if (AuraEffect* slice = target->GetAuraEffect(SPELL_AURA_MOD_MELEE_HASTE_3, SPELLFAMILY_ROGUE, 0x00040000, 0, 0))
+            if (spell_rog_slice_and_dice* script = slice->GetBase()->GetScript<spell_rog_slice_and_dice>("spell_rog_slice_and_dice"))
+                slice->GetBase()->SetDuration(script->Duration);
+
+        // Recuperate duration refreshing
+        if (AuraEffect* recuperate = target->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_ROGUE, 0, 0x08000000, 0))
+            if (spell_rog_recuperate* script = recuperate->GetBase()->GetScript<spell_rog_recuperate>("spell_rog_recuperate"))
+                recuperate->GetBase()->SetDuration(script->Duration);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_rog_deadly_momentum::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE);
+    }
+};
+
+// 6770 - Sap
+class spell_rog_sap: public AuraScript
+{
+    PrepareAuraScript(spell_rog_sap);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_BLACKJACK_R1 });
+    }
+
+    void HandleBlackJack(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (Aura const* aura = caster->GetAuraOfRankedSpell(SPELL_ROGUE_BLACKJACK_R1))
+            caster->CastSpell(GetTarget(), aura->GetSpellInfo()->Id + 1, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_rog_sap::HandleBlackJack, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
     new spell_rog_crippling_poison();
     new spell_rog_cut_to_the_chase();
+    RegisterAuraScript(spell_rog_deadly_momentum);
     new spell_rog_deadly_poison();
     RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
@@ -1296,7 +1376,9 @@ void AddSC_rogue_spell_scripts()
     RegisterAuraScript(spell_rog_recuperate);
     new spell_rog_rupture();
     new spell_rog_glyph_of_backstab_triggered();
+    RegisterAuraScript(spell_rog_sap);
     new spell_rog_shiv();
+    RegisterAuraScript(spell_rog_slice_and_dice);
     new spell_rog_stealth();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
