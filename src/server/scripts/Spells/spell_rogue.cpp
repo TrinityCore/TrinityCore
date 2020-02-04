@@ -1438,6 +1438,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_killing_spree();
     RegisterAuraScript(spell_rog_main_gauche);
     new spell_rog_master_of_subtlety();
+    RegisterAuraScript(spell_rog_murderous_intent);
     new spell_rog_nerves_of_steel();
     new spell_rog_overkill();
     new spell_rog_preparation();
