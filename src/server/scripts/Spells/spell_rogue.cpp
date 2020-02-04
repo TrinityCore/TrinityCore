@@ -41,8 +41,10 @@ enum RogueSpells
     SPELL_ROGUE_CRIPPLING_POISON                    = 3409,
     SPELL_ROGUE_ENERGETIC_RECOVERY                  = 4893,
     SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE = 37169,
+    SPELL_ROGUE_EXPOSE_ARMOR                        = 8647,
     SPELL_ROGUE_GLYPH_OF_PREPARATION                = 56819,
     SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED          = 89775,
+    SPELL_ROGUE_IMPROVED_EXPOSE_ARMOR               = 79128,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
@@ -51,6 +53,7 @@ enum RogueSpells
     SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC         = 31666,
+    SPELL_ROGUE_MURDEROUS_INTENT                    = 79132,
     SPELL_ROGUE_OVERKILL_TALENT                     = 58426,
     SPELL_ROGUE_OVERKILL_PERIODIC                   = 58428,
     SPELL_ROGUE_OVERKILL_POWER_REGEN                = 58427,
@@ -1355,6 +1358,71 @@ class spell_rog_sap: public AuraScript
     }
 };
 
+// -14168 - Improved Expose Armor
+class spell_rog_improved_expose_armor : public AuraScript
+{
+    PrepareAuraScript(spell_rog_improved_expose_armor);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_ROGUE_IMPROVED_EXPOSE_ARMOR,
+                SPELL_ROGUE_EXPOSE_ARMOR
+            });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        // Expose Armor shares its family mask with all other finishing moves so there is no way arround an ID check
+        if (!eventInfo.GetSpellInfo() || eventInfo.GetSpellInfo()->Id != SPELL_ROGUE_EXPOSE_ARMOR)
+            return false;
+
+        return eventInfo.GetProcTarget() && GetTarget()->IsPlayer();
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Player* player = GetTarget()->ToPlayer();
+        player->CastCustomSpell(SPELL_ROGUE_IMPROVED_EXPOSE_ARMOR, SPELLVALUE_BASE_POINT0, player->GetComboPoints(), eventInfo.GetProcTarget(), true);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_rog_improved_expose_armor::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_rog_improved_expose_armor::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// -14158 - Murderous Intent
+class spell_rog_murderous_intent : public AuraScript
+{
+    PrepareAuraScript(spell_rog_murderous_intent);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_MURDEROUS_INTENT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->GetHealthPct() <= GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetTarget());
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastCustomSpell(SPELL_ROGUE_MURDEROUS_INTENT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_rog_murderous_intent::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_rog_murderous_intent::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
@@ -1366,6 +1434,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
     RegisterAuraScript(spell_rog_glyph_of_hemorrhage);
+    RegisterAuraScript(spell_rog_improved_expose_armor);
     new spell_rog_killing_spree();
     RegisterAuraScript(spell_rog_main_gauche);
     new spell_rog_master_of_subtlety();
