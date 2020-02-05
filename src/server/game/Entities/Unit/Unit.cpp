@@ -8001,9 +8001,18 @@ uint32 Unit::MeleeDamageBonusDone(Unit* victim, uint32 pdamage, WeaponAttackType
     if (spellProto)
         AddPct(DoneTotalMod, GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC, spellProto->Mechanic));
 
-    // Add SPELL_AURA_MOD_AUTOATTACK_DAMAGE percent bonus
     if (!spellProto)
+    {
+        // Add SPELL_AURA_MOD_AUTOATTACK_DAMAGE percent bonus
         AddPct(DoneTotalMod, GetTotalAuraModifier(SPELL_AURA_MOD_AUTOATTACK_DAMAGE));
+
+        // Add SPELL_AURA_MOD_MELEE_DAMAGE_FROM_CASTER percent bonus
+        // This aura name is a bit misleading but it's actually only suposed to increase melee auto attack damage
+        AddPct(DoneTotalMod, victim->GetTotalAuraMultiplier(SPELL_AURA_MOD_MELEE_DAMAGE_FROM_CASTER, [this](AuraEffect const* effect)->bool
+        {
+            return effect->GetCasterGUID() == GetGUID();
+        }));
+    }
 
     // done scripted mod (take it from owner)
     // Unit* owner = GetOwner() ? GetOwner() : this;
@@ -8090,18 +8099,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
 
 
     if (attType != RANGED_ATTACK)
-    {
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
-
-        if (!spellProto)
-        {
-            // This aura name is a bit misleading but it's actually only suposed to increase melee auto attack damage
-            TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MELEE_DAMAGE_FROM_CASTER, [attacker](AuraEffect const* effect)->bool
-            {
-                return effect->GetCasterGUID() == attacker->GetGUID();
-            });
-        }
-    }
     else
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
 
