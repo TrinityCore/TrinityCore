@@ -2608,7 +2608,7 @@ void RobotAI::Update()
                         {
                             if (master->IsInWorld())
                             {
-                                if (me->IsInSameGroupWith(master))
+                                if (me->IsInSameRaidWith(master))
                                 {
                                     levelPlayerOnline = true;
                                 }
@@ -3094,9 +3094,9 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
+        st_Group_Normal->staying = false;
         if (st_Group_Normal->Follow())
-        {
-            st_Group_Normal->staying = false;
+        {            
             WhisperTo("Following", Language::LANG_UNIVERSAL, pmSender);
         }
         else
@@ -3131,6 +3131,33 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I will not stay", Language::LANG_UNIVERSAL, pmSender);
         }
     }
+    else if (commandName == "heal")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (!me->IsAlive())
+        {
+            WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (me->groupRole == 2)
+        {
+            st_Group_Normal->staying = false;
+            WhisperTo("I am ready to do healing", Language::LANG_UNIVERSAL, pmSender);
+        }
+        else
+        {
+            WhisperTo("I am not a healer", Language::LANG_UNIVERSAL, pmSender);
+        }
+    }
     else if (commandName == "attack")
     {
         if (!master)
@@ -3149,10 +3176,10 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             return;
         }
         Unit* senderTarget = pmSender->GetSelectedUnit();
+        st_Group_Normal->staying = false;
         if (st_Group_Normal->Attack(senderTarget))
         {
-            st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
-            st_Group_Normal->staying = false;
+            st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;            
             me->SetSelection(senderTarget->GetGUID());
             WhisperTo("Attack your target", Language::LANG_UNIVERSAL, pmSender);
         }
@@ -3178,9 +3205,9 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
+        st_Group_Normal->staying = false;
         if (st_Group_Normal->Rest(true))
-        {
-            st_Group_Normal->staying = false;
+        {            
             WhisperTo("Resting", Language::LANG_UNIVERSAL, pmSender);
         }
         else
@@ -3248,9 +3275,9 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         if (me->groupRole == 1)
         {
             Unit* senderTarget = pmSender->GetSelectedUnit();
+            st_Group_Normal->staying = false;
             if (st_Group_Normal->Tank(senderTarget))
-            {
-                st_Group_Normal->staying = false;
+            {                
                 st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
                 me->SetSelection(senderTarget->GetGUID());
                 WhisperTo("Tank your target", Language::LANG_UNIVERSAL, pmSender);

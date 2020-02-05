@@ -166,7 +166,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
             {
                 invitedPlayer->RemoveFromGroup();
             }
-            else if (!invitedPlayer->IsInSameGroupWith(invitedMaster))
+            else if (!invitedPlayer->IsInSameRaidWith(invitedMaster))
             {
                 invitedPlayer->RemoveFromGroup();
             }

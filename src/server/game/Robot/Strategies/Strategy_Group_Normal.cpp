@@ -38,7 +38,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
         // wait for checking to reset
         return;
     }
-    if (!me->IsInSameGroupWith(master))
+    if (!me->IsInSameRaidWith(master))
     {
         return;
     }
