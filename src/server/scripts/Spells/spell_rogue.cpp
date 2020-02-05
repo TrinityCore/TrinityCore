@@ -78,7 +78,8 @@ enum RogueSpells
 
 enum RogueSpellIcons
 {
-    ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819
+    ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819,
+    ROGUE_ICON_ID_SERRATED_BLADES                   = 2004
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -700,78 +701,70 @@ public:
 };
 
 // -1943 - Rupture
-class spell_rog_rupture : public SpellScriptLoader
+class spell_rog_rupture : public AuraScript
 {
-    public:
-        static char constexpr const ScriptName[] = "spell_rog_rupture";
+    PrepareAuraScript(spell_rog_rupture);
 
-        spell_rog_rupture() : SpellScriptLoader(ScriptName) { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_REVEALING_STRIKE });
+    }
 
-        class spell_rog_rupture_AuraScript : public AuraScript
+    bool Load() override
+    {
+        Unit* caster = GetCaster();
+        return caster && caster->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        if (Unit* caster = GetCaster())
         {
-            PrepareAuraScript(spell_rog_rupture_AuraScript);
+            canBeRecalculated = false;
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            float const attackpowerPerCombo[6] =
             {
-                return ValidateSpellInfo({ SPELL_ROGUE_REVEALING_STRIKE });
-            }
+                0.0f,
+                0.015f,         // 1 point:  ${($m1 + $b1*1 + 0.015 * $AP) * 5} damage over 8 secs
+                0.024f,         // 2 points: ${($m1 + $b1*2 + 0.024 * $AP) * 5} damage over 10 secs
+                0.03f,          // 3 points: ${($m1 + $b1*3 + 0.03 * $AP) * 5} damage over 12 secs
+                0.03428571f,    // 4 points: ${($m1 + $b1*4 + 0.03428571 * $AP) * 5} damage over 14 secs
+                0.0375f         // 5 points: ${($m1 + $b1*5 + 0.0375 * $AP) * 5} damage over 16 secs
+            };
 
-            bool Load() override
+            uint8 cp = std::min(caster->ToPlayer()->GetComboPoints(), uint8(5));
+            amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * attackpowerPerCombo[cp]);
+
+            if (AuraEffect* const revealingStrike = GetUnitOwner()->GetAuraEffect(SPELL_ROGUE_REVEALING_STRIKE, EFFECT_2, caster->GetGUID()))
             {
-                Unit* caster = GetCaster();
-                BonusDuration = 0;
-                return caster && caster->GetTypeId() == TYPEID_PLAYER;
+                amount += CalculatePct(amount, revealingStrike->GetAmount());
+                revealingStrike->GetBase()->Remove();
             }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    canBeRecalculated = false;
-
-                    float const attackpowerPerCombo[6] =
-                    {
-                        0.0f,
-                        0.015f,         // 1 point:  ${($m1 + $b1*1 + 0.015 * $AP) * 5} damage over 8 secs
-                        0.024f,         // 2 points: ${($m1 + $b1*2 + 0.024 * $AP) * 5} damage over 10 secs
-                        0.03f,          // 3 points: ${($m1 + $b1*3 + 0.03 * $AP) * 5} damage over 12 secs
-                        0.03428571f,    // 4 points: ${($m1 + $b1*4 + 0.03428571 * $AP) * 5} damage over 14 secs
-                        0.0375f         // 5 points: ${($m1 + $b1*5 + 0.0375 * $AP) * 5} damage over 16 secs
-                    };
-
-                    uint8 cp = std::min(caster->ToPlayer()->GetComboPoints(), uint8(5));
-                    amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * attackpowerPerCombo[cp]);
-
-                    if (AuraEffect* const revealingStrike = GetUnitOwner()->GetAuraEffect(SPELL_ROGUE_REVEALING_STRIKE, EFFECT_2, caster->GetGUID()))
-                    {
-                        amount += CalculatePct(amount, revealingStrike->GetAmount());
-                        revealingStrike->GetBase()->Remove();
-                    }
-                }
-            }
-
-            void ResetDuration(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                BonusDuration = 0;
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_rupture_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                AfterEffectApply += AuraEffectApplyFn(spell_rog_rupture_AuraScript::ResetDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
-            }
-
-        public:
-            // For Glyph of Backstab use
-            uint32 BonusDuration;
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_rupture_AuraScript();
         }
+    }
+
+    void ResetDuration(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        BonusDuration = 0;
+    }
+
+    void StoreOriginalDuration(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        OriginalDuration = aurEff->GetBase()->GetDuration();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_rupture::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_rupture::ResetDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAPPLY);
+        AfterEffectApply += AuraEffectApplyFn(spell_rog_rupture::StoreOriginalDuration, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+
+public:
+    // For Glyph of Backstab use
+    uint32 BonusDuration = 0;
+    int32 OriginalDuration = 0;
 };
-char constexpr const spell_rog_rupture::ScriptName[];
 
 // 63975 - Glyph of Backstab (triggered - serverside)
 class spell_rog_glyph_of_backstab_triggered : public SpellScriptLoader
@@ -783,8 +776,6 @@ class spell_rog_glyph_of_backstab_triggered : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_glyph_of_backstab_triggered_SpellScript);
 
-            typedef spell_rog_rupture::spell_rog_rupture_AuraScript RuptureAuraScript;
-
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -793,7 +784,7 @@ class spell_rog_glyph_of_backstab_triggered : public SpellScriptLoader
                 // search our Rupture aura on target
                 if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00100000, 0, 0, caster->GetGUID()))
                 {
-                    RuptureAuraScript* ruptureAuraScript = aurEff->GetBase()->GetScript<RuptureAuraScript>(spell_rog_rupture::ScriptName);
+                    spell_rog_rupture* ruptureAuraScript = aurEff->GetBase()->GetScript<spell_rog_rupture>("spell_rog_rupture");
                     if (!ruptureAuraScript)
                         return;
 
@@ -1013,40 +1004,6 @@ class spell_rog_tricks_of_the_trade_proc : public SpellScriptLoader
         }
 };
 
-class spell_rog_serrated_blades : public SpellScriptLoader
-{
-public:
-    spell_rog_serrated_blades() : SpellScriptLoader("spell_rog_serrated_blades") { }
-
-    class spell_rog_serrated_blades_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_serrated_blades_SpellScript);
-
-        void HandleHit()
-        {
-            if (AuraEffect* blade = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_ROGUE_SERRATED_BLADES_R1, EFFECT_0))
-            {
-                uint8 combo = GetCaster()->ToPlayer()->GetComboPoints();
-
-                if (roll_chance_i(blade->GetAmount() * combo))
-                    if (Aura* dot = GetHitUnit()->GetAura(SPELL_ROGUE_RUPTURE, GetCaster()->GetGUID()))
-                        dot->RefreshDuration();
-
-            }
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_rog_serrated_blades_SpellScript::HandleHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_rog_serrated_blades_SpellScript();
-    }
-};
-
 // -51698 - Honor Among Thieves
 class spell_rog_honor_among_thieves : public AuraScript
 {
@@ -1200,6 +1157,22 @@ class spell_rog_eviscerate : public SpellScript
 
             SetEffectValue(damage);
         }
+    }
+
+    void HandleSerratedBlades(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster)
+            return;
+
+        Player* player = caster->ToPlayer();
+
+        if (AuraEffect const* blades = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ROGUE_ICON_ID_SERRATED_BLADES, EFFECT_0))
+            if (roll_chance_i(blades->GetAmount() * player->GetComboPoints()))
+                if (AuraEffect const* rupture = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00100000, 0, 0, caster->GetGUID()))
+                    if (spell_rog_rupture* script = rupture->GetBase()->GetScript<spell_rog_rupture>("spell_rog_rupture"))
+                        rupture->GetBase()->SetDuration(script->OriginalDuration);
     }
 
     void Register() override
@@ -1586,7 +1559,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_prey_on_the_weak();
     RegisterAuraScript(spell_rog_recuperate);
     RegisterAuraScript(spell_rog_restless_blades);
-    new spell_rog_rupture();
+    RegisterAuraScript(spell_rog_rupture);
     new spell_rog_glyph_of_backstab_triggered();
     RegisterAuraScript(spell_rog_sap);
     new spell_rog_shiv();
@@ -1594,6 +1567,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_stealth();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
-    new spell_rog_serrated_blades();
     RegisterAuraScript(spell_rog_honor_among_thieves);
 }
