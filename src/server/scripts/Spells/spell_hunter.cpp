@@ -52,8 +52,6 @@ enum HunterSpells
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
     SPELL_HUNTER_IMPROVED_SERPENT_STING_DAMAGE      = 83077,
-    SPELL_HUNTER_IMPROVED_SERPENT_STING_R1          = 19464,
-    SPELL_HUNTER_IMPROVED_SERPENT_STING_R2          = 82834,
     SPELL_HUNTER_INSANITY                           = 95809,
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
     SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN        = 90967,
@@ -87,7 +85,8 @@ enum HunterSpells
 
 enum HunterIcons
 {
-    HUNTER_ICON_ID_INVIGORATION = 3487
+    HUNTER_ICON_ID_INVIGORATION             = 3487,
+    HUNTER_ICON_ID_IMPROVED_SERPPENT_STING  = 536
 };
 
 enum MiscSpells
@@ -368,42 +367,6 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_hun_improved_mend_pet_AuraScript();
-        }
-};
-
-// -19464 Improved Serpent Sting
-class spell_hun_improved_serpent_sting : public SpellScriptLoader
-{
-    public:
-        spell_hun_improved_serpent_sting() : SpellScriptLoader("spell_hun_improved_serpent_sting") { }
-
-        class spell_hun_improved_serpent_sting_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_improved_serpent_sting_AuraScript);
-
-            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
-            {
-                if (!spellMod)
-                {
-                    spellMod = new SpellModifier(GetAura());
-                    spellMod->op = SpellModOp(aurEff->GetMiscValue());
-                    spellMod->type = SPELLMOD_PCT;
-                    spellMod->spellId = GetId();
-                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
-                }
-
-                spellMod->value = aurEff->GetAmount();
-            }
-
-            void Register() override
-            {
-                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_hun_improved_serpent_sting_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_hun_improved_serpent_sting_AuraScript();
         }
 };
 
@@ -1305,58 +1268,35 @@ class spell_hun_wild_quiver : public SpellScriptLoader
 };
 
 // 1978 - Serpent Sting
-class spell_hun_serpent_sting : public SpellScriptLoader
+class spell_hun_serpent_sting : public AuraScript
 {
-    public:
-        spell_hun_serpent_sting() : SpellScriptLoader("spell_hun_serpent_sting") { }
+    PrepareAuraScript(spell_hun_serpent_sting);
 
-        class spell_hun_serpent_sting_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_serpent_sting_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_HUNTER_IMPROVED_SERPENT_STING_DAMAGE,
-                    SPELL_HUNTER_IMPROVED_SERPENT_STING_R1,
-                    SPELL_HUNTER_IMPROVED_SERPENT_STING_R2
-                });
-            }
-
-            void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    uint32 spellId = 0;
-
-                    if (caster->HasAura(SPELL_HUNTER_IMPROVED_SERPENT_STING_R2))
-                        spellId = SPELL_HUNTER_IMPROVED_SERPENT_STING_R2;
-                    else if (caster->HasAura(SPELL_HUNTER_IMPROVED_SERPENT_STING_R1))
-                        spellId = SPELL_HUNTER_IMPROVED_SERPENT_STING_R1;
-
-                    if (Aura* stingAura = caster->GetAura(spellId))
-                    {
-                        uint32 periodicDamage = aurEff->GetAmount() * aurEff->GetTotalTicks();
-                        uint32 damage = CalculatePct(periodicDamage * stingAura->GetSpellInfo()->Effects[EFFECT_0].BasePoints, 1);
-                        caster->CastCustomSpell(SPELL_HUNTER_IMPROVED_SERPENT_STING_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
-                    }
-                }
-            }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_hun_serpent_sting_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return new spell_hun_serpent_sting_AuraScript();
+        return ValidateSpellInfo({ SPELL_HUNTER_IMPROVED_SERPENT_STING_DAMAGE });
+    }
+
+    void HandleImprovedSerpentSting(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (AuraEffect const* improved = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, HUNTER_ICON_ID_IMPROVED_SERPPENT_STING, EFFECT_0))
+        {
+            int32 bp = CalculatePct(aurEff->GetAmount() * aurEff->GetTotalTicks(), improved->GetAmount());
+            caster->CastCustomSpell(SPELL_HUNTER_IMPROVED_SERPENT_STING_DAMAGE, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, nullptr, improved);
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_hun_serpent_sting::HandleImprovedSerpentSting, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 };
 
-// - 53234 - Piercing Shots
+// -53234 - Piercing Shots
 class spell_hun_piercing_shots : public SpellScriptLoader
 {
     public:
@@ -1768,7 +1708,6 @@ void AddSC_hunter_spell_scripts()
     RegisterAuraScript(spell_hun_frenzy_effect);
     RegisterAuraScript(spell_hun_glyph_of_kill_shot);
     new spell_hun_improved_mend_pet();
-    new spell_hun_improved_serpent_sting();
     RegisterSpellScript(spell_hun_invigoration);
     new spell_hun_last_stand_pet();
     new spell_hun_lock_and_load();
@@ -1784,7 +1723,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_readiness();
     new spell_hun_ready_set_aim();
     new spell_hun_scatter_shot();
-    new spell_hun_serpent_sting();
+    RegisterAuraScript(spell_hun_serpent_sting);
     new spell_hun_sniper_training();
     new spell_hun_steady_shot();
     new spell_hun_improved_steady_shot();

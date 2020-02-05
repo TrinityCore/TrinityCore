@@ -1178,6 +1178,7 @@ class spell_rog_eviscerate : public SpellScript
     void Register() override
     {
         OnEffectLaunchTarget += SpellEffectFn(spell_rog_eviscerate::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_rog_eviscerate::HandleSerratedBlades, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
