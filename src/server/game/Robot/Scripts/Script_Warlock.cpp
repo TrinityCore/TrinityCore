@@ -191,11 +191,11 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
                             inRangeCount++;
                             if (inRangeCount >= 3)
                             {
-                                if (sourceAI->CastSpell((*i), "Shadowfury", AOE_TARGETS_RANGE))
+                                if (sourceAI->CastSpell((*i), "Shadowfury", WARLOCK_RANGE_DISTANCE))
                                 {
                                     return true;
                                 }
-                                if (sourceAI->CastSpell((*i), "Rain of Fire", AOE_TARGETS_RANGE))
+                                if (sourceAI->CastSpell((*i), "Rain of Fire", WARLOCK_RANGE_DISTANCE))
                                 {
                                     return true;
                                 }

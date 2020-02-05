@@ -1900,7 +1900,7 @@ void RobotAI::Prepare()
         std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
         for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
         {
-            if (it->second.active == ACT_DISABLED)
+            if (it->second.active == ACT_DISABLED || it->second.active == ACT_ENABLED)
             {
                 const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
                 if (pST)
@@ -1908,13 +1908,16 @@ void RobotAI::Prepare()
                     std::string checkNameStr = std::string(pST->SpellName[0]);
                     if (checkNameStr == "Prowl")
                     {
-                        continue;
+                        checkPet->ToggleAutocast(pST, false);
                     }
                     else if (checkNameStr == "Phase Shift")
                     {
-                        continue;
+                        checkPet->ToggleAutocast(pST, false);
                     }
-                    checkPet->ToggleAutocast(pST, true);
+                    else
+                    {
+                        checkPet->ToggleAutocast(pST, true);
+                    }
                 }
             }
         }
@@ -3291,77 +3294,61 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             }
             if (commandVector.size() > 1)
             {
-                std::string spellName = commandVector.at(1);
+                std::string autoState = commandVector.at(1);
                 if (commandVector.size() > 2)
                 {
-                    std::string autoState = commandVector.at(2);
-                    if (autoState == "on")
+                    std::ostringstream spellNameStream;
+                    uint32 checkPos = 2;
+                    while (checkPos < commandVector.size())
                     {
-                        std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
-                        for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                        spellNameStream << commandVector.at(checkPos) << " ";
+                        checkPos++;
+                    }
+                    std::string spellName = sRobotManager->TrimString(spellNameStream.str());
+                    std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
+                    for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                    {
+                        if (it->second.active == ACT_DISABLED || it->second.active == ACT_ENABLED)
                         {
-                            if (it->second.active == ACT_DISABLED)
+                            const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                            if (pST)
                             {
-                                const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
-                                if (pST)
+                                std::string checkNameStr = std::string(pST->SpellName[0]);
+                                if (checkNameStr == spellName)
                                 {
-                                    std::string checkNameStr = std::string(pST->SpellName[0]);
-                                    if (checkNameStr == spellName)
-                                    {
-                                        continue;
-                                    }
-                                    checkPet->ToggleAutocast(pST, true);
                                     std::ostringstream replyStream;
-                                    replyStream << "Switched " << spellName << " on";
+                                    if (autoState == "on")
+                                    {
+                                        checkPet->ToggleAutocast(pST, true);
+                                        replyStream << "Switched " << spellName << " on";
+                                    }
+                                    else if (autoState == "off")
+                                    {
+                                        checkPet->ToggleAutocast(pST, false);
+                                        replyStream << "Switched " << spellName << " off";
+                                    }
+                                    else
+                                    {
+                                        replyStream << "Wrong auto state";
+                                    }
                                     WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                                     return;
                                 }
                             }
                         }
-                        WhisperTo("Spell not found", Language::LANG_UNIVERSAL, pmSender);
-                        return;
                     }
-                    else if (autoState == "off")
-                    {
-                        std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
-                        for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
-                        {
-                            if (it->second.active == ACT_DISABLED)
-                            {
-                                const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
-                                if (pST)
-                                {
-                                    std::string checkNameStr = std::string(pST->SpellName[0]);
-                                    if (checkNameStr == spellName)
-                                    {
-                                        continue;
-                                    }
-                                    checkPet->ToggleAutocast(pST, false);
-                                    std::ostringstream replyStream;
-                                    replyStream << "Switched " << spellName << " off";
-                                    WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
-                                    return;
-                                }
-                            }
-                        }
-                        WhisperTo("Spell not found", Language::LANG_UNIVERSAL, pmSender);
-                        return;
-                    }
-                    else
-                    {
-                        WhisperTo("Unknown command", Language::LANG_UNIVERSAL, pmSender);
-                        return;
-                    }
+                    WhisperTo("Spell not found", Language::LANG_UNIVERSAL, pmSender);
+                    return;
                 }
                 else
                 {
-                    WhisperTo("Unknown spell auto state", Language::LANG_UNIVERSAL, pmSender);
+                    WhisperTo("No spell name", Language::LANG_UNIVERSAL, pmSender);
                     return;
                 }
             }
             else
             {
-                WhisperTo("Unknown spell name", Language::LANG_UNIVERSAL, pmSender);
+                WhisperTo("No auto state", Language::LANG_UNIVERSAL, pmSender);
                 return;
             }
         }

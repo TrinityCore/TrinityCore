@@ -206,7 +206,7 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget)
                             inRangeCount++;
                             if (inRangeCount >= 3)
                             {
-                                if (sourceAI->CastSpell((*i), "Blizzard", AOE_TARGETS_RANGE))
+                                if (sourceAI->CastSpell((*i), "Blizzard", MAGE_RANGE_DISTANCE))
                                 {
                                     return true;
                                 }
