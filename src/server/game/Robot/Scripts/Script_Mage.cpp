@@ -2,10 +2,6 @@
 
 #include "Group.h"
 
-#ifndef MAGE_AOE_TARGETS_RANGE
-# define MAGE_AOE_TARGETS_RANGE 5
-#endif
-
 #ifndef MAGE_CLOSER_DISTANCE
 # define MAGE_CLOSER_DISTANCE 25
 #endif
@@ -205,12 +201,12 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget)
                     uint32 inRangeCount = 0;
                     for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
                     {
-                        if ((*i)->GetDistance(member) < MAGE_AOE_TARGETS_RANGE)
+                        if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
                         {
                             inRangeCount++;
                             if (inRangeCount >= 3)
                             {
-                                if (sourceAI->CastSpell((*i), "Blizzard", MAGE_RANGE_DISTANCE))
+                                if (sourceAI->CastSpell((*i), "Blizzard", AOE_TARGETS_RANGE))
                                 {
                                     return true;
                                 }

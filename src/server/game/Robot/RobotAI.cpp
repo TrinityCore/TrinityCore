@@ -199,7 +199,7 @@ void RobotAI::ResetStrategy()
 
 void RobotAI::InitializeCharacter()
 {
-    bool initialEquip = false;
+    bool newCharacter = false;
     Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
     if (!me)
     {
@@ -207,60 +207,19 @@ void RobotAI::InitializeCharacter()
     }
     if (me->GetLevel() != targetLevel)
     {
-        initialEquip = true;
+        newCharacter = true;        
+    }
+
+    if (newCharacter)
+    {
         me->GiveLevel(targetLevel);
         me->LearnDefaultSkills();
-        for (std::set<uint32>::iterator questIT = sRobotManager->spellRewardClassQuestIDSet.begin(); questIT != sRobotManager->spellRewardClassQuestIDSet.end(); questIT++)
-        {
-            const Quest* eachQuest = sObjectMgr->GetQuestTemplate((*questIT));
-            if (me->SatisfyQuestLevel(eachQuest, false) && me->SatisfyQuestClass(eachQuest, false) && me->SatisfyQuestRace(eachQuest, false))
-            {
-                const SpellInfo* pSTCast = sSpellMgr->GetSpellInfo(eachQuest->GetRewSpellCast());
-                if (pSTCast)
-                {
-                    std::set<uint32> spellToLearnIDSet;
-                    spellToLearnIDSet.clear();
-                    for (size_t effectCount = 0; effectCount < MAX_SPELL_EFFECTS; effectCount++)
-                    {
-                        if (pSTCast->Effects[effectCount].Effect == SpellEffects::SPELL_EFFECT_LEARN_SPELL)
-                        {
-                            spellToLearnIDSet.insert(pSTCast->Effects[effectCount].TriggerSpell);
-                        }
-                    }
-                    if (spellToLearnIDSet.size() == 0)
-                    {
-                        spellToLearnIDSet.insert(pSTCast->Id);
-                    }
-                    for (std::set<uint32>::iterator toLearnIT = spellToLearnIDSet.begin(); toLearnIT != spellToLearnIDSet.end(); toLearnIT++)
-                    {
-                        me->LearnSpell((*toLearnIT), false);
-                    }
-                }
-                const SpellInfo* pST = sSpellMgr->GetSpellInfo(eachQuest->GetRewSpell());
-                if (pST)
-                {
-                    std::set<uint32> spellToLearnIDSet;
-                    spellToLearnIDSet.clear();
-                    for (size_t effectCount = 0; effectCount < MAX_SPELL_EFFECTS; effectCount++)
-                    {
-                        if (pST->Effects[effectCount].Effect == SpellEffects::SPELL_EFFECT_LEARN_SPELL)
-                        {
-                            spellToLearnIDSet.insert(pST->Effects[effectCount].TriggerSpell);
-                        }
-                    }
-                    if (spellToLearnIDSet.size() == 0)
-                    {
-                        spellToLearnIDSet.insert(pST->Id);
-                    }
-                    for (std::set<uint32>::iterator toLearnIT = spellToLearnIDSet.begin(); toLearnIT != spellToLearnIDSet.end(); toLearnIT++)
-                    {
-                        me->LearnSpell((*toLearnIT), false);
-                    }
-                }
-            }
-        }
-        uint8 specialty = urand(0, 2);
+    }
 
+    if (me->GetFreeTalentPoints() > 0)
+    {
+        me->ResetTalents(true);
+        uint8 specialty = urand(0, 2);
         // EJ fixed specialty
         if (me->GetClass() == Classes::CLASS_MAGE)
         {
@@ -281,6 +240,10 @@ void RobotAI::InitializeCharacter()
         else if (me->GetClass() == Classes::CLASS_PRIEST)
         {
             specialty = 1;
+        }
+        else if (me->GetClass() == Classes::CLASS_WARLOCK)
+        {
+            specialty = 2;
         }
 
         uint32 classMask = me->GetClassMask();
@@ -334,6 +297,60 @@ void RobotAI::InitializeCharacter()
                 me->LearnTalent((*it)->TalentID, maxRank);
             }
         }
+        me->SaveToDB();
+    }
+
+    if (newCharacter)
+    {
+        for (std::set<uint32>::iterator questIT = sRobotManager->spellRewardClassQuestIDSet.begin(); questIT != sRobotManager->spellRewardClassQuestIDSet.end(); questIT++)
+        {
+            const Quest* eachQuest = sObjectMgr->GetQuestTemplate((*questIT));
+            if (me->SatisfyQuestLevel(eachQuest, false) && me->SatisfyQuestClass(eachQuest, false) && me->SatisfyQuestRace(eachQuest, false))
+            {
+                const SpellInfo* pSTCast = sSpellMgr->GetSpellInfo(eachQuest->GetRewSpellCast());
+                if (pSTCast)
+                {
+                    std::set<uint32> spellToLearnIDSet;
+                    spellToLearnIDSet.clear();
+                    for (size_t effectCount = 0; effectCount < MAX_SPELL_EFFECTS; effectCount++)
+                    {
+                        if (pSTCast->Effects[effectCount].Effect == SpellEffects::SPELL_EFFECT_LEARN_SPELL)
+                        {
+                            spellToLearnIDSet.insert(pSTCast->Effects[effectCount].TriggerSpell);
+                        }
+                    }
+                    if (spellToLearnIDSet.size() == 0)
+                    {
+                        spellToLearnIDSet.insert(pSTCast->Id);
+                    }
+                    for (std::set<uint32>::iterator toLearnIT = spellToLearnIDSet.begin(); toLearnIT != spellToLearnIDSet.end(); toLearnIT++)
+                    {
+                        me->LearnSpell((*toLearnIT), false);
+                    }
+                }
+                const SpellInfo* pST = sSpellMgr->GetSpellInfo(eachQuest->GetRewSpell());
+                if (pST)
+                {
+                    std::set<uint32> spellToLearnIDSet;
+                    spellToLearnIDSet.clear();
+                    for (size_t effectCount = 0; effectCount < MAX_SPELL_EFFECTS; effectCount++)
+                    {
+                        if (pST->Effects[effectCount].Effect == SpellEffects::SPELL_EFFECT_LEARN_SPELL)
+                        {
+                            spellToLearnIDSet.insert(pST->Effects[effectCount].TriggerSpell);
+                        }
+                    }
+                    if (spellToLearnIDSet.size() == 0)
+                    {
+                        spellToLearnIDSet.insert(pST->Id);
+                    }
+                    for (std::set<uint32>::iterator toLearnIT = spellToLearnIDSet.begin(); toLearnIT != spellToLearnIDSet.end(); toLearnIT++)
+                    {
+                        me->LearnSpell((*toLearnIT), false);
+                    }
+                }
+            }
+        }
 
         std::unordered_map<uint32, Trainer::Trainer> allTrainers = sObjectMgr->GetTrainers();
         for (auto const& eachTrainer : allTrainers)
@@ -383,8 +400,7 @@ void RobotAI::InitializeCharacter()
                 }
                 me->LearnSpell(checkSpellID, false);
             }
-        }
-        me->UpdateSkillsForLevel();
+        }        
 
         if (me->GetClass() == Classes::CLASS_HUNTER)
         {
@@ -429,11 +445,9 @@ void RobotAI::InitializeCharacter()
             pet->SavePetToDB(PET_SAVE_AS_CURRENT);
             me->PetSpellInitialize();
         }
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s basic info initialized", me->GetName());
 
-        std::ostringstream msgStream;
-        msgStream << me->GetName() << " initialized";
-        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
+        me->SaveToDB();
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s basic info initialized", me->GetName());
     }
 
     spellLevelMap.clear();
@@ -659,7 +673,7 @@ void RobotAI::InitializeCharacter()
         }
     }
 
-    if (initialEquip)
+    if (newCharacter)
     {
         for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; i++)
         {
@@ -668,7 +682,6 @@ void RobotAI::InitializeCharacter()
                 me->DestroyItem(INVENTORY_SLOT_BAG_0, i, true);
             }
         }
-
         switch (me->GetClass())
         {
         case Classes::CLASS_WARRIOR:
@@ -1797,16 +1810,50 @@ void RobotAI::InitializeCharacter()
             break;
         }
         }
-
+        me->SaveToDB();
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s equip info initialized", me->GetName());
     }
 
+    me->UpdateSkillsForLevel();
     me->UpdateWeaponsSkillsToMaxSkillsForLevel();
     if (!me->IsPvP())
     {
         me->SetPvP(true);
     }
+
+    if (me->GetClass() == Classes::CLASS_WARLOCK)
+    {
+        switch (characterTalentTab)
+        {
+        case 0:
+        {
+            break;
+        }
+        case 1:
+        {
+            break;
+        }
+        case 2:
+        {
+            uint32 g0 = me->GetGlyph(0);
+            if (g0 == 0)
+            {
+                me->CastSpell(me, 56270);
+            }
+            break;
+        }
+        default:
+        {
+            break;
+        }            
+        }      
+    }
+
     me->SaveToDB();
+
+    std::ostringstream msgStream;
+    msgStream << me->GetName() << " initialized";
+    sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
 }
 
 void RobotAI::Prepare()
@@ -2235,6 +2282,7 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
                 }
                 WhisperTo(replyStream_GroupRole.str(), Language::LANG_UNIVERSAL, inviter);
                 me->GetMotionMaster()->Clear();
+                Prepare();
                 break;
             }
             else
@@ -2413,7 +2461,7 @@ void RobotAI::Update()
                     onlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
 
                     // EJ debug
-                    onlineDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);                    
+                    //onlineDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);                    
 
                     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s online delay is set to %d.", accountName, onlineDelay);
                 }

@@ -215,13 +215,6 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
     }
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
-        if (me->GetLevel() >= 20)
-        {
-            if (sourceAI->CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
-            {
-                return true;
-            }
-        }
         if (sourceAI->CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
         {
             return true;
@@ -236,10 +229,6 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
         if (pmTarget->IsNonMeleeSpellCast(false))
         {
             if (sourceAI->CastSpell(pmTarget, "Pummel", MELEE_MAX_DISTANCE))
@@ -247,10 +236,17 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
                 return true;
             }
         }
-        if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
+        if (pmTarget->GetHealthPct() < 30.0f)
+        {
+            if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+            {
+                return true;
+            }
+        }        
     }
     if (rage > 250)
     {
@@ -649,10 +645,20 @@ bool Script_Warrior::Buff(Unit* pmTarget)
     {
     case 1:
     {
-        if (sourceAI->CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+        if (me->GetLevel() >= 10)
         {
-            return true;
+            if (sourceAI->CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+            {
+                return true;
+            }
         }
+        else
+        {
+            if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+            {
+                return true;
+            }
+        }        
         break;
     }
     default:
@@ -669,18 +675,38 @@ bool Script_Warrior::Buff(Unit* pmTarget)
         }
         case 1:
         {
-            if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+            if (me->GetLevel() >= 20)
             {
-                return true;
+                if (sourceAI->CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
+                {
+                    return true;
+                }
             }
+            else
+            {
+                if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                {
+                    return true;
+                }
+            }            
             break;
         }
         case 2:
         {
-            if (sourceAI->CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+            if (me->GetLevel() >= 10)
             {
-                return true;
+                if (sourceAI->CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+                {
+                    return true;
+                }
             }
+            else
+            {
+                if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                {
+                    return true;
+                }
+            }            
             break;
         }
         default:

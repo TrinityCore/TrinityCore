@@ -1,6 +1,10 @@
 #ifndef ROBOT_STRATEGIES_SCRIPT_BASE_H
 #define ROBOT_STRATEGIES_SCRIPT_BASE_H
 
+#ifndef AOE_TARGETS_RANGE
+# define AOE_TARGETS_RANGE 5
+#endif
+
 #include "Player.h"
 #include "RobotAI.h"
 #include "SpellMgr.h"

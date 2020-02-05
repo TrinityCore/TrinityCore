@@ -361,8 +361,8 @@ void RobotManager::InitializeManager()
     {
         for (std::map<uint32, std::vector<uint32>>::iterator classIT = availableRaces.begin(); classIT != availableRaces.end(); classIT++)
         {
-            // EJ debug hunter and warlock and paladin will be ignored for now
-            if (classIT->first == Classes::CLASS_HUNTER || classIT->first == Classes::CLASS_WARLOCK || classIT->first == Classes::CLASS_PALADIN)
+            // EJ debug hunter and priest and paladin will be ignored for now
+            if (classIT->first == Classes::CLASS_HUNTER || classIT->first == Classes::CLASS_PRIEST || classIT->first == Classes::CLASS_PALADIN)
             {
                 continue;
             }

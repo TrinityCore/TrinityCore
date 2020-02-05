@@ -17,5 +17,14 @@ public:
 
 	bool DPS_Common(Unit* pmTarget);
 	bool Attack_Common(Unit* pmTarget);
+
+    bool DPS_Affliction(Unit* pmTarget);
+    bool Attack_Affliction(Unit* pmTarget);
+
+    bool DPS_Demonology(Unit* pmTarget);
+    bool Attack_Demonology(Unit* pmTarget);
+
+    bool DPS_Destruction(Unit* pmTarget);
+    bool Attack_Destruction(Unit* pmTarget);
 };
 #endif
