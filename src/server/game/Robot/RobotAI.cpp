@@ -169,30 +169,7 @@ void RobotAI::ResetStrategy()
     }
     me->Say("Strategy reset", Language::LANG_UNIVERSAL);
 
-    if (me->GetClass() == Classes::CLASS_HUNTER)
-    {
-        Pet* checkPet = me->GetPet();
-        if (checkPet)
-        {
-            std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
-            for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
-            {
-                if (it->second.active == ACT_DISABLED)
-                {
-                    const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
-                    if (pST)
-                    {
-                        std::string checkNameStr = std::string(pST->SpellName[0]);
-                        if (checkNameStr == "Prowl")
-                        {
-                            continue;
-                        }
-                        checkPet->ToggleAutocast(pST, true);
-                    }
-                }
-            }
-        }
-    }
+    Prepare();
 
     RandomTeleport();
 }
@@ -207,7 +184,7 @@ void RobotAI::InitializeCharacter()
     }
     if (me->GetLevel() != targetLevel)
     {
-        newCharacter = true;        
+        newCharacter = true;
     }
 
     if (newCharacter)
@@ -400,7 +377,7 @@ void RobotAI::InitializeCharacter()
                 }
                 me->LearnSpell(checkSpellID, false);
             }
-        }        
+        }
 
         if (me->GetClass() == Classes::CLASS_HUNTER)
         {
@@ -1845,8 +1822,8 @@ void RobotAI::InitializeCharacter()
         default:
         {
             break;
-        }            
-        }      
+        }
+        }
     }
 
     me->SaveToDB();
@@ -1930,6 +1907,10 @@ void RobotAI::Prepare()
                 {
                     std::string checkNameStr = std::string(pST->SpellName[0]);
                     if (checkNameStr == "Prowl")
+                    {
+                        continue;
+                    }
+                    else if (checkNameStr == "Phase Shift")
                     {
                         continue;
                     }
@@ -3282,7 +3263,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         Prepare();
         me->Say("I am prepared", Language::LANG_UNIVERSAL);
     }
-    else if (commandName == "growl")
+    else if (commandName == "switch")
     {
         if (!master)
         {
@@ -3299,79 +3280,94 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        if (commandVector.size() > 1)
+
+        if (me->GetClass() == Classes::CLASS_WARLOCK || me->GetClass() == Classes::CLASS_HUNTER)
         {
-            if (me->GetClass() != Classes::CLASS_HUNTER)
+            Pet* checkPet = me->GetPet();
+            if (!checkPet)
             {
-                WhisperTo("I am not hunter", Language::LANG_UNIVERSAL, pmSender);
+                WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, pmSender);
                 return;
             }
-            std::string growlState = commandVector.at(1);
-            if (growlState == "on")
+            if (commandVector.size() > 1)
             {
-                Pet* checkPet = me->GetPet();
-                if (!checkPet)
+                std::string spellName = commandVector.at(1);
+                if (commandVector.size() > 2)
                 {
-                    WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, pmSender);
-                    return;
-                }
-                std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
-                for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
-                {
-                    if (it->second.active == ACT_DISABLED)
+                    std::string autoState = commandVector.at(2);
+                    if (autoState == "on")
                     {
-                        const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
-                        if (pST)
+                        std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
+                        for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
                         {
-                            std::string checkNameStr = std::string(pST->SpellName[0]);
-                            if (checkNameStr == "Growl")
+                            if (it->second.active == ACT_DISABLED)
                             {
-                                continue;
+                                const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                                if (pST)
+                                {
+                                    std::string checkNameStr = std::string(pST->SpellName[0]);
+                                    if (checkNameStr == spellName)
+                                    {
+                                        continue;
+                                    }
+                                    checkPet->ToggleAutocast(pST, true);
+                                    std::ostringstream replyStream;
+                                    replyStream << "Switched " << spellName << " on";
+                                    WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                                    return;
+                                }
                             }
-                            checkPet->ToggleAutocast(pST, true);
                         }
+                        WhisperTo("Spell not found", Language::LANG_UNIVERSAL, pmSender);
+                        return;
+                    }
+                    else if (autoState == "off")
+                    {
+                        std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
+                        for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                        {
+                            if (it->second.active == ACT_DISABLED)
+                            {
+                                const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                                if (pST)
+                                {
+                                    std::string checkNameStr = std::string(pST->SpellName[0]);
+                                    if (checkNameStr == spellName)
+                                    {
+                                        continue;
+                                    }
+                                    checkPet->ToggleAutocast(pST, false);
+                                    std::ostringstream replyStream;
+                                    replyStream << "Switched " << spellName << " off";
+                                    WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                                    return;
+                                }
+                            }
+                        }
+                        WhisperTo("Spell not found", Language::LANG_UNIVERSAL, pmSender);
+                        return;
+                    }
+                    else
+                    {
+                        WhisperTo("Unknown command", Language::LANG_UNIVERSAL, pmSender);
+                        return;
                     }
                 }
-                WhisperTo("Switched", Language::LANG_UNIVERSAL, pmSender);
-                return;
-            }
-            else if (growlState == "off")
-            {
-                Pet* checkPet = me->GetPet();
-                if (!checkPet)
+                else
                 {
-                    WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, pmSender);
+                    WhisperTo("Unknown spell auto state", Language::LANG_UNIVERSAL, pmSender);
                     return;
                 }
-                std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
-                for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
-                {
-                    if (it->second.active == ACT_DISABLED)
-                    {
-                        const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
-                        if (pST)
-                        {
-                            std::string checkNameStr = std::string(pST->SpellName[0]);
-                            if (checkNameStr == "Growl")
-                            {
-                                continue;
-                            }
-                            checkPet->ToggleAutocast(pST, false);
-                        }
-                    }
-                }
-                WhisperTo("Switched", Language::LANG_UNIVERSAL, pmSender);
-                return;
             }
             else
             {
-                WhisperTo("Unknown command", Language::LANG_UNIVERSAL, pmSender);
+                WhisperTo("Unknown spell name", Language::LANG_UNIVERSAL, pmSender);
                 return;
             }
         }
         else
         {
-            WhisperTo("Unknown command", Language::LANG_UNIVERSAL, pmSender);
+            WhisperTo("I am not hunter or a warlock", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
     }
