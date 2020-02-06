@@ -13,8 +13,8 @@
 # define FOLLOW_MAX_DISTANCE 30.0f
 #endif
 
-#ifndef MELEE_COMBAT_DISTANCE
-# define MELEE_COMBAT_DISTANCE 1.5f
+#ifndef MELEE_MIN_DISTANCE
+# define MELEE_MIN_DISTANCE 1.0f
 #endif
 
 #ifndef MELEE_MAX_DISTANCE
@@ -62,7 +62,7 @@ public:
     void Refresh();
     void RandomTeleport();        
     void DoAttack(Unit* pmTarget, bool pmMelee = true);
-    void BaseMove(Unit* pmTarget, float pmDistance = MELEE_MAX_DISTANCE, bool pmAttack = true);
+    void BaseMove(Unit* pmTarget, float pmDistance = MELEE_MIN_DISTANCE, bool pmAttack = true);
     bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = 100, bool pmCheckAura = false, bool pmOnlyMyAura = false, bool pmClearShapeshift = false);
     bool HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
     bool UseItem(Item* pmItem, Unit* pmTarget);

@@ -164,12 +164,14 @@ bool RobotConfig::StartRobotSystem()
     std::string configError;
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
 
-    enable = GetIntDefault("Enable", 0);
-    resetRobots = GetIntDefault("ResetRobots", 0);
-    robotAccountNamePrefix = GetStringDefault("RobotAccountNamePrefix", "ROBOT");
-    onlineLevel = GetIntDefault("OnlineLevel", 0);
+    Enable = GetIntDefault("Enable", 0);
+    ResetRobots = GetIntDefault("ResetRobots", 0);
+    RobotAccountNamePrefix = GetStringDefault("RobotAccountNamePrefix", "ROBOT");
+    OnlineLevel = GetIntDefault("OnlineLevel", 0);
+    OnlineMinDelay = GetIntDefault("OnlineMinDelay", 60000);
+    OnlineMaxDelay = GetIntDefault("OnlineMaxDelay", 300000);
 
-    if (enable == 0)
+    if (Enable == 0)
     {
         return false;
     }

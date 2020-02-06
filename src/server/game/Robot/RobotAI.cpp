@@ -54,7 +54,7 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
     targetRace = pmTargetRace;
 
     std::ostringstream accountNameStream;
-    accountNameStream << sRobotConfig->robotAccountNamePrefix << "l" << std::to_string(targetLevel) << "r" << std::to_string(targetRace) << "c" << std::to_string(targetClass);
+    accountNameStream << sRobotConfig->RobotAccountNamePrefix << "l" << std::to_string(targetLevel) << "r" << std::to_string(targetRace) << "c" << std::to_string(targetClass);
     accountName = accountNameStream.str();
 
     accountID = 0;
@@ -80,7 +80,7 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
     st_Group_Normal = new Strategy_Group_Normal(this);
 
     combatDistance = false;
-    combatMinDistance = MELEE_COMBAT_DISTANCE;
+    combatMinDistance = MELEE_MIN_DISTANCE;
     combatMaxDistance = MELEE_MAX_DISTANCE;
     switch (targetClass)
     {
@@ -2036,8 +2036,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     if (!target)
     {
         target = me;
-    }
-    me->SetSelection(ObjectGuid::Empty);
+    }    
     me->SetSelection(target->GetGUID());
     if (target->GetGUID() != me->GetGUID())
     {
@@ -2132,8 +2131,7 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     if (me->IsWalking())
     {
         me->SetWalk(false);
-    }
-    me->SetSelection(ObjectGuid::Empty);
+    }    
     me->SetSelection(pmTarget->GetGUID());
     float currentDistance = me->GetDistance(pmTarget);
     if (currentDistance < pmDistance + MIN_DISTANCE_GAP)
@@ -2143,13 +2141,17 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
             me->SetFacingToObject(pmTarget);
         }
         if (pmAttack)
-        {
+        {            
             me->Attack(pmTarget, true);
         }
     }
     else
     {
-        me->AttackStop();
+        if (pmAttack)
+        {            
+            me->ClearUnitState(UNIT_STATE_MELEE_ATTACKING);
+            me->InterruptSpell(CURRENT_MELEE_SPELL);
+        }
         if (!holding)
         {
             if (combatDistance)
@@ -2413,7 +2415,7 @@ void RobotAI::Update()
             {
                 checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
                 bool levelPlayerOnline = false;
-                if (sRobotConfig->onlineLevel == targetLevel)
+                if (sRobotConfig->OnlineLevel == targetLevel)
                 {
                     levelPlayerOnline = true;
                     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s is at online level.", accountName);
@@ -2447,11 +2449,7 @@ void RobotAI::Update()
                 }
                 if (levelPlayerOnline)
                 {
-                    onlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-
-                    // EJ debug
-                    //onlineDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);                    
-
+                    onlineDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
                     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s online delay is set to %d.", accountName, onlineDelay);
                 }
             }
@@ -2600,7 +2598,7 @@ void RobotAI::Update()
                 Prepare();
                 checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
                 bool levelPlayerOnline = false;
-                if (sRobotConfig->onlineLevel == targetLevel)
+                if (sRobotConfig->OnlineLevel == targetLevel)
                 {
                     levelPlayerOnline = true;
                 }
@@ -3288,9 +3286,9 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         }
         if (me->IsAlive())
         {
-            if (me->GetDistance(pmSender) < 40)
+            if (me->GetDistance(pmSender) < 50)
             {
-                st_Group_Normal->assembleDelay = 5 * TimeConstants::IN_MILLISECONDS;
+                me->GetMotionMaster()->MovePoint(0, pmSender->GetPosition());
                 WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, pmSender);
             }
             else

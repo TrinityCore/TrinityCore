@@ -180,7 +180,7 @@ MarketerManager* MarketerManager::instance()
 
 void MarketerManager::ResetMarketer()
 {
-    if (!sMarketerConfig->reset)
+    if (!sMarketerConfig->Reset)
     {
         return;
     }
@@ -228,7 +228,7 @@ void MarketerManager::ResetMarketer()
 
 bool MarketerManager::UpdateMarketer()
 {
-    if (!sMarketerConfig->enable)
+    if (!sMarketerConfig->Enable)
     {
         return false;
     }
@@ -703,7 +703,7 @@ bool MarketerManager::UpdateBuyer(uint32 pmDiff)
             if (destIT->Quality > 3)
             {
                 qualityMuliplier = 2;
-            }            
+            }
             uint32 finalPrice = 0;
             if (destIT->SellPrice > 0)
             {

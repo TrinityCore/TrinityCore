@@ -206,13 +206,6 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
     {
         return false;
     }
-    else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
-        {
-            return true;
-        }
-    }
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
         if (sourceAI->CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
@@ -447,14 +440,7 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
     if (targetDistance > 200)
     {
         return false;
-    }
-    else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
-        {
-            return true;
-        }
-    }
+    }    
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
         if (me->GetLevel() >= 20)

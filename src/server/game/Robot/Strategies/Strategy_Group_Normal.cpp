@@ -18,7 +18,7 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
     assembleDelay = 0;
     restDelay = 0;
 
-    followDistance = MELEE_COMBAT_DISTANCE;
+    followDistance = FOLLOW_MIN_DISTANCE;
     if (sourceAI->targetClass == Classes::CLASS_HUNTER || sourceAI->targetClass == Classes::CLASS_MAGE || sourceAI->targetClass == Classes::CLASS_PRIEST || sourceAI->targetClass == Classes::CLASS_WARLOCK)
     {
         followDistance = RANGED_MIN_DISTANCE;

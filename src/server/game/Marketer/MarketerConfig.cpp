@@ -163,10 +163,10 @@ bool MarketerConfig::StartMarketerSystem()
     auto configFile = fs::absolute(MARKETER_CONFIG_FILE_NAME);
     std::string configError;
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
-    enable = GetIntDefault("Enable", 0);
-    reset = GetIntDefault("Reset", 0);    
+    Enable = GetIntDefault("Enable", 0);
+    Reset = GetIntDefault("Reset", 0);
 
-    if (enable == 0)
+    if (Enable == 0)
     {
         return false;
     }

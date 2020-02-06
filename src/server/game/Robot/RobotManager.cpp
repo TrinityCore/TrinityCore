@@ -37,12 +37,12 @@ RobotManager::RobotManager()
 
 void RobotManager::InitializeManager()
 {
-    if (sRobotConfig->enable == 0)
+    if (sRobotConfig->Enable == 0)
     {
         return;
     }
 
-    if (sRobotConfig->resetRobots == 1)
+    if (sRobotConfig->ResetRobots == 1)
     {
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Reset robots");
         if (DeleteRobots())
@@ -58,7 +58,7 @@ void RobotManager::InitializeManager()
     if (!robotNamesQR)
     {
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Found zero robot names");
-        sRobotConfig->enable = false;
+        sRobotConfig->Enable = false;
         return;
     }
     do
@@ -392,7 +392,7 @@ RobotManager* RobotManager::instance()
 
 void RobotManager::UpdateManager()
 {
-    if (sRobotConfig->enable == 0)
+    if (sRobotConfig->Enable == 0)
     {
         return;
     }
@@ -411,7 +411,7 @@ void RobotManager::UpdateManager()
 
 bool RobotManager::DeleteRobots()
 {
-    QueryResult accountQR = LoginDatabase.PQuery("SELECT id, username FROM account where username like '%s%%'", sRobotConfig->robotAccountNamePrefix.c_str());
+    QueryResult accountQR = LoginDatabase.PQuery("SELECT id, username FROM account where username like '%s%%'", sRobotConfig->RobotAccountNamePrefix.c_str());
 
     if (accountQR)
     {

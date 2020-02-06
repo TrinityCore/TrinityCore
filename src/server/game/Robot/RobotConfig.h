@@ -37,10 +37,12 @@ private:
 public:
 
     bool StartRobotSystem();
-    uint32 enable;
-    uint32 resetRobots;
-    uint32 onlineLevel;
-    std::string robotAccountNamePrefix;
+    uint32 Enable;
+    uint32 ResetRobots;
+    uint32 OnlineLevel;
+    uint32 OnlineMinDelay;
+    uint32 OnlineMaxDelay;
+    std::string RobotAccountNamePrefix;
 };
 
 #define sRobotConfig RobotConfig::instance()	
