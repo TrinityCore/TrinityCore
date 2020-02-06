@@ -28,17 +28,19 @@ public:
 	bool Healer();
 	bool Healer(Unit* pmTarget);
 	bool Follow();
+    bool Follow(float pmFollowDistance);
 	bool Stay();
 
 	bool GroupInCombat();
 
 public:
-	RobotAI * sourceAI;
-	bool staying;
+	RobotAI * sourceAI;	
 	uint8 memberNumber;
 
 	uint8 instruction;	
 	int32 assembleDelay;
     int32 restDelay;
+
+    float followDistance;
 };
 #endif

@@ -1,6 +1,18 @@
 #ifndef ROBOT_AI_H
 #define ROBOT_AI_H
 
+#ifndef MIN_DISTANCE_GAP
+# define MIN_DISTANCE_GAP 1.0f
+#endif
+
+#ifndef FOLLOW_MIN_DISTANCE
+# define FOLLOW_MIN_DISTANCE 1.0f
+#endif
+
+#ifndef FOLLOW_MAX_DISTANCE
+# define FOLLOW_MAX_DISTANCE 30.0f
+#endif
+
 #ifndef MELEE_COMBAT_DISTANCE
 # define MELEE_COMBAT_DISTANCE 1.5f
 #endif
@@ -48,8 +60,7 @@ public:
     void ResetStrategy();
     void Prepare();
     void Refresh();
-    void RandomTeleport();    
-    void MoveCLose(Unit* pmTarget, float pmDistance);
+    void RandomTeleport();        
     void DoAttack(Unit* pmTarget, bool pmMelee = true);
     void BaseMove(Unit* pmTarget, float pmDistance = MELEE_MAX_DISTANCE, bool pmAttack = true);
     bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = 100, bool pmCheckAura = false, bool pmOnlyMyAura = false, bool pmClearShapeshift = false);
@@ -110,5 +121,8 @@ public:
 
     float combatMinDistance;
     float combatMaxDistance;
+
+    bool staying;
+    bool holding;
 };
 #endif

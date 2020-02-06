@@ -738,6 +738,82 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         }
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
+    else if (commandName == "front1")
+    {
+        std::ostringstream replyStream;
+        Unit* targetUnit = pmPlayer->GetSelectedUnit();
+        if (targetUnit)
+        {
+            if (pmPlayer->isInFront(targetUnit))
+            {
+                replyStream << "Yes";
+            }
+            else
+            {
+                replyStream << "No";
+            }
+        }
+        else
+        {
+            replyStream << "No target";
+        }
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
+    }
+    else if (commandName == "front2")
+    {
+        std::ostringstream replyStream;
+        Unit* targetUnit = pmPlayer->GetSelectedUnit();
+        if (targetUnit)
+        {
+            if (targetUnit->isInFront(pmPlayer))
+            {
+                replyStream << "Yes";
+            }
+            else
+            {
+                replyStream << "No";
+            }
+        }
+        else
+        {
+            replyStream << "No target";
+        }
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
+    }
+    else if (commandName == "front3")
+    {
+        std::ostringstream replyStream;
+        Unit* targetUnit = pmPlayer->GetSelectedUnit();
+        if (targetUnit)
+        {
+            pmPlayer->GetMotionMaster()->MoveCloserAndStop(0, targetUnit, 5.0f);
+            replyStream << "Moved";
+        }
+        else
+        {
+            replyStream << "No target";
+        }
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
+    }
+    else if (commandName == "front4")
+    {
+        std::ostringstream replyStream;
+        Unit* targetUnit = pmPlayer->GetSelectedUnit();
+        if (targetUnit)
+        {
+            pmPlayer->SetFacingToObject(targetUnit);
+            replyStream << "Set";
+        }
+        else
+        {
+            replyStream << "No target";
+        }
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
+    }
+    else if (commandName == "front5")
+    {
+     
+    }
 }
 
 bool RobotManager::StringEndWith(const std::string& str, const std::string& tail)

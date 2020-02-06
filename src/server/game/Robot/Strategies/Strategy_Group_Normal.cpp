@@ -11,13 +11,32 @@
 Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
 {
     sourceAI = pmSourceAI;
-    staying = false;
     memberNumber = 0;
 
     instruction = Group_Instruction::Group_Instruction_None;
 
     assembleDelay = 0;
     restDelay = 0;
+
+    followDistance = MELEE_COMBAT_DISTANCE;
+    if (sourceAI->targetClass == Classes::CLASS_HUNTER || sourceAI->targetClass == Classes::CLASS_MAGE || sourceAI->targetClass == Classes::CLASS_PRIEST || sourceAI->targetClass == Classes::CLASS_WARLOCK)
+    {
+        followDistance = RANGED_MIN_DISTANCE;
+    }
+    else if (sourceAI->targetClass == Classes::CLASS_DRUID)
+    {
+        if (sourceAI->characterTalentTab == 1)
+        {
+            followDistance = RANGED_MIN_DISTANCE;
+        }
+    }
+    else if (sourceAI->targetClass == Classes::CLASS_SHAMAN)
+    {
+        if (sourceAI->characterTalentTab == 0 || sourceAI->characterTalentTab == 2)
+        {
+            followDistance = RANGED_MIN_DISTANCE;
+        }
+    }
 }
 
 void Strategy_Group_Normal::Update(uint32 pmDiff)
@@ -99,7 +118,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
         me->Say("I am not in a group. I will reset my strategy", Language::LANG_UNIVERSAL);
         return;
     }
-    if (staying)
+    if (sourceAI->staying)
     {
         return;
     }
@@ -735,15 +754,16 @@ bool Strategy_Group_Normal::Follow()
     if (targetDistance > 200)
     {
         return false;
-    }
-    float followDistance = MELEE_MAX_DISTANCE;
-    if (sourceAI->combatDistance)
-    {
-        followDistance = sourceAI->combatMaxDistance;
-    }
+    }    
     sourceAI->BaseMove(followTarget, followDistance, false);
 
     return true;
+}
+
+bool Strategy_Group_Normal::Follow(float pmFollowDistance)
+{
+    followDistance = pmFollowDistance;
+    return Follow();
 }
 
 bool Strategy_Group_Normal::Stay()

@@ -140,6 +140,9 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
         break;
     }
     }
+
+    staying = false;
+    holding = false;
 }
 
 RobotAI::~RobotAI()
@@ -160,7 +163,8 @@ void RobotAI::ResetStrategy()
     strategiesMap["solo_normal"] = true;
     st_Solo_Normal->soloDuration = 0;
     strategiesMap["group_normal"] = false;
-    st_Group_Normal->staying = false;
+    staying = false;
+    holding = false;
     masterID = 0;
     Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
     if (!me)
@@ -2033,6 +2037,8 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     {
         target = me;
     }
+    me->SetSelection(ObjectGuid::Empty);
+    me->SetSelection(target->GetGUID());
     if (target->GetGUID() != me->GetGUID())
     {
         float currentDistance = me->GetDistance(target);
@@ -2048,7 +2054,8 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
             }
             if (!me->isInFront(pmTarget))
             {
-                me->SetInFront(pmTarget);
+                me->SetFacingToObject(pmTarget);
+                return true;
             }
         }
     }
@@ -2079,7 +2086,10 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     {
         me->SetStandState(UNIT_STAND_STATE_STAND);
     }
-    me->StopMoving();
+    if (pST->CalcCastTime() > 0)
+    {
+        me->StopMoving();
+    }    
     me->CastSpell(target, spellID, TriggerCastFlags::TRIGGERED_NONE);
 
     return true;
@@ -2104,6 +2114,10 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     {
         return;
     }
+    if (me->IsNonMeleeSpellCast(false))
+    {
+        return;
+    }
     // Can't attack if owner is pacified
     if (me->HasAuraType(SPELL_AURA_MOD_PACIFY))
     {
@@ -2119,44 +2133,35 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     {
         me->SetWalk(false);
     }
-    if (me->GetTarget() != pmTarget->GetGUID())
-    {
-        me->SetSelection(pmTarget->GetGUID());
-    }
-    MoveCLose(pmTarget, pmDistance);
-    if (pmAttack)
-    {
-        me->Attack(pmTarget, true);
-    }
-}
-
-void RobotAI::MoveCLose(Unit* pmTarget, float pmDistance)
-{
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
-    if (!me)
-    {
-        return;
-    }
+    me->SetSelection(ObjectGuid::Empty);
+    me->SetSelection(pmTarget->GetGUID());
     float currentDistance = me->GetDistance(pmTarget);
-    if (combatDistance)
+    if (currentDistance < pmDistance + MIN_DISTANCE_GAP)
     {
-        if (currentDistance < combatMinDistance)
+        if (!me->isInFront(pmTarget))
         {
-            me->GetMotionMaster()->MoveFutherAndStop(0, pmTarget, combatMinDistance);
+            me->SetFacingToObject(pmTarget);
         }
-        else
+        if (pmAttack)
         {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, combatMaxDistance);
+            me->Attack(pmTarget, true);
         }
     }
     else
     {
-        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
-        if (currentDistance < pmDistance)
+        me->AttackStop();
+        if (!holding)
         {
-            if (!me->IsWithinLOSInMap(pmTarget))
+            if (combatDistance)
             {
-                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_COMBAT_DISTANCE);
+                if (currentDistance < combatMinDistance)
+                {
+                    me->GetMotionMaster()->MoveFutherAndStop(0, pmTarget, combatMinDistance + MIN_DISTANCE_GAP);
+                }
+            }
+            else
+            {
+                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
             }
         }
     }
@@ -3094,15 +3099,39 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        st_Group_Normal->staying = false;
-        if (st_Group_Normal->Follow())
-        {            
-            WhisperTo("Following", Language::LANG_UNIVERSAL, pmSender);
+        staying = false;
+        holding = false;
+        if (commandVector.size() > 1)
+        {
+            std::string followDistanceStr = commandVector.at(1);
+            float followDistance = atof(followDistanceStr.c_str());
+            if (followDistance > FOLLOW_MIN_DISTANCE&& followDistance < FOLLOW_MAX_DISTANCE)
+            {
+                if (st_Group_Normal->Follow(followDistance))
+                {
+                    WhisperTo("Following", Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    WhisperTo("I will not follow you", Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+            else
+            {
+                WhisperTo("Follow distance is invalid", Language::LANG_UNIVERSAL, pmSender);
+            }
         }
         else
         {
-            WhisperTo("I will not follow you", Language::LANG_UNIVERSAL, pmSender);
-        }
+            if (st_Group_Normal->Follow())
+            {
+                WhisperTo("Following", Language::LANG_UNIVERSAL, pmSender);
+            }
+            else
+            {
+                WhisperTo("I will not follow you", Language::LANG_UNIVERSAL, pmSender);
+            }
+        }        
     }
     else if (commandName == "stay")
     {
@@ -3123,13 +3152,34 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         }
         if (st_Group_Normal->Stay())
         {
-            st_Group_Normal->staying = true;
+            staying = true;
             WhisperTo("Staying", Language::LANG_UNIVERSAL, pmSender);
         }
         else
         {
             WhisperTo("I will not stay", Language::LANG_UNIVERSAL, pmSender);
         }
+    }
+    else if (commandName == "hold")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (!me->IsAlive())
+        {
+            WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        staying = false;
+        holding = true;
+        WhisperTo("Holding", Language::LANG_UNIVERSAL, pmSender);
     }
     else if (commandName == "heal")
     {
@@ -3150,7 +3200,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         }
         if (me->groupRole == 2)
         {
-            st_Group_Normal->staying = false;
+            staying = false;
             WhisperTo("I am ready to do healing", Language::LANG_UNIVERSAL, pmSender);
         }
         else
@@ -3176,7 +3226,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             return;
         }
         Unit* senderTarget = pmSender->GetSelectedUnit();
-        st_Group_Normal->staying = false;
+        staying = false;
         if (st_Group_Normal->Attack(senderTarget))
         {
             st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;            
@@ -3205,7 +3255,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-        st_Group_Normal->staying = false;
+        staying = false;
         if (st_Group_Normal->Rest(true))
         {            
             WhisperTo("Resting", Language::LANG_UNIVERSAL, pmSender);
@@ -3275,7 +3325,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         if (me->groupRole == 1)
         {
             Unit* senderTarget = pmSender->GetSelectedUnit();
-            st_Group_Normal->staying = false;
+            staying = false;
             if (st_Group_Normal->Tank(senderTarget))
             {                
                 st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
@@ -3659,7 +3709,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
                     {
                         if ((*it)->GetName() == goName)
                         {
-                            me->SetInFront((*it));
+                            me->SetFacingToObject((*it));
                             WorldPacket* const packetgouse = new WorldPacket(CMSG_GAMEOBJ_REPORT_USE, 8);
                             *packetgouse << (*it)->GetGUID();
                             me->GetSession()->HandleGameObjectUseOpcode(*packetgouse);
