@@ -20,6 +20,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundScore.h"
+#include "GameObjectData.h"
 #include "Object.h"
 
 #define BG_AV_CAPTIME                    240000  //4:00
