@@ -180,16 +180,38 @@ void RobotManager::InitializeManager()
     characterTalentTabNameMap[Classes::CLASS_DRUID][1] = "Feral";
     characterTalentTabNameMap[Classes::CLASS_DRUID][2] = "Restoration";
 
+    // all equip are from loot
+    std::unordered_set<uint32> rlSet;
+    rlSet.clear();
+    QueryResult rlQR = WorldDatabase.Query("SELECT distinct Item FROM reference_loot_template");
+    if (rlQR)
+    {
+        do
+        {
+            Field* rlField = rlQR->Fetch();
+            uint32 eachLootItemEntry = rlField[0].GetUInt32();
+            rlSet.insert(eachLootItemEntry);
+        } while (rlQR->NextRow());
+    }
+
     uint8 levelRange = 0;
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
     {
+        if (rlSet.find(itemTemplatePair.first) == rlSet.end())
+        {
+            continue;
+        }        
         const ItemTemplate* proto = &itemTemplatePair.second;
         if (!proto)
         {
             continue;
         }
         if (proto->Quality < 2)
+        {
+            continue;
+        }
+        if (proto->RandomSuffix > 0)
         {
             continue;
         }

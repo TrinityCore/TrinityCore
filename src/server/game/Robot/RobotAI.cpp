@@ -2148,9 +2148,9 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     else
     {
         if (pmAttack)
-        {            
-            me->ClearUnitState(UNIT_STATE_MELEE_ATTACKING);
-            me->InterruptSpell(CURRENT_MELEE_SPELL);
+        {
+            me->AttackStop();
+            me->SetSelection(ObjectGuid::Empty);
         }
         if (!holding)
         {
@@ -2786,24 +2786,25 @@ bool RobotAI::EquipNewItem(uint32 pmEntry)
     InventoryResult tryEquipResult = me->CanEquipNewItem(NULL_SLOT, eDest, pmEntry, false);
     if (tryEquipResult == EQUIP_ERR_OK)
     {
-        ItemPosCountVec sDest;
-        InventoryResult storeResult = me->CanStoreNewItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, sDest, pmEntry, 1);
-        if (storeResult == EQUIP_ERR_OK)
+        Item* pItem = Item::CreateItem(pmEntry, 1, me);
+        if (pItem)
         {
-            Item* pItem = me->StoreNewItem(sDest, pmEntry, true, GenerateItemRandomPropertyId(pmEntry));
-            if (pItem)
+            if (int32 randomPropertyId = GenerateItemRandomPropertyId(pmEntry))
             {
-                InventoryResult equipResult = me->CanEquipItem(NULL_SLOT, eDest, pItem, false);
-                if (equipResult == EQUIP_ERR_OK)
-                {
-                    me->RemoveItem(INVENTORY_SLOT_BAG_0, pItem->GetSlot(), true);
-                    me->EquipItem(eDest, pItem, true);
-                    return true;
-                }
-                else
-                {
-                    pItem->DestroyForPlayer(me);
-                }
+                pItem->SetItemRandomProperties(randomPropertyId);
+            }
+            //SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            //pItem->SaveToDB(trans);
+            //CharacterDatabase.CommitTransaction(trans);
+            InventoryResult equipResult = me->CanEquipItem(NULL_SLOT, eDest, pItem, false);
+            if (equipResult == EQUIP_ERR_OK)
+            {
+                me->EquipItem(eDest, pItem, true);
+                return true;
+            }
+            else
+            {
+                pItem->DestroyForPlayer(me);
             }
         }
     }

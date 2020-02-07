@@ -2,7 +2,7 @@
 #define ROBOT_AI_H
 
 #ifndef MIN_DISTANCE_GAP
-# define MIN_DISTANCE_GAP 1.0f
+# define MIN_DISTANCE_GAP 0.5f
 #endif
 
 #ifndef FOLLOW_MIN_DISTANCE
