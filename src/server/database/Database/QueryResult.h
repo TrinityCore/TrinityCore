@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,7 +25,7 @@
 class TC_DATABASE_API ResultSet
 {
     public:
-        ResultSet(MYSQL_RES* result, MYSQL_FIELD* fields, uint64 rowCount, uint32 fieldCount);
+        ResultSet(MySQLResult* result, MySQLField* fields, uint64 rowCount, uint32 fieldCount);
         ~ResultSet();
 
         bool NextRow();
@@ -43,8 +42,8 @@ class TC_DATABASE_API ResultSet
 
     private:
         void CleanUp();
-        MYSQL_RES* _result;
-        MYSQL_FIELD* _fields;
+        MySQLResult* _result;
+        MySQLField* _fields;
 
         ResultSet(ResultSet const& right) = delete;
         ResultSet& operator=(ResultSet const& right) = delete;
@@ -53,7 +52,7 @@ class TC_DATABASE_API ResultSet
 class TC_DATABASE_API PreparedResultSet
 {
     public:
-        PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES* result, uint64 rowCount, uint32 fieldCount);
+        PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint64 rowCount, uint32 fieldCount);
         ~PreparedResultSet();
 
         bool NextRow();
@@ -70,9 +69,9 @@ class TC_DATABASE_API PreparedResultSet
         uint32 m_fieldCount;
 
     private:
-        MYSQL_BIND* m_rBind;
-        MYSQL_STMT* m_stmt;
-        MYSQL_RES* m_metadataResult;    ///< Field metadata, returned by mysql_stmt_result_metadata
+        MySQLBind* m_rBind;
+        MySQLStmt* m_stmt;
+        MySQLResult* m_metadataResult;    ///< Field metadata, returned by mysql_stmt_result_metadata
 
         void CleanUp();
         bool _NextRow();

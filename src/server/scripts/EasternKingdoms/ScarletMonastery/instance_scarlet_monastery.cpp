@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,17 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "scarlet_monastery.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "scarlet_monastery.h"
+#include "ScriptMgr.h"
 
-DoorData const doorData[] =
+ObjectData const creatureData[] =
 {
-    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
-    { 0,                        0,                             DOOR_TYPE_ROOM } // END
+    { NPC_HEAD,      DATA_HEAD      },
+    { NPC_HORSEMAN,  DATA_HORSEMAN  },
+    { NPC_MOGRAINE,  DATA_MOGRAINE  },
+    { NPC_VORREL,    DATA_VORREL    },
+    { NPC_WHITEMANE, DATA_WHITEMANE },
+    { 0,             0              } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_PUMPKIN_SHRINE,        DATA_PUMPKIN_SHRINE        },
+    { GO_HIGH_INQUISITORS_DOOR, DATA_HIGH_INQUISITORS_DOOR },
+    { 0,                        0                          } // END
 };
 
 class instance_scarlet_monastery : public InstanceMapScript
@@ -39,62 +50,21 @@ class instance_scarlet_monastery : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadDoorData(doorData);
-
-                HorsemanAdds.clear();
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                InstanceScript::OnGameObjectCreate(go);
-
-                switch (go->GetEntry())
-                {
-                    case GO_PUMPKIN_SHRINE:
-                        PumpkinShrineGUID = go->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
+                LoadObjectData(creatureData, gameObjectData);
             }
 
             void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_HORSEMAN:
-                        HorsemanGUID = creature->GetGUID();
-                        break;
-                    case NPC_HEAD:
-                        HeadGUID = creature->GetGUID();
-                        break;
                     case NPC_PUMPKIN:
                         HorsemanAdds.insert(creature->GetGUID());
                         break;
-                    case NPC_MOGRAINE:
-                        MograineGUID = creature->GetGUID();
-                        break;
-                    case NPC_WHITEMANE:
-                        WhitemaneGUID = creature->GetGUID();
-                        break;
-                    case NPC_VORREL:
-                        VorrelGUID = creature->GetGUID();
-                        break;
                     default:
                         break;
                 }
-            }
 
-            void SetData(uint32 type, uint32 /*data*/) override
-            {
-                switch (type)
-                {
-                    case DATA_PUMPKIN_SHRINE:
-                        HandleGameObject(PumpkinShrineGUID, false);
-                        break;
-                    default:
-                        break;
-                }
+                InstanceScript::OnCreatureCreate(creature);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -105,16 +75,18 @@ class instance_scarlet_monastery : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_HORSEMAN_EVENT:
-                        if (state == DONE)
+                        if (state == DONE || state == FAIL || state == NOT_STARTED)
                         {
-                            for (ObjectGuid guid : HorsemanAdds)
+                            for (ObjectGuid const& guid : HorsemanAdds)
                             {
                                 Creature* add = instance->GetCreature(guid);
-                                if (add && add->IsAlive())
-                                    add->KillSelf();
+                                if (add)
+                                    add->DespawnOrUnsummon();
                             }
                             HorsemanAdds.clear();
-                            HandleGameObject(PumpkinShrineGUID, false);
+
+                            if (state == DONE)
+                                HandleGameObject(ObjectGuid::Empty, false, GetGameObject(DATA_PUMPKIN_SHRINE));
                         }
                         break;
                     default:
@@ -123,31 +95,8 @@ class instance_scarlet_monastery : public InstanceMapScript
                 return true;
             }
 
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_MOGRAINE:
-                        return MograineGUID;
-                    case DATA_WHITEMANE:
-                        return WhitemaneGUID;
-                    case DATA_VORREL:
-                        return VorrelGUID;
-                    default:
-                        break;
-                }
-                return ObjectGuid::Empty;
-            }
-
         protected:
-            ObjectGuid PumpkinShrineGUID;
-            ObjectGuid HorsemanGUID;
-            ObjectGuid HeadGUID;
-            ObjectGuid MograineGUID;
-            ObjectGuid WhitemaneGUID;
-            ObjectGuid VorrelGUID;
-
-            GuidSet HorsemanAdds;
+            GuidUnorderedSet HorsemanAdds;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

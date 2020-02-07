@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -343,6 +343,8 @@ struct npc_pet_gen_soul_trader : public ScriptedAI
         Talk(SAY_SOUL_TRADER_INTRO);
         if (Unit* owner = me->GetOwner())
             DoCast(owner, SPELL_ETHEREAL_ONSUMMON);
+
+        CreatureAI::JustAppeared();
     }
 };
 

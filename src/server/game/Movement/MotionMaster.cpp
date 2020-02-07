@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -83,7 +82,7 @@ bool MovementGeneratorComparator::operator()(MovementGenerator const* a, Movemen
 
 MovementGeneratorInformation::MovementGeneratorInformation(MovementGeneratorType type, ObjectGuid targetGUID, std::string const& targetName) : Type(type), TargetGUID(targetGUID), TargetName(targetName) { }
 
-MotionMaster::MotionMaster(Unit* unit) : _owner(unit), _defaultGenerator(nullptr), _flags(MOTIONMASTER_FLAG_NONE) { }
+MotionMaster::MotionMaster(Unit* unit) : _owner(unit), _defaultGenerator(nullptr), _flags(MOTIONMASTER_FLAG_INITIALIZATION_PENDING) { }
 
 MotionMaster::~MotionMaster()
 {
@@ -95,6 +94,9 @@ MotionMaster::~MotionMaster()
 
 void MotionMaster::Initialize()
 {
+    if (HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING))
+        return;
+
     if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
     {
         DelayedActionDefine action = [this]()
@@ -111,6 +113,20 @@ void MotionMaster::Initialize()
 void MotionMaster::InitializeDefault()
 {
     Add(FactorySelector::SelectMovementGenerator(_owner), MOTION_SLOT_DEFAULT);
+}
+
+void MotionMaster::AddToWorld()
+{
+    if (!HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING))
+        return;
+
+    AddFlag(MOTIONMASTER_FLAG_INITIALIZING);
+    RemoveFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING);
+
+    DirectInitialize();
+    ResolveDelayedActions();
+
+    RemoveFlag(MOTIONMASTER_FLAG_INITIALIZING);
 }
 
 bool MotionMaster::Empty() const
@@ -277,6 +293,9 @@ void MotionMaster::Update(uint32 diff)
     if (!_owner)
         return;
 
+    if (HasFlag(MOTIONMASTER_FLAG_INITIALIZATION_PENDING | MOTIONMASTER_FLAG_INITIALIZING))
+        return;
+
     ASSERT(!Empty(), "MotionMaster:Update: update called without Initializing! (%s)", _owner->GetGUID().ToString().c_str());
 
     AddFlag(MOTIONMASTER_FLAG_UPDATE);
@@ -304,11 +323,7 @@ void MotionMaster::Update(uint32 diff)
 
     RemoveFlag(MOTIONMASTER_FLAG_UPDATE);
 
-    while (!_delayedActions.empty())
-    {
-        _delayedActions.front().Resolve();
-        _delayedActions.pop_front();
-    }
+    ResolveDelayedActions();
 }
 
 void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/)
@@ -322,7 +337,7 @@ void MotionMaster::Add(MovementGenerator* movement, MovementSlot slot/* = MOTION
         return;
     }
 
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, movement, slot]()
         {
@@ -339,7 +354,7 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
     if (!movement || IsInvalidMovementSlot(slot))
         return;
 
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, movement, slot]()
         {
@@ -377,7 +392,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
     if (IsInvalidMovementGeneratorType(type) || IsInvalidMovementSlot(slot))
         return;
 
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, type, slot]()
         {
@@ -415,7 +430,7 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
 
 void MotionMaster::Clear()
 {
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this]()
         {
@@ -434,7 +449,7 @@ void MotionMaster::Clear(MovementSlot slot)
     if (IsInvalidMovementSlot(slot))
         return;
 
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, slot]()
         {
@@ -462,7 +477,7 @@ void MotionMaster::Clear(MovementSlot slot)
 
 void MotionMaster::Clear(MovementGeneratorMode mode)
 {
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, mode]()
         {
@@ -484,7 +499,7 @@ void MotionMaster::Clear(MovementGeneratorMode mode)
 
 void MotionMaster::Clear(MovementGeneratorPriority priority)
 {
-    if (HasFlag(MOTIONMASTER_FLAG_UPDATE))
+    if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
         DelayedActionDefine action = [this, priority]()
         {
@@ -889,7 +904,7 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
         return;
 
     // rooted units don't move (also setting falling+root flag causes client freezes)
-    if (_owner->HasUnitState(UNIT_STATE_ROOT))
+    if (_owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
 
     _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
@@ -913,12 +928,13 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
 
 void MotionMaster::MoveSeekAssistance(float x, float y, float z)
 {
-    if (_owner->GetTypeId() == TYPEID_UNIT)
+    if (Creature* creature = _owner->ToCreature())
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '%s', seeks assistance (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), x, y, z);
-        _owner->AttackStop();
-        _owner->CastStop();
-        _owner->ToCreature()->SetReactState(REACT_PASSIVE);
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveSeekAssistance: '%s', seeks assistance (X: %f, Y: %f, Z: %f)", creature->GetGUID().ToString().c_str(), x, y, z);
+        creature->AttackStop();
+        creature->CastStop();
+        creature->DoNotReacquireSpellFocusTarget();
+        creature->SetReactState(REACT_PASSIVE);
         Add(new AssistanceMovementGenerator(EVENT_ASSIST_MOVE, x, y, z));
     }
     else
@@ -1018,6 +1034,15 @@ void MotionMaster::LaunchMoveSpline(Movement::MoveSplineInit&& init, uint32 id/*
 }
 
 /******************** Private methods ********************/
+
+void MotionMaster::ResolveDelayedActions()
+{
+    while (!_delayedActions.empty())
+    {
+        _delayedActions.front().Resolve();
+        _delayedActions.pop_front();
+    }
+}
 
 void MotionMaster::Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform)
 {

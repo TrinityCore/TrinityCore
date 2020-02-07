@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "ArenaTeam.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"
@@ -130,9 +131,8 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     if (race)
         itr->second.Race = *race;
 
-    WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
-    data << guid;
-    sWorld->SendGlobalMessage(&data);
+    WorldPackets::Misc::InvalidatePlayer packet(guid);
+    sWorld->SendGlobalMessage(packet.Write());
 
     // Correct name -> pointer storage
     _characterCacheByNameStore.erase(oldName);

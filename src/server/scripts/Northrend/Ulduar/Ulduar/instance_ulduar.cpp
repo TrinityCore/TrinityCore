@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -499,7 +499,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_LEVIATHAN_GATE:
                         LeviathanGateGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_LEVIATHAN) == DONE)
-                            gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                            gameObject->SetGoState(GO_STATE_DESTROYED);
                         break;
                     case GO_BRAIN_ROOM_DOOR_1:
                         BrainRoomDoorGUIDs[0] = gameObject->GetGUID();
@@ -1019,7 +1019,7 @@ class instance_ulduar : public InstanceMapScript
                             if (Creature* leviathan = GetCreature(BOSS_LEVIATHAN))
                                 leviathan->AI()->DoAction(ACTION_MOVE_TO_CENTER_POSITION);
                             if (GameObject* gameObject = instance->GetGameObject(LeviathanGateGUID))
-                                gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                gameObject->SetGoState(GO_STATE_DESTROYED);
                             break;
                     }
                 }

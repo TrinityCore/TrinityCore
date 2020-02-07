@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,10 @@ enum Spells
 
     // Frost Warder
     SPELL_FROST_BLAST       = 72123,    // don't know cd... using 20 secs.
-    SPELL_FROZEN_MALLET_2   = 72122
+    SPELL_FROZEN_MALLET_2   = 72122,
+
+    // Frozen Orb Stalker
+    FROZEN_ORB_STALKER_AURA = 72094
 };
 
 enum Events
@@ -52,7 +55,7 @@ struct boss_toravon : public BossAI
 {
     boss_toravon(Creature* creature) : BossAI(creature, DATA_TORAVON) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
         DoCastSelf(SPELL_FROZEN_MALLET);
 
@@ -60,7 +63,7 @@ struct boss_toravon : public BossAI
         events.ScheduleEvent(EVENT_WHITEOUT, 25s);
         events.ScheduleEvent(EVENT_FREEZING_GROUND, 7s);
 
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
     }
 
     void UpdateAI(uint32 diff) override
@@ -101,6 +104,16 @@ struct boss_toravon : public BossAI
         }
 
         DoMeleeAttackIfReady();
+    }
+};
+
+struct npc_frozen_orb_stalker : public ScriptedAI
+{
+    npc_frozen_orb_stalker(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        DoCastSelf(FROZEN_ORB_STALKER_AURA);
     }
 };
 
@@ -199,6 +212,7 @@ void AddSC_boss_toravon()
 {
     RegisterVaultOfArchavonCreatureAI(boss_toravon);
     RegisterVaultOfArchavonCreatureAI(npc_frost_warder);
+    RegisterVaultOfArchavonCreatureAI(npc_frozen_orb_stalker);
     RegisterVaultOfArchavonCreatureAI(npc_frozen_orb);
     RegisterSpellScript(spell_toravon_random_aggro);
 }

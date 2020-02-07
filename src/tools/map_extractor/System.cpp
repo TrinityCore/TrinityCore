@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -452,6 +451,7 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
             // Set map height as grid height
             for (int y=0; y <= ADT_CELL_SIZE; y++)
             {
+                // edge V9s are overlapping between cells (i * ADT_CELL_SIZE is correct, otherwise we would be missing a row/column of V8s between)
                 int cy = i*ADT_CELL_SIZE + y;
                 for (int x=0; x <= ADT_CELL_SIZE; x++)
                 {
@@ -475,6 +475,7 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
             // get V9 height map
             for (int y=0; y <= ADT_CELL_SIZE; y++)
             {
+                // edge V9s are overlapping between cells (i * ADT_CELL_SIZE is correct, otherwise we would be missing a row/column of V8s between)
                 int cy = i*ADT_CELL_SIZE + y;
                 for (int x=0; x <= ADT_CELL_SIZE; x++)
                 {

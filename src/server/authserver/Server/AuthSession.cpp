@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +16,16 @@
  */
 
 #include "AuthSession.h"
+#include "AES.h"
 #include "AuthCodes.h"
 #include "Config.h"
+#include "CryptoGenerics.h"
+#include "DatabaseEnv.h"
 #include "Errors.h"
 #include "IPLocation.h"
 #include "Log.h"
-#include "DatabaseEnv.h"
 #include "RealmList.h"
+#include "SecretMgr.h"
 #include "SHA1.h"
 #include "TOTP.h"
 #include "Util.h"
@@ -139,7 +141,7 @@ void AccountInfo::LoadResult(Field* fields)
     //          0           1         2               3          4                5                                                             6
     //SELECT a.id, a.username, a.locked, a.lock_country, a.last_ip, a.failed_logins, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate,
     //                               7           8            9               10   11   12
-    //       ab.unbandate = ab.bandate, aa.gmlevel, a.token_key, a.sha_pass_hash, a.v, a.s
+    //       ab.unbandate = ab.bandate, aa.gmlevel, a.totp_secret, a.sha_pass_hash, a.v, a.s
     //FROM account a LEFT JOIN account_access aa ON a.id = aa.id LEFT JOIN account_banned ab ON ab.id = a.id AND ab.active = 1 WHERE a.username = ?
 
     Id = fields[0].GetUInt32();
@@ -380,6 +382,25 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
         }
     }
 
+    uint8 securityFlags = 0;
+    // Check if a TOTP token is needed
+    if (!fields[9].IsNull())
+    {
+        securityFlags = 4;
+        _totpSecret = fields[9].GetBinary();
+        if (auto const& secret = sSecretMgr->GetSecret(SECRET_TOTP_MASTER_KEY))
+        {
+            bool success = Trinity::Crypto::AEDecrypt<Trinity::Crypto::AES>(*_totpSecret, *secret);
+            if (!success)
+            {
+                pkt << uint8(WOW_FAIL_DB_BUSY);
+                TC_LOG_ERROR("server.authserver", "[AuthChallenge] Account '%s' has invalid ciphertext for TOTP token key stored", _accountInfo.Login.c_str());
+                SendPacket(pkt);
+                return;
+            }
+        }
+    }
+
     // Get the password from the account table, upper it, and make the SRP6 calculation
     std::string rI = fields[10].GetString();
 
@@ -408,48 +429,42 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
     if (AuthHelper::IsAcceptedClientBuild(_build))
     {
         pkt << uint8(WOW_SUCCESS);
+
+        // B may be calculated < 32B so we force minimal length to 32B
+        pkt.append(B.AsByteArray(32).get(), 32);      // 32 bytes
+        pkt << uint8(1);
+        pkt.append(g.AsByteArray(1).get(), 1);
+        pkt << uint8(32);
+        pkt.append(N.AsByteArray(32).get(), 32);
+        pkt.append(s.AsByteArray(int32(BufferSizes::SRP_6_S)).get(), size_t(BufferSizes::SRP_6_S));   // 32 bytes
+        pkt.append(VersionChallenge.data(), VersionChallenge.size());
+        pkt << uint8(securityFlags);            // security flags (0x0...0x04)
+
+        if (securityFlags & 0x01)               // PIN input
+        {
+            pkt << uint32(0);
+            pkt << uint64(0) << uint64(0);      // 16 bytes hash?
+        }
+
+        if (securityFlags & 0x02)               // Matrix input
+        {
+            pkt << uint8(0);
+            pkt << uint8(0);
+            pkt << uint8(0);
+            pkt << uint8(0);
+            pkt << uint64(0);
+        }
+
+        if (securityFlags & 0x04)               // Security token input
+            pkt << uint8(1);
+
+        TC_LOG_DEBUG("server.authserver", "'%s:%d' [AuthChallenge] account %s is using '%s' locale (%u)",
+            ipAddress.c_str(), port, _accountInfo.Login.c_str(), _localizationName.c_str(), GetLocaleByName(_localizationName));
+
         _status = STATUS_LOGON_PROOF;
     }
     else
         pkt << uint8(WOW_FAIL_VERSION_INVALID);
-
-    // B may be calculated < 32B so we force minimal length to 32B
-    pkt.append(B.AsByteArray(32).get(), 32);      // 32 bytes
-    pkt << uint8(1);
-    pkt.append(g.AsByteArray(1).get(), 1);
-    pkt << uint8(32);
-    pkt.append(N.AsByteArray(32).get(), 32);
-    pkt.append(s.AsByteArray(int32(BufferSizes::SRP_6_S)).get(), size_t(BufferSizes::SRP_6_S));   // 32 bytes
-    pkt.append(VersionChallenge.data(), VersionChallenge.size());
-    uint8 securityFlags = 0;
-
-    // Check if token is used
-    _tokenKey = fields[9].GetString();
-    if (!_tokenKey.empty())
-        securityFlags = 4;
-
-    pkt << uint8(securityFlags);            // security flags (0x0...0x04)
-
-    if (securityFlags & 0x01)               // PIN input
-    {
-        pkt << uint32(0);
-        pkt << uint64(0) << uint64(0);      // 16 bytes hash?
-    }
-
-    if (securityFlags & 0x02)               // Matrix input
-    {
-        pkt << uint8(0);
-        pkt << uint8(0);
-        pkt << uint8(0);
-        pkt << uint8(0);
-        pkt << uint64(0);
-    }
-
-    if (securityFlags & 0x04)               // Security token input
-        pkt << uint8(1);
-
-    TC_LOG_DEBUG("server.authserver", "'%s:%d' [AuthChallenge] account %s is using '%s' locale (%u)",
-        ipAddress.c_str(), port, _accountInfo.Login.c_str(), _localizationName.c_str(), GetLocaleByName(_localizationName));
 
     SendPacket(pkt);
 }
@@ -548,23 +563,29 @@ bool AuthSession::HandleLogonProof()
     if (!memcmp(M.AsByteArray(sha.GetLength()).get(), logonProof->M1, 20))
     {
         // Check auth token
-        if ((logonProof->securityFlags & 0x04) || !_tokenKey.empty())
+        bool tokenSuccess = false;
+        bool sentToken = (logonProof->securityFlags & 0x04);
+        if (sentToken && _totpSecret)
         {
             uint8 size = *(GetReadBuffer().GetReadPointer() + sizeof(sAuthLogonProof_C));
             std::string token(reinterpret_cast<char*>(GetReadBuffer().GetReadPointer() + sizeof(sAuthLogonProof_C) + sizeof(size)), size);
             GetReadBuffer().ReadCompleted(sizeof(size) + size);
-            uint32 validToken = TOTP::GenerateToken(_tokenKey.c_str());
-            _tokenKey.clear();
+
             uint32 incomingToken = atoi(token.c_str());
-            if (validToken != incomingToken)
-            {
-                ByteBuffer packet;
-                packet << uint8(AUTH_LOGON_PROOF);
-                packet << uint8(WOW_FAIL_UNKNOWN_ACCOUNT);
-                packet << uint16(0);    // LoginFlags, 1 has account message
-                SendPacket(packet);
-                return true;
-            }
+            tokenSuccess = Trinity::Crypto::TOTP::ValidateToken(*_totpSecret, incomingToken);
+            memset(_totpSecret->data(), 0, _totpSecret->size());
+        }
+        else if (!sentToken && !_totpSecret)
+            tokenSuccess = true;
+
+        if (!tokenSuccess)
+        {
+            ByteBuffer packet;
+            packet << uint8(AUTH_LOGON_PROOF);
+            packet << uint8(WOW_FAIL_UNKNOWN_ACCOUNT);
+            packet << uint16(0);    // LoginFlags, 1 has account message
+            SendPacket(packet);
+            return true;
         }
 
         if (!VerifyVersion(logonProof->A, sizeof(logonProof->A), logonProof->crc_hash, false))
@@ -828,7 +849,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
 
         // No SQL injection. id of realm is controlled by the database.
         uint32 flag = realm.Flags;
-        RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(realm.Build);
+        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(realm.Build);
         if (!okBuild)
         {
             if (!buildInfo)
@@ -943,7 +964,7 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, uint8 const* vers
     std::array<uint8, 20> const* versionHash = nullptr;
     if (!isReconnect)
     {
-        RealmBuildInfo const* buildInfo = AuthHelper::GetBuildInfo(_build);
+        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(_build);
         if (!buildInfo)
             return false;
 

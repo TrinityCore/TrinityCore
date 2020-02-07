@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -62,9 +62,9 @@ inline bool roll_chance_i(int chance)
 }
 
 /*
-* SFMT wrapper satisfying UniformRandomNumberGenerator concept for use in <random> algorithms
+* Wrapper satisfying UniformRandomNumberGenerator concept for use in <random> algorithms
 */
-class TC_COMMON_API SFMTEngine
+class TC_COMMON_API RandomEngine
 {
 public:
     typedef uint32 result_type;
@@ -73,7 +73,7 @@ public:
     static constexpr result_type max() { return std::numeric_limits<result_type>::max(); }
     result_type operator()() const { return rand32(); }
 
-    static SFMTEngine& Instance();
+    static RandomEngine& Instance();
 };
 
 #endif // Random_h__

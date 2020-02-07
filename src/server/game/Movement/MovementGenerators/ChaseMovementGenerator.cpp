@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,7 +44,11 @@ static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance,
         return false;
     if (maxDistance && distSq > square(*maxDistance))
         return false;
-    return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
+    if (angle && !angle->IsAngleOkay(target->GetRelativeAngle(owner)))
+        return false;
+    if (!owner->IsWithinLOSInMap(target))
+        return false;
+    return true;
 }
 
 static void DoMovementInform(Unit* owner, Unit* target)

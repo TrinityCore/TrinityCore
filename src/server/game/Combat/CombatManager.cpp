@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -140,6 +140,15 @@ void CombatManager::Update(uint32 tdiff)
         else
             ++it;
     }
+}
+
+bool CombatManager::HasPvECombatWithPlayers() const
+{
+    for (std::pair<ObjectGuid const, CombatReference*> const& reference : _pveRefs)
+        if (reference.second->GetOther(_owner)->GetTypeId() == TYPEID_PLAYER)
+            return true;
+
+    return false;
 }
 
 bool CombatManager::HasPvPCombat() const

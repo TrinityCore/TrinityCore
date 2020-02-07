@@ -118,10 +118,10 @@ WatchID FileWatcherKqueue::addWatch(const std::string& directory, FileWatchListe
 			// Probably the folder has too many files, create a generic watcher
 			if ( EACCES != le )
 			{
-				WatcherGeneric * watch = new WatcherGeneric( ++mLastWatchID, dir, watcher, this, recursive );
+				WatcherGeneric * genericWatch = new WatcherGeneric( ++mLastWatchID, dir, watcher, this, recursive );
 
 				Lock lock( mWatchesLock );
-				mWatches.insert(std::make_pair(mLastWatchID, watch));
+				mWatches.insert(std::make_pair(mLastWatchID, genericWatch));
 			}
 			else
 			{
@@ -223,7 +223,7 @@ std::list<std::string> FileWatcherKqueue::directories()
 
 	WatchMap::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		dirs.push_back( it->second->Directory );
 	}
@@ -235,7 +235,7 @@ bool FileWatcherKqueue::pathInWatches( const std::string& path )
 {
 	WatchMap::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); it++ )
+	for ( ; it != mWatches.end(); ++it )
 	{
 		if ( it->second->Directory == path )
 		{

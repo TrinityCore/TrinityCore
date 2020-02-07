@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +20,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundScore.h"
+#include "GameObjectData.h"
 #include "Object.h"
 
 #define BG_AV_CAPTIME                    240000  //4:00
@@ -543,8 +543,14 @@ Position const BG_AV_ObjectPos[AV_OPLACE_MAX] =
 
 Position const BG_AV_DoorPositons[2] =
 {
-    {780.487f, -493.024f, 99.9553f, 3.0976f},   //alliance
-    {-1375.193f, -538.981f, 55.2824f, 0.72178f} //horde
+    {794.64310f, -493.4745f, 99.77789f, -0.122173f}, //alliance
+    {-1382.057f, -545.9169f, 54.90467f, 0.7679439f}  //horde
+};
+
+QuaternionData const BG_AV_DoorRotation[2] =
+{
+    {0.0f, 0.0f, -0.06104851f, 0.9981348f}, //alliance
+    {0.0f, 0.0f, 0.374606100f, 0.9271840f}  //horde
 };
 
 //creaturestuff starts here

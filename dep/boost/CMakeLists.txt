@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -82,6 +82,7 @@ target_compile_definitions(boost
     # May be removed when the requirement is raised to boost 1.61 on windows.
     -DBOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE
     -DBOOST_CHRONO_NO_LIB
+    -DBOOST_SERIALIZATION_NO_LIB
     -DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
     -DBOOST_ASIO_NO_DEPRECATED
     -DBOOST_SYSTEM_USE_UTF8)

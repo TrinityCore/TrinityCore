@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -75,6 +74,6 @@ enum PetTalk
 };
 
 #define PET_FOLLOW_DIST  1.0f
-#define PET_FOLLOW_ANGLE float(M_PI)
+#define PET_FOLLOW_ANGLE float(M_PI/2)
 
 #endif

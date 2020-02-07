@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -683,6 +683,7 @@ public:
         AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(zoneId);
         return zoneEntry ? zoneEntry->area_name[locale] : "<unknown zone>";
     }
+
     static bool HandleListRespawnsCommand(ChatHandler* handler, char const* args)
     {
         Player const* player = handler->GetSession()->GetPlayer();
@@ -695,28 +696,42 @@ public:
         char const* stringOverdue = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_OVERDUE, locale);
 
         uint32 zoneId = player->GetZoneId();
+        char const* zoneName = GetZoneName(zoneId, locale);
         for (SpawnObjectType type : EnumUtils::Iterate<SpawnObjectType>())
         {
             if (range)
                 handler->PSendSysMessage(LANG_LIST_RESPAWNS_RANGE, EnumUtils::ToTitle(type), range);
             else
-                handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, EnumUtils::ToTitle(type), GetZoneName(zoneId, locale), zoneId);
+                handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, EnumUtils::ToTitle(type), zoneName, zoneId);
+
             handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
             std::vector<RespawnInfo*> respawns;
-            map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type), range ? 0 : zoneId);
-            for (RespawnInfo* ri : respawns)
+            map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type));
+            for (RespawnInfo const* ri : respawns)
             {
                 SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(ri->type, ri->spawnId);
                 if (!data)
                     continue;
-                if (SpawnData const* edata = data->ToSpawnData())
-                    if (range && !player->IsInDist(edata->spawnPoint, range))
-                        continue;
 
+                uint32 respawnZoneId = 0;
+                if (SpawnData const* edata = data->ToSpawnData())
+                {
+                    respawnZoneId = map->GetZoneId(edata->spawnPoint);
+                    if (range)
+                    {
+                        if (!player->IsInDist(edata->spawnPoint, range))
+                            continue;
+                    }
+                    else
+                    {
+                        if (zoneId != respawnZoneId)
+                            continue;
+                    }
+                }
                 uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
                 uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
                 std::string respawnTime = ri->respawnTime > GameTime::GetGameTime() ? secsToTimeString(uint64(ri->respawnTime - GameTime::GetGameTime()), true) : stringOverdue;
-                handler->PSendSysMessage("%u | %u | [%02u,%02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, locale), ri->zoneId, respawnTime.c_str(), map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? "" : " (inactive)");
+                handler->PSendSysMessage("%u | %u | [%02u,%02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(respawnZoneId, locale), respawnZoneId, respawnTime.c_str(), map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? "" : " (inactive)");
             }
         }
         return true;

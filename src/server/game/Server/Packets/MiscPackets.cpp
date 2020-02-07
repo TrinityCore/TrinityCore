@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,46 @@
 
 #include "MiscPackets.h"
 
+WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
+{
+    _worldPacket << BindPosition;
+    _worldPacket << uint32(BindMapID);
+    _worldPacket << uint32(BindAreaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayerBound::Write()
+{
+    _worldPacket << BinderID;
+    _worldPacket << uint32(AreaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::InvalidatePlayer::Write()
+{
+    _worldPacket << Guid;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
+{
+    _worldPacket.AppendPackedTime(GameTime);
+    _worldPacket << float(NewSpeed);
+    _worldPacket << uint32(GameTimeHolidayOffset);
+
+    return &_worldPacket;
+}
+
 WorldPackets::Misc::Weather::Weather() : ServerPacket(SMSG_WEATHER, 4 + 4 + 1) { }
 
 WorldPackets::Misc::Weather::Weather(WeatherState weatherID, float intensity /*= 0.0f*/, bool abrupt /*= false*/)
@@ -27,6 +67,28 @@ WorldPacket const* WorldPackets::Misc::Weather::Write()
     _worldPacket << uint32(WeatherID);
     _worldPacket << float(Intensity);
     _worldPacket << uint8(Abrupt);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayMusic::Write()
+{
+    _worldPacket << SoundKitID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlayObjectSound::Write()
+{
+    _worldPacket << SoundKitID;
+    _worldPacket << SourceObjectGUID;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PlaySound::Write()
+{
+    _worldPacket << SoundKitID;
 
     return &_worldPacket;
 }

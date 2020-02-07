@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -112,6 +112,14 @@ enum LoginDatabaseStatements : uint32
     LOGIN_INS_ACCOUNT_MUTE,
     LOGIN_SEL_ACCOUNT_MUTE_INFO,
     LOGIN_DEL_ACCOUNT_MUTED,
+
+    LOGIN_SEL_SECRET_DIGEST,
+    LOGIN_INS_SECRET_DIGEST,
+    LOGIN_DEL_SECRET_DIGEST,
+
+    LOGIN_SEL_ACCOUNT_TOTP_SECRET,
+    LOGIN_UPD_ACCOUNT_TOTP_SECRET,
+
     MAX_LOGINDATABASE_STATEMENTS
 };
 

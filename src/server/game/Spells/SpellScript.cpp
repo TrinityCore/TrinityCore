@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -218,6 +218,16 @@ bool SpellScript::EffectHandler::CheckEffect(SpellInfo const* spellEntry, uint8 
 void SpellScript::EffectHandler::Call(SpellScript* spellScript, SpellEffIndex effIndexToHandle)
 {
     (spellScript->*pEffectHandlerScript)(effIndexToHandle);
+}
+
+SpellScript::BeforeHitHandler::BeforeHitHandler(SpellBeforeHitFnType pBeforeHitHandlerScript)
+{
+    _pBeforeHitHandlerScript = pBeforeHitHandlerScript;
+}
+
+void SpellScript::BeforeHitHandler::Call(SpellScript* spellScript, SpellMissInfo missInfo)
+{
+    (spellScript->*_pBeforeHitHandlerScript)(missInfo);
 }
 
 SpellScript::HitHandler::HitHandler(SpellHitFnType _pHitHandlerScript)

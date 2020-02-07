@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,10 +16,7 @@
  */
 
 #include "MySQLThreading.h"
-#ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
-#include <winsock2.h>
-#endif
-#include <mysql.h>
+#include "MySQLWorkaround.h"
 
 void MySQL::Library_Init()
 {
@@ -29,4 +26,9 @@ void MySQL::Library_Init()
 void MySQL::Library_End()
 {
     mysql_library_end();
+}
+
+char const* MySQL::GetLibraryVersion()
+{
+    return MYSQL_SERVER_VERSION;
 }

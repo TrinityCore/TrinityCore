@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,10 +45,10 @@ typedef std::future<SQLQueryHolder*> QueryResultHolderFuture;
 typedef std::promise<SQLQueryHolder*> QueryResultHolderPromise;
 
 // mysql
-typedef struct st_mysql MYSQL;
-typedef struct st_mysql_res MYSQL_RES;
-typedef struct st_mysql_field MYSQL_FIELD;
-typedef struct st_mysql_bind MYSQL_BIND;
-typedef struct st_mysql_stmt MYSQL_STMT;
+struct MySQLHandle;
+struct MySQLResult;
+struct MySQLField;
+struct MySQLBind;
+struct MySQLStmt;
 
 #endif // DatabaseEnvFwd_h__

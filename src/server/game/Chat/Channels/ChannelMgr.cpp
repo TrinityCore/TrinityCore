@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,7 +88,7 @@ ChannelMgr::~ChannelMgr()
         channel->SetAnnounce(dbAnnounce);
         channel->SetOwnership(dbOwnership);
         channel->SetPassword(dbPass);
-        ASSERT_NOTNULL(forTeam(team))->_customChannels.emplace(channelName, channel);
+        mgr->_customChannels.emplace(channelName, channel);
 
         ++count;
     } while (result->NextRow());
@@ -247,25 +246,6 @@ Channel* ChannelMgr::GetChannel(uint32 channelId, std::string const& name, Playe
     }
 
     return ret;
-}
-
-void ChannelMgr::LeftChannel(std::string const& name)
-{
-    std::wstring channelName;
-    if (!Utf8toWStr(name, channelName))
-        return;
-
-    wstrToLower(channelName);
-    auto itr = _customChannels.find(channelName);
-    if (itr == _customChannels.end())
-        return;
-
-    Channel* channel = itr->second;
-    if (!channel->GetNumPlayers())
-    {
-        _customChannels.erase(itr);
-        delete channel;
-    }
 }
 
 void ChannelMgr::LeftChannel(uint32 channelId, AreaTableEntry const* zoneEntry)

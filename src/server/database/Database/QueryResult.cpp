@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,10 +19,8 @@
 #include "Errors.h"
 #include "Field.h"
 #include "Log.h"
-#ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
-#include <winsock2.h>
-#endif
-#include <mysql.h>
+#include "MySQLHacks.h"
+#include "MySQLWorkaround.h"
 
 static uint32 SizeForType(MYSQL_FIELD* field)
 {
@@ -119,7 +116,7 @@ DatabaseFieldTypes MysqlTypeToFieldType(enum_field_types type)
     return DatabaseFieldTypes::Null;
 }
 
-ResultSet::ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount) :
+ResultSet::ResultSet(MySQLResult* result, MySQLField* fields, uint64 rowCount, uint32 fieldCount) :
 _rowCount(rowCount),
 _fieldCount(fieldCount),
 _result(result),
@@ -132,7 +129,7 @@ _fields(fields)
 #endif
 }
 
-PreparedResultSet::PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, uint64 rowCount, uint32 fieldCount) :
+PreparedResultSet::PreparedResultSet(MySQLStmt* stmt, MySQLResult* result, uint64 rowCount, uint32 fieldCount) :
 m_rowCount(rowCount),
 m_rowPosition(0),
 m_fieldCount(fieldCount),
@@ -149,16 +146,16 @@ m_metadataResult(result)
         delete[] m_stmt->bind->is_null;
     }
 
-    m_rBind = new MYSQL_BIND[m_fieldCount];
+    m_rBind = new MySQLBind[m_fieldCount];
 
     //- for future readers wondering where the fuck this is freed - mysql_stmt_bind_result moves pointers to these
     // from m_rBind to m_stmt->bind and it is later freed by the `if (m_stmt->bind_result_done)` block just above here
     // MYSQL_STMT lifetime is equal to connection lifetime
-    my_bool* m_isNull = new my_bool[m_fieldCount];
+    MySQLBool* m_isNull = new MySQLBool[m_fieldCount];
     unsigned long* m_length = new unsigned long[m_fieldCount];
 
-    memset(m_isNull, 0, sizeof(my_bool) * m_fieldCount);
-    memset(m_rBind, 0, sizeof(MYSQL_BIND) * m_fieldCount);
+    memset(m_isNull, 0, sizeof(MySQLBool) * m_fieldCount);
+    memset(m_rBind, 0, sizeof(MySQLBind) * m_fieldCount);
     memset(m_length, 0, sizeof(unsigned long) * m_fieldCount);
 
     //- This is where we store the (entire) resultset
@@ -174,7 +171,7 @@ m_metadataResult(result)
     m_rowCount = mysql_stmt_num_rows(m_stmt);
 
     //- This is where we prepare the buffer based on metadata
-    MYSQL_FIELD* field = mysql_fetch_fields(m_metadataResult);
+    MySQLField* field = reinterpret_cast<MySQLField*>(mysql_fetch_fields(m_metadataResult));
     std::size_t rowSize = 0;
     for (uint32 i = 0; i < m_fieldCount; ++i)
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -246,89 +246,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_Apothecary_HanesAI(creature);
-    }
-};
-
-/*######
-## npc_razael_and_lyana
-######*/
-
-#define GOSSIP_RAZAEL_REPORT "High Executor Anselm wants a report on the situation."
-#define GOSSIP_LYANA_REPORT "High Executor Anselm requests your report."
-
-enum Razael
-{
-    QUEST_REPORTS_FROM_THE_FIELD = 11221,
-    NPC_RAZAEL = 23998,
-    NPC_LYANA = 23778,
-    GOSSIP_TEXTID_RAZAEL1 = 11562,
-    GOSSIP_TEXTID_RAZAEL2 = 11564,
-    GOSSIP_TEXTID_LYANA1 = 11586,
-    GOSSIP_TEXTID_LYANA2 = 11588
-};
-
-class npc_razael_and_lyana : public CreatureScript
-{
-public:
-    npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
-
-    struct npc_razael_and_lyanaAI : public ScriptedAI
-    {
-        npc_razael_and_lyanaAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->IsQuestGiver())
-                player->PrepareQuestMenu(me->GetGUID());
-
-            if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
-            {
-                switch (me->GetEntry())
-                {
-                    case NPC_RAZAEL:
-                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
-                        {
-                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                            SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL1, me->GetGUID());
-                            return true;
-                        }
-                        break;
-                    case NPC_LYANA:
-                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
-                        {
-                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                            SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA1, me->GetGUID());
-                            return true;
-                        }
-                        break;
-                }
-            }
-            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL2, me->GetGUID());
-                    player->TalkedToCreature(NPC_RAZAEL, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA2, me->GetGUID());
-                    player->TalkedToCreature(NPC_LYANA, me->GetGUID());
-                    break;
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_razael_and_lyanaAI(creature);
     }
 };
 
@@ -583,8 +500,6 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 
                 for (uint8 i = 0; i < 10; ++i)
                     caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
-
-                caster->DespawnOrUnsummon(4000);
             }
 
             void Register() override
@@ -670,7 +585,6 @@ public:
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes();
-    new npc_razael_and_lyana();
     RegisterCreatureAI(npc_daegarn);
     new npc_mindless_abomination();
     new spell_mindless_abomination_explosion_fx_master();

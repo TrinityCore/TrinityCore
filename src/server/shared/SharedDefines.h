@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1651,7 +1650,7 @@ enum GOState : uint8
 {
     GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
     GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
-    GO_STATE_ACTIVE_ALTERNATIVE = 2                         // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_DESTROYED          = 2                         // show the object in-game as already used and not yet reset (e.g. door opened by a cannon blast)
 };
 
 #define MAX_GO_STATE              3
@@ -3786,6 +3785,27 @@ enum LineOfSightChecks
 
     LINEOFSIGHT_ALL_CHECKS      = (LINEOFSIGHT_CHECK_VMAP | LINEOFSIGHT_CHECK_GOBJECT)
 };
+
+enum ServerProcessTypes
+{
+    SERVER_PROCESS_AUTHSERVER = 0,
+    SERVER_PROCESS_WORLDSERVER = 1,
+
+    NUM_SERVER_PROCESS_TYPES
+};
+
+namespace Trinity
+{
+namespace Impl
+{
+    struct TC_SHARED_API CurrentServerProcessHolder
+    {
+        static ServerProcessTypes type() { return _type; }
+        static ServerProcessTypes _type;
+    };
+}
+}
+#define THIS_SERVER_PROCESS (Trinity::Impl::CurrentServerProcessHolder::type())
 
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 

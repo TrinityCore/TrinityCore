@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -26,6 +26,14 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
     set(JEM_MADFREE_DEF "#define")
   else()
     set(JEM_MADFREE_DEF "#undef")
+  endif()
+
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+    set(JEM_CPU_SPINWAIT "")
+    set(JEM_HAVE_CPU_SPINWAIT 0)
+  else()
+    set(JEM_CPU_SPINWAIT "__asm__ volatile\(\"pause\"\)")
+    set(JEM_HAVE_CPU_SPINWAIT 1)
   endif()
 
   # Create the header, so we can use it
@@ -62,6 +70,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/prng.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/prof.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/rtree.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/safety_check.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/stats.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sz.c
