@@ -1140,9 +1140,9 @@ bool BattlegroundAV::SetupBattleground()
 {
     // Create starting objects
     if (// alliance gates
-        !AddObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A, BG_AV_DoorPositons[0], 0, 0, std::sin(BG_AV_DoorPositons[0].GetOrientation()/2), std::cos(BG_AV_DoorPositons[0].GetOrientation()/2), RESPAWN_IMMEDIATELY)
+        !AddObject(BG_AV_OBJECT_DOOR_A, BG_AV_OBJECTID_GATE_A, BG_AV_DoorPositons[0], BG_AV_DoorRotation[0].x, BG_AV_DoorRotation[0].y, BG_AV_DoorRotation[0].z, BG_AV_DoorRotation[0].w, RESPAWN_IMMEDIATELY)
         // horde gates
-        || !AddObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1], 0, 0, std::sin(BG_AV_DoorPositons[1].GetOrientation()/2), std::cos(BG_AV_DoorPositons[1].GetOrientation()/2), RESPAWN_IMMEDIATELY))
+        || !AddObject(BG_AV_OBJECT_DOOR_H, BG_AV_OBJECTID_GATE_H, BG_AV_DoorPositons[1], BG_AV_DoorRotation[1].x, BG_AV_DoorRotation[1].y, BG_AV_DoorRotation[1].z, BG_AV_DoorRotation[1].w, RESPAWN_IMMEDIATELY))
     {
         TC_LOG_ERROR("sql.sql", "BatteGroundAV: Failed to spawn some object Battleground not created!1");
         return false;
