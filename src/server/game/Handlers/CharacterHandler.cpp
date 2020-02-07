@@ -2198,11 +2198,11 @@ void WorldSession::HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& 
     if (_player->GetUInt32Value(PLAYER_XP))
         return;
 
-    if (ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(_player->getClass()))
+    if (ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(_player->GetClass()))
     {
         if (classEntry->CinematicSequence)
             _player->SendCinematicStart(classEntry->CinematicSequence);
-        else if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(_player->getRace()))
+        else if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(_player->GetRace()))
             _player->SendCinematicStart(raceEntry->CinematicSequence);
     }
 }
