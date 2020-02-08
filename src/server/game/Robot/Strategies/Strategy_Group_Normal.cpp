@@ -128,7 +128,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     }
     if (GroupInCombat())
     {
-        restDelay = 0;        
+        restDelay = 0;
         instruction = Group_Instruction::Group_Instruction_Battle;
     }
     switch (instruction)
@@ -174,7 +174,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     {
         if (restDelay <= 0)
         {
-            restDelay = 0;            
+            restDelay = 0;
             instruction = Group_Instruction::Group_Instruction_Wander;
             return;
         }
@@ -195,7 +195,7 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
         return false;
     }
     else
-    {        
+    {
         if (!pmForce)
         {
             float hpRate = me->GetHealthPct();
@@ -293,7 +293,7 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
             if (sourceAI->UseItem(pFood, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;                
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
             }
         }
         Item* pDrink = sourceAI->GetItemInInventory(drinkEntry);
@@ -302,7 +302,7 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
             if (sourceAI->UseItem(pDrink, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;                
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
             }
         }
         if (restDelay > 0)
@@ -754,7 +754,7 @@ bool Strategy_Group_Normal::Follow()
     if (targetDistance > 200)
     {
         return false;
-    }    
+    }
     sourceAI->BaseMove(followTarget, followDistance, false);
 
     return true;

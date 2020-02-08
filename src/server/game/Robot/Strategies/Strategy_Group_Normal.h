@@ -5,40 +5,40 @@ class RobotAI;
 
 enum Group_Instruction :uint8
 {
-	Group_Instruction_None = 0,
-	Group_Instruction_Wander = 1,
-	Group_Instruction_Battle = 2,
-	Group_Instruction_Rest = 3
+    Group_Instruction_None = 0,
+    Group_Instruction_Wander = 1,
+    Group_Instruction_Battle = 2,
+    Group_Instruction_Rest = 3
 };
 
 class Strategy_Group_Normal
 {
 public:
-	Strategy_Group_Normal(RobotAI* pmSourceAI);
-	void Update(uint32 pmDiff);    
-	bool Rest(bool pmForce = false);
-	bool Buff();
-	bool Buff(Player* pmTarget);
-	bool Battle();
-	bool DPS();
-	bool DPS(Unit* pmTarget);
-	bool Tank();
-	bool Tank(Unit* pmTarget);
-	bool Attack(Unit* pmTarget);
-	bool Healer();
-	bool Healer(Unit* pmTarget);
-	bool Follow();
+    Strategy_Group_Normal(RobotAI* pmSourceAI);
+    void Update(uint32 pmDiff);
+    bool Rest(bool pmForce = false);
+    bool Buff();
+    bool Buff(Player* pmTarget);
+    bool Battle();
+    bool DPS();
+    bool DPS(Unit* pmTarget);
+    bool Tank();
+    bool Tank(Unit* pmTarget);
+    bool Attack(Unit* pmTarget);
+    bool Healer();
+    bool Healer(Unit* pmTarget);
+    bool Follow();
     bool Follow(float pmFollowDistance);
-	bool Stay();
+    bool Stay();
 
-	bool GroupInCombat();
+    bool GroupInCombat();
 
 public:
-	RobotAI * sourceAI;	
-	uint8 memberNumber;
+    RobotAI* sourceAI;
+    uint8 memberNumber;
 
-	uint8 instruction;	
-	int32 assembleDelay;
+    uint8 instruction;
+    int32 assembleDelay;
     int32 restDelay;
 
     float followDistance;

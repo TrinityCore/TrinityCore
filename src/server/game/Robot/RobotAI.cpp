@@ -2036,26 +2036,22 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     if (!target)
     {
         target = me;
-    }    
+    }
     me->SetSelection(target->GetGUID());
     if (target->GetGUID() != me->GetGUID())
     {
-        float currentDistance = me->GetDistance(target);
-        if (currentDistance > pmDistance)
+        if (me->GetDistance(target) > pmDistance)
         {
             return false;
         }
-        else
+        else if (!me->IsWithinLOSInMap(target))
         {
-            if (!me->IsWithinLOSInMap(target))
-            {
-                return false;
-            }
-            if (!me->isInFront(pmTarget))
-            {
-                me->SetFacingToObject(pmTarget);
-                return true;
-            }
+            return true;
+        }
+        else if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+            return true;
         }
     }
     if (pmClearShapeshift)
@@ -2088,7 +2084,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     if (pST->CalcCastTime() > 0)
     {
         me->StopMoving();
-    }    
+    }
     me->CastSpell(target, spellID, TriggerCastFlags::TRIGGERED_NONE);
 
     return true;
@@ -2131,7 +2127,7 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     if (me->IsWalking())
     {
         me->SetWalk(false);
-    }    
+    }
     me->SetSelection(pmTarget->GetGUID());
     float currentDistance = me->GetDistance(pmTarget);
     if (currentDistance < pmDistance + MIN_DISTANCE_GAP)
@@ -2140,8 +2136,12 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
         {
             me->SetFacingToObject(pmTarget);
         }
+        else
+        {
+            me->StopMoving();
+        }
         if (pmAttack)
-        {            
+        {
             me->Attack(pmTarget, true);
         }
     }
@@ -3130,7 +3130,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             {
                 WhisperTo("I will not follow you", Language::LANG_UNIVERSAL, pmSender);
             }
-        }        
+        }
     }
     else if (commandName == "stay")
     {
@@ -3228,7 +3228,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         staying = false;
         if (st_Group_Normal->Attack(senderTarget))
         {
-            st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;            
+            st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
             me->SetSelection(senderTarget->GetGUID());
             WhisperTo("Attack your target", Language::LANG_UNIVERSAL, pmSender);
         }
@@ -3256,7 +3256,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         }
         staying = false;
         if (st_Group_Normal->Rest(true))
-        {            
+        {
             WhisperTo("Resting", Language::LANG_UNIVERSAL, pmSender);
         }
         else
@@ -3326,7 +3326,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             Unit* senderTarget = pmSender->GetSelectedUnit();
             staying = false;
             if (st_Group_Normal->Tank(senderTarget))
-            {                
+            {
                 st_Group_Normal->instruction = Group_Instruction::Group_Instruction_Battle;
                 me->SetSelection(senderTarget->GetGUID());
                 WhisperTo("Tank your target", Language::LANG_UNIVERSAL, pmSender);
