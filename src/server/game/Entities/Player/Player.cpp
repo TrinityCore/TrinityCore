@@ -2290,7 +2290,7 @@ bool Player::IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const
     else
     {
         Position center(trigger->Pos.X, trigger->Pos.Y, trigger->Pos.Z, trigger->Box_yaw);
-        if (!IsWithinBox(center, trigger->Box_height / 2.f, trigger->Box_length / 2.f, trigger->Box_height / 2.f))
+        if (!IsWithinBox(center, trigger->Box_length / 2.f, trigger->Box_width / 2.f, trigger->Box_height / 2.f))
             return false;
     }
 
