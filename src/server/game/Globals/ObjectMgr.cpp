@@ -6173,9 +6173,9 @@ void ObjectMgr::LoadGossipText()
                 if (BroadcastText const* bcText = sObjectMgr->GetBroadcastText(gOption.BroadcastTextID))
                 {
                     if (bcText->Text[DEFAULT_LOCALE] != gOption.Text_0)
-                        TC_LOG_INFO("sql.sql", "Row %u in table `npc_text` has mismatch between text%u_0 and the corresponding Text in `broadcast_text` row %u", id, i, gOption.BroadcastTextID);
+                        TC_LOG_ERROR("sql.sql", "Row %u in table `npc_text` has mismatch between text%u_0 and the corresponding Text in `broadcast_text` row %u", id, i, gOption.BroadcastTextID);
                     if (bcText->Text1[DEFAULT_LOCALE] != gOption.Text_1)
-                        TC_LOG_INFO("sql.sql", "Row %u in table `npc_text` has mismatch between text%u_1 and the corresponding Text1 in `broadcast_text` row %u", id, i, gOption.BroadcastTextID);
+                        TC_LOG_ERROR("sql.sql", "Row %u in table `npc_text` has mismatch between text%u_1 and the corresponding Text1 in `broadcast_text` row %u", id, i, gOption.BroadcastTextID);
                 }
                 else
                 {
