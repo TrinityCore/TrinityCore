@@ -340,27 +340,26 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
                 continue;
             }
 
-            AreaTriggerSpawn spawn;
-            spawn.SpawnId = spawnId;
+            AreaTriggerSpawn& spawn = _areaTriggerSpawnsBySpawnId[spawnId];
+            spawn.spawnId = spawnId;
+            spawn.mapId = location.GetMapId();
             spawn.Id = areaTriggerid;
-            spawn.Location.WorldRelocate(location);
+            spawn.spawnPoint.Relocate(location);
 
-            spawn.PhaseUseFlags = fields[8].GetUInt8();
-            spawn.PhaseId = fields[9].GetUInt32();
-            spawn.PhaseGroup = fields[10].GetUInt32();
+            spawn.phaseUseFlags = fields[8].GetUInt8();
+            spawn.phaseId = fields[9].GetUInt32();
+            spawn.phaseGroup = fields[10].GetUInt32();
 
             spawn.Shape.Type = static_cast<AreaTriggerTypes>(shape);
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
                 spawn.Shape.DefaultDatas.Data[i] = fields[12 + i].GetFloat();
 
-            spawn.ScriptId = sObjectMgr->GetScriptId(fields[18].GetString());
+            spawn.scriptId = sObjectMgr->GetScriptId(fields[18].GetString());
+            spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
 
             // Add the trigger to a map::cell map, which is later used by GridLoader to query
-            CellCoord cellCoord = Trinity::ComputeCellCoord(spawn.Location.GetPositionX(), spawn.Location.GetPositionY());
-            _areaTriggerSpawnsByLocation[{ spawn.Location.GetMapId(), cellCoord.GetId() }].insert(spawnId);
-
-            // add the position to the map
-            _areaTriggerSpawnsBySpawnId[spawnId] = spawn;
+            CellCoord cellCoord = Trinity::ComputeCellCoord(spawn.spawnPoint.GetPositionX(), spawn.spawnPoint.GetPositionY());
+            _areaTriggerSpawnsByLocation[{ spawn.mapId, cellCoord.GetId() }].insert(spawnId);
         } while (templates->NextRow());
     }
 

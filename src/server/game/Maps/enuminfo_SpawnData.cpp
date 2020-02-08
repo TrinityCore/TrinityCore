@@ -35,6 +35,7 @@ TC_API_EXPORT EnumText EnumUtils<SpawnObjectType>::ToString(SpawnObjectType valu
     {
         case SPAWN_TYPE_CREATURE: return { "SPAWN_TYPE_CREATURE", "Creature", "" };
         case SPAWN_TYPE_GAMEOBJECT: return { "SPAWN_TYPE_GAMEOBJECT", "Gameobject", "" };
+        case SPAWN_TYPE_AREATRIGGER: return { "SPAWN_TYPE_AREATRIGGER", "AreaTrigger", "" };
         default: throw std::out_of_range("value");
     }
 }
@@ -49,6 +50,7 @@ TC_API_EXPORT SpawnObjectType EnumUtils<SpawnObjectType>::FromIndex(size_t index
     {
         case 0: return SPAWN_TYPE_CREATURE;
         case 1: return SPAWN_TYPE_GAMEOBJECT;
+        case 2: return SPAWN_TYPE_AREATRIGGER;
         default: throw std::out_of_range("index");
     }
 }

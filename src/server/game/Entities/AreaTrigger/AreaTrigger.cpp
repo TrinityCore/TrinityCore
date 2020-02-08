@@ -61,6 +61,9 @@ void AreaTrigger::AddToWorld()
     if (!IsInWorld())
     {
         GetMap()->GetObjectsStore().Insert<AreaTrigger>(GetGUID(), this);
+        if (_spawnId)
+            GetMap()->GetAreaTriggerBySpawnIdStore().insert(std::make_pair(_spawnId, this));
+
         WorldObject::AddToWorld();
     }
 }
@@ -81,6 +84,9 @@ void AreaTrigger::RemoveFromWorld()
         _ai->OnRemove();
 
         WorldObject::RemoveFromWorld();
+
+        if (_spawnId)
+            Trinity::Containers::MultimapErasePair(GetMap()->GetAreaTriggerBySpawnIdStore(), _spawnId, this);
         GetMap()->GetObjectsStore().Remove<AreaTrigger>(GetGUID());
     }
 }
@@ -248,7 +254,7 @@ bool AreaTrigger::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool /*addTo
 bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerSpawn const& position)
 {
     SetMap(map);
-    Relocate(position.Location);
+    Relocate(position.spawnPoint);
     if (!IsPositionValid())
     {
         TC_LOG_ERROR("entities.areatrigger", "AreaTriggerServer (id %u) not created. Invalid coordinates (X: %f Y: %f)",
@@ -267,8 +273,8 @@ bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerT
     _shape = position.Shape;
     _maxSearchRadius = _shape.GetMaxSearchRadius();
 
-    if (position.PhaseUseFlags || position.PhaseId || position.PhaseGroup)
-        PhasingHandler::InitDbPhaseShift(GetPhaseShift(), position.PhaseUseFlags, position.PhaseId, position.PhaseGroup);
+    if (position.phaseUseFlags || position.phaseId || position.phaseGroup)
+        PhasingHandler::InitDbPhaseShift(GetPhaseShift(), position.phaseUseFlags, position.phaseId, position.phaseGroup);
 
     UpdateShape();
 
@@ -520,7 +526,7 @@ AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
 uint32 AreaTrigger::GetScriptId() const
 {
     if (_spawnId)
-        return ASSERT_NOTNULL(sAreaTriggerDataStore->GetAreaTriggerSpawn(_spawnId))->ScriptId;
+        return ASSERT_NOTNULL(sAreaTriggerDataStore->GetAreaTriggerSpawn(_spawnId))->scriptId;
 
     if (GetCreateProperties())
         return GetCreateProperties()->ScriptId;

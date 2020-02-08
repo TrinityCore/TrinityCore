@@ -804,7 +804,7 @@ public:
             return false;
         }
 
-        if (player->GetMapId() != data->spawnPoint.GetMapId())
+        if (player->GetMapId() != data->mapId)
         {
             handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, std::to_string(lowguid).c_str());
             handler->SetSentErrorMessage(true);
