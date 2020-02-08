@@ -75,7 +75,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(VoiceChatDisabledByParentalControl);
     _worldPacket.WriteBit(VoiceChatMutedByParentalControl);
     _worldPacket.WriteBit(QuestSessionEnabled);
-    _worldPacket.WriteBit(Unused825);
+    _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
 
     _worldPacket.FlushBits();
@@ -121,7 +121,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     }
 
     {
-        _worldPacket.WriteBit(VoiceChatManagerSettings.Enabled);
+        _worldPacket.WriteBit(VoiceChatManagerSettings.IsSquelched);
         _worldPacket << VoiceChatManagerSettings.BnetAccountGuid;
         _worldPacket << VoiceChatManagerSettings.GuildGuid;
     }
