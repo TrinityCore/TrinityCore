@@ -369,7 +369,15 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             if (hit != FLT_MAX)
             {
                 // the ray hit something, return no path instead of the incomplete one
-                _type = PATHFIND_NOPATH;
+                Clear();
+                _polyLength = 2;
+                _pathPoints.resize(2);
+                _pathPoints[0] = GetStartPosition();
+                float hitPos[3];
+                dtVlerp(hitPos, startPoint, endPoint, hit);
+                _pathPoints[1] = G3D::Vector3(hitPos[2], hitPos[0], hitPos[1]);
+
+                _type = PATHFIND_INCOMPLETE;
                 return;
             }
         }
@@ -432,7 +440,15 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             if (hit != FLT_MAX)
             {
                 // the ray hit something, return no path instead of the incomplete one
-                _type = PATHFIND_NOPATH;
+                Clear();
+                _polyLength = 2;
+                _pathPoints.resize(2);
+                _pathPoints[0] = GetStartPosition();
+                float hitPos[3];
+                dtVlerp(hitPos, startPoint, endPoint, hit);
+                _pathPoints[1] = G3D::Vector3(hitPos[2], hitPos[0], hitPos[1]);
+
+                _type = PATHFIND_INCOMPLETE;
                 return;
             }
         }
