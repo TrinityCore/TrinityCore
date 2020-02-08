@@ -277,7 +277,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_COMMENTATOR_START_WARGAME,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_COMPLAIN,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleComplainOpcode            );
     DEFINE_HANDLER(CMSG_COMPLETE_CINEMATIC,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCompleteCinematic         );
-    DEFINE_HANDLER(CMSG_COMPLETE_MOVIE,                                   STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCompleteMovie             );
+    DEFINE_HANDLER(CMSG_COMPLETE_MOVIE,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCompleteMovie             );
     DEFINE_HANDLER(CMSG_CONNECT_TO_FAILED,                                STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_EarlyProccess            );
     DEFINE_HANDLER(CMSG_CONTACT_LIST,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleContactListOpcode         );
     DEFINE_HANDLER(CMSG_CORPSE_MAP_POSITION_QUERY,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCorpseMapPositionQuery    );
@@ -1273,7 +1273,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_START_TIMER,                                      STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_STOP_DANCE,                                       STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_STOP_MIRROR_TIMER,                                STATUS_NEVER,       CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_STREAMING_MOVIE,                                  STATUS_NEVER,       CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_STREAMING_MOVIES,                                 STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SUMMON_CANCEL,                                    STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SUMMON_REQUEST,                                   STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SUPERCEDED_SPELL,                                 STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);

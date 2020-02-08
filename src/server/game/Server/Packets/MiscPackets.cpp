@@ -61,3 +61,28 @@ WorldPacket const* WorldPackets::Misc::RequestPVPRewardsResponse::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::TriggerMovie::Write()
+{
+    _worldPacket << int32(MovieID);
+
+    return &_worldPacket;
+}
+WorldPacket const* WorldPackets::Misc::TriggerCinematic::Write()
+{
+    _worldPacket << int32(CinematicID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StreamingMovies::Write()
+{
+    _worldPacket.WriteBits(MovieIDs.size(), 25);
+    _worldPacket.FlushBits();
+
+    for (uint16 moveId : MovieIDs)
+        _worldPacket << int16(moveId);
+
+    return &_worldPacket;
+}
+

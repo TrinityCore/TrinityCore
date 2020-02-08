@@ -131,6 +131,14 @@ namespace WorldPackets
         class RequestGuildRewardsList;
     }
 
+    namespace Misc
+    {
+        class CompleteCinematic;
+        class CompleteMovie;
+        class NextCinematicCamera;
+        class OpeningCinematic;
+    }
+
     namespace NPC
     {
         class Hello;
@@ -577,10 +585,10 @@ class TC_GAME_API WorldSession
         void HandleAlterAppearance(WorldPacket& recvData);
         void HandleCharCustomize(WorldPacket& recvData);
         void HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomizeInfo> customizeInfo, PreparedQueryResult result);
+        void HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& packet);
 
         void HandleRandomizeCharNameOpcode(WorldPacket& recvData);
         void HandleReorderCharacters(WorldPacket& recvData);
-        void HandleOpeningCinematic(WorldPacket& recvData);
         void SendCharCreate(ResponseCodes result);
         void SendCharDelete(ResponseCodes result);
         void SendCharRename(ResponseCodes result, CharacterRenameInfo const* renameInfo);
@@ -940,9 +948,9 @@ class TC_GAME_API WorldSession
         void HandleSetChannelWatch(WorldPacket& recvPacket);
         void HandleUnsetChannelWatch(WorldPacket& recvPacket);
 
-        void HandleCompleteMovie(WorldPacket& recvPacket);
-        void HandleCompleteCinematic(WorldPacket& recvPacket);
-        void HandleNextCinematicCamera(WorldPacket& recvPacket);
+        void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
+        void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
+        void HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& packet);
 
         void HandlePageTextQueryOpcode(WorldPacket& recvPacket);
 

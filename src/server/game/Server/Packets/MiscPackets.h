@@ -61,6 +61,68 @@ namespace WorldPackets
             int32 ArenaMaxRewardPointsThisWeek = 0;
             int32 MaxRewardPointsThisWeek = 0;
         };
+
+        class TriggerCinematic final : public ServerPacket
+        {
+        public:
+            TriggerCinematic() : ServerPacket(SMSG_TRIGGER_CINEMATIC, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 CinematicID = 0;
+        };
+
+        class TriggerMovie final : public ServerPacket
+        {
+        public:
+            TriggerMovie() : ServerPacket(SMSG_TRIGGER_MOVIE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MovieID = 0;
+        };
+
+        class CompleteCinematic final : public ClientPacket
+        {
+        public:
+            CompleteCinematic(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_CINEMATIC, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class NextCinematicCamera final : public ClientPacket
+        {
+        public:
+            NextCinematicCamera(WorldPacket&& packet) : ClientPacket(CMSG_NEXT_CINEMATIC_CAMERA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CompleteMovie final : public ClientPacket
+        {
+        public:
+            CompleteMovie(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_MOVIE, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class OpeningCinematic final : public ClientPacket
+        {
+        public:
+            OpeningCinematic(WorldPacket&& packet) : ClientPacket(CMSG_OPENING_CINEMATIC, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class StreamingMovies final : public ServerPacket
+        {
+        public:
+            StreamingMovies() : ServerPacket(SMSG_STREAMING_MOVIES) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<uint16> MovieIDs;
+        };
     }
 }
 

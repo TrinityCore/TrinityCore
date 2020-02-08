@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MiscPackets_h__
-#define MiscPackets_h__
+#ifndef CharacterPackets_h__
+#define CharacterPackets_h__
 
 #include "Packet.h"
 #include "ObjectGuid.h"

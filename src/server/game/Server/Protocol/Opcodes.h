@@ -1233,7 +1233,7 @@ enum OpcodeServer
     SMSG_START_TIMER                                  = 0x59A5,
     SMSG_STOP_DANCE                                   = 0x4637,
     SMSG_STOP_MIRROR_TIMER                            = 0x0B06,
-    SMSG_STREAMING_MOVIE                              = 0x15B7,
+    SMSG_STREAMING_MOVIES                             = 0x15B7,
     SMSG_SUMMON_CANCEL                                = 0x0B34,
     SMSG_SUMMON_REQUEST                               = 0x2A07,
     SMSG_SUPERCEDED_SPELL                             = 0x35B0,

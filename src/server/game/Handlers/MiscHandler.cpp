@@ -41,6 +41,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -927,18 +928,22 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
         GetPlayer()->addActionButton(button, ACTION_BUTTON_ACTION(packetData), ACTION_BUTTON_TYPE(packetData));
 }
 
-void WorldSession::HandleCompleteMovie(WorldPacket& /*recvData*/)
+void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*packet*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_COMPLETE_MOVIE");
+    uint32 movie = _player->GetMovie();
+    if (!movie)
+        return;
+
+    _player->SetMovie(0);
 }
 
-void WorldSession::HandleCompleteCinematic(WorldPacket& /*recvData*/)
+void WorldSession::HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& /*packet*/)
 {
     // If player has sight bound to visual waypoint NPC we should remove it
     GetPlayer()->GetCinematicMgr()->EndCinematic();
 }
 
-void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
+void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& /*packet*/)
 {
     // Sent by client when cinematic actually begun. So we begin the server side process
     GetPlayer()->GetCinematicMgr()->BeginCinematic();
@@ -1978,21 +1983,29 @@ void WorldSession::HandleChangePlayerDifficulty(WorldPacket& recvData)
 
 void WorldSession::SendStreamingMovie()
 {
-    uint8 count = 0;
-    WorldPacket data(SMSG_STREAMING_MOVIE, 4+(2*count));
+    WorldPackets::Misc::StreamingMovies packet;
 
-    data.WriteBits(count, 25);
-
-    for(int8 i = 0; i < 0; ++i)
-    {
-        data << uint16(0);          //File Data ID
-    }
-
-    SendPacket(&data);
+    // To-do: implement
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleRequestResearchHistory(WorldPacket & /*recv_data*/)
 {
     if (Player* player = GetPlayer())
         player->NotifyRequestResearchHistory();
+}
+
+void WorldSession::HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& /*packet*/)
+{
+    // Only players that has not yet gained any experience can use this
+    if (_player->GetUInt32Value(PLAYER_XP))
+        return;
+
+    if (ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(_player->getClass()))
+    {
+        if (classEntry->CinematicSequenceID)
+            _player->SendCinematicStart(classEntry->CinematicSequenceID);
+        else if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(_player->getRace()))
+            _player->SendCinematicStart(raceEntry->CinematicSequenceID);
+    }
 }

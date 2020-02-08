@@ -22,6 +22,7 @@
 #include "CharacterPackets.h"
 #include "GuildPackets.h"
 #include "LFGPackets.h"
+#include "MiscPackets.h"
 #include "NPCPackets.h"
 #include "QuestPackets.h"
 #include "SystemPackets.h"
