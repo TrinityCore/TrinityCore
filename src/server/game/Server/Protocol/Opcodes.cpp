@@ -377,7 +377,7 @@ void OpcodeTable::Initialize()
     /*0x0F6*/ DEFINE_HANDLER(CMSG_MOVE_HOVER_ACK,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleMoveHoverAck              );
     /*0x0F7*/ DEFINE_SERVER_OPCODE_HANDLER(MSG_MOVE_HOVER,                               STATUS_NEVER);
     /*0x0F8*/ DEFINE_HANDLER(CMSG_TRIGGER_CINEMATIC_CHEAT,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-    /*0x0F9*/ DEFINE_HANDLER(CMSG_OPENING_CINEMATIC,                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    /*0x0F9*/ DEFINE_HANDLER(CMSG_OPENING_CINEMATIC,                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleOpeningCinematic          );
     /*0x0FA*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRIGGER_CINEMATIC,         STATUS_NEVER);
     /*0x0FB*/ DEFINE_HANDLER(CMSG_NEXT_CINEMATIC_CAMERA,                   STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleNextCinematicCamera       );
     /*0x0FC*/ DEFINE_HANDLER(CMSG_COMPLETE_CINEMATIC,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleCompleteCinematic         );
@@ -1253,7 +1253,7 @@ void OpcodeTable::Initialize()
     /*0x462*/ DEFINE_HANDLER(CMSG_UPDATE_MISSILE_TRAJECTORY,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory   );
     /*0x463*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, STATUS_NEVER);
     /*0x464*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_TRIGGER_MOVIE,             STATUS_NEVER);
-    /*0x465*/ DEFINE_HANDLER(CMSG_COMPLETE_MOVIE,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    /*0x465*/ DEFINE_HANDLER(CMSG_COMPLETE_MOVIE,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleCompleteMovie             );
     /*0x466*/ DEFINE_HANDLER(CMSG_SET_GLYPH_SLOT,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x467*/ DEFINE_HANDLER(CMSG_SET_GLYPH,                               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x468*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_ACHIEVEMENT_EARNED,        STATUS_NEVER);
