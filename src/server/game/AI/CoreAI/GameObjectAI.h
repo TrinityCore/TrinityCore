@@ -52,7 +52,7 @@ class TC_GAME_API GameObjectAI
         static int32 Permissible(GameObject const* go);
 
         // Called when the dialog status between a player and the gameobject is requested.
-        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return boost::none; }
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return {}; }
 
         // Called when a player opens a gossip dialog with the gameobject.
         virtual bool GossipHello(Player* /*player*/) { return false; }
