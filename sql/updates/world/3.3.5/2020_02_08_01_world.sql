@@ -1,3 +1,4 @@
+--
 DROP TABLE IF EXISTS `vehicle_seat_addon`;
 CREATE TABLE `vehicle_seat_addon` (  
   `SeatEntry` INT(4) UNSIGNED NOT NULL COMMENT 'VehicleSeatEntry.dbc identifier',
