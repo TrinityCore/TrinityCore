@@ -1281,25 +1281,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         if (!unitCaster->HasAura(54824))
             unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCasterGUID());
     }
-    // Nourish
-    else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x2000000)
-    {
-        addhealth = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL, effIndex, { });
-
-        // Glyph of Nourish
-        if (AuraEffect const* aurEff = unitCaster->GetAuraEffect(62971, 0))
-        {
-            uint32 auraCount = 0;
-            Unit::AuraEffectList const& periodicHeals = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
-            for (AuraEffect const* hot : periodicHeals)
-            {
-                if (unitCaster->GetGUID() == hot->GetCasterGUID())
-                    ++auraCount;
-            }
-
-            AddPct(addhealth, aurEff->GetAmount() * auraCount);
-        }
-    }
     // Death Pact - return pct of max health to caster
     else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
         addhealth = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, int32(unitCaster->CountPctFromMaxHealth(damage)), HEAL, effIndex, { });
