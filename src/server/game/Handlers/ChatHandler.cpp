@@ -168,7 +168,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             lang = ModLangAuras.front()->GetMiscValue();
     }
 
-    if (!sender->CanSpeak())
+    if (!CanSpeak())
     {
         std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
         SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
@@ -583,7 +583,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
     if (!_player->IsAlive())
         return;
 
-    if (!_player->CanSpeak())
+    if (!CanSpeak())
     {
         std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
         SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
