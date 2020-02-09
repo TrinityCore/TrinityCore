@@ -83,7 +83,7 @@ namespace WorldPackets
 
             struct VoiceChatProxySettings
             {
-                bool Enabled = false;
+                bool IsSquelched = false;
                 ObjectGuid BnetAccountGuid;
                 ObjectGuid GuildGuid;
             };
@@ -142,7 +142,7 @@ namespace WorldPackets
             bool VoiceChatDisabledByParentalControl  = false;
             bool VoiceChatMutedByParentalControl     = false;
             bool QuestSessionEnabled                 = false;
-            bool Unused825                           = false;
+            bool IsMuted                             = false;
             bool ClubFinderEnabled                   = false;
 
             Optional<std::vector<uint8>> RaceClassExpansionLevels;
