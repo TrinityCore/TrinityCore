@@ -42,6 +42,12 @@ ObjectData const gameobjectData[] =
     { 0,                                0                               } // END
 };
 
+DoorData const doorData[] =
+{
+    { GO_DOODAD_ZULAMAN_WIND_DOOR,      DATA_ALKILZON,      DOOR_TYPE_ROOM  },
+    { 0,                                0,                  DOOR_TYPE_ROOM  } // END
+};
+
 Position const AmanishiGuardianDistanceCheckPos = { 120.223f, 1585.766f, 43.43f  };
 Position const AmanishiSavageDistanceCheckPos   = { 122.176f, 1528.203f, 21.233f };
 
@@ -57,6 +63,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, gameobjectData);
+            LoadDoorData(doorData);
             _remainingSpeedRunTime = 0;
             _savagesAtGateTriggered = false;
             _speedRunState = NOT_STARTED;

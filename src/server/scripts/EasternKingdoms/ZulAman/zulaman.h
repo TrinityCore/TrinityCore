@@ -54,6 +54,10 @@ enum ZACreatureIds
     BOSS_HEXLORD_MALACRASS          = 24239,
     BOSS_DAAKARA                    = 23863,
 
+    // Encounter related creatures
+    /*Akil'zon*/
+    NPC_SOARING_EAGLE               = 24858,
+
     NPC_VOLJIN                      = 52924,
     NPC_HEXLORD_MALACRASS_TRIGGER   = 24363,
     NPC_AMANISHI_GUARDIAN           = 23597,
@@ -62,8 +66,9 @@ enum ZACreatureIds
 
 enum ZAGameObjectIds
 {
-    GO_STRANGE_GONG = 187359,
-    GO_MASSIVE_GATE = 186728,
+    GO_STRANGE_GONG             = 187359,
+    GO_MASSIVE_GATE             = 186728,
+    GO_DOODAD_ZULAMAN_WIND_DOOR = 186858,
 };
 
 enum ZAEvents
