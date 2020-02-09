@@ -261,8 +261,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     if (!his_trade)
         return;
 
-    std::array<Item*, TRADE_SLOT_TRADED_COUNT> myItems;
-    std::array<Item*, TRADE_SLOT_TRADED_COUNT> hisItems;
+    std::array<Item*, TRADE_SLOT_TRADED_COUNT> myItems {};
+    std::array<Item*, TRADE_SLOT_TRADED_COUNT> hisItems {};
 
     // set before checks for propertly undo at problems (it already set in to client)
     my_trade->SetAccepted(true);
