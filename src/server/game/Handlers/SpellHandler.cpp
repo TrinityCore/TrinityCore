@@ -640,7 +640,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
         data << uint8(player->GetFacialStyle());
         data << uint32(player->GetGuildId());
 
-        static std::array const itemSlots =
+        static std::array<EquipmentSlots, 12>  const itemSlots =
         {
             EQUIPMENT_SLOT_HEAD,
             EQUIPMENT_SLOT_SHOULDERS,

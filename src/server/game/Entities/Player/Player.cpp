@@ -10980,7 +10980,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
 }
 
 //////////////////////////////////////////////////////////////////////////
-InventoryResult Player::CanStoreItems(std::array<Item*, TRADE_SLOT_TRADED_COUNT> items, int count, uint32* itemLimitCategory) const
+InventoryResult Player::CanStoreItems(std::array<Item*, TRADE_SLOT_TRADED_COUNT>& items, int count, uint32* itemLimitCategory) const
 {
     Item* item2;
 

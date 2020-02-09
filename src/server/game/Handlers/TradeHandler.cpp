@@ -206,7 +206,7 @@ void WorldSession::moveItems(std::array<Item*, TRADE_SLOT_TRADED_COUNT> myItems,
 
 //==============================================================
 
-static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, std::array<Item*, TRADE_SLOT_TRADED_COUNT> myItems, std::array<Item*, TRADE_SLOT_TRADED_COUNT> hisItems)
+static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, std::array<Item*, TRADE_SLOT_TRADED_COUNT>& myItems, std::array<Item*, TRADE_SLOT_TRADED_COUNT> hisItems)
 {
     myTrade->SetInAcceptProcess(true);
     hisTrade->SetInAcceptProcess(true);
@@ -237,7 +237,7 @@ static void clearAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade)
     hisTrade->SetInAcceptProcess(false);
 }
 
-static void clearAcceptTradeMode(std::array<Item*, TRADE_SLOT_TRADED_COUNT> myItems, std::array<Item*, TRADE_SLOT_TRADED_COUNT> hisItems)
+static void clearAcceptTradeMode(std::array<Item*, TRADE_SLOT_TRADED_COUNT>& myItems, std::array<Item*, TRADE_SLOT_TRADED_COUNT> hisItems)
 {
     // clear 'in-trade' flag
     for (uint8 i = 0; i < TRADE_SLOT_TRADED_COUNT; ++i)
