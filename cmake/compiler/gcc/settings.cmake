@@ -3,7 +3,7 @@ target_compile_definitions(trinity-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
 
-set(GCC_EXPECTED_VERSION 6.3.0)
+set(GCC_EXPECTED_VERSION 7.1.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_EXPECTED_VERSION)
   message(FATAL_ERROR "GCC: TrinityCore requires version ${GCC_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")

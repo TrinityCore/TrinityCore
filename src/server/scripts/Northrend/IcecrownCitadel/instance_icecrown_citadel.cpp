@@ -380,8 +380,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_ZAFOD_BOOMBOX:
                         if (GameObjectTemplate const* go = sObjectMgr->GetGameObjectTemplate(GO_THE_SKYBREAKER_A))
-                            if ((TeamInInstance == ALLIANCE && data->spawnPoint.GetMapId() == go->moTransport.mapID) ||
-                                (TeamInInstance == HORDE && data->spawnPoint.GetMapId() != go->moTransport.mapID))
+                            if ((TeamInInstance == ALLIANCE && data->mapId == go->moTransport.mapID) ||
+                                (TeamInInstance == HORDE && data->mapId != go->moTransport.mapID))
                                 return entry;
                         return 0;
                     case NPC_IGB_MURADIN_BRONZEBEARD:
