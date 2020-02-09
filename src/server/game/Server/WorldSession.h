@@ -29,6 +29,7 @@
 #include "Packet.h"
 #include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
+#include "TradeData.h"
 #include <string>
 #include <map>
 #include <unordered_map>
@@ -1038,7 +1039,7 @@ class TC_GAME_API WorldSession
 
     private:
         // private trade methods
-        void moveItems(Item* myItems[], Item* hisItems[]);
+        void moveItems(std::array<Item*, TRADE_SLOT_TRADED_COUNT> myItems, std::array<Item*, TRADE_SLOT_TRADED_COUNT> hisItems);
 
         bool CanUseBank(ObjectGuid bankerGUID = ObjectGuid::Empty) const;
 

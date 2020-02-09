@@ -29,6 +29,7 @@
 #include "PetDefines.h"
 #include "PlayerTaxi.h"
 #include "QuestDef.h"
+#include "TradeData.h"
 #include <memory>
 #include <queue>
 #include <unordered_set>
@@ -1075,7 +1076,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, uint32* itemLimitCategory = nullptr) const { return CanTakeMoreSimilarItems(entry, count, nullptr, nullptr, itemLimitCategory); }
         InventoryResult CanStoreNewItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = nullptr) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap = false) const;
-        InventoryResult CanStoreItems(Item** items, int count, uint32* itemLimitCategory) const;
+        InventoryResult CanStoreItems(std::array<Item*, TRADE_SLOT_TRADED_COUNT> items, int count, uint32* itemLimitCategory) const;
         InventoryResult CanEquipNewItem(uint8 slot, uint16& dest, uint32 item, bool swap) const;
         InventoryResult CanEquipItem(uint8 slot, uint16& dest, Item* pItem, bool swap, bool not_loading = true) const;
 
