@@ -514,7 +514,7 @@ void MotionMaster::MoveCyclicPath(Position const* pathPoints, size_t pathSize, b
     init.SetSmooth();
     init.SetWalk(walk);
     init.SetCyclic();
-    Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, 0), MOTION_SLOT_ACTIVE);
+    Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, 0), MOTION_SLOT_IDLE);
 }
 
 void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk /*= false*/, bool fly /*= false*/, float velocity /*= 0.0f*/)
