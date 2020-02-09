@@ -76,7 +76,8 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
 
     // make sure navMesh works - we can run on map w/o mmap
     // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
-    if (!_navMesh || !_navMeshQuery || _sourceUnit->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING) ||
+    const Unit* _sourceUnit = _source->ToUnit();
+    if (!_navMesh || !_navMeshQuery || (_sourceUnit && _sourceUnit->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING)) ||
         !HaveTile(start) || !HaveTile(dest))
     {
         BuildShortcut();
@@ -209,17 +210,21 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         if (_source->GetBaseMap()->IsUnderWater(p.x, p.y, p.z))
         {
             TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: underWater case");
-            if (_sourceUnit->CanSwim())
-                buildShotrcut = true;
+            if (const Unit* _sourceUnit = _source->ToUnit())
+                if (_sourceUnit->CanSwim())
+                    buildShotrcut = true;
         }
         else
         {
             TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: flying case");
-            if (_sourceUnit->CanFly())
-                buildShotrcut = true;
-            // Allow to build a shortcut if the unit is falling and it's trying to move downwards towards a target (i.e. charging)
-            else if (_sourceUnit->IsFalling() && endPos.z < startPos.z)
-                buildShotrcut = true;
+            if (const Unit* _sourceUnit = _source->ToUnit())
+            {
+                if (_sourceUnit->CanFly())
+                    buildShotrcut = true;
+                // Allow to build a shortcut if the unit is falling and it's trying to move downwards towards a target (i.e. charging)
+                else if (_sourceUnit->IsFalling() && endPos.z < startPos.z)
+                    buildShotrcut = true;
+            }
         }
 
         if (buildShotrcut)
@@ -639,15 +644,16 @@ void PathGenerator::UpdateFilter()
 {
     // allow creatures to cheat and use different movement types if they are moved
     // forcefully into terrain they can't normally move in
-    if (_sourceUnit->IsInWater() || _sourceUnit->IsUnderWater())
-    {
-        uint16 includedFlags = _filter.getIncludeFlags();
-        includedFlags |= GetNavTerrain(_source->GetPositionX(),
-                                       _source->GetPositionY(),
-                                       _source->GetPositionZ());
+    if (const Unit* _sourceUnit = _source->ToUnit())
+        if (_sourceUnit->IsInWater() || _sourceUnit->IsUnderWater())
+        {
+            uint16 includedFlags = _filter.getIncludeFlags();
+            includedFlags |= GetNavTerrain(_source->GetPositionX(),
+                                           _source->GetPositionY(),
+                                           _source->GetPositionZ());
 
-        _filter.setIncludeFlags(includedFlags);
-    }
+            _filter.setIncludeFlags(includedFlags);
+        }
 }
 
 NavTerrainFlag PathGenerator::GetNavTerrain(float x, float y, float z)
