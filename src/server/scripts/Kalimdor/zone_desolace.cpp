@@ -24,7 +24,6 @@ EndScriptData */
 
 /* ContentData
 npc_aged_dying_ancient_kodo
-go_iruxos
 EndContentData */
 
 #include "ScriptMgr.h"
