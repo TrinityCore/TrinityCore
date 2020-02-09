@@ -64,14 +64,14 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 
     CalendarInviteStore invites = sCalendarMgr->GetPlayerInvites(guid);
     data << uint32(invites.size());
-    for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+    for (auto invite : invites)
     {
-        data << uint64((*itr)->GetEventId());
-        data << uint64((*itr)->GetInviteId());
-        data << uint8((*itr)->GetStatus());
-        data << uint8((*itr)->GetRank());
+        data << uint64(invite->GetEventId());
+        data << uint64(invite->GetInviteId());
+        data << uint8(invite->GetStatus());
+        data << uint8(invite->GetRank());
 
-        if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent((*itr)->GetEventId()))
+        if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(invite->GetEventId()))
         {
             data << uint8(calendarEvent->IsGuildEvent());
             data << calendarEvent->GetCreatorGUID().WriteAsPacked();
@@ -79,16 +79,14 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         else
         {
             data << uint8(0);
-            data << (*itr)->GetSenderGUID().WriteAsPacked();
+            data << invite->GetSenderGUID().WriteAsPacked();
         }
     }
 
     CalendarEventStore playerEvents = sCalendarMgr->GetPlayerEvents(guid);
     data << uint32(playerEvents.size());
-    for (CalendarEventStore::const_iterator itr = playerEvents.begin(); itr != playerEvents.end(); ++itr)
+    for (auto calendarEvent : playerEvents)
     {
-        CalendarEvent* calendarEvent = *itr;
-
         data << uint64(calendarEvent->GetEventId());
         data << calendarEvent->GetTitle();
         data << uint32(calendarEvent->GetType());
@@ -106,11 +104,11 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {
         Player::BoundInstancesMap boundInstances = _player->GetBoundInstances(Difficulty(i));
-        for (Player::BoundInstancesMap::const_iterator itr = boundInstances.begin(); itr != boundInstances.end(); ++itr)
+        for (const auto & boundInstance : boundInstances)
         {
-            if (itr->second.perm)
+            if (boundInstance.second.perm)
             {
-                InstanceSave const* save = itr->second.save;
+                InstanceSave const* save = boundInstance.second.save;
                 dataBuffer << uint32(save->GetMapId());
                 dataBuffer << uint32(save->GetDifficulty());
                 dataBuffer << uint32(save->GetResetTime() - currTime);
@@ -131,9 +129,9 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
     dataBuffer.clear();
 
     ResetTimeByMapDifficultyMap const& resets = sInstanceSaveMgr->GetResetTimeMap();
-    for (ResetTimeByMapDifficultyMap::const_iterator itr = resets.begin(); itr != resets.end(); ++itr)
+    for (auto reset : resets)
     {
-        uint32 mapId = PAIR32_LOPART(itr->first);
+        uint32 mapId = PAIR32_LOPART(reset.first);
         if (sentMaps.find(mapId) != sentMaps.end())
             continue;
 
@@ -144,7 +142,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         sentMaps.insert(mapId);
 
         dataBuffer << int32(mapId);
-        dataBuffer << int32(itr->second - currTime);
+        dataBuffer << int32(reset.second - currTime);
         dataBuffer << int32(0); // Never seen anything else in sniffs - still unknown
         ++boundCounter;
     }
@@ -163,14 +161,14 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         data << uint32(holiday->Priority);                  // m_priority
         data << uint32(holiday->CalendarFilterType);        // m_calendarFilterType
 
-        for (uint8 j = 0; j < MAX_HOLIDAY_DATES; ++j)
-            data << uint32(holiday->Date[j]);               // 26 * m_date -- WritePackedTime ?
+        for (unsigned int j : holiday->Date)
+            data << uint32(j);               // 26 * m_date -- WritePackedTime ?
 
-        for (uint8 j = 0; j < MAX_HOLIDAY_DURATIONS; ++j)
-            data << uint32(holiday->Duration[j]);           // 10 * m_duration
+        for (unsigned int j : holiday->Duration)
+            data << uint32(j);           // 10 * m_duration
 
-        for (uint8 j = 0; j < MAX_HOLIDAY_FLAGS; ++j)
-            data << uint32(holiday->CalendarFlags[j]);      // 10 * m_calendarFlags
+        for (unsigned int CalendarFlag : holiday->CalendarFlags)
+            data << uint32(CalendarFlag);      // 10 * m_calendarFlags
 
         data << holiday->TextureFilename;                   // m_textureFilename (holiday name)
     }
@@ -493,8 +491,8 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
         if (invites.size() > 1)
             trans = CharacterDatabase.BeginTransaction();
 
-        for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
-            sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId()), trans);
+        for (auto invite : invites)
+            sCalendarMgr->AddInvite(newEvent, new CalendarInvite(*invite, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId()), trans);
 
         if (invites.size() > 1)
             CharacterDatabase.CommitTransaction(trans);

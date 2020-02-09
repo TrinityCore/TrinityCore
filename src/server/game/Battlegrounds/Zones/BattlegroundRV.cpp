@@ -164,8 +164,8 @@ void BattlegroundRV::TogglePillarCollision()
                 go->SetGoState(state);
             }
 
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            for (const auto & itr : GetPlayers())
+                if (Player* player = ObjectAccessor::FindPlayer(itr.first))
                     go->SendUpdateToPlayer(player);
         }
     }

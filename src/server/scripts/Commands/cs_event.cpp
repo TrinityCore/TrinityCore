@@ -60,9 +60,8 @@ public:
 
         char const* active = handler->GetTrinityString(LANG_ACTIVE);
 
-        for (GameEventMgr::ActiveEvents::const_iterator itr = activeEvents.begin(); itr != activeEvents.end(); ++itr)
+        for (uint32 eventId : activeEvents)
         {
-            uint32 eventId = *itr;
             GameEventData const& eventData = events[eventId];
 
             if (handler->GetSession())

@@ -635,9 +635,8 @@ public:
         if (listQueue)
         {
             std::vector<Item*>& updateQueue = player->GetItemUpdateQueue();
-            for (size_t i = 0; i < updateQueue.size(); ++i)
+            for (auto item : updateQueue)
             {
-                Item* item = updateQueue[i];
                 if (!item)
                     continue;
 

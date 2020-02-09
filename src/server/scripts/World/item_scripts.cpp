@@ -259,9 +259,9 @@ public:
             return false;
 
         GameObject* pTrap = nullptr;
-        for (uint8 i = 0; i < MammothTrapsNum; ++i)
+        for (unsigned int MammothTrap : MammothTraps)
         {
-            pTrap = player->FindNearestGameObject(MammothTraps[i], 11.0f);
+            pTrap = player->FindNearestGameObject(MammothTrap, 11.0f);
             if (pTrap)
             {
                 pMammoth->AI()->DoAction(1);

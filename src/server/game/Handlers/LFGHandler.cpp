@@ -29,20 +29,20 @@
 void BuildPlayerLockDungeonBlock(WorldPacket& data, lfg::LfgLockMap const& lock)
 {
     data << uint32(lock.size());                           // Size of lock dungeons
-    for (lfg::LfgLockMap::const_iterator it = lock.begin(); it != lock.end(); ++it)
+    for (auto it : lock)
     {
-        data << uint32(it->first);                         // Dungeon entry (id + type)
-        data << uint32(it->second);                        // Lock status
+        data << uint32(it.first);                         // Dungeon entry (id + type)
+        data << uint32(it.second);                        // Lock status
     }
 }
 
 void BuildPartyLockDungeonBlock(WorldPacket& data, lfg::LfgLockPartyMap const& lockMap)
 {
     data << uint8(lockMap.size());
-    for (lfg::LfgLockPartyMap::const_iterator it = lockMap.begin(); it != lockMap.end(); ++it)
+    for (const auto & it : lockMap)
     {
-        data << uint64(it->first);                         // Player guid
-        BuildPlayerLockDungeonBlock(data, it->second);
+        data << uint64(it.first);                         // Player guid
+        BuildPlayerLockDungeonBlock(data, it.second);
     }
 }
 
@@ -185,10 +185,10 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*
     WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
 
     data << uint8(randomDungeons.size());                  // Random Dungeon count
-    for (lfg::LfgDungeonSet::const_iterator it = randomDungeons.begin(); it != randomDungeons.end(); ++it)
+    for (unsigned int randomDungeon : randomDungeons)
     {
-        data << uint32(*it);                               // Dungeon Entry (id + type)
-        lfg::LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(*it, level);
+        data << uint32(randomDungeon);                               // Dungeon Entry (id + type)
+        lfg::LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(randomDungeon, level);
         Quest const* quest = nullptr;
         bool done = false;
         if (reward)
@@ -339,8 +339,8 @@ void WorldSession::SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData)
         data << uint8(0);                                  // unk - Always 0
 
         data << uint8(size);
-        for (lfg::LfgDungeonSet::const_iterator it = updateData.dungeons.begin(); it != updateData.dungeons.end(); ++it)
-            data << uint32(*it);
+        for (unsigned int dungeon : updateData.dungeons)
+            data << uint32(dungeon);
         data << updateData.comment;
     }
     SendPacket(&data);
@@ -383,8 +383,8 @@ void WorldSession::SendLfgUpdateParty(const lfg::LfgUpdateData& updateData)
             data << uint8(0);                              // unk - Always 0
 
         data << uint8(size);
-        for (lfg::LfgDungeonSet::const_iterator it = updateData.dungeons.begin(); it != updateData.dungeons.end(); ++it)
-            data << uint32(*it);
+        for (unsigned int dungeon : updateData.dungeons)
+            data << uint32(dungeon);
         data << updateData.comment;
     }
     SendPacket(&data);
@@ -417,8 +417,8 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
     data << uint8(roleCheck.state == lfg::LFG_ROLECHECK_INITIALITING);
     data << uint8(dungeons.size());                        // Number of dungeons
     if (!dungeons.empty())
-        for (lfg::LfgDungeonSet::iterator it = dungeons.begin(); it != dungeons.end(); ++it)
-            data << uint32(sLFGMgr->GetLFGDungeonEntry(*it)); // Dungeon
+        for (unsigned int dungeon : dungeons)
+            data << uint32(sLFGMgr->GetLFGDungeonEntry(dungeon)); // Dungeon
 
     data << uint8(roleCheck.roles.size());                 // Players in group
     if (!roleCheck.roles.empty())
@@ -452,8 +452,8 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
 void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
 {
     uint32 size = 0;
-    for (lfg::LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
-        size += 8 + 4 + uint32(it->second.size()) * (4 + 4);
+    for (const auto & it : joinData.lockmap)
+        size += 8 + 4 + uint32(it.second.size()) * (4 + 4);
 
     TC_LOG_DEBUG("lfg", "SMSG_LFG_JOIN_RESULT %s checkResult: %u checkValue: %u",
         GetPlayerInfo().c_str(), joinData.result, joinData.state);
@@ -530,12 +530,12 @@ void WorldSession::SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot)
     uint8 votesNum = 0;
     uint8 agreeNum = 0;
     uint32 secsleft = uint8((boot.cancelTime - GameTime::GetGameTime()) / 1000);
-    for (lfg::LfgAnswerContainer::const_iterator it = boot.votes.begin(); it != boot.votes.end(); ++it)
+    for (auto vote : boot.votes)
     {
-        if (it->second != lfg::LFG_ANSWER_PENDING)
+        if (vote.second != lfg::LFG_ANSWER_PENDING)
         {
             ++votesNum;
-            if (it->second == lfg::LFG_ANSWER_AGREE)
+            if (vote.second == lfg::LFG_ANSWER_AGREE)
                 ++agreeNum;
         }
     }

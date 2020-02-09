@@ -269,8 +269,8 @@ void ObjectAccessor::SaveAllPlayers()
     boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
 
     HashMapHolder<Player>::MapType const& m = GetPlayers();
-    for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
-        itr->second->SaveToDB();
+    for (auto itr : m)
+        itr.second->SaveToDB();
 }
 
 template<>

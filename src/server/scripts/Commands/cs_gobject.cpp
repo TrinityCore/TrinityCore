@@ -261,15 +261,15 @@ public:
             eventFilter << " AND (eventEntry IS NULL ";
             bool initString = true;
 
-            for (GameEventMgr::ActiveEvents::const_iterator itr = activeEventsList.begin(); itr != activeEventsList.end(); ++itr)
+            for (unsigned short itr : activeEventsList)
             {
                 if (initString)
                 {
-                    eventFilter  <<  "OR eventEntry IN (" << *itr;
+                    eventFilter  <<  "OR eventEntry IN (" << itr;
                     initString = false;
                 }
                 else
-                    eventFilter << ',' << *itr;
+                    eventFilter << ',' << itr;
             }
 
             if (!initString)

@@ -236,9 +236,9 @@ inline void Battleground::_CheckSafePositions(uint32 diff)
     {
         m_ValidStartPositionTimer = 0;
 
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        for (const auto & itr : GetPlayers())
         {
-            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            if (Player* player = ObjectAccessor::FindPlayer(itr.first))
             {
                 if (player->IsGameMaster())
                     continue;
@@ -293,10 +293,10 @@ inline void Battleground::_ProcessResurrect(uint32 diff)
     {
         if (GetReviveQueueSize())
         {
-            for (std::map<ObjectGuid, GuidVector>::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
+            for (auto & itr : m_ReviveQueue)
             {
                 Creature* sh = nullptr;
-                for (GuidVector::const_iterator itr2 = (itr->second).begin(); itr2 != (itr->second).end(); ++itr2)
+                for (GuidVector::const_iterator itr2 = (itr.second).begin(); itr2 != (itr.second).end(); ++itr2)
                 {
                     Player* player = ObjectAccessor::FindPlayer(*itr2);
                     if (!player)
@@ -304,7 +304,7 @@ inline void Battleground::_ProcessResurrect(uint32 diff)
 
                     if (!sh && player->IsInWorld())
                     {
-                        sh = player->GetMap()->GetCreature(itr->first);
+                        sh = player->GetMap()->GetCreature(itr.first);
                         // only for visual effect
                         if (sh)
                             // Spirit Heal, effect 117
@@ -315,7 +315,7 @@ inline void Battleground::_ProcessResurrect(uint32 diff)
                     player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
                     m_ResurrectQueue.push_back(*itr2);
                 }
-                (itr->second).clear();
+                (itr.second).clear();
             }
 
             m_ReviveQueue.clear();
@@ -327,9 +327,9 @@ inline void Battleground::_ProcessResurrect(uint32 diff)
     }
     else if (m_LastResurrectTime > 500)    // Resurrect players only half a second later, to see spirit heal effect on NPC
     {
-        for (GuidVector::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
+        for (auto itr : m_ResurrectQueue)
         {
-            Player* player = ObjectAccessor::FindPlayer(*itr);
+            Player* player = ObjectAccessor::FindPlayer(itr);
             if (!player)
                 continue;
             player->ResurrectPlayer(1.0f);
@@ -398,8 +398,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     if (m_ResetStatTimer > 5000)
     {
         m_ResetStatTimer = 0;
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+        for (const auto & itr : GetPlayers())
+            if (Player* player = ObjectAccessor::FindPlayer(itr.first))
                 player->ResetAllPowers();
     }
 
@@ -457,8 +457,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         if (isArena())
         {
             /// @todo add arena sound PlaySoundToAll(SOUND_ARENA_START);
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            for (const auto & itr : GetPlayers())
+                if (Player* player = ObjectAccessor::FindPlayer(itr.first))
                 {
                     // BG Status packet
                     WorldPacket status;
@@ -490,8 +490,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
         {
             PlaySoundToAll(SOUND_BG_START);
 
-            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-                if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            for (const auto & itr : GetPlayers())
+                if (Player* player = ObjectAccessor::FindPlayer(itr.first))
                 {
                     player->RemoveAurasDueToSpell(SPELL_PREPARATION);
                     player->ResetAllPowers();
@@ -955,8 +955,8 @@ void Battleground::Reset()
         delete itr->second;
     PlayerScores.clear();
 
-    for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
-        _arenaTeamScores[i].Reset();
+    for (auto & _arenaTeamScore : _arenaTeamScores)
+        _arenaTeamScore.Reset();
 
     ResetBGSubclass();
 }
@@ -1202,11 +1202,11 @@ void Battleground::BuildPvPLogDataPacket(WorldPacket& data)
 
     if (type)                                           // arena
     {
-        for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
-            _arenaTeamScores[i].BuildRatingInfoBlock(data);
+        for (auto & _arenaTeamScore : _arenaTeamScores)
+            _arenaTeamScore.BuildRatingInfoBlock(data);
 
-        for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
-            _arenaTeamScores[i].BuildTeamInfoBlock(data);
+        for (auto & _arenaTeamScore : _arenaTeamScores)
+            _arenaTeamScore.BuildTeamInfoBlock(data);
     }
 
     if (GetStatus() == STATUS_WAIT_LEAVE)
@@ -1249,13 +1249,13 @@ void Battleground::AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid pla
 
 void Battleground::RemovePlayerFromResurrectQueue(ObjectGuid player_guid)
 {
-    for (std::map<ObjectGuid, GuidVector>::iterator itr = m_ReviveQueue.begin(); itr != m_ReviveQueue.end(); ++itr)
+    for (auto & itr : m_ReviveQueue)
     {
-        for (GuidVector::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+        for (GuidVector::iterator itr2 = itr.second.begin(); itr2 != itr.second.end(); ++itr2)
         {
             if (*itr2 == player_guid)
             {
-                itr->second.erase(itr2);
+                itr.second.erase(itr2);
                 if (Player* player = ObjectAccessor::FindPlayer(player_guid))
                     player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
                 return;
@@ -1271,9 +1271,9 @@ void Battleground::RelocateDeadPlayers(ObjectGuid guideGuid)
     if (!ghostList.empty())
     {
         WorldSafeLocsEntry const* closestGrave = nullptr;
-        for (GuidVector::const_iterator itr = ghostList.begin(); itr != ghostList.end(); ++itr)
+        for (auto itr : ghostList)
         {
-            Player* player = ObjectAccessor::FindPlayer(*itr);
+            Player* player = ObjectAccessor::FindPlayer(itr);
             if (!player)
                 continue;
 
@@ -1715,11 +1715,11 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
 uint32 Battleground::GetAlivePlayersCountByTeam(uint32 Team) const
 {
     int count = 0;
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    for (const auto & m_Player : m_Players)
     {
-        if (itr->second.Team == Team)
+        if (m_Player.second.Team == Team)
         {
-            Player* player = ObjectAccessor::FindPlayer(itr->first);
+            Player* player = ObjectAccessor::FindPlayer(m_Player.first);
             if (player && player->IsAlive() && player->GetShapeshiftForm() != FORM_SPIRITOFREDEMPTION)
                 ++count;
         }
@@ -1759,8 +1759,8 @@ WorldSafeLocsEntry const* Battleground::GetClosestGraveyard(Player* player)
 
 void Battleground::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
 {
-    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+    for (const auto & itr : GetPlayers())
+        if (Player* player = ObjectAccessor::FindPlayer(itr.first))
             player->StartTimedAchievement(type, entry);
 }
 

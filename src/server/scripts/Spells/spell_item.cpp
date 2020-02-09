@@ -177,10 +177,10 @@ class spell_item_alchemists_stone : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActionTarget();
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (const auto & Effect : spellInfo->Effects)
         {
             uint32 spellId;
-            switch (spellInfo->Effects[i].Effect)
+            switch (Effect.Effect)
             {
                 case SPELL_EFFECT_HEAL:
                     spellId = SPELL_ALCHEMISTS_STONE_EXTRA_HEAL;
@@ -193,7 +193,7 @@ class spell_item_alchemists_stone : public AuraScript
             }
 
             CastSpellExtraArgs args(aurEff);
-            args.AddSpellBP0(CalculatePct(spellInfo->Effects[i].CalcValue(caster), 40));
+            args.AddSpellBP0(CalculatePct(Effect.CalcValue(caster), 40));
             caster->CastSpell(nullptr, spellId, args);
         }
     }
@@ -4196,9 +4196,9 @@ class spell_item_mad_alchemists_potion : public SpellScript
         if (chosenSpellGroup != SPELL_GROUP_NONE)
         {
             Unit::AuraApplicationMap const& auraMap = target->GetAppliedAuras();
-            for (auto itr = auraMap.begin(); itr != auraMap.end(); ++itr)
+            for (auto itr : auraMap)
             {
-                uint32 spellId = itr->second->GetBase()->GetId();
+                uint32 spellId = itr.second->GetBase()->GetId();
                 if (sSpellMgr->IsSpellMemberOfSpellGroup(spellId, chosenSpellGroup) && spellId != chosenElixir)
                 {
                     useElixir = false;

@@ -77,11 +77,11 @@ public:
     {
         uint32 qVals[MAX_AUCTION_QUALITY];
         char* arg = strtok((char*)args, " ");
-        for (int i = 0; i < MAX_AUCTION_QUALITY; ++i)
+        for (unsigned int & qVal : qVals)
         {
             if (!arg)
                 return false;
-            qVals[i] = atoi(arg);
+            qVal = atoi(arg);
             arg = strtok(nullptr, " ");
         }
 
@@ -112,11 +112,11 @@ public:
     {
         uint32 rVal[MAX_AUCTION_QUALITY];
         char* arg = strtok((char*)args, " ");
-        for (int i = 0; i < MAX_AUCTION_QUALITY; ++i)
+        for (unsigned int & i : rVal)
         {
             if (!arg)
                 return false;
-            rVal[i] = atoi(arg);
+            i = atoi(arg);
             arg = strtok(nullptr, " ");
         }
 

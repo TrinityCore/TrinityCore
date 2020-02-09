@@ -117,10 +117,9 @@ void AddObjectHelper(CellCoord &cell, CreatureMapType &m, uint32 &count, Map* ma
 template <class T>
 void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map)
 {
-    for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
+    for (unsigned int guid : guid_set)
     {
         // Don't spawn at all if there's a respawn timer
-        ObjectGuid::LowType guid = *i_guid;
         if (!map->ShouldBeSpawnedOnGridLoad<T>(guid))
             continue;
 
@@ -215,11 +214,11 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
 void ObjectGridStoper::Visit(CreatureMapType &m)
 {
     // stop any fights at grid de-activation and remove dynobjects created at cast by creatures
-    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    for (auto & iter : m)
     {
-        iter->GetSource()->RemoveAllDynObjects();
-        if (iter->GetSource()->IsInCombat())
-            iter->GetSource()->CombatStop();
+        iter.GetSource()->RemoveAllDynObjects();
+        if (iter.GetSource()->IsInCombat())
+            iter.GetSource()->CombatStop();
     }
 }
 

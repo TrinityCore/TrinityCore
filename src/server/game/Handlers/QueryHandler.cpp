@@ -55,8 +55,8 @@ void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
     if (DeclinedName const* names = (player ? player->GetDeclinedNames() : nullptr))
     {
         data << uint8(1);                           // Name is declined
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << names->name[i];
+        for (const auto & i : names->name)
+            data << i;
     }
     else
         data << uint8(0);                           // Name is not declined
@@ -262,10 +262,10 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket& recvData)
 
             data << gossip->Options[i].Language;
 
-            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
+            for (auto Emote : gossip->Options[i].Emotes)
             {
-                data << gossip->Options[i].Emotes[j]._Delay;
-                data << gossip->Options[i].Emotes[j]._Emote;
+                data << Emote._Delay;
+                data << Emote._Emote;
             }
         }
     }

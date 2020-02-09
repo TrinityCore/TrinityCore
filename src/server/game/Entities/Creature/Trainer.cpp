@@ -51,12 +51,12 @@ namespace Trainer
             SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell.SpellId);
 
             bool primaryProfessionFirstRank = false;
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (const auto & Effect : trainerSpellInfo->Effects)
             {
-                if (trainerSpellInfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
+                if (Effect.Effect != SPELL_EFFECT_LEARN_SPELL)
                     continue;
 
-                SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpellInfo->Effects[i].TriggerSpell);
+                SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(Effect.TriggerSpell);
                 if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank())
                     primaryProfessionFirstRank = true;
             }
@@ -138,12 +138,12 @@ namespace Trainer
 
         SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell->SpellId);
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (const auto & Effect : trainerSpellInfo->Effects)
         {
-            if (trainerSpellInfo->Effects[i].Effect != SPELL_EFFECT_LEARN_SPELL)
+            if (Effect.Effect != SPELL_EFFECT_LEARN_SPELL)
                 continue;
 
-            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainerSpellInfo->Effects[i].TriggerSpell);
+            SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(Effect.TriggerSpell);
             if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank() && !player->GetFreePrimaryProfessionPoints())
                 return false;
         }

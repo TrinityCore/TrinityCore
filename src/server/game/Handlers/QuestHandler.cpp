@@ -658,8 +658,8 @@ void WorldSession::HandleQueryQuestsCompleted(WorldPacket & /*recvData*/)
     data << uint32(rew_count);
 
     RewardedQuestSet const& rewQuests = _player->getRewardedQuests();
-    for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
-        data << uint32(*itr);
+    for (unsigned int rewQuest : rewQuests)
+        data << uint32(rewQuest);
 
     SendPacket(&data);
 }

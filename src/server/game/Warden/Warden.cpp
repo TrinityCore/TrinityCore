@@ -174,8 +174,8 @@ uint32 Warden::BuildChecksum(uint8 const* data, uint32 length)
     keyData hash;
     SHA1(data, length, hash.bytes.bytes);
     uint32 checkSum = 0;
-    for (uint8 i = 0; i < 5; ++i)
-        checkSum = checkSum ^ hash.ints.ints[i];
+    for (unsigned int i : hash.ints.ints)
+        checkSum = checkSum ^ i;
 
     return checkSum;
 }

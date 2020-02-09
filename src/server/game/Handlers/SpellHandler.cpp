@@ -135,9 +135,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     if (pUser->IsInCombat())
     {
-        for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        for (const auto & Spell : proto->Spells)
         {
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[i].SpellId))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Spell.SpellId))
             {
                 if (!spellInfo->CanBeUsedInCombat())
                 {
@@ -484,12 +484,12 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
             //  over AuraEffectList caused "incompatible iterator" errors on second pass
             std::list<uint32> spellIDs;
 
-            for (Unit::AuraEffectList::const_iterator auraEffect = auraEffects.begin(); auraEffect != auraEffects.end(); ++auraEffect)
-                spellIDs.push_back((*auraEffect)->GetId());
+            for (auto auraEffect : auraEffects)
+                spellIDs.push_back(auraEffect->GetId());
 
             // Remove all auras related to resource tracking (only Herbs and Minerals in 3.3.5a)
-            for (std::list<uint32>::iterator it = spellIDs.begin(); it != spellIDs.end(); ++it)
-                _player->RemoveOwnedAura(*it, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
+            for (unsigned int & spellID : spellIDs)
+                _player->RemoveOwnedAura(spellID, ObjectGuid::Empty, 0, AURA_REMOVE_BY_CANCEL);
         }
     }
 }

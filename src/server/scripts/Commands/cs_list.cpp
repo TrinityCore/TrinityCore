@@ -500,11 +500,11 @@ public:
 
         Unit::AuraApplicationMap const& auras = unit->GetAppliedAuras();
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
-        for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        for (auto itr : auras)
         {
-            bool talent = GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
+            bool talent = GetTalentSpellCost(itr.second->GetBase()->GetId()) > 0;
 
-            AuraApplication const* aurApp = itr->second;
+            AuraApplication const* aurApp = itr.second;
             Aura const* aura = aurApp->GetBase();
             char const* name = aura->GetSpellInfo()->SpellName[handler->GetSessionDbcLocale()];
 
@@ -526,8 +526,8 @@ public:
 
             handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, auraList.size(), i);
 
-            for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
-                handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
+            for (auto itr : auraList)
+                handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, itr->GetId(), itr->GetEffIndex(), itr->GetAmount());
         }
 
         return true;

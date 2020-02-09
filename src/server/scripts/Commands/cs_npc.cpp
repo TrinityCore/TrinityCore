@@ -1425,10 +1425,10 @@ public:
             Player const* player = ObjectAccessor::FindConnectedPlayer(guid);
             handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL, player ? player->GetName() : Trinity::StringFormat("Offline player (GuidLow 0x%08x)", pair.first).c_str(), pair.second->size());
 
-            for (auto it = pair.second->cbegin(); it != pair.second->cend(); ++it)
+            for (auto it : *pair.second)
             {
-                LootItem const& item = items[it->index];
-                if (!(it->is_looted) && !item.is_looted)
+                LootItem const& item = items[it.index];
+                if (!(it.is_looted) && !item.is_looted)
                     _ShowLootEntry(handler, item.itemid, item.count, true);
             }
         }

@@ -1211,10 +1211,10 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
         return;
     }
 
-    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+    for (auto & i : declinedname.name)
     {
-        recvData >> declinedname.name[i];
-        if (!normalizePlayerName(declinedname.name[i]))
+        recvData >> i;
+        if (!normalizePlayerName(i))
         {
             SendSetPlayerDeclinedNamesResult(DECLINED_NAMES_RESULT_ERROR, guid);
             return;
@@ -1227,8 +1227,8 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
         return;
     }
 
-    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        CharacterDatabase.EscapeString(declinedname.name[i]);
+    for (auto & i : declinedname.name)
+        CharacterDatabase.EscapeString(i);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -2090,8 +2090,8 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
                     }
 
                     std::ostringstream ss;
-                    for (uint32 index = 0; index < ktcount; ++index)
-                        ss << knownTitles[index] << ' ';
+                    for (unsigned int knownTitle : knownTitles)
+                        ss << knownTitle << ' ';
 
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
                     stmt->setString(0, ss.str());

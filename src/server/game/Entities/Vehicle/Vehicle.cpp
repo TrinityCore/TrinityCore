@@ -92,9 +92,9 @@ void Vehicle::InstallAllAccessories(bool evading)
     if (!accessories)
         return;
 
-    for (VehicleAccessoryList::const_iterator itr = accessories->begin(); itr != accessories->end(); ++itr)
-        if (!evading || itr->IsMinion)  // only install minions on evade mode
-            InstallAccessory(itr->AccessoryEntry, itr->SeatId, itr->IsMinion, itr->SummonedType, itr->SummonTime);
+    for (auto accessorie : *accessories)
+        if (!evading || accessorie.IsMinion)  // only install minions on evade mode
+            InstallAccessory(accessorie.AccessoryEntry, accessorie.SeatId, accessorie.IsMinion, accessorie.SummonedType, accessorie.SummonTime);
 }
 
 /**
@@ -361,9 +361,9 @@ SeatMap::const_iterator Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 
 VehicleSeatAddon const* Vehicle::GetSeatAddonForSeatOfPassenger(Unit const* passenger) const
 {
-    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); itr++)
-        if (!itr->second.IsEmpty() && itr->second.Passenger.Guid == passenger->GetGUID())
-            return itr->second.SeatAddon;
+    for (const auto & Seat : Seats)
+        if (!Seat.second.IsEmpty() && Seat.second.Passenger.Guid == passenger->GetGUID())
+            return Seat.second.SeatAddon;
 
     return nullptr;
 }
@@ -593,8 +593,8 @@ void Vehicle::RelocatePassengers()
 
 bool Vehicle::IsVehicleInUse() const
 {
-    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
-        if (!itr->second.IsEmpty())
+    for (const auto & Seat : Seats)
+        if (!Seat.second.IsEmpty())
             return true;
 
     return false;
@@ -640,9 +640,9 @@ void Vehicle::InitMovementInfoForBase()
 
 VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit const* passenger) const
 {
-    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
-        if (itr->second.Passenger.Guid == passenger->GetGUID())
-            return itr->second.SeatInfo;
+    for (const auto & Seat : Seats)
+        if (Seat.second.Passenger.Guid == passenger->GetGUID())
+            return Seat.second.SeatInfo;
 
     return nullptr;
 }
@@ -938,9 +938,9 @@ void VehicleJoinEvent::Abort(uint64)
 
 bool Vehicle::HasPendingEventForSeat(int8 seatId) const
 {
-    for (PendingJoinEventContainer::const_iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end(); ++itr)
+    for (auto _pendingJoinEvent : _pendingJoinEvents)
     {
-        if ((*itr)->Seat->first == seatId)
+        if (_pendingJoinEvent->Seat->first == seatId)
             return true;
     }
     return false;

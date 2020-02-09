@@ -41,8 +41,8 @@
 
 BossBoundaryData::~BossBoundaryData()
 {
-    for (const_iterator it = begin(); it != end(); ++it)
-        delete it->Boundary;
+    for (auto it : *this)
+        delete it.Boundary;
 }
 
 InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0), _instanceSpawnGroups(sObjectMgr->GetSpawnGroupsForInstance(map->GetId()))
@@ -72,8 +72,8 @@ void InstanceScript::SaveToDB()
 
 bool InstanceScript::IsEncounterInProgress() const
 {
-    for (std::vector<BossInfo>::const_iterator itr = bosses.begin(); itr != bosses.end(); ++itr)
-        if (itr->state == IN_PROGRESS)
+    for (const auto & bosse : bosses)
+        if (bosse.state == IN_PROGRESS)
             return true;
 
     return false;
@@ -241,9 +241,8 @@ void InstanceScript::UpdateSpawnGroups()
         return;
     enum states { BLOCK, SPAWN, FORCEBLOCK };
     std::unordered_map<uint32, states> newStates;
-    for (auto it = _instanceSpawnGroups->begin(), end = _instanceSpawnGroups->end(); it != end; ++it)
+    for (auto info : *_instanceSpawnGroups)
     {
-        InstanceSpawnGroupInfo const& info = *it;
         states& curValue = newStates[info.SpawnGroupId]; // makes sure there's a BLOCK value in the map
         if (curValue == FORCEBLOCK) // nothing will change this
             continue;
@@ -357,8 +356,8 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             }
 
             if (state == DONE)
-                for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-                    if (Creature* minion = instance->GetCreature(*i))
+                for (auto i : bossInfo->minion)
+                    if (Creature* minion = instance->GetCreature(i))
                         if (minion->isWorldBoss() && minion->IsAlive())
                             return false;
 
@@ -366,13 +365,13 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             SaveToDB();
         }
 
-        for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
-            for (GuidSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
+        for (auto & type : bossInfo->door)
+            for (GuidSet::iterator i = type.begin(); i != type.end(); ++i)
                 if (GameObject* door = instance->GetGameObject(*i))
                     UpdateDoorState(door);
 
-        for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-            if (Creature* minion = instance->GetCreature(*i))
+        for (auto i : bossInfo->minion)
+            if (Creature* minion = instance->GetCreature(i))
                 UpdateMinionState(minion, state);
 
         UpdateSpawnGroups();
@@ -555,8 +554,8 @@ void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
 
     if (!lPlayers.isEmpty())
     {
-        for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
-            if (Player* player = itr->GetSource())
+        for (const auto & lPlayer : lPlayers)
+            if (Player* player = lPlayer.GetSource())
                 player->SendUpdateWorldState(uiStateId, uiStateData);
     }
     else
@@ -575,8 +574,8 @@ void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
         char buff[1024];
         vsnprintf(buff, 1024, format, ap);
         va_end(ap);
-        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-            if (Player* player = i->GetSource())
+        for (const auto & i : players)
+            if (Player* player = i.GetSource())
                 if (WorldSession* session = player->GetSession())
                     session->SendNotification("%s", buff);
     }
@@ -588,8 +587,8 @@ void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, 
     Map::PlayerList const& PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->GetSource())
+        for (const auto & i : PlayerList)
+            if (Player* player = i.GetSource())
                 player->UpdateAchievementCriteria(type, miscValue1, miscValue2, unit);
 }
 
@@ -599,8 +598,8 @@ void InstanceScript::DoStartTimedAchievement(AchievementCriteriaTimedTypes type,
     Map::PlayerList const& PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->GetSource())
+        for (const auto & i : PlayerList)
+            if (Player* player = i.GetSource())
                 player->StartTimedAchievement(type, entry);
 }
 
@@ -610,16 +609,16 @@ void InstanceScript::DoStopTimedAchievement(AchievementCriteriaTimedTypes type, 
     Map::PlayerList const& PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* player = i->GetSource())
+        for (const auto & i : PlayerList)
+            if (Player* player = i.GetSource())
                 player->RemoveTimedAchievement(type, entry);
 }
 
 void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
 {
     Map::PlayerList const& playerList = instance->GetPlayers();
-    for (auto itr = playerList.begin(); itr != playerList.end(); ++itr)
-        DoRemoveAurasDueToSpellOnPlayer(itr->GetSource(), spell, includePets, includeControlled);
+    for (const auto & itr : playerList)
+        DoRemoveAurasDueToSpellOnPlayer(itr.GetSource(), spell, includePets, includeControlled);
 }
 
 void InstanceScript::DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
@@ -632,9 +631,9 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spel
     if (!includePets)
         return;
 
-    for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
+    for (auto summonGUID : player->m_SummonSlot)
     {
-        if (ObjectGuid summonGUID = player->m_SummonSlot[itr2])
+        if (summonGUID)
             if (Creature* summon = instance->GetCreature(summonGUID))
                 summon->RemoveAurasDueToSpell(spell);
     }
@@ -642,9 +641,9 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spel
     if (!includeControlled)
         return;
 
-    for (auto itr2 = player->m_Controlled.begin(); itr2 != player->m_Controlled.end(); ++itr2)
+    for (auto controlled : player->m_Controlled)
     {
-        if (Unit* controlled = *itr2)
+        if (controlled)
             if (controlled->IsInWorld() && controlled->GetTypeId() == TYPEID_UNIT)
                 controlled->RemoveAurasDueToSpell(spell);
     }
@@ -653,8 +652,8 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spel
 void InstanceScript::DoCastSpellOnPlayers(uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
 {
     Map::PlayerList const& playerList = instance->GetPlayers();
-    for (auto itr = playerList.begin(); itr != playerList.end(); ++itr)
-        DoCastSpellOnPlayer(itr->GetSource(), spell, includePets, includeControlled);
+    for (const auto & itr : playerList)
+        DoCastSpellOnPlayer(itr.GetSource(), spell, includePets, includeControlled);
 }
 
 void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool includePets /*= false*/, bool includeControlled /*= false*/)
@@ -667,9 +666,9 @@ void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool incl
     if (!includePets)
         return;
 
-    for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
+    for (auto summonGUID : player->m_SummonSlot)
     {
-        if (ObjectGuid summonGUID = player->m_SummonSlot[itr2])
+        if (summonGUID)
             if (Creature* summon = instance->GetCreature(summonGUID))
                 summon->CastSpell(player, spell, true);
     }

@@ -52,11 +52,11 @@ BattlegroundQueue::~BattlegroundQueue()
 {
     m_events.KillAllEvents(false);
 
-    for (int i = 0; i < MAX_BATTLEGROUND_BRACKETS; ++i)
+    for (auto & m_QueuedGroup : m_QueuedGroups)
     {
         for (uint32 j = 0; j < BG_QUEUE_GROUP_TYPES_COUNT; ++j)
         {
-            for (GroupsQueueType::iterator itr = m_QueuedGroups[i][j].begin(); itr!= m_QueuedGroups[i][j].end(); ++itr)
+            for (GroupsQueueType::iterator itr = m_QueuedGroup[j].begin(); itr!= m_QueuedGroup[j].end(); ++itr)
                 delete (*itr);
         }
     }

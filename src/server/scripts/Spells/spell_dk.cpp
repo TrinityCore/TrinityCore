@@ -997,9 +997,9 @@ class spell_dk_death_pact : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targetList)
             {
                 Unit* target = nullptr;
-                for (std::list<WorldObject*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+                for (auto & itr : targetList)
                 {
-                    if (Unit* unit = (*itr)->ToUnit())
+                    if (Unit* unit = itr->ToUnit())
                         if (unit->GetOwnerGUID() == GetCaster()->GetGUID() && unit->GetCreatureType() == CREATURE_TYPE_UNDEAD)
                         {
                             target = unit;
@@ -1284,9 +1284,8 @@ class spell_dk_glyph_of_scourge_strike_script : public SpellScript
         Unit* target = GetHitUnit();
 
         Unit::AuraEffectList const& mPeriodic = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-        for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
+        for (auto aurEff : mPeriodic)
         {
-            AuraEffect const* aurEff = *i;
             SpellInfo const* spellInfo = aurEff->GetSpellInfo();
             // search our Blood Plague and Frost Fever on target
             if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&

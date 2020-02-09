@@ -123,11 +123,11 @@ WorldPacket const* WorldPackets::Query::QueryItemSingleResponse::Write()
         }
         _worldPacket << Stats.ScalingStatDistribution;            // scaling stats distribution
         _worldPacket << Stats.ScalingStatValue;                   // some kind of flags used to determine stat values column
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+        for (auto & i : Stats.Damage)
         {
-            _worldPacket << Stats.Damage[i].DamageMin;
-            _worldPacket << Stats.Damage[i].DamageMax;
-            _worldPacket << Stats.Damage[i].DamageType;
+            _worldPacket << i.DamageMin;
+            _worldPacket << i.DamageMax;
+            _worldPacket << i.DamageType;
         }
 
         // resistances (7)
@@ -138,17 +138,17 @@ WorldPacket const* WorldPackets::Query::QueryItemSingleResponse::Write()
         _worldPacket << Stats.AmmoType;
         _worldPacket << Stats.RangedModRange;
 
-        for (uint8 s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+        for (auto & Spell : Stats.Spells)
         {
             // spells are validated on template loading
-            if (Stats.Spells[s].SpellId > 0)
+            if (Spell.SpellId > 0)
             {
-                _worldPacket << Stats.Spells[s].SpellId;
-                _worldPacket << Stats.Spells[s].SpellTrigger;
-                _worldPacket << uint32(-abs(Stats.Spells[s].SpellCharges));
-                _worldPacket << uint32(Stats.Spells[s].SpellCooldown);
-                _worldPacket << uint32(Stats.Spells[s].SpellCategory);
-                _worldPacket << uint32(Stats.Spells[s].SpellCategoryCooldown);
+                _worldPacket << Spell.SpellId;
+                _worldPacket << Spell.SpellTrigger;
+                _worldPacket << uint32(-abs(Spell.SpellCharges));
+                _worldPacket << uint32(Spell.SpellCooldown);
+                _worldPacket << uint32(Spell.SpellCategory);
+                _worldPacket << uint32(Spell.SpellCategoryCooldown);
             }
             else
             {
@@ -178,10 +178,10 @@ WorldPacket const* WorldPackets::Query::QueryItemSingleResponse::Write()
         _worldPacket << Stats.Map;                                // Added in 1.12.x & 2.0.1 client branch
         _worldPacket << Stats.BagFamily;
         _worldPacket << Stats.TotemCategory;
-        for (uint8 s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
+        for (auto & s : Stats.Socket)
         {
-            _worldPacket << Stats.Socket[s].Color;
-            _worldPacket << Stats.Socket[s].Content;
+            _worldPacket << s.Color;
+            _worldPacket << s.Content;
         }
         _worldPacket << Stats.SocketBonus;
         _worldPacket << Stats.GemProperties;

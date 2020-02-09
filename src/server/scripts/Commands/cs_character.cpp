@@ -171,18 +171,18 @@ public:
             handler->SendSysMessage(LANG_CHARACTER_DELETED_LIST_BAR);
         }
 
-        for (DeletedInfoList::const_iterator itr = foundList.begin(); itr != foundList.end(); ++itr)
+        for (const auto & itr : foundList)
         {
-            std::string dateStr = TimeToTimestampStr(itr->deleteDate);
+            std::string dateStr = TimeToTimestampStr(itr.deleteDate);
 
             if (!handler->GetSession())
                 handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CONSOLE,
-                    itr->guid.GetCounter(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
-                    itr->accountId, dateStr.c_str());
+                    itr.guid.GetCounter(), itr.name.c_str(), itr.accountName.empty() ? "<Not existing>" : itr.accountName.c_str(),
+                    itr.accountId, dateStr.c_str());
             else
                 handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CHAT,
-                    itr->guid.GetCounter(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
-                    itr->accountId, dateStr.c_str());
+                    itr.guid.GetCounter(), itr.name.c_str(), itr.accountName.empty() ? "<Not existing>" : itr.accountName.c_str(),
+                    itr.accountId, dateStr.c_str());
         }
 
         if (!handler->GetSession())
@@ -646,9 +646,9 @@ public:
         LocaleConstant loc = handler->GetSessionDbcLocale();
 
         FactionStateList const& targetFSL = target->GetReputationMgr().GetStateList();
-        for (FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
+        for (const auto & itr : targetFSL)
         {
-            FactionState const& faction = itr->second;
+            FactionState const& faction = itr.second;
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
             char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
             ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
@@ -749,8 +749,8 @@ public:
         if (newCharName.empty())
         {
             // Drop nonexisting account cases
-            for (DeletedInfoList::iterator itr = foundList.begin(); itr != foundList.end(); ++itr)
-                HandleCharacterDeletedRestoreHelper(*itr, handler);
+            for (auto & itr : foundList)
+                HandleCharacterDeletedRestoreHelper(itr, handler);
         }
         else if (foundList.size() == 1 && normalizePlayerName(newCharName))
         {

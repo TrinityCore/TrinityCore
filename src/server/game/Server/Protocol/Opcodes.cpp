@@ -68,8 +68,8 @@ OpcodeTable::OpcodeTable()
 
 OpcodeTable::~OpcodeTable()
 {
-    for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
-        delete _internalTableClient[i];
+    for (auto & i : _internalTableClient)
+        delete i;
 }
 
 template<typename Handler, Handler HandlerFunction>

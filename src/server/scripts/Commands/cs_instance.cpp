@@ -83,11 +83,11 @@ public:
         for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         {
             Player::BoundInstancesMap &binds = player->GetBoundInstances(Difficulty(i));
-            for (Player::BoundInstancesMap::const_iterator itr = binds.begin(); itr != binds.end(); ++itr)
+            for (const auto & bind : binds)
             {
-                InstanceSave* save = itr->second.save;
+                InstanceSave* save = bind.second.save;
                 std::string timeleft = GetTimeString(save->GetResetTime() - GameTime::GetGameTime());
-                handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", itr->second.extendState == EXTEND_STATE_EXPIRED ? "expired" : itr->second.extendState == EXTEND_STATE_EXTENDED ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, bind.first, save->GetInstanceId(), bind.second.perm ? "yes" : "no", bind.second.extendState == EXTEND_STATE_EXPIRED ? "expired" : bind.second.extendState == EXTEND_STATE_EXTENDED ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                 counter++;
             }
         }
@@ -99,11 +99,11 @@ public:
             for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
             {
                 Group::BoundInstancesMap &binds = group->GetBoundInstances(Difficulty(i));
-                for (Group::BoundInstancesMap::const_iterator itr = binds.begin(); itr != binds.end(); ++itr)
+                for (const auto & bind : binds)
                 {
-                    InstanceSave* save = itr->second.save;
+                    InstanceSave* save = bind.second.save;
                     std::string timeleft = GetTimeString(save->GetResetTime() - GameTime::GetGameTime());
-                    handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", "-", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                    handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, bind.first, save->GetInstanceId(), bind.second.perm ? "yes" : "no", "-", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                     counter++;
                 }
             }

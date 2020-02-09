@@ -110,8 +110,8 @@ bool UpdateData::BuildPacket(WorldPacket* packet)
         buf << uint8(UPDATETYPE_OUT_OF_RANGE_OBJECTS);
         buf << uint32(m_outOfRangeGUIDs.size());
 
-        for (GuidSet::const_iterator i = m_outOfRangeGUIDs.begin(); i != m_outOfRangeGUIDs.end(); ++i)
-            buf << i->WriteAsPacked();
+        for (auto m_outOfRangeGUID : m_outOfRangeGUIDs)
+            buf << m_outOfRangeGUID.WriteAsPacked();
     }
 
     buf.append(m_data);

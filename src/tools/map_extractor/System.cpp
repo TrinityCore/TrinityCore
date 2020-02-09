@@ -393,11 +393,11 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     //============================================
     bool fullAreaData = false;
     uint32 areaId = area_ids[0][0];
-    for (int y = 0; y < ADT_CELLS_PER_GRID; ++y)
+    for (auto & area_id : area_ids)
     {
         for (int x = 0; x < ADT_CELLS_PER_GRID; ++x)
         {
-            if (area_ids[y][x] != areaId)
+            if (area_id[x] != areaId)
             {
                 fullAreaData = true;
                 break;
@@ -500,11 +500,11 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     //============================================
     float maxHeight = -20000;
     float minHeight =  20000;
-    for (int y=0; y<ADT_GRID_SIZE; y++)
+    for (auto & y : V8)
     {
         for(int x=0;x<ADT_GRID_SIZE;x++)
         {
-            float h = V8[y][x];
+            float h = y[x];
             if (maxHeight < h) maxHeight = h;
             if (minHeight > h) minHeight = h;
         }
@@ -522,10 +522,10 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     // Check for allow limit minimum height (not store height in deep ochean - allow save some memory)
     if (CONF_allow_height_limit && minHeight < CONF_use_minHeight)
     {
-        for (int y=0; y<ADT_GRID_SIZE; y++)
+        for (auto & y : V8)
             for(int x=0;x<ADT_GRID_SIZE;x++)
-                if (V8[y][x] < CONF_use_minHeight)
-                    V8[y][x] = CONF_use_minHeight;
+                if (y[x] < CONF_use_minHeight)
+                    y[x] = CONF_use_minHeight;
         for (int y=0; y<=ADT_GRID_SIZE; y++)
             for(int x=0;x<=ADT_GRID_SIZE;x++)
                 if (V9[y][x] < CONF_use_minHeight)
@@ -987,13 +987,13 @@ void ExtractDBCFiles(int locale, bool basicLocale)
     std::set<std::string> dbcfiles;
 
     // get DBC file list
-    for(ArchiveSet::iterator i = gOpenArchives.begin(); i != gOpenArchives.end();++i)
+    for(auto & gOpenArchive : gOpenArchives)
     {
         std::vector<std::string> files;
-        (*i)->GetFileListTo(files);
-        for (std::vector<std::string>::iterator iter = files.begin(); iter != files.end(); ++iter)
-            if (iter->rfind(".dbc") == iter->length() - strlen(".dbc"))
-                    dbcfiles.insert(*iter);
+        gOpenArchive->GetFileListTo(files);
+        for (auto & file : files)
+            if (file.rfind(".dbc") == file.length() - strlen(".dbc"))
+                    dbcfiles.insert(file);
     }
 
     std::string path = output_path;
@@ -1016,15 +1016,15 @@ void ExtractDBCFiles(int locale, bool basicLocale)
 
     // extract DBCs
     uint32 count = 0;
-    for (std::set<std::string>::iterator iter = dbcfiles.begin(); iter != dbcfiles.end(); ++iter)
+    for (const auto & dbcfile : dbcfiles)
     {
         std::string filename = path;
-        filename += (iter->c_str() + strlen("DBFilesClient\\"));
+        filename += (dbcfile.c_str() + strlen("DBFilesClient\\"));
 
         if (boost::filesystem::exists(filename))
             continue;
 
-        if (ExtractFile(iter->c_str(), filename))
+        if (ExtractFile(dbcfile.c_str(), filename))
             ++count;
     }
     printf("Extracted %u DBC files\n\n", count);
@@ -1112,7 +1112,7 @@ void LoadCommonMPQFiles()
 
 inline void CloseMPQFiles()
 {
-    for(ArchiveSet::iterator j = gOpenArchives.begin(); j != gOpenArchives.end();++j) (*j)->close();
+    for(auto & gOpenArchive : gOpenArchives) gOpenArchive->close();
         gOpenArchives.clear();
 }
 

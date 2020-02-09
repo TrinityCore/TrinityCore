@@ -1474,13 +1474,13 @@ class spell_pal_judgement : public SpellScriptLoader
 
                 // some seals have SPELL_AURA_DUMMY in EFFECT_2
                 Unit::AuraEffectList const& auras = GetCaster()->GetAuraEffectsByType(SPELL_AURA_DUMMY);
-                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                for (auto aura : auras)
                 {
-                    if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
+                    if (aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && aura->GetEffIndex() == EFFECT_2)
                     {
-                        if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
+                        if (sSpellMgr->GetSpellInfo(aura->GetAmount()))
                         {
-                            spellId2 = (*i)->GetAmount();
+                            spellId2 = aura->GetAmount();
                             break;
                         }
                     }

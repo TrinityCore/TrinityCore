@@ -650,9 +650,8 @@ std::string LFGQueue::DumpQueueInfo() const
     for (uint8 i = 0; i < 2; ++i)
     {
         GuidList const& queue = i ? newToQueueStore : currentQueueStore;
-        for (GuidList::const_iterator it = queue.begin(); it != queue.end(); ++it)
+        for (auto guid : queue)
         {
-            ObjectGuid guid = *it;
             if (guid.IsGroup())
             {
                 groups++;
@@ -672,14 +671,14 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
     std::ostringstream o;
     o << "Compatible Map size: " << CompatibleMapStore.size() << "\n";
     if (full)
-        for (LfgCompatibleContainer::const_iterator itr = CompatibleMapStore.begin(); itr != CompatibleMapStore.end(); ++itr)
+        for (const auto & itr : CompatibleMapStore)
         {
-            o << "(" << itr->first << "): " << GetCompatibleString(itr->second.compatibility);
-            if (!itr->second.roles.empty())
+            o << "(" << itr.first << "): " << GetCompatibleString(itr.second.compatibility);
+            if (!itr.second.roles.empty())
             {
                 o << " (";
                 bool first = true;
-                for (auto const& role : itr->second.roles)
+                for (auto const& role : itr.second.roles)
                 {
                     if (!first)
                         o << "|";
@@ -728,9 +727,9 @@ void LFGQueue::UpdateBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQu
     queueData.tanks = LFG_TANKS_NEEDED;
     queueData.healers = LFG_HEALERS_NEEDED;
     queueData.dps = LFG_DPS_NEEDED;
-    for (LfgRolesMap::const_iterator it = roles.begin(); it != roles.end(); ++it)
+    for (auto it : roles)
     {
-        uint8 role = it->second;
+        uint8 role = it.second;
         if (role & PLAYER_ROLE_TANK)
             --queueData.tanks;
         else if (role & PLAYER_ROLE_HEALER)

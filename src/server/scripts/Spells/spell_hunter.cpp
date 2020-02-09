@@ -242,9 +242,9 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                     uint32 spellId = 0;
                     int32 basePoint = 0;
                     Unit::AuraApplicationMap const& auras = unitTarget->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                    for (auto i : auras)
                     {
-                        Aura* aura = i->second->GetBase();
+                        Aura* aura = i.second->GetBase();
                         if (aura->GetCasterGUID() != caster->GetGUID())
                             continue;
 
@@ -426,9 +426,9 @@ class spell_hun_glyph_of_arcane_shot : public SpellScriptLoader
                 if (Unit* procTarget = eventInfo.GetProcTarget())
                 {
                     Unit::AuraApplicationMap const& auras = procTarget->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                    for (auto i : auras)
                     {
-                        Aura const* aura = i->second->GetBase();
+                        Aura const* aura = i.second->GetBase();
                         if (aura->GetCasterGUID() != GetTarget()->GetGUID())
                             continue;
                         // Search only Serpent Sting, Viper Sting, Scorpid Sting, Wyvern Sting

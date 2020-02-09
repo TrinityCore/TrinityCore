@@ -181,10 +181,10 @@ LanguageDesc lang_description[LANGUAGES_COUNT] =
 
 LanguageDesc const* GetLanguageDescByID(uint32 lang)
 {
-    for (uint8 i = 0; i < LANGUAGES_COUNT; ++i)
+    for (auto & i : lang_description)
     {
-        if (uint32(lang_description[i].lang_id) == lang)
-            return &lang_description[i];
+        if (uint32(i.lang_id) == lang)
+            return &i;
     }
 
     return nullptr;
@@ -572,8 +572,8 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         creatureTemplate.resistance[i] = 0;
 
-    for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
-        creatureTemplate.spells[i] = 0;
+    for (unsigned int & spell : creatureTemplate.spells)
+        spell = 0;
 
     creatureTemplate.PetSpellDataId = fields[38].GetUInt32();
     creatureTemplate.VehicleId      = fields[39].GetUInt32();
@@ -742,31 +742,31 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
         Tokenizer tokens(fields[7].GetString(), ' ');
         creatureAddon.auras.reserve(tokens.size());
-        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        for (auto token : tokens)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(atoul(*itr));
+            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(atoul(token));
             if (!AdditionalSpellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell %lu defined in `auras` field in `creature_template_addon`.", entry, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong spell %lu defined in `auras` field in `creature_template_addon`.", entry, atoul(token));
                 continue;
             }
 
             if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %lu defined in `auras` field in `creature_template_addon`.", entry, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has SPELL_AURA_CONTROL_VEHICLE aura %lu defined in `auras` field in `creature_template_addon`.", entry, atoul(token));
 
-            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), atoul(*itr)) != creatureAddon.auras.end())
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), atoul(token)) != creatureAddon.auras.end())
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has duplicate aura (spell %lu) in `auras` field in `creature_template_addon`.", entry, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has duplicate aura (spell %lu) in `auras` field in `creature_template_addon`.", entry, atoul(token));
                 continue;
             }
 
             if (AdditionalSpellInfo->GetDuration() > 0)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has temporary aura (spell %lu) in `auras` field in `creature_template_addon`.", entry, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has temporary aura (spell %lu) in `auras` field in `creature_template_addon`.", entry, atoul(token));
                 continue;
             }
 
-            creatureAddon.auras.push_back(atoul(*itr));
+            creatureAddon.auras.push_back(atoul(token));
         }
 
         if (creatureAddon.mount)
@@ -1272,31 +1272,31 @@ void ObjectMgr::LoadCreatureAddons()
 
         Tokenizer tokens(fields[7].GetString(), ' ');
         creatureAddon.auras.reserve(tokens.size());
-        for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        for (auto token : tokens)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(atoul(*itr));
+            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(atoul(token));
             if (!AdditionalSpellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has wrong spell %lu defined in `auras` field in `creature_addon`.", guid, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has wrong spell %lu defined in `auras` field in `creature_addon`.", guid, atoul(token));
                 continue;
             }
 
             if (AdditionalSpellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has SPELL_AURA_CONTROL_VEHICLE aura %lu defined in `auras` field in `creature_addon`.", guid, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has SPELL_AURA_CONTROL_VEHICLE aura %lu defined in `auras` field in `creature_addon`.", guid, atoul(token));
 
-            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), atoul(*itr)) != creatureAddon.auras.end())
+            if (std::find(creatureAddon.auras.begin(), creatureAddon.auras.end(), atoul(token)) != creatureAddon.auras.end())
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has duplicate aura (spell %lu) in `auras` field in `creature_addon`.", guid, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has duplicate aura (spell %lu) in `auras` field in `creature_addon`.", guid, atoul(token));
                 continue;
             }
 
             if (AdditionalSpellInfo->GetDuration() > 0)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has temporary aura (spell %lu) in `auras` field in `creature_addon`.", guid, atoul(*itr));
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u) has temporary aura (spell %lu) in `auras` field in `creature_addon`.", guid, atoul(token));
                 continue;
             }
 
-            creatureAddon.auras.push_back(atoul(*itr));
+            creatureAddon.auras.push_back(atoul(token));
         }
 
         if (creatureAddon.mount)
@@ -3070,9 +3070,9 @@ void ObjectMgr::LoadItemTemplates()
             // can be used in equip slot, as page read use in inventory, or spell casting at use
             bool req = itemTemplate.InventoryType != INVTYPE_NON_EQUIP || itemTemplate.PageText;
             if (!req)
-                for (uint8 j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
+                for (auto & Spell : itemTemplate.Spells)
                 {
-                    if (itemTemplate.Spells[j].SpellId > 0)
+                    if (Spell.SpellId > 0)
                     {
                         req = true;
                         break;
@@ -3381,20 +3381,20 @@ void ObjectMgr::LoadItemTemplates()
         if (!entry)
             continue;
 
-        for (uint8 j = 0; j < MAX_OUTFIT_ITEMS; ++j)
+        for (int j : entry->ItemId)
         {
-            if (entry->ItemId[j] <= 0)
+            if (j <= 0)
                 continue;
 
-            uint32 item_id = entry->ItemId[j];
+            uint32 item_id = j;
 
             if (!GetItemTemplate(item_id))
                 notFoundOutfit.insert(item_id);
         }
     }
 
-    for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
-        TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist in `item_template` but is referenced in `CharStartOutfit.dbc`", *itr);
+    for (unsigned int itr : notFoundOutfit)
+        TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist in `item_template` but is referenced in `CharStartOutfit.dbc`", itr);
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " item templates in %u ms", _itemTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3449,9 +3449,9 @@ void ObjectMgr::LoadItemSetNames()
         if (!setEntry)
             continue;
 
-        for (uint32 i = 0; i < MAX_ITEM_SET_ITEMS; ++i)
-            if (setEntry->itemId[i])
-                itemSetItems.insert(setEntry->itemId[i]);
+        for (unsigned int i : setEntry->itemId)
+            if (i)
+                itemSetItems.insert(i);
     }
 
     //                                                  0        1            2
@@ -3495,9 +3495,8 @@ void ObjectMgr::LoadItemSetNames()
     if (!itemSetItems.empty())
     {
         ItemTemplate const* pProto;
-        for (std::set<uint32>::iterator itr = itemSetItems.begin(); itr != itemSetItems.end(); ++itr)
+        for (unsigned int entry : itemSetItems)
         {
-            uint32 entry = *itr;
             // add data from item_template if available
             pProto = sObjectMgr->GetItemTemplate(entry);
             if (pProto)
@@ -5263,12 +5262,12 @@ void ObjectMgr::LoadQuests()
         if (!spellInfo)
             continue;
 
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+        for (const auto & Effect : spellInfo->Effects)
         {
-            if (spellInfo->Effects[j].Effect != SPELL_EFFECT_QUEST_COMPLETE)
+            if (Effect.Effect != SPELL_EFFECT_QUEST_COMPLETE)
                 continue;
 
-            uint32 quest_id = spellInfo->Effects[j].MiscValue;
+            uint32 quest_id = Effect.MiscValue;
 
             Quest const* quest = GetQuestTemplate(quest_id);
 
@@ -5687,16 +5686,16 @@ void ObjectMgr::LoadEventScripts()
     // Load all possible script entries from spells
     for (uint32 i = 1; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(i))
-            for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-                if (spell->Effects[j].Effect == SPELL_EFFECT_SEND_EVENT)
-                    if (spell->Effects[j].MiscValue)
-                        evt_scripts.insert(spell->Effects[j].MiscValue);
+            for (const auto & Effect : spell->Effects)
+                if (Effect.Effect == SPELL_EFFECT_SEND_EVENT)
+                    if (Effect.MiscValue)
+                        evt_scripts.insert(Effect.MiscValue);
 
-    for (size_t path_idx = 0; path_idx < sTaxiPathNodesByPath.size(); ++path_idx)
+    for (auto & path_idx : sTaxiPathNodesByPath)
     {
-        for (size_t node_idx = 0; node_idx < sTaxiPathNodesByPath[path_idx].size(); ++node_idx)
+        for (size_t node_idx = 0; node_idx < path_idx.size(); ++node_idx)
         {
-            TaxiPathNodeEntry const* node = sTaxiPathNodesByPath[path_idx][node_idx];
+            TaxiPathNodeEntry const* node = path_idx[node_idx];
 
             if (node->ArrivalEventID)
                 evt_scripts.insert(node->ArrivalEventID);
@@ -5741,8 +5740,8 @@ void ObjectMgr::LoadWaypointScripts()
         while (result->NextRow());
     }
 
-    for (std::set<uint32>::iterator itr = actionSet.begin(); itr != actionSet.end(); ++itr)
-        TC_LOG_ERROR("sql.sql", "There is no waypoint which links to the waypoint script %u", *itr);
+    for (unsigned int itr : actionSet)
+        TC_LOG_ERROR("sql.sql", "There is no waypoint which links to the waypoint script %u", itr);
 }
 
 void ObjectMgr::LoadSpellScriptNames()
@@ -6161,10 +6160,10 @@ void ObjectMgr::LoadGossipText()
             gOption.Language         = fields[cic++].GetUInt8();
             gOption.Probability      = fields[cic++].GetFloat();
 
-            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
+            for (auto & Emote : gOption.Emotes)
             {
-                gOption.Emotes[j]._Delay = fields[cic++].GetUInt16();
-                gOption.Emotes[j]._Emote = fields[cic++].GetUInt16();
+                Emote._Delay = fields[cic++].GetUInt16();
+                Emote._Emote = fields[cic++].GetUInt16();
             }
 
             // check broadcast_text correctness
@@ -6310,10 +6309,10 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             if (m->messageType != MAIL_NORMAL || (m->checked & (MAIL_CHECK_MASK_COD_PAYMENT | MAIL_CHECK_MASK_RETURNED)))
             {
                 // mail open and then not returned
-                for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+                for (auto & item : m->items)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                    stmt->setUInt32(0, itr2->item_guid);
+                    stmt->setUInt32(0, item.item_guid);
                     CharacterDatabase.Execute(stmt);
                 }
 
@@ -7259,12 +7258,12 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
     }
 
     uint32 entrance_map = uint32(mapEntry->entrance_map);
-    for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
-        if ((!useParentDbValue && itr->second.target_mapId == entrance_map) || (useParentDbValue && itr->second.target_mapId == parentId))
+    for (const auto & itr : _areaTriggerStore)
+        if ((!useParentDbValue && itr.second.target_mapId == entrance_map) || (useParentDbValue && itr.second.target_mapId == parentId))
         {
-            AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
+            AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr.first);
             if (atEntry && atEntry->mapid == Map)
-                return &itr->second;
+                return &itr.second;
         }
     return nullptr;
 }
@@ -7274,13 +7273,13 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
  */
 AreaTrigger const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 {
-    for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
+    for (const auto & itr : _areaTriggerStore)
     {
-        if (itr->second.target_mapId == Map)
+        if (itr.second.target_mapId == Map)
         {
-            AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
+            AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr.first);
             if (atEntry)
-                return &itr->second;
+                return &itr.second;
         }
     }
     return nullptr;
@@ -8938,12 +8937,12 @@ GameTele const* ObjectMgr::GetGameTele(const std::string& name) const
 
     // Alternative first GameTele what contains wnameLow as substring in case no GameTele location found
     GameTele const* alt = nullptr;
-    for (GameTeleContainer::const_iterator itr = _gameTeleStore.begin(); itr != _gameTeleStore.end(); ++itr)
+    for (const auto & itr : _gameTeleStore)
     {
-        if (itr->second.wnameLow == wname)
-            return &itr->second;
-        else if (!alt && itr->second.wnameLow.find(wname) != std::wstring::npos)
-            alt = &itr->second;
+        if (itr.second.wnameLow == wname)
+            return &itr.second;
+        else if (!alt && itr.second.wnameLow.find(wname) != std::wstring::npos)
+            alt = &itr.second;
     }
 
     return alt;
@@ -8959,10 +8958,10 @@ GameTele const* ObjectMgr::GetGameTeleExactName(const std::string& name) const
     // converting string that we try to find to lower case
     wstrToLower(wname);
 
-    for (GameTeleContainer::const_iterator itr = _gameTeleStore.begin(); itr != _gameTeleStore.end(); ++itr)
+    for (const auto & itr : _gameTeleStore)
     {
-        if (itr->second.wnameLow == wname)
-            return &itr->second;
+        if (itr.second.wnameLow == wname)
+            return &itr.second;
     }
 
     return nullptr;
@@ -8972,9 +8971,9 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
 {
     // find max id
     uint32 new_id = 0;
-    for (GameTeleContainer::const_iterator itr = _gameTeleStore.begin(); itr != _gameTeleStore.end(); ++itr)
-        if (itr->first > new_id)
-            new_id = itr->first;
+    for (const auto & itr : _gameTeleStore)
+        if (itr.first > new_id)
+            new_id = itr.first;
 
     // use next
     ++new_id;
@@ -9305,8 +9304,8 @@ void ObjectMgr::LoadVendors()
     uint32 oldMSTime = getMSTime();
 
     // For reload case
-    for (CacheVendorItemContainer::iterator itr = _cacheVendorItemStore.begin(); itr != _cacheVendorItemStore.end(); ++itr)
-        itr->second.Clear();
+    for (auto & itr : _cacheVendorItemStore)
+        itr.second.Clear();
     _cacheVendorItemStore.clear();
 
     std::set<uint32> skip_vendors;

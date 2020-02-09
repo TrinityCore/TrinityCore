@@ -301,9 +301,9 @@ public:
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (rbac::RBACPermissionContainer::const_iterator itr = granted.begin(); itr != granted.end(); ++itr)
+            for (unsigned int itr : granted)
             {
-                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
+                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(itr);
                 handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
             }
         }
@@ -314,9 +314,9 @@ public:
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (rbac::RBACPermissionContainer::const_iterator itr = denied.begin(); itr != denied.end(); ++itr)
+            for (unsigned int itr : denied)
             {
-                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
+                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(itr);
                 handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
             }
         }
@@ -326,9 +326,9 @@ public:
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
         else
         {
-            for (rbac::RBACPermissionContainer::const_iterator itr = defaultPermissions.begin(); itr != defaultPermissions.end(); ++itr)
+            for (unsigned int defaultPermission : defaultPermissions)
             {
-                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*itr);
+                rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(defaultPermission);
                 handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
             }
         }
@@ -348,9 +348,9 @@ public:
         {
             rbac::RBACPermissionsContainer const& permissions = sAccountMgr->GetRBACPermissionList();
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
-            for (rbac::RBACPermissionsContainer::const_iterator it = permissions.begin(); it != permissions.end(); ++it)
+            for (auto it : permissions)
             {
-                rbac::RBACPermission const* permission = it->second;
+                rbac::RBACPermission const* permission = it.second;
                 handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
             }
         }
@@ -368,8 +368,8 @@ public:
             handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMS_LINKED_HEADER));
             rbac::RBACPermissionContainer const& permissions = permission->GetLinkedPermissions();
-            for (rbac::RBACPermissionContainer::const_iterator it = permissions.begin(); it != permissions.end(); ++it)
-                if (rbac::RBACPermission const* rbacPermission = sAccountMgr->GetRBACPermission(*it))
+            for (unsigned int permission : permissions)
+                if (rbac::RBACPermission const* rbacPermission = sAccountMgr->GetRBACPermission(permission))
                     handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, rbacPermission->GetId(), rbacPermission->GetName().c_str());
         }
 

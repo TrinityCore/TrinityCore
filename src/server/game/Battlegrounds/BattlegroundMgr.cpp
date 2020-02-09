@@ -69,9 +69,9 @@ BattlegroundMgr::~BattlegroundMgr()
 
 void BattlegroundMgr::DeleteAllBattlegrounds()
 {
-    for (BattlegroundDataContainer::iterator itr1 = bgDataStore.begin(); itr1 != bgDataStore.end(); ++itr1)
+    for (auto & itr1 : bgDataStore)
     {
-        BattlegroundData& data = itr1->second;
+        BattlegroundData& data = itr1.second;
 
         while (!data.m_Battlegrounds.empty())
             delete data.m_Battlegrounds.begin()->second;
@@ -96,9 +96,9 @@ void BattlegroundMgr::Update(uint32 diff)
     m_UpdateTimer += diff;
     if (m_UpdateTimer > BATTLEGROUND_OBJECTIVE_UPDATE_INTERVAL)
     {
-        for (BattlegroundDataContainer::iterator itr1 = bgDataStore.begin(); itr1 != bgDataStore.end(); ++itr1)
+        for (auto & itr1 : bgDataStore)
         {
-            BattlegroundContainer& bgs = itr1->second.m_Battlegrounds;
+            BattlegroundContainer& bgs = itr1.second.m_Battlegrounds;
             BattlegroundContainer::iterator itrDelete = bgs.begin();
             // first one is template and should not be deleted
             for (BattlegroundContainer::iterator itr = ++itrDelete; itr != bgs.end();)
@@ -111,7 +111,7 @@ void BattlegroundMgr::Update(uint32 diff)
                 {
                     itrDelete->second = nullptr;
                     bgs.erase(itrDelete);
-                    BattlegroundClientIdsContainer& clients = itr1->second.m_ClientBattlegroundIds[bg->GetBracketId()];
+                    BattlegroundClientIdsContainer& clients = itr1.second.m_ClientBattlegroundIds[bg->GetBracketId()];
                     if (!clients.empty())
                         clients.erase(bg->GetClientInstanceID());
 
@@ -133,13 +133,13 @@ void BattlegroundMgr::Update(uint32 diff)
         std::vector<uint64> scheduled;
         std::swap(scheduled, m_QueueUpdateScheduler);
 
-        for (uint8 i = 0; i < scheduled.size(); i++)
+        for (unsigned long i : scheduled)
         {
-            uint32 arenaMMRating = scheduled[i] >> 32;
-            uint8 arenaType = scheduled[i] >> 24 & 255;
-            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId(scheduled[i] >> 16 & 255);
-            BattlegroundTypeId bgTypeId = BattlegroundTypeId((scheduled[i] >> 8) & 255);
-            BattlegroundBracketId bracket_id = BattlegroundBracketId(scheduled[i] & 255);
+            uint32 arenaMMRating = i >> 32;
+            uint8 arenaType = i >> 24 & 255;
+            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundQueueTypeId(i >> 16 & 255);
+            BattlegroundTypeId bgTypeId = BattlegroundTypeId((i >> 8) & 255);
+            BattlegroundBracketId bracket_id = BattlegroundBracketId(i & 255);
             m_BattlegroundQueues[bgQueueTypeId].BattlegroundQueueUpdate(diff, bgTypeId, bracket_id, arenaType, arenaMMRating > 0, arenaMMRating);
         }
     }
@@ -271,10 +271,10 @@ Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 insta
     if (it == bgDataStore.end())
         return nullptr;
 
-    for (BattlegroundContainer::const_iterator itr = it->second.m_Battlegrounds.begin(); itr != it->second.m_Battlegrounds.end(); ++itr)
+    for (auto m_Battleground : it->second.m_Battlegrounds)
     {
-        if (itr->second->GetClientInstanceID() == instanceId)
-            return itr->second;
+        if (m_Battleground.second->GetClientInstanceID() == instanceId)
+            return m_Battleground.second;
     }
 
     return nullptr;
@@ -686,9 +686,9 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
                 uint32 count = 0;
                 BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
                 BattlegroundClientIdsContainer& clientIds = it->second.m_ClientBattlegroundIds[bracketId];
-                for (BattlegroundClientIdsContainer::const_iterator itr = clientIds.begin(); itr != clientIds.end(); ++itr)
+                for (unsigned int clientId : clientIds)
                 {
-                    *data << uint32(*itr);
+                    *data << uint32(clientId);
                     ++count;
                 }
                 data->put<uint32>(count_pos, count);

@@ -58,10 +58,10 @@ namespace MMAP
     /**************************************************************************/
     MapBuilder::~MapBuilder()
     {
-        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
+        for (auto & m_tile : m_tiles)
         {
-            (*it).m_tiles->clear();
-            delete (*it).m_tiles;
+            m_tile.m_tiles->clear();
+            delete m_tile.m_tiles;
         }
 
         delete m_terrainBuilder;
@@ -77,9 +77,9 @@ namespace MMAP
 
         printf("Discovering maps... ");
         getDirContents(files, "maps");
-        for (uint32 i = 0; i < files.size(); ++i)
+        for (auto & file : files)
         {
-            mapID = uint32(atoi(files[i].substr(0,3).c_str()));
+            mapID = uint32(atoi(file.substr(0,3).c_str()));
             if (std::find(m_tiles.begin(), m_tiles.end(), mapID) == m_tiles.end())
             {
                 m_tiles.emplace_back(MapTiles(mapID, new std::set<uint32>));
@@ -89,9 +89,9 @@ namespace MMAP
 
         files.clear();
         getDirContents(files, "vmaps", "*.vmtree");
-        for (uint32 i = 0; i < files.size(); ++i)
+        for (auto & file : files)
         {
-            mapID = uint32(atoi(files[i].substr(0,3).c_str()));
+            mapID = uint32(atoi(file.substr(0,3).c_str()));
             if (std::find(m_tiles.begin(), m_tiles.end(), mapID) == m_tiles.end())
             {
                 m_tiles.emplace_back(MapTiles(mapID, new std::set<uint32>));
@@ -102,18 +102,18 @@ namespace MMAP
 
         count = 0;
         printf("Discovering tiles... ");
-        for (TileList::iterator itr = m_tiles.begin(); itr != m_tiles.end(); ++itr)
+        for (auto & m_tile : m_tiles)
         {
-            std::set<uint32>* tiles = (*itr).m_tiles;
-            mapID = (*itr).m_mapId;
+            std::set<uint32>* tiles = m_tile.m_tiles;
+            mapID = m_tile.m_mapId;
 
             sprintf(filter, "%03u*.vmtile", mapID);
             files.clear();
             getDirContents(files, "vmaps", filter);
-            for (uint32 i = 0; i < files.size(); ++i)
+            for (auto & file : files)
             {
-                tileX = uint32(atoi(files[i].substr(7,2).c_str()));
-                tileY = uint32(atoi(files[i].substr(4,2).c_str()));
+                tileX = uint32(atoi(file.substr(7,2).c_str()));
+                tileY = uint32(atoi(file.substr(4,2).c_str()));
                 tileID = StaticMapTree::packTileID(tileY, tileX);
 
                 tiles->insert(tileID);
@@ -123,10 +123,10 @@ namespace MMAP
             sprintf(filter, "%03u*", mapID);
             files.clear();
             getDirContents(files, "maps", filter);
-            for (uint32 i = 0; i < files.size(); ++i)
+            for (auto & file : files)
             {
-                tileY = uint32(atoi(files[i].substr(3,2).c_str()));
-                tileX = uint32(atoi(files[i].substr(5,2).c_str()));
+                tileY = uint32(atoi(file.substr(3,2).c_str()));
+                tileX = uint32(atoi(file.substr(5,2).c_str()));
                 tileID = StaticMapTree::packTileID(tileX, tileY);
 
                 if (tiles->insert(tileID).second)
@@ -150,10 +150,10 @@ namespace MMAP
         printf("found %u.\n\n", count);
 
         // Calculate tiles to process in total
-        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
+        for (auto & m_tile : m_tiles)
         {
-            if (!shouldSkipMap(it->m_mapId))
-                m_totalTiles += it->m_tiles->size();
+            if (!shouldSkipMap(m_tile.m_mapId))
+                m_totalTiles += m_tile.m_tiles->size();
         }
     }
 
@@ -200,9 +200,9 @@ namespace MMAP
             return a.m_tiles->size() > b.m_tiles->size();
         });
 
-        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
+        for (auto & m_tile : m_tiles)
         {
-            uint32 mapId = it->m_mapId;
+            uint32 mapId = m_tile.m_mapId;
             if (!shouldSkipMap(mapId))
             {
                 if (threads > 0)
@@ -391,12 +391,12 @@ namespace MMAP
 
             // now start building mmtiles for each tile
             printf("[Map %03i] We have %u tiles.                          \n", mapID, (unsigned int)tiles->size());
-            for (std::set<uint32>::iterator it = tiles->begin(); it != tiles->end(); ++it)
+            for (unsigned int tile : *tiles)
             {
                 uint32 tileX, tileY;
 
                 // unpack tile coords
-                StaticMapTree::unpackTileID((*it), tileX, tileY);
+                StaticMapTree::unpackTileID(tile, tileX, tileY);
 
                 if (!shouldSkipTile(mapID, tileX, tileY))
                     buildTile(mapID, tileX, tileY, navMesh);
@@ -467,9 +467,9 @@ namespace MMAP
         /***          calculate bounds of map         ***/
 
         uint32 tileXMin = 64, tileYMin = 64, tileXMax = 0, tileYMax = 0, tileX, tileY;
-        for (std::set<uint32>::iterator it = tiles->begin(); it != tiles->end(); ++it)
+        for (unsigned int tile : *tiles)
         {
-            StaticMapTree::unpackTileID(*it, tileX, tileY);
+            StaticMapTree::unpackTileID(tile, tileX, tileY);
 
             if (tileX > tileXMax)
                 tileXMax = tileX;

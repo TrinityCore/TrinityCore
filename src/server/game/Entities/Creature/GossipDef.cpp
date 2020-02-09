@@ -197,10 +197,10 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
     data << uint32(titleTextId);
     data << uint32(_gossipMenu.GetMenuItemCount());     // max count 0x10
 
-    for (GossipMenuItemContainer::const_iterator itr = _gossipMenu.GetMenuItems().begin(); itr != _gossipMenu.GetMenuItems().end(); ++itr)
+    for (const auto & itr : _gossipMenu.GetMenuItems())
     {
-        GossipMenuItem const& item = itr->second;
-        data << uint32(itr->first);
+        GossipMenuItem const& item = itr.second;
+        data << uint32(itr.first);
         data << uint8(item.MenuItemIcon);
         data << uint8(item.IsCoded);                    // makes pop up box password
         data << uint32(item.BoxMoney);                  // money required to open menu, 2.0.3
@@ -310,8 +310,8 @@ void QuestMenu::AddMenuItem(uint32 QuestId, uint8 Icon)
 
 bool QuestMenu::HasItem(uint32 questId) const
 {
-    for (QuestMenuItemList::const_iterator i = _questMenuItems.begin(); i != _questMenuItems.end(); ++i)
-        if (i->QuestId == questId)
+    for (auto _questMenuItem : _questMenuItems)
+        if (_questMenuItem.QuestId == questId)
             return true;
 
     return false;
@@ -486,14 +486,14 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     data << uint32(quest->GetRewArenaPoints());             // reward arena points
     data << uint32(0);                                      // unk
 
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << uint32(quest->RewardFactionId[i]);
+    for (unsigned int i : quest->RewardFactionId)
+        data << uint32(i);
 
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewardFactionValueId[i]);
+    for (int i : quest->RewardFactionValueId)
+        data << int32(i);
 
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewardFactionValueIdOverride[i]);
+    for (int i : quest->RewardFactionValueIdOverride)
+        data << int32(i);
 
     data << uint32(QUEST_EMOTE_COUNT);
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
@@ -548,9 +548,9 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->GetSuggestedPlayers());           // SuggestedGroupNum
 
     uint32 emoteCount = 0;
-    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
+    for (unsigned int i : quest->OfferRewardEmote)
     {
-        if (quest->OfferRewardEmote[i] <= 0)
+        if (i <= 0)
             break;
         ++emoteCount;
     }
@@ -600,14 +600,14 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(quest->GetRewArenaPoints());             // arena points
     data << uint32(0);
 
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward factions ids
-        data << uint32(quest->RewardFactionId[i]);
+    for (unsigned int i : quest->RewardFactionId)    // reward factions ids
+        data << uint32(i);
 
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // columnid in QuestFactionReward.dbc (zero based)?
-        data << int32(quest->RewardFactionValueId[i]);
+    for (int i : quest->RewardFactionValueId)    // columnid in QuestFactionReward.dbc (zero based)?
+        data << int32(i);
 
-    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward reputation override?
-        data << uint32(quest->RewardFactionValueIdOverride[i]);
+    for (int i : quest->RewardFactionValueIdOverride)    // reward reputation override?
+        data << uint32(i);
 
     _session->SendPacket(&data);
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPC=%s, questid=%u", npcGUID.ToString().c_str(), quest->GetQuestId());

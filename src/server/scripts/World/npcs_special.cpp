@@ -667,12 +667,12 @@ public:
             switch (me->GetEntry())
             {
                 case DOCTOR_ALLIANCE:
-                    for (uint8 i = 0; i < ALLIANCE_COORDS; ++i)
-                        Coordinates.push_back(&AllianceCoords[i]);
+                    for (const auto & AllianceCoord : AllianceCoords)
+                        Coordinates.push_back(&AllianceCoord);
                     break;
                 case DOCTOR_HORDE:
-                    for (uint8 i = 0; i < HORDE_COORDS; ++i)
-                        Coordinates.push_back(&HordeCoords[i]);
+                    for (const auto & HordeCoord : HordeCoords)
+                        Coordinates.push_back(&HordeCoord);
                     break;
             }
 

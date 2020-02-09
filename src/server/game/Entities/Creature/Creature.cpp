@@ -201,8 +201,8 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
     queryTemp.Stats.EnergyMulti = ModMana;
     queryTemp.Stats.Leader = RacialLeader;
 
-    for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-        queryTemp.Stats.QuestItems[i] = 0;
+    for (unsigned int & QuestItem : queryTemp.Stats.QuestItems)
+        QuestItem = 0;
 
     if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(Entry))
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
@@ -255,8 +255,8 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_grou
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
 
-    for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
-        m_spells[i] = 0;
+    for (unsigned int & m_spell : m_spells)
+        m_spell = 0;
 
     DisableReputationGain = false;
 
@@ -637,8 +637,8 @@ void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
 
     if (Vehicle* vehicle = GetVehicleKit())
     {
-        for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); seat++)
-            if (Unit* passenger = ObjectAccessor::GetUnit(*this, seat->second.Passenger.Guid))
+        for (auto & Seat : vehicle->Seats)
+            if (Unit* passenger = ObjectAccessor::GetUnit(*this, Seat.second.Passenger.Guid))
                 passenger->SetPhaseMask(newPhaseMask, update);
     }
 
@@ -782,9 +782,9 @@ void Creature::Update(uint32 diff)
                 {
                     Map::PlayerList const& players = GetMap()->GetPlayers();
                     if (!players.isEmpty())
-                        for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
+                        for (const auto & it : players)
                         {
-                            if (Player* player = it->GetSource())
+                            if (Player* player = it.GetSource())
                             {
                                 if (player->IsGameMaster())
                                     continue;
@@ -1108,11 +1108,11 @@ Unit* Creature::SelectVictim()
                     target = owner->getAttackerForHelper();
                 if (!target)
                 {
-                    for (ControlList::const_iterator itr = owner->m_Controlled.begin(); itr != owner->m_Controlled.end(); ++itr)
+                    for (auto itr : owner->m_Controlled)
                     {
-                        if ((*itr)->IsInCombat())
+                        if (itr->IsInCombat())
                         {
-                            target = (*itr)->getAttackerForHelper();
+                            target = itr->getAttackerForHelper();
                             if (target)
                                 break;
                         }
@@ -1138,9 +1138,9 @@ Unit* Creature::SelectVictim()
     Unit::AuraEffectList const& iAuras = GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
     if (!iAuras.empty())
     {
-        for (Unit::AuraEffectList::const_iterator itr = iAuras.begin(); itr != iAuras.end(); ++itr)
+        for (auto iAura : iAuras)
         {
-            if ((*itr)->GetBase()->IsPermanent())
+            if (iAura->GetBase()->IsPermanent())
             {
                 AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_OTHER);
                 break;
@@ -2536,21 +2536,21 @@ bool Creature::LoadCreaturesAddon()
 
     if (!cainfo->auras.empty())
     {
-        for (std::vector<uint32>::const_iterator itr = cainfo->auras.begin(); itr != cainfo->auras.end(); ++itr)
+        for (unsigned int aura : cainfo->auras)
         {
-            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(*itr);
+            SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(aura);
             if (!AdditionalSpellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u Entry: %u) has wrong spell %u defined in `auras` field.", GetGUID().GetCounter(), GetEntry(), *itr);
+                TC_LOG_ERROR("sql.sql", "Creature (GUID: %u Entry: %u) has wrong spell %u defined in `auras` field.", GetGUID().GetCounter(), GetEntry(), aura);
                 continue;
             }
 
             // skip already applied aura
-            if (HasAura(*itr))
+            if (HasAura(aura))
                 continue;
 
-            AddAura(*itr, this);
-            TC_LOG_DEBUG("entities.unit", "Spell: %u added to creature (GUID: %u Entry: %u)", *itr, GetGUID().GetCounter(), GetEntry());
+            AddAura(aura, this);
+            TC_LOG_DEBUG("entities.unit", "Spell: %u added to creature (GUID: %u Entry: %u)", aura, GetGUID().GetCounter(), GetEntry());
         }
     }
 

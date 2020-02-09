@@ -536,16 +536,16 @@ void Transport::LoadStaticPassengers()
     {
         CellObjectGuidsMap const& cells = sObjectMgr->GetMapObjectGuids(mapId, GetMap()->GetSpawnMode());
         CellGuidSet::const_iterator guidEnd;
-        for (CellObjectGuidsMap::const_iterator cellItr = cells.begin(); cellItr != cells.end(); ++cellItr)
+        for (const auto & cell : cells)
         {
             // Creatures on transport
-            guidEnd = cellItr->second.creatures.end();
-            for (CellGuidSet::const_iterator guidItr = cellItr->second.creatures.begin(); guidItr != guidEnd; ++guidItr)
+            guidEnd = cell.second.creatures.end();
+            for (CellGuidSet::const_iterator guidItr = cell.second.creatures.begin(); guidItr != guidEnd; ++guidItr)
                 CreateNPCPassenger(*guidItr, sObjectMgr->GetCreatureData(*guidItr));
 
             // GameObjects on transport
-            guidEnd = cellItr->second.gameobjects.end();
-            for (CellGuidSet::const_iterator guidItr = cellItr->second.gameobjects.begin(); guidItr != guidEnd; ++guidItr)
+            guidEnd = cell.second.gameobjects.end();
+            for (CellGuidSet::const_iterator guidItr = cell.second.gameobjects.begin(); guidItr != guidEnd; ++guidItr)
                 CreateGOPassenger(*guidItr, sObjectMgr->GetGameObjectData(*guidItr));
         }
     }
@@ -624,20 +624,20 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
     else
     {
         // Teleport players, they need to know it
-        for (PassengerSet::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
+        for (auto _passenger : _passengers)
         {
-            if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+            if (_passenger->GetTypeId() == TYPEID_PLAYER)
             {
                 // will be relocated in UpdatePosition of the vehicle
-                if (Unit* veh = (*itr)->ToUnit()->GetVehicleBase())
+                if (Unit* veh = _passenger->ToUnit()->GetVehicleBase())
                     if (veh->GetTransport() == this)
                         continue;
 
                 float destX, destY, destZ, destO;
-                (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
+                _passenger->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
                 TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
 
-                (*itr)->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO,
+                _passenger->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO,
                     TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | TELE_TO_TRANSPORT_TELEPORT);
             }
         }
@@ -691,9 +691,8 @@ void Transport::DelayedTeleportTransport()
 
 void Transport::UpdatePassengerPositions(PassengerSet& passengers)
 {
-    for (PassengerSet::iterator itr = passengers.begin(); itr != passengers.end(); ++itr)
+    for (auto passenger : passengers)
     {
-        WorldObject* passenger = *itr;
         // transport teleported but passenger not yet (can happen for players)
         if (passenger->GetMap() != GetMap())
             continue;
@@ -761,8 +760,8 @@ void Transport::BuildUpdate(UpdateDataMapType& data_map)
     if (players.isEmpty())
         return;
 
-    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        BuildFieldsUpdate(itr->GetSource(), data_map);
+    for (const auto & player : players)
+        BuildFieldsUpdate(player.GetSource(), data_map);
 
     ClearUpdateMask(true);
 }

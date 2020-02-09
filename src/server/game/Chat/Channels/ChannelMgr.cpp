@@ -26,11 +26,11 @@
 
 ChannelMgr::~ChannelMgr()
 {
-    for (auto itr = _channels.begin(); itr != _channels.end(); ++itr)
-        delete itr->second;
+    for (auto & _channel : _channels)
+        delete _channel.second;
 
-    for (auto itr = _customChannels.begin(); itr != _customChannels.end(); ++itr)
-        delete itr->second;
+    for (auto & _customChannel : _customChannels)
+        delete _customChannel.second;
 }
 
 /*static*/ void ChannelMgr::LoadFromDB()

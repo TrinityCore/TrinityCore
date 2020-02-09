@@ -1206,9 +1206,9 @@ public:
         bool limitReached = false;
 
         GameTeleContainer const & teleMap = sObjectMgr->GetGameTeleMap();
-        for (GameTeleContainer::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
+        for (const auto & itr : teleMap)
         {
-            GameTele const* tele = &itr->second;
+            GameTele const* tele = &itr.second;
 
             if (tele->wnameLow.find(wNamePart) == std::wstring::npos)
                 continue;
@@ -1220,9 +1220,9 @@ public:
             }
 
             if (handler->GetSession())
-                reply << "  |cffffffff|Htele:" << itr->first << "|h[" << tele->name << "]|h|r\n";
+                reply << "  |cffffffff|Htele:" << itr.first << "|h[" << tele->name << "]|h|r\n";
             else
-                reply << "  " << itr->first << ' ' << tele->name << "\n";
+                reply << "  " << itr.first << ' ' << tele->name << "\n";
         }
 
         if (reply.str().empty())

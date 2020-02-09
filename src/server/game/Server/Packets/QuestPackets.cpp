@@ -75,21 +75,21 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
             _worldPacket << uint32(Info.RewardItems[i]);
             _worldPacket << uint32(Info.RewardAmount[i]);
         }
-        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        for (auto & UnfilteredChoiceItem : Info.UnfilteredChoiceItems)
         {
-            _worldPacket << uint32(Info.UnfilteredChoiceItems[i].ItemID);
-            _worldPacket << uint32(Info.UnfilteredChoiceItems[i].Quantity);
+            _worldPacket << uint32(UnfilteredChoiceItem.ItemID);
+            _worldPacket << uint32(UnfilteredChoiceItem.Quantity);
         }
     }
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // reward factions ids
-        _worldPacket << uint32(Info.RewardFactionID[i]);
+    for (unsigned int i : Info.RewardFactionID)             // reward factions ids
+        _worldPacket << uint32(i);
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // columnid+1 QuestFactionReward.dbc?
-        _worldPacket << int32(Info.RewardFactionValue[i]);
+    for (int i : Info.RewardFactionValue)             // columnid+1 QuestFactionReward.dbc?
+        _worldPacket << int32(i);
 
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)             // unk (0)
-        _worldPacket << int32(Info.RewardFactionValueOverride[i]);
+    for (int i : Info.RewardFactionValueOverride)             // unk (0)
+        _worldPacket << int32(i);
 
     _worldPacket << uint32(Info.POIContinent);
     _worldPacket << float(Info.POIx);
@@ -121,8 +121,8 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
         _worldPacket << uint32(Info.RequiredItemCount[i]);
     }
 
-    for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        _worldPacket << Info.ObjectiveText[i];
+    for (const auto & i : Info.ObjectiveText)
+        _worldPacket << i;
 
     return &_worldPacket;
 }

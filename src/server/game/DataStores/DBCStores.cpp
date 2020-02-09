@@ -513,9 +513,9 @@ void LoadDBCStores(const std::string& dataPath)
         if (newEntry.SpellID[0] <= 0 || newEntry.SpellID[1] <= 0)//id0-1 must be always set!
             continue;
 
-        for (uint8 x = 0; x < MAX_DIFFICULTY; ++x)
-            if (newEntry.SpellID[x])
-                sSpellMgr->SetSpellDifficultyId(uint32(newEntry.SpellID[x]), spellDiff->ID);
+        for (int x : newEntry.SpellID)
+            if (x)
+                sSpellMgr->SetSpellDifficultyId(uint32(x), spellDiff->ID);
     }
 
     // create talent spells set
@@ -584,10 +584,10 @@ void LoadDBCStores(const std::string& dataPath)
             if (src_i != sTaxiPathSetBySource.end() && !src_i->second.empty())
             {
                 bool ok = false;
-                for (TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin(); dest_i != src_i->second.end(); ++dest_i)
+                for (auto dest_i : src_i->second)
                 {
                     // not spell path
-                    if (dest_i->second.price || spellPaths.find(dest_i->second.ID) == spellPaths.end())
+                    if (dest_i.second.price || spellPaths.find(dest_i.second.ID) == spellPaths.end())
                     {
                         ok = true;
                         break;
@@ -632,8 +632,8 @@ void LoadDBCStores(const std::string& dataPath)
     else if (!bad_dbc_files.empty())
     {
         std::string str;
-        for (StoreProblemList::iterator i = bad_dbc_files.begin(); i != bad_dbc_files.end(); ++i)
-            str += *i + "\n";
+        for (auto & bad_dbc_file : bad_dbc_files)
+            str += bad_dbc_file + "\n";
 
         TC_LOG_ERROR("misc", "Some required *.dbc files (%u from %d) not found or not compatible:\n%s", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());
         exit(1);

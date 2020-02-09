@@ -244,9 +244,9 @@ void WardenWin::RequestData()
 
     uint8 index = 1;
 
-    for (std::list<uint16>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
+    for (unsigned short & _currentCheck : _currentChecks)
     {
-        wd = sWardenCheckMgr->GetWardenDataById(*itr);
+        wd = sWardenCheckMgr->GetWardenDataById(_currentCheck);
 
         type = wd->Type;
         buff << uint8(type ^ xorByte);
@@ -316,8 +316,8 @@ void WardenWin::RequestData()
 
     std::stringstream stream;
     stream << "Sent check id's: ";
-    for (std::list<uint16>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
-        stream << *itr << " ";
+    for (unsigned short & _currentCheck : _currentChecks)
+        stream << _currentCheck << " ";
 
     TC_LOG_DEBUG("warden", "%s", stream.str().c_str());
 }
@@ -371,10 +371,10 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
     boost::shared_lock<boost::shared_mutex> lock(sWardenCheckMgr->_checkStoreLock);
 
-    for (std::list<uint16>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
+    for (unsigned short & _currentCheck : _currentChecks)
     {
-        rd = sWardenCheckMgr->GetWardenDataById(*itr);
-        rs = sWardenCheckMgr->GetWardenResultById(*itr);
+        rd = sWardenCheckMgr->GetWardenDataById(_currentCheck);
+        rs = sWardenCheckMgr->GetWardenResultById(_currentCheck);
 
         type = rd->Type;
         switch (type)
@@ -386,21 +386,21 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
                 if (Mem_Result != 0)
                 {
-                    TC_LOG_DEBUG("warden", "RESULT MEM_CHECK not 0x00, CheckId %u account Id %u", *itr, _session->GetAccountId());
-                    checkFailed = *itr;
+                    TC_LOG_DEBUG("warden", "RESULT MEM_CHECK not 0x00, CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
+                    checkFailed = _currentCheck;
                     continue;
                 }
 
                 if (memcmp(buff.contents() + buff.rpos(), rs->Result.AsByteArray(0, false).get(), rd->Length) != 0)
                 {
-                    TC_LOG_DEBUG("warden", "RESULT MEM_CHECK fail CheckId %u account Id %u", *itr, _session->GetAccountId());
-                    checkFailed = *itr;
+                    TC_LOG_DEBUG("warden", "RESULT MEM_CHECK fail CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
+                    checkFailed = _currentCheck;
                     buff.rpos(buff.rpos() + rd->Length);
                     continue;
                 }
 
                 buff.rpos(buff.rpos() + rd->Length);
-                TC_LOG_DEBUG("warden", "RESULT MEM_CHECK passed CheckId %u account Id %u", *itr, _session->GetAccountId());
+                TC_LOG_DEBUG("warden", "RESULT MEM_CHECK passed CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
                 break;
             }
             case PAGE_CHECK_A:
@@ -412,23 +412,23 @@ void WardenWin::HandleData(ByteBuffer &buff)
                 if (memcmp(buff.contents() + buff.rpos(), &byte, sizeof(uint8)) != 0)
                 {
                     if (type == PAGE_CHECK_A || type == PAGE_CHECK_B)
-                        TC_LOG_DEBUG("warden", "RESULT PAGE_CHECK fail, CheckId %u account Id %u", *itr, _session->GetAccountId());
+                        TC_LOG_DEBUG("warden", "RESULT PAGE_CHECK fail, CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
                     if (type == MODULE_CHECK)
-                        TC_LOG_DEBUG("warden", "RESULT MODULE_CHECK fail, CheckId %u account Id %u", *itr, _session->GetAccountId());
+                        TC_LOG_DEBUG("warden", "RESULT MODULE_CHECK fail, CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
                     if (type == DRIVER_CHECK)
-                        TC_LOG_DEBUG("warden", "RESULT DRIVER_CHECK fail, CheckId %u account Id %u", *itr, _session->GetAccountId());
-                    checkFailed = *itr;
+                        TC_LOG_DEBUG("warden", "RESULT DRIVER_CHECK fail, CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
+                    checkFailed = _currentCheck;
                     buff.rpos(buff.rpos() + 1);
                     continue;
                 }
 
                 buff.rpos(buff.rpos() + 1);
                 if (type == PAGE_CHECK_A || type == PAGE_CHECK_B)
-                    TC_LOG_DEBUG("warden", "RESULT PAGE_CHECK passed CheckId %u account Id %u", *itr, _session->GetAccountId());
+                    TC_LOG_DEBUG("warden", "RESULT PAGE_CHECK passed CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
                 else if (type == MODULE_CHECK)
-                    TC_LOG_DEBUG("warden", "RESULT MODULE_CHECK passed CheckId %u account Id %u", *itr, _session->GetAccountId());
+                    TC_LOG_DEBUG("warden", "RESULT MODULE_CHECK passed CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
                 else if (type == DRIVER_CHECK)
-                    TC_LOG_DEBUG("warden", "RESULT DRIVER_CHECK passed CheckId %u account Id %u", *itr, _session->GetAccountId());
+                    TC_LOG_DEBUG("warden", "RESULT DRIVER_CHECK passed CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
                 break;
             }
             case LUA_STR_CHECK:
@@ -438,8 +438,8 @@ void WardenWin::HandleData(ByteBuffer &buff)
 
                 if (Lua_Result != 0)
                 {
-                    TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK fail, CheckId %u account Id %u", *itr, _session->GetAccountId());
-                    checkFailed = *itr;
+                    TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK fail, CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
+                    checkFailed = _currentCheck;
                     continue;
                 }
 
@@ -455,7 +455,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
                     delete[] str;
                 }
                 buff.rpos(buff.rpos() + luaStrLen);         // Skip string
-                TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK passed, CheckId %u account Id %u", *itr, _session->GetAccountId());
+                TC_LOG_DEBUG("warden", "RESULT LUA_STR_CHECK passed, CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
                 break;
             }
             case MPQ_CHECK:
@@ -466,20 +466,20 @@ void WardenWin::HandleData(ByteBuffer &buff)
                 if (Mpq_Result != 0)
                 {
                     TC_LOG_DEBUG("warden", "RESULT MPQ_CHECK not 0x00 account id %u", _session->GetAccountId());
-                    checkFailed = *itr;
+                    checkFailed = _currentCheck;
                     continue;
                 }
 
                 if (memcmp(buff.contents() + buff.rpos(), rs->Result.AsByteArray(0, false).get(), 20) != 0) // SHA1
                 {
-                    TC_LOG_DEBUG("warden", "RESULT MPQ_CHECK fail, CheckId %u account Id %u", *itr, _session->GetAccountId());
-                    checkFailed = *itr;
+                    TC_LOG_DEBUG("warden", "RESULT MPQ_CHECK fail, CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
+                    checkFailed = _currentCheck;
                     buff.rpos(buff.rpos() + 20);            // 20 bytes SHA1
                     continue;
                 }
 
                 buff.rpos(buff.rpos() + 20);                // 20 bytes SHA1
-                TC_LOG_DEBUG("warden", "RESULT MPQ_CHECK passed, CheckId %u account Id %u", *itr, _session->GetAccountId());
+                TC_LOG_DEBUG("warden", "RESULT MPQ_CHECK passed, CheckId %u account Id %u", _currentCheck, _session->GetAccountId());
                 break;
             }
             default:                                        // Should never happen

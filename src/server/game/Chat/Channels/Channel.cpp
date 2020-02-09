@@ -116,8 +116,8 @@ void Channel::UpdateChannelInDB()
     if (_isDirty)
     {
         std::ostringstream banlist;
-        for (BannedContainer::const_iterator iter = _bannedStore.begin(); iter != _bannedStore.end(); ++iter)
-            banlist << iter->GetRawValue() << ' ';
+        for (auto iter : _bannedStore)
+            banlist << iter.GetRawValue() << ' ';
 
         std::string banListStr = banlist.str();
 
@@ -616,9 +616,9 @@ void Channel::List(Player const* player) const
     uint32 gmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
     uint32 count  = 0;
-    for (PlayerContainer::const_iterator i = _playersStore.begin(); i != _playersStore.end(); ++i)
+    for (auto i : _playersStore)
     {
-        Player* member = ObjectAccessor::FindConnectedPlayer(i->first);
+        Player* member = ObjectAccessor::FindConnectedPlayer(i.first);
 
         // PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
         // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
@@ -627,8 +627,8 @@ void Channel::List(Player const* player) const
              member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
             member->IsVisibleGloballyFor(player))
         {
-            data << uint64(i->first);
-            data << uint8(i->second.flags);             // flags seems to be changed...
+            data << uint64(i.first);
+            data << uint8(i.second.flags);             // flags seems to be changed...
             ++count;
         }
     }
@@ -863,8 +863,8 @@ void Channel::SendToAll(Builder& builder, ObjectGuid guid /*= ObjectGuid::Empty*
 {
     Trinity::LocalizedPacketDo<Builder> localizer(builder);
 
-    for (PlayerContainer::const_iterator i = _playersStore.begin(); i != _playersStore.end(); ++i)
-        if (Player* player = ObjectAccessor::FindConnectedPlayer(i->first))
+    for (auto i : _playersStore)
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(i.first))
             if (!guid || !player->GetSocial()->HasIgnore(guid))
                 localizer(player);
 }
@@ -874,9 +874,9 @@ void Channel::SendToAllButOne(Builder& builder, ObjectGuid who) const
 {
     Trinity::LocalizedPacketDo<Builder> localizer(builder);
 
-    for (PlayerContainer::const_iterator i = _playersStore.begin(); i != _playersStore.end(); ++i)
-        if (i->first != who)
-            if (Player* player = ObjectAccessor::FindConnectedPlayer(i->first))
+    for (auto i : _playersStore)
+        if (i.first != who)
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(i.first))
                 localizer(player);
 }
 

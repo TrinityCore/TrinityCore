@@ -1940,8 +1940,8 @@ void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= null
     if (!data)
         return;
 
-    for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
-        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, nullptr, itr->time))
+    for (const auto & itr : *data)
+        if (TempSummon* summon = SummonCreature(itr.entry, itr.pos, nullptr, itr.time))
             if (list)
                 list->push_back(summon);
 }
@@ -2068,8 +2068,8 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
         return;
     }
 
-    for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
-        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->type, itr->time))
+    for (const auto & itr : *data)
+        if (TempSummon* summon = SummonCreature(itr.entry, itr.pos, itr.type, itr.time))
             if (list)
                 list->push_back(summon);
 }
@@ -2467,9 +2467,9 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     if (!spellInfo->IsPositive() && !spellInfo->HasAttribute(SPELL_ATTR4_IGNORE_RESISTANCES))
     {
         bool hasAura = false;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (const auto & Effect : spellInfo->Effects)
         {
-            if (spellInfo->Effects[i].IsAura())
+            if (Effect.IsAura())
             {
                 hasAura = true;
                 break;
@@ -3410,9 +3410,9 @@ struct WorldObjectChangeAccumulator
     void Visit(PlayerMapType &m)
     {
         Player* source = nullptr;
-        for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        for (auto & iter : m)
         {
-            source = iter->GetSource();
+            source = iter.GetSource();
 
             BuildPacket(source);
 
@@ -3428,9 +3428,9 @@ struct WorldObjectChangeAccumulator
     void Visit(CreatureMapType &m)
     {
         Creature* source = nullptr;
-        for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        for (auto & iter : m)
         {
-            source = iter->GetSource();
+            source = iter.GetSource();
             if (!source->GetSharedVisionList().empty())
             {
                 SharedVisionList::const_iterator it = source->GetSharedVisionList().begin();
@@ -3443,9 +3443,9 @@ struct WorldObjectChangeAccumulator
     void Visit(DynamicObjectMapType &m)
     {
         DynamicObject* source = nullptr;
-        for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        for (auto & iter : m)
         {
-            source = iter->GetSource();
+            source = iter.GetSource();
             ObjectGuid guid = source->GetCasterGUID();
 
             if (guid.IsPlayer())

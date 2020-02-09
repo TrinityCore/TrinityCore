@@ -538,9 +538,9 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
     else
     {
         Creature* creatureOwner = _owner->ToCreature();
-        for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
-            if (creatureOwner->m_spells[i])
-                knownSpells.insert(creatureOwner->m_spells[i]);
+        for (unsigned int m_spell : creatureOwner->m_spells)
+            if (m_spell)
+                knownSpells.insert(m_spell);
     }
 
     PacketCooldowns cooldowns;
@@ -651,13 +651,13 @@ void SpellHistory::GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemI
     {
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId))
         {
-            for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
+            for (const auto & Spell : proto->Spells)
             {
-                if (uint32(proto->Spells[idx].SpellId) == spellInfo->Id)
+                if (uint32(Spell.SpellId) == spellInfo->Id)
                 {
-                    tmpCooldown = proto->Spells[idx].SpellCooldown;
-                    tmpCategoryId = proto->Spells[idx].SpellCategory;
-                    tmpCategoryCooldown = proto->Spells[idx].SpellCategoryCooldown;
+                    tmpCooldown = Spell.SpellCooldown;
+                    tmpCategoryId = Spell.SpellCategory;
+                    tmpCategoryCooldown = Spell.SpellCategoryCooldown;
                     break;
                 }
             }
@@ -691,35 +691,35 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
     if (Player* player = _owner->ToPlayer())
     {
         // add all profession CDs created while in duel (if any)
-        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
+        for (auto & _spellCooldown : _spellCooldowns)
         {
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(_spellCooldown.first);
 
             if (spellInfo->RecoveryTime > 10 * MINUTE * IN_MILLISECONDS ||
                 spellInfo->CategoryRecoveryTime > 10 * MINUTE * IN_MILLISECONDS)
-                _spellCooldownsBeforeDuel[itr->first] = _spellCooldowns[itr->first];
+                _spellCooldownsBeforeDuel[_spellCooldown.first] = _spellCooldowns[_spellCooldown.first];
         }
 
         // check for spell with onHold active before and during the duel
-        for (auto itr = _spellCooldownsBeforeDuel.begin(); itr != _spellCooldownsBeforeDuel.end(); ++itr)
+        for (auto & itr : _spellCooldownsBeforeDuel)
         {
-            if (!itr->second.OnHold && !_spellCooldowns[itr->first].OnHold)
-                _spellCooldowns[itr->first] = _spellCooldownsBeforeDuel[itr->first];
+            if (!itr.second.OnHold && !_spellCooldowns[itr.first].OnHold)
+                _spellCooldowns[itr.first] = _spellCooldownsBeforeDuel[itr.first];
         }
 
         // update the client: restore old cooldowns
         PacketCooldowns cooldowns;
 
-        for (auto itr = _spellCooldowns.begin(); itr != _spellCooldowns.end(); ++itr)
+        for (auto & _spellCooldown : _spellCooldowns)
         {
             Clock::time_point now = GameTime::GetGameTimeSystemPoint();
-            uint32 cooldownDuration = itr->second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.CooldownEnd - now).count() : 0;
+            uint32 cooldownDuration = _spellCooldown.second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(_spellCooldown.second.CooldownEnd - now).count() : 0;
 
             // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs
-            if (cooldownDuration <= 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS || itr->second.OnHold)
+            if (cooldownDuration <= 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS || _spellCooldown.second.OnHold)
                 continue;
 
-            cooldowns[itr->first] = cooldownDuration;
+            cooldowns[_spellCooldown.first] = cooldownDuration;
         }
 
         WorldPacket data;

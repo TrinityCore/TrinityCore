@@ -432,9 +432,9 @@ public:
 
         Tokenizer entries(std::string(args), ' ');
 
-        for (Tokenizer::const_iterator itr = entries.begin(); itr != entries.end(); ++itr)
+        for (auto entrie : entries)
         {
-            uint32 entry = uint32(atoi(*itr));
+            uint32 entry = uint32(atoi(entrie));
 
             PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
             stmt->setUInt32(0, entry);

@@ -46,8 +46,8 @@ AuctionHouseMgr::AuctionHouseMgr() { }
 
 AuctionHouseMgr::~AuctionHouseMgr()
 {
-    for (ItemMap::iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
-        delete itr->second;
+    for (auto & mAitem : mAitems)
+        delete mAitem.second;
 }
 
 AuctionHouseMgr* AuctionHouseMgr::instance()
@@ -300,8 +300,8 @@ void AuctionHouseMgr::LoadAuctionItems()
     // need to clear in case we are reloading
     if (!mAitems.empty())
     {
-        for (ItemMap::iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
-            delete itr->second;
+        for (auto & mAitem : mAitems)
+            delete mAitem.second;
 
         mAitems.clear();
     }

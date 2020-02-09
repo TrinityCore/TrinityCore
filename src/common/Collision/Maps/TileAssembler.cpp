@@ -185,21 +185,21 @@ namespace VMAP
         exportGameobjectModels();
         // export objects
         std::cout << "\nConverting Model Files" << std::endl;
-        for (std::set<std::string>::iterator mfile = spawnedModelFiles.begin(); mfile != spawnedModelFiles.end(); ++mfile)
+        for (const auto & spawnedModelFile : spawnedModelFiles)
         {
-            std::cout << "Converting " << *mfile << std::endl;
-            if (!convertRawFile(*mfile))
+            std::cout << "Converting " << spawnedModelFile << std::endl;
+            if (!convertRawFile(spawnedModelFile))
             {
-                std::cout << "error converting " << *mfile << std::endl;
+                std::cout << "error converting " << spawnedModelFile << std::endl;
                 success = false;
                 break;
             }
         }
 
         //cleanup:
-        for (MapData::iterator map_iter = mapData.begin(); map_iter != mapData.end(); ++map_iter)
+        for (auto & map_iter : mapData)
         {
-            delete map_iter->second;
+            delete map_iter.second;
         }
         return success;
     }
@@ -393,9 +393,9 @@ namespace VMAP
             spawnedModelFiles.insert(model_name);
             AABox bounds;
             bool boundEmpty = true;
-            for (uint32 g = 0; g < raw_model.groupsArray.size(); ++g)
+            for (auto & g : raw_model.groupsArray)
             {
-                std::vector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
+                std::vector<Vector3>& vertices = g.vertexArray;
 
                 uint32 nvectors = vertices.size();
                 for (uint32 i = 0; i < nvectors; ++i)

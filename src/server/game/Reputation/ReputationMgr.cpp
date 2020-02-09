@@ -199,15 +199,15 @@ void ReputationMgr::SendState(FactionState const* faction)
         data << uint32(faction->Standing);
     }
 
-    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
+    for (auto & _faction : _factions)
     {
-        if (itr->second.needSend)
+        if (_faction.second.needSend)
         {
-            itr->second.needSend = false;
-            if (!faction || itr->second.ReputationListID != faction->ReputationListID)
+            _faction.second.needSend = false;
+            if (!faction || _faction.second.ReputationListID != faction->ReputationListID)
             {
-                data << uint32(itr->second.ReputationListID);
-                data << uint32(itr->second.Standing);
+                data << uint32(_faction.second.ReputationListID);
+                data << uint32(_faction.second.Standing);
                 ++count;
             }
         }
@@ -225,20 +225,20 @@ void ReputationMgr::SendInitialReputations()
 
     RepListID a = 0;
 
-    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
+    for (auto & _faction : _factions)
     {
         // fill in absent fields
-        for (; a != itr->first; ++a)
+        for (; a != _faction.first; ++a)
         {
             data << uint8(0);
             data << uint32(0);
         }
 
         // fill in encountered data
-        data << uint8(itr->second.Flags);
-        data << uint32(itr->second.Standing);
+        data << uint8(_faction.second.Flags);
+        data << uint32(_faction.second.Standing);
 
-        itr->second.needSend = false;
+        _faction.second.needSend = false;
 
         ++a;
     }
@@ -343,9 +343,9 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
         if (flist)
         {
             // Spillover to affiliated factions
-            for (SimpleFactionsList::const_iterator itr = flist->begin(); itr != flist->end(); ++itr)
+            for (unsigned int itr : *flist)
             {
-                if (FactionEntry const* factionEntryCalc = sFactionStore.LookupEntry(*itr))
+                if (FactionEntry const* factionEntryCalc = sFactionStore.LookupEntry(itr))
                 {
                     if (factionEntryCalc == factionEntry || GetRank(factionEntryCalc) > ReputationRank(factionEntryCalc->spilloverMaxRankIn))
                         continue;
@@ -584,23 +584,23 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
 
 void ReputationMgr::SaveToDB(SQLTransaction& trans)
 {
-    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
+    for (auto & _faction : _factions)
     {
-        if (itr->second.needSave)
+        if (_faction.second.needSave)
         {
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_REPUTATION_BY_FACTION);
             stmt->setUInt32(0, _player->GetGUID().GetCounter());
-            stmt->setUInt16(1, uint16(itr->second.ID));
+            stmt->setUInt16(1, uint16(_faction.second.ID));
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_REPUTATION_BY_FACTION);
             stmt->setUInt32(0, _player->GetGUID().GetCounter());
-            stmt->setUInt16(1, uint16(itr->second.ID));
-            stmt->setInt32(2, itr->second.Standing);
-            stmt->setUInt16(3, uint16(itr->second.Flags));
+            stmt->setUInt16(1, uint16(_faction.second.ID));
+            stmt->setInt32(2, _faction.second.Standing);
+            stmt->setUInt16(3, uint16(_faction.second.Flags));
             trans->Append(stmt);
 
-            itr->second.needSave = false;
+            _faction.second.needSave = false;
         }
     }
 }

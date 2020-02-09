@@ -126,8 +126,8 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
     std::vector<KeyFrame>& keyFrames = transport->keyFrames;
     Movement::PointsArray splinePath, allPoints;
     bool mapChange = false;
-    for (size_t i = 0; i < path.size(); ++i)
-        allPoints.push_back(G3D::Vector3(path[i]->LocX, path[i]->LocY, path[i]->LocZ));
+    for (auto i : path)
+        allPoints.push_back(G3D::Vector3(i->LocX, i->LocY, i->LocZ));
 
     // Add extra points to allow derivative calculations for all path nodes
     allPoints.insert(allPoints.begin(), allPoints.front().lerp(allPoints[1], -0.2f));
@@ -184,8 +184,8 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
 
     if (transport->mapsUsed.size() > 1)
     {
-        for (std::set<uint32>::const_iterator itr = transport->mapsUsed.begin(); itr != transport->mapsUsed.end(); ++itr)
-            ASSERT(!sMapStore.LookupEntry(*itr)->Instanceable());
+        for (unsigned int itr : transport->mapsUsed)
+            ASSERT(!sMapStore.LookupEntry(itr)->Instanceable());
 
         transport->inInstance = false;
     }
@@ -283,32 +283,32 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
             tmpDist = 0.0f;
     }
 
-    for (size_t i = 0; i < keyFrames.size(); ++i)
+    for (auto & keyFrame : keyFrames)
     {
-        float total_dist = keyFrames[i].DistSinceStop + keyFrames[i].DistUntilStop;
+        float total_dist = keyFrame.DistSinceStop + keyFrame.DistUntilStop;
         if (total_dist < 2 * accel_dist) // won't reach full speed
         {
-            if (keyFrames[i].DistSinceStop < keyFrames[i].DistUntilStop) // is still accelerating
+            if (keyFrame.DistSinceStop < keyFrame.DistUntilStop) // is still accelerating
             {
                 // calculate accel+brake time for this short segment
-                float segment_time = 2.0f * std::sqrt((keyFrames[i].DistUntilStop + keyFrames[i].DistSinceStop) / accel);
+                float segment_time = 2.0f * std::sqrt((keyFrame.DistUntilStop + keyFrame.DistSinceStop) / accel);
                 // substract acceleration time
-                keyFrames[i].TimeTo = segment_time - std::sqrt(2 * keyFrames[i].DistSinceStop / accel);
+                keyFrame.TimeTo = segment_time - std::sqrt(2 * keyFrame.DistSinceStop / accel);
             }
             else // slowing down
-                keyFrames[i].TimeTo = std::sqrt(2 * keyFrames[i].DistUntilStop / accel);
+                keyFrame.TimeTo = std::sqrt(2 * keyFrame.DistUntilStop / accel);
         }
-        else if (keyFrames[i].DistSinceStop < accel_dist) // still accelerating (but will reach full speed)
+        else if (keyFrame.DistSinceStop < accel_dist) // still accelerating (but will reach full speed)
         {
             // calculate accel + cruise + brake time for this long segment
-            float segment_time = (keyFrames[i].DistUntilStop + keyFrames[i].DistSinceStop) / speed + (speed / accel);
+            float segment_time = (keyFrame.DistUntilStop + keyFrame.DistSinceStop) / speed + (speed / accel);
             // substract acceleration time
-            keyFrames[i].TimeTo = segment_time - std::sqrt(2 * keyFrames[i].DistSinceStop / accel);
+            keyFrame.TimeTo = segment_time - std::sqrt(2 * keyFrame.DistSinceStop / accel);
         }
-        else if (keyFrames[i].DistUntilStop < accel_dist) // already slowing down (but reached full speed)
-            keyFrames[i].TimeTo = std::sqrt(2 * keyFrames[i].DistUntilStop / accel);
+        else if (keyFrame.DistUntilStop < accel_dist) // already slowing down (but reached full speed)
+            keyFrame.TimeTo = std::sqrt(2 * keyFrame.DistUntilStop / accel);
         else // at full speed
-            keyFrames[i].TimeTo = (keyFrames[i].DistUntilStop / speed) + (0.5f * speed / accel);
+            keyFrame.TimeTo = (keyFrame.DistUntilStop / speed) + (0.5f * speed / accel);
     }
 
     // calculate tFrom times from tTo times
@@ -463,8 +463,8 @@ void TransportMgr::CreateInstanceTransports(Map* map)
         return;
 
     // create transports
-    for (std::set<uint32>::const_iterator itr = mapTransports->second.begin(); itr != mapTransports->second.end(); ++itr)
-        CreateTransport(*itr, 0, map);
+    for (unsigned int itr : mapTransports->second)
+        CreateTransport(itr, 0, map);
 }
 
 TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const

@@ -39,9 +39,9 @@ void MapInstanced::InitVisibilityDistance()
     if (m_InstancedMaps.empty())
         return;
     //initialize visibility distances for all instance copies
-    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
+    for (auto & m_InstancedMap : m_InstancedMaps)
     {
-        (*i).second->InitVisibilityDistance();
+        m_InstancedMap.second->InitVisibilityDistance();
     }
 }
 
@@ -76,8 +76,8 @@ void MapInstanced::Update(uint32 t)
 
 void MapInstanced::DelayedUpdate(uint32 diff)
 {
-    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-        i->second->DelayedUpdate(diff);
+    for (auto & m_InstancedMap : m_InstancedMaps)
+        m_InstancedMap.second->DelayedUpdate(diff);
 
     Map::DelayedUpdate(diff); // this may be removed
 }
@@ -93,12 +93,12 @@ void MapInstanced::RelocationNotify()
 void MapInstanced::UnloadAll()
 {
     // Unload instanced maps
-    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-        i->second->UnloadAll();
+    for (auto & m_InstancedMap : m_InstancedMaps)
+        m_InstancedMap.second->UnloadAll();
 
     // Delete the maps only after everything is unloaded to prevent crashes
-    for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
-        delete i->second;
+    for (auto & m_InstancedMap : m_InstancedMaps)
+        delete m_InstancedMap.second;
 
     m_InstancedMaps.clear();
 

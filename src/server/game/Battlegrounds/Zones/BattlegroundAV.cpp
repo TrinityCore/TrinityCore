@@ -1512,8 +1512,8 @@ bool BattlegroundAV::CheckAchievementCriteriaMeet(uint32 criteriaId, Player cons
     switch (criteriaId)
     {
         case BG_CRITERIA_CHECK_EVERYTHING_COUNTS:
-            for (uint8 mine = 0; mine < 2; mine++)
-                if (m_Mine_Owner[mine] != team)
+            for (unsigned int mine : m_Mine_Owner)
+                if (mine != team)
                     return false;
 
             return true;

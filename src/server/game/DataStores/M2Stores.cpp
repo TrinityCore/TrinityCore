@@ -136,13 +136,13 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
                 // Pre-load first item
                 lastTarget = targetcam[0];
                 nextTarget = targetcam[0];
-                for (uint32 j = 0; j < targetcam.size(); ++j)
+                for (auto & j : targetcam)
                 {
-                    nextTarget = targetcam[j];
-                    if (targetcam[j].timeStamp > posTimestamps[i])
+                    nextTarget = j;
+                    if (j.timeStamp > posTimestamps[i])
                         break;
 
-                    lastTarget = targetcam[j];
+                    lastTarget = j;
                 }
 
                 float x, y, z;

@@ -163,9 +163,9 @@ bool Player::UpdateStats(Stats stat)
     // Update ratings in exist SPELL_AURA_MOD_RATING_FROM_STAT and only depends from stat
     uint32 mask = 0;
     AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
-    for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if (Stats((*i)->GetMiscValueB()) == stat)
-            mask |= (*i)->GetMiscValue();
+    for (auto i : modRatingFromStat)
+        if (Stats(i->GetMiscValueB()) == stat)
+            mask |= i->GetMiscValue();
     if (mask)
     {
         for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
@@ -268,10 +268,10 @@ void Player::UpdateArmor()
 
     //add dynamic flat mods
     AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
-    for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
+    for (auto i : mResbyIntellect)
     {
-        if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-            value += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
+        if (i->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+            value += CalculatePct(GetStat(Stats(i->GetMiscValueB())), i->GetAmount());
     }
 
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
@@ -922,8 +922,8 @@ void Player::UpdateManaRegen()
 
     // Get bonus from SPELL_AURA_MOD_MANA_REGEN_FROM_STAT aura
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_MANA_REGEN_FROM_STAT);
-    for (AuraEffectList::const_iterator i = regenAura.begin(); i != regenAura.end(); ++i)
-        power_regen_mp5 += GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 500.0f;
+    for (auto i : regenAura)
+        power_regen_mp5 += GetStat(Stats(i->GetMiscValue())) * i->GetAmount() / 500.0f;
 
     // Set regen rate in cast state apply only on spirit based regen
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
@@ -1496,14 +1496,14 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 
     /// @todo: remove this
     Unit::AuraEffectList const& mDummy = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACKSPEED);
-    for (Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
+    for (auto itr : mDummy)
     {
-        switch ((*itr)->GetSpellInfo()->Id)
+        switch (itr->GetSpellInfo()->Id)
         {
             case 61682:
             case 61683:
-                AddPct(mindamage, -(*itr)->GetAmount());
-                AddPct(maxdamage, -(*itr)->GetAmount());
+                AddPct(mindamage, -itr->GetAmount());
+                AddPct(maxdamage, -itr->GetAmount());
                 break;
             default:
                 break;

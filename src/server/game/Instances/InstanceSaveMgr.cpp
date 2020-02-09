@@ -49,9 +49,9 @@ InstanceSaveManager* InstanceSaveManager::instance()
 void InstanceSaveManager::Unload()
 {
     lock_instLists = true;
-    for (InstanceSaveHashMap::iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
+    for (auto & itr : m_instanceSaveById)
     {
-        InstanceSave* save = itr->second;
+        InstanceSave* save = itr.second;
 
         for (InstanceSave::PlayerListType::iterator itr2 = save->m_playerList.begin(), next = itr2; itr2 != save->m_playerList.end(); itr2 = next)
         {
@@ -339,9 +339,9 @@ void InstanceSaveManager::LoadResetTimes()
         while (result->NextRow());
 
         // schedule the reset times
-        for (InstResetTimeMapDiffType::iterator itr = instResetTime.begin(); itr != instResetTime.end(); ++itr)
-            if (itr->second.second > now)
-                ScheduleReset(true, itr->second.second, InstResetEvent(0, PAIR32_LOPART(itr->second.first), Difficulty(PAIR32_HIPART(itr->second.first)), itr->first));
+        for (auto & itr : instResetTime)
+            if (itr.second.second > now)
+                ScheduleReset(true, itr.second.second, InstResetEvent(0, PAIR32_LOPART(itr.second.first), Difficulty(PAIR32_HIPART(itr.second.first)), itr.first));
     }
 
     // load the global respawn times for raid/heroic instances
@@ -719,8 +719,8 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
 uint32 InstanceSaveManager::GetNumBoundPlayersTotal() const
 {
     uint32 ret = 0;
-    for (InstanceSaveHashMap::const_iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
-        ret += itr->second->GetPlayerCount();
+    for (auto itr : m_instanceSaveById)
+        ret += itr.second->GetPlayerCount();
 
     return ret;
 }
@@ -728,8 +728,8 @@ uint32 InstanceSaveManager::GetNumBoundPlayersTotal() const
 uint32 InstanceSaveManager::GetNumBoundGroupsTotal() const
 {
     uint32 ret = 0;
-    for (InstanceSaveHashMap::const_iterator itr = m_instanceSaveById.begin(); itr != m_instanceSaveById.end(); ++itr)
-        ret += itr->second->GetGroupCount();
+    for (auto itr : m_instanceSaveById)
+        ret += itr.second->GetGroupCount();
 
     return ret;
 }

@@ -55,11 +55,11 @@ void AddItemsSetItem(Player* player, Item* item)
 
     ItemSetEffect* eff = nullptr;
 
-    for (size_t x = 0; x < player->ItemSetEff.size(); ++x)
+    for (auto & x : player->ItemSetEff)
     {
-        if (player->ItemSetEff[x] && player->ItemSetEff[x]->setid == setid)
+        if (x && x->setid == setid)
         {
-            eff = player->ItemSetEff[x];
+            eff = x;
             break;
         }
     }
@@ -99,9 +99,9 @@ void AddItemsSetItem(Player* player, Item* item)
             continue;
 
         //new spell
-        for (uint32 y = 0; y < MAX_ITEM_SET_SPELLS; ++y)
+        for (auto & spell : eff->spells)
         {
-            if (!eff->spells[y])                             // free slot
+            if (!spell)                             // free slot
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
                 if (!spellInfo)
@@ -112,7 +112,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
                 // spell cast only if fit form requirement, in other case will cast at form change
                 player->ApplyEquipSpell(spellInfo, nullptr, true);
-                eff->spells[y] = spellInfo;
+                spell = spellInfo;
                 break;
             }
         }
@@ -157,13 +157,13 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
         if (set->items_to_triggerspell[x] <= eff->item_count)
             continue;
 
-        for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; z++)
+        for (auto & spell : eff->spells)
         {
-            if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
+            if (spell && spell->Id == set->spells[x])
             {
                 // spell can be not active if not fit form requirement
-                player->ApplyEquipSpell(eff->spells[z], nullptr, false);
-                eff->spells[z]=nullptr;
+                player->ApplyEquipSpell(spell, nullptr, false);
+                spell=nullptr;
                 break;
             }
         }

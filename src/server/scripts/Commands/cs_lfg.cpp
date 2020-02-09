@@ -117,10 +117,10 @@ public:
 
         Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
 
-        for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+        for (const auto & member : members)
         {
-            Group::MemberSlot const& slot = *itr;
-            Player* p = ObjectAccessor::FindPlayer((*itr).guid);
+            Group::MemberSlot const& slot = member;
+            Player* p = ObjectAccessor::FindPlayer(member.guid);
             if (p)
                 GetPlayerInfo(handler, p);
             else

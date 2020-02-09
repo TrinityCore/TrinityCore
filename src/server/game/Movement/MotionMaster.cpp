@@ -146,9 +146,8 @@ std::vector<MovementGeneratorInformation> MotionMaster::GetMovementGeneratorsInf
     if (_defaultGenerator)
         list.emplace_back(_defaultGenerator->GetMovementGeneratorType(), ObjectGuid::Empty, std::string());
 
-    for (auto itr = _generators.begin(); itr != _generators.end(); ++itr)
+    for (auto movement : _generators)
     {
-        MovementGenerator* movement = *itr;
         MovementGeneratorType const type = movement->GetMovementGeneratorType();
         switch (type)
         {
@@ -1220,8 +1219,8 @@ void MotionMaster::ClearBaseUnitState(MovementGenerator const* movement)
 void MotionMaster::ClearBaseUnitStates()
 {
     uint32 unitState = 0;
-    for (auto itr = _baseUnitStatesMap.begin(); itr != _baseUnitStatesMap.end(); ++itr)
-        unitState |= itr->first;
+    for (auto & itr : _baseUnitStatesMap)
+        unitState |= itr.first;
 
     _owner->ClearUnitState(unitState);
     _baseUnitStatesMap.clear();

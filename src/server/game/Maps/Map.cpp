@@ -687,15 +687,15 @@ bool Map::AddToMap(Transport* obj)
     // Broadcast creation to players
     if (!GetPlayers().isEmpty())
     {
-        for (Map::PlayerList::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        for (const auto & itr : GetPlayers())
         {
-            if (itr->GetSource()->GetTransport() != obj)
+            if (itr.GetSource()->GetTransport() != obj)
             {
                 UpdateData data;
-                obj->BuildCreateUpdateBlockForPlayer(&data, itr->GetSource());
+                obj->BuildCreateUpdateBlockForPlayer(&data, itr.GetSource());
                 WorldPacket packet;
                 data.BuildPacket(&packet);
-                itr->GetSource()->SendDirectMessage(&packet);
+                itr.GetSource()->SendDirectMessage(&packet);
             }
         }
     }
@@ -1026,9 +1026,9 @@ void Map::RemoveFromMap(Transport* obj, bool remove)
         obj->BuildOutOfRangeUpdateBlock(&data);
         WorldPacket packet;
         data.BuildPacket(&packet);
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        if (itr->GetSource()->GetTransport() != obj)
-            itr->GetSource()->SendDirectMessage(&packet);
+        for (const auto & player : players)
+        if (player.GetSource()->GetTransport() != obj)
+            player.GetSource()->SendDirectMessage(&packet);
     }
 
     if (_transportsUpdateIter != _transports.end())
@@ -1235,9 +1235,8 @@ void Map::RemoveDynamicObjectFromMoveList(DynamicObject* dynObj)
 void Map::MoveAllCreaturesInMoveList()
 {
     _creatureToMoveLock = true;
-    for (std::vector<Creature*>::iterator itr = _creaturesToMove.begin(); itr != _creaturesToMove.end(); ++itr)
+    for (auto c : _creaturesToMove)
     {
-        Creature* c = *itr;
         if (c->FindMap() != this) //pet is teleported to another map
             continue;
 
@@ -1292,9 +1291,8 @@ void Map::MoveAllCreaturesInMoveList()
 void Map::MoveAllGameObjectsInMoveList()
 {
     _gameObjectsToMoveLock = true;
-    for (std::vector<GameObject*>::iterator itr = _gameObjectsToMove.begin(); itr != _gameObjectsToMove.end(); ++itr)
+    for (auto go : _gameObjectsToMove)
     {
-        GameObject* go = *itr;
         if (go->FindMap() != this) //transport is teleported to another map
             continue;
 
@@ -1338,9 +1336,8 @@ void Map::MoveAllGameObjectsInMoveList()
 void Map::MoveAllDynamicObjectsInMoveList()
 {
     _dynamicObjectsToMoveLock = true;
-    for (std::vector<DynamicObject*>::iterator itr = _dynamicObjectsToMove.begin(); itr != _dynamicObjectsToMove.end(); ++itr)
+    for (auto dynObj : _dynamicObjectsToMove)
     {
-        DynamicObject* dynObj = *itr;
         if (dynObj->FindMap() != this) //transport is teleported to another map
             continue;
 
@@ -1700,9 +1697,9 @@ void Map::RemoveAllPlayers()
 {
     if (HavePlayers())
     {
-        for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+        for (auto & itr : m_mapRefManager)
         {
-            Player* player = itr->GetSource();
+            Player* player = itr.GetSource();
             if (!player->IsBeingTeleportedFar())
             {
                 // this is happening for bg
@@ -2866,9 +2863,9 @@ void Map::SendInitSelf(Player* player)
 
     // build other passengers at transport also (they always visible and marked as visible and will not send at visibility update at add to map
     if (Transport* transport = player->GetTransport())
-        for (Transport::PassengerSet::const_iterator itr = transport->GetPassengers().begin(); itr != transport->GetPassengers().end(); ++itr)
-            if (player != (*itr) && player->HaveAtClient(*itr))
-                (*itr)->BuildCreateUpdateBlockForPlayer(&data, player);
+        for (auto itr : transport->GetPassengers())
+            if (player != itr && player->HaveAtClient(itr))
+                itr->BuildCreateUpdateBlockForPlayer(&data, player);
 
     WorldPacket packet;
     data.BuildPacket(&packet);
@@ -2879,9 +2876,9 @@ void Map::SendInitTransports(Player* player)
 {
     // Hack to send out transports
     UpdateData transData;
-    for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
-        if (*i != player->GetTransport())
-            (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
+    for (auto _transport : _transports)
+        if (_transport != player->GetTransport())
+            _transport->BuildCreateUpdateBlockForPlayer(&transData, player);
 
     WorldPacket packet;
     transData.BuildPacket(&packet);
@@ -2892,9 +2889,9 @@ void Map::SendRemoveTransports(Player* player)
 {
     // Hack to send out transports
     UpdateData transData;
-    for (TransportsContainer::const_iterator i = _transports.begin(); i != _transports.end(); ++i)
-        if (*i != player->GetTransport())
-            (*i)->BuildOutOfRangeUpdateBlock(&transData);
+    for (auto _transport : _transports)
+        if (_transport != player->GetTransport())
+            _transport->BuildOutOfRangeUpdateBlock(&transData);
 
     WorldPacket packet;
     transData.BuildPacket(&packet);
@@ -2925,10 +2922,10 @@ void Map::SendObjectUpdates()
     }
 
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
-    for (UpdateDataMapType::iterator iter = update_players.begin(); iter != update_players.end(); ++iter)
+    for (auto & update_player : update_players)
     {
-        iter->second.BuildPacket(&packet);
-        iter->first->SendDirectMessage(&packet);
+        update_player.second.BuildPacket(&packet);
+        update_player.first->SendDirectMessage(&packet);
         packet.clear();                                     // clean the string
     }
 }
@@ -3542,16 +3539,16 @@ void Map::RemoveAllObjectsInRemoveList()
 uint32 Map::GetPlayersCountExceptGMs() const
 {
     uint32 count = 0;
-    for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        if (!itr->GetSource()->IsGameMaster())
+    for (const auto & itr : m_mapRefManager)
+        if (!itr.GetSource()->IsGameMaster())
             ++count;
     return count;
 }
 
 void Map::SendToPlayers(WorldPacket const* data) const
 {
-    for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        itr->GetSource()->SendDirectMessage(data);
+    for (const auto & itr : m_mapRefManager)
+        itr.GetSource()->SendDirectMessage(data);
 }
 
 bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
@@ -3568,9 +3565,9 @@ bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
     cell_max.inc_x(cell_range);
     cell_max.inc_y(cell_range);
 
-    for (MapRefManager::const_iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
+    for (const auto & iter : m_mapRefManager)
     {
-        Player* player = iter->GetSource();
+        Player* player = iter.GetSource();
 
         CellCoord p = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
         if ((cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
@@ -3578,10 +3575,8 @@ bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
             return true;
     }
 
-    for (ActiveNonPlayers::const_iterator iter = m_activeNonPlayers.begin(); iter != m_activeNonPlayers.end(); ++iter)
+    for (auto obj : m_activeNonPlayers)
     {
-        WorldObject* obj = *iter;
-
         CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
         if ((cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
             (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord))
@@ -3931,8 +3926,8 @@ bool InstanceMap::Reset(uint8 method)
         if (method == INSTANCE_RESET_ALL || method == INSTANCE_RESET_CHANGE_DIFFICULTY)
         {
             // notify the players to leave the instance so it can be reset
-            for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-                itr->GetSource()->SendResetFailedNotify(GetId());
+            for (auto & itr : m_mapRefManager)
+                itr.GetSource()->SendResetFailedNotify(GetId());
         }
         else
         {
@@ -3940,13 +3935,13 @@ bool InstanceMap::Reset(uint8 method)
             if (method == INSTANCE_RESET_GLOBAL)
             {
                 // set the homebind timer for players inside (1 minute)
-                for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+                for (auto & itr : m_mapRefManager)
                 {
-                    InstancePlayerBind* bind = itr->GetSource()->GetBoundInstance(GetId(), GetDifficulty());
+                    InstancePlayerBind* bind = itr.GetSource()->GetBoundInstance(GetId(), GetDifficulty());
                     if (bind && bind->extendState && bind->save->GetInstanceId() == GetInstanceId())
                         doUnload = false;
                     else
-                        itr->GetSource()->m_InstanceValid = false;
+                        itr.GetSource()->m_InstanceValid = false;
                 }
 
                 if (doUnload && HasPermBoundPlayers()) // check if any unloaded players have a nonexpired save to this
@@ -3990,9 +3985,9 @@ void InstanceMap::PermBindAllPlayers()
     }
 
     // perm bind all players that are currently inside the instance
-    for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
+    for (auto & itr : m_mapRefManager)
     {
-        Player* player = itr->GetSource();
+        Player* player = itr.GetSource();
         // never instance bind GMs with GM mode enabled
         if (player->IsGameMaster())
             continue;
@@ -4040,8 +4035,8 @@ void InstanceMap::UnloadAll()
 
 void InstanceMap::SendResetWarnings(uint32 timeLeft) const
 {
-    for (MapRefManager::const_iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-        itr->GetSource()->SendInstanceResetWarning(GetId(), itr->GetSource()->GetDifficulty(IsRaid()), timeLeft, false);
+    for (const auto & itr : m_mapRefManager)
+        itr.GetSource()->SendInstanceResetWarning(GetId(), itr.GetSource()->GetDifficulty(IsRaid()), timeLeft, false);
 }
 
 void InstanceMap::SetResetSchedule(bool on)
@@ -4224,8 +4219,8 @@ void BattlegroundMap::SetUnload()
 void BattlegroundMap::RemoveAllPlayers()
 {
     if (HavePlayers())
-        for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-            if (Player* player = itr->GetSource())
+        for (auto & itr : m_mapRefManager)
+            if (Player* player = itr.GetSource())
                 if (!player->IsBeingTeleportedFar())
                     player->TeleportTo(player->GetBattlegroundEntryPoint());
 }
@@ -4609,8 +4604,8 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
         WorldPackets::Misc::PlayMusic playMusic(musicId);
         playMusic.Write();
 
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
+        for (const auto & itr : players)
+            if (Player* player = itr.GetSource())
                 if (player->GetZoneId() == zoneId)
                     player->SendDirectMessage(playMusic.GetRawPacket());
     }
@@ -4645,8 +4640,8 @@ void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGra
         WorldPackets::Misc::Weather weather(weatherId, weatherGrade);
         weather.Write();
 
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
+        for (const auto & itr : players)
+            if (Player* player = itr.GetSource())
                 if (player->GetZoneId() == zoneId)
                     player->SendDirectMessage(weather.GetRawPacket());
     }
@@ -4667,8 +4662,8 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime)
         overrideLight.TransitionMilliseconds = fadeInTime;
         overrideLight.Write();
 
-        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            if (Player* player = itr->GetSource())
+        for (const auto & itr : players)
+            if (Player* player = itr.GetSource())
                 if (player->GetZoneId() == zoneId)
                     player->SendDirectMessage(overrideLight.GetRawPacket());
     }
@@ -4677,9 +4672,9 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime)
 void Map::UpdateAreaDependentAuras()
 {
     Map::PlayerList const& players = GetPlayers();
-    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+    for (const auto & itr : players)
     {
-        if (Player* player = itr->GetSource())
+        if (Player* player = itr.GetSource())
         {
             if (player->IsInWorld())
             {

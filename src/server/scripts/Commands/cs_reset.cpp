@@ -304,8 +304,8 @@ public:
 
         boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
         HashMapHolder<Player>::MapType const& plist = ObjectAccessor::GetPlayers();
-        for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
-            itr->second->SetAtLoginFlag(atLogin);
+        for (auto itr : plist)
+            itr.second->SetAtLoginFlag(atLogin);
 
         return true;
     }

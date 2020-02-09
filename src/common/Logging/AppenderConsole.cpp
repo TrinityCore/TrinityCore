@@ -27,8 +27,8 @@
 AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs)
     : Appender(id, name, level, flags), _colored(false)
 {
-    for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
-        _colors[i] = ColorTypes(MaxColors);
+    for (auto & _color : _colors)
+        _color = ColorTypes(MaxColors);
 
     if (!extraArgs.empty())
         InitColors(extraArgs[0]);
@@ -46,14 +46,14 @@ void AppenderConsole::InitColors(std::string const& str)
 
     std::istringstream ss(str);
 
-    for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
+    for (int & i : color)
     {
-        ss >> color[i];
+        ss >> i;
 
         if (!ss)
             return;
 
-        if (color[i] < 0 || color[i] >= MaxColors)
+        if (i < 0 || i >= MaxColors)
             return;
     }
 

@@ -214,48 +214,48 @@ std::string MySQLPreparedStatement::getQueryString() const
     std::string queryString(m_queryString);
 
     size_t pos = 0;
-    for (uint32 i = 0; i < m_stmt->statement_data.size(); i++)
+    for (auto & i : m_stmt->statement_data)
     {
         pos = queryString.find('?', pos);
         std::stringstream ss;
 
-        switch (m_stmt->statement_data[i].type)
+        switch (i.type)
         {
             case TYPE_BOOL:
-                ss << uint16(m_stmt->statement_data[i].data.boolean);
+                ss << uint16(i.data.boolean);
                 break;
             case TYPE_UI8:
-                ss << uint16(m_stmt->statement_data[i].data.ui8);  // stringstream will append a character with that code instead of numeric representation
+                ss << uint16(i.data.ui8);  // stringstream will append a character with that code instead of numeric representation
                 break;
             case TYPE_UI16:
-                ss << m_stmt->statement_data[i].data.ui16;
+                ss << i.data.ui16;
                 break;
             case TYPE_UI32:
-                ss << m_stmt->statement_data[i].data.ui32;
+                ss << i.data.ui32;
                 break;
             case TYPE_I8:
-                ss << int16(m_stmt->statement_data[i].data.i8);  // stringstream will append a character with that code instead of numeric representation
+                ss << int16(i.data.i8);  // stringstream will append a character with that code instead of numeric representation
                 break;
             case TYPE_I16:
-                ss << m_stmt->statement_data[i].data.i16;
+                ss << i.data.i16;
                 break;
             case TYPE_I32:
-                ss << m_stmt->statement_data[i].data.i32;
+                ss << i.data.i32;
                 break;
             case TYPE_UI64:
-                ss << m_stmt->statement_data[i].data.ui64;
+                ss << i.data.ui64;
                 break;
             case TYPE_I64:
-                ss << m_stmt->statement_data[i].data.i64;
+                ss << i.data.i64;
                 break;
             case TYPE_FLOAT:
-                ss << m_stmt->statement_data[i].data.f;
+                ss << i.data.f;
                 break;
             case TYPE_DOUBLE:
-                ss << m_stmt->statement_data[i].data.d;
+                ss << i.data.d;
                 break;
             case TYPE_STRING:
-                ss << '\'' << (char const*)m_stmt->statement_data[i].binary.data() << '\'';
+                ss << '\'' << (char const*)i.binary.data() << '\'';
                 break;
             case TYPE_BINARY:
                 ss << "BINARY";

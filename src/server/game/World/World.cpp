@@ -2292,12 +2292,12 @@ void World::Update(uint32 diff)
     sWorldUpdateTime.RecordUpdateTime(GameTime::GetGameTimeMS(), diff, GetActiveSessionCount());
 
     ///- Update the different timers
-    for (int i = 0; i < WUPDATE_COUNT; ++i)
+    for (auto & m_timer : m_timers)
     {
-        if (m_timers[i].GetCurrent() >= 0)
-            m_timers[i].Update(diff);
+        if (m_timer.GetCurrent() >= 0)
+            m_timer.Update(diff);
         else
-            m_timers[i].SetCurrent(0);
+            m_timer.SetCurrent(0);
     }
 
     ///- Update Who List Storage
@@ -2531,10 +2531,10 @@ void World::SendGlobalMessage(WorldPacket const* packet, WorldSession* self, uin
 /// Send a packet to all GMs (except self if mentioned)
 void World::SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self, uint32 team)
 {
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (auto m_session : m_sessions)
     {
         // check if session and can receive global GM Messages and its not self
-        WorldSession* session = itr->second;
+        WorldSession* session = m_session.second;
         if (!session || session == self || !session->HasPermission(rbac::RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE))
             continue;
 
@@ -2601,12 +2601,12 @@ void World::SendWorldText(uint32 string_id, ...)
 
     Trinity::WorldWorldTextBuilder wt_builder(string_id, &ap);
     Trinity::LocalizedPacketListDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (auto m_session : m_sessions)
     {
-        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
+        if (!m_session.second || !m_session.second->GetPlayer() || !m_session.second->GetPlayer()->IsInWorld())
             continue;
 
-        wt_do(itr->second->GetPlayer());
+        wt_do(m_session.second->GetPlayer());
     }
 
     va_end(ap);
@@ -2620,10 +2620,10 @@ void World::SendGMText(uint32 string_id, ...)
 
     Trinity::WorldWorldTextBuilder wt_builder(string_id, &ap);
     Trinity::LocalizedPacketListDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (auto m_session : m_sessions)
     {
         // Session should have permissions to receive global gm messages
-        WorldSession* session = itr->second;
+        WorldSession* session = m_session.second;
         if (!session || !session->HasPermission(rbac::RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE))
             continue;
 
@@ -2693,17 +2693,17 @@ void World::KickAll()
     m_QueuedPlayer.clear();                                 // prevent send queue update packet and login queued sessions
 
     // session not removed at kick and will removed in next update tick
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        itr->second->KickPlayer();
+    for (auto m_session : m_sessions)
+        m_session.second->KickPlayer();
 }
 
 /// Kick (and save) all players with security level less `sec`
 void World::KickAllLess(AccountTypes sec)
 {
     // session not removed at kick and will removed in next update tick
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (itr->second->GetSecurity() < sec)
-            itr->second->KickPlayer();
+    for (auto m_session : m_sessions)
+        if (m_session.second->GetSecurity() < sec)
+            m_session.second->KickPlayer();
 }
 
 /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
@@ -3159,8 +3159,8 @@ void World::ResetDailyQuests()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
     CharacterDatabase.Execute(stmt);
     // reset all quest status in memory
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (Player* player = itr->second->GetPlayer())
+    for (auto m_session : m_sessions)
+        if (Player* player = m_session.second->GetPlayer())
             player->ResetDailyQuestStatus();
 
     // reselect pools
@@ -3195,8 +3195,8 @@ void World::ResetWeeklyQuests()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
     CharacterDatabase.Execute(stmt);
     // reset all quest status in memory
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (Player* player = itr->second->GetPlayer())
+    for (auto m_session : m_sessions)
+        if (Player* player = m_session.second->GetPlayer())
             player->ResetWeeklyQuestStatus();
 
     // reselect pools
@@ -3231,8 +3231,8 @@ void World::ResetMonthlyQuests()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_MONTHLY);
     CharacterDatabase.Execute(stmt);
     // reset all quest status in memory
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (Player* player = itr->second->GetPlayer())
+    for (auto m_session : m_sessions)
+        if (Player* player = m_session.second->GetPlayer())
             player->ResetMonthlyQuestStatus();
 
     // reselect pools
@@ -3341,9 +3341,9 @@ void World::ResetEventSeasonalQuests(uint16 event_id)
     stmt->setUInt16(0, event_id);
     CharacterDatabase.Execute(stmt);
 
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (itr->second->GetPlayer())
-            itr->second->GetPlayer()->ResetSeasonalQuestStatus(event_id);
+    for (auto m_session : m_sessions)
+        if (m_session.second->GetPlayer())
+            m_session.second->GetPlayer()->ResetSeasonalQuestStatus(event_id);
 }
 
 void World::ResetRandomBG()
@@ -3353,9 +3353,9 @@ void World::ResetRandomBG()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BATTLEGROUND_RANDOM_ALL);
     CharacterDatabase.Execute(stmt);
 
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (itr->second->GetPlayer())
-            itr->second->GetPlayer()->SetRandomWinner(false);
+    for (auto m_session : m_sessions)
+        if (m_session.second->GetPlayer())
+            m_session.second->GetPlayer()->SetRandomWinner(false);
 
     m_NextRandomBGReset = time_t(m_NextRandomBGReset + DAY);
     sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
@@ -3492,8 +3492,8 @@ void World::ReloadRBAC()
 {
     // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
     TC_LOG_INFO("rbac", "World::ReloadRBAC()");
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
-        if (WorldSession* session = itr->second)
+    for (auto m_session : m_sessions)
+        if (WorldSession* session = m_session.second)
             session->InvalidateRBACData();
 }
 

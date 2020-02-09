@@ -47,11 +47,11 @@ CalendarMgr::CalendarMgr() : _maxEventId(0), _maxInviteId(0) { }
 
 CalendarMgr::~CalendarMgr()
 {
-    for (CalendarEventStore::iterator itr = _events.begin(); itr != _events.end(); ++itr)
-        delete *itr;
+    for (auto _event : _events)
+        delete _event;
 
-    for (CalendarEventInviteStore::iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
-        for (CalendarInviteStore::iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+    for (auto & _invite : _invites)
+        for (CalendarInviteStore::iterator itr2 = _invite.second.begin(); itr2 != _invite.second.end(); ++itr2)
             delete *itr2;
 }
 
@@ -193,9 +193,8 @@ void CalendarMgr::RemoveEvent(CalendarEvent* calendarEvent, ObjectGuid remover)
     MailDraft mail(calendarEvent->BuildCalendarMailSubject(remover), calendarEvent->BuildCalendarMailBody());
 
     CalendarInviteStore& eventInvites = _invites[calendarEvent->GetEventId()];
-    for (size_t i = 0; i < eventInvites.size(); ++i)
+    for (auto invite : eventInvites)
     {
-        CalendarInvite* invite = eventInvites[i];
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CALENDAR_INVITE);
         stmt->setUInt64(0, invite->GetInviteId());
         trans->Append(stmt);
@@ -300,28 +299,28 @@ void CalendarMgr::RemoveAllPlayerEventsAndInvites(ObjectGuid guid)
     }
 
     CalendarInviteStore playerInvites = GetPlayerInvites(guid);
-    for (CalendarInviteStore::const_iterator itr = playerInvites.begin(); itr != playerInvites.end(); ++itr)
-        RemoveInvite((*itr)->GetInviteId(), (*itr)->GetEventId(), guid);
+    for (auto playerInvite : playerInvites)
+        RemoveInvite(playerInvite->GetInviteId(), playerInvite->GetEventId(), guid);
 }
 
 void CalendarMgr::RemovePlayerGuildEventsAndSignups(ObjectGuid guid, ObjectGuid::LowType guildId)
 {
-    for (CalendarEventStore::const_iterator itr = _events.begin(); itr != _events.end(); ++itr)
-        if ((*itr)->GetCreatorGUID() == guid && ((*itr)->IsGuildEvent() || (*itr)->IsGuildAnnouncement()))
-            RemoveEvent((*itr)->GetEventId(), guid);
+    for (auto _event : _events)
+        if (_event->GetCreatorGUID() == guid && (_event->IsGuildEvent() || _event->IsGuildAnnouncement()))
+            RemoveEvent(_event->GetEventId(), guid);
 
     CalendarInviteStore playerInvites = GetPlayerInvites(guid);
-    for (CalendarInviteStore::const_iterator itr = playerInvites.begin(); itr != playerInvites.end(); ++itr)
-        if (CalendarEvent* calendarEvent = GetEvent((*itr)->GetEventId()))
+    for (auto playerInvite : playerInvites)
+        if (CalendarEvent* calendarEvent = GetEvent(playerInvite->GetEventId()))
             if (calendarEvent->IsGuildEvent() && calendarEvent->GetGuildId() == guildId)
-                RemoveInvite((*itr)->GetInviteId(), (*itr)->GetEventId(), guid);
+                RemoveInvite(playerInvite->GetInviteId(), playerInvite->GetEventId(), guid);
 }
 
 CalendarEvent* CalendarMgr::GetEvent(uint64 eventId) const
 {
-    for (CalendarEventStore::const_iterator itr = _events.begin(); itr != _events.end(); ++itr)
-        if ((*itr)->GetEventId() == eventId)
-            return *itr;
+    for (auto _event : _events)
+        if (_event->GetEventId() == eventId)
+            return _event;
 
     TC_LOG_DEBUG("calendar", "CalendarMgr::GetEvent: [" UI64FMTD "] not found!", eventId);
     return nullptr;
@@ -329,8 +328,8 @@ CalendarEvent* CalendarMgr::GetEvent(uint64 eventId) const
 
 CalendarInvite* CalendarMgr::GetInvite(uint64 inviteId) const
 {
-    for (CalendarEventInviteStore::const_iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
-        for (CalendarInviteStore::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+    for (const auto & _invite : _invites)
+        for (CalendarInviteStore::const_iterator itr2 = _invite.second.begin(); itr2 != _invite.second.end(); ++itr2)
             if ((*itr2)->GetInviteId() == inviteId)
                 return *itr2;
 
@@ -390,9 +389,9 @@ void CalendarMgr::DeleteOldEvents()
 CalendarEventStore CalendarMgr::GetEventsCreatedBy(ObjectGuid guid, bool includeGuildEvents)
 {
     CalendarEventStore result;
-    for (CalendarEventStore::const_iterator itr = _events.begin(); itr != _events.end(); ++itr)
-        if ((*itr)->GetCreatorGUID() == guid && (includeGuildEvents || (!(*itr)->IsGuildEvent() && !(*itr)->IsGuildAnnouncement())))
-            result.insert(*itr);
+    for (auto _event : _events)
+        if (_event->GetCreatorGUID() == guid && (includeGuildEvents || (!_event->IsGuildEvent() && !_event->IsGuildAnnouncement())))
+            result.insert(_event);
 
     return result;
 }
@@ -404,10 +403,10 @@ CalendarEventStore CalendarMgr::GetGuildEvents(ObjectGuid::LowType guildId)
     if (!guildId)
         return result;
 
-    for (CalendarEventStore::const_iterator itr = _events.begin(); itr != _events.end(); ++itr)
-        if ((*itr)->IsGuildEvent() || (*itr)->IsGuildAnnouncement())
-            if ((*itr)->GetGuildId() == guildId)
-                result.insert(*itr);
+    for (auto _event : _events)
+        if (_event->IsGuildEvent() || _event->IsGuildAnnouncement())
+            if (_event->GetGuildId() == guildId)
+                result.insert(_event);
 
     return result;
 }
@@ -424,9 +423,9 @@ CalendarEventStore CalendarMgr::GetPlayerEvents(ObjectGuid guid)
 
     if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
         if (player->GetGuildId())
-            for (CalendarEventStore::const_iterator itr = _events.begin(); itr != _events.end(); ++itr)
-                if ((*itr)->GetGuildId() == player->GetGuildId())
-                    events.insert(*itr);
+            for (auto _event : _events)
+                if (_event->GetGuildId() == player->GetGuildId())
+                    events.insert(_event);
 
     return events;
 }
@@ -441,9 +440,9 @@ CalendarInviteStore CalendarMgr::GetPlayerInvites(ObjectGuid guid)
     CalendarInviteStore invites;
 
     for (CalendarEventInviteStore::const_iterator itr = _invites.begin(); itr != _invites.end(); ++itr)
-        for (CalendarInviteStore::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-            if ((*itr2)->GetInviteeGUID() == guid)
-                invites.push_back(*itr2);
+        for (auto itr2 : itr->second)
+            if (itr2->GetInviteeGUID() == guid)
+                invites.push_back(itr2);
 
     return invites;
 }
@@ -453,9 +452,9 @@ uint32 CalendarMgr::GetPlayerNumPending(ObjectGuid guid)
     CalendarInviteStore const& invites = GetPlayerInvites(guid);
 
     uint32 pendingNum = 0;
-    for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+    for (auto invite : invites)
     {
-        switch ((*itr)->GetStatus())
+        switch (invite->GetStatus())
         {
             case CALENDAR_STATUS_INVITED:
             case CALENDAR_STATUS_TENTATIVE:
@@ -639,9 +638,8 @@ void CalendarMgr::SendCalendarEvent(ObjectGuid guid, CalendarEvent const& calend
     data << uint32(calendarEvent.GetGuildId());
 
     data << uint32(eventInviteeList.size());
-    for (CalendarInviteStore::const_iterator itr = eventInviteeList.begin(); itr != eventInviteeList.end(); ++itr)
+    for (auto calendarInvite : eventInviteeList)
     {
-        CalendarInvite const* calendarInvite = (*itr);
         ObjectGuid inviteeGuid = calendarInvite->GetInviteeGUID();
         Player* invitee = ObjectAccessor::FindPlayer(inviteeGuid);
 
@@ -718,8 +716,8 @@ void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket& packet, CalendarEve
 
     // Send packet to all invitees if event is non-guild, in other case only to non-guild invitees (packet was broadcasted for them)
     CalendarInviteStore invites = _invites[calendarEvent.GetEventId()];
-    for (CalendarInviteStore::iterator itr = invites.begin(); itr != invites.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindConnectedPlayer((*itr)->GetInviteeGUID()))
+    for (auto & invite : invites)
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(invite->GetInviteeGUID()))
             if (!calendarEvent.IsGuildEvent() || player->GetGuildId() != calendarEvent.GetGuildId())
                 player->SendDirectMessage(&packet);
 }

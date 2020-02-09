@@ -31,8 +31,8 @@ GroupMgr::GroupMgr()
 
 GroupMgr::~GroupMgr()
 {
-    for (GroupContainer::iterator itr = GroupStore.begin(); itr != GroupStore.end(); ++itr)
-        delete itr->second;
+    for (auto & itr : GroupStore)
+        delete itr.second;
 }
 
 uint32 GroupMgr::GenerateNewGroupDbStoreId()

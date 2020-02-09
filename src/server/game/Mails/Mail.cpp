@@ -124,9 +124,9 @@ void MailDraft::prepareItems(Player* receiver, SQLTransaction& trans)
 
 void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/ )
 {
-    for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
+    for (auto & m_item : m_items)
     {
-        Item* item = mailItemIter->second;
+        Item* item = m_item.second;
 
         if (inDB)
         {
@@ -165,9 +165,9 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
         needItemDelay = sender_acc != rc_account;
 
         // set owner to new receiver (to prevent delete item with sender char deleting)
-        for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
+        for (auto & m_item : m_items)
         {
-            Item* item = mailItemIter->second;
+            Item* item = m_item.second;
             item->SaveToDB(trans);                      // item not in inventory and can be save standalone
             // owner in data will set at mail receive and item extracting
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
@@ -279,8 +279,8 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
 
             if (!m_items.empty())
             {
-                for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
-                    pReceiver->AddMItem(mailItemIter->second);
+                for (auto & m_item : m_items)
+                    pReceiver->AddMItem(m_item.second);
             }
         }
         else if (!m_items.empty())

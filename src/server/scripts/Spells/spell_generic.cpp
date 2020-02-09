@@ -734,9 +734,9 @@ class spell_gen_break_shield: public SpellScriptLoader
                     case EFFECT_1: // On damaging spells, for removing a defend layer
                     {
                         Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
-                        for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                        for (auto itr : auras)
                         {
-                            if (Aura* aura = itr->second->GetBase())
+                            if (Aura* aura = itr.second->GetBase())
                             {
                                 SpellInfo const* auraInfo = aura->GetSpellInfo();
                                 if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
@@ -2266,9 +2266,9 @@ class spell_gen_mounted_charge : public SpellScript
             case EFFECT_2:
             {
                 Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
-                for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                for (auto itr : auras)
                 {
-                    if (Aura* aura = itr->second->GetBase())
+                    if (Aura* aura = itr.second->GetBase())
                     {
                         SpellInfo const* auraInfo = aura->GetSpellInfo();
                         if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
@@ -3504,9 +3504,9 @@ class spell_gen_upper_deck_create_foam_sword : public SpellScript
         {
             static uint32 const itemId[5] = { ITEM_FOAM_SWORD_GREEN, ITEM_FOAM_SWORD_PINK, ITEM_FOAM_SWORD_BLUE, ITEM_FOAM_SWORD_RED, ITEM_FOAM_SWORD_YELLOW };
             // player can only have one of these items
-            for (uint8 i = 0; i < 5; ++i)
+            for (unsigned int i : itemId)
             {
-                if (player->HasItemCount(itemId[i], 1, true))
+                if (player->HasItemCount(i, 1, true))
                     return;
             }
 

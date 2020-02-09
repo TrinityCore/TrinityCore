@@ -27,8 +27,8 @@ GuildMgr::GuildMgr() : NextGuildId(1)
 
 GuildMgr::~GuildMgr()
 {
-    for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        delete itr->second;
+    for (auto & itr : GuildStore)
+        delete itr.second;
 }
 
 void GuildMgr::AddGuild(Guild* guild)
@@ -65,12 +65,12 @@ Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
 {
     std::string search = guildName;
     std::transform(search.begin(), search.end(), search.begin(), ::toupper);
-    for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+    for (auto itr : GuildStore)
     {
-        std::string gname = itr->second->GetName();
+        std::string gname = itr.second->GetName();
         std::transform(gname.begin(), gname.end(), gname.begin(), ::toupper);
         if (search == gname)
-            return itr->second;
+            return itr.second;
     }
     return nullptr;
 }
@@ -91,9 +91,9 @@ GuildMgr* GuildMgr::instance()
 
 Guild* GuildMgr::GetGuildByLeader(ObjectGuid guid) const
 {
-    for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        if (itr->second->GetLeaderGUID() == guid)
-            return itr->second;
+    for (auto itr : GuildStore)
+        if (itr.second->GetLeaderGUID() == guid)
+            return itr.second;
 
     return nullptr;
 }
@@ -403,8 +403,8 @@ void GuildMgr::LoadGuilds()
 
 void GuildMgr::ResetTimes()
 {
-    for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        if (Guild* guild = itr->second)
+    for (auto itr : GuildStore)
+        if (Guild* guild = itr.second)
             guild->ResetTimes();
 
     CharacterDatabase.DirectExecute("TRUNCATE guild_member_withdraw");

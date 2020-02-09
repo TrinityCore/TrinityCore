@@ -112,8 +112,8 @@ public:
         if (!player->IsGameMaster())
             handler->PSendSysMessage("Enable GM mode to see the path points.");
 
-        for (uint32 i = 0; i < pointPath.size(); ++i)
-            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+        for (const auto & i : pointPath)
+            player->SummonCreature(VISUAL_WAYPOINT, i.x, i.y, i.z, 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
 
         return true;
     }
@@ -274,9 +274,9 @@ public:
 
             float gx, gy, gz;
             object->GetPosition(gx, gy, gz);
-            for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+            for (auto & itr : creatureList)
             {
-                PathGenerator path(*itr);
+                PathGenerator path(itr);
                 path.CalculatePath(gx, gy, gz);
                 ++paths;
             }

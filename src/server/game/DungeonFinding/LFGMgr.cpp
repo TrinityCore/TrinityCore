@@ -62,8 +62,8 @@ LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
 
 LFGMgr::~LFGMgr()
 {
-    for (LfgRewardContainer::iterator itr = RewardMapStore.begin(); itr != RewardMapStore.end(); ++itr)
-        delete itr->second;
+    for (auto & itr : RewardMapStore)
+        delete itr.second;
 }
 
 void LFGMgr::_LoadFromDB(Field* fields, ObjectGuid guid)
@@ -120,8 +120,8 @@ void LFGMgr::LoadRewards()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (LfgRewardContainer::iterator itr = RewardMapStore.begin(); itr != RewardMapStore.end(); ++itr)
-        delete itr->second;
+    for (auto & itr : RewardMapStore)
+        delete itr.second;
     RewardMapStore.clear();
 
     // ORDER BY is very important for GetRandomDungeonReward!
@@ -245,9 +245,9 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     TC_LOG_INFO("server.loading", ">> Loaded %u lfg entrance positions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     // Fill all other teleport coords from areatriggers
-    for (LFGDungeonContainer::iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
+    for (auto & itr : LfgDungeonStore)
     {
-        LFGDungeonData& dungeon = itr->second;
+        LFGDungeonData& dungeon = itr.second;
 
         // No teleport coords in database, load from areatriggers
         if (dungeon.type != LFG_TYPE_RANDOM && dungeon.x == 0.0f && dungeon.y == 0.0f && dungeon.z == 0.0f)
@@ -377,8 +377,8 @@ void LFGMgr::Update(uint32 diff)
     if (m_QueueTimer > LFG_QUEUEUPDATE_INTERVAL)
     {
         m_QueueTimer = 0;
-        for (LfgQueueContainer::iterator it = QueuesStore.begin(); it != QueuesStore.end(); ++it)
-            it->second.UpdateQueueTimers(currTime);
+        for (auto & it : QueuesStore)
+            it.second.UpdateQueueTimers(currTime);
     }
     else
         m_QueueTimer += diff;
@@ -632,10 +632,10 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
                 queue.RemoveFromQueue(gguid);
                 SetState(gguid, newState);
                 GuidSet const& players = GetPlayers(gguid);
-                for (GuidSet::const_iterator it = players.begin(); it != players.end(); ++it)
+                for (auto player : players)
                 {
-                    SetState(*it, newState);
-                    SendLfgUpdateParty(*it, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE));
+                    SetState(player, newState);
+                    SendLfgUpdateParty(player, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE));
                 }
             }
             else
@@ -1124,22 +1124,22 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
     TC_LOG_DEBUG("lfg.proposal.remove", "Proposal %u, state FAILED, UpdateType %u", itProposal->first, type);
     // Mark all people that didn't answered as no accept
     if (type == LFG_UPDATETYPE_PROPOSAL_FAILED)
-        for (LfgProposalPlayerContainer::iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
-            if (it->second.accept == LFG_ANSWER_PENDING)
-                it->second.accept = LFG_ANSWER_DENY;
+        for (auto & player : proposal.players)
+            if (player.second.accept == LFG_ANSWER_PENDING)
+                player.second.accept = LFG_ANSWER_DENY;
 
     // Mark players/groups to be removed
     GuidSet toRemove;
-    for (LfgProposalPlayerContainer::iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
+    for (auto & player : proposal.players)
     {
-        if (it->second.accept == LFG_ANSWER_AGREE)
+        if (player.second.accept == LFG_ANSWER_AGREE)
             continue;
 
-        ObjectGuid guid = it->second.group ? it->second.group : it->first;
+        ObjectGuid guid = player.second.group ? player.second.group : player.first;
         // Player didn't accept or still pending when no secs left
-        if (it->second.accept == LFG_ANSWER_DENY || type == LFG_UPDATETYPE_PROPOSAL_FAILED)
+        if (player.second.accept == LFG_ANSWER_DENY || type == LFG_UPDATETYPE_PROPOSAL_FAILED)
         {
-            it->second.accept = LFG_ANSWER_DENY;
+            player.second.accept = LFG_ANSWER_DENY;
             toRemove.insert(guid);
         }
     }
@@ -1191,9 +1191,8 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
 
     LFGQueue& queue = GetQueue(proposal.players.begin()->first);
     // Remove players/groups from queue
-    for (GuidSet::const_iterator it = toRemove.begin(); it != toRemove.end(); ++it)
+    for (auto guid : toRemove)
     {
-        ObjectGuid guid = *it;
         queue.RemoveFromQueue(guid);
         proposal.queues.remove(guid);
     }
@@ -1229,9 +1228,9 @@ void LFGMgr::InitBoot(ObjectGuid gguid, ObjectGuid kicker, ObjectGuid victim, st
     GuidSet const& players = GetPlayers(gguid);
 
     // Set votes
-    for (GuidSet::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+    for (auto player : players)
     {
-        ObjectGuid guid = (*itr);
+        ObjectGuid guid = player;
         boot.votes[guid] = LFG_ANSWER_PENDING;
     }
 
@@ -1239,8 +1238,8 @@ void LFGMgr::InitBoot(ObjectGuid gguid, ObjectGuid kicker, ObjectGuid victim, st
     boot.votes[kicker] = LFG_ANSWER_AGREE;                 // Kicker auto vote YES
 
     // Notify players
-    for (GuidSet::const_iterator it = players.begin(); it != players.end(); ++it)
-        SendLfgBootProposalUpdate(*it, boot);
+    for (auto player : players)
+        SendLfgBootProposalUpdate(player, boot);
 }
 
 /**
@@ -1417,9 +1416,9 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
     SetState(gguid, LFG_STATE_FINISHED_DUNGEON);
 
     GuidSet const& players = GetPlayers(gguid);
-    for (GuidSet::const_iterator it = players.begin(); it != players.end(); ++it)
+    for (auto it : players)
     {
-        ObjectGuid guid = (*it);
+        ObjectGuid guid = it;
         if (GetState(guid) == LFG_STATE_FINISHED_DUNGEON)
         {
             TC_LOG_DEBUG("lfg.dungeon.finish", "Group: %s, Player: %s already rewarded", gguid.ToString().c_str(), guid.ToString().c_str());
@@ -1659,9 +1658,9 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
     LfgDungeonSet const& dungeons = GetDungeonsByRandom(0);
     bool denyJoin = !player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER);
 
-    for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end(); ++it)
+    for (unsigned int it : dungeons)
     {
-        LFGDungeonData const* dungeon = GetLFGDungeon(*it);
+        LFGDungeonData const* dungeon = GetLFGDungeon(it);
         if (!dungeon) // should never happen - We provide a list from sLFGDungeonStore
             continue;
 
@@ -1972,13 +1971,13 @@ bool LFGMgr::AllQueued(GuidList const& check)
     if (check.empty())
         return false;
 
-    for (GuidList::const_iterator it = check.begin(); it != check.end(); ++it)
+    for (auto it : check)
     {
-        LfgState state = GetState(*it);
+        LfgState state = GetState(it);
         if (state != LFG_STATE_QUEUED)
         {
             if (state != LFG_STATE_PROPOSAL)
-                TC_LOG_DEBUG("lfg.allqueued", "Unexpected state found while trying to form new group. Guid: %s, State: %s", (*it).ToString().c_str(), GetStateString(state).c_str());
+                TC_LOG_DEBUG("lfg.allqueued", "Unexpected state found while trying to form new group. Guid: %s, State: %s", it.ToString().c_str(), GetStateString(state).c_str());
 
             return false;
         }
@@ -2096,9 +2095,9 @@ uint32 LFGMgr::GetLFGDungeonEntry(uint32 id)
 LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
 {
     LfgDungeonSet randomDungeons;
-    for (lfg::LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
+    for (const auto & itr : LfgDungeonStore)
     {
-        lfg::LFGDungeonData const& dungeon = itr->second;
+        lfg::LFGDungeonData const& dungeon = itr.second;
         if ((dungeon.type == lfg::LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id)))
             && dungeon.expansion <= expansion && dungeon.minlevel <= level && level <= dungeon.maxlevel)
             randomDungeons.insert(dungeon.Entry());

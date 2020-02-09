@@ -469,8 +469,8 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
 
 bool AchievementCriteriaDataSet::Meets(Player const* source, WorldObject const* target, uint32 miscvalue1 /*= 0*/, uint32 miscvalue2 /* = 0*/) const
 {
-    for (Storage::const_iterator itr = storage.begin(); itr != storage.end(); ++itr)
-        if (!itr->Meets(criteria_id, source, target, miscvalue1, miscvalue2))
+    for (auto itr : storage)
+        if (!itr.Meets(criteria_id, source, target, miscvalue1, miscvalue2))
             return false;
 
     return true;
@@ -485,17 +485,17 @@ AchievementMgr::~AchievementMgr() { }
 
 void AchievementMgr::Reset()
 {
-    for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
+    for (const auto & m_completedAchievement : m_completedAchievements)
     {
         WorldPacket data(SMSG_ACHIEVEMENT_DELETED, 4);
-        data << uint32(iter->first);
+        data << uint32(m_completedAchievement.first);
         m_player->SendDirectMessage(&data);
     }
 
-    for (CriteriaProgressMap::const_iterator iter = m_criteriaProgress.begin(); iter != m_criteriaProgress.end(); ++iter)
+    for (const auto & m_criteriaProgres : m_criteriaProgress)
     {
         WorldPacket data(SMSG_CRITERIA_DELETED, 4);
-        data << uint32(iter->first);
+        data << uint32(m_criteriaProgres.first);
         m_player->SendDirectMessage(&data);
     }
 
@@ -519,9 +519,8 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaCondition condi
     if (!achievementCriteriaList)
         return;
 
-    for (auto itr = achievementCriteriaList->begin(); itr != achievementCriteriaList->end(); ++itr)
+    for (auto achievementCriteria : *achievementCriteriaList)
     {
-        AchievementCriteriaEntry const* achievementCriteria = *itr;
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->ReferredAchievement);
         if (!achievement)
             continue;
@@ -553,49 +552,49 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
 {
     if (!m_completedAchievements.empty())
     {
-        for (CompletedAchievementMap::iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
+        for (auto & m_completedAchievement : m_completedAchievements)
         {
-            if (!iter->second.changed)
+            if (!m_completedAchievement.second.changed)
                 continue;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
-            stmt->setUInt16(0, iter->first);
+            stmt->setUInt16(0, m_completedAchievement.first);
             stmt->setUInt32(1, GetPlayer()->GetGUID().GetCounter());
             trans->Append(stmt);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT);
             stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
-            stmt->setUInt16(1, iter->first);
-            stmt->setUInt32(2, uint32(iter->second.date));
+            stmt->setUInt16(1, m_completedAchievement.first);
+            stmt->setUInt32(2, uint32(m_completedAchievement.second.date));
             trans->Append(stmt);
 
-            iter->second.changed = false;
+            m_completedAchievement.second.changed = false;
         }
     }
 
     if (!m_criteriaProgress.empty())
     {
-        for (CriteriaProgressMap::iterator iter = m_criteriaProgress.begin(); iter != m_criteriaProgress.end(); ++iter)
+        for (auto & m_criteriaProgres : m_criteriaProgress)
         {
-            if (!iter->second.changed)
+            if (!m_criteriaProgres.second.changed)
                 continue;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
             stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
-            stmt->setUInt16(1, iter->first);
+            stmt->setUInt16(1, m_criteriaProgres.first);
             trans->Append(stmt);
 
-            if (iter->second.counter)
+            if (m_criteriaProgres.second.counter)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_ACHIEVEMENT_PROGRESS);
                 stmt->setUInt32(0, GetPlayer()->GetGUID().GetCounter());
-                stmt->setUInt16(1, iter->first);
-                stmt->setUInt32(2, iter->second.counter);
-                stmt->setUInt32(3, uint32(iter->second.date));
+                stmt->setUInt16(1, m_criteriaProgres.first);
+                stmt->setUInt32(2, m_criteriaProgres.second.counter);
+                stmt->setUInt32(3, uint32(m_criteriaProgres.second.date));
                 trans->Append(stmt);
             }
 
-            iter->second.changed = false;
+            m_criteriaProgres.second.changed = false;
         }
     }
 }
@@ -933,9 +932,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 uint32 counter = 0;
 
                 RewardedQuestSet const& rewQuests = GetPlayer()->getRewardedQuests();
-                for (RewardedQuestSet::const_iterator itr = rewQuests.begin(); itr != rewQuests.end(); ++itr)
+                for (unsigned int rewQuest : rewQuests)
                 {
-                    Quest const* quest = sObjectMgr->GetQuestTemplate(*itr);
+                    Quest const* quest = sObjectMgr->GetQuestTemplate(rewQuest);
                     if (quest && quest->GetZoneOrSort() >= 0 && uint32(quest->GetZoneOrSort()) == achievementCriteria->Asset.ZoneID)
                         ++counter;
                 }
@@ -993,11 +992,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
             {
                 uint32 spellCount = 0;
-                for (PlayerSpellMap::const_iterator spellIter = GetPlayer()->GetSpellMap().begin();
-                    spellIter != GetPlayer()->GetSpellMap().end();
-                    ++spellIter)
+                for (auto spellIter : GetPlayer()->GetSpellMap())
                 {
-                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
+                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
                         if (skillIter->second->skillId == achievementCriteria->Asset.SkillID)
@@ -1023,11 +1020,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
             {
                 uint32 spellCount = 0;
-                for (PlayerSpellMap::const_iterator spellIter = GetPlayer()->GetSpellMap().begin();
-                    spellIter != GetPlayer()->GetSpellMap().end();
-                    ++spellIter)
+                for (auto spellIter : GetPlayer()->GetSpellMap())
                 {
-                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
+                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                         if (skillIter->second->skillId == achievementCriteria->Asset.SkillID)
                         {
@@ -1049,8 +1044,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscValue1)
                 {
                     uint32 points = 0;
-                    for (CompletedAchievementMap::const_iterator itr = m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
-                        if (AchievementEntry const* completedAchievements = sAchievementMgr->GetAchievement(itr->first))
+                    for (const auto & m_completedAchievement : m_completedAchievements)
+                        if (AchievementEntry const* completedAchievements = sAchievementMgr->GetAchievement(m_completedAchievement.first))
                             points += completedAchievements->Points;
                     SetCriteriaProgress(achievementCriteria, points, PROGRESS_SET);
                 }
@@ -1144,9 +1139,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 CompletedAchievement(achievement);
 
         if (AchievementEntryList const* achRefList = sAchievementMgr->GetAchievementByReferencedId(achievement->ID))
-            for (AchievementEntryList::const_iterator itr = achRefList->begin(); itr != achRefList->end(); ++itr)
-                if (IsCompletedAchievement(*itr))
-                    CompletedAchievement(*itr);
+            for (auto itr : *achRefList)
+                if (IsCompletedAchievement(itr))
+                    CompletedAchievement(itr);
     }
 }
 
@@ -1306,10 +1301,8 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
     // Oddly, the target count is NOT countained in the achievement, but in each individual criteria
     if (entry->Flags & ACHIEVEMENT_FLAG_SUMM)
     {
-        for (AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
+        for (auto criteria : *cList)
         {
-            AchievementCriteriaEntry const* criteria = *itr;
-
             CriteriaProgress const* progress = GetCriteriaProgress(criteria);
             if (!progress)
                 continue;
@@ -1325,10 +1318,8 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
 
     // Default case - need complete all or
     bool completed_all = true;
-    for (AchievementCriteriaEntryList::const_iterator itr = cList->begin(); itr != cList->end(); ++itr)
+    for (auto criteria : *cList)
     {
-        AchievementCriteriaEntry const* criteria = *itr;
-
         bool completed = IsCompletedCriteria(criteria, entry);
 
         // found an uncompleted criteria, but DONT return false yet - there might be a completed criteria with ACHIEVEMENT_CRITERIA_COMPLETE_FLAG_ALL
@@ -1468,21 +1459,21 @@ void AchievementMgr::UpdateTimedAchievements(uint32 timeDiff)
 void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost /*= 0*/)
 {
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetTimedAchievementCriteriaByType(type);
-    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
+    for (auto i : achievementCriteriaList)
     {
-        if ((*i)->StartAsset != entry)
+        if (i->StartAsset != entry)
             continue;
 
-        AchievementEntry const* achievement = sAchievementMgr->GetAchievement((*i)->ReferredAchievement);
-        if (m_timedAchievements.find((*i)->ID) == m_timedAchievements.end() && !IsCompletedCriteria(*i, achievement))
+        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(i->ReferredAchievement);
+        if (m_timedAchievements.find(i->ID) == m_timedAchievements.end() && !IsCompletedCriteria(i, achievement))
         {
             // Start the timer
-            if ((*i)->StartTimer * IN_MILLISECONDS > timeLost)
+            if (i->StartTimer * IN_MILLISECONDS > timeLost)
             {
-                m_timedAchievements[(*i)->ID] = (*i)->StartTimer * IN_MILLISECONDS - timeLost;
+                m_timedAchievements[i->ID] = i->StartTimer * IN_MILLISECONDS - timeLost;
 
                 // and at client too
-                SetCriteriaProgress(*i, 0, PROGRESS_SET);
+                SetCriteriaProgress(i, 0, PROGRESS_SET);
             }
         }
     }
@@ -1491,18 +1482,18 @@ void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, u
 void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
 {
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetTimedAchievementCriteriaByType(type);
-    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
+    for (auto i : achievementCriteriaList)
     {
-        if ((*i)->StartAsset != entry)
+        if (i->StartAsset != entry)
             continue;
 
-        TimedAchievementMap::iterator timedIter = m_timedAchievements.find((*i)->ID);
+        TimedAchievementMap::iterator timedIter = m_timedAchievements.find(i->ID);
         // We don't have timer for this achievement
         if (timedIter == m_timedAchievements.end())
             continue;
 
         // remove progress
-        RemoveCriteriaProgress(*i);
+        RemoveCriteriaProgress(i);
 
         // Remove the timer
         m_timedAchievements.erase(timedIter);
@@ -1609,25 +1600,25 @@ void AchievementMgr::SendRespondInspectAchievements(Player* player) const
  */
 void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
 {
-    for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
+    for (const auto & m_completedAchievement : m_completedAchievements)
     {
         // Skip hidden achievements
-        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(iter->first);
+        AchievementEntry const* achievement = sAchievementMgr->GetAchievement(m_completedAchievement.first);
         if (!achievement || achievement->Flags & ACHIEVEMENT_FLAG_HIDDEN)
             continue;
 
-        *data << uint32(iter->first);
-        data->AppendPackedTime(iter->second.date);
+        *data << uint32(m_completedAchievement.first);
+        data->AppendPackedTime(m_completedAchievement.second.date);
     }
     *data << int32(-1);
 
-    for (CriteriaProgressMap::const_iterator iter = m_criteriaProgress.begin(); iter != m_criteriaProgress.end(); ++iter)
+    for (const auto & m_criteriaProgres : m_criteriaProgress)
     {
-        *data << uint32(iter->first);
-        data->appendPackGUID(iter->second.counter);
+        *data << uint32(m_criteriaProgres.first);
+        data->appendPackGUID(m_criteriaProgres.second.counter);
         *data << GetPlayer()->GetPackGUID();
         *data << uint32(0);
-        data->AppendPackedTime(iter->second.date);
+        data->AppendPackedTime(m_criteriaProgres.second.date);
         *data << uint32(0);
         *data << uint32(0);
     }
@@ -1692,15 +1683,15 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
 
 bool AchievementMgr::ConditionsSatisfied(AchievementCriteriaEntry const* criteria) const
 {
-    for (uint32 i = 0; i < MAX_CRITERIA_REQUIREMENTS; ++i)
+    for (auto AdditionalRequirement : criteria->AdditionalRequirements)
     {
-        if (!criteria->AdditionalRequirements[i].Type)
+        if (!AdditionalRequirement.Type)
             continue;
 
-        switch (criteria->AdditionalRequirements[i].Type)
+        switch (AdditionalRequirement.Type)
         {
             case ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP:
-                if (GetPlayer()->GetMapId() != criteria->AdditionalRequirements[i].Asset)
+                if (GetPlayer()->GetMapId() != AdditionalRequirement.Asset)
                     return false;
                 break;
             case ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP:
@@ -1894,9 +1885,9 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                 return false;
 
             bool matchFound = false;
-            for (int j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
+            for (unsigned int j : worldOverlayEntry->areatableID)
             {
-                AreaTableEntry const* area = sAreaTableStore.LookupEntry(worldOverlayEntry->areatableID[j]);
+                AreaTableEntry const* area = sAreaTableStore.LookupEntry(j);
                 if (!area)
                     break;
 

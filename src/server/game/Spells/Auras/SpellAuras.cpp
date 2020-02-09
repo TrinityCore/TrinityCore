@@ -445,9 +445,9 @@ m_procCooldown(std::chrono::steady_clock::time_point::min())
 
 AuraScript* Aura::GetScriptByName(std::string const& scriptName) const
 {
-    for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
-        if ((*itr)->_GetScriptName()->compare(scriptName) == 0)
-            return *itr;
+    for (auto m_loadedScript : m_loadedScripts)
+        if (m_loadedScript->_GetScriptName()->compare(scriptName) == 0)
+            return m_loadedScript;
     return nullptr;
 }
 
@@ -504,9 +504,9 @@ void Aura::SaveCasterInfo(Unit* caster)
          * The only two spells in 3.3.5 with those conditions are 17484 and 50344
          * which shouldn't be allowed to crit, so we're fine
         */
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (const auto & Effect : GetSpellInfo()->Effects)
         {
-            switch (GetSpellInfo()->Effects[i].ApplyAuraName)
+            switch (Effect.ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_HEAL:
                     _casterInfo.BonusDonePct = caster->SpellHealingPctDone(GetUnitOwner(), GetSpellInfo());
@@ -525,15 +525,15 @@ void Aura::SaveCasterInfo(Unit* caster)
 Aura::~Aura()
 {
     // unload scripts
-    for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*itr)->_Unload();
-        delete (*itr);
+        m_loadedScript->_Unload();
+        delete m_loadedScript;
     }
 
     // free effects memory
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-         delete m_effects[i];
+    for (auto & m_effect : m_effects)
+         delete m_effect;
 
     ASSERT(m_applications.empty());
     _DeleteRemovedApplications();
@@ -692,9 +692,9 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
             {
                 // check if not stacking aura already on target
                 // this one prevents unwanted usefull buff loss because of stacking and prevents overriding auras periodicaly by 2 near area aura owners
-                for (Unit::AuraApplicationMap::iterator iter = itr->first->GetAppliedAuras().begin(); iter != itr->first->GetAppliedAuras().end(); ++iter)
+                for (auto & iter : itr->first->GetAppliedAuras())
                 {
-                    Aura const* aura = iter->second->GetBase();
+                    Aura const* aura = iter.second->GetBase();
                     if (!CanStackWith(aura))
                     {
                         addUnit = false;
@@ -754,20 +754,20 @@ void Aura::_ApplyEffectForTargets(uint8 effIndex)
 {
     // prepare list of aura targets
     UnitList targetList;
-    for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
+    for (auto & m_application : m_applications)
     {
-        if ((appIter->second->GetEffectsToApply() & (1<<effIndex)) && !appIter->second->HasEffect(effIndex))
-            targetList.push_back(appIter->second->GetTarget());
+        if ((m_application.second->GetEffectsToApply() & (1<<effIndex)) && !m_application.second->HasEffect(effIndex))
+            targetList.push_back(m_application.second->GetTarget());
     }
 
     // apply effect to targets
-    for (UnitList::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+    for (auto & itr : targetList)
     {
-        if (GetApplicationOfTarget((*itr)->GetGUID()))
+        if (GetApplicationOfTarget(itr->GetGUID()))
         {
             // owner has to be in world, or effect has to be applied to self
-            ASSERT((!GetOwner()->IsInWorld() && GetOwner() == *itr) || GetOwner()->IsInMap(*itr));
-            (*itr)->_ApplyAuraEffect(this, effIndex);
+            ASSERT((!GetOwner()->IsInWorld() && GetOwner() == itr) || GetOwner()->IsInMap(itr));
+            itr->_ApplyAuraEffect(this, effIndex);
         }
     }
 }
@@ -799,9 +799,9 @@ void Aura::UpdateOwner(uint32 diff, WorldObject* owner)
         m_updateTargetMapInterval -= diff;
 
     // update aura effects
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_effects[i])
-            m_effects[i]->Update(diff, caster);
+    for (auto & m_effect : m_effects)
+        if (m_effect)
+            m_effect->Update(diff, caster);
 
     // remove spellmods after effects update
     if (modSpell)
@@ -906,8 +906,8 @@ void Aura::RefreshDuration(bool withMods)
         m_timeCla = 1 * IN_MILLISECONDS;
 
     // also reset periodic counters
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (AuraEffect* aurEff = m_effects[i])
+    for (auto aurEff : m_effects)
+        if (aurEff)
             aurEff->ResetTicks();
 }
 
@@ -917,8 +917,8 @@ void Aura::RefreshTimers(bool resetPeriodicTimer)
     RefreshDuration();
 
     Unit* caster = GetCaster();
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (AuraEffect* aurEff = m_effects[i])
+    for (auto aurEff : m_effects)
+        if (aurEff)
             aurEff->CalculatePeriodic(caster, resetPeriodicTimer, false);
 }
 
@@ -1097,12 +1097,12 @@ bool Aura::CanBeSaved() const
     if (GetCasterGUID() != GetOwner()->GetGUID())
     {
         // owner == caster for area auras, check for possible bad data in DB
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (const auto & Effect : GetSpellInfo()->Effects)
         {
-            if (!GetSpellInfo()->Effects[i].IsEffect())
+            if (!Effect.IsEffect())
                 continue;
 
-            if (GetSpellInfo()->Effects[i].IsTargetingArea() || GetSpellInfo()->Effects[i].IsAreaAuraEffect())
+            if (Effect.IsTargetingArea() || Effect.IsAreaAuraEffect())
                 return false;
         }
 
@@ -1264,9 +1264,9 @@ void Aura::RecalculateAmountOfEffects()
 void Aura::HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply)
 {
     ASSERT (!IsRemoved());
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_effects[i] && !IsRemoved())
-            m_effects[i]->HandleEffect(aurApp, mode, apply);
+    for (auto & m_effect : m_effects)
+        if (m_effect && !IsRemoved())
+            m_effect->HandleEffect(aurApp, mode, apply);
 }
 
 void Aura::GetApplicationVector(std::vector<AuraApplication*>& applicationList) const
@@ -1282,8 +1282,8 @@ void Aura::GetApplicationVector(std::vector<AuraApplication*>& applicationList) 
 
 void Aura::SetNeedClientUpdateForTargets() const
 {
-    for (ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
-        appIter->second->SetNeedClientUpdate();
+    for (auto m_application : m_applications)
+        m_application.second->SetNeedClientUpdate();
 }
 
 // trigger effects on real aura apply/remove
@@ -1320,12 +1320,12 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         {
             if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
             {
-                for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
+                for (int itr : *spellTriggered)
                 {
-                    if (*itr < 0)
-                        target->ApplySpellImmune(GetId(), IMMUNITY_ID, -(*itr), true);
+                    if (itr < 0)
+                        target->ApplySpellImmune(GetId(), IMMUNITY_ID, -itr, true);
                     else if (caster)
-                        caster->AddAura(*itr, target);
+                        caster->AddAura(itr, target);
                 }
             }
         }
@@ -1334,22 +1334,22 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             // remove linked auras
             if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(-(int32)GetId()))
             {
-                for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
+                for (int itr : *spellTriggered)
                 {
-                    if (*itr < 0)
-                        target->RemoveAurasDueToSpell(-(*itr));
+                    if (itr < 0)
+                        target->RemoveAurasDueToSpell(-itr);
                     else if (removeMode != AURA_REMOVE_BY_DEATH)
-                        target->CastSpell(target, *itr, GetCasterGUID());
+                        target->CastSpell(target, itr, GetCasterGUID());
                 }
             }
             if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
             {
-                for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
+                for (int itr : *spellTriggered)
                 {
-                    if (*itr < 0)
-                        target->ApplySpellImmune(GetId(), IMMUNITY_ID, -(*itr), false);
+                    if (itr < 0)
+                        target->ApplySpellImmune(GetId(), IMMUNITY_ID, -itr, false);
                     else
-                        target->RemoveAura(*itr, GetCasterGUID(), 0, removeMode);
+                        target->RemoveAura(itr, GetCasterGUID(), 0, removeMode);
                 }
             }
         }
@@ -1359,9 +1359,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
         // modify stack amount of linked auras
         if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
         {
-            for (std::vector<int32>::const_iterator itr = spellTriggered->begin(); itr != spellTriggered->end(); ++itr)
-                if (*itr > 0)
-                    if (Aura* triggeredAura = target->GetAura(*itr, GetCasterGUID()))
+            for (int itr : *spellTriggered)
+                if (itr > 0)
+                    if (Aura* triggeredAura = target->GetAura(itr, GetCasterGUID()))
                         triggeredAura->ModStackAmount(GetStackAmount() - triggeredAura->GetStackAmount());
         }
     }
@@ -1508,13 +1508,13 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     AuraEffect* aurEff = nullptr;
                     // Ebon Plaguebringer / Crypt Fever
                     Unit::AuraEffectList const& TalentAuras = caster->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                    for (Unit::AuraEffectList::const_iterator itr = TalentAuras.begin(); itr != TalentAuras.end(); ++itr)
+                    for (auto TalentAura : TalentAuras)
                     {
-                        if ((*itr)->GetMiscValue() == 7282)
+                        if (TalentAura->GetMiscValue() == 7282)
                         {
-                            aurEff = *itr;
+                            aurEff = TalentAura;
                             // Ebon Plaguebringer - end search if found
-                            if ((*itr)->GetSpellInfo()->SpellIconID == 1766)
+                            if (TalentAura->GetSpellInfo()->SpellIconID == 1766)
                                 break;
                         }
                     }
@@ -1584,10 +1584,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             // aura remove - remove auras from all party members
                             std::list<Unit*> PartyMembers;
                             target->GetPartyMembers(PartyMembers);
-                            for (std::list<Unit*>::iterator itr = PartyMembers.begin(); itr != PartyMembers.end(); ++itr)
+                            for (auto & PartyMember : PartyMembers)
                             {
-                                if ((*itr)!= target)
-                                    (*itr)->RemoveAurasWithFamily(SPELLFAMILY_WARRIOR, 0, 0x2, 0, GetCasterGUID());
+                                if (PartyMember!= target)
+                                    PartyMember->RemoveAurasWithFamily(SPELLFAMILY_WARRIOR, 0, 0x2, 0, GetCasterGUID());
                             }
                         }
                     }
@@ -2190,69 +2190,69 @@ void Aura::_DeleteRemovedApplications()
 void Aura::LoadScripts()
 {
     sScriptMgr->CreateAuraScripts(m_spellInfo->Id, m_loadedScripts, this);
-    for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        TC_LOG_DEBUG("spells", "Aura::LoadScripts: Script `%s` for aura `%u` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
-        (*itr)->Register();
+        TC_LOG_DEBUG("spells", "Aura::LoadScripts: Script `%s` for aura `%u` is loaded now", m_loadedScript->_GetScriptName()->c_str(), m_spellInfo->Id);
+        m_loadedScript->Register();
     }
 }
 
 bool Aura::CallScriptCheckAreaTargetHandlers(Unit* target)
 {
     bool result = true;
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_AREA_TARGET);
-        auto hookItrEnd = (*scritr)->DoCheckAreaTarget.end(), hookItr = (*scritr)->DoCheckAreaTarget.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_AREA_TARGET);
+        auto hookItrEnd = m_loadedScript->DoCheckAreaTarget.end(), hookItr = m_loadedScript->DoCheckAreaTarget.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
-            result &= hookItr->Call(*scritr, target);
+            result &= hookItr->Call(m_loadedScript, target);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
     return result;
 }
 
 void Aura::CallScriptDispel(DispelInfo* dispelInfo)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_DISPEL);
-        auto hookItrEnd = (*scritr)->OnDispel.end(), hookItr = (*scritr)->OnDispel.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_DISPEL);
+        auto hookItrEnd = m_loadedScript->OnDispel.end(), hookItr = m_loadedScript->OnDispel.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
-            hookItr->Call(*scritr, dispelInfo);
+            hookItr->Call(m_loadedScript, dispelInfo);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_AFTER_DISPEL);
-        auto hookItrEnd = (*scritr)->AfterDispel.end(), hookItr = (*scritr)->AfterDispel.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_AFTER_DISPEL);
+        auto hookItrEnd = m_loadedScript->AfterDispel.end(), hookItr = m_loadedScript->AfterDispel.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
-            hookItr->Call(*scritr, dispelInfo);
+            hookItr->Call(m_loadedScript, dispelInfo);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
     bool preventDefault = false;
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_APPLY, aurApp);
-        auto effEndItr = (*scritr)->OnEffectApply.end(), effItr = (*scritr)->OnEffectApply.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_APPLY, aurApp);
+        auto effEndItr = m_loadedScript->OnEffectApply.end(), effItr = m_loadedScript->OnEffectApply.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, mode);
+                effItr->Call(m_loadedScript, aurEff, mode);
 
         if (!preventDefault)
-            preventDefault = (*scritr)->_IsDefaultActionPrevented();
+            preventDefault = m_loadedScript->_IsDefaultActionPrevented();
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 
     return preventDefault;
@@ -2261,65 +2261,65 @@ bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplicati
 bool Aura::CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
     bool preventDefault = false;
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_REMOVE, aurApp);
-        auto effEndItr = (*scritr)->OnEffectRemove.end(), effItr = (*scritr)->OnEffectRemove.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_REMOVE, aurApp);
+        auto effEndItr = m_loadedScript->OnEffectRemove.end(), effItr = m_loadedScript->OnEffectRemove.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, mode);
+                effItr->Call(m_loadedScript, aurEff, mode);
 
         if (!preventDefault)
-            preventDefault = (*scritr)->_IsDefaultActionPrevented();
+            preventDefault = m_loadedScript->_IsDefaultActionPrevented();
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
     return preventDefault;
 }
 
 void Aura::CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY, aurApp);
-        auto effEndItr = (*scritr)->AfterEffectApply.end(), effItr = (*scritr)->AfterEffectApply.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_APPLY, aurApp);
+        auto effEndItr = m_loadedScript->AfterEffectApply.end(), effItr = m_loadedScript->AfterEffectApply.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, mode);
+                effItr->Call(m_loadedScript, aurEff, mode);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptAfterEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE, aurApp);
-        auto effEndItr = (*scritr)->AfterEffectRemove.end(), effItr = (*scritr)->AfterEffectRemove.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_REMOVE, aurApp);
+        auto effEndItr = m_loadedScript->AfterEffectRemove.end(), effItr = m_loadedScript->AfterEffectRemove.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, mode);
+                effItr->Call(m_loadedScript, aurEff, mode);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp)
 {
     bool preventDefault = false;
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_PERIODIC, aurApp);
-        auto effEndItr = (*scritr)->OnEffectPeriodic.end(), effItr = (*scritr)->OnEffectPeriodic.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_PERIODIC, aurApp);
+        auto effEndItr = m_loadedScript->OnEffectPeriodic.end(), effItr = m_loadedScript->OnEffectPeriodic.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff);
+                effItr->Call(m_loadedScript, aurEff);
 
         if (!preventDefault)
-            preventDefault = (*scritr)->_IsDefaultActionPrevented();
+            preventDefault = m_loadedScript->_IsDefaultActionPrevented();
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 
     return preventDefault;
@@ -2327,145 +2327,145 @@ bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplic
 
 void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_UPDATE_PERIODIC);
-        auto effEndItr = (*scritr)->OnEffectUpdatePeriodic.end(), effItr = (*scritr)->OnEffectUpdatePeriodic.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_UPDATE_PERIODIC);
+        auto effEndItr = m_loadedScript->OnEffectUpdatePeriodic.end(), effItr = m_loadedScript->OnEffectUpdatePeriodic.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff);
+                effItr->Call(m_loadedScript, aurEff);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptEffectCalcAmountHandlers(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT);
-        auto effEndItr = (*scritr)->DoEffectCalcAmount.end(), effItr = (*scritr)->DoEffectCalcAmount.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT);
+        auto effEndItr = m_loadedScript->DoEffectCalcAmount.end(), effItr = m_loadedScript->DoEffectCalcAmount.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, amount, canBeRecalculated);
+                effItr->Call(m_loadedScript, aurEff, amount, canBeRecalculated);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptEffectCalcPeriodicHandlers(AuraEffect const* aurEff, bool& isPeriodic, int32& amplitude)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC);
-        auto effEndItr = (*scritr)->DoEffectCalcPeriodic.end(), effItr = (*scritr)->DoEffectCalcPeriodic.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC);
+        auto effEndItr = m_loadedScript->DoEffectCalcPeriodic.end(), effItr = m_loadedScript->DoEffectCalcPeriodic.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, isPeriodic, amplitude);
+                effItr->Call(m_loadedScript, aurEff, isPeriodic, amplitude);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellModifier*& spellMod)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD);
-        auto effEndItr = (*scritr)->DoEffectCalcSpellMod.end(), effItr = (*scritr)->DoEffectCalcSpellMod.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD);
+        auto effEndItr = m_loadedScript->DoEffectCalcSpellMod.end(), effItr = m_loadedScript->DoEffectCalcSpellMod.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, spellMod);
+                effItr->Call(m_loadedScript, aurEff, spellMod);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptEffectAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool& defaultPrevented)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_ABSORB, aurApp);
-        auto effEndItr = (*scritr)->OnEffectAbsorb.end(), effItr = (*scritr)->OnEffectAbsorb.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_ABSORB, aurApp);
+        auto effEndItr = m_loadedScript->OnEffectAbsorb.end(), effItr = m_loadedScript->OnEffectAbsorb.begin();
         for (; effItr != effEndItr; ++effItr)
 
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, dmgInfo, absorbAmount);
+                effItr->Call(m_loadedScript, aurEff, dmgInfo, absorbAmount);
 
         if (!defaultPrevented)
-            defaultPrevented = (*scritr)->_IsDefaultActionPrevented();
+            defaultPrevented = m_loadedScript->_IsDefaultActionPrevented();
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB, aurApp);
-        auto effEndItr = (*scritr)->AfterEffectAbsorb.end(), effItr = (*scritr)->AfterEffectAbsorb.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB, aurApp);
+        auto effEndItr = m_loadedScript->AfterEffectAbsorb.end(), effItr = m_loadedScript->AfterEffectAbsorb.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, dmgInfo, absorbAmount);
+                effItr->Call(m_loadedScript, aurEff, dmgInfo, absorbAmount);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptEffectManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount, bool& /*defaultPrevented*/)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_MANASHIELD, aurApp);
-        auto effEndItr = (*scritr)->OnEffectManaShield.end(), effItr = (*scritr)->OnEffectManaShield.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_MANASHIELD, aurApp);
+        auto effEndItr = m_loadedScript->OnEffectManaShield.end(), effItr = m_loadedScript->OnEffectManaShield.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, dmgInfo, absorbAmount);
+                effItr->Call(m_loadedScript, aurEff, dmgInfo, absorbAmount);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& absorbAmount)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD, aurApp);
-        auto effEndItr = (*scritr)->AfterEffectManaShield.end(), effItr = (*scritr)->AfterEffectManaShield.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD, aurApp);
+        auto effEndItr = m_loadedScript->AfterEffectManaShield.end(), effItr = m_loadedScript->AfterEffectManaShield.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, dmgInfo, absorbAmount);
+                effItr->Call(m_loadedScript, aurEff, dmgInfo, absorbAmount);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 void Aura::CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, DamageInfo& dmgInfo, uint32& splitAmount)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_SPLIT, aurApp);
-        auto effEndItr = (*scritr)->OnEffectSplit.end(), effItr = (*scritr)->OnEffectSplit.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_SPLIT, aurApp);
+        auto effEndItr = m_loadedScript->OnEffectSplit.end(), effItr = m_loadedScript->OnEffectSplit.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, dmgInfo, splitAmount);
+                effItr->Call(m_loadedScript, aurEff, dmgInfo, splitAmount);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
     bool result = true;
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_PROC, aurApp);
-        auto hookItrEnd = (*scritr)->DoCheckProc.end(), hookItr = (*scritr)->DoCheckProc.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_PROC, aurApp);
+        auto hookItrEnd = m_loadedScript->DoCheckProc.end(), hookItr = m_loadedScript->DoCheckProc.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
-            result &= hookItr->Call(*scritr, eventInfo);
+            result &= hookItr->Call(m_loadedScript, eventInfo);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 
     return result;
@@ -2474,17 +2474,17 @@ bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventI
 bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
     bool prepare = true;
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_PREPARE_PROC, aurApp);
-        auto effEndItr = (*scritr)->DoPrepareProc.end(), effItr = (*scritr)->DoPrepareProc.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_PREPARE_PROC, aurApp);
+        auto effEndItr = m_loadedScript->DoPrepareProc.end(), effItr = m_loadedScript->DoPrepareProc.begin();
         for (; effItr != effEndItr; ++effItr)
-            effItr->Call(*scritr, eventInfo);
+            effItr->Call(m_loadedScript, eventInfo);
 
         if (prepare)
-            prepare = !(*scritr)->_IsDefaultActionPrevented();
+            prepare = !m_loadedScript->_IsDefaultActionPrevented();
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 
     return prepare;
@@ -2493,15 +2493,15 @@ bool Aura::CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEven
 bool Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
     bool handled = false;
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_PROC, aurApp);
-        auto hookItrEnd = (*scritr)->OnProc.end(), hookItr = (*scritr)->OnProc.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_PROC, aurApp);
+        auto hookItrEnd = m_loadedScript->OnProc.end(), hookItr = m_loadedScript->OnProc.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
-            hookItr->Call(*scritr, eventInfo);
+            hookItr->Call(m_loadedScript, eventInfo);
 
-        handled |= (*scritr)->_IsDefaultActionPrevented();
-        (*scritr)->_FinishScriptCall();
+        handled |= m_loadedScript->_IsDefaultActionPrevented();
+        m_loadedScript->_FinishScriptCall();
     }
 
     return handled;
@@ -2509,29 +2509,29 @@ bool Aura::CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& 
 
 void Aura::CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_AFTER_PROC, aurApp);
-        auto hookItrEnd = (*scritr)->AfterProc.end(), hookItr = (*scritr)->AfterProc.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_AFTER_PROC, aurApp);
+        auto hookItrEnd = m_loadedScript->AfterProc.end(), hookItr = m_loadedScript->AfterProc.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
-            hookItr->Call(*scritr, eventInfo);
+            hookItr->Call(m_loadedScript, eventInfo);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 
 bool Aura::CallScriptCheckEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
     bool result = true;
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_EFFECT_PROC, aurApp);
-        auto hookItrEnd = (*scritr)->DoCheckEffectProc.end(), hookItr = (*scritr)->DoCheckEffectProc.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_CHECK_EFFECT_PROC, aurApp);
+        auto hookItrEnd = m_loadedScript->DoCheckEffectProc.end(), hookItr = m_loadedScript->DoCheckEffectProc.begin();
         for (; hookItr != hookItrEnd; ++hookItr)
             if (hookItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                result &= hookItr->Call(*scritr, aurEff, eventInfo);
+                result &= hookItr->Call(m_loadedScript, aurEff, eventInfo);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 
     return result;
@@ -2540,33 +2540,33 @@ bool Aura::CallScriptCheckEffectProcHandlers(AuraEffect const* aurEff, AuraAppli
 bool Aura::CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
     bool preventDefault = false;
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_PROC, aurApp);
-        auto effEndItr = (*scritr)->OnEffectProc.end(), effItr = (*scritr)->OnEffectProc.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_PROC, aurApp);
+        auto effEndItr = m_loadedScript->OnEffectProc.end(), effItr = m_loadedScript->OnEffectProc.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, eventInfo);
+                effItr->Call(m_loadedScript, aurEff, eventInfo);
 
         if (!preventDefault)
-            preventDefault = (*scritr)->_IsDefaultActionPrevented();
+            preventDefault = m_loadedScript->_IsDefaultActionPrevented();
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
     return preventDefault;
 }
 
 void Aura::CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
-    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    for (auto & m_loadedScript : m_loadedScripts)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC, aurApp);
-        auto effEndItr = (*scritr)->AfterEffectProc.end(), effItr = (*scritr)->AfterEffectProc.begin();
+        m_loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC, aurApp);
+        auto effEndItr = m_loadedScript->AfterEffectProc.end(), effItr = m_loadedScript->AfterEffectProc.begin();
         for (; effItr != effEndItr; ++effItr)
             if (effItr->IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
-                effItr->Call(*scritr, aurEff, eventInfo);
+                effItr->Call(m_loadedScript, aurEff, eventInfo);
 
-        (*scritr)->_FinishScriptCall();
+        m_loadedScript->_FinishScriptCall();
     }
 }
 

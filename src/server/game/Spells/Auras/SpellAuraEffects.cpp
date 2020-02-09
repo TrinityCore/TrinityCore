@@ -401,10 +401,10 @@ void AuraEffect::GetTargetList(Container& targetContainer) const
 {
     Aura::ApplicationMap const& targetMap = GetBase()->GetApplicationMap();
     // remove all targets which were not added to new list - they no longer deserve area aura
-    for (auto appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
+    for (auto appIter : targetMap)
     {
-        if (appIter->second->HasEffect(GetEffIndex()))
-            targetContainer.push_back(appIter->second->GetTarget());
+        if (appIter.second->HasEffect(GetEffIndex()))
+            targetContainer.push_back(appIter.second->GetTarget());
     }
 }
 
@@ -412,10 +412,10 @@ template <typename Container>
 void AuraEffect::GetApplicationList(Container& applicationContainer) const
 {
     Aura::ApplicationMap const& targetMap = GetBase()->GetApplicationMap();
-    for (auto appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
+    for (auto appIter : targetMap)
     {
-        if (appIter->second->HasEffect(GetEffIndex()))
-            applicationContainer.push_back(appIter->second);
+        if (appIter.second->HasEffect(GetEffIndex()))
+            applicationContainer.push_back(appIter.second);
     }
 }
 
@@ -441,9 +441,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                             {
                                 if (SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]))
                                 {
-                                    for (uint8 t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; ++t)
+                                    for (unsigned int t : pEnchant->spellid)
                                     {
-                                        if (pEnchant->spellid[t] == m_spellInfo->Id)
+                                        if (t == m_spellInfo->Id)
                                         {
                                             amount = uint32((item_rand_suffix->prefix[k] * castItem->GetItemSuffixFactor()) / 10000);
                                             break;
@@ -478,14 +478,14 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             {
                 // Glyphs increasing damage cap
                 Unit::AuraEffectList const& overrideClassScripts = caster->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-                for (Unit::AuraEffectList::const_iterator itr = overrideClassScripts.begin(); itr != overrideClassScripts.end(); ++itr)
+                for (auto overrideClassScript : overrideClassScripts)
                 {
-                    if ((*itr)->IsAffectedOnSpell(m_spellInfo))
+                    if (overrideClassScript->IsAffectedOnSpell(m_spellInfo))
                     {
                         // Glyph of Fear, Glyph of Frost nova and similar auras
-                        if ((*itr)->GetMiscValue() == 7801)
+                        if (overrideClassScript->GetMiscValue() == 7801)
                         {
-                            AddPct(amount, (*itr)->GetAmount());
+                            AddPct(amount, overrideClassScript->GetAmount());
                             break;
                         }
                     }
@@ -770,9 +770,9 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
         {
             ObjectGuid guid = target->GetGUID();
             Unit::AuraApplicationMap & auras = target->GetAppliedAuras();
-            for (Unit::AuraApplicationMap::iterator iter = auras.begin(); iter != auras.end(); ++iter)
+            for (auto & iter : auras)
             {
-                Aura* aura = iter->second->GetBase();
+                Aura* aura = iter.second->GetBase();
                 // only passive and permament auras-active auras should have amount set on spellcast and not be affected
                 // if aura is cast by others, it will not be affected
                 if ((aura->IsPassive() || aura->IsPermanent()) && aura->GetCasterGUID() == guid && aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
@@ -1145,20 +1145,20 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
             PlayerSpellMap const& sp_list = target->ToPlayer()->GetSpellMap();
-            for (auto itr = sp_list.begin(); itr != sp_list.end(); ++itr)
+            for (auto itr : sp_list)
             {
-                if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                if (itr.second->state == PLAYERSPELL_REMOVED || itr.second->disabled)
                     continue;
 
-                if (itr->first == spellId || itr->first == spellId2)
+                if (itr.first == spellId || itr.first == spellId2)
                     continue;
 
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr.first);
                 if (!spellInfo || !(spellInfo->IsPassive() || spellInfo->HasAttribute(SPELL_ATTR0_HIDDEN_CLIENTSIDE)))
                     continue;
 
                 if (spellInfo->Stances & (UI64LIT(1) << (GetMiscValue() - 1)))
-                    target->CastSpell(target, itr->first, this);
+                    target->CastSpell(target, itr.first, this);
             }
 
             // Also do it for Glyphs
@@ -1385,9 +1385,9 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
         {
             bool found = false;
             Unit::AuraEffectList const& invisAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
-            for (Unit::AuraEffectList::const_iterator i = invisAuras.begin(); i != invisAuras.end(); ++i)
+            for (auto invisAura : invisAuras)
             {
-                if (GetMiscValue() == (*i)->GetMiscValue())
+                if (GetMiscValue() == invisAura->GetMiscValue())
                 {
                     found = true;
                     break;
@@ -1508,9 +1508,9 @@ void AuraEffect::HandleDetectAmore(AuraApplication const* aurApp, uint8 mode, bo
         if (target->HasAuraType(SPELL_AURA_DETECT_AMORE))
         {
             Unit::AuraEffectList const& amoreAuras = target->GetAuraEffectsByType(SPELL_AURA_DETECT_AMORE);
-            for (Unit::AuraEffectList::const_iterator i = amoreAuras.begin(); i != amoreAuras.end(); ++i)
+            for (auto amoreAura : amoreAuras)
             {
-                if (GetMiscValue() == (*i)->GetMiscValue())
+                if (GetMiscValue() == amoreAura->GetMiscValue())
                     return;
             }
         }
@@ -1584,8 +1584,8 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
     uint32 newPhase = 0;
     Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
     if (!phases.empty())
-        for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-            newPhase |= (*itr)->GetMiscValue();
+        for (auto phase : phases)
+            newPhase |= phase->GetMiscValue();
 
     if (Player* player = target->ToPlayer())
     {
@@ -1831,12 +1831,12 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                 if (target->GetTypeId() == TYPEID_PLAYER)
                 {
                     PlayerSpellMap const& sp_list = target->ToPlayer()->GetSpellMap();
-                    for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
+                    for (auto itr : sp_list)
                     {
-                        if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled)
+                        if (itr.second->state == PLAYERSPELL_REMOVED || itr.second->disabled)
                             continue;
 
-                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr.first);
                         if (spellInfo && spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR && spellInfo->SpellIconID == 139)
                             Rage_val += target->CalculateSpellDamage(spellInfo, EFFECT_0) * 10;
                     }
@@ -1883,14 +1883,14 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         SpellShapeshiftEntry const* shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
         ASSERT(shapeInfo);
         // Learn spells for shapeshift form - no need to send action bars or add spells to spellbook
-        for (uint8 i = 0; i<MAX_SHAPESHIFT_SPELLS; ++i)
+        for (unsigned int i : shapeInfo->stanceSpell)
         {
-            if (!shapeInfo->stanceSpell[i])
+            if (!i)
                 continue;
             if (apply)
-                target->ToPlayer()->AddTemporarySpell(shapeInfo->stanceSpell[i]);
+                target->ToPlayer()->AddTemporarySpell(i);
             else
-                target->ToPlayer()->RemoveTemporarySpell(shapeInfo->stanceSpell[i]);
+                target->ToPlayer()->RemoveTemporarySpell(i);
         }
     }
 }
@@ -2179,17 +2179,17 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
         Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(target, target, target->GetMap()->GetVisibilityRange());
         Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, targets, u_check);
         Cell::VisitAllObjects(target, searcher, target->GetMap()->GetVisibilityRange());
-        for (UnitList::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        for (auto & iter : targets)
         {
-            if (!(*iter)->HasUnitState(UNIT_STATE_CASTING))
+            if (!iter->HasUnitState(UNIT_STATE_CASTING))
                 continue;
 
             for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
             {
-                if ((*iter)->GetCurrentSpell(i)
-                && (*iter)->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
+                if (iter->GetCurrentSpell(i)
+                && iter->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
                 {
-                    (*iter)->InterruptSpell(CurrentSpellTypes(i), false);
+                    iter->InterruptSpell(CurrentSpellTypes(i), false);
                 }
             }
         }
@@ -2599,9 +2599,9 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
             vehicleId = creatureInfo->VehicleId;
 
             //some spell has one aura of mount and one of vehicle
-            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                if (GetSpellInfo()->Effects[i].Effect == SPELL_EFFECT_SUMMON
-                    && GetSpellInfo()->Effects[i].MiscValue == GetMiscValue())
+            for (const auto & Effect : GetSpellInfo()->Effects)
+                if (Effect.Effect == SPELL_EFFECT_SUMMON
+                    && Effect.MiscValue == GetMiscValue())
                     displayId = 0;
         }
 
@@ -4280,8 +4280,8 @@ void AuraEffect::HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mod
 
     flag96 mask;
     Unit::AuraEffectList const& noReagent = target->GetAuraEffectsByType(SPELL_AURA_NO_REAGENT_USE);
-        for (Unit::AuraEffectList::const_iterator i = noReagent.begin(); i != noReagent.end(); ++i)
-            mask |= (*i)->m_spellInfo->Effects[(*i)->m_effIndex].SpellClassMask;
+        for (auto i : noReagent)
+            mask |= i->m_spellInfo->Effects[i->m_effIndex].SpellClassMask;
 
     target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1  , mask[0]);
     target->SetUInt32Value(PLAYER_NO_REAGENT_COST_1+1, mask[1]);
@@ -4970,16 +4970,16 @@ void AuraEffect::HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 m
     {
         target->SetUInt16Value(PLAYER_FIELD_BYTES2, PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET, overrideId);
         if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
-            for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
-                if (uint32 spellId = overrideSpells->spellId[i])
+            for (unsigned int spellId : overrideSpells->spellId)
+                if (spellId)
                     target->AddTemporarySpell(spellId);
     }
     else
     {
         target->SetUInt16Value(PLAYER_FIELD_BYTES2, PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET, 0);
         if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
-            for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
-                if (uint32 spellId = overrideSpells->spellId[i])
+            for (unsigned int spellId : overrideSpells->spellId)
+                if (spellId)
                     target->RemoveTemporarySpell(spellId);
     }
 }

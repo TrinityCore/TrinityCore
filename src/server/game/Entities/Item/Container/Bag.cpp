@@ -128,9 +128,9 @@ bool Bag::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fie
 
 void Bag::DeleteFromDB(SQLTransaction& trans)
 {
-    for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
-        if (m_bagslot[i])
-            m_bagslot[i]->DeleteFromDB(trans);
+    for (auto & i : m_bagslot)
+        if (i)
+            i->DeleteFromDB(trans);
 
     Item::DeleteFromDB(trans);
 }

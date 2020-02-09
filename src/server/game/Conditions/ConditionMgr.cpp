@@ -797,29 +797,29 @@ uint32 ConditionMgr::GetSearcherTypeMaskForConditionList(ConditionContainer cons
         return GRID_MAP_TYPE_MASK_ALL;
     //     groupId, typeMask
     std::map<uint32, uint32> elseGroupSearcherTypeMasks;
-    for (ConditionContainer::const_iterator i = conditions.begin(); i != conditions.end(); ++i)
+    for (auto condition : conditions)
     {
         // no point of having not loaded conditions in list
-        ASSERT((*i)->isLoaded() && "ConditionMgr::GetSearcherTypeMaskForConditionList - not yet loaded condition found in list");
-        std::map<uint32, uint32>::const_iterator itr = elseGroupSearcherTypeMasks.find((*i)->ElseGroup);
+        ASSERT(condition->isLoaded() && "ConditionMgr::GetSearcherTypeMaskForConditionList - not yet loaded condition found in list");
+        std::map<uint32, uint32>::const_iterator itr = elseGroupSearcherTypeMasks.find(condition->ElseGroup);
         // group not filled yet, fill with widest mask possible
         if (itr == elseGroupSearcherTypeMasks.end())
-            elseGroupSearcherTypeMasks[(*i)->ElseGroup] = GRID_MAP_TYPE_MASK_ALL;
+            elseGroupSearcherTypeMasks[condition->ElseGroup] = GRID_MAP_TYPE_MASK_ALL;
         // no point of checking anymore, empty mask
         else if (!itr->second)
             continue;
 
-        if ((*i)->ReferenceId) // handle reference
+        if (condition->ReferenceId) // handle reference
         {
-            ConditionReferenceContainer::const_iterator ref = ConditionReferenceStore.find((*i)->ReferenceId);
+            ConditionReferenceContainer::const_iterator ref = ConditionReferenceStore.find(condition->ReferenceId);
             ASSERT(ref != ConditionReferenceStore.end() && "ConditionMgr::GetSearcherTypeMaskForConditionList - incorrect reference");
-            elseGroupSearcherTypeMasks[(*i)->ElseGroup] &= GetSearcherTypeMaskForConditionList((*ref).second);
+            elseGroupSearcherTypeMasks[condition->ElseGroup] &= GetSearcherTypeMaskForConditionList((*ref).second);
         }
         else // handle normal condition
         {
             // object will match conditions in one ElseGroupStore only when it matches all of them
             // so, let's find a smallest possible mask which satisfies all conditions
-            elseGroupSearcherTypeMasks[(*i)->ElseGroup] &= (*i)->GetSearcherTypeMaskForCondition();
+            elseGroupSearcherTypeMasks[condition->ElseGroup] &= condition->GetSearcherTypeMaskForCondition();
         }
     }
     // object will match condition when one of the checks in ElseGroupStore is matching
@@ -2367,53 +2367,53 @@ void ConditionMgr::LogUselessConditionValue(Condition* cond, uint8 index, uint32
 
 void ConditionMgr::Clean()
 {
-    for (ConditionReferenceContainer::iterator itr = ConditionReferenceStore.begin(); itr != ConditionReferenceStore.end(); ++itr)
-        for (ConditionContainer::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+    for (auto & itr : ConditionReferenceStore)
+        for (ConditionContainer::const_iterator it = itr.second.begin(); it != itr.second.end(); ++it)
             delete *it;
 
     ConditionReferenceStore.clear();
 
     for (uint32 i = 0; i < CONDITION_SOURCE_TYPE_MAX; ++i)
     {
-        for (ConditionsByEntryMap::iterator it = ConditionStore[i].begin(); it != ConditionStore[i].end(); ++it)
-            for (ConditionContainer::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
+        for (auto & it : ConditionStore[i])
+            for (ConditionContainer::const_iterator itr = it.second.begin(); itr != it.second.end(); ++itr)
                 delete *itr;
 
         ConditionStore[i].clear();
     }
 
-    for (ConditionEntriesByCreatureIdMap::iterator itr = VehicleSpellConditionStore.begin(); itr != VehicleSpellConditionStore.end(); ++itr)
-        for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-                delete *i;
+    for (auto & itr : VehicleSpellConditionStore)
+        for (ConditionsByEntryMap::iterator it = itr.second.begin(); it != itr.second.end(); ++it)
+            for (auto i : it->second)
+                delete i;
 
     VehicleSpellConditionStore.clear();
 
-    for (SmartEventConditionContainer::iterator itr = SmartEventConditionStore.begin(); itr != SmartEventConditionStore.end(); ++itr)
-        for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-                delete *i;
+    for (auto & itr : SmartEventConditionStore)
+        for (ConditionsByEntryMap::iterator it = itr.second.begin(); it != itr.second.end(); ++it)
+            for (auto i : it->second)
+                delete i;
 
     SmartEventConditionStore.clear();
 
-    for (ConditionEntriesByCreatureIdMap::iterator itr = SpellClickEventConditionStore.begin(); itr != SpellClickEventConditionStore.end(); ++itr)
-        for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-                delete *i;
+    for (auto & itr : SpellClickEventConditionStore)
+        for (ConditionsByEntryMap::iterator it = itr.second.begin(); it != itr.second.end(); ++it)
+            for (auto i : it->second)
+                delete i;
 
     SpellClickEventConditionStore.clear();
     SpellsUsedInSpellClickConditions.clear();
 
-    for (ConditionEntriesByCreatureIdMap::iterator itr = NpcVendorConditionContainerStore.begin(); itr != NpcVendorConditionContainerStore.end(); ++itr)
-        for (ConditionsByEntryMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-            for (ConditionContainer::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
-                delete *i;
+    for (auto & itr : NpcVendorConditionContainerStore)
+        for (ConditionsByEntryMap::iterator it = itr.second.begin(); it != itr.second.end(); ++it)
+            for (auto i : it->second)
+                delete i;
 
     NpcVendorConditionContainerStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
-    for (std::vector<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)
-        delete *itr;
+    for (auto itr : AllocatedMemoryStore)
+        delete itr;
 
     AllocatedMemoryStore.clear();
 }

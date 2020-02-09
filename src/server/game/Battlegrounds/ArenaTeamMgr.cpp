@@ -31,8 +31,8 @@ ArenaTeamMgr::ArenaTeamMgr()
 
 ArenaTeamMgr::~ArenaTeamMgr()
 {
-    for (ArenaTeamContainer::iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
-        delete itr->second;
+    for (auto & itr : ArenaTeamStore)
+        delete itr.second;
 }
 
 ArenaTeamMgr* ArenaTeamMgr::instance()
@@ -55,21 +55,21 @@ ArenaTeam* ArenaTeamMgr::GetArenaTeamByName(const std::string& arenaTeamName) co
 {
     std::string search = arenaTeamName;
     std::transform(search.begin(), search.end(), search.begin(), ::toupper);
-    for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
+    for (auto itr : ArenaTeamStore)
     {
-        std::string teamName = itr->second->GetName();
+        std::string teamName = itr.second->GetName();
         std::transform(teamName.begin(), teamName.end(), teamName.begin(), ::toupper);
         if (search == teamName)
-            return itr->second;
+            return itr.second;
     }
     return nullptr;
 }
 
 ArenaTeam* ArenaTeamMgr::GetArenaTeamByCaptain(ObjectGuid guid) const
 {
-    for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
-        if (itr->second->GetCaptain() == guid)
-            return itr->second;
+    for (auto itr : ArenaTeamStore)
+        if (itr.second->GetCaptain() == guid)
+            return itr.second;
 
     return nullptr;
 }
@@ -161,16 +161,16 @@ void ArenaTeamMgr::DistributeArenaPoints()
     PreparedStatement* stmt;
 
     // Cycle that gives points to all players
-    for (std::map<uint32, uint32>::iterator playerItr = PlayerPoints.begin(); playerItr != PlayerPoints.end(); ++playerItr)
+    for (auto & PlayerPoint : PlayerPoints)
     {
         // Add points to player if online
-        if (Player* player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, playerItr->first)))
-            player->ModifyArenaPoints(playerItr->second, trans);
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, PlayerPoint.first)))
+            player->ModifyArenaPoints(PlayerPoint.second, trans);
         else    // Update database
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_CHAR_ARENA_POINTS);
-            stmt->setUInt32(0, playerItr->second);
-            stmt->setUInt32(1, playerItr->first);
+            stmt->setUInt32(0, PlayerPoint.second);
+            stmt->setUInt32(1, PlayerPoint.first);
             trans->Append(stmt);
         }
     }

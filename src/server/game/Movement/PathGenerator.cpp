@@ -181,9 +181,9 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         if (waterPath)
         {
             // Check both start and end points, if they're both in water, then we can *safely* let the creature move
-            for (uint32 i = 0; i < _pathPoints.size(); ++i)
+            for (auto & _pathPoint : _pathPoints)
             {
-                ZLiquidStatus status = _sourceUnit->GetBaseMap()->GetLiquidStatus(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, MAP_ALL_LIQUIDS, nullptr, _sourceUnit->GetCollisionHeight());
+                ZLiquidStatus status = _sourceUnit->GetBaseMap()->GetLiquidStatus(_pathPoint.x, _pathPoint.y, _pathPoint.z, MAP_ALL_LIQUIDS, nullptr, _sourceUnit->GetCollisionHeight());
                 // One of the points is not in the water, cancel movement.
                 if (status == LIQUID_MAP_NO_WATER)
                 {
@@ -586,8 +586,8 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
 
 void PathGenerator::NormalizePath()
 {
-    for (uint32 i = 0; i < _pathPoints.size(); ++i)
-        _sourceUnit->UpdateAllowedPositionZ(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
+    for (auto & _pathPoint : _pathPoints)
+        _sourceUnit->UpdateAllowedPositionZ(_pathPoint.x, _pathPoint.y, _pathPoint.z);
 }
 
 void PathGenerator::BuildShortcut()

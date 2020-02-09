@@ -32,8 +32,8 @@ Item* TradeData::GetItem(TradeSlots slot) const
 
 bool TradeData::HasItem(ObjectGuid itemGuid) const
 {
-    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
-        if (_items[i] == itemGuid)
+    for (auto _item : _items)
+        if (_item == itemGuid)
             return true;
 
     return false;

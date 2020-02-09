@@ -56,8 +56,8 @@ void MapManager::Initialize()
 
 void MapManager::InitializeVisibilityDistanceInfo()
 {
-    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end(); ++iter)
-        (*iter).second->InitVisibilityDistance();
+    for (auto & i_map : i_maps)
+        i_map.second->InitVisibilityDistance();
 }
 
 MapManager* MapManager::instance()
@@ -274,14 +274,14 @@ uint32 MapManager::GetNumInstances()
     std::lock_guard<std::mutex> lock(_mapsLock);
 
     uint32 ret = 0;
-    for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
+    for (auto & i_map : i_maps)
     {
-        Map* map = itr->second;
+        Map* map = i_map.second;
         if (!map->Instanceable())
             continue;
         MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
-        for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if (mitr->second->IsDungeon()) ret++;
+        for (auto & map : maps)
+            if (map.second->IsDungeon()) ret++;
     }
     return ret;
 }
@@ -291,15 +291,15 @@ uint32 MapManager::GetNumPlayersInInstances()
     std::lock_guard<std::mutex> lock(_mapsLock);
 
     uint32 ret = 0;
-    for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
+    for (auto & i_map : i_maps)
     {
-        Map* map = itr->second;
+        Map* map = i_map.second;
         if (!map->Instanceable())
             continue;
         MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
-        for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if (mitr->second->IsDungeon())
-                ret += ((InstanceMap*)mitr->second)->GetPlayers().getSize();
+        for (auto & map : maps)
+            if (map.second->IsDungeon())
+                ret += ((InstanceMap*)map.second)->GetPlayers().getSize();
     }
     return ret;
 }

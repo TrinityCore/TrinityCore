@@ -633,8 +633,8 @@ void PoolMgr::LoadFromDB()
                     {
                         std::ostringstream ss;
                         ss << "The pool(s) ";
-                        for (std::set<uint32>::const_iterator itr = checkedPools.begin(); itr != checkedPools.end(); ++itr)
-                            ss << *itr << ' ';
+                        for (unsigned int checkedPool : checkedPools)
+                            ss << checkedPool << ' ';
                         ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool "
                             << poolItr->first << " and child pool " << poolItr->second;
                         TC_LOG_ERROR("sql.sql", "%s", ss.str().c_str());

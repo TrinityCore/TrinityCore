@@ -116,16 +116,16 @@ Loot::~Loot()
 
 void Loot::clear()
 {
-    for (NotNormalLootItemMap::const_iterator itr = PlayerQuestItems.begin(); itr != PlayerQuestItems.end(); ++itr)
-        delete itr->second;
+    for (auto PlayerQuestItem : PlayerQuestItems)
+        delete PlayerQuestItem.second;
     PlayerQuestItems.clear();
 
-    for (NotNormalLootItemMap::const_iterator itr = PlayerFFAItems.begin(); itr != PlayerFFAItems.end(); ++itr)
-        delete itr->second;
+    for (auto PlayerFFAItem : PlayerFFAItems)
+        delete PlayerFFAItem.second;
     PlayerFFAItems.clear();
 
-    for (NotNormalLootItemMap::const_iterator itr = PlayerNonQuestNonFFAConditionalItems.begin(); itr != PlayerNonQuestNonFFAConditionalItems.end(); ++itr)
-        delete itr->second;
+    for (auto PlayerNonQuestNonFFAConditionalItem : PlayerNonQuestNonFFAConditionalItems)
+        delete PlayerNonQuestNonFFAConditionalItem.second;
     PlayerNonQuestNonFFAConditionalItems.clear();
 
     PlayersLooting.clear();
@@ -218,11 +218,11 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
                 if (player->IsInMap(lootOwner))
                     FillNotNormalLootFor(player, player->IsAtGroupRewardDistance(lootOwner));
 
-        for (uint8 i = 0; i < items.size(); ++i)
+        for (auto & item : items)
         {
-            if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(items[i].itemid))
+            if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid))
                 if (proto->Quality < uint32(group->GetLootThreshold()))
-                    items[i].is_underthreshold = true;
+                    item.is_underthreshold = true;
         }
     }
     // ... for personal loot
@@ -469,10 +469,10 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, NotNormalLootIte
             NotNormalLootItemMap::const_iterator itr = PlayerFFAItems.find(player->GetGUID());
             if (itr != PlayerFFAItems.end())
             {
-                for (NotNormalLootItemList::const_iterator iter = itr->second->begin(); iter != itr->second->end(); ++iter)
-                    if (iter->index == lootSlot)
+                for (auto iter : *itr->second)
+                    if (iter.index == lootSlot)
                     {
-                        NotNormalLootItem* ffaitem2 = (NotNormalLootItem*)&(*iter);
+                        NotNormalLootItem* ffaitem2 = (NotNormalLootItem*)&iter;
                         if (ffaitem)
                             *ffaitem = ffaitem2;
                         is_looted = ffaitem2->is_looted;
@@ -485,11 +485,11 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, NotNormalLootIte
             NotNormalLootItemMap::const_iterator itr = PlayerNonQuestNonFFAConditionalItems.find(player->GetGUID());
             if (itr != PlayerNonQuestNonFFAConditionalItems.end())
             {
-                for (NotNormalLootItemList::const_iterator iter = itr->second->begin(); iter != itr->second->end(); ++iter)
+                for (auto iter : *itr->second)
                 {
-                    if (iter->index == lootSlot)
+                    if (iter.index == lootSlot)
                     {
-                        NotNormalLootItem* conditem2 = (NotNormalLootItem*)&(*iter);
+                        NotNormalLootItem* conditem2 = (NotNormalLootItem*)&iter;
                         if (conditem)
                             *conditem = conditem2;
                         is_looted = conditem2->is_looted;
@@ -533,10 +533,10 @@ bool Loot::hasItemFor(Player* player) const
     if (q_itr != lootPlayerQuestItems.end())
     {
         NotNormalLootItemList* q_list = q_itr->second;
-        for (NotNormalLootItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
+        for (auto qi : *q_list)
         {
-            LootItem const& item = quest_items[qi->index];
-            if (!qi->is_looted && !item.is_looted)
+            LootItem const& item = quest_items[qi.index];
+            if (!qi.is_looted && !item.is_looted)
                 return true;
         }
     }
@@ -546,10 +546,10 @@ bool Loot::hasItemFor(Player* player) const
     if (ffa_itr != lootPlayerFFAItems.end())
     {
         NotNormalLootItemList* ffa_list = ffa_itr->second;
-        for (NotNormalLootItemList::const_iterator fi = ffa_list->begin(); fi != ffa_list->end(); ++fi)
+        for (auto fi : *ffa_list)
         {
-            LootItem const& item = items[fi->index];
-            if (!fi->is_looted && !item.is_looted)
+            LootItem const& item = items[fi.index];
+            if (!fi.is_looted && !item.is_looted)
                 return true;
         }
     }
@@ -559,10 +559,10 @@ bool Loot::hasItemFor(Player* player) const
     if (nn_itr != lootPlayerNonQuestNonFFAConditionalItems.end())
     {
         NotNormalLootItemList* conditional_list = nn_itr->second;
-        for (NotNormalLootItemList::const_iterator ci = conditional_list->begin(); ci != conditional_list->end(); ++ci)
+        for (auto ci : *conditional_list)
         {
-            LootItem const& item = items[ci->index];
-            if (!ci->is_looted && !item.is_looted)
+            LootItem const& item = items[ci.index];
+            if (!ci.is_looted && !item.is_looted)
                 return true;
         }
     }
@@ -573,9 +573,9 @@ bool Loot::hasItemFor(Player* player) const
 // return true if there is any item over the group threshold (i.e. not underthreshold).
 bool Loot::hasOverThresholdItem() const
 {
-    for (uint8 i = 0; i < items.size(); ++i)
+    for (const auto & item : items)
     {
-        if (!items[i].is_looted && !items[i].is_underthreshold && !items[i].freeforall)
+        if (!item.is_looted && !item.is_underthreshold && !item.freeforall)
             return true;
     }
 
@@ -755,12 +755,12 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     if (ffa_itr != lootPlayerFFAItems.end())
     {
         NotNormalLootItemList* ffa_list = ffa_itr->second;
-        for (NotNormalLootItemList::const_iterator fi = ffa_list->begin(); fi != ffa_list->end(); ++fi)
+        for (auto fi : *ffa_list)
         {
-            LootItem &item = l.items[fi->index];
-            if (!fi->is_looted && !item.is_looted)
+            LootItem &item = l.items[fi.index];
+            if (!fi.is_looted && !item.is_looted)
             {
-                b << uint8(fi->index);
+                b << uint8(fi.index);
                 b << item;
                 b << uint8(slotType);
                 ++itemsShown;
@@ -773,12 +773,12 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
     if (nn_itr != lootPlayerNonQuestNonFFAConditionalItems.end())
     {
         NotNormalLootItemList* conditional_list = nn_itr->second;
-        for (NotNormalLootItemList::const_iterator ci = conditional_list->begin(); ci != conditional_list->end(); ++ci)
+        for (auto ci : *conditional_list)
         {
-            LootItem &item = l.items[ci->index];
-            if (!ci->is_looted && !item.is_looted)
+            LootItem &item = l.items[ci.index];
+            if (!ci.is_looted && !item.is_looted)
             {
-                b << uint8(ci->index);
+                b << uint8(ci.index);
                 b << item;
                 switch (lv.permission)
                 {

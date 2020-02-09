@@ -114,9 +114,8 @@ bool ExtractSingleWmo(std::string& fname)
     {
         char cpy[4];
         memcpy(cpy, rchr, 4);
-        for (int i = 0; i < 4; ++i)
+        for (int m : cpy)
         {
-            int m = cpy[i];
             if (isdigit(m))
                 p++;
         }
@@ -282,27 +281,27 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     searchLocales.push_back("esMX");
     searchLocales.push_back("ruRU");
 
-    for (std::vector<std::string>::iterator i = searchLocales.begin(); i != searchLocales.end(); ++i)
+    for (auto & searchLocale : searchLocales)
     {
-        std::string localePath = in_path + *i;
+        std::string localePath = in_path + searchLocale;
         // check if locale exists:
         struct stat status;
         if (stat(localePath.c_str(), &status))
             continue;
         if ((status.st_mode & S_IFDIR) == 0)
             continue;
-        printf("Found locale '%s'\n", i->c_str());
-        locales.push_back(*i);
+        printf("Found locale '%s'\n", searchLocale.c_str());
+        locales.push_back(searchLocale);
     }
     printf("\n");
 
     // open locale expansion and common files
     printf("Adding data files from locale directories.\n");
-    for (std::vector<std::string>::iterator i = locales.begin(); i != locales.end(); ++i)
+    for (auto & locale : locales)
     {
-        pArchiveNames.push_back(in_path + *i + "/locale-" + *i + ".MPQ");
-        pArchiveNames.push_back(in_path + *i + "/expansion-locale-" + *i + ".MPQ");
-        pArchiveNames.push_back(in_path + *i + "/lichking-locale-" + *i + ".MPQ");
+        pArchiveNames.push_back(in_path + locale + "/locale-" + locale + ".MPQ");
+        pArchiveNames.push_back(in_path + locale + "/expansion-locale-" + locale + ".MPQ");
+        pArchiveNames.push_back(in_path + locale + "/lichking-locale-" + locale + ".MPQ");
     }
 
     // open expansion and common files
@@ -320,10 +319,10 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     // now, scan for the patch levels in locale dirs
     printf("Scanning patch levels from locale directories.\n");
     bool foundOne = false;
-    for (std::vector<std::string>::iterator i = locales.begin(); i != locales.end(); ++i)
+    for (auto & locale : locales)
     {
-        printf("Locale: %s\n", i->c_str());
-        sprintf(path, "%s%s/patch-%s", input_path, i->c_str(), i->c_str());
+        printf("Locale: %s\n", locale.c_str());
+        sprintf(path, "%s%s/patch-%s", input_path, locale.c_str(), locale.c_str());
         if(scan_patches(path, pArchiveNames))
             foundOne = true;
     }
@@ -443,9 +442,9 @@ int main(int argc, char ** argv)
     // prepare archive name list
     std::vector<std::string> archiveNames;
     fillArchiveNameVector(archiveNames);
-    for (size_t i = 0; i < archiveNames.size(); ++i)
+    for (auto & archiveName : archiveNames)
     {
-        MPQArchive *archive = new MPQArchive(archiveNames[i].c_str());
+        MPQArchive *archive = new MPQArchive(archiveName.c_str());
         if (gOpenArchives.empty() || gOpenArchives.front() != archive)
             delete archive;
     }

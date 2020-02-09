@@ -63,9 +63,9 @@ MPQFile::MPQFile(char const* filename):
     pointer(0),
     size(0)
 {
-    for(ArchiveSet::iterator i=gOpenArchives.begin(); i!=gOpenArchives.end();++i)
+    for(auto & gOpenArchive : gOpenArchives)
     {
-        mpq_archive *mpq_a = (*i)->mpq_a;
+        mpq_archive *mpq_a = gOpenArchive->mpq_a;
 
         uint32_t filenum;
         if(libmpq__file_number(mpq_a, filename, &filenum)) continue;

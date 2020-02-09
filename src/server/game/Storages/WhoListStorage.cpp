@@ -35,27 +35,27 @@ void WhoListStorageMgr::Update()
     _whoListStorage.reserve(sWorld->GetPlayerCount()+1);
 
     HashMapHolder<Player>::MapType const& m = ObjectAccessor::GetPlayers();
-    for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
+    for (auto itr : m)
     {
-        if (!itr->second->FindMap() || itr->second->GetSession()->PlayerLoading())
+        if (!itr.second->FindMap() || itr.second->GetSession()->PlayerLoading())
             continue;
 
-        std::string playerName = itr->second->GetName();
+        std::string playerName = itr.second->GetName();
         std::wstring widePlayerName;
         if (!Utf8toWStr(playerName, widePlayerName))
             continue;
 
         wstrToLower(widePlayerName);
 
-        std::string guildName = sGuildMgr->GetGuildNameById(itr->second->GetGuildId());
+        std::string guildName = sGuildMgr->GetGuildNameById(itr.second->GetGuildId());
         std::wstring wideGuildName;
         if (!Utf8toWStr(guildName, wideGuildName))
             continue;
 
         wstrToLower(wideGuildName);
 
-        _whoListStorage.emplace_back(itr->second->GetGUID(), itr->second->GetTeam(), itr->second->GetSession()->GetSecurity(), itr->second->GetLevel(),
-            itr->second->GetClass(), itr->second->GetRace(), itr->second->GetZoneId(), itr->second->GetNativeGender(), itr->second->IsVisible(),
+        _whoListStorage.emplace_back(itr.second->GetGUID(), itr.second->GetTeam(), itr.second->GetSession()->GetSecurity(), itr.second->GetLevel(),
+            itr.second->GetClass(), itr.second->GetRace(), itr.second->GetZoneId(), itr.second->GetNativeGender(), itr.second->IsVisible(),
             widePlayerName, wideGuildName, playerName, guildName);
     }
 }

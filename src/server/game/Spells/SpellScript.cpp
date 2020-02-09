@@ -331,37 +331,37 @@ void SpellScript::DestinationTargetSelectHandler::Call(SpellScript* spellScript,
 
 bool SpellScript::_Validate(SpellInfo const* entry)
 {
-    for (auto itr = OnEffectLaunch.begin(); itr != OnEffectLaunch.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectLaunch` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectLaunch)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectLaunch` of SpellScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectLaunchTarget.begin(); itr != OnEffectLaunchTarget.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectLaunchTarget` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectLaunchTarget)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectLaunchTarget` of SpellScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectHit.begin(); itr != OnEffectHit.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectHit` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectHit)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectHit` of SpellScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectHitTarget.begin(); itr != OnEffectHitTarget.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectHitTarget` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectHitTarget)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectHitTarget` of SpellScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectSuccessfulDispel.begin(); itr != OnEffectSuccessfulDispel.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectSuccessfulDispel` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectSuccessfulDispel)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectSuccessfulDispel` of SpellScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnObjectAreaTargetSelect.begin(); itr != OnObjectAreaTargetSelect.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectAreaTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnObjectAreaTargetSelect)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectAreaTargetSelect` of SpellScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnObjectTargetSelect.begin(); itr != OnObjectTargetSelect.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnObjectTargetSelect)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnObjectTargetSelect` of SpellScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnDestinationTargetSelect.begin(); itr != OnDestinationTargetSelect.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnDestinationTargetSelect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnDestinationTargetSelect)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnDestinationTargetSelect` of SpellScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
     return _SpellScript::_Validate(entry);
 }
@@ -717,61 +717,61 @@ bool AuraScript::_Validate(SpellInfo const* entry)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
             TC_LOG_ERROR("scripts", "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `AfterDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
-    for (auto itr = OnEffectApply.begin(); itr != OnEffectApply.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectApply` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectApply)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectApply` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectRemove.begin(); itr != OnEffectRemove.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectRemove` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectRemove)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectRemove` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = AfterEffectApply.begin(); itr != AfterEffectApply.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectApply` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : AfterEffectApply)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectApply` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = AfterEffectRemove.begin(); itr != AfterEffectRemove.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectRemove` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : AfterEffectRemove)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectRemove` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectPeriodic.begin(); itr != OnEffectPeriodic.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectPeriodic` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectPeriodic)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectPeriodic` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectUpdatePeriodic.begin(); itr != OnEffectUpdatePeriodic.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectUpdatePeriodic` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectUpdatePeriodic)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectUpdatePeriodic` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = DoEffectCalcAmount.begin(); itr != DoEffectCalcAmount.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcAmount` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : DoEffectCalcAmount)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcAmount` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = DoEffectCalcPeriodic.begin(); itr != DoEffectCalcPeriodic.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcPeriodic` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : DoEffectCalcPeriodic)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcPeriodic` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = DoEffectCalcSpellMod.begin(); itr != DoEffectCalcSpellMod.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcSpellMod` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : DoEffectCalcSpellMod)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `DoEffectCalcSpellMod` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectAbsorb.begin(); itr != OnEffectAbsorb.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectAbsorb` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectAbsorb)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectAbsorb` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = AfterEffectAbsorb.begin(); itr != AfterEffectAbsorb.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectAbsorb` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : AfterEffectAbsorb)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectAbsorb` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectManaShield.begin(); itr != OnEffectManaShield.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectManaShield` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectManaShield)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectManaShield` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = AfterEffectManaShield.begin(); itr != AfterEffectManaShield.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectManaShield` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : AfterEffectManaShield)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectManaShield` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = OnEffectSplit.begin(); itr != OnEffectSplit.end();  ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectSplit` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectSplit)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectSplit` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
     for (auto itr = DoCheckProc.begin(); itr != DoCheckProc.end(); ++itr)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
@@ -793,13 +793,13 @@ bool AuraScript::_Validate(SpellInfo const* entry)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
             TC_LOG_ERROR("scripts", "Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `AfterProc` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
-    for (auto itr = OnEffectProc.begin(); itr != OnEffectProc.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectProc` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : OnEffectProc)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectProc` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
-    for (auto itr = AfterEffectProc.begin(); itr != AfterEffectProc.end(); ++itr)
-        if (!(*itr).GetAffectedEffectsMask(entry))
-            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectProc` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+    for (auto & itr : AfterEffectProc)
+        if (!itr.GetAffectedEffectsMask(entry))
+            TC_LOG_ERROR("scripts", "Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `AfterEffectProc` of AuraScript won't be executed", entry->Id, itr.ToString().c_str(), m_scriptName->c_str());
 
     return _SpellScript::_Validate(entry);
 }

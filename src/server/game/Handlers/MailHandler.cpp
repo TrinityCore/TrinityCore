@@ -426,9 +426,9 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
 
         if (m->HasItems())
         {
-            for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+            for (auto & itr2 : m->items)
             {
-                Item* item = player->GetMItem(itr2->item_guid);
+                Item* item = player->GetMItem(itr2.item_guid);
                 if (item)
                     draft.AddItem(item);
                 else
@@ -436,7 +436,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
                     //WTF?
                 }
 
-                player->RemoveMItem(itr2->item_guid);
+                player->RemoveMItem(itr2.item_guid);
             }
         }
         draft.AddMoney(m->money).SendReturnToSender(GetAccountId(), m->receiver, m->sender, trans);

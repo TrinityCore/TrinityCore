@@ -878,35 +878,35 @@ uint32 SpellInfo::GetCategory() const
 
 bool SpellInfo::HasEffect(SpellEffects effect) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect(effect))
+    for (const auto & Effect : Effects)
+        if (Effect.IsEffect(effect))
             return true;
     return false;
 }
 
 bool SpellInfo::HasAura(AuraType aura) const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsAura(aura))
+    for (const auto & Effect : Effects)
+        if (Effect.IsAura(aura))
             return true;
     return false;
 }
 
 bool SpellInfo::HasAreaAuraEffect() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsAreaAuraEffect())
+    for (const auto & Effect : Effects)
+        if (Effect.IsAreaAuraEffect())
             return true;
     return false;
 }
 
 bool SpellInfo::HasOnlyDamageEffects() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (const auto & Effect : Effects)
     {
-        if (Effects[i].IsEffect())
+        if (Effect.IsEffect())
         {
-            switch (Effects[i].Effect)
+            switch (Effect.Effect)
             {
                 case SPELL_EFFECT_WEAPON_DAMAGE:
                 case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
@@ -948,11 +948,11 @@ bool SpellInfo::IsQuestTame() const
 
 bool SpellInfo::IsProfessionOrRiding() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (const auto & Effect : Effects)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
+        if (Effect.Effect == SPELL_EFFECT_SKILL)
         {
-            uint32 skill = Effects[i].MiscValue;
+            uint32 skill = Effect.MiscValue;
 
             if (IsProfessionOrRidingSkill(skill))
                 return true;
@@ -963,11 +963,11 @@ bool SpellInfo::IsProfessionOrRiding() const
 
 bool SpellInfo::IsProfession() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (const auto & Effect : Effects)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
+        if (Effect.Effect == SPELL_EFFECT_SKILL)
         {
-            uint32 skill = Effects[i].MiscValue;
+            uint32 skill = Effect.MiscValue;
 
             if (IsProfessionSkill(skill))
                 return true;
@@ -978,11 +978,11 @@ bool SpellInfo::IsProfession() const
 
 bool SpellInfo::IsPrimaryProfession() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (const auto & Effect : Effects)
     {
-        if (Effects[i].Effect == SPELL_EFFECT_SKILL)
+        if (Effect.Effect == SPELL_EFFECT_SKILL)
         {
-            uint32 skill = Effects[i].MiscValue;
+            uint32 skill = Effect.MiscValue;
 
             if (IsPrimaryProfessionSkill(skill))
                 return true;
@@ -1026,8 +1026,8 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
 
 bool SpellInfo::IsAffectingArea() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect() && (Effects[i].IsTargetingArea() || Effects[i].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) || Effects[i].IsAreaAuraEffect()))
+    for (const auto & Effect : Effects)
+        if (Effect.IsEffect() && (Effect.IsTargetingArea() || Effect.IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) || Effect.IsAreaAuraEffect()))
             return true;
     return false;
 }
@@ -1035,8 +1035,8 @@ bool SpellInfo::IsAffectingArea() const
 // checks if spell targets are selected from area, doesn't include spell effects in check (like area wide auras for example)
 bool SpellInfo::IsTargetingArea() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect() && Effects[i].IsTargetingArea())
+    for (const auto & Effect : Effects)
+        if (Effect.IsEffect() && Effect.IsTargetingArea())
             return true;
     return false;
 }
@@ -1066,12 +1066,12 @@ bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) con
     if (triggeringSpell->IsChanneled())
     {
         uint32 mask = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (const auto & Effect : Effects)
         {
-            if (Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER && Effects[i].TargetA.GetTarget() != TARGET_DEST_CASTER
-                && Effects[i].TargetB.GetTarget() != TARGET_UNIT_CASTER && Effects[i].TargetB.GetTarget() != TARGET_DEST_CASTER)
+            if (Effect.TargetA.GetTarget() != TARGET_UNIT_CASTER && Effect.TargetA.GetTarget() != TARGET_DEST_CASTER
+                && Effect.TargetB.GetTarget() != TARGET_UNIT_CASTER && Effect.TargetB.GetTarget() != TARGET_DEST_CASTER)
             {
-                mask |= Effects[i].GetProvidedTargetMask();
+                mask |= Effect.GetProvidedTargetMask();
             }
         }
 
@@ -1084,8 +1084,8 @@ bool SpellInfo::NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) con
 
 bool SpellInfo::IsSelfCast() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].Effect && Effects[i].TargetA.GetTarget() != TARGET_UNIT_CASTER)
+    for (const auto & Effect : Effects)
+        if (Effect.Effect && Effect.TargetA.GetTarget() != TARGET_UNIT_CASTER)
             return false;
     return true;
 }
@@ -1117,19 +1117,19 @@ bool SpellInfo::IsStackableWithRanks() const
         return false;
 
     // All stance spells. if any better way, change it.
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (const auto & Effect : Effects)
     {
         switch (SpellFamilyName)
         {
             case SPELLFAMILY_PALADIN:
                 // Paladin aura Spell
-                if (Effects[i].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
+                if (Effect.Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
                     return false;
                 break;
             case SPELLFAMILY_DRUID:
                 // Druid form Spell
-                if (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA &&
-                    Effects[i].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
+                if (Effect.Effect == SPELL_EFFECT_APPLY_AURA &&
+                    Effect.ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
                     return false;
                 break;
         }
@@ -1178,9 +1178,9 @@ bool SpellInfo::IsAllowingDeadTarget() const
 
 bool SpellInfo::IsGroupBuff() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (const auto & Effect : Effects)
     {
-        switch (Effects[i].TargetA.GetCheckType())
+        switch (Effect.TargetA.GetCheckType())
         {
             case TARGET_CHECK_PARTY:
             case TARGET_CHECK_RAID:
@@ -1508,8 +1508,8 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
         AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(AreaGroupId);
         while (groupEntry)
         {
-            for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
-                if (groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id)
+            for (unsigned int i : groupEntry->AreaId)
+                if (i == zone_id || i == area_id)
                     found = true;
             if (found || !groupEntry->nextGroup)
                 break;
@@ -1892,9 +1892,9 @@ uint32 SpellInfo::GetAllEffectsMechanicMask() const
     uint32 mask = 0;
     if (Mechanic)
         mask |= 1 << Mechanic;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect() && Effects[i].Mechanic)
-            mask |= 1 << Effects[i].Mechanic;
+    for (const auto & Effect : Effects)
+        if (Effect.IsEffect() && Effect.Mechanic)
+            mask |= 1 << Effect.Mechanic;
     return mask;
 }
 
@@ -1930,8 +1930,8 @@ Mechanics SpellInfo::GetEffectMechanic(uint8 effIndex) const
 
 bool SpellInfo::HasAnyEffectMechanic() const
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].Mechanic)
+    for (const auto & Effect : Effects)
+        if (Effect.Mechanic)
             return true;
     return false;
 }
@@ -2005,9 +2005,9 @@ void SpellInfo::_LoadAuraState()
             return AURA_STATE_BLEEDING;
 
         if (GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                if (Effects[i].IsAura() && (Effects[i].ApplyAuraName == SPELL_AURA_MOD_STUN
-                    || Effects[i].ApplyAuraName == SPELL_AURA_MOD_ROOT))
+            for (auto & Effect : Effects)
+                if (Effect.IsAura() && (Effect.ApplyAuraName == SPELL_AURA_MOD_STUN
+                    || Effect.ApplyAuraName == SPELL_AURA_MOD_ROOT))
                     return AURA_STATE_FROZEN;
 
         switch (Id)
@@ -2048,11 +2048,11 @@ void SpellInfo::_LoadSpellSpecific()
                 {
                     bool food = false;
                     bool drink = false;
-                    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    for (auto & Effect : Effects)
                     {
-                        if (!Effects[i].IsAura())
+                        if (!Effect.IsAura())
                             continue;
-                        switch (Effects[i].ApplyAuraName)
+                        switch (Effect.ApplyAuraName)
                         {
                             // Food
                             case SPELL_AURA_MOD_REGEN:
@@ -2207,11 +2207,11 @@ void SpellInfo::_LoadSpellSpecific()
                 break;
         }
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (auto & Effect : Effects)
         {
-            if (Effects[i].Effect == SPELL_EFFECT_APPLY_AURA)
+            if (Effect.Effect == SPELL_EFFECT_APPLY_AURA)
             {
-                switch (Effects[i].ApplyAuraName)
+                switch (Effect.ApplyAuraName)
                 {
                     case SPELL_AURA_MOD_CHARM:
                     case SPELL_AURA_MOD_POSSESS_PET:
@@ -2241,9 +2241,9 @@ void SpellInfo::_LoadSpellDiminishInfo()
         if (IsPositive())
             return DIMINISHING_NONE;
 
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (auto & Effect : Effects)
         {
-            if (Effects[i].ApplyAuraName == SPELL_AURA_MOD_TAUNT)
+            if (Effect.ApplyAuraName == SPELL_AURA_MOD_TAUNT)
                 return DIMINISHING_TAUNT;
         }
 
@@ -3002,13 +3002,13 @@ bool SpellInfo::SpellCancelsAuraEffect(SpellInfo const* auraSpellInfo, uint8 aur
     if (auraSpellInfo->HasAttribute(SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY))
         return false;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (const auto & Effect : Effects)
     {
-        if (Effects[i].Effect != SPELL_EFFECT_APPLY_AURA)
+        if (Effect.Effect != SPELL_EFFECT_APPLY_AURA)
             continue;
 
-        uint32 const miscValue = static_cast<uint32>(Effects[i].MiscValue);
-        switch (Effects[i].ApplyAuraName)
+        uint32 const miscValue = static_cast<uint32>(Effect.MiscValue);
+        switch (Effect.ApplyAuraName)
         {
             case SPELL_AURA_STATE_IMMUNITY:
                 if (miscValue != auraSpellInfo->Effects[auraEffIndex].ApplyAuraName)
@@ -3106,11 +3106,11 @@ uint32 SpellInfo::GetMaxTicks() const
     uint32 totalTicks = 0;
     int32 DotDuration = GetDuration();
 
-    for (uint8 x = 0; x < MAX_SPELL_EFFECTS; ++x)
+    for (const auto & Effect : Effects)
     {
-        if (Effects[x].Effect == SPELL_EFFECT_APPLY_AURA)
+        if (Effect.Effect == SPELL_EFFECT_APPLY_AURA)
         {
-            switch (Effects[x].ApplyAuraName)
+            switch (Effect.ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
                 case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
@@ -3128,9 +3128,9 @@ uint32 SpellInfo::GetMaxTicks() const
                 case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
                 case SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR:
                     // skip infinite periodics
-                    if (Effects[x].Amplitude > 0 && DotDuration > 0)
+                    if (Effect.Amplitude > 0 && DotDuration > 0)
                     {
-                        totalTicks = static_cast<uint32>(DotDuration) / Effects[x].Amplitude;
+                        totalTicks = static_cast<uint32>(DotDuration) / Effect.Amplitude;
                         if (HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
                             ++totalTicks;
                     }
@@ -3339,20 +3339,20 @@ void SpellInfo::_InitializeExplicitTargetMask()
     bool dstSet = false;
     uint32 targetMask = Targets;
     // prepare target mask using effect target entries
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (auto & Effect : Effects)
     {
-        if (!Effects[i].IsEffect())
+        if (!Effect.IsEffect())
             continue;
 
-        targetMask |= Effects[i].TargetA.GetExplicitTargetMask(srcSet, dstSet);
-        targetMask |= Effects[i].TargetB.GetExplicitTargetMask(srcSet, dstSet);
+        targetMask |= Effect.TargetA.GetExplicitTargetMask(srcSet, dstSet);
+        targetMask |= Effect.TargetB.GetExplicitTargetMask(srcSet, dstSet);
 
         // add explicit target flags based on spell effects which have EFFECT_IMPLICIT_TARGET_EXPLICIT and no valid target provided
-        if (Effects[i].GetImplicitTargetType() != EFFECT_IMPLICIT_TARGET_EXPLICIT)
+        if (Effect.GetImplicitTargetType() != EFFECT_IMPLICIT_TARGET_EXPLICIT)
             continue;
 
         // extend explicit target mask only if valid targets for effect could not be provided by target types
-        uint32 effectTargetMask = Effects[i].GetMissingTargetMask(srcSet, dstSet, targetMask);
+        uint32 effectTargetMask = Effect.GetMissingTargetMask(srcSet, dstSet, targetMask);
 
         // don't add explicit object/dest flags when spell has no max range
         if (GetMaxRange(true) == 0.0f && GetMaxRange(false) == 0.0f)

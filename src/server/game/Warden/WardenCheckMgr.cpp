@@ -28,11 +28,11 @@ WardenCheckMgr::WardenCheckMgr() { }
 
 WardenCheckMgr::~WardenCheckMgr()
 {
-    for (uint16 i = 0; i < CheckStore.size(); ++i)
-        delete CheckStore[i];
+    for (auto & i : CheckStore)
+        delete i;
 
-    for (CheckResultContainer::iterator itr = CheckResultStore.begin(); itr != CheckResultStore.end(); ++itr)
-        delete itr->second;
+    for (auto & itr : CheckResultStore)
+        delete itr.second;
 }
 
 void WardenCheckMgr::LoadWardenChecks()

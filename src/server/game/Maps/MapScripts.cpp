@@ -47,16 +47,16 @@ void Map::ScriptsStart(std::map<uint32, std::multimap<uint32, ScriptInfo>> const
     ///- Schedule script execution for all scripts in the script map
     ScriptMap const* s2 = &(s->second);
     bool immedScript = false;
-    for (ScriptMap::const_iterator iter = s2->begin(); iter != s2->end(); ++iter)
+    for (const auto & iter : *s2)
     {
         ScriptAction sa;
         sa.sourceGUID = sourceGUID;
         sa.targetGUID = targetGUID;
         sa.ownerGUID  = ownerGUID;
 
-        sa.script = &iter->second;
-        m_scriptSchedule.insert(ScriptScheduleMap::value_type(time_t(GameTime::GetGameTime() + iter->first), sa));
-        if (iter->first == 0)
+        sa.script = &iter.second;
+        m_scriptSchedule.insert(ScriptScheduleMap::value_type(time_t(GameTime::GetGameTime() + iter.first), sa));
+        if (iter.first == 0)
             immedScript = true;
 
         sMapMgr->IncreaseScheduledScriptsCount();

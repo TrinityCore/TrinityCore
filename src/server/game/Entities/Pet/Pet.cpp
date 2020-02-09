@@ -1392,10 +1392,9 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     {
         if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
         {
-            for (uint8 i = 0; i < MAX_TALENT_RANK; ++i)
+            for (unsigned int rankSpellId : talentInfo->RankID)
             {
                 // skip learning spell and no rank spell case
-                uint32 rankSpellId = talentInfo->RankID[i];
                 if (!rankSpellId || rankSpellId == spellId)
                     continue;
 
@@ -1408,12 +1407,12 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     }
     else if (spellInfo->IsRanked())
     {
-        for (PetSpellMap::const_iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
+        for (auto m_spell : m_spells)
         {
-            if (itr2->second.state == PETSPELL_REMOVED)
+            if (m_spell.second.state == PETSPELL_REMOVED)
                 continue;
 
-            SpellInfo const* oldRankSpellInfo = sSpellMgr->GetSpellInfo(itr2->first);
+            SpellInfo const* oldRankSpellInfo = sSpellMgr->GetSpellInfo(m_spell.first);
 
             if (!oldRankSpellInfo)
                 continue;
@@ -1423,12 +1422,12 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
                 // replace by new high rank
                 if (spellInfo->IsHighRankOf(oldRankSpellInfo))
                 {
-                    newspell.active = itr2->second.active;
+                    newspell.active = m_spell.second.active;
 
                     if (newspell.active == ACT_ENABLED)
                         ToggleAutocast(oldRankSpellInfo, false);
 
-                    unlearnSpell(itr2->first, false, false);
+                    unlearnSpell(m_spell.first, false, false);
                     break;
                 }
                 // ignore new lesser rank
@@ -1499,9 +1498,9 @@ void Pet::InitLevelupSpellsForLevel()
     // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
     if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(petSpellsId))
     {
-        for (uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
+        for (unsigned int i : defSpells->spellid)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(defSpells->spellid[i]);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
             if (!spellInfo)
                 continue;
 
@@ -1644,7 +1643,7 @@ bool Pet::resetTalents()
         if (!((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask))
             continue;
 
-        for (uint8 j = 0; j < MAX_TALENT_RANK; ++j)
+        for (unsigned int j : talentInfo->RankID)
         {
             for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end();)
             {
@@ -1657,7 +1656,7 @@ bool Pet::resetTalents()
                 uint32 itrFirstId = sSpellMgr->GetFirstSpellInChain(itr->first);
 
                 // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentInfo->RankID[j] || sSpellMgr->IsSpellLearnToSpell(talentInfo->RankID[j], itrFirstId))
+                if (itrFirstId == j || sSpellMgr->IsSpellLearnToSpell(j, itrFirstId))
                 {
                     unlearnSpell(itr->first, false);
                     itr = m_spells.begin();
@@ -1891,8 +1890,8 @@ void Pet::LearnPetPassives()
         // For general hunter pets skill 270
         // Passive 01~10, Passive 00 (20782, not used), Ferocious Inspiration (34457)
         // Scale 01~03 (34902~34904, bonus from owner, not used)
-        for (PetFamilySpellsSet::const_iterator petSet = petStore->second.begin(); petSet != petStore->second.end(); ++petSet)
-            addSpell(*petSet, ACT_DECIDE, PETSPELL_NEW, PETSPELL_FAMILY);
+        for (unsigned int petSet : petStore->second)
+            addSpell(petSet, ACT_DECIDE, PETSPELL_NEW, PETSPELL_FAMILY);
     }
 }
 
@@ -1935,9 +1934,9 @@ bool Pet::IsPetAura(Aura const* aura)
     Player* owner = GetOwner();
 
     // if the owner has that pet aura, return true
-    for (auto itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end(); ++itr)
+    for (auto m_petAura : owner->m_petAuras)
     {
-        if ((*itr)->GetAura(GetEntry()) == aura->GetId())
+        if (m_petAura->GetAura(GetEntry()) == aura->GetId())
             return true;
     }
     return false;

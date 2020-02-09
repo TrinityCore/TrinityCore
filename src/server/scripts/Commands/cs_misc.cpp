@@ -1307,8 +1307,8 @@ public:
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
-            for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
-                if (Item* item1 = player->GetItemByPos(itr->pos))
+            for (auto itr : dest)
+                if (Item* item1 = player->GetItemByPos(itr.pos))
                     item1->SetBinding(false);
 
         if (count > 0 && item)

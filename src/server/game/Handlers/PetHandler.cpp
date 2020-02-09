@@ -106,11 +106,11 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
     {
         // If a pet is dismissed, m_Controlled will change
         std::vector<Unit*> controlled;
-        for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
-            if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->IsAlive())
-                controlled.push_back(*itr);
-        for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
-            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2);
+        for (auto itr : GetPlayer()->m_Controlled)
+            if (itr->GetEntry() == pet->GetEntry() && itr->IsAlive())
+                controlled.push_back(itr);
+        for (auto & itr : controlled)
+            HandlePetActionHelper(itr, guid1, spellid, flag, guid2);
     }
 }
 
@@ -296,9 +296,9 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 return;
             }
 
-            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (const auto & Effect : spellInfo->Effects)
             {
-                if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_SRC_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_DEST_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
+                if (Effect.TargetA.GetTarget() == TARGET_UNIT_SRC_AREA_ENEMY || Effect.TargetA.GetTarget() == TARGET_UNIT_DEST_AREA_ENEMY || Effect.TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
                     return;
             }
 
@@ -434,8 +434,8 @@ void WorldSession::SendPetNameQuery(ObjectGuid petguid, uint32 petnumber)
     if (pet->IsPet() && ((Pet*)pet)->GetDeclinedNames())
     {
         data << uint8(1);
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << ((Pet*)pet)->GetDeclinedNames()->name[i];
+        for (const auto & i : ((Pet*)pet)->GetDeclinedNames()->name)
+            data << i;
     }
     else
         data << uint8(0);
@@ -569,9 +569,9 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
                         if (petControlled->GetTypeId() == TYPEID_UNIT && petControlled->IsPet())
                             ((Pet*)petControlled)->ToggleAutocast(spellInfo, true);
                         else
-                            for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
-                                if ((*itr)->GetEntry() == petControlled->GetEntry())
-                                    (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, true);
+                            for (auto itr : GetPlayer()->m_Controlled)
+                                if (itr->GetEntry() == petControlled->GetEntry())
+                                    itr->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, true);
                     }
                     // sign for no/turn off autocast
                     else if (act_state == ACT_DISABLED)
@@ -579,9 +579,9 @@ void WorldSession::HandlePetSetAction(WorldPacket& recvData)
                         if (petControlled->GetTypeId() == TYPEID_UNIT && petControlled->IsPet())
                             ((Pet*)petControlled)->ToggleAutocast(spellInfo, false);
                         else
-                            for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
-                                if ((*itr)->GetEntry() == petControlled->GetEntry())
-                                    (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, false);
+                            for (auto itr : GetPlayer()->m_Controlled)
+                                if (itr->GetEntry() == petControlled->GetEntry())
+                                    itr->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, false);
                     }
                 }
 
@@ -632,9 +632,9 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
 
     if (isdeclined)
     {
-        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for (auto & i : declinedname.name)
         {
-            recvData >> declinedname.name[i];
+            recvData >> i;
         }
 
         std::wstring wname;
@@ -855,8 +855,8 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
     if (declinedName)
     {
         data << uint8(1);
-        for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << declinedName->name[i];
+        for (const auto & i : declinedName->name)
+            data << i;
     }
     else
         data << uint8(0);

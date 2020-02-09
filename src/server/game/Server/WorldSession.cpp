@@ -805,8 +805,8 @@ void WorldSession::LoadTutorialsData(PreparedQueryResult result)
 void WorldSession::SendTutorialsData()
 {
     WorldPacket data(SMSG_TUTORIAL_FLAGS, 4 * MAX_ACCOUNT_TUTORIAL_VALUES);
-    for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
-        data << m_Tutorials[i];
+    for (unsigned int m_Tutorial : m_Tutorials)
+        data << m_Tutorial;
     SendPacket(&data);
 }
 

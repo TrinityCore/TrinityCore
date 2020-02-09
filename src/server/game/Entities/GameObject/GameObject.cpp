@@ -77,8 +77,8 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
     memcpy(queryTemp.Stats.Data, raw.data, sizeof(uint32) * MAX_GAMEOBJECT_DATA);
     queryTemp.Stats.Size = size;
 
-    for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-        queryTemp.Stats.QuestItems[i] = 0;
+    for (unsigned int & QuestItem : queryTemp.Stats.QuestItems)
+        QuestItem = 0;
 
     if (std::vector<uint32> const* items = sObjectMgr->GetGameObjectQuestItemList(entry))
         for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
@@ -768,9 +768,9 @@ void GameObject::Update(uint32 diff)
 
                 if (spellId)
                 {
-                    for (GuidSet::const_iterator it = m_unique_users.begin(); it != m_unique_users.end(); ++it)
+                    for (auto m_unique_user : m_unique_users)
                         // m_unique_users can contain only player GUIDs
-                        if (Player* owner = ObjectAccessor::GetPlayer(*this, *it))
+                        if (Player* owner = ObjectAccessor::GetPlayer(*this, m_unique_user))
                             owner->CastSpell(owner, spellId, false);
 
                     m_unique_users.clear();
@@ -1563,25 +1563,25 @@ void GameObject::Use(Unit* user)
             float orthogonalOrientation = GetOrientation() + float(M_PI) * 0.5f;
             // find nearest slot
             bool found_free_slot = false;
-            for (ChairSlotAndUser::iterator itr = ChairListSlots.begin(); itr != ChairListSlots.end(); ++itr)
+            for (auto & ChairListSlot : ChairListSlots)
             {
                 // the distance between this slot and the center of the go - imagine a 1D space
-                float relativeDistance = (info->size*itr->first)-(info->size*(info->chair.slots-1)/2.0f);
+                float relativeDistance = (info->size*ChairListSlot.first)-(info->size*(info->chair.slots-1)/2.0f);
 
                 float x_i = GetPositionX() + relativeDistance * std::cos(orthogonalOrientation);
                 float y_i = GetPositionY() + relativeDistance * std::sin(orthogonalOrientation);
 
-                if (itr->second)
+                if (ChairListSlot.second)
                 {
-                    if (Player* ChairUser = ObjectAccessor::GetPlayer(*this, itr->second))
+                    if (Player* ChairUser = ObjectAccessor::GetPlayer(*this, ChairListSlot.second))
                     {
                         if (ChairUser->IsSitState() && ChairUser->GetStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(x_i, y_i) < 0.1f)
                             continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->GetStandState() != UNIT_STAND_STATE_SIT check is required.
                         else
-                            itr->second.Clear(); // This seat is unoccupied.
+                            ChairListSlot.second.Clear(); // This seat is unoccupied.
                     }
                     else
-                        itr->second.Clear();     // The seat may of had an occupant, but they're offline.
+                        ChairListSlot.second.Clear();     // The seat may of had an occupant, but they're offline.
                 }
 
                 found_free_slot = true;
@@ -1591,7 +1591,7 @@ void GameObject::Use(Unit* user)
 
                 if (thisDistance <= lowestDist)
                 {
-                    nearest_slot = itr->first;
+                    nearest_slot = ChairListSlot.first;
                     lowestDist = thisDistance;
                     x_lowest = x_i;
                     y_lowest = y_i;

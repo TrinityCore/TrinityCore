@@ -384,10 +384,10 @@ public:
         // ... we simply move the group type and member count print after retrieving the slots and simply output it's size.
 
         // While rather dirty codestyle-wise, it saves space (if only a little). For each member, we look several informations up.
-        for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+        for (const auto & member : members)
         {
             // Define temporary variable slot to iterator.
-            Group::MemberSlot const& slot = *itr;
+            Group::MemberSlot const& slot = member;
 
             // Check for given flag and assign it to that iterator
             std::string flags;
@@ -412,7 +412,7 @@ public:
                 flags = "None";
 
             // Check if iterator is online. If is...
-            Player* p = ObjectAccessor::FindPlayer((*itr).guid);
+            Player* p = ObjectAccessor::FindPlayer(member.guid);
             if (p)
             {
                 // ... than, it prints information like "is online", where he is, etc...
