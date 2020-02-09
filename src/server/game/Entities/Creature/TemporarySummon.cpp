@@ -221,8 +221,6 @@ void TempSummon::InitStats(uint32 duration)
     // If property has a faction defined, use it. Otherwise fallback to owner faction whe summon is a vehicle
     if (m_Properties->Faction)
         SetFaction(m_Properties->Faction);
-    else if (IsVehicle() && owner)
-        SetFaction(owner->GetFaction());
 }
 
 void TempSummon::InitSummon()
