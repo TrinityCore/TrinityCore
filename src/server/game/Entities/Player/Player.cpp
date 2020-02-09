@@ -3689,16 +3689,16 @@ void Player::DestroyForPlayer(Player* target) const
 {
     Unit::DestroyForPlayer(target);
 
-    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-    {
-        if (m_items[i] == nullptr)
-            continue;
-
-        m_items[i]->DestroyForPlayer(target);
-    }
-
     if (target == this)
     {
+        for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        {
+            if (m_items[i] == nullptr)
+                continue;
+
+            m_items[i]->DestroyForPlayer(target);
+        }
+
         for (uint8 i = INVENTORY_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
         {
             if (m_items[i] == nullptr)

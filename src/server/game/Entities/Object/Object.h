@@ -153,6 +153,7 @@ class TC_GAME_API Object
 
         void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* target) const;
         void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const;
+        void BuildDestroyUpdateBlock(UpdateData* data) const;
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
 
         virtual void DestroyForPlayer(Player* target) const;
