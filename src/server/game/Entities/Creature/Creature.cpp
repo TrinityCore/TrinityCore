@@ -81,7 +81,7 @@ VendorItemCount::VendorItemCount(uint32 _item, uint32 _count)
 
 bool VendorItem::IsGoldRequired(ItemTemplate const* pProto) const
 {
-    return (pProto->Flags2 & ITEM_FLAG2_DONT_IGNORE_BUY_PRICE) || !ExtendedCost;
+    return pProto->HasFlag(ITEM_FLAG2_DONT_IGNORE_BUY_PRICE) || !ExtendedCost;
 }
 
 bool VendorItemData::RemoveItem(uint32 item_id)
@@ -1327,9 +1327,15 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     data.displayid = displayId;
     data.equipmentId = GetCurrentEquipmentId();
     if (!GetTransport())
-        data.spawnPoint.WorldRelocate(this);
+    {
+        data.mapId = GetMapId();
+        data.spawnPoint.Relocate(this);
+    }
     else
-        data.spawnPoint.WorldRelocate(mapid, GetTransOffsetX(), GetTransOffsetY(), GetTransOffsetZ(), GetTransOffsetO());
+    {
+        data.mapId = mapid;
+        data.spawnPoint.Relocate(GetTransOffsetX(), GetTransOffsetY(), GetTransOffsetZ(), GetTransOffsetO());
+    }
     data.spawntimesecs = m_respawnDelay;
     // prevent add data integrity problems
     data.spawndist = GetDefaultMovementType() == IDLE_MOTION_TYPE ? 0.0f : m_respawnradius;
@@ -1833,7 +1839,7 @@ bool Creature::hasInvolvedQuest(uint32 quest_id) const
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(),
+    sMapMgr->DoForAllMapsWithMapId(data->mapId,
         [spawnId, trans](Map* map) -> void
         {
             // despawn all active creatures, and remove their respawns

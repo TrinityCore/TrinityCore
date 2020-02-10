@@ -1281,25 +1281,6 @@ void Spell::EffectHeal(SpellEffIndex effIndex)
         if (!unitCaster->HasAura(54824))
             unitTarget->RemoveAura(targetAura->GetId(), targetAura->GetCasterGUID());
     }
-    // Nourish
-    else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x2000000)
-    {
-        addhealth = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL, effIndex, { });
-
-        // Glyph of Nourish
-        if (AuraEffect const* aurEff = unitCaster->GetAuraEffect(62971, 0))
-        {
-            uint32 auraCount = 0;
-            Unit::AuraEffectList const& periodicHeals = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
-            for (AuraEffect const* hot : periodicHeals)
-            {
-                if (unitCaster->GetGUID() == hot->GetCasterGUID())
-                    ++auraCount;
-            }
-
-            AddPct(addhealth, aurEff->GetAmount() * auraCount);
-        }
-    }
     // Death Pact - return pct of max health to caster
     else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
         addhealth = unitCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, int32(unitCaster->CountPctFromMaxHealth(damage)), HEAL, effIndex, { });
@@ -2556,7 +2537,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
     else
     {
         // do not increase skill if vellum used
-        if (!(m_CastItem && m_CastItem->GetTemplate()->Flags & ITEM_FLAG_NO_REAGENT_COST))
+        if (!(m_CastItem && m_CastItem->GetTemplate()->HasFlag(ITEM_FLAG_NO_REAGENT_COST)))
             player->UpdateCraftSkill(m_spellInfo->Id);
 
         uint32 enchant_id = m_spellInfo->Effects[effIndex].MiscValue;
@@ -3518,10 +3499,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 60243: // Blood Parrot Despawn
                     if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->IsSummon())
                         unitTarget->ToTempSummon()->UnSummon();
-                    return;
-                case 52479: // Gift of the Harvester
-                    if (unitTarget && unitCaster)
-                        unitCaster->CastSpell(unitTarget, urand(0, 1) ? damage : 52505, true);
                     return;
                 case 57347: // Retrieving (Wintergrasp RP-GG pickup spell)
                 {
@@ -4762,7 +4739,7 @@ void Spell::EffectProspecting(SpellEffIndex /*effIndex*/)
     if (!player)
         return;
 
-    if (!itemTarget || !(itemTarget->GetTemplate()->Flags & ITEM_FLAG_IS_PROSPECTABLE))
+    if (!itemTarget || !itemTarget->GetTemplate()->HasFlag(ITEM_FLAG_IS_PROSPECTABLE))
         return;
 
     if (itemTarget->GetCount() < 5)
@@ -4787,7 +4764,7 @@ void Spell::EffectMilling(SpellEffIndex /*effIndex*/)
     if (!player)
         return;
 
-    if (!itemTarget || !(itemTarget->GetTemplate()->Flags & ITEM_FLAG_IS_MILLABLE))
+    if (!itemTarget || !itemTarget->GetTemplate()->HasFlag(ITEM_FLAG_IS_MILLABLE))
         return;
 
     if (itemTarget->GetCount() < 5)
@@ -5417,22 +5394,14 @@ void Spell::EffectBind(SpellEffIndex effIndex)
         homeLoc = player->GetWorldLocation();
 
     player->SetHomebind(homeLoc, areaId);
-
-    // binding
-    WorldPacket data(SMSG_BINDPOINTUPDATE, 4 * 3 + 4 + 4);
-    data << TaggedPosition<Position::XYZ>(homeLoc);
-    data << uint32(homeLoc.GetMapId());
-    data << uint32(areaId);
-    player->SendDirectMessage(&data);
+    player->SendBindPointUpdate();
 
     TC_LOG_DEBUG("spells", "EffectBind: New homebind X: %f, Y: %f, Z: %f, MapId: %u, AreaId: %u",
         homeLoc.GetPositionX(), homeLoc.GetPositionY(), homeLoc.GetPositionZ(), homeLoc.GetMapId(), areaId);
 
     // zone update
-    data.Initialize(SMSG_PLAYERBOUND, 8 + 4);
-    data << uint64(m_caster->GetGUID());
-    data << uint32(areaId);
-    player->SendDirectMessage(&data);
+    WorldPackets::Misc::PlayerBound packet(m_caster->GetGUID(), areaId);
+    player->SendDirectMessage(packet.Write());
 }
 
 void Spell::EffectSummonRaFFriend(SpellEffIndex effIndex)
