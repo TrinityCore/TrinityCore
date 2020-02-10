@@ -198,7 +198,7 @@ struct boss_magmaw : public BossAI
 {
     boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW),
         _exposedHead1(nullptr), _exposedHead2(nullptr), _pincer1(nullptr), _pincer2(nullptr), _magmaProjectileCount(0),
-        _headEngaged(false), _achievementEnligible(true), _heroicPhaseTwoActive(!IsHeroic())
+        _achievementEnligible(true), _headEngaged(false), _heroicPhaseTwoActive(!IsHeroic())
     {
         me->SetReactState(REACT_PASSIVE);
     }
