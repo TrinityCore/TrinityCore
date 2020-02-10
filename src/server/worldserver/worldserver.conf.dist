@@ -4073,3 +4073,195 @@ Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################
+
+
+###################################################################################################
+# NPCBOT CONFIGURATION
+#
+#    NpcBot.Enable
+#        Description: Enables NpcBot system.
+#        Default:     1 - enable
+#                     0 - disable
+
+NpcBot.Enable = 1
+
+#    NpcBot.MaxBots
+#        Description: Maximum number of bots allowed for players.
+#        Default:     1
+#        Max:         39
+
+NpcBot.MaxBots = 1
+
+#    NpcBot.MaxBotsPerClass
+#        Description: Maximum bots of each class allowed for players.
+#        Default:     0 - no limit
+
+NpcBot.MaxBotsPerClass = 0
+
+#    NpcBot.BaseFollowDistance
+#        Description: Default bot follow distance.
+#        Note:        This parameter determines bots' formation size, distance at which bots
+#                     will chase and attack enemies.
+#        Note2:       This parameter is set for each player at login.
+#        Default:     30
+
+NpcBot.BaseFollowDistance = 30
+
+#    NpcBot.XpReduction
+#        Description: XP percent penalty for each bot used starting with second.
+#        Example:     3 bots, xp reduction is 20: ((3-1)*20) = 40%, 60% exp gained only.
+#        Note:        Maximum overall xp reduction is 90%.
+#        Default:     0
+
+NpcBot.XpReduction = 0
+
+#    NpcBot.HealTargetIconsMask
+#        Description: Icon number bitmask which bots use to search for additional
+#                     targets to buff, heal and protect (out of party).
+#        Note:        Many creatures cannot accept heal.
+#        Example:     To check Star, Triangle and Square we need 1 + 8 + 32 = 41.
+#        Default:     0 (Disable)
+#                     1 - Star
+#                     2 - Circle
+#                     4 - Diamond
+#                     8 - Triangle
+#                     16 - Moon
+#                     32 - Square
+#                     64 - Cross
+#                     128 - Skull
+
+NpcBot.HealTargetIconsMask = 0
+
+#    NpcBot.Mult.Damage.Physical
+#    NpcBot.Mult.Damage.Spell
+#    NpcBot.Mult.Healing
+#        Description: Multipliers for bots' damage and healing. Allows to balance bots vs players.
+#        Default:     1.0
+#        Minimum:     0.1
+#        Maximum:    10.0
+
+NpcBot.Mult.Damage.Physical = 1.0
+NpcBot.Mult.Damage.Spell    = 1.0
+NpcBot.Mult.Healing         = 1.0
+
+#    NpcBot.Enable.Dungeon
+#    NpcBot.Enable.Raid
+#    NpcBot.Enable.BG
+#    NpcBot.Enable.Arena
+#    NpcBot.Enable.DungeonFinder
+#        Description: Allow bots to enter PvE/PvP areas and Dungeon Finder query.
+#        Default:     1 - (NpcBot.Enable.Dungeon)
+#                     0 - (NpcBot.Enable.Raid)
+#                     0 - (NpcBot.Enable.BG)
+#                     0 - (NpcBot.Enable.Arena)
+#                     1 - (NpcBot.Enable.DungeonFinder)
+
+NpcBot.Enable.Dungeon       = 1
+NpcBot.Enable.Raid          = 0
+NpcBot.Enable.BG            = 0
+NpcBot.Enable.Arena         = 0
+NpcBot.Enable.DungeonFinder = 1
+
+#    NpcBot.Limit.Dungeon
+#    NpcBot.Limit.Raid
+#        Description: Enable/Disable instance players limitation rules for bots.
+#        Default:     1 - (NpcBot.Limit.Dungeon)
+#                     1 - (NpcBot.Limit.Raid)
+
+NpcBot.Limit.Dungeon = 1
+NpcBot.Limit.Raid    = 1
+
+#    NpcBot.Cost
+#        Description: Bot recruitment cost (in copper).
+#        Note:        This value is for level 80 characters, for lower levels cost is reduced greatly.
+#        Default:     1000000 (100 gold)
+
+NpcBot.Cost = 1000000
+
+#    NpcBot.UpdateDelay.Base
+#        Description: Base delay between bot AI update cycles (in milliseconds).
+#        Note:        This parameter allows you to increase reaction time and slow down bots in general.
+#                     This may be useful if you want to balance bots in PvP.
+#        Note2:       This value is added on top of existing semi-randomized delay.
+#        Default:     0 (No additional delay)
+
+NpcBot.UpdateDelay.Base = 0
+
+#    NpcBot.PvP
+#        Description: Allow bots to attack player-controlled units (players, pets, bots, etc.).
+#        Note:        This rule only applies to player-controlled bots.
+#        Default:     1
+
+NpcBot.PvP = 1
+
+#    NpcBot.Movements.InterruptFood
+#        Description: Remove food and drink auras when starting to move.
+#        Note:        Bots don't use food or drink if not standing still.
+#        Default:     0 - (Do not interrupt)
+#                     1 - (Interrupt food and drink)
+
+NpcBot.Movements.InterruptFood = 0
+
+#    NpcBot.EquipmentDisplay.Enable
+#        Description: Enable displaying equipment changes other than weapons on bot models.
+#        Note:        Client limits equipment updates to
+#                     1) relog
+#                     2) taking a taxi flight
+#                     3) teleporting between maps
+#                     4) not seeing this bot for 3 minutes
+#                     5) bot changing displayId (polymorph, shapeshift, etc.)
+#        Note2:       If client registers (5) of a single bot 3+ times
+#                     said client may crash at exiting game (Error #132) unless (4) happens.
+#        Note3:       Changing this setting requires server restart.
+#        Note4:       Bots having no equipment will not appear naked.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+NpcBot.EquipmentDisplay.Enable = 1
+
+#    NpcBot.EquipmentDisplay.ShowCloak
+#    NpcBot.EquipmentDisplay.ShowHelm
+#        Description: Equipment display rules.
+#        Default:     1 - (NpcBot.EquipmentDisplay.ShowCloak)
+#                     1 - (NpcBot.EquipmentDisplay.ShowHelm)
+
+NpcBot.EquipmentDisplay.ShowCloak = 1
+NpcBot.EquipmentDisplay.ShowHelm  = 1
+
+#    NpcBot.NewClasses.<Class>.Enable
+#        Description: Allow players to hire bots of non-standard classes.
+#        Note:        Some bot abilities may be unbalanced or game breaking under certain circumstances.
+#        Default:     1 - (NpcBot.NewClasses.Blademaster.Enable)
+#                     1 - (NpcBot.NewClasses.ObsidianDestroyer.Enable)
+#                     1 - (NpcBot.NewClasses.Archmage.Enable)
+#                     1 - (NpcBot.NewClasses.Dreadlord.Enable)
+#                     1 - (NpcBot.NewClasses.SpellBreaker.Enable)
+#                     1 - (NpcBot.NewClasses.DarkRanger.Enable)
+
+NpcBot.NewClasses.Blademaster.Enable       = 1
+NpcBot.NewClasses.ObsidianDestroyer.Enable = 1
+NpcBot.NewClasses.Archmage.Enable          = 1
+NpcBot.NewClasses.Dreadlord.Enable         = 1
+NpcBot.NewClasses.SpellBreaker.Enable      = 1
+NpcBot.NewClasses.DarkRanger.Enable        = 1
+
+#    NpcBot.Stats.Limits.Enable
+#        Description: Enable or disable stats limits for bots.
+#        Default:     0 - Disabled
+
+NpcBot.Stats.Limits.Enable = 0
+
+#
+#    NpcBot.Stats.Limits.<Stat>
+#        Description: Set dodge, parry, block and crit chance percentage limit for bots.
+#        Note:        Some bot classes may ignore some of these values.
+#        Note2:       Auras can still increase these stats above limit.
+#        Default:     95.0 (95%)
+
+NpcBot.Stats.Limits.Dodge = 95.0
+NpcBot.Stats.Limits.Parry = 95.0
+NpcBot.Stats.Limits.Block = 95.0
+NpcBot.Stats.Limits.Crit  = 95.0
+
+#
+###################################################################################################

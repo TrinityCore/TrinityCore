@@ -1146,6 +1146,10 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid GetCharmedGUID() const { return GetGuidValue(UNIT_FIELD_CHARM); }
         Unit* GetCharmed() const { return m_charmed; }
 
+        //npcbot
+        void SetControlledByPlayer(bool set) { m_ControlledByPlayer = set; }
+        //end npcbot
+
         bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
         Player* GetControllingPlayer() const;
         ObjectGuid GetCharmerOrOwnerGUID() const override { return IsCharmed() ? GetCharmerGUID() : GetOwnerGUID(); }
@@ -1671,6 +1675,10 @@ class TC_GAME_API Unit : public WorldObject
         float GetCollisionHeight() const override;
 
         std::string GetDebugInfo() const override;
+
+        bool HasReactive(ReactiveType reactive) const { return m_reactiveTimer[reactive] > 0; }
+        void ClearReactive(ReactiveType reactive);
+
     protected:
         explicit Unit (bool isWorldObject);
 

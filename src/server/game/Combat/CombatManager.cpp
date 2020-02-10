@@ -21,6 +21,10 @@
 #include "CreatureAI.h"
 #include "Player.h"
 
+//npcbot
+#include "botmgr.h"
+//end npcbot
+
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
 {
     // Checks combat validity before initial reference creation.
@@ -180,8 +184,29 @@ bool CombatManager::SetInCombatWith(Unit* who)
     CombatReference* ref;
     if (_owner->IsControlledByPlayer() && who->IsControlledByPlayer())
         ref = new PvPCombatReference(_owner, who);
+    //npcbot: follow pvp rules
+    else if ((_owner->ToCreature() && _owner->ToCreature()->IsNPCBot() && who->IsControlledByPlayer()) ||
+        (who->ToCreature() && who->ToCreature()->IsNPCBot() && _owner->IsControlledByPlayer()) ||
+        (_owner->ToCreature() && _owner->ToCreature()->IsNPCBot() &&
+        who->ToCreature() && who->ToCreature()->IsNPCBot()))
+        ref = new PvPCombatReference(_owner, who);
+    //end npcbot
     else
         ref = new CombatReference(_owner, who);
+
+    //npcbot
+    /*
+    if (_owner->GetTypeId() == TYPEID_PLAYER && _owner->ToPlayer()->HaveBot())
+    {
+        BotMap const* map = _owner->ToPlayer()->GetBotMgr()->GetBotMap();
+        for (BotMap::const_iterator itr = map->begin(); itr != map->end(); ++itr)
+        {
+            itr->second->SetInCombatWith(who);
+            if (Unit* botPet = itr->second->GetBotsPet())
+                botPet->SetInCombatWith(who);
+        }
+    }*/
+    //end npcbot
 
     // ...and insert it into both managers
     PutReference(who->GetGUID(), ref);

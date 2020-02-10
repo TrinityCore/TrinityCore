@@ -573,6 +573,10 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication* auraApp)
             caster->GetSpellHistory()->StartCooldown(m_spellInfo, castItem ? castItem->GetEntry() : 0, nullptr, true);
         }
     }
+    //npcbot: infinity cd for bots
+    if (caster && m_spellInfo->IsCooldownStartedOnEvent() && caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->IsNPCBot())
+        caster->ToCreature()->AddBotSpellCooldown(m_spellInfo->Id, std::numeric_limits<uint32>::max());
+    //end npcbot
 }
 
 void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraApp)
@@ -601,6 +605,11 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraAp
     if (caster && GetSpellInfo()->IsCooldownStartedOnEvent())
         // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
         caster->GetSpellHistory()->SendCooldownEvent(GetSpellInfo());
+
+    //npcbot: release cd state for bots
+    if (caster && m_spellInfo->IsCooldownStartedOnEvent() && caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->IsNPCBot())
+        caster->ToCreature()->ReleaseBotSpellCooldown(m_spellInfo->Id);
+    //end npcbot
 }
 
 // removes aura from all targets
@@ -1695,6 +1704,20 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     case 47788: // Guardian Spirit
                         if (removeMode != AURA_REMOVE_BY_EXPIRE)
                             break;
+
+                        //npcbot: handle Glyph of Guardian Spirit proc for bots
+                        if (Creature* bot = caster->ToCreature())
+                        {
+                            if (bot->IsNPCBot() && bot->HasSpellCooldown(47788))
+                            {
+                                bot->AddBotSpellCooldown(47788, 60000);
+                                bot->GetSpellHistory()->ResetCooldown(GetSpellInfo()->Id, true);
+                                bot->GetSpellHistory()->AddCooldown(GetSpellInfo()->Id, 0, std::chrono::seconds(60));
+                                break;
+                            }
+                        }
+                        //end npcbot
+
                         if (caster->GetTypeId() != TYPEID_PLAYER)
                             break;
 
