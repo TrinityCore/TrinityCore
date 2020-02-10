@@ -35,7 +35,7 @@ bool Script_Rogue::DPS(Unit* pmTarget)
 
 bool Script_Rogue::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -95,7 +95,7 @@ bool Script_Rogue::Attack(Unit* pmTarget)
 
 bool Script_Rogue::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;

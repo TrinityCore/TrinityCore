@@ -20,7 +20,7 @@ bool Script_Warrior::HealMe()
 
 bool Script_Warrior::Tank(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -116,7 +116,7 @@ bool Script_Warrior::DPS(Unit* pmTarget)
 
 bool Script_Warrior::DPS_Arms(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -184,7 +184,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
 
 bool Script_Warrior::DPS_Fury(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -262,7 +262,7 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
 
 bool Script_Warrior::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -351,7 +351,7 @@ bool Script_Warrior::Attack(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Arms(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -419,7 +419,7 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Fury(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -501,7 +501,7 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Protection(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -562,7 +562,7 @@ bool Script_Warrior::Attack_Protection(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -622,7 +622,7 @@ bool Script_Warrior::Attack_Common(Unit* pmTarget)
 
 bool Script_Warrior::Buff(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;

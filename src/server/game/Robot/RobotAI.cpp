@@ -21,6 +21,7 @@
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "ChaseMovementGenerator.h"
 
 #include "RobotManager.h"
 #include "Strategy_Group_Normal.h"
@@ -58,8 +59,8 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
     accountName = accountNameStream.str();
 
     accountID = 0;
-    characterID = 0;
-    masterID = 0;
+    characterGUID = ObjectGuid::Empty;
+    masterGUID = ObjectGuid::Empty;
     characterType = 0;
 
     checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
@@ -79,9 +80,6 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
     st_Solo_Normal = new Strategy_Solo_Normal(this);
     st_Group_Normal = new Strategy_Group_Normal(this);
 
-    combatDistance = false;
-    combatMinDistance = MELEE_MIN_DISTANCE;
-    combatMaxDistance = MELEE_MAX_DISTANCE;
     switch (targetClass)
     {
     case Classes::CLASS_WARRIOR:
@@ -90,16 +88,12 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
         break;
     }
     case Classes::CLASS_HUNTER:
-    {
-        combatMinDistance = RANGED_MIN_DISTANCE;
-        combatMaxDistance = RANGED_MAX_DISTANCE;
+    {        
         s_base = new Script_Hunter(this);
         break;
     }
     case Classes::CLASS_SHAMAN:
-    {
-        combatMinDistance = RANGED_MIN_DISTANCE;
-        combatMaxDistance = RANGED_MAX_DISTANCE;
+    {        
         s_base = new Script_Shaman(this);
         break;
     }
@@ -109,16 +103,12 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
         break;
     }
     case Classes::CLASS_WARLOCK:
-    {
-        combatMinDistance = RANGED_MIN_DISTANCE;
-        combatMaxDistance = RANGED_MAX_DISTANCE;
+    {        
         s_base = new Script_Warlock(this);
         break;
     }
     case Classes::CLASS_PRIEST:
-    {
-        combatMinDistance = RANGED_MIN_DISTANCE;
-        combatMaxDistance = RANGED_MAX_DISTANCE;
+    {        
         s_base = new Script_Priest(this);
         break;
     }
@@ -128,9 +118,7 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
         break;
     }
     case Classes::CLASS_MAGE:
-    {
-        combatMinDistance = RANGED_MIN_DISTANCE;
-        combatMaxDistance = RANGED_MAX_DISTANCE;
+    {        
         s_base = new Script_Mage(this);
         break;
     }
@@ -160,28 +148,27 @@ void RobotAI::SetStrategy(std::string pmStrategyName, bool pmEnable)
 
 void RobotAI::ResetStrategy()
 {
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
+    if (!me)
+    {
+        return;
+    }
+    me->GetMotionMaster()->Clear();
+    me->StopMoving();
     strategiesMap["solo_normal"] = true;
     st_Solo_Normal->soloDuration = 0;
     strategiesMap["group_normal"] = false;
     staying = false;
     holding = false;
-    masterID = 0;
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
-    if (!me)
-    {
-        return;
-    }
+    masterGUID = ObjectGuid::Empty;    
     me->Say("Strategy reset", Language::LANG_UNIVERSAL);
-
     Prepare();
-
-    RandomTeleport();
 }
 
 void RobotAI::InitializeCharacter()
 {
-    bool newCharacter = false;
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    bool newCharacter = false;    
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return;
@@ -1839,7 +1826,7 @@ void RobotAI::InitializeCharacter()
 
 void RobotAI::Prepare()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return;
@@ -1930,7 +1917,7 @@ void RobotAI::Prepare()
 
 void RobotAI::Refresh()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return;
@@ -1947,7 +1934,7 @@ void RobotAI::Refresh()
 
 void RobotAI::RandomTeleport()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return;
@@ -1969,7 +1956,7 @@ void RobotAI::RandomTeleport()
 
 bool RobotAI::HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -2003,7 +1990,7 @@ bool RobotAI::HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura
 
 bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance, bool pmCheckAura, bool pmOnlyMyAura, bool pmClearShapeshift)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -2092,7 +2079,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
 
 void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return;
@@ -2130,7 +2117,7 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     }
     me->SetSelection(pmTarget->GetGUID());
     float currentDistance = me->GetDistance(pmTarget);
-    if (currentDistance < pmDistance + MIN_DISTANCE_GAP)
+    if (currentDistance < pmDistance)
     {
         if (!me->isInFront(pmTarget))
         {
@@ -2138,6 +2125,7 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
         }
         else
         {
+            me->GetMotionMaster()->Clear();
             me->StopMoving();
         }
         if (pmAttack)
@@ -2147,23 +2135,33 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     }
     else
     {
-        if (pmAttack)
+        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
         {
-            me->AttackStop();
-            me->SetSelection(ObjectGuid::Empty);
-        }
-        if (!holding)
-        {
-            if (combatDistance)
+            if (holding)
             {
-                if (currentDistance < combatMinDistance)
-                {
-                    me->GetMotionMaster()->MoveFutherAndStop(0, pmTarget, combatMinDistance + MIN_DISTANCE_GAP);
-                }
+                me->GetMotionMaster()->Clear();
+                me->StopMoving();
             }
             else
             {
-                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
+                ChaseMovementGenerator* cmg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
+                if (cmg)
+                {
+                    if (cmg->GetTarget()->GetGUID() != pmTarget->GetGUID())
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->StopMoving();
+                        me->SetSelection(ObjectGuid::Empty);
+                        me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (!holding)
+            {
+                me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
             }
         }
     }
@@ -2171,7 +2169,7 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
 
 void RobotAI::WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return;
@@ -2183,7 +2181,7 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
 {
     if (pmDestPacket)
     {
-        Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+        Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
         if (!me)
         {
             return;
@@ -2234,13 +2232,11 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
             }
             if (acceptInvite)
             {
-                masterID = inviter->GetGUID().GetRawValue();
+                masterGUID = inviter->GetGUID();
                 WorldPacket p;
                 uint32 roles_mask = 0;
                 p << roles_mask;
-                me->GetSession()->HandleGroupAcceptOpcode(p);
-                SetStrategy("solo_normal", false);
-                SetStrategy("group_normal", true);
+                me->GetSession()->HandleGroupAcceptOpcode(p);                
                 WhisperTo("Strategy set to group", Language::LANG_UNIVERSAL, inviter);
                 WhisperTo("You are my master", Language::LANG_UNIVERSAL, inviter);
                 std::ostringstream replyStream_Talent;
@@ -2274,6 +2270,8 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
                 WhisperTo(replyStream_GroupRole.str(), Language::LANG_UNIVERSAL, inviter);
                 me->GetMotionMaster()->Clear();
                 Prepare();
+                SetStrategy("solo_normal", false);
+                SetStrategy("group_normal", true);
                 break;
             }
             else
@@ -2285,15 +2283,7 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
                 WhisperTo(timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
                 break;
             }
-        }
-        case SMSG_GROUP_UNINVITE:
-        {
-            //master = NULL;
-            //ResetStrategy();
-            //me->Say("Strategy set to solo", Language::LANG_UNIVERSAL);
-            //sRobotManager->RefreshRobot(me);
-            break;
-        }
+        }        
         case BUY_ERR_NOT_ENOUGHT_MONEY:
         {
             break;
@@ -2500,8 +2490,8 @@ void RobotAI::Update()
         if (allDelay <= 0)
         {
             allDelay = 5 * TimeConstants::IN_MILLISECONDS;
-            characterID = sRobotManager->CheckAccountCharacter(accountID);
-            if (characterID > 0)
+            characterGUID = sRobotManager->CheckAccountCharacter(accountID);
+            if (!characterGUID.IsEmpty())
             {
                 sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s character ready.", accountName);
                 robotState = RobotState::RobotState_DoLogin;
@@ -2537,7 +2527,7 @@ void RobotAI::Update()
         if (allDelay <= 0)
         {
             allDelay = 10 * TimeConstants::IN_MILLISECONDS;
-            Player* me = sRobotManager->CheckLogin(accountID, characterID);
+            Player* me = sRobotManager->CheckLogin(accountID, characterGUID);
             if (me)
             {
                 WorldSession* mySession = me->GetSession();
@@ -2560,14 +2550,14 @@ void RobotAI::Update()
         if (allDelay <= 0)
         {
             allDelay = 10 * TimeConstants::IN_MILLISECONDS;
-            sRobotManager->LoginRobot(accountID, characterID);
+            sRobotManager->LoginRobot(accountID, characterGUID);
             robotState = RobotState::RobotState_CheckLogin;
         }
         break;
     }
     case RobotState_Online:
     {
-        Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+        Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
         if (!me)
         {
             break;
@@ -2605,8 +2595,8 @@ void RobotAI::Update()
                 if (!levelPlayerOnline)
                 {
                     if (me->GetGroup())
-                    {
-                        Player* master = ObjectAccessor::FindPlayerByLowGUID(masterID);
+                    {                        
+                        Player* master = ObjectAccessor::FindConnectedPlayer(masterGUID);
                         if (master)
                         {
                             if (master->IsInWorld())
@@ -2622,6 +2612,7 @@ void RobotAI::Update()
                         {
                             me->RemoveFromGroup();
                             ResetStrategy();
+                            RandomTeleport();
                         }
                     }
                 }
@@ -2671,16 +2662,12 @@ void RobotAI::Update()
         if (allDelay <= 0)
         {
             allDelay = 5 * TimeConstants::IN_MILLISECONDS;
-            ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, characterID);
-            Player* checkP = ObjectAccessor::FindPlayer(playerGUID);
+            Player* checkP = ObjectAccessor::FindConnectedPlayer(characterGUID);
             if (checkP)
             {
-                if (checkP->IsInWorld())
-                {
-                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Log out robot %s failed", checkP->GetName());
-                    robotState = RobotState::RobotState_None;
-                    break;
-                }
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Log out robot %s failed", checkP->GetName());
+                robotState = RobotState::RobotState_None;
+                break;
             }
             //sRobotManager->robotAICache.erase(accountID);
 
@@ -2709,7 +2696,7 @@ void RobotAI::Update()
 
 Item* RobotAI::GetItemInInventory(uint32 pmEntry)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         NULL;
@@ -2749,7 +2736,7 @@ Item* RobotAI::GetItemInInventory(uint32 pmEntry)
 
 bool RobotAI::UseItem(Item* pmItem, Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -2776,7 +2763,7 @@ bool RobotAI::UseItem(Item* pmItem, Unit* pmTarget)
 
 bool RobotAI::EquipNewItem(uint32 pmEntry)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -2814,7 +2801,7 @@ bool RobotAI::EquipNewItem(uint32 pmEntry)
 
 bool RobotAI::EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -2851,7 +2838,7 @@ bool RobotAI::EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot)
 
 bool RobotAI::UnequipAll()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -2875,7 +2862,7 @@ bool RobotAI::UnequipAll()
 
 bool RobotAI::EquipAll()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -2926,7 +2913,7 @@ bool RobotAI::EquipAll()
 
 bool RobotAI::EquipItem(std::string pmEquipName)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -2986,7 +2973,7 @@ bool RobotAI::EquipItem(std::string pmEquipName)
 
 bool RobotAI::UnequipItem(std::string pmEquipName)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -3016,12 +3003,12 @@ bool RobotAI::UnequipItem(std::string pmEquipName)
 
 void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return;
     }
-    Player* master = ObjectAccessor::FindPlayerByLowGUID(masterID);
+    Player* master = ObjectAccessor::FindConnectedPlayer(masterGUID);
     std::vector<std::string> commandVector = sRobotManager->SplitString(pmCMD, " ", true);
     std::string commandName = commandVector.at(0);
     if (commandName == "role")
@@ -3433,109 +3420,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I am not hunter or a warlock", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-    }
-    else if (commandName == "strip")
-    {
-        if (!master)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (pmSender->GetGUID() != master->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (!me->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        UnequipAll();
-        WhisperTo("Stripped", Language::LANG_UNIVERSAL, pmSender);
-    }
-    else if (commandName == "unequip")
-    {
-        if (!master)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (pmSender->GetGUID() != master->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (!me->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (commandVector.size() > 1)
-        {
-            std::ostringstream targetStream;
-            uint8 arrayCount = 0;
-            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
-            {
-                if (arrayCount > 0)
-                {
-                    targetStream << (*it) << " ";
-                }
-                arrayCount++;
-            }
-            std::string unequipTarget = sRobotManager->TrimString(targetStream.str());
-            if (unequipTarget == "all")
-            {
-                UnequipAll();
-            }
-            else
-            {
-                UnequipItem(unequipTarget);
-            }
-        }
-        WhisperTo("Unequiped", Language::LANG_UNIVERSAL, pmSender);
-    }
-    else if (commandName == "equip")
-    {
-        if (!master)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (pmSender->GetGUID() != master->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (!me->IsAlive())
-        {
-            WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (commandVector.size() > 1)
-        {
-            std::ostringstream targetStream;
-            uint8 arrayCount = 0;
-            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
-            {
-                if (arrayCount > 0)
-                {
-                    targetStream << (*it) << " ";
-                }
-                arrayCount++;
-            }
-            std::string equipTarget = sRobotManager->TrimString(targetStream.str());
-            if (equipTarget == "all")
-            {
-                EquipAll();
-            }
-            else
-            {
-                EquipItem(equipTarget);
-            }
-        }
-        WhisperTo("Equiped", Language::LANG_UNIVERSAL, pmSender);
-    }
+    }    
     else if (commandName == "cast")
     {
         if (!master)
@@ -3583,44 +3468,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             }
             WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
         }
-    }
-    else if (commandName == "distance")
-    {
-        if (!master)
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        if (pmSender->GetGUID() != master->GetGUID())
-        {
-            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
-            return;
-        }
-        std::ostringstream replyStream;
-        if (commandVector.size() > 1)
-        {
-            std::string distanceState = commandVector.at(1);
-            if (distanceState == "on")
-            {
-                combatDistance = true;
-            }
-            else if (distanceState == "off")
-            {
-                combatDistance = false;
-            }
-        }
-        if (combatDistance)
-        {
-            replyStream << "Combat distance is on";
-        }
-        else
-        {
-            replyStream << "Combat distance is off";
-        }
-
-        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
-        return;
-    }
+    }    
     else if (commandName == "cancel")
     {
         if (!master)
@@ -3781,7 +3629,7 @@ bool RobotAI::SpellValid(uint32 pmSpellID)
     {
         return false;
     }
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -3795,7 +3643,7 @@ bool RobotAI::SpellValid(uint32 pmSpellID)
 
 bool RobotAI::CancelAura(std::string pmSpellName)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return false;
@@ -3819,7 +3667,7 @@ void RobotAI::CancelAura(uint32 pmSpellID)
     {
         return;
     }
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return;
@@ -3831,7 +3679,7 @@ void RobotAI::CancelAura(uint32 pmSpellID)
 
 void RobotAI::ClearShapeshift()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
         return;
@@ -3879,21 +3727,17 @@ void RobotAI::DoAttack(Unit* pmTarget, bool pmMelee)
 
 void RobotAI::Logout()
 {
-    ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, characterID);
-    Player* checkP = ObjectAccessor::FindPlayer(playerGUID);
+    Player* checkP = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (checkP)
     {
-        if (checkP->IsInWorld())
+        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
+        std::ostringstream msgStream;
+        msgStream << checkP->GetName() << " logged out";
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
+        WorldSession* checkWS = checkP->GetSession();
+        if (checkWS)
         {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
-            std::ostringstream msgStream;
-            msgStream << checkP->GetName() << " logged out";
-            sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
-            WorldSession* checkWS = checkP->GetSession();
-            if (checkWS)
-            {
-                checkWS->LogoutPlayer(true);
-            }
+            checkWS->LogoutPlayer(true);
         }
     }
 }

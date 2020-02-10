@@ -112,8 +112,11 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     float const minRange       = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
     float const minTarget      = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
     float const maxRange       = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
-    float const maxTarget      = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
-    Optional<ChaseAngle> angle = mutualChase ? Optional<ChaseAngle>() : _angle;
+    float const maxTarget      = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;    
+
+    // EJ chase will not relate to angle
+    //Optional<ChaseAngle> angle = mutualChase ? Optional<ChaseAngle>() : _angle;
+    Optional<ChaseAngle> angle = Optional<ChaseAngle>();
 
     // if we're already moving, periodically check if we're already in the expected range...
     if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE))

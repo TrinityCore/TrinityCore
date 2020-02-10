@@ -279,8 +279,8 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                 {
                 case ItemClass::ITEM_CLASS_CONSUMABLE:
                 {
-                    sellThis = true;
-                    stackCount = proto->Stackable;
+                    //sellThis = true;
+                    //stackCount = proto->Stackable;
                     break;
                 }
                 case ItemClass::ITEM_CLASS_CONTAINER:
@@ -294,7 +294,7 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                 }
                 case ItemClass::ITEM_CLASS_WEAPON:
                 {
-                    if (proto->Quality >= 2)
+                    if (proto->Quality > 2)
                     {
                         sellThis = true;
                         stackCount = 1;
@@ -309,7 +309,7 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                 }
                 case ItemClass::ITEM_CLASS_ARMOR:
                 {
-                    if (proto->Quality >= 2)
+                    if (proto->Quality > 2)
                     {
                         sellThis = true;
                         stackCount = 1;
@@ -381,6 +381,7 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                 case ItemClass::ITEM_CLASS_GLYPH:
                 {
                     sellThis = true;
+                    stackCount = 1;
                     break;
                 }
                 default:
@@ -404,63 +405,54 @@ bool MarketerManager::UpdateSeller(uint32 pmDiff)
                         return false;
                     }
 
-                    uint8 unitCount = 1;
-                    if (proto->Stackable > 1)
+                    Item* item = Item::CreateItem(proto->ItemId, stackCount, NULL);
+                    if (item)
                     {
-                        unitCount = urand(1, 5);
-                    }
-                    while (unitCount > 0)
-                    {
-                        Item* item = Item::CreateItem(proto->ItemId, stackCount, NULL);
-                        if (item)
+                        if (int32 randomPropertyId = item->GetItemRandomPropertyId())
                         {
-                            if (int32 randomPropertyId = item->GetItemRandomPropertyId())
-                            {
-                                item->SetItemRandomProperties(randomPropertyId);
-                            }
-                            uint32 finalPrice = 0;
-                            uint8 qualityMuliplier = 1;
-                            if (proto->Quality > 2)
-                            {
-                                qualityMuliplier = proto->Quality - 1;
-                            }
-                            finalPrice = proto->SellPrice * stackCount * urand(10, 20);
-                            if (finalPrice == 0)
-                            {
-                                finalPrice = proto->BuyPrice * stackCount * urand(2, 4);
-                            }
-                            if (finalPrice == 0)
-                            {
-                                break;
-                            }
-                            finalPrice = finalPrice * qualityMuliplier;
-                            if (finalPrice > 100)
-                            {
-                                uint32 dep = sAuctionMgr->GetAuctionDeposit(ahEntry, 86400, item, item->GetCount());
-
-                                AuctionEntry* auctionEntry = new AuctionEntry();
-                                auctionEntry->Id = sObjectMgr->GenerateAuctionID();
-                                auctionEntry->owner = 0;
-                                auctionEntry->itemGUIDLow = item->GetGUID().GetCounter();
-                                auctionEntry->itemEntry = item->GetEntry();
-                                auctionEntry->startbid = finalPrice / 2;
-                                auctionEntry->buyout = finalPrice;
-                                auctionEntry->houseId = ahID;
-                                auctionEntry->bidder = 0;
-                                auctionEntry->bid = 0;
-                                auctionEntry->deposit = dep;
-                                auctionEntry->auctionHouseEntry = ahEntry;
-                                //auctionEntry->depositTime = time(NULL);
-                                auctionEntry->expire_time = GameTime::GetGameTime() + 48 * HOUR;
-                                item->SaveToDB(trans);
-                                sAuctionMgr->AddAItem(item);
-                                aho->AddAuction(auctionEntry);
-                                auctionEntry->SaveToDB(trans);
-
-                                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Auction %s added for auctionhouse %d", proto->Name1, ahID);
-                            }
+                            item->SetItemRandomProperties(randomPropertyId);
                         }
-                        unitCount--;
+                        uint32 finalPrice = 0;
+                        uint8 qualityMuliplier = 1;
+                        if (proto->Quality > 2)
+                        {
+                            qualityMuliplier = proto->Quality - 1;
+                        }
+                        finalPrice = proto->SellPrice * stackCount * urand(10, 20);
+                        if (finalPrice == 0)
+                        {
+                            finalPrice = proto->BuyPrice * stackCount * urand(2, 4);
+                        }
+                        if (finalPrice == 0)
+                        {
+                            break;
+                        }
+                        finalPrice = finalPrice * qualityMuliplier;
+                        if (finalPrice > 100)
+                        {
+                            uint32 dep = sAuctionMgr->GetAuctionDeposit(ahEntry, 86400, item, item->GetCount());
+
+                            AuctionEntry* auctionEntry = new AuctionEntry();
+                            auctionEntry->Id = sObjectMgr->GenerateAuctionID();
+                            auctionEntry->owner = 0;
+                            auctionEntry->itemGUIDLow = item->GetGUID().GetCounter();
+                            auctionEntry->itemEntry = item->GetEntry();
+                            auctionEntry->startbid = finalPrice / 2;
+                            auctionEntry->buyout = finalPrice;
+                            auctionEntry->houseId = ahID;
+                            auctionEntry->bidder = 0;
+                            auctionEntry->bid = 0;
+                            auctionEntry->deposit = dep;
+                            auctionEntry->auctionHouseEntry = ahEntry;
+                            //auctionEntry->depositTime = time(NULL);
+                            auctionEntry->expire_time = GameTime::GetGameTime() + 48 * HOUR;
+                            item->SaveToDB(trans);
+                            sAuctionMgr->AddAItem(item);
+                            aho->AddAuction(auctionEntry);
+                            auctionEntry->SaveToDB(trans);
+
+                            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Auction %s added for auctionhouse %d", proto->Name1, ahID);
+                        }
                     }
                 }
 

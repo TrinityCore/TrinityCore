@@ -1405,6 +1405,10 @@ void Player::setDeathState(DeathState s)
 
         // reset all death criterias
         ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH, 0);
+
+        // EJ clear when dead
+        GetMotionMaster()->Clear();
+        StopMoving();
     }
 
     Unit::setDeathState(s);

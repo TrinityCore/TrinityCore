@@ -15,7 +15,7 @@ Script_Priest::Script_Priest(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
 
 bool Script_Priest::HealMe()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -53,7 +53,7 @@ bool Script_Priest::Tank(Unit* pmTarget)
 
 bool Script_Priest::Healer(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -104,7 +104,7 @@ bool Script_Priest::DPS(Unit* pmTarget)
 
 bool Script_Priest::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -157,7 +157,7 @@ bool Script_Priest::Attack(Unit* pmTarget)
 
 bool Script_Priest::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -205,7 +205,7 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
 
 bool Script_Priest::Buff(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;

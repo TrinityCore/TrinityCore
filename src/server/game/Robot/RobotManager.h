@@ -36,10 +36,10 @@ public:
     Player* GetMaster(uint32 pmSessionID);
     uint32 CheckRobotAccount(std::string pmAccountName);
     bool CreateRobotAccount(std::string pmAccountName);
-    uint32 CheckAccountCharacter(uint32 pmAccountID);
+    ObjectGuid CheckAccountCharacter(uint32 pmAccountID);
     bool CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace);
-    Player* CheckLogin(uint32 pmAccountID, uint32 pmGUID);
-    bool LoginRobot(uint32 pmAccountID, uint32 pmGUID);
+    Player* CheckLogin(uint32 pmAccountID, ObjectGuid pmGUID);
+    bool LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID);
     void LogoutRobots();
     void HandlePlayerSay(Player* pmPlayer, std::string pmContent);
     bool StringEndWith(const std::string &str, const std::string &tail);

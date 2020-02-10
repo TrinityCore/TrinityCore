@@ -503,17 +503,18 @@ bool RobotManager::CreateRobotAccount(std::string pmAccountName)
     return false;
 }
 
-uint32 RobotManager::CheckAccountCharacter(uint32 pmAccountID)
+ObjectGuid RobotManager::CheckAccountCharacter(uint32 pmAccountID)
 {
-    uint32 characterID = 0;
+    ObjectGuid resultGUID = ObjectGuid::Empty;
 
     QueryResult characterQR = CharacterDatabase.PQuery("SELECT guid FROM characters where account = '%d'", pmAccountID);
     if (characterQR)
     {
         Field* characterFields = characterQR->Fetch();
-        characterID = characterFields[0].GetUInt32();
+        uint32 lowID = characterFields[0].GetUInt32();
+        resultGUID = ObjectGuid(HighGuid::Player, lowID);
     }
-    return characterID;
+    return resultGUID;
 }
 
 bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace)
@@ -596,24 +597,19 @@ bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterCl
     return true;
 }
 
-Player* RobotManager::CheckLogin(uint32 pmAccountID, uint32 pmGUID)
+Player* RobotManager::CheckLogin(uint32 pmAccountID, ObjectGuid pmGUID)
 {
-    ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, pmGUID);
-    Player* currentPlayer = ObjectAccessor::FindPlayer(playerGUID);
+    Player* currentPlayer = ObjectAccessor::FindConnectedPlayer(pmGUID);
     if (currentPlayer)
     {
-        if (currentPlayer->IsInWorld())
-        {
-            return currentPlayer;
-        }
+        return currentPlayer;
     }
     return NULL;
 }
 
-bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmGUID)
-{
-    ObjectGuid playerGUID = ObjectGuid(HighGuid::Player, pmGUID);
-    Player* currentPlayer = ObjectAccessor::FindPlayer(playerGUID);
+bool RobotManager::LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID)
+{    
+    Player* currentPlayer = ObjectAccessor::FindPlayer(pmGUID);
     if (currentPlayer)
     {
         if (currentPlayer->IsInWorld())
@@ -638,7 +634,7 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmGUID)
         sWorld->AddSession(loginSession);
     }
 
-    loginSession->HandlePlayerLogin_Simple(playerGUID);
+    loginSession->HandlePlayerLogin_Simple(pmGUID);
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmGUID, characterName.c_str(), characterLevel);
 
     return true;
@@ -648,20 +644,17 @@ void RobotManager::LogoutRobots()
 {
     for (std::unordered_map<uint32, RobotAI*>::iterator rit = sRobotManager->robotAICache.begin(); rit != sRobotManager->robotAICache.end(); rit++)
     {
-        Player* checkP = ObjectAccessor::FindPlayerByLowGUID(rit->second->characterID);
+        Player* checkP = ObjectAccessor::FindConnectedPlayer(rit->second->characterGUID);
         if (checkP)
         {
-            if (checkP->IsInWorld())
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
+            std::ostringstream msgStream;
+            msgStream << checkP->GetName() << " logged out";
+            sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
+            WorldSession* checkWS = checkP->GetSession();
+            if (checkWS)
             {
-                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
-                std::ostringstream msgStream;
-                msgStream << checkP->GetName() << " logged out";
-                sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());
-                WorldSession* checkWS = checkP->GetSession();
-                if (checkWS)
-                {
-                    checkWS->LogoutPlayer(true);
-                }
+                checkWS->LogoutPlayer(true);
             }
         }
     }
@@ -781,20 +774,14 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         }
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
-    else if (commandName == "front2")
+    else if (commandName == "chase")
     {
         std::ostringstream replyStream;
         Unit* targetUnit = pmPlayer->GetSelectedUnit();
         if (targetUnit)
         {
-            if (targetUnit->isInFront(pmPlayer))
-            {
-                replyStream << "Yes";
-            }
-            else
-            {
-                replyStream << "No";
-            }
+            pmPlayer->GetMotionMaster()->MoveChase(targetUnit, 5.0f);
+            replyStream << "Chasing";
         }
         else
         {
@@ -802,39 +789,23 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         }
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
-    else if (commandName == "front3")
+    else if (commandName == "clear")
     {
         std::ostringstream replyStream;
-        Unit* targetUnit = pmPlayer->GetSelectedUnit();
-        if (targetUnit)
-        {
-            pmPlayer->GetMotionMaster()->MoveCloserAndStop(0, targetUnit, 5.0f);
-            replyStream << "Moved";
-        }
-        else
-        {
-            replyStream << "No target";
-        }
+        pmPlayer->GetMotionMaster()->Clear();
+        replyStream << "Motion cleared";
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
-    else if (commandName == "front4")
+    else if (commandName == "stop")
     {
         std::ostringstream replyStream;
-        Unit* targetUnit = pmPlayer->GetSelectedUnit();
-        if (targetUnit)
-        {
-            pmPlayer->SetFacingToObject(targetUnit);
-            replyStream << "Set";
-        }
-        else
-        {
-            replyStream << "No target";
-        }
+        pmPlayer->StopMoving();
+        replyStream << "Stopped";
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
     else if (commandName == "front5")
     {
-     
+
     }
 }
 
@@ -851,9 +822,8 @@ bool RobotManager::StringStartWith(const std::string& str, const std::string& he
 Player* RobotManager::GetMaster(uint32 pmSessionID)
 {
     if (sRobotManager->robotAICache.find(pmSessionID) != sRobotManager->robotAICache.end())
-    {
-        uint32 masterID = sRobotManager->robotAICache[pmSessionID]->masterID;
-        Player* masterPlayer = ObjectAccessor::FindPlayerByLowGUID(masterID);
+    {        
+        Player* masterPlayer = ObjectAccessor::FindConnectedPlayer(sRobotManager->robotAICache[pmSessionID]->masterGUID);
         return masterPlayer;
     }
 

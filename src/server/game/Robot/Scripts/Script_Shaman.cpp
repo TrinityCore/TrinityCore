@@ -15,7 +15,7 @@ Script_Shaman::Script_Shaman(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
 
 bool Script_Shaman::HealMe()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -39,7 +39,7 @@ bool Script_Shaman::Tank(Unit* pmTarget)
 
 bool Script_Shaman::Healer(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -77,7 +77,7 @@ bool Script_Shaman::DPS(Unit* pmTarget)
 
 bool Script_Shaman::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -116,7 +116,7 @@ bool Script_Shaman::Attack(Unit* pmTarget)
 
 bool Script_Shaman::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;

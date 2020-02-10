@@ -18,7 +18,7 @@
 #endif
 
 #ifndef MELEE_MAX_DISTANCE
-# define MELEE_MAX_DISTANCE 2.0f
+# define MELEE_MAX_DISTANCE 3.0f
 #endif
 
 #ifndef RANGED_MIN_DISTANCE
@@ -90,8 +90,8 @@ public:
     uint32 characterType;
     std::string accountName;
     uint32 accountID;
-    uint32 characterID;
-    uint32 masterID;
+    ObjectGuid characterGUID;
+    ObjectGuid masterGUID;
     uint32 targetLevel;
     uint32 targetRace;
     uint32 targetClass;
@@ -114,13 +114,7 @@ public:
     Strategy_Solo_Normal* st_Solo_Normal;
     Strategy_Group_Normal* st_Group_Normal;
 
-    Script_Base* s_base;
-    //std::unordered_map<int, Script_Base*> scriptMap;
-
-    bool combatDistance;
-
-    float combatMinDistance;
-    float combatMaxDistance;
+    Script_Base* s_base;    
 
     bool staying;
     bool holding;

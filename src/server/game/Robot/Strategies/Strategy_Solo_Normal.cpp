@@ -25,7 +25,7 @@ Strategy_Solo_Normal::Strategy_Solo_Normal(RobotAI* pmSourceAI)
 
 void Strategy_Solo_Normal::Update(uint32 pmDiff)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return;
@@ -225,7 +225,7 @@ bool Strategy_Solo_Normal::Buff(Unit* pmTarget)
 
 bool Strategy_Solo_Normal::Rest()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -358,7 +358,7 @@ bool Strategy_Solo_Normal::Rest()
 bool Strategy_Solo_Normal::Battle()
 {
     bool result = false;
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -499,7 +499,7 @@ bool Strategy_Solo_Normal::Heal()
 
 bool Strategy_Solo_Normal::Wait()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -514,7 +514,7 @@ bool Strategy_Solo_Normal::Wait()
 
 bool Strategy_Solo_Normal::Stroll()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -531,7 +531,7 @@ bool Strategy_Solo_Normal::Stroll()
 
 bool Strategy_Solo_Normal::Confuse()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;

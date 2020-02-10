@@ -41,20 +41,20 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
 
 void Strategy_Group_Normal::Update(uint32 pmDiff)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return;
     }
-    Player* master = ObjectAccessor::FindPlayerByLowGUID(sourceAI->masterID);
+    Player* master = ObjectAccessor::FindConnectedPlayer(sourceAI->masterGUID);
     if (!master)
     {
         // wait for checking to reset
         return;
     }
-    if (!master->IsInWorld())
+    if (!me->GetGroup())
     {
-        // wait for checking to reset
+        sourceAI->ResetStrategy();
         return;
     }
     if (!me->IsInSameRaidWith(master))
@@ -113,8 +113,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     }
     if (!myGroup)
     {
-        sourceAI->ResetStrategy();
-        sourceAI->masterID = 0;
+        sourceAI->ResetStrategy();        
         me->Say("I am not in a group. I will reset my strategy", Language::LANG_UNIVERSAL);
         return;
     }
@@ -189,7 +188,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
 
 bool Strategy_Group_Normal::Rest(bool pmForce)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (GroupInCombat())
     {
         return false;
@@ -316,7 +315,7 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
 
 bool Strategy_Group_Normal::Buff()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     Group* myGroup = me->GetGroup();
     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
     {
@@ -337,7 +336,7 @@ bool Strategy_Group_Normal::Buff(Player* pmTarget)
 bool Strategy_Group_Normal::Battle()
 {
     bool result = false;
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     switch (me->groupRole)
     {
     case 0:
@@ -375,8 +374,8 @@ bool Strategy_Group_Normal::Battle()
 bool Strategy_Group_Normal::DPS()
 {
     bool result = false;
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
-    Player* master = ObjectAccessor::FindPlayerByLowGUID(sourceAI->masterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    Player* master = ObjectAccessor::FindConnectedPlayer(sourceAI->masterGUID);
     if (!result)
     {
         if (GroupInCombat())
@@ -484,8 +483,8 @@ bool Strategy_Group_Normal::DPS(Unit* pmTarget)
 bool Strategy_Group_Normal::Tank()
 {
     bool result = false;
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
-    Player* master = ObjectAccessor::FindPlayerByLowGUID(sourceAI->masterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    Player* master = ObjectAccessor::FindConnectedPlayer(sourceAI->masterGUID);
     Group* myGroup = me->GetGroup();
     // tank OT target first
     for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
@@ -605,7 +604,7 @@ bool Strategy_Group_Normal::Tank(Unit* pmTarget)
 
 bool Strategy_Group_Normal::Attack(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     switch (me->groupRole)
     {
     case 0:
@@ -628,7 +627,7 @@ bool Strategy_Group_Normal::Attack(Unit* pmTarget)
 bool Strategy_Group_Normal::Healer()
 {
     bool result = false;
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     //Player* master = master;
     Group* myGroup = me->GetGroup();
     Player* tank = NULL;
@@ -697,7 +696,7 @@ bool Strategy_Group_Normal::Healer(Unit* pmTarget)
 
 bool Strategy_Group_Normal::GroupInCombat()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     Group* myGroup = me->GetGroup();
     if (!myGroup)
     {
@@ -722,12 +721,12 @@ bool Strategy_Group_Normal::GroupInCombat()
 
 bool Strategy_Group_Normal::Follow()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me->IsAlive())
     {
         return false;
     }
-    Player* master = ObjectAccessor::FindPlayerByLowGUID(sourceAI->masterID);
+    Player* master = ObjectAccessor::FindConnectedPlayer(sourceAI->masterGUID);
     if (!master)
     {
         return false;
@@ -768,7 +767,7 @@ bool Strategy_Group_Normal::Follow(float pmFollowDistance)
 
 bool Strategy_Group_Normal::Stay()
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     me->StopMoving();
     me->GetMotionMaster()->Clear();
     return true;

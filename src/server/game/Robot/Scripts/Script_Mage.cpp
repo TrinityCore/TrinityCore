@@ -53,7 +53,7 @@ bool Script_Mage::DPS(Unit* pmTarget)
 
 bool Script_Mage::DPS_Arcane(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -101,7 +101,7 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget)
 
 bool Script_Mage::DPS_Fire(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -149,7 +149,7 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget)
 
 bool Script_Mage::DPS_Frost(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -228,7 +228,7 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget)
 
 bool Script_Mage::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -293,7 +293,7 @@ bool Script_Mage::Attack(Unit* pmTarget)
 
 bool Script_Mage::Attack_Arcane(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -341,7 +341,7 @@ bool Script_Mage::Attack_Arcane(Unit* pmTarget)
 
 bool Script_Mage::Attack_Fire(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -389,7 +389,7 @@ bool Script_Mage::Attack_Fire(Unit* pmTarget)
 
 bool Script_Mage::Attack_Frost(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -437,7 +437,7 @@ bool Script_Mage::Attack_Frost(Unit* pmTarget)
 
 bool Script_Mage::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
@@ -481,7 +481,7 @@ bool Script_Mage::Attack_Common(Unit* pmTarget)
 
 bool Script_Mage::Buff(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindPlayerByLowGUID(sourceAI->characterID);
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
