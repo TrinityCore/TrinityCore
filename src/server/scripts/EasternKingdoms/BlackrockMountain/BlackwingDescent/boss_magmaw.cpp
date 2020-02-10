@@ -93,10 +93,8 @@ enum Events
     EVENT_PREPARE_MASSIVE_CRASH,
     EVENT_MASSIVE_CRASH,
     EVENT_ANNOUNCE_PINCERS_EXPOSED,
-    EVENT_FINISH_MASSIVE_CRASH,
     EVENT_IMPALE_SELF,
-    EVENT_EXPOSE_HEAD,
-    EVENT_HIDE_HEAD,
+    EVENT_SHOW_HEAD,
     EVENT_FINISH_IMPALE_SELF,
 
     // Nefarian
@@ -114,11 +112,22 @@ enum Events
     EVENT_FIERY_SLASH
 };
 
+enum Phases
+{
+    PHASE_OUT_OF_COMBAT = 1,
+    PHASE_COMBAT        = 2,
+    PHASE_IMPALED       = 3
+};
+
 enum Actions
 {
     // Magmaw
     ACTION_IMPALE_MAGMAW            = 0,
-    ACTION_FAIL_ACHIEVEMT           = 1,
+    ACTION_ENABLE_MOUNTING          = 1,
+    ACTION_DISABLE_MOUNTING         = 2,
+    ACTION_EXPOSE_HEAD              = 4,
+    ACTION_COVER_HEAD               = 5,
+    ACTION_FAIL_ACHIEVEMT           = 3,
 
     // Nefarian
     ACTION_SCHEDULE_SHADOW_BREATH   = 0,
@@ -137,6 +146,11 @@ enum Texts
     SAY_INTRO_2                 = 1,
     SAY_MAGMAW_LOW_HEALTH       = 2,
     SAY_MAGMAW_DEAD             = 3
+};
+
+enum BroadcastTexts
+{
+    BROADCAST_TEXT_WHISPER_MANGLE = 48488
 };
 
 enum VehicleSeats
@@ -168,58 +182,66 @@ enum SplineChains
     SPLINE_CHAIN_NEFARIAN_INTRO = 1
 };
 
+enum EncounterFramePriorities
+{
+    FRAME_PRIORITY_MAGMAW                   = 1,
+    FRAME_PRIORITY_EXPOSED_HEAD_OF_MAGMAW   = 2
+};
+
 Position const ExposedHeadOfMagmawPos   = { -299.0f,    -28.9861f,  191.0293f, 4.118977f };
-Position const MagmawVehicleExitPos     = { -311.4653f, -48.59722f, 212.8065f, 1.064651f };
 Position const NefarianIntroSummonPos   = { -390.1042f, 40.88411f,  207.8586f, 0.196609f };
 
 #define SPELL_PARASITIC_INFECTION_PERIODIC_DAMAGE RAID_MODE<uint32>(78941, 91913, 94678, 94679)
+#define SPELL_MANGLE_DAMAGE RAID_MODE<uint32>(89773, 91912, 94616, 94617)
 
 struct boss_magmaw : public BossAI
 {
-    boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW)
+    boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW),
+        _exposedHead1(nullptr), _exposedHead2(nullptr), _pincer1(nullptr), _pincer2(nullptr), _magmaProjectileCount(0),
+        _headEngaged(false), _achievementEnligible(true), _heroicPhaseTwoActive(!IsHeroic())
     {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _magmaProjectileCount = 0;
-        _exposedHead1 = nullptr;
-        _exposedHead2 = nullptr;
-        _pincer1 = nullptr;
-        _pincer2 = nullptr;
-        _hasExposedHead = false;
-        _headEngaged = false;
-        _achievementEnligible = true;
-        _heroicPhaseTwoActive = !IsHeroic();
         me->SetReactState(REACT_PASSIVE);
-    }
-
-    void Reset() override
-    {
-        _Reset();
-        Initialize();
     }
 
     void JustAppeared() override
     {
         SetupBody();
+        events.SetPhase(PHASE_OUT_OF_COMBAT);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
         _JustEngagedWith();
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_PRIORITY_MAGMAW);
         me->SetReactState(REACT_AGGRESSIVE);
-        events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 6s);
-        events.ScheduleEvent(EVENT_LAVA_SPEW, 19s);
-        events.ScheduleEvent(EVENT_MANGLE, 1min + 30s);
+
+        events.SetPhase(PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 6s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_LAVA_SPEW, 19s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_MANGLE, 1min + 30s, 0, PHASE_COMBAT);
 
         _exposedHead1->SetInCombatWithZone();
         _exposedHead2->SetInCombatWithZone();
 
         if (IsHeroic())
             DoSummon(NPC_NEFARIAN_MAGMAW, NefarianIntroSummonPos, 0, TEMPSUMMON_MANUAL_DESPAWN);
+    }
+
+    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+    {
+        if (passenger && seatId == SEAT_MANGLE)
+        {
+            if (apply)
+            {
+                if (Player* player = passenger->ToPlayer())
+                    player->Whisper(BROADCAST_TEXT_WHISPER_MANGLE, player, true);
+            }
+            else
+            {
+                passenger->RemoveAurasDueToSpell(SPELL_MANGLE_DAMAGE);
+                passenger->RemoveAurasDueToSpell(SPELL_MANGLE_2);
+            }
+        }
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -256,7 +278,6 @@ struct boss_magmaw : public BossAI
         if (Creature* nefarian = instance->GetCreature(DATA_NEFARIAN_MAGMAW))
             nefarian->AI()->DoAction(ACTION_MAGMAW_DEAD);
 
-        me->StopMoving(); // Tempfix to prevent Magmaw from falling into the lava
         _JustDied();
     }
 
@@ -276,42 +297,6 @@ struct boss_magmaw : public BossAI
                 break;
             default:
                 summons.Summon(summon);
-                break;
-        }
-    }
-
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-    {
-        switch (spell->Id)
-        {
-            case SPELL_MASSIVE_CRASH:
-            {
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
-                _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_HEAD, true);
-                _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
-                _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
-
-                events.ScheduleEvent(EVENT_ANNOUNCE_PINCERS_EXPOSED, 1s);
-                events.ScheduleEvent(EVENT_FINISH_MASSIVE_CRASH, 7s);
-
-                Unit* head = _exposedHead1;
-                head->m_Events.AddEventAtOffset([head]()
-                    {
-                        head->CastSpell(head, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
-                    }, 6s);
-
-                break;
-            }
-            case SPELL_IMPALE_SELF:
-                DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
-                Talk(SAY_ANNOUNCE_EXPOSED_HEAD);
-                me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_1);
-                me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_2);
-                events.ScheduleEvent(EVENT_HIDE_HEAD, 29s);
-                events.ScheduleEvent(EVENT_FINISH_IMPALE_SELF, 33s);
-                break;
-            default:
                 break;
         }
     }
@@ -363,22 +348,49 @@ struct boss_magmaw : public BossAI
         switch (action)
         {
             case ACTION_IMPALE_MAGMAW:
-                events.CancelEvent(EVENT_MAGMA_PROJECTILE);
-                events.CancelEvent(EVENT_LAVA_SPEW);
+                events.SetPhase(PHASE_IMPALED);
+                me->InterruptNonMeleeSpells(true);
+                me->RemoveAurasDueToSpell(SPELL_MASSIVE_CRASH);
+                me->RemoveAurasDueToSpell(SPELL_PILLAR_OF_FLAME_MISSILE_PERIODIC);
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
-                me->CastStop();
-                me->RemoveAurasDueToSpell(SPELL_MASSIVE_CRASH);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
-                me->RemoveAurasDueToSpell(SPELL_PILLAR_OF_FLAME_MISSILE_PERIODIC);
+                me->ReleaseSpellFocus(nullptr, false);
 
                 if (Creature* spikeStalker = me->FindNearestCreature(NPC_MAGMAW_SPIKE_STALKER, 60.0f))
                     me->SetFacingToObject(spikeStalker);
 
-                events.ScheduleEvent(EVENT_IMPALE_SELF, 1s);
-                events.ScheduleEvent(EVENT_EXPOSE_HEAD, 4s + 700ms);
-                _hasExposedHead = true;
+                events.ScheduleEvent(EVENT_IMPALE_SELF, 1s, 0, PHASE_IMPALED);
+                break;
+            case ACTION_ENABLE_MOUNTING:
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_HEAD, true);
+                _pincer1->CastSpell(_pincer1, SPELL_EJECT_PASSENGER_1, true);
+                _pincer2->CastSpell(_pincer2, SPELL_EJECT_PASSENGER_1, true);
+                events.ScheduleEvent(EVENT_ANNOUNCE_PINCERS_EXPOSED, 1s, 0, PHASE_COMBAT);
+                break;
+            case ACTION_DISABLE_MOUNTING:
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+
+                if (events.IsInPhase(PHASE_COMBAT))
+                {
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms, 0, PHASE_COMBAT);
+                }
+                break;
+            case ACTION_EXPOSE_HEAD:
+                DoCastSelf(SPELL_EJECT_PASSENGER_3, true);
+                Talk(SAY_ANNOUNCE_EXPOSED_HEAD);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me);
+                me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_1);
+                me->RemoveAurasDueToSpell(SPELL_CHAIN_VISUAL_2);
+                break;
+            case ACTION_COVER_HEAD:
+                events.SetPhase(PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_FINISH_IMPALE_SELF, 3s, 0, PHASE_COMBAT);
+                _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
+                _exposedHead1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 break;
             case ACTION_FAIL_ACHIEVEMT:
                 _achievementEnligible = false;
@@ -390,12 +402,12 @@ struct boss_magmaw : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
+        if (!UpdateVictim() && !events.IsInPhase(PHASE_OUT_OF_COMBAT))
             return;
 
         events.Update(diff);
 
-        if (me->HasUnitState(UNIT_STATE_CASTING) && !_hasExposedHead)
+        if (me->HasUnitState(UNIT_STATE_CASTING) && !events.IsInPhase(PHASE_IMPALED))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -405,7 +417,11 @@ struct boss_magmaw : public BossAI
                 case EVENT_MAGMA_PROJECTILE:
                     if (_magmaProjectileCount < 4)
                     {
-                        DoCastAOE(SPELL_MAGMA_SPIT_TARGETING);
+                        if (me->GetVictim() && me->IsWithinMeleeRange(me->GetVictim()))
+                            DoCastAOE(SPELL_MAGMA_SPIT_TARGETING);
+                        else
+                            DoCastAOE(SPELL_MAGMA_SPIT_MOLTEN_TANTRUM);
+
                         _magmaProjectileCount++;
                         events.Repeat(6s);
                     }
@@ -419,7 +435,8 @@ struct boss_magmaw : public BossAI
                     break;
                 case EVENT_LAVA_SPEW:
                     DoCastAOE(SPELL_LAVA_SPEW);
-                    events.Repeat(27s, 28s);
+                    events.RescheduleEvent(EVENT_MAGMA_PROJECTILE, 6s, 0, PHASE_COMBAT);
+                    events.Repeat(24s);
                     break;
                 case EVENT_MANGLE:
                     if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
@@ -427,7 +444,7 @@ struct boss_magmaw : public BossAI
 
                     events.CancelEvent(EVENT_MAGMA_PROJECTILE);
                     events.CancelEvent(EVENT_LAVA_SPEW);
-                    events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 3s + 500ms);
+                    events.ScheduleEvent(EVENT_PREPARE_MASSIVE_CRASH, 3s + 500ms, 0, PHASE_COMBAT);
                     events.Repeat(1min + 35s);
                     break;
                 case EVENT_PREPARE_MASSIVE_CRASH:
@@ -451,32 +468,20 @@ struct boss_magmaw : public BossAI
                 case EVENT_ANNOUNCE_PINCERS_EXPOSED:
                     Talk(SAY_ANNOUNCE_EXPOSE_PINCERS);
                     break;
-                case EVENT_FINISH_MASSIVE_CRASH:
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
-                    events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 8s);
-                    break;
                 case EVENT_IMPALE_SELF:
                     DoCastSelf(SPELL_IMPALE_SELF);
+                    events.ScheduleEvent(EVENT_SHOW_HEAD, 5s, 0, PHASE_IMPALED);
                     break;
-                case EVENT_EXPOSE_HEAD:
+                case EVENT_SHOW_HEAD:
                     if (!_headEngaged)
                     {
-                        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, _exposedHead1, 2);
-                        instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me);
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, _exposedHead1, FRAME_PRIORITY_EXPOSED_HEAD_OF_MAGMAW);
                         _headEngaged = true;
                     }
                     _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_HEAD, true);
                     _exposedHead1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     break;
-                case EVENT_HIDE_HEAD:
-                    _exposedHead1->CastSpell(_exposedHead1, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
-                    _exposedHead1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    break;
                 case EVENT_FINISH_IMPALE_SELF:
-                    _hasExposedHead = false;
                     me->SetReactState(REACT_AGGRESSIVE);
                     events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
                     events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 4s);
@@ -486,13 +491,7 @@ struct boss_magmaw : public BossAI
             }
         }
 
-        if (Unit* victim = me->GetVictim())
-        {
-            if (me->IsWithinMeleeRange(victim))
-                DoMeleeAttackIfReady();
-            else
-                DoSpellAttackIfReady(SPELL_MAGMA_SPIT_MOLTEN_TANTRUM);
-        }
+        DoMeleeAttackIfReady();
     }
 
 private:
@@ -540,10 +539,10 @@ private:
         ObjectGuid guid = me->GetGUID();
         Unit* head = _exposedHead1;
         head->m_Events.AddEventAtOffset([head, guid]()
-            {
-                if (Unit* target = ObjectAccessor::GetUnit(*head, guid))
-                    head->CastSpell(target, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
-            }, 1s + 200ms);
+        {
+            if (Unit* target = ObjectAccessor::GetUnit(*head, guid))
+                head->CastSpell(target, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
+        }, 1s + 200ms);
     }
 
     Creature* _exposedHead1;
@@ -552,7 +551,6 @@ private:
     Creature* _pincer2;
     uint8 _magmaProjectileCount;
     bool _achievementEnligible;
-    bool _hasExposedHead;
     bool _headEngaged;
     bool _heroicPhaseTwoActive;
 };
@@ -1180,6 +1178,56 @@ class spell_magmaw_lava_parasite_summon : public SpellScript
     }
 };
 
+class spell_magmaw_massive_crash : public AuraScript
+{
+    PrepareAuraScript(spell_magmaw_massive_crash);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* magmaw = GetTarget()->ToCreature())
+            if (magmaw->IsAIEnabled)
+                magmaw->AI()->DoAction(ACTION_ENABLE_MOUNTING);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* magmaw = GetTarget()->ToCreature())
+            if (magmaw->IsAIEnabled)
+                magmaw->AI()->DoAction(ACTION_DISABLE_MOUNTING);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_magmaw_massive_crash::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_magmaw_massive_crash::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_magmaw_impale_self : public AuraScript
+{
+    PrepareAuraScript(spell_magmaw_impale_self);
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* magmaw = GetTarget()->ToCreature())
+            if (magmaw->IsAIEnabled)
+                magmaw->AI()->DoAction(ACTION_EXPOSE_HEAD);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* magmaw = GetTarget()->ToCreature())
+            if (magmaw->IsAIEnabled)
+                magmaw->AI()->DoAction(ACTION_COVER_HEAD);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_magmaw_impale_self::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_magmaw_impale_self::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class achievement_parasite_evening : public AchievementCriteriaScript
 {
     public:
@@ -1214,5 +1262,7 @@ void AddSC_boss_magmaw()
     RegisterSpellScript(spell_magmaw_lava_parasite_summon);
     RegisterSpellScript(spell_magmaw_blazing_inferno_targeting);
     RegisterSpellScript(spell_magmaw_shadow_breath_targeting);
+    RegisterAuraScript(spell_magmaw_massive_crash);
+    RegisterAuraScript(spell_magmaw_impale_self);
     new achievement_parasite_evening();
 }

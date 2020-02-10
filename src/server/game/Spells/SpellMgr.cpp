@@ -5301,6 +5301,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     // BLACKWING DESCENT SPELLS
     //
 
+    // Eject Passenger
+    ApplySpellFix({ 78643 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+    });
+
     // Ignition
     ApplySpellFix({
         92134,
