@@ -483,8 +483,8 @@ struct boss_magmaw : public BossAI
                     break;
                 case EVENT_FINISH_IMPALE_SELF:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms);
-                    events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 4s);
+                    events.ScheduleEvent(EVENT_LAVA_SPEW, 1ms, 0, PHASE_COMBAT);
+                    events.ScheduleEvent(EVENT_MAGMA_PROJECTILE, 4s, 0, PHASE_COMBAT);
                     break;
                 default:
                     break;
