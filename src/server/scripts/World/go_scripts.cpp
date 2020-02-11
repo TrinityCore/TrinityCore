@@ -1908,15 +1908,15 @@ enum BellHourlySoundFX
 
 enum BellHourlySoundZones
 {
-    TIRISFAL_ZONE       = 85,
-    UNDERCITY_ZONE      = 1497,
-    DUN_MOROGH_ZONE     = 1,
-    IRONFORGE_ZONE      = 1537,
-    TELDRASSIL_ZONE     = 141,
-    DARNASSUS_ZONE      = 1657,
-    ASHENVALE_ZONE      = 331,
-    HILLSBRAD_FOOTHILLS = 267,
-    DUSKWOOD_ZONE       = 42
+    TIRISFAL_ZONE            = 85,
+    UNDERCITY_ZONE           = 1497,
+    DUN_MOROGH_ZONE          = 1,
+    IRONFORGE_ZONE           = 1537,
+    TELDRASSIL_ZONE          = 141,
+    DARNASSUS_ZONE           = 1657,
+    ASHENVALE_ZONE           = 331,
+    HILLSBRAD_FOOTHILLS_ZONE = 267,
+    DUSKWOOD_ZONE            = 10
 };
 
 enum BellHourlyObjects
@@ -1952,7 +1952,7 @@ public:
                     switch (zoneId) {
                     case TIRISFAL_ZONE:
                     case UNDERCITY_ZONE:
-                    case HILLSBRAD_FOOTHILLS:
+                    case HILLSBRAD_FOOTHILLS_ZONE:
                     case DUSKWOOD_ZONE:
                         _soundId = BELLTOLLHORDE;  // undead bell sound
                         break;
@@ -1992,7 +1992,10 @@ public:
                 time_t time = GameTime::GetGameTime();
                 tm localTm;
                 localtime_r(&time, &localTm);
-                uint8 _rings = (localTm.tm_hour - 1) % 12 + 1;
+                uint8 _rings = (localTm.tm_hour) % 12;
+                if (_rings == 0) { // 00:00 and 12:00
+                    _rings = 12;
+                }
 
                 for (auto i = 0; i < _rings; ++i)
                     _events.ScheduleEvent(EVENT_RING_BELL, Seconds(i * 4 + 1));
