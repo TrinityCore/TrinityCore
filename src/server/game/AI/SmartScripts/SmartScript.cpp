@@ -2318,14 +2318,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_OVERRIDE_LIGHT:
         {
-            if (me)
-                me->GetMap()->SetZoneOverrideLight(e.action.overrideLight.zoneId, e.action.overrideLight.lightId, e.action.overrideLight.fadeInTime);
+            for (WorldObject* target : targets)
+                target->GetMap()->SetZoneOverrideLight(e.action.overrideLight.zoneId, e.action.overrideLight.lightId, e.action.overrideLight.fadeInTime);
             break;
         }
         case SMART_ACTION_OVERRIDE_WEATHER:
         {
-            if (me)
-                me->GetMap()->SetZoneWeather(e.action.overrideWeather.zoneId, (WeatherState)e.action.overrideWeather.weatherId, float(e.action.overrideWeather.weatherGrade));
+            for (WorldObject* target : targets)
+                target->GetMap()->SetZoneWeather(e.action.overrideWeather.zoneId, (WeatherState)e.action.overrideWeather.weatherId, float(e.action.overrideWeather.weatherGrade));
             break;
         }
         default:
