@@ -180,7 +180,7 @@ void RobotManager::InitializeManager()
     characterTalentTabNameMap[Classes::CLASS_DRUID][1] = "Feral";
     characterTalentTabNameMap[Classes::CLASS_DRUID][2] = "Restoration";
 
-    // all equip are from loot
+    // equips from loot
     std::unordered_set<uint32> rlSet;
     rlSet.clear();
     QueryResult rlQR = WorldDatabase.Query("SELECT distinct Item FROM reference_loot_template");
@@ -193,15 +193,42 @@ void RobotManager::InitializeManager()
             rlSet.insert(eachLootItemEntry);
         } while (rlQR->NextRow());
     }
+    // equips from quest
+    std::unordered_map<uint32, int32> qrMap;
+    qrMap.clear();
+    std::unordered_map<uint32, Quest> allQuestMapForEquips = sObjectMgr->GetQuestTemplates();
+    for (std::unordered_map<uint32, Quest>::iterator it = allQuestMapForEquips.begin(); it != allQuestMapForEquips.end(); it++)
+    {
+        if (it->second.GetQuestLevel() < 10)
+        {
+            continue;
+        }
+        for (int ciCount = 0; ciCount < 6; ciCount++)
+        {
+            if (it->second.RewardChoiceItemId[ciCount] > 0)
+            {
+                qrMap[it->second.RewardChoiceItemId[ciCount]] = it->second.GetQuestLevel();
+            }
+        }
+    }
 
     uint8 levelRange = 0;
     ItemTemplateContainer const& its = sObjectMgr->GetItemTemplateStore();
     for (auto const& itemTemplatePair : its)
     {
-        if (rlSet.find(itemTemplatePair.first) == rlSet.end())
+        levelRange = 0;
+        if (rlSet.find(itemTemplatePair.first) != rlSet.end())
+        {
+
+        }
+        else if (qrMap.find(itemTemplatePair.first) != qrMap.end())
+        {
+            levelRange = qrMap[itemTemplatePair.first] / 10;
+        }
+        else
         {
             continue;
-        }        
+        }
         const ItemTemplate* proto = &itemTemplatePair.second;
         if (!proto)
         {
@@ -215,7 +242,10 @@ void RobotManager::InitializeManager()
         {
             continue;
         }
-        levelRange = proto->RequiredLevel / 10;
+        if (levelRange == 0)
+        {
+            levelRange = proto->RequiredLevel / 10;
+        }
         if (proto->InventoryType == InventoryType::INVTYPE_CLOAK || proto->InventoryType == InventoryType::INVTYPE_FINGER || proto->InventoryType == InventoryType::INVTYPE_NECK)
         {
             miscMap[proto->InventoryType][levelRange][miscMap[proto->InventoryType][levelRange].size()] = proto->ItemId;
@@ -240,9 +270,14 @@ void RobotManager::InitializeManager()
                 meleeWeaponMap[2][levelRange][meleeWeaponMap[2][levelRange].size()] = proto->ItemId;
                 continue;
             }
-            case ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_DAGGER:
+            case ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_MACE:
             {
                 meleeWeaponMap[3][levelRange][meleeWeaponMap[3][levelRange].size()] = proto->ItemId;
+                continue;
+            }
+            case ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_MACE2:
+            {
+                meleeWeaponMap[4][levelRange][meleeWeaponMap[4][levelRange].size()] = proto->ItemId;
                 continue;
             }
             case ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_AXE2:
@@ -250,11 +285,11 @@ void RobotManager::InitializeManager()
                 meleeWeaponMap[5][levelRange][meleeWeaponMap[5][levelRange].size()] = proto->ItemId;
                 continue;
             }
-            case ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_POLEARM:
+            case ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_DAGGER:
             {
                 meleeWeaponMap[6][levelRange][meleeWeaponMap[6][levelRange].size()] = proto->ItemId;
                 continue;
-            }
+            }            
             case ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_BOW:
             {
                 rangeWeaponMap[0][levelRange][rangeWeaponMap[0][levelRange].size()] = proto->ItemId;
@@ -312,7 +347,7 @@ void RobotManager::InitializeManager()
             }
             case ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_SHIELD:
             {
-                meleeWeaponMap[4][levelRange][meleeWeaponMap[4][levelRange].size()] = proto->ItemId;
+                meleeWeaponMap[7][levelRange][meleeWeaponMap[7][levelRange].size()] = proto->ItemId;
                 continue;
             }
             default:
@@ -383,8 +418,8 @@ void RobotManager::InitializeManager()
     {
         for (std::map<uint32, std::vector<uint32>>::iterator classIT = availableRaces.begin(); classIT != availableRaces.end(); classIT++)
         {
-            // EJ debug hunter and priest and paladin will be ignored for now
-            if (classIT->first == Classes::CLASS_HUNTER || classIT->first == Classes::CLASS_PRIEST || classIT->first == Classes::CLASS_PALADIN)
+            // EJ debug hunter and priest and shaman and mage will be ignored for now
+            if (classIT->first == Classes::CLASS_HUNTER || classIT->first == Classes::CLASS_PRIEST || classIT->first == Classes::CLASS_SHAMAN || classIT->first == Classes::CLASS_MAGE)
             {
                 continue;
             }
@@ -608,7 +643,7 @@ Player* RobotManager::CheckLogin(uint32 pmAccountID, ObjectGuid pmGUID)
 }
 
 bool RobotManager::LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID)
-{    
+{
     Player* currentPlayer = ObjectAccessor::FindPlayer(pmGUID);
     if (currentPlayer)
     {
@@ -822,7 +857,7 @@ bool RobotManager::StringStartWith(const std::string& str, const std::string& he
 Player* RobotManager::GetMaster(uint32 pmSessionID)
 {
     if (sRobotManager->robotAICache.find(pmSessionID) != sRobotManager->robotAICache.end())
-    {        
+    {
         Player* masterPlayer = ObjectAccessor::FindConnectedPlayer(sRobotManager->robotAICache[pmSessionID]->masterGUID);
         return masterPlayer;
     }

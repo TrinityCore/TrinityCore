@@ -16,7 +16,7 @@ Strategy_Solo_Normal::Strategy_Solo_Normal(RobotAI* pmSourceAI)
     instruction = Solo_Instruction::Solo_Instruction_None;
     deathDuration = 0;
     soloDuration = 0;
-    restDelay = 0;
+    sourceAI->restDelay = 0;
     waitDelay = 0;
     strollDelay = 0;
     confuseDelay = 0;
@@ -31,12 +31,12 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
         return;
     }
     soloDuration += pmDiff;
-    if (restDelay > 0)
+    if (sourceAI->restDelay > 0)
     {
-        restDelay -= pmDiff;
-        if (restDelay == 0)
+        sourceAI->restDelay -= pmDiff;
+        if (sourceAI->restDelay == 0)
         {
-            restDelay = -1;
+            sourceAI->restDelay = -1;
         }
     }
     if (waitDelay > 0)
@@ -74,11 +74,11 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     if (!me->IsAlive())
     {
         deathDuration += pmDiff;
-        restDelay = 0;
+        sourceAI->restDelay = 0;
         waitDelay = 0;
         strollDelay = 0;
         confuseDelay = 0;
-        if (deathDuration > TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS)
+        if (deathDuration > TimeConstants::MINUTE* TimeConstants::IN_MILLISECONDS)
         {
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Revive solo robot %s", me->GetName());
             sourceAI->Refresh();
@@ -95,7 +95,7 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     {
         return;
     }
-    if (soloDuration > TimeConstants::HOUR*TimeConstants::IN_MILLISECONDS)
+    if (soloDuration > TimeConstants::HOUR* TimeConstants::IN_MILLISECONDS)
     {
         soloDuration = 0;
         sourceAI->Refresh();
@@ -109,7 +109,7 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     if (me->IsEngaged())
     {
         instruction = Solo_Instruction::Solo_Instruction_Battle;
-        restDelay = 0;        
+        sourceAI->restDelay = 0;
         waitDelay = 0;
         strollDelay = 0;
     }
@@ -173,9 +173,9 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     }
     case Solo_Instruction::Solo_Instruction_Rest:
     {
-        if (restDelay < 0)
+        if (sourceAI->restDelay < 0)
         {
-            restDelay = 0;            
+            sourceAI->restDelay = 0;
             instruction = Solo_Instruction::Solo_Instruction_Wander;
             return;
         }
@@ -246,7 +246,7 @@ bool Strategy_Solo_Normal::Rest()
         {
             return false;
         }
-        uint32 foodEntry = 0;        
+        uint32 foodEntry = 0;
         if (me->GetLevel() >= 75)
         {
             foodEntry = 35950;
@@ -334,7 +334,7 @@ bool Strategy_Solo_Normal::Rest()
             if (sourceAI->UseItem(pFood, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;                
+                sourceAI->restDelay = 20 * TimeConstants::IN_MILLISECONDS;
             }
         }
         Item* pDrink = sourceAI->GetItemInInventory(drinkEntry);
@@ -343,10 +343,10 @@ bool Strategy_Solo_Normal::Rest()
             if (sourceAI->UseItem(pDrink, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                sourceAI->restDelay = 20 * TimeConstants::IN_MILLISECONDS;
             }
         }
-        if (restDelay > 0)
+        if (sourceAI->restDelay > 0)
         {
             return true;
         }
@@ -378,7 +378,7 @@ bool Strategy_Solo_Normal::Battle()
 
         for (Unit::AttackerSet::const_iterator attackerIT = me->getAttackers().begin(); attackerIT != me->getAttackers().end(); attackerIT++)
         {
-            if (Unit * pTarget = *attackerIT)
+            if (Unit* pTarget = *attackerIT)
             {
                 float distance = me->GetDistance(pTarget);
                 if (distance < closestDistance)
@@ -404,7 +404,7 @@ bool Strategy_Solo_Normal::Battle()
 
             for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); attackerIT++)
             {
-                if (Unit * pTarget = *attackerIT)
+                if (Unit* pTarget = *attackerIT)
                 {
                     float distance = me->GetDistance(pTarget);
                     if (distance < closestDistance)

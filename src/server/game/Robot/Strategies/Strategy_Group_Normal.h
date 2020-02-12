@@ -39,7 +39,6 @@ public:
 
     uint8 instruction;
     int32 assembleDelay;
-    int32 restDelay;
 
     float followDistance;
 };

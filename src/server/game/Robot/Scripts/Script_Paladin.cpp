@@ -21,23 +21,23 @@ bool Script_Paladin::HealMe()
         return false;
     }
     float healthPCT = me->GetHealthPct();
-    if (healthPCT < 30)
-    {
-        if (sourceAI->CastSpell(me, "Holy Light"))
-        {
-            return true;
-        }
-    }
-    else if (healthPCT < 50)
+    if (healthPCT < 20)
     {
         if (!sourceAI->HasAura(me, "Forbearance"))
         {
-            if (sourceAI->CastSpell(me, "Divine Protection"))
+            if (sourceAI->CastSpell(me, "Lay on Hands"))
             {
                 return true;
             }
         }
     }
+    if (healthPCT < 40)
+    {
+        if (sourceAI->CastSpell(me, "Holy Light"))
+        {
+            return true;
+        }
+    }    
 
     for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
     {
@@ -127,27 +127,27 @@ bool Script_Paladin::Healer(Unit* pmTarget)
     }
     sourceAI->BaseMove(pmTarget, PALADIN_CLOSER_DISTANCE, false);
     float healthPCT = pmTarget->GetHealthPct();
-    if (healthPCT < 30)
+    if (healthPCT < 20)
     {
         if (pmTarget->ToPlayer())
         {
             if (!sourceAI->HasAura(pmTarget, "Forbearance"))
             {
-                if (sourceAI->CastSpell(pmTarget, "Divine Protection"))
+                if (sourceAI->CastSpell(pmTarget, "Lay on Hands"))
                 {
                     return true;
                 }
             }
         }
     }
-    else if (healthPCT < 50)
+    if (healthPCT < 60)
     {
         if (sourceAI->CastSpell(pmTarget, "Holy Light", PALADIN_RANGE_DISTANCE))
         {
             return true;
         }
     }
-    else if (healthPCT < 80)
+    if (healthPCT < 80)
     {
         if (sourceAI->CastSpell(pmTarget, "Flash of Light", PALADIN_RANGE_DISTANCE))
         {
@@ -277,24 +277,21 @@ bool Script_Paladin::Buff(Unit* pmTarget)
     {
         return false;
     }
-    if (!pmTarget->IsAlive())
+    if (me->GetGUID() == pmTarget->GetGUID())
     {
-        if (sourceAI->CastSpell(pmTarget, "Redemption", PALADIN_RANGE_DISTANCE))
-        {
-            return true;
-        }
-    }
-    else
-    {
-        switch (sourceAI->characterType)
+        switch (me->groupRole)
         {
         case 0:
         {
-            if (sourceAI->CastSpell(me, "Concentration Aura", PALADIN_RANGE_DISTANCE, true))
+            if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
             {
                 return true;
             }
-            if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
+            if (sourceAI->CastSpell(me, "Blessing of Might", PALADIN_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
+            if (sourceAI->CastSpell(me, "Retribution Aura", PALADIN_RANGE_DISTANCE, true))
             {
                 return true;
             }
@@ -302,6 +299,14 @@ bool Script_Paladin::Buff(Unit* pmTarget)
         }
         case 1:
         {
+            if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
+            if (sourceAI->CastSpell(me, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
             if (sourceAI->CastSpell(me, "Devotion Aura", PALADIN_RANGE_DISTANCE, true))
             {
                 return true;
@@ -310,98 +315,19 @@ bool Script_Paladin::Buff(Unit* pmTarget)
             {
                 return true;
             }
-            if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
             break;
         }
         case 2:
         {
-            if (sourceAI->CastSpell(me, "Retribution Aura", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
             if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
             {
                 return true;
             }
-            break;
-        }
-        default:
-        {
-            break;
-        }
-        }
-        switch (pmTarget->GetClass())
-        {
-        case Classes::CLASS_WARRIOR:
-        {
-            if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
+            if (sourceAI->CastSpell(me, "Blessing of Wisdom", PALADIN_RANGE_DISTANCE, true))
             {
                 return true;
             }
-            break;
-        }
-        case Classes::CLASS_HUNTER:
-        {
-            if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case Classes::CLASS_SHAMAN:
-        {
-            if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case Classes::CLASS_PALADIN:
-        {
-            if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case Classes::CLASS_WARLOCK:
-        {
-            if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case Classes::CLASS_PRIEST:
-        {
-            if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case Classes::CLASS_ROGUE:
-        {
-            if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case Classes::CLASS_MAGE:
-        {
-            if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case Classes::CLASS_DRUID:
-        {
-            if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
+            if (sourceAI->CastSpell(me, "Devotion Aura", PALADIN_RANGE_DISTANCE, true))
             {
                 return true;
             }
@@ -411,6 +337,32 @@ bool Script_Paladin::Buff(Unit* pmTarget)
         {
             break;
         }
+        }
+    }
+    else if (pmTarget->GetClass() != Classes::CLASS_PALADIN)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+    }
+
+    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+    {
+        std::list<AuraEffect*> auraList = pmTarget->GetAuraEffectsByType((AuraType)type);
+        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+        {
+            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+            if (!pST->IsPositive())
+            {
+                if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
+                {
+                    if (sourceAI->CastSpell(pmTarget, "Purify"))
+                    {
+                        return true;
+                    }
+                }
+            }
         }
     }
 

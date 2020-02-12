@@ -15,22 +15,116 @@ Script_Rogue::Script_Rogue(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
 
 bool Script_Rogue::HealMe()
 {
-	return false;
+    return false;
 }
 
 bool Script_Rogue::Tank(Unit* pmTarget)
 {
-	return false;
+    return false;
 }
 
 bool Script_Rogue::Healer(Unit* pmTarget)
 {
-	return false;
+    return false;
 }
 
 bool Script_Rogue::DPS(Unit* pmTarget)
 {
-	return DPS_Common(pmTarget);
+    switch (sourceAI->characterTalentTab)
+    {
+    case 0:
+    {
+        return DPS_Common(pmTarget);
+    }
+    case 1:
+    {
+        return DPS_Combat(pmTarget);
+    }
+    case 2:
+    {
+        return DPS_Common(pmTarget);
+    }
+    default:
+        return DPS_Common(pmTarget);
+    }
+}
+
+bool Script_Rogue::DPS_Combat(Unit* pmTarget)
+{
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    if (!me)
+    {
+        return false;
+    }
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > 200)
+    {
+        return false;
+    }
+
+    sourceAI->BaseMove(pmTarget);
+
+    uint32 energy = me->GetPower(Powers::POWER_ENERGY);
+    if (energy > 25)
+    {
+        if (pmTarget->IsNonMeleeSpellCast(false))
+        {
+            if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    // when facing boss 
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+        if (energy > 25)
+        {
+            if (sourceAI->CastSpell(pmTarget, "Blade Flurry", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+
+    if (energy > 10)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Riposte", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
+    if (energy > 50)
+    {
+        uint8 comboPoints = me->GetComboPoints();
+        if (urand(1, 5) <= comboPoints)
+        {
+            sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+            return true;
+        }
+        if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
+
+    return true;
 }
 
 bool Script_Rogue::DPS_Common(Unit* pmTarget)
@@ -40,57 +134,151 @@ bool Script_Rogue::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-	if (!pmTarget)
-	{
-		return false;
-	}
-	else if (!me->IsValidAttackTarget(pmTarget))
-	{
-		return false;
-	}
-	else if (!pmTarget->IsAlive())
-	{
-		return false;
-	}
-	float targetDistance = me->GetDistance(pmTarget);
-	if (targetDistance > 200)
-	{
-		return false;
-	}
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > 200)
+    {
+        return false;
+    }
 
-	sourceAI->BaseMove(pmTarget);
+    sourceAI->BaseMove(pmTarget);
 
-	uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-	if (energy > 25)
-	{
-		if (pmTarget->IsNonMeleeSpellCast(false))
-		{
-			if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
-			{
-				return true;
-			}
-		}
-	}
-	if (energy > 50)
-	{
-		uint8 comboPoints = me->GetComboPoints();
-		if (urand(1, 5) <= comboPoints)
-		{
-			sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
-			return true;
-		}
-		if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
-		{
-			return true;
-		}
-	}
+    uint32 energy = me->GetPower(Powers::POWER_ENERGY);
+    if (energy > 25)
+    {
+        if (pmTarget->IsNonMeleeSpellCast(false))
+        {
+            if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    if (energy > 50)
+    {
+        uint8 comboPoints = me->GetComboPoints();
+        if (urand(1, 5) <= comboPoints)
+        {
+            sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+            return true;
+        }
+        if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
 
-	return true;
+    return true;
 }
 
 bool Script_Rogue::Attack(Unit* pmTarget)
 {
-	return Attack_Common(pmTarget);
+    switch (sourceAI->characterTalentTab)
+    {
+    case 0:
+    {
+        return Attack_Common(pmTarget);
+    }
+    case 1:
+    {
+        return Attack_Combat(pmTarget);
+    }
+    case 2:
+    {
+        return Attack_Common(pmTarget);
+    }
+    default:
+        return Attack_Common(pmTarget);
+    }
+}
+
+bool Script_Rogue::Attack_Combat(Unit* pmTarget)
+{
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    if (!me)
+    {
+        return false;
+    }
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > 200)
+    {
+        return false;
+    }
+
+    sourceAI->BaseMove(pmTarget);
+
+    uint32 energy = me->GetPower(Powers::POWER_ENERGY);
+    if (energy > 25)
+    {
+        if (pmTarget->IsNonMeleeSpellCast(false))
+        {
+            if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    // when facing boss 
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+        if (energy > 25)
+        {
+            if (sourceAI->CastSpell(pmTarget, "Blade Flurry", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+
+    if (energy > 10)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Riposte", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
+    if (energy > 50)
+    {
+        uint8 comboPoints = me->GetComboPoints();
+        if (urand(1, 5) <= comboPoints)
+        {
+            sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+            return true;
+        }
+        if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
+
+    return true;
 }
 
 bool Script_Rogue::Attack_Common(Unit* pmTarget)
@@ -100,111 +288,111 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-	if (!pmTarget)
-	{
-		return false;
-	}
-	else if (!me->IsValidAttackTarget(pmTarget))
-	{
-		return false;
-	}
-	else if (!pmTarget->IsAlive())
-	{
-		return false;
-	}
-	float targetDistance = me->GetDistance(pmTarget);
-	if (targetDistance > 200)
-	{
-		return false;
-	}
-	uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-	if (sourceAI->FindSpellID("Cheap Shot") > 0)
-	{
-		if (targetDistance > ROGUE_PREPARE_DISTANCE)
-		{
-			sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
-			if (targetDistance < ROGUE_RANGE_DISTANCE)
-			{
-				if (sourceAI->CastSpell(me, "Stealth", MELEE_MAX_DISTANCE, true))
-				{
-					return true;
-				}
-			}
-		}
-		else
-		{
-			if (sourceAI->HasAura(me, "Stealth"))
-			{
-				sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
-				if (energy > 60)
-				{
-					if (sourceAI->CastSpell(pmTarget, "Cheap Shot", MELEE_MAX_DISTANCE))
-					{
-						return true;
-					}
-				}
-			}
-			else
-			{
-				sourceAI->BaseMove(pmTarget);
-				if (energy > 25)
-				{
-					if (pmTarget->IsNonMeleeSpellCast(false))
-					{
-						if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
-						{
-							return true;
-						}
-					}
-				}
-				if (energy > 45)
-				{
-					uint8 comboPoints = me->GetComboPoints();
-					if (urand(1, 5) <= comboPoints)
-					{
-						sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
-						return true;
-					}
-					if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		sourceAI->BaseMove(pmTarget);
-		if (energy > 25)
-		{
-			if (pmTarget->IsNonMeleeSpellCast(false))
-			{
-				if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
-				{
-					return true;
-				}
-			}
-		}
-		if (energy > 45)
-		{
-			uint8 comboPoints = me->GetComboPoints();
-			if (urand(1, 5) <= comboPoints)
-			{
-				sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
-				return true;
-			}
-			if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
-			{
-				return true;
-			}
-		}
-	}
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > 200)
+    {
+        return false;
+    }
+    uint32 energy = me->GetPower(Powers::POWER_ENERGY);
+    if (sourceAI->FindSpellID("Cheap Shot") > 0)
+    {
+        if (targetDistance > ROGUE_PREPARE_DISTANCE)
+        {
+            sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
+            if (targetDistance < ROGUE_RANGE_DISTANCE)
+            {
+                if (sourceAI->CastSpell(me, "Stealth", MELEE_MAX_DISTANCE, true))
+                {
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            if (sourceAI->HasAura(me, "Stealth"))
+            {
+                sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
+                if (energy > 60)
+                {
+                    if (sourceAI->CastSpell(pmTarget, "Cheap Shot", MELEE_MAX_DISTANCE))
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                sourceAI->BaseMove(pmTarget);
+                if (energy > 25)
+                {
+                    if (pmTarget->IsNonMeleeSpellCast(false))
+                    {
+                        if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+                        {
+                            return true;
+                        }
+                    }
+                }
+                if (energy > 45)
+                {
+                    uint8 comboPoints = me->GetComboPoints();
+                    if (urand(1, 5) <= comboPoints)
+                    {
+                        sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+                        return true;
+                    }
+                    if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        sourceAI->BaseMove(pmTarget);
+        if (energy > 25)
+        {
+            if (pmTarget->IsNonMeleeSpellCast(false))
+            {
+                if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
+            }
+        }
+        if (energy > 45)
+        {
+            uint8 comboPoints = me->GetComboPoints();
+            if (urand(1, 5) <= comboPoints)
+            {
+                sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+                return true;
+            }
+            if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
 
-	return true;
+    return true;
 }
 
 bool Script_Rogue::Buff(Unit* pmTarget)
 {
-	return false;
+    return false;
 }

@@ -37,8 +37,7 @@ public:
 
 	uint8 instruction;
 	int32 deathDuration;
-	int32 soloDuration;
-	int32 restDelay;	
+	int32 soloDuration;	
 	int32 waitDelay;
 	int32 strollDelay;
 	int32 confuseDelay;

@@ -70,6 +70,7 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
 
     onlineDelay = 0;
     offlineDelay = 0;
+    restDelay = 0;
 
     robotState = RobotState::RobotState_OffLine;
 
@@ -88,12 +89,12 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
         break;
     }
     case Classes::CLASS_HUNTER:
-    {        
+    {
         s_base = new Script_Hunter(this);
         break;
     }
     case Classes::CLASS_SHAMAN:
-    {        
+    {
         s_base = new Script_Shaman(this);
         break;
     }
@@ -103,12 +104,12 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
         break;
     }
     case Classes::CLASS_WARLOCK:
-    {        
+    {
         s_base = new Script_Warlock(this);
         break;
     }
     case Classes::CLASS_PRIEST:
-    {        
+    {
         s_base = new Script_Priest(this);
         break;
     }
@@ -118,7 +119,7 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
         break;
     }
     case Classes::CLASS_MAGE:
-    {        
+    {
         s_base = new Script_Mage(this);
         break;
     }
@@ -160,14 +161,184 @@ void RobotAI::ResetStrategy()
     strategiesMap["group_normal"] = false;
     staying = false;
     holding = false;
-    masterGUID = ObjectGuid::Empty;    
+    masterGUID = ObjectGuid::Empty;
     me->Say("Strategy reset", Language::LANG_UNIVERSAL);
     Prepare();
 }
 
+void RobotAI::InitialEquipment(Player* pmTarget, uint32 pmWeaponType, bool pmDual, uint32 pmArmorType, bool pmHasRange, uint32 pmRangeType, bool pmHasShield)
+{
+    int levelRange = pmTarget->GetLevel() / 10;
+    int checkLevelRange = levelRange;
+    bool validEquip = false;
+    int maxTryTimes = 5;
+
+    while (checkLevelRange >= 0)
+    {
+        if (sRobotManager->meleeWeaponMap[pmWeaponType][checkLevelRange].size() > 0)
+        {
+            // use one hand sword
+            for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
+            {
+                uint32 entry = urand(0, sRobotManager->meleeWeaponMap[pmWeaponType][checkLevelRange].size() - 1);
+                entry = sRobotManager->meleeWeaponMap[pmWeaponType][checkLevelRange][entry];
+                if (EquipNewItem(entry))
+                {
+                    validEquip = true;
+                    break;
+                }
+            }
+            if (validEquip)
+            {
+                break;
+            }
+        }
+        checkLevelRange--;
+    }
+
+    if (pmDual)
+    {
+        checkLevelRange = levelRange;
+        validEquip = false;
+        while (checkLevelRange >= 0)
+        {
+            if (sRobotManager->meleeWeaponMap[pmWeaponType][checkLevelRange].size() > 0)
+            {
+                // use one hand sword
+                for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
+                {
+                    uint32 entry = urand(0, sRobotManager->meleeWeaponMap[pmWeaponType][checkLevelRange].size() - 1);
+                    entry = sRobotManager->meleeWeaponMap[pmWeaponType][checkLevelRange][entry];
+                    if (EquipNewItem(entry))
+                    {
+                        validEquip = true;
+                        break;
+                    }
+                }
+                if (validEquip)
+                {
+                    break;
+                }
+            }
+            checkLevelRange--;
+        }
+    }
+
+    if (pmHasRange)
+    {
+        checkLevelRange = levelRange;
+        validEquip = false;
+        while (checkLevelRange >= 0)
+        {
+            if (sRobotManager->rangeWeaponMap[pmRangeType][checkLevelRange].size() > 0)
+            {
+                // use one hand sword
+                for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
+                {
+                    uint32 entry = urand(0, sRobotManager->rangeWeaponMap[pmRangeType][checkLevelRange].size() - 1);
+                    entry = sRobotManager->rangeWeaponMap[pmRangeType][checkLevelRange][entry];
+                    if (EquipNewItem(entry))
+                    {
+                        validEquip = true;
+                        break;
+                    }
+                }
+                if (validEquip)
+                {
+                    break;
+                }
+            }
+            checkLevelRange--;
+        }
+    }
+
+    for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
+    {
+        checkLevelRange = levelRange;
+        validEquip = false;
+        while (checkLevelRange >= 0)
+        {
+            if (sRobotManager->armorMap[pmArmorType][(*inventoryTypeIT)][checkLevelRange].size() > 0)
+            {
+                for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
+                {
+                    uint32 entry = urand(0, sRobotManager->armorMap[pmArmorType][(*inventoryTypeIT)][checkLevelRange].size() - 1);
+                    entry = sRobotManager->armorMap[pmArmorType][(*inventoryTypeIT)][checkLevelRange][entry];
+                    if (EquipNewItem(entry))
+                    {
+                        validEquip = true;
+                        break;
+                    }
+                }
+                if (validEquip)
+                {
+                    break;
+                }
+            }
+            checkLevelRange--;
+        }
+    }
+
+    // misc equip        
+    for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
+    {
+        checkLevelRange = levelRange;
+        validEquip = false;
+        while (checkLevelRange >= 0)
+        {
+            if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
+            {
+                for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
+                {
+                    uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
+                    entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
+                    if (EquipNewItem(entry))
+                    {
+                        validEquip = true;
+                        break;
+                    }
+                }
+                if (validEquip)
+                {
+                    break;
+                }
+            }
+            checkLevelRange--;
+        }
+    }
+
+    if (pmHasShield)
+    {
+        checkLevelRange = levelRange;
+        validEquip = false;
+        while (checkLevelRange >= 0)
+        {
+            if (sRobotManager->meleeWeaponMap[7][checkLevelRange].size() > 0)
+            {
+                // use shield
+                for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
+                {
+                    uint32 entry = urand(0, sRobotManager->meleeWeaponMap[7][checkLevelRange].size() - 1);
+                    entry = sRobotManager->meleeWeaponMap[7][checkLevelRange][entry];
+                    if (EquipNewItem(entry))
+                    {
+                        validEquip = true;
+                        break;
+                    }
+                }
+                if (validEquip)
+                {
+                    break;
+                }
+            }
+            checkLevelRange--;
+        }
+    }
+}
+
 void RobotAI::InitializeCharacter()
 {
-    bool newCharacter = false;    
+    bool newCharacter = false;
     Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
     {
@@ -199,7 +370,7 @@ void RobotAI::InitializeCharacter()
         }
         else if (me->GetClass() == Classes::CLASS_WARRIOR)
         {
-            specialty = 1;
+            specialty = 0;
         }
         else if (me->GetClass() == Classes::CLASS_SHAMAN)
         {
@@ -212,6 +383,14 @@ void RobotAI::InitializeCharacter()
         else if (me->GetClass() == Classes::CLASS_WARLOCK)
         {
             specialty = 2;
+        }
+        else if (me->GetClass() == Classes::CLASS_PALADIN)
+        {
+            specialty = 0;
+        }
+        else if (me->GetClass() == Classes::CLASS_DRUID)
+        {
+            specialty = 1;
         }
 
         uint32 classMask = me->GetClassMask();
@@ -495,21 +674,21 @@ void RobotAI::InitializeCharacter()
                 }
                 case Classes::CLASS_PALADIN:
                 {
-                    if (checkNameStr == "Divine Strength")
+                    if (checkNameStr == "Spiritual Focus")
                     {
                         characterTalentTab = 0;
                         characterType = 2;
                         me->groupRole = 2;
                         typeChecked = true;
                     }
-                    if (checkNameStr == "Improved Devotion Aura")
+                    if (checkNameStr == "Divinity")
                     {
                         characterTalentTab = 1;
                         characterType = 1;
                         me->groupRole = 1;
                         typeChecked = true;
                     }
-                    if (checkNameStr == "Improved Blessing of Might")
+                    if (checkNameStr == "Deflection")
                     {
                         characterTalentTab = 2;
                         typeChecked = true;
@@ -650,96 +829,16 @@ void RobotAI::InitializeCharacter()
                 me->DestroyItem(INVENTORY_SLOT_BAG_0, i, true);
             }
         }
+        uint32 weaponType = 0;
+        bool dual = false;
+        uint32 armorType = 0;
+        bool hasShield = false;
+        bool hasRange = false;
+        uint32 rangeType = 0;
         switch (me->GetClass())
         {
         case Classes::CLASS_WARRIOR:
         {
-            int levelRange = me->GetLevel() / 10;
-            int checkLevelRange = levelRange;
-            bool validEquip = false;
-            int maxTryTimes = 5;
-
-            if (characterType == 1)
-            {
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->meleeWeaponMap[1][checkLevelRange].size() > 0)
-                    {
-                        // use one hand sword
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->meleeWeaponMap[1][checkLevelRange].size() - 1);
-                            entry = sRobotManager->meleeWeaponMap[1][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->meleeWeaponMap[4][checkLevelRange].size() > 0)
-                    {
-                        // use shield
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->meleeWeaponMap[4][checkLevelRange].size() - 1);
-                            entry = sRobotManager->meleeWeaponMap[4][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-            else
-            {
-                int levelRange = me->GetLevel() / 10;
-                int checkLevelRange = levelRange;
-                bool validEquip = false;
-                int maxTryTimes = 5;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->meleeWeaponMap[2][checkLevelRange].size() > 0)
-                    {
-                        // use two hand sword
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->meleeWeaponMap[2][checkLevelRange].size() - 1);
-                            entry = sRobotManager->meleeWeaponMap[2][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-
-            int armorType = 2;
             if (me->GetLevel() < 40)
             {
                 // use mail armor
@@ -750,230 +849,22 @@ void RobotAI::InitializeCharacter()
                 // use plate armor
                 armorType = 3;
             }
-            for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
+            hasRange = false;
+            dual = false;
+            if (characterType == 1)
             {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange].size() - 1);
-                            entry = sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
+                weaponType = 1;
+                hasShield = true;
             }
-
-            // misc equip        
-            for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
+            else
             {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
-                            entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
+                weaponType = 2;
+                hasShield = false;
             }
             break;
         }
         case Classes::CLASS_HUNTER:
         {
-            // set two hand axe, two hand sword, polearms		
-            int levelRange = me->GetLevel() / 10;
-            int checkLevelRange = levelRange;
-            bool validEquip = false;
-            int maxTryTimes = 5;
-            while (checkLevelRange >= 0)
-            {
-                int weaponType = 0;
-                if (urand(0, 2) == 0)
-                {
-                    weaponType = 6;
-                    if (sRobotManager->meleeWeaponMap[weaponType][checkLevelRange].size() > 0)
-                    {
-                        // use polearms
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            if (sRobotManager->meleeWeaponMap[weaponType][checkLevelRange].size() == 0)
-                            {
-                                break;
-                            }
-                            uint32 entry = urand(0, sRobotManager->meleeWeaponMap[weaponType][checkLevelRange].size() - 1);
-                            entry = sRobotManager->meleeWeaponMap[weaponType][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                }
-                if (urand(0, 1) == 0)
-                {
-                    weaponType = 2;
-                    if (sRobotManager->meleeWeaponMap[weaponType][checkLevelRange].size() > 0)
-                    {
-                        // use two hand sword
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->meleeWeaponMap[weaponType][checkLevelRange].size() - 1);
-                            entry = sRobotManager->meleeWeaponMap[weaponType][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                }
-                weaponType = 5;
-                if (sRobotManager->meleeWeaponMap[weaponType][checkLevelRange].size() > 0)
-                {
-                    // use two hand axe
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->meleeWeaponMap[weaponType][checkLevelRange].size() - 1);
-                        entry = sRobotManager->meleeWeaponMap[weaponType][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-            checkLevelRange = levelRange;
-            validEquip = false;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->rangeWeaponMap[0][checkLevelRange].size() > 0)
-                {
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->rangeWeaponMap[0][checkLevelRange].size() - 1);
-                        entry = sRobotManager->rangeWeaponMap[0][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-            int armorType = 1;
-            if (me->GetLevel() < 40)
-            {
-                // use leather armor
-                armorType = 1;
-            }
-            else
-            {
-                // use mail armor
-                armorType = 2;
-            }
-            for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange].size() - 1);
-                            entry = sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-
-            // misc equip        
-            for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
-                            entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-
             // quiver and ammo pouch
             Item* weapon = me->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
             if (weapon)
@@ -988,189 +879,40 @@ void RobotAI::InitializeCharacter()
                     me->StoreNewItemInBestSlots(2102, 1);
                 }
             }
-            break;
-        }
-        case Classes::CLASS_SHAMAN:
-        {
-            // set staff		
-            int levelRange = me->GetLevel() / 10;
-            int checkLevelRange = levelRange;
-            bool validEquip = false;
-            int maxTryTimes = 5;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->meleeWeaponMap[0][checkLevelRange].size() > 0)
-                {
-                    // use staff
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->meleeWeaponMap[0][checkLevelRange].size() - 1);
-                        entry = sRobotManager->meleeWeaponMap[0][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
 
-            int armorType = 1;
             if (me->GetLevel() < 40)
             {
-                // use leather armor
                 armorType = 1;
             }
             else
             {
-                // use mail armor
                 armorType = 2;
             }
-            for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
+            dual = false;
+            hasRange = true;
+            rangeType = 0;
+            weaponType = 5;
+            hasShield = false;
+            break;
+        }
+        case Classes::CLASS_SHAMAN:
+        {
+            if (me->GetLevel() < 40)
             {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange].size() - 1);
-                            entry = sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
+                armorType = 1;
             }
-
-            // misc equip        
-            for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
+            else
             {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
-                            entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
+                armorType = 2;
             }
+            hasRange = false;
+            weaponType = 6;
+            dual = true;
+            hasShield = false;
             break;
         }
         case Classes::CLASS_PALADIN:
         {
-            int levelRange = me->GetLevel() / 10;
-            int checkLevelRange = levelRange;
-            bool validEquip = false;
-            int maxTryTimes = 5;
-
-            if (characterType == 1)
-            {
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->meleeWeaponMap[1][checkLevelRange].size() > 0)
-                    {
-                        // use two hand sword
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->meleeWeaponMap[1][checkLevelRange].size() - 1);
-                            entry = sRobotManager->meleeWeaponMap[1][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->meleeWeaponMap[4][checkLevelRange].size() > 0)
-                    {
-                        // use shield
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->meleeWeaponMap[4][checkLevelRange].size() - 1);
-                            entry = sRobotManager->meleeWeaponMap[4][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-            else
-            {
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->meleeWeaponMap[2][checkLevelRange].size() > 0)
-                    {
-                        // use two hand sword
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->meleeWeaponMap[2][checkLevelRange].size() - 1);
-                            entry = sRobotManager->meleeWeaponMap[2][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-
-            int armorType = 2;
             if (me->GetLevel() < 40)
             {
                 // use mail armor
@@ -1181,596 +923,72 @@ void RobotAI::InitializeCharacter()
                 // use plate armor
                 armorType = 3;
             }
-            for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
+            hasRange = false;
+            dual = false;
+            if (characterType == 1)
             {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange].size() - 1);
-                            entry = sRobotManager->armorMap[armorType][(*inventoryTypeIT)][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
+                weaponType = 4;
+                hasShield = false;
             }
-
-            // misc equip        
-            for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
+            else if (characterType == 1)
             {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
-                            entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
+                weaponType = 3;
+                hasShield = true;
+            }
+            else if (characterType == 2)
+            {
+                weaponType = 3;
+                hasShield = true;
             }
             break;
         }
         case Classes::CLASS_WARLOCK:
         {
-            // set staff		
-            int levelRange = me->GetLevel() / 10;
-            int checkLevelRange = levelRange;
-            bool validEquip = false;
-            int maxTryTimes = 5;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->meleeWeaponMap[0][checkLevelRange].size() > 0)
-                {
-                    // use staff
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->meleeWeaponMap[0][checkLevelRange].size() - 1);
-                        entry = sRobotManager->meleeWeaponMap[0][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-
-            // set wand
-            checkLevelRange = levelRange;
-            validEquip = false;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->rangeWeaponMap[1][checkLevelRange].size() > 0)
-                {
-                    // use wand
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->rangeWeaponMap[1][checkLevelRange].size() - 1);
-                        entry = sRobotManager->rangeWeaponMap[1][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-
-            // use cloth armor
-            for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->armorMap[0][(*inventoryTypeIT)][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->armorMap[0][(*inventoryTypeIT)][checkLevelRange].size() - 1);
-                            entry = sRobotManager->armorMap[0][(*inventoryTypeIT)][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-
-            // misc equip        
-            for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
-                            entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
+            armorType = 0;
+            hasRange = true;
+            rangeType = 1;
+            dual = false;
+            weaponType = 0;
+            hasShield = false;
             break;
         }
         case Classes::CLASS_PRIEST:
         {
-            // set staff		
-            int levelRange = me->GetLevel() / 10;
-            int checkLevelRange = levelRange;
-            bool validEquip = false;
-            int maxTryTimes = 5;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->meleeWeaponMap[0][checkLevelRange].size() > 0)
-                {
-                    // use staff
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->meleeWeaponMap[0][checkLevelRange].size() - 1);
-                        entry = sRobotManager->meleeWeaponMap[0][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-
-            // set wand
-            checkLevelRange = levelRange;
-            validEquip = false;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->rangeWeaponMap[1][checkLevelRange].size() > 0)
-                {
-                    // use wand
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->rangeWeaponMap[1][checkLevelRange].size() - 1);
-                        entry = sRobotManager->rangeWeaponMap[1][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-
-            // use cloth armor
-            for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->armorMap[0][(*inventoryTypeIT)][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->armorMap[0][(*inventoryTypeIT)][checkLevelRange].size() - 1);
-                            entry = sRobotManager->armorMap[0][(*inventoryTypeIT)][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-
-            // misc equip        
-            for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
-                            entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
+            armorType = 0;
+            hasRange = true;
+            rangeType = 1;
+            dual = false;
+            weaponType = 0;
+            hasShield = false;
             break;
         }
         case Classes::CLASS_ROGUE:
         {
-            // set dagger		
-            int levelRange = me->GetLevel() / 10;
-            int checkLevelRange = levelRange;
-            bool validEquip = false;
-            int maxTryTimes = 5;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->meleeWeaponMap[3][checkLevelRange].size() > 0)
-                {
-                    // use double dagger
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->meleeWeaponMap[3][checkLevelRange].size() - 1);
-                        entry = sRobotManager->meleeWeaponMap[3][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-            checkLevelRange = levelRange;
-            validEquip = false;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->meleeWeaponMap[3][checkLevelRange].size() > 0)
-                {
-                    // use double dagger
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->meleeWeaponMap[3][checkLevelRange].size() - 1);
-                        entry = sRobotManager->meleeWeaponMap[3][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-            // use leather armor
-            for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->armorMap[1][(*inventoryTypeIT)][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->armorMap[1][(*inventoryTypeIT)][checkLevelRange].size() - 1);
-                            entry = sRobotManager->armorMap[1][(*inventoryTypeIT)][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-
-            // misc equip        
-            for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
-                            entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
+            armorType = 1;
+            hasRange = true;
+            rangeType = 2;
+            weaponType = 6;
+            dual = true;
+            hasShield = false;
             break;
         }
         case Classes::CLASS_MAGE:
         {
-            // set staff		
-            int levelRange = me->GetLevel() / 10;
-            int checkLevelRange = levelRange;
-            bool validEquip = false;
-            int maxTryTimes = 5;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->meleeWeaponMap[0][checkLevelRange].size() > 0)
-                {
-                    // use staff
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->meleeWeaponMap[0][checkLevelRange].size() - 1);
-                        entry = sRobotManager->meleeWeaponMap[0][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-
-            // set wand
-            checkLevelRange = levelRange;
-            validEquip = false;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->rangeWeaponMap[1][checkLevelRange].size() > 0)
-                {
-                    // use wand
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->rangeWeaponMap[1][checkLevelRange].size() - 1);
-                        entry = sRobotManager->rangeWeaponMap[1][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-
-            // use cloth armor
-            for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->armorMap[0][(*inventoryTypeIT)][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->armorMap[0][(*inventoryTypeIT)][checkLevelRange].size() - 1);
-                            entry = sRobotManager->armorMap[0][(*inventoryTypeIT)][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-
-            // misc equip        
-            for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
-                            entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
+            armorType = 0;
+            hasRange = true;
+            rangeType = 1;
+            dual = false;
+            weaponType = 0;
+            hasShield = false;
             break;
         }
         case Classes::CLASS_DRUID:
         {
-            // set staff		
-            int levelRange = me->GetLevel() / 10;
-            int checkLevelRange = levelRange;
-            bool validEquip = false;
-            int maxTryTimes = 5;
-            while (checkLevelRange >= 0)
-            {
-                if (sRobotManager->meleeWeaponMap[0][checkLevelRange].size() > 0)
-                {
-                    // use staff
-                    for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                    {
-                        uint32 entry = urand(0, sRobotManager->meleeWeaponMap[0][checkLevelRange].size() - 1);
-                        entry = sRobotManager->meleeWeaponMap[0][checkLevelRange][entry];
-                        if (EquipNewItem(entry))
-                        {
-                            validEquip = true;
-                            break;
-                        }
-                    }
-                    if (validEquip)
-                    {
-                        break;
-                    }
-                }
-                checkLevelRange--;
-            }
-
-            // use leather armor
-            for (std::set<uint8>::iterator inventoryTypeIT = sRobotManager->armorInventorySet.begin(); inventoryTypeIT != sRobotManager->armorInventorySet.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->armorMap[1][(*inventoryTypeIT)][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->armorMap[1][(*inventoryTypeIT)][checkLevelRange].size() - 1);
-                            entry = sRobotManager->armorMap[1][(*inventoryTypeIT)][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
-
-            // misc equip        
-            for (std::unordered_map<uint8, uint8>::iterator inventoryTypeIT = sRobotManager->miscInventoryMap.begin(); inventoryTypeIT != sRobotManager->miscInventoryMap.end(); inventoryTypeIT++)
-            {
-                checkLevelRange = levelRange;
-                validEquip = false;
-                while (checkLevelRange >= 0)
-                {
-                    if (sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() > 0)
-                    {
-                        for (int checkCount = 0; checkCount < maxTryTimes; checkCount++)
-                        {
-                            uint32 entry = urand(0, sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange].size() - 1);
-                            entry = sRobotManager->miscMap[inventoryTypeIT->second][checkLevelRange][entry];
-                            if (EquipNewItem(entry))
-                            {
-                                validEquip = true;
-                                break;
-                            }
-                        }
-                        if (validEquip)
-                        {
-                            break;
-                        }
-                    }
-                    checkLevelRange--;
-                }
-            }
+            armorType = 1;
+            hasRange = false;
+            dual = false;
+            weaponType = 0;
+            hasShield = false;
             break;
         }
         default:
@@ -1778,6 +996,7 @@ void RobotAI::InitializeCharacter()
             break;
         }
         }
+        InitialEquipment(me, weaponType, dual, armorType, hasRange, rangeType, hasShield);
         me->SaveToDB();
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s equip info initialized", me->GetName());
     }
@@ -2236,7 +1455,7 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
                 WorldPacket p;
                 uint32 roles_mask = 0;
                 p << roles_mask;
-                me->GetSession()->HandleGroupAcceptOpcode(p);                
+                me->GetSession()->HandleGroupAcceptOpcode(p);
                 WhisperTo("Strategy set to group", Language::LANG_UNIVERSAL, inviter);
                 WhisperTo("You are my master", Language::LANG_UNIVERSAL, inviter);
                 std::ostringstream replyStream_Talent;
@@ -2283,7 +1502,7 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
                 WhisperTo(timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
                 break;
             }
-        }        
+        }
         case BUY_ERR_NOT_ENOUGHT_MONEY:
         {
             break;
@@ -2595,7 +1814,7 @@ void RobotAI::Update()
                 if (!levelPlayerOnline)
                 {
                     if (me->GetGroup())
-                    {                        
+                    {
                         Player* master = ObjectAccessor::FindConnectedPlayer(masterGUID);
                         if (master)
                         {
@@ -3085,6 +2304,8 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
+
+        restDelay = 0;
         staying = false;
         holding = false;
         if (commandVector.size() > 1)
@@ -3420,7 +2641,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             WhisperTo("I am not hunter or a warlock", Language::LANG_UNIVERSAL, pmSender);
             return;
         }
-    }    
+    }
     else if (commandName == "cast")
     {
         if (!master)
@@ -3468,7 +2689,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
             }
             WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
         }
-    }    
+    }
     else if (commandName == "cancel")
     {
         if (!master)

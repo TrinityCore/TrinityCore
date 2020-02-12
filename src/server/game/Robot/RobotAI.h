@@ -6,7 +6,7 @@
 #endif
 
 #ifndef FOLLOW_MIN_DISTANCE
-# define FOLLOW_MIN_DISTANCE 1.0f
+# define FOLLOW_MIN_DISTANCE 0.5f
 #endif
 
 #ifndef FOLLOW_MAX_DISTANCE
@@ -14,7 +14,7 @@
 #endif
 
 #ifndef MELEE_MIN_DISTANCE
-# define MELEE_MIN_DISTANCE 1.0f
+# define MELEE_MIN_DISTANCE 0.5f
 #endif
 
 #ifndef MELEE_MAX_DISTANCE
@@ -22,7 +22,7 @@
 #endif
 
 #ifndef RANGED_MIN_DISTANCE
-# define RANGED_MIN_DISTANCE 20.0f
+# define RANGED_MIN_DISTANCE 15.0f
 #endif
 
 #ifndef RANGED_MAX_DISTANCE
@@ -66,6 +66,7 @@ public:
     bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = 100, bool pmCheckAura = false, bool pmOnlyMyAura = false, bool pmClearShapeshift = false);
     bool HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
     bool UseItem(Item* pmItem, Unit* pmTarget);
+    void InitialEquipment(Player* pmTarget, uint32 pmWeaponType, bool pmDual, uint32 armorType, bool pmHasRange, uint32 pmRangeType, bool pmHasShield);
     bool EquipNewItem(uint32 pmEntry);
     bool EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot);
     bool EquipItem(std::string pmEquipName);
@@ -115,6 +116,8 @@ public:
     Strategy_Group_Normal* st_Group_Normal;
 
     Script_Base* s_base;    
+
+    int32 restDelay;
 
     bool staying;
     bool holding;

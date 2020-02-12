@@ -15,8 +15,7 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
 
     instruction = Group_Instruction::Group_Instruction_None;
 
-    assembleDelay = 0;
-    restDelay = 0;
+    assembleDelay = 0;    
 
     followDistance = FOLLOW_MIN_DISTANCE;
     if (sourceAI->targetClass == Classes::CLASS_HUNTER || sourceAI->targetClass == Classes::CLASS_MAGE || sourceAI->targetClass == Classes::CLASS_PRIEST || sourceAI->targetClass == Classes::CLASS_WARLOCK)
@@ -25,7 +24,7 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
     }
     else if (sourceAI->targetClass == Classes::CLASS_DRUID)
     {
-        if (sourceAI->characterTalentTab == 1)
+        if (sourceAI->characterTalentTab == 0|| sourceAI->characterTalentTab == 2)
         {
             followDistance = RANGED_MIN_DISTANCE;
         }
@@ -61,12 +60,12 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     {
         return;
     }
-    if (restDelay > 0)
+    if (sourceAI->restDelay > 0)
     {
-        restDelay -= pmDiff;
-        if (restDelay == 0)
+        sourceAI->restDelay -= pmDiff;
+        if (sourceAI->restDelay == 0)
         {
-            restDelay = -1;
+            sourceAI->restDelay = -1;
         }
     }
     if (assembleDelay > 0)
@@ -101,7 +100,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     }
     if (!me->IsAlive())
     {
-        restDelay = 0;
+        sourceAI->restDelay = 0;
         return;
     }
     Group* myGroup = me->GetGroup();
@@ -127,7 +126,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     }
     if (GroupInCombat())
     {
-        restDelay = 0;
+        sourceAI->restDelay = 0;
         instruction = Group_Instruction::Group_Instruction_Battle;
     }
     switch (instruction)
@@ -171,9 +170,9 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     }
     case Group_Instruction::Group_Instruction_Rest:
     {
-        if (restDelay <= 0)
+        if (sourceAI->restDelay <= 0)
         {
-            restDelay = 0;
+            sourceAI->restDelay = 0;
             instruction = Group_Instruction::Group_Instruction_Wander;
             return;
         }
@@ -203,7 +202,7 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
             {
                 mpRate = me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA);
             }
-            if (hpRate > 50 && mpRate > 50)
+            if (hpRate > 30 && mpRate > 30)
             {
                 return false;
             }
@@ -254,10 +253,6 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
         {
             drinkEntry = 8766;
         }
-        else if (me->GetLevel() >= 45)
-        {
-            drinkEntry = 8766;
-        }
         else if (me->GetLevel() >= 35)
         {
             drinkEntry = 1645;
@@ -292,7 +287,7 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
             if (sourceAI->UseItem(pFood, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                sourceAI->restDelay = 20 * TimeConstants::IN_MILLISECONDS;
             }
         }
         Item* pDrink = sourceAI->GetItemInInventory(drinkEntry);
@@ -301,10 +296,10 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
             if (sourceAI->UseItem(pDrink, me))
             {
                 instruction = Group_Instruction::Group_Instruction_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                sourceAI->restDelay = 20 * TimeConstants::IN_MILLISECONDS;
             }
         }
-        if (restDelay > 0)
+        if (sourceAI->restDelay > 0)
         {
             return true;
         }

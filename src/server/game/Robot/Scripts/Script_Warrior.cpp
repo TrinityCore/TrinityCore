@@ -1,5 +1,7 @@
 #include "Script_Warrior.h"
 
+#include "Group.h"
+
 #ifndef WARRIOR_CHARGE_DISTANCE
 # define WARRIOR_CHARGE_DISTANCE 10
 #endif
@@ -111,7 +113,7 @@ bool Script_Warrior::DPS(Unit* pmTarget)
     }
     default:
         return DPS_Common(pmTarget);
-    }    
+    }
 }
 
 bool Script_Warrior::DPS_Arms(Unit* pmTarget)
@@ -169,14 +171,65 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+        if (sourceAI->CastSpell(pmTarget, "Overpower", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+        if (pmTarget->GetHealthPct() < 30.0f)
+        {
+            if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+            {
+                return true;
+            }
+        }
+    }
+
+    if (rage > 300)
+    {
+        Group* myGroup = me->GetGroup();
+        if (myGroup)
+        {
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                Player* member = groupRef->GetSource();
+                if (member->groupRole == 1)
+                {
+                    if (member->getAttackers().size() >= 3)
+                    {
+                        uint32 inRangeCount = 0;
+                        for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                        {
+                            if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                            {
+                                inRangeCount++;
+                                if (inRangeCount >= 3)
+                                {
+                                    if (sourceAI->CastSpell((*i), "Bladestorm", MELEE_MAX_DISTANCE))
+                                    {
+                                        return true;
+                                    }
+                                    if (sourceAI->CastSpell((*i), "Sweeping Strikes", MELEE_MAX_DISTANCE))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (sourceAI->CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
-    if (rage > 200)
+    if (rage > 150)
     {
-        sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
+        if (sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
     }
 
     return true;
@@ -239,7 +292,7 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
             {
                 return true;
             }
-        }        
+        }
     }
     if (rage > 250)
     {
@@ -404,14 +457,32 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+        if (sourceAI->CastSpell(pmTarget, "Overpower", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+        if (pmTarget->GetHealthPct() < 30.0f)
+        {
+            if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+            {
+                return true;
+            }
+        }
+    }
+
+    if (rage > 300)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
-    if (rage > 200)
+    if (rage > 150)
     {
-        sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
+        if (sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
     }
 
     return true;
@@ -440,7 +511,7 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
     if (targetDistance > 200)
     {
         return false;
-    }    
+    }
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
         if (me->GetLevel() >= 20)
@@ -644,7 +715,7 @@ bool Script_Warrior::Buff(Unit* pmTarget)
             {
                 return true;
             }
-        }        
+        }
         break;
     }
     default:
@@ -674,7 +745,7 @@ bool Script_Warrior::Buff(Unit* pmTarget)
                 {
                     return true;
                 }
-            }            
+            }
             break;
         }
         case 2:
@@ -692,7 +763,7 @@ bool Script_Warrior::Buff(Unit* pmTarget)
                 {
                     return true;
                 }
-            }            
+            }
             break;
         }
         default:

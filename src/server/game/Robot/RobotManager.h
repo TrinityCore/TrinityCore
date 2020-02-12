@@ -61,8 +61,7 @@ public:
     uint32 nameIndex;
     std::set<uint8> armorInventorySet;
     std::unordered_map<uint8, uint8> miscInventoryMap;
-    // 0, staff 1, one hand sword 2, two hand sword 3, dagger 4, shield
-    // 5, two hand axe 6, polearm
+    // 0, staff 1, one hand sword 2, two hand sword 3, one hand mace 4, two hand mace 5, two hand axe 6, dagger 7, shield
     // type | level range | index entry
     std::unordered_map<uint8, std::unordered_map<uint8, std::unordered_map<uint32, uint32>>> meleeWeaponMap;
     // 0, bow / cross bow / gun 1, wand 2, throw

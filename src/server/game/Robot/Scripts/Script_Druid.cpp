@@ -148,14 +148,26 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
         {
             return true;
         }
-        if (targetDistance < DRUID_PREPARE_DISTANCE)
+        if (energy < 30)
         {
-            if (energy > 20)
+            if (sourceAI->CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
             {
-                if (sourceAI->CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
-                {
-                    return true;
-                }
+                return true;
+            }
+        }
+        if (energy > 45)
+        {
+            if (sourceAI->CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
+            {
+                return true;
+            }
+            if (sourceAI->CastSpell(pmTarget, "Mangle (Cat)", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+            if (sourceAI->CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
+            {
+                return true;
             }
         }
         if (energy > 35)
@@ -180,17 +192,6 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
                         return true;
                     }
                 }
-            }
-        }
-        if (energy > 45)
-        {
-            if (sourceAI->CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
-            {
-                return true;
-            }
-            if (sourceAI->CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
-            {
-                return true;
             }
         }
         break;
@@ -574,101 +575,43 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
     {
         return false;
     }
-    sourceAI->CastSpell(me, "Dash");
-    uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-    if (sourceAI->FindSpellID("Pounce") > 0)
+
+    switch (me->GetShapeshiftForm())
     {
-        if (targetDistance > DRUID_PREPARE_DISTANCE)
-        {
-            sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
-            if (targetDistance < DRUID_RANGE_DISTANCE)
-            {
-                if (sourceAI->CastSpell(me, "Prowl", MELEE_MAX_DISTANCE, true))
-                {
-                    return true;
-                }
-            }
-        }
-        else
-        {
-            if (sourceAI->HasAura(me, "Prowl"))
-            {
-                sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
-                if (energy > 50)
-                {
-                    if (sourceAI->CastSpell(pmTarget, "Pounce", MELEE_MAX_DISTANCE))
-                    {
-                        return true;
-                    }
-                }
-            }
-            else
-            {
-                sourceAI->BaseMove(pmTarget);
-                if (sourceAI->CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
-                {
-                    return true;
-                }
-                if (energy > 20)
-                {
-                    if (sourceAI->CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
-                    {
-                        return true;
-                    }
-                }
-                if (energy > 35)
-                {
-                    uint32 spellID = sourceAI->FindSpellID("Rip");
-                    if (spellID != 0)
-                    {
-                        uint8 comboPoints = me->GetComboPoints();
-                        if (sourceAI->HasAura(pmTarget, "Rip", true))
-                        {
-                            if (urand(1, 5) <= comboPoints)
-                            {
-                                sourceAI->CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE);
-                                return true;
-                            }
-                        }
-                        else
-                        {
-                            if (urand(1, 5) <= comboPoints)
-                            {
-                                sourceAI->CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE);
-                                return true;
-                            }
-                        }
-                    }
-                }
-                if (energy > 45)
-                {
-                    if (sourceAI->CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
-                    {
-                        return true;
-                    }
-                    if (sourceAI->CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
+    case ShapeshiftForm::FORM_NONE:
+    {
+        sourceAI->CastSpell(me, "Cat Form");
+        break;
     }
-    else
+    case ShapeshiftForm::FORM_CAT:
     {
         sourceAI->BaseMove(pmTarget);
+        sourceAI->CastSpell(me, "Dash");
+        uint32 energy = me->GetPower(Powers::POWER_ENERGY);
         if (sourceAI->CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
         {
             return true;
         }
-        if (targetDistance < DRUID_PREPARE_DISTANCE)
+        if (energy < 30)
         {
-            if (energy > 20)
+            if (sourceAI->CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
             {
-                if (sourceAI->CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
-                {
-                    return true;
-                }
+                return true;
+            }
+        }
+        if (energy > 45)
+        {
+            if (sourceAI->CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
+            {
+                return true;
+            }
+            if (sourceAI->CastSpell(pmTarget, "Mangle (Cat)", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+            if (sourceAI->CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
+            {
+                return true;
             }
         }
         if (energy > 35)
@@ -695,17 +638,13 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
                 }
             }
         }
-        if (energy > 45)
-        {
-            if (sourceAI->CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
-            {
-                return true;
-            }
-            if (sourceAI->CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
-        }
+        break;
+    }
+    default:
+    {
+        sourceAI->ClearShapeshift();
+        break;
+    }
     }
 
     return true;
