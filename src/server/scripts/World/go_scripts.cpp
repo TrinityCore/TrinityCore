@@ -1949,38 +1949,42 @@ public:
             {
                 case GO_HORDE_BELL:
                 {
-                    switch (zoneId) {
-                    case TIRISFAL_ZONE:
-                    case UNDERCITY_ZONE:
-                    case HILLSBRAD_FOOTHILLS_ZONE:
-                    case DUSKWOOD_ZONE:
-                        _soundId = BELLTOLLHORDE;  // undead bell sound
-                        break;
-                    default:
-                        _soundId = BELLTOLLTRIBAL; // orc drum sound 
-                        break;
+                    switch (zoneId)
+                    {
+                        case TIRISFAL_ZONE:
+                        case UNDERCITY_ZONE:
+                        case HILLSBRAD_FOOTHILLS_ZONE:
+                        case DUSKWOOD_ZONE:
+                            _soundId = BELLTOLLHORDE;  // undead bell sound
+                            break;
+                        default:
+                            _soundId = BELLTOLLTRIBAL; // orc drum sound 
+                            break;
                     }
+                    break;
                 }
                 case GO_ALLIANCE_BELL:
                 {
-                    switch (zoneId) {
-                    case IRONFORGE_ZONE:
-                    case DUN_MOROGH_ZONE:
-                        _soundId = BELLTOLLDWARFGNOME; // horn sound
-                        break;
-                    case DARNASSUS_ZONE:
-                    case TELDRASSIL_ZONE:
-                    case ASHENVALE_ZONE:
-                        _soundId = BELLTOLLNIGHTELF;   // nightelf bell sound
-                        break;
-                    default:
-                        _soundId = BELLTOLLALLIANCE;   // human bell sound 
+                    switch (zoneId)
+                    {
+                        case IRONFORGE_ZONE:
+                        case DUN_MOROGH_ZONE:
+                            _soundId = BELLTOLLDWARFGNOME; // horn sound
+                            break;
+                        case DARNASSUS_ZONE:
+                        case TELDRASSIL_ZONE:
+                        case ASHENVALE_ZONE:
+                            _soundId = BELLTOLLNIGHTELF;   // nightelf bell sound
+                            break;
+                        default:
+                            _soundId = BELLTOLLALLIANCE;   // human bell sound 
                     }
+                    break;
                 }
                 case GO_KHARAZHAN_BELL:
                 {
-                _soundId = BELLTOLLKHARAZHAN;
-                break;
+                    _soundId = BELLTOLLKHARAZHAN;
+                    break;
                 }
             }
         }
