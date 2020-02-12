@@ -6,7 +6,7 @@
 #endif
 
 #ifndef FOLLOW_MIN_DISTANCE
-# define FOLLOW_MIN_DISTANCE 0.5f
+# define FOLLOW_MIN_DISTANCE 1.0f
 #endif
 
 #ifndef FOLLOW_MAX_DISTANCE
@@ -14,7 +14,7 @@
 #endif
 
 #ifndef MELEE_MIN_DISTANCE
-# define MELEE_MIN_DISTANCE 0.5f
+# define MELEE_MIN_DISTANCE 1.0f
 #endif
 
 #ifndef MELEE_MAX_DISTANCE

@@ -665,19 +665,19 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     if (sJokerConfig->enable)
     {
         float levelMod = 0.0f;
-        if (creatureTemplate.maxlevel > 50)
+        if (creatureTemplate.maxlevel >= 50)
         {
             levelMod = 2.0f;
         }
-        else if (creatureTemplate.maxlevel > 40)
+        else if (creatureTemplate.maxlevel >= 40)
         {
             levelMod = 1.5f;
         }
-        else if (creatureTemplate.maxlevel > 30)
+        else if (creatureTemplate.maxlevel >= 30)
         {
             levelMod = 1.0f;
         }
-        else if (creatureTemplate.maxlevel > 20)
+        else if (creatureTemplate.maxlevel >= 20)
         {
             levelMod = 0.5f;
         }

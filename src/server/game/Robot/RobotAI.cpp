@@ -777,7 +777,7 @@ void RobotAI::InitializeCharacter()
                 }
                 case Classes::CLASS_DRUID:
                 {
-                    if (checkNameStr == "Improved Wrath")
+                    if (checkNameStr == "Genesis")
                     {
                         characterTalentTab = 0;
                         typeChecked = true;
@@ -785,11 +785,9 @@ void RobotAI::InitializeCharacter()
                     if (checkNameStr == "Ferocity")
                     {
                         characterTalentTab = 1;
-                        characterType = 1;
-                        me->groupRole = 1;
                         typeChecked = true;
                     }
-                    if (checkNameStr == "Improved Mark of the Wild")
+                    if (checkNameStr == "Furor")
                     {
                         characterTalentTab = 2;
                         characterType = 2;
@@ -1334,48 +1332,83 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     {
         me->SetWalk(false);
     }
-    float chaseDistance = pmDistance;
-    if (!me->IsWithinLOSInMap(pmTarget))
+    float currentDistance = me->GetDistance(pmTarget->GetPosition());
+    if (currentDistance < pmDistance)
     {
-        chaseDistance = MELEE_MIN_DISTANCE;
-    }
-    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
-    {
-        if (holding)
+        if (!me->IsWithinLOSInMap(pmTarget))
         {
-            me->GetMotionMaster()->Clear();
-            me->StopMoving();
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_MIN_DISTANCE);
         }
-        else
+        else if (!me->isInFront(pmTarget))
         {
-            ChaseMovementGenerator* cmg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
-            if (cmg)
+            me->SetFacingToObject(pmTarget);
+        }
+        if (pmAttack)
+        {
+            if (!me->GetVictim())
             {
-                if (cmg->GetTarget()->GetGUID() != pmTarget->GetGUID())
-                {
-                    me->GetMotionMaster()->Clear();
-                    me->StopMoving();
-                    me->SetSelection(ObjectGuid::Empty);
-                    me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
-                    if (pmAttack)
-                    {
-                        me->Attack(pmTarget, true);
-                    }
-                }
+                me->Attack(pmTarget, true);
+            }
+            else if (me->GetVictim()->GetGUID() != pmTarget->GetGUID())
+            {
+                me->AttackStop();
+                me->SetSelection(ObjectGuid::Empty);
+                me->Attack(pmTarget, true);
             }
         }
     }
     else
     {
+        me->AttackStop();
+        me->SetSelection(ObjectGuid::Empty);
         if (!holding)
         {
-            me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
-            if (pmAttack)
-            {
-                me->Attack(pmTarget, true);
-            }
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
         }
     }
+
+    //float chaseDistance = pmDistance;
+    //if (!me->IsWithinLOSInMap(pmTarget))
+    //{
+    //    chaseDistance = MELEE_MIN_DISTANCE;
+    //}
+    //if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
+    //{
+    //    if (holding)
+    //    {
+    //        me->GetMotionMaster()->Clear();
+    //        me->StopMoving();
+    //    }
+    //    else
+    //    {
+    //        ChaseMovementGenerator* cmg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
+    //        if (cmg)
+    //        {
+    //            if (cmg->GetTarget()->GetGUID() != pmTarget->GetGUID())
+    //            {
+    //                me->GetMotionMaster()->Clear();
+    //                me->StopMoving();
+    //                me->SetSelection(ObjectGuid::Empty);
+    //                me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
+    //                if (pmAttack)
+    //                {
+    //                    me->Attack(pmTarget, true);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
+    //else
+    //{
+    //    if (!holding)
+    //    {
+    //        me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
+    //        if (pmAttack)
+    //        {
+    //            me->Attack(pmTarget, true);
+    //        }
+    //    }
+    //}
 }
 
 void RobotAI::WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget)

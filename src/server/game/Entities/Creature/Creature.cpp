@@ -1457,19 +1457,19 @@ void Creature::UpdateLevelDependantStats()
         if (cInfo->rank == 1 || cInfo->rank == 2 || cInfo->rank == 4)
         {
             float levelMod = 0.0f;
-            if (GetLevel() > 50)
+            if (GetLevel() >= 50)
             {
                 levelMod = 2.0f;
             }
-            else if (GetLevel() > 40)
+            else if (GetLevel() >= 40)
             {
                 levelMod = 1.5f;
             }
-            else if (GetLevel() > 30)
+            else if (GetLevel() >= 30)
             {
                 levelMod = 1.0f;
             }
-            else if (GetLevel() > 20)
+            else if (GetLevel() >= 20)
             {
                 levelMod = 0.5f;
             }
