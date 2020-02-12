@@ -1993,7 +1993,8 @@ public:
                 tm localTm;
                 localtime_r(&time, &localTm);
                 uint8 _rings = (localTm.tm_hour) % 12;
-                if (_rings == 0) { // 00:00 and 12:00
+                if (_rings == 0) // 00:00 and 12:00
+                {
                     _rings = 12;
                 }
 
