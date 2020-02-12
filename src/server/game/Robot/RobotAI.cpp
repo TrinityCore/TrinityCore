@@ -1334,53 +1334,45 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     {
         me->SetWalk(false);
     }
-    me->SetSelection(pmTarget->GetGUID());
-    float currentDistance = me->GetDistance(pmTarget);
-    if (currentDistance < pmDistance)
+    float chaseDistance = pmDistance;
+    if (!me->IsWithinLOSInMap(pmTarget))
     {
-        if (!me->isInFront(pmTarget))
-        {
-            me->SetFacingToObject(pmTarget);
-        }
-        else
+        chaseDistance = MELEE_MIN_DISTANCE;
+    }
+    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
+    {
+        if (holding)
         {
             me->GetMotionMaster()->Clear();
             me->StopMoving();
         }
-        if (pmAttack)
+        else
         {
-            me->Attack(pmTarget, true);
-        }
-    }
-    else
-    {
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
-        {
-            if (holding)
+            ChaseMovementGenerator* cmg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
+            if (cmg)
             {
-                me->GetMotionMaster()->Clear();
-                me->StopMoving();
-            }
-            else
-            {
-                ChaseMovementGenerator* cmg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
-                if (cmg)
+                if (cmg->GetTarget()->GetGUID() != pmTarget->GetGUID())
                 {
-                    if (cmg->GetTarget()->GetGUID() != pmTarget->GetGUID())
+                    me->GetMotionMaster()->Clear();
+                    me->StopMoving();
+                    me->SetSelection(ObjectGuid::Empty);
+                    me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
+                    if (pmAttack)
                     {
-                        me->GetMotionMaster()->Clear();
-                        me->StopMoving();
-                        me->SetSelection(ObjectGuid::Empty);
-                        me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
+                        me->Attack(pmTarget, true);
                     }
                 }
             }
         }
-        else
+    }
+    else
+    {
+        if (!holding)
         {
-            if (!holding)
+            me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
+            if (pmAttack)
             {
-                me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
+                me->Attack(pmTarget, true);
             }
         }
     }

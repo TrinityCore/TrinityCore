@@ -165,37 +165,17 @@ bool JokerConfig::StartJokerSystem()
     LoadInitial(configFile.generic_string(), std::vector<std::string>(), configError);
     enable = GetIntDefault("Enable", 0);
 
-    InstanceEncounterDamageMod_Warrior = GetFloatDefault("InstanceEncounterDamageMod_Warrior", 1);
-    InstanceEncounterDamageMod_Paladin = GetFloatDefault("InstanceEncounterDamageMod_Paladin", 1);
-    InstanceEncounterDamageMod_Mage = GetFloatDefault("InstanceEncounterDamageMod_Mage", 1);
-    EliteDamageMod_Warrior = GetFloatDefault("EliteDamageMod_Warrior", 1);
-    EliteDamageMod_Paladin = GetFloatDefault("EliteDamageMod_Paladin", 1);
-    EliteDamageMod_Mage = GetFloatDefault("EliteDamageMod_Mage", 1);
-    UniqueEliteDamageMod_Warrior = GetFloatDefault("UniqueEliteDamageMod_Warrior", 1);
-    UniqueEliteDamageMod_Paladin = GetFloatDefault("UniqueEliteDamageMod_Paladin", 1);
-    UniqueEliteDamageMod_Mage = GetFloatDefault("UniqueEliteDamageMod_Mage", 1);
-    RareDamageMod_Warrior = GetFloatDefault("RareDamageMod_Warrior", 1);
-    RareDamageMod_Paladin = GetFloatDefault("RareDamageMod_Paladin", 1);
-    RareDamageMod_Mage = GetFloatDefault("RareDamageMod_Mage", 1);
-    RareEliteDamageMod_Warrior = GetFloatDefault("RareEliteDamageMod_Warrior", 1);
-    RareEliteDamageMod_Paladin = GetFloatDefault("RareEliteDamageMod_Paladin", 1);
-    RareEliteDamageMod_Mage = GetFloatDefault("RareEliteDamageMod_Mage", 1);
+    InstanceEncounterDamageMod = GetFloatDefault("InstanceEncounterDamageMod", 1);
+    EliteDamageMod = GetFloatDefault("EliteDamageMod", 1);
+    UniqueEliteDamageMod = GetFloatDefault("UniqueEliteDamageMod", 1);
+    RareDamageMod = GetFloatDefault("RareDamageMod", 1);
+    RareEliteDamageMod = GetFloatDefault("RareEliteDamageMod", 1);
 
-    InstanceEncounterAPMod_Warrior = GetFloatDefault("InstanceEncounterAPMod_Warrior", 1);
-    InstanceEncounterAPMod_Paladin = GetFloatDefault("InstanceEncounterAPMod_Paladin", 1);
-    InstanceEncounterAPMod_Mage = GetFloatDefault("InstanceEncounterAPMod_Mage", 1);
-    EliteAPMod_Warrior = GetFloatDefault("EliteAPMod_Warrior", 1);
-    EliteAPMod_Paladin = GetFloatDefault("EliteAPMod_Paladin", 1);
-    EliteAPMod_Mage = GetFloatDefault("EliteAPMod_Mage", 1);
-    UniqueEliteAPMod_Warrior = GetFloatDefault("UniqueEliteAPMod_Warrior", 1);
-    UniqueEliteAPMod_Paladin = GetFloatDefault("UniqueEliteAPMod_Paladin", 1);
-    UniqueEliteAPMod_Mage = GetFloatDefault("UniqueEliteAPMod_Mage", 1);
-    RareAPMod_Warrior = GetFloatDefault("RareAPMod_Warrior", 1);
-    RareAPMod_Paladin = GetFloatDefault("RareAPMod_Paladin", 1);
-    RareAPMod_Mage = GetFloatDefault("RareAPMod_Mage", 1);
-    RareEliteAPMod_Warrior = GetFloatDefault("RareEliteAPMod_Warrior", 1);
-    RareEliteAPMod_Paladin = GetFloatDefault("RareEliteAPMod_Paladin", 1);
-    RareEliteAPMod_Mage = GetFloatDefault("RareEliteAPMod_Mage", 1);
+    InstanceEncounterAPMod = GetFloatDefault("InstanceEncounterAPMod", 1);
+    EliteAPMod = GetFloatDefault("EliteAPMod", 1);
+    UniqueEliteAPMod = GetFloatDefault("UniqueEliteAPMod", 1);
+    RareAPMod = GetFloatDefault("RareAPMod", 1);
+    RareEliteAPMod = GetFloatDefault("RareEliteAPMod", 1);
 
     if (enable == 0)
     {

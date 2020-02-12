@@ -664,123 +664,58 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     // EJ mod
     if (sJokerConfig->enable)
     {
+        float levelMod = 0.0f;
+        if (creatureTemplate.maxlevel > 50)
+        {
+            levelMod = 2.0f;
+        }
+        else if (creatureTemplate.maxlevel > 40)
+        {
+            levelMod = 1.5f;
+        }
+        else if (creatureTemplate.maxlevel > 30)
+        {
+            levelMod = 1.0f;
+        }
+        else if (creatureTemplate.maxlevel > 20)
+        {
+            levelMod = 0.5f;
+        }
         if (creatureTemplate.rank == 1 || creatureTemplate.rank == 2 || creatureTemplate.rank == 4)
         {
             if (ieSet.find(creatureTemplate.Entry) != ieSet.end())
             {
-                if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_WARRIOR || creatureTemplate.unit_class == UnitClass::UNIT_CLASS_ROGUE)
-                {
-                    creatureTemplate.ModDamage = sJokerConfig->InstanceEncounterDamageMod_Warrior;
-                }
-                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_PALADIN)
-                {
-                    creatureTemplate.ModDamage = sJokerConfig->InstanceEncounterDamageMod_Paladin;
-                }
-                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_MAGE)
-                {
-                    creatureTemplate.ModDamage = sJokerConfig->InstanceEncounterDamageMod_Mage;
-                }
+                creatureTemplate.ModDamage = sJokerConfig->InstanceEncounterDamageMod + levelMod;
             }
             else if (creatureTemplate.rank == 1)
             {
-                if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_WARRIOR || creatureTemplate.unit_class == UnitClass::UNIT_CLASS_ROGUE)
+                if (sObjectMgr->ueSet.find(creatureTemplate.Entry) != sObjectMgr->ueSet.end())
                 {
-                    if (sObjectMgr->ueSet.find(creatureTemplate.Entry) != sObjectMgr->ueSet.end())
+                    if (creatureTemplate.ModDamage < sJokerConfig->UniqueEliteDamageMod + levelMod)
                     {
-                        if (creatureTemplate.ModDamage < sJokerConfig->UniqueEliteDamageMod_Warrior)
-                        {
-                            creatureTemplate.ModDamage = sJokerConfig->UniqueEliteDamageMod_Warrior;
-                        }
-                    }
-                    else
-                    {
-                        if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod_Warrior)
-                        {
-                            creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod_Warrior;
-                        }
+                        creatureTemplate.ModDamage = sJokerConfig->UniqueEliteDamageMod + levelMod;
                     }
                 }
-                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_PALADIN)
+                else
                 {
-                    if (sObjectMgr->ueSet.find(creatureTemplate.Entry) != sObjectMgr->ueSet.end())
+                    if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod + levelMod)
                     {
-                        if (creatureTemplate.ModDamage < sJokerConfig->UniqueEliteDamageMod_Paladin)
-                        {
-                            creatureTemplate.ModDamage = sJokerConfig->UniqueEliteDamageMod_Paladin;
-                        }
-                    }
-                    else
-                    {
-                        if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod_Paladin)
-                        {
-                            creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod_Paladin;
-                        }
-                    }
-                }
-                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_MAGE)
-                {
-                    if (sObjectMgr->ueSet.find(creatureTemplate.Entry) != sObjectMgr->ueSet.end())
-                    {
-                        if (creatureTemplate.ModDamage < sJokerConfig->UniqueEliteDamageMod_Mage)
-                        {
-                            creatureTemplate.ModDamage = sJokerConfig->UniqueEliteDamageMod_Mage;
-                        }
-                    }
-                    else
-                    {
-                        if (creatureTemplate.ModDamage < sJokerConfig->EliteDamageMod_Mage)
-                        {
-                            creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod_Mage;
-                        }
+                        creatureTemplate.ModDamage = sJokerConfig->EliteDamageMod + levelMod;
                     }
                 }
             }
             else if (creatureTemplate.rank == 2)
             {
-                if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_WARRIOR || creatureTemplate.unit_class == UnitClass::UNIT_CLASS_ROGUE)
+                if (creatureTemplate.ModDamage < sJokerConfig->RareEliteDamageMod + levelMod)
                 {
-                    if (creatureTemplate.ModDamage < sJokerConfig->RareEliteDamageMod_Warrior)
-                    {
-                        creatureTemplate.ModDamage = sJokerConfig->RareEliteDamageMod_Warrior;
-                    }
-                }
-                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_PALADIN)
-                {
-                    if (creatureTemplate.ModDamage < sJokerConfig->RareEliteDamageMod_Paladin)
-                    {
-                        creatureTemplate.ModDamage = sJokerConfig->RareEliteDamageMod_Paladin;
-                    }
-                }
-                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_MAGE)
-                {
-                    if (creatureTemplate.ModDamage < sJokerConfig->RareEliteDamageMod_Mage)
-                    {
-                        creatureTemplate.ModDamage = sJokerConfig->RareEliteDamageMod_Mage;
-                    }
+                    creatureTemplate.ModDamage = sJokerConfig->RareEliteDamageMod + levelMod;
                 }
             }
             else if (creatureTemplate.rank == 4)
             {
-                if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_WARRIOR || creatureTemplate.unit_class == UnitClass::UNIT_CLASS_ROGUE)
+                if (creatureTemplate.ModDamage < sJokerConfig->RareDamageMod + levelMod)
                 {
-                    if (creatureTemplate.ModDamage < sJokerConfig->RareDamageMod_Warrior)
-                    {
-                        creatureTemplate.ModDamage = sJokerConfig->RareDamageMod_Warrior;
-                    }
-                }
-                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_PALADIN)
-                {
-                    if (creatureTemplate.ModDamage < sJokerConfig->RareDamageMod_Paladin)
-                    {
-                        creatureTemplate.ModDamage = sJokerConfig->RareDamageMod_Paladin;
-                    }
-                }
-                else if (creatureTemplate.unit_class == UnitClass::UNIT_CLASS_MAGE)
-                {
-                    if (creatureTemplate.ModDamage < sJokerConfig->RareDamageMod_Mage)
-                    {
-                        creatureTemplate.ModDamage = sJokerConfig->RareDamageMod_Mage;
-                    }
+                    creatureTemplate.ModDamage = sJokerConfig->RareDamageMod + levelMod;
                 }
             }
         }

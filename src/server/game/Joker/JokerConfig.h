@@ -40,37 +40,17 @@ public :
 
     uint32 enable;
 
-    float InstanceEncounterDamageMod_Warrior;
-    float InstanceEncounterDamageMod_Paladin;
-    float InstanceEncounterDamageMod_Mage;
-    float EliteDamageMod_Warrior;
-    float EliteDamageMod_Paladin;
-    float EliteDamageMod_Mage;
-    float UniqueEliteDamageMod_Warrior;
-    float UniqueEliteDamageMod_Paladin;
-    float UniqueEliteDamageMod_Mage;
-    float RareDamageMod_Warrior;
-    float RareDamageMod_Paladin;
-    float RareDamageMod_Mage;
-    float RareEliteDamageMod_Warrior;
-    float RareEliteDamageMod_Paladin;
-    float RareEliteDamageMod_Mage;
+    float InstanceEncounterDamageMod;
+    float EliteDamageMod;
+    float UniqueEliteDamageMod;
+    float RareDamageMod;
+    float RareEliteDamageMod;
 
-    float InstanceEncounterAPMod_Warrior;
-    float InstanceEncounterAPMod_Paladin;
-    float InstanceEncounterAPMod_Mage;
-    float EliteAPMod_Warrior;
-    float EliteAPMod_Paladin;
-    float EliteAPMod_Mage;
-    float UniqueEliteAPMod_Warrior;
-    float UniqueEliteAPMod_Paladin;
-    float UniqueEliteAPMod_Mage;
-    float RareAPMod_Warrior;
-    float RareAPMod_Paladin;
-    float RareAPMod_Mage;
-    float RareEliteAPMod_Warrior;
-    float RareEliteAPMod_Paladin;
-    float RareEliteAPMod_Mage;
+    float InstanceEncounterAPMod;
+    float EliteAPMod;
+    float UniqueEliteAPMod;
+    float RareAPMod;
+    float RareEliteAPMod;
 
 };
 
