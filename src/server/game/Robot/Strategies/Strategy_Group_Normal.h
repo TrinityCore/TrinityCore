@@ -15,6 +15,7 @@ class Strategy_Group_Normal
 {
 public:
     Strategy_Group_Normal(RobotAI* pmSourceAI);
+    void Set();
     void Update(uint32 pmDiff);
     bool Rest(bool pmForce = false);
     bool Buff();

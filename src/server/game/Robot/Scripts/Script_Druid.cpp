@@ -23,15 +23,30 @@ bool Script_Druid::DPS(Unit* pmTarget)
     {
     case 0:
     {
+        switch (sourceAI->characterTalentTab)
+        {
+        case 0:
+        {
+            return DPS_Balance(pmTarget);
+        }
+        case 1:
+        {
+            return DPS_Feral(pmTarget);
+        }
+        default:
+        {
+            return DPS_Balance(pmTarget);
+        }
+        }
         return DPS_Balance(pmTarget);
     }
     case 1:
     {
-        return DPS_Feral(pmTarget);
+        return Tank(pmTarget);
     }
     default:
     {
-        break;
+        return DPS_Balance(pmTarget);
     }
     }
 

@@ -17,14 +17,18 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
 
     assembleDelay = 0;    
 
-    followDistance = FOLLOW_MIN_DISTANCE;
+    followDistance = FOLLOW_MIN_DISTANCE;    
+}
+
+void Strategy_Group_Normal::Set()
+{
     if (sourceAI->targetClass == Classes::CLASS_HUNTER || sourceAI->targetClass == Classes::CLASS_MAGE || sourceAI->targetClass == Classes::CLASS_PRIEST || sourceAI->targetClass == Classes::CLASS_WARLOCK)
     {
         followDistance = RANGED_MIN_DISTANCE;
     }
     else if (sourceAI->targetClass == Classes::CLASS_DRUID)
     {
-        if (sourceAI->characterTalentTab == 0|| sourceAI->characterTalentTab == 2)
+        if (sourceAI->characterTalentTab == 0 || sourceAI->characterTalentTab == 2)
         {
             followDistance = RANGED_MIN_DISTANCE;
         }

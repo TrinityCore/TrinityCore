@@ -1516,6 +1516,7 @@ void RobotAI::HandlePacket(WorldPacket const* pmDestPacket)
                 Prepare();
                 SetStrategy("solo_normal", false);
                 SetStrategy("group_normal", true);
+                st_Group_Normal->Set();
                 break;
             }
             else
