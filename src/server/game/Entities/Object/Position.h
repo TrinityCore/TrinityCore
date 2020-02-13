@@ -29,8 +29,6 @@ struct TC_GAME_API Position
     Position(float x = 0, float y = 0, float z = 0, float o = 0)
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
 
-    Position(Position const& loc) { Relocate(loc); }
-
     // streamer tags
     struct XY;
     struct XYZ;
@@ -62,7 +60,6 @@ private:
 public:
     bool operator==(Position const& a);
     bool operator!=(Position const& a) { return !(operator==(a)); }
-    Position& operator=(Position const&) = default;
 
     void Relocate(float x, float y) { m_positionX = x; m_positionY = y; }
     void Relocate(float x, float y, float z) { Relocate(x, y); m_positionZ = z; }
@@ -173,11 +170,6 @@ class WorldLocation : public Position
 
         WorldLocation(uint32 mapId, Position const& position)
             : Position(position), m_mapId(mapId) { }
-
-        WorldLocation(WorldLocation const& loc)
-            : Position(loc), m_mapId(loc.GetMapId()) { }
-
-        WorldLocation& operator=(WorldLocation const&) = default;
 
         void WorldRelocate(WorldLocation const& loc) { m_mapId = loc.GetMapId(); Relocate(loc); }
         void WorldRelocate(WorldLocation const* loc) { m_mapId = loc->GetMapId(); Relocate(loc); }
