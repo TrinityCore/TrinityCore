@@ -62,6 +62,7 @@ private:
 public:
     bool operator==(Position const& a);
     bool operator!=(Position const& a) { return !(operator==(a)); }
+    Position& operator=(Position const&) = default;
 
     void Relocate(float x, float y) { m_positionX = x; m_positionY = y; }
     void Relocate(float x, float y, float z) { Relocate(x, y); m_positionZ = z; }
@@ -175,6 +176,8 @@ class WorldLocation : public Position
 
         WorldLocation(WorldLocation const& loc)
             : Position(loc), m_mapId(loc.GetMapId()) { }
+
+        WorldLocation& operator=(WorldLocation const&) = default;
 
         void WorldRelocate(WorldLocation const& loc) { m_mapId = loc.GetMapId(); Relocate(loc); }
         void WorldRelocate(WorldLocation const* loc) { m_mapId = loc->GetMapId(); Relocate(loc); }
