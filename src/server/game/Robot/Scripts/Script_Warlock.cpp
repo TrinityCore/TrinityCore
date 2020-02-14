@@ -507,7 +507,7 @@ bool Script_Warlock::Buff()
     }
     else
     {
-        if (sourceAI->CastSpell(me, "Demon Armor", true))
+        if (sourceAI->CastSpell(me, "Demon Armor", WARLOCK_RANGE_DISTANCE, true))
         {
             return true;
         }
