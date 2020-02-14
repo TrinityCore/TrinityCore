@@ -1309,7 +1309,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     return true;
 }
 
-void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack, bool pmFurther)
+void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack, bool pmFurther, float pmMinDistance)
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
@@ -1328,7 +1328,7 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack, bool pmF
     {
         return;
     }
-    if (me->IsNonMeleeSpellCast(false, false, true))
+    if (me->IsNonMeleeSpellCast(true, false, true))
     {
         return;
     }
@@ -1352,59 +1352,50 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack, bool pmF
     {
         if (pmFurther)
         {
-            me->AttackStop();
-            me->SetSelection(ObjectGuid::Empty);
-            if (!holding)
+            if (currentDistance < pmMinDistance)
             {
-                me->GetMotionMaster()->MoveFutherAndStop(0, pmTarget, pmDistance);
+                me->AttackStop();
+                me->SetSelection(ObjectGuid::Empty);
+                if (!holding)
+                {
+                    me->GetMotionMaster()->MoveFutherAndStop(0, pmTarget, pmDistance);
+                    return;
+                }
             }
         }
-        else
+
+        if (!me->IsWithinLOSInMap(pmTarget))
         {
-            if (!me->IsWithinLOSInMap(pmTarget))
+            if (!holding)
             {
                 me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_MIN_DISTANCE);
             }
-            else if (!me->isInFront(pmTarget))
+        }
+        else if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+        if (pmAttack)
+        {
+            if (!me->GetVictim())
             {
-                me->SetFacingToObject(pmTarget);
+                me->Attack(pmTarget, true);
             }
-            if (pmAttack)
+            else if (me->GetVictim()->GetGUID() != pmTarget->GetGUID())
             {
-                if (!me->GetVictim())
-                {
-                    me->Attack(pmTarget, true);
-                }
-                else if (me->GetVictim()->GetGUID() != pmTarget->GetGUID())
-                {
-                    me->AttackStop();
-                    me->SetSelection(ObjectGuid::Empty);
-                    me->Attack(pmTarget, true);
-                }
+                me->AttackStop();
+                me->SetSelection(ObjectGuid::Empty);
+                me->Attack(pmTarget, true);
             }
         }
     }
     else
     {
-        if (pmFurther)
+        me->AttackStop();
+        me->SetSelection(ObjectGuid::Empty);
+        if (!holding)
         {
-            if (!me->IsWithinLOSInMap(pmTarget))
-            {
-                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_MIN_DISTANCE);
-            }
-            else if (!me->isInFront(pmTarget))
-            {
-                me->SetFacingToObject(pmTarget);
-            }
-        }
-        else
-        {
-            me->AttackStop();
-            me->SetSelection(ObjectGuid::Empty);
-            if (!holding)
-            {
-                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
-            }
+            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
         }
     }
 

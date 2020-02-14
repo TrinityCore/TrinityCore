@@ -157,33 +157,6 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
 
     sourceAI->BaseMove(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
-    if (rage > 100)
-    {
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
-        {
-            return true;
-        }
-        //if (sourceAI->CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
-        //{
-        //	return true;
-        //}
-        if (sourceAI->CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
-        {
-            return true;
-        }
-        if (sourceAI->CastSpell(pmTarget, "Overpower", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-        if (pmTarget->GetHealthPct() < 30.0f)
-        {
-            if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
-            {
-                return true;
-            }
-        }
-    }
-
     if (rage > 300)
     {
         Group* myGroup = me->GetGroup();
@@ -216,12 +189,42 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
                             }
                         }
                     }
+                    break;
                 }
             }
         }
+    }
+    if (rage > 300)
+    {
         if (sourceAI->CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE))
         {
             return true;
+        }
+    }
+    if (rage > 100)
+    {
+        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
+        {
+            return true;
+        }
+        //if (sourceAI->CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
+        //{
+        //	return true;
+        //}
+        if (sourceAI->CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
+        {
+            return true;
+        }
+        if (sourceAI->CastSpell(pmTarget, "Overpower", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+        if (pmTarget->GetHealthPct() < 30.0f)
+        {
+            if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+            {
+                return true;
+            }
         }
     }
     if (rage > 150)

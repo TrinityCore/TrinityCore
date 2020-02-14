@@ -1,5 +1,6 @@
 #include "Script_Hunter.h"
 #include "Pet.h"
+#include "PetAI.h"
 #include "Spell.h"
 #include "RobotManager.h"
 #include "Map.h"
@@ -81,16 +82,7 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget)
     {
         return false;
     }
-    if (Pet* activePet = me->GetPet())
-    {
-        if (CharmInfo* pci = activePet->GetCharmInfo())
-        {
-            if (!pci->IsCommandAttack())
-            {
-                pci->SetIsCommandAttack(true);
-            }
-        }
-    }
+    PetAttack(me->GetPet(), pmTarget);
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
@@ -164,18 +156,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
     {
         return false;
     }
-
-    if (Pet* activePet = me->GetPet())
-    {
-        if (CharmInfo* pci = activePet->GetCharmInfo())
-        {
-            if (!pci->IsCommandAttack())
-            {
-                pci->SetIsCommandAttack(true);
-            }
-        }
-    }
-
+    PetAttack(me->GetPet(), pmTarget);
     Group* myGroup = me->GetGroup();
     if (myGroup)
     {
@@ -231,84 +212,77 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
                 return true;
             }
         }
-        else
+    }
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false, true, HUNTER_PREPARE_DISTANCE);
+    sourceAI->BaseMove(pmTarget, HUNTER_RANGE_DISTANCE, false);
+    float manaRate = me->GetPower(Powers::POWER_MANA) * 100.0f / me->GetMaxPower(Powers::POWER_MANA);
+    if (manaRate < 5.0f)
+    {
+        if (sourceAI->CastSpell(me, "Aspect of the Viper", HUNTER_RANGE_DISTANCE, true, true))
         {
-            sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false, true);
+            return true;
+        }
+    }
+    else if (manaRate > 50.0f)
+    {
+        if (sourceAI->CastSpell(me, "Aspect of the Hawk", HUNTER_RANGE_DISTANCE, true, true))
+        {
+            return true;
+        }
+    }
+
+    if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+    {
+        if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
+        {
+            me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
+            sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
+        }
+    }
+    else
+    {
+        sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
+    }
+    // when facing boss 
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
+    {
+        if (sourceAI->CastSpell(me, "Rapid Fire", HUNTER_RANGE_DISTANCE))
+        {
             return true;
         }
     }
     else
     {
-        sourceAI->BaseMove(pmTarget, HUNTER_RANGE_DISTANCE, false);
-        float manaRate = me->GetPower(Powers::POWER_MANA) * 100.0f / me->GetMaxPower(Powers::POWER_MANA);
-        if (manaRate < 5.0f)
-        {
-            if (sourceAI->CastSpell(me, "Aspect of the Viper", HUNTER_RANGE_DISTANCE, true, true))
-            {
-                return true;
-            }
-        }
-        else if (manaRate > 50.0f)
-        {
-            if (sourceAI->CastSpell(me, "Aspect of the Hawk", HUNTER_RANGE_DISTANCE, true, true))
-            {
-                return true;
-            }
-        }
-
-        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-        {
-            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
-            {
-                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-                sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
-            }
-        }
-        else
-        {
-            sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
-        }
-        // when facing boss 
-        if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
-        {
-            if (sourceAI->CastSpell(me, "Rapid Fire", HUNTER_RANGE_DISTANCE))
-            {
-                return true;
-            }
-        }
-        else
-        {
-            if (pmTarget->GetHealthPct() < 20.0f)
-            {
-                if (sourceAI->CastSpell(pmTarget, "Concussive Shot", HUNTER_RANGE_DISTANCE))
-                {
-                    return true;
-                }
-            }
-        }
         if (pmTarget->GetHealthPct() < 20.0f)
         {
-            if (sourceAI->CastSpell(pmTarget, "Kill Shot", HUNTER_RANGE_DISTANCE))
+            if (sourceAI->CastSpell(pmTarget, "Concussive Shot", HUNTER_RANGE_DISTANCE))
             {
                 return true;
             }
         }
-        if (sourceAI->CastSpell(pmTarget, "Serpent Sting", HUNTER_RANGE_DISTANCE, true, true))
+    }
+    if (pmTarget->GetHealthPct() < 20.0f)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Kill Shot", HUNTER_RANGE_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Chimera Shot", HUNTER_RANGE_DISTANCE))
-        {
-            return true;
-        }
-        if (sourceAI->CastSpell(pmTarget, "Arcane Shot", HUNTER_RANGE_DISTANCE))
-        {
-            return true;
-        }
-        if (sourceAI->CastSpell(pmTarget, "Steady Shot", HUNTER_RANGE_DISTANCE))
-        {
-            return true;
-        }
+    }
+    if (sourceAI->CastSpell(pmTarget, "Serpent Sting", HUNTER_RANGE_DISTANCE, true, true))
+    {
+        return true;
+    }
+    if (sourceAI->CastSpell(pmTarget, "Chimera Shot", HUNTER_RANGE_DISTANCE))
+    {
+        return true;
+    }
+    if (sourceAI->CastSpell(pmTarget, "Arcane Shot", HUNTER_RANGE_DISTANCE))
+    {
+        return true;
+    }
+    if (sourceAI->CastSpell(pmTarget, "Steady Shot", HUNTER_RANGE_DISTANCE))
+    {
+        return true;
     }
 
     return true;
@@ -338,16 +312,7 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget)
     {
         return false;
     }
-    if (Pet* activePet = me->GetPet())
-    {
-        if (CharmInfo* pci = activePet->GetCharmInfo())
-        {
-            if (!pci->IsCommandAttack())
-            {
-                pci->SetIsCommandAttack(true);
-            }
-        }
-    }
+    PetAttack(me->GetPet(), pmTarget);
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
@@ -421,16 +386,7 @@ bool Script_Hunter::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    if (Pet* activePet = me->GetPet())
-    {
-        if (CharmInfo* pci = activePet->GetCharmInfo())
-        {
-            if (!pci->IsCommandAttack())
-            {
-                pci->SetIsCommandAttack(true);
-            }
-        }
-    }
+    PetAttack(me->GetPet(), pmTarget);
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
@@ -525,16 +481,7 @@ bool Script_Hunter::Attack_BeastMastery(Unit* pmTarget)
     {
         return false;
     }
-    if (Pet* activePet = me->GetPet())
-    {
-        if (CharmInfo* pci = activePet->GetCharmInfo())
-        {
-            if (!pci->IsCommandAttack())
-            {
-                pci->SetIsCommandAttack(true);
-            }
-        }
-    }
+    PetAttack(me->GetPet(), pmTarget);
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
@@ -608,16 +555,7 @@ bool Script_Hunter::Attack_Marksmanship(Unit* pmTarget)
     {
         return false;
     }
-    if (Pet* activePet = me->GetPet())
-    {
-        if (CharmInfo* pci = activePet->GetCharmInfo())
-        {
-            if (!pci->IsCommandAttack())
-            {
-                pci->SetIsCommandAttack(true);
-            }
-        }
-    }
+    PetAttack(me->GetPet(), pmTarget);
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
@@ -691,16 +629,7 @@ bool Script_Hunter::Attack_Survival(Unit* pmTarget)
     {
         return false;
     }
-    if (Pet* activePet = me->GetPet())
-    {
-        if (CharmInfo* pci = activePet->GetCharmInfo())
-        {
-            if (!pci->IsCommandAttack())
-            {
-                pci->SetIsCommandAttack(true);
-            }
-        }
-    }
+    PetAttack(me->GetPet(), pmTarget);
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
@@ -774,16 +703,7 @@ bool Script_Hunter::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    if (Pet* activePet = me->GetPet())
-    {
-        if (CharmInfo* pci = activePet->GetCharmInfo())
-        {
-            if (!pci->IsCommandAttack())
-            {
-                pci->SetIsCommandAttack(true);
-            }
-        }
-    }
+    PetAttack(me->GetPet(), pmTarget);
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
@@ -913,7 +833,28 @@ bool Script_Hunter::Buff()
         }
     }
 
-
-
     return false;
+}
+
+void Script_Hunter::PetAttack(Pet* pmMyPet, Unit* pmTarget)
+{
+    if (pmMyPet)
+    {
+        if (CharmInfo* pci = pmMyPet->GetCharmInfo())
+        {
+            if (!pci->IsCommandAttack())
+            {
+                pci->SetIsCommandAttack(true);
+                CreatureAI* AI = pmMyPet->ToCreature()->AI();
+                if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
+                {
+                    petAI->_AttackStart(pmTarget);
+                }
+                else
+                {
+                    AI->AttackStart(pmTarget);
+                }
+            }
+        }
+    }
 }

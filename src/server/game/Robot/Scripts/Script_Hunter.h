@@ -7,16 +7,18 @@
 class Script_Hunter :public Script_Base
 {
 public:
-	Script_Hunter(RobotAI* pmSourceAI);
-	virtual bool DPS(Unit* pmTarget);
-	virtual bool Tank(Unit* pmTarget);
-	virtual bool Healer();
-	virtual bool Attack(Unit* pmTarget);
-	virtual bool Buff();
-	virtual bool HealMe();
+    Script_Hunter(RobotAI* pmSourceAI);
+    virtual bool DPS(Unit* pmTarget);
+    virtual bool Tank(Unit* pmTarget);
+    virtual bool Healer();
+    virtual bool Attack(Unit* pmTarget);
+    virtual bool Buff();
+    virtual bool HealMe();
 
-	bool DPS_Common(Unit* pmTarget);
-	bool Attack_Common(Unit* pmTarget);
+    void PetAttack(Pet* pmMyPet, Unit* pmTarget);
+
+    bool DPS_Common(Unit* pmTarget);
+    bool Attack_Common(Unit* pmTarget);
 
     bool DPS_BeastMastery(Unit* pmTarget);
     bool Attack_BeastMastery(Unit* pmTarget);
