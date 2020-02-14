@@ -357,9 +357,9 @@ struct boss_akilzon : public BossAI
                     events.Repeat(7s, 9s);
                     break;
                 case EVENT_GUST_OF_WIND:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, [this](Unit const* target)->bool
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, [this](Unit const* potentialTarget)->bool
                         {
-                            return target && me->GetVictim() != target && !target->HasAura(SPELL_PLUCKED);
+                            return potentialTarget && me->GetVictim() != potentialTarget && !potentialTarget->HasAura(SPELL_PLUCKED);
                         }))
                         DoCast(target, SPELL_GUST_OF_WIND);
                     events.Repeat(24s);
