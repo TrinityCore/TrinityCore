@@ -156,9 +156,7 @@ bool Script_Paladin::Healer()
         {
             return false;
         }
-        sourceAI->BaseMove(tank, PALADIN_RANGE_DISTANCE, false);
-        Unit* tankTarget = tank->GetSelectedUnit();
-
+        sourceAI->BaseMove(tank, PALADIN_RANGE_DISTANCE, false);        
         float healthPCT = tank->GetHealthPct();
         if (healthPCT < 20)
         {

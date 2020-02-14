@@ -106,15 +106,17 @@ bool Script_Priest::Healer()
         }
         sourceAI->BaseMove(tank, PRIEST_RANGE_DISTANCE, false);
         Unit* tankTarget = tank->GetSelectedUnit();
-
-        // when facing boss
-        if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
+        if (tankTarget)
         {
-            if (sourceAI->CastSpell(tank, "Lightwell", PRIEST_RANGE_DISTANCE))
+            // when facing boss
+            if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
             {
-                return true;
+                if (sourceAI->CastSpell(tank, "Lightwell", PRIEST_RANGE_DISTANCE))
+                {
+                    return true;
+                }
             }
-        }
+        }        
 
         float healthPCT = tank->GetHealthPct();
         if (healthPCT < 30)
