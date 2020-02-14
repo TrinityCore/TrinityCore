@@ -16,7 +16,6 @@
  */
 
 /* ContentData
-go_cat_figurine (the "trap" version of GO, two different exist)
 go_barov_journal
 go_ethereum_prison
 go_ethereum_stasis
@@ -56,37 +55,6 @@ EndContentData */
 #include "TemporarySummon.h"
 #include "WorldSession.h"
 #include "World.h"
-
-/*######
-## go_cat_figurine
-######*/
-
-enum CatFigurine
-{
-    SPELL_SUMMON_GHOST_SABER    = 5968,
-};
-
-class go_cat_figurine : public GameObjectScript
-{
-public:
-    go_cat_figurine() : GameObjectScript("go_cat_figurine") { }
-
-    struct go_cat_figurineAI : public GameObjectAI
-    {
-        go_cat_figurineAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_cat_figurineAI(go);
-    }
-};
 
 /*######
 ## go_barov_journal
@@ -1951,7 +1919,6 @@ public:
 
 void AddSC_go_scripts()
 {
-    new go_cat_figurine();
     new go_barov_journal();
     new go_gilded_brazier();
     new go_orb_of_command();
