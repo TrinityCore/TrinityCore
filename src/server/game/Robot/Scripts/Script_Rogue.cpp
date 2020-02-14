@@ -23,7 +23,7 @@ bool Script_Rogue::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Rogue::Healer(Unit* pmTarget)
+bool Script_Rogue::Healer()
 {
     return false;
 }
@@ -392,7 +392,7 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Rogue::Buff(Unit* pmTarget)
+bool Script_Rogue::Buff()
 {
     return false;
 }

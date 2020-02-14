@@ -23,7 +23,7 @@ public:
 	Strategy_Solo_Normal(RobotAI* pmSourceAI);
 	void Update(uint32 pmDiff);
 
-	bool Buff(Unit* pmTarget);	
+    bool Buff();
 	bool Rest();
 	bool Battle();
 	bool Attack(Unit* pmTarget);

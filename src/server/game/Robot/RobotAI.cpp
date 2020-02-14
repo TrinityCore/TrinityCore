@@ -392,6 +392,10 @@ void RobotAI::InitializeCharacter()
         {
             specialty = 1;
         }
+        else if (me->GetClass() == Classes::CLASS_HUNTER)
+        {
+            specialty = 1;
+        }
 
         uint32 classMask = me->GetClassMask();
         std::map<uint32, std::vector<TalentEntry const*> > talentsMap;
@@ -549,49 +553,49 @@ void RobotAI::InitializeCharacter()
             }
         }
 
-        if (me->GetClass() == Classes::CLASS_HUNTER)
-        {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create pet for player %s", me->GetName());
-            uint32 beastEntry = urand(0, sRobotManager->tamableBeastEntryMap.size() - 1);
-            beastEntry = sRobotManager->tamableBeastEntryMap[beastEntry];
-            CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(beastEntry);
-            if (!cinfo)
-            {
-                return;
-            }
+        //if (me->GetClass() == Classes::CLASS_HUNTER)
+        //{
+        //    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create pet for player %s", me->GetName());
+        //    uint32 beastEntry = urand(0, sRobotManager->tamableBeastEntryMap.size() - 1);
+        //    beastEntry = sRobotManager->tamableBeastEntryMap[beastEntry];
+        //    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(beastEntry);
+        //    if (!cinfo)
+        //    {
+        //        return;
+        //    }
 
-            Pet* pet = new Pet(me, HUNTER_PET);
-            uint32 guid = me->GetMap()->GenerateLowGuid<HighGuid::Pet>();
-            uint32 pet_number = sObjectMgr->GeneratePetNumber();
-            if (!pet->Create(guid, me->GetMap(), 0, cinfo->Entry, pet_number))
-            {
-                delete pet;
-                return;
-            }
-            pet->SetReactState(REACT_DEFENSIVE);
-            pet->SetFaction(me->GetFaction());
-            pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, 1515);
-            if (me->IsPvP())
-            {
-                pet->SetPvP(true);
-            }
-            pet->InitStatsForLevel(me->GetLevel());
-            pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
-            // this enables pet details window (Shift+P)
-            pet->AIM_Initialize();
-            pet->InitPetCreateSpells();
-            pet->SetHealth(pet->GetMaxHealth());
-            // prepare visual effect for levelup
-            pet->SetUInt32Value(UNIT_FIELD_LEVEL, me->GetLevel());
-            // add to world
-            pet->GetMap()->AddToMap((Creature*)pet);
+        //    Pet* pet = new Pet(me, HUNTER_PET);
+        //    uint32 guid = me->GetMap()->GenerateLowGuid<HighGuid::Pet>();
+        //    uint32 pet_number = sObjectMgr->GeneratePetNumber();
+        //    if (!pet->Create(guid, me->GetMap(), 0, cinfo->Entry, pet_number))
+        //    {
+        //        delete pet;
+        //        return;
+        //    }
+        //    pet->SetReactState(REACT_DEFENSIVE);
+        //    pet->SetFaction(me->GetFaction());
+        //    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, 1515);
+        //    if (me->IsPvP())
+        //    {
+        //        pet->SetPvP(true);
+        //    }
+        //    pet->InitStatsForLevel(me->GetLevel());
+        //    pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
+        //    // this enables pet details window (Shift+P)
+        //    pet->AIM_Initialize();
+        //    pet->InitPetCreateSpells();
+        //    pet->SetHealth(pet->GetMaxHealth());
+        //    // prepare visual effect for levelup
+        //    pet->SetUInt32Value(UNIT_FIELD_LEVEL, me->GetLevel());
+        //    // add to world
+        //    pet->GetMap()->AddToMap((Creature*)pet);
 
-            // caster have pet now
-            me->SetPetGUID(pet->GetGUID());
+        //    // caster have pet now
+        //    me->SetPetGUID(pet->GetGUID());
 
-            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-            me->PetSpellInitialize();
-        }
+        //    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        //    me->PetSpellInitialize();
+        //}
 
         me->SaveToDB();
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s basic info initialized", me->GetName());
@@ -644,7 +648,7 @@ void RobotAI::InitializeCharacter()
                         characterTalentTab = 1;
                         typeChecked = true;
                     }
-                    if (checkNameStr == "Monster Slaying")
+                    if (checkNameStr == "Improved Tracking")
                     {
                         characterTalentTab = 2;
                         typeChecked = true;
@@ -1122,6 +1126,17 @@ void RobotAI::Prepare()
                     {
                         checkPet->ToggleAutocast(pST, false);
                     }
+                    else if (checkNameStr == "Growl")
+                    {
+                        if (me->GetGroup())
+                        {
+                            checkPet->ToggleAutocast(pST, false);
+                        }
+                        else
+                        {
+                            checkPet->ToggleAutocast(pST, true);
+                        }
+                    }
                     else
                     {
                         checkPet->ToggleAutocast(pST, true);
@@ -1216,7 +1231,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     {
         return true;
     }
-    if (me->IsNonMeleeSpellCast(true))
+    if (me->IsNonMeleeSpellCast(true, false, true))
     {
         return true;
     }
@@ -1294,7 +1309,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     return true;
 }
 
-void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
+void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack, bool pmFurther)
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
@@ -1313,7 +1328,7 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     {
         return;
     }
-    if (me->IsNonMeleeSpellCast(false))
+    if (me->IsNonMeleeSpellCast(false, false, true))
     {
         return;
     }
@@ -1335,35 +1350,61 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack)
     float currentDistance = me->GetDistance(pmTarget->GetPosition());
     if (currentDistance < pmDistance)
     {
-        if (!me->IsWithinLOSInMap(pmTarget))
+        if (pmFurther)
         {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_MIN_DISTANCE);
-        }
-        else if (!me->isInFront(pmTarget))
-        {
-            me->SetFacingToObject(pmTarget);
-        }
-        if (pmAttack)
-        {
-            if (!me->GetVictim())
+            me->AttackStop();
+            me->SetSelection(ObjectGuid::Empty);
+            if (!holding)
             {
-                me->Attack(pmTarget, true);
+                me->GetMotionMaster()->MoveFutherAndStop(0, pmTarget, pmDistance);
             }
-            else if (me->GetVictim()->GetGUID() != pmTarget->GetGUID())
+        }
+        else
+        {
+            if (!me->IsWithinLOSInMap(pmTarget))
             {
-                me->AttackStop();
-                me->SetSelection(ObjectGuid::Empty);
-                me->Attack(pmTarget, true);
+                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_MIN_DISTANCE);
+            }
+            else if (!me->isInFront(pmTarget))
+            {
+                me->SetFacingToObject(pmTarget);
+            }
+            if (pmAttack)
+            {
+                if (!me->GetVictim())
+                {
+                    me->Attack(pmTarget, true);
+                }
+                else if (me->GetVictim()->GetGUID() != pmTarget->GetGUID())
+                {
+                    me->AttackStop();
+                    me->SetSelection(ObjectGuid::Empty);
+                    me->Attack(pmTarget, true);
+                }
             }
         }
     }
     else
     {
-        me->AttackStop();
-        me->SetSelection(ObjectGuid::Empty);
-        if (!holding)
+        if (pmFurther)
         {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
+            if (!me->IsWithinLOSInMap(pmTarget))
+            {
+                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_MIN_DISTANCE);
+            }
+            else if (!me->isInFront(pmTarget))
+            {
+                me->SetFacingToObject(pmTarget);
+            }
+        }
+        else
+        {
+            me->AttackStop();
+            me->SetSelection(ObjectGuid::Empty);
+            if (!holding)
+            {
+                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
+            }
         }
     }
 

@@ -313,23 +313,8 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
 }
 
 bool Strategy_Group_Normal::Buff()
-{
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    Group* myGroup = me->GetGroup();
-    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-    {
-        Player* member = groupRef->GetSource();
-        if (Buff(member))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool Strategy_Group_Normal::Buff(Player* pmTarget)
-{
-    return sourceAI->s_base->Buff(pmTarget);
+{    
+    return sourceAI->s_base->Buff();
 }
 
 bool Strategy_Group_Normal::Battle()
@@ -626,59 +611,7 @@ bool Strategy_Group_Normal::Attack(Unit* pmTarget)
 bool Strategy_Group_Normal::Healer()
 {
     bool result = false;
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    //Player* master = master;
-    Group* myGroup = me->GetGroup();
-    Player* tank = NULL;
-    Player* lowestMember = NULL;
-    float lowestPCT = 50;
-    if (!result)
-    {
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-        {
-            Player* member = groupRef->GetSource();
-            if (!member->IsAlive())
-            {
-                continue;
-            }
-            if (member->groupRole == 1)
-            {
-                tank = member;
-            }
-            else
-            {
-                float eachPCT = member->GetHealthPct();
-                if (eachPCT < lowestPCT)
-                {
-                    lowestPCT = eachPCT;
-                    lowestMember = member;
-                }
-            }
-        }
-    }
-    if (!result)
-    {
-        if (tank)
-        {
-            if (tank->GetHealthPct() < 80)
-            {
-                if (Healer(tank))
-                {
-                    result = true;
-                }
-            }
-        }
-    }
-    if (!result)
-    {
-        if (lowestMember)
-        {
-            if (Healer(lowestMember))
-            {
-                result = true;
-            }
-        }
-    }
+    result = sourceAI->s_base->Healer();
 
     if (GroupInCombat())
     {
@@ -686,11 +619,6 @@ bool Strategy_Group_Normal::Healer()
     }
 
     return result;
-}
-
-bool Strategy_Group_Normal::Healer(Unit* pmTarget)
-{
-    return sourceAI->s_base->Healer(pmTarget);
 }
 
 bool Strategy_Group_Normal::GroupInCombat()

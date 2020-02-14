@@ -37,36 +37,8 @@ bool Script_Shaman::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Shaman::Healer(Unit* pmTarget)
+bool Script_Shaman::Healer()
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
-    {
-        return false;
-    }
-    sourceAI->BaseMove(pmTarget, SHAMAN_CLOSER_DISTANCE, false);
-
-    float healthPCT = pmTarget->GetHealthPct();
-    if (healthPCT < 70)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Healing Wave", SHAMAN_RANGE_DISTANCE))
-        {
-            return true;
-        }
-    }
     return false;
 }
 
@@ -148,7 +120,7 @@ bool Script_Shaman::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Shaman::Buff(Unit* pmTarget)
+bool Script_Shaman::Buff()
 {
     return false;
 }

@@ -18,8 +18,7 @@ public:
     void Set();
     void Update(uint32 pmDiff);
     bool Rest(bool pmForce = false);
-    bool Buff();
-    bool Buff(Player* pmTarget);
+    bool Buff();    
     bool Battle();
     bool DPS();
     bool DPS(Unit* pmTarget);
@@ -27,7 +26,6 @@ public:
     bool Tank(Unit* pmTarget);
     bool Attack(Unit* pmTarget);
     bool Healer();
-    bool Healer(Unit* pmTarget);
     bool Follow();
     bool Follow(float pmFollowDistance);
     bool Stay();

@@ -90,7 +90,7 @@ bool Script_Warrior::Tank(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warrior::Healer(Unit* pmTarget)
+bool Script_Warrior::Healer()
 {
     return false;
 }
@@ -691,7 +691,7 @@ bool Script_Warrior::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warrior::Buff(Unit* pmTarget)
+bool Script_Warrior::Buff()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)

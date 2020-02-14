@@ -14,7 +14,7 @@ Script_Paladin::Script_Paladin(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
 }
 
 bool Script_Paladin::HealMe()
-{    
+{
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
@@ -37,7 +37,7 @@ bool Script_Paladin::HealMe()
         {
             return true;
         }
-    }    
+    }
 
     for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
     {
@@ -105,72 +105,110 @@ bool Script_Paladin::Tank(Unit* pmTarget)
     return true;
 }
 
-bool Script_Paladin::Healer(Unit* pmTarget)
+bool Script_Paladin::Healer()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
     }
-    if (!pmTarget)
+    Player* tank = NULL;
+    Player* lowestMember = NULL;
+    Group* myGroup = me->GetGroup();
+    if (myGroup)
     {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
-    {
-        return false;
-    }
-    sourceAI->BaseMove(pmTarget, PALADIN_CLOSER_DISTANCE, false);
-    float healthPCT = pmTarget->GetHealthPct();
-    if (healthPCT < 20)
-    {
-        if (pmTarget->ToPlayer())
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
-            if (!sourceAI->HasAura(pmTarget, "Forbearance"))
+            Player* member = groupRef->GetSource();
+            if (member->groupRole == 1)
             {
-                if (sourceAI->CastSpell(pmTarget, "Lay on Hands"))
+                tank = member;
+                break;
+            }
+            else
+            {
+                if (member->GetHealthPct() < 50.0f)
+                {
+                    if (lowestMember)
+                    {
+                        if (member->GetHealthPct() < lowestMember->GetHealthPct())
+                        {
+                            lowestMember = member;
+                        }
+                    }
+                    else
+                    {
+                        lowestMember = member;
+                    }
+                }
+            }
+        }
+    }
+
+    if (tank)
+    {
+        if (!tank->IsAlive())
+        {
+            return false;
+        }
+        float targetDistance = me->GetDistance(tank);
+        if (targetDistance > 200)
+        {
+            return false;
+        }
+        sourceAI->BaseMove(tank, PALADIN_RANGE_DISTANCE, false);
+        Unit* tankTarget = tank->GetSelectedUnit();
+
+        float healthPCT = tank->GetHealthPct();
+        if (healthPCT < 20)
+        {
+            if (!sourceAI->HasAura(tank, "Forbearance"))
+            {
+                if (sourceAI->CastSpell(tank, "Lay on Hands", PALADIN_RANGE_DISTANCE))
                 {
                     return true;
                 }
             }
         }
-    }
-    if (healthPCT < 60)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Holy Light", PALADIN_RANGE_DISTANCE))
+        if (healthPCT < 60)
         {
-            return true;
-        }
-    }
-    if (healthPCT < 80)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Flash of Light", PALADIN_RANGE_DISTANCE))
-        {
-            return true;
-        }
-    }
-
-    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
-    {
-        std::list<AuraEffect*> auraList = pmTarget->GetAuraEffectsByType((AuraType)type);
-        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
-        {
-            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-            if (!pST->IsPositive())
+            if (sourceAI->CastSpell(tank, "Holy Light", PALADIN_RANGE_DISTANCE))
             {
-                if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
+                return true;
+            }
+        }
+        if (healthPCT < 80)
+        {
+            if (sourceAI->CastSpell(tank, "Flash of Light", PALADIN_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+        {
+            std::list<AuraEffect*> auraList = tank->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+            {
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
                 {
-                    if (sourceAI->CastSpell(pmTarget, "Purify"))
+                    if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
                     {
-                        return true;
+                        if (sourceAI->CastSpell(tank, "Purify"))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
+        }
+    }
+    if (lowestMember)
+    {
+        if (sourceAI->CastSpell(lowestMember, "Holy Light", PALADIN_RANGE_DISTANCE))
+        {
+            return true;
         }
     }
 
@@ -261,105 +299,72 @@ bool Script_Paladin::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Paladin::Buff(Unit* pmTarget)
+bool Script_Paladin::Buff()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
     }
-    if (!pmTarget)
+    Group* myGroup = me->GetGroup();
+    if (myGroup)
     {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
-    {
-        return false;
-    }
-    if (me->GetGUID() == pmTarget->GetGUID())
-    {
-        switch (me->groupRole)
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
-        case 0:
-        {
-            if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
+            Player* member = groupRef->GetSource();
+            if (member)
             {
-                return true;
+                float targetDistance = me->GetDistance(member);
+                if (targetDistance < 200)
+                {
+                    if (sourceAI->CastSpell(member, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
+                    {
+                        return true;
+                    }
+
+                    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+                    {
+                        std::list<AuraEffect*> auraList = member->GetAuraEffectsByType((AuraType)type);
+                        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+                        {
+                            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                            if (!pST->IsPositive())
+                            {
+                                if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
+                                {
+                                    if (sourceAI->CastSpell(member, "Purify"))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            if (sourceAI->CastSpell(me, "Blessing of Might", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (sourceAI->CastSpell(me, "Retribution Aura", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case 1:
-        {
-            if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (sourceAI->CastSpell(me, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (sourceAI->CastSpell(me, "Devotion Aura", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (sourceAI->CastSpell(me, "Righteous Fury", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case 2:
-        {
-            if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (sourceAI->CastSpell(me, "Blessing of Wisdom", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            if (sourceAI->CastSpell(me, "Devotion Aura", PALADIN_RANGE_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        default:
-        {
-            break;
-        }
         }
     }
-    else if (pmTarget->GetClass() != Classes::CLASS_PALADIN)
+    else
     {
-        if (sourceAI->CastSpell(pmTarget, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
+        if (sourceAI->CastSpell(me, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
         {
             return true;
         }
-    }
 
-    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
-    {
-        std::list<AuraEffect*> auraList = pmTarget->GetAuraEffectsByType((AuraType)type);
-        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
         {
-            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-            if (!pST->IsPositive())
+            std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
             {
-                if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
                 {
-                    if (sourceAI->CastSpell(pmTarget, "Purify"))
+                    if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
                     {
-                        return true;
+                        if (sourceAI->CastSpell(me, "Purify"))
+                        {
+                            return true;
+                        }
                     }
                 }
             }

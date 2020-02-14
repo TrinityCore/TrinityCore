@@ -17,17 +17,17 @@ Script_Mage::Script_Mage(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
 
 bool Script_Mage::HealMe()
 {
-	return false;
+    return false;
 }
 
 bool Script_Mage::Tank(Unit* pmTarget)
 {
-	return false;
+    return false;
 }
 
-bool Script_Mage::Healer(Unit* pmTarget)
+bool Script_Mage::Healer()
 {
-	return false;
+    return false;
 }
 
 bool Script_Mage::DPS(Unit* pmTarget)
@@ -214,6 +214,7 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget)
                         }
                     }
                 }
+                break;
             }
         }
     }
@@ -233,41 +234,41 @@ bool Script_Mage::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-	if (!pmTarget)
-	{
-		return false;
-	}
-	else if (!me->IsValidAttackTarget(pmTarget))
-	{
-		return false;
-	}
-	else if (!pmTarget->IsAlive())
-	{
-		return false;
-	}
-	float targetDistance = me->GetDistance(pmTarget);
-	if (targetDistance > 200)
-	{
-		return false;
-	}
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > 200)
+    {
+        return false;
+    }
 
-	sourceAI->BaseMove(pmTarget, MAGE_CLOSER_DISTANCE, false);
-	if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
-	{
-		if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-		{
-			if (sourceAI->CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
-			{
-				return true;
-			}
-		}
-	}    
-	if (sourceAI->CastSpell(pmTarget, "Frostbolt", MAGE_RANGE_DISTANCE))
-	{
-		return true;
-	}
+    sourceAI->BaseMove(pmTarget, MAGE_CLOSER_DISTANCE, false);
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (sourceAI->CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    if (sourceAI->CastSpell(pmTarget, "Frostbolt", MAGE_RANGE_DISTANCE))
+    {
+        return true;
+    }
 
-	return true;
+    return true;
 }
 
 bool Script_Mage::Attack(Unit* pmTarget)
@@ -442,68 +443,76 @@ bool Script_Mage::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-	if (!pmTarget)
-	{
-		return false;
-	}
-	else if (!me->IsValidAttackTarget(pmTarget))
-	{
-		return false;
-	}
-	else if (!pmTarget->IsAlive())
-	{
-		return false;
-	}
-	float targetDistance = me->GetDistance(pmTarget);
-	if (targetDistance > 200)
-	{
-		return false;
-	}
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > 200)
+    {
+        return false;
+    }
 
-	sourceAI->BaseMove(pmTarget, MAGE_CLOSER_DISTANCE, false);
-	if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
-	{
-		if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-		{
-			if (sourceAI->CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
-			{
-				return true;
-			}
-		}
-	}
-	if (sourceAI->CastSpell(pmTarget, "Frostbolt", MAGE_RANGE_DISTANCE))
-	{
-		return true;
-	}
+    sourceAI->BaseMove(pmTarget, MAGE_CLOSER_DISTANCE, false);
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (sourceAI->CastSpell(pmTarget, "Shoot", MAGE_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    if (sourceAI->CastSpell(pmTarget, "Frostbolt", MAGE_RANGE_DISTANCE))
+    {
+        return true;
+    }
 
-	return true;
+    return true;
 }
 
-bool Script_Mage::Buff(Unit* pmTarget)
+bool Script_Mage::Buff()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
     }
-	if (!pmTarget)
-	{
-		return false;
-	}
-	else if (!pmTarget->IsAlive())
-	{
-		return false;
-	}
-	float targetDistance = me->GetDistance(pmTarget);
-	if (targetDistance > 200)
-	{
-		return false;
-	}
+    Group* myGroup = me->GetGroup();
+    if (myGroup)
+    {
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        {
+            Player* member = groupRef->GetSource();
+            if (member)
+            {
+                float targetDistance = me->GetDistance(member);
+                if (targetDistance < 200)
+                {
+                    if (sourceAI->CastSpell(member, "Arcane Intellect", MAGE_RANGE_DISTANCE, true))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if (sourceAI->CastSpell(me, "Arcane Intellect", MAGE_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+    }
 
-	if (sourceAI->CastSpell(pmTarget, "Arcane Intellect", MAGE_RANGE_DISTANCE, true))
-	{
-		return true;
-	}
-
-	return false;
+    return false;
 }

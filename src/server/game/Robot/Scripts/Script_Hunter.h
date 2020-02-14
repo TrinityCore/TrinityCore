@@ -10,12 +10,21 @@ public:
 	Script_Hunter(RobotAI* pmSourceAI);
 	virtual bool DPS(Unit* pmTarget);
 	virtual bool Tank(Unit* pmTarget);
-	virtual bool Healer(Unit* pmTarget);
+	virtual bool Healer();
 	virtual bool Attack(Unit* pmTarget);
-	virtual bool Buff(Unit* pmTarget);
+	virtual bool Buff();
 	virtual bool HealMe();
 
 	bool DPS_Common(Unit* pmTarget);
 	bool Attack_Common(Unit* pmTarget);
+
+    bool DPS_BeastMastery(Unit* pmTarget);
+    bool Attack_BeastMastery(Unit* pmTarget);
+
+    bool DPS_Marksmanship(Unit* pmTarget);
+    bool Attack_Marksmanship(Unit* pmTarget);
+
+    bool DPS_Survival(Unit* pmTarget);
+    bool Attack_Survival(Unit* pmTarget);
 };
 #endif

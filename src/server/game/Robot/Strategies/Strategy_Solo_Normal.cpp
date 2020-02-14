@@ -126,7 +126,7 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
         {
             return;
         }
-        if (Buff(me))
+        if (Buff())
         {
             return;
         }
@@ -218,9 +218,9 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     }
 }
 
-bool Strategy_Solo_Normal::Buff(Unit* pmTarget)
+bool Strategy_Solo_Normal::Buff()
 {
-    return sourceAI->s_base->Buff(pmTarget);
+    return sourceAI->s_base->Buff();
 }
 
 bool Strategy_Solo_Normal::Rest()

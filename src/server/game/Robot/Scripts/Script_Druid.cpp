@@ -766,93 +766,8 @@ bool Script_Druid::Attack_Restoration(Unit* pmTarget)
     return Attack_Balance(pmTarget);
 }
 
-bool Script_Druid::Healer(Unit* pmTarget)
+bool Script_Druid::Healer()
 {
-    if (!pmTarget)
-    {
-        return false;
-    }
-    if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
-    {
-        return false;
-    }
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
-    {
-        if (sourceAI->CastSpell(me, "Innervate", DRUID_RANGE_DISTANCE, false, false, true))
-        {
-            return true;
-        }
-    }
-    sourceAI->BaseMove(pmTarget, DRUID_CLOSER_DISTANCE, false);
-    if (pmTarget->getAttackers().size() > 3)
-    {
-        if (sourceAI->CastSpell(me, "Tranquility"))
-        {
-            return true;
-        }
-    }
-    float healthPCT = pmTarget->GetHealthPct();
-    if (healthPCT < 90)
-    {
-        if (!sourceAI->HasAura(pmTarget, "Rejuvenation", false))
-        {
-            if (sourceAI->CastSpell(pmTarget, "Rejuvenation", DRUID_RANGE_DISTANCE, true, false, true))
-            {
-                return true;
-            }
-        }
-    }
-    if (healthPCT < 70)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Regrowth", DRUID_RANGE_DISTANCE, true, true, true))
-        {
-            return true;
-        }
-    }
-    if (healthPCT < 60)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Healing Touch", DRUID_RANGE_DISTANCE, false, false, true))
-        {
-            return true;
-        }
-    }
-
-    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
-    {
-        std::list<AuraEffect*> auraList = pmTarget->GetAuraEffectsByType((AuraType)type);
-        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
-        {
-            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-            if (!pST->IsPositive())
-            {
-                if (pST->Dispel == DispelType::DISPEL_POISON)
-                {
-                    if (sourceAI->CastSpell(pmTarget, "Cure Poison"))
-                    {
-                        return true;
-                    }
-                }
-                else if (pST->Dispel == DispelType::DISPEL_CURSE)
-                {
-                    if (sourceAI->CastSpell(pmTarget, "Remove Curse"))
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-
     return false;
 }
 
@@ -874,7 +789,7 @@ bool Script_Druid::HealMe()
             }
         }
         sourceAI->CastSpell(me, "Barkskin");
-        if (sourceAI->CastSpell(me, "Healing Touch"))
+        if (sourceAI->CastSpell(me, "Healing Touch", DRUID_RANGE_DISTANCE, false, false, true))
         {
             return true;
         }
@@ -890,14 +805,14 @@ bool Script_Druid::HealMe()
             {
                 if (pST->Dispel == DispelType::DISPEL_POISON)
                 {
-                    if (sourceAI->CastSpell(me, "Cure Poison"))
+                    if (sourceAI->CastSpell(me, "Cure Poison", DRUID_RANGE_DISTANCE, false, false, true))
                     {
                         return true;
                     }
                 }
                 else if (pST->Dispel == DispelType::DISPEL_CURSE)
                 {
-                    if (sourceAI->CastSpell(me, "Remove Curse"))
+                    if (sourceAI->CastSpell(me, "Remove Curse", DRUID_RANGE_DISTANCE, false, false, true))
                     {
                         return true;
                     }
@@ -909,34 +824,49 @@ bool Script_Druid::HealMe()
     return false;
 }
 
-bool Script_Druid::Buff(Unit* pmTarget)
+bool Script_Druid::Buff()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
     }
-    if (!pmTarget)
+    Group* myGroup = me->GetGroup();
+    if (myGroup)
     {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
-    {
-        return false;
-    }
-    if (!pmTarget->IsAlive())
-    {
-        return false;
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        {
+            Player* member = groupRef->GetSource();
+            if (member)
+            {
+                float targetDistance = me->GetDistance(member);
+                if (targetDistance < 200)
+                {
+                    if (member->groupRole == 1)
+                    {
+                        if (sourceAI->CastSpell(member, "Thorns", DRUID_RANGE_DISTANCE, true, false, true))
+                        {
+                            return true;
+                        }
+                    }
+                    if (sourceAI->CastSpell(member, "Mark of the Wild", DRUID_RANGE_DISTANCE, true, false, true))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
     }
     else
     {
-        if (!sourceAI->HasAura(pmTarget, "Mark of the Wild", false))
+        if (sourceAI->CastSpell(me, "Thorns", DRUID_RANGE_DISTANCE, true, false, true))
         {
-            if (sourceAI->CastSpell(pmTarget, "Mark of the Wild", DRUID_RANGE_DISTANCE, true, false, true))
-            {
-                return true;
-            }
+            return true;
+        }
+
+        if (sourceAI->CastSpell(me, "Mark of the Wild", DRUID_RANGE_DISTANCE, true, false, true))
+        {
+            return true;
         }
     }
 

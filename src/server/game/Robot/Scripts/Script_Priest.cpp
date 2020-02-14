@@ -1,5 +1,7 @@
 #include "Script_Priest.h"
 
+#include "Group.h"
+
 #ifndef PRIEST_CLOSER_DISTANCE
 # define PRIEST_CLOSER_DISTANCE 25
 #endif
@@ -35,7 +37,7 @@ bool Script_Priest::HealMe()
             return true;
         }
     }
-    if (healthPCT < 70)
+    if (healthPCT < 50)
     {
         if (sourceAI->CastSpell(me, "Heal"))
         {
@@ -51,49 +53,137 @@ bool Script_Priest::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Priest::Healer(Unit* pmTarget)
+bool Script_Priest::Healer()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
     }
-    if (!pmTarget)
+    Player* tank = NULL;
+    Player* lowestMember = NULL;
+    Group* myGroup = me->GetGroup();
+    if (myGroup)
     {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
-    {
-        return false;
-    }
-    sourceAI->BaseMove(pmTarget, PRIEST_CLOSER_DISTANCE, false);
-    float healthPCT = pmTarget->GetHealthPct();
-    if (healthPCT < 90)
-    {
-        if (!sourceAI->HasAura(pmTarget, "Weakened Soul"))
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
-            if (sourceAI->CastSpell(pmTarget, "Power Word: Shield", PRIEST_RANGE_DISTANCE))
+            Player* member = groupRef->GetSource();
+            if (member->groupRole == 1)
+            {
+                tank = member;
+                break;
+            }
+            else
+            {
+                if (member->GetHealthPct() < 50.0f)
+                {
+                    if (lowestMember)
+                    {
+                        if (member->GetHealthPct() < lowestMember->GetHealthPct())
+                        {
+                            lowestMember = member;
+                        }
+                    }
+                    else
+                    {
+                        lowestMember = member;
+                    }
+                }
+            }
+        }
+    }
+
+    if (tank)
+    {
+        if (!tank->IsAlive())
+        {
+            return false;
+        }
+        float targetDistance = me->GetDistance(tank);
+        if (targetDistance > 200)
+        {
+            return false;
+        }
+        sourceAI->BaseMove(tank, PRIEST_RANGE_DISTANCE, false);
+        Unit* tankTarget = tank->GetSelectedUnit();
+
+        // when facing boss
+        if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
+        {
+            if (sourceAI->CastSpell(tank, "Lightwell", PRIEST_RANGE_DISTANCE))
             {
                 return true;
             }
         }
-        if (sourceAI->CastSpell(pmTarget, "Renew", PRIEST_RANGE_DISTANCE, true))
+
+        float healthPCT = tank->GetHealthPct();
+        if (healthPCT < 30)
         {
-            return true;
+            if (sourceAI->CastSpell(tank, "Desperate Prayer", PRIEST_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+        if (healthPCT < 60)
+        {
+            if (sourceAI->CastSpell(tank, "Greater Heal", PRIEST_RANGE_DISTANCE))
+            {
+                return true;
+            }
+            if (sourceAI->CastSpell(tank, "Heal", PRIEST_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+        if (healthPCT < 80)
+        {
+            if (sourceAI->CastSpell(tank, "Flash Heal", PRIEST_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+        if (healthPCT < 90)
+        {
+            if (!sourceAI->HasAura(tank, "Weakened Soul"))
+            {
+                if (sourceAI->CastSpell(tank, "Power Word: Shield", PRIEST_RANGE_DISTANCE))
+                {
+                    return true;
+                }
+            }
+            if (sourceAI->CastSpell(tank, "Renew", PRIEST_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
+        }
+
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+        {
+            std::list<AuraEffect*> auraList = tank->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+            {
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
+                {
+                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
+                    {
+                        if (sourceAI->CastSpell(tank, "Cure Disease"))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
         }
     }
-    if (healthPCT < 50)
+    if (lowestMember)
     {
-        if (sourceAI->CastSpell(pmTarget, "Heal", PRIEST_RANGE_DISTANCE))
+        if (sourceAI->CastSpell(lowestMember, "Renew", PRIEST_RANGE_DISTANCE, true))
         {
             return true;
         }
     }
+
     return false;
 }
 
@@ -203,26 +293,76 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Priest::Buff(Unit* pmTarget)
+bool Script_Priest::Buff()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
     }
-    if (!pmTarget)
+    Group* myGroup = me->GetGroup();
+    if (myGroup)
     {
-        return false;
-    }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
-    {
-        return false;
-    }
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        {
+            Player* member = groupRef->GetSource();
+            if (member)
+            {
+                float targetDistance = me->GetDistance(member);
+                if (targetDistance < 200)
+                {
+                    if (sourceAI->CastSpell(member, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
+                    {
+                        return true;
+                    }
 
-    if (sourceAI->CastSpell(pmTarget, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
+                    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+                    {
+                        std::list<AuraEffect*> auraList = member->GetAuraEffectsByType((AuraType)type);
+                        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+                        {
+                            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                            if (!pST->IsPositive())
+                            {
+                                if (pST->Dispel == DispelType::DISPEL_DISEASE)
+                                {
+                                    if (sourceAI->CastSpell(member, "Cure Disease"))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
     {
-        return true;
+        if (sourceAI->CastSpell(me, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+        {
+            std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+            {
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
+                {
+                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
+                    {
+                        if (sourceAI->CastSpell(me, "Cure Disease"))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return false;

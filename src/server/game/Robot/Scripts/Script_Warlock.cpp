@@ -25,7 +25,7 @@ bool Script_Warlock::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Warlock::Healer(Unit* pmTarget)
+bool Script_Warlock::Healer()
 {
     return false;
 }
@@ -203,10 +203,15 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
                         }
                     }
                 }
+                break;
             }
         }
     }
 
+    if (sourceAI->CastSpell(pmTarget, "Curse of the Elements", WARLOCK_RANGE_DISTANCE, true))
+    {
+        return true;
+    }
     if (sourceAI->CastSpell(pmTarget, "Immolate", WARLOCK_RANGE_DISTANCE, true, true))
     {
         return true;
@@ -485,13 +490,29 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warlock::Buff(Unit* pmTarget)
+bool Script_Warlock::Buff()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
         return false;
     }
+
+    if (sourceAI->FindSpellID("Fel Armor") > 0)
+    {
+        if (sourceAI->CastSpell(me, "Fel Armor", WARLOCK_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+    }
+    else
+    {
+        if (sourceAI->CastSpell(me, "Demon Armor", true))
+        {
+            return true;
+        }
+    }
+
     Pet* myPet = me->GetPet();
     if (!myPet)
     {

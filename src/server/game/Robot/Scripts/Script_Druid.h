@@ -9,9 +9,9 @@ public:
 	Script_Druid(RobotAI* pmSourceAI);
 	virtual bool DPS(Unit* pmTarget);
 	virtual bool Tank(Unit* pmTarget);
-	virtual bool Healer(Unit* pmTarget);
+	virtual bool Healer();
 	virtual bool Attack(Unit* pmTarget);
-	virtual bool Buff(Unit* pmTarget);
+	virtual bool Buff();
 	virtual bool HealMe();
 
 	bool DPS_Balance(Unit* pmTarget);
