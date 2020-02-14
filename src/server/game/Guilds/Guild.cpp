@@ -2792,9 +2792,12 @@ void Guild::DeleteMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, b
     // Call script on remove before member is actually removed from guild (and database)
     sScriptMgr->OnGuildRemoveMember(this, guid, isDisbanding, isKicked);
 
-    if (Member* member = GetMember(guid))
-        delete member;
-    m_members.erase(guid);
+    auto memberItr = m_members.find(guid);
+    if (memberItr != m_members.end())
+    {
+        delete memberItr->second;
+        m_members.erase(memberItr);
+    }
 
     // If player not online data in data field will be loaded from guild tabs no need to update it !!
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
