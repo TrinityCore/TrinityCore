@@ -196,7 +196,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
     }
     if (rage > 300)
     {
-        if (sourceAI->CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }

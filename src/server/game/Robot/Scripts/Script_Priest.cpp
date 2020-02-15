@@ -113,6 +113,7 @@ bool Script_Priest::Healer()
             {
                 if (sourceAI->CastSpell(tank, "Lightwell", PRIEST_RANGE_DISTANCE))
                 {
+                    me->Say("BOSS RUSH !", Language::LANG_UNIVERSAL);
                     return true;
                 }
             }

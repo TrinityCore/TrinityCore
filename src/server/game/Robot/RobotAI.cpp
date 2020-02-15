@@ -552,51 +552,6 @@ void RobotAI::InitializeCharacter()
                 me->LearnSpell(checkSpellID, false);
             }
         }
-
-        //if (me->GetClass() == Classes::CLASS_HUNTER)
-        //{
-        //    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create pet for player %s", me->GetName());
-        //    uint32 beastEntry = urand(0, sRobotManager->tamableBeastEntryMap.size() - 1);
-        //    beastEntry = sRobotManager->tamableBeastEntryMap[beastEntry];
-        //    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(beastEntry);
-        //    if (!cinfo)
-        //    {
-        //        return;
-        //    }
-
-        //    Pet* pet = new Pet(me, HUNTER_PET);
-        //    uint32 guid = me->GetMap()->GenerateLowGuid<HighGuid::Pet>();
-        //    uint32 pet_number = sObjectMgr->GeneratePetNumber();
-        //    if (!pet->Create(guid, me->GetMap(), 0, cinfo->Entry, pet_number))
-        //    {
-        //        delete pet;
-        //        return;
-        //    }
-        //    pet->SetReactState(REACT_DEFENSIVE);
-        //    pet->SetFaction(me->GetFaction());
-        //    pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, 1515);
-        //    if (me->IsPvP())
-        //    {
-        //        pet->SetPvP(true);
-        //    }
-        //    pet->InitStatsForLevel(me->GetLevel());
-        //    pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
-        //    // this enables pet details window (Shift+P)
-        //    pet->AIM_Initialize();
-        //    pet->InitPetCreateSpells();
-        //    pet->SetHealth(pet->GetMaxHealth());
-        //    // prepare visual effect for levelup
-        //    pet->SetUInt32Value(UNIT_FIELD_LEVEL, me->GetLevel());
-        //    // add to world
-        //    pet->GetMap()->AddToMap((Creature*)pet);
-
-        //    // caster have pet now
-        //    me->SetPetGUID(pet->GetGUID());
-
-        //    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-        //    me->PetSpellInitialize();
-        //}
-
         me->SaveToDB();
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s basic info initialized", me->GetName());
     }
@@ -1037,8 +992,45 @@ void RobotAI::InitializeCharacter()
         }
         }
     }
-
     me->SaveToDB();
+
+    if (me->GetClass() == Classes::CLASS_HUNTER)
+    {
+        Pet* loadPet = new Pet(me, PetType::HUNTER_PET);
+        if (!loadPet->LoadPetFromDB(me))
+        {
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create hunter pet for %s", me->GetName());
+            bool petCreated = false;
+            uint32 beastEntry = urand(0, sRobotManager->tamableBeastEntryMap.size() - 1);
+            beastEntry = sRobotManager->tamableBeastEntryMap[beastEntry];
+            CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(beastEntry);
+            if (cinfo)
+            {
+                Pet* createPet = new Pet(me, PetType::HUNTER_PET);
+                if (createPet->CreateBaseAtCreatureInfo(cinfo, me))
+                {
+                    if (me->InitTamedPet(createPet, me->GetLevel(), 1515))
+                    {
+                        createPet->GetMap()->AddToMap(createPet->ToCreature());
+                        me->SetMinion(createPet, true);
+                        createPet->InitTalentForLevel();
+                        createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                        me->ToPlayer()->PetSpellInitialize();
+                        me->SaveToDB();
+                        petCreated = true;
+                    }
+                }
+            }
+            if (petCreated)
+            {
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Hunter pet for %s created", me->GetName());
+            }
+            else
+            {
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Hunter pet for %s create failed", me->GetName());
+            }
+        }
+    }
 
     std::ostringstream msgStream;
     msgStream << me->GetName() << " initialized";
@@ -1374,6 +1366,11 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack, bool pmF
         else if (!me->isInFront(pmTarget))
         {
             me->SetFacingToObject(pmTarget);
+        }
+        else
+        {
+            me->StopMoving();
+            me->GetMotionMaster()->Clear();
         }
         if (pmAttack)
         {

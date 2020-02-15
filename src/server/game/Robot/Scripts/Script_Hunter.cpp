@@ -197,8 +197,6 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
         if (pmTarget->GetTarget() == me->GetGUID())
         {
             sourceAI->BaseMove(pmTarget);
-            me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-            sourceAI->BaseMove(pmTarget);
             if (sourceAI->CastSpell(me, "Aspect of the Monkey", HUNTER_RANGE_DISTANCE, true, true))
             {
                 return true;
@@ -211,26 +209,14 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
             {
                 return true;
             }
+            return true;
         }
     }
     sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false, true, HUNTER_PREPARE_DISTANCE);
-    sourceAI->BaseMove(pmTarget, HUNTER_RANGE_DISTANCE, false);
-    float manaRate = me->GetPower(Powers::POWER_MANA) * 100.0f / me->GetMaxPower(Powers::POWER_MANA);
-    if (manaRate < 5.0f)
+    if (sourceAI->CastSpell(me, "Aspect of the Hawk", HUNTER_RANGE_DISTANCE, true, true))
     {
-        if (sourceAI->CastSpell(me, "Aspect of the Viper", HUNTER_RANGE_DISTANCE, true, true))
-        {
-            return true;
-        }
+        return true;
     }
-    else if (manaRate > 50.0f)
-    {
-        if (sourceAI->CastSpell(me, "Aspect of the Hawk", HUNTER_RANGE_DISTANCE, true, true))
-        {
-            return true;
-        }
-    }
-
     if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
     {
         if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
@@ -248,6 +234,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
     {
         if (sourceAI->CastSpell(me, "Rapid Fire", HUNTER_RANGE_DISTANCE))
         {
+            me->Say("BOSS RUSH !", Language::LANG_UNIVERSAL);
             return true;
         }
     }
@@ -801,35 +788,6 @@ bool Script_Hunter::Buff()
                     return true;
                 }
             }
-        }
-        else
-        {
-            me->Say("Create pet for me", Language::LANG_UNIVERSAL);
-            uint32 beastEntry = urand(0, sRobotManager->tamableBeastEntryMap.size() - 1);
-            beastEntry = sRobotManager->tamableBeastEntryMap[beastEntry];
-            CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(beastEntry);
-            if (!cinfo)
-            {
-                return false;
-            }
-            Pet* createPet = new Pet(me, PetType::HUNTER_PET);
-            uint32 guid = me->GetMap()->GenerateLowGuid<HighGuid::Pet>();
-            uint32 pet_number = sObjectMgr->GeneratePetNumber();
-            if (!createPet->Create(guid, me->GetMap(), 0, cinfo->Entry, pet_number))
-            {
-                delete createPet;
-                return false;
-            }
-            createPet->InitStatsForLevel(me->GetLevel());
-            // add to world
-            createPet->GetMap()->AddToMap(createPet->ToCreature());
-            // caster have pet now
-            me->SetMinion(createPet, true);
-            createPet->InitTalentForLevel();
-            createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
-            me->PetSpellInitialize();
-            createPet->SetReactState(REACT_DEFENSIVE);
-            me->SaveToDB();
         }
     }
 
