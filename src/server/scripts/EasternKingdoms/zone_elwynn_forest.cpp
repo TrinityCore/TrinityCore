@@ -25,7 +25,6 @@
 #include "SpellScript.h"
 enum Northshire
 {
-    NPC_BLACKROCK_BATTLE_WORG               = 49871,
     NPC_STORWIND_INFANTRY                   = 49869,
     NPC_BROTHER_PAXTON                      = 951,
     NPC_INJURED_NORTHSHIRE_INFANTRY_DUMMY   = 50378,
@@ -59,233 +58,167 @@ uint32 const FearNoEvilQuests[] =
     29082,
 };
 
-class npc_stormwind_infantry : public CreatureScript
+struct npc_stormwind_infantry : public ScriptedAI
 {
-public:
-    npc_stormwind_infantry() : CreatureScript("npc_stormwind_infantry") { }
+    npc_stormwind_infantry(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_stormwind_infantryAI : public ScriptedAI
+    void Reset() override
     {
-        npc_stormwind_infantryAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        void Reset() override
-        {
-            SetCombatMovement(false);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            events.ScheduleEvent(EVENT_ASK_FOR_HELP, Seconds(RAND(1, 10) * 10));
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            _EnterEvadeMode();
-            events.Reset();
-        }
-
-        void DamageTaken(Unit* attacker, uint32& damage) override
-        {
-            if (me->GetHealthPct() <= 85 && attacker->GetEntry() == NPC_BLACKROCK_BATTLE_WORG)
-                damage = 0;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_ASK_FOR_HELP:
-                        Talk(SAY_ASK_FOR_HELP);
-                        events.ScheduleEvent(EVENT_ASK_FOR_HELP, Seconds(RAND(3, 10) * 10));
-                        events.ScheduleEvent(EVENT_HEAL_INFANTRY, Seconds(2));
-                        break;
-                    case EVENT_HEAL_INFANTRY:
-                        if (Creature* paxton = me->FindNearestCreature(NPC_BROTHER_PAXTON, 30.0f, true))
-                        {
-                            if (!paxton->HasUnitState(UNIT_STATE_CASTING))
-                            {
-                                paxton->AI()->Talk(SAY_HEAL_INFANTRY, me);
-                                if (me->GetHealthPct() <= 85)
-                                {
-                                    paxton->StopMoving();
-                                    switch (RAND(0, 2))
-                                    {
-                                        case 0: // Prayer of Healing
-                                            paxton->CastSpell(paxton, SPELL_PRAYER_OF_HEALING);
-                                            break;
-                                        case 1: // Renew
-                                            paxton->SetFacingToObject(me);
-                                            paxton->CastSpell(me, SPELL_RENEW);
-                                            break;
-                                        case 2: // Flash Heal
-                                            paxton->SetFacingToObject(me);
-                                            paxton->CastSpell(me, SPELL_FLASH_HEAL);
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_stormwind_infantryAI(creature);
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_ASK_FOR_HELP, Seconds(urand(1, 10) * 10));
     }
-};
 
-class npc_blackrock_battle_worg : public CreatureScript
-{
-public:
-    npc_blackrock_battle_worg() : CreatureScript("npc_blackrock_battle_worg") { }
-
-    struct npc_blackrock_battle_worgAI : public ScriptedAI
+    void UpdateAI(uint32 diff) override
     {
-        npc_blackrock_battle_worgAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        // No UpdateVictim() here on purpose
 
-        void JustEngagedWith(Unit* who) override
-        {
-            if (who->GetEntry() != NPC_STORWIND_INFANTRY)
-                isInfantry = false;
-            events.CancelEvent(EVENT_SELECT_INFANTRY);
-        }
+        _events.Update(diff);
 
-        void Reset() override
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            isInfantry = true;
-            events.ScheduleEvent(EVENT_SELECT_INFANTRY, Milliseconds(1));
-        }
-
-        void SelectInfantry()
-        {
-            if (Creature* victim = me->FindNearestCreature(NPC_STORWIND_INFANTRY, 5.0f, true))
+            switch (eventId)
             {
-                isInfantry = true;
-                me->AI()->AttackStart(victim);
-                victim->AI()->AttackStart(me);
-            }
-            else
-                events.ScheduleEvent(EVENT_SELECT_INFANTRY, Seconds(1));
-        }
-
-        void DamageTaken(Unit* attacker, uint32& damage) override
-        {
-            if (me->GetHealthPct() <= 85 && attacker->GetEntry() == NPC_STORWIND_INFANTRY)
-                damage = 0;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!isInfantry && !UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_SELECT_INFANTRY:
-                        SelectInfantry();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap events;
-        bool isInfantry;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_blackrock_battle_worgAI(creature);
-    }
-};
-
-class npc_injured_stormwind_infantry_dummy : public CreatureScript
-{
-public:
-    npc_injured_stormwind_infantry_dummy() : CreatureScript("npc_injured_stormwind_infantry_dummy") { }
-
-    struct npc_injured_stormwind_infantry_dummyAI : public ScriptedAI
-    {
-        npc_injured_stormwind_infantry_dummyAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override
-        {
-            events.ScheduleEvent(EVENT_GIVE_RIGHT_CLICK_INSTRUCTIONS, Milliseconds(1));
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_GIVE_RIGHT_CLICK_INSTRUCTIONS:
+                case EVENT_ASK_FOR_HELP:
+                    Talk(SAY_ASK_FOR_HELP);
+                    _events.ScheduleEvent(EVENT_ASK_FOR_HELP, Seconds(urand(3, 10) * 10));
+                    _events.ScheduleEvent(EVENT_HEAL_INFANTRY, 2s);
+                    break;
+                case EVENT_HEAL_INFANTRY:
+                    if (Creature* paxton = me->FindNearestCreature(NPC_BROTHER_PAXTON, 30.0f, true))
                     {
-                        std::vector<Player*> players;
-                        Trinity::AnyPlayerInObjectRangeCheck checker(me, 50.0f);
-                        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-                        Cell::VisitWorldObjects(me, searcher, 50.0f);
-                        for (Player* player : players)
+                        if (!paxton->HasUnitState(UNIT_STATE_CASTING))
                         {
-                            for (uint32 questId : FearNoEvilQuests)
+                            paxton->AI()->Talk(SAY_HEAL_INFANTRY, me);
+                            if (me->GetHealthPct() <= 85)
                             {
-                                if (player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                                paxton->StopMoving();
+                                switch (urand(0, 2))
                                 {
-                                    if (!player->HasAura(SPELL_GIVEN_RIGHT_CLICK_INSTRUCTION))
-                                    {
-                                        me->CastSpell(player, SPELL_GIVEN_RIGHT_CLICK_INSTRUCTION, true);
-                                        Talk(SAY_RIGHT_CLICK, player);
-                                    }
+                                    case 0: // Prayer of Healing
+                                        paxton->CastSpell(paxton, SPELL_PRAYER_OF_HEALING);
+                                        break;
+                                    case 1: // Renew
+                                        paxton->SetFacingToObject(me);
+                                        paxton->CastSpell(me, SPELL_RENEW);
+                                        break;
+                                    case 2: // Flash Heal
+                                        paxton->SetFacingToObject(me);
+                                        paxton->CastSpell(me, SPELL_FLASH_HEAL);
+                                        break;
+                                    default:
+                                        break;
                                 }
                             }
                         }
-                        events.Repeat(Seconds(10));
-                        break;
                     }
-                    default:
-                        break;
-                }
+                    break;
+                default:
+                    break;
             }
         }
 
-    private:
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_injured_stormwind_infantry_dummyAI(creature);
+        DoMeleeAttackIfReady();
     }
+
+private:
+    EventMap _events;
+};
+
+struct npc_blackrock_battle_worg : public ScriptedAI
+{
+    npc_blackrock_battle_worg(Creature* creature) : ScriptedAI(creature), _isAttackingInfantry(false) { }
+
+    void Reset() override
+    {
+        me->m_Events.AddEventAtOffset([this]
+        {
+            if (Creature* infantry = me->FindNearestCreature(NPC_STORWIND_INFANTRY, 5.0f, true))
+            {
+                _isAttackingInfantry = true;
+                _infantryGUID = infantry->GetGUID();
+                AttackStart(infantry);
+
+                if (infantry->IsAIEnabled)
+                    infantry->AI()->AttackStart(me);
+            }
+        }, 1s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* infantry = ObjectAccessor::GetCreature(*me, _infantryGUID))
+            infantry->AI()->EnterEvadeMode();
+    }
+
+    void DamageTaken(Unit* attacker, uint32& /*damage*/) override
+    {
+        if (attacker && attacker->GetEntry() != NPC_STORWIND_INFANTRY)
+            _isAttackingInfantry = false;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_isAttackingInfantry && !UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    ObjectGuid _infantryGUID;
+    bool _isAttackingInfantry;
+};
+
+struct npc_injured_stormwind_infantry_dummy : public ScriptedAI
+{
+    npc_injured_stormwind_infantry_dummy(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_GIVE_RIGHT_CLICK_INSTRUCTIONS, 1ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GIVE_RIGHT_CLICK_INSTRUCTIONS:
+                {
+                    std::vector<Player*> players;
+                    Trinity::AnyPlayerInObjectRangeCheck checker(me, 50.0f);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+                    Cell::VisitWorldObjects(me, searcher, 50.0f);
+                    for (Player* player : players)
+                    {
+                        for (uint32 questId : FearNoEvilQuests)
+                        {
+                            if (player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                            {
+                                if (!player->HasAura(SPELL_GIVEN_RIGHT_CLICK_INSTRUCTION))
+                                {
+                                    me->CastSpell(player, SPELL_GIVEN_RIGHT_CLICK_INSTRUCTION, true);
+                                    Talk(SAY_RIGHT_CLICK, player);
+                                }
+                            }
+                        }
+                    }
+                    _events.Repeat(10s);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
 };
 
 enum WantedHogger
@@ -321,156 +254,143 @@ enum WantedHogger
 Position const HoggerMeatPos = { -10145.12f, 667.582f, 37.53608f };
 Position const HoggerEndPos = { -10136.9f, 670.009f, 36.03682f };
 
-class npc_hogger : public CreatureScript
+struct npc_hogger : public ScriptedAI
 {
-public:
-    npc_hogger() : CreatureScript("npc_hogger") { }
+    npc_hogger(Creature* creature) : ScriptedAI(creature), _calledForHelp(false), _defeated(false) { }
 
-    struct npc_hoggerAI : public ScriptedAI
+    void Reset() override
     {
-        npc_hoggerAI(Creature* creature) : ScriptedAI(creature)
+        me->GetMotionMaster()->MoveRandom(7.0f);
+        me->SetReactState(REACT_AGGRESSIVE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        _events.Reset();
+        _calledForHelp = false;
+        _defeated = false;
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_VICIOUS_SLICE, 5s);
+        me->GetMotionMaster()->Clear(MOTION_SLOT_IDLE);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (damage >= me->GetHealth() && !_defeated)
         {
+            _events.Reset();
+            me->SetReactState(REACT_PASSIVE);
+            me->RemoveAllAuras();
+            me->KillSelf();
+            me->setDeathState(ALIVE);
+            me->setRegeneratingHealth(false);
+            me->SetHealth(1);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            Talk(SAY_SURRENDER);
+            me->GetMotionMaster()->MovePoint(POINT_SURRENDER, HoggerEndPos, true);
+            _defeated = true;
+        }
+        else if (!_calledForHelp && me->HealthBelowPctDamaged(50, damage))
+        {
+            Talk(SAY_HELP_HOGGER);
+            DoCast(SPELL_SUMMON_MINIONS);
+            _events.ScheduleEvent(EVENT_MOVE_TO_MEAT, 4s);
+            _calledForHelp = true;
         }
 
-        void Reset() override
+        // Hogger may not be killed at all
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+    }
+
+    void MovementInform(uint32 type, uint32 pointId) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        switch (pointId)
         {
-            me->GetMotionMaster()->MoveRandom(7.0f);
+            case POINT_EAT_MEAT:
+                _events.ScheduleEvent(EVENT_EAT_MEAT, 1ms);
+                break;
+            case POINT_SURRENDER:
+                _events.ScheduleEvent(EVENT_SUMMON_GENERAL, 1ms);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_UPSET_STOMACH)
+        {
+            _events.CancelEvent(EVENT_MAKE_AGGRESSIVE);
             me->SetReactState(REACT_AGGRESSIVE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            _calledForHelp = false;
-            _defeated = false;
+            Talk(SAY_ANNOUNCE_STUN);
         }
+    }
 
-        void JustEngagedWith(Unit* /*who*/) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_defeated && !UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            events.ScheduleEvent(EVENT_VICIOUS_SLICE, Seconds(5));
-            me->GetMotionMaster()->Clear(MOTION_SLOT_IDLE);
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (damage >= me->GetHealth())
-                damage = me->GetHealth() - 1;
-        }
-
-        void MovementInform(uint32 type, uint32 pointId) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            switch (pointId)
+            switch (eventId)
             {
-                case POINT_EAT_MEAT:
-                    events.ScheduleEvent(EVENT_EAT_MEAT, 1);
+                case EVENT_VICIOUS_SLICE:
+                    DoCastVictim(SPELL_VICIOUS_SLICE);
+                    _events.Repeat(11s, 12s);
                     break;
-                case POINT_SURRENDER:
-                    events.ScheduleEvent(EVENT_SUMMON_GENERAL, 1);
+                case EVENT_MOVE_TO_MEAT:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    Talk(SAY_ANNOUNCE_HEAL);
+                    me->GetMotionMaster()->MovePoint(POINT_EAT_MEAT, HoggerMeatPos, true);
+                    break;
+                case EVENT_EAT_MEAT:
+                    DoCast(me, SPELL_EATING);
+                    _events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, 12s);
+                    break;
+                case EVENT_MAKE_AGGRESSIVE:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_SUMMON_GENERAL:
+                    me->SummonCreatureGroup(0);
+                    _events.ScheduleEvent(EVENT_FACE_TO_GENERAL, 12s);
+                    break;
+                case EVENT_FACE_TO_GENERAL:
+                    Talk(SAY_OUTRO_1);
+                    me->SetFacingTo(5.339049f);
+                    _events.ScheduleEvent(EVENT_SAY_OUTRO_2, 15s);
+                    break;
+                case EVENT_SAY_OUTRO_2:
+                    Talk(SAY_OUTRO_2);
+                    _events.ScheduleEvent(EVENT_CAST_TELEPORT, 7s);
+                    break;
+                case EVENT_CAST_TELEPORT:
+                    DoCast(me, SPELL_TELEPORT_VISUAL, true);
+                    _events.ScheduleEvent(EVENT_DESPAWN, 2s);
+                    break;
+                case EVENT_DESPAWN:
+                    me->DespawnOrUnsummon();
                     break;
                 default:
                     break;
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-        {
-            if (spell->Id == SPELL_UPSET_STOMACH)
-            {
-                events.CancelEvent(EVENT_MAKE_AGGRESSIVE);
-                me->SetReactState(REACT_AGGRESSIVE);
-                Talk(SAY_ANNOUNCE_STUN);
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim() && !_defeated)
-                return;
-
-            if (me->GetHealthPct() <= 50.0f && !_calledForHelp)
-            {
-                Talk(SAY_HELP_HOGGER);
-                DoCast(SPELL_SUMMON_MINIONS);
-                events.ScheduleEvent(EVENT_MOVE_TO_MEAT, Seconds(4));
-                _calledForHelp = true;
-            }
-
-            if (me->GetHealth() == 1 && !_defeated)
-            {
-                events.Reset();
-                me->SetReactState(REACT_PASSIVE);
-                me->RemoveAllAuras();
-                me->KillSelf();
-                me->setDeathState(ALIVE);
-                me->setRegeneratingHealth(false);
-                me->SetHealth(1);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                Talk(SAY_SURRENDER);
-                me->GetMotionMaster()->MovePoint(POINT_SURRENDER, HoggerEndPos, true);
-                _defeated = true;
-            }
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_VICIOUS_SLICE:
-                        DoCastVictim(SPELL_VICIOUS_SLICE);
-                        events.Repeat(Seconds(11), Seconds(12));
-                        break;
-                    case EVENT_MOVE_TO_MEAT:
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        Talk(SAY_ANNOUNCE_HEAL);
-                        me->GetMotionMaster()->MovePoint(POINT_EAT_MEAT, HoggerMeatPos, true);
-                        break;
-                    case EVENT_EAT_MEAT:
-                        DoCast(me, SPELL_EATING);
-                        events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, Seconds(12));
-                        break;
-                    case EVENT_MAKE_AGGRESSIVE:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        break;
-                    case EVENT_SUMMON_GENERAL:
-                        me->SummonCreatureGroup(0);
-                        events.ScheduleEvent(EVENT_FACE_TO_GENERAL, Seconds(12));
-                        break;
-                    case EVENT_FACE_TO_GENERAL:
-                        Talk(SAY_OUTRO_1);
-                        me->SetFacingTo(5.339049f);
-                        events.ScheduleEvent(EVENT_SAY_OUTRO_2, Seconds(15));
-                        break;
-                    case EVENT_SAY_OUTRO_2:
-                        Talk(SAY_OUTRO_2);
-                        events.ScheduleEvent(EVENT_CAST_TELEPORT, Seconds(7));
-                        break;
-                    case EVENT_CAST_TELEPORT:
-                        DoCast(me, SPELL_TELEPORT_VISUAL, true);
-                        events.ScheduleEvent(EVENT_DESPAWN, Seconds(2));
-                        break;
-                    case EVENT_DESPAWN:
-                        me->setRegeneratingHealth(true);
-                        me->DespawnOrUnsummon();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        bool _calledForHelp;
-        bool _defeated;
-        EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_hoggerAI(creature);
+        DoMeleeAttackIfReady();
     }
+
+private:
+    EventMap _events;
+    bool _calledForHelp;
+    bool _defeated;
 };
 
 enum FurtherConcerns
@@ -589,9 +509,9 @@ private:
 
 void AddSC_elwynn_forest()
 {
-    new npc_stormwind_infantry();
-    new npc_blackrock_battle_worg();
-    new npc_injured_stormwind_infantry_dummy();
-    new npc_hogger();
+    RegisterCreatureAI(npc_stormwind_infantry);
+    RegisterCreatureAI(npc_blackrock_battle_worg);
+    RegisterCreatureAI(npc_injured_stormwind_infantry_dummy);
+    RegisterCreatureAI(npc_hogger);
     RegisterCreatureAI(npc_elwynn_stormwind_charger);
 }
