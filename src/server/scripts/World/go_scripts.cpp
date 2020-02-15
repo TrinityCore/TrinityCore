@@ -16,8 +16,6 @@
  */
 
 /* ContentData
-go_cat_figurine (the "trap" version of GO, two different exist)
-go_barov_journal
 go_ethereum_prison
 go_ethereum_stasis
 go_shrine_of_the_birds
@@ -59,65 +57,6 @@ EndContentData */
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
-
-/*######
-## go_cat_figurine
-######*/
-
-enum CatFigurine
-{
-    SPELL_SUMMON_GHOST_SABER    = 5968,
-};
-
-class go_cat_figurine : public GameObjectScript
-{
-public:
-    go_cat_figurine() : GameObjectScript("go_cat_figurine") { }
-
-    struct go_cat_figurineAI : public GameObjectAI
-    {
-        go_cat_figurineAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_cat_figurineAI(go);
-    }
-};
-
-/*######
-## go_barov_journal
-######*/
-
-class go_barov_journal : public GameObjectScript
-{
-public:
-    go_barov_journal() : GameObjectScript("go_barov_journal") { }
-
-    struct go_barov_journalAI : public GameObjectAI
-    {
-        go_barov_journalAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !player->HasSpell(26086))
-                player->CastSpell(player, 26095, false);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_barov_journalAI(go);
-    }
-};
 
 /*######
 ## go_gilded_brazier (Paladin First Trail quest (9678))
@@ -2028,8 +1967,6 @@ public:
 
 void AddSC_go_scripts()
 {
-    new go_cat_figurine();
-    new go_barov_journal();
     new go_gilded_brazier();
     new go_orb_of_command();
     new go_shrine_of_the_birds();
