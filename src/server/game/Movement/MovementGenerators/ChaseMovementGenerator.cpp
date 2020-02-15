@@ -86,6 +86,17 @@ void ChaseMovementGenerator::Reset(Unit* owner)
     Initialize(owner);
 }
 
+// EJ chase range
+float ChaseMovementGenerator::GetMinRange()
+{
+    return _range ? _range->MinRange : 0.0f;
+}
+
+float ChaseMovementGenerator::GetMaxRange()
+{
+    return _range ? _range->MaxRange : 0.0f;
+}
+
 bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 {
     // owner might be dead or gone (can we even get nullptr here?)

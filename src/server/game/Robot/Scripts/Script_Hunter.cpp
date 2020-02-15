@@ -5,12 +5,12 @@
 #include "RobotManager.h"
 #include "Map.h"
 
-#ifndef HUNTER_PREPARE_DISTANCE
-# define HUNTER_PREPARE_DISTANCE 5
-#endif
-
 #ifndef HUNTER_CLOSER_DISTANCE
 # define HUNTER_CLOSER_DISTANCE 30
+#endif
+
+#ifndef HUNTER_MIN_RANGE_DISTANCE
+# define HUNTER_MIN_RANGE_DISTANCE 5
 #endif
 
 #ifndef HUNTER_RANGE_DISTANCE
@@ -87,31 +87,37 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget)
     {
         return true;
     }
-    if (targetDistance < HUNTER_PREPARE_DISTANCE)
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE);
+    if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-        sourceAI->BaseMove(pmTarget);
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     else
     {
-        sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false);
         if (sourceAI->CastSpell(me, "Aspect of the Hawk", 20, true, true))
         {
             return true;
         }
-        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
+            {
+                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
+                sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
+            }
+        }
+        else
         {
             sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
         }
@@ -192,7 +198,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
     {
         return true;
     }
-    if (targetDistance < HUNTER_PREPARE_DISTANCE)
+    if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (pmTarget->GetTarget() == me->GetGUID())
         {
@@ -201,18 +207,18 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
             {
                 return true;
             }
-            if (sourceAI->CastSpell(pmTarget, "Raptor Strike", HUNTER_PREPARE_DISTANCE))
+            if (sourceAI->CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
-            if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", HUNTER_PREPARE_DISTANCE))
+            if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
             return true;
         }
     }
-    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false, true, HUNTER_PREPARE_DISTANCE);
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false, HUNTER_MIN_RANGE_DISTANCE);
     if (sourceAI->CastSpell(me, "Aspect of the Hawk", HUNTER_RANGE_DISTANCE, true, true))
     {
         return true;
@@ -304,31 +310,37 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget)
     {
         return true;
     }
-    if (targetDistance < HUNTER_PREPARE_DISTANCE)
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE);
+    if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-        sourceAI->BaseMove(pmTarget);
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     else
     {
-        sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false);
         if (sourceAI->CastSpell(me, "Aspect of the Hawk", 20, true, true))
         {
             return true;
         }
-        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
+            {
+                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
+                sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
+            }
+        }
+        else
         {
             sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
         }
@@ -378,31 +390,37 @@ bool Script_Hunter::DPS_Common(Unit* pmTarget)
     {
         return true;
     }
-    if (targetDistance < HUNTER_PREPARE_DISTANCE)
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE);
+    if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-        sourceAI->BaseMove(pmTarget);
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     else
     {
-        sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false);
         if (sourceAI->CastSpell(me, "Aspect of the Hawk", 20, true, true))
         {
             return true;
         }
-        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
+            {
+                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
+                sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
+            }
+        }
+        else
         {
             sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
         }
@@ -473,31 +491,37 @@ bool Script_Hunter::Attack_BeastMastery(Unit* pmTarget)
     {
         return true;
     }
-    if (targetDistance < HUNTER_PREPARE_DISTANCE)
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE);
+    if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-        sourceAI->BaseMove(pmTarget);
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     else
     {
-        sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false);
         if (sourceAI->CastSpell(me, "Aspect of the Hawk", 20, true, true))
         {
             return true;
         }
-        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
+            {
+                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
+                sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
+            }
+        }
+        else
         {
             sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
         }
@@ -547,31 +571,37 @@ bool Script_Hunter::Attack_Marksmanship(Unit* pmTarget)
     {
         return true;
     }
-    if (targetDistance < HUNTER_PREPARE_DISTANCE)
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE);
+    if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-        sourceAI->BaseMove(pmTarget);
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     else
     {
-        sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false);
         if (sourceAI->CastSpell(me, "Aspect of the Hawk", 20, true, true))
         {
             return true;
         }
-        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
+            {
+                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
+                sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
+            }
+        }
+        else
         {
             sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
         }
@@ -621,31 +651,37 @@ bool Script_Hunter::Attack_Survival(Unit* pmTarget)
     {
         return true;
     }
-    if (targetDistance < HUNTER_PREPARE_DISTANCE)
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE);
+    if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-        sourceAI->BaseMove(pmTarget);
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     else
     {
-        sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false);
         if (sourceAI->CastSpell(me, "Aspect of the Hawk", 20, true, true))
         {
             return true;
         }
-        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
+            {
+                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
+                sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
+            }
+        }
+        else
         {
             sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
         }
@@ -695,31 +731,37 @@ bool Script_Hunter::Attack_Common(Unit* pmTarget)
     {
         return true;
     }
-    if (targetDistance < HUNTER_PREPARE_DISTANCE)
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE);
+    if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-        sourceAI->BaseMove(pmTarget);
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Raptor Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", HUNTER_PREPARE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Mongoose Bite", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     else
     {
-        sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false);
         if (sourceAI->CastSpell(me, "Aspect of the Hawk", 20, true, true))
         {
             return true;
         }
-        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        if (Spell* autoShotSpell = me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
+            {
+                me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
+                sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
+            }
+        }
+        else
         {
             sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
         }

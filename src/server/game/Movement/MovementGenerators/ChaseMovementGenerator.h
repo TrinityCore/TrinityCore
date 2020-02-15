@@ -38,6 +38,11 @@ class ChaseMovementGenerator : public MovementGenerator, public AbstractFollower
         bool Update(Unit*, uint32) override;
         void Deactivate(Unit*) override;
         void Finalize(Unit*, bool, bool) override;
+
+        // EJ chase range
+        float GetMinRange();
+        float GetMaxRange();
+
         MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
         void UnitSpeedChanged() override { _lastTargetPosition.reset(); }

@@ -60,9 +60,9 @@ public:
     void ResetStrategy();
     void Prepare();
     void Refresh();
-    void RandomTeleport();        
+    void RandomTeleport();
     void DoAttack(Unit* pmTarget, bool pmMelee = true);
-    void BaseMove(Unit* pmTarget, float pmDistance = MELEE_MIN_DISTANCE, bool pmAttack = true, bool pmFurther = false, float pmMinDistance = MIN_DISTANCE_GAP);
+    void BaseMove(Unit* pmTarget, float pmMaxDistance = MELEE_MIN_DISTANCE, bool pmAttack = true, float pmMinDistance = MIN_DISTANCE_GAP);
     bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = 100, bool pmCheckAura = false, bool pmOnlyMyAura = false, bool pmClearShapeshift = false);
     bool HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
     bool UseItem(Item* pmItem, Unit* pmTarget);
@@ -115,7 +115,7 @@ public:
     Strategy_Solo_Normal* st_Solo_Normal;
     Strategy_Group_Normal* st_Group_Normal;
 
-    Script_Base* s_base;    
+    Script_Base* s_base;
 
     int32 restDelay;
 

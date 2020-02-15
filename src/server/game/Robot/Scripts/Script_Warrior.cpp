@@ -193,9 +193,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
                 }
             }
         }
-    }
-    if (rage > 300)
-    {
+        sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
         if (sourceAI->CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE, true))
         {
             return true;
@@ -227,13 +225,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
             }
         }
     }
-    if (rage > 150)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
+    sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
 
     return true;
 }

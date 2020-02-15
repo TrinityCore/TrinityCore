@@ -6,6 +6,7 @@
 #include "Group.h"
 #include "Item.h"
 #include "MotionMaster.h"
+#include "FollowMovementGenerator.h"
 #include "Pet.h"
 
 Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
@@ -15,9 +16,9 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
 
     instruction = Group_Instruction::Group_Instruction_None;
 
-    assembleDelay = 0;    
+    assembleDelay = 0;
 
-    followDistance = FOLLOW_MIN_DISTANCE;    
+    followDistance = FOLLOW_MIN_DISTANCE;
 }
 
 void Strategy_Group_Normal::Set()
@@ -116,7 +117,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     }
     if (!myGroup)
     {
-        sourceAI->ResetStrategy();        
+        sourceAI->ResetStrategy();
         me->Say("I am not in a group. I will reset my strategy", Language::LANG_UNIVERSAL);
         return;
     }
@@ -313,7 +314,7 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
 }
 
 bool Strategy_Group_Normal::Buff()
-{    
+{
     return sourceAI->s_base->Buff();
 }
 
@@ -681,7 +682,23 @@ bool Strategy_Group_Normal::Follow()
     {
         return false;
     }
-    sourceAI->BaseMove(followTarget, followDistance, false);
+    bool following = false;
+    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
+    {
+        FollowMovementGenerator* mg = (FollowMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
+        if (mg)
+        {
+            if (mg->GetTarget()->GetGUID() == followTarget->GetGUID())
+            {
+                following = true;
+            }
+        }
+    }
+    if (!following)
+    {
+        me->GetMotionMaster()->Clear();
+        me->GetMotionMaster()->MoveFollow(followTarget, followDistance, 0);
+    }
 
     return true;
 }

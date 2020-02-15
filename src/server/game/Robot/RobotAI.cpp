@@ -1006,7 +1006,8 @@ void RobotAI::InitializeCharacter()
             CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(beastEntry);
             if (cinfo)
             {
-                Pet* createPet = new Pet(me, PetType::HUNTER_PET);
+                Pet* createPet = new Pet(me, HUNTER_PET);
+
                 if (createPet->CreateBaseAtCreatureInfo(cinfo, me))
                 {
                     if (me->InitTamedPet(createPet, me->GetLevel(), 1515))
@@ -1015,7 +1016,7 @@ void RobotAI::InitializeCharacter()
                         me->SetMinion(createPet, true);
                         createPet->InitTalentForLevel();
                         createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
-                        me->ToPlayer()->PetSpellInitialize();
+                        me->PetSpellInitialize();
                         me->SaveToDB();
                         petCreated = true;
                     }
@@ -1101,6 +1102,8 @@ void RobotAI::Prepare()
         {
             checkPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
         }
+        checkPet->InitPetCreateSpells();
+        checkPet->InitLevelupSpellsForLevel();
         std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
         for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
         {
@@ -1261,7 +1264,6 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
         }
         else if (!me->isInFront(pmTarget))
         {
-            me->SetFacingToObject(pmTarget);
             return true;
         }
     }
@@ -1301,7 +1303,7 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
     return true;
 }
 
-void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack, bool pmFurther, float pmMinDistance)
+void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float pmMinDistance)
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(characterGUID);
     if (!me)
@@ -1339,105 +1341,59 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmDistance, bool pmAttack, bool pmF
     {
         me->SetWalk(false);
     }
-    float currentDistance = me->GetDistance(pmTarget->GetPosition());
-    if (currentDistance < pmDistance)
+
+    if (pmAttack)
     {
-        if (pmFurther)
+        if (!me->GetVictim())
         {
-            if (currentDistance < pmMinDistance)
+            me->Attack(pmTarget, true);
+        }
+        else if (me->GetVictim()->GetGUID() != pmTarget->GetGUID())
+        {
+            me->Attack(pmTarget, true);
+        }
+    }
+
+    bool chasing = false;
+    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
+    {
+        ChaseMovementGenerator* cmg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
+        if (cmg)
+        {
+            if (cmg->GetTarget()->GetGUID() == pmTarget->GetGUID())
             {
-                me->AttackStop();
-                me->SetSelection(ObjectGuid::Empty);
-                if (!holding)
+                if (cmg->GetMinRange() == pmMinDistance && cmg->GetMaxRange() == pmMaxDistance)
                 {
-                    me->GetMotionMaster()->MoveFutherAndStop(0, pmTarget, pmDistance);
-                    return;
+                    chasing = true;
                 }
             }
         }
-
-        if (!me->IsWithinLOSInMap(pmTarget))
+    }
+    if (chasing)
+    {
+        if (holding)
         {
-            if (!holding)
-            {
-                me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_MIN_DISTANCE);
-            }
-        }
-        else if (!me->isInFront(pmTarget))
-        {
-            me->SetFacingToObject(pmTarget);
-        }
-        else
-        {
-            me->StopMoving();
             me->GetMotionMaster()->Clear();
-        }
-        if (pmAttack)
-        {
-            if (!me->GetVictim())
-            {
-                me->Attack(pmTarget, true);
-            }
-            else if (me->GetVictim()->GetGUID() != pmTarget->GetGUID())
-            {
-                me->AttackStop();
-                me->SetSelection(ObjectGuid::Empty);
-                me->Attack(pmTarget, true);
-            }
+            me->StopMoving();
         }
     }
     else
     {
-        me->AttackStop();
-        me->SetSelection(ObjectGuid::Empty);
-        if (!holding)
+        if (holding)
         {
-            me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, pmDistance);
+            if (!me->isInFront(pmTarget))
+            {
+                me->SetFacingToObject(pmTarget);
+            }
+        }
+        else
+        {
+            me->GetMotionMaster()->Clear();
+            me->StopMoving();
+            me->SetSelection(ObjectGuid::Empty);
+            me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance), ChaseAngle(0.0f, 2 * M_PI));
         }
     }
-
-    //float chaseDistance = pmDistance;
-    //if (!me->IsWithinLOSInMap(pmTarget))
-    //{
-    //    chaseDistance = MELEE_MIN_DISTANCE;
-    //}
-    //if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
-    //{
-    //    if (holding)
-    //    {
-    //        me->GetMotionMaster()->Clear();
-    //        me->StopMoving();
-    //    }
-    //    else
-    //    {
-    //        ChaseMovementGenerator* cmg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
-    //        if (cmg)
-    //        {
-    //            if (cmg->GetTarget()->GetGUID() != pmTarget->GetGUID())
-    //            {
-    //                me->GetMotionMaster()->Clear();
-    //                me->StopMoving();
-    //                me->SetSelection(ObjectGuid::Empty);
-    //                me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
-    //                if (pmAttack)
-    //                {
-    //                    me->Attack(pmTarget, true);
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-    //else
-    //{
-    //    if (!holding)
-    //    {
-    //        me->GetMotionMaster()->MoveChase(pmTarget, pmDistance, 0);
-    //        if (pmAttack)
-    //        {
-    //            me->Attack(pmTarget, true);
-    //        }
-    //    }
-    //}
 }
 
 void RobotAI::WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget)
@@ -1807,6 +1763,7 @@ void RobotAI::Update()
                 WorldSession* mySession = me->GetSession();
                 InitializeCharacter();
                 me->SetPvP(true);
+                Prepare();
                 robotState = RobotState::RobotState_Online;
                 checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
             }
