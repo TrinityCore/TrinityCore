@@ -68,7 +68,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Summons.DespawnAll();
-            DoCast(SPELL_DROP_JOURNAL, true);
+            DoCast(SPELL_DROP_JOURNAL);
         }
 
         void UpdateAI(uint32 diff) override
