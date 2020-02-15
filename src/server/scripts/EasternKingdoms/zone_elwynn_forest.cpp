@@ -181,7 +181,6 @@ public:
             if (Creature* victim = me->FindNearestCreature(NPC_STORWIND_INFANTRY, 5.0f, true))
             {
                 isInfantry = true;
-                victim->getThreatManager().getThreatList().empty();
                 me->AI()->AttackStart(victim);
                 victim->AI()->AttackStart(me);
             }

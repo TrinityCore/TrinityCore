@@ -218,7 +218,10 @@ struct boss_rajh : public BossAI
                     me->StopMoving();
                     me->MakeInterruptable(true);
                     DoCastSelf(SPELL_SUMMON_SUN_ORB);
-                    events.Repeat(_randomTimerCase == 0 ? 35s, 36s : 31s, 37s);
+                    if (_randomTimerCase == 0)
+                        events.Repeat(35s, 36s);
+                    else
+                        events.Repeat(31s, 37s);
                     break;
                 case EVENT_SUN_STRIKE:
                     if (Unit* target = me->GetVictim())
