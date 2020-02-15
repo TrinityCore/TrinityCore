@@ -156,7 +156,7 @@ struct npc_blackrock_battle_worg : public ScriptedAI
             _isAttackingInfantry = false;
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 /*diff*/) override
     {
         if (!_isAttackingInfantry && !UpdateVictim())
             return;
