@@ -1658,12 +1658,15 @@ class spell_pri_mind_blast : public SpellScript
     void HandleDamageBonus(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         if (AuraEffect const* effect = caster->GetDummyAuraEffect(SPELLFAMILY_GENERIC, PRIEST_ICON_ID_SHADOW_ORB, EFFECT_0))
         {
-            int32 damage = GetEffectValue();
+            int32 damage = GetHitDamage();
             int32 bp = effect->GetAmount();
             AddPct(damage, bp);
-            SetEffectValue(damage);
+            SetHitDamage(damage);
         }
     }
 
@@ -1680,7 +1683,7 @@ class spell_pri_mind_blast : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_pri_mind_blast::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         OnEffectHitTarget += SpellEffectFn(spell_pri_mind_blast::HandleImprovedMindBlast, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
@@ -1698,18 +1701,21 @@ class spell_pri_mind_spike : public SpellScript
     void HandleDamageBonus(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         if (AuraEffect const* effect = caster->GetDummyAuraEffect(SPELLFAMILY_GENERIC, PRIEST_ICON_ID_SHADOW_ORB, EFFECT_0))
         {
-            int32 damage = GetEffectValue();
+            int32 damage = GetHitDamage();
             int32 bp = effect->GetAmount();
             AddPct(damage, bp);
-            SetEffectValue(damage);
+            SetHitDamage(damage);
         }
     }
 
     void Register() override
     {
-        OnEffectLaunchTarget += SpellEffectFn(spell_pri_mind_spike::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_mind_spike::HandleDamageBonus, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
