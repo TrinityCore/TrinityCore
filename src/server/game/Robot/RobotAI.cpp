@@ -1040,6 +1040,8 @@ void RobotAI::InitializeCharacter()
 
     me->SaveToDB();
 
+    RandomTeleport();
+
     std::ostringstream msgStream;
     msgStream << me->GetName() << " initialized";
     sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, msgStream.str().c_str());

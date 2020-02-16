@@ -194,11 +194,6 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
             }
         }
     }
-
-    if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
-    {
-        return true;
-    }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (pmTarget->GetTarget() == me->GetGUID())
@@ -220,6 +215,10 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
         }
     }
     sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false, HUNTER_MIN_RANGE_DISTANCE);
+    if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
+    {
+        return true;
+    }
     if (sourceAI->CastSpell(me, "Aspect of the Hawk", HUNTER_RANGE_DISTANCE, true, true))
     {
         return true;
@@ -241,7 +240,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
     {
         if (sourceAI->CastSpell(me, "Rapid Fire", HUNTER_RANGE_DISTANCE))
         {
-            me->Yell("BOSS RUSH !", Language::LANG_UNIVERSAL);            
+            me->Yell("BOSS RUSH !", Language::LANG_UNIVERSAL);
         }
     }
     else
