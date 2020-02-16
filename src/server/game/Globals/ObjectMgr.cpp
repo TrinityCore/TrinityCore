@@ -2228,7 +2228,10 @@ void ObjectMgr::LoadCreatures()
         // EJ rare spawn time
         if (cInfo->rank == 2 || cInfo->rank == 4)
         {
-            data.spawntimesecs = data.spawntimesecs * 4;
+            if (data.spawntimesecs < TimeConstants::HOUR * 100)
+            {
+                data.spawntimesecs = TimeConstants::HOUR * 100;
+            }
         }
 
         data.spawndist      = fields[10].GetFloat();
