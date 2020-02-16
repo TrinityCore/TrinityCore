@@ -517,11 +517,19 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     //}
 
     // prevent character creating Expansion class without Expansion account
-    uint8 classExpansionRequirement = sObjectMgr->GetClassExpansionRequirement(charCreate.CreateInfo->Class);
-    if (classExpansionRequirement > GetAccountExpansion())
+    ClassAvailability const* classExpansionRequirement = sObjectMgr->GetClassExpansionRequirement(charCreate.CreateInfo->Race, charCreate.CreateInfo->Class);
+    if (!classExpansionRequirement)
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)",
-            GetAccountExpansion(), GetAccountId(), classExpansionRequirement, charCreate.CreateInfo->Class);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character for race/class combination that is missing requirements in db (%u/%u)",
+            GetAccountExpansion(), GetAccountId(), uint32(charCreate.CreateInfo->Race), uint32(charCreate.CreateInfo->Class));
+        SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
+        return;
+    }
+
+    if (classExpansionRequirement->ActiveExpansionLevel > GetExpansion() || classExpansionRequirement->AccountExpansionLevel > GetAccountExpansion())
+    {
+        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race/class (%u/%u)",
+            GetAccountExpansion(), GetAccountId(), uint32(charCreate.CreateInfo->Race), uint32(charCreate.CreateInfo->Class));
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }

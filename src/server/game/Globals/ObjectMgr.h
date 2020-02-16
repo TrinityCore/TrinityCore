@@ -934,6 +934,19 @@ struct PhaseAreaInfo
     ConditionContainer Conditions;
 };
 
+struct ClassAvailability
+{
+    uint8 ClassID = 0;
+    uint8 ActiveExpansionLevel = 0;
+    uint8 AccountExpansionLevel = 0;
+};
+
+struct RaceClassAvailability
+{
+    uint8 RaceID = 0;
+    std::vector<ClassAvailability> Classes;
+};
+
 struct RaceUnlockRequirement
 {
     uint8 Expansion;
@@ -1587,14 +1600,8 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        std::unordered_map<uint8, uint8> const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
-        uint8 GetClassExpansionRequirement(uint8 class_) const
-        {
-            auto itr = _classExpansionRequirementStore.find(class_);
-            if (itr != _classExpansionRequirementStore.end())
-                return itr->second;
-            return EXPANSION_CLASSIC;
-        }
+        std::vector<RaceClassAvailability> const& GetClassExpansionRequirements() const { return _classExpansionRequirementStore; }
+        ClassAvailability const* GetClassExpansionRequirement(uint8 raceId, uint8 classId) const;
 
         SceneTemplate const* GetSceneTemplate(uint32 sceneId) const
         {
@@ -1771,7 +1778,7 @@ class TC_GAME_API ObjectMgr
         std::set<uint32> _hasDifficultyEntries[MAX_CREATURE_DIFFICULTIES]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
         std::unordered_map<uint8, RaceUnlockRequirement> _raceUnlockRequirementStore;
-        std::unordered_map<uint8, uint8> _classExpansionRequirementStore;
+        std::vector<RaceClassAvailability> _classExpansionRequirementStore;
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;

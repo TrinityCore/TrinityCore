@@ -604,41 +604,41 @@ enum InventorySlots : uint8                                 // 4 slots
     INVENTORY_SLOT_BAG_END      = 23
 };
 
-enum InventoryPackSlots : uint8                             // 24 slots
+enum InventoryPackSlots : uint8                             // 28 slots
 {
     INVENTORY_SLOT_ITEM_START   = 23,
-    INVENTORY_SLOT_ITEM_END     = 47
+    INVENTORY_SLOT_ITEM_END     = 51
 };
 
 enum BankItemSlots                                          // 28 slots
 {
-    BANK_SLOT_ITEM_START        = 47,
-    BANK_SLOT_ITEM_END          = 75
+    BANK_SLOT_ITEM_START        = 51,
+    BANK_SLOT_ITEM_END          = 79
 };
 
 enum BankBagSlots                                           // 7 slots
 {
-    BANK_SLOT_BAG_START         = 75,
-    BANK_SLOT_BAG_END           = 82
+    BANK_SLOT_BAG_START         = 79,
+    BANK_SLOT_BAG_END           = 86
 };
 
 enum BuyBackSlots                                           // 12 slots
 {
     // stored in m_buybackitems
-    BUYBACK_SLOT_START          = 82,
-    BUYBACK_SLOT_END            = 94
+    BUYBACK_SLOT_START          = 86,
+    BUYBACK_SLOT_END            = 98
 };
 
 enum ReagentSlots                                           // 98 slots
 {
-    REAGENT_SLOT_START          = 94,
-    REAGENT_SLOT_END            = 192,
+    REAGENT_SLOT_START          = 98,
+    REAGENT_SLOT_END            = 196,
 };
 
 enum ChildEquipmentSlots
 {
-    CHILD_EQUIPMENT_SLOT_START   = 192,
-    CHILD_EQUIPMENT_SLOT_END     = 195,
+    CHILD_EQUIPMENT_SLOT_START   = 196,
+    CHILD_EQUIPMENT_SLOT_END     = 199,
 };
 
 struct ItemPosCount

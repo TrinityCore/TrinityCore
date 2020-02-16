@@ -25,6 +25,8 @@ WorldPacket const* WorldPackets::Scenes::PlayScene::Write()
     _worldPacket << int32(SceneScriptPackageID);
     _worldPacket << TransportGUID;
     _worldPacket << Location.PositionXYZOStream();
+    _worldPacket.WriteBit(PerformTactCallbacks);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
