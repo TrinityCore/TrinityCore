@@ -823,6 +823,10 @@ void RobotAI::InitializeCharacter()
         }
         case Classes::CLASS_HUNTER:
         {
+            me->LearnSpell(264, false); // bow 
+            me->LearnSpell(266, false); // gun 
+            me->LearnSpell(5011, false); // crossbow
+
             // quiver and ammo pouch
             Item* weapon = me->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
             if (weapon)
@@ -989,10 +993,6 @@ void RobotAI::InitializeCharacter()
 
     if (me->GetClass() == Classes::CLASS_HUNTER)
     {
-        me->LearnSpell(264, false); // bow 
-        me->LearnSpell(266, false); // gun 
-        me->LearnSpell(5011, false); // crossbow
-
         Pet* loadPet = new Pet(me, PetType::HUNTER_PET);
         if (!loadPet->LoadPetFromDB(me))
         {
