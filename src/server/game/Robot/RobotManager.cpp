@@ -815,7 +815,7 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         Unit* targetUnit = pmPlayer->GetSelectedUnit();
         if (targetUnit)
         {
-            pmPlayer->GetMotionMaster()->MoveChase(targetUnit, 5.0f);
+            pmPlayer->GetMotionMaster()->MoveChase(targetUnit, ChaseRange(4.0f, 8.0f));
             replyStream << "Chasing";
         }
         else
@@ -838,9 +838,38 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         replyStream << "Stopped";
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
-    else if (commandName == "front5")
+    else if (commandName == "angle")
     {
-
+        Unit* targetUnit = pmPlayer->GetSelectedUnit();
+        std::ostringstream replyStream;
+        if (targetUnit)
+        {
+            float angle = pmPlayer->GetAbsoluteAngle(targetUnit->GetPosition());
+            replyStream << "Angle : " << angle;
+        }
+        else
+        {
+            replyStream << "No target";
+        }
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
+    }
+    else if (commandName == "near")
+    {
+        Unit* targetUnit = pmPlayer->GetSelectedUnit();
+        std::ostringstream replyStream;
+        if (targetUnit)
+        {
+            float nearX, nearY, nearZ;
+            targetUnit->GetNearPoint(targetUnit, nearX, nearY, nearZ, 10.0f, targetUnit->GetAbsoluteAngle(pmPlayer));
+            pmPlayer->GetMotionMaster()->Clear();
+            pmPlayer->GetMotionMaster()->MovePoint(0, nearX, nearY, nearZ, true, pmPlayer->GetRelativeAngle(targetUnit));
+            replyStream << "To near point";
+        }
+        else
+        {
+            replyStream << "No target";
+        }
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
 }
 

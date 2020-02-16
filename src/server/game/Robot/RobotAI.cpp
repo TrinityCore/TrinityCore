@@ -1015,7 +1015,6 @@ void RobotAI::InitializeCharacter()
                         createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
                         me->PetSpellInitialize();
                         createPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
-                        createPet->InitPetCreateSpells();
                         createPet->InitLevelupSpellsForLevel();
                         petCreated = true;
                     }
@@ -1110,7 +1109,6 @@ void RobotAI::Prepare()
         {
             checkPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
         }
-        checkPet->InitPetCreateSpells();
         checkPet->InitLevelupSpellsForLevel();
         std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
         for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
@@ -1350,13 +1348,6 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float
         me->SetWalk(false);
     }
 
-    if (!me->IsWithinLOSInMap(pmTarget))
-    {
-        me->GetMotionMaster()->Clear();
-        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_MIN_DISTANCE);
-        return;
-    }
-
     if (pmAttack)
     {
         if (!me->GetVictim())
@@ -1367,7 +1358,6 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float
         {
             me->Attack(pmTarget, true);
         }
-        me->AI()->DoMeleeAttackIfReady();
     }
 
     bool chasing = false;
@@ -2525,6 +2515,8 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         {
             if (me->GetDistance(pmSender) < 50)
             {
+                me->SetSelection(ObjectGuid::Empty);
+                me->StopMoving();
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MovePoint(0, pmSender->GetPosition());
                 WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, pmSender);
