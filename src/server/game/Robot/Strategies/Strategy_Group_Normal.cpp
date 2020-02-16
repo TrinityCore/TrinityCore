@@ -697,7 +697,7 @@ bool Strategy_Group_Normal::Follow()
     if (!following)
     {
         me->GetMotionMaster()->Clear();
-        me->GetMotionMaster()->MoveFollow(followTarget, followDistance, 0);
+        me->GetMotionMaster()->MoveFollow(followTarget, followDistance, PET_FOLLOW_ANGLE);
     }
 
     return true;

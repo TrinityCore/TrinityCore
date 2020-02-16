@@ -94,16 +94,8 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             _checkTimer -= diff;
         else
         {
-            _checkTimer = CHECK_INTERVAL;
-            // EJ follow without angle 
-            //if (PositionOkay(owner, target, _range, _angle))
-            //{
-            //    _path = nullptr;
-            //    owner->StopMoving();
-            //    DoMovementInform(owner, target);
-            //    return true;
-            //}
-            if (PositionOkay(owner, target, _range))
+            _checkTimer = CHECK_INTERVAL;            
+            if (PositionOkay(owner, target, _range, _angle))
             {
                 _path = nullptr;
                 owner->StopMoving();
@@ -133,22 +125,20 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             // select angle
             float tAngle;
             float const curAngle = target->GetRelativeAngle(owner);
-
-            // EJ follow without angle 
-            //if (_angle.IsAngleOkay(curAngle))
-            //{
-            //    tAngle = curAngle;
-            //}
-            //else
-            //{
-            //    float const diffUpper = Position::NormalizeOrientation(curAngle - _angle.UpperBound());
-            //    float const diffLower = Position::NormalizeOrientation(_angle.LowerBound() - curAngle);
-            //    if (diffUpper < diffLower)
-            //        tAngle = _angle.UpperBound();
-            //    else
-            //        tAngle = _angle.LowerBound();
-            //}
-            tAngle = curAngle;
+            
+            if (_angle.IsAngleOkay(curAngle))
+            {
+                tAngle = curAngle;
+            }
+            else
+            {
+                float const diffUpper = Position::NormalizeOrientation(curAngle - _angle.UpperBound());
+                float const diffLower = Position::NormalizeOrientation(_angle.LowerBound() - curAngle);
+                if (diffUpper < diffLower)
+                    tAngle = _angle.UpperBound();
+                else
+                    tAngle = _angle.LowerBound();
+            }
 
             target->GetNearPoint(owner, x, y, z, _range, target->ToAbsoluteAngle(tAngle));
 

@@ -17,6 +17,7 @@
 #include "MotionMaster.h"
 #include "AccountMgr.h"
 #include "CharacterCache.h"
+#include "PlayerAI.h"
 
 #include "CellImpl.h"
 #include "GridNotifiers.h"
@@ -958,13 +959,6 @@ void RobotAI::InitializeCharacter()
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s equip info initialized", me->GetName());
     }
 
-    me->UpdateSkillsForLevel();
-    me->UpdateWeaponsSkillsToMaxSkillsForLevel();
-    if (!me->IsPvP())
-    {
-        me->SetPvP(true);
-    }
-
     if (me->GetClass() == Classes::CLASS_WARLOCK)
     {
         switch (characterTalentTab)
@@ -992,10 +986,13 @@ void RobotAI::InitializeCharacter()
         }
         }
     }
-    me->SaveToDB();
 
     if (me->GetClass() == Classes::CLASS_HUNTER)
     {
+        me->LearnSpell(264, false); // bow 
+        me->LearnSpell(266, false); // gun 
+        me->LearnSpell(5011, false); // crossbow
+
         Pet* loadPet = new Pet(me, PetType::HUNTER_PET);
         if (!loadPet->LoadPetFromDB(me))
         {
@@ -1017,7 +1014,9 @@ void RobotAI::InitializeCharacter()
                         createPet->InitTalentForLevel();
                         createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
                         me->PetSpellInitialize();
-                        me->SaveToDB();
+                        createPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
+                        createPet->InitPetCreateSpells();
+                        createPet->InitLevelupSpellsForLevel();
                         petCreated = true;
                     }
                 }
@@ -1032,6 +1031,15 @@ void RobotAI::InitializeCharacter()
             }
         }
     }
+
+    me->UpdateSkillsForLevel();
+    me->UpdateWeaponsSkillsToMaxSkillsForLevel();
+    if (!me->IsPvP())
+    {
+        me->SetPvP(true);
+    }
+
+    me->SaveToDB();
 
     std::ostringstream msgStream;
     msgStream << me->GetName() << " initialized";
@@ -1342,6 +1350,13 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float
         me->SetWalk(false);
     }
 
+    if (!me->IsWithinLOSInMap(pmTarget))
+    {
+        me->GetMotionMaster()->Clear();
+        me->GetMotionMaster()->MoveCloserAndStop(0, pmTarget, MELEE_MIN_DISTANCE);
+        return;
+    }
+
     if (pmAttack)
     {
         if (!me->GetVictim())
@@ -1352,6 +1367,7 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float
         {
             me->Attack(pmTarget, true);
         }
+        me->AI()->DoMeleeAttackIfReady();
     }
 
     bool chasing = false;
@@ -1391,7 +1407,7 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float
             me->GetMotionMaster()->Clear();
             me->StopMoving();
             me->SetSelection(ObjectGuid::Empty);
-            me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance), ChaseAngle(0.0f, 2 * M_PI));
+            me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance));
         }
     }
 }
@@ -2509,6 +2525,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         {
             if (me->GetDistance(pmSender) < 50)
             {
+                me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MovePoint(0, pmSender->GetPosition());
                 WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, pmSender);
             }
