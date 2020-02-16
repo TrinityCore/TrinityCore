@@ -6060,8 +6060,14 @@ Unit* Unit::GetCharmerOrOwnerOrSelf() const
     return (Unit*)this;
 }
 
-void Unit::SetMinion(Minion *minion, bool apply)
+void Unit::SetMinion(Minion* minion, bool apply)
 {
+    if (!minion)
+    {
+        TC_LOG_ERROR("entities.unit", "Unit::SetMinion: Unit %s tried to reference a non existing minion", GetGUID().ToString().c_str());
+        return;
+    }
+
     TC_LOG_DEBUG("entities.unit", "SetMinion %u for %u, apply %u", minion->GetEntry(), GetEntry(), apply);
 
     if (apply)
@@ -6155,13 +6161,15 @@ void Unit::SetMinion(Minion *minion, bool apply)
         else if (minion->IsTotem())
         {
             // All summoned by totem minions must disappear when it is removed.
-        if (SpellInfo const* spInfo = sSpellMgr->GetSpellInfo(minion->ToTotem()->GetSpell()))
-            for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(minion->ToTotem()->GetSpell()))
             {
-                if (spInfo->Effects[i].Effect != SPELL_EFFECT_SUMMON)
-                    continue;
+                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                {
+                    if (spell->Effects[i].Effect != SPELL_EFFECT_SUMMON)
+                        continue;
 
-                RemoveAllMinionsByEntry(spInfo->Effects[i].MiscValue);
+                    RemoveAllMinionsByEntry(spell->Effects[i].MiscValue);
+                }
             }
         }
 
@@ -6175,31 +6183,31 @@ void Unit::SetMinion(Minion *minion, bool apply)
             if (RemoveGuidValue(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
                 // Check if there is another minion
-                for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+                for (Unit const* controlled : m_Controlled)
                 {
                     // do not use this check, creature do not have charm guid
                     //if (GetCharmGUID() == (*itr)->GetGUID())
-                    if (GetGUID() == (*itr)->GetCharmerGUID())
+                    if (GetGUID() == controlled->GetCharmerGUID())
                         continue;
 
                     //ASSERT((*itr)->GetOwnerGUID() == GetGUID());
-                    if ((*itr)->GetOwnerGUID() != GetGUID())
+                    if (controlled->GetOwnerGUID() != GetGUID())
                     {
                         OutDebugInfo();
-                        (*itr)->OutDebugInfo();
+                        controlled->OutDebugInfo();
                         ABORT();
                     }
-                    ASSERT((*itr)->GetTypeId() == TYPEID_UNIT);
+                    ASSERT(controlled->IsCreature());
 
-                    if (!(*itr)->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+                    if (!controlled->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
                         continue;
 
-                    if (AddGuidValue(UNIT_FIELD_SUMMON, (*itr)->GetGUID()))
+                    if (AddGuidValue(UNIT_FIELD_SUMMON, controlled->GetGUID()))
                     {
                         // show another pet bar if there is no charm bar
-                        if (GetTypeId() == TYPEID_PLAYER && !GetCharmGUID())
+                        if (IsPlayer() && !GetCharmGUID())
                         {
-                            if ((*itr)->IsPet())
+                            if (controlled->IsPet())
                                 ToPlayer()->PetSpellInitialize();
                             else
                                 ToPlayer()->CharmSpellInitialize();
