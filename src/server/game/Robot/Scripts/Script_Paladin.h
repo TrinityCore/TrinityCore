@@ -15,7 +15,9 @@ public:
 	virtual bool Buff();
 	virtual bool HealMe();
 
-	bool DPS_Common(Unit* pmTarget);
-	bool Attack_Common(Unit* pmTarget);
+	bool DPS_Retribution(Unit* pmTarget);
+
+    bool DPS_Common(Unit* pmTarget);
+    bool Attack_Common(Unit* pmTarget);
 };
 #endif

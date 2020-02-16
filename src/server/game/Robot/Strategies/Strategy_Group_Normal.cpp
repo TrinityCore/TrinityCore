@@ -6,8 +6,6 @@
 #include "Group.h"
 #include "Item.h"
 #include "MotionMaster.h"
-#include "FollowMovementGenerator.h"
-#include "ChaseMovementGenerator.h"
 #include "Pet.h"
 
 Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
@@ -678,33 +676,7 @@ bool Strategy_Group_Normal::Follow()
     {
         return false;
     }
-    float targetDistance = me->GetDistance(followTarget);
-    if (targetDistance > 200)
-    {
-        return false;
-    }
-    bool following = false;
-    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
-    {
-        ChaseMovementGenerator* mg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
-        if (mg)
-        {
-            if (mg->GetTarget()->GetGUID() == followTarget->GetGUID())
-            {
-                if (mg->GetMaxRange() == followDistance)
-                {
-                    following = true;
-                }
-            }
-        }
-    }
-    if (!following)
-    {
-        me->GetMotionMaster()->Clear();
-        me->StopMoving();
-        me->SetSelection(ObjectGuid::Empty);
-        me->GetMotionMaster()->MoveChase(followTarget, ChaseRange(MIN_DISTANCE_GAP, followDistance));
-    }
+    sourceAI->BaseMove(followTarget, followDistance, false, MIN_DISTANCE_GAP);
 
     return true;
 }

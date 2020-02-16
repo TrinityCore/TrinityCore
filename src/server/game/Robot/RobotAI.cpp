@@ -387,7 +387,7 @@ void RobotAI::InitializeCharacter()
         }
         else if (me->GetClass() == Classes::CLASS_PALADIN)
         {
-            specialty = 0;
+            specialty = 2;
         }
         else if (me->GetClass() == Classes::CLASS_DRUID)
         {
@@ -1015,7 +1015,7 @@ void RobotAI::InitializeCharacter()
                         createPet->InitTalentForLevel();
                         createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
                         me->PetSpellInitialize();
-                        createPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);                        
+                        createPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
                         petCreated = true;
                     }
                 }
@@ -1104,11 +1104,13 @@ void RobotAI::Prepare()
     Pet* checkPet = me->GetPet();
     if (checkPet)
     {
+        checkPet->GivePetLevel(me->GetLevel() - 1);
+        checkPet->GivePetLevel(me->GetLevel());
         checkPet->SetReactState(REACT_DEFENSIVE);
         if (checkPet->getPetType() == PetType::HUNTER_PET)
         {
             checkPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
-        }        
+        }
         std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
         for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
         {
@@ -1263,14 +1265,6 @@ bool RobotAI::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistanc
         {
             return false;
         }
-        else if (!me->IsWithinLOSInMap(target))
-        {
-            return true;
-        }
-        else if (!me->isInFront(pmTarget))
-        {
-            return true;
-        }
     }
     if (pmClearShapeshift)
     {
@@ -1328,6 +1322,14 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float
         return;
     }
     if (me->IsNonMeleeSpellCast(true, false, true))
+    {
+        return;
+    }
+    if (!me->IsInMap(pmTarget))
+    {
+        return;
+    }
+    if (me->GetDistance(pmTarget) > 200)
     {
         return;
     }
@@ -2514,6 +2516,42 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         {
             if (me->GetDistance(pmSender) < 50)
             {
+                if (me->HasUnitState(UnitState::UNIT_STATE_NOT_MOVE))
+                {
+                    WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                    return;
+                }
+                if (me->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
+                {
+                    WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                    return;
+                }
+                if (me->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                {
+                    WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                    return;
+                }
+                if (me->IsNonMeleeSpellCast(false, false, true))
+                {
+                    WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                    return;
+                }
+                // Can't attack if owner is pacified
+                if (me->HasAuraType(SPELL_AURA_MOD_PACIFY))
+                {
+                    //pet->SendPetCastFail(spellid, SPELL_FAILED_PACIFIED);
+                    /// @todo Send proper error message to client
+                    return;
+                }
+                if (me->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                {
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                }
+                if (me->IsWalking())
+                {
+                    me->SetWalk(false);
+                }
+
                 me->SetSelection(ObjectGuid::Empty);
                 me->StopMoving();
                 me->GetMotionMaster()->Clear();

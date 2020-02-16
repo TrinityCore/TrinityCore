@@ -185,6 +185,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
                                     {
                                         return true;
                                     }
+                                    break;
                                 }
                             }
                         }

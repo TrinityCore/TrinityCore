@@ -113,7 +113,7 @@ bool Script_Priest::Healer()
             {
                 if (sourceAI->CastSpell(tank, "Lightwell", PRIEST_RANGE_DISTANCE))
                 {
-                    me->Say("BOSS RUSH !", Language::LANG_UNIVERSAL);
+                    me->Yell("BOSS RUSH !", Language::LANG_UNIVERSAL);
                     return true;
                 }
             }
@@ -181,6 +181,7 @@ bool Script_Priest::Healer()
     }
     if (lowestMember)
     {
+        sourceAI->BaseMove(tank, PRIEST_RANGE_DISTANCE, false);
         if (sourceAI->CastSpell(lowestMember, "Renew", PRIEST_RANGE_DISTANCE, true))
         {
             return true;
@@ -303,6 +304,29 @@ bool Script_Priest::Buff()
     {
         return false;
     }
+    if (sourceAI->CastSpell(me, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
+    {
+        return true;
+    }
+
+    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+    {
+        std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
+        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+        {
+            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+            if (!pST->IsPositive())
+            {
+                if (pST->Dispel == DispelType::DISPEL_DISEASE)
+                {
+                    if (sourceAI->CastSpell(me, "Cure Disease"))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
     Group* myGroup = me->GetGroup();
     if (myGroup)
     {
@@ -311,8 +335,12 @@ bool Script_Priest::Buff()
             Player* member = groupRef->GetSource();
             if (member)
             {
+                if (member->GetGUID() == me->GetGUID())
+                {
+                    continue;
+                }
                 float targetDistance = me->GetDistance(member);
-                if (targetDistance < 200)
+                if (targetDistance < PRIEST_RANGE_DISTANCE)
                 {
                     if (sourceAI->CastSpell(member, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
                     {
@@ -335,32 +363,6 @@ bool Script_Priest::Buff()
                                     }
                                 }
                             }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        if (sourceAI->CastSpell(me, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
-        {
-            return true;
-        }
-
-        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
-        {
-            std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
-            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
-            {
-                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-                if (!pST->IsPositive())
-                {
-                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
-                    {
-                        if (sourceAI->CastSpell(me, "Cure Disease"))
-                        {
-                            return true;
                         }
                     }
                 }

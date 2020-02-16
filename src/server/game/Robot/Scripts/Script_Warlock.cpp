@@ -199,6 +199,7 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
                                 {
                                     return true;
                                 }
+                                break;
                             }
                         }
                     }

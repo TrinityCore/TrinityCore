@@ -6,7 +6,7 @@
 #include "Map.h"
 
 #ifndef HUNTER_CLOSER_DISTANCE
-# define HUNTER_CLOSER_DISTANCE 30
+# define HUNTER_CLOSER_DISTANCE 25
 #endif
 
 #ifndef HUNTER_MIN_RANGE_DISTANCE
@@ -14,7 +14,7 @@
 #endif
 
 #ifndef HUNTER_RANGE_DISTANCE
-# define HUNTER_RANGE_DISTANCE 35
+# define HUNTER_RANGE_DISTANCE 30
 #endif
 
 Script_Hunter::Script_Hunter(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
@@ -185,6 +185,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
                                 {
                                     return true;
                                 }
+                                break;
                             }
                         }
                     }
@@ -227,7 +228,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
     {
         if (autoShotSpell->m_targets.GetUnitTargetGUID() != pmTarget->GetGUID())
         {
-            me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
+            me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, true);
             sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
         }
     }
@@ -240,8 +241,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
     {
         if (sourceAI->CastSpell(me, "Rapid Fire", HUNTER_RANGE_DISTANCE))
         {
-            me->Say("BOSS RUSH !", Language::LANG_UNIVERSAL);
-            return true;
+            me->Yell("BOSS RUSH !", Language::LANG_UNIVERSAL);            
         }
     }
     else

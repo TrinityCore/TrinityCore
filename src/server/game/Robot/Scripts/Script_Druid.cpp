@@ -831,6 +831,15 @@ bool Script_Druid::Buff()
     {
         return false;
     }
+    if (sourceAI->CastSpell(me, "Thorns", DRUID_RANGE_DISTANCE, true, false, true))
+    {
+        return true;
+    }
+
+    if (sourceAI->CastSpell(me, "Mark of the Wild", DRUID_RANGE_DISTANCE, true, false, true))
+    {
+        return true;
+    }
     Group* myGroup = me->GetGroup();
     if (myGroup)
     {
@@ -839,8 +848,12 @@ bool Script_Druid::Buff()
             Player* member = groupRef->GetSource();
             if (member)
             {
+                if (member->GetGUID() == me->GetGUID())
+                {
+                    continue;
+                }
                 float targetDistance = me->GetDistance(member);
-                if (targetDistance < 200)
+                if (targetDistance < DRUID_RANGE_DISTANCE)
                 {
                     if (member->groupRole == 1)
                     {
@@ -855,18 +868,6 @@ bool Script_Druid::Buff()
                     }
                 }
             }
-        }
-    }
-    else
-    {
-        if (sourceAI->CastSpell(me, "Thorns", DRUID_RANGE_DISTANCE, true, false, true))
-        {
-            return true;
-        }
-
-        if (sourceAI->CastSpell(me, "Mark of the Wild", DRUID_RANGE_DISTANCE, true, false, true))
-        {
-            return true;
         }
     }
 

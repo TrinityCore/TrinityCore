@@ -210,6 +210,7 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget)
                                 {
                                     return true;
                                 }
+                                break;
                             }
                         }
                     }
@@ -495,8 +496,12 @@ bool Script_Mage::Buff()
             Player* member = groupRef->GetSource();
             if (member)
             {
+                if (member->GetGUID() == me->GetGUID())
+                {
+                    continue;
+                }
                 float targetDistance = me->GetDistance(member);
-                if (targetDistance < 200)
+                if (targetDistance < MAGE_RANGE_DISTANCE)
                 {
                     if (sourceAI->CastSpell(member, "Arcane Intellect", MAGE_RANGE_DISTANCE, true))
                     {
