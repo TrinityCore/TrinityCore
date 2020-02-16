@@ -322,7 +322,7 @@ void Log::outCharDump(char const* str, uint32 accountId, uint64 guid, char const
 
 void Log::SetRealmId(uint32 id)
 {
-    for (auto & appender : appenders)
+    for (std::pair<uint8 const, std::unique_ptr<Appender>>& appender : appenders)
         appender.second->setRealmId(id);
 }
 

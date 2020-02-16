@@ -135,7 +135,7 @@ uint32 EventMap::GetNextEventTime(uint32 eventId) const
     if (Empty())
         return 0;
 
-    for (auto itr : _eventMap)
+    for (std::pair<uint32, uint32> itr : _eventMap)
         if (eventId == (itr.second & 0x0000FFFF))
             return itr.first;
 

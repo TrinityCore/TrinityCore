@@ -211,7 +211,7 @@ void UnitAI::FillAISpellInfo()
             UPDATE_TARGET(AITARGET_SELF)
         else
         {
-            for (const auto & Effect : spellInfo->Effects)
+            for (SpellEffectInfo const& Effect : spellInfo->Effects)
             {
                 uint32 targetType = Effect.TargetA.GetTarget();
 

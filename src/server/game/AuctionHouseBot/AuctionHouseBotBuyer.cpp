@@ -39,7 +39,7 @@ bool AuctionBotBuyer::Initialize()
     LoadConfig();
 
     bool activeHouse = false;
-    for (auto & i : _houseConfig)
+    for (BuyerConfiguration& i : _houseConfig)
     {
         if (i.BuyerEnabled)
         {

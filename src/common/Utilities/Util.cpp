@@ -140,7 +140,7 @@ int32 MoneyStringToMoney(std::string const& moneyString)
         return 0; // Bad format
 
     Tokenizer tokens(moneyString, ' ');
-    for (auto token : tokens)
+    for (char const* token : tokens)
     {
         std::string tokenString(token);
         size_t gCount = std::count(tokenString.begin(), tokenString.end(), 'g');

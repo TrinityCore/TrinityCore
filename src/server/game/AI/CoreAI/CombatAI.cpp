@@ -54,7 +54,7 @@ void AggressorAI::UpdateAI(uint32 /*diff*/)
 
 void CombatAI::InitializeAI()
 {
-    for (unsigned int m_spell : me->m_spells)
+    for (uint32 m_spell : me->m_spells)
         if (m_spell && sSpellMgr->GetSpellInfo(m_spell))
             Spells.push_back(m_spell);
 
@@ -68,14 +68,14 @@ void CombatAI::Reset()
 
 void CombatAI::JustDied(Unit* killer)
 {
-    for (unsigned int & Spell : Spells)
+    for (uint32 Spell : Spells)
         if (AISpellInfo[Spell].condition == AICOND_DIE)
             me->CastSpell(killer, Spell, true);
 }
 
 void CombatAI::JustEngagedWith(Unit* who)
 {
-    for (unsigned int & Spell : Spells)
+    for (uint32 Spell : Spells)
     {
         if (AISpellInfo[Spell].condition == AICOND_AGGRO)
             me->CastSpell(who, Spell, false);
@@ -118,7 +118,7 @@ void CasterAI::InitializeAI()
 
     _attackDistance = 30.0f;
 
-    for (unsigned int & Spell : Spells)
+    for (uint32 Spell : Spells)
         if (AISpellInfo[Spell].condition == AICOND_COMBAT && _attackDistance > GetAISpellInfo(Spell)->maxRange)
             _attackDistance = GetAISpellInfo(Spell)->maxRange;
 
@@ -315,7 +315,7 @@ void VehicleAI::CheckConditions(uint32 diff)
     {
         if (Vehicle* vehicleKit = me->GetVehicleKit())
         {
-            for (auto & Seat : vehicleKit->Seats)
+            for (std::pair<int8 const, VehicleSeat>& Seat : vehicleKit->Seats)
                 if (Unit* passenger = ObjectAccessor::GetUnit(*me, Seat.second.Passenger.Guid))
                 {
                     if (Player* player = passenger->ToPlayer())

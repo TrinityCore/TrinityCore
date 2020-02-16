@@ -54,7 +54,7 @@ void Logger::write(LogMessage* message) const
         return;
     }
 
-    for (auto appender : appenders)
+    for (std::pair<uint8 const, Appender*>appender : appenders)
         if (appender.second)
             appender.second->write(message);
 }

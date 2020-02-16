@@ -104,7 +104,7 @@ void SummonList::RemoveNotExisting()
 
 bool SummonList::HasEntry(uint32 entry) const
 {
-    for (auto i : _storage)
+    for (ObjectGuid i : _storage)
     {
         Creature* summon = ObjectAccessor::GetCreature(*_me, i);
         if (summon && summon->GetEntry() == entry)
@@ -317,7 +317,7 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
     SpellInfo const* tempSpell = nullptr;
 
     // Check if each spell is viable(set it to null if not)
-    for (unsigned int m_spell : me->m_spells)
+    for (uint32 m_spell : me->m_spells)
     {
         tempSpell = sSpellMgr->GetSpellInfo(m_spell);
 
@@ -405,8 +405,7 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
     if (!map->IsDungeon())
         return;
 
-    Map::PlayerList const& PlayerList = map->GetPlayers();
-    for (const auto & itr : PlayerList)
+    for (MapReference const& itr : map->GetPlayers())
         if (Player* player = itr.GetSource())
             if (player->IsAlive())
                 player->TeleportTo(me->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);

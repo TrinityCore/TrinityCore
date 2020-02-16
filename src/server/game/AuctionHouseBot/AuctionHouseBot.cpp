@@ -479,7 +479,7 @@ void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
     {
         statusInfo[i].ItemsCount = 0;
 
-        for (unsigned int & j : statusInfo[i].QualityInfo)
+        for (uint32& j : statusInfo[i].QualityInfo)
             j = 0;
 
         AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(AuctionHouseType(i));

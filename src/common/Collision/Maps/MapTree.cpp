@@ -328,7 +328,7 @@ namespace VMAP
 
     void StaticMapTree::UnloadMap(VMapManager2* vm)
     {
-        for (auto & iLoadedSpawn : iLoadedSpawns)
+        for (std::pair<uint32 const, uint32>& iLoadedSpawn : iLoadedSpawns)
         {
             iTreeValues[iLoadedSpawn.first].setUnloaded();
             for (uint32 refCount = 0; refCount < iLoadedSpawn.second; ++refCount)

@@ -169,7 +169,7 @@ void PetAI::UpdateAI(uint32 diff)
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
-                    for (auto tar : _allySet)
+                    for (ObjectGuid tar : _allySet)
                     {
                         Unit* ally = ObjectAccessor::GetUnit(*me, tar);
 
@@ -218,7 +218,7 @@ void PetAI::UpdateAI(uint32 diff)
         }
 
         // deleted cached Spell objects
-        for (const auto & itr : targetSpellStore)
+        for (std::pair<Unit*, Spell*> const& itr : targetSpellStore)
             delete itr.second;
     }
 

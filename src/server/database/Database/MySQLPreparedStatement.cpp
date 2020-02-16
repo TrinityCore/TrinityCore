@@ -214,7 +214,7 @@ std::string MySQLPreparedStatement::getQueryString() const
     std::string queryString(m_queryString);
 
     size_t pos = 0;
-    for (auto & i : m_stmt->statement_data)
+    for (PreparedStatementData& i : m_stmt->statement_data)
     {
         pos = queryString.find('?', pos);
         std::stringstream ss;

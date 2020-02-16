@@ -566,7 +566,7 @@ bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 rea
 
 void AccountMgr::ClearRBAC()
 {
-    for (auto & _permission : _permissions)
+    for (std::pair<uint32 const, rbac::RBACPermission*> & _permission : _permissions)
         delete _permission.second;
 
     _permissions.clear();

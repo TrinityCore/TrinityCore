@@ -41,11 +41,11 @@ namespace VMAP
 
     VMapManager2::~VMapManager2(void)
     {
-        for (auto & iInstanceMapTree : iInstanceMapTrees)
+        for (std::pair<uint32 const, StaticMapTree*> & iInstanceMapTree : iInstanceMapTrees)
         {
             delete iInstanceMapTree.second;
         }
-        for (auto & iLoadedModelFile : iLoadedModelFiles)
+        for (std::pair<std::string const, ManagedModel>& iLoadedModelFile : iLoadedModelFiles)
         {
             delete iLoadedModelFile.second.getModel();
         }

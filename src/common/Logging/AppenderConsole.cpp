@@ -27,8 +27,8 @@
 AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs)
     : Appender(id, name, level, flags), _colored(false)
 {
-    for (auto & _color : _colors)
-        _color = ColorTypes(MaxColors);
+    for (ColorTypes& _color : _colors)
+        _color = MAXCOLORS;
 
     if (!extraArgs.empty())
         InitColors(extraArgs[0]);
@@ -53,7 +53,7 @@ void AppenderConsole::InitColors(std::string const& str)
         if (!ss)
             return;
 
-        if (i < 0 || i >= MaxColors)
+        if (i < 0 || i >= MAXCOLORS)
             return;
     }
 
@@ -127,7 +127,7 @@ void AppenderConsole::SetColor(bool stdout_stream, ColorTypes color)
         BG_WHITE
     };
 
-    static uint8 UnixColorFG[MaxColors] =
+    static uint8 UnixColorFG[MAXCOLORS] =
     {
         FG_BLACK,                                          // BLACK
         FG_RED,                                            // RED
@@ -146,7 +146,7 @@ void AppenderConsole::SetColor(bool stdout_stream, ColorTypes color)
         FG_WHITE                                           // LWHITE
     };
 
-    fprintf((stdout_stream? stdout : stderr), "\x1b[%d%sm", UnixColorFG[color], (color >= YELLOW && color < MaxColors ? ";1" : ""));
+    fprintf((stdout_stream? stdout : stderr), "\x1b[%d%sm", UnixColorFG[color], (color >= YELLOW && color < MAXCOLORS ? ";1" : ""));
     #endif
 }
 

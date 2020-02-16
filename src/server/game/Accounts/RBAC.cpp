@@ -213,7 +213,7 @@ void RBACData::LoadFromDBCallback(PreparedQueryResult result)
 
     // Add default permissions
     RBACPermissionContainer const& permissions = sAccountMgr->GetRBACDefaultPermissions(_secLevel);
-    for (unsigned int permission : permissions)
+    for (int32 permission : permissions)
         GrantPermission(permission);
 
     // Force calculation of permissions
@@ -234,13 +234,13 @@ void RBACData::CalculateNewPermissions()
 
 void RBACData::AddPermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo)
 {
-    for (unsigned int itr : permsFrom)
+    for (uint32 itr : permsFrom)
         permsTo.insert(itr);
 }
 
 void RBACData::RemovePermissions(RBACPermissionContainer& permsFrom, RBACPermissionContainer const& permsToRemove)
 {
-    for (unsigned int itr : permsToRemove)
+    for (uint32 itr : permsToRemove)
         permsFrom.erase(itr);
 }
 
@@ -264,7 +264,7 @@ void RBACData::ExpandPermissions(RBACPermissionContainer& permissions)
 
         // add all linked permissions (that are not already expanded) to the list of permissions to be checked
         RBACPermissionContainer const& linkedPerms = permission->GetLinkedPermissions();
-        for (unsigned int linkedPerm : linkedPerms)
+        for (uint32 linkedPerm : linkedPerms)
             if (permissions.find(linkedPerm) == permissions.end())
                 toCheck.insert(linkedPerm);
     }

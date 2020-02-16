@@ -169,7 +169,7 @@ Creature* SmartScript::FindCreatureNear(WorldObject* searchObject, ObjectGuid::L
 void SmartScript::OnReset()
 {
     ResetBaseObject();
-    for (auto & mEvent : mEvents)
+    for (SmartScriptHolder& mEvent : mEvents)
     {
         if (!(mEvent.event.event_flags & SMART_EVENT_FLAG_DONT_RESET))
         {
@@ -214,7 +214,7 @@ void SmartScript::ResetBaseObject()
 
 void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob)
 {
-    for (auto & mEvent : mEvents)
+    for (SmartScriptHolder& mEvent : mEvents)
     {
         SMART_EVENT eventType = SMART_EVENT(mEvent.GetEventType());
         if (eventType == SMART_EVENT_LINK)//special handling
@@ -508,7 +508,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 // Special handling for vehicles
                 if (IsUnit(target))
                     if (Vehicle* vehicle = target->ToUnit()->GetVehicleKit())
-                        for (auto & Seat : vehicle->Seats)
+                        for (std::pair<int8 const, VehicleSeat>& Seat : vehicle->Seats)
                             if (Player* player = ObjectAccessor::GetPlayer(*target, Seat.second.Passenger.Guid))
                                 player->AreaExploredOrEventHappens(e.action.quest.quest);
 
@@ -837,7 +837,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             // Special handling for vehicles
             if (Vehicle* vehicle = unit->GetVehicleKit())
-                for (auto & Seat : vehicle->Seats)
+                for (std::pair<int8 const, VehicleSeat>& Seat : vehicle->Seats)
                     if (Player* passenger = ObjectAccessor::GetPlayer(*unit, Seat.second.Passenger.Guid))
                         passenger->GroupEventHappens(e.action.quest.quest, GetBaseObject());
             break;
@@ -960,7 +960,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     }
                     else if (IsUnit(target)) // Special handling for vehicles
                         if (Vehicle* vehicle = target->ToUnit()->GetVehicleKit())
-                            for (auto & Seat : vehicle->Seats)
+                            for (std::pair<int8 const, VehicleSeat>& Seat : vehicle->Seats)
                                 if (Player* player = ObjectAccessor::GetPlayer(*target, Seat.second.Passenger.Guid))
                                     player->KilledMonsterCredit(e.action.killedMonster.creature);
                 }
@@ -2067,7 +2067,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             if (!path || path->nodes.empty())
                                 continue;
 
-                            for (auto waypoint : path->nodes)
+                            for (WaypointNode waypoint : path->nodes)
                             {
                                 float distamceToThisNode = creature->GetDistance(waypoint.x, waypoint.y, waypoint.z);
                                 if (distamceToThisNode < distanceToClosest)
@@ -2797,7 +2797,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         case SMART_TARGET_VEHICLE_PASSENGER:
         {
             if (me && me->IsVehicle())
-                for (auto & Seat : me->GetVehicleKit()->Seats)
+                for (std::pair<int8 const, VehicleSeat>& Seat : me->GetVehicleKit()->Seats)
                     if (!e.target.vehicle.seatMask || (e.target.vehicle.seatMask & (1 << Seat.first)))
                         if (Unit* u = ObjectAccessor::GetUnit(*me, Seat.second.Passenger.Guid))
                             targets.push_back(u);
@@ -3499,7 +3499,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                         invoker = ObjectAccessor::GetUnit(*me, mTimedActionListInvoker);
                     ProcessEvent(e, invoker);
                     e.enableTimed = false;//disable event if it is in an ActionList and was processed once
-                    for (auto & i : mTimedActionList)
+                    for (SmartScriptHolder& i : mTimedActionList)
                     {
                         //find the first event which is not the current one and enable it
                         if (i.event_id > e.event_id)
@@ -3528,7 +3528,7 @@ void SmartScript::InstallEvents()
 {
     if (!mInstallEvents.empty())
     {
-        for (auto & mInstallEvent : mInstallEvents)
+        for (SmartScriptHolder& mInstallEvent : mInstallEvents)
             mEvents.push_back(mInstallEvent);//must be before UpdateTimers
 
         mInstallEvents.clear();
@@ -3598,7 +3598,7 @@ void SmartScript::OnUpdate(uint32 const diff)
 
     InstallEvents();//before UpdateTimers
 
-    for (auto & mEvent : mEvents)
+    for (SmartScriptHolder& mEvent : mEvents)
         UpdateTimer(mEvent, diff);
 
     if (!mStoredEvents.empty())
@@ -3615,7 +3615,7 @@ void SmartScript::OnUpdate(uint32 const diff)
     if (!mTimedActionList.empty())
     {
         isProcessingTimedActionList = true;
-        for (auto & i : mTimedActionList)
+        for (SmartScriptHolder& i : mTimedActionList)
         {
             if (i.enableTimed)
             {
@@ -3662,7 +3662,7 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
             TC_LOG_DEBUG("scripts.ai", "SmartScript: EventMap for AreaTrigger %u is empty but is using SmartScript.", at->id);
         return;
     }
-    for (auto & i : e)
+    for (SmartScriptHolder& i : e)
     {
         #ifndef TRINITY_DEBUG
             if (i.event.event_flags & SMART_EVENT_FLAG_DEBUG_ONLY)
@@ -3742,7 +3742,7 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at)
 
     GetScript();//load copy of script
 
-    for (auto & mEvent : mEvents)
+    for (SmartScriptHolder& mEvent : mEvents)
         InitTimer(mEvent);//calculate timers for first time use
 
     ProcessEventsFor(SMART_EVENT_AI_INIT);

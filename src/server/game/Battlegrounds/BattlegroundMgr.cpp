@@ -69,7 +69,7 @@ BattlegroundMgr::~BattlegroundMgr()
 
 void BattlegroundMgr::DeleteAllBattlegrounds()
 {
-    for (auto & itr1 : bgDataStore)
+    for (std::pair<BattlegroundTypeId, BattlegroundData> itr1 : bgDataStore)
     {
         BattlegroundData& data = itr1.second;
 
@@ -96,7 +96,7 @@ void BattlegroundMgr::Update(uint32 diff)
     m_UpdateTimer += diff;
     if (m_UpdateTimer > BATTLEGROUND_OBJECTIVE_UPDATE_INTERVAL)
     {
-        for (auto & itr1 : bgDataStore)
+        for (std::pair<BattlegroundTypeId, BattlegroundData> itr1 : bgDataStore)
         {
             BattlegroundContainer& bgs = itr1.second.m_Battlegrounds;
             BattlegroundContainer::iterator itrDelete = bgs.begin();
@@ -133,7 +133,7 @@ void BattlegroundMgr::Update(uint32 diff)
         std::vector<uint64> scheduled;
         std::swap(scheduled, m_QueueUpdateScheduler);
 
-        for (unsigned long i : scheduled)
+        for (uint8 i : scheduled)
         {
             uint32 arenaMMRating = i >> 32;
             uint8 arenaType = i >> 24 & 255;
@@ -271,7 +271,7 @@ Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 insta
     if (it == bgDataStore.end())
         return nullptr;
 
-    for (auto m_Battleground : it->second.m_Battlegrounds)
+    for (std::pair<uint32 const, Battleground*> m_Battleground : it->second.m_Battlegrounds)
     {
         if (m_Battleground.second->GetClientInstanceID() == instanceId)
             return m_Battleground.second;
@@ -686,7 +686,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid 
                 uint32 count = 0;
                 BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
                 BattlegroundClientIdsContainer& clientIds = it->second.m_ClientBattlegroundIds[bracketId];
-                for (unsigned int clientId : clientIds)
+                for (uint32 clientId : clientIds)
                 {
                     *data << uint32(clientId);
                     ++count;

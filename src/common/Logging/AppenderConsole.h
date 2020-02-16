@@ -36,10 +36,10 @@ enum ColorTypes
     LBLUE,
     LMAGENTA,
     LCYAN,
-    WHITE
+    WHITE,
+    MAXCOLORS
 };
 
-const uint8 MaxColors = uint8(WHITE) + 1;
 
 class TC_COMMON_API AppenderConsole : public Appender
 {

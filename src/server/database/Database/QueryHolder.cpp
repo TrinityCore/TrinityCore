@@ -57,11 +57,11 @@ void SQLQueryHolder::SetPreparedResult(size_t index, PreparedResultSet* result)
 
 SQLQueryHolder::~SQLQueryHolder()
 {
-    for (auto & m_querie : m_queries)
+    for (std::pair<PreparedStatement*, PreparedQueryResult>& query : m_queries)
     {
         /// if the result was never used, free the resources
         /// results used already (getresult called) are expected to be deleted
-        delete m_querie.first;
+        delete query.first;
     }
 }
 

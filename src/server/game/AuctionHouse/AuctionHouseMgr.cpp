@@ -46,7 +46,7 @@ AuctionHouseMgr::AuctionHouseMgr() { }
 
 AuctionHouseMgr::~AuctionHouseMgr()
 {
-    for (auto & mAitem : mAitems)
+    for (std::pair<ObjectGuid::LowType const, Item*>& mAitem : mAitems)
         delete mAitem.second;
 }
 
@@ -300,7 +300,7 @@ void AuctionHouseMgr::LoadAuctionItems()
     // need to clear in case we are reloading
     if (!mAitems.empty())
     {
-        for (auto & mAitem : mAitems)
+        for (std::pair<ObjectGuid::LowType const, Item*>& mAitem : mAitems)
             delete mAitem.second;
 
         mAitems.clear();

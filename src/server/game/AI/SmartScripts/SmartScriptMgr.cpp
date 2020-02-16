@@ -111,7 +111,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
 
     uint32 oldMSTime = getMSTime();
 
-    for (auto & i : mEventMap)
+    for (SmartAIEventMap& i : mEventMap)
         i.clear();  //Drop Existing SmartAI List
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMART_SCRIPTS);
@@ -343,7 +343,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
     while (result->NextRow());
 
     // Post Loading Validation
-    for (auto & i : mEventMap)
+    for (SmartAIEventMap& i : mEventMap)
     {
         for (SmartAIEventMap::iterator itr = i.begin(); itr != i.end(); ++itr)
         {
@@ -1168,8 +1168,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
 
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(e.action.cast.spell);
-            for (const auto & Effect : spellInfo->Effects)
+            for (SpellEffectInfo const& Effect : sSpellMgr->AssertSpellInfo(e.action.cast.spell)->Effects)
             {
                 if (Effect.IsEffect(SPELL_EFFECT_KILL_CREDIT) || Effect.IsEffect(SPELL_EFFECT_KILL_CREDIT2))
                 {

@@ -469,7 +469,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
 
 bool AchievementCriteriaDataSet::Meets(Player const* source, WorldObject const* target, uint32 miscvalue1 /*= 0*/, uint32 miscvalue2 /* = 0*/) const
 {
-    for (auto itr : storage)
+    for (AchievementCriteriaData const& itr : storage)
         if (!itr.Meets(criteria_id, source, target, miscvalue1, miscvalue2))
             return false;
 
@@ -485,17 +485,17 @@ AchievementMgr::~AchievementMgr() { }
 
 void AchievementMgr::Reset()
 {
-    for (const auto & m_completedAchievement : m_completedAchievements)
+    for (std::pair<uint32, CompletedAchievementData> const& m_completedAchievement : m_completedAchievements)
     {
         WorldPacket data(SMSG_ACHIEVEMENT_DELETED, 4);
         data << uint32(m_completedAchievement.first);
         m_player->SendDirectMessage(&data);
     }
 
-    for (const auto & m_criteriaProgres : m_criteriaProgress)
+    for (std::pair<uint32, CriteriaProgress> const& m_criteriaProgress : m_criteriaProgress)
     {
         WorldPacket data(SMSG_CRITERIA_DELETED, 4);
-        data << uint32(m_criteriaProgres.first);
+        data << uint32(m_criteriaProgress.first);
         m_player->SendDirectMessage(&data);
     }
 
@@ -519,7 +519,7 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaCondition condi
     if (!achievementCriteriaList)
         return;
 
-    for (auto achievementCriteria : *achievementCriteriaList)
+    for (AchievementCriteriaEntry const* achievementCriteria : *achievementCriteriaList)
     {
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->ReferredAchievement);
         if (!achievement)
@@ -552,7 +552,7 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
 {
     if (!m_completedAchievements.empty())
     {
-        for (auto & m_completedAchievement : m_completedAchievements)
+        for (std::pair<uint32 const, CompletedAchievementData>& m_completedAchievement : m_completedAchievements)
         {
             if (!m_completedAchievement.second.changed)
                 continue;
@@ -574,7 +574,7 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
 
     if (!m_criteriaProgress.empty())
     {
-        for (auto & m_criteriaProgres : m_criteriaProgress)
+        for (std::pair<uint32 const, CriteriaProgress>& m_criteriaProgres : m_criteriaProgress)
         {
             if (!m_criteriaProgres.second.changed)
                 continue;
@@ -932,7 +932,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 uint32 counter = 0;
 
                 RewardedQuestSet const& rewQuests = GetPlayer()->getRewardedQuests();
-                for (unsigned int rewQuest : rewQuests)
+                for (uint32 rewQuest : rewQuests)
                 {
                     Quest const* quest = sObjectMgr->GetQuestTemplate(rewQuest);
                     if (quest && quest->GetZoneOrSort() >= 0 && uint32(quest->GetZoneOrSort()) == achievementCriteria->Asset.ZoneID)
@@ -992,7 +992,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
             {
                 uint32 spellCount = 0;
-                for (auto spellIter : GetPlayer()->GetSpellMap())
+                for (std::pair<uint32 const, PlayerSpell*>& spellIter : GetPlayer()->GetSpellMap())
                 {
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
@@ -1020,16 +1020,18 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
             {
                 uint32 spellCount = 0;
-                for (auto spellIter : GetPlayer()->GetSpellMap())
+                for (std::pair<uint32 const, PlayerSpell*>& spellIter : GetPlayer()->GetSpellMap())
                 {
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
+                    {
                         if (skillIter->second->skillId == achievementCriteria->Asset.SkillID)
                         {
                             // do not add couter twice if by any chance skill is listed twice in dbc (eg. skill 777 and spell 22717)
                             ++spellCount;
                             break;
                         }
+                    }
                 }
                 SetCriteriaProgress(achievementCriteria, spellCount);
                 break;
@@ -1044,7 +1046,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscValue1)
                 {
                     uint32 points = 0;
-                    for (const auto & m_completedAchievement : m_completedAchievements)
+                    for (std::pair<uint32, CompletedAchievementData> const& m_completedAchievement : m_completedAchievements)
                         if (AchievementEntry const* completedAchievements = sAchievementMgr->GetAchievement(m_completedAchievement.first))
                             points += completedAchievements->Points;
                     SetCriteriaProgress(achievementCriteria, points, PROGRESS_SET);
@@ -1139,9 +1141,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 CompletedAchievement(achievement);
 
         if (AchievementEntryList const* achRefList = sAchievementMgr->GetAchievementByReferencedId(achievement->ID))
-            for (auto itr : *achRefList)
-                if (IsCompletedAchievement(itr))
-                    CompletedAchievement(itr);
+            for (AchievementEntry const* achievement: *achRefList)
+                if (IsCompletedAchievement(achievement))
+                    CompletedAchievement(achievement);
     }
 }
 
@@ -1301,7 +1303,7 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
     // Oddly, the target count is NOT countained in the achievement, but in each individual criteria
     if (entry->Flags & ACHIEVEMENT_FLAG_SUMM)
     {
-        for (auto criteria : *cList)
+        for (AchievementCriteriaEntry const* criteria : *cList)
         {
             CriteriaProgress const* progress = GetCriteriaProgress(criteria);
             if (!progress)
@@ -1318,7 +1320,7 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
 
     // Default case - need complete all or
     bool completed_all = true;
-    for (auto criteria : *cList)
+    for (AchievementCriteriaEntry const* criteria : *cList)
     {
         bool completed = IsCompletedCriteria(criteria, entry);
 
@@ -1458,8 +1460,7 @@ void AchievementMgr::UpdateTimedAchievements(uint32 timeDiff)
 
 void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost /*= 0*/)
 {
-    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetTimedAchievementCriteriaByType(type);
-    for (auto i : achievementCriteriaList)
+    for (AchievementCriteriaEntry const* i : sAchievementMgr->GetTimedAchievementCriteriaByType(type))
     {
         if (i->StartAsset != entry)
             continue;
@@ -1481,8 +1482,7 @@ void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, u
 
 void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
 {
-    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetTimedAchievementCriteriaByType(type);
-    for (auto i : achievementCriteriaList)
+    for (AchievementCriteriaEntry const* i : sAchievementMgr->GetTimedAchievementCriteriaByType(type))
     {
         if (i->StartAsset != entry)
             continue;
@@ -1600,7 +1600,7 @@ void AchievementMgr::SendRespondInspectAchievements(Player* player) const
  */
 void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
 {
-    for (const auto & m_completedAchievement : m_completedAchievements)
+    for (std::pair<uint32 const, CompletedAchievementData> const& m_completedAchievement : m_completedAchievements)
     {
         // Skip hidden achievements
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(m_completedAchievement.first);
@@ -1612,7 +1612,7 @@ void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
     }
     *data << int32(-1);
 
-    for (const auto & m_criteriaProgres : m_criteriaProgress)
+    for (std::pair<uint32 const, CriteriaProgress> const& m_criteriaProgres : m_criteriaProgress)
     {
         *data << uint32(m_criteriaProgres.first);
         data->appendPackGUID(m_criteriaProgres.second.counter);
@@ -1885,7 +1885,7 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                 return false;
 
             bool matchFound = false;
-            for (unsigned int j : worldOverlayEntry->areatableID)
+            for (uint32 j : worldOverlayEntry->areatableID)
             {
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(j);
                 if (!area)

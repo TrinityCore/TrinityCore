@@ -611,7 +611,7 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
 
 bool ArenaTeam::IsMember(ObjectGuid guid) const
 {
-    for (const auto & Member : Members)
+    for (ArenaTeamMember const& Member : Members)
         if (Member.Guid == guid)
             return true;
 
@@ -653,7 +653,7 @@ uint32 ArenaTeam::GetAverageMMR(Group* group) const
 
     uint32 matchMakerRating = 0;
     uint32 playerDivider = 0;
-    for (const auto & Member : Members)
+    for (ArenaTeamMember const& Member : Members)
     {
         // Skip if player is not online
         if (!ObjectAccessor::FindConnectedPlayer(Member.Guid))
@@ -749,7 +749,7 @@ void ArenaTeam::FinishGame(int32 mod)
         Stats.Rating += mod;
 
         // Check if rating related achivements are met
-        for (auto & Member : Members)
+        for (ArenaTeamMember& Member : Members)
             if (Player* member = ObjectAccessor::FindConnectedPlayer(Member.Guid))
                 member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, Stats.Rating, Type);
     }
@@ -807,7 +807,7 @@ int32 ArenaTeam::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int3
 void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // Called for each participant of a match after losing
-    for (auto & Member : Members)
+    for (ArenaTeamMember& Member : Members)
     {
         if (Member.Guid == player->GetGUID())
         {
@@ -833,7 +833,7 @@ void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32
 void ArenaTeam::OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // Called for offline player after ending rated arena match!
-    for (auto & Member : Members)
+    for (ArenaTeamMember& Member : Members)
     {
         if (Member.Guid == guid)
         {
@@ -855,7 +855,7 @@ void ArenaTeam::OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRatin
 void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // called for each participant after winning a match
-    for (auto & Member : Members)
+    for (ArenaTeamMember& Member : Members)
     {
         if (Member.Guid == player->GetGUID())
         {
@@ -963,7 +963,7 @@ bool ArenaTeam::FinishWeek()
     Stats.WeekWins = 0;
 
     // Reset member stats
-    for (auto & Member : Members)
+    for (ArenaTeamMember& Member : Members)
     {
         Member.WeekGames = 0;
         Member.WeekWins = 0;
@@ -974,7 +974,7 @@ bool ArenaTeam::FinishWeek()
 
 bool ArenaTeam::IsFighting() const
 {
-    for (const auto & Member : Members)
+    for (ArenaTeamMember const& Member : Members)
         if (Player* player = ObjectAccessor::FindPlayer(Member.Guid))
             if (player->GetMap()->IsBattleArena())
                 return true;
@@ -984,7 +984,7 @@ bool ArenaTeam::IsFighting() const
 
 ArenaTeamMember* ArenaTeam::GetMember(const std::string& name)
 {
-    for (auto & Member : Members)
+    for (ArenaTeamMember& Member : Members)
         if (Member.Name == name)
             return &Member;
 
@@ -993,7 +993,7 @@ ArenaTeamMember* ArenaTeam::GetMember(const std::string& name)
 
 ArenaTeamMember* ArenaTeam::GetMember(ObjectGuid guid)
 {
-    for (auto & Member : Members)
+    for (ArenaTeamMember& Member : Members)
         if (Member.Guid == guid)
             return &Member;
 

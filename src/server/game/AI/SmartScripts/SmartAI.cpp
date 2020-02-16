@@ -893,7 +893,7 @@ void SmartAI::CheckConditions(uint32 diff)
     {
         if (Vehicle* vehicleKit = me->GetVehicleKit())
         {
-            for (auto & Seat : vehicleKit->Seats)
+            for (std::pair<int8 const, VehicleSeat>& Seat : vehicleKit->Seats)
                 if (Unit* passenger = ObjectAccessor::GetUnit(*me, Seat.second.Passenger.Guid))
                 {
                     if (Player* player = passenger->ToPlayer())

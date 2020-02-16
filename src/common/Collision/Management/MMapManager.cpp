@@ -29,7 +29,7 @@ namespace MMAP
     // ######################## MMapManager ########################
     MMapManager::~MMapManager()
     {
-        for (auto & loadedMMap : loadedMMaps)
+        for (std::pair<uint32 const, MMapData*>& loadedMMap : loadedMMaps)
             delete loadedMMap.second;
 
         // by now we should not have maps loaded
