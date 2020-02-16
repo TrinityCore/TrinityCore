@@ -1009,13 +1009,13 @@ void RobotAI::InitializeCharacter()
                 {
                     if (me->InitTamedPet(createPet, me->GetLevel(), 1515))
                     {
+                        createPet->GivePetLevel(me->GetLevel());
                         createPet->GetMap()->AddToMap(createPet->ToCreature());
                         me->SetMinion(createPet, true);
                         createPet->InitTalentForLevel();
                         createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
                         me->PetSpellInitialize();
-                        createPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
-                        createPet->InitLevelupSpellsForLevel();
+                        createPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);                        
                         petCreated = true;
                     }
                 }
@@ -1108,8 +1108,7 @@ void RobotAI::Prepare()
         if (checkPet->getPetType() == PetType::HUNTER_PET)
         {
             checkPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
-        }
-        checkPet->InitLevelupSpellsForLevel();
+        }        
         std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
         for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
         {
@@ -1379,8 +1378,8 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float
     {
         if (holding)
         {
-            me->GetMotionMaster()->Clear();
             me->StopMoving();
+            me->GetMotionMaster()->Clear();
         }
     }
     else
@@ -1394,8 +1393,8 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float
         }
         else
         {
-            me->GetMotionMaster()->Clear();
             me->StopMoving();
+            me->GetMotionMaster()->Clear();
             me->SetSelection(ObjectGuid::Empty);
             me->GetMotionMaster()->MoveChase(pmTarget, ChaseRange(pmMinDistance, pmMaxDistance));
         }

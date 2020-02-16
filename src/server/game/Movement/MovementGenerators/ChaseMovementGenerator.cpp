@@ -118,12 +118,12 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         return true;
     }
 
-    bool const mutualChase     = IsMutualChase(owner, target);
-    float const hitboxSum      = owner->GetCombatReach() + target->GetCombatReach();
-    float const minRange       = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
-    float const minTarget      = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
-    float const maxRange       = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
-    float const maxTarget      = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;    
+    bool const mutualChase = IsMutualChase(owner, target);
+    float const hitboxSum = owner->GetCombatReach() + target->GetCombatReach();
+    float const minRange = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
+    float const minTarget = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
+    float const maxRange = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
+    float const maxTarget = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
 
     Optional<ChaseAngle> angle = mutualChase ? Optional<ChaseAngle>() : _angle;
 
@@ -155,7 +155,9 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         if (Creature* cOwner = owner->ToCreature())
             cOwner->SetCannotReachTarget(false);
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
-        owner->SetInFront(target);
+        // EJ use facing instead of setinfront 
+        //owner->SetInFront(target);
+        owner->SetFacingToObject(target);
         DoMovementInform(owner, target);
     }
 
@@ -164,7 +166,13 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
     {
         _lastTargetPosition = target->GetPosition();
         _mutualChase = mutualChase;
-        if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) || !PositionOkay(owner, target, minRange, maxRange, angle))
+        // EJ debug
+        //bool us = owner->HasUnitState(UNIT_STATE_CHASE_MOVE);
+        //bool po = PositionOkay(owner, target, minRange, maxRange, angle);
+        //if (us || !po)
+        // EJ facing ok check 
+        //if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) || !PositionOkay(owner, target, minRange, maxRange, angle))
+        if (owner->HasUnitState(UNIT_STATE_CHASE_MOVE) || !PositionOkay(owner, target, minRange, maxRange, angle) || !owner->isInFront(target))
         {
             Creature* const cOwner = owner->ToCreature();
             // can we get to the target?
@@ -224,14 +232,14 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             {
                 switch (cOwner->GetMovementTemplate().GetChase())
                 {
-                    case CreatureChaseMovementType::CanWalk:
-                        walk = owner->IsWalking();
-                        break;
-                    case CreatureChaseMovementType::AlwaysWalk:
-                        walk = true;
-                        break;
-                    default:
-                        break;
+                case CreatureChaseMovementType::CanWalk:
+                    walk = owner->IsWalking();
+                    break;
+                case CreatureChaseMovementType::AlwaysWalk:
+                    walk = true;
+                    break;
+                default:
+                    break;
                 }
             }
 
