@@ -232,7 +232,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         Unit* SelectNearestTarget(float dist = 0, bool playerOnly = false) const;
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
-        Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
+        Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false, bool ignoreCivilians = false) const;
 
         void DoFleeToGetAssistance();
         void CallForHelp(float fRadius);
