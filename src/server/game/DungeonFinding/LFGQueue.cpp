@@ -650,7 +650,7 @@ std::string LFGQueue::DumpQueueInfo() const
     for (uint8 i = 0; i < 2; ++i)
     {
         GuidList const& queue = i ? newToQueueStore : currentQueueStore;
-        for (auto guid : queue)
+        for (ObjectGuid guid : queue)
         {
             if (guid.IsGroup())
             {
@@ -671,7 +671,7 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
     std::ostringstream o;
     o << "Compatible Map size: " << CompatibleMapStore.size() << "\n";
     if (full)
-        for (const auto & itr : CompatibleMapStore)
+        for (std::pair<std::string, LfgCompatibilityData> const& itr : CompatibleMapStore)
         {
             o << "(" << itr.first << "): " << GetCompatibleString(itr.second.compatibility);
             if (!itr.second.roles.empty())

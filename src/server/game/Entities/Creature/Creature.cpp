@@ -201,7 +201,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
     queryTemp.Stats.EnergyMulti = ModMana;
     queryTemp.Stats.Leader = RacialLeader;
 
-    for (unsigned int & QuestItem : queryTemp.Stats.QuestItems)
+    for (uint32& QuestItem : queryTemp.Stats.QuestItems)
         QuestItem = 0;
 
     if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(Entry))
@@ -255,7 +255,7 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_grou
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
 
-    for (unsigned int & m_spell : m_spells)
+    for (uint32& m_spell : m_spells)
         m_spell = 0;
 
     DisableReputationGain = false;
@@ -637,7 +637,7 @@ void Creature::SetPhaseMask(uint32 newPhaseMask, bool update)
 
     if (Vehicle* vehicle = GetVehicleKit())
     {
-        for (auto & Seat : vehicle->Seats)
+        for (std::pair<int8 const, VehicleSeat> Seat : vehicle->Seats)
             if (Unit* passenger = ObjectAccessor::GetUnit(*this, Seat.second.Passenger.Guid))
                 passenger->SetPhaseMask(newPhaseMask, update);
     }
@@ -782,7 +782,7 @@ void Creature::Update(uint32 diff)
                 {
                     Map::PlayerList const& players = GetMap()->GetPlayers();
                     if (!players.isEmpty())
-                        for (const auto & it : players)
+                        for (MapReference const& it : players)
                         {
                             if (Player* player = it.GetSource())
                             {
@@ -1108,7 +1108,7 @@ Unit* Creature::SelectVictim()
                     target = owner->getAttackerForHelper();
                 if (!target)
                 {
-                    for (auto itr : owner->m_Controlled)
+                    for (Unit* itr : owner->m_Controlled)
                     {
                         if (itr->IsInCombat())
                         {
@@ -1138,7 +1138,7 @@ Unit* Creature::SelectVictim()
     Unit::AuraEffectList const& iAuras = GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
     if (!iAuras.empty())
     {
-        for (auto iAura : iAuras)
+        for (AuraEffect* iAura : iAuras)
         {
             if (iAura->GetBase()->IsPermanent())
             {
@@ -2536,7 +2536,7 @@ bool Creature::LoadCreaturesAddon()
 
     if (!cainfo->auras.empty())
     {
-        for (unsigned int aura : cainfo->auras)
+        for (uint32 aura : cainfo->auras)
         {
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(aura);
             if (!AdditionalSpellInfo)

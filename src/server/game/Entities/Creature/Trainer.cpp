@@ -51,7 +51,7 @@ namespace Trainer
             SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell.SpellId);
 
             bool primaryProfessionFirstRank = false;
-            for (const auto & Effect : trainerSpellInfo->Effects)
+            for (SpellEffectInfo const& Effect : trainerSpellInfo->Effects)
             {
                 if (Effect.Effect != SPELL_EFFECT_LEARN_SPELL)
                     continue;
@@ -138,7 +138,7 @@ namespace Trainer
 
         SpellInfo const* trainerSpellInfo = sSpellMgr->AssertSpellInfo(trainerSpell->SpellId);
 
-        for (const auto & Effect : trainerSpellInfo->Effects)
+        for (SpellEffectInfo const& Effect : trainerSpellInfo->Effects)
         {
             if (Effect.Effect != SPELL_EFFECT_LEARN_SPELL)
                 continue;

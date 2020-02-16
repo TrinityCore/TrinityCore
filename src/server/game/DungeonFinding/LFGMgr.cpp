@@ -1144,17 +1144,17 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
     }
 
     // Notify players
-    for (LfgProposalPlayerContainer::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
+    for (std::pair<ObjectGuid const, LfgProposalPlayer> player : proposal.players)
     {
-        ObjectGuid guid = it->first;
-        ObjectGuid gguid = it->second.group ? it->second.group : guid;
+        ObjectGuid guid = player.first;
+        ObjectGuid gguid = player.second.group ? player.second.group : guid;
 
         SendLfgUpdateProposal(guid, proposal);
 
         if (toRemove.find(gguid) != toRemove.end())         // Didn't accept or in same group that someone that didn't accept
         {
             LfgUpdateData updateData;
-            if (it->second.accept == LFG_ANSWER_DENY)
+            if (player.second.accept == LFG_ANSWER_DENY)
             {
                 updateData.updateType = type;
                 TC_LOG_DEBUG("lfg.proposal.remove", "%s didn't accept. Removing from queue and compatible cache", guid.ToString().c_str());
@@ -1168,7 +1168,7 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
             RestoreState(guid, "Proposal Fail (didn't accepted or in group with someone that didn't accept");
             if (gguid != guid)
             {
-                RestoreState(it->second.group, "Proposal Fail (someone in group didn't accepted)");
+                RestoreState(player.second.group, "Proposal Fail (someone in group didn't accepted)");
                 SendLfgUpdateParty(guid, updateData);
             }
             else
@@ -1190,7 +1190,7 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
 
     LFGQueue& queue = GetQueue(proposal.players.begin()->first);
     // Remove players/groups from queue
-    for (auto guid : toRemove)
+    for (ObjectGuid guid : toRemove)
     {
         queue.RemoveFromQueue(guid);
         proposal.queues.remove(guid);
@@ -2089,7 +2089,7 @@ uint32 LFGMgr::GetLFGDungeonEntry(uint32 id)
 LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
 {
     LfgDungeonSet randomDungeons;
-    for (const auto & itr : LfgDungeonStore)
+    for (std::pair<uint32, LFGDungeonData> const& itr : LfgDungeonStore)
     {
         lfg::LFGDungeonData const& dungeon = itr.second;
         if ((dungeon.type == lfg::LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id)))

@@ -77,7 +77,7 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
     memcpy(queryTemp.Stats.Data, raw.data, sizeof(uint32) * MAX_GAMEOBJECT_DATA);
     queryTemp.Stats.Size = size;
 
-    for (unsigned int & QuestItem : queryTemp.Stats.QuestItems)
+    for (uint32& QuestItem : queryTemp.Stats.QuestItems)
         QuestItem = 0;
 
     if (std::vector<uint32> const* items = sObjectMgr->GetGameObjectQuestItemList(entry))
@@ -768,7 +768,7 @@ void GameObject::Update(uint32 diff)
 
                 if (spellId)
                 {
-                    for (auto m_unique_user : m_unique_users)
+                    for (ObjectGuid m_unique_user : m_unique_users)
                         // m_unique_users can contain only player GUIDs
                         if (Player* owner = ObjectAccessor::GetPlayer(*this, m_unique_user))
                             owner->CastSpell(owner, spellId, false);
@@ -1563,7 +1563,7 @@ void GameObject::Use(Unit* user)
             float orthogonalOrientation = GetOrientation() + float(M_PI) * 0.5f;
             // find nearest slot
             bool found_free_slot = false;
-            for (auto & ChairListSlot : ChairListSlots)
+            for (std::pair<uint32, ObjectGuid> ChairListSlot : ChairListSlots)
             {
                 // the distance between this slot and the center of the go - imagine a 1D space
                 float relativeDistance = (info->size*ChairListSlot.first)-(info->size*(info->chair.slots-1)/2.0f);

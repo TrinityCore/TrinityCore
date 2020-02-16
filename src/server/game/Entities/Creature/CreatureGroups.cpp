@@ -182,7 +182,7 @@ void FormationMgr::AddFormationMember(ObjectGuid::LowType spawnId, float followA
     member.FollowDist    = followDist;
     member.FollowAngle   = followAng;
     member.GroupAI       = groupAI;
-    for (unsigned int & LeaderWaypointID : member.LeaderWaypointIDs)
+    for (uint32& LeaderWaypointID : member.LeaderWaypointIDs)
         LeaderWaypointID = 0;
 
     _creatureGroupMap.emplace(spawnId, std::move(member));
@@ -293,7 +293,7 @@ void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/,
 
         if (pair.second->LeaderWaypointIDs[0])
         {
-            for (unsigned int LeaderWaypointID : pair.second->LeaderWaypointIDs)
+            for (uint32 LeaderWaypointID : pair.second->LeaderWaypointIDs)
             {
                 if (_leader->GetCurrentWaypointInfo().first == LeaderWaypointID)
                 {

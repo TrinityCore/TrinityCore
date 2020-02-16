@@ -59,7 +59,7 @@ float ItemTemplate::getDPS() const
         return 0.f;
 
     float temp = 0.f;
-    for (auto i : Damage)
+    for (_Damage i : Damage)
         temp += i.DamageMin + i.DamageMax;
 
     return temp * 500.f / Delay;
@@ -146,10 +146,10 @@ void ItemTemplate::_LoadTotalAP()
             totalAP += ItemStat[i].ItemStatValue;
 
     // some items can have equip spells with +AP
-    for (auto & Spell : Spells)
+    for (_Spell & Spell : Spells)
         if (Spell.SpellId > 0 && Spell.SpellTrigger == ITEM_SPELLTRIGGER_ON_EQUIP)
             if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Spell.SpellId))
-                for (const auto & Effect : spellInfo->Effects)
+                for (SpellEffectInfo const& Effect : spellInfo->Effects)
                     if (Effect.IsAura(SPELL_AURA_MOD_ATTACK_POWER))
                         totalAP += Effect.CalcValue();
 
