@@ -235,7 +235,7 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
         bool match = false;
         if (strlen(table[i].Name) > cmd.length())
         {
-            for (const auto & j : table)
+            for (ChatCommand const& j : table)
             {
                 if (!hasStringAbbr(j.Name, cmd.c_str()))
                     continue;
@@ -333,7 +333,7 @@ bool ChatHandler::SetDataForCommandInTable(std::vector<ChatCommand>& table, char
 
     while (*text == ' ') ++text;
 
-    for (auto & i : table)
+    for (ChatCommand& i : table)
     {
         // for data fill use full explicit command names
         if (i.Name != cmd)
@@ -414,7 +414,7 @@ bool ChatHandler::ParseCommands(char const* text)
 bool ChatHandler::ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd)
 {
     std::string list;
-    for (const auto & i : table)
+    for (ChatCommand const& i : table)
     {
         // must be available (ignore handler existence to show command with possible available subcommands)
         if (!isAvailable(i))
@@ -453,7 +453,7 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, char
 {
     if (*cmd)
     {
-        for (const auto & i : table)
+        for (ChatCommand const& i : table)
         {
             // must be available (ignore handler existence to show command with possible available subcommands)
             if (!isAvailable(i))
@@ -483,7 +483,7 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, char
     }
     else
     {
-        for (const auto & i : table)
+        for (ChatCommand const& i : table)
         {
             // must be available (ignore handler existence to show command with possible available subcommands)
             if (!isAvailable(i))

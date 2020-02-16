@@ -103,7 +103,7 @@ void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accou
     data.Class = playerClass;
     data.Level = level;
     data.GuildId = 0;                           // Will be set in guild loading or guild setting
-    for (unsigned int & i : data.ArenaTeamId)
+    for (uint32& i : data.ArenaTeamId)
         i = 0;                // Will be set in arena teams loading
 
     // Fill Name to Guid Store

@@ -136,7 +136,7 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
                 // Pre-load first item
                 lastTarget = targetcam[0];
                 nextTarget = targetcam[0];
-                for (auto & j : targetcam)
+                for (FlyByCamera& j : targetcam)
                 {
                     nextTarget = j;
                     if (j.timeStamp > posTimestamps[i])

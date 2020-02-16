@@ -116,8 +116,8 @@ void Channel::UpdateChannelInDB()
     if (_isDirty)
     {
         std::ostringstream banlist;
-        for (auto iter : _bannedStore)
-            banlist << iter.GetRawValue() << ' ';
+        for (ObjectGuid const& guid : _bannedStore)
+            banlist << guid.GetRawValue() << ' ';
 
         std::string banListStr = banlist.str();
 
@@ -616,7 +616,7 @@ void Channel::List(Player const* player) const
     uint32 gmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
     uint32 count  = 0;
-    for (auto i : _playersStore)
+    for (std::pair<ObjectGuid const, PlayerInfo> i : _playersStore)
     {
         Player* member = ObjectAccessor::FindConnectedPlayer(i.first);
 
@@ -863,7 +863,7 @@ void Channel::SendToAll(Builder& builder, ObjectGuid guid /*= ObjectGuid::Empty*
 {
     Trinity::LocalizedPacketDo<Builder> localizer(builder);
 
-    for (auto i : _playersStore)
+    for (std::pair<ObjectGuid const, PlayerInfo> i : _playersStore)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(i.first))
             if (!guid || !player->GetSocial()->HasIgnore(guid))
                 localizer(player);
@@ -874,7 +874,7 @@ void Channel::SendToAllButOne(Builder& builder, ObjectGuid who) const
 {
     Trinity::LocalizedPacketDo<Builder> localizer(builder);
 
-    for (auto i : _playersStore)
+    for (std::pair<ObjectGuid const, PlayerInfo> i : _playersStore)
         if (i.first != who)
             if (Player* player = ObjectAccessor::FindConnectedPlayer(i.first))
                 localizer(player);

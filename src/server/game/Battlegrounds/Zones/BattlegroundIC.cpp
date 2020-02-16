@@ -38,10 +38,10 @@ BattlegroundIC::BattlegroundIC()
     BgObjects.resize(MAX_NORMAL_GAMEOBJECTS_SPAWNS + MAX_AIRSHIPS_SPAWNS + MAX_HANGAR_TELEPORTERS_SPAWNS + MAX_FORTRESS_TELEPORTERS_SPAWNS + MAX_HANGAR_TELEPORTER_EFFECTS_SPAWNS + MAX_FORTRESS_TELEPORTER_EFFECTS_SPAWNS);
     BgCreatures.resize(MAX_NORMAL_NPCS_SPAWNS + MAX_WORKSHOP_SPAWNS + MAX_DOCKS_SPAWNS + MAX_SPIRIT_GUIDES_SPAWNS + MAX_HANGAR_NPCS_SPAWNS);
 
-    for (unsigned short & factionReinforcement : factionReinforcements)
+    for (uint16& factionReinforcement : factionReinforcements)
         factionReinforcement = MAX_REINFORCEMENTS;
 
-    for (auto & GateStatu : GateStatus)
+    for (BG_IC_GateState& GateStatu : GateStatus)
         GateStatu = BG_IC_GATE_OK;
 
     closeFortressDoorsTimer = CLOSE_DOORS_TIME; // the doors are closed again... in a special way
@@ -239,10 +239,10 @@ void BattlegroundIC::StartingEventOpenDoors()
     DoorOpen(BG_IC_GO_DOODAD_VR_PORTCULLIS01_1);
     DoorOpen(BG_IC_GO_DOODAD_VR_PORTCULLIS01_2);
 
-    for (const auto & BG_IC_Teleporter : BG_IC_Teleporters)
+    for (ICGo const& BG_IC_Teleporter : BG_IC_Teleporters)
         GetBGObject(BG_IC_Teleporter.type)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
-    for (const auto & BG_IC_TeleporterEffect : BG_IC_TeleporterEffects)
+    for (ICGo const& BG_IC_TeleporterEffect : BG_IC_TeleporterEffects)
         GetBGObject(BG_IC_TeleporterEffect.type)->SetGoState(GO_STATE_ACTIVE);
 }
 
@@ -303,13 +303,13 @@ void BattlegroundIC::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
         packet.Worldstates.emplace_back(worldState, 1);
     }
 
-    for (auto & itr : nodePoint)
+    for (ICNodePoint& itr : nodePoint)
         packet.Worldstates.emplace_back(itr.worldStates[itr.nodeState], 1);
 }
 
 bool BattlegroundIC::SetupBattleground()
 {
-    for (const auto & BG_IC_ObjSpawnloc : BG_IC_ObjSpawnlocs)
+    for (ICGo BG_IC_ObjSpawnloc : BG_IC_ObjSpawnlocs)
     {
         if (!AddObject(BG_IC_ObjSpawnloc.type, BG_IC_ObjSpawnloc.entry, BG_IC_ObjSpawnloc.x, BG_IC_ObjSpawnloc.y, BG_IC_ObjSpawnloc.z, BG_IC_ObjSpawnloc.o, 0, 0, 0, 0, RESPAWN_ONE_DAY))
         {
@@ -318,7 +318,7 @@ bool BattlegroundIC::SetupBattleground()
         }
     }
 
-    for (const auto & BG_IC_Teleporter : BG_IC_Teleporters)
+    for (ICGo BG_IC_Teleporter : BG_IC_Teleporters)
     {
         if (!AddObject(BG_IC_Teleporter.type, BG_IC_Teleporter.entry, BG_IC_Teleporter.x, BG_IC_Teleporter.y, BG_IC_Teleporter.z, BG_IC_Teleporter.o, 0, 0, 0, 0, RESPAWN_ONE_DAY))
         {
@@ -515,7 +515,7 @@ void BattlegroundIC::UpdateNodeWorldState(ICNodePoint* node)
     uint32 worldstate = node->worldStates[node->nodeState];
 
     // with this we are sure we dont bug the client
-    for (unsigned int worldState : node->worldStates)
+    for (uint8 worldState : node->worldStates)
     {
         if (worldState == worldstate)
             continue;
@@ -879,7 +879,7 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
         float player_y = player->GetPositionY();
 
         float mindist = 999999.0f;
-        for (unsigned char node : nodes)
+        for (uint8 node : nodes)
         {
             WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[node]);
             if (!entry)

@@ -513,7 +513,7 @@ void LoadDBCStores(const std::string& dataPath)
         if (newEntry.SpellID[0] <= 0 || newEntry.SpellID[1] <= 0)//id0-1 must be always set!
             continue;
 
-        for (int x : newEntry.SpellID)
+        for (int32 x : newEntry.SpellID)
             if (x)
                 sSpellMgr->SetSpellDifficultyId(uint32(x), spellDiff->ID);
     }
@@ -584,7 +584,7 @@ void LoadDBCStores(const std::string& dataPath)
             if (src_i != sTaxiPathSetBySource.end() && !src_i->second.empty())
             {
                 bool ok = false;
-                for (auto dest_i : src_i->second)
+                for (std::pair<uint32, TaxiPathBySourceAndDestination> dest_i : src_i->second)
                 {
                     // not spell path
                     if (dest_i.second.price || spellPaths.find(dest_i.second.ID) == spellPaths.end())
@@ -632,7 +632,7 @@ void LoadDBCStores(const std::string& dataPath)
     else if (!bad_dbc_files.empty())
     {
         std::string str;
-        for (auto & bad_dbc_file : bad_dbc_files)
+        for (std::string& bad_dbc_file : bad_dbc_files)
             str += bad_dbc_file + "\n";
 
         TC_LOG_ERROR("misc", "Some required *.dbc files (%u from %d) not found or not compatible:\n%s", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());

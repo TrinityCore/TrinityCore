@@ -71,7 +71,7 @@ BattlegroundEY::BattlegroundEY()
         m_PointBarStatus[i] = BG_EY_PROGRESS_BAR_STATE_MIDDLE;
     }
 
-    for (unsigned char & i : m_CurrentPointPlayersCount)
+    for (uint8& i : m_CurrentPointPlayersCount)
         i = 0;
 }
 
@@ -202,7 +202,7 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
 void BattlegroundEY::CheckSomeoneLeftPoint()
 {
     //reset current point counts
-    for (unsigned char & i : m_CurrentPointPlayersCount)
+    for (uint8& i : m_CurrentPointPlayersCount)
         i = 0;
     GameObject* obj = nullptr;
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)

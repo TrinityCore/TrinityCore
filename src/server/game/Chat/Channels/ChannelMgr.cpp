@@ -26,10 +26,10 @@
 
 ChannelMgr::~ChannelMgr()
 {
-    for (auto & _channel : _channels)
+    for (std::pair<std::pair<uint32 const, uint32> const, Channel*> _channel : _channels)
         delete _channel.second;
 
-    for (auto & _customChannel : _customChannels)
+    for (std::pair<std::wstring const, Channel*>& _customChannel : _customChannels)
         delete _customChannel.second;
 }
 

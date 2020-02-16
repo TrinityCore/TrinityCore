@@ -54,7 +54,7 @@ void LoadDisables()
     uint32 oldMSTime = getMSTime();
 
     // reload case
-    for (auto & itr : m_DisableMap)
+    for (std::pair<DisableType, DisableTypeMap> itr : m_DisableMap)
         itr.second.clear();
 
     m_DisableMap.clear();

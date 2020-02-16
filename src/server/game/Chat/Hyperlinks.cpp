@@ -190,7 +190,7 @@ struct LinkValidator<LinkTags::quest>
 
     static bool IsColorValid(QuestLinkData const&, HyperlinkColor c)
     {
-        for (unsigned int QuestDifficultyColor : QuestDifficultyColors)
+        for (uint32 QuestDifficultyColor : QuestDifficultyColors)
             if (c == QuestDifficultyColor)
                 return true;
         return false;

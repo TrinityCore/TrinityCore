@@ -797,7 +797,7 @@ uint32 ConditionMgr::GetSearcherTypeMaskForConditionList(ConditionContainer cons
         return GRID_MAP_TYPE_MASK_ALL;
     //     groupId, typeMask
     std::map<uint32, uint32> elseGroupSearcherTypeMasks;
-    for (auto condition : conditions)
+    for (Condition* condition : conditions)
     {
         // no point of having not loaded conditions in list
         ASSERT(condition->isLoaded() && "ConditionMgr::GetSearcherTypeMaskForConditionList - not yet loaded condition found in list");
@@ -2367,7 +2367,7 @@ void ConditionMgr::LogUselessConditionValue(Condition* cond, uint8 index, uint32
 
 void ConditionMgr::Clean()
 {
-    for (auto & itr : ConditionReferenceStore)
+    for (std::pair<uint32, ConditionContainer> itr : ConditionReferenceStore)
         for (ConditionContainer::const_iterator it = itr.second.begin(); it != itr.second.end(); ++it)
             delete *it;
 
@@ -2375,28 +2375,28 @@ void ConditionMgr::Clean()
 
     for (uint32 i = 0; i < CONDITION_SOURCE_TYPE_MAX; ++i)
     {
-        for (auto & it : ConditionStore[i])
+        for (std::pair<uint32 const, std::vector<Condition*>> it : ConditionStore[i])
             for (ConditionContainer::const_iterator itr = it.second.begin(); itr != it.second.end(); ++itr)
                 delete *itr;
 
         ConditionStore[i].clear();
     }
 
-    for (auto & itr : VehicleSpellConditionStore)
+    for (std::pair<uint32 const, ConditionsByEntryMap>& itr : VehicleSpellConditionStore)
         for (ConditionsByEntryMap::iterator it = itr.second.begin(); it != itr.second.end(); ++it)
             for (auto i : it->second)
                 delete i;
 
     VehicleSpellConditionStore.clear();
 
-    for (auto & itr : SmartEventConditionStore)
+    for (std::pair<const std::pair<int32, uint32>, ConditionsByEntryMap>& itr : SmartEventConditionStore)
         for (ConditionsByEntryMap::iterator it = itr.second.begin(); it != itr.second.end(); ++it)
             for (auto i : it->second)
                 delete i;
 
     SmartEventConditionStore.clear();
 
-    for (auto & itr : SpellClickEventConditionStore)
+    for (std::pair<uint32 const, ConditionsByEntryMap>& itr : SpellClickEventConditionStore)
         for (ConditionsByEntryMap::iterator it = itr.second.begin(); it != itr.second.end(); ++it)
             for (auto i : it->second)
                 delete i;
@@ -2404,7 +2404,7 @@ void ConditionMgr::Clean()
     SpellClickEventConditionStore.clear();
     SpellsUsedInSpellClickConditions.clear();
 
-    for (auto & itr : NpcVendorConditionContainerStore)
+    for (std::pair<uint32 const, ConditionsByEntryMap>& itr : NpcVendorConditionContainerStore)
         for (ConditionsByEntryMap::iterator it = itr.second.begin(); it != itr.second.end(); ++it)
             for (auto i : it->second)
                 delete i;
@@ -2412,7 +2412,7 @@ void ConditionMgr::Clean()
     NpcVendorConditionContainerStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
-    for (auto itr : AllocatedMemoryStore)
+    for (Condition* itr : AllocatedMemoryStore)
         delete itr;
 
     AllocatedMemoryStore.clear();

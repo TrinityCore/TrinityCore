@@ -62,7 +62,7 @@ LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
 
 LFGMgr::~LFGMgr()
 {
-    for (auto & itr : RewardMapStore)
+    for (std::pair<uint32, LfgReward const*> itr : RewardMapStore)
         delete itr.second;
 }
 
@@ -120,7 +120,7 @@ void LFGMgr::LoadRewards()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (auto & itr : RewardMapStore)
+    for (std::pair<uint32, LfgReward const*> itr : RewardMapStore)
         delete itr.second;
     RewardMapStore.clear();
 
@@ -245,7 +245,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     TC_LOG_INFO("server.loading", ">> Loaded %u lfg entrance positions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
     // Fill all other teleport coords from areatriggers
-    for (auto & itr : LfgDungeonStore)
+    for (std::pair<uint32, LFGDungeonData> itr : LfgDungeonStore)
     {
         LFGDungeonData& dungeon = itr.second;
 
@@ -377,7 +377,7 @@ void LFGMgr::Update(uint32 diff)
     if (m_QueueTimer > LFG_QUEUEUPDATE_INTERVAL)
     {
         m_QueueTimer = 0;
-        for (auto & it : QueuesStore)
+        for (std::pair<uint8, LFGQueue> it : QueuesStore)
             it.second.UpdateQueueTimers(currTime);
     }
     else
@@ -631,8 +631,7 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
                 LFGQueue& queue = GetQueue(gguid);
                 queue.RemoveFromQueue(gguid);
                 SetState(gguid, newState);
-                GuidSet const& players = GetPlayers(gguid);
-                for (auto player : players)
+                for (ObjectGuid const player : GetPlayers(gguid))
                 {
                     SetState(player, newState);
                     SendLfgUpdateParty(player, LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE));
@@ -1124,13 +1123,13 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
     TC_LOG_DEBUG("lfg.proposal.remove", "Proposal %u, state FAILED, UpdateType %u", itProposal->first, type);
     // Mark all people that didn't answered as no accept
     if (type == LFG_UPDATETYPE_PROPOSAL_FAILED)
-        for (auto & player : proposal.players)
+        for (std::pair<ObjectGuid const, LfgProposalPlayer> player : proposal.players)
             if (player.second.accept == LFG_ANSWER_PENDING)
                 player.second.accept = LFG_ANSWER_DENY;
 
     // Mark players/groups to be removed
     GuidSet toRemove;
-    for (auto & player : proposal.players)
+    for (std::pair<ObjectGuid const, LfgProposalPlayer> player : proposal.players)
     {
         if (player.second.accept == LFG_ANSWER_AGREE)
             continue;
@@ -1228,18 +1227,15 @@ void LFGMgr::InitBoot(ObjectGuid gguid, ObjectGuid kicker, ObjectGuid victim, st
     GuidSet const& players = GetPlayers(gguid);
 
     // Set votes
-    for (auto player : players)
-    {
-        ObjectGuid guid = player;
+    for (ObjectGuid const guid : players)
         boot.votes[guid] = LFG_ANSWER_PENDING;
-    }
 
     boot.votes[victim] = LFG_ANSWER_DENY;                  // Victim auto vote NO
     boot.votes[kicker] = LFG_ANSWER_AGREE;                 // Kicker auto vote YES
 
     // Notify players
-    for (auto player : players)
-        SendLfgBootProposalUpdate(player, boot);
+    for (ObjectGuid const guid : players)
+        SendLfgBootProposalUpdate(guid, boot);
 }
 
 /**
@@ -1415,10 +1411,8 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
 
     SetState(gguid, LFG_STATE_FINISHED_DUNGEON);
 
-    GuidSet const& players = GetPlayers(gguid);
-    for (auto it : players)
+    for (ObjectGuid guid : GetPlayers(gguid))
     {
-        ObjectGuid guid = it;
         if (GetState(guid) == LFG_STATE_FINISHED_DUNGEON)
         {
             TC_LOG_DEBUG("lfg.dungeon.finish", "Group: %s, Player: %s already rewarded", gguid.ToString().c_str(), guid.ToString().c_str());
@@ -1658,7 +1652,7 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
     LfgDungeonSet const& dungeons = GetDungeonsByRandom(0);
     bool denyJoin = !player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER);
 
-    for (unsigned int it : dungeons)
+    for (uint32 it : dungeons)
     {
         LFGDungeonData const* dungeon = GetLFGDungeon(it);
         if (!dungeon) // should never happen - We provide a list from sLFGDungeonStore
@@ -1971,13 +1965,13 @@ bool LFGMgr::AllQueued(GuidList const& check)
     if (check.empty())
         return false;
 
-    for (auto it : check)
+    for (ObjectGuid guid : check)
     {
-        LfgState state = GetState(it);
+        LfgState state = GetState(guid);
         if (state != LFG_STATE_QUEUED)
         {
             if (state != LFG_STATE_PROPOSAL)
-                TC_LOG_DEBUG("lfg.allqueued", "Unexpected state found while trying to form new group. Guid: %s, State: %s", it.ToString().c_str(), GetStateString(state).c_str());
+                TC_LOG_DEBUG("lfg.allqueued", "Unexpected state found while trying to form new group. Guid: %s, State: %s", guid.ToString().c_str(), GetStateString(state).c_str());
 
             return false;
         }

@@ -343,7 +343,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         {
             float const origAmount = amount;
             // intentional iteration by index - there's a nested AddThreat call further down that might cause AI calls which might modify redirect info through spells
-            for (auto pair : redirInfo)
+            for (std::pair<ObjectGuid const, uint32> pair : redirInfo)
             {
                 // (victim,pct)
                 Unit* redirTarget = nullptr;
@@ -435,7 +435,7 @@ void ThreatManager::TauntUpdate()
     uint32 state = ThreatReference::TAUNT_STATE_TAUNT;
     std::unordered_map<ObjectGuid, ThreatReference::TauntState> tauntStates;
     // Only the last taunt effect applied by something still on our threat list is considered
-    for (auto tauntEffect : tauntEffects)
+    for (AuraEffect* tauntEffect : tauntEffects)
         tauntStates[tauntEffect->GetCasterGUID()] = ThreatReference::TauntState(state++);
 
     for (auto const& pair : _myThreatListEntries)

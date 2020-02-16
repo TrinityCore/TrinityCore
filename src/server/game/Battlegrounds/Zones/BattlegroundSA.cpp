@@ -54,7 +54,7 @@ BattlegroundSA::BattlegroundSA()
     ShipsStarted = false;
     Status = BG_SA_NOT_STARTED;
 
-    for (auto & GateStatu : GateStatus)
+    for (BG_SA_GateState& GateStatu : GateStatus)
         GateStatu = BG_SA_GATE_OK;
 
     for (uint8 i = 0; i < 2; i++)
@@ -92,7 +92,7 @@ bool BattlegroundSA::SetupBattleground()
 
 bool BattlegroundSA::ResetObjs()
 {
-    for (const auto & itr : GetPlayers())
+    for (std::pair<ObjectGuid const, BattlegroundPlayer> itr : GetPlayers())
         if (Player* player = ObjectAccessor::FindPlayer(itr.first))
             SendTransportsRemove(player);
 
@@ -108,7 +108,7 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = BG_SA_MAXNPC; i < BG_SA_MAXNPC + BG_SA_MAX_GY; i++)
         DelCreature(i);
 
-    for (auto & GateStatu : GateStatus)
+    for (BG_SA_GateState& GateStatu : GateStatus)
         GateStatu = BG_SA_GATE_OK;
 
     if (!AddCreature(BG_SA_NpcEntries[BG_SA_NPC_KANRETHAD], BG_SA_NPC_KANRETHAD, BG_SA_NpcSpawnlocs[BG_SA_NPC_KANRETHAD]))
@@ -282,7 +282,7 @@ bool BattlegroundSA::ResetObjs()
     UpdateWorldState(BG_SA_ANCIENT_GATEWS, 1);
 
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
-        for (const auto & itr : GetPlayers())
+        for (std::pair<ObjectGuid const, BattlegroundPlayer> itr : GetPlayers())
             if (Player* player = ObjectAccessor::FindPlayer(itr.first))
                 SendTransportInit(player);
 
@@ -303,7 +303,7 @@ void BattlegroundSA::StartShips()
 
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
-        for (const auto & itr : GetPlayers())
+        for (std::pair<ObjectGuid const, BattlegroundPlayer> itr : GetPlayers())
         {
             if (Player* p = ObjectAccessor::FindPlayer(itr.first))
             {
@@ -501,7 +501,7 @@ void BattlegroundSA::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
 
 void BattlegroundSA::TeleportPlayers()
 {
-    for (const auto & itr : GetPlayers())
+    for (std::pair<ObjectGuid const, BattlegroundPlayer> itr : GetPlayers())
     {
         if (Player* player = ObjectAccessor::FindPlayer(itr.first))
         {
@@ -908,7 +908,7 @@ void BattlegroundSA::TitanRelicActivated(Player* clicker)
                 RoundScores[0].winner = Attackers;
                 RoundScores[0].time = TotalTime;
                 // Achievement Storm the Beach (1310)
-                for (const auto & itr : GetPlayers())
+                for (std::pair<ObjectGuid const, BattlegroundPlayer> itr : GetPlayers())
                 {
                     if (Player* player = ObjectAccessor::FindPlayer(itr.first))
                         if (player->GetTeamId() == Attackers)
@@ -938,7 +938,7 @@ void BattlegroundSA::TitanRelicActivated(Player* clicker)
                 RoundScores[1].time = TotalTime;
                 ToggleTimer();
                 // Achievement Storm the Beach (1310)
-                for (const auto & itr : GetPlayers())
+                for (std::pair<ObjectGuid const, BattlegroundPlayer> itr : GetPlayers())
                 {
                     if (Player* player = ObjectAccessor::FindPlayer(itr.first))
                         if (player->GetTeamId() == Attackers && RoundScores[1].winner == Attackers)

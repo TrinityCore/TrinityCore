@@ -52,7 +52,7 @@ BattlegroundQueue::~BattlegroundQueue()
 {
     m_events.KillAllEvents(false);
 
-    for (auto & m_QueuedGroup : m_QueuedGroups)
+    for (GroupsQueueType* m_QueuedGroup : m_QueuedGroups)
     {
         for (uint32 j = 0; j < BG_QUEUE_GROUP_TYPES_COUNT; ++j)
         {
