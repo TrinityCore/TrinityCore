@@ -1847,15 +1847,15 @@ enum BellHourlySoundFX
 
 enum BellHourlySoundZones
 {
-    TIRISFAL_ZONE       = 85,
-    UNDERCITY_ZONE      = 1497,
-    DUN_MOROGH_ZONE     = 1,
-    IRONFORGE_ZONE      = 1537,
-    TELDRASSIL_ZONE     = 141,
-    DARNASSUS_ZONE      = 1657,
-    ASHENVALE_ZONE      = 331,
-    HILLSBRAD_FOOTHILLS = 267,
-    DUSKWOOD_ZONE       = 42
+    TIRISFAL_ZONE            = 85,
+    UNDERCITY_ZONE           = 1497,
+    DUN_MOROGH_ZONE          = 1,
+    IRONFORGE_ZONE           = 1537,
+    TELDRASSIL_ZONE          = 141,
+    DARNASSUS_ZONE           = 1657,
+    ASHENVALE_ZONE           = 331,
+    HILLSBRAD_FOOTHILLS_ZONE = 267,
+    DUSKWOOD_ZONE            = 10
 };
 
 enum BellHourlyObjects
@@ -1888,38 +1888,42 @@ public:
             {
                 case GO_HORDE_BELL:
                 {
-                    switch (zoneId) {
-                    case TIRISFAL_ZONE:
-                    case UNDERCITY_ZONE:
-                    case HILLSBRAD_FOOTHILLS:
-                    case DUSKWOOD_ZONE:
-                        _soundId = BELLTOLLHORDE;  // undead bell sound
-                        break;
-                    default:
-                        _soundId = BELLTOLLTRIBAL; // orc drum sound 
-                        break;
+                    switch (zoneId)
+                    {
+                        case TIRISFAL_ZONE:
+                        case UNDERCITY_ZONE:
+                        case HILLSBRAD_FOOTHILLS_ZONE:
+                        case DUSKWOOD_ZONE:
+                            _soundId = BELLTOLLHORDE;  // undead bell sound
+                            break;
+                        default:
+                            _soundId = BELLTOLLTRIBAL; // orc drum sound 
+                            break;
                     }
+                    break;
                 }
                 case GO_ALLIANCE_BELL:
                 {
-                    switch (zoneId) {
-                    case IRONFORGE_ZONE:
-                    case DUN_MOROGH_ZONE:
-                        _soundId = BELLTOLLDWARFGNOME; // horn sound
-                        break;
-                    case DARNASSUS_ZONE:
-                    case TELDRASSIL_ZONE:
-                    case ASHENVALE_ZONE:
-                        _soundId = BELLTOLLNIGHTELF;   // nightelf bell sound
-                        break;
-                    default:
-                        _soundId = BELLTOLLALLIANCE;   // human bell sound 
+                    switch (zoneId)
+                    {
+                        case IRONFORGE_ZONE:
+                        case DUN_MOROGH_ZONE:
+                            _soundId = BELLTOLLDWARFGNOME; // horn sound
+                            break;
+                        case DARNASSUS_ZONE:
+                        case TELDRASSIL_ZONE:
+                        case ASHENVALE_ZONE:
+                            _soundId = BELLTOLLNIGHTELF;   // nightelf bell sound
+                            break;
+                        default:
+                            _soundId = BELLTOLLALLIANCE;   // human bell sound 
                     }
+                    break;
                 }
                 case GO_KHARAZHAN_BELL:
                 {
-                _soundId = BELLTOLLKHARAZHAN;
-                break;
+                    _soundId = BELLTOLLKHARAZHAN;
+                    break;
                 }
             }
         }
@@ -1931,7 +1935,11 @@ public:
                 time_t time = GameTime::GetGameTime();
                 tm localTm;
                 localtime_r(&time, &localTm);
-                uint8 _rings = (localTm.tm_hour - 1) % 12 + 1;
+                uint8 _rings = (localTm.tm_hour) % 12;
+                if (_rings == 0) // 00:00 and 12:00
+                {
+                    _rings = 12;
+                }
 
                 for (auto i = 0; i < _rings; ++i)
                     _events.ScheduleEvent(EVENT_RING_BELL, Seconds(i * 4 + 1));

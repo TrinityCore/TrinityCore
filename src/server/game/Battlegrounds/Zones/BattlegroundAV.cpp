@@ -315,9 +315,9 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         {
             CreatureData &data = sObjectMgr->NewOrExistCreatureData(creature->GetSpawnId());
             data.spawnGroupData = sObjectMgr->GetDefaultSpawnGroup();
-            data.spawndist = 5;
+            data.wander_distance = 5;
         }
-        //else spawndist will be 15, so creatures move maximum=10
+        //else wander_distance will be 15, so creatures move maximum=10
         //creature->SetDefaultMovementType(RANDOM_MOTION_TYPE);
         creature->GetMotionMaster()->Initialize();
         creature->setDeathState(JUST_DIED);

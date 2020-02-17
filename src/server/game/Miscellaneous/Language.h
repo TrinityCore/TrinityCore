@@ -334,7 +334,7 @@ enum TrinityStrings
       // 296 free
 
       // END
-    LANG_COMMAND_SPAWNDIST                = 297,
+    LANG_COMMAND_WANDER_DISTANCE          = 297,
     LANG_COMMAND_SPAWNTIME                = 298,
     LANG_COMMAND_MODIFY_HONOR             = 299,
 

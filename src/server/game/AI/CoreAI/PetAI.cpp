@@ -349,7 +349,7 @@ Unit* PetAI::SelectNextTarget(bool allowAutoSelect) const
     if (me->HasReactState(REACT_AGGRESSIVE) && allowAutoSelect)
     {
         if (!me->GetCharmInfo()->IsReturning() || me->GetCharmInfo()->IsFollowing() || me->GetCharmInfo()->IsAtStay())
-            if (Unit* nearTarget = me->SelectNearestHostileUnitInAggroRange(true))
+            if (Unit* nearTarget = me->SelectNearestHostileUnitInAggroRange(true, true))
                 return nearTarget;
     }
 
