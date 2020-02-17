@@ -59,8 +59,8 @@ WorldPacket const* WorldPackets::Movement::NewWorld::Write()
 {
     _worldPacket << Pos.GetPositionX();
     _worldPacket << Pos.GetOrientation();
-    _worldPacket << Pos.GetPositionY();
-    _worldPacket << int32(MapID);
     _worldPacket << Pos.GetPositionZ();
+    _worldPacket << int32(MapID);
+    _worldPacket << Pos.GetPositionY();
     return &_worldPacket;
 }
