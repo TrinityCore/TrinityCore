@@ -5698,11 +5698,11 @@ void ObjectMgr::LoadInstanceEncounters()
 
         if (!dungeonEncounter->DifficultyID)
         {
-            for (uint32 i = 0; i < MAX_DIFFICULTY; ++i)
+            for (DifficultyEntry const* difficulty : sDifficultyStore)
             {
-                if (sDB2Manager.GetMapDifficultyData(dungeonEncounter->MapID, Difficulty(i)))
+                if (sDB2Manager.GetMapDifficultyData(dungeonEncounter->MapID, Difficulty(difficulty->ID)))
                 {
-                    DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR64(dungeonEncounter->MapID, i)];
+                    DungeonEncounterList& encounters = _dungeonEncounterStore[MAKE_PAIR64(dungeonEncounter->MapID, difficulty->ID)];
                     encounters.push_back(new DungeonEncounter(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
                 }
             }

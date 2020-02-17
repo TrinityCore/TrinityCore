@@ -2873,18 +2873,22 @@ CREATE TABLE `item_instance_azerite` (
   `selectedAzeriteEssences1azeriteEssenceId1` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences1azeriteEssenceId2` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences1azeriteEssenceId3` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences1azeriteEssenceId4` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences2specId` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences2azeriteEssenceId1` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences2azeriteEssenceId2` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences2azeriteEssenceId3` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences2azeriteEssenceId4` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences3specId` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences3azeriteEssenceId1` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences3azeriteEssenceId2` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences3azeriteEssenceId3` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences3azeriteEssenceId4` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences4specId` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences4azeriteEssenceId1` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences4azeriteEssenceId2` int(10) unsigned NULL DEFAULT '0',
   `selectedAzeriteEssences4azeriteEssenceId3` int(10) unsigned NULL DEFAULT '0',
+  `selectedAzeriteEssences4azeriteEssenceId4` int(10) unsigned NULL DEFAULT '0',
   PRIMARY KEY (`itemGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3691,7 +3695,8 @@ INSERT INTO `updates` VALUES
 ('2019_11_12_00_characters.sql','D4C642B4D48DAE9F56329BDE51C258323A132A91','RELEASED','2019-11-12 16:31:29',0),
 ('2019_11_22_00_characters.sql','95DFA71DBD75542C098CD86E9C0051C9690902F0','RELEASED','2019-11-20 15:10:12',0),
 ('2019_11_30_00_characters.sql','D0678E62B651AECA60C2DD6989BF80BD999AD12B','RELEASED','2019-11-29 22:42:01',0),
-('2019_12_05_00_characters.sql','EA381C9634A5646A3168F15DF4E06A708A622762','RELEASED','2019-12-05 20:56:58',0);
+('2019_12_05_00_characters.sql','EA381C9634A5646A3168F15DF4E06A708A622762','RELEASED','2019-12-05 20:56:58',0),
+('2020_02_17_00_characters.sql','E1519A81D35F19B48B3C75A83A270CB4BA0B84F2','RELEASED','2020-02-17 21:55:17',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

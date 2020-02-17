@@ -167,7 +167,7 @@ enum ArtifactPowerFlag : uint8
 
 #define MAX_AZERITE_EMPOWERED_TIER 5
 
-#define MAX_AZERITE_ESSENCE_SLOT 3
+#define MAX_AZERITE_ESSENCE_SLOT 4
 #define MAX_AZERITE_ESSENCE_RANK 4
 
 enum class AzeriteItemMilestoneType : int32
@@ -182,7 +182,7 @@ enum AzeriteTierUnlockSetFlags
     AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 2796
+#define BATTLE_PET_SPECIES_MAX_ID 2873
 
 enum BattlemasterListFlags
 {
@@ -860,8 +860,8 @@ enum Difficulty : uint8
     DIFFICULTY_NORMAL_WARFRONT      = 147,
     DIFFICULTY_HEROIC_WARFRONT      = 149,
     DIFFICULTY_LFR_15TH_ANNIVERSARY = 151,
-
-    MAX_DIFFICULTY
+    DIFFICULTY_VISIONS_OF_NZOTH     = 152,
+    DIFFICULTY_TEEMING_ISLAND       = 153
 };
 
 enum DifficultyFlags
@@ -1268,7 +1268,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 311
+#define TaxiMaskSize 319
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType

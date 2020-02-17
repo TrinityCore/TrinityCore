@@ -89,9 +89,9 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
         packet.Events.push_back(eventInfo);
     }
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (DifficultyEntry const* difficulty : sDifficultyStore)
     {
-        auto boundInstances = _player->GetBoundInstances(Difficulty(i));
+        auto boundInstances = _player->GetBoundInstances(Difficulty(difficulty->ID));
         if (boundInstances != _player->m_boundInstances.end())
         {
             for (auto const& boundInstance : boundInstances->second)

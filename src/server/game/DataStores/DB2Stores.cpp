@@ -436,8 +436,11 @@ namespace
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
 }
 
-template<class T, template<class> class DB2>
-inline void LoadDB2(uint32& availableDb2Locales, std::vector<std::string>& errlist, StorageMap& stores, DB2StorageBase* storage, std::string const& db2Path, uint32 defaultLocale, DB2<T> const& /*hint*/)
+template<typename T>
+constexpr std::size_t GetCppRecordSize(DB2Storage<T> const&) { return sizeof(T); }
+
+void LoadDB2(uint32& availableDb2Locales, std::vector<std::string>& errlist, StorageMap& stores, DB2StorageBase* storage, std::string const& db2Path,
+    uint32 defaultLocale, std::size_t cppRecordSize)
 {
     // validate structure
     DB2LoadInfo const* loadInfo = storage->GetLoadInfo();
@@ -465,9 +468,9 @@ inline void LoadDB2(uint32& availableDb2Locales, std::vector<std::string>& errli
             storage->GetFileName().c_str(), ourMetaString.c_str(), clientMetaString.c_str());
 
         // compatibility format and C++ structure sizes
-        ASSERT(loadInfo->Meta->GetRecordSize() == sizeof(T),
+        ASSERT(loadInfo->Meta->GetRecordSize() == cppRecordSize,
             "Size of '%s' set by format string (%u) not equal size of C++ structure (" SZFMTD ").",
-            storage->GetFileName().c_str(), loadInfo->Meta->GetRecordSize(), sizeof(T));
+            storage->GetFileName().c_str(), loadInfo->Meta->GetRecordSize(), cppRecordSize);
     }
 
     if (storage->Load(db2Path + localeNames[defaultLocale] + '/', defaultLocale))
@@ -524,7 +527,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     std::vector<std::string> bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
 
-#define LOAD_DB2(store) LoadDB2(availableDb2Locales, bad_db2_files, _stores, &store, db2Path, defaultLocale, store)
+#define LOAD_DB2(store) LoadDB2(availableDb2Locales, bad_db2_files, _stores, &store, db2Path, defaultLocale, GetCppRecordSize(store))
 
     LOAD_DB2(sAchievementStore);
     LOAD_DB2(sAnimationDataStore);
@@ -917,10 +920,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (auto itr = _curvePoints.begin(); itr != _curvePoints.end(); ++itr)
         std::sort(itr->second.begin(), itr->second.end(), [](CurvePointEntry const* point1, CurvePointEntry const* point2) { return point1->OrderIndex < point2->OrderIndex; });
-
-    ASSERT(MAX_DIFFICULTY >= sDifficultyStore.GetNumRows(),
-        "MAX_DIFFICULTY is not large enough to contain all difficulties! (current value %d, required %d)",
-        MAX_DIFFICULTY, sDifficultyStore.GetNumRows());
 
     for (EmotesTextSoundEntry const* emoteTextSound : sEmotesTextSoundStore)
         _emoteTextSounds[EmotesTextSoundContainer::key_type(emoteTextSound->EmotesTextID, emoteTextSound->RaceID, emoteTextSound->SexID, emoteTextSound->ClassID)] = emoteTextSound;

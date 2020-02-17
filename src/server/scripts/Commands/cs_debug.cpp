@@ -1219,15 +1219,17 @@ public:
         if (!mEntry || !mEntry->IsRaid())
             return false;
         int32 difficulty = difficulty_str ? atoi(difficulty_str) : -1;
-        if (difficulty >= MAX_DIFFICULTY || difficulty < -1)
+        if (!sDifficultyStore.HasRecord(difficulty) || difficulty < -1)
             return false;
 
         if (difficulty == -1)
-            for (uint8 diff = 0; diff < MAX_DIFFICULTY; ++diff)
+        {
+            for (DifficultyEntry const* difficulty : sDifficultyStore)
             {
-                if (sDB2Manager.GetMapDifficultyData(map, Difficulty(diff)))
-                    sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(diff));
+                if (sDB2Manager.GetMapDifficultyData(map, Difficulty(difficulty->ID)))
+                    sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty->ID));
             }
+        }
         else
             sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
         return true;

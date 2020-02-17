@@ -1050,6 +1050,7 @@ struct ChrRacesLoadInfo
             { true, FT_INT, "FemaleSkeletonFileDataID" },
             { true, FT_INT, "MaleSkeletonFileDataID" },
             { true, FT_INT, "HelmVisFallbackRaceID" },
+            { true, FT_INT, "TransmogrifyDisabledSlotMask" },
             { true, FT_SHORT, "FactionID" },
             { true, FT_SHORT, "CinematicSequenceID" },
             { true, FT_SHORT, "ResSicknessSpellID" },
@@ -1169,6 +1170,7 @@ struct ContentTuningXExpectedLoadInfo
         {
             { false, FT_INT, "ID" },
             { true, FT_INT, "ExpectedStatModID" },
+            { true, FT_INT, "MythicPlusSeasonID" },
             { false, FT_INT, "ContentTuningID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ContentTuningXExpectedMeta::Instance(), HOTFIX_SEL_CONTENT_TUNING_X_EXPECTED);
@@ -1388,7 +1390,7 @@ struct CriteriaTreeLoadInfo
             { true, FT_BYTE, "Operator" },
             { false, FT_INT, "CriteriaID" },
             { true, FT_INT, "OrderIndex" },
-            { true, FT_SHORT, "Flags" },
+            { true, FT_INT, "Flags" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CriteriaTreeMeta::Instance(), HOTFIX_SEL_CRITERIA_TREE);
         return &loadInfo;
@@ -1414,6 +1416,8 @@ struct CurrencyTypesLoadInfo
             { true, FT_BYTE, "Quality" },
             { true, FT_INT, "FactionID" },
             { true, FT_INT, "ItemGroupSoundsID" },
+            { true, FT_INT, "ConvertToPlayerExperience" },
+            { true, FT_INT, "PlayerConditionID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CurrencyTypesMeta::Instance(), HOTFIX_SEL_CURRENCY_TYPES);
         return &loadInfo;
@@ -2381,7 +2385,6 @@ struct ItemAppearanceLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_BYTE, "DisplayType" },
-            { true, FT_INT, "SubclassID" },
             { true, FT_INT, "ItemDisplayInfoID" },
             { true, FT_INT, "DefaultIconFileDataID" },
             { true, FT_INT, "UiOrder" },
@@ -3442,6 +3445,8 @@ struct MountLoadInfo
             { false, FT_INT, "PlayerConditionID" },
             { false, FT_FLOAT, "MountFlyRideHeight" },
             { true, FT_INT, "UiModelSceneID" },
+            { true, FT_INT, "MountSpecialRiderAnimKitID" },
+            { true, FT_INT, "MountSpecialSpellVisualKitID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MountMeta::Instance(), HOTFIX_SEL_MOUNT);
         return &loadInfo;
@@ -5100,11 +5105,12 @@ struct SpellVisualKitLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { true, FT_INT, "Flags" },
             { true, FT_BYTE, "FallbackPriority" },
-            { false, FT_INT, "FallbackSpellVisualKitId" },
+            { true, FT_INT, "FallbackSpellVisualKitId" },
             { false, FT_SHORT, "DelayMin" },
             { false, FT_SHORT, "DelayMax" },
+            { true, FT_INT, "Flags1" },
+            { true, FT_INT, "Flags2" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellVisualKitMeta::Instance(), HOTFIX_SEL_SPELL_VISUAL_KIT);
         return &loadInfo;
@@ -5436,6 +5442,7 @@ struct UiMapLoadInfo
             { true, FT_INT, "VisibilityPlayerConditionID" },
             { true, FT_BYTE, "HelpTextPosition" },
             { true, FT_INT, "BkgAtlasID" },
+            { true, FT_INT, "AlternateUiMapGroup" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, UiMapMeta::Instance(), HOTFIX_SEL_UI_MAP);
         return &loadInfo;
