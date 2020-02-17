@@ -25,11 +25,12 @@
 #include "MapManager.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
+#include "MovementPackets.h"
+#include "MovementStructures.h"
 #include "Transport.h"
 #include "Battleground.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
-#include "MovementStructures.h"
 #include "Vehicle.h"
 #include "GameTime.h"
 #include "SpellAuraEffects.h"
@@ -215,6 +216,20 @@ void WorldSession::HandleMoveWorldportAck()
 
     //lets process all delayed operations on successful teleport
     GetPlayer()->ProcessDelayedOperations();
+}
+
+void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& /*suspendTokenResponse*/)
+{
+    if (!_player->IsBeingTeleportedFar())
+        return;
+
+    WorldLocation const& loc = GetPlayer()->GetTeleportDest();
+    WorldPackets::Movement::NewWorld packet;
+    packet.MapID = loc.GetMapId();
+    packet.Pos = loc;
+    SendPacket(packet.Write());
+
+    _player->SendSavedInstances();
 }
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recvPacket)

@@ -139,6 +139,11 @@ namespace WorldPackets
         class OpeningCinematic;
     }
 
+    namespace Movement
+    {
+        class SuspendTokenResponse;
+    }
+
     namespace NPC
     {
         class Hello;
@@ -700,6 +705,7 @@ class TC_GAME_API WorldSession
 
         void HandleMoveWorldportAckOpcode(WorldPacket& recvPacket);
         void HandleMoveWorldportAck();                // for server-side calls
+        void HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTokenResponse& suspendTokenResponse);
 
         void HandleMovementOpcodes(WorldPacket& recvPacket);
         void HandleSetActiveMoverOpcode(WorldPacket& recvData);

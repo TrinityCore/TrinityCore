@@ -68,6 +68,7 @@
 #include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "MovementStructures.h"
+#include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -1534,6 +1535,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // this will be used instead of the current location in SaveToDB
         m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
+        m_teleport_options = options;
         SetFallInformation(0, GetPositionZ());
         m_teleport_transport = transport;
 
@@ -1558,6 +1560,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // far teleport to another map
         Map* oldmap = IsInWorld() ? GetMap() : nullptr;
+
         // check if we can enter before stopping combat / removing pet / totems / interrupting spells
 
         // Check enter rights before map getting to avoid creating instance copy for player
@@ -1631,18 +1634,16 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 // send transfer packets
-                WorldPacket data(SMSG_TRANSFER_PENDING, 4 + 4 + 4);
-                data.WriteBit(0);       // unknown
+                WorldPackets::Movement::TransferPending transferPending;
+                transferPending.MapID = mapid;
                 if (Transport* transport = GetTransport())
                 {
-                    data.WriteBit(1);   // has transport
-                    data << GetMapId() << transport->GetEntry();
+                    transferPending.Ship = boost::in_place();
+                    transferPending.Ship->ID = transport->GetEntry();
+                    transferPending.Ship->OriginMapID = GetMapId();
                 }
-                else
-                    data.WriteBit(0);   // has transport
 
-                data << uint32(mapid);
-                SendDirectMessage(&data);
+                SendDirectMessage(transferPending.Write());
             }
 
             // remove from old map now
@@ -1651,21 +1652,17 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             m_teleport_dest = WorldLocation(mapid, x, y, z, orientation);
             m_teleport_transport = transport;
+            m_teleport_options = options;
             SetFallInformation(0, GetPositionZ());
             // if the player is saved before worldportack (at logout for example)
             // this will be used instead of the current location in SaveToDB
 
             if (!GetSession()->PlayerLogout())
             {
-                WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                data << float(m_teleport_dest.GetPositionX());
-                data << float(m_teleport_dest.GetOrientation());
-                data << float(m_teleport_dest.GetPositionZ());
-                data << uint32(mapid);
-                data << float(m_teleport_dest.GetPositionY());
-
-                SendDirectMessage(&data);
-                SendSavedInstances();
+                WorldPackets::Movement::SuspendToken suspendToken;
+                suspendToken.SequenceIndex = m_movementCounter; // not incrementing
+                suspendToken.Unk = false;
+                SendDirectMessage(suspendToken.Write());
             }
 
             // move packet sent by client always after far teleport
