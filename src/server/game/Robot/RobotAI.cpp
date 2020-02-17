@@ -1637,7 +1637,7 @@ void RobotAI::Update()
                 sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s is ready to go online.", accountName);
             }
         }
-        else if (checkDelay > 0)
+        if (checkDelay > 0)
         {
             checkDelay -= diff;
             if (checkDelay <= 0)
@@ -1680,6 +1680,10 @@ void RobotAI::Update()
                 {
                     onlineDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
                     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s online delay is set to %d.", accountName, onlineDelay);
+                }
+                else
+                {
+                    onlineDelay = 0;
                 }
             }
         }
@@ -1820,7 +1824,7 @@ void RobotAI::Update()
                 allDelay = 5 * TimeConstants::IN_MILLISECONDS;
             }
         }
-        else if (checkDelay > 0)
+        if (checkDelay > 0)
         {
             checkDelay -= diff;
             if (checkDelay <= 0)
@@ -1883,14 +1887,15 @@ void RobotAI::Update()
                     }
                 }
 
-                // EJ debug
-                //levelPlayerOnline = false;
-
                 if (!levelPlayerOnline)
                 {
-                    offlineDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+                    offlineDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
 
                     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %s offline delay is set to %d.", accountName, offlineDelay);
+                }
+                else
+                {
+                    offlineDelay = 0;
                 }
             }
         }
