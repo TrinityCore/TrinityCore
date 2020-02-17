@@ -823,9 +823,9 @@ void RobotAI::InitializeCharacter()
         }
         case Classes::CLASS_HUNTER:
         {
-            me->LearnSpell(264, false); // bow 
-            me->LearnSpell(266, false); // gun 
-            me->LearnSpell(5011, false); // crossbow
+            me->LearnDefaultSkill(45, me->GetLevel() * 5); // bow 
+            me->LearnDefaultSkill(46, me->GetLevel() * 5); // gun 
+            me->LearnDefaultSkill(226, me->GetLevel() * 5); // crossbow 
 
             // quiver and ammo pouch
             Item* weapon = me->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
@@ -875,7 +875,7 @@ void RobotAI::InitializeCharacter()
         }
         case Classes::CLASS_PALADIN:
         {
-            me->LearnSpell(199, false); // mace 2 
+            me->LearnDefaultSkill(160, me->GetLevel() * 5); // mace 2 
             if (me->GetLevel() < 40)
             {
                 // use mail armor
@@ -888,7 +888,7 @@ void RobotAI::InitializeCharacter()
             }
             hasRange = false;
             dual = false;
-            if (characterType == 1)
+            if (characterType == 0)
             {
                 weaponType = 4;
                 hasShield = false;

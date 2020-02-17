@@ -104,7 +104,7 @@ bool Script_Priest::Healer()
         if (tankTarget)
         {
             // when facing boss
-            if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
+            if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
             {
                 if (sourceAI->CastSpell(tank, "Lightwell", PRIEST_RANGE_DISTANCE))
                 {

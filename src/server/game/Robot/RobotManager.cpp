@@ -234,7 +234,7 @@ void RobotManager::InitializeManager()
         {
             continue;
         }
-        if (proto->Quality < 2)
+        if (proto->Quality < 1)
         {
             continue;
         }

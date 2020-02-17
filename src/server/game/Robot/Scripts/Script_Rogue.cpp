@@ -88,7 +88,7 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget)
         }
     }
     // when facing boss 
-    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
     {
         if (sourceAI->CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
         {
@@ -243,7 +243,7 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
         }
     }
     // when facing boss 
-    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 4)
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
     {
         if (sourceAI->CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
         {
@@ -307,87 +307,29 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-    if (sourceAI->FindSpellID("Cheap Shot") > 0)
+    sourceAI->BaseMove(pmTarget);
+    uint32 energy = me->GetPower(Powers::POWER_ENERGY);    
+    if (energy > 25)
     {
-        if (targetDistance > ROGUE_PREPARE_DISTANCE)
+        if (pmTarget->IsNonMeleeSpellCast(false))
         {
-            sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
-            if (targetDistance < ROGUE_RANGE_DISTANCE)
+            if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
             {
-                if (sourceAI->CastSpell(me, "Stealth", MELEE_MAX_DISTANCE, true))
-                {
-                    return true;
-                }
-            }
-        }
-        else
-        {
-            if (sourceAI->HasAura(me, "Stealth"))
-            {
-                sourceAI->BaseMove(pmTarget, MELEE_MAX_DISTANCE, true);
-                if (energy > 60)
-                {
-                    if (sourceAI->CastSpell(pmTarget, "Cheap Shot", MELEE_MAX_DISTANCE))
-                    {
-                        return true;
-                    }
-                }
-            }
-            else
-            {
-                sourceAI->BaseMove(pmTarget);
-                if (energy > 25)
-                {
-                    if (pmTarget->IsNonMeleeSpellCast(false))
-                    {
-                        if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
-                        {
-                            return true;
-                        }
-                    }
-                }
-                if (energy > 45)
-                {
-                    uint8 comboPoints = me->GetComboPoints();
-                    if (urand(1, 5) <= comboPoints)
-                    {
-                        sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
-                        return true;
-                    }
-                    if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
-                    {
-                        return true;
-                    }
-                }
+                return true;
             }
         }
     }
-    else
+    if (energy > 45)
     {
-        sourceAI->BaseMove(pmTarget);
-        if (energy > 25)
+        uint8 comboPoints = me->GetComboPoints();
+        if (urand(1, 5) <= comboPoints)
         {
-            if (pmTarget->IsNonMeleeSpellCast(false))
-            {
-                if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
-                {
-                    return true;
-                }
-            }
+            sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+            return true;
         }
-        if (energy > 45)
+        if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
         {
-            uint8 comboPoints = me->GetComboPoints();
-            if (urand(1, 5) <= comboPoints)
-            {
-                sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
-                return true;
-            }
-            if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
+            return true;
         }
     }
 
