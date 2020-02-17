@@ -99,11 +99,6 @@ bool Script_Priest::Healer()
         {
             return false;
         }
-        float targetDistance = me->GetDistance(tank);
-        if (targetDistance > 200)
-        {
-            return false;
-        }
         sourceAI->BaseMove(tank, PRIEST_RANGE_DISTANCE, false);
         Unit* tankTarget = tank->GetSelectedUnit();
         if (tankTarget)
@@ -181,7 +176,7 @@ bool Script_Priest::Healer()
     }
     if (lowestMember)
     {
-        sourceAI->BaseMove(tank, PRIEST_RANGE_DISTANCE, false);
+        sourceAI->BaseMove(lowestMember, PRIEST_RANGE_DISTANCE, false);
         if (sourceAI->CastSpell(lowestMember, "Renew", PRIEST_RANGE_DISTANCE, true))
         {
             return true;

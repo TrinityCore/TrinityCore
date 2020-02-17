@@ -151,11 +151,6 @@ bool Script_Paladin::Healer()
         {
             return false;
         }
-        float targetDistance = me->GetDistance(tank);
-        if (targetDistance > 200)
-        {
-            return false;
-        }
         sourceAI->BaseMove(tank, PALADIN_RANGE_DISTANCE, false);
         float healthPCT = tank->GetHealthPct();
         if (healthPCT < 20)
@@ -204,7 +199,7 @@ bool Script_Paladin::Healer()
     }
     if (lowestMember)
     {
-        sourceAI->BaseMove(tank, PALADIN_RANGE_DISTANCE, false);
+        sourceAI->BaseMove(lowestMember, PALADIN_RANGE_DISTANCE, false);
         if (sourceAI->CastSpell(lowestMember, "Holy Light", PALADIN_RANGE_DISTANCE))
         {
             return true;

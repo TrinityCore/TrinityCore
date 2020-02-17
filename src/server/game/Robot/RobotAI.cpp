@@ -875,6 +875,7 @@ void RobotAI::InitializeCharacter()
         }
         case Classes::CLASS_PALADIN:
         {
+            me->LearnSpell(199, false); // mace 2 
             if (me->GetLevel() < 40)
             {
                 // use mail armor
