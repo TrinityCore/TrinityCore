@@ -1660,8 +1660,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 WorldPackets::Movement::SuspendToken suspendToken;
-                suspendToken.SequenceIndex = m_movementCounter; // not incrementing
-                suspendToken.Unk = false;
+                suspendToken.SequenceIndex = 1; // to-do implement incremental value
+                suspendToken.Reason = 1;
                 SendDirectMessage(suspendToken.Write());
             }
 

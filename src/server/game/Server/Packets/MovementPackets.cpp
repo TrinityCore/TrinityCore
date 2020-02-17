@@ -43,8 +43,8 @@ WorldPacket const* WorldPackets::Movement::TransferPending::Write()
 
 WorldPacket const* WorldPackets::Movement::SuspendToken::Write()
 {
-    _worldPacket.WriteBit(Unk);
     _worldPacket << uint32(SequenceIndex);
+    _worldPacket.WriteBit(Reason);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

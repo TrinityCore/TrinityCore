@@ -52,7 +52,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 SequenceIndex = 1;
-            bool Unk = false;
+            uint8 Reason = 1;
         };
 
         class SuspendTokenResponse final : public ClientPacket
