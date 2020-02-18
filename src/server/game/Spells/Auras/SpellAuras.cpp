@@ -1729,7 +1729,7 @@ uint32 Aura::GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo
         return 0;
 
     // At least one effect has to pass checks to proc aura
-    uint32 procEffectMask = 0;
+    uint32 procEffectMask = aurApp->GetEffectMask();
     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (procEffectMask & (1u << i))
             if ((procEntry->DisableEffectsMask & (1u << i)) || !GetEffect(i)->CheckEffectProc(aurApp, eventInfo))
