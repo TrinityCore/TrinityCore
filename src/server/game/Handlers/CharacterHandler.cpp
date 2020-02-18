@@ -528,8 +528,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
     if (classExpansionRequirement->ActiveExpansionLevel > GetExpansion() || classExpansionRequirement->AccountExpansionLevel > GetAccountExpansion())
     {
-        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race/class (%u/%u)",
-            GetAccountExpansion(), GetAccountId(), uint32(charCreate.CreateInfo->Race), uint32(charCreate.CreateInfo->Class));
+        TC_LOG_ERROR("entities.player.cheat", "Account:[%d] tried to create character with race/class %u/%u without required expansion (had %u/%u, required %u/%u)",
+            GetAccountId(), uint32(charCreate.CreateInfo->Race), uint32(charCreate.CreateInfo->Class), GetExpansion(), GetAccountExpansion(),
+            classExpansionRequirement->ActiveExpansionLevel, classExpansionRequirement->AccountExpansionLevel);
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }

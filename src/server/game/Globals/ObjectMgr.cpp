@@ -9906,7 +9906,7 @@ void ObjectMgr::LoadRaceAndClassExpansionRequirements()
             }
 
             ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(raceID);
-            if (!classEntry)
+            if (!raceEntry)
             {
                 TC_LOG_ERROR("sql.sql", "Race %u (class %u) defined in `class_expansion_requirement` does not exists, skipped.",
                     uint32(raceID), uint32(classID));
