@@ -129,9 +129,22 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
         return;
     }
 
+    bool walk = true;
+    switch (owner->GetMovementTemplate().GetRandom())
+    {
+        case CreatureRandomMovementType::CanRun:
+            walk = owner->IsWalking();
+            break;
+        case CreatureRandomMovementType::AlwaysRun:
+            walk = false;
+            break;
+        default:
+            break;
+    }
+
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(_path->GetPath());
-    init.SetWalk(true);
+    init.SetWalk(walk);
     int32 splineDuration = init.Launch();
 
     _wanderSteps--;
