@@ -170,11 +170,20 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Character::EnumCharacters
     data << uint32(charInfo.Unknown703);
     data << uint32(charInfo.LastLoginVersion);
     data << uint32(charInfo.Flags4);
+    data << uint32(charInfo.Unknown830.size());
     data.WriteBits(charInfo.Name.length(), 6);
     data.WriteBit(charInfo.FirstLogin);
     data.WriteBit(charInfo.BoostInProgress);
     data.WriteBits(charInfo.unkWod61x, 5);
+
+    for (std::string const& str : charInfo.Unknown830)
+        data.WriteBits(str.length() + 1, 6);
+
     data.FlushBits();
+
+    for (std::string const& str : charInfo.Unknown830)
+        if (!str.empty())
+            data << str;
 
     data.WriteString(charInfo.Name);
 

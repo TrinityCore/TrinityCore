@@ -65,7 +65,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 
     WorldPackets::AuctionHouse::AuctionHelloResponse auctionHelloResponse;
     auctionHelloResponse.Guid = guid;
-    auctionHelloResponse.OpenForBusiness = true;                         // 3.3.3: 1 - AH enabled, 0 - AH disabled
+    auctionHelloResponse.OpenForBusiness = false;                         // 3.3.3: 1 - AH enabled, 0 - AH disabled
     SendPacket(auctionHelloResponse.Write());
 }
 

@@ -39,6 +39,7 @@ Copied events should probably have a new owner
 #include "CalendarPackets.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
@@ -89,9 +90,9 @@ void WorldSession::HandleCalendarGetCalendar(WorldPackets::Calendar::CalendarGet
         packet.Events.push_back(eventInfo);
     }
 
-    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    for (DifficultyEntry const* difficulty : sDifficultyStore)
     {
-        auto boundInstances = _player->GetBoundInstances(Difficulty(i));
+        auto boundInstances = _player->GetBoundInstances(Difficulty(difficulty->ID));
         if (boundInstances != _player->m_boundInstances.end())
         {
             for (auto const& boundInstance : boundInstances->second)

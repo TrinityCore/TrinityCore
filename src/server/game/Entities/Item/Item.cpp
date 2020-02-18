@@ -327,14 +327,14 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
 
     //                  0      1         2                  3
     // SELECT iz.itemGuid, iz.xp, iz.level, iz.knowledgeLevel,
-    //                                 4                                             5                                             6                                             7
-    // iz.selectedAzeriteEssences1specId, iz.selectedAzeriteEssences1azeriteEssenceId1, iz.selectedAzeriteEssences1azeriteEssenceId2, iz.selectedAzeriteEssences1azeriteEssenceId3,
-    //                                 8                                             9                                            10                                            11
-    // iz.selectedAzeriteEssences2specId, iz.selectedAzeriteEssences2azeriteEssenceId1, iz.selectedAzeriteEssences2azeriteEssenceId2, iz.selectedAzeriteEssences2azeriteEssenceId3,
-    //                                12                                            13                                            14                                            15
-    // iz.selectedAzeriteEssences3specId, iz.selectedAzeriteEssences3azeriteEssenceId1, iz.selectedAzeriteEssences3azeriteEssenceId2, iz.selectedAzeriteEssences3azeriteEssenceId3,
-    //                                16                                            17                                            18                                            19
-    // iz.selectedAzeriteEssences4specId, iz.selectedAzeriteEssences4azeriteEssenceId1, iz.selectedAzeriteEssences4azeriteEssenceId2, iz.selectedAzeriteEssences4azeriteEssenceId3
+    //                                 4                                             5                                             6                                             7                                             8
+    // iz.selectedAzeriteEssences1specId, iz.selectedAzeriteEssences1azeriteEssenceId1, iz.selectedAzeriteEssences1azeriteEssenceId2, iz.selectedAzeriteEssences1azeriteEssenceId3, iz.selectedAzeriteEssences1azeriteEssenceId4,
+    //                                 9                                            10                                            11                                            12                                            13
+    // iz.selectedAzeriteEssences2specId, iz.selectedAzeriteEssences2azeriteEssenceId1, iz.selectedAzeriteEssences2azeriteEssenceId2, iz.selectedAzeriteEssences2azeriteEssenceId3, iz.selectedAzeriteEssences2azeriteEssenceId4,
+    //                                14                                            15                                            16                                            17                                            18
+    // iz.selectedAzeriteEssences3specId, iz.selectedAzeriteEssences3azeriteEssenceId1, iz.selectedAzeriteEssences3azeriteEssenceId2, iz.selectedAzeriteEssences3azeriteEssenceId3, iz.selectedAzeriteEssences3azeriteEssenceId4,
+    //                                19                                            20                                            21                                            22                                            23
+    // iz.selectedAzeriteEssences4specId, iz.selectedAzeriteEssences4azeriteEssenceId1, iz.selectedAzeriteEssences4azeriteEssenceId2, iz.selectedAzeriteEssences4azeriteEssenceId3, iz.selectedAzeriteEssences4azeriteEssenceId4
     // FROM item_instance_azerite iz INNER JOIN ...
     if (azeriteItemResult)
     {
@@ -356,7 +356,7 @@ void ItemAdditionalLoadInfo::Init(std::unordered_map<ObjectGuid::LowType, ItemAd
                 info.AzeriteItem->SelectedAzeriteEssences[i].SpecializationId = specializationId;
                 for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
                 {
-                    AzeriteEssenceEntry const* azeriteEssence = sAzeriteEssenceStore.LookupEntry(fields[5 + i * 4 + j].GetUInt32());
+                    AzeriteEssenceEntry const* azeriteEssence = sAzeriteEssenceStore.LookupEntry(fields[5 + i * 5 + j].GetUInt32());
                     if (!azeriteEssence || !sDB2Manager.IsSpecSetMember(azeriteEssence->SpecSetID, specializationId))
                         continue;
 
