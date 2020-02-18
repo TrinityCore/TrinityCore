@@ -131,6 +131,7 @@ namespace WorldPackets
         struct GarrisonTalent
         {
             int32 GarrTalentID = 0;
+            int32 Rank = 0;
             time_t ResearchStartTime = time_t(0);
             int32 Flags = 0;
         };

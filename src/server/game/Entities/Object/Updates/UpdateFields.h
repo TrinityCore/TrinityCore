@@ -145,11 +145,11 @@ struct UnlockedAzeriteEssence : public IsUpdateFieldStructureTag
     void WriteUpdate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
 };
 
-struct SelectedAzeriteEssences : public IsUpdateFieldStructureTag, public HasChangesMask<7>
+struct SelectedAzeriteEssences : public IsUpdateFieldStructureTag, public HasChangesMask<8>
 {
     UpdateField<uint32, 0, 1> SpecializationID;
     UpdateField<uint32, 0, 2> Enabled;
-    UpdateFieldArray<uint32, 3, 3, 4> AzeriteEssenceID;
+    UpdateFieldArray<uint32, 4, 3, 4> AzeriteEssenceID;
 
     void WriteCreate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, AzeriteItem const* owner, Player const* receiver) const;
@@ -203,7 +203,7 @@ struct PassiveSpellHistory : public IsUpdateFieldStructureTag
     void WriteUpdate(ByteBuffer& data, Unit const* owner, Player const* receiver) const;
 };
 
-struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<191>
+struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<192>
 {
     UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
     DynamicUpdateField<UF::PassiveSpellHistory, 0, 2> PassiveSpells;
@@ -320,26 +320,27 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<191>
     UpdateField<int32, 96, 111> LookAtControllerID;
     UpdateField<int32, 96, 112> TaxiNodesID;
     UpdateField<ObjectGuid, 96, 113> GuildGUID;
-    UpdateFieldArray<uint32, 2, 114, 115> NpcFlags;
+    UpdateField<ObjectGuid, 96, 114> SkinningOwnerGUID;
+    UpdateFieldArray<uint32, 2, 115, 116> NpcFlags;
     struct NpcFlagsTag : ViewerDependentValueTag<uint32> {};
-    UpdateFieldArray<int32, 6, 117, 118> Power;
-    UpdateFieldArray<int32, 6, 117, 124> MaxPower;
-    UpdateFieldArray<float, 6, 117, 130> PowerRegenFlatModifier;
-    UpdateFieldArray<float, 6, 117, 136> PowerRegenInterruptedFlatModifier;
-    UpdateFieldArray<UF::VisibleItem, 3, 142, 143> VirtualItems;
-    UpdateFieldArray<uint32, 2, 146, 147> AttackRoundBaseTime;
-    UpdateFieldArray<int32, 4, 149, 150> Stats;
-    UpdateFieldArray<int32, 4, 149, 154> StatPosBuff;
-    UpdateFieldArray<int32, 4, 149, 158> StatNegBuff;
-    UpdateFieldArray<int32, 7, 162, 163> Resistances;
-    UpdateFieldArray<int32, 7, 162, 170> BonusResistanceMods;
-    UpdateFieldArray<int32, 7, 162, 177> PowerCostModifier;
-    UpdateFieldArray<float, 7, 162, 184> PowerCostMultiplier;
+    UpdateFieldArray<int32, 6, 118, 119> Power;
+    UpdateFieldArray<int32, 6, 118, 125> MaxPower;
+    UpdateFieldArray<float, 6, 118, 131> PowerRegenFlatModifier;
+    UpdateFieldArray<float, 6, 118, 137> PowerRegenInterruptedFlatModifier;
+    UpdateFieldArray<UF::VisibleItem, 3, 143, 144> VirtualItems;
+    UpdateFieldArray<uint32, 2, 147, 148> AttackRoundBaseTime;
+    UpdateFieldArray<int32, 4, 150, 151> Stats;
+    UpdateFieldArray<int32, 4, 150, 155> StatPosBuff;
+    UpdateFieldArray<int32, 4, 150, 159> StatNegBuff;
+    UpdateFieldArray<int32, 7, 163, 164> Resistances;
+    UpdateFieldArray<int32, 7, 163, 171> BonusResistanceMods;
+    UpdateFieldArray<int32, 7, 163, 178> PowerCostModifier;
+    UpdateFieldArray<float, 7, 163, 185> PowerCostMultiplier;
 
     void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
-    void AppendAllowedFieldsMaskForFlag(UpdateMask<191>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
-    void WriteUpdate(ByteBuffer& data, UpdateMask<191> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
+    void AppendAllowedFieldsMaskForFlag(UpdateMask<192>& allowedMaskForTarget, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
+    void WriteUpdate(ByteBuffer& data, UpdateMask<192> const& changesMask, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -523,7 +524,7 @@ struct QuestSession : public IsUpdateFieldStructureTag, public HasChangesMask<87
     void ClearChangesMask();
 };
 
-struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1490>
+struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMask<1494>
 {
     UpdateField<bool, 0, 1> BackpackAutoSortDisabled;
     UpdateField<bool, 0, 2> BankAutoSortDisabled;
@@ -624,24 +625,24 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<int32, 98, 101> PvpLastWeeksRewardClaimed;
     UpdateField<uint8, 98, 102> NumBankSlots;
     OptionalUpdateField<UF::QuestSession, 98, 103> QuestSession;
-    UpdateFieldArray<ObjectGuid, 195, 104, 105> InvSlots;
-    UpdateFieldArray<uint32, 2, 300, 301> TrackResourceMask;
-    UpdateFieldArray<uint64, 192, 303, 304> ExploredZones;
-    UpdateFieldArray<UF::RestInfo, 2, 496, 497> RestInfo;
-    UpdateFieldArray<int32, 7, 499, 500> ModDamageDonePos;
-    UpdateFieldArray<int32, 7, 499, 507> ModDamageDoneNeg;
-    UpdateFieldArray<float, 7, 499, 514> ModDamageDonePercent;
-    UpdateFieldArray<float, 3, 521, 522> WeaponDmgMultipliers;
-    UpdateFieldArray<float, 3, 521, 525> WeaponAtkSpeedMultipliers;
-    UpdateFieldArray<uint32, 12, 528, 529> BuybackPrice;
-    UpdateFieldArray<uint32, 12, 528, 541> BuybackTimestamp;
-    UpdateFieldArray<int32, 32, 553, 554> CombatRatings;
-    UpdateFieldArray<UF::PVPInfo, 6, 586, 587> PvpInfo;
-    UpdateFieldArray<uint32, 4, 593, 594> NoReagentCostMask;
-    UpdateFieldArray<int32, 2, 598, 599> ProfessionSkillLine;
-    UpdateFieldArray<uint32, 4, 601, 602> BagSlotFlags;
-    UpdateFieldArray<uint32, 7, 606, 607> BankBagSlotFlags;
-    UpdateFieldArray<uint64, 875, 614, 615> QuestCompleted;
+    UpdateFieldArray<ObjectGuid, 199, 104, 105> InvSlots;
+    UpdateFieldArray<uint32, 2, 304, 305> TrackResourceMask;
+    UpdateFieldArray<uint64, 192, 307, 308> ExploredZones;
+    UpdateFieldArray<UF::RestInfo, 2, 500, 501> RestInfo;
+    UpdateFieldArray<int32, 7, 503, 504> ModDamageDonePos;
+    UpdateFieldArray<int32, 7, 503, 511> ModDamageDoneNeg;
+    UpdateFieldArray<float, 7, 503, 518> ModDamageDonePercent;
+    UpdateFieldArray<float, 3, 525, 526> WeaponDmgMultipliers;
+    UpdateFieldArray<float, 3, 525, 529> WeaponAtkSpeedMultipliers;
+    UpdateFieldArray<uint32, 12, 532, 533> BuybackPrice;
+    UpdateFieldArray<uint32, 12, 532, 545> BuybackTimestamp;
+    UpdateFieldArray<int32, 32, 557, 558> CombatRatings;
+    UpdateFieldArray<UF::PVPInfo, 6, 590, 591> PvpInfo;
+    UpdateFieldArray<uint32, 4, 597, 598> NoReagentCostMask;
+    UpdateFieldArray<int32, 2, 602, 603> ProfessionSkillLine;
+    UpdateFieldArray<uint32, 4, 605, 606> BagSlotFlags;
+    UpdateFieldArray<uint32, 7, 610, 611> BankBagSlotFlags;
+    UpdateFieldArray<uint64, 875, 618, 619> QuestCompleted;
 
     void WriteCreate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumClassFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const;
