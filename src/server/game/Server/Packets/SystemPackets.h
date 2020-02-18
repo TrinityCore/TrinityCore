@@ -145,7 +145,6 @@ namespace WorldPackets
             bool IsMuted                             = false;
             bool ClubFinderEnabled                   = false;
 
-            Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;
             VoiceChatProxySettings VoiceChatManagerSettings;
             RafSystemFeatureInfo RAFSystem;

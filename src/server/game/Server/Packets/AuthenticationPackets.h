@@ -25,6 +25,7 @@
 #include <unordered_map>
 
 struct CharacterTemplate;
+struct RaceClassAvailability;
 
 namespace WorldPackets
 {
@@ -137,8 +138,8 @@ namespace WorldPackets
                     bool InGameRoom = false;
                 };
 
-                uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
                 uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
+                uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
                 uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
 
                 uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
@@ -151,7 +152,7 @@ namespace WorldPackets
                 std::vector<VirtualRealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
                 std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
 
-                std::unordered_map<uint8, uint8> const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
+                std::vector<RaceClassAvailability> const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select race/class combinations
 
                 bool IsExpansionTrial = false;
                 bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
@@ -160,7 +161,7 @@ namespace WorldPackets
                 Optional<int32> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
             };
 
-            AuthResponse();
+            AuthResponse() : ServerPacket(SMSG_AUTH_RESPONSE, 132) { }
 
             WorldPacket const* Write() override;
 
