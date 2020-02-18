@@ -5110,6 +5110,24 @@ class spell_gen_charmed_unit_spell_cooldown : public SpellScript
     }
 };
 
+class spell_gen_flurry_of_claws : public AuraScript
+{
+    PrepareAuraScript(spell_gen_flurry_of_claws);
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+        if (Unit* victim = target->GetVictim())
+            target->CastSpell(victim, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_flurry_of_claws::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5148,6 +5166,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_ds_flush_knockback();
     new spell_gen_dungeon_credit();
     new spell_gen_elune_candle();
+    RegisterAuraScript(spell_gen_flurry_of_claws);
     new spell_gen_gadgetzan_transporter_backfire();
     new spell_gen_gift_of_naaru();
     new spell_gen_gnomish_transporter();
