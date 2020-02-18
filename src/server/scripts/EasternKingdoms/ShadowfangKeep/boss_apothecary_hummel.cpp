@@ -44,7 +44,8 @@ enum ApothecarySpells
     SPELL_PERFUME_SPILL          = 68798,
     SPELL_COLOGNE_SPILL          = 68614,
     SPELL_PERFUME_SPILL_DAMAGE   = 68927,
-    SPELL_COLOGNE_SPILL_DAMAGE   = 68934
+    SPELL_COLOGNE_SPILL_DAMAGE   = 68934,
+    SPELL_SUMMON_VALENTINE_ADD   = 68610
 };
 
 enum ApothecarySays
@@ -70,22 +71,25 @@ enum ApothecaryEvents
     EVENT_PERFUME_SPRAY,
     EVENT_COLOGNE_SPRAY,
     EVENT_CALL_BAXTER,
-    EVENT_CALL_FRYE
+    EVENT_CALL_FRYE,
+    EVENT_CALL_CRAZED_APOTHECARY,
+    EVENT_CRAZED_APOTHECARY
 };
 
 enum ApothecaryMisc
 {
-    ACTION_START_EVENT          = 1,
-    ACTION_START_FIGHT          = 2,
-    GOSSIP_OPTION_START         = 0,
-    GOSSIP_MENU_HUMMEL          = 10847,
-    QUEST_YOUVE_BEEN_SERVED     = 14488,
-    NPC_APOTHECARY_FRYE         = 36272,
-    NPC_APOTHECARY_BAXTER       = 36565,
-    NPC_VIAL_BUNNY              = 36530,
-    NPC_CROWN_APOTHECARY        = 36885,
-    PHASE_ALL                   = 0,
-    PHASE_INTRO                 = 1
+    ACTION_START_EVENT               = 1,
+    ACTION_START_FIGHT               = 2,
+    GOSSIP_OPTION_START              = 0,
+    GOSSIP_MENU_HUMMEL               = 10847,
+    QUEST_YOUVE_BEEN_SERVED          = 14488,
+    NPC_APOTHECARY_FRYE              = 36272,
+    NPC_APOTHECARY_BAXTER            = 36565,
+    NPC_VIAL_BUNNY                   = 36530,
+    NPC_CROWN_APOTHECARY             = 36885,
+    NPC_CRAZED_APOTHECARY_GENERATOR  = 36212,
+    PHASE_ALL                        = 0,
+    PHASE_INTRO                      = 1
 };
 
 Position const BaxterMovePos = { -221.4115f, 2206.825f, 79.93151f, 0.0f };
@@ -218,10 +222,11 @@ class boss_apothecary_hummel : public CreatureScript
                             DoZoneInCombat();
                             events.ScheduleEvent(EVENT_CALL_BAXTER, 6s);
                             events.ScheduleEvent(EVENT_CALL_FRYE, 14s);
+                            events.ScheduleEvent(EVENT_CALL_CRAZED_APOTHECARY, 15s);
+                            events.ScheduleEvent(EVENT_CRAZED_APOTHECARY, 15s);
                             events.ScheduleEvent(EVENT_PERFUME_SPRAY, Milliseconds(3640));
                             events.ScheduleEvent(EVENT_CHAIN_REACTION, 15s);
 
-                            Talk(SAY_SUMMON_ADDS);
                             std::vector<Creature*> trashs;
                             me->GetCreatureListWithEntryInGrid(trashs, NPC_CROWN_APOTHECARY);
                             for (Creature* crea : trashs)
@@ -242,6 +247,23 @@ class boss_apothecary_hummel : public CreatureScript
                             Talk(SAY_CALL_FRYE);
                             EntryCheckPredicate pred(NPC_APOTHECARY_FRYE);
                             summons.DoAction(ACTION_START_FIGHT, pred);
+                            break;
+                        }
+                        case EVENT_CALL_CRAZED_APOTHECARY:
+                        {
+                            Talk(SAY_SUMMON_ADDS);
+                            break;
+                        }
+                        case EVENT_CRAZED_APOTHECARY:
+                        {
+                            std::list<Creature*> apothecary;
+                            GetCreatureListWithEntryInGrid(apothecary, me, NPC_CRAZED_APOTHECARY_GENERATOR, 100);
+                            for (std::list<Creature*>::iterator itr = apothecary.begin(); itr != apothecary.end(); ++itr)
+                            {
+                                if (Creature* creature = *itr)
+                                    creature->CastSpell(me, SPELL_SUMMON_VALENTINE_ADD);
+                            }
+                            events.Repeat(Seconds(4), Seconds(6));
                             break;
                         }
                         case EVENT_PERFUME_SPRAY:
