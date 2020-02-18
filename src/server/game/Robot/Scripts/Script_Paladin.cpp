@@ -287,7 +287,13 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget)
             }
         }
     }
-
+    if (pmTarget->GetHealthPct() < 20.0f)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Hammer of Wrath", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
     if (sourceAI->CastSpell(pmTarget, "Judgement of Wisdom", MELEE_MAX_DISTANCE))
     {
         return true;

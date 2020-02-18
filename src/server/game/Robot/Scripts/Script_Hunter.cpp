@@ -87,7 +87,7 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget)
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
-    }    
+    }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
@@ -183,7 +183,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
             return true;
         }
     }
-    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false, HUNTER_MIN_RANGE_DISTANCE);    
+    sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE, false, HUNTER_MIN_RANGE_DISTANCE);
     Group* myGroup = me->GetGroup();
     if (myGroup)
     {
@@ -235,6 +235,13 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
     {
         sourceAI->CastSpell(pmTarget, "Auto Shot", HUNTER_RANGE_DISTANCE);
     }
+    if (pmTarget->GetHealthPct() < 20.0f)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Kill Shot", HUNTER_RANGE_DISTANCE))
+        {
+            return true;
+        }
+    }
     // when facing boss 
     if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
     {
@@ -247,17 +254,10 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
     {
         if (pmTarget->GetHealthPct() < 20.0f)
         {
-            if (sourceAI->CastSpell(pmTarget, "Concussive Shot", HUNTER_RANGE_DISTANCE))
+            if (sourceAI->CastSpell(pmTarget, "Concussive Shot", HUNTER_RANGE_DISTANCE, true))
             {
                 return true;
             }
-        }
-    }
-    if (pmTarget->GetHealthPct() < 20.0f)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Kill Shot", HUNTER_RANGE_DISTANCE))
-        {
-            return true;
         }
     }
     if (sourceAI->CastSpell(pmTarget, "Serpent Sting", HUNTER_RANGE_DISTANCE, true, true))
@@ -304,7 +304,7 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget)
     {
         return false;
     }
-    PetAttack(me->GetPet(), pmTarget);    
+    PetAttack(me->GetPet(), pmTarget);
     sourceAI->BaseMove(pmTarget, HUNTER_CLOSER_DISTANCE);
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
@@ -389,7 +389,7 @@ bool Script_Hunter::DPS_Common(Unit* pmTarget)
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
-    }    
+    }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
@@ -490,7 +490,7 @@ bool Script_Hunter::Attack_BeastMastery(Unit* pmTarget)
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
-    }    
+    }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
@@ -570,7 +570,7 @@ bool Script_Hunter::Attack_Marksmanship(Unit* pmTarget)
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
-    }    
+    }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
@@ -650,7 +650,7 @@ bool Script_Hunter::Attack_Survival(Unit* pmTarget)
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
-    }    
+    }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
@@ -730,7 +730,7 @@ bool Script_Hunter::Attack_Common(Unit* pmTarget)
     if (sourceAI->CastSpell(pmTarget, "Hunter's Mark", 100, true))
     {
         return true;
-    }    
+    }
     if (targetDistance < HUNTER_MIN_RANGE_DISTANCE)
     {
         if (sourceAI->CastSpell(me, "Aspect of the Monkey", 20, true, true))
