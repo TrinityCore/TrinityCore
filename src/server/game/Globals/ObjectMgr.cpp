@@ -528,16 +528,16 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.maxgold        = fields[59].GetUInt32();
     creatureTemplate.AIName         = fields[60].GetString();
     creatureTemplate.MovementType   = uint32(fields[61].GetUInt8());
-    if (!fields[65].IsNull())
+    if (!fields[62].IsNull())
         creatureTemplate.Movement.Ground = static_cast<CreatureGroundMovementType>(fields[62].GetUInt8());
 
-    if (!fields[66].IsNull())
+    if (!fields[63].IsNull())
         creatureTemplate.Movement.Swim = fields[63].GetBool();
 
-    if (!fields[67].IsNull())
+    if (!fields[64].IsNull())
         creatureTemplate.Movement.Flight = static_cast<CreatureFlightMovementType>(fields[64].GetUInt8());
 
-    if (!fields[68].IsNull())
+    if (!fields[65].IsNull())
         creatureTemplate.Movement.Rooted = fields[65].GetBool();
 
     if (!fields[66].IsNull())
@@ -1480,7 +1480,7 @@ void ObjectMgr::LoadCreatureMovementOverrides()
         movement.Swim = fields[2].GetBool();
         movement.Flight = static_cast<CreatureFlightMovementType>(fields[3].GetUInt8());
         movement.Rooted = fields[4].GetBool();
-        movement.Random = static_cast<CreatureRandomMovementType>(fields[6].GetUInt8());
+        movement.Random = static_cast<CreatureRandomMovementType>(fields[5].GetUInt8());
 
         CheckCreatureMovement("creature_movement_override", spawnId, movement);
     } while (result->NextRow());
