@@ -39,6 +39,7 @@ Copied events should probably have a new owner
 #include "CalendarPackets.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
