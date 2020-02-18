@@ -71,15 +71,15 @@ void AzeriteItem::SaveToDB(CharacterDatabaseTransaction& trans)
             std::size_t specIndex = 0;
             for (; specIndex < m_azeriteItemData->SelectedEssences.size(); ++specIndex)
             {
-                stmt->setUInt32(4 + specIndex * 4, m_azeriteItemData->SelectedEssences[specIndex].SpecializationID);
+                stmt->setUInt32(4 + specIndex * 5, m_azeriteItemData->SelectedEssences[specIndex].SpecializationID);
                 for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
-                    stmt->setUInt32(5 + specIndex * 4 + j, m_azeriteItemData->SelectedEssences[specIndex].AzeriteEssenceID[j]);
+                    stmt->setUInt32(5 + specIndex * 5 + j, m_azeriteItemData->SelectedEssences[specIndex].AzeriteEssenceID[j]);
             }
             for (; specIndex < MAX_SPECIALIZATIONS; ++specIndex)
             {
-                stmt->setUInt32(4 + specIndex * 4, 0);
+                stmt->setUInt32(4 + specIndex * 5, 0);
                 for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
-                    stmt->setUInt32(5 + specIndex * 4 + j, 0);
+                    stmt->setUInt32(5 + specIndex * 5 + j, 0);
             }
 
             trans->Append(stmt);

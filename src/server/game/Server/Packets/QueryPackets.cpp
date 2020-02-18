@@ -269,6 +269,7 @@ void WorldPackets::Query::QueryGameObject::Read()
 WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
 {
     _worldPacket << GameObjectID;
+    _worldPacket << Guid;
     _worldPacket.WriteBit(Allow);
     _worldPacket.FlushBits();
 

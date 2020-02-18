@@ -86,7 +86,7 @@ enum Expansions
     EXPANSION_LEGION                   = 6,
     EXPANSION_BATTLE_FOR_AZEROTH       = 7,
     MAX_EXPANSIONS,
-
+    EXPANSION_SHADOWLANDS              = 8,
 
     MAX_ACCOUNT_EXPANSIONS
 };

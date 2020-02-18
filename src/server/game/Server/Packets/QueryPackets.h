@@ -239,6 +239,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 GameObjectID = 0;
+            ObjectGuid Guid;
             bool Allow = false;
             GameObjectStats Stats;
         };
