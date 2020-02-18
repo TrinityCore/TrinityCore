@@ -2355,18 +2355,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
-        case SMART_ACTION_STOP_MOTION:
+        case SMART_ACTION_PAUSE_MOVEMENT:
         {
             for (WorldObject* target : targets)
-            {
                 if (IsUnit(target))
-                {
-                    if (e.action.stopMotion.stopMovement)
-                        target->ToUnit()->StopMoving();
-                    if (e.action.stopMotion.movementExpired)
-                        target->ToUnit()->GetMotionMaster()->MovementExpired();
-                }
-            }
+                    target->ToUnit()->PauseMovement(e.action.pauseMovement.pauseTimer, e.action.pauseMovement.movementSlot, e.action.pauseMovement.force);
             break;
         }
         case SMART_ACTION_RESPAWN_BY_SPAWNID:
