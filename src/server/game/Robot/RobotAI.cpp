@@ -992,53 +992,9 @@ void RobotAI::InitializeCharacter()
         }
     }
 
-    if (me->GetClass() == Classes::CLASS_HUNTER)
-    {
-        Pet* loadPet = new Pet(me, PetType::HUNTER_PET);
-        if (!loadPet->LoadPetFromDB(me))
-        {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create hunter pet for %s", me->GetName());
-            bool petCreated = false;
-            uint32 beastEntry = urand(0, sRobotManager->tamableBeastEntryMap.size() - 1);
-            beastEntry = sRobotManager->tamableBeastEntryMap[beastEntry];
-            CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(beastEntry);
-            if (cinfo)
-            {
-                Pet* createPet = new Pet(me, HUNTER_PET);
-
-                if (createPet->CreateBaseAtCreatureInfo(cinfo, me))
-                {
-                    if (me->InitTamedPet(createPet, me->GetLevel(), 1515))
-                    {
-                        createPet->GivePetLevel(me->GetLevel());
-                        createPet->GetMap()->AddToMap(createPet->ToCreature());
-                        me->SetMinion(createPet, true);
-                        createPet->InitTalentForLevel();
-                        createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
-                        me->PetSpellInitialize();
-                        createPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
-                        petCreated = true;
-                    }
-                }
-            }
-            if (petCreated)
-            {
-                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Hunter pet for %s created", me->GetName());
-            }
-            else
-            {
-                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Hunter pet for %s create failed", me->GetName());
-            }
-        }
-    }
-
     me->UpdateSkillsForLevel();
     me->UpdateWeaponsSkillsToMaxSkillsForLevel();
-    if (!me->IsPvP())
-    {
-        me->SetPvP(true);
-    }
-
+    me->SetPvP(true);
     me->SaveToDB();
 
     RandomTeleport();
@@ -1107,8 +1063,6 @@ void RobotAI::Prepare()
     Pet* checkPet = me->GetPet();
     if (checkPet)
     {
-        checkPet->GivePetLevel(me->GetLevel() - 1);
-        checkPet->GivePetLevel(me->GetLevel());
         checkPet->SetReactState(REACT_DEFENSIVE);
         if (checkPet->getPetType() == PetType::HUNTER_PET)
         {
@@ -1367,14 +1321,17 @@ void RobotAI::BaseMove(Unit* pmTarget, float pmMaxDistance, bool pmAttack, float
     bool chasing = false;
     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::CHASE_MOTION_TYPE)
     {
-        ChaseMovementGenerator* cmg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
-        if (cmg)
+        ChaseMovementGenerator* mg = (ChaseMovementGenerator*)me->GetMotionMaster()->GetCurrentMovementGenerator();
+        if (mg)
         {
-            if (cmg->GetTarget()->GetGUID() == pmTarget->GetGUID())
+            if (mg->GetTarget())
             {
-                if (cmg->GetMinRange() == pmMinDistance && cmg->GetMaxRange() == pmMaxDistance)
+                if (mg->GetTarget()->GetGUID() == pmTarget->GetGUID())
                 {
-                    chasing = true;
+                    if (mg->GetMinRange() == pmMinDistance && mg->GetMaxRange() == pmMaxDistance)
+                    {
+                        chasing = true;
+                    }
                 }
             }
         }

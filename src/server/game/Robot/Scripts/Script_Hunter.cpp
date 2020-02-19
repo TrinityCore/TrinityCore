@@ -792,42 +792,54 @@ bool Script_Hunter::Buff()
     {
         return true;
     }
-    Pet* activePet = me->GetPet();
-    if (activePet)
+    Pet* myPet = me->GetPet();
+    if (!myPet)
     {
-        if (!activePet->IsAlive())
+        Pet* loadPet = new Pet(me, PetType::HUNTER_PET);
+        if (loadPet->LoadPetFromDB(me))
+        {
+            myPet = loadPet;
+        }
+        else
+        {
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create hunter pet for %s", me->GetName());
+            uint32 beastEntry = urand(0, sRobotManager->tamableBeastEntryMap.size() - 1);
+            beastEntry = sRobotManager->tamableBeastEntryMap[beastEntry];
+            CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(beastEntry);
+            if (cinfo)
+            {
+                Pet* createPet = new Pet(me, HUNTER_PET);
+                if (createPet->CreateBaseAtCreatureInfo(cinfo, me))
+                {
+                    if (me->InitTamedPet(createPet, me->GetLevel(), 1515))
+                    {
+                        createPet->GivePetLevel(me->GetLevel());
+                        createPet->GetMap()->AddToMap(createPet->ToCreature());
+                        me->SetMinion(createPet, true);
+                        createPet->InitTalentForLevel();
+                        createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                        me->PetSpellInitialize();
+                        createPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
+                        myPet = createPet;
+                    }
+                }
+            }
+        }
+    }
+    if (myPet)
+    {
+        if (!myPet->IsAlive())
         {
             if (sourceAI->CastSpell(me, "Revive Pet"))
             {
                 return true;
             }
         }
-        else if (!activePet->IsInWorld())
+        else if (!myPet->IsInWorld())
         {
             if (sourceAI->CastSpell(me, "Call Pet"))
             {
                 return true;
-            }
-        }
-    }
-    else
-    {
-        Pet* loadPet = new Pet(me, PetType::HUNTER_PET);
-        if (loadPet->LoadPetFromDB(me))
-        {
-            if (!loadPet->IsAlive())
-            {
-                if (sourceAI->CastSpell(me, "Revive Pet"))
-                {
-                    return true;
-                }
-            }
-            else if (!loadPet->IsInWorld())
-            {
-                if (sourceAI->CastSpell(me, "Call Pet"))
-                {
-                    return true;
-                }
             }
         }
     }
