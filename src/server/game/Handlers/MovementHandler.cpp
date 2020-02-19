@@ -411,7 +411,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
     {
         TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = getMSTime();
+        movementInfo.time = GameTime::GetGameTimeMS();
     }
     else
     {
@@ -797,7 +797,8 @@ void WorldSession::ComputeNewClockDelta()
     uint32 sampleSizeAfterFiltering = 0;
     for (auto pair : _timeSyncClockDeltaQueue)
     {
-        if (pair.second < latencyStandardDeviation + latencyMedian) {
+        if (pair.second < latencyStandardDeviation + latencyMedian)
+        {
             clockDeltasAfterFiltering(pair.first);
             sampleSizeAfterFiltering++;
         }
