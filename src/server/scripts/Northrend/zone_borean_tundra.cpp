@@ -151,59 +151,6 @@ public:
 };
 
 /*######
-## npc_iruk
-######*/
-
-enum Iruk
-{
-    GOSSIP_MENU_ID_NPC_IRUK        = 9280,
-    GOSSIP_OPTION_SEARCH_CORPSE    = 0,
-    NPC_TEXT_THIS_YOUNG_TUSKARR    = 12585,
-
-    QUEST_SPIRITS_WATCH_OVER_US    = 11961,
-
-    SPELL_CREATE_TOTEM_OF_ISSLIRUK = 46816
-};
-
-class npc_iruk : public CreatureScript
-{
-public:
-    npc_iruk() : CreatureScript("npc_iruk") { }
-
-    struct npc_irukAI : public ScriptedAI
-    {
-        npc_irukAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_SPIRITS_WATCH_OVER_US) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_MENU_ID_NPC_IRUK, GOSSIP_OPTION_SEARCH_CORPSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            SendGossipMenuFor(player, NPC_TEXT_THIS_YOUNG_TUSKARR, me->GetGUID());
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                player->CastSpell(player, SPELL_CREATE_TOTEM_OF_ISSLIRUK, true);
-                CloseGossipMenuFor(player);
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_irukAI(creature);
-    }
-};
-
-/*######
 ## npc_nerubar_victim
 ######*/
 
@@ -2343,7 +2290,6 @@ void AddSC_borean_tundra()
 {
     new npc_khunok_the_behemoth();
     new npc_corastrasza();
-    new npc_iruk();
     new npc_nerubar_victim();
     RegisterSpellScript(spell_q11865_place_fake_fur);
     new npc_nesingwary_trapper();

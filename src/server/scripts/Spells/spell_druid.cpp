@@ -90,7 +90,8 @@ enum DruidSpells
     SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
     SPELL_DRUID_BARKSKIN_01                 = 63058,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
-    SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845
+    SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845,
+    SPELL_DRUID_GLYPH_OF_NOURISH            = 62971
 };
 
 enum MiscSpells
@@ -964,6 +965,39 @@ private:
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_moonkin_form_passive::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
         OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_moonkin_form_passive::Absorb, EFFECT_0);
+    }
+};
+
+// 50464 - Nourish
+class spell_dru_nourish : public SpellScript
+{
+    PrepareSpellScript(spell_dru_nourish);
+
+    void HandleHeal(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        // Glyph of Nourish
+        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DRUID_GLYPH_OF_NOURISH, EFFECT_0))
+        {
+            uint32 auraCount = 0;
+            int32 heal = GetHitHeal();
+
+            Unit::AuraEffectList const& periodicHeals = GetHitUnit()->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
+            for (AuraEffect const* hot : periodicHeals)
+            {
+                if (caster->GetGUID() == hot->GetCasterGUID())
+                    ++auraCount;
+            }
+
+            AddPct(heal, aurEff->GetAmount() * auraCount);
+            SetHitHeal(heal);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_nourish::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
@@ -1884,6 +1918,7 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(spell_dru_living_seed);
     RegisterAuraScript(spell_dru_living_seed_proc);
     RegisterAuraScript(spell_dru_moonkin_form_passive);
+    RegisterSpellScript(spell_dru_nourish);
     RegisterAuraScript(spell_dru_omen_of_clarity);
     RegisterAuraScript(spell_dru_owlkin_frenzy);
     RegisterAuraScript(spell_dru_predatory_strikes);

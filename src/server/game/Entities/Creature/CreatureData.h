@@ -298,7 +298,7 @@ struct CreatureData : public SpawnData
     CreatureData() : SpawnData(SPAWN_TYPE_CREATURE) { }
     uint32 displayid = 0;
     int8 equipmentId = 0;
-    float spawndist = 0.0f;
+    float wander_distance = 0.0f;
     uint32 currentwaypoint = 0;
     uint32 curhealth = 0;
     uint32 curmana = 0;
