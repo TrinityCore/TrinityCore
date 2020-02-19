@@ -842,6 +842,13 @@ bool Script_Hunter::Buff()
                 return true;
             }
         }
+        else if (myPet->GetHealthPct() < 50.0f)
+        {
+            if (sourceAI->CastSpell(myPet, "Mend Pet", HUNTER_CLOSER_DISTANCE, true))
+            {
+                return true;
+            }
+        }
     }
 
     return false;
