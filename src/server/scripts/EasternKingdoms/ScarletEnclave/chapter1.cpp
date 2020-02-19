@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CreatureAIImpl.h"
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "CreatureTextMgr.h"
@@ -1072,40 +1073,40 @@ public:
             }
         }
     };
+};
 
-    enum GiftOfTheHarvester
+enum GiftOfTheHarvester
+{
+    SPELL_GHOUL_TRANFORM    = 52490,
+    SPELL_GHOST_TRANSFORM   = 52505
+};
+
+class spell_gift_of_the_harvester : public SpellScript
+{
+    PrepareSpellScript(spell_gift_of_the_harvester);
+
+    bool Validate(SpellInfo const* /*spell*/) override
     {
-        SPELL_GHOUL_TRANFORM = 52490,
-        SPELL_GHOST_TRANSFORM = 52505
-    };
-
-    class spell_gift_of_the_harvester : public SpellScript
-    {
-        PrepareSpellScript(spell_gift_of_the_harvester);
-
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            return ValidateSpellInfo(
+        return ValidateSpellInfo(
                 {
                         SPELL_GHOUL_TRANFORM,
                         SPELL_GHOST_TRANSFORM
                 });
-        }
+    }
 
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            Unit* originalCaster = GetOriginalCaster();
-            Unit* target = GetHitUnit();
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* originalCaster = GetOriginalCaster();
+        Unit* target = GetHitUnit();
 
-            if (originalCaster && target)
-                originalCaster->CastSpell(target, RAND(SPELL_GHOUL_TRANFORM, SPELL_GHOST_TRANSFORM), true);
-        }
+        if (originalCaster && target)
+            originalCaster->CastSpell(target, RAND(SPELL_GHOUL_TRANFORM, SPELL_GHOST_TRANSFORM), true);
+    }
 
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_gift_of_the_harvester::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gift_of_the_harvester::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 void AddSC_the_scarlet_enclave_c1()

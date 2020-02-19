@@ -656,7 +656,7 @@ public:
         for (auto const& pair : sObjectMgr->GetAllCreatureData())
         {
             SpawnData const& data = pair.second;
-            if (data.spawnPoint.GetMapId() != mapId)
+            if (data.mapId != mapId)
                 continue;
             CreatureTemplate const* cTemp = sObjectMgr->GetCreatureTemplate(data.id);
             if (!cTemp)
@@ -667,7 +667,7 @@ public:
         for (auto const& pair : sObjectMgr->GetAllGameObjectData())
         {
             SpawnData const& data = pair.second;
-            if (data.spawnPoint.GetMapId() != mapId)
+            if (data.mapId != mapId)
                 continue;
             GameObjectTemplate const* goTemp = sObjectMgr->GetGameObjectTemplate(data.id);
             if (!goTemp)
@@ -709,25 +709,27 @@ public:
             map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type));
             for (RespawnInfo const* ri : respawns)
             {
-                SpawnData const* data = sObjectMgr->GetSpawnData(ri->type, ri->spawnId);
+                SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(ri->type, ri->spawnId);
                 if (!data)
                     continue;
 
-                uint32 respawnZoneId = map->GetZoneId(data->spawnPoint);
-                if (range)
+                uint32 respawnZoneId = 0;
+                if (SpawnData const* edata = data->ToSpawnData())
                 {
-                    if (!player->IsInDist(data->spawnPoint, range))
-                        continue;
+                    respawnZoneId = map->GetZoneId(edata->spawnPoint);
+                    if (range)
+                    {
+                        if (!player->IsInDist(edata->spawnPoint, range))
+                            continue;
+                    }
+                    else
+                    {
+                        if (zoneId != respawnZoneId)
+                            continue;
+                    }
                 }
-                else
-                {
-                    if (zoneId != respawnZoneId)
-                        continue;
-                }
-
                 uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
                 uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
-
                 std::string respawnTime = ri->respawnTime > GameTime::GetGameTime() ? secsToTimeString(uint64(ri->respawnTime - GameTime::GetGameTime()), true) : stringOverdue;
                 handler->PSendSysMessage("%u | %u | [%02u,%02u] | %s (%u) | %s%s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(respawnZoneId, locale), respawnZoneId, respawnTime.c_str(), map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? "" : " (inactive)");
             }
