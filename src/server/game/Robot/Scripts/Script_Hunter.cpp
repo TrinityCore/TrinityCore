@@ -811,11 +811,11 @@ bool Script_Hunter::Buff()
                 Pet* createPet = new Pet(me, HUNTER_PET);
                 if (createPet->CreateBaseAtCreatureInfo(cinfo, me))
                 {
-                    if (me->InitTamedPet(createPet, me->GetLevel(), 1515))
+                    if (me->InitTamedPet(createPet, 1, 1515))
                     {
-                        createPet->GivePetLevel(me->GetLevel());
                         createPet->GetMap()->AddToMap(createPet->ToCreature());
                         me->SetMinion(createPet, true);
+                        createPet->GivePetLevel(me->GetLevel());
                         createPet->InitTalentForLevel();
                         createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
                         me->PetSpellInitialize();
