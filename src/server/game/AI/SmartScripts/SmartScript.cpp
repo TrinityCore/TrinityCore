@@ -2265,18 +2265,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     target->ToUnit()->RemoveAllGameObjects();
             break;
         }
-        case SMART_ACTION_REMOVE_MOVEMENT:
+        case SMART_ACTION_PAUSE_MOVEMENT:
         {
             for (WorldObject* const target : targets)
-            {
                 if (IsUnit(target))
-                {
-                    if (e.action.removeMovement.movementType && e.action.removeMovement.movementType < MAX_MOTION_TYPE)
-                        target->ToUnit()->GetMotionMaster()->Remove(MovementGeneratorType(e.action.removeMovement.movementType));
-                    if (e.action.removeMovement.forced)
-                        target->ToUnit()->StopMoving();
-                }
-            }
+                    target->ToUnit()->PauseMovement(e.action.pauseMovement.pauseTimer, e.action.pauseMovement.movementSlot, e.action.pauseMovement.force);
             break;
         }
         case SMART_ACTION_RESPAWN_BY_SPAWNID:

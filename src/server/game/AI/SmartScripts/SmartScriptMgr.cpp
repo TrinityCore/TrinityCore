@@ -1505,6 +1505,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
             break;
+        case SMART_ACTION_PAUSE_MOVEMENT:
+            if (!e.action.pauseMovement.pauseTimer)
+            {
+                TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u does not specify pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
+            break;
         case SMART_ACTION_SET_MOVEMENT_SPEED:
         {
             if (e.action.movementSpeed.movementType >= MAX_MOVE_TYPE)
@@ -1598,7 +1605,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
-        case SMART_ACTION_REMOVE_MOVEMENT:
         case SMART_ACTION_PLAY_CINEMATIC:
             break;
         default:
