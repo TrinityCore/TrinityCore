@@ -110,6 +110,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
         WorldPackets::Query::QueryGameObjectResponse response;
         response.GameObjectID = packet.GameObjectID;
+        response.Guid = packet.Guid;
         SendPacket(response.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }

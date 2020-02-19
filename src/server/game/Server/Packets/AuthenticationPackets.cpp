@@ -109,11 +109,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const&
     return data;
 }
 
-WorldPackets::Auth::AuthResponse::AuthResponse()
-    : ServerPacket(SMSG_AUTH_RESPONSE, 132)
-{
-}
-
 WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 {
     _worldPacket << uint32(Result);
@@ -134,10 +129,17 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->CurrencyID);
         _worldPacket << int32(SuccessInfo->Time);
 
-        for (auto const& klass : *SuccessInfo->AvailableClasses)
+        for (RaceClassAvailability const& raceClassAvailability : *SuccessInfo->AvailableClasses)
         {
-            _worldPacket << uint8(klass.first); /// the current class
-            _worldPacket << uint8(klass.second); /// the required Expansion
+            _worldPacket << uint8(raceClassAvailability.RaceID);
+            _worldPacket << uint32(raceClassAvailability.Classes.size());
+
+            for (ClassAvailability const& classAvailability : raceClassAvailability.Classes)
+            {
+                _worldPacket << uint8(classAvailability.ClassID);
+                _worldPacket << uint8(classAvailability.ActiveExpansionLevel);
+                _worldPacket << uint8(classAvailability.AccountExpansionLevel);
+            }
         }
 
         _worldPacket.WriteBit(SuccessInfo->IsExpansionTrial);

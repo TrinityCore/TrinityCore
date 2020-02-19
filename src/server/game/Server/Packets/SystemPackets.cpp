@@ -65,7 +65,6 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(WillKickFromWorld);
     _worldPacket.WriteBit(KioskModeEnabled);
     _worldPacket.WriteBit(CompetitiveModeEnabled);
-    _worldPacket.WriteBit(RaceClassExpansionLevels.is_initialized());
     _worldPacket.WriteBit(TokenBalanceEnabled);
     _worldPacket.WriteBit(WarModeFeatureEnabled);
     _worldPacket.WriteBit(ClubsEnabled);
@@ -111,13 +110,6 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
         _worldPacket << int32(SessionAlert->Delay);
         _worldPacket << int32(SessionAlert->Period);
         _worldPacket << int32(SessionAlert->DisplayTime);
-    }
-
-    if (RaceClassExpansionLevels)
-    {
-        _worldPacket << uint32(RaceClassExpansionLevels->size());
-        if (!RaceClassExpansionLevels->empty())
-            _worldPacket.append(RaceClassExpansionLevels->data(), RaceClassExpansionLevels->size());
     }
 
     {
