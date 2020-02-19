@@ -700,6 +700,9 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     if (!itemTemplate)
         return false;
 
+    if (!_owner->GetPlayer())
+        return false;
+
     if (_owner->GetPlayer()->CanUseItem(itemTemplate) != EQUIP_ERR_OK)
         return false;
 
