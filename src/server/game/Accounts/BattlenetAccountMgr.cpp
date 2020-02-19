@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"
+#include "AccountMgr.h"
 #include "DatabaseEnv.h"
 #include "Util.h"
 #include "SHA256.h"
 
 using GameAccountMgr = AccountMgr;
 
-AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email, std::string password)
+AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email, std::string password, bool withGameAccount, std::string* gameAccountName)
 {
     if (utf8length(email) > MAX_BNET_EMAIL_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;
@@ -35,7 +35,7 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     Utf8ToUpperOnlyLatin(password);
 
     if (GetId(email))
-         return AccountOpResult::AOR_NAME_ALREADY_EXIST;
+        return AccountOpResult::AOR_NAME_ALREADY_EXIST;
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT);
     stmt->setString(0, email);
@@ -45,7 +45,11 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     uint32 newAccountId = GetId(email);
     ASSERT(newAccountId);
 
-    GameAccountMgr::instance()->CreateAccount(std::to_string(newAccountId) + "#1", password, email, newAccountId, 1);
+    if (withGameAccount)
+    {
+        *gameAccountName = std::to_string(newAccountId) + "#1";
+        GameAccountMgr::instance()->CreateAccount(*gameAccountName, password, email, newAccountId, 1);
+    }
 
     return AccountOpResult::AOR_OK;
 }
