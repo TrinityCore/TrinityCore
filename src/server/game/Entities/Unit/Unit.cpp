@@ -2888,7 +2888,7 @@ void Unit::_UpdateAutoRepeatSpell()
     //if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 && autoRepeatSpellInfo->Id != 75)
     if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500)
     {
-        setAttackTimer(RANGED_ATTACK, 500);
+        setAttackTimer(RANGED_ATTACK, 500);        
     }
     m_AutoRepeatFirstCast = false;
 
