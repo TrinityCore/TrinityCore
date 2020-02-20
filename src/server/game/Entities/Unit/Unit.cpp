@@ -2886,9 +2886,9 @@ void Unit::_UpdateAutoRepeatSpell()
     // apply delay (Auto Shot (spellID 75) not affected)
     // EJ auto shot will be affected
     //if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 && autoRepeatSpellInfo->Id != 75)
-    if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500)
-    {
-        setAttackTimer(RANGED_ATTACK, 500);        
+    if (m_AutoRepeatFirstCast)
+    {        
+        setAttackTimer(RANGED_ATTACK, 1000);        
     }
     m_AutoRepeatFirstCast = false;
 
@@ -5570,8 +5570,18 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         setAttackTimer(OFF_ATTACK, std::max(getAttackTimer(OFF_ATTACK), getAttackTimer(BASE_ATTACK) + uint32(CalculatePct(GetFloatValue(UNIT_FIELD_BASEATTACKTIME), 50))));
 
     if (meleeAttack)
+    {
         SendMeleeAttackStart(victim);
-
+        // EJ first swing will delay 500
+        if (getAttackTimer(WeaponAttackType::BASE_ATTACK) < 500)
+        {
+            setAttackTimer(WeaponAttackType::BASE_ATTACK, 500);
+        }
+        if (getAttackTimer(WeaponAttackType::OFF_ATTACK) < 500)
+        {
+            setAttackTimer(WeaponAttackType::OFF_ATTACK, 500);
+        }
+    }
     // Let the pet know we've started attacking someting. Handles melee attacks only
     // Spells such as auto-shot and others handled in WorldSession::HandleCastSpellOpcode
     if (GetTypeId() == TYPEID_PLAYER)
