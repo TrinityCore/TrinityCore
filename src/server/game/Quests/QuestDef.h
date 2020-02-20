@@ -233,6 +233,7 @@ class TC_GAME_API Quest
         void LoadQuestRequestItems(Field* fields);
         void LoadQuestOfferReward(Field* fields);
         void LoadQuestTemplateAddon(Field* fields);
+        void LoadQuestMailSender(Field* fields);
 
         uint32 GetXPReward(Player const* player) const;
 
