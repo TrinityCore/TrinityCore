@@ -587,8 +587,10 @@ enum SMART_ACTION
     SMART_ACTION_PLAY_CINEMATIC                     = 135,    // entry, cinematic
     SMART_ACTION_SET_MOVEMENT_SPEED                 = 136,    // movementType, speedInteger, speedFraction
     SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId (RESERVED, PENDING CHERRYPICK)
+    SMART_ACTION_OVERRIDE_LIGHT                     = 138,    // zoneId, lightId, fadeInTime
+    SMART_ACTION_OVERRIDE_WEATHER                   = 139,    // zoneId, weatherId, weatherGrade
 
-    SMART_ACTION_END                                = 138
+    SMART_ACTION_END                                = 140
 };
 
 struct SmartAction
@@ -1152,6 +1154,20 @@ struct SmartAction
             uint32 speedInteger;
             uint32 speedFraction;
         } movementSpeed;
+
+        struct
+        {
+            uint32 zoneId;
+            uint32 lightId;
+            uint32 fadeInTime;
+        } overrideLight;
+
+        struct
+        {
+            uint32 zoneId;
+            uint32 weatherId;
+            uint32 weatherGrade;
+        } overrideWeather;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
