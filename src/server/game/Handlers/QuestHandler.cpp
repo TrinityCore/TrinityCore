@@ -552,7 +552,10 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 
     Group* group = sender->GetGroup();
     if (!group)
+    {
+        sender->SendPushToPartyResponse(sender, QUEST_PARTY_MSG_NOT_IN_PARTY);
         return;
+    }
 
     for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
     {
@@ -570,6 +573,12 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
         if (receiver->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
         {
             sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_FINISH_QUEST);
+            continue;
+        }
+
+        if (!receiver->SatisfyQuestDay(quest, false))
+        {
+            sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_NOT_ELIGIBLE_TODAY);
             continue;
         }
 
@@ -615,21 +624,17 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
 
     TC_LOG_DEBUG("network", "WORLD: Received MSG_QUEST_PUSH_RESULT");
 
-    if (_player->GetPlayerSharingQuest())
+    if (!_player->GetPlayerSharingQuest())
+        return;
+
+    if (_player->GetPlayerSharingQuest() == guid)
     {
-        if (_player->GetPlayerSharingQuest() == guid)
-        {
-            Player* player = ObjectAccessor::FindPlayer(_player->GetPlayerSharingQuest());
-            if (player)
-            {
-                WorldPacket data(MSG_QUEST_PUSH_RESULT, 8 + 4 + 1);
-                data << uint64(_player->GetGUID());
-                data << uint8(msg);                             // valid values: 0-8
-                player->SendDirectMessage(&data);
-            }
-        }
-        _player->ClearQuestSharingInfo();
+        Player* player = ObjectAccessor::FindPlayer(guid);
+        if (player)
+            player->SendPushToPartyResponse(_player, msg);
     }
+
+    _player->ClearQuestSharingInfo();
 }
 
 void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::QuestGiverStatusMultipleQuery& /*packet*/)
