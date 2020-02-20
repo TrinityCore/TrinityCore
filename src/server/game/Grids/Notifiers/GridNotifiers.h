@@ -675,7 +675,7 @@ namespace Trinity
                 if (!go->isSpawned())
                     return false;
 
-                float const dist = go->GetGOInfo()->spellFocus.dist / 2.f;
+                float const dist = go->GetGOInfo()->spellFocus.dist;
                 return go->IsWithinDistInMap(_caster, dist);
             }
 
