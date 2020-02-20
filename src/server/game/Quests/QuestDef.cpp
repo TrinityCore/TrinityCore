@@ -214,7 +214,7 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     _allowableClasses = fields[2].GetUInt32();
     _sourceSpellId = fields[3].GetUInt32();
     _prevQuestId = fields[4].GetInt32();
-    _nextQuestId = fields[5].GetInt32();
+    _nextQuestId = fields[5].GetUInt32();
     _exclusiveGroup = fields[6].GetInt32();
     _rewardMailTemplateId = fields[7].GetUInt32();
     _rewardMailDelay = fields[8].GetUInt32();
