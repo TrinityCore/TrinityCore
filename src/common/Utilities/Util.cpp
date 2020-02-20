@@ -16,7 +16,6 @@
  */
 
 #include "Util.h"
-#include "Common.h"
 #include "Containers.h"
 #include "IpAddress.h"
 #include <utf8.h>
@@ -107,7 +106,7 @@ time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
     return hourLocal;
 }
 
-std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
+std::string secsToTimeString(uint64 timeInSecs, TimeFormats timeFormat, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
     uint64 minutes = timeInSecs % HOUR / MINUTE;
@@ -116,15 +115,75 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 
     std::ostringstream ss;
     if (days)
-        ss << days << (shortText ? "d" : " Day(s) ");
+    {
+        ss << days;
+        if (timeFormat == TF_NUMERIC)
+            ss << ":";
+        else if (timeFormat == TF_SHORT_TEXT)
+            ss << "d";
+        else // if (timeFormat == TF_FULL_TEXT)
+        {
+            if (days == 1)
+                ss << " Day ";
+            else
+                ss << " Days ";
+        }
+    }
     if (hours || hoursOnly)
-        ss << hours << (shortText ? "h" : " Hour(s) ");
+    {
+        ss << hours;
+        if (timeFormat == TF_NUMERIC)
+            ss << ":";
+        else if (timeFormat == TF_SHORT_TEXT)
+            ss << "h";
+        else // if (timeFormat == TF_FULL_TEXT)
+        {
+            if (hours <= 1)
+                ss << " Hour ";
+            else
+                ss << " Hours ";
+        }
+    }
     if (!hoursOnly)
     {
         if (minutes)
-            ss << minutes << (shortText ? "m" : " Minute(s) ");
-        if (secs || (!days && !hours && !minutes) )
-            ss << secs << (shortText ? "s" : " Second(s).");
+        {
+            ss << minutes;
+            if (timeFormat == TF_NUMERIC)
+                ss << ":";
+            else if (timeFormat == TF_SHORT_TEXT)
+                ss << "m";
+            else // if (timeFormat == TF_FULL_TEXT)
+            {
+                if (minutes == 1)
+                    ss << " Minute ";
+                else
+                    ss << " Minutes ";
+            }
+        }
+        else
+        {
+            if (timeFormat == TF_NUMERIC)
+                ss << "0:";
+        }
+        if (secs || (!days && !hours && !minutes))
+        {
+            ss << secs;
+            if (timeFormat == TF_SHORT_TEXT)
+                ss << "s";
+            else if (timeFormat == TF_FULL_TEXT)
+            {
+                if (secs <= 1)
+                    ss << " Second.";
+                else
+                    ss << " Seconds.";
+            }
+        }
+        else
+        {
+            if (timeFormat == TF_NUMERIC)
+                ss << "00";
+        }
     }
 
     return ss.str();
