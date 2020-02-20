@@ -487,6 +487,7 @@ class TC_GAME_API SpellInfo
         bool IsTargetingArea() const;
         bool NeedsExplicitUnitTarget() const;
         bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
+        bool IsSelfCast() const;
 
         bool IsPassive() const;
         bool IsRaidMarker() const;
