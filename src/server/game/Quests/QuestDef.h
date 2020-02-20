@@ -368,7 +368,6 @@ class TC_GAME_API Quest
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         std::vector<uint32> DependentPreviousQuests;
-        std::vector<uint32> PrevChainQuests;
 
         // cached data
     private:
