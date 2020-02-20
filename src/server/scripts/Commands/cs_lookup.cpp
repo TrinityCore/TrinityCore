@@ -585,20 +585,18 @@ public:
         uint32 count = 0;
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
-        ObjectMgr::QuestMap const& qTemplates = sObjectMgr->GetQuestTemplates();
-        for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
+        ObjectMgr::QuestContainer const& questTemplates = sObjectMgr->GetQuestTemplates();
+        for (auto const& questTemplatePair : questTemplates)
         {
-            Quest* qInfo = iter->second;
-
-            int localeIndex = handler->GetSessionDbLocaleIndex();
+            uint8 localeIndex = handler->GetSessionDbLocaleIndex();
             if (localeIndex >= 0)
             {
                 uint8 ulocaleIndex = uint8(localeIndex);
-                if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(qInfo->GetQuestId()))
+                if (QuestLocale const* questLocale = sObjectMgr->GetQuestLocale(questTemplatePair.first))
                 {
                     if (questLocale->Title.size() > ulocaleIndex && !questLocale->Title[ulocaleIndex].empty())
                     {
-                        std::string title = questLocale->Title[ulocaleIndex];
+                        std::string const& title = questLocale->Title[ulocaleIndex];
 
                         if (Utf8FitTo(title, wNamePart))
                         {
@@ -612,9 +610,7 @@ public:
 
                             if (target)
                             {
-                                QuestStatus status = target->GetQuestStatus(qInfo->GetQuestId());
-
-                                switch (status)
+                                switch (target->GetQuestStatus(questTemplatePair.first))
                                 {
                                     case QUEST_STATUS_COMPLETE:
                                         statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
@@ -631,9 +627,9 @@ public:
                             }
 
                             if (handler->GetSession())
-                                handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, qInfo->GetQuestId(), qInfo->GetQuestId(), qInfo->GetQuestLevel(), title.c_str(), statusStr);
+                                handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first, questTemplatePair.second.GetQuestLevel(), title.c_str(), statusStr);
                             else
-                                handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, qInfo->GetQuestId(), title.c_str(), statusStr);
+                                handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, questTemplatePair.first, title.c_str(), statusStr);
 
                             if (!found)
                                 found = true;
@@ -644,7 +640,7 @@ public:
                 }
             }
 
-            std::string title = qInfo->GetTitle();
+            std::string const& title = questTemplatePair.second.GetTitle();
             if (title.empty())
                 continue;
 
@@ -660,9 +656,7 @@ public:
 
                 if (target)
                 {
-                    QuestStatus status = target->GetQuestStatus(qInfo->GetQuestId());
-
-                    switch (status)
+                    switch (target->GetQuestStatus(questTemplatePair.first))
                     {
                         case QUEST_STATUS_COMPLETE:
                             statusStr = handler->GetTrinityString(LANG_COMMAND_QUEST_COMPLETE);
@@ -679,9 +673,9 @@ public:
                 }
 
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, qInfo->GetQuestId(), qInfo->GetQuestId(), qInfo->GetQuestLevel(), title.c_str(), statusStr);
+                    handler->PSendSysMessage(LANG_QUEST_LIST_CHAT, questTemplatePair.first, questTemplatePair.first, questTemplatePair.second.GetQuestLevel(), title.c_str(), statusStr);
                 else
-                    handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, qInfo->GetQuestId(), title.c_str(), statusStr);
+                    handler->PSendSysMessage(LANG_QUEST_LIST_CONSOLE, questTemplatePair.first, title.c_str(), statusStr);
 
                 if (!found)
                     found = true;

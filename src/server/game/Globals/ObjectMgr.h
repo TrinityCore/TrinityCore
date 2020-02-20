@@ -915,7 +915,7 @@ class TC_GAME_API ObjectMgr
 
         static ObjectMgr* instance();
 
-        typedef std::unordered_map<uint32, Quest*> QuestMap;
+        typedef std::unordered_map<uint32, Quest> QuestContainer;
 
         typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
 
@@ -989,13 +989,9 @@ class TC_GAME_API ObjectMgr
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
         uint32 GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt_team = false);
 
-        Quest const* GetQuestTemplate(uint32 quest_id) const
-        {
-            QuestMap::const_iterator itr = _questTemplates.find(quest_id);
-            return itr != _questTemplates.end() ? itr->second : nullptr;
-        }
+        Quest const* GetQuestTemplate(uint32 quest_id) const;
 
-        QuestMap const& GetQuestTemplates() const { return _questTemplates; }
+        QuestContainer const& GetQuestTemplates() const { return _questTemplates; }
 
         uint32 GetQuestForAreaTrigger(uint32 Trigger_ID) const
         {
@@ -1592,7 +1588,7 @@ class TC_GAME_API ObjectMgr
         }
 
         std::map<HighGuid, std::unique_ptr<ObjectGuidGeneratorBase>> _guidGenerators;
-        QuestMap _questTemplates;
+        QuestContainer _questTemplates;
 
         typedef std::unordered_map<uint32, GossipText> GossipTextContainer;
         typedef std::unordered_map<uint32, uint32> QuestAreaTriggerContainer;
