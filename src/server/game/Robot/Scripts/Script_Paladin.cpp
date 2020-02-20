@@ -120,6 +120,14 @@ bool Script_Paladin::Healer()
         for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
             Player* member = groupRef->GetSource();
+            if (!member->IsAlive())
+            {
+                continue;
+            }
+            if (me->GetDistance(member) > 100.0f)
+            {
+                continue;
+            }
             if (member->groupRole == 1)
             {
                 tank = member;

@@ -1,6 +1,10 @@
 #ifndef ROBOT_STRATEGIES_SCRIPT_HUNTER_H
 #define ROBOT_STRATEGIES_SCRIPT_HUNTER_H
 
+#ifndef TAME_SPELL_ID
+#define TAME_SPELL_ID 13481
+#endif
+
 #include "Script_Base.h"
 #include "RobotAI.h"
 

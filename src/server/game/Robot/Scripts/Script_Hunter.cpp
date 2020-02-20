@@ -811,15 +811,55 @@ bool Script_Hunter::Buff()
                 Pet* createPet = new Pet(me, HUNTER_PET);
                 if (createPet->CreateBaseAtCreatureInfo(cinfo, me))
                 {
-                    if (me->InitTamedPet(createPet, 1, 1515))
+                    if (me->InitTamedPet(createPet, 1, TAME_SPELL_ID))
                     {
                         createPet->GetMap()->AddToMap(createPet->ToCreature());
                         me->SetMinion(createPet, true);
                         createPet->GivePetLevel(me->GetLevel());
-                        createPet->InitTalentForLevel();
-                        createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                        std::unordered_map<uint32, PetSpell> petSpellMap = createPet->m_spells;
+                        for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                        {
+                            if (it->second.active == ACT_DISABLED || it->second.active == ACT_ENABLED)
+                            {
+                                const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                                if (pST)
+                                {
+                                    std::string checkNameStr = std::string(pST->SpellName[0]);
+                                    if (checkNameStr == "Prowl")
+                                    {
+                                        createPet->ToggleAutocast(pST, false);
+                                    }
+                                    else if (checkNameStr == "Phase Shift")
+                                    {
+                                        createPet->ToggleAutocast(pST, false);
+                                    }
+                                    else if (checkNameStr == "Cower")
+                                    {
+                                        createPet->ToggleAutocast(pST, false);
+                                    }
+                                    else if (checkNameStr == "Growl")
+                                    {
+                                        if (me->GetGroup())
+                                        {
+                                            createPet->ToggleAutocast(pST, false);
+                                        }
+                                        else
+                                        {
+                                            createPet->ToggleAutocast(pST, true);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        createPet->ToggleAutocast(pST, true);
+                                    }
+                                }
+                            }
+                        }
                         me->PetSpellInitialize();
+                        createPet->SetReactState(REACT_DEFENSIVE);
                         createPet->SetPower(POWER_HAPPINESS, HAPPINESS_LEVEL_SIZE * 3);
+                        createPet->SavePetToDB(PET_SAVE_AS_CURRENT);
+                        me->SaveToDB();
                         myPet = createPet;
                     }
                 }

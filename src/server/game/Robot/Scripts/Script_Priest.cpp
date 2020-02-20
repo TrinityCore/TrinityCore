@@ -68,6 +68,14 @@ bool Script_Priest::Healer()
         for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
             Player* member = groupRef->GetSource();
+            if (!member->IsAlive())
+            {
+                continue;
+            }
+            if (me->GetDistance(member) > 100.0f)
+            {
+                continue;
+            }
             if (member->groupRole == 1)
             {
                 tank = member;
@@ -94,11 +102,7 @@ bool Script_Priest::Healer()
     }
 
     if (tank)
-    {
-        if (!tank->IsAlive())
-        {
-            return false;
-        }
+    {           
         sourceAI->BaseMove(tank, PRIEST_RANGE_DISTANCE, false);
         Unit* tankTarget = tank->GetSelectedUnit();
         if (tankTarget)
