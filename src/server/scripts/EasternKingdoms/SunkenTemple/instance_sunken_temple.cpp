@@ -37,7 +37,9 @@ enum Gameobject
     GO_ATALAI_STATUE5           = 148834,
     GO_ATALAI_STATUE6           = 148835,
     GO_ATALAI_LIGHT1            = 148883,
-    GO_ATALAI_LIGHT2            = 148937
+    GO_ATALAI_LIGHT2            = 148937,
+
+    // EJ scripts 
 };
 
 enum CreatureIds

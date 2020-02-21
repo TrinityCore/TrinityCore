@@ -2887,8 +2887,11 @@ void Unit::_UpdateAutoRepeatSpell()
     // EJ auto shot will be affected
     //if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 && autoRepeatSpellInfo->Id != 75)
     if (m_AutoRepeatFirstCast)
-    {        
-        setAttackTimer(RANGED_ATTACK, 1000);        
+    {
+        if (getAttackTimer(RANGED_ATTACK) < 1000)
+        {
+            setAttackTimer(RANGED_ATTACK, 1000);
+        }
     }
     m_AutoRepeatFirstCast = false;
 

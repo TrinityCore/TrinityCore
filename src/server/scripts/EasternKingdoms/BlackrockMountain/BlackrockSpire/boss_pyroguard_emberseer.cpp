@@ -215,14 +215,16 @@ public:
                         {
                             // Respawn all Blackhand Incarcerators
                             std::list<Creature*> creatureList;
-                            GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 35.0f);
+                            GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLACKHAND_INCARCERATOR, 50.0f);
                             for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                                 if (Creature* creature = *itr)
                                 {
                                     if (!creature->IsAlive())
                                         creature->Respawn();
 
-                                    creature->AI()->SetData(1, 1);
+                                    // EJ script fix 
+                                    //creature->AI()->SetData(1, 1);
+                                    creature->AI()->SetData(1, 2);                                    
                                 }
                             me->AddAura(SPELL_ENCAGED_EMBERSEER, me);
                             instance->SetBossState(DATA_PYROGAURD_EMBERSEER, NOT_STARTED);
@@ -236,7 +238,11 @@ public:
                             for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                             {
                                 if (Creature* creature = *itr)
+                                {
                                     creature->AI()->SetData(1, 1);
+                                    // EJ script fix
+                                    creature->AI()->AttackStart(creature->SelectNearestPlayer(50.0f));
+                                }                                    
                             }
                             events.ScheduleEvent(EVENT_PRE_FIGHT_2, 32000);
                             break;
@@ -269,7 +275,7 @@ public:
                             break;
                         }
                         case EVENT_ENTER_COMBAT:
-                            AttackStart(me->SelectNearestPlayer(30.0f));
+                            AttackStart(me->SelectNearestPlayer(50.0f));
                             break;
                         default:
                             break;

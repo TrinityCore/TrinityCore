@@ -73,7 +73,7 @@ public:
             Initialize();
             if (instance->GetBossState(DATA_GYTH) == IN_PROGRESS)
             {
-                instance->SetBossState(DATA_GYTH, DONE);
+                instance->SetBossState(DATA_GYTH, NOT_STARTED);
                 me->DespawnOrUnsummon();
             }
         }
@@ -90,7 +90,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetBossState(DATA_GYTH, DONE);
+            instance->SetBossState(DATA_GYTH, NOT_STARTED);
         }
 
         void SetData(uint32 /*type*/, uint32 data) override
@@ -107,8 +107,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-
-            if (!SummonedRend && HealthBelowPct(5))
+            if (!SummonedRend && HealthBelowPct(50))
             {
                 DoCast(me, SPELL_SUMMON_REND);
                 me->RemoveAura(SPELL_REND_MOUNTS);
@@ -127,8 +126,8 @@ public:
                             me->AddAura(SPELL_REND_MOUNTS, me);
                             if (GameObject* portcullis = me->FindNearestGameObject(GO_DR_PORTCULLIS, 40.0f))
                                 portcullis->UseDoorOrButton();
-                            if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
-                                victor->AI()->SetData(1, 1);
+                            //if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
+                            //    victor->AI()->SetData(1, 1);
                             events.ScheduleEvent(EVENT_SUMMONED_2, 2s);
                             break;
                         case EVENT_SUMMONED_2:

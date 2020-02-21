@@ -25,6 +25,19 @@ uint32 const EncounterCount         = 23;
 #define BRSScriptName "instance_blackrock_spire"
 #define DataHeader    "BRS"
 
+// EJ blackrock scrpits 
+#ifndef STADIUM_COMBAT
+#define STADIUM_COMBAT 1000
+#endif
+
+#ifndef SPAWNID_WARCHIEF_REND_BLACKHAND
+#define SPAWNID_WARCHIEF_REND_BLACKHAND 137968
+#endif
+
+#ifndef SPAWNID_LORD_VICTOR_NEFARIUS
+#define SPAWNID_LORD_VICTOR_NEFARIUS 137967
+#endif
+
 enum BRSDataTypes
 {
     DATA_HIGHLORD_OMOKK             = 0,
@@ -51,7 +64,7 @@ enum BRSDataTypes
     DATA_HALL_RUNE_5                = 20,
     DATA_HALL_RUNE_6                = 21,
     DATA_HALL_RUNE_7                = 22,
-    DATA_SCARSHIELD_INFILTRATOR     = 23
+    DATA_SCARSHIELD_INFILTRATOR     = 23,
 };
 
 enum BRSCreaturesIds
@@ -122,6 +135,36 @@ enum BRSGameObjectsIds
     GO_DR_PORTCULLIS                = 175185,
     GO_PORTCULLIS_ACTIVE            = 164726,
     GO_PORTCULLIS_TOBOSSROOMS       = 175186
+};
+
+enum StadiumSays
+{
+    // Rend Blackhand
+    SAY_BLACKHAND_1 = 0,
+    SAY_BLACKHAND_2 = 1,
+    EMOTE_BLACKHAND_DISMOUNT = 2,
+    // Victor Nefarius
+    SAY_NEFARIUS_0 = 0,
+    SAY_NEFARIUS_1 = 1,
+    SAY_NEFARIUS_2 = 2,
+    SAY_NEFARIUS_3 = 3,
+    SAY_NEFARIUS_4 = 4,
+    SAY_NEFARIUS_5 = 5,
+    SAY_NEFARIUS_6 = 6,
+    SAY_NEFARIUS_7 = 7,
+    SAY_NEFARIUS_8 = 8,
+    SAY_NEFARIUS_9 = 9,
+    // EJ blackrock scripts 
+    SAY_NEFARIUS_10 = 10,
+    SAY_NEFARIUS_11 = 11,
+};
+
+enum StadiumCombatStatus
+{
+    SCS_FREE = 0,
+    SCS_GOING = 1,
+    SCS_FAILED = 2,
+    SCS_VICTORY = 3
 };
 
 template <class AI, class T>

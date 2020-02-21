@@ -44,7 +44,9 @@ enum EventIds
     EVENT_UROK_DOOMHOWL_SPAWNS_3           = 5,
     EVENT_UROK_DOOMHOWL_SPAWNS_4           = 6,
     EVENT_UROK_DOOMHOWL_SPAWNS_5           = 7,
-    EVENT_UROK_DOOMHOWL_SPAWN_IN           = 8
+    EVENT_UROK_DOOMHOWL_SPAWN_IN           = 8,
+    // EJ blackrock scripts
+    EVENT_STADIUM_RESET = 9,
 };
 
 class instance_blackrock_spire : public InstanceMapScript
@@ -59,6 +61,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
+            stadiumCombatStatus = StadiumCombatStatus::SCS_FREE;
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -192,7 +195,9 @@ public:
                 case GO_EMBERSEER_RUNE_2:
                     go_emberseerrunes[1] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
+                    {
                         HandleGameObject(ObjectGuid::Empty, false, go);
+                    }                        
                     break;
                 case GO_EMBERSEER_RUNE_3:
                     go_emberseerrunes[2] = go->GetGUID();
@@ -228,7 +233,7 @@ public:
                     go_portcullis_tobossrooms = go->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
-                    break;
+                    break;                    
                 default:
                     break;
             }
@@ -291,14 +296,25 @@ public:
             switch (type)
             {
                 case AREATRIGGER:
+                {
                     if (data == AREATRIGGER_DRAGONSPIRE_HALL)
                     {
                         if (GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE)
+                        {
                             Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_STORE, 1s);
+                        }
                     }
                     break;
-                default:
+                }
+                case STADIUM_COMBAT:
+                {
+                    stadiumCombatStatus = data;
                     break;
+                }
+                default:
+                {
+                    break;
+                }
             }
         }
 
@@ -397,9 +413,133 @@ public:
                         if ((GetBossState(DATA_DRAGONSPIRE_ROOM) != DONE))
                             Events.ScheduleEvent(EVENT_DARGONSPIRE_ROOM_CHECK, 3s);
                         break;
+                    case EventIds::EVENT_STADIUM_RESET:
+                    {
+                        if (Creature* victor = instance->GetCreature(LordVictorNefarius))
+                        {
+                            victor->AI()->Reset();
+                            victor->DespawnOrUnsummon(500, 2s);
+                        }
+                        if (Creature* rend = instance->GetCreature(WarchiefRendBlackhand))
+                        {
+                            rend->AI()->Reset();
+                            if (TempSummon* summon = rend->ToTempSummon())
+                            {
+                                summon->UnSummon(100);
+                                RespawnInfo* riRend = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, SPAWNID_WARCHIEF_REND_BLACKHAND);
+                                riRend->respawnTime = 2000;
+                                instance->Respawn(riRend);
+                            }
+                            else
+                            {
+                                rend->DespawnOrUnsummon(500, 2s);
+                            }                            
+                        }
+                        else
+                        {                            
+                            RespawnInfo* riRend = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, SPAWNID_WARCHIEF_REND_BLACKHAND);
+                            riRend->respawnTime = 2000;
+                            instance->Respawn(riRend);
+                        }
+                        if (Creature* gyth = instance->GetCreature(Gyth))
+                        {
+                            gyth->AI()->Reset();
+                            gyth->DespawnOrUnsummon();
+                        }
+                        break;
+                    }
                     default:
                          break;
                 }
+            }
+
+            switch (stadiumCombatStatus)
+            {
+            case StadiumCombatStatus::SCS_FREE:
+            {
+                break;
+            }
+            case StadiumCombatStatus::SCS_GOING:
+            {
+                if (Creature* victor = instance->GetCreature(LordVictorNefarius))
+                {
+                    std::list<Player*> players;
+                    Trinity::AnyPlayerInObjectRangeCheck checker(victor, 200.0f);
+                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(victor, players, checker);
+                    Cell::VisitWorldObjects(victor, searcher, 200.0f);
+                    bool allDead = true;
+                    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                    {
+                        if ((*itr)->IsAlive())
+                        {
+                            allDead = false;
+                            break;
+                        }
+                    }
+                    if (allDead)
+                    {
+                        stadiumCombatStatus = StadiumCombatStatus::SCS_FAILED;                       
+                    }
+                    else
+                    {
+                        bool bothDead = true;
+                        if (Creature* rend = instance->GetCreature(WarchiefRendBlackhand))
+                        {
+                            if (rend->IsAlive())
+                            {
+                                bothDead = false;
+                            }
+                        }
+                        if (Creature* gyth = instance->GetCreature(Gyth))
+                        {
+                            if (gyth->IsAlive())
+                            {
+                                bothDead = false;
+                            }
+                        }
+                        if (bothDead)
+                        {
+                            stadiumCombatStatus = StadiumCombatStatus::SCS_VICTORY;
+                        }
+                    }
+                }
+                break;
+            }
+            case StadiumCombatStatus::SCS_FAILED:
+            {
+                if (Creature* victor = instance->GetCreature(LordVictorNefarius))
+                {
+                    victor->AI()->Talk(SAY_NEFARIUS_11);
+                    Events.ScheduleEvent(EVENT_STADIUM_RESET, 5s);                    
+                }
+                stadiumCombatStatus = StadiumCombatStatus::SCS_FREE;
+                break;
+            }
+            case StadiumCombatStatus::SCS_VICTORY:
+            {
+                if (Creature* victor = instance->GetCreature(LordVictorNefarius))
+                {                   
+                    victor->AI()->Talk(SAY_NEFARIUS_10);                    
+                    victor->DespawnOrUnsummon(5000, 24h * 7);
+                    victor->GetMotionMaster()->MovePoint(0, 165.74f, -466.46f, 116.80f);
+                    if (GameObject* stadiumDoor = instance->GetGameObject(go_portcullis_active))
+                    {
+                        stadiumDoor->SetGoState(GO_STATE_ACTIVE);
+                    }
+                    if (GameObject* stadiumDoor = instance->GetGameObject(go_portcullis_tobossrooms))
+                    {
+                        stadiumDoor->SetGoState(GO_STATE_ACTIVE);
+                    }
+                }
+                SetBossState(DATA_WARCHIEF_REND_BLACKHAND, EncounterState::DONE);
+                SetBossState(DATA_GYTH, EncounterState::DONE);
+                stadiumCombatStatus = StadiumCombatStatus::SCS_FREE;
+                break;
+            }
+            default:
+            {
+                break;
+            }
             }
         }
 
@@ -524,6 +664,10 @@ public:
             ObjectGuid runecreaturelist[7][5];
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
+
+            // EJ blackrock scripts 
+            private:
+                uint32 stadiumCombatStatus;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

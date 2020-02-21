@@ -32,25 +32,6 @@ enum Spells
     SPELL_KNOCKDOWN                 = 13360  // On spawn during Gyth fight
 };
 
-enum Says
-{
-    // Rend Blackhand
-    SAY_BLACKHAND_1                 = 0,
-    SAY_BLACKHAND_2                 = 1,
-    EMOTE_BLACKHAND_DISMOUNT        = 2,
-    // Victor Nefarius
-    SAY_NEFARIUS_0                  = 0,
-    SAY_NEFARIUS_1                  = 1,
-    SAY_NEFARIUS_2                  = 2,
-    SAY_NEFARIUS_3                  = 3,
-    SAY_NEFARIUS_4                  = 4,
-    SAY_NEFARIUS_5                  = 5,
-    SAY_NEFARIUS_6                  = 6,
-    SAY_NEFARIUS_7                  = 7,
-    SAY_NEFARIUS_8                  = 8,
-    SAY_NEFARIUS_9                  = 9,
-};
-
 enum Adds
 {
     NPC_CHROMATIC_WHELP             = 10442,
@@ -67,7 +48,6 @@ enum Misc
     REND_PATH_2                     = 1379681,
 };
 
-/*
 struct Wave
 {
     uint32 entry;
@@ -117,7 +97,6 @@ static Wave Wave6[]= // 27 sec
     { 10442, 210.8935f, -423.913f,  111.0125f, 5.969026f  },
     { 10442, 212.2642f, -430.7648f, 110.9807f, 5.934119f  }
 };
-*/
 
 Position const GythLoc =      { 211.762f,  -397.5885f, 111.1817f,  4.747295f   };
 Position const Teleport1Loc = { 194.2993f, -474.0814f, 121.4505f, -0.01225555f };
@@ -157,6 +136,8 @@ enum Events
     EVENT_WHIRLWIND                 = 30,
     EVENT_CLEAVE                    = 31,
     EVENT_MORTAL_STRIKE             = 32,
+    // EJ scripts 
+    EVENT_WAVES_COMPLETE_TEXT_4 = 33,
 };
 
 class boss_rend_blackhand : public CreatureScript
@@ -171,6 +152,10 @@ public:
             gythEvent = false;
             victorGUID.Clear();
             portcullisGUID.Clear();
+            addsEntrySet.clear();
+            addsEntrySet.insert(Adds::NPC_BLACKHAND_DRAGON_HANDLER);
+            addsEntrySet.insert(Adds::NPC_CHROMATIC_DRAGONSPAWN);
+            addsEntrySet.insert(Adds::NPC_CHROMATIC_WHELP);
         }
 
         void Reset() override
@@ -198,8 +183,8 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();
-            if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
-                victor->AI()->SetData(1, 2);
+            //if (Creature* victor = me->FindNearestCreature(NPC_LORD_VICTOR_NEFARIUS, 75.0f, true))
+            //    victor->AI()->SetData(1, 2);
         }
 
         void SetData(uint32 type, uint32 data) override
@@ -348,66 +333,179 @@ public:
                         case EVENT_WAVES_COMPLETE_TEXT_2:
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
                                 victor->AI()->Talk(SAY_NEFARIUS_7);
-                            Talk(SAY_BLACKHAND_2);
-                            events.ScheduleEvent(EVENT_PATH_REND, 1s);
                             events.ScheduleEvent(EVENT_WAVES_COMPLETE_TEXT_3, 4000);
                             break;
                         case EVENT_WAVES_COMPLETE_TEXT_3:
-                            if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
-                                victor->AI()->Talk(SAY_NEFARIUS_8);
-                            events.ScheduleEvent(EVENT_PATH_NEFARIUS, 1s);
-                            events.ScheduleEvent(EVENT_PATH_REND, 1s);
+                            Talk(SAY_BLACKHAND_2);
+                            events.ScheduleEvent(EVENT_WAVES_EMOTE_2, 1000);                            
+                            events.ScheduleEvent(EVENT_PATH_REND, 3000);
+                            events.ScheduleEvent(EVENT_WAVES_COMPLETE_TEXT_4, 6000);
                             break;
+                        case EVENT_WAVES_COMPLETE_TEXT_4:
+                        {
+                            if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
+                            {
+                                victor->AI()->Talk(SAY_NEFARIUS_8);
+                            }
+                            events.ScheduleEvent(EVENT_PATH_NEFARIUS, 4000);
+                            break;
+                        }
                         case EVENT_PATH_NEFARIUS:
                             if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
+                            {
                                 victor->GetMotionMaster()->MovePath(NEFARIUS_PATH_1, true);
+                            }
                             break;
                         case EVENT_PATH_REND:
                             me->GetMotionMaster()->MovePath(REND_PATH_1, false);
                             break;
                         case EVENT_TELEPORT_1:
                             me->NearTeleportTo(194.2993f, -474.0814f, 121.4505f, -0.01225555f);
-                            events.ScheduleEvent(EVENT_TELEPORT_2, 50000);
+                            events.ScheduleEvent(EVENT_TELEPORT_2, 2000);
                             break;
                         case EVENT_TELEPORT_2:
                             me->NearTeleportTo(216.485f, -434.93f, 110.888f, -0.01225555f);
                             me->SummonCreature(NPC_GYTH, 211.762f, -397.5885f, 111.1817f, 4.747295f);
                             break;
                         case EVENT_WAVE_1:
+                        {
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
+                            // EJ scripts
+                            for (std::unordered_set<int32>::iterator addsIT = addsEntrySet.begin(); addsIT != addsEntrySet.end(); addsIT++)
+                            {
+                                std::list<Creature*> creature1List;
+                                GetCreatureListWithEntryInGrid(creature1List, me, *addsIT, 100.0f);
+                                for (std::list<Creature*>::iterator itr = creature1List.begin(); itr != creature1List.end(); ++itr)
+                                {
+                                    if (Creature* creature = *itr)
+                                    {
+                                        if (creature->IsAlive())
+                                        {
+                                            creature->AI()->AttackStart(creature->SelectNearestPlayer(200.0f));
+                                        }
+                                    }
+                                }
+                            }
+                            instance->SetData(STADIUM_COMBAT, StadiumCombatStatus::SCS_GOING);
                             break;
+                        }
                         case EVENT_WAVE_2:
+                        {
+                            // EJ scripts
+                            if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
+                            {
+                                for (int creatureCount = 0; creatureCount < 5; creatureCount++)
+                                {
+                                    if (Wave2[creatureCount].entry == 0)
+                                    {
+                                        break;
+                                    }
+                                    if (Creature* summonedWaveCreature = victor->SummonCreature(Wave2[creatureCount].entry, Wave2[creatureCount].x_pos, Wave2[creatureCount].y_pos, Wave2[creatureCount].z_pos, Wave2[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
+                                    {
+                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                    }
+                                }
+                            }
                             // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
+                        }
                         case EVENT_WAVE_3:
+                        {
+                            // EJ scripts
+                            if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
+                            {
+                                for (int creatureCount = 0; creatureCount < 5; creatureCount++)
+                                {
+                                    if (Wave3[creatureCount].entry == 0)
+                                    {
+                                        break;
+                                    }
+                                    if (Creature* summonedWaveCreature = victor->SummonCreature(Wave3[creatureCount].entry, Wave3[creatureCount].x_pos, Wave3[creatureCount].y_pos, Wave3[creatureCount].z_pos, Wave3[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
+                                    {
+                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                    }
+                                }
+                            }
                             // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
+                        }
                         case EVENT_WAVE_4:
+                        {
+                            // EJ scripts
+                            if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
+                            {
+                                for (int creatureCount = 0; creatureCount < 5; creatureCount++)
+                                {
+                                    if (Wave4[creatureCount].entry == 0)
+                                    {
+                                        break;
+                                    }
+                                    if (Creature* summonedWaveCreature = victor->SummonCreature(Wave4[creatureCount].entry, Wave4[creatureCount].x_pos, Wave4[creatureCount].y_pos, Wave4[creatureCount].z_pos, Wave4[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
+                                    {
+                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                    }
+                                }
+                            }
                             // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
+                        }
                         case EVENT_WAVE_5:
+                        {
+                            // EJ scripts
+                            if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
+                            {
+                                for (int creatureCount = 0; creatureCount < 5; creatureCount++)
+                                {
+                                    if (Wave5[creatureCount].entry == 0)
+                                    {
+                                        break;
+                                    }
+                                    if (Creature* summonedWaveCreature = victor->SummonCreature(Wave5[creatureCount].entry, Wave5[creatureCount].x_pos, Wave5[creatureCount].y_pos, Wave5[creatureCount].z_pos, Wave5[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
+                                    {
+                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                    }
+                                }
+                            }
                             // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
+                        }
                         case EVENT_WAVE_6:
+                        {
+                            // EJ scripts
+                            if (Creature* victor = ObjectAccessor::GetCreature(*me, victorGUID))
+                            {
+                                for (int creatureCount = 0; creatureCount < 5; creatureCount++)
+                                {
+                                    if (Wave6[creatureCount].entry == 0)
+                                    {
+                                        break;
+                                    }
+                                    if (Creature* summonedWaveCreature = victor->SummonCreature(Wave6[creatureCount].entry, Wave6[creatureCount].x_pos, Wave6[creatureCount].y_pos, Wave6[creatureCount].z_pos, Wave6[creatureCount].o_pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000))
+                                    {
+                                        summonedWaveCreature->AI()->AttackStart(summonedWaveCreature->SelectNearestPlayer(200.0f));
+                                    }
+                                }
+                            }
                             // spawn wave
                             if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
+                        }
                         default:
                             break;
                     }
@@ -450,6 +548,8 @@ public:
             bool   gythEvent;
             ObjectGuid victorGUID;
             ObjectGuid portcullisGUID;
+            // EJ scripts 
+            std::unordered_set<int32> addsEntrySet;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
