@@ -107,7 +107,7 @@ time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
     return hourLocal;
 }
 
-std::string secsToTimeString(uint64 timeInSecs, TimeFormats timeFormat, bool hoursOnly)
+std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
     uint64 minutes = timeInSecs % HOUR / MINUTE;
@@ -118,11 +118,11 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormats timeFormat, bool hou
     if (days)
     {
         ss << days;
-        if (timeFormat == TF_NUMERIC)
+        if (timeFormat == TimeFormat::Numeric)
             ss << ":";
-        else if (timeFormat == TF_SHORT_TEXT)
+        else if (timeFormat == TimeFormat::ShortText)
             ss << "d";
-        else // if (timeFormat == TF_FULL_TEXT)
+        else // if (timeFormat == TimeFormat::FullText)
         {
             if (days == 1)
                 ss << " Day ";
@@ -133,11 +133,11 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormats timeFormat, bool hou
     if (hours || hoursOnly)
     {
         ss << hours;
-        if (timeFormat == TF_NUMERIC)
+        if (timeFormat == TimeFormat::Numeric)
             ss << ":";
-        else if (timeFormat == TF_SHORT_TEXT)
+        else if (timeFormat == TimeFormat::ShortText)
             ss << "h";
-        else // if (timeFormat == TF_FULL_TEXT)
+        else // if (timeFormat == TimeFormat::FullText)
         {
             if (hours <= 1)
                 ss << " Hour ";
@@ -150,11 +150,11 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormats timeFormat, bool hou
         if (minutes)
         {
             ss << minutes;
-            if (timeFormat == TF_NUMERIC)
+            if (timeFormat == TimeFormat::Numeric)
                 ss << ":";
-            else if (timeFormat == TF_SHORT_TEXT)
+            else if (timeFormat == TimeFormat::ShortText)
                 ss << "m";
-            else // if (timeFormat == TF_FULL_TEXT)
+            else // if (timeFormat == TimeFormat::FullText)
             {
                 if (minutes == 1)
                     ss << " Minute ";
@@ -164,15 +164,15 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormats timeFormat, bool hou
         }
         else
         {
-            if (timeFormat == TF_NUMERIC)
+            if (timeFormat == TimeFormat::Numeric)
                 ss << "0:";
         }
         if (secs || (!days && !hours && !minutes))
         {
             ss << secs;
-            if (timeFormat == TF_SHORT_TEXT)
+            if (timeFormat == TimeFormat::ShortText)
                 ss << "s";
-            else if (timeFormat == TF_FULL_TEXT)
+            else if (timeFormat == TimeFormat::FullText)
             {
                 if (secs <= 1)
                     ss << " Second.";
@@ -182,7 +182,7 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormats timeFormat, bool hou
         }
         else
         {
-            if (timeFormat == TF_NUMERIC)
+            if (timeFormat == TimeFormat::Numeric)
                 ss << "00";
         }
     }
