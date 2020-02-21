@@ -579,6 +579,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     InitStatsForLevel();
     InitTaxiNodesForLevel();
     InitTalentForLevel();
+    InitializeSkillFields();
     InitPrimaryProfessions();                               // to max set before any spell added
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
@@ -5579,10 +5580,12 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
     uint16 currVal;
     SkillStatusMap::iterator itr = mSkillStatus.find(id);
 
-    //has skill
-    if (itr != mSkillStatus.end() && itr->second.uState != SKILL_DELETED)
+    // Handle already stored skills
+    if (itr != mSkillStatus.end())
     {
         currVal = m_activePlayerData->Skill->SkillRank[itr->second.pos];
+
+        // Activate and update skill line
         if (newVal)
         {
             // if skill value is going down, update enchantments before setting the new value
@@ -5595,9 +5598,6 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             SetSkillRank(itr->second.pos, newVal);
             SetSkillMaxRank(itr->second.pos, maxVal);
 
-            if (itr->second.uState != SKILL_NEW)
-                itr->second.uState = SKILL_CHANGED;
-
             LearnSkillRewardedSpells(id, newVal);
             // if skill value is going up, update enchantments after setting the new value
             if (newVal > currVal)
@@ -5605,8 +5605,17 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
 
             UpdateCriteria(CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
             UpdateCriteria(CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
+
+            // update skill state
+            if (itr->second.uState == SKILL_UNCHANGED)
+            {
+                if (currVal == 0)   // activated skill, mark as new to save into database
+                    itr->second.uState = SKILL_NEW;
+                else                // updated skill, mark as changed to save into database
+                    itr->second.uState = SKILL_CHANGED;
+            }
         }
-        else                                                //remove
+        else if (currVal && !newVal) // Deactivate skill line
         {
             //remove enchantments needing this skill
             UpdateSkillEnchantments(id, currVal, 0);
@@ -5618,9 +5627,11 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             SetSkillTempBonus(itr->second.pos, 0);
             SetSkillPermBonus(itr->second.pos, 0);
 
-            // mark as deleted or simply remove from map if not saved yet
+            // mark as deleted so the next save will delete the data from the database
             if (itr->second.uState != SKILL_NEW)
                 itr->second.uState = SKILL_DELETED;
+            else
+                itr->second.uState = SKILL_UNCHANGED;
 
             // remove all spells that related to this skill
             if (std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = sDB2Manager.GetSkillLineAbilitiesBySkill(id))
@@ -5638,25 +5649,24 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ProfessionSkillLine, 1), 0);
         }
     }
-    else                            //add
+    else
     {
-        // Check if the player already has a skill, otherwise pick a empty skill slot if available
-        uint8 skillSlot = itr != mSkillStatus.end() ? itr->second.pos : 0;
-        if (!skillSlot)
+        // We are about to learn a skill that has been added outside of normal circumstances (Game Master command, scripts etc.)
+        uint8 skillSlot = 0;
+
+        // Find a free skill slot
+        for (uint32 i = 0; i < PLAYER_MAX_SKILLS; ++i)
         {
-            for (uint32 i = 0; i < PLAYER_MAX_SKILLS; ++i)
+            if (!m_activePlayerData->Skill->SkillLineID[i])
             {
-                if (!m_activePlayerData->Skill->SkillLineID[i])
-                {
-                    skillSlot = i;
-                    break;
-                }
+                skillSlot = i;
+                break;
             }
         }
 
         if (!skillSlot)
         {
-            TC_LOG_ERROR("misc", "Tried to add skill #%u but the player cannot have additional skills", id);
+            TC_LOG_ERROR("misc", "Tried to add skill %u but player %s (%s) cannot have additional skills", id, GetName().c_str(), GetGUID().ToString().c_str());
             return;
         }
 
@@ -5712,11 +5722,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
 
         UpdateSkillEnchantments(id, 0, newVal);
 
-        // update or add entry
-        if (itr != mSkillStatus.end())
-            itr->second.uState = SKILL_CHANGED;
-        else
-            mSkillStatus.insert(SkillStatusMap::value_type(id, SkillStatusData(skillSlot, SKILL_NEW)));
+        mSkillStatus.insert(SkillStatusMap::value_type(id, SkillStatusData(skillSlot, SKILL_NEW)));
 
         if (newVal)
         {
@@ -5724,20 +5730,18 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             UpdateCriteria(CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
 
             // temporary bonuses
-            AuraEffectList const& mModSkill = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL);
-            for (AuraEffectList::const_iterator j = mModSkill.begin(); j != mModSkill.end(); ++j)
-                if ((*j)->GetMiscValue() == int32(id))
-                    (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
-            AuraEffectList const& mModSkill2 = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_2);
-            for (AuraEffectList::const_iterator j = mModSkill2.begin(); j != mModSkill2.end(); ++j)
-                if ((*j)->GetMiscValue() == int32(id))
-                    (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+            for (AuraEffect* effect : GetAuraEffectsByType(SPELL_AURA_MOD_SKILL))
+                if (effect->GetMiscValue() == int32(id))
+                    effect->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+
+            for (AuraEffect* effect : GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_2))
+                if (effect->GetMiscValue() == int32(id))
+                    effect->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
 
             // permanent bonuses
-            AuraEffectList const& mModSkillTalent = GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_TALENT);
-            for (AuraEffectList::const_iterator j = mModSkillTalent.begin(); j != mModSkillTalent.end(); ++j)
-                if ((*j)->GetMiscValue() == int32(id))
-                    (*j)->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
+            for (AuraEffect* effect : GetAuraEffectsByType(SPELL_AURA_MOD_SKILL_TALENT))
+                if (effect->GetMiscValue() == int32(id))
+                    effect->HandleEffect(this, AURA_EFFECT_HANDLE_SKILL, true);
 
             // Learn all spells for skill
             LearnSkillRewardedSpells(id, newVal);
