@@ -21,6 +21,7 @@
 #include "IpAddress.h"
 #include <utf8.h>
 #include <algorithm>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <cctype>
@@ -169,7 +170,7 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
         }
         if (secs || (!days && !hours && !minutes))
         {
-            ss << secs;
+            ss << std::setw(2) << std::setfill('0') << secs;
             if (timeFormat == TimeFormat::ShortText)
                 ss << "s";
             else if (timeFormat == TimeFormat::FullText)
