@@ -69,13 +69,6 @@ enum TimeConstants
     IN_MILLISECONDS = 1000
 };
 
-enum TimeFormats
-{
-    TF_FULL_TEXT    = 1,    // 1 Days 2 Hours 3 Minutes 4 Seconds
-    TF_SHORT_TEXT   = 2,    // 1d 2h 3m 4s
-    TF_NUMERIC      = 3     // 1:2:3:4
-};
-
 enum AccountTypes
 {
     SEC_PLAYER         = 0,

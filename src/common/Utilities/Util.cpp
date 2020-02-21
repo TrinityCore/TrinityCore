@@ -16,6 +16,7 @@
  */
 
 #include "Util.h"
+#include "Common.h"
 #include "Containers.h"
 #include "IpAddress.h"
 #include <utf8.h>

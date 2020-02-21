@@ -18,7 +18,6 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
-#include "Common.h"
 #include "Define.h"
 #include "Errors.h"
 
@@ -26,6 +25,13 @@
 #include <sstream>
 #include <utility>
 #include <vector>
+
+enum TimeFormats
+{
+    TF_FULL_TEXT    = 1,    // 1 Days 2 Hours 3 Minutes 4 Seconds
+    TF_SHORT_TEXT   = 2,    // 1d 2h 3m 4s
+    TF_NUMERIC      = 3     // 1:2:3:4
+};
 
 class TC_COMMON_API Tokenizer
 {
