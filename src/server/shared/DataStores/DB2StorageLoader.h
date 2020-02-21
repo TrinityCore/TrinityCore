@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Utilities/ByteConverter.h"
 #include <cassert>
+#include <list>
 
 class TC_SHARED_API DB2FileLoader
 {
@@ -82,7 +83,7 @@ class TC_SHARED_API DB2FileLoader
     char* AutoProduceStringsArrayHolders(char const* fmt, char* dataTable);
     char* AutoProduceStrings(char const* fmt, char* dataTable, uint32 locale);
     static uint32 GetFormatRecordSize(char const* format, int32* index_pos = nullptr);
-    static uint32 GetFormatStringsFields(char const* format);
+    static uint32 GetFormatStringFieldCount(const char* format);
 private:
 
     uint32 recordSize;
@@ -102,6 +103,19 @@ private:
     int maxIndex;        // WDB2 (index table)
     int locale;          // WDB2
     int unk5;            // WDB2
+};
+
+class DB2DatabaseLoader
+{
+public:
+    explicit DB2DatabaseLoader(std::string const& storageName) : _storageName(storageName) { }
+
+    char* Load(const char* format, int32 preparedStatement, uint32& records, char**& indexTable, char*& stringHolders, std::list<char*>& stringPool);
+    void LoadStrings(const char* format, int32 preparedStatement, uint32 locale, char**& indexTable, std::list<char*>& stringPool);
+    static char* AddLocaleString(LocalizedString* holder, uint32 locale, std::string const& value);
+
+private:
+    std::string _storageName;
 };
 
 #endif

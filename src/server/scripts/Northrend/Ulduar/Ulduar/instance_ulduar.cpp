@@ -721,8 +721,8 @@ class instance_ulduar : public InstanceMapScript
                                 if (Player* player = itr->GetSource())
                                     for (uint8 slot = EQUIPMENT_SLOT_MAINHAND; slot <= EQUIPMENT_SLOT_RANGED; ++slot)
                                         if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-                                            if (item->GetTemplate()->ItemLevel > _maxWeaponItemLevel)
-                                                _maxWeaponItemLevel = item->GetTemplate()->ItemLevel;
+                                            if (item->GetTemplate()->GetBaseItemLevel() > _maxWeaponItemLevel)
+                                                _maxWeaponItemLevel = item->GetTemplate()->GetBaseItemLevel();
                         }
                         else if (state == IN_PROGRESS)
                         {
@@ -741,11 +741,11 @@ class instance_ulduar : public InstanceMapScript
                                         {
                                             if (slot >= EQUIPMENT_SLOT_MAINHAND && slot <= EQUIPMENT_SLOT_RANGED)
                                             {
-                                                if (item->GetTemplate()->ItemLevel > _maxWeaponItemLevel)
-                                                    _maxWeaponItemLevel = item->GetTemplate()->ItemLevel;
+                                                if (item->GetTemplate()->GetBaseItemLevel() > _maxWeaponItemLevel)
+                                                    _maxWeaponItemLevel = item->GetTemplate()->GetBaseItemLevel();
                                             }
-                                            else if (item->GetTemplate()->ItemLevel > _maxArmorItemLevel)
-                                                _maxArmorItemLevel = item->GetTemplate()->ItemLevel;
+                                            else if (item->GetTemplate()->GetBaseItemLevel() > _maxArmorItemLevel)
+                                                _maxArmorItemLevel = item->GetTemplate()->GetBaseItemLevel();
                                         }
                                     }
                                 }

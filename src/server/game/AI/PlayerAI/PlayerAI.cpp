@@ -509,7 +509,7 @@ bool PlayerAI::IsPlayerRangedAttacker(Player const* who)
             // check if we have a ranged weapon equipped
             Item const* rangedSlot = who->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
             if (ItemTemplate const* rangedTemplate = rangedSlot ? rangedSlot->GetTemplate() : nullptr)
-                if ((1 << rangedTemplate->SubClass) & ITEM_SUBCLASS_MASK_WEAPON_RANGED)
+                if ((1 << rangedTemplate->GetSubClass()) & ITEM_SUBCLASS_MASK_WEAPON_RANGED)
                     return true;
             return false;
         }
@@ -640,7 +640,7 @@ void PlayerAI::DoRangedAttackIfReady()
     Item const* rangedItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED);
     if (ItemTemplate const* rangedTemplate = rangedItem ? rangedItem->GetTemplate() : nullptr)
     {
-        switch (rangedTemplate->SubClass)
+        switch (rangedTemplate->GetSubClass())
         {
             case ITEM_SUBCLASS_WEAPON_BOW:
             case ITEM_SUBCLASS_WEAPON_GUN:

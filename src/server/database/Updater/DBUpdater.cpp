@@ -150,6 +150,38 @@ bool DBUpdater<CharacterDatabaseConnection>::IsEnabled(uint32 const updateMask)
     return (updateMask & DatabaseLoader::DATABASE_CHARACTER) ? true : false;
 }
 
+// Hotfix Database
+template<>
+std::string DBUpdater<HotfixDatabaseConnection>::GetConfigEntry()
+{
+    return "Updates.Hotfix";
+}
+
+template<>
+std::string DBUpdater<HotfixDatabaseConnection>::GetTableName()
+{
+    return "Hotfixes";
+}
+
+template<>
+std::string DBUpdater<HotfixDatabaseConnection>::GetBaseFile()
+{
+    return GitRevision::GetHotfixesDatabase();
+}
+
+template<>
+bool DBUpdater<HotfixDatabaseConnection>::IsEnabled(uint32 const updateMask)
+{
+    // This way silences warnings under msvc
+    return (updateMask & DatabaseLoader::DATABASE_HOTFIX) ? true : false;
+}
+
+template<>
+BaseLocation DBUpdater<HotfixDatabaseConnection>::GetBaseLocationType()
+{
+    return LOCATION_DOWNLOAD;
+}
+
 // All
 template<class T>
 BaseLocation DBUpdater<T>::GetBaseLocationType()
@@ -391,3 +423,4 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 template class TC_DATABASE_API DBUpdater<LoginDatabaseConnection>;
 template class TC_DATABASE_API DBUpdater<WorldDatabaseConnection>;
 template class TC_DATABASE_API DBUpdater<CharacterDatabaseConnection>;
+template class TC_DATABASE_API DBUpdater<HotfixDatabaseConnection>;

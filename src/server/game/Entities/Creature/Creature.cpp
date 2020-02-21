@@ -77,7 +77,7 @@ std::string CreatureMovementData::ToString() const
 
 bool VendorItem::IsGoldRequired(ItemTemplate const* pProto) const
 {
-    return (pProto->Flags2 & ITEM_FLAG2_DONT_IGNORE_BUY_PRICE) || !ExtendedCost;
+    return (pProto->GetFlags2() & ITEM_FLAG2_DONT_IGNORE_BUY_PRICE) || !ExtendedCost;
 }
 
 bool VendorItemData::RemoveItem(uint32 item_id, uint8 type)
@@ -2700,13 +2700,13 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
         if (ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item))
         {
             uint32 diff = uint32((ptime - vCount->lastIncrementTime)/vItem->incrtime);
-            if ((vCount->count + diff * pProto->BuyCount) >= vItem->maxcount)
+            if ((vCount->count + diff * pProto->GetBuyCount()) >= vItem->maxcount)
             {
                 m_vendorItemCounts.erase(itr);
                 return vItem->maxcount;
             }
 
-            vCount->count += diff * pProto->BuyCount;
+            vCount->count += diff * pProto->GetBuyCount();
             vCount->lastIncrementTime = ptime;
         }
 
@@ -2738,8 +2738,8 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
         if (ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item))
         {
             uint32 diff = uint32((ptime - vCount->lastIncrementTime)/vItem->incrtime);
-            if ((vCount->count + diff * pProto->BuyCount) < vItem->maxcount)
-                vCount->count += diff * pProto->BuyCount;
+            if ((vCount->count + diff * pProto->GetBuyCount()) < vItem->maxcount)
+                vCount->count += diff * pProto->GetBuyCount();
             else
                 vCount->count = vItem->maxcount;
         }

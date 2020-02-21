@@ -598,19 +598,22 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
                 continue;
 
             // BuyCount by default
-            uint32 count = iProto->BuyCount;
+            uint32 count = iProto->GetBuyCount();
 
             // special amount for food/drink
-            if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD)
+            if (iProto->GetClass() == ITEM_CLASS_CONSUMABLE && iProto->GetSubClass() == ITEM_SUBCLASS_FOOD)
             {
-                switch (iProto->Spells[0].SpellCategory)
+                if (iProto->Effects.size() >= 1)
                 {
-                    case SPELL_CATEGORY_FOOD:                                // food
-                        count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
-                        break;
-                    case SPELL_CATEGORY_DRINK:                                // drink
-                        count = 2;
-                        break;
+                    switch (iProto->Effects[0].Category)
+                    {
+                        case SPELL_CATEGORY_FOOD:                                // food
+                            count = getClass() == CLASS_DEATH_KNIGHT ? 10 : 4;
+                            break;
+                        case SPELL_CATEGORY_DRINK:                                // drink
+                            count = 2;
+                            break;
+                    }
                 }
                 if (iProto->GetMaxStackSize() < count)
                     count = iProto->GetMaxStackSize();
@@ -4626,8 +4629,8 @@ Corpse* Player::CreateCorpse()
     {
         if (m_items[i])
         {
-            iDisplayID = m_items[i]->GetTemplate()->DisplayInfoID;
-            iIventoryType = m_items[i]->GetTemplate()->InventoryType;
+            iDisplayID = m_items[i]->GetDisplayId();
+            iIventoryType = m_items[i]->GetTemplate()->GetInventoryType();
 
             _cfi = iDisplayID | (iIventoryType << 24);
             corpse->SetUInt32Value(CORPSE_FIELD_ITEM + i, _cfi);
@@ -4796,24 +4799,24 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
         {
             ItemTemplate const* ditemProto = item->GetTemplate();
 
-            DurabilityCostsEntry const* dcost = sDurabilityCostsStore.LookupEntry(ditemProto->ItemLevel);
+            DurabilityCostsEntry const* dcost = sDurabilityCostsStore.LookupEntry(ditemProto->GetBaseItemLevel());
             if (!dcost)
             {
                 TC_LOG_ERROR("entities.player.items", "Player::DurabilityRepair: Player '%s' (%s) tried to repair an item (ItemID: %u) with invalid item level %u",
-                    GetName().c_str(), GetGUID().ToString().c_str(), ditemProto->ItemId, ditemProto->ItemLevel);
+                    GetName().c_str(), GetGUID().ToString().c_str(), ditemProto->GetId(), ditemProto->GetBaseItemLevel());
                 return TotalCost;
             }
 
-            uint32 dQualitymodEntryId = (ditemProto->Quality+1)*2;
+            uint32 dQualitymodEntryId = (ditemProto->GetQuality() + 1) * 2;
             DurabilityQualityEntry const* dQualitymodEntry = sDurabilityQualityStore.LookupEntry(dQualitymodEntryId);
             if (!dQualitymodEntry)
             {
                 TC_LOG_ERROR("entities.player.items", "Player::DurabilityRepair: Player '%s' (%s) tried to repair an item (ItemID: %u) with invalid QualitymodEntry %u",
-                    GetName().c_str(), GetGUID().ToString().c_str(), ditemProto->ItemId, dQualitymodEntryId);
+                    GetName().c_str(), GetGUID().ToString().c_str(), ditemProto->GetId(), dQualitymodEntryId);
                 return TotalCost;
             }
 
-            uint32 dmultiplier = dcost->Multiplier[ItemSubClassToDurabilityMultiplierId(ditemProto->Class, ditemProto->SubClass)];
+            uint32 dmultiplier = dcost->Multiplier[ItemSubClassToDurabilityMultiplierId(ditemProto->GetClass(), ditemProto->GetSubClass())];
             uint32 costs = uint32(LostDurability*dmultiplier*double(dQualitymodEntry->Data));
 
             costs = uint32(costs * discountMod * sWorld->getRate(RATE_REPAIRCOST));
@@ -5382,8 +5385,8 @@ void Player::SetRegularAttackTime()
         if (tmpitem && !tmpitem->IsBroken())
         {
             ItemTemplate const* proto = tmpitem->GetTemplate();
-            if (proto->Delay)
-                SetAttackTime(WeaponAttackType(i), proto->Delay);
+            if (proto->GetDelay())
+                SetAttackTime(WeaponAttackType(i), proto->GetDelay());
         }
         else
             SetAttackTime(WeaponAttackType(i), BASE_ATTACK_TIME);  // If there is no weapon reset attack time to base (might have been changed from forms)
@@ -7634,7 +7637,7 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
 
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: Applying mods for item %s", item->GetGUID().ToString().c_str());
 
-    if (proto->Socket[0].Color)                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
+    if (proto->GetSocketColor(0))                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
         CorrectMetaGemEnchants(slot, apply);
 
     _ApplyItemBonuses(proto, slot, apply);
@@ -7652,7 +7655,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     if (slot >= INVENTORY_SLOT_BAG_END || !proto)
         return;
 
-    ScalingStatDistributionEntry const* ssd = proto->ScalingStatDistribution ? sScalingStatDistributionStore.LookupEntry(proto->ScalingStatDistribution) : nullptr;
+    ScalingStatDistributionEntry const* ssd = proto->GetScalingStatDistribution() ? sScalingStatDistributionStore.LookupEntry(proto->GetScalingStatDistribution()) : nullptr;
     if (only_level_scale && !ssd)
         return;
 
@@ -7667,7 +7670,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
 
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
     {
-        int32 statID = proto->ItemStat[i].ItemStatType;
+        int32 statID = proto->GetItemStatType(i);
         if ((statID < 0 && !ssd) || (statID < 0 && ssd && ssd->StatID[i] < 0))
             continue;
 
@@ -7841,21 +7844,21 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     }
 
     // Apply Spell Power from ScalingStatValue if set
-    if (ssv && proto->Flags2 & ITEM_FLAG2_CASTER_WEAPON)
+    if (ssv && proto->GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
         if (int32 spellbonus = int32(ssv->Spellpower))
             ApplySpellPowerBonus(spellbonus, apply);
 
     // If set ScalingStatValue armor get it or use item armor
     uint32 armor = proto->GetEffectiveArmor(this);
-    if (ssv && proto->Class == ITEM_CLASS_ARMOR)
-        armor = ssv->GetArmor(proto->InventoryType, proto->SubClass - 1);
+    if (ssv && proto->GetClass() == ITEM_CLASS_ARMOR)
+        armor = ssv->GetArmor(proto->GetInventoryType(), proto->GetSubClass() - 1);
 
     if (armor)
     {
         UnitModifierType modType = TOTAL_VALUE;
-        if (proto->Class == ITEM_CLASS_ARMOR)
+        if (proto->GetClass() == ITEM_CLASS_ARMOR)
         {
-            switch (proto->SubClass)
+            switch (proto->GetSubClass())
             {
                 case ITEM_SUBCLASS_ARMOR_CLOTH:
                 case ITEM_SUBCLASS_ARMOR_LEATHER:
@@ -7870,14 +7873,14 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     }
 
     // Add armor bonus from ArmorDamageModifier if > 0
-    if (proto->ArmorDamageModifier > 0)
-        HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(proto->ArmorDamageModifier), apply);
+    if (proto->GetArmorDamageModifier() > 0)
+        HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(proto->GetArmorDamageModifier()), apply);
 
     WeaponAttackType attType = BASE_ATTACK;
 
     if (slot == EQUIPMENT_SLOT_RANGED && (
-        proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
-        proto->InventoryType == INVTYPE_RANGEDRIGHT))
+        proto->GetInventoryType() == INVTYPE_RANGED || proto->GetInventoryType() == INVTYPE_THROWN ||
+        proto->GetInventoryType() == INVTYPE_RANGEDRIGHT))
     {
         attType = RANGED_ATTACK;
     }
@@ -7896,8 +7899,8 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingSt
     float damage = 0.0f;
 
     if (slot == EQUIPMENT_SLOT_RANGED && (
-        proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
-        proto->InventoryType == INVTYPE_RANGEDRIGHT))
+        proto->GetInventoryType() == INVTYPE_RANGED || proto->GetInventoryType() == INVTYPE_THROWN ||
+        proto->GetInventoryType() == INVTYPE_RANGEDRIGHT))
     {
         attType = RANGED_ATTACK;
     }
@@ -7914,10 +7917,10 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingSt
     if (ssv)
     {
         float damageMultiplier = 0.0f;
-        extraDPS = ssv->GetDPSAndDamageMultiplier(proto->SubClass, (proto->Flags2 & ITEM_FLAG2_CASTER_WEAPON) != 0, &damageMultiplier);
+        extraDPS = ssv->GetDPSAndDamageMultiplier(proto->GetSubClass(), (proto->GetFlags2() & ITEM_FLAG2_CASTER_WEAPON) != 0, &damageMultiplier);
         if (extraDPS)
         {
-            float average = extraDPS * proto->Delay / 1000.0f;
+            float average = extraDPS * proto->GetDelay() / 1000.0f;
             minDamage = (1.0f - damageMultiplier) * average;
             maxDamage = (1.0f + damageMultiplier) * average;
         }
@@ -7935,17 +7938,17 @@ void Player::_ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingSt
         SetBaseWeaponDamage(attType, MAXDAMAGE, damage);
     }
 
-    if (proto->Delay && !IsInFeralForm())
+    if (proto->GetDelay() && !IsInFeralForm())
     {
         if (slot == EQUIPMENT_SLOT_RANGED)
-            SetAttackTime(RANGED_ATTACK, apply ? proto->Delay: BASE_ATTACK_TIME);
+            SetAttackTime(RANGED_ATTACK, apply ? proto->GetDelay() : BASE_ATTACK_TIME);
         else if (slot == EQUIPMENT_SLOT_MAINHAND)
-            SetAttackTime(BASE_ATTACK, apply ? proto->Delay: BASE_ATTACK_TIME);
+            SetAttackTime(BASE_ATTACK, apply ? proto->GetDelay() : BASE_ATTACK_TIME);
         else if (slot == EQUIPMENT_SLOT_OFFHAND)
-            SetAttackTime(OFF_ATTACK, apply ? proto->Delay: BASE_ATTACK_TIME);
+            SetAttackTime(OFF_ATTACK, apply ? proto->GetDelay() : BASE_ATTACK_TIME);
     }
 
-    if (CanModifyStats() && (damage || proto->Delay))
+    if (CanModifyStats() && (damage || proto->GetDelay()))
         UpdateDamagePhysical(attType);
 }
 
@@ -7970,13 +7973,14 @@ void Player::CastAllObtainSpells()
 void Player::ApplyItemObtainSpells(Item* item, bool apply)
 {
     ItemTemplate const* itemTemplate = item->GetTemplate();
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+
+    for (ItemEffect const& effect : itemTemplate->Effects)
     {
-        if (itemTemplate->Spells[i].SpellTrigger != ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
+        if (effect.Trigger != ITEM_SPELLTRIGGER_ON_NO_DELAY_USE) // On obtain trigger
             continue;
 
-        int32 const spellId = itemTemplate->Spells[i].SpellId;
-        if (spellId <= 0)
+        int32 spellId = effect.SpellID;
+        if (!spellId)
             continue;
 
         if (apply)
@@ -8020,20 +8024,18 @@ void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
     if (!proto)
         return;
 
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (ItemEffect const& effect : proto->Effects)
     {
-        _Spell const& spellData = proto->Spells[i];
-
         // no spell
-        if (spellData.SpellId <= 0)
+        if (effect.SpellID <= 0)
             continue;
 
         // wrong triggering type
-        if (apply && spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_EQUIP)
+        if (apply && effect.Trigger != ITEM_SPELLTRIGGER_ON_EQUIP)
             continue;
 
         // check if it is valid spell
-        SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(spellData.SpellId);
+        SpellInfo const* spellproto = sSpellMgr->GetSpellInfo(effect.SpellID);
         if (!spellproto)
             continue;
 
@@ -8124,7 +8126,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo)
                 if (ItemTemplate const* proto = item->GetTemplate())
                 {
                     // Additional check for weapons
-                    if (proto->Class == ITEM_CLASS_WEAPON)
+                    if (proto->GetClass() == ITEM_CLASS_WEAPON)
                     {
                         // offhand item cannot proc from main hand hit etc
                         EquipmentSlots slot;
@@ -8165,23 +8167,21 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
     bool canTrigger = (damageInfo.GetHitMask() & (PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB)) != 0;
     if (canTrigger)
     {
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        for (ItemEffect const& effect : proto->Effects)
         {
-            _Spell const& spellData = proto->Spells[i];
-
             // no spell
-            if (spellData.SpellId <= 0)
+            if (effect.SpellID <= 0)
                 continue;
 
             // wrong triggering type
-            if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
+            if (effect.Trigger != ITEM_SPELLTRIGGER_CHANCE_ON_HIT)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellData.SpellId);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect.SpellID);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("entities.player.items", "Player::CastItemCombatSpell: Player '%s' (%s) cast unknown item spell (ID: %i)",
-                    GetName().c_str(), GetGUID().ToString().c_str(), spellData.SpellId);
+                    GetName().c_str(), GetGUID().ToString().c_str(), effect.SpellID);
                 continue;
             }
 
@@ -8247,7 +8247,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             if (entry)
             {
                 if (entry->PPMChance)
-                    chance = GetPPMProcChance(proto->Delay, entry->PPMChance, spellInfo);
+                    chance = GetPPMProcChance(proto->GetDelay(), entry->PPMChance, spellInfo);
                 else if (entry->customChance)
                     chance = (float)entry->customChance;
             }
@@ -8274,15 +8274,15 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
 {
     ItemTemplate const* proto = item->GetTemplate();
     // special learning case
-    if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
+    if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
     {
-        uint32 learn_spell_id = proto->Spells[0].SpellId;
-        uint32 learning_spell_id = proto->Spells[1].SpellId;
+        uint32 learn_spell_id = proto->Effects[0].SpellID;
+        uint32 learning_spell_id = proto->Effects[1].SpellID;
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(learn_spell_id);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring.", proto->ItemId, learn_spell_id);
+            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring.", proto->GetId(), learn_spell_id);
             SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, item, nullptr);
             return;
         }
@@ -8295,23 +8295,20 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
         return;
     }
 
-    // item spells cast at use
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (ItemEffect const& effect : proto->Effects)
     {
-        _Spell const& spellData = proto->Spells[i];
-
         // no spell
-        if (spellData.SpellId <= 0)
+        if (effect.SpellID <= 0)
             continue;
 
         // wrong triggering type
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+        if (effect.Trigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellData.SpellId);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect.SpellID);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", proto->ItemId, spellData.SpellId);
+            TC_LOG_ERROR("entities.player", "Player::CastItemUseSpell: Item (Entry: %u) has wrong spell id %u, ignoring", proto->GetId(), effect.SpellID);
             continue;
         }
 
@@ -8368,7 +8365,7 @@ void Player::_RemoveAllItemMods()
                 continue;
 
             // item set bonuses not dependent from item broken state
-            if (proto->ItemSet)
+            if (proto->GetItemSet())
                 RemoveItemsSetItem(this, proto);
 
             if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
@@ -8426,7 +8423,7 @@ void Player::_ApplyAllItemMods()
                 continue;
 
             // item set bonuses not dependent from item broken state
-            if (proto->ItemSet)
+            if (proto->GetItemSet())
                 AddItemsSetItem(this, m_items[i]);
 
             if (m_items[i]->IsBroken() || !CanUseAttackType(GetAttackBySlot(i)))
@@ -9699,7 +9696,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
     slots[1] = NULL_SLOT;
     slots[2] = NULL_SLOT;
     slots[3] = NULL_SLOT;
-    switch (proto->InventoryType)
+    switch (proto->GetInventoryType())
     {
         case INVTYPE_HEAD:
             slots[0] = EQUIPMENT_SLOT_HEAD;
@@ -9767,7 +9764,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
             {
                 if (ItemTemplate const* mhWeaponProto = mhWeapon->GetTemplate())
                 {
-                    if (mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
+                    if (mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF)
                     {
                         const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                         break;
@@ -9777,13 +9774,13 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
 
             if (GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
             {
-                if (proto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || proto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
+                if (proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM || proto->GetSubClass() == ITEM_SUBCLASS_WEAPON_STAFF)
                 {
                     const_cast<Player*>(this)->AutoUnequipOffhandIfNeed(true);
                     break;
                 }
             }
-            if (CanDualWield() && CanTitanGrip() && proto->SubClass != ITEM_SUBCLASS_WEAPON_POLEARM && proto->SubClass != ITEM_SUBCLASS_WEAPON_STAFF)
+            if (CanDualWield() && CanTitanGrip() && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_POLEARM && proto->GetSubClass() != ITEM_SUBCLASS_WEAPON_STAFF)
                 slots[1] = EQUIPMENT_SLOT_OFFHAND;
             break;
         case INVTYPE_TABARD:
@@ -9905,10 +9902,10 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
         if (Bag* pBag = GetBagByPos(i))
             count += pBag->GetItemCount(item, skipItem);
 
-    if (skipItem && skipItem->GetTemplate()->GemProperties)
+    if (skipItem && skipItem->GetTemplate()->GetGemProperties())
         for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
             if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                if (pItem != skipItem && pItem->GetTemplate()->Socket[0].Color)
+                if (pItem != skipItem && pItem->GetTemplate()->GetSocketColor(0))
                     count += pItem->GetGemCountWithID(item);
 
     if (inBankAlso)
@@ -9923,10 +9920,10 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
             if (Bag* pBag = GetBagByPos(i))
                 count += pBag->GetItemCount(item, skipItem);
 
-        if (skipItem && skipItem->GetTemplate()->GemProperties)
+        if (skipItem && skipItem->GetTemplate()->GetGemProperties())
             for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
                 if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                    if (pItem != skipItem && pItem->GetTemplate()->Socket[0].Color)
+                    if (pItem != skipItem && pItem->GetTemplate()->GetSocketColor(0))
                         count += pItem->GetGemCountWithID(item);
     }
 
@@ -9940,7 +9937,7 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem != skipItem)
                 if (ItemTemplate const* pProto = pItem->GetTemplate())
-                    if (pProto->ItemLimitCategory == limitCategory)
+                    if (pProto->GetItemLimitCategory() == limitCategory)
                         count += pItem->GetCount();
 
     for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
@@ -9951,7 +9948,7 @@ uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipIte
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem != skipItem)
                 if (ItemTemplate const* pProto = pItem->GetTemplate())
-                    if (pProto->ItemLimitCategory == limitCategory)
+                    if (pProto->GetItemLimitCategory() == limitCategory)
                         count += pItem->GetCount();
 
     for (int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
@@ -10039,7 +10036,7 @@ Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= f
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, slot);
     else
         item = GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
-    if (!item || item->GetTemplate()->Class != ITEM_CLASS_WEAPON)
+    if (!item || item->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON)
         return nullptr;
 
     if (!useable)
@@ -10058,7 +10055,7 @@ Item* Player::GetShield(bool useable) const
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
     else
         item = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-    if (!item || item->GetTemplate()->Class != ITEM_CLASS_ARMOR)
+    if (!item || item->GetTemplate()->GetClass() != ITEM_CLASS_ARMOR)
         return nullptr;
 
     if (!useable)
@@ -10255,7 +10252,7 @@ bool Player::HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_
     }
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    if (pProto && pProto->GemProperties)
+    if (pProto && pProto->GetGemProperties())
     {
         for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
         {
@@ -10263,7 +10260,7 @@ bool Player::HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_
                 continue;
 
             Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-            if (pItem && pItem->GetTemplate()->Socket[0].Color)
+            if (pItem && pItem->GetTemplate()->GetSocketColor(0))
             {
                 tempcount += pItem->GetGemCountWithID(item);
                 if (tempcount >= count)
@@ -10291,7 +10288,7 @@ bool Player::HasItemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count
         if (!pProto)
             continue;
 
-        if (pProto->ItemLimitCategory == limitCategory)
+        if (pProto->GetItemLimitCategory() == limitCategory)
         {
             tempcount += pItem->GetCount();
             if (tempcount >= count)
@@ -10318,7 +10315,7 @@ bool Player::HasGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count,
         if (!pProto)
             continue;
 
-        if (pProto->Socket[0].Color || pItem->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
+        if (pProto->GetSocketColor(0) || pItem->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
         {
             tempcount += pItem->GetGemCountWithLimitCategory(limitCategory);
             if (tempcount >= count)
@@ -10343,24 +10340,24 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
         return EQUIP_ERR_LOOT_GONE;
 
     // no maximum
-    if ((pProto->MaxCount <= 0 && pProto->ItemLimitCategory == 0) || pProto->MaxCount == 2147483647)
+    if ((pProto->GetMaxCount() <= 0 && pProto->GetItemLimitCategory() == 0) || pProto->GetMaxCount() == 2147483647)
         return EQUIP_ERR_OK;
 
-    if (pProto->MaxCount > 0)
+    if (pProto->GetMaxCount() > 0)
     {
-        uint32 curcount = GetItemCount(pProto->ItemId, true, pItem);
-        if (curcount + count > uint32(pProto->MaxCount))
+        uint32 curcount = GetItemCount(pProto->GetId(), true, pItem);
+        if (curcount + count > uint32(pProto->GetMaxCount()))
         {
             if (no_space_count)
-                *no_space_count = count + curcount - pProto->MaxCount;
+                *no_space_count = count + curcount - pProto->GetMaxCount();
             return EQUIP_ERR_ITEM_MAX_COUNT;
         }
     }
 
     // check unique-equipped limit
-    if (pProto->ItemLimitCategory)
+    if (pProto->GetItemLimitCategory())
     {
-        ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(pProto->ItemLimitCategory);
+        ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(pProto->GetItemLimitCategory());
         if (!limitEntry)
         {
             if (no_space_count)
@@ -10370,13 +10367,13 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
 
         if (limitEntry->Flags == ITEM_LIMIT_CATEGORY_MODE_HAVE)
         {
-            uint32 curcount = GetItemCountWithLimitCategory(pProto->ItemLimitCategory, pItem);
+            uint32 curcount = GetItemCountWithLimitCategory(pProto->GetItemLimitCategory(), pItem);
             if (curcount + count > uint32(limitEntry->Quantity))
             {
                 if (no_space_count)
                     *no_space_count = count + curcount - limitEntry->Quantity;
                 if (itemLimitCategory)
-                    *itemLimitCategory = pProto->ItemLimitCategory;
+                    *itemLimitCategory = pProto->GetItemLimitCategory();
                 return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS;
             }
         }
@@ -10409,7 +10406,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
         item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->TotemCategory, TotemCategory))
+        if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
             return true;
     }
 
@@ -10422,7 +10419,7 @@ bool Player::HasItemTotemCategory(uint32 TotemCategory) const
             for (uint32 j = 0; j < bag->GetBagSize(); ++j)
             {
                 item = GetUseableItemByPos(i, j);
-                if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->TotemCategory, TotemCategory))
+                if (item && IsTotemCategoryCompatibleWith(item->GetTemplate()->GetTotemCategory(), TotemCategory))
                     return true;
             }
         }
@@ -10463,7 +10460,7 @@ InventoryResult Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemP
             if (!pBagProto)
                 return EQUIP_ERR_WRONG_BAG_TYPE;
 
-            if (slot >= pBagProto->ContainerSlots)
+            if (slot >= pBagProto->GetContainerSlots())
                 return EQUIP_ERR_WRONG_BAG_TYPE;
 
             if (!ItemCanGoIntoBag(pProto, pBagProto))
@@ -10516,7 +10513,7 @@ InventoryResult Player::CanStoreItem_InBag(uint8 bag, ItemPosCountVec &dest, Ite
         return EQUIP_ERR_WRONG_BAG_TYPE;
 
     // specialized bag mode or non-specilized
-    if (non_specialized != (pBagProto->Class == ITEM_CLASS_CONTAINER && pBagProto->SubClass == ITEM_SUBCLASS_CONTAINER))
+    if (non_specialized != (pBagProto->GetClass() == ITEM_CLASS_CONTAINER && pBagProto->GetSubClass() == ITEM_SUBCLASS_CONTAINER))
         return EQUIP_ERR_WRONG_BAG_TYPE;
 
     if (!ItemCanGoIntoBag(pProto, pBagProto))
@@ -10688,7 +10685,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     if (bag != NULL_BAG)
     {
         // search stack in bag for merge to
-        if (pProto->Stackable != 1)
+        if (pProto->GetMaxStackSize() != 1)
         {
             if (bag == INVENTORY_SLOT_BAG_0)               // inventory
             {
@@ -10785,7 +10782,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     // not specific bag or have space for partly store only in specific bag
 
     // search stack for merge to
-    if (pProto->Stackable != 1)
+    if (pProto->GetMaxStackSize() != 1)
     {
         res = CanStoreItem_InInventorySlots(INVENTORY_SLOT_ITEM_START, INVENTORY_SLOT_ITEM_END, dest, pProto, count, true, pItem, bag, slot);
         if (res != EQUIP_ERR_OK)
@@ -10805,7 +10802,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
             return EQUIP_ERR_ITEM_MAX_COUNT;
         }
 
-        if (pProto->BagFamily)
+        if (pProto->GetBagFamily())
         {
             for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
             {
@@ -10844,7 +10841,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     }
 
     // search free slot - special bag case
-    if (pProto->BagFamily)
+    if (pProto->GetBagFamily())
     {
         for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
         {
@@ -10870,8 +10867,8 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     // search free slot
     uint8 searchSlotStart = INVENTORY_SLOT_ITEM_START;
     // new bags can be directly equipped
-    if (!pItem && pProto->Class == ITEM_CLASS_CONTAINER && pProto->SubClass == ITEM_SUBCLASS_CONTAINER &&
-        (pProto->Bonding == BIND_NONE || pProto->Bonding == BIND_ON_ACQUIRE))
+    if (!pItem && pProto->GetClass() == ITEM_CLASS_CONTAINER && pProto->GetSubClass() == ITEM_SUBCLASS_CONTAINER &&
+        (pProto->GetBonding() == BIND_NONE || pProto->GetBonding() == BIND_ON_ACQUIRE))
         searchSlotStart = INVENTORY_SLOT_BAG_START;
 
     res = CanStoreItem_InInventorySlots(searchSlotStart, INVENTORY_SLOT_ITEM_END, dest, pProto, count, false, pItem, bag, slot);
@@ -10975,7 +10972,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
             return res;
 
         // search stack for merge to
-        if (pProto->Stackable != 1)
+        if (pProto->GetMaxStackSize() != 1)
         {
             bool b_found = false;
 
@@ -11016,7 +11013,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
         }
 
         // special bag case
-        if (pProto->BagFamily)
+        if (pProto->GetBagFamily())
         {
             bool b_found = false;
 
@@ -11027,7 +11024,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                     pBagProto = bag->GetTemplate();
 
                     // not plain container check
-                    if (pBagProto && (pBagProto->Class != ITEM_CLASS_CONTAINER || pBagProto->SubClass != ITEM_SUBCLASS_CONTAINER) &&
+                    if (pBagProto && (pBagProto->GetClass() != ITEM_CLASS_CONTAINER || pBagProto->GetSubClass() != ITEM_SUBCLASS_CONTAINER) &&
                         ItemCanGoIntoBag(pProto, pBagProto))
                     {
                         for (uint32 j = 0; j < bag->GetBagSize(); j++)
@@ -11068,7 +11065,7 @@ InventoryResult Player::CanStoreItems(Item** items, int count, uint32* itemLimit
                 pBagProto = bag->GetTemplate();
 
                 // special bag already checked
-                if (pBagProto && (pBagProto->Class != ITEM_CLASS_CONTAINER || pBagProto->SubClass != ITEM_SUBCLASS_CONTAINER))
+                if (pBagProto && (pBagProto->GetClass() != ITEM_CLASS_CONTAINER || pBagProto->GetSubClass() != ITEM_SUBCLASS_CONTAINER))
                     continue;
 
                 for (uint32 j = 0; j < bag->GetBagSize(); j++)
@@ -11149,14 +11146,14 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                             return EQUIP_ERR_NOT_DURING_ARENA_MATCH;
                 }
 
-                if (IsInCombat()&& (pProto->Class == ITEM_CLASS_WEAPON || pProto->InventoryType == INVTYPE_RELIC) && m_weaponChangeTimer != 0)
+                if (IsInCombat()&& (pProto->GetClass() == ITEM_CLASS_WEAPON || pProto->GetInventoryType() == INVTYPE_RELIC) && m_weaponChangeTimer != 0)
                     return EQUIP_ERR_CLIENT_LOCKED_OUT;         // maybe exist better err
 
                 if (IsNonMeleeSpellCast(false))
                     return EQUIP_ERR_CLIENT_LOCKED_OUT;
             }
 
-            ScalingStatDistributionEntry const* ssd = pProto->ScalingStatDistribution ? sScalingStatDistributionStore.LookupEntry(pProto->ScalingStatDistribution) : 0;
+            ScalingStatDistributionEntry const* ssd = pProto->GetScalingStatDistribution() ? sScalingStatDistributionStore.LookupEntry(pProto->GetScalingStatDistribution()) : 0;
             // check allowed level (extend range to upper values if MaxLevel more or equal max player level, this let GM set high level with 1...max range items)
             if (ssd && ssd->Maxlevel < DEFAULT_MAX_LEVEL && ssd->Maxlevel < getLevel())
                 return EQUIP_ERR_NOT_EQUIPPABLE;
@@ -11207,22 +11204,22 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                 return res2;
 
             // check unique-equipped special item classes
-            if (pProto->Class == ITEM_CLASS_QUIVER)
+            if (pProto->GetClass() == ITEM_CLASS_QUIVER)
                 for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
                     if (Item* pBag = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                         if (pBag != pItem)
                             if (ItemTemplate const* pBagProto = pBag->GetTemplate())
-                                if (pBagProto->Class == pProto->Class && (!swap || pBag->GetSlot() != eslot))
-                                    return (pBagProto->SubClass == ITEM_SUBCLASS_AMMO_POUCH)
+                                if (pBagProto->GetClass() == pProto->GetClass() && (!swap || pBag->GetSlot() != eslot))
+                                    return (pBagProto->GetSubClass() == ITEM_SUBCLASS_AMMO_POUCH)
                                         ? EQUIP_ERR_ONLY_ONE_AMMO
                                         : EQUIP_ERR_ONLY_ONE_QUIVER;
 
-            uint32 type = pProto->InventoryType;
+            uint32 type = pProto->GetInventoryType();
 
             if (eslot == EQUIPMENT_SLOT_OFFHAND)
             {
                 // Do not allow polearm to be equipped in the offhand (rare case for the only 1h polearm 41750)
-                if (type == INVTYPE_WEAPON && pProto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM)
+                if (type == INVTYPE_WEAPON && pProto->GetSubClass() == ITEM_SUBCLASS_WEAPON_POLEARM)
                     return EQUIP_ERR_2HSKILLNOTFOUND;
                 else if (type == INVTYPE_WEAPON || type == INVTYPE_WEAPONOFFHAND)
                 {
@@ -11335,7 +11332,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     if (pItem->IsCurrencyToken())
     {
         TC_LOG_INFO("entities.player.cheat", "Possible hacking attempt: Player %s (%s) tried to move token [%s entry: %u] out of the currency bag!",
-            GetName().c_str(), GetGUID().ToString().c_str(), pItem->GetGUID().ToString().c_str(), pProto->ItemId);
+            GetName().c_str(), GetGUID().ToString().c_str(), pItem->GetGUID().ToString().c_str(), pProto->GetId());
         return EQUIP_ERR_CANT_SWAP;
     }
 
@@ -11377,7 +11374,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
             return EQUIP_ERR_BAG_IN_BAG;
 
         // search stack in bag for merge to
-        if (pProto->Stackable != 1)
+        if (pProto->GetMaxStackSize() != 1)
         {
             if (bag == INVENTORY_SLOT_BAG_0)
             {
@@ -11429,7 +11426,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     // not specific bag or have space for partly store only in specific bag
 
     // search stack for merge to
-    if (pProto->Stackable != 1)
+    if (pProto->GetMaxStackSize() != 1)
     {
         // in slots
         res = CanStoreItem_InInventorySlots(BANK_SLOT_ITEM_START, BANK_SLOT_ITEM_END, dest, pProto, count, true, pItem, bag, slot);
@@ -11440,7 +11437,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
             return EQUIP_ERR_OK;
 
         // in special bags
-        if (pProto->BagFamily)
+        if (pProto->GetBagFamily())
         {
             for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
             {
@@ -11465,7 +11462,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     }
 
     // search free place in special bag
-    if (pProto->BagFamily)
+    if (pProto->GetBagFamily())
     {
         for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; i++)
         {
@@ -11526,7 +11523,7 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
                 bool allowEquip = false;
                 uint32 itemSkill = pItem->GetSkill();
                 // Armor that is binded to account can "morph" from plate to mail, etc. if skill is not learned yet.
-                if (pProto->Quality == ITEM_QUALITY_HEIRLOOM && pProto->Class == ITEM_CLASS_ARMOR && !HasSkill(itemSkill))
+                if (pProto->GetQuality() == ITEM_QUALITY_HEIRLOOM && pProto->GetClass() == ITEM_CLASS_ARMOR && !HasSkill(itemSkill))
                 {
                     /// @todo when you right-click already equipped item it throws EQUIP_ERR_PROFICIENCY_NEEDED.
                     // In fact it's a visual bug, everything works properly... I need sniffs of operations with
@@ -11548,7 +11545,7 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
                     return EQUIP_ERR_PROFICIENCY_NEEDED;
             }
 
-            if (pProto->RequiredReputationFaction && uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank)
+            if (pProto->GetRequiredReputationFaction() && uint32(GetReputationRank(pProto->GetRequiredReputationFaction())) < pProto->GetRequiredReputationRank())
                 return EQUIP_ERR_CANT_EQUIP_REPUTATION;
 
             return EQUIP_ERR_OK;
@@ -11564,34 +11561,34 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
 
-    if (((proto->Flags2 & ITEM_FLAG2_FACTION_HORDE) && GetTeam() != HORDE) ||
-        (((proto->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && GetTeam() != ALLIANCE)))
+    if (((proto->GetFlags2() & ITEM_FLAG2_FACTION_HORDE) && GetTeam() != HORDE) ||
+        (((proto->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE) && GetTeam() != ALLIANCE)))
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
-    if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
+    if ((proto->GetAllowableClass() & getClassMask()) == 0 || (proto->GetAllowableRace() & getRaceMask()) == 0)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
-    if (proto->RequiredSkill != 0)
+    if (proto->GetRequiredSkill() != 0)
     {
-        if (GetSkillValue(proto->RequiredSkill) == 0)
+        if (GetSkillValue(proto->GetRequiredSkill()) == 0)
             return EQUIP_ERR_PROFICIENCY_NEEDED;
-        else if (GetSkillValue(proto->RequiredSkill) < proto->RequiredSkillRank)
+        else if (GetSkillValue(proto->GetRequiredSkill()) < proto->GetRequiredSkillRank())
             return EQUIP_ERR_CANT_EQUIP_SKILL;
     }
 
-    if (proto->RequiredSpell != 0 && !HasSpell(proto->RequiredSpell))
+    if (proto->GetRequiredSpell() != 0 && !HasSpell(proto->GetRequiredSpell()))
         return EQUIP_ERR_PROFICIENCY_NEEDED;
 
-    if (getLevel() < proto->RequiredLevel)
+    if (getLevel() < proto->GetRequiredLevel())
         return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
 
     // If World Event is not active, prevent using event dependant items
-    if (proto->HolidayId && !IsHolidayActive((HolidayIds)proto->HolidayId))
+    if (proto->GetHolidayID() && !IsHolidayActive((HolidayIds)proto->GetHolidayID()))
         return EQUIP_ERR_CLIENT_LOCKED_OUT;
 
     // learning (recipes, mounts, pets, etc.)
-    if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
-        if (HasSpell(proto->Spells[1].SpellId))
+    if (proto->Effects[0].SpellID == 483 || proto->Effects[0].SpellID == 55884)
+        if (HasSpell(proto->Effects[1].SpellID))
             return EQUIP_ERR_INTERNAL_BAG_ERROR;
 
     return EQUIP_ERR_OK;
@@ -11620,54 +11617,54 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
         SKILL_FISHING
     }; //Copy from function Item::GetSkill()
 
-    if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
+    if ((proto->GetAllowableClass() & getClassMask()) == 0 || (proto->GetAllowableRace() & getRaceMask()) == 0)
         return EQUIP_ERR_CANT_EQUIP_EVER;
 
-    if (proto->RequiredSpell != 0 && !HasSpell(proto->RequiredSpell))
+    if (proto->GetRequiredSpell() != 0 && !HasSpell(proto->GetRequiredSpell()))
         return EQUIP_ERR_PROFICIENCY_NEEDED;
 
-    if (proto->RequiredSkill != 0)
+    if (proto->GetRequiredSkill() != 0)
     {
-        if (!GetSkillValue(proto->RequiredSkill))
+        if (!GetSkillValue(proto->GetRequiredSkill()))
             return EQUIP_ERR_PROFICIENCY_NEEDED;
-        else if (GetSkillValue(proto->RequiredSkill) < proto->RequiredSkillRank)
+        else if (GetSkillValue(proto->GetRequiredSkill()) < proto->GetRequiredSkillRank())
             return EQUIP_ERR_CANT_EQUIP_SKILL;
     }
 
     uint8 _class = getClass();
 
-    if (proto->Class == ITEM_CLASS_WEAPON && GetSkillValue(item_weapon_skills[proto->SubClass]) == 0)
+    if (proto->GetClass() == ITEM_CLASS_WEAPON && GetSkillValue(item_weapon_skills[proto->GetSubClass()]) == 0)
         return EQUIP_ERR_PROFICIENCY_NEEDED;
 
-    if (proto->Class == ITEM_CLASS_ARMOR && proto->SubClass > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->SubClass < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->InventoryType != INVTYPE_CLOAK)
+    if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() > ITEM_SUBCLASS_ARMOR_MISCELLANEOUS && proto->GetSubClass() < ITEM_SUBCLASS_ARMOR_BUCKLER && proto->GetInventoryType() != INVTYPE_CLOAK)
     {
         if (_class == CLASS_WARRIOR || _class == CLASS_PALADIN || _class == CLASS_DEATH_KNIGHT)
         {
             if (getLevel() < 40)
             {
-                if (proto->SubClass != ITEM_SUBCLASS_ARMOR_MAIL)
+                if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_MAIL)
                     return EQUIP_ERR_CLIENT_LOCKED_OUT;
             }
-            else if (proto->SubClass != ITEM_SUBCLASS_ARMOR_PLATE)
+            else if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_PLATE)
                 return EQUIP_ERR_CLIENT_LOCKED_OUT;
         }
         else if (_class == CLASS_HUNTER || _class == CLASS_SHAMAN)
         {
             if (getLevel() < 40)
             {
-                if (proto->SubClass != ITEM_SUBCLASS_ARMOR_LEATHER)
+                if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_LEATHER)
                     return EQUIP_ERR_CLIENT_LOCKED_OUT;
             }
-            else if (proto->SubClass != ITEM_SUBCLASS_ARMOR_MAIL)
+            else if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_MAIL)
                 return EQUIP_ERR_CLIENT_LOCKED_OUT;
         }
 
         if (_class == CLASS_ROGUE || _class == CLASS_DRUID)
-            if (proto->SubClass != ITEM_SUBCLASS_ARMOR_LEATHER)
+            if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_LEATHER)
                 return EQUIP_ERR_CLIENT_LOCKED_OUT;
 
         if (_class == CLASS_MAGE || _class == CLASS_PRIEST || _class == CLASS_WARLOCK)
-            if (proto->SubClass != ITEM_SUBCLASS_ARMOR_CLOTH)
+            if (proto->GetSubClass() != ITEM_SUBCLASS_ARMOR_CLOTH)
                 return EQUIP_ERR_CLIENT_LOCKED_OUT;
     }
 
@@ -11761,9 +11758,9 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
         if (!pItem)
             return nullptr;
 
-        if (pItem->GetTemplate()->Bonding == BIND_ON_ACQUIRE ||
-            pItem->GetTemplate()->Bonding == BIND_QUEST ||
-            (pItem->GetTemplate()->Bonding == BIND_ON_EQUIP && IsBagPos(pos)))
+        if (pItem->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE ||
+            pItem->GetTemplate()->GetBonding() == BIND_QUEST ||
+            (pItem->GetTemplate()->GetBonding() == BIND_ON_EQUIP && IsBagPos(pos)))
             pItem->SetBinding(true);
 
         Bag* pBag = (bag == INVENTORY_SLOT_BAG_0) ? nullptr : GetBagByPos(bag);
@@ -11800,9 +11797,9 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
     }
     else
     {
-        if (pItem2->GetTemplate()->Bonding == BIND_ON_ACQUIRE ||
-            pItem2->GetTemplate()->Bonding == BIND_QUEST ||
-            (pItem2->GetTemplate()->Bonding == BIND_ON_EQUIP && IsBagPos(pos)))
+        if (pItem2->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE ||
+            pItem2->GetTemplate()->GetBonding() == BIND_QUEST ||
+            (pItem2->GetTemplate()->GetBonding() == BIND_ON_EQUIP && IsBagPos(pos)))
             pItem2->SetBinding(true);
 
         pItem2->SetCount(pItem2->GetCount() + count);
@@ -11870,12 +11867,12 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
             ItemTemplate const* pProto = pItem->GetTemplate();
 
             // item set bonuses applied only at equip and removed at unequip, and still active for broken items
-            if (pProto && pProto->ItemSet)
+            if (pProto && pProto->GetItemSet())
                 AddItemsSetItem(this, pItem);
 
             _ApplyItemMods(pItem, slot, true);
 
-            if (pProto && IsInCombat() && (pProto->Class == ITEM_CLASS_WEAPON || pProto->InventoryType == INVTYPE_RELIC) && m_weaponChangeTimer == 0)
+            if (pProto && IsInCombat() && (pProto->GetClass() == ITEM_CLASS_WEAPON || pProto->GetInventoryType() == INVTYPE_RELIC) && m_weaponChangeTimer == 0)
             {
                 uint32 cooldownSpell = getClass() == CLASS_ROGUE ? 6123 : 6119;
                 SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cooldownSpell);
@@ -12001,7 +11998,7 @@ void Player::VisualizeItem(uint8 slot, Item* pItem)
         return;
 
     // check also BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (pItem->GetTemplate()->Bonding == BIND_ON_EQUIP || pItem->GetTemplate()->Bonding == BIND_ON_ACQUIRE || pItem->GetTemplate()->Bonding == BIND_QUEST)
+    if (pItem->GetTemplate()->GetBonding() == BIND_ON_EQUIP || pItem->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE || pItem->GetTemplate()->GetBonding() == BIND_QUEST)
         pItem->SetBinding(true);
 
     TC_LOG_DEBUG("entities.player.items", "Player::SetVisibleItemSlot: Player '%s' (%s), Slot: %u, Item: %u",
@@ -12049,7 +12046,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
                 ItemTemplate const* pProto = pItem->GetTemplate();
                 // item set bonuses applied only at equip and removed at unequip, and still active for broken items
 
-                if (pProto && pProto->ItemSet)
+                if (pProto && pProto->GetItemSet())
                     RemoveItemsSetItem(this, pProto);
 
                 _ApplyItemMods(pItem, slot, false, update);
@@ -12186,7 +12183,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
             if (slot < INVENTORY_SLOT_BAG_END)
             {
                 // item set bonuses applied only at equip and removed at unequip, and still active for broken items
-                if (pProto->ItemSet)
+                if (pProto->GetItemSet())
                     RemoveItemsSetItem(this, pProto);
 
                 _ApplyItemMods(pItem, slot, false);
@@ -12210,7 +12207,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         // Delete rolled money / loot from db.
         // MUST be done before RemoveFromWorld() or GetTemplate() fails
-        if (pProto->Flags & ITEM_FLAG_HAS_LOOT)
+        if (pProto->GetFlags() & ITEM_FLAG_HAS_LOOT)
             sLootItemStorage->RemoveStoredLootForContainer(pItem->GetGUID().GetCounter());
 
         if (IsInWorld() && update)
@@ -13000,7 +12997,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
 
         SetGuidValue(PLAYER_FIELD_VENDORBUYBACK_SLOT_1 + (eslot * 2), pItem->GetGUID());
         if (ItemTemplate const* proto = pItem->GetTemplate())
-            SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, proto->SellPrice * pItem->GetCount());
+            SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, proto->GetSellPrice() * pItem->GetCount());
         else
             SetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + eslot, 0);
         SetUInt32Value(PLAYER_FIELD_BUYBACK_TIMESTAMP_1 + eslot, (uint32)etime);
@@ -13033,7 +13030,7 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
             if (del)
             {
                 if (ItemTemplate const* itemTemplate = pItem->GetTemplate())
-                    if (itemTemplate->Flags & ITEM_FLAG_HAS_LOOT)
+                    if (itemTemplate->GetFlags() & ITEM_FLAG_HAS_LOOT)
                         sLootItemStorage->RemoveStoredLootForContainer(pItem->GetGUID().GetCounter());
 
                 pItem->SetState(ITEM_REMOVED, this);
@@ -13070,7 +13067,7 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
             case EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW:
             {
                 ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-                data << uint32(proto ? proto->RequiredLevel : 0);
+                data << uint32(proto ? proto->GetRequiredLevel() : 0);
                 break;
             }
             case EQUIP_ERR_NO_OUTPUT:    // no idea about this one...
@@ -13085,7 +13082,7 @@ void Player::SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2, uint
             case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS:
             {
                 ItemTemplate const* proto = pItem ? pItem->GetTemplate() : sObjectMgr->GetItemTemplate(itemid);
-                data << uint32(proto ? proto->ItemLimitCategory : 0);
+                data << uint32(proto ? proto->GetItemLimitCategory() : 0);
                 break;
             }
             default:
@@ -13146,17 +13143,17 @@ void Player::CheckTitanGripPenalty()
 bool Player::IsTwoHandUsed() const
 {
     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    return mainItem && mainItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON && !CanTitanGrip();
+    return mainItem && mainItem->GetTemplate()->GetInventoryType() == INVTYPE_2HWEAPON && !CanTitanGrip();
 }
 
 bool Player::IsUsingTwoHandedWeaponInOneHand() const
 {
     Item* offItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-    if (offItem && offItem->GetTemplate()->InventoryType == INVTYPE_2HWEAPON)
+    if (offItem && offItem->GetTemplate()->GetInventoryType() == INVTYPE_2HWEAPON)
         return true;
 
     Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-    if (!mainItem || mainItem->GetTemplate()->InventoryType != INVTYPE_2HWEAPON)
+    if (!mainItem || mainItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON)
         return false;
 
     if (!offItem)
@@ -13221,7 +13218,7 @@ void Player::UpdateItemDuration(uint32 time, bool realtimeonly)
         Item* item = *itr;
         ++itr;                                              // current element can be erased in UpdateDuration
 
-        if (!realtimeonly || item->GetTemplate()->Flags & ITEM_FLAG_REAL_DURATION)
+        if (!realtimeonly || item->GetTemplate()->GetFlags() & ITEM_FLAG_REAL_DURATION)
             item->UpdateDuration(this, time);
     }
 }
@@ -13651,13 +13648,13 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
 
     // Cogwheel gems dont have requirement data set in SpellItemEnchantment.dbc, but they do have it in Item-sparse.db2
     if (ItemTemplate const* gem = sObjectMgr->GetItemTemplate(pEnchant->Src_itemID))
-        if (gem->RequiredSkill && GetSkillValue(gem->RequiredSkill) < gem->RequiredSkillRank)
+        if (gem->GetRequiredSkill() && GetSkillValue(gem->GetRequiredSkill()) < gem->GetRequiredSkillRank())
             return;
 
     // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
     // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
     if ((slot == SOCK_ENCHANTMENT_SLOT || slot == SOCK_ENCHANTMENT_SLOT_2 || slot == SOCK_ENCHANTMENT_SLOT_3)
-        && !item->GetTemplate()->Socket[slot-SOCK_ENCHANTMENT_SLOT].Color)
+        && !item->GetTemplate()->GetSocketColor(slot-SOCK_ENCHANTMENT_SLOT))
     {
         // Check if the requirements for the prismatic socket are met before applying the gem stats
          SpellItemEnchantmentEntry const* pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
@@ -13948,12 +13945,12 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                         float addValue;
                         if (item->GetSlot() == EQUIPMENT_SLOT_MAINHAND)
                         {
-                            addValue = float(enchant_amount * item->GetTemplate()->Delay / 1000.0f);
+                            addValue = float(enchant_amount * item->GetTemplate()->GetDelay() / 1000.0f);
                             HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_VALUE, addValue, apply);
                         }
                         else if (item->GetSlot() == EQUIPMENT_SLOT_OFFHAND)
                         {
-                            addValue = float(enchant_amount * item->GetTemplate()->Delay / 1000.0f);
+                            addValue = float(enchant_amount * item->GetTemplate()->GetDelay() / 1000.0f);
                             HandleStatModifier(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_VALUE, addValue, apply);
                         }
                     }
@@ -14028,7 +14025,7 @@ void Player::UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 
                 // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
                 // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
                 if ((slot == SOCK_ENCHANTMENT_SLOT || slot == SOCK_ENCHANTMENT_SLOT_2 || slot == SOCK_ENCHANTMENT_SLOT_3)
-                    && !m_items[i]->GetTemplate()->Socket[slot-SOCK_ENCHANTMENT_SLOT].Color)
+                    && !m_items[i]->GetTemplate()->GetSocketColor(slot-SOCK_ENCHANTMENT_SLOT))
                 {
                     SpellItemEnchantmentEntry const* pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(m_items[i]->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
 
@@ -14878,7 +14875,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
 
             for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
             {
-                if (quest->RequiredItemId[i] == item->GetEntry() && item->GetTemplate()->MaxCount > 0)
+                if (quest->RequiredItemId[i] == item->GetEntry() && item->GetTemplate()->GetMaxCount() > 0)
                 {
                     destroyItem = false;
                     break;
@@ -15086,7 +15083,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
         {
-            if (quest->RequiredItemCount[i] > 0 && itemTemplate->Bonding == BIND_QUEST && !quest->IsRepeatable() && !HasQuestForItem(quest->RequiredItemId[i], quest_id, true))
+            if (quest->RequiredItemCount[i] > 0 && itemTemplate->GetBonding() == BIND_QUEST && !quest->IsRepeatable() && !HasQuestForItem(quest->RequiredItemId[i], quest_id, true))
                 DestroyItemCount(quest->RequiredItemId[i], 9999, true);
             else
                 DestroyItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i], true);
@@ -15100,7 +15097,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
         {
-            if (quest->ItemDropQuantity[i] > 0 && itemTemplate->Bonding == BIND_QUEST && !quest->IsRepeatable() && !HasQuestForItem(quest->ItemDrop[i], quest_id))
+            if (quest->ItemDropQuantity[i] > 0 && itemTemplate->GetBonding() == BIND_QUEST && !quest->IsRepeatable() && !HasQuestForItem(quest->ItemDrop[i], quest_id))
                 DestroyItemCount(quest->ItemDrop[i], 9999, true);
             else
                 DestroyItemCount(quest->ItemDrop[i], quest->ItemDropQuantity[i], true);
@@ -15346,12 +15343,12 @@ void Player::FailQuest(uint32 questId)
         // Destroy quest items on quest failure.
         for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
-                if (quest->RequiredItemCount[i] > 0 && itemTemplate->Bonding == BIND_QUEST)
+                if (quest->RequiredItemCount[i] > 0 && itemTemplate->GetBonding() == BIND_QUEST)
                     DestroyItemCount(quest->RequiredItemId[i], 9999, true);
 
         for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
-                if (quest->ItemDropQuantity[i] > 0 && itemTemplate->Bonding == BIND_QUEST)
+                if (quest->ItemDropQuantity[i] > 0 && itemTemplate->GetBonding() == BIND_QUEST)
                     DestroyItemCount(quest->ItemDrop[i], 9999, true);
     }
 }
@@ -15363,12 +15360,12 @@ void Player::AbandonQuest(uint32 questId)
         // Destroy quest items on quest abandon.
         for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
-                if (quest->RequiredItemCount[i] > 0 && itemTemplate->Bonding == BIND_QUEST)
+                if (quest->RequiredItemCount[i] > 0 && itemTemplate->GetBonding() == BIND_QUEST)
                     DestroyItemCount(quest->RequiredItemId[i], 9999, true);
 
         for (uint8 i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
             if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ItemDrop[i]))
-                if (quest->ItemDropQuantity[i] > 0 && itemTemplate->Bonding == BIND_QUEST)
+                if (quest->ItemDropQuantity[i] > 0 && itemTemplate->GetBonding() == BIND_QUEST)
                     DestroyItemCount(quest->ItemDrop[i], 9999, true);
     }
 }
@@ -15826,7 +15823,7 @@ bool Player::GiveQuestSourceItem(Quest const* quest)
     {
         // Don't give source item if it is the same item used to start the quest
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(srcitem);
-        if (quest->GetQuestId() == itemTemplate->StartQuest)
+        if (quest->GetQuestId() == itemTemplate->GetStartQuest())
             return true;
 
         uint32 count = quest->GetSrcItemCount();
@@ -15878,7 +15875,7 @@ bool Player::TakeQuestSourceItem(uint32 questId, bool msg)
             }
 
             ASSERT(item);
-            if (item->StartQuest != questId)
+            if (item->GetStartQuest() != questId)
                 DestroyItemCount(srcItemId, count, true, true);
         }
     }
@@ -16764,7 +16761,7 @@ bool Player::HasQuestForItem(uint32 itemid, uint32 excludeQuestId /* 0 */, bool 
 
                     uint32 ownedCount = GetItemCount(itemid, true);
                     // 'unique' item
-                    if ((pProto->MaxCount && int32(ownedCount) < pProto->MaxCount) || (turnIn && int32(ownedCount) >= pProto->MaxCount))
+                    if ((pProto->GetMaxCount() && ownedCount < pProto->GetMaxCount()) || (turnIn && ownedCount >= pProto->GetMaxCount()))
                         return true;
 
                     // allows custom amount drop when not 0
@@ -18420,7 +18417,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 remove = true;
             }
             // "Conjured items disappear if you are logged out for more than 15 minutes"
-            else if (timeDiff > 15 * MINUTE && proto->Flags & ITEM_FLAG_CONJURED)
+            else if (timeDiff > 15 * MINUTE && proto->GetFlags() & ITEM_FLAG_CONJURED)
             {
                 TC_LOG_DEBUG("entities.player.loading", "Player::_LoadInventory: player (GUID: %u, name: '%s', diff: %u) has conjured item (GUID: %u, entry: %u) with expired lifetime (15 minutes). Deleting item.",
                     GetGUID().GetCounter(), GetName().c_str(), timeDiff, item->GetGUID().GetCounter(), item->GetEntry());
@@ -18486,14 +18483,14 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE);
                 }
             }
-            else if (proto->HolidayId)
+            else if (proto->GetHolidayID())
             {
                 remove = true;
                 GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
                 GameEventMgr::ActiveEvents const& activeEventsList = sGameEventMgr->GetActiveEventList();
                 for (GameEventMgr::ActiveEvents::const_iterator itr = activeEventsList.begin(); itr != activeEventsList.end(); ++itr)
                 {
-                    if (uint32(events[*itr].holiday_id) == proto->HolidayId)
+                    if (uint32(events[*itr].holiday_id) == proto->GetHolidayID())
                     {
                         remove = false;
                         break;
@@ -20127,7 +20124,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
         if (item->GetState() == ITEM_NEW)
         {
             if (ItemTemplate const* itemTemplate = item->GetTemplate())
-                if (itemTemplate->Flags & ITEM_FLAG_HAS_LOOT)
+                if (itemTemplate->GetFlags() & ITEM_FLAG_HAS_LOOT)
                     sLootItemStorage->RemoveStoredLootForContainer(item->GetGUID().GetCounter());
 
             continue;
@@ -20143,7 +20140,7 @@ void Player::_SaveInventory(SQLTransaction& trans)
         m_items[i]->FSetState(ITEM_NEW);
 
         if (ItemTemplate const* itemTemplate = item->GetTemplate())
-            if (itemTemplate->Flags & ITEM_FLAG_HAS_LOOT)
+            if (itemTemplate->GetFlags() & ITEM_FLAG_HAS_LOOT)
                 sLootItemStorage->RemoveStoredLootForContainer(item->GetGUID().GetCounter());
     }
 
@@ -22217,7 +22214,7 @@ void Player::InitDisplayIds()
 
 inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
 {
-    uint32 stacks = count / pProto->BuyCount;
+    uint32 stacks = count / pProto->GetBuyCount();
     ItemPosCountVec vDest;
     uint16 uiDest = 0;
     InventoryResult msg = bStore ?
@@ -22269,7 +22266,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         if (!bStore)
             AutoUnequipOffhandIfNeed();
 
-        if (pProto->Flags & ITEM_FLAG_ITEM_PURCHASE_RECORD && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
+        if (pProto->GetFlags() & ITEM_FLAG_ITEM_PURCHASE_RECORD && crItem->ExtendedCost && pProto->GetMaxStackSize() == 1)
         {
             it->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE);
             it->SetRefundRecipient(GetGUID().GetCounter());
@@ -22461,13 +22458,13 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
-    if (!(pProto->AllowableClass & getClassMask()) && pProto->Bonding == BIND_ON_ACQUIRE && !IsGameMaster())
+    if (!(pProto->GetAllowableClass() & getClassMask()) && pProto->GetBonding() == BIND_ON_ACQUIRE && !IsGameMaster())
     {
         SendBuyError(BUY_ERR_CANT_FIND_ITEM, nullptr, item, 0);
         return false;
     }
 
-    if (!IsGameMaster() && ((pProto->Flags2 & ITEM_FLAG2_FACTION_HORDE && GetTeam() == ALLIANCE) || (pProto->Flags2 == ITEM_FLAG2_FACTION_ALLIANCE && GetTeam() == HORDE)))
+    if (!IsGameMaster() && ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_HORDE && GetTeam() == ALLIANCE) || (pProto->GetFlags2() == ITEM_FLAG2_FACTION_ALLIANCE && GetTeam() == HORDE)))
         return false;
 
     Creature* creature = GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
@@ -22511,14 +22508,14 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     // check current item amount if it limited
     if (crItem->maxcount != 0)
     {
-        if (creature->GetVendorItemCurrentCount(crItem) < pProto->BuyCount * count)
+        if (creature->GetVendorItemCurrentCount(crItem) < pProto->GetBuyCount() * count)
         {
             SendBuyError(BUY_ERR_ITEM_ALREADY_SOLD, creature, item, 0);
             return false;
         }
     }
 
-    if (pProto->RequiredReputationFaction && (uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank))
+    if (pProto->GetRequiredReputationFaction() && (uint32(GetReputationRank(pProto->GetRequiredReputationFaction())) < pProto->GetRequiredReputationRank()))
     {
         SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, item, 0);
         return false;
@@ -22527,17 +22524,17 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     if (crItem->ExtendedCost)
     {
         // Can only buy full stacks for extended cost
-        if (count % pProto->BuyCount)
+        if (count % pProto->GetBuyCount())
         {
             SendEquipError(EQUIP_ERR_CANT_BUY_QUANTITY, nullptr, nullptr);
             return false;
         }
 
-        uint32 stacks = count / pProto->BuyCount;
+        uint32 stacks = count / pProto->GetBuyCount();
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
         if (!iece)
         {
-            TC_LOG_ERROR("entities.player", "Player::BuyItemFromVendorSlot: Item %u has wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
+            TC_LOG_ERROR("entities.player", "Player::BuyItemFromVendorSlot: Item %u has wrong ExtendedCost field value %u", pProto->GetId(), crItem->ExtendedCost);
             return false;
         }
 
@@ -22617,18 +22614,18 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     }
 
     uint32 price = 0;
-    if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
+    if (crItem->IsGoldRequired(pProto) && pProto->GetBuyPrice() > 0) //Assume price cannot be negative (do not know why it is int32)
     {
-        uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
+        uint32 maxCount = MAX_MONEY_AMOUNT / pProto->GetBuyPrice();
         if ((uint32)count > maxCount)
         {
             TC_LOG_INFO("entities.player.cheat", "Player::BuyItemFromVendorSlot: Player '%s' (%s) tried to buy item (ItemID: %u, Count: %u), causing overflow",
-                GetName().c_str(), GetGUID().ToString().c_str(), pProto->ItemId, (uint32)count);
+                GetName().c_str(), GetGUID().ToString().c_str(), pProto->GetId(), (uint32)count);
             count = (uint8)maxCount;
         }
-        price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
+        price = pProto->GetBuyPrice() * count; //it should not exceed MAX_MONEY_AMOUNT
 
-        price /= pProto->BuyCount;
+        price /= pProto->GetBuyCount();
 
         // reputation discount
         price = uint32(floor(price * GetReputationPriceDiscount(creature)));
@@ -22666,7 +22663,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
     if (crItem->maxcount != 0) // bought
     {
-        if (pProto->Quality > ITEM_QUALITY_EPIC || (pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
+        if (pProto->GetQuality() > ITEM_QUALITY_EPIC || (pProto->GetQuality() == ITEM_QUALITY_EPIC && pProto->GetBaseItemLevel() >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
             if (Guild* guild = GetGuild())
                 guild->AddGuildNews(GUILD_NEWS_ITEM_PURCHASED, GetGUID(), 0, item);
         return true;
@@ -22803,9 +22800,9 @@ void Player::UpdatePotionCooldown(Spell* spell)
     {
         // spell/item pair let set proper cooldown (except non-existing charged spell cooldown spellmods for potions)
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(m_lastPotionId))
-            for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
-                if (proto->Spells[idx].SpellId && proto->Spells[idx].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
-                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[idx].SpellId))
+            for (ItemEffect const& effect : proto->Effects)
+                if (effect.SpellID && effect.Trigger== ITEM_SPELLTRIGGER_ON_USE)
+                    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect.SpellID))
                         GetSpellHistory()->SendCooldownEvent(spellInfo, m_lastPotionId);
     }
     // from spell cases (m_lastPotionId set in Spell::SendSpellCooldown)
@@ -22849,7 +22846,7 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
         if (i == slot)
             continue;
         Item* pItem2 = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-        if (pItem2 && !pItem2->IsBroken() && pItem2->GetTemplate()->Socket[0].Color)
+        if (pItem2 && !pItem2->IsBroken() && pItem2->GetTemplate()->GetSocketColor(0))
         {
             for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+3; ++enchant_slot)
             {
@@ -22869,7 +22866,7 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
                 if (!gemProto)
                     continue;
 
-                GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GemProperties);
+                GemPropertiesEntry const* gemProperty = sGemPropertiesStore.LookupEntry(gemProto->GetGemProperties());
                 if (!gemProperty)
                     continue;
 
@@ -22927,7 +22924,7 @@ void Player::CorrectMetaGemEnchants(uint8 exceptslot, bool apply)
 
         Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
 
-        if (!pItem || !pItem->GetTemplate()->Socket[0].Color)
+        if (!pItem || !pItem->GetTemplate()->GetSocketColor(0))
             continue;
 
         for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+3; ++enchant_slot)
@@ -22969,7 +22966,7 @@ void Player::ToggleMetaGemsActive(uint8 exceptslot, bool apply)
 
         Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
 
-        if (!pItem || !pItem->GetTemplate()->Socket[0].Color)   //if item has no sockets or no item is equipped go to next item
+        if (!pItem || !pItem->GetTemplate()->GetSocketColor(0))   //if item has no sockets or no item is equipped go to next item
             continue;
 
         //cycle all (gem)enchants
@@ -23764,43 +23761,41 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
 
 void Player::ApplyEquipCooldown(Item* pItem)
 {
-    if (pItem->GetTemplate()->Flags & ITEM_FLAG_NO_EQUIP_COOLDOWN)
+    if (pItem->GetTemplate()->GetFlags() & ITEM_FLAG_NO_EQUIP_COOLDOWN)
         return;
 
     std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (ItemEffect const& effect : pItem->GetTemplate()->Effects)
     {
-        _Spell const& spellData = pItem->GetTemplate()->Spells[i];
-
         // no spell
-        if (spellData.SpellId <= 0)
+        if (effect.SpellID <= 0)
             continue;
 
         // apply proc cooldown to equip auras if we have any
-        if (spellData.SpellTrigger == ITEM_SPELLTRIGGER_ON_EQUIP)
+        if (effect.Trigger == ITEM_SPELLTRIGGER_ON_EQUIP)
         {
-            SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(spellData.SpellId);
+            SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(effect.SpellID);
             if (!procEntry)
                 continue;
 
-            if (Aura* itemAura = GetAura(spellData.SpellId, GetGUID(), pItem->GetGUID()))
+            if (Aura* itemAura = GetAura(effect.SpellID, GetGUID(), pItem->GetGUID()))
                 itemAura->AddProcCooldown(now + procEntry->Cooldown);
             continue;
         }
 
         // wrong triggering type (note: ITEM_SPELLTRIGGER_ON_NO_DELAY_USE not have cooldown)
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
+        if (effect.Trigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
         // Don't replace longer cooldowns by equip cooldown if we have any.
-        if (GetSpellHistory()->GetRemainingCooldown(sSpellMgr->AssertSpellInfo(spellData.SpellId)) > 30 * IN_MILLISECONDS)
+        if (GetSpellHistory()->GetRemainingCooldown(sSpellMgr->AssertSpellInfo(effect.SpellID)) > 30 * IN_MILLISECONDS)
             continue;
 
-        GetSpellHistory()->AddCooldown(spellData.SpellId, pItem->GetEntry(), std::chrono::seconds(30));
+        GetSpellHistory()->AddCooldown(effect.SpellID, pItem->GetEntry(), std::chrono::seconds(30));
 
         WorldPacket data(SMSG_ITEM_COOLDOWN, 8 + 4);
         data << uint64(pItem->GetGUID());
-        data << uint32(spellData.SpellId);
+        data << uint32(effect.SpellID);
         SendDirectMessage(&data);
     }
 }
@@ -24634,11 +24629,11 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
         return;
 
      // unequip offhand weapon if player doesn't have dual wield anymore
-     if (!CanDualWield() && (offItem->GetTemplate()->InventoryType == INVTYPE_WEAPONOFFHAND || offItem->GetTemplate()->InventoryType == INVTYPE_WEAPON))
+     if (!CanDualWield() && (offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPONOFFHAND || offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPON))
           force = true;
 
     // need unequip offhand for 2h-weapon without TitanGrip (in any from hands)
-    if (!force && (CanTitanGrip() || (offItem->GetTemplate()->InventoryType != INVTYPE_2HWEAPON && !IsTwoHandUsed())))
+    if (!force && (CanTitanGrip() || (offItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON && !IsTwoHandUsed())))
         return;
 
     ItemPosCountVec off_dest;
@@ -25815,7 +25810,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, GameObject* go)
         --loot->unlootedCount;
 
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
-            if (proto->Quality > ITEM_QUALITY_EPIC || (proto->Quality == ITEM_QUALITY_EPIC && proto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
+            if (proto->GetQuality() > ITEM_QUALITY_EPIC || (proto->GetQuality() == ITEM_QUALITY_EPIC && proto->GetBaseItemLevel() >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
                 if (Guild* guild = GetGuild())
                     guild->AddGuildNews(GUILD_NEWS_ITEM_LOOTED, GetGUID(), 0, item->itemid);
 
@@ -25986,8 +25981,8 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
             continue;
 
         // include for check equip another gems with same limit category for not equipped item (and then not counted)
-        uint32 gem_limit_count = !pItem->IsEquipped() && pGem->ItemLimitCategory
-            ? pItem->GetGemCountWithLimitCategory(pGem->ItemLimitCategory) : 1;
+        uint32 gem_limit_count = !pItem->IsEquipped() && pGem->GetItemLimitCategory()
+            ? pItem->GetGemCountWithLimitCategory(pGem->GetItemLimitCategory()) : 1;
 
         if (InventoryResult res = CanEquipUniqueItem(pGem, eslot, gem_limit_count))
             return res;
@@ -25999,17 +25994,17 @@ InventoryResult Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limi
 InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot, uint32 limit_count) const
 {
     // check unique-equipped on item
-    if (itemProto->Flags & ITEM_FLAG_UNIQUE_EQUIPPABLE)
+    if (itemProto->GetFlags() & ITEM_FLAG_UNIQUE_EQUIPPABLE)
     {
         // there is an equip limit on this item
-        if (HasItemOrGemWithIdEquipped(itemProto->ItemId, 1, except_slot))
+        if (HasItemOrGemWithIdEquipped(itemProto->GetId(), 1, except_slot))
             return EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE;
     }
 
     // check unique-equipped limit
-    if (itemProto->ItemLimitCategory)
+    if (itemProto->GetItemLimitCategory())
     {
-        ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(itemProto->ItemLimitCategory);
+        ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(itemProto->GetItemLimitCategory());
         if (!limitEntry)
             return EQUIP_ERR_NOT_EQUIPPABLE;
 
@@ -26019,9 +26014,9 @@ InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 
             return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
 
         // there is an equip limit on this item
-        if (HasItemWithLimitCategoryEquipped(itemProto->ItemLimitCategory, limitEntry->Quantity - limit_count + 1, except_slot))
+        if (HasItemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitEntry->Quantity - limit_count + 1, except_slot))
             return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
-        else if (HasGemWithLimitCategoryEquipped(itemProto->ItemLimitCategory, limitEntry->Quantity - limit_count + 1, except_slot))
+        else if (HasGemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitEntry->Quantity - limit_count + 1, except_slot))
             return EQUIP_ERR_ITEM_MAX_COUNT_EQUIPPED_SOCKETED;
     }
 
@@ -27590,7 +27585,7 @@ float Player::GetAverageItemLevel() const
             continue;
 
         uint32* pEffective = nullptr;
-        switch (itemTemplate->InventoryType)
+        switch (itemTemplate->GetInventoryType())
         {
             case INVTYPE_FINGER:   pEffective = &fingerItemLevel;  break;
             case INVTYPE_TRINKET:  pEffective = &trinketItemLevel; break;
@@ -27598,7 +27593,7 @@ float Player::GetAverageItemLevel() const
             case INVTYPE_2HWEAPON: pEffective = &weapon2HItemLevel; break;
         }
 
-        getEffectiveItemLevel(static_cast<uint32>(itemTemplate->ItemLevel), &itemLevelPerInvType[itemTemplate->InventoryType], pEffective);
+        getEffectiveItemLevel(static_cast<uint32>(itemTemplate->GetBaseItemLevel()), &itemLevelPerInvType[itemTemplate->GetInventoryType()], pEffective);
     }
 
     uint32 maxRangedThrownRelicRangedRight = std::max(

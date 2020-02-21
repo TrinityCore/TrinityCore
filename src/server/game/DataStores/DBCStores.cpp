@@ -1342,10 +1342,10 @@ bool IsInArea(uint32 objectAreaId, uint32 areaId)
 
 uint32 ItemTemplate::GetEffectiveArmor(Player const* owner) const
 {
-    if (Quality > ITEM_QUALITY_ARTIFACT)
+    if (GetQuality() > ITEM_QUALITY_ARTIFACT)
         return 0;
 
-    uint32 level = ItemLevel;
+    uint32 level = GetBaseItemLevel();
     if (owner)
     {
         uint32 maxItemLevel = owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
@@ -1353,14 +1353,14 @@ uint32 ItemTemplate::GetEffectiveArmor(Player const* owner) const
             level = maxItemLevel;
     }
 
-    if (Class != ITEM_CLASS_ARMOR || SubClass != ITEM_SUBCLASS_ARMOR_SHIELD)
+    if (GetClass() != ITEM_CLASS_ARMOR || GetSubClass() != ITEM_SUBCLASS_ARMOR_SHIELD)
     {
         ItemArmorQualityEntry const* armorQuality = sItemArmorQualityStore.LookupEntry(level);
         ItemArmorTotalEntry const* armorTotal = sItemArmorTotalStore.LookupEntry(level);
         if (!armorQuality || !armorTotal)
             return 0;
 
-        uint32 invType = InventoryType;
+        uint32 invType = GetInventoryType();
         if (invType == INVTYPE_ROBE)
             invType = INVTYPE_CHEST;
 
@@ -1368,26 +1368,26 @@ uint32 ItemTemplate::GetEffectiveArmor(Player const* owner) const
         if (!location)
             return 0;
 
-        if (SubClass < ITEM_SUBCLASS_ARMOR_CLOTH || SubClass > ITEM_SUBCLASS_ARMOR_PLATE)
+        if (GetSubClass() < ITEM_SUBCLASS_ARMOR_CLOTH || GetSubClass() > ITEM_SUBCLASS_ARMOR_PLATE)
             return 0;
 
-        return uint32(armorQuality->Qualitymod[Quality] * armorTotal->Value[SubClass - ITEM_SUBCLASS_ARMOR_CLOTH] * location->Value[SubClass - ITEM_SUBCLASS_ARMOR_CLOTH] + 0.5f);
+        return uint32(armorQuality->Qualitymod[GetQuality()] * armorTotal->Value[GetSubClass() - ITEM_SUBCLASS_ARMOR_CLOTH] * location->Value[GetSubClass() - ITEM_SUBCLASS_ARMOR_CLOTH] + 0.5f);
     }
 
     ItemArmorShieldEntry const* shield = sItemArmorShieldStore.LookupEntry(level);
     if (!shield)
         return 0;
 
-    return uint32(shield->Quality[Quality] + 0.5f);
+    return uint32(shield->Quality[GetQuality()] + 0.5f);
 }
 
 bool ItemTemplate::GetWeaponDamage(Player const* owner, float& minValue, float& maxValue, float& dps) const
 {
     minValue = maxValue = 0.0f;
-    if (Class != ITEM_CLASS_WEAPON || Quality > ITEM_QUALITY_ARTIFACT)
+    if (GetClass() != ITEM_CLASS_WEAPON || GetQuality() > ITEM_QUALITY_ARTIFACT)
         return false;
 
-    uint32 level = ItemLevel;
+    uint32 level = GetBaseItemLevel();
     if (owner)
     {
         uint32 maxItemLevel = owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
@@ -1397,13 +1397,13 @@ bool ItemTemplate::GetWeaponDamage(Player const* owner, float& minValue, float& 
 
     DBCStorage<ItemDamageEntry>* store = nullptr;
 
-    switch (InventoryType)
+    switch (GetInventoryType())
     {
         case INVTYPE_AMMO:
             store = &sItemDamageAmmoStore;
             break;
         case INVTYPE_2HWEAPON:
-            if (Flags2 & ITEM_FLAG2_CASTER_WEAPON)
+            if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
                 store = &sItemDamageTwoHandCasterStore;
             else
                 store = &sItemDamageTwoHandStore;
@@ -1411,7 +1411,7 @@ bool ItemTemplate::GetWeaponDamage(Player const* owner, float& minValue, float& 
         case INVTYPE_RANGED:
         case INVTYPE_THROWN:
         case INVTYPE_RANGEDRIGHT:
-            switch (SubClass)
+            switch (GetSubClass())
             {
                 case ITEM_SUBCLASS_WEAPON_WAND:
                     store = &sItemDamageWandStore;
@@ -1431,7 +1431,7 @@ bool ItemTemplate::GetWeaponDamage(Player const* owner, float& minValue, float& 
         case INVTYPE_WEAPON:
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
-            if (Flags2 & ITEM_FLAG2_CASTER_WEAPON)
+            if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
                 store = &sItemDamageOneHandCasterStore;
             else
                 store = &sItemDamageOneHandStore;
@@ -1447,25 +1447,25 @@ bool ItemTemplate::GetWeaponDamage(Player const* owner, float& minValue, float& 
     if (!damageInfo)
         return false;
 
-    dps = damageInfo->Quality[Quality];
+    dps = damageInfo->Quality[GetQuality()];
 
-    float avgDamage = Delay * damageInfo->Quality[Quality] * 0.001f;
-    float scaled_stat = std::floor((StatScalingFactor * 0.5f + 1.f) * avgDamage + 0.5f);
-    if (Delay && ArmorDamageModifier != 0.f)
+    float avgDamage = GetDelay() * damageInfo->Quality[GetQuality()] * 0.001f;
+    float scaled_stat = std::floor((GetStatScalingFactor() * 0.5f + 1.f) * avgDamage + 0.5f);
+    if (GetDelay() && GetArmorDamageModifier() != 0.f)
     {
-        float invMsDelay = 1000.0f / float(Delay);
+        float invMsDelay = 1000.0f / float(GetDelay());
 
-        float v16 = (invMsDelay * ((1.f - (StatScalingFactor * 0.5f)) * avgDamage)) + ArmorDamageModifier;
+        float v16 = (invMsDelay * ((1.f - (GetStatScalingFactor() * 0.5f)) * avgDamage)) + GetArmorDamageModifier();
         v16 = std::max(v16, 1.f);
 
         minValue = (1.0f / invMsDelay) * v16;
 
-        maxValue = (1.0f / invMsDelay) * (((1000.f / float(Delay)) * scaled_stat) + ArmorDamageModifier);
+        maxValue = (1.0f / invMsDelay) * (((1000.f / float(GetDelay())) * scaled_stat) + GetArmorDamageModifier());
     }
     else
     {
         maxValue = scaled_stat;
-        minValue = (1.f - (StatScalingFactor * 0.5f)) * avgDamage;
+        minValue = (1.f - (GetStatScalingFactor() * 0.5f)) * avgDamage;
     }
 
     return true;
@@ -1548,9 +1548,9 @@ uint32 GetItemScalingModifier(uint32 maxIlvl, ItemQualities quality, InventoryTy
 uint32 ItemTemplate::GetStatValue(uint32 index, Player const* owner /*= nullptr*/) const
 {
     if (!owner)
-        return ItemStat[index].ItemStatValue;
+        return GetItemStatValue(index);
 
-    ScalingStatDistributionEntry const* ssd = ScalingStatDistribution ? sScalingStatDistributionStore.LookupEntry(ScalingStatDistribution) : nullptr;
+    ScalingStatDistributionEntry const* ssd = GetScalingStatDistribution() ? sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()) : nullptr;
     // req. check at equip, but allow use for extended range if range limit max level, set proper level
     uint32 ssdLevel = owner->getLevel();
 
@@ -1569,24 +1569,24 @@ uint32 ItemTemplate::GetStatValue(uint32 index, Player const* owner /*= nullptr*
         if (ssd->StatID[index] < 0)
             return 0; // What do we do ?
 
-        statBaseValue = ssv->GetStatMultiplier(InventoryType) * ssd->Bonus[index] / 10000;
+        statBaseValue = ssv->GetStatMultiplier(GetInventoryType()) * ssd->Bonus[index] / 10000;
     }
     else
     {
-        statBaseValue = ItemStat[index].ItemStatValue;
+        statBaseValue = GetItemStatValue(index);
 
-        uint32 itemLevel = ItemLevel;
+        uint32 itemLevel = GetBaseItemLevel();
         uint32 maxItemLevel = owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL);
         if (!maxItemLevel || maxItemLevel >= itemLevel) // TODO: This might work if >=. Check.
             return statBaseValue;
 
-        float minScaler = GetItemScalingModifier(ItemLevel, ItemQualities(Quality), ::InventoryType(InventoryType));
-        float maxScaler = GetItemScalingModifier(maxItemLevel, ItemQualities(Quality), ::InventoryType(InventoryType));
+        float minScaler = GetItemScalingModifier(GetBaseItemLevel(), ItemQualities(GetQuality()), ::InventoryType(GetInventoryType()));
+        float maxScaler = GetItemScalingModifier(maxItemLevel, ItemQualities(GetQuality()), ::InventoryType(GetInventoryType()));
 
         if (maxScaler != 0.f && minScaler != 0.f)
         {
-            float statAllocation = ItemStat[index].ItemStatAllocation * maxScaler * 0.0001f;
-            return std::ceil(statAllocation - ((maxScaler / minScaler) * ItemStat[index].ItemStatSocketCostMultiplier));
+            float statAllocation = GetItemStatAllocation(index) * maxScaler * 0.0001f;
+            return std::ceil(statAllocation - ((maxScaler / minScaler) * GetItemStatSocketCostMultiplier(index)));
         }
     }
 

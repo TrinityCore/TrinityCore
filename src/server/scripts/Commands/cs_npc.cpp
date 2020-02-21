@@ -446,7 +446,7 @@ public:
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, itemTemplate->Name1.c_str(), maxcount, incrtime, extendedcost);
+        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, itemTemplate->GetDefaultLocaleName(), maxcount, incrtime, extendedcost);
         return true;
     }
 
@@ -636,7 +636,7 @@ public:
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, itemTemplate->Name1.c_str());
+        handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, itemTemplate->GetDefaultLocaleName());
         return true;
     }
 
@@ -1579,16 +1579,11 @@ public:
     static void _ShowLootEntry(ChatHandler* handler, uint32 itemId, uint8 itemCount, bool alternateString = false)
     {
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
-        ItemLocale const* itemLocale = sObjectMgr->GetItemLocale(itemId);
-        char const* name = nullptr;
-        if (itemLocale)
-            name = itemLocale->Name[handler->GetSessionDbcLocale()].c_str();
-        if ((!name || !*name) && itemTemplate)
-            name = itemTemplate->Name1.c_str();
+        char const* name = itemTemplate->GetName(handler->GetSessionDbcLocale());
         if (!name)
             name = "Unknown item";
         handler->PSendSysMessage(alternateString ? LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2 : LANG_COMMAND_NPC_SHOWLOOT_ENTRY,
-            itemCount, ItemQualityColors[itemTemplate ? itemTemplate->Quality : ITEM_QUALITY_POOR], itemId, name, itemId);
+            itemCount, ItemQualityColors[itemTemplate ? itemTemplate->GetQuality() : ITEM_QUALITY_POOR], itemId, name, itemId);
     }
     static void _IterateNotNormalLootMap(ChatHandler* handler, NotNormalLootItemMap const& map, std::vector<LootItem> const& items)
     {

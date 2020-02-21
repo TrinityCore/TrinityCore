@@ -366,7 +366,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
             if (!pProto)
                 return false;
-            return pProto->ItemLevel >= equipped_item.item_level && pProto->Quality >= equipped_item.item_quality;
+            return pProto->GetBaseItemLevel() >= equipped_item.item_level && pProto->GetQuality() >= equipped_item.item_quality;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == map_id.mapId;
@@ -382,7 +382,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
             if (!pProto)
                 return false;
-            return pProto->Quality == item.item_quality;
+            return pProto->GetQuality() == item.item_quality;
         }
         default:
             break;
@@ -2844,7 +2844,7 @@ bool AchievementMgr<T>::RequirementsSatisfied(AchievementCriteriaEntry const* ac
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_FISHINGHOLE)
                 return false;
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-            if (!proto || proto->Class == ITEM_CLASS_QUEST)
+            if (!proto || proto->GetClass() == ITEM_CLASS_QUEST)
                 return false;
             break;
         }
@@ -2867,7 +2867,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL: // 3
             {
                 ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-                if (!item || item->ItemLevel < reqValue)
+                if (!item || item->GetBaseItemLevel() < reqValue)
                     return false;
                 break;
             }
@@ -2902,7 +2902,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
             {
                 // miscValue1 is itemid
                 ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-                if (!item || item->Quality < reqValue)
+                if (!item || item->GetQuality() < reqValue)
                     return false;
                 break;
             }
@@ -2910,7 +2910,7 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
             {
                 // miscValue1 is itemid
                 ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-                if (!item || item->Quality != reqValue)
+                if (!item || item->GetQuality() != reqValue)
                     return false;
                 break;
             }
@@ -2972,14 +2972,14 @@ bool AchievementMgr<T>::AdditionalRequirementsSatisfied(AchievementCriteriaEntry
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_CLASS: // 33
             {
                 ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-                if (!item || item->Class != reqValue)
+                if (!item || item->GetClass() != reqValue)
                     return false;
                 break;
             }
             case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_SUBCLASS: // 34
             {
                 ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
-                if (!item || item->SubClass != reqValue)
+                if (!item || item->GetSubClass() != reqValue)
                     return false;
                 break;
             }

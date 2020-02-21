@@ -2735,38 +2735,6 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
     }
 }
 
-void ObjectMgr::LoadItemLocales()
-{
-    uint32 oldMSTime = getMSTime();
-
-    _itemLocaleStore.clear();                                 // need for reload case
-
-    //                                               0   1       2     3
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name, Description FROM item_template_locale");
-    if (!result)
-        return;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        uint32 id               = fields[0].GetUInt32();
-        std::string localeName  = fields[1].GetString();
-        std::string Name        = fields[2].GetString();
-        std::string Description = fields[3].GetString();
-
-        ItemLocale& data        = _itemLocaleStore[id];
-        LocaleConstant locale   = GetLocaleByName(localeName);
-        if (locale == LOCALE_enUS)
-            continue;
-
-        AddLocaleString(Name, locale, data.Name);
-        AddLocaleString(Description, locale, data.Description);
-    } while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u Item locale strings in %u ms", uint32(_itemLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
-}
-
 uint32 FillMaxDurability(uint32 itemClass, uint32 itemSubClass, uint32 inventoryType, uint32 quality, uint32 itemLevel)
 {
     if (itemClass != ITEM_CLASS_ARMOR && itemClass != ITEM_CLASS_WEAPON)
@@ -2854,12 +2822,12 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
 {
     *disenchantID = 0;
     *(int32*)requiredDisenchantSkill = -1;
-    if ((itemTemplate.Flags & (ITEM_FLAG_CONJURED | ITEM_FLAG_NO_DISENCHANT)) ||
-        itemTemplate.Bonding == BIND_QUEST || itemTemplate.Area || itemTemplate.Map ||
-        itemTemplate.Stackable > 1 ||
-        itemTemplate.Quality < ITEM_QUALITY_UNCOMMON || itemTemplate.Quality > ITEM_QUALITY_EPIC ||
-        !(itemTemplate.Class == ITEM_CLASS_ARMOR || itemTemplate.Class == ITEM_CLASS_WEAPON) ||
-        !(Item::GetSpecialPrice(&itemTemplate) || sItemCurrencyCostStore.LookupEntry(itemTemplate.ItemId)))
+    if ((itemTemplate.GetFlags() & (ITEM_FLAG_CONJURED | ITEM_FLAG_NO_DISENCHANT)) ||
+        itemTemplate.GetBonding() == BIND_QUEST || itemTemplate.GetArea() || itemTemplate.GetMap() ||
+        itemTemplate.GetMaxStackSize() > 1 ||
+        itemTemplate.GetQuality() < ITEM_QUALITY_UNCOMMON || itemTemplate.GetQuality() > ITEM_QUALITY_EPIC ||
+        !(itemTemplate.GetClass() == ITEM_CLASS_ARMOR || itemTemplate.GetClass() == ITEM_CLASS_WEAPON) ||
+        !(Item::GetSpecialPrice(&itemTemplate) || sItemCurrencyCostStore.LookupEntry(itemTemplate.GetId())))
         return;
 
     for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
@@ -2868,19 +2836,19 @@ void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill,
         if (!disenchant)
             continue;
 
-        if (disenchant->Class == itemTemplate.Class &&
-            disenchant->Quality == itemTemplate.Quality &&
-            disenchant->MinLevel <= itemTemplate.ItemLevel &&
-            disenchant->MaxLevel >= itemTemplate.ItemLevel)
+        if (disenchant->Class == itemTemplate.GetClass() &&
+            disenchant->Quality == itemTemplate.GetQuality() &&
+            disenchant->MinLevel <= itemTemplate.GetBaseItemLevel() &&
+            disenchant->MaxLevel >= itemTemplate.GetBaseItemLevel())
         {
             if (disenchant->ID == 60 || disenchant->ID == 61)   // epic item disenchant ilvl range 66-99 (classic)
             {
-                if (itemTemplate.RequiredLevel > 60 || itemTemplate.RequiredSkillRank > 300)
+                if (itemTemplate.GetRequiredLevel() > 60 || itemTemplate.GetRequiredSkillRank() > 300)
                     continue;                                   // skip to epic item disenchant ilvl range 90-199 (TBC)
             }
             else if (disenchant->ID == 66 || disenchant->ID == 67)  // epic item disenchant ilvl range 90-199 (TBC)
             {
-                if (itemTemplate.RequiredLevel <= 60 || (itemTemplate.RequiredSkill && itemTemplate.RequiredSkillRank <= 300))
+                if (itemTemplate.GetRequiredLevel() <= 60 || (itemTemplate.GetRequiredSkill() && itemTemplate.GetRequiredSkillRank() <= 300))
                     continue;
             }
 
@@ -2895,260 +2863,40 @@ void ObjectMgr::LoadItemTemplates()
 {
     uint32 oldMSTime = getMSTime();
     uint32 sparseCount = 0;
-    uint32 dbCount = 0;
 
-    for (uint32 itemId = 0; itemId < sItemSparseStore.GetNumRows(); ++itemId)
+    for (ItemSparseEntry const* sparse : sItemSparseStore)
     {
-        ItemSparseEntry const* sparse = sItemSparseStore.LookupEntry(itemId);
-        ItemEntry const* db2Data = sItemStore.LookupEntry(itemId);
-        if (!sparse || !db2Data)
+        ItemEntry const* db2Data = sItemStore.LookupEntry(sparse->ID);
+        if (!db2Data)
             continue;
 
-        ItemTemplate& itemTemplate = _itemTemplateStore[itemId];
-        itemTemplate.ItemId = itemId;
-        itemTemplate.Class = db2Data->Class;
-        itemTemplate.SubClass = db2Data->SubClass;
-        itemTemplate.SoundOverrideSubclass = db2Data->SoundOverrideSubclass;
-        itemTemplate.Name1 = sparse->Name->Str[sWorld->GetDefaultDbcLocale()];
-        itemTemplate.DisplayInfoID = db2Data->DisplayId;
-        itemTemplate.Quality = sparse->Quality;
-        itemTemplate.Flags = sparse->Flags;
-        itemTemplate.Flags2 = sparse->Flags2;
-        itemTemplate.Unk430_1 = sparse->Unk430_1;
-        itemTemplate.Unk430_2 = sparse->Unk430_2;
-        itemTemplate.BuyCount = std::max(sparse->BuyCount, 1u);
-        itemTemplate.BuyPrice = sparse->BuyPrice;
-        itemTemplate.SellPrice = sparse->SellPrice;
-        itemTemplate.InventoryType = db2Data->InventoryType;
-        itemTemplate.AllowableClass = sparse->AllowableClass;
-        itemTemplate.AllowableRace = sparse->AllowableRace;
-        itemTemplate.ItemLevel = sparse->ItemLevel;
-        itemTemplate.RequiredLevel = sparse->RequiredLevel;
-        itemTemplate.RequiredSkill = sparse->RequiredSkill;
-        itemTemplate.RequiredSkillRank = sparse->RequiredSkillRank;
-        itemTemplate.RequiredSpell = sparse->RequiredSpell;
-        itemTemplate.RequiredHonorRank = sparse->RequiredHonorRank;
-        itemTemplate.RequiredCityRank = sparse->RequiredCityRank;
-        itemTemplate.RequiredReputationFaction = sparse->RequiredReputationFaction;
-        itemTemplate.RequiredReputationRank = sparse->RequiredReputationRank;
-        itemTemplate.MaxCount = sparse->MaxCount;
-        itemTemplate.Stackable = sparse->Stackable;
-        itemTemplate.ContainerSlots = sparse->ContainerSlots;
+        ItemTemplate& itemTemplate = _itemTemplateStore[sparse->ID];
 
-        for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        {
-            itemTemplate.ItemStat[i].ItemStatType = sparse->ItemStatType[i];
-            itemTemplate.ItemStat[i].ItemStatValue = sparse->ItemStatValue[i];
-            itemTemplate.ItemStat[i].ItemStatAllocation = sparse->ItemStatAllocation[i];
-            itemTemplate.ItemStat[i].ItemStatSocketCostMultiplier = sparse->ItemStatSocketCostMultiplier[i];
-        }
+        itemTemplate.BasicData = db2Data;
+        itemTemplate.ExtendedData = sparse;
 
-        itemTemplate.ScalingStatDistribution = sparse->ScalingStatDistribution;
-
-        // cache item damage
-        itemTemplate.DamageType = sparse->DamageType;
-        itemTemplate.Delay = sparse->Delay;
-        itemTemplate.RangedModRange = sparse->RangedModRange;
-        for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-        {
-            itemTemplate.Spells[i].SpellId = sparse->SpellId[i];
-            itemTemplate.Spells[i].SpellTrigger = sparse->SpellTrigger[i];
-            itemTemplate.Spells[i].SpellCharges = sparse->SpellCharges[i];
-            itemTemplate.Spells[i].SpellCooldown = sparse->SpellCooldown[i];
-            itemTemplate.Spells[i].SpellCategory = sparse->SpellCategory[i];
-            itemTemplate.Spells[i].SpellCategoryCooldown = sparse->SpellCategoryCooldown[i];
-        }
-
-        itemTemplate.SpellPPMRate = 0.0f;
-        itemTemplate.Bonding = sparse->Bonding;
-        itemTemplate.Description = sparse->Description->Str[sWorld->GetDefaultDbcLocale()];
-        itemTemplate.PageText = sparse->PageText;
-        itemTemplate.LanguageID = sparse->LanguageID;
-        itemTemplate.PageMaterial = sparse->PageMaterial;
-        itemTemplate.StartQuest = sparse->StartQuest;
-        itemTemplate.LockID = sparse->LockID;
-        itemTemplate.Material = sparse->Material;
-        itemTemplate.Sheath = sparse->Sheath;
-        itemTemplate.RandomProperty = sparse->RandomProperty;
-        itemTemplate.RandomSuffix = sparse->RandomSuffix;
-        itemTemplate.ItemSet = sparse->ItemSet;
-        itemTemplate.MaxDurability = FillMaxDurability(db2Data->Class, db2Data->SubClass, sparse->InventoryType, sparse->Quality, sparse->ItemLevel);
-        itemTemplate.Area = sparse->Area;
-        itemTemplate.Map = sparse->Map;
-        itemTemplate.BagFamily = sparse->BagFamily;
-        itemTemplate.TotemCategory = sparse->TotemCategory;
-        for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
-        {
-            itemTemplate.Socket[i].Color = sparse->Color[i];
-            itemTemplate.Socket[i].Content = sparse->Content[i];
-        }
-
-        itemTemplate.socketBonus = sparse->SocketBonus;
-        itemTemplate.GemProperties = sparse->GemProperties;
+        itemTemplate.MaxDurability = FillMaxDurability(db2Data->ClassID, db2Data->SubclassID, sparse->InventoryType, sparse->Quality, sparse->ItemLevel);
         FillDisenchantFields(&itemTemplate.DisenchantID, &itemTemplate.RequiredDisenchantSkill, itemTemplate);
-
-        itemTemplate.ArmorDamageModifier = sparse->ArmorDamageModifier;
-        itemTemplate.Duration = sparse->Duration;
-        itemTemplate.ItemLimitCategory = sparse->ItemLimitCategory;
-        itemTemplate.HolidayId = sparse->HolidayId;
-        itemTemplate.StatScalingFactor = sparse->StatScalingFactor;
-        itemTemplate.CurrencySubstitutionId = sparse->CurrencySubstitutionId;
-        itemTemplate.CurrencySubstitutionCount = sparse->CurrencySubstitutionCount;
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
         itemTemplate.MinMoneyLoot = 0;
         itemTemplate.MaxMoneyLoot = 0;
-        ++sparseCount;
-    }
+        itemTemplate.FlagsCu = 0;
+        itemTemplate.SpellPPMRate = 0.f;
 
-    // Load missing items from item_template AND overwrite data from Item-sparse.db2 (item_template is supposed to contain Item-sparse.adb data)
-    //                                               0      1      2         3     4     5          6        7      8           9         10        11        12        13
-    QueryResult result = WorldDatabase.Query("SELECT entry, Class, SubClass, SoundOverrideSubclass, Name, DisplayId, Quality, Flags, FlagsExtra, Unk430_1, Unk430_2, BuyCount, BuyPrice, SellPrice, "
-    //                                        14             15              16             17         18             19             20                 21
-                                             "InventoryType, AllowableClass, AllowableRace, ItemLevel, RequiredLevel, RequiredSkill, RequiredSkillRank, RequiredSpell, "
-    //                                        22                 23                24                         25                      26        27         28
-                                             "RequiredHonorRank, RequiredCityRank, RequiredReputationFaction, RequiredReputationRank, MaxCount, Stackable, ContainerSlots, "
-    //                                        29          30           31           32           33          34           35           36
-                                             "stat_type1, stat_value1, stat_unk1_1, stat_unk2_1, stat_type2, stat_value2, stat_unk1_2, stat_unk2_2, "
-    //                                        37          38           39           40           41          42           43           44
-                                             "stat_type3, stat_value3, stat_unk1_3, stat_unk2_3, stat_type4, stat_value4, stat_unk1_4, stat_unk2_4, "
-    //                                        45          46           47           48           49          50           51           52
-                                             "stat_type5, stat_value5, stat_unk1_5, stat_unk2_5, stat_type6, stat_value6, stat_unk1_6, stat_unk2_6, "
-    //                                        53          54           55           56           57          58           59           60
-                                             "stat_type7, stat_value7, stat_unk1_7, stat_unk2_7, stat_type8, stat_value8, stat_unk1_8, stat_unk2_8, "
-    //                                        61          62           63           64           65           66            67            68
-                                             "stat_type9, stat_value9, stat_unk1_9, stat_unk2_9, stat_type10, stat_value10, stat_unk1_10, stat_unk2_10, "
-    //                                        69                       70          71     72
-                                             "ScalingStatDistribution, DamageType, Delay, RangedModRange, "
-    //                                        73         74              75              76               77               78
-                                             "spellid_1, spelltrigger_1, spellcharges_1, spellcooldown_1, spellcategory_1, spellcategorycooldown_1, "
-    //                                        79         80              81              82               83               84
-                                             "spellid_2, spelltrigger_2, spellcharges_2, spellcooldown_2, spellcategory_2, spellcategorycooldown_2, "
-    //                                        85         86              87              88               89               90
-                                             "spellid_3, spelltrigger_3, spellcharges_3, spellcooldown_3, spellcategory_3, spellcategorycooldown_3, "
-    //                                        91         92              93              94               95               96
-                                             "spellid_4, spelltrigger_4, spellcharges_4, spellcooldown_4, spellcategory_4, spellcategorycooldown_4, "
-    //                                        97         98              99              100              101              102
-                                             "spellid_5, spelltrigger_5, spellcharges_5, spellcooldown_5, spellcategory_5, spellcategorycooldown_5, "
-    //                                        103      104          105       106         107           108         109     110
-                                             "Bonding, Description, PageText, LanguageID, PageMaterial, StartQuest, LockID, Material, "
-    //                                        111     112             113           114      115   116  117        118
-                                             "Sheath, RandomProperty, RandomSuffix, ItemSet, Area, Map, BagFamily, TotemCategory, "
-    //                                        119            120              121            122              123            124              125
-                                             "SocketColor_1, SocketContent_1, SocketColor_2, SocketContent_2, SocketColor_3, SocketContent_3, SocketBonus, "
-    //                                        126            127                  128       129                130        131
-                                             "GemProperties, ArmorDamageModifier, Duration, ItemLimitCategory, HolidayId, StatScalingFactor, "
-    //                                        132                     133
-                                             "CurrencySubstitutionId, CurrencySubstitutionCount "
-                                             "FROM item_template");
-
-    if (result)
-    {
-        do
+        for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         {
-            Field* fields = result->Fetch();
-            uint32 itemId = fields[0].GetUInt32();
-            if (_itemTemplateStore.find(itemId) != _itemTemplateStore.end())
-                --sparseCount;
+            ItemEffect effect;
+            effect.SpellID = sparse->SpellID[i];
+            effect.Trigger = sparse->SpellTrigger[i];
+            effect.Charges = sparse->SpellCharges[i];
+            effect.Cooldown = sparse->SpellCooldown[i];
+            effect.Category = sparse->SpellCategory[i];
+            effect.CategoryCooldown = sparse->SpellCategoryCooldown[i];
+            itemTemplate.Effects.push_back(effect);
+        }
 
-            ItemTemplate& itemTemplate = _itemTemplateStore[itemId];
-
-            itemTemplate.ItemId                    = itemId;
-            itemTemplate.Class                     = uint32(fields[1].GetUInt8());
-            itemTemplate.SubClass                  = uint32(fields[2].GetUInt8());
-            itemTemplate.SoundOverrideSubclass     = fields[3].GetInt32();
-            itemTemplate.Name1                     = fields[4].GetString();
-            itemTemplate.DisplayInfoID             = fields[5].GetUInt32();
-            itemTemplate.Quality                   = uint32(fields[6].GetUInt8());
-            itemTemplate.Flags                     = fields[7].GetUInt32();
-            itemTemplate.Flags2                    = fields[8].GetUInt32();
-            itemTemplate.Unk430_1                  = fields[9].GetFloat();
-            itemTemplate.Unk430_2                  = fields[10].GetFloat();
-            itemTemplate.BuyCount                  = uint32(fields[11].GetUInt8());
-            itemTemplate.BuyPrice                  = int32(fields[12].GetInt64());
-            itemTemplate.SellPrice                 = fields[13].GetUInt32();
-
-            itemTemplate.InventoryType             = uint32(fields[14].GetUInt8());
-            itemTemplate.AllowableClass            = fields[15].GetInt32();
-            itemTemplate.AllowableRace             = fields[16].GetInt32();
-            itemTemplate.ItemLevel                 = uint32(fields[17].GetUInt16());
-            itemTemplate.RequiredLevel             = uint32(fields[18].GetUInt8());
-            itemTemplate.RequiredSkill             = uint32(fields[19].GetUInt16());
-            itemTemplate.RequiredSkillRank         = uint32(fields[20].GetUInt16());
-            itemTemplate.RequiredSpell             = fields[21].GetUInt32();
-            itemTemplate.RequiredHonorRank         = fields[22].GetUInt32();
-            itemTemplate.RequiredCityRank          = fields[23].GetUInt32();
-            itemTemplate.RequiredReputationFaction = uint32(fields[24].GetUInt16());
-            itemTemplate.RequiredReputationRank    = uint32(fields[25].GetUInt16());
-            itemTemplate.MaxCount                  = fields[26].GetInt32();
-            itemTemplate.Stackable                 = fields[27].GetInt32();
-            itemTemplate.ContainerSlots            = uint32(fields[28].GetUInt8());
-            for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-            {
-                itemTemplate.ItemStat[i].ItemStatType  = uint32(fields[29 + i * 4 + 0].GetUInt8());
-                itemTemplate.ItemStat[i].ItemStatValue = int32(fields[29 + i * 4 + 1].GetInt16());
-                itemTemplate.ItemStat[i].ItemStatAllocation = fields[29 + i * 4 + 2].GetInt32();
-                itemTemplate.ItemStat[i].ItemStatSocketCostMultiplier = fields[29 + i * 4 + 3].GetInt32();
-            }
-
-            itemTemplate.ScalingStatDistribution = uint32(fields[69].GetUInt16());
-            itemTemplate.DamageType                = fields[70].GetUInt8();
-
-            itemTemplate.Delay                     = fields[71].GetUInt16();
-            itemTemplate.RangedModRange            = fields[72].GetFloat();
-            for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            {
-                itemTemplate.Spells[i].SpellId               = fields[73 + 6 * i + 0].GetInt32();
-                itemTemplate.Spells[i].SpellTrigger          = uint32(fields[73 + 6 * i + 1].GetUInt8());
-                itemTemplate.Spells[i].SpellCharges          = int32(fields[73 + 6 * i + 2].GetInt16());
-                itemTemplate.Spells[i].SpellCooldown         = fields[73 + 6 * i + 3].GetInt32();
-                itemTemplate.Spells[i].SpellCategory         = uint32(fields[73 + 6 * i + 4].GetUInt16());
-                itemTemplate.Spells[i].SpellCategoryCooldown = fields[73 + 6 * i + 5].GetInt32();
-            }
-
-            itemTemplate.SpellPPMRate   = 0.0f;
-            itemTemplate.Bonding        = uint32(fields[103].GetUInt8());
-            itemTemplate.Description    = fields[104].GetString();
-            itemTemplate.PageText       = fields[105].GetUInt32();
-            itemTemplate.LanguageID     = uint32(fields[106].GetUInt8());
-            itemTemplate.PageMaterial   = uint32(fields[107].GetUInt8());
-            itemTemplate.StartQuest     = fields[108].GetUInt32();
-            itemTemplate.LockID         = fields[109].GetUInt32();
-            itemTemplate.Material       = int32(fields[110].GetInt8());
-            itemTemplate.Sheath         = uint32(fields[111].GetUInt8());
-            itemTemplate.RandomProperty = fields[112].GetUInt32();
-            itemTemplate.RandomSuffix   = fields[113].GetInt32();
-            itemTemplate.ItemSet        = fields[114].GetUInt32();
-            itemTemplate.MaxDurability  = FillMaxDurability(itemTemplate.Class, itemTemplate.SubClass,
-                itemTemplate.InventoryType, itemTemplate.Quality, itemTemplate.ItemLevel);
-
-            itemTemplate.Area           = fields[115].GetUInt32();
-            itemTemplate.Map            = uint32(fields[116].GetUInt16());
-            itemTemplate.BagFamily      = fields[117].GetUInt32();
-            itemTemplate.TotemCategory  = fields[118].GetUInt32();
-            for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
-            {
-                itemTemplate.Socket[i].Color   = uint32(fields[119 + i*2].GetUInt8());
-                itemTemplate.Socket[i].Content = fields[119 + i * 2 + 1].GetUInt32();
-            }
-
-            itemTemplate.socketBonus         = fields[125].GetUInt32();
-            itemTemplate.GemProperties       = fields[126].GetUInt32();
-            FillDisenchantFields(&itemTemplate.DisenchantID, &itemTemplate.RequiredDisenchantSkill, itemTemplate);
-
-            itemTemplate.ArmorDamageModifier       = fields[127].GetFloat();
-            itemTemplate.Duration                  = fields[128].GetUInt32();
-            itemTemplate.ItemLimitCategory         = uint32(fields[129].GetInt16());
-            itemTemplate.HolidayId                 = fields[130].GetUInt32();
-            itemTemplate.StatScalingFactor         = fields[131].GetFloat();
-            itemTemplate.CurrencySubstitutionId    = fields[132].GetInt32();
-            itemTemplate.CurrencySubstitutionCount = fields[133].GetInt32();
-            itemTemplate.ScriptId                  = 0;
-            itemTemplate.FoodType                  = 0;
-            itemTemplate.MinMoneyLoot              = 0;
-            itemTemplate.MaxMoneyLoot              = 0;
-            ++dbCount;
-        } while (result->NextRow());
+        ++sparseCount;
     }
 
     // Check if item templates for DBC referenced character start outfit are present
@@ -3172,9 +2920,9 @@ void ObjectMgr::LoadItemTemplates()
     }
 
     for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
-        TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist in `item_template` but is referenced in `CharStartOutfit.dbc`", *itr);
+        TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist in `item.db2` but is referenced in `CharStartOutfit.dbc`", *itr);
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u item templates from Item-sparse.db2 and %u from database in %u ms", sparseCount, dbCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u item templates in %u ms", sparseCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadItemTemplateAddon()
@@ -7284,17 +7032,6 @@ inline void CheckGOConsumable(GameObjectTemplate const* goInfo, uint32 dataN, ui
         goInfo->entry, goInfo->type, N, dataN);
 }
 
-time_t ObjectMgr::GetHotfixDate(uint32 entry, uint32 type) const
-{
-    time_t ret = 0;
-    for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)
-        if (itr->Entry == entry && itr->Type == type)
-            if (time_t(itr->Timestamp) > ret)
-                ret = time_t(itr->Timestamp);
-
-    return ret ? ret : GameTime::GetGameTime();
-}
-
 void ObjectMgr::LoadGameObjectTemplate()
 {
     uint32 oldMSTime = getMSTime();
@@ -9905,74 +9642,6 @@ void ObjectMgr::LoadFactionChangeReputations()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u faction change reputation pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadHotfixData()
-{
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, UNIX_TIMESTAMP(hotfixDate) FROM hotfix_data");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 hotfix info entries. DB table `hotfix_data` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    _hotfixData.reserve(result->GetRowCount());
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        HotfixInfo info;
-        info.Entry = fields[0].GetUInt32();
-        info.Type = fields[1].GetUInt32();
-        info.Timestamp = fields[2].GetUInt64();
-        _hotfixData.push_back(info);
-
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadMissingKeyChains()
-{
-    uint32 oldMSTime = getMSTime();
-
-    QueryResult result = WorldDatabase.Query("SELECT keyId, k1, k2, k3, k4, k5, k6, k7, k8, "
-                                                     "k9, k10, k11, k12, k13, k14, k15, k16, "
-                                                     "k17, k18, k19, k20, k21, k22, k23, k24, "
-                                                     "k25, k26, k27, k28, k29, k30, k31, k32 "
-                                                     "FROM keychain_db2 ORDER BY keyId DESC");
-
-    if (!result)
-    {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 KeyChain entries. DB table `keychain_db2` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();
-
-        KeyChainEntry* kce = sKeyChainStore.CreateEntry(id, true);
-        kce->Id = id;
-        for (uint32 i = 0; i < KEYCHAIN_SIZE; ++i)
-            kce->Key[i] = fields[1 + i].GetUInt8();
-
-        ++count;
-    }
-    while (result->NextRow());
-
-    TC_LOG_INFO("server.loading", ">> Loaded %u KeyChain entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadFactionChangeSpells()

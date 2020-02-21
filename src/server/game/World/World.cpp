@@ -1652,7 +1652,13 @@ void World::SetInitialWorldSettings()
     ///- Load the DBC files
     TC_LOG_INFO("server.loading", "Initialize data stores...");
     LoadDBCStores(m_dataPath);
-    LoadDB2Stores(m_dataPath);
+    sDB2Manager.LoadStores(m_dataPath);
+
+    TC_LOG_INFO("misc", "Loading hotfix info...");
+    sDB2Manager.LoadHotfixData();
+
+    // Close hotfix database - it is only used during DB2 loading
+    HotfixDatabase.Close();
 
     // Load M2 fly by cameras
     LoadM2Cameras(m_dataPath);
@@ -1725,7 +1731,6 @@ void World::SetInitialWorldSettings()
     uint32 oldMSTime = getMSTime();
     sObjectMgr->LoadCreatureLocales();
     sObjectMgr->LoadGameObjectLocales();
-    sObjectMgr->LoadItemLocales();
     sObjectMgr->LoadQuestLocales();
     sObjectMgr->LoadNpcTextLocales();
     sObjectMgr->LoadPageTextLocales();
@@ -2273,12 +2278,6 @@ void World::SetInitialWorldSettings()
             }
         });
     }
-
-    TC_LOG_INFO("misc", "Loading hotfix info...");
-    sObjectMgr->LoadHotfixData();
-
-    TC_LOG_INFO("server.loading", "Loading missing KeyChains...");
-    sObjectMgr->LoadMissingKeyChains();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 

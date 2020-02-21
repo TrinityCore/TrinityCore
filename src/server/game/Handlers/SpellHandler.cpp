@@ -133,7 +133,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     // some item classes can be used only in equipped state
-    if (proto->InventoryType != INVTYPE_NON_EQUIP && !pItem->IsEquipped())
+    if (proto->GetInventoryType() != INVTYPE_NON_EQUIP && !pItem->IsEquipped())
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, nullptr);
         return;
@@ -147,14 +147,14 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
-    if (proto->Class == ITEM_CLASS_CONSUMABLE && !(proto->Flags & ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && pUser->InArena())
+    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !(proto->GetFlags() & ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && pUser->InArena())
     {
         pUser->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, pItem, nullptr);
         return;
     }
 
     // don't allow items banned in arena
-    if ((proto->Flags & ITEM_FLAG_NOT_USEABLE_IN_ARENA) && pUser->InArena())
+    if ((proto->GetFlags() & ITEM_FLAG_NOT_USEABLE_IN_ARENA) && pUser->InArena())
     {
         pUser->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, pItem, nullptr);
         return;
@@ -162,9 +162,9 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 
     if (pUser->IsInCombat())
     {
-        for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        for (ItemEffect const& effect : proto->Effects)
         {
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(proto->Spells[i].SpellId))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect.SpellID))
             {
                 if (!spellInfo->CanBeUsedInCombat())
                 {
@@ -176,7 +176,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     // check also BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (pItem->GetTemplate()->Bonding == BIND_ON_USE || pItem->GetTemplate()->Bonding == BIND_ON_ACQUIRE || pItem->GetTemplate()->Bonding == BIND_QUEST)
+    if (pItem->GetTemplate()->GetBonding() == BIND_ON_USE || pItem->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE || pItem->GetTemplate()->GetBonding() == BIND_QUEST)
     {
         if (!pItem->IsSoulBound())
         {
@@ -234,16 +234,16 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     }
 
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
-    if (!(proto->Flags & ITEM_FLAG_HAS_LOOT) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
+    if (!(proto->GetFlags() & ITEM_FLAG_HAS_LOOT) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED))
     {
         player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
         TC_LOG_INFO("entities.player.cheat", "Possible hacking attempt: Player %s [guid: %u] tried to open item [guid: %u, entry: %u] which is not openable!",
-            player->GetName().c_str(), player->GetGUID().GetCounter(), item->GetGUID().GetCounter(), proto->ItemId);
+            player->GetName().c_str(), player->GetGUID().GetCounter(), item->GetGUID().GetCounter(), proto->GetId());
         return;
     }
 
     // locked item
-    uint32 lockId = proto->LockID;
+    uint32 lockId = proto->GetLockID();
     if (lockId)
     {
         LockEntry const* lockInfo = sLockStore.LookupEntry(lockId);
@@ -724,7 +724,7 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
             else if (*itr == EQUIPMENT_SLOT_BACK && player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
                 data << uint32(0);
             else if (Item const* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, *itr))
-                data << uint32(item->GetTemplate()->DisplayInfoID);
+                data << uint32(item->GetTemplate()->GetDisplayID());
             else
                 data << uint32(0);
         }

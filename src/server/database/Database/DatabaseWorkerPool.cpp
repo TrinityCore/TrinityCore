@@ -22,6 +22,7 @@
 #include "Implementation/LoginDatabase.h"
 #include "Implementation/WorldDatabase.h"
 #include "Implementation/CharacterDatabase.h"
+#include "Implementation/HotfixDatabase.h"
 #include "Log.h"
 #include "PreparedStatement.h"
 #include "ProducerConsumerQueue.h"
@@ -470,3 +471,5 @@ void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, PreparedState
 template class TC_DATABASE_API DatabaseWorkerPool<LoginDatabaseConnection>;
 template class TC_DATABASE_API DatabaseWorkerPool<WorldDatabaseConnection>;
 template class TC_DATABASE_API DatabaseWorkerPool<CharacterDatabaseConnection>;
+template class TC_DATABASE_API DatabaseWorkerPool<HotfixDatabaseConnection>;
+

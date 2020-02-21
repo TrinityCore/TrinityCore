@@ -126,20 +126,20 @@ int32 GenerateItemRandomPropertyId(uint32 item_id)
         return 0;
 
     // item must have one from this field values not null if it can have random enchantments
-    if ((!itemProto->RandomProperty) && (!itemProto->RandomSuffix))
+    if ((!itemProto->GetRandomProperty()) && (!itemProto->GetRandomSuffix()))
         return 0;
 
     // item can have not null only one from field values
-    if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
+    if ((itemProto->GetRandomProperty()) && (itemProto->GetRandomSuffix()))
     {
-        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->GetId(), itemProto->GetRandomSuffix(), itemProto->GetRandomSuffix());
         return 0;
     }
 
     // RandomProperty case
-    if (itemProto->RandomProperty)
+    if (itemProto->GetRandomSuffix())
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomProperty);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomSuffix());
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -152,7 +152,7 @@ int32 GenerateItemRandomPropertyId(uint32 item_id)
     // RandomSuffix case
     else
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->RandomSuffix);
+        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomSuffix());
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
@@ -170,15 +170,15 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
 
     if (!itemProto)
         return 0;
-    if (!itemProto->RandomSuffix)
+    if (!itemProto->GetRandomSuffix())
         return 0;
 
-    RandomPropertiesPointsEntry const* randomProperty = sRandomPropertiesPointsStore.LookupEntry(itemProto->ItemLevel);
+    RandomPropertiesPointsEntry const* randomProperty = sRandomPropertiesPointsStore.LookupEntry(itemProto->GetBaseItemLevel());
     if (!randomProperty)
         return 0;
 
     uint32 suffixFactor;
-    switch (itemProto->InventoryType)
+    switch (itemProto->GetInventoryType())
     {
         // Items of that type don`t have points
         case INVTYPE_NON_EQUIP:
@@ -226,7 +226,7 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
             return 0;
     }
     // Select rare/epic modifier
-    switch (itemProto->Quality)
+    switch (itemProto->GetQuality())
     {
         case ITEM_QUALITY_UNCOMMON:
             return randomProperty->UncommonPropertiesPoints[suffixFactor];

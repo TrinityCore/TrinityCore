@@ -113,7 +113,6 @@ public:
             { "creature_text_locale",          rbac::RBAC_PERM_COMMAND_RELOAD_CRETURE_TEXT_LOCALE,              true,  &HandleReloadLocalesCreatureTextCommand,        "" },
             { "gameobject_template_locale",    rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_TEMPLATE_LOCALE,       true,  &HandleReloadLocalesGameobjectCommand,          "" },
             { "gossip_menu_option_locale",     rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION_LOCALE,        true,  &HandleReloadLocalesGossipMenuOptionCommand,    "" },
-            { "item_template_locale",          rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_TEMPLATE_LOCALE,             true,  &HandleReloadLocalesItemCommand,                "" },
             { "npc_text_locale",               rbac::RBAC_PERM_COMMAND_RELOAD_NPC_TEXT_LOCALE,                  true,  &HandleReloadLocalesNpcTextCommand,             "" },
             { "page_text_locale",              rbac::RBAC_PERM_COMMAND_RELOAD_PAGE_TEXT_LOCALE,                 true,  &HandleReloadLocalesPageTextCommand,            "" },
             { "points_of_interest_locale",     rbac::RBAC_PERM_COMMAND_RELOAD_POINTS_OF_INTEREST_LOCALE,        true,  &HandleReloadLocalesPointsOfInterestCommand,    "" },
@@ -315,7 +314,6 @@ public:
         HandleReloadLocalesCreatureTextCommand(handler, "a");
         HandleReloadLocalesGameobjectCommand(handler, "a");
         HandleReloadLocalesGossipMenuOptionCommand(handler, "a");
-        HandleReloadLocalesItemCommand(handler, "a");
         HandleReloadLocalesNpcTextCommand(handler, "a");
         HandleReloadLocalesPageTextCommand(handler, "a");
         HandleReloadLocalesPointsOfInterestCommand(handler, "a");
@@ -1059,14 +1057,6 @@ public:
         TC_LOG_INFO("misc", "Re-Loading Gossip Menu Option Locale... ");
         sObjectMgr->LoadGossipMenuItemsLocales();
         handler->SendGlobalGMSysMessage("DB table `gossip_menu_option_locale` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadLocalesItemCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Re-Loading Item Template Locale... ");
-        sObjectMgr->LoadItemLocales();
-        handler->SendGlobalGMSysMessage("DB table `item_template_locale` reloaded.");
         return true;
     }
 

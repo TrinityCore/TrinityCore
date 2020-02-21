@@ -730,7 +730,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
 
         uint32 displayId = 0;
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
-            displayId = itemTemplate->DisplayInfoID;
+            displayId = itemTemplate->GetDisplayID();
 
         if (data.ItemCount[i] < quest->RequiredItemCount[i] && !_session->GetPlayer()->HasItemCount(quest->RequiredItemId[i], quest->RequiredItemCount[i]))
             collectObjectiveComplete = false;

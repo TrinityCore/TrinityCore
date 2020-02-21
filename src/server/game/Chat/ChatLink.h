@@ -67,7 +67,7 @@ public:
     virtual bool ValidateName(char* buffer, char const* context) override;
 
 protected:
-    std::string FormatName(uint8 index, ItemLocale const* locale, char* suffixStrings) const;
+    std::string FormatName(uint8 index, char* suffixStrings) const;
 
     ItemTemplate const* _item;
     int32 _data[8];

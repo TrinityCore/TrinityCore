@@ -22,14 +22,44 @@
 #include "DB2Structure.h"
 #include <string>
 
-extern DB2Storage<ItemEntry> sItemStore;
-extern DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore;
-extern DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore;
-extern DB2Storage<ItemSparseEntry> sItemSparseStore;
-extern DB2Storage<KeyChainEntry> sKeyChainStore;
+TC_GAME_API extern DB2Storage<ItemEntry>                sItemStore;
+TC_GAME_API extern DB2Storage<ItemCurrencyCostEntry>    sItemCurrencyCostStore;
+TC_GAME_API extern DB2Storage<ItemExtendedCostEntry>    sItemExtendedCostStore;
+TC_GAME_API extern DB2Storage<ItemSparseEntry>          sItemSparseStore;
+TC_GAME_API extern DB2Storage<KeyChainEntry>            sKeyChainStore;
 
-void LoadDB2Stores(std::string const& dataPath);
+struct HotfixNotify
+{
+    uint32 TableHash;
+    uint32 Timestamp;
+    uint32 Entry;
+};
 
-DB2StorageBase const* GetDB2Storage(uint32 type);
+typedef std::vector<HotfixNotify> HotfixData;
+
+class TC_GAME_API DB2Manager
+{
+public:
+    typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
+
+    static DB2Manager& Instance()
+    {
+        static DB2Manager instance;
+        return instance;
+    }
+
+    void LoadStores(std::string const& dataPath);
+    DB2StorageBase const* GetStorage(uint32 type) const;
+
+    void LoadHotfixData();
+    HotfixData const* GetHotfixData() const { return &_hotfixData; }
+    time_t GetHotfixDate(uint32 entry, uint32 type) const;
+
+private:
+    StorageMap _stores;
+    HotfixData _hotfixData;
+};
+
+#define sDB2Manager DB2Manager::Instance()
 
 #endif

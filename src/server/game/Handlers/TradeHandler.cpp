@@ -140,7 +140,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             data.WriteBit(creatorGuid[2]);
             data.WriteBit(creatorGuid[3]);
             data.WriteBit(creatorGuid[5]);
-            data.WriteBit(item->GetTemplate()->LockID != 0);
+            data.WriteBit(item->GetTemplate()->GetLockID() != 0);
             data.WriteBit(creatorGuid[0]);
 
             itemData.WriteByteSeq(creatorGuid[1]);
@@ -182,7 +182,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
         itemData.WriteByteSeq(giftCreatorGuid[7]);
         itemData.WriteByteSeq(giftCreatorGuid[4]);
 
-        itemData << uint32(item->GetTemplate()->ItemId);
+        itemData << uint32(item->GetTemplate()->GetId());
 
         itemData.WriteByteSeq(giftCreatorGuid[0]);
 
@@ -230,7 +230,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 {
                     sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
                         _player->GetName().c_str(), _player->GetSession()->GetAccountId(),
-                        myItems[i]->GetTemplate()->Name1.c_str(), myItems[i]->GetEntry(), myItems[i]->GetCount(),
+                        myItems[i]->GetTemplate()->GetDefaultLocaleName(), myItems[i]->GetEntry(), myItems[i]->GetCount(),
                         trader->GetName().c_str(), trader->GetSession()->GetAccountId());
                 }
 
@@ -248,7 +248,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 {
                     sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
                         trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
-                        hisItems[i]->GetTemplate()->Name1.c_str(), hisItems[i]->GetEntry(), hisItems[i]->GetCount(),
+                        hisItems[i]->GetTemplate()->GetDefaultLocaleName(), hisItems[i]->GetEntry(), hisItems[i]->GetCount(),
                         _player->GetName().c_str(), _player->GetSession()->GetAccountId());
                 }
 

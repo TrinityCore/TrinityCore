@@ -11466,9 +11466,9 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
         return BASE_ATTACK_TIME / 1000.0f;
 
     if (!normalized)
-        return weapon->GetTemplate()->Delay / 1000.0f;
+        return weapon->GetTemplate()->GetDelay() / 1000.0f;
 
-    switch (weapon->GetTemplate()->SubClass)
+    switch (weapon->GetTemplate()->GetSubClass())
     {
         case ITEM_SUBCLASS_WEAPON_AXE2:
         case ITEM_SUBCLASS_WEAPON_MACE2:
@@ -11492,7 +11492,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
         case ITEM_SUBCLASS_WEAPON_DAGGER:
             return 1.7f;
         default:
-            return weapon->GetTemplate()->Delay / 1000.0f;
+            return weapon->GetTemplate()->GetDelay() / 1000.0f;
     }
 }
 

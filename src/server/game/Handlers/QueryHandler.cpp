@@ -27,6 +27,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "QueryPackets.h"
 #include "UpdateMask.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -541,4 +542,35 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
     }
 
     SendPacket(&data);
+}
+
+void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
+{
+    DB2StorageBase const* store = sDB2Manager.GetStorage(packet.TableHash);
+    if (!store)
+    {
+        TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: Received unknown hotfix type: %u", packet.TableHash);
+        return;
+    }
+
+    for (WorldPackets::Query::DBQueryRecord const& rec : packet.Queries)
+    {
+        WorldPackets::Query::DBReply response;
+        response.TableHash = packet.TableHash;
+
+        if (store->HasRecord(rec.RecordID))
+        {
+            response.RecordID = rec.RecordID;
+            response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
+            store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
+        }
+        else
+        {
+            TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: Entry %u does not exist in datastore: %u", rec.RecordID, packet.TableHash);
+            response.RecordID = -int32(rec.RecordID);
+            response.Timestamp = GameTime::GetGameTime();
+        }
+
+        SendPacket(response.Write());
+    }
 }

@@ -23,6 +23,7 @@
 #include "ChaseMovementGenerator.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "FollowMovementGenerator.h"
 #include "GridNotifiers.h"
@@ -1226,20 +1227,23 @@ public:
 
             if (itemNameStr && itemNameStr[0])
             {
-                std::string itemName = itemNameStr+1;
-                WorldDatabase.EscapeString(itemName);
-
-                PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_BY_NAME);
-                stmt->setString(0, itemName);
-                PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-                if (!result)
+                std::string itemName = itemNameStr + 1;
+                auto itr = std::find_if(sItemSparseStore.begin(), sItemSparseStore.end(), [&itemName](ItemSparseEntry const* sparse)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr+1);
+                    for (uint32 i = 0; i < MAX_LOCALES; ++i)
+                        if (itemName == sparse->Name->Str[i])
+                            return true;
+                    return false;
+                });
+
+                if (itr == sItemSparseStore.end())
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr + 1);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
-                itemId = result->Fetch()->GetUInt32();
+
+                itemId = itr->ID;
             }
             else
                 return false;
@@ -1352,14 +1356,14 @@ public:
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
         for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
         {
-            if (itr->second.ItemSet == itemSetId)
+            if (itr->second.GetItemSet() == itemSetId)
             {
                 found = true;
                 ItemPosCountVec dest;
-                InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.ItemId, 1);
+                InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.GetId(), 1);
                 if (msg == EQUIP_ERR_OK)
                 {
-                    Item* item = playerTarget->StoreNewItem(dest, itr->second.ItemId, true);
+                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true);
 
                     // remove binding (let GM give it to another player later)
                     if (player == playerTarget)
@@ -1371,8 +1375,8 @@ public:
                 }
                 else
                 {
-                    player->SendEquipError(msg, nullptr, nullptr, itr->second.ItemId);
-                    handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itr->second.ItemId, 1);
+                    player->SendEquipError(msg, nullptr, nullptr, itr->second.GetId());
+                    handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itr->second.GetId(), 1);
                 }
             }
         }

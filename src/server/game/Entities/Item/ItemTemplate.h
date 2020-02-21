@@ -18,7 +18,7 @@
 #ifndef _ITEMPROTOTYPE_H
 #define _ITEMPROTOTYPE_H
 
-#include "Common.h"
+#include "DB2Structure.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <vector>
@@ -607,28 +607,14 @@ inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemS
 
 #pragma pack(push, 1)
 
-struct _ItemStat
+struct ItemEffect
 {
-    int32   ItemStatType;
-    int32   ItemStatValue;
-    int32   ItemStatAllocation;
-    int32   ItemStatSocketCostMultiplier;
-};
-
-struct _Spell
-{
-    int32 SpellId;                                         // id from Spell.dbc
-    uint32 SpellTrigger;
-    int32  SpellCharges;
-    int32  SpellCooldown;
-    uint32 SpellCategory;                                   // id from SpellCategory.dbc
-    int32  SpellCategoryCooldown;
-};
-
-struct _Socket
-{
-    uint32 Color;
-    uint32 Content;
+    uint32  SpellID;
+    uint32  Trigger;
+    int32   Charges;
+    int32   Cooldown;
+    uint32  Category;
+    int32   CategoryCooldown;
 };
 
 #pragma pack(pop)
@@ -640,71 +626,66 @@ struct _Socket
 
 struct ItemTemplate
 {
-    uint32 ItemId;
-    uint32 Class;                                           // id from ItemClass.dbc
-    uint32 SubClass;                                        // id from ItemSubClass.dbc
-    int32  SoundOverrideSubclass;                           // < 0: id from ItemSubClass.dbc, used to override weapon sound from actual SubClass
-    std::string Name1;
-    uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
-    uint32 Quality;
-    uint32 Flags;
-    uint32 Flags2;
-    float Unk430_1;
-    float Unk430_2;
-    uint32 BuyCount;
-    int32  BuyPrice;
-    uint32 SellPrice;
-    uint32 InventoryType;
-    uint32 AllowableClass;
-    uint32 AllowableRace;
-    uint32 ItemLevel;
-    uint32 RequiredLevel;
-    uint32 RequiredSkill;                                   // id from SkillLine.dbc
-    uint32 RequiredSkillRank;
-    uint32 RequiredSpell;                                   // id from Spell.dbc
-    uint32 RequiredHonorRank;
-    uint32 RequiredCityRank;
-    uint32 RequiredReputationFaction;                       // id from Faction.dbc
-    uint32 RequiredReputationRank;
-    int32  MaxCount;                                        // <= 0: no limit
-    int32  Stackable;                                       // 0: not allowed, -1: put in player coin info tab and don't limit stacking (so 1 slot)
-    uint32 ContainerSlots;
-    _ItemStat ItemStat[MAX_ITEM_PROTO_STATS];
-    uint32 ScalingStatDistribution;                         // id from ScalingStatDistribution.dbc
-    uint32 DamageType;                                      // id from Resistances.dbc
-    uint32 Delay;
-    float  RangedModRange;
-    _Spell Spells[MAX_ITEM_PROTO_SPELLS];
-    uint32 Bonding;
-    std::string Description;
-    uint32 PageText;
-    uint32 LanguageID;
-    uint32 PageMaterial;
-    uint32 StartQuest;                                      // id from QuestCache.wdb
-    uint32 LockID;
-    int32  Material;                                        // id from Material.dbc
-    uint32 Sheath;
-    int32  RandomProperty;                                  // id from ItemRandomProperties.dbc
-    int32  RandomSuffix;                                    // id from ItemRandomSuffix.dbc
-    uint32 ItemSet;                                         // id from ItemSet.dbc
+    ItemEntry const* BasicData;
+    ItemSparseEntry const* ExtendedData;
+
+    uint32 GetId() const { return BasicData->ID; }
+    uint32 GetClass() const { return BasicData->ClassID; }
+    uint32 GetDisplayID() const { return BasicData->DisplayInfoID; }
+    uint32 GetSubClass() const { return BasicData->SubclassID; }
+    uint32 GetQuality() const { return ExtendedData->Quality; }
+    uint32 GetFlags() const { return ExtendedData->Flags; }
+    uint32 GetFlags2() const { return ExtendedData->Flags2; }
+    float GetUnk1() const { return ExtendedData->Unk1; }
+    float GetUnk2() const { return ExtendedData->Unk2; }
+    uint32 GetBuyCount() const { return std::max(ExtendedData->BuyCount, 1u); }
+    uint32 GetBuyPrice() const { return ExtendedData->BuyPrice; }
+    uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
+    uint8 GetInventoryType() const { return uint8(ExtendedData->InventoryType); }
+    int32 GetAllowableClass() const { return ExtendedData->AllowableClass; }
+    int32 GetAllowableRace() const { return ExtendedData->AllowableRace; }
+    uint32 GetBaseItemLevel() const { return ExtendedData->ItemLevel; }
+    int32 GetRequiredLevel() const { return ExtendedData->RequiredLevel; }
+    uint32 GetRequiredSkill() const { return ExtendedData->RequiredSkill; }
+    uint32 GetRequiredSkillRank() const { return ExtendedData->RequiredSkillRank; }
+    uint32 GetRequiredSpell() const { return ExtendedData->RequiredSpell; }
+    uint32 GetRequiredReputationFaction() const { return ExtendedData->RequiredReputationFaction; }
+    uint32 GetRequiredReputationRank() const { return ExtendedData->RequiredReputationRank; }
+    uint32 GetMaxCount() const { return ExtendedData->MaxCount; }
+    uint32 GetContainerSlots() const { return ExtendedData->ContainerSlots; }
+    int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatType[index]; }
+    int32 GetItemStatValue(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatValue[index]; }
+    int32 GetItemStatAllocation(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatAllocation[index]; }
+    float GetItemStatSocketCostMultiplier(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->ItemStatSocketCostMultiplier[index]; }
+    uint32 GetScalingStatDistribution() const { return ExtendedData->ScalingStatDistribution; }
+    uint32 GetDamageType() const { return ExtendedData->DamageType; }
+    uint32 GetDelay() const { return ExtendedData->Delay; }
+    ItemBondingType GetBonding() const { return ItemBondingType(ExtendedData->Bonding); }
+    char const* GetName(LocaleConstant locale) const;
+    uint32 GetPageText() const { return ExtendedData->PageText; }
+    uint32 GetStartQuest() const { return ExtendedData->StartQuest; }
+    uint32 GetLockID() const { return ExtendedData->LockID; }
+    uint32 GetRandomProperty() const { return ExtendedData->RandomProperty; }
+    uint32 GetRandomSuffix() const { return ExtendedData->RandomSuffix; }
+    uint32 GetItemSet() const { return ExtendedData->ItemSet; }
+    uint32 GetArea() const { return ExtendedData->Area; }
+    uint32 GetMap() const { return ExtendedData->Map; }
+    uint32 GetBagFamily() const { return ExtendedData->BagFamily; }
+    SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(ExtendedData->SocketColor[index]); }
+    uint32 GetSocketBonus() const { return ExtendedData->SocketBonus; }
+    uint32 GetGemProperties() const { return ExtendedData->GemProperties; }
+    float GetArmorDamageModifier() const { return ExtendedData->ArmorDamageModifier; }
+    uint32 GetDuration() const { return ExtendedData->Duration; }
+    uint32 GetItemLimitCategory() const { return ExtendedData->ItemLimitCategory; }
+    HolidayIds GetHolidayID() const { return HolidayIds(ExtendedData->HolidayID); }
+    float  GetStatScalingFactor() const { return ExtendedData->StatScalingFactor; }
+    uint32 GetTotemCategory() const { return ExtendedData->TotemCategory; }
+    float GetRangedModRange() const { return ExtendedData->RangedModRange; }
+
     uint32 MaxDurability;
-    uint32 Area;                                            // id from AreaTable.dbc
-    uint32 Map;                                             // id from Map.dbc
-    uint32 BagFamily;                                       // bit mask (1 << id from ItemBagFamily.dbc)
-    uint32 TotemCategory;                                   // id from TotemCategory.dbc
-    _Socket Socket[MAX_ITEM_PROTO_SOCKETS];
-    uint32 socketBonus;                                     // id from SpellItemEnchantment.dbc
-    uint32 GemProperties;                                   // id from GemProperties.dbc
-    float  ArmorDamageModifier;
-    uint32 Duration;
-    uint32 ItemLimitCategory;                               // id from ItemLimitCategory.dbc
-    uint32 HolidayId;                                       // id from Holidays.dbc
-    float  StatScalingFactor;
-    uint32 CurrencySubstitutionId;                          // May be used instead of a currency
-    uint32 CurrencySubstitutionCount;
+    std::vector<ItemEffect> Effects;
 
     // extra fields, not part of db2 files
-    float  SpellPPMRate;
     uint32 ScriptId;
     uint32 DisenchantID;
     uint32 RequiredDisenchantSkill;
@@ -712,42 +693,38 @@ struct ItemTemplate
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
+    float  SpellPPMRate;
 
     // helpers
     bool CanChangeEquipStateInCombat() const;
 
-    bool IsCurrencyToken() const { return (BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
+    bool IsCurrencyToken() const { return (GetBagFamily() & BAG_FAMILY_MASK_CURRENCY_TOKENS) != 0; }
 
     uint32 GetMaxStackSize() const
     {
-        return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
+        return (ExtendedData->Stackable == 2147483647 || ExtendedData->Stackable <= 0) ? uint32(0x7FFFFFFF - 1) : uint32(ExtendedData->Stackable);
     }
 
     float GetItemLevelIncludingQuality() const;
 
     uint32 GetSkill() const;
 
-    bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
-    bool IsVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ENCHANTMENT; }
-    bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAG_CONJURED); }
+    bool IsPotion() const { return GetClass() == ITEM_CLASS_CONSUMABLE && GetSubClass() == ITEM_SUBCLASS_POTION; }
+    bool IsVellum() const { return GetClass() == ITEM_CLASS_TRADE_GOODS && GetSubClass() == ITEM_SUBCLASS_ENCHANTMENT; }
+    bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
 
     bool IsRangedWeapon() const
     {
-        return Class == ITEM_CLASS_WEAPON ||
-               SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
-               SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
-               SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW;
+        return GetClass() == ITEM_CLASS_WEAPON ||
+            GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
+            GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
+            GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW;
     }
 
+    char const* GetDefaultLocaleName() const;
     uint32 GetStatValue(uint32 index, Player const* owner = nullptr) const;
     uint32 GetEffectiveArmor(Player const* owner) const;
     bool GetWeaponDamage(Player const* owner, float& minValue, float& maxValue, float& dps) const;
-};
-
-struct ItemLocale
-{
-    std::vector<std::string> Name;
-    std::vector<std::string> Description;
 };
 
 #endif

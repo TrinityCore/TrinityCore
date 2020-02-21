@@ -23,6 +23,7 @@
 #include "Corpse.h"
 #include "CreatureData.h"
 #include "DatabaseEnvFwd.h"
+#include "DB2Stores.h"
 #include "Errors.h"
 #include "GameObjectData.h"
 #include "ItemTemplate.h"
@@ -555,7 +556,6 @@ typedef std::map<TempSummonGroupKey, std::vector<TempSummonData>> TempSummonData
 typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
 typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
-typedef std::unordered_map<uint32, ItemLocale> ItemLocaleContainer;
 typedef std::unordered_map<uint32, QuestLocale> QuestLocaleContainer;
 typedef std::unordered_map<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
@@ -864,15 +864,6 @@ struct DungeonEncounter
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
-struct HotfixInfo
-{
-    uint32 Type;
-    uint32 Timestamp;
-    uint32 Entry;
-};
-
-typedef std::vector<HotfixInfo> HotfixData;
-
 struct TerrainSwapInfo
 {
     uint32 Id;
@@ -1168,7 +1159,6 @@ class TC_GAME_API ObjectMgr
         void LoadItemTemplates();
         void LoadItemTemplateAddon();
         void LoadItemScriptNames();
-        void LoadItemLocales();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
@@ -1361,12 +1351,6 @@ class TC_GAME_API ObjectMgr
             if (itr == _gameObjectLocaleStore.end()) return nullptr;
             return &itr->second;
         }
-        ItemLocale const* GetItemLocale(uint32 entry) const
-        {
-            ItemLocaleContainer::const_iterator itr = _itemLocaleStore.find(entry);
-            if (itr == _itemLocaleStore.end()) return nullptr;
-            return &itr->second;
-        }
         QuestLocale const* GetQuestLocale(uint32 entry) const
         {
             QuestLocaleContainer::const_iterator itr = _questLocaleStore.find(entry);
@@ -1548,12 +1532,6 @@ class TC_GAME_API ObjectMgr
 
         bool IsTransportMap(uint32 mapId) const { return _transportMaps.count(mapId) != 0; }
 
-        void LoadHotfixData();
-        HotfixData const& GetHotfixData() const { return _hotfixData; }
-        time_t GetHotfixDate(uint32 entry, uint32 type) const;
-
-        void LoadMissingKeyChains();
-
         uint32 GetGameObjectTypeByEntry(uint32 entry) const;
 
         VehicleSeatAddon const* GetVehicleSeatAddon(uint32 seatId) const
@@ -1713,7 +1691,6 @@ class TC_GAME_API ObjectMgr
 
         BroadcastTextContainer _broadcastTextStore;
         ItemTemplateContainer _itemTemplateStore;
-        ItemLocaleContainer _itemLocaleStore;
         QuestLocaleContainer _questLocaleStore;
         NpcTextLocaleContainer _npcTextLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;

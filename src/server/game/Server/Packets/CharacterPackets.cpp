@@ -114,8 +114,8 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
                 break;
         }
 
-        VisualItems[slot].InvType = proto->InventoryType;
-        VisualItems[slot].DisplayID = proto->DisplayInfoID;
+        VisualItems[slot].InvType = proto->GetInventoryType();
+        VisualItems[slot].DisplayID = proto->GetDisplayID();
         VisualItems[slot].DisplayEnchantID = enchant ? enchant->ItemVisual : 0;
     }
 }

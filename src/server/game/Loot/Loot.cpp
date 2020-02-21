@@ -41,7 +41,7 @@ LootItem::LootItem(LootStoreItem const& li)
     if (!is_currency)
     {
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemid);
-        freeforall = proto && (proto->Flags & ITEM_FLAG_MULTI_DROP);
+        freeforall = proto && (proto->GetFlags() & ITEM_FLAG_MULTI_DROP);
         follow_loot_rules = proto && (proto->FlagsCu & ITEM_FLAGS_CU_FOLLOW_LOOT_RULES);
     }
     else
@@ -74,18 +74,18 @@ bool LootItem::AllowedForPlayer(Player const* player) const
         return false;
 
     // not show loot for players without profession or those who already know the recipe
-    if ((pProto->Flags & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
+    if ((pProto->GetFlags() & ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->GetRequiredSkill()) || player->HasSpell(pProto->Effects[1].SpellID)))
         return false;
 
     // not show loot for not own team
-    if ((pProto->Flags2 & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
+    if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE)
         return false;
 
-    if ((pProto->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
+    if ((pProto->GetFlags2() & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)
         return false;
 
     // check quest requirements
-    if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->StartQuest && player->GetQuestStatus(pProto->StartQuest) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
+    if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         return false;
 
     return true;
@@ -156,7 +156,7 @@ void Loot::AddItem(LootStoreItem const& item)
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
         // non-ffa conditionals are counted in FillNonQuestNonFFAConditionalLoot()
-        if (!item.needs_quest && item.conditions.empty() && !(proto->Flags & ITEM_FLAG_MULTI_DROP))
+        if (!item.needs_quest && item.conditions.empty() && !(proto->GetFlags() & ITEM_FLAG_MULTI_DROP))
             ++unlootedCount;
     }
 }
@@ -212,7 +212,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         for (uint8 i = 0; i < items.size(); ++i)
         {
             if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(items[i].itemid))
-                if (proto->Quality < uint32(group->GetLootThreshold()))
+                if (proto->GetQuality() < uint32(group->GetLootThreshold()))
                     items[i].is_underthreshold = true;
         }
     }
@@ -575,7 +575,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li)
 {
     b << uint32(li.itemid);
     b << uint32(li.count);                                  // nr of items of this type
-    b << uint32(ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(li.itemid))->DisplayInfoID);
+    b << uint32(ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(li.itemid))->GetDisplayID());
     b << uint32(li.randomSuffix);
     b << uint32(li.randomPropertyId);
     //b << uint8(0);                                        // slot type - will send after this function call

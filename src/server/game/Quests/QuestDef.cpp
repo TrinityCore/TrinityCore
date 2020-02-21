@@ -297,7 +297,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
         rewards.ChoiceItems[i].ItemID = RewardChoiceItemId[i];
         rewards.ChoiceItems[i].Quantity = RewardChoiceItemCount[i];
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
-            rewards.ChoiceItems[i].DisplayID = itemTemplate->DisplayInfoID;
+            rewards.ChoiceItems[i].DisplayID = itemTemplate->GetDisplayID();
     }
 
     for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
@@ -305,7 +305,7 @@ void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player
         rewards.ItemID[i] = RewardItemId[i];
         rewards.ItemQty[i] = RewardItemIdCount[i];
         if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
-            rewards.ItemDisplayID[i] = itemTemplate->DisplayInfoID;
+            rewards.ItemDisplayID[i] = itemTemplate->GetDisplayID();
     }
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)

@@ -15,11 +15,27 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "DBCStores.h"
+#include "DB2Stores.h"
+#include "World.h"
 #include "ItemTemplate.h"
+
+char const* ItemTemplate::GetName(LocaleConstant locale) const
+{
+    if (!strlen(ExtendedData->Name->Str[locale]))
+        return GetDefaultLocaleName();
+
+    return ExtendedData->Name->Str[locale];
+}
+
+char const* ItemTemplate::GetDefaultLocaleName() const
+{
+    return ExtendedData->Name->Str[sWorld->GetDefaultDbcLocale()];
+}
 
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
-    switch (InventoryType)
+    switch (GetInventoryType())
     {
         case INVTYPE_RELIC:
         case INVTYPE_SHIELD:
@@ -27,7 +43,7 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
             return true;
     }
 
-    switch (Class)
+    switch (GetClass())
     {
         case ITEM_CLASS_WEAPON:
         case ITEM_CLASS_PROJECTILE:
@@ -39,8 +55,8 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
 
 float ItemTemplate::GetItemLevelIncludingQuality() const
 {
-    float itemLevel(ItemLevel);
-    switch (Quality)
+    float itemLevel(GetBaseItemLevel());
+    switch (GetQuality())
     {
         case ITEM_QUALITY_POOR:
         case ITEM_QUALITY_NORMAL:
@@ -77,19 +93,19 @@ uint32 ItemTemplate::GetSkill() const
         0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
     };
 
-    switch (Class)
+    switch (GetClass())
     {
         case ITEM_CLASS_WEAPON:
-            if (SubClass >= MAX_ITEM_SUBCLASS_WEAPON)
+            if (GetSubClass() >= MAX_ITEM_SUBCLASS_WEAPON)
                 return 0;
             else
-                return itemWeaponSkills[SubClass];
+                return itemWeaponSkills[GetSubClass()];
 
         case ITEM_CLASS_ARMOR:
-            if (SubClass >= MAX_ITEM_SUBCLASS_ARMOR)
+            if (GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
                 return 0;
             else
-                return itemArmorSkills[SubClass];
+                return itemArmorSkills[GetSubClass()];
 
         default:
             return 0;

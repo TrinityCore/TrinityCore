@@ -66,6 +66,6 @@ class TC_GAME_API Bag : public Item
 
 inline Item* NewItemOrBag(ItemTemplate const* proto)
 {
-    return (proto->InventoryType == INVTYPE_BAG) ? new Bag : new Item;
+    return (proto->GetInventoryType() == INVTYPE_BAG) ? new Bag : new Item;
 }
 #endif

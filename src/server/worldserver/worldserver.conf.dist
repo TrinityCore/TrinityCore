@@ -97,6 +97,7 @@ LogsDir = ""
 #        Default:     "127.0.0.1;3306;trinity;trinity;auth"       - (LoginDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;world"      - (WorldDatabaseInfo)
 #                     "127.0.0.1;3306;trinity;trinity;characters" - (CharacterDatabaseInfo)
+#                     "127.0.0.1;3306;trinity;trinity;hotfixes"   - (HotfixDatabaseInfo)
 #
 #    Don't change hostname unless you are hosting mysql on a different machine, if you need help
 #    with configuration allowing to connect from diferent machine than the one running server
@@ -107,6 +108,7 @@ LogsDir = ""
 LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
 CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+HotfixDatabaseInfo    = "127.0.0.1;3306;trinity;trinity;hotfixes"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -118,10 +120,12 @@ CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     1 - (CharacterDatabase.WorkerThreads)
+#                     1 - (HotfixDatabase.WorkerThreads)
 
 LoginDatabase.WorkerThreads     = 1
 WorldDatabase.WorkerThreads     = 1
 CharacterDatabase.WorkerThreads = 1
+HotfixDatabase.WorkerThreads    = 1
 
 #
 #    LoginDatabase.SynchThreads
@@ -135,6 +139,7 @@ CharacterDatabase.WorkerThreads = 1
 LoginDatabase.SynchThreads     = 1
 WorldDatabase.SynchThreads     = 1
 CharacterDatabase.SynchThreads = 2
+HotfixDatabase.SynchThreads    = 1
 
 #
 #    MaxPingTime
@@ -1276,12 +1281,13 @@ BirthdayTime = 1222964635
 #           DATABASE_LOGIN     = 1, // Auth database
 #           DATABASE_CHARACTER = 2, // Character database
 #           DATABASE_WORLD     = 4, // World database
+#           DATABASE_HOTFIX    = 8, // Hotfixes database
 #
-#        Default:     7  - (All enabled)
+#        Default:     15 - (All enabled)
 #                     4  - (Enable world only)
-#                     0  - (All disabled)
+#                     0  - (All Disabled)
 
-Updates.EnableDatabases = 7
+Updates.EnableDatabases = 15
 
 #
 #    Updates.AutoSetup

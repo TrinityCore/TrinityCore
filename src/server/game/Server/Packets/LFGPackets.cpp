@@ -162,7 +162,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LfgPlayerQuestReward
 {
     ItemTemplate const* item = sObjectMgr->GetItemTemplate(playerQuestRewardItem.ItemID);
     data << int32(playerQuestRewardItem.ItemID);
-    data << int32(item ? item->DisplayInfoID : 0);
+    data << int32(item ? item->GetDisplayID() : 0);
     data << int32(playerQuestRewardItem.Quantity);
     data << uint8(0);
 
@@ -452,7 +452,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::LFGPlayerRewards con
 {
     ItemTemplate const* item = !lfgPlayerRewards.IsCurrency ? sObjectMgr->GetItemTemplate(lfgPlayerRewards.RewardItem) : nullptr;
     data << uint32(lfgPlayerRewards.RewardItem);
-    data << uint32(item ? item->DisplayInfoID : 0);
+    data << uint32(item ? item->GetDisplayID() : 0);
     data << uint32(lfgPlayerRewards.RewardItemQuantity);
     data << uint8(lfgPlayerRewards.IsCurrency);
 

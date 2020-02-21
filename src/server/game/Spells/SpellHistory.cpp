@@ -705,11 +705,11 @@ void SpellHistory::GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemI
         {
             for (uint8 idx = 0; idx < MAX_ITEM_PROTO_SPELLS; ++idx)
             {
-                if (uint32(proto->Spells[idx].SpellId) == spellInfo->Id)
+                if (uint32(proto->Effects[idx].SpellID) == spellInfo->Id)
                 {
-                    tmpCooldown = proto->Spells[idx].SpellCooldown;
-                    tmpCategoryId = proto->Spells[idx].SpellCategory;
-                    tmpCategoryCooldown = proto->Spells[idx].SpellCategoryCooldown;
+                    tmpCooldown = proto->Effects[idx].Cooldown;
+                    tmpCategoryId = proto->Effects[idx].Category;
+                    tmpCategoryCooldown = proto->Effects[idx].CategoryCooldown;
                     break;
                 }
             }

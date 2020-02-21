@@ -26,6 +26,7 @@
 #include "MovementPackets.h"
 #include "NPCPackets.h"
 #include "QuestPackets.h"
+#include "QueryPackets.h"
 #include "SystemPackets.h"
 
 #endif // AllPackets_h__

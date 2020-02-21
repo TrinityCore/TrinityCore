@@ -583,7 +583,7 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
         // wand case
         if ((m_caster->getClassMask() & CLASSMASK_WAND_USERS) != 0 && m_caster->GetTypeId() == TYPEID_PLAYER)
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
-                m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->DamageType);
+                m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->GetDamageType());
 
     if (originalCasterGUID)
         m_originalCasterGUID = originalCasterGUID;
@@ -4032,8 +4032,8 @@ void Spell::WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo con
                         item = itemType;
 
                 ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
-                if (proto && proto->ItemLimitCategory)
-                    data << uint32(proto->ItemLimitCategory);
+                if (proto && proto->GetItemLimitCategory())
+                    data << uint32(proto->GetItemLimitCategory());
             }
             break;
         }
@@ -4422,9 +4422,9 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
         Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
         if (pItem)
         {
-            ammoInventoryType = pItem->GetTemplate()->InventoryType;
+            ammoInventoryType = pItem->GetTemplate()->GetInventoryType();
             if (ammoInventoryType == INVTYPE_THROWN)
-                ammoDisplayID = pItem->GetTemplate()->DisplayInfoID;
+                ammoDisplayID = pItem->GetTemplate()->GetDisplayID();
             else if (m_caster->HasAura(46699))      // Requires No Ammo
             {
                 ammoDisplayID = 5996;                   // normal arrow
@@ -4440,12 +4440,12 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
             {
                 if (ItemEntry const* itemEntry = sItemStore.LookupEntry(item_id))
                 {
-                    if (itemEntry->Class == ITEM_CLASS_WEAPON)
+                    if (itemEntry->ClassID == ITEM_CLASS_WEAPON)
                     {
-                        switch (itemEntry->SubClass)
+                        switch (itemEntry->SubclassID)
                         {
                             case ITEM_SUBCLASS_WEAPON_THROWN:
-                                ammoDisplayID = itemEntry->DisplayId;
+                                ammoDisplayID = itemEntry->DisplayInfoID;
                                 ammoInventoryType = itemEntry->InventoryType;
                                 break;
                             case ITEM_SUBCLASS_WEAPON_BOW:
@@ -4786,30 +4786,27 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (uint8 i = 0; i < proto->Effects.size(); ++i)
     {
-        if (proto->Spells[i].SpellId > 0)
+        // item has limited charges
+        if (proto->Effects[i].Charges)
         {
-            // item has limited charges
-            if (proto->Spells[i].SpellCharges)
+            if (proto->Effects[i].Charges < 0)
+                expendable = true;
+
+            int32 charges = m_CastItem->GetSpellCharges(i);
+
+            // item has charges left
+            if (charges)
             {
-                if (proto->Spells[i].SpellCharges < 0)
-                    expendable = true;
-
-                int32 charges = m_CastItem->GetSpellCharges(i);
-
-                // item has charges left
-                if (charges)
-                {
-                    (charges > 0) ? --charges : ++charges;  // abs(charges) less at 1 after use
-                    if (proto->Stackable == 1)
-                        m_CastItem->SetSpellCharges(i, charges);
-                    m_CastItem->SetState(ITEM_CHANGED, player);
-                }
-
-                // all charges used
-                withoutCharges = (charges == 0);
+                (charges > 0) ? --charges : ++charges;  // abs(charges) less at 1 after use
+                if (proto->GetMaxStackSize() == 1)
+                    m_CastItem->SetSpellCharges(i, charges);
+                m_CastItem->SetState(ITEM_CHANGED, player);
             }
+
+            // all charges used
+            withoutCharges = (charges == 0);
         }
     }
 
@@ -4912,12 +4909,12 @@ void Spell::TakeAmmo()
         Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
 
         // wands don't have ammo
-        if (!pItem  || pItem->IsBroken() || pItem->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_WAND)
+        if (!pItem  || pItem->IsBroken() || pItem->GetTemplate()->GetSubClass() == ITEM_SUBCLASS_WEAPON_WAND)
             return;
 
-        if ((pItem->GetTemplate()->InventoryType == INVTYPE_THROWN ||
-             pItem->GetTemplate()->InventoryType == INVTYPE_RANGED ||
-             pItem->GetTemplate()->InventoryType == INVTYPE_RANGEDRIGHT)
+        if ((pItem->GetTemplate()->GetInventoryType() == INVTYPE_THROWN ||
+             pItem->GetTemplate()->GetInventoryType() == INVTYPE_RANGED ||
+             pItem->GetTemplate()->GetInventoryType() == INVTYPE_RANGEDRIGHT)
             && roll_chance_f(sWorld->getRate(RATE_DURABILITY_LOSS_DAMAGE)))
         {
             if (pItem->GetMaxStackCount() == 1)
@@ -5092,7 +5089,7 @@ void Spell::TakeReagents()
     ItemTemplate const* castItemTemplate = m_CastItem ? m_CastItem->GetTemplate() : nullptr;
 
     // do not take reagents for these item casts
-    if (castItemTemplate && castItemTemplate->Flags & ITEM_FLAG_NO_REAGENT_COST)
+    if (castItemTemplate && castItemTemplate->GetFlags() & ITEM_FLAG_NO_REAGENT_COST)
         return;
 
     Player* p_caster = m_caster->ToPlayer();
@@ -5108,13 +5105,13 @@ void Spell::TakeReagents()
         uint32 itemcount = m_spellInfo->ReagentCount[x];
 
         // if CastItem is also spell reagent
-        if (castItemTemplate && castItemTemplate->ItemId == itemid)
+        if (castItemTemplate && castItemTemplate->GetId() == itemid)
         {
-            for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+            for (uint8 s = 0; s < castItemTemplate->Effects.size(); ++s)
             {
                 // CastItem will be used up and does not count as reagent
                 int32 charges = m_CastItem->GetSpellCharges(s);
-                if (castItemTemplate->Spells[s].SpellCharges < 0 && abs(charges) < 2)
+                if (castItemTemplate->Effects[s].Charges < 0 && abs(charges) < 2)
                 {
                     ++itemcount;
                     break;
@@ -5665,7 +5662,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 if (!pet->HaveInDiet(foodItem->GetTemplate()))
                     return SPELL_FAILED_WRONG_PET_FOOD;
 
-                if (!pet->GetCurrentFoodBenefitLevel(foodItem->GetTemplate()->ItemLevel))
+                if (!pet->GetCurrentFoodBenefitLevel(foodItem->GetTemplate()->GetBaseItemLevel()))
                     return SPELL_FAILED_FOOD_LOWLEVEL;
 
                 if (m_caster->IsInCombat() || pet->IsInCombat())
@@ -5769,7 +5766,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 // we need a go target, or an openable item target in case of TARGET_GAMEOBJECT_ITEM_TARGET
                 if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET &&
                     !m_targets.GetGOTarget() &&
-                    (!pTempItem || !pTempItem->GetTemplate()->LockID || !pTempItem->IsLocked()))
+                    (!pTempItem || !pTempItem->GetTemplate()->GetLockID() || !pTempItem->IsLocked()))
                     return SPELL_FAILED_BAD_TARGETS;
 
                 if (m_spellInfo->Id != 1842 || (m_targets.GetGOTarget() &&
@@ -5787,7 +5784,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                         return SPELL_FAILED_BAD_TARGETS;
                 }
                 else if (Item* itm = m_targets.GetItemTarget())
-                    lockId = itm->GetTemplate()->LockID;
+                    lockId = itm->GetTemplate()->GetLockID();
 
                 SkillType skillId = SKILL_NONE;
                 int32 reqSkillValue = 0;
@@ -6526,7 +6523,7 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO) && m_caster->GetTypeId() == TYPEID_PLAYER)
         if (Item* ranged = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK, true))
-            maxRange *= ranged->GetTemplate()->RangedModRange * 0.01f;
+            maxRange *= ranged->GetTemplate()->GetRangedModRange() * 0.01f;
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, maxRange, const_cast<Spell*>(this));
@@ -6593,13 +6590,13 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
         if (!proto)
             return SPELL_FAILED_ITEM_NOT_READY;
 
-        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            if (proto->Spells[i].SpellCharges)
+        for (uint8 i = 0; i < proto->Effects.size(); ++i)
+            if (proto->Effects[i].Charges)
                 if (m_CastItem->GetSpellCharges(i) == 0)
                     return SPELL_FAILED_NO_CHARGES_REMAIN;
 
         // consumable cast item checks
-        if (proto->Class == ITEM_CLASS_CONSUMABLE && m_targets.GetUnitTarget())
+        if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && m_targets.GetUnitTarget())
         {
             // such items should only fail if there is no suitable effect at all - see Rejuvenation Potions for example
             SpellCastResult failReason = SPELL_CAST_OK;
@@ -6669,7 +6666,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
     }
 
     // do not take reagents for these item casts
-    if (!(m_CastItem && m_CastItem->GetTemplate()->Flags & ITEM_FLAG_NO_REAGENT_COST))
+    if (!(m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_NO_REAGENT_COST))
     {
         bool checkReagents = !(_triggeredCastFlags & TRIGGERED_IGNORE_POWER_AND_REAGENT_COST) && !player->CanNoReagentCast(m_spellInfo);
         // Not own traded item (in trader trade slot) requires reagents even if triggered spell
@@ -6695,11 +6692,11 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     ItemTemplate const* proto = m_CastItem->GetTemplate();
                     if (!proto)
                         return SPELL_FAILED_ITEM_NOT_READY;
-                    for (uint8 s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+                    for (uint8 s = 0; s < proto->Effects.size(); ++s)
                     {
                         // CastItem will be used up and does not count as reagent
                         int32 charges = m_CastItem->GetSpellCharges(s);
-                        if (proto->Spells[s].SpellCharges < 0 && abs(charges) < 2)
+                        if (proto->Effects[s].Charges < 0 && abs(charges) < 2)
                         {
                             ++itemcount;
                             break;
@@ -6735,7 +6732,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     {
                         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(m_spellInfo->Effects[i].ItemType);
                         /// @todo Needs review
-                        if (pProto && !(pProto->ItemLimitCategory))
+                        if (pProto && !(pProto->GetItemLimitCategory()))
                         {
                             player->SendEquipError(msg, nullptr, nullptr, m_spellInfo->Effects[i].ItemType);
                             return SPELL_FAILED_DONT_REPORT;
@@ -6765,7 +6762,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     if (m_targets.GetItemTarget()->GetOwner() != m_caster)
                         return SPELL_FAILED_NOT_TRADEABLE;
                     // do not allow to enchant vellum from scroll made by vellum-prevent exploit
-                    if (m_CastItem && m_CastItem->GetTemplate()->Flags & ITEM_FLAG_NO_REAGENT_COST)
+                    if (m_CastItem && m_CastItem->GetTemplate()->GetFlags() & ITEM_FLAG_NO_REAGENT_COST)
                         return SPELL_FAILED_TOTEM_CATEGORY;
                     ItemPosCountVec dest;
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, m_spellInfo->Effects[i].ItemType, 1);
@@ -6783,16 +6780,16 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     return SPELL_FAILED_ITEM_NOT_FOUND;
 
                 // required level has to be checked also! Exploit fix
-                if (targetItem->GetTemplate()->ItemLevel < m_spellInfo->BaseLevel)
+                if (targetItem->GetTemplate()->GetBaseItemLevel() < m_spellInfo->BaseLevel)
                     return SPELL_FAILED_LOWLEVEL;
 
                 bool isItemUsable = false;
-                for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)
+                ItemTemplate const* proto = targetItem->GetTemplate();
+                for (uint8 e = 0; e < proto->Effects.size(); ++e)
                 {
-                    ItemTemplate const* proto = targetItem->GetTemplate();
-                    if (proto->Spells[e].SpellId > 0 && (
-                        proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE ||
-                        proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
+                    if (proto->Effects[e].SpellID && (
+                        proto->Effects[e].Trigger == ITEM_SPELLTRIGGER_ON_USE ||
+                        proto->Effects[e].Trigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
                     {
                         isItemUsable = true;
                         break;
@@ -6815,7 +6812,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                             {
                                 uint32 numSockets = 0;
                                 for (uint32 socket = 0; socket < MAX_ITEM_PROTO_SOCKETS; ++socket)
-                                    if (targetItem->GetTemplate()->Socket[socket].Color)
+                                    if (targetItem->GetTemplate()->GetSocketColor(socket))
                                         ++numSockets;
 
                                 if (numSockets == MAX_ITEM_PROTO_SOCKETS || targetItem->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
@@ -6855,9 +6852,9 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 // Apply item level restriction if the enchanting spell has max level restrition set
                 if (m_CastItem && m_spellInfo->MaxLevel > 0)
                 {
-                    if (item->GetTemplate()->ItemLevel < m_CastItem->GetTemplate()->RequiredLevel)
+                    if (int32(item->GetTemplate()->GetBaseItemLevel()) < m_CastItem->GetTemplate()->GetRequiredLevel())
                         return SPELL_FAILED_LOWLEVEL;
-                    if (item->GetTemplate()->ItemLevel > m_spellInfo->MaxLevel)
+                    if (item->GetTemplate()->GetBaseItemLevel() > m_spellInfo->MaxLevel)
                         return SPELL_FAILED_HIGHLEVEL;
                 }
                 break;
@@ -6878,7 +6875,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 if (!itemProto)
                     return SPELL_FAILED_CANT_BE_DISENCHANTED;
 
-                uint32 item_quality = itemProto->Quality;
+                uint32 item_quality = itemProto->GetQuality();
                 // 2.0.x addon: Check player enchanting level against the item disenchanting requirements
                 uint32 item_disenchantskilllevel = itemProto->RequiredDisenchantSkill;
                 if (item_disenchantskilllevel == uint32(-1))
@@ -6887,7 +6884,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     return SPELL_FAILED_LOW_CASTLEVEL;
                 if (item_quality > 4 || item_quality < 2)
                     return SPELL_FAILED_CANT_BE_DISENCHANTED;
-                if (itemProto->Class != ITEM_CLASS_WEAPON && itemProto->Class != ITEM_CLASS_ARMOR)
+                if (itemProto->GetClass() != ITEM_CLASS_WEAPON && itemProto->GetClass() != ITEM_CLASS_ARMOR)
                     return SPELL_FAILED_CANT_BE_DISENCHANTED;
                 if (!itemProto->DisenchantID)
                     return SPELL_FAILED_CANT_BE_DISENCHANTED;
@@ -6899,13 +6896,13 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 if (!item)
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //ensure item is a prospectable ore
-                if (!(item->GetTemplate()->Flags & ITEM_FLAG_IS_PROSPECTABLE))
+                if (!(item->GetTemplate()->GetFlags() & ITEM_FLAG_IS_PROSPECTABLE))
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //prevent prospecting in trade slot
                 if (item->GetOwnerGUID() != m_caster->GetGUID())
                     return SPELL_FAILED_CANT_BE_PROSPECTED;
                 //Check for enough skill in jewelcrafting
-                uint32 item_prospectingskilllevel = item->GetTemplate()->RequiredSkillRank;
+                uint32 item_prospectingskilllevel = item->GetTemplate()->GetRequiredSkillRank();
                 if (item_prospectingskilllevel > player->GetSkillValue(SKILL_JEWELCRAFTING))
                     return SPELL_FAILED_LOW_CASTLEVEL;
                 //make sure the player has the required ores in inventory
@@ -6930,13 +6927,13 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 if (!item)
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //ensure item is a millable herb
-                if (!(item->GetTemplate()->Flags & ITEM_FLAG_IS_MILLABLE))
+                if (!(item->GetTemplate()->GetFlags() & ITEM_FLAG_IS_MILLABLE))
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //prevent milling in trade slot
                 if (item->GetOwnerGUID() != m_caster->GetGUID())
                     return SPELL_FAILED_CANT_BE_MILLED;
                 //Check for enough skill in inscription
-                uint32 item_millingskilllevel = item->GetTemplate()->RequiredSkillRank;
+                uint32 item_millingskilllevel = item->GetTemplate()->GetRequiredSkillRank();
                 if (item_millingskilllevel > player->GetSkillValue(SKILL_INSCRIPTION))
                     return SPELL_FAILED_LOW_CASTLEVEL;
                 //make sure the player has the required herbs in inventory
@@ -6965,7 +6962,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 if (!pItem || pItem->IsBroken())
                     return SPELL_FAILED_EQUIPPED_ITEM;
 
-                switch (pItem->GetTemplate()->SubClass)
+                switch (pItem->GetTemplate()->GetSubClass())
                 {
                     case ITEM_SUBCLASS_WEAPON_THROWN:
                     {
@@ -6994,8 +6991,8 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
 
                  if (Item* pitem = player->GetItemByEntry(item_id))
                  {
-                     for (int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                         if (pProto->Spells[x].SpellCharges != 0 && pitem->GetSpellCharges(x) == pProto->Spells[x].SpellCharges)
+                     for (uint8 x = 0; x < pProto->Effects.size(); ++x)
+                         if (pProto->Effects[x].Charges != 0 && pitem->GetSpellCharges(x) == pProto->Effects[x].Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
                  break;

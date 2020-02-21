@@ -32,6 +32,7 @@ namespace GitRevision
     TC_COMMON_API char const* GetSourceDirectory();
     TC_COMMON_API char const* GetMySQLExecutable();
     TC_COMMON_API char const* GetFullDatabase();
+    TC_COMMON_API char const* GetHotfixesDatabase();
     TC_COMMON_API char const* GetFullVersion();
     TC_COMMON_API char const* GetCompanyNameStr();
     TC_COMMON_API char const* GetLegalCopyrightStr();

@@ -1050,7 +1050,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         }
 
         //roll for over-threshold item if it's one-player loot
-        if (item->Quality >= uint32(m_lootThreshold))
+        if (item->GetQuality() >= uint32(m_lootThreshold))
         {
             ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
 
@@ -1191,7 +1191,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
 
         //roll for over-threshold item if it's one-player loot
-        if (item->Quality >= uint32(m_lootThreshold))
+        if (item->GetQuality() >= uint32(m_lootThreshold))
         {
             ObjectGuid newitemGUID = ObjectGuid::Create<HighGuid::Item>(sObjectMgr->GetGenerator<HighGuid::Item>().Generate());
 
@@ -1224,7 +1224,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
                 if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
                     r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
 
-                if (item->Flags2 & ITEM_FLAG2_CAN_ONLY_ROLL_GREED)
+                if (item->GetFlags2() & ITEM_FLAG2_CAN_ONLY_ROLL_GREED)
                     r->rollVoteMask &= ~ROLL_FLAG_TYPE_NEED;
 
                 loot->items[itemSlot].is_blocked = true;

@@ -413,7 +413,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
     {
         float weaponSpeed = BASE_ATTACK_TIME / 1000.f;
         if (Item* weapon = GetWeaponForAttack(BASE_ATTACK, true))
-            weaponSpeed =  weapon->GetTemplate()->Delay / 1000;
+            weaponSpeed =  weapon->GetTemplate()->GetDelay() / 1000;
 
         if (GetShapeshiftForm() == FORM_CAT)
         {

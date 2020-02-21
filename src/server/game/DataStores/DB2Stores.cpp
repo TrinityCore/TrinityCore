@@ -18,91 +18,80 @@
 #include "DB2Stores.h"
 #include "Common.h"
 #include "DB2fmt.h"
-#include "DB2Utility.h"
 #include "Errors.h"
 #include "Log.h"
 #include "World.h"
 #include <sstream>
 
-DB2Storage<ItemEntry> sItemStore(Itemfmt, &DB2Utilities::HasItemEntry, &DB2Utilities::WriteItemDbReply);
-DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
-DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
-DB2Storage<ItemSparseEntry> sItemSparseStore(ItemSparsefmt, &DB2Utilities::HasItemSparseEntry, &DB2Utilities::WriteItemSparseDbReply);
-DB2Storage<KeyChainEntry> sKeyChainStore(KeyChainfmt);
+DB2Storage<ItemEntry>               sItemStore("Item.db2", Itemfmt, HOTFIX_SEL_ITEM);
+DB2Storage<ItemCurrencyCostEntry>   sItemCurrencyCostStore("ItemCurrencyCost.db2", ItemCurrencyCostfmt, HOTFIX_SEL_ITEM_CURRENCY_COST);
+DB2Storage<ItemExtendedCostEntry>   sItemExtendedCostStore("ItemExtendedCost.db2", ItemExtendedCostEntryfmt, HOTFIX_SEL_ITEM_EXTENDED_COST);
+DB2Storage<ItemSparseEntry>         sItemSparseStore("Item-sparse.db2", ItemSparsefmt, HOTFIX_SEL_ITEM_SPARSE);
+DB2Storage<KeyChainEntry>           sKeyChainStore("KeyChain.db2", KeyChainfmt, HOTFIX_SEL_KEY_CHAIN);
 
 typedef std::list<std::string> DB2StoreProblemList;
 
-typedef std::map<uint32 /*hash*/, DB2StorageBase*> DB2StorageMap;
-DB2StorageMap DB2Stores;
-
 uint32 DB2FilesCount = 0;
 
-static bool LoadDB2_assert_print(uint32 fsize, uint32 rsize, std::string const& filename)
-{
-    TC_LOG_ERROR("misc", "Size of '%s' setted by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
-
-    // ASSERT must fail after function call
-    return false;
-}
-
 template<class T>
-inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, DB2Storage<T>& storage, std::string const& db2_path, std::string const& filename)
+inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, DB2Manager::StorageMap& stores, DB2Storage<T>* storage, std::string const& db2_path)
 {
     // compatibility format and C++ structure sizes
-    ASSERT(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDB2_assert_print(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
+    ASSERT(DB2FileLoader::GetFormatRecordSize(storage->GetFormat()) == sizeof(T),
+        "Size of '%s' set by format string (%u) not equal size of C++ structure (" SZFMTD ").",
+        storage->GetFileName().c_str(), DB2FileLoader::GetFormatRecordSize(storage->GetFormat()), sizeof(T));
 
     ++DB2FilesCount;
 
-    std::string db2_filename = db2_path + filename;
-    if (storage.Load(db2_filename.c_str(), LocaleConstant(sWorld->GetDefaultDbcLocale())))
+    if (storage->Load(db2_path, uint32(sWorld->GetDefaultDbcLocale())))
     {
+        storage->LoadFromDB();
+
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            if (!(availableDb2Locales & (1 << i)))
-                continue;
-
             if (uint32(sWorld->GetDefaultDbcLocale()) == i)
                 continue;
 
-            std::string localizedName(db2_path);
-            localizedName.append(localeNames[i]);
-            localizedName.push_back('/');
-            localizedName.append(filename);
+            if (availableDb2Locales & (1 << i))
+                if (!storage->LoadStringsFrom((db2_path + localeNames[i] + '/'), i))
+                    availableDb2Locales &= ~(1 << i);             // mark as not available for speedup next checks
 
-            if (!storage.LoadStringsFrom(localizedName.c_str(), i))
-                availableDb2Locales &= ~(1<<i);             // mark as not available for speedup next checks
+            storage->LoadStringsFromDB(LocaleConstant(i));
         }
     }
     else
     {
         // sort problematic db2 to (1) non compatible and (2) nonexistent
-        if (FILE* f = fopen(db2_filename.c_str(), "rb"))
+        if (FILE* f = fopen((db2_path + storage->GetFileName()).c_str(), "rb"))
         {
             std::ostringstream stream;
-            stream << db2_filename << " exists, and has " << storage.GetFieldCount() << " field(s) (expected " << strlen(storage.GetFormat()) << "). Extracted file might be from wrong client version.";
+            stream << storage->GetFileName() << " exists, and has " << storage->GetFieldCount() << " field(s) (expected " << strlen(storage->GetFormat())
+                << "). Extracted file might be from wrong client version.";
             std::string buf = stream.str();
             errlist.push_back(buf);
             fclose(f);
         }
         else
-            errlist.push_back(db2_filename);
+            errlist.push_back(storage->GetFileName());
     }
 
-    DB2Stores[storage.GetHash()] = &storage;
+    stores[storage->GetHash()] = storage;
 }
 
-void LoadDB2Stores(std::string const& dataPath)
+void DB2Manager::LoadStores(std::string const& dataPath)
 {
+    uint32 oldMSTime = getMSTime();
+
     std::string db2Path = dataPath + "dbc/";
 
     DB2StoreProblemList bad_db2_files;
     uint32 availableDb2Locales = 0xFF;
 
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemStore, db2Path, "Item.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sKeyChainStore, db2Path, "KeyChain.db2");
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemStore,                db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemCurrencyCostStore,    db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemSparseStore,          db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sItemExtendedCostStore,    db2Path);
+    LoadDB2(availableDb2Locales, bad_db2_files, _stores, &sKeyChainStore,            db2Path);
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
@@ -128,14 +117,64 @@ void LoadDB2Stores(std::string const& dataPath)
         exit(1);
     }
 
-    TC_LOG_INFO("misc", ">> Initialized %d DB2 data stores.", DB2FilesCount);
+    TC_LOG_INFO("server.loading", ">> Initialized %d DB2 data stores in %u ms", DB2FilesCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
-DB2StorageBase const* GetDB2Storage(uint32 type)
+DB2StorageBase const* DB2Manager::GetStorage(uint32 type) const
 {
-    DB2StorageMap::const_iterator itr = DB2Stores.find(type);
-    if (itr != DB2Stores.end())
+    StorageMap::const_iterator itr = _stores.find(type);
+    if (itr != _stores.end())
         return itr->second;
 
     return nullptr;
+}
+
+void DB2Manager::LoadHotfixData()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = HotfixDatabase.Query("SELECT TableHash, RecordID, `Timestamp`, Deleted FROM hotfix_data");
+
+    if (!result)
+    {
+        TC_LOG_INFO("misc", ">> Loaded 0 hotfix info entries.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    _hotfixData.reserve(result->GetRowCount());
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        HotfixNotify info;
+        info.TableHash = fields[0].GetUInt32();
+        info.Entry = fields[1].GetUInt32();
+        info.Timestamp = fields[2].GetUInt32();
+        _hotfixData.push_back(info);
+
+        if (fields[3].GetBool())
+        {
+            auto itr = _stores.find(info.TableHash);
+            if (itr != _stores.end())
+                itr->second->EraseRecord(info.Entry);
+        }
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("misc", ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+time_t DB2Manager::GetHotfixDate(uint32 entry, uint32 type) const
+{
+    time_t ret = 0;
+    for (HotfixNotify const& hotfix : _hotfixData)
+        if (hotfix.Entry == entry && hotfix.TableHash == type)
+            if (time_t(hotfix.Timestamp) > ret)
+                ret = time_t(hotfix.Timestamp);
+
+    return ret ? ret : time(nullptr);
 }

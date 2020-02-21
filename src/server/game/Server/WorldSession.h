@@ -164,6 +164,11 @@ namespace WorldPackets
         class QuestConfirmAccept;
         class QueryQuestInfo;
     }
+
+    namespace Query
+    {
+        class DBQueryBulk;
+    }
 }
 
 enum AccountDataType
@@ -1166,7 +1171,6 @@ class TC_GAME_API WorldSession
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
-        void HandleRequestHotfix(WorldPacket& recvPacket);
         void HandleUpdateMissileTrajectory(WorldPacket& recvPacket);
         void HandleViolenceLevel(WorldPacket& recvPacket);
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
@@ -1174,6 +1178,9 @@ class TC_GAME_API WorldSession
         void SendStreamingMovie();
         void HandleRequestResearchHistory(WorldPacket& recv_data);
         int32 HandleEnableNagleAlgorithm();
+
+        // Query
+        void HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet);
 
         union ConnectToKey
         {

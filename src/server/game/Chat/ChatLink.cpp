@@ -122,9 +122,9 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate item's color
-    if (_color != ItemQualityColors[_item->Quality])
+    if (_color != ItemQualityColors[_item->GetQuality()])
     {
-        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked item has color %u, but user claims %u", iss.str().c_str(), ItemQualityColors[_item->Quality], _color);
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked item has color %u, but user claims %u", iss.str().c_str(), ItemQualityColors[_item->GetQuality()], _color);
         return false;
     }
     // Number of various item properties after item entry
@@ -168,13 +168,10 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const* locale, char* suffixStrings) const
+inline std::string ItemChatLink::FormatName(uint8 index, char* suffixStrings) const
 {
     std::stringstream ss;
-    if (locale == nullptr || index >= locale->Name.size())
-        ss << _item->Name1;
-    else
-        ss << locale->Name[index];
+    ss << _item->GetName(LocaleConstant(index));
     if (suffixStrings)
         ss << ' ' << suffixStrings[index];
     return ss.str();
@@ -186,13 +183,12 @@ bool ItemChatLink::ValidateName(char* buffer, char const* context)
 
     char* suffixStrings = _suffix ? _suffix->Name : (_property ? _property->Name : nullptr);
 
-    bool res = (FormatName(LOCALE_enUS, nullptr, suffixStrings) == buffer);
+    bool res = (FormatName(LOCALE_enUS, suffixStrings) == buffer);
     if (!res)
     {
-        ItemLocale const* il = sObjectMgr->GetItemLocale(_item->ItemId);
         for (uint8 index = LOCALE_koKR; index < TOTAL_LOCALES; ++index)
         {
-            if (FormatName(index, il, suffixStrings) == buffer)
+            if (FormatName(index, suffixStrings) == buffer)
             {
                 res = true;
                 break;
@@ -200,7 +196,7 @@ bool ItemChatLink::ValidateName(char* buffer, char const* context)
         }
     }
     if (!res)
-        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked item (id: %u) name wasn't found in any localization", context, _item->ItemId);
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked item (id: %u) name wasn't found in any localization", context, _item->GetId());
     return res;
 }
 

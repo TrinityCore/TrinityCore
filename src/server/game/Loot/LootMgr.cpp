@@ -296,7 +296,7 @@ bool LootStoreItem::Roll(bool rate) const
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
 
-    float qualityModifier = pProto && rate ? sWorld->getRate(qualityToRate[pProto->Quality]) : 1.0f;
+    float qualityModifier = pProto && rate ? sWorld->getRate(qualityToRate[pProto->GetQuality()]) : 1.0f;
 
     return roll_chance_f(chance*qualityModifier);
 }
@@ -935,8 +935,8 @@ void LoadLootTemplates_Item()
     // remove real entries and check existence loot
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
-        if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end() && itr->second.Flags & ITEM_FLAG_HAS_LOOT)
-            lootIdSet.erase(itr->second.ItemId);
+        if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end() && itr->second.GetFlags() & ITEM_FLAG_HAS_LOOT)
+            lootIdSet.erase(itr->second.GetId());
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Item.ReportUnusedIds(lootIdSet);
@@ -960,11 +960,11 @@ void LoadLootTemplates_Milling()
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        if (!(itr->second.Flags & ITEM_FLAG_IS_MILLABLE))
+        if (!(itr->second.GetFlags() & ITEM_FLAG_IS_MILLABLE))
             continue;
 
-        if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end())
-            lootIdSet.erase(itr->second.ItemId);
+        if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end())
+            lootIdSet.erase(itr->second.GetId());
     }
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -1023,11 +1023,11 @@ void LoadLootTemplates_Prospecting()
     ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
     for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
     {
-        if (!(itr->second.Flags & ITEM_FLAG_IS_PROSPECTABLE))
+        if (!(itr->second.GetFlags() & ITEM_FLAG_IS_PROSPECTABLE))
             continue;
 
-        if (lootIdSet.find(itr->second.ItemId) != lootIdSet.end())
-            lootIdSet.erase(itr->second.ItemId);
+        if (lootIdSet.find(itr->second.GetId()) != lootIdSet.end())
+            lootIdSet.erase(itr->second.GetId());
     }
 
     // output error for any still listed (not referenced from appropriate table) ids

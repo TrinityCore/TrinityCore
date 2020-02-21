@@ -283,6 +283,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_CORPSE_MAP_POSITION_QUERY,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCorpseMapPositionQuery    );
     DEFINE_HANDLER(CMSG_CREATURE_QUERY,                                   STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCreatureQueryOpcode       );
     DEFINE_HANDLER(CMSG_DANCE_QUERY,                                      STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_HANDLER(CMSG_DB_QUERY_BULK,                                    STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleDBQueryBulk               );
     DEFINE_HANDLER(CMSG_DEL_FRIEND,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDelFriendOpcode           );
     DEFINE_HANDLER(CMSG_DEL_IGNORE,                                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleDelIgnoreOpcode           );
     DEFINE_HANDLER(CMSG_DEL_VOICE_IGNORE,                                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -539,7 +540,6 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_REQUEST_CATEGORY_COOLDOWNS,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestCategoryCooldowns  );
     DEFINE_HANDLER(CMSG_REQUEST_CEMETERY_LIST,                            STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestCemeteryList       );
     DEFINE_HANDLER(CMSG_REQUEST_GUILD_REWARDS_LIST,                       STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleRequestGuildRewardsList   );
-    DEFINE_HANDLER(CMSG_REQUEST_HOTFIX,                                   STATUS_AUTHED,    PROCESS_INPLACE,      &WorldSession::HandleRequestHotfix             );
     DEFINE_HANDLER(CMSG_REQUEST_INSPECT_RATED_BG_STATS,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_HANDLER(CMSG_REQUEST_PARTY_MEMBER_STATS,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPartyMemberStatsOpcode);
     DEFINE_HANDLER(CMSG_REQUEST_PET_INFO,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleRequestPetInfoOpcode      );
@@ -932,8 +932,8 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GUILD_XP_GAIN,                                    STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_HEALTH_UPDATE,                                    STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_HIGHEST_THREAT_UPDATE,                            STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_HOTFIX_INFO,                                      STATUS_NEVER,       CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_HOTFIX_NOTIFY,                                    STATUS_UNHANDLED,   CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_HOTFIX_NOTIFY,                                    STATUS_NEVER,       CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_HOTFIX_NOTIFY_BLOB,                               STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_INITIALIZE_FACTIONS,                              STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_INITIAL_SPELLS,                                   STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_SETUP_CURRENCY,                                   STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);
