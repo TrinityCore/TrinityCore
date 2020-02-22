@@ -22,109 +22,163 @@
 enum Yells
 {
     SAY_AGGRO               = 0,
-    SAY_HEALTH              = 1,
-    SAY_KILL                = 2
+    SAY_HEALTH_BELOW_50     = 1,
+    SAY_SLAY                = 2
 };
 
 enum Spells
 {
-    SPELL_FLAMESHOCK        = 8053,
-    SPELL_SHADOWBOLT        = 1106,
-    SPELL_FLAMESPIKE        = 8814,
-    SPELL_FIRENOVA          = 16079
+    SPELL_SHADOW_BOLT   = 20825,
+    SPELL_FIRE_NOVA     = 12470,
+    SPELL_FLAME_SHOCK   = 23038,
+    SPELL_FLAME_SPIKE   = 8814
 };
 
 enum Events
 {
-    EVENT_FLAME_SHOCK       = 1,
-    EVENT_SHADOW_BOLT,
-    EVENT_FLAME_SPIKE,
-    EVENT_FIRE_NOVA
+    EVENT_SHADOW_BOLT = 1,
+    EVENT_FIRE_NOVA,
+    EVENT_FLAME_SHOCK,
+    EVENT_FLAME_SPIKE
 };
 
-class boss_bloodmage_thalnos : public CreatureScript
+static constexpr uint8 const MaxChainedEvents = 4;
+
+struct boss_bloodmage_thalnos : public BossAI
 {
-    public:
-        boss_bloodmage_thalnos() : CreatureScript("boss_bloodmage_thalnos") { }
+    boss_bloodmage_thalnos(Creature* creature) : BossAI(creature, DATA_BLOODMAGE_THALNOS), _triggeredText(false)
+    {
+        InitializeEventCooldowns();
+    }
 
-        struct boss_bloodmage_thalnosAI : public BossAI
+    void Reset() override
+    {
+        _triggeredText = false;
+        InitializeEventCooldowns();
+        _Reset();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        Talk(SAY_AGGRO);
+        _JustEngagedWith();
+        events.ScheduleEvent(EVENT_FLAME_SPIKE, 8s, 10s);
+        events.ScheduleEvent(EVENT_SHADOW_BOLT, 1ms);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->IsPlayer())
+            Talk(SAY_SLAY);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (!_triggeredText && me->HealthBelowPctDamaged(50, damage))
         {
-            boss_bloodmage_thalnosAI(Creature* creature) : BossAI(creature, DATA_BLOODMAGE_THALNOS)
-            {
-                _hpYell = false;
-            }
-
-            void Reset() override
-            {
-                _hpYell = false;
-                _Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                Talk(SAY_AGGRO);
-                _JustEngagedWith();
-                events.ScheduleEvent(EVENT_FLAME_SHOCK, 10000);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
-                events.ScheduleEvent(EVENT_FLAME_SPIKE, 8000);
-                events.ScheduleEvent(EVENT_FIRE_NOVA, 40000);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void KilledUnit(Unit* /*victim*/) override
-            {
-                Talk(SAY_KILL);
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                if (!_hpYell && me->HealthBelowPctDamaged(35, damage))
-                {
-                    Talk(SAY_HEALTH);
-                    _hpYell = true;
-                }
-            }
-
-            void ExecuteEvent(uint32 eventId) override
-            {
-                switch (eventId)
-                {
-                    case EVENT_FLAME_SHOCK:
-                        DoCastVictim(SPELL_FLAMESHOCK);
-                        events.ScheduleEvent(EVENT_FLAME_SHOCK, urand(10000, 15000));
-                        break;
-                    case EVENT_SHADOW_BOLT:
-                        DoCastVictim(SPELL_SHADOWBOLT);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
-                        break;
-                    case EVENT_FLAME_SPIKE:
-                        DoCastVictim(SPELL_FLAMESPIKE);
-                        events.ScheduleEvent(EVENT_FLAME_SPIKE, 30000);
-                        break;
-                    case EVENT_FIRE_NOVA:
-                        DoCastVictim(SPELL_FIRENOVA);
-                        events.ScheduleEvent(EVENT_FIRE_NOVA, 40000);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            private:
-                bool _hpYell;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetScarletMonasteryAI<boss_bloodmage_thalnosAI>(creature);
+            Talk(SAY_HEALTH_BELOW_50);
+            _triggeredText = true;
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SHADOW_BOLT:
+                    DoCastVictim(SPELL_SHADOW_BOLT);
+                    ScheduleNextEvent();
+                    break;
+                case EVENT_FLAME_SHOCK:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.f, true, -SPELL_FLAME_SHOCK))
+                        DoCast(target, SPELL_FLAME_SHOCK);
+                    else
+                        DoCastVictim(SPELL_FLAME_SHOCK);
+
+                    ScheduleNextEvent();
+                    break;
+                case EVENT_FIRE_NOVA:
+                    DoCastAOE(SPELL_FIRE_NOVA);
+                    ScheduleNextEvent();
+                    break;
+                case EVENT_FLAME_SPIKE:
+                    DoCastVictim(SPELL_FLAME_SPIKE);
+                    events.Repeat(3min);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!me->HasSpellFocus())
+            DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _triggeredText;
+    int8 _remainingEventCycles[MaxChainedEvents];
+
+    void InitializeEventCooldowns()
+    {
+        _remainingEventCycles[EVENT_SHADOW_BOLT] = 0;
+        _remainingEventCycles[EVENT_FLAME_SHOCK] = 1;
+        _remainingEventCycles[EVENT_FIRE_NOVA] = 3;
+    }
+
+    void UpdateEventCooldowns()
+    {
+        for (uint8 i : { EVENT_FIRE_NOVA, EVENT_FLAME_SHOCK })
+        {
+            if (_remainingEventCycles[i] == 0)
+            {
+                if (i == EVENT_FLAME_SHOCK)
+                    _remainingEventCycles[i] = 2;
+                else if (i == EVENT_FIRE_NOVA)
+                    _remainingEventCycles[i] = 3;
+            }
+            else
+                _remainingEventCycles[i]--;
+        }
+    }
+
+    uint32 GetNextEventId() const
+    {
+        std::vector<uint32> possibleEventIds;
+        for (uint8 i : { EVENT_SHADOW_BOLT, EVENT_FIRE_NOVA, EVENT_FLAME_SHOCK })
+        {
+            // We have an long overdue event pending. Prioritize it.
+            if (_remainingEventCycles[i] <= -3)
+                return i;
+
+            // Otherwise pick a random event that's ready for execution
+            if (_remainingEventCycles[i] == 0)
+                possibleEventIds.push_back(i);
+        }
+
+        if (!possibleEventIds.empty())
+            return Trinity::Containers::SelectRandomContainerElement(possibleEventIds);
+
+        return 0;
+    }
+
+    void ScheduleNextEvent()
+    {
+        UpdateEventCooldowns();
+        events.ScheduleEvent(GetNextEventId(), 3s);
+    }
 };
 
 void AddSC_boss_bloodmage_thalnos()
 {
-    new boss_bloodmage_thalnos();
+    RegisterScarletMonastryCreatureAI(boss_bloodmage_thalnos);
 }

@@ -27,33 +27,37 @@ uint32 const EncounterCount = 10;
 
 enum SMDataTypes
 {
-    DATA_MOGRAINE_AND_WHITE_EVENT   = 1,
-    DATA_MOGRAINE                   = 2,
-    DATA_WHITEMANE                  = 3,
+    // Bosses
+    DATA_INTERROGATOR_VISHAS    = 1,
+    DATA_BLOODMAGE_THALNOS      = 2,
 
-    DATA_HORSEMAN_EVENT             = 4,
-    DATA_PUMPKIN_SHRINE             = 5,
-
-    DATA_VORREL                     = 6,
-    DATA_ARCANIST_DOAN              = 7,
-    DATA_AZSHIR                     = 8,
-    DATA_BLOODMAGE_THALNOS          = 9,
-    DATA_HEROD                      = 10,
-    DATA_HIGH_INQUISITOR_FAIRBANKS  = 11,
-    DATA_HOUNDMASTER_LOKSEY         = 12,
-    DATA_INTERROGATOR_VISHAS        = 13,
-    DATA_SCORN                      = 14
+    DATA_MOGRAINE_AND_WHITE_EVENT,
+    DATA_MOGRAINE,
+    DATA_WHITEMANE,
+    DATA_HORSEMAN_EVENT,
+    DATA_PUMPKIN_SHRINE,
+    DATA_VORREL,
+    DATA_ARCANIST_DOAN,
+    DATA_AZSHIR,
+    DATA_HEROD,
+    DATA_HIGH_INQUISITOR_FAIRBANKS,
+    DATA_HOUNDMASTER_LOKSEY,
+    DATA_SCORN
 };
 
 enum SMCreatureIds
 {
-    NPC_MOGRAINE                    = 3976,
-    NPC_WHITEMANE                   = 3977,
-    NPC_VORREL                      = 3981,
+    // Bosses
+    BOSS_INTERROGATOR_VISHAS    = 3983,
+    BOSS_BLOODMAGE_THALNOS      = 4543,
 
-    NPC_HORSEMAN                    = 23682,
-    NPC_HEAD                        = 23775,
-    NPC_PUMPKIN                     = 23694
+    NPC_MOGRAINE                = 3976,
+    NPC_WHITEMANE               = 3977,
+    NPC_VORREL                  = 3981,
+
+    NPC_HORSEMAN                = 23682,
+    NPC_HEAD                    = 23775,
+    NPC_PUMPKIN                 = 23694
 };
 
 enum SMGameObjectIds
@@ -67,5 +71,8 @@ inline AI* GetScarletMonasteryAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SMScriptName);
 }
+
+#define RegisterScarletMonastryCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetScarletMonasteryAI)
+
 
 #endif // SCARLET_M_

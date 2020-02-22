@@ -22,6 +22,13 @@
 #include "Map.h"
 #include "scarlet_monastery.h"
 
+ObjectData const creatureData[] =
+{
+    { BOSS_INTERROGATOR_VISHAS,         DATA_INTERROGATOR_VISHAS    },
+    { BOSS_BLOODMAGE_THALNOS,           DATA_BLOODMAGE_THALNOS      },
+    { 0,                                0                           } // END
+};
+
 DoorData const doorData[] =
 {
     { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
@@ -39,6 +46,7 @@ class instance_scarlet_monastery : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, nullptr);
                 LoadDoorData(doorData);
 
                 HorsemanAdds.clear();
