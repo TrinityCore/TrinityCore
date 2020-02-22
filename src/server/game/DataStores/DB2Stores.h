@@ -53,7 +53,6 @@ public:
 
     void LoadHotfixData();
     HotfixData const* GetHotfixData() const { return &_hotfixData; }
-    time_t GetHotfixDate(uint32 entry, uint32 type) const;
 
 private:
     StorageMap _stores;

@@ -557,18 +557,17 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
     {
         WorldPackets::Query::DBReply response;
         response.TableHash = packet.TableHash;
+        response.Timestamp = GameTime::GetGameTime() + (5 * IN_MILLISECONDS); // according to sniffs the server sends its local time + 5 seconds
 
         if (store->HasRecord(rec.RecordID))
         {
             response.RecordID = rec.RecordID;
-            response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
             store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
         }
         else
         {
-            TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: Entry %u does not exist in datastore: %u", rec.RecordID, packet.TableHash);
+            TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: %s requested non-existing entry %u in datastore: %u", GetPlayerInfo().c_str(), rec.RecordID, packet.TableHash);
             response.RecordID = -int32(rec.RecordID);
-            response.Timestamp = GameTime::GetGameTime();
         }
 
         SendPacket(response.Write());

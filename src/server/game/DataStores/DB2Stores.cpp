@@ -133,7 +133,7 @@ void DB2Manager::LoadHotfixData()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = HotfixDatabase.Query("SELECT TableHash, RecordID, `Timestamp`, Deleted FROM hotfix_data");
+    QueryResult result = HotfixDatabase.Query("SELECT TableHash, RecordID, Deleted FROM hotfix_data");
 
     if (!result)
     {
@@ -152,10 +152,9 @@ void DB2Manager::LoadHotfixData()
         HotfixNotify info;
         info.TableHash = fields[0].GetUInt32();
         info.Entry = fields[1].GetUInt32();
-        info.Timestamp = fields[2].GetUInt32();
         _hotfixData.push_back(info);
 
-        if (fields[3].GetBool())
+        if (fields[2].GetBool())
         {
             auto itr = _stores.find(info.TableHash);
             if (itr != _stores.end())
@@ -166,15 +165,4 @@ void DB2Manager::LoadHotfixData()
     } while (result->NextRow());
 
     TC_LOG_INFO("misc", ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-time_t DB2Manager::GetHotfixDate(uint32 entry, uint32 type) const
-{
-    time_t ret = 0;
-    for (HotfixNotify const& hotfix : _hotfixData)
-        if (hotfix.Entry == entry && hotfix.TableHash == type)
-            if (time_t(hotfix.Timestamp) > ret)
-                ret = time_t(hotfix.Timestamp);
-
-    return ret ? ret : time(nullptr);
 }

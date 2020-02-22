@@ -35,7 +35,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Key17, Key18, Key19, Key20, Key21, Key22, Key23, Key24, Key25, Key26, Key27, Key28, Key29, Key30, Key31, Key32 FROM key_chain ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // Item.db2
-    PrepareStatement(HOTFIX_SEL_ITEM, "SELECT ID, Class, SubClass, SoundOverrideSubclass, Material, InventoryType, Sheath FROM item ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_ITEM, "SELECT ID, Class, SubClass, SoundOverrideSubclass, Material, DisplayInfoID, InventoryType, Sheath FROM item ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ItemCurrencyCost.db2
     PrepareStatement(HOTFIX_SEL_ITEM_CURRENCY_COST, "SELECT ID, ItemID FROM item_currency_cost ORDER BY ItemID DESC", CONNECTION_SYNCH);
