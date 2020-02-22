@@ -2875,7 +2875,7 @@ void ObjectMgr::LoadItemTemplates()
         itemTemplate.BasicData = db2Data;
         itemTemplate.ExtendedData = sparse;
 
-        itemTemplate.MaxDurability = FillMaxDurability(db2Data->ClassID, db2Data->SubclassID, sparse->InventoryType, sparse->Quality, sparse->ItemLevel);
+        itemTemplate.MaxDurability = FillMaxDurability(itemTemplate.GetClass(), itemTemplate.GetSubClass(), itemTemplate.GetInventoryType(), itemTemplate.GetQuality(), itemTemplate.GetBaseItemLevel());
         FillDisenchantFields(&itemTemplate.DisenchantID, &itemTemplate.RequiredDisenchantSkill, itemTemplate);
         itemTemplate.ScriptId = 0;
         itemTemplate.FoodType = 0;
