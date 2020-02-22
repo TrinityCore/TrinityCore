@@ -853,23 +853,32 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         }
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
-    else if (commandName == "near")
+    else if (commandName == "gameobject")
     {
-        Unit* targetUnit = pmPlayer->GetSelectedUnit();
-        std::ostringstream replyStream;
-        if (targetUnit)
+        if (commandVector.size() > 1)
         {
-            float nearX, nearY, nearZ;
-            targetUnit->GetNearPoint(targetUnit, nearX, nearY, nearZ, 10.0f, targetUnit->GetAbsoluteAngle(pmPlayer));
-            pmPlayer->GetMotionMaster()->Clear();
-            pmPlayer->GetMotionMaster()->MovePoint(0, nearX, nearY, nearZ, true, pmPlayer->GetRelativeAngle(targetUnit));
-            replyStream << "To near point";
+            std::string newState = commandVector.at(1);
+            if (commandVector.size() > 2)
+            {
+                uint32 spawnID = std::stoi(commandVector.at(2));
+                GameObject* goTarget = pmPlayer->GetMap()->GetGameObjectBySpawnId(spawnID);
+                if (goTarget)
+                {
+                    if (newState == "active")
+                    {
+                        goTarget->SetGoState(GOState::GO_STATE_ACTIVE);
+                    }
+                    else if (newState == "ready")
+                    {
+                        goTarget->SetGoState(GOState::GO_STATE_READY);
+                    }
+                    else if (newState == "destroy")
+                    {
+                        goTarget->SetGoState(GOState::GO_STATE_DESTROYED);
+                    }
+                }
+            }
         }
-        else
-        {
-            replyStream << "No target";
-        }
-        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
 }
 
