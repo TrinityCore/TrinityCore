@@ -62,13 +62,14 @@ jobs:
       - run:
           name: Setup
           command: |
-            ccache -s
-            git config user.email "circleci@build.bot" && git config user.name "Circl CI"
+            export CCACHE_MAXSIZE="1G"
             export CC="ccache clang"
             export CXX="ccache clang++"
             export CCACHE_CPP2=yes
             export USE_CCACHE=1
             export PATH=/usr/lib/ccache:$PATH
+            ccache -s
+            git config user.email "circleci@build.bot" && git config user.name "Circle CI"
             $CXX --version
             mkdir bin
             cd bin
