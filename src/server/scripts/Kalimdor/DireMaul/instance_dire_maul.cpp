@@ -314,9 +314,15 @@ public:
     private:
         EventMap events;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_ironbark_the_redeemedAI(creature);
+    }
 };
 
 void AddSC_instance_dire_maul()
 {
     new instance_dire_maul();
+    new npc_ironbark_the_redeemed();
 }
