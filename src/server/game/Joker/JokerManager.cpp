@@ -52,10 +52,10 @@ void JokerManager::UpdateJoker(uint32 pmDiff)
                 currentPetGUIDSet.insert(pet_guid);
             } while (jhpQR->NextRow());
         }
-
-        std::ostringstream sqlStream;
+        
         for (std::unordered_map<uint32, uint32>::iterator it = accompanyTimeMap.begin(); it != accompanyTimeMap.end(); it++)
         {
+            std::ostringstream sqlStream;
             if (currentPetGUIDSet.find(it->first) == currentPetGUIDSet.end())
             {
                 sqlStream << "INSERT INTO joker_hunter_pet (pet_guid, accompany_time) VALUES (" << it->first << ", " << it->second << ");";
@@ -64,9 +64,9 @@ void JokerManager::UpdateJoker(uint32 pmDiff)
             {
                 sqlStream << "update joker_hunter_pet set accompany_time = " << it->second << " where pet_guid = " << it->first << ";";
             }
-        }
-        std::string sql = sqlStream.str();
-        CharacterDatabase.Execute(sql.c_str());
+            std::string sql = sqlStream.str();
+            CharacterDatabase.Execute(sql.c_str());
+        }        
     }
 }
 

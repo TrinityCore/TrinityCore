@@ -39,6 +39,9 @@
 #include "JokerConfig.h"
 #include "JokerManager.h"
 
+// EJ robot
+#include "RobotManager.h"
+
 #define PET_XP_FACTOR 0.05f
 
 Pet::Pet(Player* owner, PetType type) :
@@ -629,7 +632,19 @@ void Pet::Update(uint32 diff)
 
             if (m_happinessTimer <= diff)
             {
-                LoseHappiness();
+                // EJ robot's pet will not lose happiness
+                bool isRobot = false;
+                if (Player* ownerPlayer = GetOwner())
+                {
+                    if (WorldSession* ownerSession = ownerPlayer->GetSession())
+                    {
+                        isRobot = sRobotManager->IsRobot(ownerSession->GetAccountId());
+                    }
+                }
+                if (!isRobot)
+                {
+                    LoseHappiness();
+                }                
                 m_happinessTimer = 7500;
             }
             else
