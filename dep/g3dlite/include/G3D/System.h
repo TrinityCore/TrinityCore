@@ -21,6 +21,10 @@
 #include "G3D/FileNotFound.h"
 #include <string>
 
+#if defined(__aarch64__)
+#include <sys/time.h>
+#endif
+
 #ifdef G3D_OSX
 #define Zone OSX_Zone
 #   include <CoreServices/CoreServices.h>
@@ -497,15 +501,37 @@ public:
 #elif defined(G3D_LINUX)
 
     inline uint64 System::getCycleCount() {
-        uint32 timehi, timelo;
+#       if defined(__aarch64__)
+#           if (__ARM_ARCH >= 6)  // V6 is the earliest arch that has a standard cyclecount
+                uint32_t pmccntr;
+                uint32_t pmuseren;
+                uint32_t pmcntenset;
+                // Read the user mode perf monitor counter access permissions.
+                __asm__ __volatile__("mrc p15, 0, %w0, c9, c14, 0" : "=r"(pmuseren));
+                if (pmuseren & 1) {  // Allows reading perfmon counters for user mode code.
+                    __asm__ __volatile__("mrc p15, 0, %w0, c9, c12, 1" : "=r"(pmcntenset));
+                    if (pmcntenset & 0x80000000ul) {  // Is it counting?
+                        __asm__ __volatile__("mrc p15, 0, %w0, c9, c13, 0" : "=r"(pmccntr));
+                        // The counter is set up to count every 64th cycle
+                        return static_cast<uint64>(pmccntr) * 64;  // Should optimize to << 6
+                    }
+                }
+#           endif
 
-        __asm__ __volatile__ (
-            "rdtsc            "
-            : "=a" (timelo),
-              "=d" (timehi)
-            : );
+            struct timeval tv;
+            gettimeofday(&tv, nullptr);
+            return static_cast<uint64>(tv.tv_sec) * 1000000 + tv.tv_usec;
+#       else
+            uint32 timehi, timelo;
 
-        return ((uint64)timehi << 32) + (uint64)timelo;
+            __asm__ __volatile__ (
+                "rdtsc            "
+                : "=a" (timelo),
+                "=d" (timehi)
+                : );
+
+            return ((uint64)timehi << 32) + (uint64)timelo;
+#       endif
     }
 
 #elif defined(G3D_OSX)
