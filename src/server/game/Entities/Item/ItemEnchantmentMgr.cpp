@@ -137,9 +137,9 @@ int32 GenerateItemRandomPropertyId(uint32 item_id)
     }
 
     // RandomProperty case
-    if (itemProto->GetRandomSuffix())
+    if (itemProto->GetRandomProperty())
     {
-        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomSuffix());
+        uint32 randomPropId = GetItemEnchantMod(itemProto->GetRandomProperty());
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
