@@ -21,67 +21,79 @@
 
 enum Yells
 {
-    SAY_AGGRO                       = 0,
+    SAY_AGGRO = 0
 };
 
 enum Spells
 {
-    SPELL_SUMMONSCARLETHOUND        = 17164,
-    SPELL_BLOODLUST                 = 6742
+    SPELL_BATTLE_SHOUT  = 77808,
+    SPELL_BLOODLUST     = 6742
 };
 
 enum Events
 {
-    EVENT_BLOODLUST                 = 1
+    EVENT_BATTLE_SHOUT = 1,
+    EVENT_BLOODLUST
 };
 
-class boss_houndmaster_loksey : public CreatureScript
+enum SpawnGroups
 {
-    public:
-        boss_houndmaster_loksey() : CreatureScript("boss_houndmaster_loksey") { }
+    SPAWN_GROUP_ID_HOUNDS = 433
+};
 
-        struct boss_houndmaster_lokseyAI : public BossAI
+struct boss_houndmaster_loksey : public BossAI
+{
+    boss_houndmaster_loksey(Creature* creature) : BossAI(creature, DATA_HOUNDMASTER_LOKSEY) { }
+
+    void Reset() override
+    {
+       BossAI::Reset();
+
+       // The dogs will respawn after a wipe
+       instance->instance->SpawnGroupSpawn(SPAWN_GROUP_ID_HOUNDS, true);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_AGGRO);
+        _JustEngagedWith();
+        events.ScheduleEvent(EVENT_BATTLE_SHOUT, 7s);
+        events.ScheduleEvent(EVENT_BLOODLUST, 10s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_houndmaster_lokseyAI(Creature* creature) : BossAI(creature, DATA_HOUNDMASTER_LOKSEY) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _Reset();
+                case EVENT_BATTLE_SHOUT:
+                    DoCastAOE(SPELL_BATTLE_SHOUT);
+                    events.Repeat(17s, 20s);
+                    break;
+                case EVENT_BLOODLUST:
+                    if (Creature* hound = me->FindNearestCreature(NPC_SCARLET_TRACKING_HOUND, 10.f, true))
+                        DoCast(hound, SPELL_BLOODLUST);
+                    events.Repeat(46s);
+                    break;
+                default:
+                    break;
             }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                Talk(SAY_AGGRO);
-                _JustEngagedWith();
-                events.ScheduleEvent(EVENT_BLOODLUST, 20000);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void ExecuteEvent(uint32 eventId) override
-            {
-                switch (eventId)
-                {
-                    case EVENT_BLOODLUST:
-                        DoCast(me, SPELL_BLOODLUST);
-                        events.ScheduleEvent(EVENT_BLOODLUST, 20000);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetScarletMonasteryAI<boss_houndmaster_lokseyAI>(creature);
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_houndmaster_loksey()
 {
-    new boss_houndmaster_loksey();
+    RegisterScarletMonastryCreatureAI(boss_houndmaster_loksey);
 }

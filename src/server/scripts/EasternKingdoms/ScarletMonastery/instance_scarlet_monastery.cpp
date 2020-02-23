@@ -26,6 +26,8 @@ ObjectData const creatureData[] =
 {
     { BOSS_INTERROGATOR_VISHAS,         DATA_INTERROGATOR_VISHAS    },
     { BOSS_BLOODMAGE_THALNOS,           DATA_BLOODMAGE_THALNOS      },
+    { BOSS_HOUNDMASTER_LOKSEY,          DATA_HOUNDMASTER_LOKSEY     },
+    { BOSS_ARCANIST_DOAN,               DATA_ARCANIST_DOAN          },
     { 0,                                0                           } // END
 };
 

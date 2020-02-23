@@ -21,117 +21,107 @@
 
 enum Yells
 {
-    SAY_AGGRO                   = 0,
-    SAY_SPECIALAE               = 1
+    SAY_AGGRO       = 0,
+    SAY_DETONATION  = 1
 };
 
 enum Spells
 {
-    SPELL_SILENCE               = 8988,
-    SPELL_ARCANE_EXPLOSION      = 9433,
-    SPELL_DETONATION            = 9435,
-    SPELL_ARCANE_BUBBLE         = 9438,
-    SPELL_POLYMORPH             = 13323
+    SPELL_DETONATION        = 9435,
+    SPELL_SILENCE           = 8988,
+    SPELL_ARCANE_EXPLOSION  = 9433,
+    SPELL_ARCANE_BUBBLE     = 9438,
+    SPELL_POLYMORPH         = 13323
 };
 
 enum Events
 {
-    EVENT_SILENCE               = 1,
-    EVENT_ARCANE_EXPLOSION      = 2,
-    EVENT_ARCANE_BUBBLE         = 3,
-    EVENT_POLYMORPH             = 4
+    EVENT_DETONATION = 1,
+    EVENT_SILENCE,
+    EVENT_ARCANE_EXPLOSION,
+    EVENT_ARCANE_BUBBLE,
+    EVENT_POLYMORPH
 };
 
-class boss_arcanist_doan : public CreatureScript
+struct boss_arcanist_doan : public BossAI
 {
-    public:
-        boss_arcanist_doan() : CreatureScript("boss_arcanist_doan") { }
+    boss_arcanist_doan(Creature* creature) : BossAI(creature, DATA_ARCANIST_DOAN), _detonationTriggered(false) { }
 
-        struct boss_arcanist_doanAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+        _detonationTriggered = false;
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _JustEngagedWith();
+        Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_SILENCE, 6s);
+        events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 11s);
+        events.ScheduleEvent(EVENT_POLYMORPH, 45s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (!_detonationTriggered && me->HealthBelowPctDamaged(50, damage))
         {
-            boss_arcanist_doanAI(Creature* creature) : BossAI(creature, DATA_ARCANIST_DOAN)
-            {
-                _healthAbove50Pct = true;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                _healthAbove50Pct = true;
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _JustEngagedWith();
-                Talk(SAY_AGGRO);
-
-                events.ScheduleEvent(EVENT_SILENCE,         15 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 3 * IN_MILLISECONDS);
-                events.ScheduleEvent(EVENT_POLYMORPH,       30 * IN_MILLISECONDS);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SILENCE:
-                            DoCastVictim(SPELL_SILENCE);
-                            events.ScheduleEvent(EVENT_SILENCE, urand(15, 20) * IN_MILLISECONDS);
-                            break;
-                        case EVENT_ARCANE_EXPLOSION:
-                            DoCastVictim(SPELL_ARCANE_EXPLOSION);
-                            events.ScheduleEvent(EVENT_SILENCE, 8 * IN_MILLISECONDS);
-                            break;
-                        case EVENT_POLYMORPH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
-                                DoCast(target, SPELL_POLYMORPH);
-                            events.ScheduleEvent(EVENT_POLYMORPH, 20 * IN_MILLISECONDS);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                if (_healthAbove50Pct && HealthBelowPct(50))
-                {
-                    _healthAbove50Pct = false;
-                    Talk(SAY_SPECIALAE);
-                    DoCast(me, SPELL_ARCANE_BUBBLE);
-                    DoCastAOE(SPELL_DETONATION);
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            bool _healthAbove50Pct;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetScarletMonasteryAI<boss_arcanist_doanAI>(creature);
+            events.ScheduleEvent(EVENT_ARCANE_BUBBLE, 1ms);
+            _detonationTriggered = true;
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_DETONATION:
+                    Talk(SAY_DETONATION);
+                    DoCastAOE(SPELL_DETONATION);
+                    events.DelayEvents(3s);
+                    break;
+                case EVENT_SILENCE:
+                    DoCastAOE(SPELL_SILENCE);
+                    events.Repeat(21s, 24s);
+                    break;
+                case EVENT_ARCANE_EXPLOSION:
+                    DoCastAOE(SPELL_ARCANE_EXPLOSION);
+                    events.Repeat(4s, 14s);
+                    break;
+                case EVENT_ARCANE_BUBBLE:
+                    DoCastSelf(SPELL_ARCANE_BUBBLE);
+                    me->resetAttackTimer();
+                    events.ScheduleEvent(EVENT_DETONATION, 1s);
+                    break;
+                case EVENT_POLYMORPH:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.f, true))
+                        DoCast(target, SPELL_POLYMORPH);
+                    events.Repeat(20s); // To-do: validate
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _detonationTriggered;
 };
+
 
 void AddSC_boss_arcanist_doan()
 {
-    new boss_arcanist_doan();
+    RegisterScarletMonastryCreatureAI(boss_arcanist_doan);
 }

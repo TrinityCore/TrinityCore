@@ -50,6 +50,12 @@ enum SMCreatureIds
     // Bosses
     BOSS_INTERROGATOR_VISHAS    = 3983,
     BOSS_BLOODMAGE_THALNOS      = 4543,
+    BOSS_HOUNDMASTER_LOKSEY     = 3974,
+    BOSS_ARCANIST_DOAN          = 6487,
+
+    // Encounter related creature
+    /*Houndmaster Loksey*/
+    NPC_SCARLET_TRACKING_HOUND  = 4304,
 
     NPC_MOGRAINE                = 3976,
     NPC_WHITEMANE               = 3977,
