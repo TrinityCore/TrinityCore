@@ -1452,7 +1452,7 @@ void Creature::UpdateLevelDependantStats()
     SetStatFlatModifier(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
 
     // EJ mod ap
-    if (sJokerConfig->enable)
+    if (sJokerConfig->Enable)
     {
         if (cInfo->rank == 1 || cInfo->rank == 2 || cInfo->rank == 4)
         {

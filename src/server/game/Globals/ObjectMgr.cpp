@@ -662,7 +662,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     }
 
     // EJ mod
-    if (sJokerConfig->enable)
+    if (sJokerConfig->Enable)
     {
         float levelMod = 0.0f;
         if (creatureTemplate.maxlevel >= 50)

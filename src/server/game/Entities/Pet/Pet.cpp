@@ -35,6 +35,10 @@
 #include "WorldSession.h"
 #include "ZoneScript.h"
 
+// EJ joker
+#include "JokerConfig.h"
+#include "JokerManager.h"
+
 #define PET_XP_FACTOR 0.05f
 
 Pet::Pet(Player* owner, PetType type) :
@@ -646,6 +650,39 @@ void Pet::LoseHappiness()
     if (curValue <= 0)
         return;
     int32 addvalue = 670;                                   //value is 70/35/17/8/4 (per min) * 1000 / 8 (timer 7.5 secs)
+
+    // EJ joker pet
+    if (sJokerConfig->Enable)
+    {
+        if (CharmInfo* ci = GetCharmInfo())
+        {
+            uint32 petID = ci->GetPetNumber();
+            if (sJokerManager->accompanyTimeMap.find(petID) == sJokerManager->accompanyTimeMap.end())
+            {
+                sJokerManager->accompanyTimeMap[petID] = 7500;
+            }
+            else
+            {
+                if (sJokerManager->accompanyTimeMap[petID] < sJokerManager->petLoyaltyLevelMap[MAX_PET_LOYALTY_LEVEL])
+                {
+                    sJokerManager->accompanyTimeMap[petID] += 7500;
+                }
+            }
+
+            int extraMultiple = MAX_PET_LOYALTY_LEVEL;
+            for (int checkLevel = MAX_PET_LOYALTY_LEVEL; checkLevel >= 0; checkLevel--)
+            {
+                if (sJokerManager->accompanyTimeMap[petID] >= sJokerManager->petLoyaltyLevelMap[checkLevel])
+                {
+                    extraMultiple = MAX_PET_LOYALTY_LEVEL - checkLevel;
+                    break;
+                }
+            }
+
+            addvalue = addvalue + addvalue * extraMultiple * 2;
+        }        
+    }
+
     if (IsInCombat())                                        //we know in combat happiness fades faster, multiplier guess
         addvalue = int32(addvalue * 1.5f);
     ModifyPower(POWER_HAPPINESS, -addvalue);
