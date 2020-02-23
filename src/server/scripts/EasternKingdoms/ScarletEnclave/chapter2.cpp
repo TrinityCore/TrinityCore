@@ -273,6 +273,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
                         {
                             _summons.DespawnAll();
                             me->DespawnOrUnsummon(1s);
+                            player->FailQuest(QUEST_BLOODY_BREAKOUT);
                         }
                     }
 
