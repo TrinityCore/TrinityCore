@@ -636,8 +636,8 @@ struct ItemTemplate
     uint32 GetQuality() const { return ExtendedData->Quality; }
     uint32 GetFlags() const { return ExtendedData->Flags; }
     uint32 GetFlags2() const { return ExtendedData->Flags2; }
-    float GetUnk1() const { return ExtendedData->Unk1; }
-    float GetUnk2() const { return ExtendedData->Unk2; }
+    float GetPriceRandomValue() const { return ExtendedData->PriceRandomValue; }
+    float GetPriceVariance() const { return ExtendedData->PriceVariance; }
     uint32 GetBuyCount() const { return std::max(ExtendedData->BuyCount, 1u); }
     uint32 GetBuyPrice() const { return ExtendedData->BuyPrice; }
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
@@ -668,8 +668,8 @@ struct ItemTemplate
     uint32 GetRandomProperty() const { return ExtendedData->RandomProperty; }
     uint32 GetRandomSuffix() const { return ExtendedData->RandomSuffix; }
     uint32 GetItemSet() const { return ExtendedData->ItemSet; }
-    uint32 GetArea() const { return ExtendedData->Area; }
-    uint32 GetMap() const { return ExtendedData->Map; }
+    uint32 GetArea() const { return ExtendedData->AreaID; }
+    uint32 GetMap() const { return ExtendedData->MapID; }
     uint32 GetBagFamily() const { return ExtendedData->BagFamily; }
     SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(ExtendedData->SocketColor[index]); }
     uint32 GetSocketBonus() const { return ExtendedData->SocketBonus; }

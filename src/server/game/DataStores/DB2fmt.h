@@ -20,7 +20,7 @@
 
 char const Itemfmt[]="niiiiiii";
 char const ItemCurrencyCostfmt[]="in";
-char const ItemSparsefmt[]="niiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiffffffffffiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
+char const ItemSparsefmt[]="niiiffiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiisssssiiiiiiiiiiiiiiiiiiiiiifiiifii";
 char const ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const KeyChainfmt[]="nbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 

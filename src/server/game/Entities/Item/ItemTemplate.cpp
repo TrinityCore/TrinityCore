@@ -22,15 +22,15 @@
 
 char const* ItemTemplate::GetName(LocaleConstant locale) const
 {
-    if (!strlen(ExtendedData->Name->Str[locale]))
+    if (!strlen(ExtendedData->Display->Str[locale]))
         return GetDefaultLocaleName();
 
-    return ExtendedData->Name->Str[locale];
+    return ExtendedData->Display->Str[locale];
 }
 
 char const* ItemTemplate::GetDefaultLocaleName() const
 {
-    return ExtendedData->Name->Str[sWorld->GetDefaultDbcLocale()];
+    return ExtendedData->Display->Str[sWorld->GetDefaultDbcLocale()];
 }
 
 bool ItemTemplate::CanChangeEquipStateInCombat() const

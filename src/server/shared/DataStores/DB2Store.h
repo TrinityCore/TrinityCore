@@ -98,7 +98,7 @@ public:
 
                     char const* str = locStr->Str[locale];
                     std::size_t len = strlen(str);
-                    buffer << uint16(len ? len + 1 : 0);
+                    buffer << uint16(len ? len : 0);
                     if (len)
                     {
                         buffer.append(str, len);

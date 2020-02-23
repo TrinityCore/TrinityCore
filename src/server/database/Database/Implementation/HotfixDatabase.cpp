@@ -31,11 +31,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         m_stmts.resize(MAX_HOTFIXDATABASE_STATEMENTS);
 
     // KeyChain.db2
-    PrepareStatement(HOTFIX_SEL_KEY_CHAIN, "SELECT Id, Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8, Key9, Key10, Key11, Key12, Key13, Key14, Key15, Key16, "
+    PrepareStatement(HOTFIX_SEL_KEY_CHAIN, "SELECT ID, Key1, Key2, Key3, Key4, Key5, Key6, Key7, Key8, Key9, Key10, Key11, Key12, Key13, Key14, Key15, Key16, "
         "Key17, Key18, Key19, Key20, Key21, Key22, Key23, Key24, Key25, Key26, Key27, Key28, Key29, Key30, Key31, Key32 FROM key_chain ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // Item.db2
-    PrepareStatement(HOTFIX_SEL_ITEM, "SELECT ID, Class, SubClass, SoundOverrideSubclass, Material, DisplayInfoID, InventoryType, Sheath FROM item ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_ITEM, "SELECT ID, ClassID, SubclassID, SoundOverrideSubclassID, Material, DisplayInfoID, InventoryType, SheatheType FROM item ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ItemCurrencyCost.db2
     PrepareStatement(HOTFIX_SEL_ITEM_CURRENCY_COST, "SELECT ID, ItemID FROM item_currency_cost ORDER BY ItemID DESC", CONNECTION_SYNCH);
@@ -50,7 +50,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "RequiredFactionId, RequiredFactionStanding, RequirementFlags, RequiredAchievement FROM item_extended_cost ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // Item-sparse.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Quality, Flags1, Flags2, Unk1, Unk2, BuyCount, BuyPrice, SellPrice, InventoryType, "
+    PrepareStatement(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Quality, Flags1, Flags2, PriceRandomValue, PriceVariance, BuyCount, BuyPrice, SellPrice, InventoryType, "
         "AllowableClass, AllowableRace, ItemLevel, RequiredLevel, RequiredSkill, RequiredSkillRank, RequiredSpell, RequiredHonorRank, "
         "RequiredCityRank, RequiredReputationFaction, RequiredReputationRank, MaxCount, Stackable, ContainerSlots, "
         "ItemStatType1, ItemStatType2, ItemStatType3, ItemStatType4, ItemStatType5, "
@@ -68,10 +68,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "SpellCooldown1, SpellCooldown2, SpellCooldown3, SpellCooldown4, SpellCooldown5, "
         "SpellCategory1, SpellCategory2, SpellCategory3, SpellCategory4, SpellCategory5, "
         "SpellCategoryCooldown1, SpellCategoryCooldown2, SpellCategoryCooldown3, SpellCategoryCooldown4, SpellCategoryCooldown5, "
-        "Bonding, Name, Name2, Name3, Name4, Description, PageText, LanguageID, PageMaterial, StartQuest, LockID, Material, Sheath, RandomProperty, RandomSuffix, ItemSet, "
-        "Area, Map, BagFamily, TotemCategory, SocketColor1, SocketColor2, SocketColor3, Content1, Content2, Content3, SocketBonus, GemProperties, ArmorDamageModifier, "
+        "Bonding, Display, Display1, Display2, Display3, Description, PageText, LanguageID, PageMaterial, StartQuest, LockID, Material, SheatheType, RandomProperty, RandomSuffix, ItemSet, "
+        "AreaID, MapID, BagFamily, TotemCategory, SocketColor1, SocketColor2, SocketColor3, Content1, Content2, Content3, SocketBonus, GemProperties, ArmorDamageModifier, "
         "Duration, ItemLimitCategory, HolidayID, StatScalingFactor, CurrencySubstitutionID, CurrencySubstitutionCount FROM item_sparse ORDER BY ID DESC", CONNECTION_SYNCH);
-    PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Name_lang, Name2_lang, Name3_lang, Name4_lang, Description_lang FROM item_sparse_locale WHERE locale = ?", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Display_lang, Display1_lang, Display2_lang, Display3_lang, Description_lang FROM item_sparse_locale WHERE locale = ?", CONNECTION_SYNCH);
 }
 
 HotfixDatabaseConnection::HotfixDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

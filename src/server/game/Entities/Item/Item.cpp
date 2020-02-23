@@ -1360,7 +1360,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
         }
 
         normalSellPrice = false;
-        return uint32(qualityFactor * proto->GetUnk1() * proto->GetUnk2() * typeFactor * baseFactor);
+        return uint32(qualityFactor * proto->GetPriceRandomValue() * proto->GetPriceVariance() * typeFactor * baseFactor);
     }
 }
 
