@@ -195,7 +195,7 @@ class spell_energize_aoe : public SpellScriptLoader
                     if ((*itr)->GetTypeId() == TYPEID_PLAYER && (*itr)->ToPlayer()->GetQuestStatus(GetSpellInfo()->Effects[EFFECT_1].CalcValue()) == QUEST_STATUS_INCOMPLETE)
                         ++itr;
                     else
-                        targets.erase(itr++);
+                        itr = targets.erase(itr);
                 }
                 targets.push_back(GetCaster());
             }
