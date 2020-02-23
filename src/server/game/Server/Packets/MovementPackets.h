@@ -75,6 +75,19 @@ namespace WorldPackets
             int32 MapID = 0;
             Position Pos;
         };
+
+        class MoveSetCollisionHeight final : public ServerPacket
+        {
+        public:
+            MoveSetCollisionHeight() : ServerPacket(SMSG_MOVE_SET_COLLISION_HEIGHT, 15) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid MoverGUID;
+            uint32 SequenceIndex = 0;
+            float Height = 1.0f;
+            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+        };
     }
 }
 

@@ -83,6 +83,7 @@ enum InventoryType : uint8;
 enum ItemClass : uint8;
 enum LootError : uint8;
 enum LootType : uint8;
+enum UpdateCollisionHeightReason : uint8;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -2358,7 +2359,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             These methods are only sent to the current unit.
         */
         void SendMovementSetCanTransitionBetweenSwimAndFly(bool apply);
-        void SendMovementSetCollisionHeight(float height);
+        void SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason);
 
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 

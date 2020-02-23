@@ -4288,6 +4288,12 @@ enum ContentLevels : uint8
     MAX_CONTENT
 };
 
+enum UpdateCollisionHeightReason : uint8
+{
+    UPDATE_COLLISION_HEIGHT_MOUNT = 0,
+    UPDATE_COLLISION_HEIGHT_SCALE = 1
+};
+
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 #endif

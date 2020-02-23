@@ -4654,31 +4654,6 @@ MovementStatusElements const MoveSetPitchRate[] =
     MSEEnd,
 };
 
-MovementStatusElements const MoveSetCollisionHeight[] =
-{
-    MSEZeroBit,
-    MSEZeroBit,
-    MSEHasGuidByte6,
-    MSEHasGuidByte1,
-    MSEHasGuidByte4,
-    MSEHasGuidByte7,
-    MSEHasGuidByte5,
-    MSEHasGuidByte2,
-    MSEHasGuidByte0,
-    MSEHasGuidByte3,
-    MSEGuidByte6,
-    MSEGuidByte0,
-    MSEGuidByte4,
-    MSEGuidByte3,
-    MSEGuidByte5,
-    MSECounter,
-    MSEGuidByte1,
-    MSEGuidByte2,
-    MSEGuidByte7,
-    MSEExtraElement,
-    MSEEnd,
-};
-
 MovementStatusElements const SplineMoveSetWalkMode[] =
 {
     MSEHasGuidByte7,
@@ -5774,8 +5749,6 @@ MovementStatusElements const* GetMovementStatusElementsSequence(uint32 opcode)
             return MovementSetCanFlyAck;
         case CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK:
             return MovementSetCanTransitionBetweenSwimAndFlyAck;
-        case SMSG_MOVE_SET_COLLISION_HEIGHT:
-            return MoveSetCollisionHeight;
         case CMSG_MOVE_SET_COLLISION_HEIGHT_ACK:
             return MovementSetCollisionHeightAck;
         case SMSG_MOVE_UPDATE_COLLISION_HEIGHT:

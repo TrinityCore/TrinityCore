@@ -1823,7 +1823,7 @@ void Player::SetObjectScale(float scale)
     SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, scale * DEFAULT_WORLD_OBJECT_SIZE);
     SetFloatValue(UNIT_FIELD_COMBATREACH, scale * DEFAULT_COMBAT_REACH);
     if (IsInWorld())
-        SendMovementSetCollisionHeight(GetCollisionHeight());
+        SendMovementSetCollisionHeight(GetCollisionHeight(), UPDATE_COLLISION_HEIGHT_SCALE);
 }
 
 bool Player::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const
@@ -27852,12 +27852,14 @@ void Player::SendMovementSetCanTransitionBetweenSwimAndFly(bool apply)
         Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY).Send();
 }
 
-void Player::SendMovementSetCollisionHeight(float height)
+void Player::SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason)
 {
-    static MovementStatusElements const heightElement = MSEExtraFloat;
-    Movement::ExtraMovementStatusElement extra(&heightElement);
-    extra.Data.floatData = height;
-    Movement::PacketSender(this, NULL_OPCODE, SMSG_MOVE_SET_COLLISION_HEIGHT, NULL_OPCODE, &extra).Send();
+    WorldPackets::Movement::MoveSetCollisionHeight packet;
+    packet.Height = height;
+    packet.MoverGUID = GetGUID();
+    packet.SequenceIndex = m_movementCounter++;
+    packet.Reason = reason;
+    SendDirectMessage(packet.Write());
 }
 
 std::string Player::GetMapAreaAndZoneString() const
