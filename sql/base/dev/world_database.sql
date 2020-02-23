@@ -3919,6 +3919,20 @@ CREATE TABLE `waypoints` (
   PRIMARY KEY (`entry`,`pointid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature waypoints';
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `quest_mail_sender`
+--
+
+DROP TABLE IF EXISTS `quest_mail_sender`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quest_mail_sender` (
+  `QuestId` int(5) unsigned NOT NULL DEFAULT '0',
+  `RewardMailSenderEntry` int(5) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`QuestId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
