@@ -28,7 +28,10 @@ void GenericMovementGenerator::Initialize(Unit* /*owner*/)
 
 bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
 {
-    _duration.Update(diff);
+    // Cyclic splines never expire, so update the duration only if it's not cyclic
+    if (!owner->movespline->isCyclic())
+        _duration.Update(diff);
+
     if (_duration.Passed())
         return false;
 
