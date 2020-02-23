@@ -1749,14 +1749,21 @@ private:
 
 enum WhackAGnoll
 {
-    SPELL_WHACK_SUMMON_NORMAL               = 102036,
-    SPELL_WHACK_SUMMON_BABY                 = 102043,
-    SPELL_WHACK_SUMMON_BONUS                = 102044,
-    SPELL_GNOLL_AURA_OKAY_TO_HIT            = 101996,
-    SPELL_WHACK_A_GNOLL_ACTION_BAR_REMOVED  = 102137,
-    SPELL_WHACK_A_GNOLL_ACTION_BAR          = 110230,
-    SPELL_WHACK_TRIGGERED                   = 102022,
-    SPELL_WHACK_ROOT                        = 101829
+    // Creature
+    NPC_DARMOON_FAIRE_WHACK_A_GNOLL_BUNNY               = 58570,
+    NPC_MOLA                                            = 54601,
+
+    // Spellls
+    SPELL_WHACK_SUMMON_NORMAL                           = 102036,
+    SPELL_WHACK_SUMMON_BABY                             = 102043,
+    SPELL_WHACK_SUMMON_BONUS                            = 102044,
+    SPELL_GNOLL_AURA_OKAY_TO_HIT                        = 101996,
+    SPELL_WHACK_A_GNOLL_ACTION_BAR_REMOVED              = 102137,
+    SPELL_WHACK_A_GNOLL_ACTION_BAR                      = 110230,
+    SPELL_WHACK_TRIGGERED                               = 102022,
+    SPELL_WHACK_ROOT                                    = 101829,
+    SPELL_STAY_OUT_DARKMOON_FAIRE_WHACK_A_GNOLL_BUNNY   = 110966,
+    SPELL_STAY_OUT_MOLA                                 = 109977
 };
 
 class spell_darkmoon_island_whack_summon_aura : public AuraScript
@@ -1899,7 +1906,9 @@ class spell_darkmoon_island_whack_a_gnoll : public AuraScript
         return ValidateSpellInfo(
             {
                 SPELL_WHACK_A_GNOLL_ACTION_BAR,
-                SPELL_WHACK_A_GNOLL_ACTION_BAR_REMOVED
+                SPELL_WHACK_A_GNOLL_ACTION_BAR_REMOVED,
+                SPELL_STAY_OUT_DARKMOON_FAIRE_WHACK_A_GNOLL_BUNNY,
+                SPELL_STAY_OUT_MOLA
             });
     }
 
@@ -1909,6 +1918,12 @@ class spell_darkmoon_island_whack_a_gnoll : public AuraScript
         target->RemoveAurasDueToSpell(GetSpellInfo()->Effects[EFFECT_1].TriggerSpell);
         target->RemoveAurasDueToSpell(SPELL_WHACK_A_GNOLL_ACTION_BAR);
         target->CastSpell(target, SPELL_WHACK_A_GNOLL_ACTION_BAR_REMOVED, true);
+
+        if (Creature* bunny = target->FindNearestCreature(NPC_DARMOON_FAIRE_WHACK_A_GNOLL_BUNNY, 20.f))
+            bunny->CastSpell(target, SPELL_STAY_OUT_DARKMOON_FAIRE_WHACK_A_GNOLL_BUNNY);
+
+        if (Creature* mola = target->FindNearestCreature(NPC_MOLA, 50.f))
+            mola->CastSpell(target, SPELL_STAY_OUT_MOLA);
     }
 
     void Register() override

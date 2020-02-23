@@ -427,6 +427,44 @@ private:
     ObjectGuid stormforgedEradictorGUID;
 };
 
+enum DarkmoonIslandGamingArea
+{
+    // Whack-a-Gnoll
+    AT_GAMING_AREA_WHACK_A_GNOLL    = 7344,
+    SPELL_STAY_OUT_WHACK_A_GNOLL    = 109977,
+    SPELL_WHACK_A_GNOLL             = 101612,
+    NPC_MOLA                        = 54601
+};
+
+struct GamingAreaData
+{
+    uint32 RequiredAura = 0;
+    uint32 NearbyKeeperEntry = 0;
+    uint32 StayOutSpellID = 0;
+};
+
+std::unordered_map<uint32, GamingAreaData> GamingAreaInfo =
+{
+    { AT_GAMING_AREA_WHACK_A_GNOLL, { SPELL_WHACK_A_GNOLL, NPC_MOLA, SPELL_STAY_OUT_WHACK_A_GNOLL } }
+    // To-do: fill with remaining data
+};
+
+class AreaTrigger_at_darkmoon_island_gaming_area : public AreaTriggerScript
+{
+public:
+    AreaTrigger_at_darkmoon_island_gaming_area() : AreaTriggerScript("AreaTrigger_at_darkmoon_island_gaming_area") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger)
+    {
+        GamingAreaData data = GamingAreaInfo[areaTrigger->ID];
+        if (!player->HasAura(data.RequiredAura))
+            if (Creature* keeper = player->FindNearestCreature(data.NearbyKeeperEntry, 50.f))
+                keeper->CastSpell(player, data.StayOutSpellID);
+
+        return true;
+    }
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -438,4 +476,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
     new AreaTrigger_at_frostgrips_hollow();
+    new AreaTrigger_at_darkmoon_island_gaming_area();
 }
