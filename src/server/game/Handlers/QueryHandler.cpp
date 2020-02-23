@@ -557,7 +557,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
     {
         WorldPackets::Query::DBReply response;
         response.TableHash = packet.TableHash;
-        response.Timestamp = GameTime::GetGameTime() + (5 * IN_MILLISECONDS); // according to sniffs the server sends its local time + 5 seconds
+        response.Timestamp = GameTime::GetGameTime();
 
         if (store->HasRecord(rec.RecordID))
         {
