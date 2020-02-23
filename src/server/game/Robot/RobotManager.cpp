@@ -289,7 +289,7 @@ void RobotManager::InitializeManager()
             {
                 meleeWeaponMap[6][levelRange][meleeWeaponMap[6][levelRange].size()] = proto->ItemId;
                 continue;
-            }            
+            }
             case ItemSubclassWeapon::ITEM_SUBCLASS_WEAPON_BOW:
             {
                 rangeWeaponMap[0][levelRange][rangeWeaponMap[0][levelRange].size()] = proto->ItemId;
@@ -877,6 +877,17 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                         goTarget->SetGoState(GOState::GO_STATE_DESTROYED);
                     }
                 }
+            }
+        }
+    }
+    else if (commandName == "emote")
+    {
+        if (commandVector.size() > 1)
+        {
+            uint32 emoteID = std::stoi(commandVector.at(1));
+            if (Unit* target = pmPlayer->GetSelectedUnit())
+            {
+                target->HandleEmoteCommand(emoteID);
             }
         }
     }

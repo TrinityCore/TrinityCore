@@ -52,6 +52,10 @@
 
 uint8 const EncounterCount = 17;
 
+#ifndef GOSSIP_MENU_IRONBARK_THE_REDEEMED
+#define GOSSIP_MENU_IRONBARK_THE_REDEEMED 5602
+#endif
+
 // EJ scripts
 enum DIRE_MAUL_NPC
 {
@@ -72,7 +76,7 @@ enum DIRE_MAUL_BOSS
 
 enum DIRE_MAUL_WAYPOINT
 {
-    WAYPOINT_IRONBARK_THE_REDEEMED = 142410,
+    WAYPOINT_IRONBARK_THE_REDEEMED = 569430,
 };
 
 enum DIRE_MAUL_LINE_OLD_IRONBARK
@@ -83,6 +87,8 @@ enum DIRE_MAUL_LINE_OLD_IRONBARK
 enum DIRE_MAUL_LINE_IRONBARK_THE_REDEEMED
 {
     LINE_IRONBARK_THE_REDEEMED_0 = 0,
+    LINE_IRONBARK_THE_REDEEMED_1 = 1,
+    LINE_IRONBARK_THE_REDEEMED_2 = 2,
 };
 
 enum DIRE_MAUL_DATA
@@ -93,10 +99,14 @@ enum DIRE_MAUL_DATA
 
 enum DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED
 {
-    EVENT_OPEN_DOOR_EMOTE = 0,
-    EVENT_DOOR_OPEN = 1,
-    EVENT_FAKE_DEATH = 2,
-    EVENT_DESPAWN = 3,
+    EVENT_TALK_0 = 1,
+    EVENT_MOVE_WAY = 2,
+    EVENT_OPEN_DOOR_EMOTE = 3,
+    EVENT_DOOR_OPEN = 4,
+    EVENT_TALK_1 = 5,
+    EVENT_FAKE_DEATH = 6,
+    EVENT_TALK_2 = 7,
+    EVENT_DESPAWN = 8,
 };
 
 class instance_dire_maul : public InstanceMapScript
@@ -232,13 +242,11 @@ public:
 
         bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
-            if (menuId == 0)
+            if (menuId == GOSSIP_MENU_IRONBARK_THE_REDEEMED && gossipListId == 0)
             {
                 me->RemoveFlag(EUnitFields::UNIT_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);
-                me->Say(DIRE_MAUL_LINE_IRONBARK_THE_REDEEMED::LINE_IRONBARK_THE_REDEEMED_0);
-                me->StopMoving();
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MovePath(DIRE_MAUL_WAYPOINT::WAYPOINT_IRONBARK_THE_REDEEMED, false);
+                events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_0, 2000);
+                events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_MOVE_WAY, 4000);
                 return true;
             }
             return false;
@@ -250,15 +258,17 @@ public:
             {
                 switch (id)
                 {
-                case 5:
+                case 4:
                 {
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
                     events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_OPEN_DOOR_EMOTE, 2000);
-                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_OPEN_DOOR_EMOTE, 6000);
-                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_DOOR_OPEN, 9000);
-                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_FAKE_DEATH, 14000);
-                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_DESPAWN, 20000);
+                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_OPEN_DOOR_EMOTE, 5000);
+                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_DOOR_OPEN, 7000);
+                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_1, 10000);
+                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_FAKE_DEATH, 15000);
+                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_2, 25000);
+                    events.ScheduleEvent(DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_DESPAWN, 35000);
                     break;
                 }
                 default:
@@ -272,9 +282,24 @@ public:
         void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
-
+            if (events.Empty())
+            {
+                return;
+            }
             switch (events.ExecuteEvent())
             {
+            case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_0:
+            {
+                me->AI()->Talk(DIRE_MAUL_LINE_IRONBARK_THE_REDEEMED::LINE_IRONBARK_THE_REDEEMED_0);
+                break;
+            }
+            case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_MOVE_WAY:
+            {
+                me->StopMoving();
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MovePath(DIRE_MAUL_WAYPOINT::WAYPOINT_IRONBARK_THE_REDEEMED, false);
+                break;
+            }
             case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_OPEN_DOOR_EMOTE:
             {
                 me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_ATTACK_UNARMED);
@@ -294,9 +319,19 @@ public:
                 }
                 break;
             }
+            case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_1:
+            {
+                me->AI()->Talk(DIRE_MAUL_LINE_IRONBARK_THE_REDEEMED::LINE_IRONBARK_THE_REDEEMED_1);
+                break;
+            }
             case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_FAKE_DEATH:
             {
-                me->HandleEmoteCommand(Emote::EMOTE_STATE_DEAD);
+                me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_DEAD);
+                break;
+            }
+            case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_TALK_2:
+            {
+                me->AI()->Talk(DIRE_MAUL_LINE_IRONBARK_THE_REDEEMED::LINE_IRONBARK_THE_REDEEMED_2);
                 break;
             }
             case DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED::EVENT_DESPAWN:
