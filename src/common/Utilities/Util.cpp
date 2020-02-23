@@ -21,6 +21,7 @@
 #include "IpAddress.h"
 #include <utf8.h>
 #include <algorithm>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <cctype>
@@ -107,7 +108,7 @@ time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
     return hourLocal;
 }
 
-std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
+std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
     uint64 minutes = timeInSecs % HOUR / MINUTE;
@@ -116,15 +117,75 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 
     std::ostringstream ss;
     if (days)
-        ss << days << (shortText ? "d" : " Day(s) ");
+    {
+        ss << days;
+        if (timeFormat == TimeFormat::Numeric)
+            ss << ":";
+        else if (timeFormat == TimeFormat::ShortText)
+            ss << "d";
+        else // if (timeFormat == TimeFormat::FullText)
+        {
+            if (days == 1)
+                ss << " Day ";
+            else
+                ss << " Days ";
+        }
+    }
     if (hours || hoursOnly)
-        ss << hours << (shortText ? "h" : " Hour(s) ");
+    {
+        ss << hours;
+        if (timeFormat == TimeFormat::Numeric)
+            ss << ":";
+        else if (timeFormat == TimeFormat::ShortText)
+            ss << "h";
+        else // if (timeFormat == TimeFormat::FullText)
+        {
+            if (hours <= 1)
+                ss << " Hour ";
+            else
+                ss << " Hours ";
+        }
+    }
     if (!hoursOnly)
     {
         if (minutes)
-            ss << minutes << (shortText ? "m" : " Minute(s) ");
-        if (secs || (!days && !hours && !minutes) )
-            ss << secs << (shortText ? "s" : " Second(s).");
+        {
+            ss << minutes;
+            if (timeFormat == TimeFormat::Numeric)
+                ss << ":";
+            else if (timeFormat == TimeFormat::ShortText)
+                ss << "m";
+            else // if (timeFormat == TimeFormat::FullText)
+            {
+                if (minutes == 1)
+                    ss << " Minute ";
+                else
+                    ss << " Minutes ";
+            }
+        }
+        else
+        {
+            if (timeFormat == TimeFormat::Numeric)
+                ss << "0:";
+        }
+        if (secs || (!days && !hours && !minutes))
+        {
+            ss << std::setw(2) << std::setfill('0') << secs;
+            if (timeFormat == TimeFormat::ShortText)
+                ss << "s";
+            else if (timeFormat == TimeFormat::FullText)
+            {
+                if (secs <= 1)
+                    ss << " Second.";
+                else
+                    ss << " Seconds.";
+            }
+        }
+        else
+        {
+            if (timeFormat == TimeFormat::Numeric)
+                ss << "00";
+        }
     }
 
     return ss.str();
