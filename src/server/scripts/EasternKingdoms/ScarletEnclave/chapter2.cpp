@@ -22,7 +22,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 
 enum BloodyBreakoutTexts
@@ -37,6 +36,7 @@ enum BloodyBreakoutTexts
     SAY_KOLTIRA_7 = 7,
     SAY_KOLTIRA_8 = 8,
     SAY_KOLTIRA_9 = 9,
+    SAY_KOLTIRA_10 = 10,
 
     SAY_VALROTH_0 = 0,
     SAY_VALROTH_1 = 1,
@@ -61,10 +61,13 @@ enum BloodyBreakoutEvents
     EVENT_SPAWN_WAVE_3      = 10,
     EVENT_SPAWN_VALROTH     = 11,
 
-    EVENT_OUTRO_1           = 12,
-    EVENT_OUTRO_2           = 13,
-    EVENT_OUTRO_3           = 14,
-    EVENT_OUTRO_4           = 15
+    EVENT_KOLTIRA_ADVICE    = 12,
+    EVENT_OUTRO_1           = 13,
+    EVENT_OUTRO_2           = 14,
+    EVENT_OUTRO_3           = 15,
+    EVENT_OUTRO_4           = 16,
+
+    EVENT_CHECK_PLAYER      = 17
 };
 
 enum BloodyBreakout
@@ -79,7 +82,7 @@ enum BloodyBreakout
     SUMMON_ACOLYTES_2           = 2,
     SUMMON_VALROTH              = 3,
 
-    QUEST_BREAKOUT              = 12727,
+    QUEST_BLOODY_BREAKOUT       = 12727,
 
     NPC_FAKE_VALROTH            = 29011,
     NPC_VALROTH                 = 29001,
@@ -89,7 +92,7 @@ enum BloodyBreakout
 
     SPELL_KOLTIRA_TRANSFORM     = 52899,
     SPELL_ANTI_MAGIC_ZONE       = 52894,
-    SPELL_HERO_AGGRO            = 53628
+    SPELL_HERO_AGGRO            = 53627
 };
 
 Position const koltiraPos[3] =
@@ -108,6 +111,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
     bool GossipHello(Player* player) override
     {
         ObjectGuid const guid = me->GetGUID();
+        _playerGUID = player->GetGUID();
 
         if (me->IsQuestGiver())
             player->PrepareQuestMenu(guid);
@@ -124,8 +128,11 @@ struct npc_koltira_deathweaver : public ScriptedAI
 
     void QuestAccept(Player* /* player */, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_BREAKOUT)
+        if (quest->GetQuestId() == QUEST_BLOODY_BREAKOUT)
+        {
             _events.ScheduleEvent(EVENT_INTRO_0, 500ms);
+            _events.ScheduleEvent(EVENT_CHECK_PLAYER, 5s);
+        }
     }
 
     void Reset() override
@@ -133,14 +140,11 @@ struct npc_koltira_deathweaver : public ScriptedAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_DEAD);
-        me->SetSpeed(MOVE_RUN, 1.14286f);
-
-        me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
-        me->RemoveAurasDueToSpell(SPELL_KOLTIRA_TRANSFORM);
-        DoCastSelf(SPELL_HERO_AGGRO);
+        me->RemoveAllAuras();
 
         _events.Reset();
         _summons.DespawnAll();
+        _playerGUID.Clear();
         _eventGossip = false;
     }
 
@@ -172,7 +176,6 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     _events.ScheduleEvent(EVENT_INTRO_2, 2s);
                     break;
                 case EVENT_INTRO_2:
-                    // Vertical Speed: 137.7387
                     me->GetMotionMaster()->MoveJump(koltiraPos[0], 25.0f, 15.0f);
 
                     _events.ScheduleEvent(EVENT_INTRO_3, 2s);
@@ -185,6 +188,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     break;
                 case EVENT_INTRO_4:
                     DoCastSelf(SPELL_KOLTIRA_TRANSFORM);
+                    me->LoadEquipment(POINT_ID_1);
                     me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
                     me->GetMotionMaster()->MovePoint(POINT_ID_2, koltiraPos[2], true, 3.839724f);
 
@@ -226,30 +230,53 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     FakeValrothTalk(SAY_VALROTH_3);
                     me->SummonCreatureGroup(SUMMON_VALROTH);
 
+                    _events.ScheduleEvent(EVENT_KOLTIRA_ADVICE, 8s, 16s);
+                    break;
+                case EVENT_KOLTIRA_ADVICE:
+                    if (_summons.HasEntry(NPC_VALROTH))
+                        Talk(SAY_KOLTIRA_7);
+
                     break;
                 case EVENT_OUTRO_1:
                     me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
                     me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    Talk(SAY_KOLTIRA_7);
+                    Talk(SAY_KOLTIRA_8);
 
                     _events.ScheduleEvent(EVENT_OUTRO_2, 7s);
+                    _events.CancelEvent(EVENT_CHECK_PLAYER);
                     break;
                 case EVENT_OUTRO_2:
-                    Talk(SAY_KOLTIRA_8);
+                    Talk(SAY_KOLTIRA_9);
 
                     _events.ScheduleEvent(EVENT_OUTRO_3, 4s);
                     break;
                 case EVENT_OUTRO_3:
-                    Talk(SAY_KOLTIRA_9);
+                    Talk(SAY_KOLTIRA_10);
 
-                    _events.ScheduleEvent(EVENT_OUTRO_4, 4s);
+                    _events.ScheduleEvent(EVENT_OUTRO_4, 3s);
                     break;
                 case EVENT_OUTRO_4:
                     me->SetWalk(false);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    DoCastSelf(SPELL_HERO_AGGRO);
                     me->GetMotionMaster()->MovePath(NPC_KOLTIRA, false);
 
+                    break;
+                case EVENT_CHECK_PLAYER:
+                    if (!_playerGUID)
+                        return;
+
+                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    {
+                        if (!player->IsAlive() || !player->IsWithinDist(me, INTERACTION_DISTANCE * 6))
+                        {
+                            _summons.DespawnAll();
+                            me->DespawnOrUnsummon(1s);
+                        }
+                    }
+
+                    _events.ScheduleEvent(EVENT_CHECK_PLAYER, 5s);
                     break;
             }
         }
@@ -273,12 +300,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
         else
         {
             if (pointId == POINT_ID_6)
-            {
                 me->Mount(NPC_KOLTIRA_MOUNT);
-                me->SetSpeed(MOVE_RUN, 1.2897f);
-            }
-            else if (pointId == POINT_ID_10)
-                me->DespawnOrUnsummon();
         }
     }
 
@@ -298,6 +320,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
 private:
     EventMap _events;
     SummonList _summons;
+    ObjectGuid _playerGUID;
 
     bool _eventGossip;
 };
