@@ -31,6 +31,7 @@
  // EJ scripts
 #include "GridNotifiers.h"
 #include "GameObjectAI.h"
+#include "SpellAuras.h"
 
 enum Gameobject
 {
@@ -112,6 +113,7 @@ public:
             bloodKeeperSummonDelay = 20000;
             summonBloodKeeper = true;
             hakkarSummoned = false;
+            suppressionTime = 0;
         }
 
         ObjectGuid GOAtalaiStatue1;
@@ -126,10 +128,10 @@ public:
         ObjectGuid OGGOHakkarDoor1;
         ObjectGuid OGGOHakkarDoor2;
         std::unordered_map<uint32, ObjectGuid> OGGOEvilCircleMap;
-        ObjectGuid OGGOEternalFlame1;
-        ObjectGuid OGGOEternalFlame2;
-        ObjectGuid OGGOEternalFlame3;
-        ObjectGuid OGGOEternalFlame4;
+        uint32 SIGOEternalFlame1;
+        uint32 SIGOEternalFlame2;
+        uint32 SIGOEternalFlame3;
+        uint32 SIGOEternalFlame4;
 
         ObjectGuid OGBossGasher;
         ObjectGuid OGBossHukku;
@@ -165,6 +167,7 @@ public:
         int bloodKeeperSummonDelay;
         bool summonBloodKeeper;
         bool hakkarSummoned;
+        int suppressionTime;
 
         void OnCreatureCreate(Creature* creature) override
         {
@@ -241,7 +244,7 @@ public:
                     {
                         hd->SetGoState(GOState::GO_STATE_READY);
                     }
-                    if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame1))
+                    if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame1))
                     {
                         ef->SetGoState(GOState::GO_STATE_READY);
                         if (ef->HasFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE))
@@ -249,7 +252,7 @@ public:
                             ef->RemoveFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
                         }
                     }
-                    if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame2))
+                    if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame2))
                     {
                         ef->SetGoState(GOState::GO_STATE_READY);
                         if (ef->HasFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE))
@@ -257,7 +260,7 @@ public:
                             ef->RemoveFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
                         }
                     }
-                    if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame3))
+                    if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame3))
                     {
                         ef->SetGoState(GOState::GO_STATE_READY);
                         if (ef->HasFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE))
@@ -265,7 +268,7 @@ public:
                             ef->RemoveFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
                         }
                     }
-                    if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame4))
+                    if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame4))
                     {
                         ef->SetGoState(GOState::GO_STATE_READY);
                         if (ef->HasFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE))
@@ -316,25 +319,25 @@ public:
             }
             case SUNKEN_TEMPLE_GO::GO_ETERNAL_FLAME_1:
             {
-                OGGOEternalFlame1 = go->GetGUID();
+                SIGOEternalFlame1 = go->GetSpawnId();
                 go->SetGoState(GOState::GO_STATE_READY);
                 break;
             }
             case SUNKEN_TEMPLE_GO::GO_ETERNAL_FLAME_2:
             {
-                OGGOEternalFlame2 = go->GetGUID();
+                SIGOEternalFlame2 = go->GetSpawnId();
                 go->SetGoState(GOState::GO_STATE_READY);
                 break;
             }
             case SUNKEN_TEMPLE_GO::GO_ETERNAL_FLAME_3:
             {
-                OGGOEternalFlame3 = go->GetGUID();
+                SIGOEternalFlame3 = go->GetSpawnId();
                 go->SetGoState(GOState::GO_STATE_READY);
                 break;
             }
             case SUNKEN_TEMPLE_GO::GO_ETERNAL_FLAME_4:
             {
-                OGGOEternalFlame4 = go->GetGUID();
+                SIGOEternalFlame4 = go->GetSpawnId();
                 go->SetGoState(GOState::GO_STATE_READY);
                 break;
             }
@@ -569,19 +572,15 @@ public:
                     {
                         if (soe->IsInCombat())
                         {
-                            Unit* soeVictim = soe->EnsureVictim();
-                            if (soeVictim)
+                            std::unordered_map<ObjectGuid, Creature*> const& objects = instance->GetObjectsStore().GetElements()._elements._element;
+                            for (std::unordered_map<ObjectGuid, Creature*>::const_iterator itr = objects.cbegin(); itr != objects.cend(); ++itr)
                             {
-                                std::unordered_map<ObjectGuid, Creature*> const& objects = instance->GetObjectsStore().GetElements()._elements._element;
-                                for (std::unordered_map<ObjectGuid, Creature*>::const_iterator itr = objects.cbegin(); itr != objects.cend(); ++itr)
+                                if (itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_SCALEBANE || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_WANDERER || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_WHELP || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_WYRMKIN || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_HAZZAS || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_MORPHAZ)
                                 {
-                                    if (itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_SCALEBANE || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_WANDERER || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_WHELP || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_WYRMKIN || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_HAZZAS || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_MORPHAZ)
-                                    {
-                                        itr->second->AI()->AttackStart(soeVictim);
-                                    }
+                                    itr->second->AI()->AttackStart(soe->EnsureVictim());
                                 }
-                                SetBossState(SUNKEN_TEMPLE_DATA_BOSS::BOSS_SHADE_OF_ERANIKUS, EncounterState::IN_PROGRESS);
                             }
+                            SetBossState(SUNKEN_TEMPLE_DATA_BOSS::BOSS_SHADE_OF_ERANIKUS, EncounterState::IN_PROGRESS);
                         }
                     }
                 }
@@ -629,28 +628,28 @@ public:
                             hakkarMinionSummonDelay -= diff;
                             bloodKeeperSummonDelay -= diff;
                             bool allDowsed = true;
-                            if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame1))
+                            if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame1))
                             {
                                 if (ef->GetGoState() != GOState::GO_STATE_ACTIVE)
                                 {
                                     allDowsed = false;
                                 }
                             }
-                            if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame2))
+                            if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame2))
                             {
                                 if (ef->GetGoState() != GOState::GO_STATE_ACTIVE)
                                 {
                                     allDowsed = false;
                                 }
                             }
-                            if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame3))
+                            if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame3))
                             {
                                 if (ef->GetGoState() != GOState::GO_STATE_ACTIVE)
                                 {
                                     allDowsed = false;
                                 }
                             }
-                            if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame4))
+                            if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame4))
                             {
                                 if (ef->GetGoState() != GOState::GO_STATE_ACTIVE)
                                 {
@@ -671,7 +670,7 @@ public:
                                     {
                                         if (GameObject* ec = instance->GetGameObject(ecIT->second))
                                         {
-                                            aoh->SummonCreature(NPC_HAKKARI_MINION, ec->GetPositionX(), ec->GetPositionY(), ec->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
+                                            aoh->SummonCreature(NPC_HAKKARI_MINION, ec->GetPositionX(), ec->GetPositionY(), ec->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                                         }
                                     }
                                 }
@@ -702,6 +701,19 @@ public:
                                             summonBloodKeeper = true;
                                         }
                                     }
+                                }
+
+                                if (Aura* supprestionAura = aoh->GetAura(SUNKEN_TEMPLE_DATA_SPELL::SPELL_SUPPRESSION))
+                                {
+                                    suppressionTime += diff;
+                                    if (suppressionTime > 100000)
+                                    {
+                                        SetBossState(SUNKEN_TEMPLE_DATA_BOSS::BOSS_AVATAR_OF_HAKKAR, EncounterState::FAIL);
+                                    }
+                                }
+                                else
+                                {
+                                    suppressionTime = 0;
                                 }
                             }
                         }
@@ -742,37 +754,21 @@ public:
                 {
                     hd->SetGoState(GOState::GO_STATE_ACTIVE);
                 }
-                if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame1))
+                if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame1))
                 {
-                    ef->SetGoState(GOState::GO_STATE_READY);
-                    if (!ef->HasFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE))
-                    {
-                        ef->SetFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
-                    }
+                    ef->DespawnOrUnsummon(100ms, 2s);
                 }
-                if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame2))
+                if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame2))
                 {
-                    ef->SetGoState(GOState::GO_STATE_READY);
-                    if (!ef->HasFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE))
-                    {
-                        ef->SetFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
-                    }
+                    ef->DespawnOrUnsummon(100ms, 2s);
                 }
-                if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame3))
+                if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame3))
                 {
-                    ef->SetGoState(GOState::GO_STATE_READY);
-                    if (!ef->HasFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE))
-                    {
-                        ef->SetFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
-                    }
+                    ef->DespawnOrUnsummon(100ms, 2s);
                 }
-                if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame4))
+                if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame4))
                 {
-                    ef->SetGoState(GOState::GO_STATE_READY);
-                    if (!ef->HasFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE))
-                    {
-                        ef->SetFlag(GAMEOBJECT_FLAGS, GameObjectFlags::GO_FLAG_NOT_SELECTABLE);
-                    }
+                    ef->DespawnOrUnsummon(100ms, 2s);
                 }
                 for (std::unordered_map<uint32, ObjectGuid>::iterator it = OGGOEvilCircleMap.begin(); it != OGGOEvilCircleMap.end(); it++)
                 {
@@ -784,6 +780,8 @@ public:
                 hakkarMinionSummonDelay = 5000;
                 bloodKeeperSummonDelay = 20000;
                 hakkarSummoned = false;
+                summonBloodKeeper = true;
+                suppressionTime = 0;
                 SetBossState(SUNKEN_TEMPLE_DATA_BOSS::BOSS_AVATAR_OF_HAKKAR, EncounterState::NOT_STARTED);
             }
         };
@@ -817,28 +815,28 @@ public:
                     ef->SetGoState(GOState::GO_STATE_ACTIVE);
                 }
                 int dowsedCount = 0;
-                if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame1))
+                if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame1))
                 {
                     if (ef->GetGoState() == GOState::GO_STATE_ACTIVE)
                     {
                         dowsedCount++;
                     }
                 }
-                if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame2))
+                if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame2))
                 {
                     if (ef->GetGoState() == GOState::GO_STATE_ACTIVE)
                     {
                         dowsedCount++;
                     }
                 }
-                if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame3))
+                if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame3))
                 {
                     if (ef->GetGoState() == GOState::GO_STATE_ACTIVE)
                     {
                         dowsedCount++;
                     }
                 }
-                if (GameObject* ef = instance->GetGameObject(OGGOEternalFlame4))
+                if (GameObject* ef = instance->GetGameObjectBySpawnId(SIGOEternalFlame4))
                 {
                     if (ef->GetGoState() == GOState::GO_STATE_ACTIVE)
                     {
@@ -942,6 +940,7 @@ public:
                             meC->CastSpell(meC, SUNKEN_TEMPLE_DATA_SPELL::SPELL_AVATAR_SUMMONED);
                             meC->SetImmuneToAll(false);
                             meC->AI()->Talk(SUNKEN_TEMPLE_LINES_HAKKAR_AVATAR::HAKKAR_AVATAR_LINE_4);
+                            meC->AI()->AttackStart(meC->SelectNearestPlayer(200.0f));
                             if (InstanceScript* is = meC->GetInstanceScript())
                             {
                                 is->SetData(STEvents::HAKKAR_SUMMONED, 1);

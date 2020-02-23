@@ -98,6 +98,7 @@ enum SUNKEN_TEMPLE_DATA_SPELL
     SPELL_DOWSE_ETERNAL_FLAME = 12253,
     SPELL_SUMMON_AVATAR = 12639,                          // Cast by the shade of hakkar, updates entry to avatar
     SPELL_AVATAR_SUMMONED = 12948,
+    SPELL_SUPPRESSION = 12623,
 };
 
 enum SUNKEN_TEMPLE_LINES_JAMMALAN
