@@ -97,9 +97,9 @@ enum BloodyBreakout
 
 Position const koltiraPos[3] =
 {
-        { 1653.36f, -6038.34f, 127.584f },
-        { 1653.765f, -6035.075f, 127.5844f },
-        { 1651.89f, -6037.101f, 127.5844f }
+    { 1653.36f, -6038.34f, 127.584f },
+    { 1653.765f, -6035.075f, 127.5844f },
+    { 1651.89f, -6037.101f, 127.5844f }
 };
 
 struct npc_koltira_deathweaver : public ScriptedAI
