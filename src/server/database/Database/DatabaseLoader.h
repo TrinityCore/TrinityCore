@@ -48,7 +48,7 @@ public:
         DATABASE_LOGIN      = 1,
         DATABASE_CHARACTER  = 2,
         DATABASE_WORLD      = 4,
-        DATABASE_HOTFIX     = 5,
+        DATABASE_HOTFIX     = 8,
 
         DATABASE_MASK_ALL   = DATABASE_LOGIN | DATABASE_CHARACTER | DATABASE_WORLD | DATABASE_HOTFIX
     };
