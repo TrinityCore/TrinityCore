@@ -1,6 +1,10 @@
 #ifndef ROBOT_STRATEGIES_GROUP_NORMAL_H
 #define ROBOT_STRATEGIES_GROUP_NORMAL_H
 
+#ifndef DPS_DELAY
+# define DPS_DELAY 4000
+#endif
+
 class RobotAI;
 
 enum Group_Instruction :uint8
@@ -38,6 +42,8 @@ public:
 
     uint8 instruction;
     int32 assembleDelay;
+    int32 dpsDelay;
+    int32 groupCombatTime;
 
     float followDistance;
 };

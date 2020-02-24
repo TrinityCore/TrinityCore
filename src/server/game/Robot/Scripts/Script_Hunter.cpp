@@ -247,7 +247,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget)
     {
         if (sourceAI->CastSpell(me, "Rapid Fire", HUNTER_RANGE_DISTANCE))
         {
-            me->Yell("BOSS RUSH !", Language::LANG_UNIVERSAL);
+            me->Yell("RAPID FIRE !", Language::LANG_UNIVERSAL);
         }
     }
     else

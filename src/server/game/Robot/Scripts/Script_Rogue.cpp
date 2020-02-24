@@ -92,7 +92,7 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget)
     {
         if (sourceAI->CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
         {
-            me->Yell("BOSS RUSH !", Language::LANG_UNIVERSAL);
+            me->Yell("ADRENALINE RUSH !", Language::LANG_UNIVERSAL);
             return true;
         }
         if (energy > 25)
@@ -247,7 +247,7 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
     {
         if (sourceAI->CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
         {
-            me->Yell("BOSS RUSH !", Language::LANG_UNIVERSAL);
+            me->Yell("ADRENALINE RUSH !", Language::LANG_UNIVERSAL);
             return true;
         }
         if (energy > 25)

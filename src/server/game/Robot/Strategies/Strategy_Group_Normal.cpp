@@ -16,6 +16,8 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
     instruction = Group_Instruction::Group_Instruction_None;
 
     assembleDelay = 0;
+    dpsDelay = DPS_DELAY;
+    groupCombatTime = 0;
 
     followDistance = FOLLOW_MIN_DISTANCE;
 }
@@ -131,7 +133,12 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     if (GroupInCombat())
     {
         sourceAI->restDelay = 0;
+        groupCombatTime += pmDiff;
         instruction = Group_Instruction::Group_Instruction_Battle;
+    }
+    else
+    {
+        groupCombatTime = 0;
     }
     switch (instruction)
     {
@@ -158,17 +165,18 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     }
     case Group_Instruction::Group_Instruction_Battle:
     {
-        if (Rest())
+        if (!GroupInCombat())
         {
+            instruction = Group_Instruction::Group_Instruction_Wander;
             return;
         }
         if (Battle())
         {
             return;
         }
-        if (!GroupInCombat())
+        if (Follow())
         {
-            instruction = Group_Instruction::Group_Instruction_Wander;
+            return;
         }
         break;
     }
@@ -325,7 +333,10 @@ bool Strategy_Group_Normal::Battle()
     {
     case 0:
     {
-        result = DPS();
+        if (groupCombatTime > dpsDelay)
+        {
+            result = DPS();
+        }
         break;
     }
     case 1:
@@ -636,7 +647,7 @@ bool Strategy_Group_Normal::GroupInCombat()
         {
             if (member->IsAlive())
             {
-                if (member->IsEngaged())
+                if (member->IsInCombat())
                 {
                     return true;
                 }

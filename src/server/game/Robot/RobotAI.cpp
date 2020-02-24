@@ -2855,6 +2855,31 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         replyStream << "Stopped";
         WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
     }
+    else if (commandName == "delay")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+
+        std::ostringstream replyStream;
+        if (commandVector.size() > 1)
+        {
+            int delayMS = std::stoi(commandVector.at(1));
+            replyStream << "DPS delay set to : " << delayMS;
+        }
+        else
+        {
+            replyStream << "Missing time";
+        }
+        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+    }
 }
 
 uint32 RobotAI::FindSpellID(std::string pmSpellName)
