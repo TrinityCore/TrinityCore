@@ -2872,6 +2872,7 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         if (commandVector.size() > 1)
         {
             int delayMS = std::stoi(commandVector.at(1));
+            st_Group_Normal->dpsDelay = delayMS;
             replyStream << "DPS delay set to : " << delayMS;
         }
         else
