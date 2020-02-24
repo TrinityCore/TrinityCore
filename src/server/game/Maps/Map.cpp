@@ -66,7 +66,7 @@ GridState* si_GridStates[MAX_GRID_STATE];
 
 
 ZoneDynamicInfo::ZoneDynamicInfo() : MusicId(0), DefaultWeather(nullptr), WeatherId(WEATHER_STATE_FINE),
-    WeatherGrade(0.0f), OverrideLightId(0), LightFadeInTime(0) { }
+    Intensity(0.0f), OverrideLightId(0), TransitionMilliseconds(0) { }
 
 Map::~Map()
 {
@@ -4570,7 +4570,7 @@ void Map::SendZoneDynamicInfo(uint32 zoneId, Player* player) const
         WorldPackets::Misc::OverrideLight overrideLight;
         overrideLight.AreaLightID = _defaultLight;
         overrideLight.OverrideLightID = overrideLightId;
-        overrideLight.TransitionMilliseconds = itr->second.LightFadeInTime;
+        overrideLight.TransitionMilliseconds = itr->second.TransitionMilliseconds;
         player->SendDirectMessage(overrideLight.Write());
     }
 }
@@ -4588,7 +4588,7 @@ void Map::SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player
 {
     if (WeatherState weatherId = zoneDynamicInfo.WeatherId)
     {
-        WorldPackets::Misc::Weather weather(weatherId, zoneDynamicInfo.WeatherGrade);
+        WorldPackets::Misc::Weather weather(weatherId, zoneDynamicInfo.Intensity);
         player->SendDirectMessage(weather.Write());
     }
     else if (zoneDynamicInfo.DefaultWeather)
@@ -4633,16 +4633,16 @@ Weather* Map::GetOrGenerateZoneDefaultWeather(uint32 zoneId)
     return info.DefaultWeather.get();
 }
 
-void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade)
+void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity)
 {
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
     info.WeatherId = weatherId;
-    info.WeatherGrade = weatherGrade;
+    info.Intensity = intensity;
 
     Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())
     {
-        WorldPackets::Misc::Weather weather(weatherId, weatherGrade);
+        WorldPackets::Misc::Weather weather(weatherId, intensity);
         weather.Write();
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -4652,19 +4652,19 @@ void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGra
     }
 }
 
-void Map::SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime)
+void Map::SetZoneOverrideLight(uint32 zoneId, uint32 overrideLightId, uint32 transitionMilliseconds)
 {
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
-    info.OverrideLightId = lightId;
-    info.LightFadeInTime = fadeInTime;
+    info.OverrideLightId = overrideLightId;
+    info.TransitionMilliseconds = transitionMilliseconds;
 
     Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())
     {
         WorldPackets::Misc::OverrideLight overrideLight;
         overrideLight.AreaLightID = _defaultLight;
-        overrideLight.OverrideLightID = lightId;
-        overrideLight.TransitionMilliseconds = fadeInTime;
+        overrideLight.OverrideLightID = overrideLightId;
+        overrideLight.TransitionMilliseconds = transitionMilliseconds;
         overrideLight.Write();
 
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
