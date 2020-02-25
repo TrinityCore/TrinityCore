@@ -96,7 +96,7 @@ class boss_nazan : public CreatureScript
             void IsSummonedBy(WorldObject* summoner) override
             {
                 if (summoner->GetEntry() == NPC_VAZRUDEN_HERALD)
-		Vazruden = me->FindNearestCreature(NPC_VAZRUDEN, 5000);
+		        Vazruden = me->FindNearestCreature(NPC_VAZRUDEN, 5000);
             }
 
             void JustSummoned(Creature* summoned) override
