@@ -91,7 +91,7 @@ class boss_nazan : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* who) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void IsSummonedBy(WorldObject* summoner) override
             {
