@@ -1,5 +1,6 @@
 #include "Script_Warlock.h"
-
+#include "Pet.h"
+#include "PetAI.h"
 #include "Group.h"
 
 #ifndef WARLOCK_CLOSER_DISTANCE
@@ -162,6 +163,7 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
         return false;
     }
     sourceAI->BaseMove(pmTarget, WARLOCK_CLOSER_DISTANCE, false);
+    PetAttack(me->GetPet(), pmTarget);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -524,4 +526,27 @@ bool Script_Warlock::Buff()
     }
 
     return false;
+}
+
+void Script_Warlock::PetAttack(Pet* pmMyPet, Unit* pmTarget)
+{
+    if (pmMyPet)
+    {
+        if (CharmInfo* pci = pmMyPet->GetCharmInfo())
+        {
+            if (!pci->IsCommandAttack())
+            {
+                pci->SetIsCommandAttack(true);
+                CreatureAI* AI = pmMyPet->ToCreature()->AI();
+                if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
+                {
+                    petAI->_AttackStart(pmTarget);
+                }
+                else
+                {
+                    AI->AttackStart(pmTarget);
+                }
+            }
+        }
+    }
 }

@@ -14,6 +14,7 @@ public:
 	virtual bool Attack(Unit* pmTarget);
 	virtual bool Buff();
 	virtual bool HealMe();
+    void PetAttack(Pet* pmMyPet, Unit* pmTarget);
 
 	bool DPS_Common(Unit* pmTarget);
 	bool Attack_Common(Unit* pmTarget);
