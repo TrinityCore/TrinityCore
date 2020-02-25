@@ -359,7 +359,7 @@ class boss_vazruden_the_herald : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (phase == 0)
                 {
@@ -489,7 +489,7 @@ class npc_hellfire_sentry : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* who) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void JustDied(Unit* killer) override
             {
