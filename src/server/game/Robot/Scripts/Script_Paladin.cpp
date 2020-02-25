@@ -281,11 +281,7 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget)
                         {
                             inRangeCount++;
                             if (inRangeCount >= 3)
-                            {
-                                if (sourceAI->CastSpell((*i), "Holy Wrath", MELEE_MAX_DISTANCE))
-                                {
-                                    return true;
-                                }
+                            {                                
                                 if (sourceAI->CastSpell((*i), "Consecration", MELEE_MAX_DISTANCE))
                                 {
                                     return true;
