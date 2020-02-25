@@ -19,6 +19,8 @@
 #ifndef TRIAL_OF_CHAMPION_H_
 #define TRIAL_OF_CHAMPION_H_
 
+#include "CreatureAIImpl.h"
+
 #define ToCScriptName "instance_trial_of_the_champion"
 #define DataHeader "TC"
 
