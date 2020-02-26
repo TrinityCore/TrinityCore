@@ -4321,11 +4321,11 @@ void Spell::EffectLeapBack(SpellEffIndex effIndex)
     float speedxy = m_spellInfo->Effects[effIndex].MiscValue / 10.f;
     float speedz = damage/ 10.f;
     //1891: Disengage
-   //4022: Rolling Throw
-    m_caster->JumpTo(speedxy, speedz, (m_spellInfo->SpellIconID != 1891 && m_spellInfo->SpellIconID != 4022));
-	if (m_spellInfo->SpellIconID == 4022) {
-		unitTarget->JumpTo(speedxy, speedz);
-	}
+    //4022: Rolling Throw
+    unitTarget->JumpTo(speedxy, speedz, (m_spellInfo->SpellIconID != 1891 && m_spellInfo->SpellIconID != 4022));
+    if (m_spellInfo->SpellIconID == 4022) {
+        unitTarget->JumpTo(speedxy, speedz);
+    }
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
