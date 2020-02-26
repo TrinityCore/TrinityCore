@@ -281,7 +281,7 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget)
                         {
                             inRangeCount++;
                             if (inRangeCount >= 3)
-                            {                                
+                            {
                                 if (sourceAI->CastSpell((*i), "Consecration", MELEE_MAX_DISTANCE))
                                 {
                                     return true;
@@ -302,7 +302,18 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget)
             return true;
         }
     }
+    if (sourceAI->HasAura(me, "The Art of War"))
+    {
+        if (sourceAI->CastSpell(pmTarget, "Exorcism", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
     if (sourceAI->CastSpell(pmTarget, "Judgement of Wisdom", MELEE_MAX_DISTANCE))
+    {
+        return true;
+    }
+    if (sourceAI->CastSpell(pmTarget, "Crusader Strike", MELEE_MAX_DISTANCE))
     {
         return true;
     }
@@ -419,18 +430,18 @@ bool Script_Paladin::Buff()
     {
         return false;
     }
-    if (sourceAI->CastSpell(me, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
-    {
-        return true;
-    }
-    if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
-    {
-        return true;
-    }
     switch (sourceAI->characterTalentTab)
     {
     case 0:
     {
+        if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        if (sourceAI->CastSpell(me, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
         if (sourceAI->CastSpell(me, "Concentration Aura", PALADIN_RANGE_DISTANCE, true))
         {
             return true;
@@ -439,6 +450,14 @@ bool Script_Paladin::Buff()
     }
     case 1:
     {
+        if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        if (sourceAI->CastSpell(me, "Blessing of Kings", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
         if (sourceAI->CastSpell(me, "Devotion Aura", PALADIN_RANGE_DISTANCE, true))
         {
             return true;
@@ -447,6 +466,24 @@ bool Script_Paladin::Buff()
     }
     case 2:
     {
+        if (sourceAI->FindSpellID("Seal of Command"))
+        {
+            if (sourceAI->CastSpell(me, "Seal of Command", PALADIN_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if (sourceAI->CastSpell(me, "Seal of Righteousness", PALADIN_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
+        }
+        if (sourceAI->CastSpell(me, "Blessing of Might", PALADIN_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
         if (sourceAI->CastSpell(me, "Retribution Aura", PALADIN_RANGE_DISTANCE, true))
         {
             return true;
