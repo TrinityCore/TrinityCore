@@ -4,6 +4,7 @@ DELETE FROM `disables` WHERE `entry`=650 AND `sourceType`=2;
 -- Disabling mmap for Trial of the Champion instance
 -- creatures are spawned according to sniffs behind an invisible wall and they don't know how to go through it
 -- Edit: Aokromes has pushed this already, but disabled the whole instance in the same commit
+-- Updated to work with TDB_full_world_335.20021_2020_02_15.sql
 
 -- DELETE FROM `disables` WHERE `sourceType`=7 AND `entry`= 650;
 -- INSERT INTO `disables` (`sourceType`,`entry`) VALUES (7, 650);
@@ -65,8 +66,19 @@ UPDATE `creature_template` SET `ScriptName`='generic_vehicleAI_toc5' WHERE `entr
 UPDATE `creature_template` SET `faction`=14, `npcflag`=16777216, `VehicleId`=529, `speed_walk`=2.5/2.5, `speed_run`=11.0/7.0, `unit_flags`=256, `unit_flags2`=0 WHERE `entry` IN (@ARGENT_WARHORSE_GC,@ARGENT_BATTLEWORG_GC);
 UPDATE `creature_template` SET `faction`=35, `npcflag`=16777216, `VehicleId`=486, `speed_walk`=2.5/2.5, `speed_run`=11.0/7.0, `unit_flags`=  0, `unit_flags2`=0 WHERE `entry` IN (@ARGENT_WARHORSE,@ARGENT_BATTLEWORG);
 
-UPDATE `creature_template` SET `Spell1`=0, `Spell2`=0, `Spell3`=0, `Spell4`=0 WHERE `entry` IN (@ARGENT_WARHORSE_GC, @ARGENT_BATTLEWORG_GC);
-UPDATE `creature_template` SET `Spell1`=68505, `Spell2`=62575, `Spell3`=68282, `Spell4`=62552 WHERE `entry` IN (@ARGENT_WARHORSE, @ARGENT_BATTLEWORG);
+DELETE FROM `creature_template_spell` WHERE `CreatureID` IN (@ARGENT_WARHORSE_GC, @ARGENT_BATTLEWORG_GC);
+DELETE FROM `creature_template_spell` WHERE `CreatureID` IN (@ARGENT_WARHORSE, @ARGENT_BATTLEWORG);
+
+INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES (@ARGENT_WARHORSE, 0, 68505, 12340);
+INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES (@ARGENT_WARHORSE, 1, 62575, 12340);
+INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES (@ARGENT_WARHORSE, 2, 68282, 12340);
+INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES (@ARGENT_WARHORSE, 3, 62552, 12340);
+
+INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES (@ARGENT_BATTLEWORG, 0, 68505, 12340);
+INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES (@ARGENT_BATTLEWORG, 1, 62575, 12340);
+INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES (@ARGENT_BATTLEWORG, 2, 68282, 12340);
+INSERT INTO `creature_template_spell` (`CreatureID`, `Index`, `Spell`, `VerifiedBuild`) VALUES (@ARGENT_BATTLEWORG, 3, 62552, 12340);
+
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (@ARGENT_WARHORSE_GC,@ARGENT_WARHORSE,@ARGENT_BATTLEWORG,@ARGENT_BATTLEWORG_GC);
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
@@ -404,7 +416,7 @@ SET @RISEN_CHAMP    := 35590;
 SET @RISEN_CHAMP_H  := 35717;
 
 -- The Black Knight's vehicle must have flight inhabit type
-UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=@KNIGHT_VEHICLE;
+INSERT INTO `creature_template_movement` (`Ground`, `Swim` ,`Flight`,`CreatureID`) VALUES (1,1,1,@KNIGHT_VEHICLE);
 
 -- Risen Champion is missing scriptname
 UPDATE `creature_template` SET `ScriptName`='npc_risen_ghoul' WHERE `entry`=@RISEN_CHAMP;
