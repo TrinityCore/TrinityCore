@@ -22,6 +22,7 @@
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "Chat.h"
+#include "ChatPackets.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "GameTime.h"
@@ -568,20 +569,19 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleEmoteOpcode(WorldPacket& recvData)
+void WorldSession::HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet)
 {
-    if (!GetPlayer()->IsAlive() || GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        return;
-
-    uint32 emote;
-    recvData >> emote;
+    uint32 emoteId = packet.EmoteID;
 
     // restrict to the only emotes hardcoded in client
-    if (emote != EMOTE_ONESHOT_NONE && emote != EMOTE_ONESHOT_WAVE)
+    if (emoteId != EMOTE_ONESHOT_NONE && emoteId != EMOTE_ONESHOT_WAVE)
         return;
 
-    sScriptMgr->OnPlayerEmote(GetPlayer(), emote);
-    GetPlayer()->HandleEmoteCommand(emote);
+    if (!_player->IsAlive() || _player->HasUnitState(UNIT_STATE_DIED))
+        return;
+
+    sScriptMgr->OnPlayerEmote(_player, emoteId);
+    _player->HandleEmoteCommand(emoteId);
 }
 
 namespace Trinity
