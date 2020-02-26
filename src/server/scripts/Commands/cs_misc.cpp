@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,12 +28,15 @@
 #include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
 #include "IpAddress.h"
+#include "IPLocation.h"
 #include "Item.h"
 #include "Language.h"
 #include "LFG.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "MMapFactory.h"
-#include "MovementGenerator.h"
+#include "MotionMaster.h"
+#include "MovementDefines.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -43,7 +46,6 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
-#include "TargetedMovementGenerator.h"
 #include "Transport.h"
 #include "Weather.h"
 #include "WeatherMgr.h"
@@ -269,7 +271,7 @@ public:
 
         if (haveVMap)
         {
-            if (map->IsOutdoors(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ()))
+            if (object->IsOutdoors())
                 handler->PSendSysMessage(LANG_GPS_POSITION_OUTDOORS);
             else
                 handler->PSendSysMessage(LANG_GPS_POSITION_INDOORS);
@@ -315,7 +317,12 @@ public:
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-            Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
+        {
+            AuraCreateInfo createInfo(spellInfo, MAX_EFFECT_MASK, target);
+            createInfo.SetCaster(target);
+
+            Aura::TryRefreshStackOrCreate(createInfo);
+        }
 
         return true;
     }
@@ -441,19 +448,15 @@ public:
 
             // stop flight if need
             if (_player->IsInFlight())
-            {
-                _player->GetMotionMaster()->MovementExpired();
-                _player->CleanupAfterTaxiFlight();
-            }
-            // save only in non-flight case
+                _player->FinishTaxiFlight();
             else
-                _player->SaveRecallPosition();
+                _player->SaveRecallPosition(); // save only in non-flight case
 
             // to point to see at target with same orientation
             float x, y, z;
-            target->GetContactPoint(_player, x, y, z);
+            target->GetClosePoint(x, y, z, _player->GetCombatReach(), 1.0f);
 
-            _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAngle(target), TELE_TO_GM_MODE);
+            _player->TeleportTo(target->GetMapId(), x, y, z, _player->GetAbsoluteAngle(target), TELE_TO_GM_MODE);
             _player->SetPhaseMask(target->GetPhaseMask(), true);
         }
         else
@@ -475,13 +478,9 @@ public:
 
             // stop flight if need
             if (_player->IsInFlight())
-            {
-                _player->GetMotionMaster()->MovementExpired();
-                _player->CleanupAfterTaxiFlight();
-            }
-            // save only in non-flight case
+                _player->FinishTaxiFlight();
             else
-                _player->SaveRecallPosition();
+                _player->SaveRecallPosition(); // save only in non-flight case
 
             _player->TeleportTo(map, x, y, z, _player->GetOrientation());
         }
@@ -571,14 +570,10 @@ public:
                 ChatHandler(target->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(_player->GetName()).c_str());
 
             // stop flight if need
-            if (target->IsInFlight())
-            {
-                target->GetMotionMaster()->MovementExpired();
-                target->CleanupAfterTaxiFlight();
-            }
-            // save only in non-flight case
+            if (_player->IsInFlight())
+                _player->FinishTaxiFlight();
             else
-                target->SaveRecallPosition();
+                _player->SaveRecallPosition(); // save only in non-flight case
 
             // before GM
             float x, y, z;
@@ -877,12 +872,7 @@ public:
             return false;
         }
 
-        // stop flight if need
-        if (target->IsInFlight())
-        {
-            target->GetMotionMaster()->MovementExpired();
-            target->CleanupAfterTaxiFlight();
-        }
+        target->FinishTaxiFlight();
 
         target->Recall();
         return true;
@@ -1273,8 +1263,27 @@ public:
         // Subtract
         if (count < 0)
         {
-            playerTarget->DestroyItemCount(itemId, -count, true, false);
-            handler->PSendSysMessage(LANG_REMOVEITEM, itemId, -count, handler->GetNameLink(playerTarget).c_str());
+            uint32 destroyedItemCount = playerTarget->DestroyItemCount(itemId, -count, true, false);
+            
+            if (destroyedItemCount > 0)
+            {
+                // output the amount of items successfully destroyed
+                handler->PSendSysMessage(LANG_REMOVEITEM, itemId, destroyedItemCount, handler->GetNameLink(playerTarget).c_str());
+
+                // check to see if we were unable to destroy all of the amount requested.
+                uint32 unableToDestroyItemCount = -count - destroyedItemCount;
+                if (unableToDestroyItemCount > 0)
+                {
+                    // output message for the amount of items we couldn't destroy
+                    handler->PSendSysMessage(LANG_REMOVEITEM_FAILURE, itemId, unableToDestroyItemCount, handler->GetNameLink(playerTarget).c_str());
+                }
+            }
+            else
+            {
+                // failed to destroy items of the amount requested
+                handler->PSendSysMessage(LANG_REMOVEITEM_FAILURE, itemId, -count, handler->GetNameLink(playerTarget).c_str());
+            }
+
             return true;
         }
 
@@ -1412,10 +1421,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zoneid = player->GetZoneId();
 
-        Weather* weather = WeatherMgr::FindWeather(zoneid);
-
-        if (!weather)
-            weather = WeatherMgr::AddWeather(zoneid);
+        Weather* weather = player->GetMap()->GetOrGenerateZoneDefaultWeather(zoneid);
         if (!weather)
         {
             handler->SendSysMessage(LANG_NO_WEATHER);
@@ -1612,8 +1618,8 @@ public:
         uint32 mapId;
         uint32 areaId;
         uint32 phase            = 0;
-        std::string areaName    = handler->GetTrinityString(LANG_UNKNOWN);
-        std::string zoneName    = handler->GetTrinityString(LANG_UNKNOWN);
+        char const* areaName    = nullptr;
+        char const* zoneName    = nullptr;
 
         // Guild data print variables defined so that they exist, but are not necessarily used
         uint32 guildId           = 0;
@@ -1634,15 +1640,15 @@ public:
             accId             = target->GetSession()->GetAccountId();
             money             = target->GetMoney();
             totalPlayerTime   = target->GetTotalPlayedTime();
-            level             = target->getLevel();
+            level             = target->GetLevel();
             latency           = target->GetSession()->GetLatency();
-            raceid            = target->getRace();
-            classid           = target->getClass();
+            raceid            = target->GetRace();
+            classid           = target->GetClass();
             muteTime          = target->GetSession()->m_muteTime;
             mapId             = target->GetMapId();
             areaId            = target->GetAreaId();
             alive             = target->IsAlive() ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO);
-            gender            = target->getGender();
+            gender            = target->GetNativeGender();
             phase             = target->GetPhaseMask();
         }
         // get additional information from DB
@@ -1700,17 +1706,10 @@ public:
                 lastIp    = fields[4].GetString();
                 lastLogin = fields[5].GetString();
 
-                uint32 ip = Trinity::Net::address_to_uint(Trinity::Net::make_address_v4(lastIp));
-                EndianConvertReverse(ip);
-
-                // If ip2nation table is populated, it displays the country
-                stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
-                stmt->setUInt32(0, ip);
-                if (PreparedQueryResult result2 = LoginDatabase.Query(stmt))
+                if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(lastIp))
                 {
-                    Field* fields2 = result2->Fetch();
                     lastIp.append(" (");
-                    lastIp.append(fields2[0].GetString());
+                    lastIp.append(location->CountryName);
                     lastIp.append(")");
                 }
             }
@@ -1795,11 +1794,11 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - GameTime::GetGameTime(), true).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banReason.c_str(), banTime > 0 ? secsToTimeString(banTime - GameTime::GetGameTime(), TimeFormat::ShortText).c_str() : handler->GetTrinityString(LANG_PERMANENTLY), bannedBy.c_str());
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
-            handler->PSendSysMessage(LANG_PINFO_MUTED, muteReason.c_str(), secsToTimeString(muteTime - GameTime::GetGameTime(), true).c_str(), muteBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_MUTED, muteReason.c_str(), secsToTimeString(muteTime - GameTime::GetGameTime(), TimeFormat::ShortText).c_str(), muteBy.c_str());
 
         // Output V. LANG_PINFO_ACC_ACCOUNT
         handler->PSendSysMessage(LANG_PINFO_ACC_ACCOUNT, userName.c_str(), accId, security);
@@ -1845,17 +1844,23 @@ public:
         AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaId);
         if (area)
         {
-            areaName = area->area_name[locale];
+            zoneName = area->area_name[locale];
 
             AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone);
             if (zone)
+            {
+                areaName = zoneName;
                 zoneName = zone->area_name[locale];
+            }
         }
 
-        if (target)
-            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale],
-                (!zoneName.empty() ? zoneName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)),
-                (!areaName.empty() ? areaName.c_str() : handler->GetTrinityString(LANG_UNKNOWN)));
+        if (!zoneName)
+            zoneName = handler->GetTrinityString(LANG_UNKNOWN);
+
+        if (areaName)
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP_WITH_AREA, map->name[locale], zoneName, areaName);
+        else
+            handler->PSendSysMessage(LANG_PINFO_CHR_MAP, map->name[locale], zoneName);
 
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
@@ -1869,7 +1874,7 @@ public:
         }
 
         // Output XX. LANG_PINFO_CHR_PLAYEDTIME
-        handler->PSendSysMessage(LANG_PINFO_CHR_PLAYEDTIME, (secsToTimeString(totalPlayerTime, true, true)).c_str());
+        handler->PSendSysMessage(LANG_PINFO_CHR_PLAYEDTIME, (secsToTimeString(totalPlayerTime, TimeFormat::ShortText, true)).c_str());
 
         // Mail Data - an own query, because it may or may not be useful.
         // SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
@@ -1917,13 +1922,13 @@ public:
 
         // Now handle any that had despawned, but had respawn time logged.
         std::vector<RespawnInfo*> data;
-        player->GetMap()->GetRespawnInfo(data, SPAWN_TYPEMASK_ALL, 0);
+        player->GetMap()->GetRespawnInfo(data, SPAWN_TYPEMASK_ALL);
         if (!data.empty())
         {
             uint32 const gridId = Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId();
             for (RespawnInfo* info : data)
                 if (info->gridId == gridId)
-                    player->GetMap()->ForceRespawn(info->type, info->spawnId);
+                    player->GetMap()->Respawn(info->type, info->spawnId);
         }
 
         return true;
@@ -2130,20 +2135,19 @@ public:
 
         handler->PSendSysMessage(LANG_MOVEGENS_LIST, (unit->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), unit->GetGUID().GetCounter());
 
-        MotionMaster* motionMaster = unit->GetMotionMaster();
-        float x, y, z;
-        motionMaster->GetDestination(x, y, z);
-
-        for (uint8 itr = 0; itr < MAX_MOTION_SLOT; ++itr)
+        if (unit->GetMotionMaster()->Empty())
         {
-            MovementGenerator* movementGenerator = motionMaster->GetMotionSlot(MovementSlot(itr));
-            if (!movementGenerator)
-            {
-                handler->SendSysMessage("Empty");
-                continue;
-            }
+            handler->SendSysMessage("Empty");
+            return true;
+        }
 
-            switch (movementGenerator->GetMovementGeneratorType())
+        float x, y, z;
+        unit->GetMotionMaster()->GetDestination(x, y, z);
+
+        std::vector<MovementGeneratorInformation> const list = unit->GetMotionMaster()->GetMovementGeneratorsInformation();
+        for (MovementGeneratorInformation const& info : list)
+        {
+            switch (info.Type)
             {
                 case IDLE_MOTION_TYPE:
                     handler->SendSysMessage(LANG_MOVEGENS_IDLE);
@@ -2158,53 +2162,33 @@ public:
                     handler->SendSysMessage(LANG_MOVEGENS_CONFUSED);
                     break;
                 case CHASE_MOTION_TYPE:
-                {
-                    Unit* target = nullptr;
-                    if (unit->GetTypeId() == TYPEID_PLAYER)
-                        target = static_cast<ChaseMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
-                    else
-                        target = static_cast<ChaseMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
-
-                    if (!target)
+                    if (info.TargetGUID.IsEmpty())
                         handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
-                    else if (target->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName().c_str(), target->GetGUID().GetCounter());
+                    else if (info.TargetGUID.IsPlayer())
+                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, info.TargetName.c_str(), info.TargetGUID.GetCounter());
                     else
-                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName().c_str(), target->GetGUID().GetCounter());
+                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, info.TargetName.c_str(), info.TargetGUID.GetCounter());
                     break;
-                }
                 case FOLLOW_MOTION_TYPE:
-                {
-                    Unit* target = nullptr;
-                    if (unit->GetTypeId() == TYPEID_PLAYER)
-                        target = static_cast<FollowMovementGenerator<Player> const*>(movementGenerator)->GetTarget();
-                    else
-                        target = static_cast<FollowMovementGenerator<Creature> const*>(movementGenerator)->GetTarget();
-
-                    if (!target)
+                    if (info.TargetGUID.IsEmpty())
                         handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
-                    else if (target->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName().c_str(), target->GetGUID().GetCounter());
+                    else if (info.TargetGUID.IsPlayer())
+                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, info.TargetName.c_str(), info.TargetGUID.GetCounter());
                     else
-                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName().c_str(), target->GetGUID().GetCounter());
+                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, info.TargetName.c_str(), info.TargetGUID.GetCounter());
                     break;
-                }
                 case HOME_MOTION_TYPE:
-                {
                     if (unit->GetTypeId() == TYPEID_UNIT)
                         handler->PSendSysMessage(LANG_MOVEGENS_HOME_CREATURE, x, y, z);
                     else
                         handler->SendSysMessage(LANG_MOVEGENS_HOME_PLAYER);
                     break;
-                }
                 case FLIGHT_MOTION_TYPE:
                     handler->SendSysMessage(LANG_MOVEGENS_FLIGHT);
                     break;
                 case POINT_MOTION_TYPE:
-                {
                     handler->PSendSysMessage(LANG_MOVEGENS_POINT, x, y, z);
                     break;
-                }
                 case FLEEING_MOTION_TYPE:
                     handler->SendSysMessage(LANG_MOVEGENS_FEAR);
                     break;
@@ -2215,7 +2199,7 @@ public:
                     handler->SendSysMessage(LANG_MOVEGENS_EFFECT);
                     break;
                 default:
-                    handler->PSendSysMessage(LANG_MOVEGENS_UNKNOWN, movementGenerator->GetMovementGeneratorType());
+                    handler->PSendSysMessage(LANG_MOVEGENS_UNKNOWN, info.Type);
                     break;
             }
         }
@@ -2319,11 +2303,7 @@ public:
         if (!target->IsAlive())
             return true;
 
-        char* damageStr = strtok((char*)args, " ");
-        if (!damageStr)
-            return false;
-
-        int32 damage_int = atoi((char*)damageStr);
+        int32 damage_int = atoi((char*)str);
         if (damage_int <= 0)
             return true;
 
@@ -2384,10 +2364,6 @@ public:
 
         Player* attacker = handler->GetSession()->GetPlayer();
         SpellNonMeleeDamage dmgInfo(attacker, target, spellid, spellInfo->GetSchoolMask());
-        damage = attacker->SpellDamageBonusDone(target, spellInfo, damage, SPELL_DIRECT_DAMAGE, { });
-        damage = target->SpellDamageBonusTaken(attacker, spellInfo, damage, SPELL_DIRECT_DAMAGE);
-
-        attacker->CalculateSpellDamageTaken(&dmgInfo, damage, spellInfo);
         Unit::DealDamageMods(dmgInfo.target, dmgInfo.damage, &dmgInfo.absorb);
         attacker->SendSpellNonMeleeDamageLog(&dmgInfo);
         attacker->DealSpellDamage(&dmgInfo, true);
@@ -2655,9 +2631,7 @@ public:
             return false;
         }
 
-        WorldPacket data(SMSG_PLAY_SOUND, 4);
-        data << uint32(soundId);
-        sWorld->SendGlobalMessage(&data);
+        sWorld->SendGlobalMessage(WorldPackets::Misc::PlaySound(soundId).Write());
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
         return true;

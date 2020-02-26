@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -130,9 +130,9 @@ struct boss_jaraxxus : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* who) override
     {
-        _JustEngagedWith();
+        BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_FEL_FIREBALL, 6s);
         events.ScheduleEvent(EVENT_FEL_LIGHTNING, 17s);
@@ -508,7 +508,7 @@ class spell_mistress_kiss_area : public SpellScript
         // get a list of players with mana
         targets.remove_if([](WorldObject* target)
         {
-            return target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->getPowerType() == POWER_MANA;
+            return target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->GetPowerType() == POWER_MANA;
         });
 
         if (targets.empty())

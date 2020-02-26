@@ -775,7 +775,7 @@ class npc_announcer_toc5 : public CreatureScript
                                         if (plr && !plr->IsGameMaster() && plr->IsAlive())
                                         {
                                             // 50% chance for race cheering at you or faction cheering at you
-                                            uint32 spectatorEntry = RAND(SpectatorData[plr->getRace()], uint32(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_SPECTATOR_ALLIANCE : NPC_SPECTATOR_HORDE));
+                                            uint32 spectatorEntry = RAND(SpectatorData[plr->GetRace()], uint32(instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE ? NPC_SPECTATOR_ALLIANCE : NPC_SPECTATOR_HORDE));
 
                                             if (Creature* spectator = me->FindNearestCreature(spectatorEntry, 200.0f))
                                                 spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, plr);
@@ -815,7 +815,7 @@ class npc_announcer_toc5 : public CreatureScript
                             else
                                 continue; // no text found, too many players?
 
-                            if (Creature* spectator = me->FindNearestCreature(SpectatorData[player->getRace()], 200.0f))
+                            if (Creature* spectator = me->FindNearestCreature(SpectatorData[player->GetRace()], 200.0f))
                                 spectator->AI()->Talk(EMOTE_SPECTATOR_CHEER, player);
 
                             foundPlr = true;

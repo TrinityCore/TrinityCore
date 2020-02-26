@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,9 +45,9 @@ public:
         return GetAQ40AI<boss_ouroAI>(creature);
     }
 
-    struct boss_ouroAI : public ScriptedAI
+    struct boss_ouroAI : public BossAI
     {
-        boss_ouroAI(Creature* creature) : ScriptedAI(creature)
+        boss_ouroAI(Creature* creature) : BossAI(creature, DATA_OURO)
         {
             Initialize();
         }
@@ -79,11 +78,13 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             DoCastVictim(SPELL_BIRTH);
+            BossAI::JustEngagedWith(who);
         }
 
         void UpdateAI(uint32 diff) override

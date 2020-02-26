@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +24,14 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include <map>
+
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
 
 class BattlegroundMap;
 class Creature;
@@ -177,8 +184,8 @@ enum BattlegroundStatus
 
 struct BattlegroundPlayer
 {
-    time_t  OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
-    uint32  Team;                                           // Player's team
+    time_t OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
+    uint32 Team;                                           // Player's team
 };
 
 struct BattlegroundObjectInfo
@@ -278,7 +285,7 @@ class TC_GAME_API Battleground
 
         int32 GetStartDelayTime() const     { return m_StartDelayTime; }
         uint8 GetArenaType() const          { return m_ArenaType; }
-        BattlegroundTeamId GetWinner() const { return _winnerTeamId; }
+        PvPTeamId GetWinner() const { return _winnerTeamId; }
         uint32 GetScriptId() const          { return ScriptId; }
         uint32 GetBonusHonorFromKill(uint32 kills) const;
         bool IsRandom() const { return m_IsRandom; }
@@ -301,7 +308,7 @@ class TC_GAME_API Battleground
         void SetRated(bool state)           { m_IsRated = state; }
         void SetArenaType(uint8 type)       { m_ArenaType = type; }
         void SetArenaorBGType(bool _isArena) { m_IsArena = _isArena; }
-        void SetWinner(BattlegroundTeamId winnerTeamId) { _winnerTeamId = winnerTeamId; }
+        void SetWinner(PvPTeamId winnerTeamId) { _winnerTeamId = winnerTeamId; }
         void SetScriptId(uint32 scriptId)   { ScriptId = scriptId; }
 
         void ModifyStartDelayTime(int diff) { m_StartDelayTime -= diff; }
@@ -362,9 +369,9 @@ class TC_GAME_API Battleground
 
         // Packet Transfer
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
-        void SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender = nullptr, bool self = true);
-        void SendPacketToAll(WorldPacket* packet);
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
+        void SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender = nullptr, bool self = true);
+        void SendPacketToAll(WorldPacket const* packet);
 
         void SendChatMessage(Creature* source, uint8 textId, WorldObject* target = nullptr);
         void SendBroadcastText(uint32 id, ChatMsg msgType, WorldObject const* target = nullptr);
@@ -372,14 +379,13 @@ class TC_GAME_API Battleground
         template<class Do>
         void BroadcastWorker(Do& _do);
 
-        void PlaySoundToTeam(uint32 SoundID, uint32 TeamID);
-        void PlaySoundToAll(uint32 SoundID);
+        void PlaySoundToTeam(uint32 soundID, uint32 teamID);
+        void PlaySoundToAll(uint32 soundID);
         void CastSpellOnTeam(uint32 SpellID, uint32 TeamID);
         void RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID);
         void RewardHonorToTeam(uint32 Honor, uint32 TeamID);
         void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID);
-        void UpdateWorldState(uint32 Field, uint32 Value);
-        void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* player);
+        void UpdateWorldState(uint32 variable, uint32 value);
         virtual void EndBattleground(uint32 winner);
         void BlockMovement(Player* player);
 
@@ -517,7 +523,7 @@ class TC_GAME_API Battleground
 
         // these are important variables used for starting messages
         uint8 m_Events;
-        BattlegroundStartTimeIntervals  StartDelayTimes[BG_STARTING_EVENT_COUNT];
+        BattlegroundStartTimeIntervals StartDelayTimes[BG_STARTING_EVENT_COUNT];
         // this must be filled in constructors!
         uint32 StartMessageIds[BG_STARTING_EVENT_COUNT];
 
@@ -525,9 +531,9 @@ class TC_GAME_API Battleground
         bool   m_IsRandom;
 
         BGHonorMode m_HonorMode;
-        int32 m_TeamScores[BG_TEAMS_COUNT];
+        int32 m_TeamScores[PVP_TEAMS_COUNT];
 
-        ArenaTeamScore _arenaTeamScores[BG_TEAMS_COUNT];
+        ArenaTeamScore _arenaTeamScores[PVP_TEAMS_COUNT];
 
     private:
         // Battleground
@@ -546,7 +552,7 @@ class TC_GAME_API Battleground
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattlegroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave
         bool   m_IsArena;
-        BattlegroundTeamId _winnerTeamId;
+        PvPTeamId _winnerTeamId;
         int32  m_StartDelayTime;
         bool   m_IsRated;                                   // is this battle rated?
         bool   m_PrematureCountDown;
@@ -594,15 +600,15 @@ class TC_GAME_API Battleground
         uint32 m_InvitedHorde;
 
         // Raid Group
-        Group* m_BgRaids[BG_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
+        Group* m_BgRaids[PVP_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
 
         // Players count by team
-        uint32 m_PlayersCount[BG_TEAMS_COUNT];
+        uint32 m_PlayersCount[PVP_TEAMS_COUNT];
 
         // Arena team ids by team
-        uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
+        uint32 m_ArenaTeamIds[PVP_TEAMS_COUNT];
 
-        uint32 m_ArenaTeamMMR[BG_TEAMS_COUNT];
+        uint32 m_ArenaTeamMMR[PVP_TEAMS_COUNT];
 
         // Limits
         uint32 m_LevelMin;
@@ -615,7 +621,7 @@ class TC_GAME_API Battleground
         // Start location
         uint32 m_MapId;
         BattlegroundMap* m_Map;
-        Position StartPosition[BG_TEAMS_COUNT];
+        Position StartPosition[PVP_TEAMS_COUNT];
         float m_StartMaxDist;
         uint32 ScriptId;
 };

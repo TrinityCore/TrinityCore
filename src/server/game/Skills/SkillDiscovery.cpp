@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -204,6 +203,19 @@ bool HasDiscoveredAllSpells(uint32 spellId, Player* player)
             return false;
 
     return true;
+}
+
+bool HasDiscoveredAnySpell(uint32 spellId, Player* player)
+{
+    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(int32(spellId));
+    if (tab == SkillDiscoveryStore.end())
+        return false;
+
+    for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+        if (player->HasSpell(item_iter->spellId))
+            return true;
+
+    return false;
 }
 
 uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)

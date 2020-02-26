@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1022,7 +1021,7 @@ void PretendToDie(Creature* creature)
     creature->RemoveAllAuras();
     creature->SetHealth(0);
     creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    creature->GetMotionMaster()->MovementExpired(false);
+    creature->GetMotionMaster()->Clear();
     creature->GetMotionMaster()->MoveIdle();
     creature->SetStandState(UNIT_STAND_STATE_DEAD);
 }
@@ -1258,7 +1257,6 @@ public:
                         Julianne->GetMotionMaster()->Clear();
                         Julianne->setDeathState(JUST_DIED);
                         Julianne->CombatStop(true);
-                        Julianne->GetThreatManager().ClearAllThreat();
                         Julianne->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     }
                     return;
@@ -1528,7 +1526,6 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &dama
                 Romulo->GetMotionMaster()->Clear();
                 Romulo->setDeathState(JUST_DIED);
                 Romulo->CombatStop(true);
-                Romulo->GetThreatManager().ClearAllThreat();
                 Romulo->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -157,7 +157,7 @@ public:
             switch (action)
             {
                 case GOSSIP_ACTION_TRAIN:
-                    player->GetSession()->SendTrainerList(me->GetGUID());
+                    player->GetSession()->SendTrainerList(me);
                     break;
                 case GOSSIP_ACTION_TRADE:
                     player->GetSession()->SendListInventory(me->GetGUID());
@@ -279,7 +279,7 @@ public:
 
         void Reset() override
         {
-            events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
+            events.ScheduleEvent(EVENT_CHECK_AREA, 5s);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -289,7 +289,7 @@ public:
 
             if (id == 15)
             // drake reached village
-            events.ScheduleEvent(EVENT_REACHED_HOME, 2000);
+            events.ScheduleEvent(EVENT_REACHED_HOME, 2s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -310,7 +310,7 @@ public:
                             }
                     }
                     else
-                        events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
+                        events.ScheduleEvent(EVENT_CHECK_AREA, 5s);
                     break;
                 case EVENT_REACHED_HOME:
                     if (Vehicle* vehicle = me->GetVehicleKit())
@@ -364,7 +364,7 @@ public:
         }
 
         void JustDied(Unit* /*killer*/) override { }
-        void OnCharmed(bool /*apply*/) override { }
+        void OnCharmed(bool /*isNew*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
@@ -1436,6 +1436,32 @@ class spell_player_mount_wyrm : public SpellScriptLoader
         }
 };
 
+enum CollapsingCave
+{
+    SPELL_COLLAPSING_CAVE = 55486
+};
+
+// 55693 - Remove Collapsing Cave Aura
+class spell_q12823_remove_collapsing_cave_aura : public SpellScript
+{
+    PrepareSpellScript(spell_q12823_remove_collapsing_cave_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_COLLAPSING_CAVE });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_COLLAPSING_CAVE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q12823_remove_collapsing_cave_aura::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_injured_goblin();
@@ -1461,4 +1487,5 @@ void AddSC_storm_peaks()
     new spell_fatal_strike();
     new spell_falling_dragon_feign_death();
     new spell_player_mount_wyrm();
+    RegisterSpellScript(spell_q12823_remove_collapsing_cave_aura);
 }

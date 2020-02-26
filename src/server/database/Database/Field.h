@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -136,8 +136,8 @@ class TC_DATABASE_API Field
         bool IsNumeric() const;
 
     private:
-        #ifdef TRINITY_DEBUG
-        void SetMetadata(MYSQL_FIELD* field, uint32 fieldIndex);
+        #ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
+        void SetMetadata(MySQLField* field, uint32 fieldIndex);
         Metadata meta;
         #endif
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include <string>
 
 struct CharacterCacheEntry
@@ -46,7 +47,7 @@ class TC_GAME_API CharacterCache
         void AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
         void DeleteCharacterCacheEntry(ObjectGuid const& guid, std::string const& name);
 
-        void UpdateCharacterData(ObjectGuid const& guid, std::string const& name, uint8* gender = nullptr, uint8* race = nullptr);
+        void UpdateCharacterData(ObjectGuid const& guid, std::string const& name, Optional<uint8> gender = {}, Optional<uint8> race = {});
         void UpdateCharacterLevel(ObjectGuid const& guid, uint8 level);
         void UpdateCharacterAccountId(ObjectGuid const& guid, uint32 accountId);
         void UpdateCharacterGuildId(ObjectGuid const& guid, ObjectGuid::LowType guildId);

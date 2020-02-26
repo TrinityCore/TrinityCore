@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,14 +18,13 @@
 /* ScriptData
 SDName: Darkshore
 SD%Complete: 100
-SDComment: Quest support: 731, 2078, 5321
+SDComment: Quest support: 731, 5321
 SDCategory: Darkshore
 EndScriptData */
 
 /* ContentData
 npc_kerlonian
 npc_prospector_remtravel
-npc_threshwackonator
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -53,8 +51,7 @@ enum Kerlonian
     SPELL_SLEEP_VISUAL          = 25148,
     SPELL_AWAKEN                = 17536,
     QUEST_SLEEPER_AWAKENED      = 5321,
-    NPC_LILADRIS                = 11219,                    //attackers entries unknown
-    FACTION_KER_ESCORTEE        = 113
+    NPC_LILADRIS                = 11219                    //attackers entries unknown
 };
 
 /// @todo make concept similar as "ringo" -escort. Find a way to run the scripted attacks, _if_ player are choosing road.
@@ -162,7 +159,7 @@ public:
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 Talk(SAY_KER_START, player);
-                StartFollow(player, FACTION_KER_ESCORTEE, quest);
+                StartFollow(player, FACTION_ESCORTEE_N_NEUTRAL_PASSIVE, QUEST_SLEEPER_AWAKENED);
             }
         }
     };
@@ -291,6 +288,12 @@ public:
                 me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
             }
         }
+
+        void JustDied(Unit* /*killer*/) override
+        {
+            if (Player* player = GetPlayerForEscort())
+                player->FailQuest(QUEST_ABSENT_MINDED_PT2);
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -299,90 +302,8 @@ public:
     }
 };
 
-/*####
-# npc_threshwackonator
-####*/
-
-enum Threshwackonator
-{
-    EMOTE_START             = 0,
-    SAY_AT_CLOSE            = 0,
-    QUEST_GYROMAST_REV      = 2078,
-    NPC_GELKAK              = 6667
-};
-
-#define GOSSIP_ITEM_INSERT_KEY  "[PH] Insert key"
-
-class npc_threshwackonator : public CreatureScript
-{
-public:
-    npc_threshwackonator() : CreatureScript("npc_threshwackonator") { }
-
-    struct npc_threshwackonatorAI : public FollowerAI
-    {
-        npc_threshwackonatorAI(Creature* creature) : FollowerAI(creature) { }
-
-        void Reset() override { }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            FollowerAI::MoveInLineOfSight(who);
-
-            if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && who->GetEntry() == NPC_GELKAK)
-            {
-                if (me->IsWithinDistInMap(who, 10.0f))
-                {
-                    who->ToCreature()->AI()->Talk(SAY_AT_CLOSE, who);
-                    DoAtEnd();
-                }
-            }
-        }
-
-        void DoAtEnd()
-        {
-            me->SetFaction(FACTION_MONSTER);
-
-            if (Player* pHolder = GetLeaderForFollower())
-                AttackStart(pHolder);
-
-            SetFollowComplete(true);
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                CloseGossipMenuFor(player);
-
-                Talk(EMOTE_START);
-                StartFollow(player);
-            }
-
-            return true;
-        }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_GYROMAST_REV) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_INSERT_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_threshwackonatorAI(creature);
-    }
-};
-
 void AddSC_darkshore()
 {
     new npc_kerlonian();
     new npc_prospector_remtravel();
-    new npc_threshwackonator();
 }

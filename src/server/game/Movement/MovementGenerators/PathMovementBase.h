@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,19 +19,25 @@
 #define PathMovementBase_h__
 
 #include "Define.h"
+#include <string>
 
 template<class Entity, class BasePath>
 class PathMovementBase
 {
-public:
-    PathMovementBase() : _path(), _currentNode(0) { }
-    virtual ~PathMovementBase() { };
+    public:
+        PathMovementBase() : _path(), _currentNode(0) { }
+        virtual ~PathMovementBase() { };
 
-    uint32 GetCurrentNode() const { return _currentNode; }
+        uint32 GetCurrentNode() const { return _currentNode; }
 
-protected:
-    BasePath _path;
-    uint32 _currentNode;
+        virtual std::string GetDebugInfo() const
+        {
+            return "Current Node: " + std::to_string(GetCurrentNode());
+        };
+
+    protected:
+        BasePath _path;
+        uint32 _currentNode;
 };
 
 #endif // PathMovementBase_h__

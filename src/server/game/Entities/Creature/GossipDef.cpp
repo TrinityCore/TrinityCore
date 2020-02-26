@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -226,8 +225,8 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             data << uint32(questID);
             data << uint32(item.QuestIcon);
             data << int32(quest->GetQuestLevel());
-            data << uint32(quest->GetFlags());              // 3.3.3 quest flags
-            data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
+            data << uint32(quest->GetFlags()); // 3.3.3 quest flags
+            data << uint8(quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly()); // 3.3.3 icon changes - 0: yellow exclapamtion mark, 1: blue question mark
             std::string title = quest->GetTitle();
 
             LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
@@ -377,8 +376,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
             data << uint32(questID);
             data << uint32(questMenuItem.QuestIcon);
             data << int32(quest->GetQuestLevel());
-            data << uint32(quest->GetFlags());             // 3.3.3 quest flags
-            data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
+            data << uint32(quest->GetFlags()); // 3.3.3 quest flags
+            data << uint8(quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly() && !quest->IsMonthly()); // 3.3.3 icon changes - 0: yellow exclapamtion mark, 1: blue question mark
             data << title;
         }
     }
@@ -473,8 +472,8 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
                 data << uint32(0);
         }
 
-        data << uint32(quest->GetRewOrReqMoney());
-        data << uint32(quest->XPValue(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
+        data << uint32(quest->GetRewOrReqMoney(_session->GetPlayer()));
+        data << uint32(quest->GetXPReward(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
     }
 
     // rewarded honor points. Multiply with 10 to satisfy client
@@ -523,16 +522,16 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const
 {
     std::string questTitle = quest->GetTitle();
-    std::string questOfferRewardText = quest->GetOfferRewardText();
+    std::string RewardText = quest->GetOfferRewardText();
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
     if (localeConstant != LOCALE_enUS)
     {
         if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
             ObjectMgr::GetLocaleString(localeData->Title,           localeConstant, questTitle);
-            ObjectMgr::GetLocaleString(localeData->OfferRewardText, localeConstant, questOfferRewardText);
-        }
+
+        if (QuestOfferRewardLocale const* questOfferRewardLocale = sObjectMgr->GetQuestOfferRewardLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questOfferRewardLocale->RewardText, localeConstant, RewardText);
     }
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
@@ -542,7 +541,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint64(npcGUID);
     data << uint32(quest->GetQuestId());
     data << questTitle;
-    data << questOfferRewardText;
+    data << RewardText;
 
     data << uint8(enableNext ? 1 : 0);                      // Auto Finish
     data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
@@ -587,8 +586,8 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
             data << uint32(0);
     }
 
-    data << uint32(quest->GetRewOrReqMoney());
-    data << uint32(quest->XPValue(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
+    data << uint32(quest->GetRewOrReqMoney(_session->GetPlayer()));
+    data << uint32(quest->GetXPReward(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
 
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10 * quest->CalculateHonorGain(_session->GetPlayer()->GetQuestLevel(quest)));
@@ -596,7 +595,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     data << uint32(0x08);                                   // unused by client?
     data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
     data << int32(quest->GetRewSpellCast());                // cast spell
-    data << uint32(0);                                      // unknown
+    data << uint32(quest->GetCharTitleId());                // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
     data << uint32(quest->GetBonusTalents());               // bonus talents
     data << uint32(quest->GetRewArenaPoints());             // arena points
     data << uint32(0);
@@ -626,10 +625,10 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     if (localeConstant != LOCALE_enUS)
     {
         if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
             ObjectMgr::GetLocaleString(localeData->Title,            localeConstant, questTitle);
-            ObjectMgr::GetLocaleString(localeData->RequestItemsText, localeConstant, requestItemsText);
-        }
+
+        if (QuestRequestItemsLocale const* questRequestItemsLocale = sObjectMgr->GetQuestRequestItemsLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questRequestItemsLocale->CompletionText, localeConstant, requestItemsText);
     }
 
     if (!quest->GetReqItemsCount() && canComplete)

@@ -5,7 +5,7 @@
 #include "jemalloc/internal/malloc_io.h"
 #include "jemalloc/internal/mutex_prof.h"
 #include "jemalloc/internal/ql.h"
-#include "jemalloc/internal/size_classes.h"
+#include "jemalloc/internal/sc.h"
 #include "jemalloc/internal/stats.h"
 
 /* Maximum ctl tree depth. */
@@ -39,15 +39,19 @@ typedef struct ctl_arena_stats_s {
 	uint64_t nmalloc_small;
 	uint64_t ndalloc_small;
 	uint64_t nrequests_small;
+	uint64_t nfills_small;
+	uint64_t nflushes_small;
 
-	malloc_bin_stats_t bstats[NBINS];
-	malloc_large_stats_t lstats[NSIZES - NBINS];
+	bin_stats_t bstats[SC_NBINS];
+	arena_stats_large_t lstats[SC_NSIZES - SC_NBINS];
+	arena_stats_extents_t estats[SC_NPSIZES];
 } ctl_arena_stats_t;
 
 typedef struct ctl_stats_s {
 	size_t allocated;
 	size_t active;
 	size_t metadata;
+	size_t metadata_thp;
 	size_t resident;
 	size_t mapped;
 	size_t retained;

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -359,7 +358,7 @@ class instance_stratholme : public InstanceMapScript
 
                         if (data == DONE)
                         {
-                            events.ScheduleEvent(EVENT_SLAUGHTER_SQUARE, 60000);
+                            events.ScheduleEvent(EVENT_SLAUGHTER_SQUARE, 1min);
                             TC_LOG_DEBUG("scripts", "Instance Stratholme: Slaugther event will continue in 1 minute.");
                         }
                         EncounterState[4] = data;

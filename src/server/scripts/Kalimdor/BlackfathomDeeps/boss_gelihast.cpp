@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,10 +38,10 @@ public:
     {
         boss_gelihastAI(Creature* creature) : BossAI(creature, DATA_GELIHAST) { }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
-            events.ScheduleEvent(EVENT_THROW_NET, urand(2000, 4000));
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_THROW_NET, 2s, 4s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -56,7 +56,7 @@ public:
                 if (eventId == EVENT_THROW_NET)
                 {
                     DoCastVictim(SPELL_NET);
-                    events.ScheduleEvent(EVENT_THROW_NET, urand(4000, 7000));
+                    events.ScheduleEvent(EVENT_THROW_NET, 4s, 7s);
                 }
             }
 

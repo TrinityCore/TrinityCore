@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,11 +22,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "Errors.h"
 #include "GridNotifiers.h"
 #include "Player.h"
+#include "Random.h"
+#include "SharedDefines.h"
 #include "SpellAuraEffects.h"
+#include "SpellDefines.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum PriestSpells
 {
@@ -38,6 +44,7 @@ enum PriestSpells
     SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
+    SPELL_PRIEST_LIGHTWELL_CHARGES                  = 59907,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
@@ -60,14 +67,44 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_MIND_BLAST_R1                      = 8092,
     SPELL_PRIEST_SHADOW_WORD_DEATH_R1               = 32379,
-    SPELL_PRIEST_MIND_FLAY_DAMAGE                   = 58381
+    SPELL_PRIEST_MIND_FLAY_DAMAGE                   = 58381,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R1                 = 7001,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R2                 = 27873,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R3                 = 27874,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R4                 = 28276,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R5                 = 48084,
+    SPELL_PRIEST_LIGHTWELL_RENEW_R6                 = 48085,
 };
 
 enum PriestSpellIcons
 {
+    PRIEST_ICON_ID_FOCUSED_POWER                    = 2210,
     PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT           = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
+};
+
+enum PriestMisc
+{
+    PRIEST_LIGHTWELL_NPC_1                          = 31897,
+    PRIEST_LIGHTWELL_NPC_2                          = 31896,
+    PRIEST_LIGHTWELL_NPC_3                          = 31895,
+    PRIEST_LIGHTWELL_NPC_4                          = 31894,
+    PRIEST_LIGHTWELL_NPC_5                          = 31893,
+    PRIEST_LIGHTWELL_NPC_6                          = 31883
+};
+
+enum MiscSpells
+{
+    SPELL_MAGE_ARCANE_POWER                         = 12042,
+    SPELL_GENERIC_ARENA_DAMPENING                   = 74410,
+    SPELL_GENERIC_BATTLEGROUND_DAMPENING            = 74411
+};
+
+enum MiscSpellIcons
+{
+    SPELL_ICON_ID_STRENGTH_OF_WRYNN                 = 1704,
+    SPELL_ICON_ID_HELLSCREAM_WARSONG                = 937
 };
 
 class PowerCheck
@@ -78,7 +115,7 @@ class PowerCheck
         bool operator()(WorldObject* obj) const
         {
             if (Unit* target = obj->ToUnit())
-                return target->getPowerType() != _power;
+                return target->GetPowerType() != _power;
 
             return true;
         }
@@ -177,7 +214,6 @@ public:
 
             ASSERT(triggerInfo->GetMaxTicks() > 0);
             bp /= triggerInfo->GetMaxTicks();
-            bp += target->GetRemainingPeriodicAmount(target->GetGUID(), triggerSpell, SPELL_AURA_PERIODIC_HEAL);
 
             CastSpellExtraArgs args(aurEff);
             args.AddSpellBP0(bp);
@@ -330,7 +366,7 @@ class spell_pri_divine_aegis : public SpellScriptLoader
                 if (AuraEffect const* aegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS, EFFECT_0))
                     absorb += aegis->GetAmount();
 
-                absorb = std::min(absorb, eventInfo.GetProcTarget()->getLevel() * 125);
+                absorb = std::min(absorb, eventInfo.GetProcTarget()->GetLevel() * 125);
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(absorb);
@@ -679,6 +715,75 @@ class spell_pri_item_t6_trinket : public SpellScriptLoader
         }
 };
 
+// 60123 - Lightwell
+class spell_pri_lightwell : public SpellScript
+{
+    PrepareSpellScript(spell_pri_lightwell);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PRIEST_LIGHTWELL_RENEW_R1,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R2,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R3,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R4,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R5,
+                SPELL_PRIEST_LIGHTWELL_RENEW_R6
+            });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster || !caster->IsSummon())
+            return;
+
+        uint32 lightwellRenew = 0;
+        switch (caster->GetEntry())
+        {
+            case PRIEST_LIGHTWELL_NPC_1:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R1;
+                break;
+            case PRIEST_LIGHTWELL_NPC_2:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R2;
+                break;
+            case PRIEST_LIGHTWELL_NPC_3:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R3;
+                break;
+            case PRIEST_LIGHTWELL_NPC_4:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R4;
+                break;
+            case PRIEST_LIGHTWELL_NPC_5:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R5;
+                break;
+            case PRIEST_LIGHTWELL_NPC_6:
+                lightwellRenew = SPELL_PRIEST_LIGHTWELL_RENEW_R6;
+                break;
+            default:
+                return;
+        }
+
+        // proc a spellcast
+        if (Aura* chargesAura = caster->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES))
+        {
+            caster->CastSpell(GetHitUnit(), lightwellRenew, caster->ToTempSummon()->GetSummonerGUID());
+            if (chargesAura->ModCharges(-1))
+                caster->ToTempSummon()->UnSummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_lightwell::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // -7001 - Lightwell Renew
 class spell_pri_lightwell_renew : public SpellScriptLoader
 {
@@ -735,34 +840,6 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_pri_lightwell_renew_AuraScript();
-        }
-};
-
-// 8129 - Mana Burn
-class spell_pri_mana_burn : public SpellScriptLoader
-{
-    public:
-        spell_pri_mana_burn() : SpellScriptLoader("spell_pri_mana_burn") { }
-
-        class spell_pri_mana_burn_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_mana_burn_SpellScript);
-
-            void HandleAfterHit()
-            {
-                if (Unit* unitTarget = GetHitUnit())
-                    unitTarget->RemoveAurasWithMechanic((1 << MECHANIC_FEAR) | (1 << MECHANIC_POLYMORPH));
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_pri_mana_burn_SpellScript::HandleAfterHit);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pri_mana_burn_SpellScript;
         }
 };
 
@@ -983,6 +1060,32 @@ class spell_pri_power_word_shield : public SpellScriptLoader
     public:
         spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
 
+        class spell_pri_power_word_shield_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_power_word_shield_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return ValidateSpellInfo({ spellInfo->ExcludeTargetAuraSpell });
+            }
+
+            void WeakenSoul()
+            {
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, GetSpellInfo()->ExcludeTargetAuraSpell, true);
+            }
+
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_pri_power_word_shield_SpellScript::WeakenSoul);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pri_power_word_shield_SpellScript();
+        }
+
         class spell_pri_power_word_shield_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
@@ -1022,7 +1125,21 @@ class spell_pri_power_word_shield : public SpellScriptLoader
                         AddPct(amount, twinDisciplines->GetAmount());
 
                     // Focused Power
-                    amount *= caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+                    if (AuraEffect const* focusedPower = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_PRIEST, PRIEST_ICON_ID_FOCUSED_POWER, EFFECT_2))
+                        AddPct(amount, focusedPower->GetAmount());
+
+                    // Arena - Dampening
+                    if (AuraEffect const* auraEffArenaDampening = caster->GetAuraEffect(SPELL_GENERIC_ARENA_DAMPENING, EFFECT_0))
+                        AddPct(amount, auraEffArenaDampening->GetAmount());
+                    // Battleground - Dampening
+                    else if (AuraEffect const* auraEffBattlegroudDampening = caster->GetAuraEffect(SPELL_GENERIC_BATTLEGROUND_DAMPENING, EFFECT_0))
+                        AddPct(amount, auraEffBattlegroudDampening->GetAmount());
+
+                    // ICC buff
+                    if (AuraEffect const* auraStrengthOfWrynn = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, SPELL_ICON_ID_STRENGTH_OF_WRYNN, EFFECT_2))
+                        AddPct(amount, auraStrengthOfWrynn->GetAmount());
+                    else if (AuraEffect const* auraHellscreamsWarsong = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_GENERIC, SPELL_ICON_ID_HELLSCREAM_WARSONG, EFFECT_2))
+                        AddPct(amount, auraHellscreamsWarsong->GetAmount());
                 }
             }
 
@@ -1030,6 +1147,10 @@ class spell_pri_power_word_shield : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 if (dmgInfo.GetAttacker() == target)
+                    return;
+
+                // Don't try to reflect the reflect spell
+                if (dmgInfo.GetSpellInfo() && dmgInfo.GetSpellInfo()->Id == SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED)
                     return;
 
                 if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
@@ -1113,7 +1234,7 @@ class spell_pri_renew : public SpellScriptLoader
                 if (AuraEffect const* empoweredRenewAurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT, EFFECT_1))
                 {
                     int32 heal = aurEff->GetAmount();
-                    heal *= GetSpellInfo()->GetMaxTicks();
+                    heal *= aurEff->GetTotalTicks();
 
                     CastSpellExtraArgs args(aurEff);
                     args.AddSpellBP0(CalculatePct(heal, empoweredRenewAurEff->GetAmount()));
@@ -1291,8 +1412,12 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
                         if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
                         {
                             // backfire damage
+                            int32 bp = aurEff->GetAmount();
+                            bp = target->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), bp, DOT);
+                            bp *= 8;
+
                             CastSpellExtraArgs args(aurEff);
-                            args.AddSpellBP0(aurEff->GetAmount() * 8);
+                            args.AddSpellBP0(bp);
                             caster->CastSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, args);
                         }
                     }
@@ -1427,10 +1552,8 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
                 ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
-                // Add remaining ticks to healing done
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
-                amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PRIEST_BLESSED_HEALING, SPELL_AURA_PERIODIC_HEAL);
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(amount);
@@ -1449,6 +1572,26 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
         }
 };
 
+// 10060 - Power Infusion
+class spell_pri_power_infusion : public SpellScript
+{
+    PrepareSpellScript(spell_pri_power_infusion);
+
+    SpellCastResult CheckCast()
+    {
+        if (Unit* target = GetExplTargetUnit())
+            if (target->HasAura(SPELL_MAGE_ARCANE_POWER))
+                return SPELL_FAILED_AURA_BOUNCED;
+
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_pri_power_infusion::CheckCast);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_aq_3p_bonus();
@@ -1464,8 +1607,8 @@ void AddSC_priest_spell_scripts()
     new spell_pri_imp_shadowform();
     new spell_pri_improved_spirit_tap();
     new spell_pri_item_t6_trinket();
+    RegisterSpellScript(spell_pri_lightwell);
     new spell_pri_lightwell_renew();
-    new spell_pri_mana_burn();
     new spell_pri_mana_leech();
     new spell_pri_mind_sear();
     new spell_pri_pain_and_suffering_dummy();
@@ -1481,4 +1624,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_t3_4p_bonus();
     new spell_pri_t5_heal_2p_bonus();
     new spell_pri_t10_heal_2p_bonus();
+    RegisterSpellScript(spell_pri_power_infusion);
 }

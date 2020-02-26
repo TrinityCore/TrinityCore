@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -91,6 +91,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 {
                     case ACTION_INTRO_BALTHARUS:
                         me->setActive(true);
+                        me->SetFarVisible(true);
                         events.ScheduleEvent(EVENT_INTRO_TALK, Seconds(7), 0, PHASE_INTRO);
                         break;
                     case ACTION_CLONE:
@@ -106,10 +107,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 me->InterruptNonMeleeSpells(false);
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_CLEAVE, Seconds(13), 0, PHASE_COMBAT);
@@ -136,7 +137,7 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 summons.Summon(summon);
                 summon->SetHealth(me->GetHealth());
-                events.ScheduleEvent(EVENT_SUMMONS_ATTACK, Seconds(2));
+                events.ScheduleEvent(EVENT_SUMMONS_ATTACK, 2s);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -183,10 +184,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                 if (!events.IsInPhase(PHASE_INTRO))
                     me->SetHealth(instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
+                events.Update(diff);
+
                 if (!events.IsInPhase(PHASE_INTRO) && me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
-                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -204,8 +205,8 @@ class boss_baltharus_the_warborn : public CreatureScript
                             events.Repeat(Seconds(24));
                             break;
                         case EVENT_ENERVATING_BRAND:
-                            for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            for (uint8 i = 0; i < RAID_MODE<uint8>(2, 4, 2, 4); i++)
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true, false, -SPELL_ENERVATING_BRAND))
                                     DoCast(target, SPELL_ENERVATING_BRAND);
                             events.Repeat(Seconds(26));
                             break;
@@ -255,9 +256,9 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             {
                 DoZoneInCombat();
                 events.Reset();
-                events.ScheduleEvent(EVENT_CLEAVE, Seconds(11));
-                events.ScheduleEvent(EVENT_BLADE_TEMPEST, Seconds(15));
-                events.ScheduleEvent(EVENT_ENERVATING_BRAND, Seconds(10));
+                events.ScheduleEvent(EVENT_CLEAVE, 11s);
+                events.ScheduleEvent(EVENT_BLADE_TEMPEST, 15s);
+                events.ScheduleEvent(EVENT_ENERVATING_BRAND, 10s);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override { }
@@ -301,8 +302,8 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                             events.Repeat(Seconds(24));
                             break;
                         case EVENT_ENERVATING_BRAND:
-                            for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            for (uint8 i = 0; i < RAID_MODE<uint8>(2, 4, 2, 4); i++)
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true, false, -SPELL_ENERVATING_BRAND))
                                     DoCast(target, SPELL_ENERVATING_BRAND);
                             events.Repeat(Seconds(26));
                             break;

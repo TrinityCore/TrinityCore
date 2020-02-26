@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,13 +22,14 @@
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "MotionMaster.h"
+#include "MovementDefines.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "Timer.h"
 #include "UnitDefines.h"
+#include "Unit.h"
 #include "WaypointDefines.h"
 
 SmartWaypointMgr* SmartWaypointMgr::instance()
@@ -271,10 +272,11 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.target.raw.param1 = fields[21].GetUInt32();
         temp.target.raw.param2 = fields[22].GetUInt32();
         temp.target.raw.param3 = fields[23].GetUInt32();
-        temp.target.x = fields[24].GetFloat();
-        temp.target.y = fields[25].GetFloat();
-        temp.target.z = fields[26].GetFloat();
-        temp.target.o = fields[27].GetFloat();
+        temp.target.raw.param4 = fields[24].GetUInt32();
+        temp.target.x = fields[25].GetFloat();
+        temp.target.y = fields[26].GetFloat();
+        temp.target.z = fields[27].GetFloat();
+        temp.target.o = fields[28].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))
@@ -290,7 +292,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
             case SMART_EVENT_UPDATE:
             case SMART_EVENT_UPDATE_OOC:
             case SMART_EVENT_UPDATE_IC:
-            case SMART_EVENT_HEALT_PCT:
+            case SMART_EVENT_HEALTH_PCT:
             case SMART_EVENT_TARGET_HEALTH_PCT:
             case SMART_EVENT_MANA_PCT:
             case SMART_EVENT_TARGET_MANA_PCT:
@@ -410,6 +412,55 @@ SmartScriptHolder& SmartAIMgr::FindLinkedEvent(SmartAIEventList& list, uint32 li
     return SmartScriptHolderDummy;
 }
 
+/*static*/ bool SmartAIMgr::EventHasInvoker(SMART_EVENT event)
+{
+    switch (event)
+    { // white list of events that actually have an invoker passed to them
+        case SMART_EVENT_AGGRO:
+        case SMART_EVENT_DEATH:
+        case SMART_EVENT_KILL:
+        case SMART_EVENT_SUMMONED_UNIT:
+        case SMART_EVENT_SPELLHIT:
+        case SMART_EVENT_SPELLHIT_TARGET:
+        case SMART_EVENT_DAMAGED:
+        case SMART_EVENT_RECEIVE_HEAL:
+        case SMART_EVENT_RECEIVE_EMOTE:
+        case SMART_EVENT_JUST_SUMMONED:
+        case SMART_EVENT_DAMAGED_TARGET:
+        case SMART_EVENT_SUMMON_DESPAWNED:
+        case SMART_EVENT_PASSENGER_BOARDED:
+        case SMART_EVENT_PASSENGER_REMOVED:
+        case SMART_EVENT_GOSSIP_HELLO:
+        case SMART_EVENT_GOSSIP_SELECT:
+        case SMART_EVENT_ACCEPTED_QUEST:
+        case SMART_EVENT_REWARD_QUEST:
+        case SMART_EVENT_FOLLOW_COMPLETED:
+        case SMART_EVENT_ON_SPELLCLICK:
+        case SMART_EVENT_GO_LOOT_STATE_CHANGED:
+        case SMART_EVENT_AREATRIGGER_ONTRIGGER:
+        case SMART_EVENT_IC_LOS:
+        case SMART_EVENT_OOC_LOS:
+        case SMART_EVENT_DISTANCE_CREATURE:
+        case SMART_EVENT_FRIENDLY_HEALTH:
+        case SMART_EVENT_FRIENDLY_HEALTH_PCT:
+        case SMART_EVENT_FRIENDLY_IS_CC:
+        case SMART_EVENT_FRIENDLY_MISSING_BUFF:
+        case SMART_EVENT_ACTION_DONE:
+        case SMART_EVENT_TARGET_HEALTH_PCT:
+        case SMART_EVENT_TARGET_MANA_PCT:
+        case SMART_EVENT_RANGE:
+        case SMART_EVENT_VICTIM_CASTING:
+        case SMART_EVENT_TARGET_BUFFED:
+        case SMART_EVENT_IS_BEHIND_TARGET:
+        case SMART_EVENT_INSTANCE_PLAYER_ENTER:
+        case SMART_EVENT_TRANSPORT_ADDCREATURE:
+        case SMART_EVENT_DATA_SET:
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
 {
     if (std::abs(e.target.o) > 2 * float(M_PI))
@@ -463,6 +514,15 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             }
             break;
         }
+        case SMART_TARGET_ACTION_INVOKER:
+        case SMART_TARGET_ACTION_INVOKER_VEHICLE:
+        case SMART_TARGET_INVOKER_PARTY:
+            if (e.GetScriptType() != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST && e.GetEventType() != SMART_EVENT_LINK && !EventHasInvoker(e.event.type))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has invoker target, but event does not provide any invoker!", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
+                return false;
+            }
+            break;
         case SMART_TARGET_PLAYER_RANGE:
         case SMART_TARGET_SELF:
         case SMART_TARGET_VICTIM:
@@ -470,11 +530,8 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_HOSTILE_LAST_AGGRO:
         case SMART_TARGET_HOSTILE_RANDOM:
         case SMART_TARGET_HOSTILE_RANDOM_NOT_TOP:
-        case SMART_TARGET_ACTION_INVOKER:
-        case SMART_TARGET_INVOKER_PARTY:
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
-        case SMART_TARGET_ACTION_INVOKER_VEHICLE:
         case SMART_TARGET_OWNER_OR_SUMMONER:
         case SMART_TARGET_THREAT_LIST:
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
@@ -658,7 +715,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_UPDATE:
             case SMART_EVENT_UPDATE_IC:
             case SMART_EVENT_UPDATE_OOC:
-            case SMART_EVENT_HEALT_PCT:
+            case SMART_EVENT_HEALTH_PCT:
             case SMART_EVENT_MANA_PCT:
             case SMART_EVENT_TARGET_HEALTH_PCT:
             case SMART_EVENT_TARGET_MANA_PCT:
@@ -765,6 +822,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_REWARD_QUEST:
                 if (e.event.quest.quest && !IsQuestValid(e, e.event.quest.quest))
                     return false;
+
+                if (!IsMinMaxValid(e, e.event.quest.cooldownMin, e.event.quest.cooldownMax))
+                    return false;
                 break;
             case SMART_EVENT_RECEIVE_EMOTE:
             {
@@ -793,7 +853,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             case SMART_EVENT_MOVEMENTINFORM:
             {
-                if (e.event.movementInform.type >= MAX_MOTION_TYPE)
+                if (IsInvalidMovementGeneratorType(e.event.movementInform.type))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses invalid Motion type %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.movementInform.type);
                     return false;
@@ -1126,8 +1186,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         }
-        case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_INVOKER_CAST:
+            if (e.GetScriptType() != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST && e.GetEventType() != SMART_EVENT_LINK && !EventHasInvoker(e.event.type))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has invoker cast action, but event does not provide any invoker!", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
+                return false;
+            }
+            /* fallthrough */
+        case SMART_ACTION_SELF_CAST:
+        case SMART_ACTION_ADD_AURA:
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
             break;
@@ -1424,6 +1491,83 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
+        case SMART_ACTION_RESPAWN_BY_SPAWNID:
+            if (!sObjectMgr->GetSpawnData(SpawnObjectType(e.action.respawnData.spawnType), e.action.respawnData.spawnId))
+            {
+                TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u specifies invalid spawn data (%u,%u)", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.respawnData.spawnType, e.action.respawnData.spawnId);
+                return false;
+            }
+            break;
+        case SMART_ACTION_ENABLE_TEMP_GOBJ:
+            if (!e.action.enableTempGO.duration)
+            {
+                TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u does not specify duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
+            break;
+        case SMART_ACTION_PAUSE_MOVEMENT:
+            if (!e.action.pauseMovement.pauseTimer)
+            {
+                TC_LOG_ERROR("sql.sql", "Entry %u SourceType %u Event %u Action %u does not specify pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
+            break;
+        case SMART_ACTION_SET_MOVEMENT_SPEED:
+        {
+            if (e.action.movementSpeed.movementType >= MAX_MOVE_TYPE)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %u SourceType %u Event %u Action %u uses invalid movementType %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.movementSpeed.movementType);
+                return false;
+            }
+
+            if (!e.action.movementSpeed.speedInteger && !e.action.movementSpeed.speedFraction)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %u SourceType %u Event %u Action %u uses speed 0, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
+
+            break;
+        }
+        case SMART_ACTION_OVERRIDE_LIGHT:
+        {
+            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(e.action.overrideLight.zoneId);
+            if (!areaEntry)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent zoneId %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideLight.zoneId);
+                return false;
+            }
+
+            if (areaEntry->zone != 0)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses subzone (ID: %u) instead of zone, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideLight.zoneId);
+                return false;
+            }
+
+            if (!sLightStore.LookupEntry(e.action.overrideLight.lightId))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent lightId %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideLight.lightId);
+                return false;
+            }
+
+            break;
+        }
+        case SMART_ACTION_OVERRIDE_WEATHER:
+        {
+            AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(e.action.overrideWeather.zoneId);
+            if (!areaEntry)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent zoneId %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideWeather.zoneId);
+                return false;
+            }
+
+            if (areaEntry->zone != 0)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses subzone (ID: %u) instead of zone, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.overrideWeather.zoneId);
+                return false;
+            }
+
+            break;
+        }
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -1457,7 +1601,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_UNIT_FLAG:
         case SMART_ACTION_PLAYMOVIE:
         case SMART_ACTION_MOVE_TO_POS:
-        case SMART_ACTION_RESPAWN_TARGET:
         case SMART_ACTION_CLOSE_GOSSIP:
         case SMART_ACTION_TRIGGER_TIMED_EVENT:
         case SMART_ACTION_REMOVE_TIMED_EVENT:
@@ -1502,6 +1645,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
+        case SMART_ACTION_PLAY_CINEMATIC:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

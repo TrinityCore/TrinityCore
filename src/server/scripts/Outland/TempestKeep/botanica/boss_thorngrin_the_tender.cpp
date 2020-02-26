@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,13 +68,13 @@ class boss_thorngrin_the_tender : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_SACRIFICE, 5700);
+                events.ScheduleEvent(EVENT_SACRIFICE, 5700ms);
                 events.ScheduleEvent(EVENT_HELLFIRE, IsHeroic() ? urand(17400, 19300) : 18000);
-                events.ScheduleEvent(EVENT_ENRAGE, 12000);
+                events.ScheduleEvent(EVENT_ENRAGE, 12s);
             }
 
             void KilledUnit(Unit* /*victim*/) override
@@ -132,7 +132,7 @@ class boss_thorngrin_the_tender : public CreatureScript
                         case EVENT_ENRAGE:
                             Talk(EMOTE_ENRAGE);
                             DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_ENRAGE, 33000);
+                            events.ScheduleEvent(EVENT_ENRAGE, 33s);
                             break;
                         default:
                             break;

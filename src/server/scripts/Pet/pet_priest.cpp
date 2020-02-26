@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,8 +49,8 @@ class npc_pet_pri_lightwell : public CreatureScript
                 if (!me->IsAlive())
                     return;
 
-                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
+                EngagementOver();
                 me->ResetPlayerDamageReq();
             }
         };
@@ -70,8 +70,12 @@ class npc_pet_pri_shadowfiend : public CreatureScript
         {
             npc_pet_pri_shadowfiendAI(Creature* creature) : PetAI(creature) { }
 
-            void IsSummonedBy(Unit* summoner) override
+            void IsSummonedBy(WorldObject* summonerWO) override
             {
+                Unit* summoner = summonerWO->ToUnit();
+                if (!summoner)
+                    return;
+
                 if (summoner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
                     DoCastAOE(SPELL_PRIEST_SHADOWFIEND_DEATH);
             }

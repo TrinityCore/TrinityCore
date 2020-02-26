@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -274,14 +273,13 @@ void InstanceSaveManager::LoadInstances()
 
     // Delete invalid character_instance and group_instance references
     CharacterDatabase.DirectExecute("DELETE ci.* FROM character_instance AS ci LEFT JOIN characters AS c ON ci.guid = c.guid WHERE c.guid IS NULL");
-    CharacterDatabase.DirectExecute("DELETE gi.* FROM group_instance     AS gi LEFT JOIN groups     AS g ON gi.guid = g.guid WHERE g.guid IS NULL");
+    CharacterDatabase.DirectExecute("DELETE gi.* FROM group_instance     AS gi LEFT JOIN `groups`   AS g ON gi.guid = g.guid WHERE g.guid IS NULL");
 
     // Delete invalid instance references
     CharacterDatabase.DirectExecute("DELETE i.* FROM instance AS i LEFT JOIN character_instance AS ci ON i.id = ci.instance LEFT JOIN group_instance AS gi ON i.id = gi.instance WHERE ci.guid IS NULL AND gi.guid IS NULL");
 
     // Delete invalid references to instance
-    CharacterDatabase.DirectExecute("DELETE FROM creature_respawn WHERE instanceId > 0 AND instanceId NOT IN (SELECT id FROM instance)");
-    CharacterDatabase.DirectExecute("DELETE FROM gameobject_respawn WHERE instanceId > 0 AND instanceId NOT IN (SELECT id FROM instance)");
+    CharacterDatabase.DirectExecute("DELETE FROM respawn WHERE instanceId > 0 AND instanceId NOT IN (SELECT id FROM instance)");
     CharacterDatabase.DirectExecute("DELETE tmp.* FROM character_instance AS tmp LEFT JOIN instance ON tmp.instance = instance.id WHERE tmp.instance > 0 AND instance.id IS NULL");
     CharacterDatabase.DirectExecute("DELETE tmp.* FROM group_instance     AS tmp LEFT JOIN instance ON tmp.instance = instance.id WHERE tmp.instance > 0 AND instance.id IS NULL");
 
@@ -347,7 +345,7 @@ void InstanceSaveManager::LoadResetTimes()
     }
 
     // load the global respawn times for raid/heroic instances
-    uint32 diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
+    uint32 resetHour = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR);
     if (QueryResult result = CharacterDatabase.Query("SELECT mapid, difficulty, resettime FROM instance_reset"))
     {
         do
@@ -370,7 +368,7 @@ void InstanceSaveManager::LoadResetTimes()
             }
 
             // update the reset time if the hour in the configs changes
-            uint64 newresettime = (oldresettime / DAY) * DAY + diff;
+            uint64 newresettime = GetLocalHourTimestamp(oldresettime, resetHour, false);
             if (oldresettime != newresettime)
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
@@ -404,7 +402,7 @@ void InstanceSaveManager::LoadResetTimes()
         if (!t)
         {
             // initialize the reset time
-            t = today + period + diff;
+            t = GetLocalHourTimestamp(today + period, resetHour);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GLOBAL_INSTANCE_RESETTIME);
             stmt->setUInt16(0, uint16(mapid));
@@ -417,8 +415,8 @@ void InstanceSaveManager::LoadResetTimes()
         {
             // assume that expired instances have already been cleaned
             // calculate the next reset time
-            t = (t / DAY) * DAY;
-            t += ((today - t) / period + 1) * period + diff;
+            time_t day = (t / DAY) * DAY;
+            t = GetLocalHourTimestamp(day + ((today - day) / period + 1) * period, resetHour);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
             stmt->setUInt64(0, uint64(t));
@@ -452,12 +450,12 @@ time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty diff
         return 0;
     }
 
-    time_t diff = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
+    time_t resetHour = sWorld->getIntConfig(CONFIG_INSTANCE_RESET_TIME_HOUR);
     time_t period = uint32(((mapDiff->resetTime * sWorld->getRate(RATE_INSTANCE_RESET_TIME)) / DAY) * DAY);
     if (period < DAY)
         period = DAY;
 
-    return ((resetTime + MINUTE) / DAY * DAY) + period + diff;
+    return GetLocalHourTimestamp(((resetTime + MINUTE) / DAY * DAY) + period, resetHour);
 }
 
 void InstanceSaveManager::SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)

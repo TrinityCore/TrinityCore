@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -445,6 +445,20 @@ struct GameObjectTemplate
         }
     }
 
+    bool IsIgnoringLOSChecks() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_BUTTON: return button.losOK == 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.losOK == 0;
+            case GAMEOBJECT_TYPE_CHEST: return chest.losOK == 0;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.losOK == 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND: return flagstand.losOK == 0;
+            case GAMEOBJECT_TYPE_TRAP: return true;
+            default: return false;
+        }
+    }
+
     uint32 GetLockId() const
     {
         switch (type)
@@ -475,6 +489,21 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.noDamageImmune != 0;
             case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.noDamageImmune != 0;
             default: return true;
+        }
+    }
+
+    bool CannotBeUsedUnderImmunity() const // Cannot be used/activated/looted by players under immunity effects (example: Divine Shield)
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_CHEST:      return true;                           // All chests cannot be opened while immune on 3.3.5a
+            case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND:  return flagstand.noDamageImmune != 0;
+            case GAMEOBJECT_TYPE_FLAGDROP:   return flagdrop.noDamageImmune != 0;
+            default: return false;
         }
     }
 
@@ -558,18 +587,51 @@ struct GameObjectTemplate
         }
     }
 
+    bool IsLargeGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_BUTTON:            return button.large != 0;
+            case GAMEOBJECT_TYPE_QUESTGIVER:        return questgiver.large != 0;
+            case GAMEOBJECT_TYPE_GENERIC:           return _generic.large != 0;
+            case GAMEOBJECT_TYPE_TRAP:              return trap.large != 0;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:       return spellFocus.large != 0;
+            case GAMEOBJECT_TYPE_GOOBER:            return goober.large != 0;
+            case GAMEOBJECT_TYPE_SPELLCASTER:       return spellcaster.large != 0;
+            case GAMEOBJECT_TYPE_CAPTURE_POINT:     return capturePoint.large != 0;
+            default: return false;
+        }
+    }
+
+    bool IsInfiniteGameObject() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_DOOR:                  return true;
+            case GAMEOBJECT_TYPE_FLAGSTAND:             return true;
+            case GAMEOBJECT_TYPE_FLAGDROP:              return true;
+            case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:    return true;
+            case GAMEOBJECT_TYPE_TRAPDOOR:              return true;
+            default: return false;
+        }
+    }
+
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
-// From `gameobject_template_addon`
-struct GameObjectTemplateAddon
+// From `gameobject_template_addon`, `gameobject_overrides`
+struct GameObjectOverride
 {
-    uint32  entry;
-    uint32  faction;
-    uint32  flags;
-    uint32  mingold;
-    uint32  maxgold;
+    uint32 Faction;
+    uint32 Flags;
+};
+
+// From `gameobject_template_addon`
+struct GameObjectTemplateAddon : public GameObjectOverride
+{
+    uint32 Mingold;
+    uint32 Maxgold;
 };
 
 struct GameObjectLocale
@@ -586,6 +648,7 @@ struct TC_GAME_API QuaternionData
     QuaternionData(float X, float Y, float Z, float W) : x(X), y(Y), z(Z), w(W) { }
 
     bool isUnit() const;
+    void toEulerAnglesZYX(float& Z, float& Y, float& X) const;
     static QuaternionData fromEulerAnglesZYX(float Z, float Y, float X);
 };
 

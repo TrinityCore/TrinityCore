@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -123,7 +122,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         return;
     }
 
-    if (!invitedPlayer->GetSocial()->HasFriend(invitingPlayer->GetGUID()) && invitingPlayer->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
+    if (!invitedPlayer->GetSocial()->HasFriend(invitingPlayer->GetGUID()) && invitingPlayer->GetLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
     {
         SendPartyResult(PARTY_OP_INVITE, membername, ERR_INVITE_RESTRICTED);
         return;
@@ -445,6 +444,9 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket& recvData)
 
     /** error handling **/
     if (!group->IsLeader(GetPlayer()->GetGUID()))
+        return;
+
+    if (group->isLFGGroup())
         return;
 
     if (lootMethod > NEED_BEFORE_GREED)
@@ -781,7 +783,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_MAX_HP)
         *data << uint32(player->GetMaxHealth());
 
-    Powers powerType = player->getPowerType();
+    Powers powerType = player->GetPowerType();
     if (mask & GROUP_UPDATE_FLAG_POWER_TYPE)
         *data << uint8(powerType);
 
@@ -792,7 +794,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
         *data << uint16(player->GetMaxPower(powerType));
 
     if (mask & GROUP_UPDATE_FLAG_LEVEL)
-        *data << uint16(player->getLevel());
+        *data << uint16(player->GetLevel());
 
     if (mask & GROUP_UPDATE_FLAG_ZONE)
         *data << uint16(player->GetZoneId());
@@ -862,7 +864,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
     {
         if (pet)
-            *data << uint8(pet->getPowerType());
+            *data << uint8(pet->GetPowerType());
         else
             *data << uint8(0);
     }
@@ -870,7 +872,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_CUR_POWER)
     {
         if (pet)
-            *data << uint16(pet->GetPower(pet->getPowerType()));
+            *data << uint16(pet->GetPower(pet->GetPowerType()));
         else
             *data << uint16(0);
     }
@@ -878,7 +880,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     if (mask & GROUP_UPDATE_FLAG_PET_MAX_POWER)
     {
         if (pet)
-            *data << uint16(pet->GetMaxPower(pet->getPowerType()));
+            *data << uint16(pet->GetMaxPower(pet->GetPowerType()));
         else
             *data << uint16(0);
     }
@@ -932,7 +934,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recvData)
     }
 
     Pet* pet = player->GetPet();
-    Powers powerType = player->getPowerType();
+    Powers powerType = player->GetPowerType();
 
     WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 4+2+2+2+1+2*6+8+1+8);
     data << uint8(0);                                       // only for SMSG_PARTY_MEMBER_STATS_FULL, probably arena/bg related
@@ -983,7 +985,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recvData)
 
     data << uint16(player->GetPower(powerType));            // GROUP_UPDATE_FLAG_CUR_POWER
     data << uint16(player->GetMaxPower(powerType));         // GROUP_UPDATE_FLAG_MAX_POWER
-    data << uint16(player->getLevel());                     // GROUP_UPDATE_FLAG_LEVEL
+    data << uint16(player->GetLevel());                     // GROUP_UPDATE_FLAG_LEVEL
     data << uint16(player->GetZoneId());                    // GROUP_UPDATE_FLAG_ZONE
     data << uint16(player->GetPositionX());                 // GROUP_UPDATE_FLAG_POSITION
     data << uint16(player->GetPositionY());                 // GROUP_UPDATE_FLAG_POSITION
@@ -1016,13 +1018,13 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recvData)
         data << uint32(pet->GetMaxHealth());
 
     if (updateFlags & GROUP_UPDATE_FLAG_PET_POWER_TYPE)
-        data << (uint8)pet->getPowerType();
+        data << (uint8)pet->GetPowerType();
 
     if (updateFlags & GROUP_UPDATE_FLAG_PET_CUR_POWER)
-        data << uint16(pet->GetPower(pet->getPowerType()));
+        data << uint16(pet->GetPower(pet->GetPowerType()));
 
     if (updateFlags & GROUP_UPDATE_FLAG_PET_MAX_POWER)
-        data << uint16(pet->GetMaxPower(pet->getPowerType()));
+        data << uint16(pet->GetMaxPower(pet->GetPowerType()));
 
     uint64 petAuraMask = 0;
     maskPos = data.wpos();

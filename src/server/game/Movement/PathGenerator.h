@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +26,7 @@
 
 class Unit;
 
-// 74*4.0f=296y  number_of_points*interval = max_path_len
+// 74*4.0f=296y number_of_points*interval = max_path_len
 // this is way more than actual evade range
 // I think we can safely cut those down even more
 #define MAX_PATH_LENGTH         74
@@ -48,6 +47,7 @@ enum PathType
     PATHFIND_NOPATH         = 0x08,   // no valid path at all or error in generating one
     PATHFIND_NOT_USING_PATH = 0x10,   // used when we are either flying/swiming or on map w/o mmaps
     PATHFIND_SHORT          = 0x20,   // path is longer or equal to its limited path length
+    PATHFIND_FARFROMPOLY    = 0x40,   // start of end positions are far from the mmap poligon
 };
 
 class TC_GAME_API PathGenerator
@@ -74,7 +74,8 @@ class TC_GAME_API PathGenerator
 
         PathType GetPathType() const { return _type; }
 
-        void ReducePathLenghtByDist(float dist); // path must be already built
+        // shortens the path until the destination is the specified distance from the target point
+        void ShortenPathUntilDist(G3D::Vector3 const& point, float dist);
 
     private:
 
@@ -122,7 +123,7 @@ class TC_GAME_API PathGenerator
         void BuildPointPath(float const* startPoint, float const* endPoint);
         void BuildShortcut();
 
-        NavTerrain GetNavTerrain(float x, float y, float z);
+        NavTerrainFlag GetNavTerrain(float x, float y, float z);
         void CreateFilter();
         void UpdateFilter();
 

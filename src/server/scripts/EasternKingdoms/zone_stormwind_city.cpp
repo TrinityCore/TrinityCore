@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +23,6 @@ SDCategory: Stormwind City
 EndScriptData */
 
 /* ContentData
-npc_bartleby
 npc_tyrion
 npc_tyrion_spybot
 npc_marzon_silent_blade
@@ -38,64 +36,6 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
-
-/*######
-## npc_bartleby
-######*/
-
-enum Bartleby
-{
-    QUEST_BEAT    = 1640
-};
-
-class npc_bartleby : public CreatureScript
-{
-public:
-    npc_bartleby() : CreatureScript("npc_bartleby") { }
-
-    struct npc_bartlebyAI : public ScriptedAI
-    {
-        npc_bartlebyAI(Creature* creature) : ScriptedAI(creature)
-        {
-            m_uiNormalFaction = creature->GetFaction();
-        }
-
-        uint32 m_uiNormalFaction;
-
-        void Reset() override
-        {
-            if (me->GetFaction() != m_uiNormalFaction)
-                me->SetFaction(m_uiNormalFaction);
-        }
-
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
-        {
-            if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
-            {
-                //Take 0 damage
-                uiDamage = 0;
-
-                if (pDoneBy && pDoneBy->GetTypeId() == TYPEID_PLAYER)
-                    pDoneBy->ToPlayer()->AreaExploredOrEventHappens(QUEST_BEAT);
-                EnterEvadeMode();
-            }
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_BEAT)
-            {
-                me->SetFaction(FACTION_ENEMY);
-                AttackStart(player);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_bartlebyAI(creature);
-    }
-};
 
 /*######
 ## npc_lord_gregor_lescovar
@@ -306,7 +246,7 @@ public:
 
             if (me->IsSummon())
             {
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                 {
                     if (summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAlive() && !summoner->IsInCombat())
                         summoner->ToCreature()->AI()->AttackStart(who);
@@ -320,7 +260,7 @@ public:
 
             if (me->IsSummon())
             {
-                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                 {
                     if (summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAlive())
                         summoner->ToCreature()->DisappearAndDie();
@@ -335,8 +275,8 @@ public:
 
             if (me->IsSummon())
             {
-                Unit* summoner = me->ToTempSummon()->GetSummoner();
-                if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAIEnabled)
+                Unit* summoner = me->ToTempSummon()->GetSummonerUnit();
+                if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAIEnabled())
                 {
                     npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI* ai =
                         CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, summoner->GetAI());
@@ -555,7 +495,6 @@ public:
 
 void AddSC_stormwind_city()
 {
-    new npc_bartleby();
     new npc_tyrion();
     new npc_tyrion_spybot();
     new npc_lord_gregor_lescovar();

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -573,7 +572,7 @@ class BattlegroundSA : public Battleground
         bool SetupBattleground() override;
         void Reset() override;
         /// Called for generate packet contain worldstate data
-        void FillInitialWorldStates(WorldPacket& data) override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         /// Called when a player kill a unit in bg
         void HandleKillUnit(Creature* creature, Player* killer) override;
         /// Return the nearest graveyard where player can respawn
@@ -700,6 +699,6 @@ class BattlegroundSA : public Battleground
         bool _gateDestroyed;
 
         // Achievement: Not Even a Scratch
-        bool _allVehiclesAlive[BG_TEAMS_COUNT];
+        bool _allVehiclesAlive[PVP_TEAMS_COUNT];
 };
 #endif

@@ -1,15 +1,14 @@
 #ifndef JEMALLOC_INTERNAL_ARENA_EXTERNS_H
 #define JEMALLOC_INTERNAL_ARENA_EXTERNS_H
 
+#include "jemalloc/internal/bin.h"
 #include "jemalloc/internal/extent_dss.h"
+#include "jemalloc/internal/hook.h"
 #include "jemalloc/internal/pages.h"
-#include "jemalloc/internal/size_classes.h"
 #include "jemalloc/internal/stats.h"
 
 extern ssize_t opt_dirty_decay_ms;
 extern ssize_t opt_muzzy_decay_ms;
-
-extern const arena_bin_info_t arena_bin_info[NBINS];
 
 extern percpu_arena_mode_t opt_percpu_arena;
 extern const char *percpu_arena_mode_names[];
@@ -17,17 +16,17 @@ extern const char *percpu_arena_mode_names[];
 extern const uint64_t h_steps[SMOOTHSTEP_NSTEPS];
 extern malloc_mutex_t arenas_lock;
 
-void arena_stats_large_nrequests_add(tsdn_t *tsdn, arena_stats_t *arena_stats,
-    szind_t szind, uint64_t nrequests);
-void arena_stats_mapped_add(tsdn_t *tsdn, arena_stats_t *arena_stats,
-    size_t size);
+extern size_t opt_oversize_threshold;
+extern size_t oversize_threshold;
+
 void arena_basic_stats_merge(tsdn_t *tsdn, arena_t *arena,
     unsigned *nthreads, const char **dss, ssize_t *dirty_decay_ms,
     ssize_t *muzzy_decay_ms, size_t *nactive, size_t *ndirty, size_t *nmuzzy);
 void arena_stats_merge(tsdn_t *tsdn, arena_t *arena, unsigned *nthreads,
     const char **dss, ssize_t *dirty_decay_ms, ssize_t *muzzy_decay_ms,
     size_t *nactive, size_t *ndirty, size_t *nmuzzy, arena_stats_t *astats,
-    malloc_bin_stats_t *bstats, malloc_large_stats_t *lstats);
+    bin_stats_t *bstats, arena_stats_large_t *lstats,
+    arena_stats_extents_t *estats);
 void arena_extents_dirty_dalloc(tsdn_t *tsdn, arena_t *arena,
     extent_hooks_t **r_extent_hooks, extent_t *extent);
 #ifdef JEMALLOC_JET
@@ -50,39 +49,47 @@ void arena_decay(tsdn_t *tsdn, arena_t *arena, bool is_background_thread,
 void arena_reset(tsd_t *tsd, arena_t *arena);
 void arena_destroy(tsd_t *tsd, arena_t *arena);
 void arena_tcache_fill_small(tsdn_t *tsdn, arena_t *arena, tcache_t *tcache,
-    tcache_bin_t *tbin, szind_t binind, uint64_t prof_accumbytes);
-void arena_alloc_junk_small(void *ptr, const arena_bin_info_t *bin_info,
+    cache_bin_t *tbin, szind_t binind, uint64_t prof_accumbytes);
+void arena_alloc_junk_small(void *ptr, const bin_info_t *bin_info,
     bool zero);
 
-typedef void (arena_dalloc_junk_small_t)(void *, const arena_bin_info_t *);
+typedef void (arena_dalloc_junk_small_t)(void *, const bin_info_t *);
 extern arena_dalloc_junk_small_t *JET_MUTABLE arena_dalloc_junk_small;
 
 void *arena_malloc_hard(tsdn_t *tsdn, arena_t *arena, size_t size,
     szind_t ind, bool zero);
 void *arena_palloc(tsdn_t *tsdn, arena_t *arena, size_t usize,
     size_t alignment, bool zero, tcache_t *tcache);
-void arena_prof_promote(tsdn_t *tsdn, const void *ptr, size_t usize);
+void arena_prof_promote(tsdn_t *tsdn, void *ptr, size_t usize);
 void arena_dalloc_promoted(tsdn_t *tsdn, void *ptr, tcache_t *tcache,
     bool slow_path);
-void arena_dalloc_bin_junked_locked(tsdn_t *tsdn, arena_t *arena,
-    extent_t *extent, void *ptr);
+void arena_dalloc_bin_junked_locked(tsdn_t *tsdn, arena_t *arena, bin_t *bin,
+    szind_t binind, extent_t *extent, void *ptr);
 void arena_dalloc_small(tsdn_t *tsdn, void *ptr);
 bool arena_ralloc_no_move(tsdn_t *tsdn, void *ptr, size_t oldsize, size_t size,
-    size_t extra, bool zero);
+    size_t extra, bool zero, size_t *newsize);
 void *arena_ralloc(tsdn_t *tsdn, arena_t *arena, void *ptr, size_t oldsize,
-    size_t size, size_t alignment, bool zero, tcache_t *tcache);
+    size_t size, size_t alignment, bool zero, tcache_t *tcache,
+    hook_ralloc_args_t *hook_args);
 dss_prec_t arena_dss_prec_get(arena_t *arena);
 bool arena_dss_prec_set(arena_t *arena, dss_prec_t dss_prec);
 ssize_t arena_dirty_decay_ms_default_get(void);
 bool arena_dirty_decay_ms_default_set(ssize_t decay_ms);
 ssize_t arena_muzzy_decay_ms_default_get(void);
 bool arena_muzzy_decay_ms_default_set(ssize_t decay_ms);
+bool arena_retain_grow_limit_get_set(tsd_t *tsd, arena_t *arena,
+    size_t *old_limit, size_t *new_limit);
 unsigned arena_nthreads_get(arena_t *arena, bool internal);
 void arena_nthreads_inc(arena_t *arena, bool internal);
 void arena_nthreads_dec(arena_t *arena, bool internal);
 size_t arena_extent_sn_next(arena_t *arena);
 arena_t *arena_new(tsdn_t *tsdn, unsigned ind, extent_hooks_t *extent_hooks);
-void arena_boot(void);
+bool arena_init_huge(void);
+bool arena_is_huge(unsigned arena_ind);
+arena_t *arena_choose_huge(tsd_t *tsd);
+bin_t *arena_bin_choose_lock(tsdn_t *tsdn, arena_t *arena, szind_t binind,
+    unsigned *binshard);
+void arena_boot(sc_data_t *sc_data);
 void arena_prefork0(tsdn_t *tsdn, arena_t *arena);
 void arena_prefork1(tsdn_t *tsdn, arena_t *arena);
 void arena_prefork2(tsdn_t *tsdn, arena_t *arena);

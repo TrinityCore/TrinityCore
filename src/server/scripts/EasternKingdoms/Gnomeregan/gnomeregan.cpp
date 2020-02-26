@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -518,7 +518,7 @@ public:
             if (!me->IsSummon())
                 return;
 
-            if (Unit* summon = me->ToTempSummon()->GetSummoner())
+            if (Unit* summon = me->ToTempSummon()->GetSummonerUnit())
                 if (Creature* creature = summon->ToCreature())
                     creature->AI()->SetData(2, 1);
         }
@@ -536,7 +536,7 @@ public:
             if (!me->IsSummon())
                 return;
 
-            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+            if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
                 if (Creature* creature = summoner->ToCreature())
                     creature->AI()->SetData(2, 2);
         }

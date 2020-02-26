@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -276,9 +276,9 @@ public:
             });
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
             DoCast(me, SPELL_OPEN_PORTAL_PERIODIC, true);
             DoCast(me, SPELL_DARKNESS_PERIODIC, true);
             DoCast(me, SPELL_NEGATIVE_ENERGY_PERIODIC, true);
@@ -428,7 +428,7 @@ public:
             });
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             _summonerGUID = summoner->GetGUID();
         }
@@ -466,7 +466,7 @@ public:
             _instance = me->GetInstanceScript();
         }
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        void IsSummonedBy(WorldObject* /*summoner*/) override
         {
             if (Creature* muru = _instance->GetCreature(DATA_MURU))
                 muru->AI()->JustSummoned(me);

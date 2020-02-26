@@ -299,7 +299,7 @@ public:
             DoCastAOE(SPELL_VENGEANCE);
             events.ScheduleEvent(EVENT_RADIANCE, urand(7 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
             Talk(SAY_AGGRO_E, who);
-            _JustEngagedWith();
+            _JustEngagedWith(who);
         }
 
         void KilledUnit(Unit* who) override
@@ -463,7 +463,7 @@ public:
             events.ScheduleEvent(EVENT_HOLY_FIRE, urand(9 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
             events.ScheduleEvent(EVENT_RENEW, urand(15 * IN_MILLISECONDS, 17 * IN_MILLISECONDS));
             Talk(SAY_AGGRO_P, who);
-            _JustEngagedWith();
+            _JustEngagedWith(who);
         }
 
         void KilledUnit(Unit* who) override
@@ -954,7 +954,7 @@ public:
             return ValidateSpellInfo({ SPELL_HAMMER_RIGHT_DUMMY, SPELL_HAMMER_JUSTICE_STUN });
         }
 
-        void HandleDamage()
+        void HandleDamage(SpellMissInfo /*missInfo*/)
         {
             if (Unit* target = GetHitUnit())
             {
@@ -971,7 +971,7 @@ public:
 
         void Register() override
         {
-            BeforeHit += SpellHitFn(spell_eadric_hammer_of_righteous_SpellScript::HandleDamage);
+            BeforeHit += BeforeSpellHitFn(spell_eadric_hammer_of_righteous_SpellScript::HandleDamage);
         }
     };
 
@@ -1198,7 +1198,7 @@ public:
 
     bool OnCheck(Player* /*source*/, Unit* target) override
     {
-        if (!target || !target->IsAIEnabled)
+        if (!target || !target->IsAIEnabled())
             return false;
 
         return target->GetAI()->GetData(DATA_MEMORY_ENTRY) == Entry;
@@ -1212,7 +1212,7 @@ public:
 
     bool OnCheck(Player* /*source*/, Unit* target) override
     {
-        if (!target || !target->IsAIEnabled)
+        if (!target || !target->IsAIEnabled())
             return false;
 
         return !!target->GetAI()->GetData(DATA_FACEROLLER_ACHIEVEMENT);

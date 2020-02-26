@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -85,17 +85,17 @@ class boss_moorabi : public CreatureScript
                 events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 DoCastSelf(SPELL_MOJO_FRENZY, true);
 
                 events.SetPhase(PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, Seconds(18));
-                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, Seconds(10));
-                events.ScheduleEvent(EVENT_DETERMINED_STAB, Seconds(20));
-                events.ScheduleEvent(EVENT_TRANFORMATION, Seconds(12));
+                events.ScheduleEvent(EVENT_GROUND_TREMOR, 18s);
+                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, 10s);
+                events.ScheduleEvent(EVENT_DETERMINED_STAB, 20s);
+                events.ScheduleEvent(EVENT_TRANFORMATION, 12s);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -121,8 +121,8 @@ class boss_moorabi : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                Talk(SAY_DEATH);
                 Talk(EMOTE_ACTIVATE_ALTAR);
+                Talk(SAY_DEATH);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override

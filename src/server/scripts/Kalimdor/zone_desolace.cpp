@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,9 +24,6 @@ EndScriptData */
 
 /* ContentData
 npc_aged_dying_ancient_kodo
-go_iruxos
-npc_dalinda_malem
-go_demon_portal
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -90,10 +86,14 @@ public:
 
                     me->UpdateEntry(NPC_TAMED_KODO);
                     me->CombatStop();
-                    me->GetThreatManager().ClearAllThreat();
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->SetSpeedRate(MOVE_RUN, 0.6f);
+                    
+                    EngagementOver();
+                    
                     me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
                     me->setActive(true);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
             else if (spell->Id == SPELL_KODO_KOMBO_GOSSIP)
@@ -127,115 +127,7 @@ public:
 
 };
 
-/*######
-## go_iruxos
-## Hand of Iruxos
-######*/
-
-enum Iruxos
-{
-    QUEST_HAND_IRUXOS   = 5381,
-    NPC_DEMON_SPIRIT    = 11876
-};
-
-class go_iruxos : public GameObjectScript
-{
-    public:
-        go_iruxos() : GameObjectScript("go_iruxos") { }
-
-        struct go_iruxosAI : public GameObjectAI
-        {
-            go_iruxosAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool GossipHello(Player* player) override
-            {
-                if (player->GetQuestStatus(QUEST_HAND_IRUXOS) == QUEST_STATUS_INCOMPLETE && !me->FindNearestCreature(NPC_DEMON_SPIRIT, 25.0f, true))
-                    player->SummonCreature(NPC_DEMON_SPIRIT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_iruxosAI(go);
-        }
-};
-
-/*######
-## npc_dalinda_malem. Quest 1440
-######*/
-
-enum Dalinda
-{
-    QUEST_RETURN_TO_VAHLARRIEL      = 1440
-};
-
-class npc_dalinda : public CreatureScript
-{
-public:
-    npc_dalinda() : CreatureScript("npc_dalinda") { }
-
-    struct npc_dalindaAI : public EscortAI
-    {
-        npc_dalindaAI(Creature* creature) : EscortAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(QUEST_RETURN_TO_VAHLARRIEL);
-            return;
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-
-            switch (waypointId)
-            {
-                case 1:
-                    me->SetStandState(UNIT_STAND_STATE_STAND);
-                    break;
-                case 15:
-                    if (player)
-                        player->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            EscortAI::UpdateAI(diff);
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
-            {
-                Start(true, false, player->GetGUID());
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_dalindaAI(creature);
-    }
-};
-
 void AddSC_desolace()
 {
     new npc_aged_dying_ancient_kodo();
-    new go_iruxos();
-    new npc_dalinda();
 }

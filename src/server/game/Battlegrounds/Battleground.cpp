@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +27,7 @@
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "MiscPackets.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -38,6 +38,7 @@
 #include "Transport.h"
 #include "Util.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 #include <cstdarg>
 
 void BattlegroundScore::AppendToPacket(WorldPacket& data)
@@ -76,7 +77,7 @@ Battleground::Battleground()
     m_InvitedHorde      = 0;
     m_ArenaType         = 0;
     m_IsArena           = false;
-    _winnerTeamId       = BG_TEAM_NEUTRAL;
+    _winnerTeamId       = PVP_TEAM_NEUTRAL;
     m_StartTime         = 0;
     m_ResetStatTimer    = 0;
     m_ValidStartPositionTimer = 0;
@@ -564,14 +565,14 @@ Position const* Battleground::GetTeamStartPosition(TeamId teamId) const
     return &StartPosition[teamId];
 }
 
-void Battleground::SendPacketToAll(WorldPacket* packet)
+void Battleground::SendPacketToAll(WorldPacket const* packet)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayer(itr, "SendPacketToAll"))
             player->SendDirectMessage(packet);
 }
 
-void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* sender, bool self)
+void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender, bool self)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
@@ -603,20 +604,16 @@ void Battleground::SendBroadcastText(uint32 id, ChatMsg msgType, WorldObject con
 
 void Battleground::PlaySoundToAll(uint32 soundID)
 {
-    WorldPacket data;
-    sBattlegroundMgr->BuildPlaySoundPacket(&data, soundID);
-    SendPacketToAll(&data);
+    SendPacketToAll(WorldPackets::Misc::PlaySound(soundID).Write());
 }
 
-void Battleground::PlaySoundToTeam(uint32 SoundID, uint32 TeamID)
+void Battleground::PlaySoundToTeam(uint32 soundID, uint32 teamID)
 {
-    WorldPacket data;
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayerForTeam(TeamID, itr, "PlaySoundToTeam"))
-        {
-            sBattlegroundMgr->BuildPlaySoundPacket(&data, SoundID);
-            player->SendDirectMessage(&data);
-        }
+    {
+        if (Player* player = _GetPlayerForTeam(teamID, itr, "PlaySoundToTeam"))
+            player->SendDirectMessage(WorldPackets::Misc::PlaySound(soundID).Write());
+    }
 }
 
 void Battleground::CastSpellOnTeam(uint32 SpellID, uint32 TeamID)
@@ -659,18 +656,12 @@ void Battleground::RewardReputationToTeam(uint32 faction_id, uint32 Reputation, 
     }
 }
 
-void Battleground::UpdateWorldState(uint32 Field, uint32 Value)
+void Battleground::UpdateWorldState(uint32 variable, uint32 value)
 {
-    WorldPacket data;
-    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, Field, Value);
-    SendPacketToAll(&data);
-}
-
-void Battleground::UpdateWorldStateForPlayer(uint32 field, uint32 value, Player* player)
-{
-    WorldPacket data;
-    sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, field, value);
-    player->SendDirectMessage(&data);
+    WorldPackets::WorldState::UpdateWorldState worldstate;
+    worldstate.VariableID = variable;
+    worldstate.Value = value;
+    SendPacketToAll(worldstate.Write());
 }
 
 void Battleground::EndBattleground(uint32 winner)
@@ -684,7 +675,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
 
-        SetWinner(BG_TEAM_ALLIANCE);
+        SetWinner(PVP_TEAM_ALLIANCE);
     }
     else if (winner == HORDE)
     {
@@ -693,11 +684,11 @@ void Battleground::EndBattleground(uint32 winner)
 
         PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
 
-        SetWinner(BG_TEAM_HORDE);
+        SetWinner(PVP_TEAM_HORDE);
     }
     else
     {
-        SetWinner(BG_TEAM_NEUTRAL);
+        SetWinner(PVP_TEAM_NEUTRAL);
     }
 
     PreparedStatement* stmt = nullptr;
@@ -943,7 +934,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
 // this method is called when no players remains in battleground
 void Battleground::Reset()
 {
-    SetWinner(BG_TEAM_NEUTRAL);
+    SetWinner(PVP_TEAM_NEUTRAL);
     SetStatus(STATUS_WAIT_QUEUE);
     SetStartTime(0);
     SetEndTime(0);
@@ -964,7 +955,7 @@ void Battleground::Reset()
         delete itr->second;
     PlayerScores.clear();
 
-    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+    for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
         _arenaTeamScores[i].Reset();
 
     ResetBGSubclass();
@@ -1211,10 +1202,10 @@ void Battleground::BuildPvPLogDataPacket(WorldPacket& data)
 
     if (type)                                           // arena
     {
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+        for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
             _arenaTeamScores[i].BuildRatingInfoBlock(data);
 
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+        for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
             _arenaTeamScores[i].BuildTeamInfoBlock(data);
     }
 
@@ -1429,11 +1420,22 @@ void Battleground::SpawnBGObject(uint32 type, uint32 respawntime)
         if (GameObject* obj = map->GetGameObject(BgObjects[type]))
         {
             if (respawntime)
+            {
                 obj->SetLootState(GO_JUST_DEACTIVATED);
-            else
-                if (obj->getLootState() == GO_JUST_DEACTIVATED)
-                    // Change state from GO_JUST_DEACTIVATED to GO_READY in case battleground is starting again
-                    obj->SetLootState(GO_READY);
+
+                if (GameObjectOverride const* goOverride = obj->GetGameObjectOverride())
+                    if (goOverride->Flags & GO_FLAG_NODESPAWN)
+                    {
+                        // This function should be called in GameObject::Update() but in case of
+                        // GO_FLAG_NODESPAWN flag the function is never called, so we call it here
+                        obj->SendObjectDeSpawnAnim(obj->GetGUID());
+                    }
+            }
+            else if (obj->getLootState() == GO_JUST_DEACTIVATED)
+            {
+                // Change state from GO_JUST_DEACTIVATED to GO_READY in case battleground is starting again
+                obj->SetLootState(GO_READY);
+            }
             obj->SetRespawnTime(respawntime);
             map->AddToMap(obj);
         }

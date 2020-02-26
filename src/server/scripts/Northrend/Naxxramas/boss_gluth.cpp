@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -113,15 +113,15 @@ public:
             me->SetSpeed(UnitMoveType::MOVE_RUN, 12.0f);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
-            events.ScheduleEvent(EVENT_WOUND, Seconds(10));
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_WOUND, 10s);
             events.ScheduleEvent(EVENT_ENRAGE, randtime(Seconds(16), Seconds(22)));
             events.ScheduleEvent(EVENT_DECIMATE, randtime(Minutes(1)+Seconds(50), Minutes(2)));
-            events.ScheduleEvent(EVENT_BERSERK, Minutes(8));
-            events.ScheduleEvent(EVENT_SUMMON, Seconds(15));
-            events.ScheduleEvent(EVENT_SEARCH_ZOMBIE_SINGLE, Seconds(12));
+            events.ScheduleEvent(EVENT_BERSERK, 8min);
+            events.ScheduleEvent(EVENT_SUMMON, 15s);
+            events.ScheduleEvent(EVENT_SEARCH_ZOMBIE_SINGLE, 12s);
         }
 
         void SummonedCreatureDies(Creature* summoned, Unit* /* who */) override
@@ -272,7 +272,7 @@ public:
         {
             if (id == 1){
                 me->GetMotionMaster()->MoveIdle();
-                events.ScheduleEvent(EVENT_KILL_ZOMBIE_SINGLE, Seconds(1));
+                events.ScheduleEvent(EVENT_KILL_ZOMBIE_SINGLE, 1s);
             }
 
         }

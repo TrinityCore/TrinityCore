@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -239,7 +239,7 @@ public:
         {
             player->GiveLevel(newLevel);
             player->InitTalentForLevel();
-            player->SetUInt32Value(PLAYER_XP, 0);
+            player->SetXP(0);
 
             if (handler->needReportToTarget(player))
             {
@@ -281,7 +281,7 @@ public:
 
             if (titleInfo && target->HasTitle(titleInfo))
             {
-                std::string name = target->getGender() == GENDER_MALE ? titleInfo->nameMale[loc] : titleInfo->nameFemale[loc];
+                std::string name = target->GetNativeGender() == GENDER_MALE ? titleInfo->nameMale[loc] : titleInfo->nameFemale[loc];
                 if (name.empty())
                     continue;
 
@@ -453,7 +453,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
             return false;
 
-        int32 oldlevel = target ? target->getLevel() : sCharacterCache->GetCharacterLevelByGuid(targetGuid);
+        int32 oldlevel = target ? target->GetLevel() : sCharacterCache->GetCharacterLevelByGuid(targetGuid);
         int32 newlevel = levelStr ? atoi(levelStr) : oldlevel;
 
         if (newlevel < 1)
@@ -907,7 +907,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
             return false;
 
-        int32 oldlevel = target ? target->getLevel() : sCharacterCache->GetCharacterLevelByGuid(targetGuid);
+        int32 oldlevel = target ? target->GetLevel() : sCharacterCache->GetCharacterLevelByGuid(targetGuid);
         int32 addlevel = levelStr ? atoi(levelStr) : 1;
         int32 newlevel = oldlevel + addlevel;
 

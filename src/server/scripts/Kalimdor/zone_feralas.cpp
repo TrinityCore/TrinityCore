@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -149,10 +148,10 @@ public:
 ## spell_gordunni_trap
 ######*/
 
-enum GordunniTrap
+enum GordunniTrapSpells
 {
-    GO_GORDUNNI_DIRT_MOUND_1 = 144064,
-    GO_GORDUNNI_DIRT_MOUND_2 = 177681
+    SPELL_GORDUNNI_DIRT_MOUND_CHEST = 11756,
+    SPELL_GORDUNNI_DIRT_MOUND_JUNK = 19394
 };
 
 class spell_gordunni_trap : public SpellScriptLoader
@@ -166,12 +165,8 @@ class spell_gordunni_trap : public SpellScriptLoader
 
             void HandleDummy()
             {
-                Unit* caster = GetCaster();
-                if (GameObject* chest = caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, QuaternionData(), 0))
-                {
-                    chest->SetSpellId(GetSpellInfo()->Id);
-                    caster->RemoveGameObject(chest, false);
-                }
+                GameObject* caster = GetGObjCaster();
+                caster->CastSpell(caster, urand(0, 1) ? SPELL_GORDUNNI_DIRT_MOUND_CHEST : SPELL_GORDUNNI_DIRT_MOUND_JUNK);
             }
 
             void Register() override

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -155,7 +155,7 @@ class boss_sapphiron : public CreatureScript
             {
                 if (events.IsInPhase(PHASE_FLIGHT))
                 {
-                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICEBOLT);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICEBOLT, true, true);
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (me->IsHovering())
                     {
@@ -175,15 +175,15 @@ class boss_sapphiron : public CreatureScript
                 damage = me->GetHealth()-1; // don't die during air phase
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
 
                 me->CastSpell(me, SPELL_FROST_AURA, true);
 
                 events.SetPhase(PHASE_GROUND);
-                events.ScheduleEvent(EVENT_CHECK_RESISTS, Seconds(0));
-                events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
+                events.ScheduleEvent(EVENT_CHECK_RESISTS, 0s);
+                events.ScheduleEvent(EVENT_BERSERK, 15min);
                 EnterPhaseGround(true);
             }
 
@@ -207,7 +207,7 @@ class boss_sapphiron : public CreatureScript
             void MovementInform(uint32 /*type*/, uint32 id) override
             {
                 if (id == 1)
-                    events.ScheduleEvent(EVENT_LIFTOFF, Seconds(0), 0, PHASE_FLIGHT);
+                    events.ScheduleEvent(EVENT_LIFTOFF, 0s, 0, PHASE_FLIGHT);
             }
 
             void DoAction(int32 param) override
@@ -215,7 +215,7 @@ class boss_sapphiron : public CreatureScript
                 if (param == ACTION_BIRTH)
                 {
                     events.SetPhase(PHASE_BIRTH);
-                    events.ScheduleEvent(EVENT_BIRTH, Seconds(23));
+                    events.ScheduleEvent(EVENT_BIRTH, 23s);
                 }
             }
 
@@ -299,10 +299,7 @@ class boss_sapphiron : public CreatureScript
                                 events.ScheduleEvent(EVENT_TAIL, randtime(Seconds(7), Seconds(10)), 0, PHASE_GROUND);
                                 return;
                             case EVENT_DRAIN:
-                                if (events.IsInPhase(PHASE_FLIGHT))
-                                    _delayedDrain = true;
-                                else
-                                    CastDrain();
+                                CastDrain();
                                 return;
                             case EVENT_BLIZZARD:
                                 DoCastAOE(SPELL_SUMMON_BLIZZARD);
@@ -382,7 +379,7 @@ class boss_sapphiron : public CreatureScript
                             case EVENT_EXPLOSION:
                                 DoCastAOE(SPELL_FROST_BREATH);
                                 DoCastAOE(SPELL_FROST_BREATH_ANTICHEAT);
-                                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICEBOLT);
+                                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICEBOLT, true, true);
                                 events.ScheduleEvent(EVENT_LAND, Seconds(3) + Milliseconds(500), 0, PHASE_FLIGHT);
                                 return;
                             case EVENT_LAND:
@@ -404,6 +401,9 @@ class boss_sapphiron : public CreatureScript
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 return;
+                            case EVENT_DRAIN:
+                                _delayedDrain = true;
+                                break;
                         }
                     }
                 }

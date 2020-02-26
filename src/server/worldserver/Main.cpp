@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,6 +29,7 @@
 #include "Configuration/Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
+#include "DeadlineTimer.h"
 #include "GitRevision.h"
 #include "InstanceSaveMgr.h"
 #include "IoContext.h"
@@ -46,13 +46,14 @@
 #include "ScriptLoader.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
+#include "SecretMgr.h"
+#include "SharedDefines.h"
 #include "TCSoap.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/asio/signal_set.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
@@ -86,7 +87,7 @@ class FreezeDetector
 {
     public:
     FreezeDetector(Trinity::Asio::IoContext& ioContext, uint32 maxCoreStuckTime)
-        : _timer(ioContext), _worldLoopCounter(0), _lastChangeMsTime(0), _maxCoreStuckTimeInMs(maxCoreStuckTime) { }
+        : _timer(ioContext), _worldLoopCounter(0), _lastChangeMsTime(getMSTime()), _maxCoreStuckTimeInMs(maxCoreStuckTime) { }
 
         static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
         {
@@ -97,7 +98,7 @@ class FreezeDetector
         static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
 
     private:
-        boost::asio::deadline_timer _timer;
+        Trinity::Asio::DeadlineTimer _timer;
         uint32 _worldLoopCounter;
         uint32 _lastChangeMsTime;
         uint32 _maxCoreStuckTimeInMs;
@@ -116,6 +117,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
 /// Launch the Trinity server
 extern int main(int argc, char** argv)
 {
+    Trinity::Impl::CurrentServerProcessHolder::_type = SERVER_PROCESS_WORLDSERVER;
     signal(SIGABRT, &Trinity::AbortHandler);
 
     auto configFile = fs::absolute(_TRINITY_CORE_CONFIG);
@@ -216,6 +218,9 @@ extern int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
+    if (vm.count("update-databases-only"))
+        return 0;
+
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // Set server offline (not connectable)
@@ -244,6 +249,7 @@ extern int main(int argc, char** argv)
     });
 
     // Initialize the World
+    sSecretMgr->Initialize();
     sWorld->SetInitialWorldSettings();
 
     std::shared_ptr<void> mapManagementHandle(nullptr, [](void*)
@@ -282,12 +288,14 @@ extern int main(int argc, char** argv)
     if (networkThreads <= 0)
     {
         TC_LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
+        World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
     if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, networkThreads))
     {
         TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
+        World::StopNow(ERROR_EXIT_CODE);
         return 1;
     }
 
@@ -302,6 +310,24 @@ extern int main(int argc, char** argv)
         ClearOnlineAccounts();
     });
 
+    // Set server online (allow connecting now)
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
+    realm.PopulationLevel = 0.0f;
+    realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
+
+    // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
+    std::shared_ptr<FreezeDetector> freezeDetector;
+    if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 60))
+    {
+        freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
+        FreezeDetector::Start(freezeDetector);
+        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
+    }
+
+    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
+
+    sScriptMgr->OnStartup();
+
     // Launch CliRunnable thread
     std::shared_ptr<std::thread> cliThread;
 #ifdef _WIN32
@@ -312,24 +338,6 @@ extern int main(int argc, char** argv)
     {
         cliThread.reset(new std::thread(CliThread), &ShutdownCLIThread);
     }
-
-    // Set server online (allow connecting now)
-    LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
-    realm.PopulationLevel = 0.0f;
-    realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
-
-    // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
-    std::shared_ptr<FreezeDetector> freezeDetector;
-    if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
-    {
-        freezeDetector = std::make_shared<FreezeDetector>(*ioContext, coreStuckTime * 1000);
-        FreezeDetector::Start(freezeDetector);
-        TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
-    }
-
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
-
-    sScriptMgr->OnStartup();
 
     WorldUpdateLoop();
 
@@ -614,6 +622,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
         ("version,v", "print version build info")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_CORE_CONFIG)),
                      "use <arg> as configuration file")
+        ("update-databases-only,u", "updates databases only")
         ;
 #ifdef _WIN32
     options_description win("Windows platform specific options");

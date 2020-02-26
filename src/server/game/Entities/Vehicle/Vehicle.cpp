@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,11 +22,13 @@
 #include "DBCStores.h"
 #include "EventProcessor.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include "Util.h"
@@ -40,7 +41,8 @@ UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry
         if (uint32 seatId = _vehicleInfo->m_seatID[i])
             if (VehicleSeatEntry const* veSeat = sVehicleSeatStore.LookupEntry(seatId))
             {
-                Seats.insert(std::make_pair(i, VehicleSeat(veSeat)));
+                VehicleSeatAddon const* addon = sObjectMgr->GetVehicleSeatAddon(seatId);
+                Seats.insert(std::make_pair(i, VehicleSeat(veSeat, addon)));
                 if (veSeat->CanEnterOrExit())
                     ++UsableSeatNum;
             }
@@ -74,13 +76,7 @@ Vehicle::~Vehicle()
 
 void Vehicle::Install()
 {
-    if (_me->GetTypeId() == TYPEID_UNIT)
-    {
-        if (PowerDisplayEntry const* powerDisplay = sPowerDisplayStore.LookupEntry(_vehicleInfo->m_powerDisplayId))
-            _me->setPowerType(Powers(powerDisplay->PowerType));
-        else if (_me->getClass() == CLASS_ROGUE)
-            _me->setPowerType(POWER_ENERGY);
-    }
+    _me->UpdateDisplayPower();
 
     _status = STATUS_INSTALLED;
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
@@ -328,7 +324,7 @@ SeatMap::const_iterator Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
     if (seat == Seats.end())
         return seat;
 
-    while (!seat->second.IsEmpty() || (!seat->second.SeatInfo->CanEnterOrExit() && !seat->second.SeatInfo->IsUsableByOverride()))
+    while (!seat->second.IsEmpty() || HasPendingEventForSeat(seat->first) || (!seat->second.SeatInfo->CanEnterOrExit() && !seat->second.SeatInfo->IsUsableByOverride()))
     {
         if (next)
         {
@@ -348,6 +344,28 @@ SeatMap::const_iterator Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
     }
 
     return seat;
+}
+
+/**
+ * @fn VehicleSeatAddon const* Vehicle::GetSeatAddonForSeatOfPassenger(Unit const* passenger) const
+ *
+ * @brief Gets the vehicle seat addon data for the seat of a passenger
+ *
+ * @author Ovahlord
+ * @date 28-1-2020
+ *
+ * @param passenger Identifier for the current seat user
+ *
+ * @return The seat addon data for the currently used seat of a passenger
+ */
+
+VehicleSeatAddon const* Vehicle::GetSeatAddonForSeatOfPassenger(Unit const* passenger) const
+{
+    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); itr++)
+        if (!itr->second.IsEmpty() && itr->second.Passenger.Guid == passenger->GetGUID())
+            return itr->second.SeatAddon;
+
+    return nullptr;
 }
 
 /**
@@ -388,7 +406,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     if (minion)
         accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
 
-    (void)_me->HandleSpellClick(accessory, seatId);
+    _me->HandleSpellClick(accessory, seatId);
 
     /// If for some reason adding accessory to vehicle fails it will unsummon in
     /// @VehicleJoinEvent::Abort
@@ -433,7 +451,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (seatId < 0) // no specific seat requirement
     {
         for (seat = Seats.begin(); seat != Seats.end(); ++seat)
-            if (seat->second.IsEmpty() && (seat->second.SeatInfo->CanEnterOrExit() || seat->second.SeatInfo->IsUsableByOverride()))
+            if (seat->second.IsEmpty() && !HasPendingEventForSeat(seat->first) && (seat->second.SeatInfo->CanEnterOrExit() || seat->second.SeatInfo->IsUsableByOverride()))
                 break;
 
         if (seat == Seats.end()) // no available seat
@@ -518,7 +536,7 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
     if (unit->IsFlying())
         _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
 
-    if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled)
+    if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled())
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
@@ -668,7 +686,7 @@ uint8 Vehicle::GetAvailableSeatCount() const
     uint8 ret = 0;
     SeatMap::const_iterator itr;
     for (itr = Seats.begin(); itr != Seats.end(); ++itr)
-        if (itr->second.IsEmpty() && (itr->second.SeatInfo->CanEnterOrExit() || itr->second.SeatInfo->IsUsableByOverride()))
+        if (itr->second.IsEmpty() && !HasPendingEventForSeat(itr->first) && (itr->second.SeatInfo->CanEnterOrExit() || itr->second.SeatInfo->IsUsableByOverride()))
             ++ret;
 
     return ret;
@@ -768,7 +786,16 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 {
     ASSERT(Passenger->IsInWorld());
     ASSERT(Target && Target->GetBase()->IsInWorld());
-    ASSERT(Target->GetBase()->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
+
+    Unit::AuraEffectList const& vehicleAuras = Target->GetBase()->GetAuraEffectsByType(SPELL_AURA_CONTROL_VEHICLE);
+    auto itr = std::find_if(vehicleAuras.begin(), vehicleAuras.end(), [this](AuraEffect const* aurEff) -> bool
+    {
+        return aurEff->GetCasterGUID() == Passenger->GetGUID();
+    });
+    ASSERT(itr != vehicleAuras.end());
+
+    AuraApplication const* aurApp = (*itr)->GetBase()->GetApplicationOfTarget(Target->GetBase()->GetGUID());
+    ASSERT(aurApp && !aurApp->GetRemoveMode());
 
     Target->RemovePendingEventsForSeat(Seat->first);
     Target->RemovePendingEventsForPassenger(Passenger);
@@ -779,6 +806,11 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         Abort(0);
         return true;
     }
+
+    //It's possible that multiple vehicle join
+    //events are executed in the same update
+    if (Passenger->GetVehicle())
+        Passenger->ExitVehicle();
 
     Passenger->SetVehicle(Target);
     Seat->second.Passenger.Guid = Passenger->GetGUID();
@@ -800,6 +832,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     Passenger->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     VehicleSeatEntry const* veSeat = Seat->second.SeatInfo;
+    VehicleSeatAddon const* veSeatAddon = Seat->second.SeatAddon;
 
     Player* player = Passenger->ToPlayer();
     if (player)
@@ -811,22 +844,36 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         player->StopCastingCharm();
         player->StopCastingBindSight();
         player->SendOnCancelExpectedVehicleRideAura();
-        if (!(veSeat->m_flagsB & VEHICLE_SEAT_FLAG_B_KEEP_PET))
+        if (!veSeat->HasFlag(VEHICLE_SEAT_FLAG_B_KEEP_PET))
             player->UnsummonPetTemporaryIfAny();
     }
 
-    if (Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE)
+    if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE))
         Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
+
+    float o = veSeatAddon ? veSeatAddon->SeatOrientationOffset : 0.f;
+    float x = veSeat->m_attachmentOffsetX;
+    float y = veSeat->m_attachmentOffsetY;
+    float z = veSeat->m_attachmentOffsetZ;
+
     Passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-    Passenger->m_movementInfo.transport.pos.Relocate(veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ);
+    Passenger->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     Passenger->m_movementInfo.transport.time = 0;
     Passenger->m_movementInfo.transport.seat = Seat->first;
     Passenger->m_movementInfo.transport.guid = Target->GetBase()->GetGUID();
 
     if (Target->GetBase()->GetTypeId() == TYPEID_UNIT && Passenger->GetTypeId() == TYPEID_PLAYER &&
-        Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
-        ASSERT(Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE));  // SMSG_CLIENT_CONTROL
+        veSeat->HasFlag(VEHICLE_SEAT_FLAG_CAN_CONTROL))
+    {
+        // handles SMSG_CLIENT_CONTROL
+        if (!Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE, aurApp))
+        {
+            // charming failed, probably aura was removed by relocation/scripts/whatever
+            Abort(0);
+            return true;
+        }
+    }
 
     Passenger->SendClearTarget();                            // SMSG_BREAK_TARGET
     Passenger->SetControlled(true, UNIT_STATE_ROOT);         // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
@@ -834,15 +881,15 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     Movement::MoveSplineInit init(Passenger);
     init.DisableTransportPathTransformations();
-    init.MoveTo(veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ, false, true);
-    init.SetFacing(0.0f);
+    init.MoveTo(x, y, z, false, true);
+    init.SetFacing(o);
     init.SetTransportEnter();
-    init.Launch();
+    Passenger->GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
 
     if (Creature* creature = Target->GetBase()->ToCreature())
     {
-        if (creature->IsAIEnabled)
-            creature->AI()->PassengerBoarded(Passenger, Seat->first, true);
+        if (CreatureAI* ai = creature->AI())
+            ai->PassengerBoarded(Passenger, Seat->first, true);
 
         sScriptMgr->OnAddPassenger(Target, Passenger, Seat->first);
 
@@ -887,4 +934,14 @@ void VehicleJoinEvent::Abort(uint64)
 
     if (Passenger->IsInWorld() && Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
         Passenger->ToCreature()->DespawnOrUnsummon();
+}
+
+bool Vehicle::HasPendingEventForSeat(int8 seatId) const
+{
+    for (PendingJoinEventContainer::const_iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end(); ++itr)
+    {
+        if ((*itr)->Seat->first == seatId)
+            return true;
+    }
+    return false;
 }

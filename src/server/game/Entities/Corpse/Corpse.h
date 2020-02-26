@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -64,7 +63,8 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
         void DeleteFromDB(SQLTransaction& trans);
         static void DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans);
 
-        ObjectGuid GetOwnerGUID() const { return GetGuidValue(CORPSE_FIELD_OWNER); }
+        ObjectGuid GetOwnerGUID() const override { return GetGuidValue(CORPSE_FIELD_OWNER); }
+        uint32 GetFaction() const override;
 
         time_t const& GetGhostTime() const { return m_time; }
         void ResetGhostTime();

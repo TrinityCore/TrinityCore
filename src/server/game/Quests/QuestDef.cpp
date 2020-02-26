@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,6 +23,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "QuestPackets.h"
+#include "QuestPools.h"
 #include "World.h"
 
 Quest::Quest(Field* questRecord)
@@ -178,16 +178,17 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     _prevQuestId = fields[4].GetInt32();
     _nextQuestId = fields[5].GetUInt32();
     _exclusiveGroup = fields[6].GetInt32();
-    _rewardMailTemplateId = fields[7].GetUInt32();
-    _rewardMailDelay = fields[8].GetUInt32();
-    _requiredSkillId = fields[9].GetUInt16();
-    _requiredSkillPoints = fields[10].GetUInt16();
-    _requiredMinRepFaction = fields[11].GetUInt16();
-    _requiredMaxRepFaction = fields[12].GetUInt16();
-    _requiredMinRepValue = fields[13].GetInt32();
-    _requiredMaxRepValue = fields[14].GetInt32();
-    _startItemCount = fields[15].GetUInt8();
-    _specialFlags = fields[16].GetUInt8();
+    _breadcrumbForQuestId = fields[7].GetInt32();
+    _rewardMailTemplateId = fields[8].GetUInt32();
+    _rewardMailDelay = fields[9].GetUInt32();
+    _requiredSkillId = fields[10].GetUInt16();
+    _requiredSkillPoints = fields[11].GetUInt16();
+    _requiredMinRepFaction = fields[12].GetUInt16();
+    _requiredMaxRepFaction = fields[13].GetUInt16();
+    _requiredMinRepValue = fields[14].GetInt32();
+    _requiredMaxRepValue = fields[15].GetInt32();
+    _startItemCount = fields[16].GetUInt8();
+    _specialFlags = fields[17].GetUInt8();
 
     if (_specialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         _flags |= QUEST_FLAGS_AUTO_ACCEPT;
@@ -198,16 +199,16 @@ void Quest::LoadQuestMailSender(Field* fields)
     _rewardMailSenderEntry = fields[1].GetUInt32();
 }
 
-uint32 Quest::XPValue(Player* player) const
+uint32 Quest::GetXPReward(Player const* player) const
 {
     if (player)
     {
-        int32 quest_level = (_level == -1 ? player->getLevel() : _level);
+        int32 quest_level = (_level == -1 ? player->GetLevel() : _level);
         QuestXPEntry const* xpentry = sQuestXPStore.LookupEntry(quest_level);
         if (!xpentry)
             return 0;
 
-        int32 diffFactor = 2 * (quest_level - player->getLevel()) + 20;
+        int32 diffFactor = 2 * (quest_level - player->GetLevel()) + 20;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
@@ -226,14 +227,25 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-int32 Quest::GetRewOrReqMoney() const
+/*static*/ bool Quest::IsTakingQuestEnabled(uint32 questId)
+{
+    if (!sQuestPoolMgr->IsQuestActive(questId))
+        return false;
+
+    return true;
+}
+
+int32 Quest::GetRewOrReqMoney(Player const* player) const
 {
     // RequiredMoney: the amount is the negative copper sum.
-    if (_rewardMoney <= 0)
+    if (_rewardMoney < 0)
         return _rewardMoney;
 
     // RewardMoney: the positive amount
-    return int32(_rewardMoney * sWorld->getRate(RATE_MONEY_QUEST));
+    if (!player || player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        return int32(_rewardMoney * sWorld->getRate(RATE_MONEY_QUEST));
+    else // At level cap, the money reward is the maximum amount between normal and bonus money reward
+        return std::max(int32(GetRewMoneyMaxLevel()), int32(_rewardMoney * sWorld->getRate(RATE_MONEY_QUEST)));
 }
 
 uint32 Quest::GetRewMoneyMaxLevel() const
@@ -314,12 +326,8 @@ bool Quest::CanIncreaseRewardedQuestCounters() const
 
 void Quest::InitializeQueryData()
 {
-    WorldPacket queryTemp;
     for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
-    {
-        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
-        QueryData[loc] = queryTemp;
-    }
+        QueryData[loc] = BuildQueryData(static_cast<LocaleConstant>(loc));
 }
 
 WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
@@ -432,7 +440,9 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         response.Info.ObjectiveText[i] = locQuestObjectiveText[i];
 
-    return *response.Write();
+    response.Write();
+    response.ShrinkToFit();
+    return response.Move();
 }
 
 void Quest::AddQuestLevelToTitle(std::string &title, int32 level)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -190,8 +190,8 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 me->CombatStop(true);
                 if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
                 {
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
                 }
             }
 

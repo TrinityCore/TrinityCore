@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@ EndScriptData */
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -73,7 +74,7 @@ public:
 
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
-        if (!quest)
+        if (!quest || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -93,6 +94,9 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+
+        if (player->IsActiveQuest(entry))
+            return false;
 
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
@@ -158,7 +162,7 @@ public:
         }
         else
         {
-            handler->SendSysMessage(LANG_COMMAND_QUEST_NOTFOUND);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -185,7 +189,8 @@ public:
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
+        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE
+            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -228,6 +233,11 @@ public:
                     player->KillCreditGO(creature);
         }
 
+        // player kills
+        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL))
+            if (uint32 reqPlayers = quest->GetPlayersSlain())
+                player->KilledPlayerCreditForQuest(reqPlayers, quest);
+
         // If the quest requires reputation to complete
         if (uint32 repFaction = quest->GetRepObjectiveFaction())
         {
@@ -249,7 +259,7 @@ public:
         }
 
         // If the quest requires money
-        int32 ReqOrRewMoney = quest->GetRewOrReqMoney();
+        int32 ReqOrRewMoney = quest->GetRewOrReqMoney(player);
         if (ReqOrRewMoney < 0)
             player->ModifyMoney(-ReqOrRewMoney);
 
@@ -289,7 +299,8 @@ public:
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE)
+        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE
+            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);

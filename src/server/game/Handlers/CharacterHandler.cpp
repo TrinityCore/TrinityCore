@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -548,6 +547,13 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                 return;
             }
 
+            // Check name uniqueness in the same step as saving to database
+            if (sCharacterCache->GetCharacterCacheByName(createInfo->Name))
+            {
+                SendCharCreate(CHAR_CREATE_NAME_IN_USE);
+                return;
+            }
+
             Player newChar(this);
             newChar.GetMotionMaster()->Initialize();
             if (!newChar.Create(sObjectMgr->GetGenerator<HighGuid::Player>().Generate(), createInfo.get()))
@@ -588,7 +594,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
             TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUID().GetCounter());
             sScriptMgr->OnPlayerCreate(&newChar);
-            sCharacterCache->AddCharacterCacheEntry(newChar.GetGUID(), GetAccountId(), newChar.GetName(), newChar.GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER), newChar.getRace(), newChar.getClass(), newChar.getLevel());
+            sCharacterCache->AddCharacterCacheEntry(newChar.GetGUID(), GetAccountId(), newChar.GetName(), newChar.GetNativeGender(), newChar.GetRace(), newChar.GetClass(), newChar.GetLevel());
 
             newChar.CleanupsBeforeDelete();
         };
@@ -794,11 +800,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         pCurrChar->setCinematic(1);
 
-        if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->getClass()))
+        if (ChrClassesEntry const* cEntry = sChrClassesStore.LookupEntry(pCurrChar->GetClass()))
         {
             if (cEntry->CinematicSequence)
                 pCurrChar->SendCinematicStart(cEntry->CinematicSequence);
-            else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
+            else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->GetRace()))
                 pCurrChar->SendCinematicStart(rEntry->CinematicSequence);
 
             // send new char string if not empty
@@ -841,6 +847,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         //pCurrChar->groupInfo.group->SendInit(this); // useless
         group->SendUpdate();
         group->ResetMaxEnchantingLevel();
+        if (group->GetLeaderGUID() == pCurrChar->GetGUID())
+            group->StopLeaderOfflineTimer();
     }
 
     // friend status
@@ -850,15 +858,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->LoadCorpse(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION));
 
     // setting Ghost+speed if dead
-    if (pCurrChar->m_deathState != ALIVE)
-    {
-        // not blizz like, we must correctly save and load player instead...
-        if (pCurrChar->getRace() == RACE_NIGHTELF)
-            pCurrChar->CastSpell(pCurrChar, 20584, true);// auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
-        pCurrChar->CastSpell(pCurrChar, 8326, true);     // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
-
+    if (pCurrChar->m_deathState == DEAD)
         pCurrChar->SetMovement(MOVE_WATER_WALK);
-    }
 
     pCurrChar->ContinueTaxiFlight();
 
@@ -895,7 +896,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
-        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(pCurrChar->getRace(), pCurrChar->getClass());
+        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(pCurrChar->GetRace(), pCurrChar->GetClass());
         for (uint32 spellId : info->castSpells)
             pCurrChar->CastSpell(pCurrChar, spellId, true);
 
@@ -981,7 +982,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     std::string IP_str = GetRemoteAddress();
     TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Login Character:[%s] (GUID: %u) Level: %d",
-        GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUID().GetCounter(), pCurrChar->getLevel());
+        GetAccountId(), IP_str.c_str(), pCurrChar->GetName().c_str(), pCurrChar->GetGUID().GetCounter(), pCurrChar->GetLevel());
 
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STATE_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
@@ -990,6 +991,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // Handle Login-Achievements (should be handled after loading)
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ON_LOGIN, 1);
+
+    // if we're loading a dead player, repop them to the GY after the load is finished
+    if (pCurrChar->getDeathState() == CORPSE)
+    {
+        pCurrChar->BuildPlayerRepop();
+        pCurrChar->RepopAtGraveyard();
+    }
 
     sScriptMgr->OnPlayerLogin(pCurrChar, firstLogin);
 
@@ -1250,25 +1258,22 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 
     BarberShopStyleEntry const* bs_hair = sBarberShopStyleStore.LookupEntry(Hair);
 
-    if (!bs_hair || bs_hair->type != 0 || bs_hair->race != _player->getRace() || bs_hair->gender != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER))
+    if (!bs_hair || bs_hair->type != 0 || bs_hair->race != _player->GetRace() || bs_hair->gender != _player->GetNativeGender())
         return;
 
     BarberShopStyleEntry const* bs_facialHair = sBarberShopStyleStore.LookupEntry(FacialHair);
 
-    if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != _player->getRace() || bs_facialHair->gender != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER))
+    if (!bs_facialHair || bs_facialHair->type != 2 || bs_facialHair->race != _player->GetRace() || bs_facialHair->gender != _player->GetNativeGender())
         return;
 
     BarberShopStyleEntry const* bs_skinColor = sBarberShopStyleStore.LookupEntry(SkinColor);
 
-    if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->getRace() || bs_skinColor->gender != _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER)))
+    if (bs_skinColor && (bs_skinColor->type != 3 || bs_skinColor->race != _player->GetRace() || bs_skinColor->gender != _player->GetNativeGender()))
         return;
 
-    if (!Player::ValidateAppearance(_player->getRace(), _player->getClass(), _player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER),
-        bs_hair->hair_id,
-        Color,
-        _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID),
-        bs_facialHair->hair_id,
-        bs_skinColor ? bs_skinColor->hair_id : _player->GetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID)))
+    if (!Player::ValidateAppearance(_player->GetRace(), _player->GetClass(), _player->GetNativeGender(),
+        bs_hair->hair_id, Color, _player->GetFaceId(), bs_facialHair->hair_id,
+        bs_skinColor ? bs_skinColor->hair_id : _player->GetSkinId()))
         return;
 
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
@@ -1300,11 +1305,11 @@ void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
     _player->ModifyMoney(-int32(cost));                     // it isn't free
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
-    _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, uint8(bs_hair->hair_id));
-    _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, uint8(Color));
-    _player->SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, uint8(bs_facialHair->hair_id));
+    _player->SetHairStyleId(uint8(bs_hair->hair_id));
+    _player->SetHairColorId(uint8(Color));
+    _player->SetFacialStyle(uint8(bs_facialHair->hair_id));
     if (bs_skinColor)
-        _player->SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_SKIN_ID, uint8(bs_skinColor->hair_id));
+        _player->SetSkinId(uint8(bs_skinColor->hair_id));
 
     _player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
 
@@ -1454,7 +1459,7 @@ void WorldSession::HandleCharCustomizeCallback(std::shared_ptr<CharacterCustomiz
 
     CharacterDatabase.CommitTransaction(trans);
 
-    sCharacterCache->UpdateCharacterData(customizeInfo->Guid, customizeInfo->Name, &customizeInfo->Gender);
+    sCharacterCache->UpdateCharacterData(customizeInfo->Guid, customizeInfo->Name, customizeInfo->Gender);
 
     SendCharCustomize(RESPONSE_SUCCESS, customizeInfo.get());
 
@@ -1560,7 +1565,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
             InventoryResult msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, sDest, uItem, false);
             if (msg == EQUIP_ERR_OK)
             {
-                if (_player->CanEquipItem(NULL_SLOT, dstpos, uItem, false) != EQUIP_ERR_OK)
+                if (_player->CanUnequipItem(dstpos, true) != EQUIP_ERR_OK)
                     continue;
 
                 _player->RemoveItem(INVENTORY_SLOT_BAG_0, i, true);
@@ -1575,7 +1580,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket& recvData)
         if (item->GetPos() == dstpos)
             continue;
 
-        if (_player->CanUnequipItem(dstpos, true) != EQUIP_ERR_OK)
+        if (_player->CanEquipItem(i, dstpos, item, true) != EQUIP_ERR_OK)
             continue;
 
         _player->SwapItem(item->GetPos(), dstpos);
@@ -1753,7 +1758,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
         trans->Append(stmt);
     }
 
-    sCharacterCache->UpdateCharacterData(factionChangeInfo->Guid, factionChangeInfo->Name, &factionChangeInfo->Gender, &factionChangeInfo->Race);
+    sCharacterCache->UpdateCharacterData(factionChangeInfo->Guid, factionChangeInfo->Name, factionChangeInfo->Gender, factionChangeInfo->Race);
 
     if (oldRace != factionChangeInfo->Race)
     {
@@ -2185,4 +2190,19 @@ void WorldSession::SendBarberShopResult(BarberShopResult result)
     WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
     data << uint32(result);
     SendPacket(&data);
+}
+
+void WorldSession::HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& /*packet*/)
+{
+    // Only players that has not yet gained any experience can use this
+    if (_player->GetUInt32Value(PLAYER_XP))
+        return;
+
+    if (ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(_player->GetClass()))
+    {
+        if (classEntry->CinematicSequence)
+            _player->SendCinematicStart(classEntry->CinematicSequence);
+        else if (ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(_player->GetRace()))
+            _player->SendCinematicStart(raceEntry->CinematicSequence);
+    }
 }

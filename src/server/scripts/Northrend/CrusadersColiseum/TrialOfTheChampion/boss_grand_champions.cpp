@@ -364,7 +364,8 @@ struct boss_grand_championAI : BossAI
         if (spell->Id == SPELL_TRAMPLE_AURA && LookingForMount && uiPhase == 0 && !me->IsImmunedToSpell(spell, caster))
         {
             uiPhase = 3;
-            me->GetMotionMaster()->MovementExpired();
+            //me->GetMotionMaster()->MovementExpired();
+            me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
             me->GetMotionMaster()->MoveIdle();
             Talk(EMOTE_TRAMPLE, me);
             events.ScheduleEvent(EVENT_TRAMPLE, spell->GetDuration());
@@ -550,7 +551,7 @@ struct boss_grand_championAI : BossAI
                 if (pGrandChampion && !pGrandChampion->HasAura(SPELL_KNEEL) && !pGrandChampion->IsInCombat())
                     pGrandChampion->AI()->AttackStart(who);
             }
-            _JustEngagedWith();
+            _JustEngagedWith(who);
         //}
     }
 
@@ -1646,7 +1647,7 @@ class spell_toc5_trample_aura : public SpellScriptLoader
                 targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
             }
 
-            void HandleStun()
+            void HandleStun(SpellMissInfo /*missInfo*/)
             {
                 if (Unit* target = GetHitUnit())
                 {
@@ -1670,7 +1671,7 @@ class spell_toc5_trample_aura : public SpellScriptLoader
             void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_toc5_trample_aura_SpellScript::RemoveInvalidTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                BeforeHit += SpellHitFn(spell_toc5_trample_aura_SpellScript::HandleStun);
+                BeforeHit += BeforeSpellHitFn(spell_toc5_trample_aura_SpellScript::HandleStun);
                 AfterHit += SpellHitFn(spell_toc5_trample_aura_SpellScript::RemoveAura);
             }
 

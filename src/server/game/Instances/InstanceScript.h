@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,6 +29,14 @@
 #define OUT_LOAD_INST_DATA(a)          TC_LOG_DEBUG("scripts", "Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
 #define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
 
 class AreaBoundary;
 class Creature;
@@ -190,6 +197,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) { }
+        // Called when a player successfully leaves the instance.
+        virtual void OnPlayerLeave(Player* /*player*/) { }
 
         // Handle open / close objects
         // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
@@ -217,10 +226,12 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoStopTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
 
         // Remove Auras due to Spell on all players in instance
-        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
+        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Cast spell on all players in instance
-        void DoCastSpellOnPlayers(uint32 spell);
+        void DoCastSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoCastSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
 
         // Return wether server allow two side groups or not
         static bool ServerAllowsTwoSideGroups();
@@ -249,7 +260,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         uint32 GetEncounterCount() const { return bosses.size(); }
 

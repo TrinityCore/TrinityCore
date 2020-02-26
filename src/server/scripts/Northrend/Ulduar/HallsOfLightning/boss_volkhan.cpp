@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -121,14 +120,14 @@ public:
             events.ScheduleEvent(EVENT_FORGE_CAST, 2 * IN_MILLISECONDS, 0, PHASE_INTRO);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_PAUSE,            3.5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SHATTERING_STOMP,   0 * IN_MILLISECONDS, 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SHATTER,            5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
         }
 
         void AttackStart(Unit* who) override
@@ -262,9 +261,9 @@ public:
                             DoCast(me, SPELL_SHATTERING_STOMP);
 
                             Talk(EMOTE_SHATTER);
-                            events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30 * IN_MILLISECONDS, 0, PHASE_NORMAL);
                             m_bCanShatterGolem = true;
                         }
+                        events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30 * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                     case EVENT_SHATTER:
                         if (m_bCanShatterGolem)
@@ -285,6 +284,10 @@ public:
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
             }
+
+            // All the events below happen during the PHASE_NORMAL phase and shouldn't be executed before that
+            if (!events.IsInPhase(PHASE_NORMAL))
+                return;
 
             // Health check
             if (!m_bCanShatterGolem && me->HealthBelowPct(100 - 20 * m_uiHealthAmountModifier))
@@ -419,21 +422,21 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (uiDamage > me->GetHealth())
+            if (damage >= me->GetHealth())
             {
                 me->UpdateEntry(NPC_BRITTLE_GOLEM);
                 me->SetHealth(1);
-                uiDamage = 0;
+                damage = 0;
                 me->RemoveAllAuras();
                 me->AttackStop();
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);  //Set in DB
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // Set in DB
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
-                    me->GetMotionMaster()->MovementExpired();
+
+                me->GetMotionMaster()->Clear();
                 m_bIsFrozen = true;
             }
         }
@@ -463,11 +466,11 @@ public:
                 {
                     case EVENT_BLAST:
                         DoCast(me, SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST, 20 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BLAST, 20s);
                         break;
                     case EVENT_IMMOLATION:
                         DoCastVictim(SPELL_IMMOLATION_STRIKE);
-                        events.ScheduleEvent(EVENT_BLAST, 5 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BLAST, 5s);
                         break;
                     default:
                         break;

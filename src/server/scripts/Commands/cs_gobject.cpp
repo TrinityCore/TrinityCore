@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,8 @@ EndScriptData */
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
@@ -38,11 +40,14 @@ EndScriptData */
 #include "PoolMgr.h"
 #include "RBAC.h"
 #include "WorldSession.h"
+#include <boost/core/demangle.hpp>
+#include <typeinfo>
 
 // definitions are over in cs_npc.cpp
 bool HandleNpcSpawnGroup(ChatHandler* handler, char const* args);
 bool HandleNpcDespawnGroup(ChatHandler* handler, char const* args);
 
+using namespace Trinity::ChatCommands;
 class gobject_commandscript : public CommandScript
 {
 public:
@@ -332,8 +337,8 @@ public:
             if (curRespawnDelay < 0)
                 curRespawnDelay = 0;
 
-            std::string curRespawnDelayStr = secsToTimeString(curRespawnDelay, true);
-            std::string defRespawnDelayStr = secsToTimeString(target->GetRespawnDelay(), true);
+            std::string curRespawnDelayStr = secsToTimeString(curRespawnDelay, TimeFormat::ShortText);
+            std::string defRespawnDelayStr = secsToTimeString(target->GetRespawnDelay(), TimeFormat::ShortText);
 
             handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
         }
@@ -341,49 +346,35 @@ public:
     }
 
     //delete object by selection or guid
-    static bool HandleGameObjectDeleteCommand(ChatHandler* handler, char const* args)
+    static bool HandleGameObjectDeleteCommand(ChatHandler* handler, Variant<Hyperlink<gameobject>, ObjectGuid::LowType> spawnId)
     {
-        // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
-        char* id = handler->extractKeyFromLink((char*)args, "Hgameobject");
-        if (!id)
-            return false;
-
-        ObjectGuid::LowType guidLow = atoul(id);
-        if (!guidLow)
-            return false;
-
-        Player const* const player = handler->GetSession()->GetPlayer();
-        // force respawn to make sure we find something
-        player->GetMap()->ForceRespawn(SPAWN_TYPE_GAMEOBJECT, guidLow);
-        GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
-        if (!object)
+        if (GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(spawnId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+            Player const* const player = handler->GetSession()->GetPlayer();
+            if (ObjectGuid ownerGuid = object->GetOwnerGUID())
+            {
+                Unit* owner = ObjectAccessor::GetUnit(*player, ownerGuid);
+                if (!owner || !ownerGuid.IsPlayer())
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), spawnId);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+                owner->RemoveGameObject(object, false);
+            }
+        }
+
+        if (GameObject::DeleteFromDB(spawnId))
+        {
+            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, spawnId);
+            return true;
+        }
+        else
+        {
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, spawnId);
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        ObjectGuid ownerGuid = object->GetOwnerGUID();
-        if (ownerGuid)
-        {
-            Unit* owner = ObjectAccessor::GetUnit(*player, ownerGuid);
-            if (!owner || !ownerGuid.IsPlayer())
-            {
-                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), guidLow);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            owner->RemoveGameObject(object, false);
-        }
-
-        object->SetRespawnTime(0);                                 // not save respawn time
-        object->Delete();
-        object->DeleteFromDB();
-
-        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetSpawnId());
-
-        return true;
     }
 
     //turn selected object
@@ -429,8 +420,8 @@ public:
         }
 
         Map* map = object->GetMap();
-        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
-        object->SetWorldRotationAngles(oz, oy, ox);
+        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), oz);
+        object->SetLocalRotationAngles(oz, oy, ox);
         object->SaveToDB();
 
         // Generate a completely new spawn with new guid
@@ -500,7 +491,11 @@ public:
         Map* map = object->GetMap();
 
         object->Relocate(x, y, z, object->GetOrientation());
+
+        // update which cell has this gameobject registered for loading
+        sObjectMgr->RemoveGameobjectFromGrid(guidLow, object->GetGameObjectData());
         object->SaveToDB();
+        sObjectMgr->AddGameobjectToGrid(guidLow, object->GetGameObjectData());
 
         // Generate a completely new spawn with new guid
         // 3.3.5a client caches recently deleted objects and brings them back to life
@@ -614,17 +609,26 @@ public:
         if (!param1)
             return false;
 
+        GameObject* thisGO = nullptr;
+        GameObjectData const* data = nullptr;
+
+        ObjectGuid::LowType spawnId = 0;
         if (strcmp(param1, "guid") == 0)
         {
             char* tail = strtok(nullptr, "");
             char* cValue = handler->extractKeyFromLink(tail, "Hgameobject");
             if (!cValue)
                 return false;
-            ObjectGuid::LowType guidLow = atoul(cValue);
-            GameObjectData const* data = sObjectMgr->GetGameObjectData(guidLow);
+            spawnId = atoul(cValue);
+            data = sObjectMgr->GetGameObjectData(spawnId);
             if (!data)
+            {
+                handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, spawnId);
+                handler->SetSentErrorMessage(true);
                 return false;
+            }
             entry = data->id;
+            thisGO = handler->GetObjectFromPlayerMapByDbGuid(spawnId);
         }
         else
         {
@@ -632,16 +636,12 @@ public:
         }
 
         GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
-
-        GameObject* thisGO = nullptr;
-
         if (!gameObjectInfo)
+        {
+            handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, entry);
+            handler->SetSentErrorMessage(true);
             return false;
-
-        if (*args && handler->GetSession()->GetPlayer())
-            thisGO = handler->GetSession()->GetPlayer()->FindNearestGameObject(entry, 30);
-        else if (handler->getSelectedObject() && handler->getSelectedObject()->GetTypeId() == TYPEID_GAMEOBJECT)
-            thisGO = handler->getSelectedObject()->ToGameObject();
+        }
 
         type = gameObjectInfo->type;
         displayId = gameObjectInfo->displayId;
@@ -655,33 +655,38 @@ public:
         if (thisGO)
         {
             handler->PSendSysMessage(LANG_SPAWNINFO_GUIDINFO, thisGO->GetGUID().ToString().c_str());
-            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, thisGO->GetSpawnId(), thisGO->GetPositionX(), thisGO->GetPositionY(), thisGO->GetPositionZ());
-            if (Player* player = handler->GetSession()->GetPlayer())
+            handler->PSendSysMessage(LANG_SPAWNINFO_COMPATIBILITY_MODE, thisGO->GetRespawnCompatibilityMode());
+
+            if (thisGO->GetGameObjectData() && thisGO->GetGameObjectData()->spawnGroupData->groupId)
             {
-                Position playerPos = player->GetPosition();
-                float dist = thisGO->GetExactDist(&playerPos);
-                handler->PSendSysMessage(LANG_SPAWNINFO_DISTANCEFROMPLAYER, dist);
+                SpawnGroupTemplateData const* groupData = thisGO->GetGameObjectData()->spawnGroupData;
+                handler->PSendSysMessage(LANG_SPAWNINFO_GROUP_ID, groupData->name.c_str(), groupData->groupId, groupData->flags, thisGO->GetMap()->IsSpawnGroupActive(groupData->groupId));
             }
+
+            GameObjectOverride const* goOverride = sObjectMgr->GetGameObjectOverride(spawnId);
+            if (!goOverride)
+                goOverride = sObjectMgr->GetGameObjectTemplateAddon(entry);
+            if (goOverride)
+                handler->PSendSysMessage(LANG_GOINFO_ADDON, goOverride->Faction, goOverride->Flags);
         }
+
+        if (data)
+        {
+            float yaw, pitch, roll;
+            data->rotation.toEulerAnglesZYX(yaw, pitch, roll);
+            handler->PSendSysMessage(LANG_SPAWNINFO_SPAWNID_LOCATION, data->spawnId, data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY(), data->spawnPoint.GetPositionZ());
+            handler->PSendSysMessage(LANG_SPAWNINFO_ROTATION, yaw, pitch, roll);
+        }
+
         handler->PSendSysMessage(LANG_GOINFO_ENTRY, entry);
         handler->PSendSysMessage(LANG_GOINFO_TYPE, type);
         handler->PSendSysMessage(LANG_GOINFO_LOOTID, lootId);
         handler->PSendSysMessage(LANG_GOINFO_DISPLAYID, displayId);
-        if (WorldObject* object = handler->getSelectedObject())
-        {
-            if (object->ToGameObject() && object->ToGameObject()->GetGameObjectData() && object->ToGameObject()->GetGameObjectData()->spawnGroupData->groupId)
-            {
-                SpawnGroupTemplateData const* groupData = object->ToGameObject()->GetGameObjectData()->spawnGroupData;
-                handler->PSendSysMessage(LANG_SPAWNINFO_GROUP_ID, groupData->name.c_str(), groupData->groupId, groupData->flags, object->GetMap()->IsSpawnGroupActive(groupData->groupId));
-            }
-            if (object->ToGameObject())
-                handler->PSendSysMessage(LANG_SPAWNINFO_COMPATIBILITY_MODE, object->ToGameObject()->GetRespawnCompatibilityMode());
-        }
         handler->PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
         handler->PSendSysMessage(LANG_GOINFO_SIZE, gameObjectInfo->size);
-
-        if (GameObjectTemplateAddon const* addon = sObjectMgr->GetGameObjectTemplateAddon(entry))
-            handler->PSendSysMessage(LANG_GOINFO_ADDON, addon->faction, addon->flags);
+        handler->PSendSysMessage(LANG_OBJECTINFO_AIINFO, gameObjectInfo->AIName.c_str(), sObjectMgr->GetScriptName(gameObjectInfo->ScriptId).c_str());
+        if (GameObjectAI const* ai = thisGO ? thisGO->AI() : nullptr)
+            handler->PSendSysMessage(LANG_OBJECTINFO_AITYPE, boost::core::demangle(typeid(*ai).name()).c_str());
 
         if (GameObjectDisplayInfoEntry const* modelInfo = sGameObjectDisplayInfoStore.LookupEntry(displayId))
             handler->PSendSysMessage(LANG_GOINFO_MODEL, modelInfo->maxX, modelInfo->maxY, modelInfo->maxZ, modelInfo->minX, modelInfo->minY, modelInfo->minZ);

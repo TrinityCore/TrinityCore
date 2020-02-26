@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,22 +19,24 @@
 #define TRINITY_FORMATIONMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Position.h"
 
 class Creature;
 
-class FormationMovementGenerator : public MovementGeneratorMedium< Creature, FormationMovementGenerator >
+class FormationMovementGenerator : public MovementGeneratorMedium<Creature, FormationMovementGenerator>
 {
     public:
-        explicit FormationMovementGenerator(uint32 id, Position destination, uint32 moveType, bool run, bool orientation) : _movementId(id), _destination(destination), _moveType(moveType), _run(run), _orientation(orientation), _recalculateSpeed(false), _interrupt(false) { }
+        explicit FormationMovementGenerator(uint32 id, Position destination, uint32 moveType, bool run, bool orientation);
 
-        MovementGeneratorType GetMovementGeneratorType() const override { return FORMATION_MOTION_TYPE; }
+        MovementGeneratorType GetMovementGeneratorType() const override;
 
         void DoInitialize(Creature*);
-        void DoFinalize(Creature*);
         void DoReset(Creature*);
         bool DoUpdate(Creature*, uint32);
+        void DoDeactivate(Creature*);
+        void DoFinalize(Creature*, bool, bool);
 
-        void UnitSpeedChanged() override { _recalculateSpeed = true; }
+        void UnitSpeedChanged() override { AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
 
     private:
         void MovementInform(Creature*);
@@ -44,8 +46,6 @@ class FormationMovementGenerator : public MovementGeneratorMedium< Creature, For
         uint32 _moveType;
         bool _run;
         bool _orientation;
-        bool _recalculateSpeed;
-        bool _interrupt;
 };
 
 #endif // TRINITY_FORMATIONMOVEMENTGENERATOR_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -70,7 +70,9 @@ enum ApothecaryEvents
     EVENT_PERFUME_SPRAY,
     EVENT_COLOGNE_SPRAY,
     EVENT_CALL_BAXTER,
-    EVENT_CALL_FRYE
+    EVENT_CALL_FRYE,
+    EVENT_CALL_CRAZED_APOTHECARY,
+    EVENT_CRAZED_APOTHECARY
 };
 
 enum ApothecaryMisc
@@ -210,18 +212,19 @@ class boss_apothecary_hummel : public CreatureScript
                             break;
                         case EVENT_HUMMEL_SAY_2:
                             Talk(SAY_INTRO_2);
-                            events.ScheduleEvent(EVENT_START_FIGHT, Seconds(4));
+                            events.ScheduleEvent(EVENT_START_FIGHT, 4s);
                             break;
                         case EVENT_START_FIGHT:
                         {
                             me->SetImmuneToAll(false);
                             DoZoneInCombat();
-                            events.ScheduleEvent(EVENT_CALL_BAXTER, Seconds(6));
-                            events.ScheduleEvent(EVENT_CALL_FRYE, Seconds(14));
+                            events.ScheduleEvent(EVENT_CALL_BAXTER, 6s);
+                            events.ScheduleEvent(EVENT_CALL_FRYE, 14s);
                             events.ScheduleEvent(EVENT_PERFUME_SPRAY, Milliseconds(3640));
-                            events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(15));
+                            events.ScheduleEvent(EVENT_CHAIN_REACTION, 15s);
+                            events.ScheduleEvent(EVENT_CALL_CRAZED_APOTHECARY, 15s);
+                            events.ScheduleEvent(EVENT_CRAZED_APOTHECARY, 15s);
 
-                            Talk(SAY_SUMMON_ADDS);
                             std::vector<Creature*> trashs;
                             me->GetCreatureListWithEntryInGrid(trashs, NPC_CROWN_APOTHECARY);
                             for (Creature* crea : trashs)
@@ -244,6 +247,13 @@ class boss_apothecary_hummel : public CreatureScript
                             summons.DoAction(ACTION_START_FIGHT, pred);
                             break;
                         }
+                        case EVENT_CALL_CRAZED_APOTHECARY:
+                            Talk(SAY_SUMMON_ADDS);
+                            break;
+                        case EVENT_CRAZED_APOTHECARY:
+                            instance->SetData(DATA_SPAWN_VALENTINE_ADDS, 0);
+                            events.Repeat(Seconds(4), Seconds(6));
+                            break;
                         case EVENT_PERFUME_SPRAY:
                             DoCastVictim(SPELL_PERFUME_SPRAY);
                             events.Repeat(Milliseconds(3640));
@@ -343,8 +353,8 @@ class npc_apothecary_baxter : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_COLOGNE_SPRAY, Seconds(7));
-                _events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(12));
+                _events.ScheduleEvent(EVENT_COLOGNE_SPRAY, 7s);
+                _events.ScheduleEvent(EVENT_CHAIN_REACTION, 12s);
             }
 
             void JustDied(Unit* /*killer*/) override

@@ -69,6 +69,11 @@ struct inotify_event {
 # define __NR_inotify_add_watch (__NR_SYSCALL_BASE+317)
 # define __NR_inotify_rm_watch (__NR_SYSCALL_BASE+318)
 
+#elif defined (__aarch64__)
+# define __NR_inotify_init 1043
+# define __NR_inotify_add_watch 27
+# define __NR_inotify_rm_watch 28
+
 #elif defined (__frv__)
 # define __NR_inotify_init 291
 # define __NR_inotify_add_watch 292

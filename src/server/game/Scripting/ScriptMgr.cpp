@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -432,7 +431,9 @@ class CreatureGameObjectScriptRegistrySwapHooks
         if (!creature->IsAlive())
             return;
 
-        creature->AI_InitializeAndEnable();
+        creature->AI()->InitializeAI();
+        if (creature->GetVehicleKit())
+            creature->GetVehicleKit()->Reset();
         creature->AI()->EnterEvadeMode();
 
         // Cast a dummy visual spell asynchronously here to signal
@@ -984,8 +985,8 @@ private:
 
 struct TSpellSummary
 {
-    uint8 Targets;                                          // set of enum SelectTarget
-    uint8 Effects;                                          // set of enum SelectEffect
+    uint8 Targets; // set of enum SelectTarget
+    uint8 Effects; // set of enum SelectEffect
 } *SpellSummary;
 
 ScriptObject::ScriptObject(char const* name) : _name(name)
@@ -999,7 +1000,7 @@ ScriptObject::~ScriptObject()
 }
 
 ScriptMgr::ScriptMgr()
-  : _scriptCount(0), _script_loader_callback(nullptr)
+    : _scriptCount(0), _script_loader_callback(nullptr)
 {
 }
 
@@ -1565,36 +1566,6 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
     return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
 }
 
-bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureData const* cData, Map const* map)
-{
-    ASSERT(map);
-    CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
-    ASSERT(baseTemplate);
-
-    // find out which template we'd be using
-    CreatureTemplate const* actTemplate = baseTemplate;
-    for (uint8 diff = uint8(map->GetSpawnMode()); diff > 0;)
-    {
-        if (uint32 diffEntry = baseTemplate->DifficultyEntry[diff - 1])
-            if (CreatureTemplate const* diffTemplate = sObjectMgr->GetCreatureTemplate(diffEntry))
-            {
-                actTemplate = diffTemplate;
-                break;
-            }
-        if (diff >= RAID_DIFFICULTY_10MAN_HEROIC && map->IsRaid())
-            diff -= 2;
-        else
-            diff -= 1;
-    }
-
-    uint32 scriptId = baseTemplate->ScriptID;
-    if (cData && cData->scriptId)
-        scriptId = cData->scriptId;
-
-    GET_SCRIPT_RET(CreatureScript, scriptId, tmpscript, true);
-    return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
-}
-
 CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
@@ -1989,6 +1960,16 @@ void ScriptMgr::OnPlayerRepop(Player* player)
     FOREACH_SCRIPT(PlayerScript)->OnPlayerRepop(player);
 }
 
+void ScriptMgr::OnQuestObjectiveProgress(Player* player, Quest const* quest, uint32 objectiveIndex, uint16 progress)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestObjectiveProgress(player, quest, objectiveIndex, progress);
+}
+
+void ScriptMgr::OnMovieComplete(Player* player, uint32 movieId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMovieComplete(player, movieId);
+}
+
 // Account
 void ScriptMgr::OnAccountLogin(uint32 accountId)
 {
@@ -2112,31 +2093,32 @@ void ScriptMgr::OnGroupDisband(Group* group)
 void ScriptMgr::OnHeal(Unit* healer, Unit* reciever, uint32& gain)
 {
     FOREACH_SCRIPT(UnitScript)->OnHeal(healer, reciever, gain);
-    FOREACH_SCRIPT(PlayerScript)->OnHeal(healer, reciever, gain);
 }
 
 void ScriptMgr::OnDamage(Unit* attacker, Unit* victim, uint32& damage)
 {
     FOREACH_SCRIPT(UnitScript)->OnDamage(attacker, victim, damage);
-    FOREACH_SCRIPT(PlayerScript)->OnDamage(attacker, victim, damage);
 }
 
 void ScriptMgr::ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage)
 {
     FOREACH_SCRIPT(UnitScript)->ModifyPeriodicDamageAurasTick(target, attacker, damage);
-    FOREACH_SCRIPT(PlayerScript)->ModifyPeriodicDamageAurasTick(target, attacker, damage);
 }
 
 void ScriptMgr::ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage)
 {
     FOREACH_SCRIPT(UnitScript)->ModifyMeleeDamage(target, attacker, damage);
-    FOREACH_SCRIPT(PlayerScript)->ModifyMeleeDamage(target, attacker, damage);
 }
 
 void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage)
 {
     FOREACH_SCRIPT(UnitScript)->ModifySpellDamageTaken(target, attacker, damage);
-    FOREACH_SCRIPT(PlayerScript)->ModifySpellDamageTaken(target, attacker, damage);
+}
+
+void ScriptMgr::ModifyVehiclePassengerExitPos(Unit* passenger, Vehicle* vehicle, Position& pos)
+{
+    FOREACH_SCRIPT(UnitScript)->ModifyVehiclePassengerExitPos(passenger, vehicle, pos);
+    FOREACH_SCRIPT(CreatureScript)->ModifyVehiclePassengerExitPos(passenger, vehicle, pos);
 }
 
 SpellScriptLoader::SpellScriptLoader(char const* name)
@@ -2163,11 +2145,10 @@ FormulaScript::FormulaScript(char const* name)
     ScriptRegistry<FormulaScript>::Instance()->AddScript(this);
 }
 
-UnitScript::UnitScript(char const* name, bool addToScripts)
+UnitScript::UnitScript(char const* name)
     : ScriptObject(name)
 {
-    if (addToScripts)
-        ScriptRegistry<UnitScript>::Instance()->AddScript(this);
+    ScriptRegistry<UnitScript>::Instance()->AddScript(this);
 }
 
 WorldMapScript::WorldMapScript(char const* name, uint32 mapId)
@@ -2213,7 +2194,7 @@ ItemScript::ItemScript(char const* name)
 }
 
 CreatureScript::CreatureScript(char const* name)
-    : UnitScript(name, false)
+    : ScriptObject(name)
 {
     ScriptRegistry<CreatureScript>::Instance()->AddScript(this);
 }
@@ -2306,7 +2287,7 @@ AchievementCriteriaScript::AchievementCriteriaScript(char const* name)
 }
 
 PlayerScript::PlayerScript(char const* name)
-    : UnitScript(name, false)
+    : ScriptObject(name)
 {
     ScriptRegistry<PlayerScript>::Instance()->AddScript(this);
 }

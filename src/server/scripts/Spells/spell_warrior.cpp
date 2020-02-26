@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -295,9 +295,6 @@ class spell_warr_deep_wounds : public SpellScriptLoader
 
                     ASSERT(spellInfo->GetMaxTicks() > 0);
                     damage /= spellInfo->GetMaxTicks();
-
-                    // Add remaining ticks to damage done
-                    damage += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, SPELL_AURA_PERIODIC_DAMAGE);
 
                     CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                     args.AddSpellBP0(damage);

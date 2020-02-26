@@ -35,21 +35,43 @@ typedef enum {
 	mutex_prof_num_arena_mutexes
 } mutex_prof_arena_ind_t;
 
-#define MUTEX_PROF_COUNTERS						\
-    OP(num_ops, uint64_t)						\
-    OP(num_wait, uint64_t)						\
-    OP(num_spin_acq, uint64_t)						\
-    OP(num_owner_switch, uint64_t)					\
-    OP(total_wait_time, uint64_t)					\
-    OP(max_wait_time, uint64_t)						\
-    OP(max_num_thds, uint32_t)
+/*
+ * The forth parameter is a boolean value that is true for derived rate counters
+ * and false for real ones.
+ */
+#define MUTEX_PROF_UINT64_COUNTERS					\
+    OP(num_ops, uint64_t, "n_lock_ops", false, num_ops)					\
+    OP(num_ops_ps, uint64_t, "(#/sec)", true, num_ops)				\
+    OP(num_wait, uint64_t, "n_waiting", false, num_wait)				\
+    OP(num_wait_ps, uint64_t, "(#/sec)", true, num_wait)				\
+    OP(num_spin_acq, uint64_t, "n_spin_acq", false, num_spin_acq)			\
+    OP(num_spin_acq_ps, uint64_t, "(#/sec)", true, num_spin_acq)			\
+    OP(num_owner_switch, uint64_t, "n_owner_switch", false, num_owner_switch)		\
+    OP(num_owner_switch_ps, uint64_t, "(#/sec)", true, num_owner_switch)	\
+    OP(total_wait_time, uint64_t, "total_wait_ns", false, total_wait_time)		\
+    OP(total_wait_time_ps, uint64_t, "(#/sec)", true, total_wait_time)		\
+    OP(max_wait_time, uint64_t, "max_wait_ns", false, max_wait_time)
 
-typedef enum {
-#define OP(counter, type) mutex_counter_##counter,
-	MUTEX_PROF_COUNTERS
+#define MUTEX_PROF_UINT32_COUNTERS					\
+    OP(max_num_thds, uint32_t, "max_n_thds", false, max_num_thds)
+
+#define MUTEX_PROF_COUNTERS						\
+		MUTEX_PROF_UINT64_COUNTERS				\
+		MUTEX_PROF_UINT32_COUNTERS
+
+#define OP(counter, type, human, derived, base_counter) mutex_counter_##counter,
+
+#define COUNTER_ENUM(counter_list, t)					\
+		typedef enum {						\
+			counter_list					\
+			mutex_prof_num_##t##_counters			\
+		} mutex_prof_##t##_counter_ind_t;
+
+COUNTER_ENUM(MUTEX_PROF_UINT64_COUNTERS, uint64_t)
+COUNTER_ENUM(MUTEX_PROF_UINT32_COUNTERS, uint32_t)
+
+#undef COUNTER_ENUM
 #undef OP
-	mutex_prof_num_counters
-} mutex_prof_counter_ind_t;
 
 typedef struct {
 	/*

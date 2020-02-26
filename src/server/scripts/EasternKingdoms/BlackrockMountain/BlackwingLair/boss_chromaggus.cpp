@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -192,15 +191,15 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
+            BossAI::JustEngagedWith(who);
 
             events.ScheduleEvent(EVENT_SHIMMER, 0);
             events.ScheduleEvent(EVENT_BREATH_1, 30000);
             events.ScheduleEvent(EVENT_BREATH_2, 60000);
-            events.ScheduleEvent(EVENT_AFFLICTION, 10000);
-            events.ScheduleEvent(EVENT_FRENZY, 15000);
+            events.ScheduleEvent(EVENT_AFFLICTION, 10s);
+            events.ScheduleEvent(EVENT_FRENZY, 15s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -228,7 +227,7 @@ public:
                             DoCast(me, spell);
                             CurrentVurln_Spell = spell;
                             Talk(EMOTE_SHIMMER);
-                            events.ScheduleEvent(EVENT_SHIMMER, 45000);
+                            events.ScheduleEvent(EVENT_SHIMMER, 45s);
                             break;
                         }
                     case EVENT_BREATH_1:
@@ -260,11 +259,11 @@ public:
                                 }
                             }
                         }
-                        events.ScheduleEvent(EVENT_AFFLICTION, 10000);
+                        events.ScheduleEvent(EVENT_AFFLICTION, 10s);
                         break;
                     case EVENT_FRENZY:
                         DoCast(me, SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, urand(10000, 15000));
+                        events.ScheduleEvent(EVENT_FRENZY, 10s, 15s);
                         break;
                 }
 

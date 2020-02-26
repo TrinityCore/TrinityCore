@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -98,8 +97,6 @@ public:
                 DoCast(me, SPELL_CHANNEL, true);
             else if (me->HasAura(SPELL_CHANNEL))
                 me->RemoveAura(SPELL_CHANNEL);
-
-            DoCast(me, SPELL_PORTAL_RUNE, true);
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -157,7 +154,7 @@ public:
 
         void JustDied(Unit* killer) override
         {
-            if (killer->GetEntry() == me->GetEntry())
+            if (killer && killer->GetEntry() == me->GetEntry())
                 return;
 
             Talk(SAY_DEATH);

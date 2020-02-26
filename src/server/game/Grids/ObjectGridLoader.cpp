@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -120,57 +119,19 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
 {
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
+        // Don't spawn at all if there's a respawn timer
+        ObjectGuid::LowType guid = *i_guid;
+        if (!map->ShouldBeSpawnedOnGridLoad<T>(guid))
+            continue;
+
         T* obj = new T;
-
-        // Don't spawn at all if there's a respawn time
-        if ((obj->GetTypeId() == TYPEID_UNIT && !map->GetCreatureRespawnTime(*i_guid)) || (obj->GetTypeId() == TYPEID_GAMEOBJECT && !map->GetGORespawnTime(*i_guid)))
+        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
+        if (!obj->LoadFromDB(guid, map, false, false))
         {
-            ObjectGuid::LowType guid = *i_guid;
-            //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
-
-            if (obj->GetTypeId() == TYPEID_UNIT)
-            {
-                CreatureData const* cdata = sObjectMgr->GetCreatureData(guid);
-                ASSERT(cdata, "Tried to load creature with spawnId %u, but no such creature exists.", guid);
-                SpawnGroupTemplateData const* const group = cdata->spawnGroupData;
-                // If creature in manual spawn group, don't spawn here, unless group is already active.
-                if (!(group->flags & SPAWNGROUP_FLAG_SYSTEM))
-                    if (!map->IsSpawnGroupActive(group->groupId))
-                    {
-                        delete obj;
-                        continue;
-                    }
-
-                // If script is blocking spawn, don't spawn but queue for a re-check in a little bit
-                if (!(group->flags & SPAWNGROUP_FLAG_COMPATIBILITY_MODE) && !sScriptMgr->CanSpawn(guid, cdata->id, cdata, map))
-                {
-                    map->SaveRespawnTime(SPAWN_TYPE_CREATURE, guid, cdata->id, GameTime::GetGameTime() + urand(4,7), map->GetZoneId(cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
-                    delete obj;
-                    continue;
-                }
-            }
-            else if (obj->GetTypeId() == TYPEID_GAMEOBJECT)
-            {
-                // If gameobject in manual spawn group, don't spawn here, unless group is already active.
-                GameObjectData const* godata = sObjectMgr->GetGameObjectData(guid);
-                ASSERT(godata, "Tried to load gameobject with spawnId %u, but no such object exists.", guid);
-                if (!(godata->spawnGroupData->flags & SPAWNGROUP_FLAG_SYSTEM))
-                    if (!map->IsSpawnGroupActive(godata->spawnGroupData->groupId))
-                    {
-                        delete obj;
-                        continue;
-                    }
-            }
-
-            if (!obj->LoadFromDB(guid, map, false, false))
-            {
-                delete obj;
-                continue;
-            }
-            AddObjectHelper(cell, m, count, map, obj);
-        }
-        else
             delete obj;
+            continue;
+        }
+        AddObjectHelper(cell, m, count, map, obj);
     }
 }
 
@@ -241,9 +202,6 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
     while (!m.isEmpty())
     {
         T *obj = m.getFirst()->GetSource();
-        // if option set then object already saved at this moment
-        if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
-            obj->SaveRespawnTime();
         //Some creatures may summon other temp summons in CleanupsBeforeDelete()
         //So we need this even after cleaner (maybe we can remove cleaner)
         //Example: Flame Leviathan Turret 33139 is summoned when a creature is deleted
@@ -261,11 +219,7 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
     {
         iter->GetSource()->RemoveAllDynObjects();
         if (iter->GetSource()->IsInCombat())
-        {
             iter->GetSource()->CombatStop();
-            iter->GetSource()->GetThreatManager().ClearAllThreat();
-            iter->GetSource()->AI()->EnterEvadeMode();
-        }
     }
 }
 

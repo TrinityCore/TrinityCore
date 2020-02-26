@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +16,7 @@
  */
 
 #include "MoveSplineInit.h"
+#include "Creature.h"
 #include "MoveSpline.h"
 #include "MovementPacketBuilder.h"
 #include "Unit.h"
@@ -113,7 +113,13 @@ namespace Movement
                 moveFlagsForSpeed &= ~MOVEMENTFLAG_WALKING;
 
             args.velocity = unit->GetSpeed(SelectSpeedType(moveFlagsForSpeed));
+            if (Creature* creature = unit->ToCreature())
+                if (creature->HasSearchedAssistance())
+                    args.velocity *= 0.66f;
         }
+
+        // limit the speed in the same way the client does
+        args.velocity = std::min(args.velocity, args.flags.catmullrom || args.flags.flying ? 50.0f : std::max(28.0f, unit->GetSpeed(MOVE_RUN) * 4.0f));
 
         if (!args.Validate(unit))
             return 0;

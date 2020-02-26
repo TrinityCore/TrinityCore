@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -324,9 +324,9 @@ class boss_gothik : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 events.SetPhase(PHASE_ONE);
                 events.ScheduleEvent(EVENT_SUMMON, Seconds(25), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_DOORS_UNLOCK, Minutes(3) + Seconds(25), 0, PHASE_ONE);
@@ -533,7 +533,7 @@ class boss_gothik : public CreatureScript
                             break;
                         case EVENT_RESUME_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            events.ScheduleEvent(EVENT_BOLT, Seconds(0), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_BOLT, 0s, 0, PHASE_TWO);
                             // return to the start of this method so victim side etc is re-evaluated
                             return UpdateAI(0u); // tail recursion for efficiency
                         case EVENT_BOLT:
@@ -594,7 +594,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
             {
                 case ACTION_GATE_OPENED:
                     _gateIsOpen = true;
-                    // intentional missing break
+                    /* fallthrough */
                 case ACTION_ACQUIRE_TARGET:
                     if (Player* target = FindEligibleTarget(me, _gateIsOpen))
                     {

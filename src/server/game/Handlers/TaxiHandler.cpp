@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -119,8 +118,6 @@ void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathN
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    GetPlayer()->GetMotionMaster()->Clear(MOTION_SLOT_CONTROLLED);
-
     if (mountDisplayId)
         GetPlayer()->Mount(mountDisplayId);
 
@@ -224,13 +221,11 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
         TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
 
         // far teleport case
-        if (curDestNode && curDestNode->map_id != GetPlayer()->GetMapId())
+        if (curDestNode && curDestNode->map_id != GetPlayer()->GetMapId() && GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
         {
-            if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
+            if (FlightPathMovementGenerator* flight = dynamic_cast<FlightPathMovementGenerator*>(GetPlayer()->GetMotionMaster()->GetCurrentMovementGenerator()))
             {
                 // short preparations to continue flight
-                FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-
                 flight->SetCurrentNodeAfterTeleport();
                 TaxiPathNodeEntry const* node = flight->GetPath()[flight->GetCurrentNode()];
                 flight->SkipCurrentNode();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -262,7 +262,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (_tempBonus)
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     uint32 healthMod = 0;
                     uint32 baseHealth = pInfo->health;
                     switch (pet->GetEntry())
@@ -294,7 +294,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     pet->ToPet()->SetCreateHealth(pInfo->health);
                 }
         }
@@ -408,7 +408,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (_tempBonus)
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     uint32 manaMod = 0;
                     uint32 baseMana = pInfo->mana;
                     switch (pet->GetEntry())
@@ -436,7 +436,7 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
                 {
-                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->getLevel());
+                    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(pet->GetEntry(), pet->GetLevel());
                     pet->ToPet()->SetCreateMana(pInfo->mana);
                 }
         }

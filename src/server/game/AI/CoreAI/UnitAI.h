@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -58,19 +57,21 @@ enum SelectAggroTarget
 // default predicate function to select target based on distance, player and/or aura criteria
 struct TC_GAME_API DefaultTargetSelector
 {
-    Unit const* me;
-    float m_dist;
-    bool m_playerOnly;
-    Unit const* except;
-    int32 m_aura;
+    public:
+        // unit: the reference unit
+        // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
+        // playerOnly: self explaining
+        // withMainTank: allow current tank to be selected
+        // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
+        DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withMainTank, int32 aura);
+        bool operator()(Unit const* target) const;
 
-    // unit: the reference unit
-    // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
-    // playerOnly: self explaining
-    // withMainTank: allow current tank to be selected
-    // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withMainTank, int32 aura);
-    bool operator()(Unit const* target) const;
+    private:
+        Unit const* _me;
+        float _dist;
+        bool _playerOnly;
+        Unit const* _exception;
+        int32 _aura;
 };
 
 // Target selector for spell casts checking range, auras and attributes
@@ -143,8 +144,11 @@ class TC_GAME_API UnitAI
 
         virtual void Reset() { }
 
-        // Called when unit is charmed
-        virtual void OnCharmed(bool apply) = 0;
+        // Called when unit's charm state changes with isNew = false
+        // Implementation should call me->ScheduleAIChange() if AI replacement is desired
+        // If this call is made, AI will be replaced on the next tick
+        // When replacement is made, OnCharmed is called with isNew = true
+        virtual void OnCharmed(bool isNew);
 
         // Pass parameters between AI
         virtual void DoAction(int32 /*param*/) { }
@@ -283,6 +287,9 @@ class TC_GAME_API UnitAI
         // Called when the unit leaves combat
         virtual void JustExitedCombat() { }
 
+        // Called when the unit is about to be removed from the world (despawn, grid unload, corpse disappearing, player logging out etc.)
+        virtual void LeavingWorld() { }
+
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
 
@@ -302,11 +309,11 @@ class TC_GAME_API UnitAI
 
         void AttackStartCaster(Unit* victim, float dist);
 
-        void DoCast(uint32 spellId);
-        void DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args = {});
-        void DoCastSelf(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(me, spellId, args); }
-        void DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
-        void DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { DoCast(nullptr, spellId, args); }
+        SpellCastResult DoCast(uint32 spellId);
+        SpellCastResult DoCast(Unit* victim, uint32 spellId, CastSpellExtraArgs const& args = {});
+        SpellCastResult DoCastSelf(uint32 spellId, CastSpellExtraArgs const& args = {}) { return DoCast(me, spellId, args); }
+        SpellCastResult DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
+        SpellCastResult DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { return DoCast(nullptr, spellId, args); }
 
         float DoGetSpellMaxRange(uint32 spellId, bool positive = false);
 
@@ -320,6 +327,8 @@ class TC_GAME_API UnitAI
 
         // Called when a game event starts or ends
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
+
+        virtual std::string GetDebugInfo() const;
 
     private:
         UnitAI(UnitAI const& right) = delete;

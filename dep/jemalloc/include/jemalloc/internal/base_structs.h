@@ -3,7 +3,7 @@
 
 #include "jemalloc/internal/jemalloc_internal_types.h"
 #include "jemalloc/internal/mutex.h"
-#include "jemalloc/internal/size_classes.h"
+#include "jemalloc/internal/sc.h"
 
 /* Embedded at the beginning of every block of base-managed virtual memory. */
 struct base_block_s {
@@ -30,6 +30,8 @@ struct base_s {
 	/* Protects base_alloc() and base_stats_get() operations. */
 	malloc_mutex_t	mtx;
 
+	/* Using THP when true (metadata_thp auto mode). */
+	bool		auto_thp_switched;
 	/*
 	 * Most recent size class in the series of increasingly large base
 	 * extents.  Logarithmic spacing between subsequent allocations ensures
@@ -44,12 +46,14 @@ struct base_s {
 	base_block_t	*blocks;
 
 	/* Heap of extents that track unused trailing space within blocks. */
-	extent_heap_t	avail[NSIZES];
+	extent_heap_t	avail[SC_NSIZES];
 
 	/* Stats, only maintained if config_stats. */
 	size_t		allocated;
 	size_t		resident;
 	size_t		mapped;
+	/* Number of THP regions touched. */
+	size_t		n_thp;
 };
 
 #endif /* JEMALLOC_INTERNAL_BASE_STRUCTS_H */

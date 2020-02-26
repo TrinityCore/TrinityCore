@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +23,7 @@ int32 GameObjectAI::Permissible(GameObject const* /*go*/)
     return PERMIT_BASE_NO;
 }
 
-NullGameObjectAI::NullGameObjectAI(GameObject* g) : GameObjectAI(g) { }
+NullGameObjectAI::NullGameObjectAI(GameObject* go) : GameObjectAI(go) { }
 
 int32 NullGameObjectAI::Permissible(GameObject const* /*go*/)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,7 +71,13 @@ enum HunterSpells
     SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS        = 57894,
     SPELL_HUNTER_EXPLOSIVE_SHOT_DAMAGE              = 53352,
     SPELL_HUNTER_FEEDING_FRENZY_BUFF_R1             = 60096,
-    SPELL_HUNTER_FEEDING_FRENZY_BUFF_R2             = 60097
+    SPELL_HUNTER_FEEDING_FRENZY_BUFF_R2             = 60097,
+    SPELL_HUNTER_WYVERN_STING_DOT_R1                = 24131,
+    SPELL_HUNTER_WYVERN_STING_DOT_R2                = 24134,
+    SPELL_HUNTER_WYVERN_STING_DOT_R3                = 24135,
+    SPELL_HUNTER_WYVERN_STING_DOT_R4                = 27069,
+    SPELL_HUNTER_WYVERN_STING_DOT_R5                = 49009,
+    SPELL_HUNTER_WYVERN_STING_DOT_R6                = 49010
 };
 
 // 13161 - Aspect of the Beast
@@ -1091,12 +1097,9 @@ public:
             if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
             {
                 SpellInfo const* piercingShots = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_PIERCING_SHOTS);
-                int32 duration = piercingShots->GetMaxDuration();
-                uint32 amplitude = piercingShots->Effects[EFFECT_0].Amplitude;
                 uint32 dmg = dmgInfo->GetDamage();
 
-                uint32 bp = CalculatePct(int32(dmg), aurEff->GetAmount()) / (duration / int32(amplitude));
-                bp += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_HUNTER_PIERCING_SHOTS, SPELL_AURA_PERIODIC_DAMAGE);
+                int32 bp = CalculatePct(int32(dmg), aurEff->GetAmount()) / static_cast<int32>(piercingShots->GetMaxTicks());
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(bp);
@@ -1369,7 +1372,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
                     if (Player* playerTarget = GetUnitOwner()->ToPlayer())
                     {
                         int32 baseAmount = aurEff->GetBaseAmount();
-                        int32 amount = playerTarget->CalculateSpellDamage(playerTarget, GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount);
+                        int32 amount = playerTarget->CalculateSpellDamage(GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount);
                         GetEffect(EFFECT_0)->SetAmount(amount);
                     }
                 }
@@ -1381,7 +1384,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
                 {
                     int32 baseAmount = aurEff->GetBaseAmount();
                     int32 amount = playerTarget->isMoving() ?
-                    playerTarget->CalculateSpellDamage(playerTarget, GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount) :
+                    playerTarget->CalculateSpellDamage(GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount) :
                     aurEff->GetAmount() - 1;
                     aurEff->SetAmount(amount);
                 }
@@ -1421,7 +1424,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
 
                 if (Creature* target = GetExplTargetUnit()->ToCreature())
                 {
-                    if (target->getLevel() > caster->getLevel())
+                    if (target->GetLevel() > caster->GetLevel())
                         return SPELL_FAILED_HIGHLEVEL;
 
                     // use SMSG_PET_TAME_FAILURE?
@@ -1431,7 +1434,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
                     if (caster->GetPetGUID())
                         return SPELL_FAILED_ALREADY_HAVE_SUMMON;
 
-                    if (caster->GetCharmGUID())
+                    if (caster->GetCharmedGUID())
                         return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 }
                 else
@@ -1631,6 +1634,38 @@ class spell_hun_viper_attack_speed : public SpellScriptLoader
         }
 };
 
+// -19386 - Wyvern Sting
+class spell_hun_wyvern_sting : public AuraScript
+{
+    PrepareAuraScript(spell_hun_wyvern_sting);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_WYVERN_STING_DOT_R1,
+                SPELL_HUNTER_WYVERN_STING_DOT_R2,
+                SPELL_HUNTER_WYVERN_STING_DOT_R3,
+                SPELL_HUNTER_WYVERN_STING_DOT_R4,
+                SPELL_HUNTER_WYVERN_STING_DOT_R5,
+                SPELL_HUNTER_WYVERN_STING_DOT_R6
+            });
+    }
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        uint8 rank = sSpellMgr->GetSpellRank(GetId());
+        uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_HUNTER_WYVERN_STING_DOT_R1, rank);
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), spellId, aurEff);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hun_wyvern_sting::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -1667,4 +1702,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_t9_4p_bonus();
     new spell_hun_viper_attack_speed();
+    RegisterAuraScript(spell_hun_wyvern_sting);
 }

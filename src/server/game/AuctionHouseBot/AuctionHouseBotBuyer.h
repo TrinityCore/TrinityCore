@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,21 +26,21 @@ struct BuyerAuctionEval
 {
     BuyerAuctionEval() : AuctionId(0), LastChecked(0), LastExist(0) { }
 
-    uint32  AuctionId;
-    time_t  LastChecked;
-    time_t  LastExist;
+    uint32 AuctionId;
+    time_t LastChecked;
+    time_t LastExist;
 };
 
 struct BuyerItemInfo
 {
     BuyerItemInfo() : BidItemCount(0), BuyItemCount(0), MinBuyPrice(0), MinBidPrice(0), TotalBuyPrice(0), TotalBidPrice(0) { }
 
-    uint32  BidItemCount;
-    uint32  BuyItemCount;
-    uint32  MinBuyPrice;
-    uint32  MinBidPrice;
-    double  TotalBuyPrice;
-    double  TotalBidPrice;
+    uint32 BidItemCount;
+    uint32 BuyItemCount;
+    uint32 MinBuyPrice;
+    uint32 MinBidPrice;
+    double TotalBuyPrice;
+    double TotalBidPrice;
 };
 
 typedef std::map<uint32, BuyerItemInfo> BuyerItemInfoMap;

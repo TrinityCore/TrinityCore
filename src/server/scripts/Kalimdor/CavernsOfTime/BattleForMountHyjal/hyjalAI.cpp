@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -384,6 +383,7 @@ void hyjalAI::SummonedCreatureDespawn(Creature* summoned)
 void hyjalAI::Reset()
 {
     me->setActive(true);
+    me->SetFarVisible(true);
 
     Initialize();
 
@@ -422,10 +422,11 @@ void hyjalAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     if (me->GetEntry() != JAINA)
         me->RemoveAllAuras();
-    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
+    
+    EngagementOver();
+    
     me->LoadCreaturesAddon();
-
     if (me->IsAlive())
         me->GetMotionMaster()->MoveTargetedHome();
 
@@ -504,6 +505,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
 
         creature->SetWalk(false);
         creature->setActive(true);
+        creature->SetFarVisible(true);
         switch (entry)
         {
             case NECROMANCER:
@@ -970,7 +972,7 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
                     (*itr)->GetMotionMaster()->Initialize();
                     float range = 10;
                     if (me->GetEntry() == THRALL)range = 20;
-                    me->GetNearPoint(me, x, y, z, range, 0, me->GetAngle((*itr)));
+                    me->GetNearPoint(nullptr, x, y, z, range, me->GetAbsoluteAngle((*itr)));
                     (*itr)->GetMotionMaster()->MovePoint(0, x+irand(-5, 5), y+irand(-5, 5), me->GetPositionZ());
                 }
             }
@@ -1028,6 +1030,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
                     ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
+                    unit->SetFarVisible(true);
                 }
             }
             for (uint8 i = 0; i < 3; ++i)//summon 3 abominations
@@ -1040,6 +1043,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
                     ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
+                    unit->SetFarVisible(true);
                 }
             }
             for (uint8 i = 0; i < 5; ++i)//summon 5 gargoyles
@@ -1052,6 +1056,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
                     ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
+                    unit->SetFarVisible(true);
                 }
             }
             break;
@@ -1069,6 +1074,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
                     ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
+                    unit->SetFarVisible(true);
                 }
             }
             for (uint8 i = 0; i < 25; ++i)//summon 25 ghouls
@@ -1081,6 +1087,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
                     ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
+                    unit->SetFarVisible(true);
                 }
             }
             for (uint8 i = 0; i < 5; ++i)//summon 5 abominations
@@ -1093,6 +1100,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                     ENSURE_AI(hyjal_trashAI, unit->AI())->IsOverrun = true;
                     ENSURE_AI(hyjal_trashAI, unit->AI())->OverrunType = i;
                     unit->setActive(true);
+                    unit->SetFarVisible(true);
                 }
             }
             break;

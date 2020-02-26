@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -226,7 +225,7 @@ class instance_uldaman : public InstanceMapScript
                 for (GuidVector::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->GetFaction() != 14)
+                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
                         continue;
 
                     target->DespawnOrUnsummon();
@@ -236,7 +235,7 @@ class instance_uldaman : public InstanceMapScript
                 for (GuidVector::const_iterator i = vaultWalkers.begin(); i != vaultWalkers.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->GetFaction() != 14)
+                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
                         continue;
 
                     target->DespawnOrUnsummon();
@@ -246,7 +245,7 @@ class instance_uldaman : public InstanceMapScript
                 for (GuidVector::const_iterator i = earthenGuardians.begin(); i != earthenGuardians.end(); ++i)
                 {
                     Creature* target = instance->GetCreature(*i);
-                    if (!target || target->isDead() || target->GetFaction() != 14)
+                    if (!target || target->isDead() || target->GetFaction() != FACTION_MONSTER)
                         continue;
 
                     target->DespawnOrUnsummon();
@@ -263,6 +262,8 @@ class instance_uldaman : public InstanceMapScript
                 {
                     archaedas->RemoveAura(SPELL_FREEZE_ANIM);
                     archaedas->CastSpell(archaedas, SPELL_ARCHAEDAS_AWAKEN, false);
+                    archaedas->SetFaction(FACTION_TITAN);
+                    archaedas->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     whoWokeuiArchaedasGUID = target;
                 }
             }

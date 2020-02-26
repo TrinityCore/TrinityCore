@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,12 +53,11 @@ public:
         return GetAQ40AI<boss_kriAI>(creature);
     }
 
-    struct boss_kriAI : public ScriptedAI
+    struct boss_kriAI : public BossAI
     {
-        boss_kriAI(Creature* creature) : ScriptedAI(creature)
+        boss_kriAI(Creature* creature) : BossAI(creature, DATA_BUG_TRIO)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -72,8 +70,6 @@ public:
             Death = false;
         }
 
-        InstanceScript* instance;
-
         uint32 Cleave_Timer;
         uint32 ToxicVolley_Timer;
         uint32 Check_Timer;
@@ -84,11 +80,9 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
 
         void JustDied(Unit* /*killer*/) override
         {
@@ -153,12 +147,11 @@ public:
         return GetAQ40AI<boss_vemAI>(creature);
     }
 
-    struct boss_vemAI : public ScriptedAI
+    struct boss_vemAI : public BossAI
     {
-        boss_vemAI(Creature* creature) : ScriptedAI(creature)
+        boss_vemAI(Creature* creature) : BossAI(creature, DATA_BUG_TRIO)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -170,8 +163,6 @@ public:
             Enraged = false;
         }
 
-        InstanceScript* instance;
-
         uint32 Charge_Timer;
         uint32 KnockBack_Timer;
         uint32 Enrage_Timer;
@@ -181,6 +172,7 @@ public:
         void Reset() override
         {
             Initialize();
+            _Reset();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -189,10 +181,6 @@ public:
             if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)// Unlootable if death
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             instance->SetData(DATA_BUG_TRIO_DEATH, 1);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
         }
 
         void UpdateAI(uint32 diff) override
@@ -246,12 +234,11 @@ public:
         return GetAQ40AI<boss_yaujAI>(creature);
     }
 
-    struct boss_yaujAI : public ScriptedAI
+    struct boss_yaujAI : public BossAI
     {
-        boss_yaujAI(Creature* creature) : ScriptedAI(creature)
+        boss_yaujAI(Creature* creature) : BossAI(creature, DATA_BUG_TRIO)
         {
             Initialize();
-            instance = creature->GetInstanceScript();
         }
 
         void Initialize()
@@ -262,8 +249,6 @@ public:
 
             VemDead = false;
         }
-
-        InstanceScript* instance;
 
         uint32 Heal_Timer;
         uint32 Fear_Timer;
@@ -292,10 +277,6 @@ public:
             }
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
-
         void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
@@ -316,11 +297,11 @@ public:
                 switch (urand(0, 2))
                 {
                     case 0:
-                        if (Creature* kri = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KRI)))
+                        if (Creature* kri = instance->GetCreature(DATA_KRI))
                             DoCast(kri, SPELL_HEAL);
                         break;
                     case 1:
-                        if (Creature* vem = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VEM)))
+                        if (Creature* vem = instance->GetCreature(DATA_VEM))
                             DoCast(vem, SPELL_HEAL);
                         break;
                     case 2:

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@
 enum MageSpells
 {
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
-    SPELL_MAGE_BURNOUT                           = 29077,
+    SPELL_MAGE_BURNOUT                           = 44450,
     SPELL_MAGE_COLD_SNAP                         = 11958,
     SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
@@ -67,7 +67,8 @@ enum MageSpells
     SPELL_MAGE_T10_2P_BONUS_EFFECT               = 70753,
     SPELL_MAGE_T8_4P_BONUS                       = 64869,
     SPELL_MAGE_MISSILE_BARRAGE                   = 44401,
-    SPELL_MAGE_FINGERS_OF_FROST_AURASTATE_AURA   = 44544
+    SPELL_MAGE_FINGERS_OF_FROST_AURASTATE_AURA   = 44544,
+    SPELL_MAGE_PERMAFROST_AURA                   = 68391
 };
 
 enum MageSpellIcons
@@ -531,7 +532,8 @@ class spell_mage_empowered_fire : public SpellScriptLoader
 
                 Unit* target = GetTarget();
                 CastSpellExtraArgs args(aurEff);
-                args.AddSpellBP0(CalculatePct(target->GetCreateMana(), aurEff->GetAmount()));
+                uint8 percent = sSpellMgr->AssertSpellInfo(SPELL_MAGE_EMPOWERED_FIRE_PROC)->Effects[EFFECT_0].CalcValue();
+                args.AddSpellBP0(CalculatePct(target->GetCreateMana(), percent));
                 target->CastSpell(target, SPELL_MAGE_EMPOWERED_FIRE_PROC, args);
             }
 
@@ -654,6 +656,34 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
         {
             return new spell_mage_fire_frost_ward_AuraScript();
         }
+};
+
+// -44614 - Frostfire Bolt
+class spell_mage_frostfire_bolt : public AuraScript
+{
+    PrepareAuraScript(spell_mage_frostfire_bolt);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_PERMAFROST_AURA });
+    }
+
+    void ApplyPermafrost(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_MAGE_PERMAFROST_AURA, aurEff);
+    }
+
+    void RemovePermafrost(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_PERMAFROST_AURA);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_mage_frostfire_bolt::ApplyPermafrost, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_frostfire_bolt::ApplyPermafrost, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 54646 - Focus Magic
@@ -966,6 +996,27 @@ class spell_mage_ice_barrier : public SpellScriptLoader
         }
 };
 
+// 45438 - Ice Block
+class spell_mage_ice_block : public SpellScript
+{
+    PrepareSpellScript(spell_mage_ice_block);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->ExcludeCasterAuraSpell });
+    }
+
+    void TriggerHypothermia()
+    {
+        GetCaster()->CastSpell(nullptr, GetSpellInfo()->ExcludeCasterAuraSpell, true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_mage_ice_block::TriggerHypothermia);
+    }
+};
+
 // -11119 - Ignite
 class spell_mage_ignite : public SpellScriptLoader
 {
@@ -995,7 +1046,6 @@ class spell_mage_ignite : public SpellScriptLoader
 
                 ASSERT(igniteDot->GetMaxTicks() > 0);
                 int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
-                amount += eventInfo.GetProcTarget()->GetRemainingPeriodicAmount(eventInfo.GetActor()->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
 
                 CastSpellExtraArgs args(aurEff);
                 args.AddSpellBP0(amount);
@@ -1361,6 +1411,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_empowered_fire();
     new spell_mage_fingers_of_frost();
     new spell_mage_fire_frost_ward();
+    RegisterAuraScript(spell_mage_frostfire_bolt);
     new spell_mage_focus_magic();
     new spell_mage_gen_extra_effects();
     new spell_mage_glyph_of_polymorph();
@@ -1368,6 +1419,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_glyph_of_ice_block();
     new spell_mage_hot_streak();
     new spell_mage_ice_barrier();
+    RegisterSpellScript(spell_mage_ice_block);
     new spell_mage_ignite();
     new spell_mage_living_bomb();
     new spell_mage_magic_absorption();

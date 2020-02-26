@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -58,8 +58,8 @@ enum RBACPermissions
     RBAC_PERM_JOIN_ARENAS                                    = 5,
     RBAC_PERM_JOIN_DUNGEON_FINDER                            = 6,
     RBAC_PERM_IGNORE_IDLE_CONNECTION                         = 7,
-    //  8 - reuse
-    //  9 - reuse
+    RBAC_PERM_CANNOT_EARN_ACHIEVEMENTS                       = 8,
+    RBAC_PERM_CANNOT_EARN_REALM_FIRST_ACHIEVEMENTS           = 9,
     RBAC_PERM_USE_CHARACTER_TEMPLATES                        = 10, // not on 3.3.5a
     RBAC_PERM_LOG_GM_TRADE                                   = 11,
     RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER     = 12, // not on 3.3.5a
@@ -283,15 +283,11 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GM_LIST                                = 375,
     RBAC_PERM_COMMAND_GM_VISIBLE                             = 376,
     RBAC_PERM_COMMAND_GO                                     = 377,
-    RBAC_PERM_COMMAND_GO_CREATURE                            = 378,
-    RBAC_PERM_COMMAND_GO_GRAVEYARD                           = 379,
-    RBAC_PERM_COMMAND_GO_GRID                                = 380,
-    RBAC_PERM_COMMAND_GO_OBJECT                              = 381,
-    RBAC_PERM_COMMAND_GO_TAXINODE                            = 382,
-    RBAC_PERM_COMMAND_GO_TICKET                              = 383,
-    RBAC_PERM_COMMAND_GO_TRIGGER                             = 384,
-    RBAC_PERM_COMMAND_GO_XYZ                                 = 385,
-    RBAC_PERM_COMMAND_GO_ZONEXY                              = 386,
+    RBAC_PERM_COMMAND_ACCOUNT_2FA                            = 378,
+    RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP                      = 379,
+    RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE                     = 380,
+    RBAC_PERM_COMMAND_ACCOUNT_SET_2FA                        = 381,
+    // unused 382-386
     RBAC_PERM_COMMAND_GOBJECT                                = 387,
     RBAC_PERM_COMMAND_GOBJECT_ACTIVATE                       = 388,
     RBAC_PERM_COMMAND_GOBJECT_ADD                            = 389,
@@ -577,7 +573,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_MAIL_LOOT_TEMPLATE              = 669,
     RBAC_PERM_COMMAND_RELOAD_MILLING_LOOT_TEMPLATE           = 670,
     RBAC_PERM_COMMAND_RELOAD_NPC_SPELLCLICK_SPELLS           = 671,
-    RBAC_PERM_COMMAND_RELOAD_NPC_TRAINER                     = 672,
+    RBAC_PERM_COMMAND_RELOAD_TRAINER                         = 672,
     RBAC_PERM_COMMAND_RELOAD_NPC_VENDOR                      = 673,
     RBAC_PERM_COMMAND_RELOAD_PAGE_TEXT                       = 674,
     RBAC_PERM_COMMAND_RELOAD_PICKPOCKETING_LOOT_TEMPLATE     = 675,
@@ -757,7 +753,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LIST_SCENES                            = 849, // not on 3.3.5a
     RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850, // not on 3.3.5a
     RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TEMPLATE            = 851, // not on 3.3.5a
-    RBAC_PERM_COMMAND_GO_OFFSET                              = 852,
+    RBAC_PERM_COMMAND_DEBUG_DUMMY                            = 852,
     RBAC_PERM_COMMAND_RELOAD_CONVERSATION_TEMPLATE           = 853, // not on 3.3.5a
     RBAC_PERM_COMMAND_DEBUG_CONVERSATION                     = 854, // not on 3.3.5a
     RBAC_PERM_COMMAND_DEBUG_PLAY_MUSIC                       = 855,
@@ -777,6 +773,14 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE               = 869, // reserved
     RBAC_PERM_COMMAND_DEBUG_THREATINFO                       = 870,
     RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN                    = 871,
+    RBAC_PERM_COMMAND_SERVER_DEBUG                           = 872,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_MOVEMENT_OVERRIDE      = 873,
+    RBAC_PERM_COMMAND_DEBUG_ASAN                             = 874,
+    RBAC_PERM_COMMAND_LOOKUP_MAP_ID                          = 875,
+    RBAC_PERM_COMMAND_LOOKUP_ITEM_ID                         = 876,
+    RBAC_PERM_COMMAND_LOOKUP_QUEST_ID                        = 877,
+    RBAC_PERM_COMMAND_DEBUG_QUESTRESET                       = 878,
+    RBAC_PERM_COMMAND_DEBUG_POOLSTATUS                       = 879,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //

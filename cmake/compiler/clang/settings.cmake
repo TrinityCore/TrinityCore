@@ -25,16 +25,30 @@ if(WITH_COREDEBUG)
   message(STATUS "Clang: Debug-flags set (-g3)")
 endif()
 
+if(ASAN)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=address
+      -fsanitize-recover=address
+      -fsanitize-address-use-after-scope)
+
+  target_link_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=address
+      -fsanitize-recover=address
+      -fsanitize-address-use-after-scope)
+
+  message(STATUS "Clang: Enabled Address Sanitizer")
+endif()
+
 # -Wno-narrowing needed to suppress a warning in g3d
 # -Wno-deprecated-register is needed to suppress 185 gsoap warnings on Unix systems.
 target_compile_options(trinity-compile-option-interface
   INTERFACE
     -Wno-narrowing
     -Wno-deprecated-register)
-
-target_compile_definitions(trinity-compile-option-interface
-  INTERFACE
-    -DDEBUG=1)
 
 if (BUILD_SHARED_LIBS)
   # -fPIC is needed to allow static linking in shared libs.

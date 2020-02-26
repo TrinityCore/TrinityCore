@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -95,7 +94,7 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             data << uint32(item->GetTemplate()->DisplayInfoID);// display id
             data << uint32(item->GetCount());               // stack count
                                                             // wrapped: hide stats but show giftcreator name
-            data << uint32(item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED) ? 1 : 0);
+            data << uint32(item->IsWrapped() ? 1 : 0);
             data << uint64(item->GetGuidValue(ITEM_FIELD_GIFTCREATOR));
                                                             // perm. enchantment and gems
             data << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
@@ -154,7 +153,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 }
 
                 // adjust time (depends on /played)
-                if (myItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
+                if (myItems[i]->IsBOPTradeable())
                     myItems[i]->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, trader->GetTotalPlayedTime()-(_player->GetTotalPlayedTime()-myItems[i]->GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME)));
                 // store
                 trader->MoveItemToInventory(traderDst, myItems[i], true, true);
@@ -172,7 +171,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                 }
 
                 // adjust time (depends on /played)
-                if (hisItems[i]->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE))
+                if (hisItems[i]->IsBOPTradeable())
                     hisItems[i]->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, _player->GetTotalPlayedTime()-(trader->GetTotalPlayedTime()-hisItems[i]->GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME)));
                 // store
                 _player->MoveItemToInventory(playerDst, hisItems[i], true, true);
@@ -625,9 +624,11 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
+    if (GetPlayer()->GetLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_TRADE_REQ), sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ));
+        info.Status = TRADE_STATUS_CLOSE_WINDOW;
+        SendTradeStatus(info);
         return;
     }
 
@@ -695,12 +696,6 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
     {
         info.Status = TRADE_STATUS_TARGET_TO_FAR;
         SendTradeStatus(info);
-        return;
-    }
-
-    if (pOther->getLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
-    {
-        SendNotification(GetTrinityString(LANG_TRADE_OTHER_REQ), sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ));
         return;
     }
 

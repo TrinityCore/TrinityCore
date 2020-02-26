@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -144,7 +143,9 @@ class TC_COMMON_API Log
         } \
     }
 
-#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#ifdef PERFORMANCE_PROFILING
+#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...) ((void)0)
+#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 void check_args(char const*, ...) ATTR_PRINTF(1, 2);
 void check_args(std::string const&, ...);
 

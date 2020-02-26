@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -80,7 +79,7 @@ class TC_GAME_API Item : public Object
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND); }
-        bool IsBoundAccountWide() const { return (GetTemplate()->Flags & ITEM_FLAG_IS_BOUND_TO_ACCOUNT) != 0; }
+        bool IsBoundAccountWide() const { return GetTemplate()->HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT); }
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
@@ -96,6 +95,9 @@ class TC_GAME_API Item : public Object
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return nullptr; }
         Bag const* ToBag() const { if (IsBag()) return reinterpret_cast<Bag const*>(this); else return nullptr; }
 
+        bool IsRefundable() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE); }
+        bool IsBOPTradeable() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE); }
+        bool IsWrapped() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED); }
         bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_UNLOCKED); }
         bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }
@@ -155,7 +157,7 @@ class TC_GAME_API Item : public Object
 
         // spell charges (signed but stored as unsigned)
         int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return GetInt32Value(ITEM_FIELD_SPELL_CHARGES + index); }
-        void  SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetInt32Value(ITEM_FIELD_SPELL_CHARGES + index, value); }
+        void SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetInt32Value(ITEM_FIELD_SPELL_CHARGES + index, value); }
 
         Loot loot;
         bool m_lootGenerated;
@@ -202,6 +204,8 @@ class TC_GAME_API Item : public Object
         void RemoveFromObjectUpdate() override;
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
+
+        std::string GetDebugInfo() const override;
     private:
         std::string m_text;
         uint8 m_slot;

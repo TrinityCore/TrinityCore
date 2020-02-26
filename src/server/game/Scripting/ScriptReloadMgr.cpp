@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -275,7 +275,7 @@ Optional<std::shared_ptr<ScriptModule>>
                          path.generic_string().c_str());
         }
 
-        return boost::none;
+        return {};
     }
 
     // Use RAII to release the library on failure.
@@ -302,7 +302,7 @@ Optional<std::shared_ptr<ScriptModule>>
         TC_LOG_ERROR("scripts.hotswap", "Could not extract all required functions from the shared library \"%s\"!",
             path.generic_string().c_str());
 
-        return boost::none;
+        return {};
     }
 }
 

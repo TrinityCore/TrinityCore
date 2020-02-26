@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +28,7 @@ EndScriptData */
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -37,14 +38,18 @@ EndScriptData */
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PoolMgr.h"
+#include "QuestPools.h"
 #include "RBAC.h"
 #include "SpellMgr.h"
 #include "Transport.h"
+#include "World.h"
 #include <fstream>
 #include <limits>
 #include <map>
 #include <set>
 
+using namespace Trinity::ChatCommands;
 class debug_commandscript : public CommandScript
 {
 public:
@@ -72,6 +77,11 @@ public:
             { "sellerror",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR,     false, &HandleDebugSendSellErrorCommand,       "" },
             { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "" },
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
+        };
+        static std::vector<ChatCommand> debugAsanCommandTable =
+        {
+            { "memoryleak",    rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugMemoryLeak,         "" },
+            { "outofbounds",   rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugOutOfBounds,        "" },
         };
         static std::vector<ChatCommand> debugCommandTable =
         {
@@ -107,6 +117,10 @@ public:
             { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
             { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
             { "instancespawn", rbac::RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN, false, &HandleDebugInstanceSpawns,          "" },
+            { "dummy",         rbac::RBAC_PERM_COMMAND_DEBUG_DUMMY,         false, &HandleDebugDummyCommand,            "" },
+            { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
+            { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
+            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" }
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -856,17 +870,17 @@ public:
         ThreatManager& mgr = target->GetThreatManager();
         if (!target->IsAlive())
         {
-            handler->PSendSysMessage("%s (guid %u) is not alive.", target->GetName().c_str(), target->GetGUID().GetCounter());
+            handler->PSendSysMessage("%s (GUID %u) is not alive.%s", target->GetName().c_str(), target->GetGUID().GetCounter(), target->IsEngaged() ? " (It is, however, engaged. Huh?)" : "");
             return true;
         }
 
         uint32 count = 0;
         auto const& threatenedByMe = target->GetThreatManager().GetThreatenedByMeList();
         if (threatenedByMe.empty())
-            handler->PSendSysMessage("%s (guid %u) does not threaten any units.", target->GetName().c_str(), target->GetGUID().GetCounter());
+            handler->PSendSysMessage("%s (GUID %u) does not threaten any units.", target->GetName().c_str(), target->GetGUID().GetCounter());
         else
         {
-            handler->PSendSysMessage("List of units threatened by %s (guid %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
+            handler->PSendSysMessage("List of units threatened by %s (GUID %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
             for (auto const& pair : threatenedByMe)
             {
                 Unit* unit = pair.second->GetOwner();
@@ -879,12 +893,13 @@ public:
         {
             if (!mgr.IsThreatListEmpty(true))
             {
-                if (mgr.IsEngaged())
+                if (target->IsEngaged())
                     handler->PSendSysMessage("Threat list of %s (GUID %u, SpawnID %u):", target->GetName().c_str(), target->GetGUID().GetCounter(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
                 else
                     handler->PSendSysMessage("%s (GUID %u, SpawnID %u) is not engaged, but still has a threat list? Well, here it is:", target->GetName().c_str(), target->GetGUID().GetCounter(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
 
                 count = 0;
+                Unit* fixateVictim = mgr.GetFixateTarget();
                 for (ThreatReference const* ref : mgr.GetSortedThreatList())
                 {
                     Unit* unit = ref->GetVictim();
@@ -901,28 +916,33 @@ public:
                             onlineStr = "";
                     }
                     char const* tauntStr;
-                    switch (ref->GetTauntState())
-                    {
-                        case ThreatReference::TAUNT_STATE_TAUNT:
-                            tauntStr = " [TAUNT]";
-                            break;
-                        case ThreatReference::TAUNT_STATE_DETAUNT:
-                            tauntStr = " [DETAUNT]";
-                            break;
-                        default:
-                            tauntStr = "";
-                    }
+                    if (unit == fixateVictim)
+                        tauntStr = " [FIXATE]";
+                    else
+                        switch (ref->GetTauntState())
+                        {
+                            case ThreatReference::TAUNT_STATE_TAUNT:
+                                tauntStr = " [TAUNT]";
+                                break;
+                            case ThreatReference::TAUNT_STATE_DETAUNT:
+                                tauntStr = " [DETAUNT]";
+                                break;
+                            default:
+                                tauntStr = "";
+                        }
                     handler->PSendSysMessage("   %u.   %s   (GUID %u)  - threat %f%s%s", ++count, unit->GetName().c_str(), unit->GetGUID().GetCounter(), ref->GetThreat(), tauntStr, onlineStr);
                 }
                 handler->SendSysMessage("End of threat list.");
             }
-            else if (!mgr.IsEngaged())
+            else if (!target->IsEngaged())
                 handler->PSendSysMessage("%s (GUID %u, SpawnID %u) is not currently engaged.", target->GetName().c_str(), target->GetGUID().GetCounter(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
             else
                 handler->PSendSysMessage("%s (GUID %u, SpawnID %u) seems to be engaged, but does not have a threat list??", target->GetName().c_str(), target->GetGUID().GetCounter(), target->GetTypeId() == TYPEID_UNIT ? target->ToCreature()->GetSpawnId() : 0);
         }
+        else if (target->IsEngaged())
+            handler->PSendSysMessage("%s (GUID %u) is currently engaged. (This unit cannot have a threat list.)", target->GetName().c_str(), target->GetGUID().GetCounter());
         else
-            handler->PSendSysMessage("%s (GUID %u) cannot have a threat list.", target->GetName().c_str(), target->GetGUID().GetCounter());
+            handler->PSendSysMessage("%s (GUID %u) is not currently engaged. (This unit cannot have a threat list.)", target->GetName().c_str(), target->GetGUID().GetCounter());
         return true;
     }
 
@@ -1551,7 +1571,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        TC_LOG_INFO("sql.dev", "(@PATH, XX, %.3f, %.3f, %.5f, 0, 0, 0, 100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        TC_LOG_INFO("sql.dev", "(@PATH, XX, %.3f, %.3f, %.5f, %.5f, 0, 0, 0, 100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 
         handler->PSendSysMessage("Waypoint SQL written to SQL Developer log");
         return true;
@@ -1611,10 +1631,8 @@ public:
         if (!player)
             return false;
         Creature* target = handler->getSelectedCreature();
-        if (!target || !target->IsAIEnabled || !target->AI())
-        {
+        if (!target || !target->IsAIEnabled())
             return false;
-        }
 
         char* fill_str = args ? strtok((char*)args, " ") : nullptr;
         char* duration_str = args ? strtok(nullptr, " ") : nullptr;
@@ -1682,6 +1700,42 @@ public:
             handler->PSendSysMessage("Resetting difficulty %d for '%s'.", difficulty, mEntry->name[LOCALE_enUS]);
             sInstanceSaveMgr->ForceGlobalReset(mEntry->MapID, Difficulty(difficulty));
         }
+        return true;
+    }
+
+    static bool HandleDebugQuestResetCommand(ChatHandler* handler, std::string arg)
+    {
+        if (!Utf8ToUpperOnlyLatin(arg))
+            return false;
+
+        bool daily = false, weekly = false, monthly = false;
+        if (arg == "ALL")
+            daily = weekly = monthly = true;
+        else if (arg == "DAILY")
+            daily = true;
+        else if (arg == "WEEKLY")
+            weekly = true;
+        else if (arg == "MONTHLY")
+            monthly = true;
+        else
+            return false;
+
+        if (daily)
+        {
+            sWorld->ResetDailyQuests();
+            handler->PSendSysMessage("Daily quests have been reset. Next scheduled reset: %s", TimeToHumanReadable(sWorld->getWorldState(WS_DAILY_QUEST_RESET_TIME)).c_str());
+        }
+        if (weekly)
+        {
+            sWorld->ResetWeeklyQuests();
+            handler->PSendSysMessage("Weekly quests have been reset. Next scheduled reset: %s", TimeToHumanReadable(sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME)).c_str());
+        }
+        if (monthly)
+        {
+            sWorld->ResetMonthlyQuests();
+            handler->PSendSysMessage("Monthly quests have been reset. Next scheduled reset: %s", TimeToHumanReadable(sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME)).c_str());
+        }
+
         return true;
     }
 
@@ -1838,6 +1892,61 @@ public:
             else
                 handler->PSendSysMessage(" - '%s' (%u) is %sactive", groupData->name, pair.first, map->IsSpawnGroupActive(pair.first) ? "" : "not ");
         }
+        return true;
+    }
+
+    static bool HandleDebugOutOfBounds(ChatHandler* handler, CommandArgs* /*args*/)
+    {
+        uint8 stack_array[10] = {};
+        int size = 10;
+
+        handler->PSendSysMessage("Triggered an array out of bounds read at address %p, value %u", stack_array + size, stack_array[size]);
+        return true;
+    }
+
+    static bool HandleDebugMemoryLeak(ChatHandler* handler, CommandArgs* /*args*/)
+    {
+        uint8* leak = new uint8();
+        handler->PSendSysMessage("Leaked 1 uint8 object at address %p", leak);
+        return true;
+    }
+
+    static bool HandleDebugGuidLimitsCommand(ChatHandler* handler, CommandArgs* args)
+    {
+        auto mapId = args->TryConsume<uint32>();
+        if (mapId)
+        {
+            sMapMgr->DoForAllMapsWithMapId(mapId.get(),
+                [handler](Map* map) -> void
+                {
+                    HandleDebugGuidLimitsMap(handler, map);
+                }
+            );
+        }
+        else
+        {
+            sMapMgr->DoForAllMaps(
+                [handler](Map* map) -> void
+                {
+                    HandleDebugGuidLimitsMap(handler, map);
+                }
+            );
+        }
+
+        handler->PSendSysMessage("Guid Warn Level: %u", sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL));
+        handler->PSendSysMessage("Guid Alert Level: %u", sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL));
+        return true;
+    }
+
+    static void HandleDebugGuidLimitsMap(ChatHandler* handler, Map* map)
+    {
+        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Highest Guid Creature: " UI64FMTD " GameObject: " UI64FMTD,
+            map->GetId(), map->GetMapName(), map->GetInstanceId(), uint64(map->GetMaxLowGuid<HighGuid::Unit>()), uint64(map->GetMaxLowGuid<HighGuid::GameObject>()));
+    }
+
+    static bool HandleDebugDummyCommand(ChatHandler* handler, CommandArgs* /*args*/)
+    {
+        handler->SendSysMessage("This command does nothing right now. Edit your local core (cs_debug.cpp) to make it do whatever you need for testing.");
         return true;
     }
 };

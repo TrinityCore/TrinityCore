@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -126,10 +125,10 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
         // MoveSplineFlag::Enter_Cycle support dropped
         //if (splineflags & SPLINEFLAG_ENTER_CYCLE)
         //cyclic_point = 1;   // shouldn't be modified, came from client
-        spline.init_cyclic_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], cyclic_point);
+        spline.init_cyclic_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], cyclic_point, args.initialOrientation);
     }
     else
-        spline.init_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()]);
+        spline.init_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], args.initialOrientation);
 
     // init spline timestamps
     if (splineflags.falling)
@@ -204,7 +203,7 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
         return false;\
     }
     CHECK(path.size() > 1);
-    CHECK(velocity >= 0.01f);
+    CHECK(velocity >= 0.001f);
     CHECK(time_perc >= 0.f && time_perc <= 1.f);
     //CHECK(_checkPathBounds());
     return true;
@@ -241,6 +240,8 @@ walk(false), HasVelocity(false), TransformForTransport(true)
 {
     path.reserve(path_capacity);
 }
+
+MoveSplineInitArgs::MoveSplineInitArgs(MoveSplineInitArgs && args) = default;
 
 MoveSplineInitArgs::~MoveSplineInitArgs() = default;
 

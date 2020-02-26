@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,11 +47,11 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void JustEngagedWith(Unit* who) override
         {
-            _JustEngagedWith();
-            events.ScheduleEvent(EVENT_SHOOT,      1000);
-            events.ScheduleEvent(EVENT_STUN_BOMB, 16000);
+            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_SHOOT, 1s);
+            events.ScheduleEvent(EVENT_STUN_BOMB, 16s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -75,11 +75,11 @@ public:
                 {
                     case EVENT_SHOOT:
                         DoCastVictim(SPELL_SHOOT);
-                        events.ScheduleEvent(EVENT_SHOOT, 500);
+                        events.ScheduleEvent(EVENT_SHOOT, 500ms);
                         break;
                     case EVENT_STUN_BOMB:
                         DoCastVictim(SPELL_STUNBOMB);
-                        events.ScheduleEvent(EVENT_STUN_BOMB, 14000);
+                        events.ScheduleEvent(EVENT_STUN_BOMB, 14s);
                         break;
                 }
 

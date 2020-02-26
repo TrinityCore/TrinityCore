@@ -3,7 +3,7 @@ target_compile_definitions(trinity-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
 
-set(GCC_EXPECTED_VERSION 6.3.0)
+set(GCC_EXPECTED_VERSION 7.1.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_EXPECTED_VERSION)
   message(FATAL_ERROR "GCC: TrinityCore requires version ${GCC_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
@@ -42,6 +42,24 @@ if( WITH_COREDEBUG )
       -g3)
 
   message(STATUS "GCC: Debug-flags set (-g3)")
+endif()
+
+if(ASAN)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=address
+      -fsanitize-recover=address
+      -fsanitize-address-use-after-scope)
+
+  target_link_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=address
+      -fsanitize-recover=address
+      -fsanitize-address-use-after-scope)
+
+  message(STATUS "GCC: Enabled Address Sanitizer")
 endif()
 
 if (BUILD_SHARED_LIBS)

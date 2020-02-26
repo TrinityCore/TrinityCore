@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "ArenaTeam.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"
@@ -115,7 +116,7 @@ void CharacterCache::DeleteCharacterCacheEntry(ObjectGuid const& guid, std::stri
     _characterCacheByNameStore.erase(name);
 }
 
-void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string const& name, uint8* gender /*= nullptr*/, uint8* race /*= nullptr*/)
+void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string const& name, Optional<uint8> gender /*= {}*/, Optional<uint8> race /*= {}*/)
 {
     auto itr = _characterCacheStore.find(guid);
     if (itr == _characterCacheStore.end())
@@ -130,9 +131,8 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     if (race)
         itr->second.Race = *race;
 
-    WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
-    data << guid;
-    sWorld->SendGlobalMessage(&data);
+    WorldPackets::Misc::InvalidatePlayer packet(guid);
+    sWorld->SendGlobalMessage(packet.Write());
 
     // Correct name -> pointer storage
     _characterCacheByNameStore.erase(oldName);
@@ -172,6 +172,7 @@ void CharacterCache::UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 sl
     if (itr == _characterCacheStore.end())
         return;
 
+    ASSERT(slot < 3);
     itr->second.ArenaTeamId[slot] = arenaTeamId;
 }
 
@@ -271,5 +272,7 @@ uint32 CharacterCache::GetCharacterArenaTeamIdByGuid(ObjectGuid guid, uint8 type
     if (itr == _characterCacheStore.end())
         return 0;
 
-    return itr->second.ArenaTeamId[ArenaTeam::GetSlotByType(type)];
+    uint8 slot = ArenaTeam::GetSlotByType(type);
+    ASSERT(slot < 3);
+    return itr->second.ArenaTeamId[slot];
 }

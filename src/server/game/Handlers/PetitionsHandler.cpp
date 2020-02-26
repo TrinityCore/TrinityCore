@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -108,7 +107,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     else
     {
         /// @todo find correct opcode
-        if (_player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (_player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
@@ -417,7 +416,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     if (type != GUILD_CHARTER_TYPE)
     {
-        if (_player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (_player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
@@ -545,7 +544,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
 
     if (type != GUILD_CHARTER_TYPE)
     {
-        if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             // player is too low level to join an arena team
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,7 +89,9 @@ public:
             if (!player || player->IsGameMaster() || player->IsBeingTeleported() ||
                 // If player has Disguise aura for quest A Meeting With The Magister or An Audience With The Arcanist, do not teleport it away but let it pass
                 player->HasAura(SPELL_SUNREAVER_DISGUISE_FEMALE) || player->HasAura(SPELL_SUNREAVER_DISGUISE_MALE) ||
-                player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_FEMALE) || player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_MALE))
+                player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_FEMALE) || player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_MALE) ||
+                // If player has already been teleported, don't try to teleport again
+                player->HasAura(SPELL_TRESPASSER_A) || player->HasAura(SPELL_TRESPASSER_H))
                 return;
 
             switch (me->GetEntry())
@@ -169,7 +171,7 @@ class npc_minigob_manabonk : public CreatureScript
             {
                 playerGuid = ObjectGuid();
                 me->SetVisible(false);
-                events.ScheduleEvent(EVENT_SELECT_TARGET, Seconds(1));
+                events.ScheduleEvent(EVENT_SELECT_TARGET, 1s);
             }
 
             void GetPlayersInDalaran(std::vector<Player*>& playerList) const
@@ -230,15 +232,15 @@ class npc_minigob_manabonk : public CreatureScript
                         }
                         case EVENT_LAUGH_1:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH_NO_SHEATHE);
-                            events.ScheduleEvent(EVENT_WANDER, Seconds(3));
+                            events.ScheduleEvent(EVENT_WANDER, 3s);
                             break;
                         case EVENT_WANDER:
                             me->GetMotionMaster()->MoveRandom(8);
-                            events.ScheduleEvent(EVENT_PAUSE, Minutes(1));
+                            events.ScheduleEvent(EVENT_PAUSE, 1min);
                             break;
                         case EVENT_PAUSE:
                             me->GetMotionMaster()->MoveIdle();
-                            events.ScheduleEvent(EVENT_CAST, Seconds(2));
+                            events.ScheduleEvent(EVENT_CAST, 2s);
                             break;
                         case EVENT_CAST:
                             if (Player* player = me->GetMap()->GetPlayer(playerGuid))
@@ -253,11 +255,11 @@ class npc_minigob_manabonk : public CreatureScript
                             break;
                         case EVENT_LAUGH_2:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH_NO_SHEATHE);
-                            events.ScheduleEvent(EVENT_BLINK, Seconds(3));
+                            events.ScheduleEvent(EVENT_BLINK, 3s);
                             break;
                         case EVENT_BLINK:
                             DoCastSelf(SPELL_IMPROVED_BLINK);
-                            events.ScheduleEvent(EVENT_DESPAWN, Seconds(4));
+                            events.ScheduleEvent(EVENT_DESPAWN, 4s);
                             break;
                         case EVENT_DESPAWN:
                             me->AddObjectToRemoveList();

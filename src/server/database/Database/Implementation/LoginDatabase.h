@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@ enum LoginDatabaseStatements : uint32
     LOGIN_SEL_IP_INFO,
     LOGIN_INS_IP_AUTO_BANNED,
     LOGIN_SEL_ACCOUNT_BANNED_ALL,
+    LOGIN_SEL_ACCOUNT_BANNED_BY_FILTER,
     LOGIN_SEL_ACCOUNT_BANNED_BY_USERNAME,
     LOGIN_INS_ACCOUNT_AUTO_BANNED,
     LOGIN_DEL_ACCOUNT_BANNED,
@@ -41,7 +42,6 @@ enum LoginDatabaseStatements : uint32
     LOGIN_UPD_LOGONPROOF,
     LOGIN_SEL_LOGONCHALLENGE,
     LOGIN_SEL_RECONNECTCHALLENGE,
-    LOGIN_SEL_LOGON_COUNTRY,
     LOGIN_UPD_FAILEDLOGINS,
     LOGIN_SEL_ACCOUNT_ID_BY_NAME,
     LOGIN_SEL_ACCOUNT_LIST_BY_NAME,
@@ -64,7 +64,7 @@ enum LoginDatabaseStatements : uint32
     LOGIN_INS_REALM_CHARACTERS_INIT,
     LOGIN_UPD_EXPANSION,
     LOGIN_UPD_ACCOUNT_LOCK,
-    LOGIN_UPD_ACCOUNT_LOCK_CONTRY,
+    LOGIN_UPD_ACCOUNT_LOCK_COUNTRY,
     LOGIN_INS_LOG,
     LOGIN_UPD_USERNAME,
     LOGIN_UPD_PASSWORD,
@@ -95,7 +95,6 @@ enum LoginDatabaseStatements : uint32
     LOGIN_SEL_ACCOUNT_WHOIS,
     LOGIN_SEL_REALMLIST_SECURITY_LEVEL,
     LOGIN_DEL_ACCOUNT,
-    LOGIN_SEL_IP2NATION_COUNTRY,
     LOGIN_SEL_AUTOBROADCAST,
     LOGIN_SEL_LAST_ATTEMPT_IP,
     LOGIN_SEL_LAST_IP,
@@ -113,6 +112,14 @@ enum LoginDatabaseStatements : uint32
     LOGIN_INS_ACCOUNT_MUTE,
     LOGIN_SEL_ACCOUNT_MUTE_INFO,
     LOGIN_DEL_ACCOUNT_MUTED,
+
+    LOGIN_SEL_SECRET_DIGEST,
+    LOGIN_INS_SECRET_DIGEST,
+    LOGIN_DEL_SECRET_DIGEST,
+
+    LOGIN_SEL_ACCOUNT_TOTP_SECRET,
+    LOGIN_UPD_ACCOUNT_TOTP_SECRET,
+
     MAX_LOGINDATABASE_STATEMENTS
 };
 

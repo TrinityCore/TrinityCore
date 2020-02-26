@@ -1,8 +1,8 @@
--- MySQL dump 10.16  Distrib 10.1.6-MariaDB, for Win64 (AMD64)
+-- MySQL dump 10.13  Distrib 5.7.25, for Linux (x86_64)
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	5.7.14-log
+-- Server version	5.7.25-0ubuntu0.16.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -114,6 +114,30 @@ CREATE TABLE `addons` (
 
 LOCK TABLES `addons` WRITE;
 /*!40000 ALTER TABLE `addons` DISABLE KEYS */;
+INSERT INTO `addons` VALUES
+('Blizzard_AchievementUI',1276933997),
+('Blizzard_ArenaUI',1276933997),
+('Blizzard_AuctionUI',1276933997),
+('Blizzard_BarbershopUI',1276933997),
+('Blizzard_BattlefieldMinimap',1276933997),
+('Blizzard_BindingUI',1276933997),
+('Blizzard_Calendar',1276933997),
+('Blizzard_CombatLog',1276933997),
+('Blizzard_CombatText',1276933997),
+('Blizzard_DebugTools',1276933997),
+('Blizzard_GlyphUI',1276933997),
+('Blizzard_GMChatUI',1276933997),
+('Blizzard_GMSurveyUI',1276933997),
+('Blizzard_GuildBankUI',1276933997),
+('Blizzard_InspectUI',1276933997),
+('Blizzard_ItemSocketingUI',1276933997),
+('Blizzard_MacroUI',1276933997),
+('Blizzard_RaidUI',1276933997),
+('Blizzard_TalentUI',1276933997),
+('Blizzard_TimeManager',1276933997),
+('Blizzard_TokenUI',1276933997),
+('Blizzard_TradeSkillUI',1276933997),
+('Blizzard_TrainerUI',1276933997);
 /*!40000 ALTER TABLE `addons` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -189,8 +213,8 @@ DROP TABLE IF EXISTS `auctionbidders`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auctionbidders` (
-  `id` INT(10) unsigned NOT NULL DEFAULT '0',
-  `bidderguid` INT(10) unsigned NOT NULL DEFAULT '0',
+  `id` int(10) unsigned NOT NULL DEFAULT '0',
+  `bidderguid` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`,`bidderguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -530,6 +554,7 @@ DROP TABLE IF EXISTS `character_aura`;
 CREATE TABLE `character_aura` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `casterGuid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Full Global Unique Identifier',
+  `itemGuid` bigint(20) unsigned NOT NULL DEFAULT '0',
   `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `effectMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `recalculateMask` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -545,7 +570,7 @@ CREATE TABLE `character_aura` (
   `remainCharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `critChance` float NOT NULL DEFAULT '0',
   `applyResilience` tinyint(3) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`casterGuid`,`spell`,`effectMask`)
+  PRIMARY KEY (`guid`,`casterGuid`,`itemGuid`,`spell`,`effectMask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -962,6 +987,8 @@ CREATE TABLE `character_queststatus` (
   `itemcount2` smallint(5) unsigned NOT NULL DEFAULT '0',
   `itemcount3` smallint(5) unsigned NOT NULL DEFAULT '0',
   `itemcount4` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `itemcount5` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `itemcount6` smallint(5) unsigned NOT NULL DEFAULT '0',
   `playercount` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`quest`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
@@ -1444,32 +1471,6 @@ LOCK TABLES `corpse` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `creature_respawn`
---
-
-DROP TABLE IF EXISTS `creature_respawn`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `creature_respawn` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `respawnTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `mapId` smallint(10) unsigned NOT NULL DEFAULT '0',
-  `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
-  PRIMARY KEY (`guid`,`instanceId`),
-  KEY `idx_instance` (`instanceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `creature_respawn`
---
-
-LOCK TABLES `creature_respawn` WRITE;
-/*!40000 ALTER TABLE `creature_respawn` DISABLE KEYS */;
-/*!40000 ALTER TABLE `creature_respawn` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `game_event_condition_save`
 --
 
@@ -1515,32 +1516,6 @@ CREATE TABLE `game_event_save` (
 LOCK TABLES `game_event_save` WRITE;
 /*!40000 ALTER TABLE `game_event_save` DISABLE KEYS */;
 /*!40000 ALTER TABLE `game_event_save` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `gameobject_respawn`
---
-
-DROP TABLE IF EXISTS `gameobject_respawn`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `gameobject_respawn` (
-  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `respawnTime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `mapId` smallint(10) unsigned NOT NULL DEFAULT '0',
-  `instanceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Instance Identifier',
-  PRIMARY KEY (`guid`,`instanceId`),
-  KEY `idx_instance` (`instanceId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `gameobject_respawn`
---
-
-LOCK TABLES `gameobject_respawn` WRITE;
-/*!40000 ALTER TABLE `gameobject_respawn` DISABLE KEYS */;
-/*!40000 ALTER TABLE `gameobject_respawn` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2573,6 +2548,33 @@ LOCK TABLES `reserved_name` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `respawn`
+--
+
+DROP TABLE IF EXISTS `respawn`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `respawn` (
+  `type` smallint(10) unsigned NOT NULL,
+  `spawnId` int(10) unsigned NOT NULL,
+  `respawnTime` bigint(20) unsigned NOT NULL,
+  `mapId` smallint(10) unsigned NOT NULL,
+  `instanceId` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`type`,`spawnId`,`instanceId`),
+  KEY `idx_instance` (`instanceId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Stored respawn times';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `respawn`
+--
+
+LOCK TABLES `respawn` WRITE;
+/*!40000 ALTER TABLE `respawn` DISABLE KEYS */;
+/*!40000 ALTER TABLE `respawn` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `updates`
 --
 
@@ -2608,20 +2610,39 @@ INSERT INTO `updates` VALUES
 ('2015_10_28_00_characters.sql','622A9CA8FCE690429EBE23BA071A37C7A007BF8B','ARCHIVED','2015-10-19 14:32:22',0),
 ('2015_10_29_00_characters_335.sql','4555A7F35C107E54C13D74D20F141039ED42943E','ARCHIVED','2015-10-29 17:05:43',0),
 ('2015_11_03_00_characters.sql','CC045717B8FDD9733351E52A5302560CD08AAD57','ARCHIVED','2015-10-12 15:23:33',0),
-('2015_11_07_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-04-11 00:42:36',94),
+('2015_11_07_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-04-11 00:42:36',0),
 ('2016_02_10_00_characters.sql','F1B4DA202819CABC7319A4470A2D224A34609E97','ARCHIVED','2016-02-10 00:00:00',0),
 ('2016_03_13_2016_01_05_00_characters.sql','0EAD24977F40DE2476B4567DA2B477867CC0DA1A','ARCHIVED','2016-03-13 20:03:56',0),
 ('2016_04_11_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-04-11 03:18:17',0),
 ('2016_09_13_00_characters.sql','27A04615B11B2CFC3A26778F52F74C071E4F9C54','ARCHIVED','2016-07-06 18:55:18',0),
-('2016_10_16_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-10-16 14:02:49',35),
+('2016_10_16_00_characters.sql','0ACDD35EC9745231BCFA701B78056DEF94D0CC53','ARCHIVED','2016-10-16 14:02:49',0),
 ('2016_10_30_00_characters.sql','7E2D5B226907B5A9AF320797F46E86DC27B7EC90','ARCHIVED','2016-10-30 00:00:00',0),
 ('2017_04_03_00_characters.sql','CB072C56692C9FBF170C4036F15773DD86D368B5','ARCHIVED','2017-04-03 00:00:00',0),
 ('2017_04_12_00_characters.sql','4FE3C6866A6DCD4926D451F6009464D290C2EF1F','ARCHIVED','2017-04-12 00:00:00',0),
 ('2017_04_12_01_characters.sql','5A8A1215E3A2356722F52CD7A64BBE03D21FBEA3','ARCHIVED','2017-04-12 00:00:00',0),
-('2017_04_19_00_characters.sql','CE06FA9005C8A8EE4BDD925520278A5D83E87485','ARCHIVED','2017-04-19 00:07:40',25),
-('2017_10_29_00_characters.sql','8CFC473E7E87E58C317A72016BF69E9050D3BC83','ARCHIVED','2017-04-19 00:07:40',25),
+('2017_04_19_00_characters.sql','CE06FA9005C8A8EE4BDD925520278A5D83E87485','ARCHIVED','2017-04-19 00:07:40',0),
+('2017_10_29_00_characters.sql','8CFC473E7E87E58C317A72016BF69E9050D3BC83','ARCHIVED','2017-04-19 00:07:40',0),
 ('2017_11_27_00_characters.sql','6FF1F84B8985ADFC7FF97F0BF8E53403CF13C320','ARCHIVED','2017-11-27 22:08:42',0),
-('2018_01_13_00_characters.sql','E3C0DA9995BA71ED5A267294470CD03DC51862DD','ARCHIVED','2018-01-13 00:00:00',0);
+('2018_01_13_00_characters.sql','E3C0DA9995BA71ED5A267294470CD03DC51862DD','ARCHIVED','2018-01-13 00:00:00',0),
+('2018_02_19_00_characters.sql','FE5C5F9B88F0791549DDE680942493781E2269E6','ARCHIVED','2018-02-18 19:49:38',0),
+('2018_04_24_00_characters.sql','77264AB7BEF421C0A4BB81EEAFD0D8C1CBCA840F','ARCHIVED','2018-04-20 09:38:10',0),
+('2018_07_09_00_characters.sql','6F3EA22DD5E4CD9F9C60C4332B147E3DBF2E8A44','ARCHIVED','2018-07-09 18:19:18',0),
+('2018_11_09_00_characters.sql','50429D68E6EBD1149CDA14A9EA642BC06A1FAE3D','ARCHIVED','2018-11-09 20:49:47',0),
+('2019_03_19_00_characters.sql','1FD394E354CB9E854ABDC8CFD02329240AE07C3F','ARCHIVED','2019-03-19 07:17:45',0),
+('2019_04_15_00_characters.sql','942FB57BF890E523B35B9BFEF3686CB0AA52B795','ARCHIVED','2019-04-15 06:16:09',0),
+('2019_05_15_00_characters.sql','A12F21C8044C8BC8E2AA17F4C6CEB8B722CBC714','ARCHIVED','2019-05-15 06:13:20',0),
+('2019_06_15_00_characters.sql','32DA6E004D7DD6EFFB0BB26238D17F6CC9E51DE6','ARCHIVED','2019-06-15 07:33:45',0),
+('2019_07_14_00_characters.sql','A141F4F15BDF0320483921429871D4C572BD7E2D','ARCHIVED','2019-07-04 00:00:00',0),
+('2019_07_15_00_characters.sql','5BCF35896BB36A306CE79CF1E3F1945FAF9019D9','ARCHIVED','2019-07-15 00:00:00',0),
+('2019_07_15_01_characters.sql','5D383B026AB9EDE7114F249D206DE7E432E19468','ARCHIVED','2019-07-15 00:00:00',0),
+('2019_07_16_00_characters.sql','76AE193EFA3129FA1702BF7B6FA7C4127B543BDF','ARCHIVED','2019-07-16 00:00:00',0),
+('2019_08_16_00_characters.sql','7E21060060513C9504107C4A06B106166CC0768E','ARCHIVED','2019-08-16 06:25:07',0),
+('2019_09_15_00_characters.sql','75F3355AF6E9C0A2CAF5F523D87208C726C9D042','ARCHIVED','2019-09-15 09:21:36',0),
+('2019_10_18_00_characters.sql','143669FB0AA803C7287A4FF4ABE85F45F63369E5','ARCHIVED','2019-10-18 08:37:37',0),
+('2019_11_16_00_characters.sql','F29BBE2869E2187B278B27236A3D156B849F0E43','ARCHIVED','2019-11-16 12:06:06',0),
+('2019_12_15_00_characters.sql','2EE449B59D56F884796B5D43C89B7C73DBF53939','ARCHIVED','2019-12-15 18:26:21',0),
+('2020_01_15_00_characters.sql','CCA31041B25FC4BD631D07BB2E42B3C8F32465F0','ARCHIVED','2020-01-15 07:45:18',0),
+('2020_02_15_00_characters.sql','645EDA60CDD479B3D1E78D2D89DAB5D6EA1FB7BC','ARCHIVED','2020-02-15 17:36:05',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2710,11 +2731,11 @@ INSERT INTO `worldstates` VALUES
 (11,0,NULL),
 (12,0,NULL),
 (13,0,NULL),
-(14,1476626581,NULL),
-(15,1476626581,NULL),
+(14,0,NULL),
+(15,0,NULL),
 (16,0,NULL),
 (17,0,NULL),
-(18,1476626581,NULL),
+(18,0,NULL),
 (19,0,NULL),
 (20,0,NULL),
 (21,0,NULL),
@@ -2723,14 +2744,14 @@ INSERT INTO `worldstates` VALUES
 (24,0,NULL),
 (25,0,NULL),
 (26,0,NULL),
-(27,1476626581,NULL),
+(27,0,NULL),
 (28,0,NULL),
 (29,0,NULL),
 (30,0,NULL),
 (31,0,NULL),
 (32,0,NULL),
 (33,0,NULL),
-(34,1476626581,NULL),
+(34,0,NULL),
 (35,0,NULL),
 (36,0,NULL),
 (37,0,NULL),
@@ -2756,9 +2777,9 @@ INSERT INTO `worldstates` VALUES
 (57,0,NULL),
 (58,0,NULL),
 (59,0,NULL),
-(60,1476626581,NULL),
+(60,0,NULL),
 (61,0,NULL),
-(62,1476626581,NULL),
+(62,0,NULL),
 (63,0,NULL),
 (64,0,NULL),
 (65,0,NULL),
@@ -2766,15 +2787,16 @@ INSERT INTO `worldstates` VALUES
 (67,0,NULL),
 (68,0,NULL),
 (69,0,NULL),
-(3781,9000000,NULL),
+(3781,0,NULL),
 (3801,0,NULL),
-(3802,1,NULL),
+(3802,0,NULL),
 (20001,0,'NextArenaPointDistributionTime'),
-(20002,1477230266,'NextWeeklyQuestResetTime'),
-(20003,1476680400,'NextBGRandomDailyResetTime'),
+(20002,0,'NextWeeklyQuestResetTime'),
+(20003,0,'NextBGRandomDailyResetTime'),
 (20004,0,'cleaning_flags'),
-(20006,1476680400,NULL),
-(20007,1477954800,NULL);
+(20006,0,'NextGuildDailyResetTime'),
+(20007,0,'NextMonthlyQuestResetTime'),
+(20008,0,'NextDailyQuestResetTime');
 /*!40000 ALTER TABLE `worldstates` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -2787,4 +2809,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-04-19  1:08:18
+-- Dump completed on 2020-02-15 17:36:06

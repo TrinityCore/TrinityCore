@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -189,18 +188,22 @@ class instance_serpent_shrine : public InstanceMapScript
                     case 184568:
                         ControlConsole = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     case 184203:
                         BridgePart[0] = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     case 184204:
                         BridgePart[1] = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     case 184205:
                         BridgePart[2] = go->GetGUID();
                         go->setActive(true);
+                        go->SetFarVisible(true);
                         break;
                     default:
                         break;

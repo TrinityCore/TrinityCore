@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,13 +16,14 @@
  */
 
 #include "TotemAI.h"
-#include "Totem.h"
+#include "CellImpl.h"
 #include "Creature.h"
-#include "ObjectAccessor.h"
-#include "SpellMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "CellImpl.h"
+#include "ObjectAccessor.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "Totem.h"
 
 int32 TotemAI::Permissible(Creature const* creature)
 {
@@ -33,16 +33,9 @@ int32 TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* c) : CreatureAI(c), i_victimGuid()
+TotemAI::TotemAI(Creature* creature) : NullCreatureAI(creature), _victimGUID()
 {
-    ASSERT(c->IsTotem());
-}
-
-void TotemAI::MoveInLineOfSight(Unit* /*who*/) { }
-
-void TotemAI::EnterEvadeMode(EvadeReason /*why*/)
-{
-    me->CombatStop(true);
+    ASSERT(creature->IsTotem(), "TotemAI: AI assigned to a non-totem creature (%s)!", creature->GetGUID().ToString().c_str());
 }
 
 void TotemAI::UpdateAI(uint32 /*diff*/)
@@ -64,12 +57,10 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     // SPELLMOD_RANGE not applied in this place just because not existence range mods for attacking totems
 
     // pointer to appropriate target if found any
-    Unit* victim = i_victimGuid ? ObjectAccessor::GetUnit(*me, i_victimGuid) : nullptr;
+    Unit* victim = _victimGUID ? ObjectAccessor::GetUnit(*me, _victimGUID) : nullptr;
 
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-    if (!victim ||
-        !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
-        me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
+    if (!victim || !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) || me->IsFriendlyTo(victim) || !me->CanSeeOrDetect(victim))
     {
         victim = nullptr;
         Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me->GetCharmerOrOwnerOrSelf(), max_range);
@@ -81,26 +72,28 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
     if (victim)
     {
         // remember
-        i_victimGuid = victim->GetGUID();
+        _victimGUID = victim->GetGUID();
 
         // attack
         me->CastSpell(victim, me->ToTotem()->GetSpell());
     }
     else
-        i_victimGuid.Clear();
+        _victimGUID.Clear();
 }
 
 void TotemAI::AttackStart(Unit* /*victim*/)
 {
     // Sentry totem sends ping on attack
     if (me->GetEntry() == SENTRY_TOTEM_ENTRY)
+    {
         if (Unit* owner = me->GetOwner())
             if (Player* player = owner->ToPlayer())
             {
-                WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
+                WorldPacket data(MSG_MINIMAP_PING, (8 + 4 + 4));
                 data << me->GetGUID();
                 data << me->GetPositionX();
                 data << me->GetPositionY();
                 player->SendDirectMessage(&data);
             }
+    }
 }

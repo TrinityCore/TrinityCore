@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,7 +10,7 @@
 
 add_subdirectory(threads)
 
-if(SERVERS OR TOOLS)
+if (SERVERS OR TOOLS)
   add_subdirectory(boost)
   add_subdirectory(process)
   add_subdirectory(zlib)
@@ -22,16 +22,17 @@ if(SERVERS OR TOOLS)
   add_subdirectory(valgrind)
   add_subdirectory(openssl)
   add_subdirectory(jemalloc)
+  add_subdirectory(argon2)
 endif()
 
-if(SERVERS)
+if (SERVERS)
   add_subdirectory(mysql)
   add_subdirectory(readline)
   add_subdirectory(gsoap)
   add_subdirectory(efsw)
 endif()
 
-if(TOOLS)
+if (TOOLS)
   add_subdirectory(bzip2)
   add_subdirectory(libmpq)
 endif()

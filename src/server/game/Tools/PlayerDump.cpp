@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -168,10 +167,12 @@ std::vector<TableStruct> CharacterTables;
 inline bool StringsEqualCaseInsensitive(std::string const& left, std::string const& right)
 {
     std::string upperLeftString = left;
-    ASSERT(Utf8ToUpperOnlyLatin(upperLeftString));
+    bool leftResult = Utf8ToUpperOnlyLatin(upperLeftString);
+    ASSERT(leftResult);
 
     std::string upperRightString = right;
-    ASSERT(Utf8ToUpperOnlyLatin(upperRightString));
+    bool rightResult = Utf8ToUpperOnlyLatin(upperRightString);
+    ASSERT(rightResult);
 
     return upperLeftString == upperRightString;
 }
@@ -270,7 +271,8 @@ void PlayerDump::InitializeTables()
             TableField f;
             f.FieldName = columnName;
 
-            ASSERT(Utf8ToUpperOnlyLatin(columnName));
+            bool toUpperResult = Utf8ToUpperOnlyLatin(columnName);
+            ASSERT(toUpperResult);
 
             t.TableFields.emplace_back(std::move(f));
         } while (result->NextRow());

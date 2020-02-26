@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -76,12 +75,12 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5000);
-                events.ScheduleEvent(EVENT_SURGE, 4000);
-                _JustEngagedWith();
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5s);
+                events.ScheduleEvent(EVENT_SURGE, 4s);
+                BossAI::JustEngagedWith(who);
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -139,7 +138,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                             break;
                         case EVENT_RETALIATION:
                             DoCast(me, SPELL_RETALIATION);
-                            events.ScheduleEvent(EVENT_RETALIATION, 30000);
+                            events.ScheduleEvent(EVENT_RETALIATION, 30s);
                             break;
                         default:
                             break;
@@ -150,7 +149,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 {
                     if (HealthBelowPct(20))
                     {
-                        events.ScheduleEvent(EVENT_RETALIATION, 1000);
+                        events.ScheduleEvent(EVENT_RETALIATION, 1s);
                         retaliation = true;
                     }
                 }

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,11 +52,13 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         void SetCasterViewpoint();
         void RemoveCasterViewpoint();
         Unit* GetCaster() const { return _caster; }
+        uint32 GetFaction() const override;
         void BindToCaster();
         void UnbindFromCaster();
         uint32 GetSpellId() const { return GetUInt32Value(DYNAMICOBJECT_SPELLID); }
         SpellInfo const* GetSpellInfo() const;
         ObjectGuid GetCasterGUID() const { return GetGuidValue(DYNAMICOBJECT_CASTER); }
+        ObjectGuid GetOwnerGUID() const override { return GetCasterGUID(); }
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_RADIUS); }
 
     protected:

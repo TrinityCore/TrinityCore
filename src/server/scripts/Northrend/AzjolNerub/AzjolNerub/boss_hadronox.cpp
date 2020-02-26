@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -175,10 +175,10 @@ public:
                 return;
 
             _step = step;
+            me->SetReactState(REACT_PASSIVE);
             me->SetHomePosition(hadronoxStep[step]);
             me->GetMotionMaster()->Clear();
             me->AttackStop();
-            SetCombatMovement(false);
             me->GetMotionMaster()->MovePoint(0, hadronoxStep[step]);
         }
 
@@ -197,8 +197,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE)
                 return;
-            SetCombatMovement(true);
-            AttackStart(me->GetVictim());
+            me->SetReactState(REACT_AGGRESSIVE);
             if (_step < NUM_STEPS-1)
                 return;
             DoCastAOE(SPELL_WEB_FRONT_DOORS);
@@ -230,7 +229,7 @@ public:
             events.ScheduleEvent(EVENT_ACID_CLOUD, randtime(Seconds(7), Seconds(13)));
             events.ScheduleEvent(EVENT_WEB_GRAB, randtime(Seconds(13), Seconds(19)));
             events.ScheduleEvent(EVENT_PIERCE_ARMOR, randtime(Seconds(4), Seconds(7)));
-            events.ScheduleEvent(EVENT_PLAYER_CHECK, Seconds(1));
+            events.ScheduleEvent(EVENT_PLAYER_CHECK, 1s);
             me->setActive(true);
         }
 
@@ -278,6 +277,7 @@ public:
         void InitializeAI() override
         {
             BossAI::InitializeAI();
+            me->SetReactState(REACT_AGGRESSIVE);
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
             _enteredCombat = false;
@@ -769,7 +769,7 @@ struct npc_hadronox_foeAI : public ScriptedAI
                         me->GetMotionMaster()->MovePoint(MOVE_DOWNSTAIRS_2, downstairsMoves2[_mySpawn]);
                         break;
                     }
-                    // intentional missing break
+                    /* fallthrough */
                 case MOVE_HADRONOX:
                 case MOVE_HADRONOX_REAL:
                 {

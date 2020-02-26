@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +29,7 @@
 #include "PoolMgr.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -413,6 +412,10 @@ void GameEventMgr::LoadFromDB()
                     continue;
                 }
 
+                // Log error for pooled object, but still spawn it
+                if (uint32 poolId = sPoolMgr->IsPartOfAPool(SPAWN_TYPE_CREATURE, guid))
+                    TC_LOG_ERROR("sql.sql", "`game_event_creature`: game event id (%i) contains creature (%u) which is part of a pool (%u). This should be spawned in game_event_pool", event_id, guid, poolId);
+
                 GuidList& crelist = mGameEventCreatureGuids[internal_event_id];
                 crelist.push_back(guid);
 
@@ -458,6 +461,10 @@ void GameEventMgr::LoadFromDB()
                     TC_LOG_ERROR("sql.sql", "`game_event_gameobject`: game event id (%i) is out of range compared to max event id in `game_event`.", event_id);
                     continue;
                 }
+
+                // Log error for pooled object, but still spawn it
+                if (uint32 poolId = sPoolMgr->IsPartOfAPool(SPAWN_TYPE_GAMEOBJECT, guid))
+                    TC_LOG_ERROR("sql.sql", "`game_event_gameobject`: game event id (%i) contains game object (%u) which is part of a pool (%u). This should be spawned in game_event_pool", event_id, guid, poolId);
 
                 GuidList& golist = mGameEventGameobjectGuids[internal_event_id];
                 golist.push_back(guid);
@@ -943,9 +950,8 @@ void GameEventMgr::LoadHolidayDates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1         2
-    QueryResult result = WorldDatabase.Query("SELECT id, date_id, date_value FROM holiday_dates");
-
+    //                                               0   1        2           3
+    QueryResult result = WorldDatabase.Query("SELECT id, date_id, date_value, holiday_duration FROM holiday_dates");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 holiday dates. DB table `holiday_dates` is empty.");
@@ -956,6 +962,7 @@ void GameEventMgr::LoadHolidayDates()
     do
     {
         Field* fields = result->Fetch();
+
         uint32 holidayId = fields[0].GetUInt32();
         HolidaysEntry* entry = const_cast<HolidaysEntry*>(sHolidaysStore.LookupEntry(holidayId));
         if (!entry)
@@ -963,14 +970,22 @@ void GameEventMgr::LoadHolidayDates()
             TC_LOG_ERROR("sql.sql", "holiday_dates entry has invalid holiday id %u.", holidayId);
             continue;
         }
+
         uint8 dateId = fields[1].GetUInt8();
         if (dateId >= MAX_HOLIDAY_DATES)
         {
             TC_LOG_ERROR("sql.sql", "holiday_dates entry has out of range date_id %u.", dateId);
             continue;
         }
+
         entry->Date[dateId] = fields[2].GetUInt32();
-        modifiedHolidays.insert(entry->Id);
+
+        if (uint32 duration = fields[3].GetUInt32())
+            entry->Duration[0] = duration;
+
+        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->Id);
+        if (itr == modifiedHolidays.end() || *itr != entry->Id)
+            modifiedHolidays.insert(itr, entry->Id);
         ++count;
 
     } while (result->NextRow());
@@ -1156,9 +1171,6 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
 
     TC_LOG_INFO("gameevent", "GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
 
-    //! Run SAI scripts with SMART_EVENT_GAME_EVENT_END
-    RunSmartAIScripts(event_id, true);
-
     // spawn positive event tagget objects
     GameEventSpawn(event_id);
     // un-spawn negative event tagged objects
@@ -1175,6 +1187,10 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     UpdateEventNPCVendor(event_id, true);
     // update bg holiday
     UpdateBattlegroundSettings();
+
+    //! Run SAI scripts with SMART_EVENT_GAME_EVENT_START
+    RunSmartAIScripts(event_id, true);
+
     // If event's worldstate is 0, it means the event hasn't been started yet. In that case, reset seasonal quests.
     // When event ends (if it expires or if it's stopped via commands) worldstate will be set to 0 again, ready for another seasonal quest reset.
     if (sWorld->getWorldState(event_id) == 0)
@@ -1189,7 +1205,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
     for (NPCFlagList::iterator itr = mGameEventNPCFlags[event_id].begin(); itr != mGameEventNPCFlags[event_id].end(); ++itr)
         // get the creature data from the low guid to get the entry, to be able to find out the whole guid
         if (CreatureData const* data = sObjectMgr->GetCreatureData(itr->first))
-            creaturesByMap[data->spawnPoint.GetMapId()].insert(itr->first);
+            creaturesByMap[data->mapId].insert(itr->first);
 
     for (auto const& p : creaturesByMap)
     {
@@ -1252,7 +1268,8 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddCreatureToGrid(*itr, data);
 
             // Spawn if necessary (loaded grids only)
-            Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
+            Map* map = sMapMgr->CreateBaseMap(data->mapId);
+            map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
             // We use spawn coords to spawn
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
             {
@@ -1279,7 +1296,8 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddGameobjectToGrid(*itr, data);
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
-            Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
+            Map* map = sMapMgr->CreateBaseMap(data->mapId);
+            map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
             // We use current coords to unspawn, not spawn coords since creature can have changed grid
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
             {
@@ -1329,8 +1347,9 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveCreatureFromGrid(*itr, data);
 
-            sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr](Map* map)
+            sMapMgr->DoForAllMapsWithMapId(data->mapId, [&itr](Map* map)
             {
+                map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
                 auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(*itr);
                 for (auto itr2 = creatureBounds.first; itr2 != creatureBounds.second;)
                 {
@@ -1359,8 +1378,9 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveGameobjectFromGrid(*itr, data);
 
-            sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr](Map* map)
+            sMapMgr->DoForAllMapsWithMapId(data->mapId, [&itr](Map* map)
             {
+                map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
                 auto gameobjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(*itr);
                 for (auto itr2 = gameobjectBounds.first; itr2 != gameobjectBounds.second;)
                 {
@@ -1393,7 +1413,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             continue;
 
         // Update if spawned
-        sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr, activate](Map* map)
+        sMapMgr->DoForAllMapsWithMapId(data->mapId, [&itr, activate](Map* map)
 
         {
             auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(itr->first);
@@ -1506,7 +1526,7 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
     QuestRelList::iterator itr;
     for (itr = mGameEventCreatureQuests[event_id].begin(); itr != mGameEventCreatureQuests[event_id].end(); ++itr)
     {
-        QuestRelations* CreatureQuestMap = sObjectMgr->GetCreatureQuestRelationMap();
+        QuestRelations* CreatureQuestMap = sObjectMgr->GetCreatureQuestRelationMapHACK();
         if (activate)                                           // Add the pair(id, quest) to the multimap
             CreatureQuestMap->insert(QuestRelations::value_type(itr->first, itr->second));
         else
@@ -1531,7 +1551,7 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
     }
     for (itr = mGameEventGameObjectQuests[event_id].begin(); itr != mGameEventGameObjectQuests[event_id].end(); ++itr)
     {
-        QuestRelations* GameObjectQuestMap = sObjectMgr->GetGOQuestRelationMap();
+        QuestRelations* GameObjectQuestMap = sObjectMgr->GetGOQuestRelationMapHACK();
         if (activate)                                           // Add the pair(id, quest) to the multimap
             GameObjectQuestMap->insert(QuestRelations::value_type(itr->first, itr->second));
         else
@@ -1567,9 +1587,10 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
             BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
             if (bl && bl->HolidayWorldStateId)
             {
-                WorldPacket data;
-                sBattlegroundMgr->BuildUpdateWorldStatePacket(&data, bl->HolidayWorldStateId, Activate ? 1 : 0);
-                sWorld->SendGlobalMessage(&data);
+                WorldPackets::WorldState::UpdateWorldState worldstate;
+                worldstate.VariableID = bl->HolidayWorldStateId;
+                worldstate.Value = Activate ? 1 : 0;
+                sWorld->SendGlobalMessage(worldstate.Write());
             }
         }
     }
@@ -1685,7 +1706,7 @@ public:
     void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
     {
         for (auto const& p : creatureMap)
-            if (p.second->IsInWorld() && p.second->IsAIEnabled)
+            if (p.second->IsInWorld() && p.second->IsAIEnabled())
                 p.second->AI()->OnGameEvent(_activate, _eventId);
     }
 
@@ -1722,7 +1743,6 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
         return;
 
     HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(event.holiday_id);
-
     if (!holiday->Date[0] || !holiday->Duration[0]) // Invalid definitions
     {
         TC_LOG_ERROR("sql.sql", "Missing date or duration for holiday %u.", event.holiday_id);
@@ -1733,7 +1753,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     event.length = holiday->Duration[stageIndex] * HOUR / MINUTE;
 
     time_t stageOffset = 0;
-    for (int i = 0; i < stageIndex; ++i)
+    for (uint8 i = 0; i < stageIndex; ++i)
         stageOffset += holiday->Duration[i] * HOUR;
 
     switch (holiday->CalendarFilterType)
@@ -1753,20 +1773,23 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     if (holiday->Looping)
     {
         event.occurence = 0;
-        for (int i = 0; i < MAX_HOLIDAY_DURATIONS && holiday->Duration[i]; ++i)
+        for (uint8 i = 0; i < MAX_HOLIDAY_DURATIONS && holiday->Duration[i]; ++i)
             event.occurence += holiday->Duration[i] * HOUR / MINUTE;
     }
 
     bool singleDate = ((holiday->Date[0] >> 24) & 0x1F) == 31; // Events with fixed date within year have - 1
 
     time_t curTime = GameTime::GetGameTime();
-    for (int i = 0; i < MAX_HOLIDAY_DATES && holiday->Date[i]; ++i)
+    for (uint8 i = 0; i < MAX_HOLIDAY_DATES && holiday->Date[i]; ++i)
     {
         uint32 date = holiday->Date[i];
 
         tm timeInfo;
         if (singleDate)
-            timeInfo.tm_year = localtime(&curTime)->tm_year - 1; // First try last year (event active through New Year)
+        {
+            localtime_r(&curTime, &timeInfo);
+            timeInfo.tm_year -= 1; // First try last year (event active through New Year)
+        }
         else
             timeInfo.tm_year = ((date >> 24) & 0x1F) + 100;
 
@@ -1778,22 +1801,31 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
         timeInfo.tm_wday = 0;
         timeInfo.tm_yday = 0;
         timeInfo.tm_isdst = -1;
-        tm tmCopy = timeInfo;
 
+        // try to get next start time (skip past dates)
         time_t startTime = mktime(&timeInfo);
         if (curTime < startTime + event.length * MINUTE)
         {
             event.start = startTime + stageOffset;
-            return;
+            break;
         }
         else if (singleDate)
         {
-            tmCopy.tm_year = localtime(&curTime)->tm_year; // This year
+            tm tmCopy;
+            localtime_r(&curTime, &tmCopy);
+            int year = tmCopy.tm_year; // This year
+            tmCopy = timeInfo;
+            tmCopy.tm_year = year;
+
             event.start = mktime(&tmCopy) + stageOffset;
-            return;
+            break;
+        }
+        else
+        {
+            // date is due and not a singleDate event, try with next DBC date (modified by holiday_dates)
+            // if none is found we don't modify start date and use the one in game_event
         }
     }
-    TC_LOG_ERROR("sql.sql", "No suitable start date found for holiday %u.", event.holiday_id);
 }
 
 bool IsHolidayActive(HolidayIds id)

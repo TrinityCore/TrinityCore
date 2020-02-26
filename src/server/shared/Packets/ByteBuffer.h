@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,11 +73,13 @@ class TC_SHARED_API ByteBuffer
             _storage.reserve(reserve);
         }
 
-        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _storage(std::move(buf._storage)) { }
+        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos), _storage(std::move(buf._storage))
+        {
+            buf._rpos = 0;
+            buf._wpos = 0;
+        }
 
-        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
-            _storage(right._storage) { }
+        ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos), _storage(right._storage) { }
 
         ByteBuffer(MessageBuffer&& buffer);
 
@@ -89,6 +90,20 @@ class TC_SHARED_API ByteBuffer
                 _rpos = right._rpos;
                 _wpos = right._wpos;
                 _storage = right._storage;
+            }
+
+            return *this;
+        }
+
+        ByteBuffer& operator=(ByteBuffer&& right)
+        {
+            if (this != &right)
+            {
+                _rpos = right._rpos;
+                right._rpos = 0;
+                _wpos = right._wpos;
+                right._wpos = 0;
+                _storage = std::move(right._storage);
             }
 
             return *this;
@@ -395,6 +410,11 @@ class TC_SHARED_API ByteBuffer
         {
             if (ressize > size())
                 _storage.reserve(ressize);
+        }
+
+        void shrink_to_fit()
+        {
+            _storage.shrink_to_fit();
         }
 
         void append(const char *src, size_t cnt)

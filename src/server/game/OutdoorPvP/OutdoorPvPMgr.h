@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -86,11 +86,11 @@ class TC_GAME_API OutdoorPvPMgr
 
         // contains all initiated outdoor pvp events
         // used when initing / cleaning up
-        OutdoorPvPSet  m_OutdoorPvPSet;
+        OutdoorPvPSet m_OutdoorPvPSet;
 
         // maps the zone ids to an outdoor pvp event
         // used in player event handling
-        OutdoorPvPMap   m_OutdoorPvPMap;
+        OutdoorPvPMap m_OutdoorPvPMap;
 
         // Holds the outdoor PvP templates
         OutdoorPvPScriptIds m_OutdoorPvPDatas;

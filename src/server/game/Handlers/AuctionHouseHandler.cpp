@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,7 +58,7 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket& recvData)
 //this void causes that auction window is opened
 void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 {
-    if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_AUCTION_LEVEL_REQ))
+    if (GetPlayer()->GetLevel() < sWorld->getIntConfig(CONFIG_AUCTION_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_AUCTION_REQ), sWorld->getIntConfig(CONFIG_AUCTION_LEVEL_REQ));
         return;
@@ -77,14 +76,14 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
 }
 
 //call this method when player bids, creates, or deletes auction
-void WorldSession::SendAuctionCommandResult(uint32 auctionId, uint32 Action, uint32 ErrorCode, uint32 bidError)
+void WorldSession::SendAuctionCommandResult(uint32 auctionItemId, AuctionAction command, AuctionError errorCode, InventoryResult bagResult)
 {
     WorldPacket data(SMSG_AUCTION_COMMAND_RESULT, 16);
-    data << auctionId;
-    data << Action;
-    data << ErrorCode;
-    if (!ErrorCode && Action)
-        data << bidError;                                   //when bid, then send 0, once...
+    data << int32(auctionItemId);
+    data << int32(command);
+    data << int32(errorCode);
+    if (errorCode == ERR_AUCTION_INVENTORY)
+        data << int32(bagResult);
     SendPacket(&data);
 }
 
@@ -209,7 +208,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             itemEntry = item->GetTemplate()->ItemId;
 
         if (sAuctionMgr->GetAItem(item->GetGUID().GetCounter()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
-            (item->GetTemplate()->Flags & ITEM_FLAG_CONJURED) || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
+            item->GetTemplate()->HasFlag(ITEM_FLAG_CONJURED) || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
             item->GetCount() < count[i] || itemEntry != item->GetTemplate()->ItemId)
         {
             SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
@@ -317,7 +316,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             _player->GetName().c_str(), _player->GetGUID().GetCounter(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUID().GetCounter(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
-        if (!sAuctionMgr->PendingAuctionAdd(_player, AH, item))
+        if (!sAuctionMgr->PendingAuctionAdd(_player, AH))
         {
             SendAuctionCommandResult(AH->Id, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
             return;
@@ -374,7 +373,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
             _player->GetName().c_str(), _player->GetGUID().GetCounter(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUID().GetCounter(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
-        if (!sAuctionMgr->PendingAuctionAdd(_player, AH, newItem))
+        if (!sAuctionMgr->PendingAuctionAdd(_player, AH))
         {
             SendAuctionCommandResult(AH->Id, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
             return;
@@ -526,7 +525,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
             trans->Append(stmt);
         }
 
-        SendAuctionCommandResult(auction->Id, AUCTION_PLACE_BID, ERR_AUCTION_OK, 0);
+        SendAuctionCommandResult(auction->Id, AUCTION_PLACE_BID, ERR_AUCTION_OK);
     }
     else
     {

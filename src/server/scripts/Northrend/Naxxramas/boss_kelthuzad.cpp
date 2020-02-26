@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,15 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "naxxramas.h"
+#include "CommonHelpers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "PlayerAI.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -168,7 +169,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
     public:
         KelThuzadCharmedPlayerAI(Player* player) : SimpleCharmedPlayerAI(player) { }
 
-        struct CharmedPlayerTargetSelectPred : public std::unary_function<Unit*, bool>
+        struct CharmedPlayerTargetSelectPred
         {
             bool operator()(Unit const* target) const
             {
@@ -180,7 +181,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
                 if (pTarget->HasBreakableByDamageCrowdControlAura())
                     return false;
                 // We _really_ dislike healers. So we hit them in the face. Repeatedly. Exclusively.
-                return PlayerAI::IsPlayerHealer(pTarget);
+                return Trinity::Helpers::Entity::IsPlayerHealer(pTarget);
             }
         };
 
@@ -197,11 +198,11 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
         }
 };
 
-struct ManaUserTargetSelector : public std::unary_function<Unit*, bool>
+struct ManaUserTargetSelector
 {
     bool operator()(Unit const* target) const
     {
-        return target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA;
+        return target->GetTypeId() == TYPEID_PLAYER && target->GetPowerType() == POWER_MANA;
     }
 };
 

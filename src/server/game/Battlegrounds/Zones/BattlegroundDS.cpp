@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +21,7 @@
 #include "Player.h"
 #include "Random.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 BattlegroundDS::BattlegroundDS()
 {
@@ -146,10 +146,11 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-void BattlegroundDS::FillInitialWorldStates(WorldPacket& data)
+void BattlegroundDS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    data << uint32(3610) << uint32(1);      // 9 show
-    Arena::FillInitialWorldStates(data);
+    packet.Worldstates.emplace_back(3610, 1); // ARENA_WORLD_STATE_ALIVE_PLAYERS_SHOW
+
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundDS::SetupBattleground()

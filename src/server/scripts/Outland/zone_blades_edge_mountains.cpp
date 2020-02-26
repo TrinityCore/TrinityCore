@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -209,7 +208,7 @@ public:
             if (ManaBurn_Timer <= diff)
             {
                 Unit* target = me->GetVictim();
-                if (target && target->getPowerType() == POWER_MANA)
+                if (target && target->GetPowerType() == POWER_MANA)
                     DoCast(target, SPELL_MANA_BURN);
                 ManaBurn_Timer = 8000 + rand32() % 8000;
             } else ManaBurn_Timer -= diff;
@@ -461,18 +460,18 @@ class npc_simon_bunny : public CreatureScript
                         if (!CheckPlayer())
                             ResetNode();
                         else
-                            _events.ScheduleEvent(EVENT_SIMON_PERIODIC_PLAYER_CHECK, 2000);
+                            _events.ScheduleEvent(EVENT_SIMON_PERIODIC_PLAYER_CHECK, 2s);
                         break;
                     case EVENT_SIMON_SETUP_PRE_GAME:
                         SetUpPreGame();
                         _events.CancelEvent(EVENT_SIMON_GAME_TICK);
-                        _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1000);
+                        _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1s);
                         break;
                     case EVENT_SIMON_PLAY_SEQUENCE:
                         if (!playableSequence.empty())
                         {
                             PlayNextColor();
-                            _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1500);
+                            _events.ScheduleEvent(EVENT_SIMON_PLAY_SEQUENCE, 1500ms);
                         }
                         else
                         {
@@ -481,16 +480,16 @@ class npc_simon_bunny : public CreatureScript
                             playerSequence.clear();
                             PrepareClusters();
                             gameTicks = 0;
-                            _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3000);
+                            _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3s);
                         }
                         break;
                     case EVENT_SIMON_GAME_TICK:
                         DoCast(SPELL_AUDIBLE_GAME_TICK);
 
                         if (gameTicks > gameLevel)
-                            _events.ScheduleEvent(EVENT_SIMON_TOO_LONG_TIME, 500);
+                            _events.ScheduleEvent(EVENT_SIMON_TOO_LONG_TIME, 500ms);
                         else
-                            _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3000);
+                            _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3s);
                         gameTicks++;
                         break;
                     case EVENT_SIMON_RESET_CLUSTERS:
@@ -517,7 +516,7 @@ class npc_simon_bunny : public CreatureScript
                         if (gameLevel == 10)
                             ResetNode();
                         else
-                            _events.ScheduleEvent(EVENT_SIMON_SETUP_PRE_GAME, 1000);
+                            _events.ScheduleEvent(EVENT_SIMON_SETUP_PRE_GAME, 1s);
                         break;
                     case ACTION_SIMON_CORRECT_FULL_SEQUENCE:
                         gameLevel++;
@@ -549,7 +548,7 @@ class npc_simon_bunny : public CreatureScript
 
                 PlayColor(pressedColor);
                 playerSequence.push_back(pressedColor);
-                _events.ScheduleEvent(EVENT_SIMON_RESET_CLUSTERS, 500);
+                _events.ScheduleEvent(EVENT_SIMON_RESET_CLUSTERS, 500ms);
                 CheckPlayerSequence();
             }
 
@@ -636,8 +635,8 @@ class npc_simon_bunny : public CreatureScript
                 }
 
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_SIMON_ROUND_FINISHED, 1000);
-                _events.ScheduleEvent(EVENT_SIMON_PERIODIC_PLAYER_CHECK, 2000);
+                _events.ScheduleEvent(EVENT_SIMON_ROUND_FINISHED, 1s);
+                _events.ScheduleEvent(EVENT_SIMON_PERIODIC_PLAYER_CHECK, 2s);
 
                 if (GameObject* relic = me->FindNearestGameObject(large ? GO_APEXIS_MONUMENT : GO_APEXIS_RELIC, searchDistance))
                     relic->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -996,7 +995,7 @@ public:
             timer = 500;
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             if (summoner->isType(TYPEMASK_PLAYER))
                 playerGuid = summoner->GetGUID();

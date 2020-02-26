@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -179,8 +178,8 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) c
     std::stringstream ss;
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTGUID, _id);
     ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTNAME, _playerName.c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, true, false)).c_str());
-    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(curTime - _lastModifiedTime, true, false)).c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGECREATE, (secsToTimeString(curTime - _createTime, TimeFormat::ShortText)).c_str());
+    ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTAGE, (secsToTimeString(curTime - _lastModifiedTime, TimeFormat::ShortText)).c_str());
 
     std::string name;
     if (sCharacterCache->GetCharacterNameByGuid(_assignedTo, name))
@@ -446,7 +445,7 @@ void TicketMgr::ShowEscalatedList(ChatHandler& handler) const
 
 void TicketMgr::SendTicket(WorldSession* session, GmTicket* ticket) const
 {
-    WorldPacket data(SMSG_GMTICKET_GETTICKET, (ticket ? (4 + 4 + 1 + 4 + 4 + 4 + 1 + 1) : 4));
+    WorldPacket data(SMSG_GMTICKET_GETTICKET, (4 + 4 + 1 + 4 + 4 + 4 + 1 + 1));
 
     if (ticket)
         ticket->WritePacket(data);

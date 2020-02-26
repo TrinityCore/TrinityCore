@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -728,7 +728,7 @@ public:
             return false;
 
         amount = atoi(rankTxt);
-        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit(rankTxt[0]))
+        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit((unsigned char)rankTxt[0]))
         {
             std::string rankStr = rankTxt;
             std::wstring wrankStr;
@@ -770,7 +770,7 @@ public:
             }
             if (r >= MAX_REPUTATION_RANK)
             {
-                handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, rankTxt);
+                handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, rankTxt);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -889,7 +889,7 @@ public:
             return false;
         }
 
-        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(target->getRace(), target->getClass());
+        PlayerInfo const* info = sObjectMgr->GetPlayerInfo(target->GetRace(), target->GetClass());
         if (!info)
             return false;
 
@@ -900,14 +900,14 @@ public:
 
         if (!strncmp(gender_str, "male", gender_len))            // MALE
         {
-            if (target->getGender() == GENDER_MALE)
+            if (target->GetGender() == GENDER_MALE)
                 return true;
 
             gender = GENDER_MALE;
         }
         else if (!strncmp(gender_str, "female", gender_len))    // FEMALE
         {
-            if (target->getGender() == GENDER_FEMALE)
+            if (target->GetGender() == GENDER_FEMALE)
                 return true;
 
             gender = GENDER_FEMALE;
@@ -920,8 +920,8 @@ public:
         }
 
         // Set gender
-        target->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, gender);
-        target->SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER, gender);
+        target->SetGender(gender);
+        target->SetNativeGender(gender);
 
         // Change display ID
         target->InitDisplayIds();

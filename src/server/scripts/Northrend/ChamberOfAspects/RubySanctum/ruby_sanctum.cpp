@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,6 +79,7 @@ class npc_xerestrasza : public CreatureScript
                 if (action == ACTION_BALTHARUS_DEATH)
                 {
                     me->setActive(true);
+                    me->SetFarVisible(true);
                     _isIntro = false;
 
                     Talk(SAY_XERESTRASZA_EVENT);
@@ -133,6 +134,7 @@ class npc_xerestrasza : public CreatureScript
                             me->SetFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
                             Talk(SAY_XERESTRASZA_EVENT_7);
                             me->setActive(false);
+                            me->SetFarVisible(false);
                             break;
                         default:
                             break;

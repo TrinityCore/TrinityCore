@@ -1,15 +1,10 @@
 #ifndef JEMALLOC_INTERNAL_TCACHE_TYPES_H
 #define JEMALLOC_INTERNAL_TCACHE_TYPES_H
 
-#include "jemalloc/internal/size_classes.h"
+#include "jemalloc/internal/sc.h"
 
-typedef struct tcache_bin_info_s tcache_bin_info_t;
-typedef struct tcache_bin_s tcache_bin_t;
 typedef struct tcache_s tcache_t;
 typedef struct tcaches_s tcaches_t;
-
-/* ncached is cast to this type for comparison. */
-typedef int32_t low_water_t;
 
 /*
  * tcache pointers close to NULL are used to encode state information that is
@@ -50,12 +45,15 @@ typedef int32_t low_water_t;
 
 /* Number of tcache allocation/deallocation events between incremental GCs. */
 #define TCACHE_GC_INCR							\
-    ((TCACHE_GC_SWEEP / NBINS) + ((TCACHE_GC_SWEEP / NBINS == 0) ? 0 : 1))
+    ((TCACHE_GC_SWEEP / SC_NBINS) + ((TCACHE_GC_SWEEP / SC_NBINS == 0) ? 0 : 1))
 
 /* Used in TSD static initializer only. Real init in tcache_data_init(). */
 #define TCACHE_ZERO_INITIALIZER {0}
 
 /* Used in TSD static initializer only. Will be initialized to opt_tcache. */
 #define TCACHE_ENABLED_ZERO_INITIALIZER false
+
+/* Used for explicit tcache only. Means flushed but not destroyed. */
+#define TCACHES_ELM_NEED_REINIT ((tcache_t *)(uintptr_t)1)
 
 #endif /* JEMALLOC_INTERNAL_TCACHE_TYPES_H */

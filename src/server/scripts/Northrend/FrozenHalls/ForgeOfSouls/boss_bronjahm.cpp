@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,8 +84,8 @@ class boss_bronjahm : public CreatureScript
             {
                 _Reset();
                 events.SetPhase(PHASE_1);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
-                events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
+                events.ScheduleEvent(EVENT_MAGIC_BANE, 8s, 20s);
                 events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
             }
 
@@ -95,9 +95,9 @@ class boss_bronjahm : public CreatureScript
                 DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
                 me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
             }
@@ -169,19 +169,19 @@ class boss_bronjahm : public CreatureScript
                     {
                         case EVENT_MAGIC_BANE:
                             DoCastAOE(SPELL_MAGIC_S_BANE);
-                            events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
+                            events.ScheduleEvent(EVENT_MAGIC_BANE, 8s, 20s);
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (events.IsInPhase(PHASE_2))
                             {
                                 DoCastVictim(SPELL_SHADOW_BOLT);
-                                events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(1, 2) * IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_SHADOW_BOLT, 1s, 2s);
                             }
                             else
                             {
                                 if (!me->IsWithinMeleeRange(me->GetVictim()))
                                     DoCastVictim(SPELL_SHADOW_BOLT);
-                                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2 * IN_MILLISECONDS);
+                                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
                             }
                             break;
                         case EVENT_CORRUPT_SOUL:
@@ -232,7 +232,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
                 instance = me->GetInstanceScript();
             }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+            void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BRONJAHM)))
                     bronjahm->AI()->JustSummoned(me);
@@ -271,7 +271,7 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
 
             void RecalculateDamage(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitUnit()->getPowerType() != POWER_MANA)
+                if (GetHitUnit()->GetPowerType() != POWER_MANA)
                     return;
 
                 int32 const maxDamage = GetCaster()->GetMap()->IsHeroic() ? 15000 : 10000;

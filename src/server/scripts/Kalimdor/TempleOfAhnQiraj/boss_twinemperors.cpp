@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,14 +66,11 @@ enum Misc
     TELEPORTTIME                  = 30000
 };
 
-
-
-struct boss_twinemperorsAI : public ScriptedAI
+struct boss_twinemperorsAI : public BossAI
 {
-    boss_twinemperorsAI(Creature* creature): ScriptedAI(creature)
+    boss_twinemperorsAI(Creature* creature): BossAI(creature, DATA_TWIN_EMPERORS)
     {
         Initialize();
-        instance = creature->GetInstanceScript();
     }
 
     void Initialize()
@@ -90,8 +86,6 @@ struct boss_twinemperorsAI : public ScriptedAI
         DontYellWhenDead = false;
         EnrageTimer = 15 * 60000;
     }
-
-    InstanceScript* instance;
 
     uint32 Heal_Timer;
     uint32 Teleport_Timer;
@@ -110,11 +104,12 @@ struct boss_twinemperorsAI : public ScriptedAI
     {
         Initialize();
         me->ClearUnitState(UNIT_STATE_STUNNED);
+        _Reset();
     }
 
     Creature* GetOtherBoss()
     {
-        return ObjectAccessor::GetCreature(*me, instance->GetGuidData(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
+        return instance->GetCreature(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR);
     }
 
     void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
@@ -146,6 +141,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
         if (!DontYellWhenDead)                              // I hope AI is not threaded
             DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_DEATH : SOUND_VN_DEATH);
+        _JustDied();
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -155,7 +151,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        DoZoneInCombat();
+        BossAI::JustEngagedWith(who);
         Creature* pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {
@@ -549,7 +545,7 @@ public:
             if (ShadowBolt_Timer <= diff)
             {
                 if (!me->IsWithinDist(me->GetVictim(), 45.0f))
-                    me->GetMotionMaster()->MoveChase(me->GetVictim(), VEKLOR_DIST, 0);
+                    me->GetMotionMaster()->MoveChase(me->GetVictim(), VEKLOR_DIST);
                 else
                     DoCastVictim(SPELL_SHADOWBOLT);
                 ShadowBolt_Timer = 2000;
@@ -599,7 +595,7 @@ public:
                 // VL doesn't melee
                 if (me->Attack(who, false))
                 {
-                    me->GetMotionMaster()->MoveChase(who, VEKLOR_DIST, 0);
+                    me->GetMotionMaster()->MoveChase(who, VEKLOR_DIST);
                     AddThreat(who, 0.0f);
                 }
             }

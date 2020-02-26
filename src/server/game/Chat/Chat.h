@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,9 +19,11 @@
 #define TRINITYCORE_CHAT_H
 
 #include "Common.h"
+#include "ChatCommand.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
+#include <string>
 #include <vector>
 
 class ChatHandler;
@@ -36,21 +37,6 @@ class WorldObject;
 class WorldPacket;
 
 struct GameTele;
-
-class TC_GAME_API ChatCommand
-{
-    typedef bool(*pHandler)(ChatHandler*, char const*);
-
-    public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
-
-        char const* Name;
-        uint32 Permission;                   // function pointer required correct align (use uint32)
-        bool AllowConsole;
-        pHandler Handler;
-        std::string Help;
-        std::vector<ChatCommand> ChildCommands;
-};
 
 class TC_GAME_API ChatHandler
 {
@@ -99,7 +85,6 @@ class TC_GAME_API ChatHandler
         static std::vector<ChatCommand> const& getCommandTable();
         static void invalidateCommandTable();
 
-        bool isValidChatMessage(char const* msg);
         void SendGlobalSysMessage(const char *str);
 
         bool hasStringAbbr(char const* name, char const* part);
@@ -117,21 +102,21 @@ class TC_GAME_API ChatHandler
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
         void SendGlobalGMSysMessage(const char *str);
-        Player*   getSelectedPlayer();
+        Player* getSelectedPlayer();
         Creature* getSelectedCreature();
-        Unit*     getSelectedUnit();
+        Unit* getSelectedUnit();
         WorldObject* getSelectedObject();
         // Returns either the selected player or self if there is no selected player
-        Player*   getSelectedPlayerOrSelf();
+        Player* getSelectedPlayerOrSelf();
 
-        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
-        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
+        char* extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
+        char* extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
 
         // if args have single value then it return in arg2 and arg1 == nullptr
-        void      extractOptFirstArg(char* args, char** arg1, char** arg2);
-        char*     extractQuotedArg(char* args);
+        void extractOptFirstArg(char* args, char** arg1, char** arg2);
+        char* extractQuotedArg(char* args);
 
-        uint32    extractSpellIdFromLink(char* text);
+        uint32 extractSpellIdFromLink(char* text);
         ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
         GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(char const* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);

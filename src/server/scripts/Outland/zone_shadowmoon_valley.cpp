@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,7 +80,7 @@ public:
             ground = me->GetPositionZ();
             me->UpdateGroundPositionZ(me->GetPositionX(), me->GetPositionY(), ground);
             SummonInfernal();
-            events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, urand(1000, 3000));
+            events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, 1s, 3s);
         }
 
         void SetData(uint32 id, uint32 data) override
@@ -111,7 +110,7 @@ public:
                     if (Unit* infernal = ObjectAccessor::GetUnit(*me, infernalGUID))
                         if (infernal->GetDisplayId() == MODEL_INVISIBLE)
                             me->CastSpell(infernal, SPELL_SUMMON_INFERNAL, true);
-                    events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, 12000);
+                    events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, 12s);
                     break;
                 }
                 default:
@@ -151,7 +150,7 @@ public:
             me->GetMotionMaster()->MoveRandom(5.0f);
         }
 
-        void IsSummonedBy(Unit* summoner) override
+        void IsSummonedBy(WorldObject* summoner) override
         {
             if (summoner->ToCreature())
                 casterGUID = summoner->ToCreature()->GetGUID();;
@@ -288,9 +287,6 @@ public:
                         {
                             if (GameObject* go = unit->FindNearestGameObject(GO_CARCASS, 10))
                             {
-                                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
-                                    me->GetMotionMaster()->MovementExpired();
-
                                 me->GetMotionMaster()->MoveIdle();
                                 me->StopMoving();
 
@@ -329,7 +325,9 @@ public:
             {
                 DoCastVictim(SPELL_NETHER_BREATH);
                 CastTimer = 5000;
-            } else CastTimer -= diff;
+            }
+            else
+                CastTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -1461,20 +1459,20 @@ public:
             switch (me->GetEntry())
             {
                 case NPC_ENRAGED_WATER_SPIRIT:
-                    _events.ScheduleEvent(EVENT_ENRAGED_WATER_SPIRIT, Seconds(0), Seconds(1));
+                    _events.ScheduleEvent(EVENT_ENRAGED_WATER_SPIRIT, 0s, Seconds(1));
                     break;
                 case NPC_ENRAGED_FIRE_SPIRIT:
                     if (!me->GetAura(SPELL_FEL_FIRE_AURA))
                         DoCastSelf(SPELL_FEL_FIRE_AURA);
-                    _events.ScheduleEvent(EVENT_ENRAGED_FIRE_SPIRIT, Seconds(2), Seconds(10));
+                    _events.ScheduleEvent(EVENT_ENRAGED_FIRE_SPIRIT, 2s, 10s);
                     break;
                 case NPC_ENRAGED_EARTH_SPIRIT:
                     if (!me->GetAura(SPELL_FEL_FIRE_AURA))
                         DoCastSelf(SPELL_FEL_FIRE_AURA);
-                    _events.ScheduleEvent(EVENT_ENRAGED_EARTH_SPIRIT, Seconds(3), Seconds(4));
+                    _events.ScheduleEvent(EVENT_ENRAGED_EARTH_SPIRIT, 3s, 4s);
                     break;
                 case NPC_ENRAGED_AIR_SPIRIT:
-                    _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(10));
+                    _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, 10s);
                     break;
                 default:
                     break;
@@ -1509,12 +1507,12 @@ public:
                     case EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_CHAIN_LIGHTNING);
-                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_HURRICANE, Seconds(3), Seconds(5));
+                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_HURRICANE, 3s, 5s);
                         break;
                     case EVENT_ENRAGED_AIR_SPIRIT_HURRICANE:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_HURRICANE);
-                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(15), Seconds(20));
+                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, 15s, 20s);
                         break;
                     default:
                         break;

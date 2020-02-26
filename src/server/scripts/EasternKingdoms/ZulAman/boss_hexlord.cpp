@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -291,9 +290,9 @@ class boss_hexlord_malacrass : public CreatureScript
                 me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void JustEngagedWith(Unit* who) override
             {
-                _JustEngagedWith();
+                BossAI::JustEngagedWith(who);
                 Talk(YELL_AGGRO);
 
                 for (uint8 i = 0; i < 4; ++i)
@@ -443,7 +442,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
                         PlayerGUID = target->GetGUID();
                         PlayerAbility_Timer = urand(8000, 10000);
-                        PlayerClass = target->getClass() - 1;
+                        PlayerClass = target->GetClass() - 1;
 
                         if (PlayerClass == CLASS_DRUID - 1)
                             PlayerClass = CLASS_DRUID;

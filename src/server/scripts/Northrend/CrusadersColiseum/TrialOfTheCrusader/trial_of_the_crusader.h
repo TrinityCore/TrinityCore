@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2009-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -144,16 +143,6 @@ enum NorthrendBeasts
     SNAKES_DONE          = 2004,
     ICEHOWL_IN_PROGRESS  = 3000,
     ICEHOWL_DONE         = 3001
-};
-
-enum AnnouncerMessages
-{
-    MSG_BEASTS    = 724001,
-    MSG_JARAXXUS  = 724002,
-    MSG_CRUSADERS = 724003,
-    MSG_VALKIRIES = 724004,
-    MSG_LICH_KING = 724005,
-    MSG_ANUBARAK  = 724006
 };
 
 enum TCRCreatureIds
