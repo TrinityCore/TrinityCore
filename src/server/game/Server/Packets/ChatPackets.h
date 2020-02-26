@@ -32,7 +32,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 EmoteID = 0;
+            uint32 EmoteID = 0;
             ObjectGuid Guid;
         };
 
