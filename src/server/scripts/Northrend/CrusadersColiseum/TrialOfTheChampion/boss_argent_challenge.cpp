@@ -189,7 +189,7 @@ struct argent_challenge_baseAI : public BossAI
     void JustReachedHome() final override
     {
         if (instance->GetBossState(DATA_ARGENT_CHALLENGE) == SPECIAL)
-            events.ScheduleEvent(EVENT_CHALLENGE_DONE, 4 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CHALLENGE_DONE, 4s);
         else
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
     }
@@ -297,7 +297,7 @@ public:
                 return;
 
             DoCastAOE(SPELL_VENGEANCE);
-            events.ScheduleEvent(EVENT_RADIANCE, urand(7 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_RADIANCE, 7s, 15s);
             Talk(SAY_AGGRO_E, who);
             _JustEngagedWith(who);
         }
@@ -322,7 +322,7 @@ public:
                 case EVENT_RADIANCE:
                     DoCastAOE(SPELL_RADIANCE);
                     Talk(EMOTE_RADIANCE);
-                    events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS));
+                    events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 20s, 30s);
                     break;
                 case EVENT_HAMMER_OF_JUSTICE:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
@@ -332,7 +332,7 @@ public:
                         Talk(EMOTE_HAMMER_RIGHTEOUS, target);
                         Talk(SAY_HAMMER_RIGHTEOUS);
                     }
-                    events.ScheduleEvent(EVENT_RADIANCE, urand(7 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
+                    events.ScheduleEvent(EVENT_RADIANCE, 7s, 15s);
                     break;
                 case EVENT_CHALLENGE_DONE:
                     me->RemoveAllAuras();
@@ -429,7 +429,7 @@ public:
                 DoCastAOE(SPELL_SHIELD);
                 DoCastAOE(SPELL_CONFESS);
                 me->AttackStop();
-                events.ScheduleEvent(EVENT_SUMMON_MEMORY, 2 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMON_MEMORY, 2s);
             }
 
             if (damage >= me->GetHealth())
@@ -451,7 +451,7 @@ public:
             ObjectGuid _memoryGuid = summon->GetGUID();
             _memory = ObjectAccessor::GetCreature(*me, _memoryGuid);
             me->GetMotionMaster()->MoveFollow(summon, 30.0f, 0.0f);
-            events.ScheduleEvent(EVENT_MEMORY_AGGRESSIVE, 3 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_MEMORY_AGGRESSIVE, 3s);
         }
 
         void JustEngagedWith(Unit* who) override
@@ -459,9 +459,9 @@ public:
             if (instance->GetBossState(DATA_ARGENT_CHALLENGE) == SPECIAL)
                 return;
 
-            events.ScheduleEvent(EVENT_HOLY_SMITE_E, 2 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_HOLY_FIRE, urand(9 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_RENEW, urand(15 * IN_MILLISECONDS, 17 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_HOLY_SMITE_E, 2s);
+            events.ScheduleEvent(EVENT_HOLY_FIRE, 9s, 12s);
+            events.ScheduleEvent(EVENT_RENEW, 15s, 17s);
             Talk(SAY_AGGRO_P, who);
             _JustEngagedWith(who);
         }
@@ -483,12 +483,12 @@ public:
                 case EVENT_HOLY_SMITE_E:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_SMITE);
-                    events.Repeat(2 * IN_MILLISECONDS, 3 * IN_MILLISECONDS);
+                    events.Repeat(2s, 3s);
                     break;
                 case EVENT_HOLY_FIRE:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                         DoCast(target, SPELL_HOLY_FIRE);
-                    events.Repeat(9 * IN_MILLISECONDS, 12 * IN_MILLISECONDS);
+                    events.Repeat(9s, 12s);
                     break;
                 case EVENT_RENEW:
                     me->InterruptNonMeleeSpells(true);
@@ -502,7 +502,7 @@ public:
                             DoCastSelf(SPELL_RENEW);
                     }
 
-                    events.Repeat(15 * IN_MILLISECONDS, 17 * IN_MILLISECONDS);
+                    events.Repeat(15s, 17s);
                     break;
                 case EVENT_SUMMON_MEMORY:
                     // Memory spawns at random player's position
@@ -717,21 +717,21 @@ public:
             switch (me->GetEntry())
             {
             case NPC_ARGENT_LIGHWIELDER:
-                _events.ScheduleEvent(EVENT_BLAZING_LIGHT, 10 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_CLEAVE, urand(4 * IN_MILLISECONDS, 6 * IN_MILLISECONDS));
+                _events.ScheduleEvent(EVENT_BLAZING_LIGHT, 10s);
+                _events.ScheduleEvent(EVENT_CLEAVE, 4s, 6s);
                 if (IsHeroic())
-                    _events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 8 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 8s);
                 break;
             case NPC_ARGENT_MONK:
-                _events.ScheduleEvent(EVENT_FLURRY_OF_BLOWS, 2 * IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_PUMMEL, 12 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_FLURRY_OF_BLOWS, 2s);
+                _events.ScheduleEvent(EVENT_PUMMEL, 12s);
                 break;
             case NPC_PRIESTESS:
                 _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 500);
                 _events.ScheduleEvent(EVENT_HOLY_SMITE, 2500);
-                _events.ScheduleEvent(EVENT_FOUNTAIN, 10 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_FOUNTAIN, 10s);
                 if (IsHeroic())
-                    _events.ScheduleEvent(EVENT_MIND_CONTROL, 15 * IN_MILLISECONDS);
+                    _events.ScheduleEvent(EVENT_MIND_CONTROL, 15s);
                 break;
             default:
                 break;
@@ -766,44 +766,44 @@ public:
                         else
                             DoCast(friendly, SPELL_BLAZING_LIGHT);
                     }
-                    _events.Repeat(10 * IN_MILLISECONDS);
+                    _events.Repeat(10s);
                     break;
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
-                    _events.Repeat(4 * IN_MILLISECONDS, 6 * IN_MILLISECONDS);
+                    _events.Repeat(4s, 6s);
                     break;
                 case EVENT_UNBALANCING_STRIKE:
                     DoCastVictim(SPELL_UNBALANCING_STRIKE);
-                    _events.Repeat(15 * IN_MILLISECONDS);
+                    _events.Repeat(15s);
                     break;
                 case EVENT_FLURRY_OF_BLOWS:
                     DoCast(SPELL_FLURRY_OF_BLOWS);
-                    _events.Repeat(15 * IN_MILLISECONDS);
+                    _events.Repeat(15s);
                     break;
                 case EVENT_PUMMEL:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, [this](Unit* u) -> bool { return u->IsWithinDist(me, 5.f) && u->IsNonMeleeSpellCast(true); }))
                         DoCast(target, SPELL_PUMMEL);
 
-                    _events.Repeat(12 * IN_MILLISECONDS);
+                    _events.Repeat(12s);
                     break;
                 }
                 case EVENT_SHADOW_WORD_PAIN:
                     DoCastVictim(SPELL_SHADOW_WORD_PAIN);
-                    _events.Repeat(15 * IN_MILLISECONDS);
+                    _events.Repeat(15s);
                     break;
                 case EVENT_HOLY_SMITE:
                     DoCastVictim(SPELL_HOLY_SMITE);
-                    _events.Repeat(4 * IN_MILLISECONDS, 7 * IN_MILLISECONDS);
+                    _events.Repeat(4s, 7s);
                     break;
                 case EVENT_FOUNTAIN:
                     DoCastAOE(SPELL_SUMMON_FOUNTAIN);
-                    _events.Repeat(50 * IN_MILLISECONDS);
+                    _events.Repeat(50s);
                     break;
                 case EVENT_MIND_CONTROL:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
                         DoCast(target, SPELL_MIND_CONTROL);
-                    _events.Repeat(15 * IN_MILLISECONDS);
+                    _events.Repeat(15s);
                     break;
                 default:
                     break;
@@ -869,9 +869,9 @@ public:
             Initialize();
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            _events.ScheduleEvent(EVENT_OLD_WOUNDS, urand(14 * IN_MILLISECONDS, 16 * IN_MILLISECONDS));
-            _events.ScheduleEvent(EVENT_SHADOWS_PAST, 8 * IN_MILLISECONDS);
-            _events.ScheduleEvent(EVENT_WAKING_NIGHTMARE, urand(10 * IN_MILLISECONDS, 13 * IN_MILLISECONDS));
+            _events.ScheduleEvent(EVENT_OLD_WOUNDS, 14s, 16s);
+            _events.ScheduleEvent(EVENT_SHADOWS_PAST, 8s);
+            _events.ScheduleEvent(EVENT_WAKING_NIGHTMARE, 10s, 13s);
         }
 
         void Initialize()
@@ -907,17 +907,17 @@ public:
                 case EVENT_OLD_WOUNDS:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
                         DoCast(target, SPELL_OLD_WOUNDS);
-                    _events.Repeat(11 * IN_MILLISECONDS, 13 * IN_MILLISECONDS);
+                    _events.Repeat(11s, 13s);
                     break;
                 case EVENT_SHADOWS_PAST:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                         DoCast(target, SPELL_SHADOWS_PAST);
-                    _events.Repeat(5 * IN_MILLISECONDS, 7 * IN_MILLISECONDS);
+                    _events.Repeat(5s, 7s);
                     break;
                 case EVENT_WAKING_NIGHTMARE:
                     Talk(EMOTE_WAKING_NIGHTMARE);
                     DoCastAOE(SPELL_WAKING_NIGHTMARE);
-                    _events.Repeat(20 * IN_MILLISECONDS, 40 * IN_MILLISECONDS);
+                    _events.Repeat(20s, 40s);
                     break;
                 default:
                     break;
