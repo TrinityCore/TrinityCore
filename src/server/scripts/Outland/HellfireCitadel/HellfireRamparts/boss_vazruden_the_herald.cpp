@@ -439,9 +439,9 @@ class boss_vazruden_the_herald : public CreatureScript
                                 return;
                             }
                         }
-			if (!(Nazan && Nazan->IsAlive()) && !(Vazruden && Vazruden->IsAlive()))
+            if (!(Nazan && Nazan->IsAlive()) && !(Vazruden && Vazruden->IsAlive()))
 			{
-				me->DisappearAndDie();
+                me->DisappearAndDie();
 			}
                         check = 2000;
                     }
