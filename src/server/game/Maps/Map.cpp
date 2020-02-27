@@ -2506,7 +2506,7 @@ float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y,
     if (m_parentTerrainMap->GetGrid(x, y))
     {
         // we need ground level (including grid height version) for proper return water level in point
-        float ground_z = GetHeight(phaseShift, x, y, z + collisionHeight, true, 50.0f);
+        float ground_z = GetHeight(phaseShift, x, y, z + collisionHeight);
         if (ground)
             *ground = ground_z;
 
@@ -2556,11 +2556,11 @@ float Map::GetStaticHeight(PhaseShift const& phaseShift, float x, float y, float
             // or if the distance of the vmap height is less the land height distance
             if (vmapHeight > mapHeight || std::fabs(mapHeight - z) > std::fabs(vmapHeight - z))
                 return vmapHeight;
-
-            return mapHeight;                           // better use .map surface height
+            else
+                return mapHeight;                           // better use .map surface height
         }
-
-        return vmapHeight;                              // we have only vmapHeight (if have)
+        else
+            return vmapHeight;                              // we have only vmapHeight (if have)
     }
 
     return mapHeight;                               // explicitly use map data

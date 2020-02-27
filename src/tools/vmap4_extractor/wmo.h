@@ -64,9 +64,8 @@ namespace WMO
     };
 }
 
-
 /* for whatever reason a certain company just can't stick to one coordinate system... */
-static inline Vec3D fixCoords(const Vec3D &v){ return Vec3D(v.z, v.x, v.y); }
+static inline Vec3D fixCoords(const Vec3D& v) { return Vec3D(v.z, v.x, v.y); }
 
 struct WMODoodadData
 {
@@ -96,6 +95,7 @@ public:
 };
 
 #pragma pack(push, 1)
+
 struct WMOLiquidHeader
 {
     int xverts, yverts, xtiles, ytiles;
