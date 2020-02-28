@@ -568,6 +568,14 @@ WorldPacket const* WorldPackets::Movement::MonsterMove::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Movement::FlightSplineSync::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << float(SplineDist);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveSplineSetSpeed::Write()
 {
     _worldPacket << MoverGUID;
