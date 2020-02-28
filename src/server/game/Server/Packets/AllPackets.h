@@ -18,7 +18,9 @@
 #ifndef AllPackets_h__
 #define AllPackets_h__
 
+#include "ChatPackets.h"
 #include "NPCPackets.h"
+#include "MiscPackets.h"
 #include "QueryPackets.h"
 #include "QuestPackets.h"
 #include "SpellPackets.h"

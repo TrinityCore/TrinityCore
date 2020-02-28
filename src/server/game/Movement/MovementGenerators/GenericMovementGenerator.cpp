@@ -55,7 +55,10 @@ bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
     if (!owner || HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED))
         return false;
 
-    _duration.Update(diff);
+    // Cyclic splines never expire, so update the duration only if it's not cyclic
+    if (!owner->movespline->isCyclic())
+        _duration.Update(diff);
+
     if (_duration.Passed() || owner->movespline->Finalized())
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);

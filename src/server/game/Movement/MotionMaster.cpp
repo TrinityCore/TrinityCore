@@ -572,12 +572,12 @@ void MotionMaster::MoveTargetedHome()
     }
 }
 
-void MotionMaster::MoveRandom(float spawndist)
+void MotionMaster::MoveRandom(float wanderDistance)
 {
     if (_owner->GetTypeId() == TYPEID_UNIT)
     {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRandom: '%s', started random movement (spawnDist: %f)", _owner->GetGUID().ToString().c_str(), spawndist);
-        Add(new RandomMovementGenerator<Creature>(spawndist), MOTION_SLOT_DEFAULT);
+        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRandom: '%s', started random movement (spawnDist: %f)", _owner->GetGUID().ToString().c_str(), wanderDistance);
+        Add(new RandomMovementGenerator<Creature>(wanderDistance), MOTION_SLOT_DEFAULT);
     }
 }
 
@@ -806,6 +806,9 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     float angle = pos.GetAbsoluteAngle(_owner->GetPositionX(), _owner->GetPositionY());
 
     Movement::MoveSplineInit init(_owner);
+
+    // add the owner's current position as starting point as it gets removed after entering the cycle
+    init.Path().push_back(G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()));
 
     for (uint8 i = 0; i < stepCount; angle += step, ++i)
     {

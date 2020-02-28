@@ -79,7 +79,7 @@ class TC_GAME_API Item : public Object
 
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND); }
-        bool IsBoundAccountWide() const { return (GetTemplate()->Flags & ITEM_FLAG_IS_BOUND_TO_ACCOUNT) != 0; }
+        bool IsBoundAccountWide() const { return GetTemplate()->HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT); }
         bool IsBindedNotWith(Player const* player) const;
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
@@ -95,6 +95,9 @@ class TC_GAME_API Item : public Object
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return nullptr; }
         Bag const* ToBag() const { if (IsBag()) return reinterpret_cast<Bag const*>(this); else return nullptr; }
 
+        bool IsRefundable() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_REFUNDABLE); }
+        bool IsBOPTradeable() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE); }
+        bool IsWrapped() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_WRAPPED); }
         bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_UNLOCKED); }
         bool IsBag() const { return GetTemplate()->InventoryType == INVTYPE_BAG; }
         bool IsCurrencyToken() const { return GetTemplate()->IsCurrencyToken(); }

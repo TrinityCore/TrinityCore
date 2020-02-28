@@ -149,6 +149,7 @@ TC_GAME_API extern DBCStorage <ItemRandomPropertiesEntry>    sItemRandomProperti
 TC_GAME_API extern DBCStorage <ItemRandomSuffixEntry>        sItemRandomSuffixStore;
 TC_GAME_API extern DBCStorage <ItemSetEntry>                 sItemSetStore;
 TC_GAME_API extern DBCStorage <LFGDungeonEntry>              sLFGDungeonStore;
+TC_GAME_API extern DBCStorage <LightEntry>                   sLightStore;
 TC_GAME_API extern DBCStorage <LiquidTypeEntry>              sLiquidTypeStore;
 TC_GAME_API extern DBCStorage <LockEntry>                    sLockStore;
 TC_GAME_API extern DBCStorage <MailTemplateEntry>            sMailTemplateStore;
