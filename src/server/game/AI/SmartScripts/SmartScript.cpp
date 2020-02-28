@@ -2313,9 +2313,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             if (WorldObject* obj = GetBaseObject())
             {
-                obj->GetMap()->SetZoneOverrideLight(e.action.overrideLight.zoneId, e.action.overrideLight.lightId, e.action.overrideLight.fadeInTime);
-                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_LIGHT: %s sets zone override light (zoneId: %u, lightId: %u, fadeInTime: %u)",
-                    obj->GetGUID().ToString().c_str(), e.action.overrideLight.zoneId, e.action.overrideLight.lightId, e.action.overrideLight.fadeInTime);
+                obj->GetMap()->SetZoneOverrideLight(e.action.overrideLight.zoneId, e.action.overrideLight.overrideLightId, e.action.overrideLight.transitionMilliseconds);
+                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_LIGHT: %s sets zone override light (zoneId: %u, overrideLightId: %u, transitionMilliseconds: %u)",
+                    obj->GetGUID().ToString().c_str(), e.action.overrideLight.zoneId, e.action.overrideLight.overrideLightId, e.action.overrideLight.transitionMilliseconds);
             }
             break;
         }
@@ -2323,9 +2323,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             if (WorldObject* obj = GetBaseObject())
             {
-                obj->GetMap()->SetZoneWeather(e.action.overrideWeather.zoneId, (WeatherState)e.action.overrideWeather.weatherId, float(e.action.overrideWeather.weatherGrade));
-                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_WEATHER: %s sets zone weather (zoneId: %u, weatherId: %u, weatherGrade: %u)",
-                    obj->GetGUID().ToString().c_str(), e.action.overrideWeather.zoneId, e.action.overrideWeather.weatherId, e.action.overrideWeather.weatherGrade);
+                obj->GetMap()->SetZoneWeather(e.action.overrideWeather.zoneId, (WeatherState)e.action.overrideWeather.weatherId, float(e.action.overrideWeather.intensity));
+                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_WEATHER: %s sets zone weather (zoneId: %u, weatherId: %u, intensity: %u)",
+                    obj->GetGUID().ToString().c_str(), e.action.overrideWeather.zoneId, e.action.overrideWeather.weatherId, e.action.overrideWeather.intensity);
             }
             break;
         }
