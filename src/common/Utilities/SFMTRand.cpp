@@ -20,7 +20,11 @@
 #include <array>
 #include <functional>
 #include <random>
+#if defined(__aarch64__)
+#include <mm_malloc.h>
+#else
 #include <emmintrin.h>
+#endif
 #include <ctime>
 
 SFMTRand::SFMTRand()
