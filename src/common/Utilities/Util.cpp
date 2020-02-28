@@ -220,16 +220,16 @@ int32 MoneyStringToMoney(std::string const& moneyString)
         return 0; // Bad format
 
     Tokenizer tokens(moneyString, ' ');
-    for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+    for (char const* token : tokens)
     {
-        std::string tokenString(*itr);
+        std::string tokenString(token);
         size_t gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
         size_t sCount = std::count(tokenString.begin(), tokenString.end(), 's');
         size_t cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
         if (gCount + sCount + cCount != 1)
             return 0;
 
-        uint32 amount = strtoul(*itr, nullptr, 10);
+        uint32 amount = strtoul(token, nullptr, 10);
         if (gCount == 1)
             money += amount * 100 * 100;
         else if (sCount == 1)
@@ -247,16 +247,16 @@ uint32 TimeStringToSecs(std::string const& timestring)
     uint32 buffer     = 0;
     uint32 multiplier = 0;
 
-    for (std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); ++itr)
+    for (char itr : timestring)
     {
-        if (isdigit(*itr))
+        if (isdigit(itr))
         {
             buffer *= 10;
-            buffer += (*itr) - '0';
+            buffer += itr - '0';
         }
         else
         {
-            switch (*itr)
+            switch (itr)
             {
                 case 'd': multiplier = DAY;     break;
                 case 'h': multiplier = HOUR;    break;
