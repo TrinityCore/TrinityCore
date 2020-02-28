@@ -416,7 +416,7 @@ SET @RISEN_CHAMP    := 35590;
 SET @RISEN_CHAMP_H  := 35717;
 
 -- The Black Knight's vehicle must have flight inhabit type
-INSERT INTO `creature_template_movement` (`Ground`, `Swim` ,`Flight`,`CreatureID`) VALUES (1,1,1,@KNIGHT_VEHICLE);
+REPLACE INTO `creature_template_movement` (`Ground`, `Swim` ,`Flight`,`CreatureID`) VALUES (1,1,1,@KNIGHT_VEHICLE);
 
 -- Risen Champion is missing scriptname
 UPDATE `creature_template` SET `ScriptName`='npc_risen_ghoul' WHERE `entry`=@RISEN_CHAMP;
@@ -459,3 +459,33 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 (@GOSSIP_MENU, 8, 0, '[GM] Start The Black Knight encounter', 0, 1, 1, 0, 0, 0, 0, '', 0, 0);
 -- Death knight mount speed fixed.
 UPDATE `creature_template` SET `speed_run` = '11.71429', `speed_walk` = 10 WHERE `creature_template`.`entry` = 35491;
+
+
+-- death knight mount waypoints
+DELETE FROM `waypoint_data` WHERE `id` = @KNIGHT_VEHICLE*10;
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 0, 766.99, 657.16, 457.43, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 1, 747.28, 659.71, 440.49, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 2, 730.03, 639.59, 428.16, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 3, 721.13, 621.49, 423.16, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 4, 731.72, 599.81, 421.99, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 5, 753.71, 591.09, 420.63, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 6, 776.53, 597.52, 418.05, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 7, 787.38, 617.07, 417.49, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 8, 777.06, 636.98, 416.57, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 9, 760.6, 642.12, 414.71, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 10, 752.58, 632.35, 411.63, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 11, 748.89, 633.61, 415.24, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 12, 740.42, 636.31, 418.32, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 13, 727.49, 637.4, 422.24, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 14, 716.59, 617.99, 422.24, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 15, 727.18, 599.29, 422.24, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 16, 746.63, 587.77, 422.24, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 17, 765.6, 599.52, 422.24, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 18, 777.01, 618.79, 422.24, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 19, 761.84, 642.18, 422.24, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 20, 746.09, 670.33, 429.68, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 21, 748.02, 728.22, 466.68, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 22, 779.44, 797.49, 477.79, 0, 0, 2, 0, 100, 0);
+INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES (@KNIGHT_VEHICLE*10, 23, 859.14, 807.98, 477.79, 0, 0, 2, 0, 100, 0);
+
+UPDATE `creature_template` SET `movementId` = @KNIGHT_VEHICLE*10 WHERE `creature_template`.`entry` = @KNIGHT_VEHICLE;
