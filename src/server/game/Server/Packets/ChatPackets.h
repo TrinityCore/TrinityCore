@@ -15,16 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef ChatPackets_h__
+#define ChatPackets_h__
 
-#include "ChatPackets.h"
-#include "NPCPackets.h"
-#include "MiscPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include "Packet.h"
+#include "ObjectGuid.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace Chat
+    {
+        class Emote final : public ServerPacket
+        {
+        public:
+            Emote() : ServerPacket(SMSG_EMOTE, 4 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 EmoteID = 0;
+            ObjectGuid Guid;
+        };
+
+        class EmoteClient final : public ClientPacket
+        {
+        public:
+            EmoteClient(WorldPacket&& packet) : ClientPacket(CMSG_EMOTE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 EmoteID = 0;
+        };
+    }
+}
+
+#endif // ChatPackets_h__
