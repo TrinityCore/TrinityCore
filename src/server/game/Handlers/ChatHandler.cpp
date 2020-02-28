@@ -170,7 +170,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
         }
 
-        if (!sender->CanSpeak())
+        if (!CanSpeak())
         {
             std::string timeStr = secsToTimeString(m_muteTime - GameTime::GetGameTime());
             SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
