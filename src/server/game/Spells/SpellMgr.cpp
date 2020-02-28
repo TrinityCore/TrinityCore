@@ -3874,7 +3874,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].Effect = 0;
     });
 	
-	 //
+    //
     // TRIAL OF THE CHAMPION SPELLS
     //
 	ApplySpellFix({
