@@ -8,8 +8,8 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (28912,4,0,'There are more coming. Defend yourself! Don''t fall out of the anti-magic field! They''ll tear you apart without its protection!',12,0,100,0,0,0,29207,0,'Koltira Deathweaver'),
 (28912,5,0,'I can''t keep this barrier up much longer... Where is that coward?',12,0,100,0,0,0,29208,0,'Koltira Deathweaver'),
 (28912,6,0,'The High Inquisitor comes! Be ready, death knight! Do not let him draw you out of the protective bounds of my anti-magic field! Kill him and take his head!',12,0,100,0,0,0,29210,0,'Koltira Deathweaver'),
-(28912,7,0,'Stay in the anti-magic field! Make them come to you!',12,0,50,0,0,0,29225,0,'Koltira Deathweaver'),
-(28912,7,1,'Stand your ground! Use my anti-magic barrier to dampen their spells!',12,0,50,0,0,0,29224,0,'Koltira Deathweaver'),
+(28912,7,0,'Stay in the anti-magic field! Make them come to you!',12,0,100,0,0,0,29225,0,'Koltira Deathweaver'),
+(28912,7,1,'Stand your ground! Use my anti-magic barrier to dampen their spells!',12,0,100,0,0,0,29224,0,'Koltira Deathweaver'),
 (28912,8,0,'The death of the High Inquisitor of New Avalon will not go unnoticed. You need to get out of here at once! Go, before more of them show up. I''ll be fine on my own.',12,0,100,1,0,0,29239,0,'Koltira Deathweaver'),
 (28912,9,0,'I''ll draw their fire, you make your escape behind me.',12,0,100,1,0,0,29240,0,'Koltira Deathweaver'),
 (28912,10,0,'Your High Inquisitor is nothing more than a pile of meat, Crusaders! There are none beyond the grasp of the Scourge!',14,0,100,22,0,0,29241,0,'Koltira Deathweaver');
