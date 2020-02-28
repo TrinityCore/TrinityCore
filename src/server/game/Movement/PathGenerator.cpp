@@ -76,7 +76,7 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
 
     // make sure navMesh works - we can run on map w/o mmap
     // check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
-    const Unit* _sourceUnit = _source->ToUnit();
+    Unit const* _sourceUnit = _source->ToUnit();
     if (!_navMesh || !_navMeshQuery || (_sourceUnit && _sourceUnit->HasUnitState(UNIT_STATE_IGNORE_PATHFINDING)) ||
         !HaveTile(start) || !HaveTile(dest))
     {
@@ -210,14 +210,14 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         if (_source->GetBaseMap()->IsUnderWater(p.x, p.y, p.z))
         {
             TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: underWater case");
-            if (const Unit* _sourceUnit = _source->ToUnit())
+            if (Unit const* _sourceUnit = _source->ToUnit())
                 if (_sourceUnit->CanSwim())
                     buildShotrcut = true;
         }
         else
         {
             TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: flying case");
-            if (const Unit* _sourceUnit = _source->ToUnit())
+            if (Unit const* _sourceUnit = _source->ToUnit())
             {
                 if (_sourceUnit->CanFly())
                     buildShotrcut = true;
@@ -644,7 +644,7 @@ void PathGenerator::UpdateFilter()
 {
     // allow creatures to cheat and use different movement types if they are moved
     // forcefully into terrain they can't normally move in
-    if (const Unit* _sourceUnit = _source->ToUnit())
+    if (Unit const* _sourceUnit = _source->ToUnit())
         if (_sourceUnit->IsInWater() || _sourceUnit->IsUnderWater())
         {
             uint16 includedFlags = _filter.getIncludeFlags();
