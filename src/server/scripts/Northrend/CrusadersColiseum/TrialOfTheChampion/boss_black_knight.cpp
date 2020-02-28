@@ -376,11 +376,6 @@ public:
             summon->AI()->AttackStart(me->GetVictim());
         }
 
-        void SummonedCreatureDespawn(Creature* summon) override
-        {
-            summons.Despawn(summon);
-        }
-
         void DamageTaken(Unit* /*done_by*/, uint32& damage) override
         {
             if (damage >= me->GetHealth() && uiPhase < PHASE_GHOST)
