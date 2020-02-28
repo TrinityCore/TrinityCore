@@ -81,6 +81,7 @@ public:
     void CancelAura(uint32 pmSpellID);
     void ClearShapeshift();
     void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
+    bool ApplyGlyph(Player* pmPlayer, uint32 pmGlyphItemEntry, uint32 pmSlot);
     void Logout();
 
 public:

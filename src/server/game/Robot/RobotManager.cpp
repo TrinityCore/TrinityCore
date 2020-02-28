@@ -17,6 +17,8 @@
 #include "RobotAI.h"
 #include "Strategy_Solo_Normal.h"
 #include "CharacterCache.h"
+#include "CreatureAI.h"
+#include "InstanceScript.h"
 
 RobotManager::RobotManager()
 {
@@ -876,6 +878,10 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                     {
                         goTarget->SetGoState(GOState::GO_STATE_DESTROYED);
                     }
+                    else if (newState == "use")
+                    {
+                        goTarget->Use(pmPlayer);
+                    }
                 }
             }
         }
@@ -888,6 +894,60 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
             if (Unit* target = pmPlayer->GetSelectedUnit())
             {
                 target->HandleEmoteCommand(emoteID);
+            }
+        }
+    }
+    else if (commandName == "attack")
+    {
+        if (commandVector.size() > 1)
+        {
+            Unit* targetUnit = pmPlayer->GetSelectedUnit();
+            std::ostringstream replyStream;
+            if (targetUnit)
+            {
+                int spawnID = std::stoi(commandVector.at(1));
+                if (Creature* checkC = targetUnit->GetMap()->GetCreatureBySpawnId(spawnID))
+                {
+                    if (targetUnit->IsValidAttackTarget(checkC))
+                    {
+                        replyStream << checkC->GetName() << " is valid attack target to " << targetUnit->GetName();
+                    }
+                    else
+                    {
+                        replyStream << checkC->GetName() << " is not valid attack target to " << targetUnit->GetName();
+                    }
+                }
+                else
+                {
+                    replyStream << "No creature";
+                }
+            }
+            else
+            {
+                replyStream << "No target";
+            }
+            sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
+        }
+    }
+    else if (commandName == "talk")
+    {
+        Unit* targetUnit = pmPlayer->GetSelectedUnit();
+        if (Creature* checkC = targetUnit->ToCreature())
+        {
+            checkC->AI()->Talk(0);
+        }
+    }
+    else if (commandName == "test")
+    {
+        if (commandVector.size() > 1)
+        {
+            std::string testPart = commandVector.at(1);
+            if (testPart == "immo")
+            {
+                if (InstanceScript* is = pmPlayer->GetInstanceScript())
+                {
+                    is->SetData(2, 0);
+                }
             }
         }
     }

@@ -577,7 +577,7 @@ public:
                             {
                                 if (itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_SCALEBANE || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_WANDERER || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_WHELP || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_NIGHTMARE_WYRMKIN || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_HAZZAS || itr->second->GetEntry() == SUNKEN_TEMPLE_NPC::NPC_MORPHAZ)
                                 {
-                                    itr->second->AI()->AttackStart(soe->EnsureVictim());
+                                    itr->second->AI()->AttackStart(soe->GetVictim());
                                 }
                             }
                             SetBossState(SUNKEN_TEMPLE_DATA_BOSS::BOSS_SHADE_OF_ERANIKUS, EncounterState::IN_PROGRESS);

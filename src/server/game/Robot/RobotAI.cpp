@@ -778,6 +778,10 @@ void RobotAI::InitializeCharacter()
         }
     }
 
+    me->UpdateSkillsForLevel();
+    me->UpdateWeaponsSkillsToMaxSkillsForLevel();
+    me->SetPvP(true);
+
     if (newCharacter)
     {
         for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; i++)
@@ -964,7 +968,9 @@ void RobotAI::InitializeCharacter()
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s equip info initialized", me->GetName());
     }
 
-    if (me->GetClass() == Classes::CLASS_WARLOCK)
+    switch (me->GetClass())
+    {
+    case Classes::CLASS_WARLOCK:
     {
         switch (characterTalentTab)
         {
@@ -990,11 +996,41 @@ void RobotAI::InitializeCharacter()
             break;
         }
         }
+        break;
+    }
+    case Classes::CLASS_PALADIN:
+    {
+        switch (characterTalentTab)
+        {
+        case 0:
+        {
+            break;
+        }
+        case 1:
+        {
+            break;
+        }
+        case 2:
+        {
+            // Glyph of Exorcism
+            ApplyGlyph(me, 55118, 0);
+            // Glyph of Hammer of Wrath 
+            ApplyGlyph(me, 55112, 3);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+        break;
+    }
+    default:
+    {
+        break;
+    }
     }
 
-    me->UpdateSkillsForLevel();
-    me->UpdateWeaponsSkillsToMaxSkillsForLevel();
-    me->SetPvP(true);
     me->SaveToDB();
 
     RandomTeleport();
@@ -3010,4 +3046,48 @@ void RobotAI::Logout()
             checkWS->LogoutPlayer(true);
         }
     }
+}
+
+bool RobotAI::ApplyGlyph(Player* pmPlayer, uint32 pmGlyphSpellID, uint32 pmSlot)
+{
+    if (pmPlayer)
+    {
+        uint32 g = pmPlayer->GetGlyph(pmSlot);
+        if (g == 0)
+        {
+            if (const SpellInfo* pSI = sSpellMgr->GetSpellInfo(pmGlyphSpellID))
+            {
+                if (uint32 glyph = pSI->Effects[0].MiscValue)
+                {
+                    if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
+                    {
+                        if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(pmPlayer->GetGlyphSlot(pmSlot)))
+                        {
+                            if (gp->TypeFlags != gs->TypeFlags)
+                            {                                
+                                return false;
+                            }
+                        }
+
+                        // remove old glyph
+                        if (uint32 oldglyph = pmPlayer->GetGlyph(pmSlot))
+                        {
+                            if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
+                            {
+                                pmPlayer->RemoveAurasDueToSpell(old_gp->SpellId);
+                                pmPlayer->SetGlyph(pmSlot, 0);
+                            }
+                        }
+
+                        pmPlayer->CastSpell(pmPlayer, gp->SpellId, true);
+                        pmPlayer->SetGlyph(pmSlot, glyph);
+                        pmPlayer->SendTalentsInfoData(false);
+
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }

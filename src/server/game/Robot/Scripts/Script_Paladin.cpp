@@ -302,9 +302,16 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget)
             return true;
         }
     }
-    if (sourceAI->HasAura(me, "The Art of War"))
+    if (me->HasAura(AURA_THE_ART_OF_WAR_1) || me->HasAura(AURA_THE_ART_OF_WAR_2))
     {
         if (sourceAI->CastSpell(pmTarget, "Exorcism", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
+    if (pmTarget->IsNonMeleeSpellCast(false))
+    {
+        if (sourceAI->CastSpell(pmTarget, "Hammer of Justice", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -317,14 +324,6 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget)
     {
         return true;
     }
-    if (pmTarget->IsNonMeleeSpellCast(false))
-    {
-        if (sourceAI->CastSpell(pmTarget, "Hammer of Justice", MELEE_MAX_DISTANCE))
-        {
-            return true;
-        }
-    }
-
     return true;
 }
 
@@ -379,11 +378,69 @@ bool Script_Paladin::Attack(Unit* pmTarget)
     }
     case 2:
     {
-        return Attack_Common(pmTarget);
+        return Attack_Retribution(pmTarget);
     }
     default:
         return Attack_Common(pmTarget);
     }
+}
+
+bool Script_Paladin::Attack_Retribution(Unit* pmTarget)
+{
+    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    if (!me)
+    {
+        return false;
+    }
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > 200)
+    {
+        return false;
+    }
+    sourceAI->BaseMove(pmTarget);
+    if (pmTarget->GetHealthPct() < 20.0f)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Hammer of Wrath", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
+    if (sourceAI->HasAura(me, "The Art of War"))
+    {
+        if (sourceAI->CastSpell(pmTarget, "Exorcism", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
+    if (pmTarget->IsNonMeleeSpellCast(false))
+    {
+        if (sourceAI->CastSpell(pmTarget, "Hammer of Justice", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
+    if (sourceAI->CastSpell(pmTarget, "Judgement of Light", MELEE_MAX_DISTANCE))
+    {
+        return true;
+    }
+    if (sourceAI->CastSpell(pmTarget, "Crusader Strike", MELEE_MAX_DISTANCE))
+    {
+        return true;
+    }
+
+    return true;
 }
 
 bool Script_Paladin::Attack_Common(Unit* pmTarget)
@@ -412,12 +469,23 @@ bool Script_Paladin::Attack_Common(Unit* pmTarget)
     }
     sourceAI->BaseMove(pmTarget);
 
+    if (pmTarget->GetHealthPct() < 20.0f)
+    {
+        if (sourceAI->CastSpell(pmTarget, "Hammer of Wrath", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
+    }
     if (pmTarget->IsNonMeleeSpellCast(false))
     {
         if (sourceAI->CastSpell(pmTarget, "Hammer of Justice", MELEE_MAX_DISTANCE))
         {
             return true;
         }
+    }
+    if (sourceAI->CastSpell(pmTarget, "Judgement of Light", MELEE_MAX_DISTANCE))
+    {
+        return true;
     }
 
     return true;

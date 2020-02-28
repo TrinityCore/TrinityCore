@@ -898,11 +898,17 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
                 {
                     if (spell->getState() == SPELL_STATE_PREPARING)
                     {
-                        uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
-                        if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
-                            victim->InterruptNonMeleeSpells(false);
-                        else
-                            spell->Delayed();
+                        spell->Delayed();
+                        // EJ should not interrupt on dmg 
+                        //uint32 interruptFlags = spell->m_spellInfo->InterruptFlags;
+                        //if (interruptFlags & SPELL_INTERRUPT_FLAG_ABORT_ON_DMG)
+                        //{
+                        //    victim->InterruptNonMeleeSpells(false);
+                        //}
+                        //else
+                        //{
+                        //    spell->Delayed();
+                        //}
                     }
                 }
 
@@ -11006,6 +11012,12 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         // Call creature just died function
         if (CreatureAI* ai = creature->AI())
             ai->JustDied(attacker);
+
+        // EJ zone script will handle just died
+        if (ZoneScript* zs= creature->GetZoneScript())
+        {
+            zs->OnCreatureDied(creature);
+        }
 
         if (TempSummon * summon = creature->ToTempSummon())
         {
