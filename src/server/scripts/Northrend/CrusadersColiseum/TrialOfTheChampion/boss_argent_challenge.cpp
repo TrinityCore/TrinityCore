@@ -213,19 +213,19 @@ struct argent_challenge_baseAI : public BossAI
 
         switch (id)
         {
-			case POINT_PREFIGHT:
-				if (Creature* announcer = instance->GetCreature(DATA_ANNOUNCER))
-					announcer->AI()->SetData(DATA_ARGENT_CHAMPION_PREPARE, 0);
-				break;
-			case POINT_PREPARE:
-				me->SetWalk(false);
-				me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
-				break;
-			case POINT_DESPAWN:
-				me->DisappearAndDie();
-				break;
-			default:
-				break;
+            case POINT_PREFIGHT:
+                if (Creature* announcer = instance->GetCreature(DATA_ANNOUNCER))
+                    announcer->AI()->SetData(DATA_ARGENT_CHAMPION_PREPARE, 0);
+                break;
+            case POINT_PREPARE:
+                me->SetWalk(false);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                break;
+            case POINT_DESPAWN:
+                me->DisappearAndDie();
+                break;
+            default:
+                break;
         }
     }
 };
@@ -319,35 +319,35 @@ public:
             {
                 switch (eventId)
                 {
-					case EVENT_RADIANCE:
-						DoCastAOE(SPELL_RADIANCE);
-						Talk(EMOTE_RADIANCE);
-						events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 20s, 30s);
-						break;
-					case EVENT_HAMMER_OF_JUSTICE:
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-						{
-							DoCast(target, SPELL_HAMMER_JUSTICE, true);
-							DoCast(target, SPELL_HAMMER_RIGHTEOUS);
-							Talk(EMOTE_HAMMER_RIGHTEOUS, target);
-							Talk(SAY_HAMMER_RIGHTEOUS);
-						}
-						events.ScheduleEvent(EVENT_RADIANCE, 7s, 15s);
-						break;
-					case EVENT_CHALLENGE_DONE:
-						me->RemoveAllAuras();
-						me->GetThreatManager().ClearAllThreat();
-						me->SetFullHealth();
-						me->RestoreFaction();
-						DoCastAOE(SPELL_EADRIC_ACH, true);
-						DoCastAOE(SPELL_EADRIC_FACEROLLER, true);
-						instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_EADRIC_ACH, 0, me);
-						_JustDied();
-						me->SetWalk(true);
-						me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
-						break;
-					default:
-						break;
+                    case EVENT_RADIANCE:
+                        DoCastAOE(SPELL_RADIANCE);
+                        Talk(EMOTE_RADIANCE);
+                        events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 20s, 30s);
+                        break;
+                    case EVENT_HAMMER_OF_JUSTICE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        {
+                            DoCast(target, SPELL_HAMMER_JUSTICE, true);
+                            DoCast(target, SPELL_HAMMER_RIGHTEOUS);
+                            Talk(EMOTE_HAMMER_RIGHTEOUS, target);
+                            Talk(SAY_HAMMER_RIGHTEOUS);
+                        }
+                        events.ScheduleEvent(EVENT_RADIANCE, 7s, 15s);
+                        break;
+                    case EVENT_CHALLENGE_DONE:
+                        me->RemoveAllAuras();
+                        me->GetThreatManager().ClearAllThreat();
+                        me->SetFullHealth();
+                        me->RestoreFaction();
+                        DoCastAOE(SPELL_EADRIC_ACH, true);
+                        DoCastAOE(SPELL_EADRIC_FACEROLLER, true);
+                        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_EADRIC_ACH, 0, me);
+                        _JustDied();
+                        me->SetWalk(true);
+                        me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -480,57 +480,57 @@ public:
             {
                 switch (eventId)
                 {
-					case EVENT_HOLY_SMITE_E:
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-							DoCast(target, SPELL_SMITE);
-						events.Repeat(2s, 3s);
-						break;
-					case EVENT_HOLY_FIRE:
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
-							DoCast(target, SPELL_HOLY_FIRE);
-						events.Repeat(9s, 12s);
-						break;
-					case EVENT_RENEW:
-						me->InterruptNonMeleeSpells(true);
-						if (roll_chance_i(50) && me->GetHealthPct() < 100)
-							DoCastSelf(SPELL_RENEW);
-						else
-						{
-							if (_memory && _memory->GetHealth() > 1)
-								DoCast(_memory, SPELL_RENEW);
-							else
-								DoCastSelf(SPELL_RENEW);
-						}
+                    case EVENT_HOLY_SMITE_E:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            DoCast(target, SPELL_SMITE);
+                        events.Repeat(2s, 3s);
+                        break;
+                    case EVENT_HOLY_FIRE:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                            DoCast(target, SPELL_HOLY_FIRE);
+                        events.Repeat(9s, 12s);
+                        break;
+                    case EVENT_RENEW:
+                        me->InterruptNonMeleeSpells(true);
+                        if (roll_chance_i(50) && me->GetHealthPct() < 100)
+                            DoCastSelf(SPELL_RENEW);
+                        else
+                        {
+                            if (_memory && _memory->GetHealth() > 1)
+                                DoCast(_memory, SPELL_RENEW);
+                            else
+                                DoCastSelf(SPELL_RENEW);
+                        }
 
-						events.Repeat(15s, 17s);
-						break;
-					case EVENT_SUMMON_MEMORY:
-						// Memory spawns at random player's position
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-							DoCast(target, SPELL_SUMMON_MEMORY, true);
-						break;
-					case EVENT_MEMORY_AGGRESSIVE:
-						if(_memory) {
-							_memory->SetReactState(REACT_AGGRESSIVE);
-							_memory->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-						}
-						break;
-					case EVENT_CHALLENGE_DONE:
-						me->RemoveAllAuras();
-						me->GetThreatManager().ClearAllThreat();
-						me->SetFullHealth();
-						DoCastAOE(SPELL_PALETRESS_ACH, true);
-						me->RestoreFaction();
+                        events.Repeat(15s, 17s);
+                        break;
+                    case EVENT_SUMMON_MEMORY:
+                        // Memory spawns at random player's position
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                            DoCast(target, SPELL_SUMMON_MEMORY, true);
+                        break;
+                    case EVENT_MEMORY_AGGRESSIVE:
+                        if(_memory) {
+                            _memory->SetReactState(REACT_AGGRESSIVE);
+                            _memory->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        }
+                        break;
+                    case EVENT_CHALLENGE_DONE:
+                        me->RemoveAllAuras();
+                        me->GetThreatManager().ClearAllThreat();
+                        me->SetFullHealth();
+                        DoCastAOE(SPELL_PALETRESS_ACH, true);
+                        me->RestoreFaction();
 
-						if (IsHeroic())
-							DoCastAOE(SPELL_PALETRESS_CONFESSOR, true);
+                        if (IsHeroic())
+                            DoCastAOE(SPELL_PALETRESS_CONFESSOR, true);
 
-						_JustDied();
-						me->SetWalk(true);
-						me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
-						break;
-					default:
-						break;
+                        _JustDied();
+                        me->SetWalk(true);
+                        me->GetMotionMaster()->MovePoint(POINT_DESPAWN, bossExitPos);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -584,50 +584,50 @@ public:
         {
             switch (me->GetEntry())
             {
-				case NPC_ARGENT_LIGHWIELDER:
-					switch (_waypointId)
-					{
-					case 0:
-						finalPos = { 712.14f, 628.42f, 411.88f, 5.81f };
-						break;
-					case 1:
-						finalPos = { 742.44f, 650.29f, 411.79f, 4.60f };
-						break;
-					case 2:
-						finalPos = { 774.94f, 636.64f, 411.89f, 3.78f };
-						break;
-					}
-					break;
-				case NPC_ARGENT_MONK:
-					switch (_waypointId)
-					{
-					case 0:
-						finalPos = { 713.12f, 632.97f, 411.90f, 5.81f };
-						break;
-					case 1:
-						finalPos = { 746.73f, 650.24f, 411.56f, 4.60f };
-						break;
-					case 2:
-						finalPos = { 777.33f, 633.08f, 411.89f, 3.78f };
-						break;
-					}
-					break;
-				case NPC_PRIESTESS:
-					switch (_waypointId)
-					{
-					case 0:
-						finalPos = { 715.06f, 637.07f, 411.91f, 5.81f };
-						break;
-					case 1:
-						finalPos = { 750.72f, 650.20f, 411.77f, 4.60f };
-						break;
-					case 2:
-						finalPos = { 780.13f, 629.18f, 411.89f, 3.78f };
-						break;
-					}
-					break;
-				default:
-					break;
+                case NPC_ARGENT_LIGHWIELDER:
+                    switch (_waypointId)
+                    {
+                    case 0:
+                        finalPos = { 712.14f, 628.42f, 411.88f, 5.81f };
+                        break;
+                    case 1:
+                        finalPos = { 742.44f, 650.29f, 411.79f, 4.60f };
+                        break;
+                    case 2:
+                        finalPos = { 774.94f, 636.64f, 411.89f, 3.78f };
+                        break;
+                    }
+                    break;
+                case NPC_ARGENT_MONK:
+                    switch (_waypointId)
+                    {
+                    case 0:
+                        finalPos = { 713.12f, 632.97f, 411.90f, 5.81f };
+                        break;
+                    case 1:
+                        finalPos = { 746.73f, 650.24f, 411.56f, 4.60f };
+                        break;
+                    case 2:
+                        finalPos = { 777.33f, 633.08f, 411.89f, 3.78f };
+                        break;
+                    }
+                    break;
+                case NPC_PRIESTESS:
+                    switch (_waypointId)
+                    {
+                    case 0:
+                        finalPos = { 715.06f, 637.07f, 411.91f, 5.81f };
+                        break;
+                    case 1:
+                        finalPos = { 750.72f, 650.20f, 411.77f, 4.60f };
+                        break;
+                    case 2:
+                        finalPos = { 780.13f, 629.18f, 411.89f, 3.78f };
+                        break;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -716,25 +716,25 @@ public:
         {
             switch (me->GetEntry())
             {
-				case NPC_ARGENT_LIGHWIELDER:
-					_events.ScheduleEvent(EVENT_BLAZING_LIGHT, 10s);
-					_events.ScheduleEvent(EVENT_CLEAVE, 4s, 6s);
-					if (IsHeroic())
-						_events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 8s);
-					break;
-				case NPC_ARGENT_MONK:
-					_events.ScheduleEvent(EVENT_FLURRY_OF_BLOWS, 2s);
-					_events.ScheduleEvent(EVENT_PUMMEL, 12s);
-					break;
-				case NPC_PRIESTESS:
-					_events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 500);
-					_events.ScheduleEvent(EVENT_HOLY_SMITE, 2500);
-					_events.ScheduleEvent(EVENT_FOUNTAIN, 10s);
-					if (IsHeroic())
-						_events.ScheduleEvent(EVENT_MIND_CONTROL, 15s);
-					break;
-				default:
-					break;
+                case NPC_ARGENT_LIGHWIELDER:
+                    _events.ScheduleEvent(EVENT_BLAZING_LIGHT, 10s);
+                    _events.ScheduleEvent(EVENT_CLEAVE, 4s, 6s);
+                    if (IsHeroic())
+                        _events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 8s);
+                    break;
+                case NPC_ARGENT_MONK:
+                    _events.ScheduleEvent(EVENT_FLURRY_OF_BLOWS, 2s);
+                    _events.ScheduleEvent(EVENT_PUMMEL, 12s);
+                    break;
+                case NPC_PRIESTESS:
+                    _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 500);
+                    _events.ScheduleEvent(EVENT_HOLY_SMITE, 2500);
+                    _events.ScheduleEvent(EVENT_FOUNTAIN, 10s);
+                    if (IsHeroic())
+                        _events.ScheduleEvent(EVENT_MIND_CONTROL, 15s);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -758,55 +758,55 @@ public:
             {
                 switch (eventId)
                 {
-					case EVENT_BLAZING_LIGHT:
-						if (Unit* friendly = DoSelectLowestHpFriendly(40.0f))
-						{
-							if (friendly->GetHealthPct() > me->GetHealthPct())
-								DoCastSelf(SPELL_BLAZING_LIGHT);
-							else
-								DoCast(friendly, SPELL_BLAZING_LIGHT);
-						}
-						_events.Repeat(10s);
-						break;
-					case EVENT_CLEAVE:
-						DoCastVictim(SPELL_CLEAVE);
-						_events.Repeat(4s, 6s);
-						break;
-					case EVENT_UNBALANCING_STRIKE:
-						DoCastVictim(SPELL_UNBALANCING_STRIKE);
-						_events.Repeat(15s);
-						break;
-					case EVENT_FLURRY_OF_BLOWS:
-						DoCast(SPELL_FLURRY_OF_BLOWS);
-						_events.Repeat(15s);
-						break;
-					case EVENT_PUMMEL:
-					{
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, [this](Unit* u) -> bool { return u->IsWithinDist(me, 5.f) && u->IsNonMeleeSpellCast(true); }))
-							DoCast(target, SPELL_PUMMEL);
+                    case EVENT_BLAZING_LIGHT:
+                        if (Unit* friendly = DoSelectLowestHpFriendly(40.0f))
+                        {
+                            if (friendly->GetHealthPct() > me->GetHealthPct())
+                                DoCastSelf(SPELL_BLAZING_LIGHT);
+                            else
+                                DoCast(friendly, SPELL_BLAZING_LIGHT);
+                        }
+                        _events.Repeat(10s);
+                        break;
+                    case EVENT_CLEAVE:
+                        DoCastVictim(SPELL_CLEAVE);
+                        _events.Repeat(4s, 6s);
+                        break;
+                    case EVENT_UNBALANCING_STRIKE:
+                        DoCastVictim(SPELL_UNBALANCING_STRIKE);
+                        _events.Repeat(15s);
+                        break;
+                    case EVENT_FLURRY_OF_BLOWS:
+                        DoCast(SPELL_FLURRY_OF_BLOWS);
+                        _events.Repeat(15s);
+                        break;
+                    case EVENT_PUMMEL:
+                    {
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, [this](Unit* u) -> bool { return u->IsWithinDist(me, 5.f) && u->IsNonMeleeSpellCast(true); }))
+                            DoCast(target, SPELL_PUMMEL);
 
-						_events.Repeat(12s);
-						break;
-					}
-					case EVENT_SHADOW_WORD_PAIN:
-						DoCastVictim(SPELL_SHADOW_WORD_PAIN);
-						_events.Repeat(15s);
-						break;
-					case EVENT_HOLY_SMITE:
-						DoCastVictim(SPELL_HOLY_SMITE);
-						_events.Repeat(4s, 7s);
-						break;
-					case EVENT_FOUNTAIN:
-						DoCastAOE(SPELL_SUMMON_FOUNTAIN);
-						_events.Repeat(50s);
-						break;
-					case EVENT_MIND_CONTROL:
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
-							DoCast(target, SPELL_MIND_CONTROL);
-						_events.Repeat(15s);
-						break;
-					default:
-						break;
+                        _events.Repeat(12s);
+                        break;
+                    }
+                    case EVENT_SHADOW_WORD_PAIN:
+                        DoCastVictim(SPELL_SHADOW_WORD_PAIN);
+                        _events.Repeat(15s);
+                        break;
+                    case EVENT_HOLY_SMITE:
+                        DoCastVictim(SPELL_HOLY_SMITE);
+                        _events.Repeat(4s, 7s);
+                        break;
+                    case EVENT_FOUNTAIN:
+                        DoCastAOE(SPELL_SUMMON_FOUNTAIN);
+                        _events.Repeat(50s);
+                        break;
+                    case EVENT_MIND_CONTROL:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
+                            DoCast(target, SPELL_MIND_CONTROL);
+                        _events.Repeat(15s);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -904,23 +904,23 @@ public:
             {
                 switch (eventId)
                 {
-					case EVENT_OLD_WOUNDS:
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
-							DoCast(target, SPELL_OLD_WOUNDS);
-						_events.Repeat(11s, 13s);
-						break;
-					case EVENT_SHADOWS_PAST:
-						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
-							DoCast(target, SPELL_SHADOWS_PAST);
-						_events.Repeat(5s, 7s);
-						break;
-					case EVENT_WAKING_NIGHTMARE:
-						Talk(EMOTE_WAKING_NIGHTMARE);
-						DoCastAOE(SPELL_WAKING_NIGHTMARE);
-						_events.Repeat(20s, 40s);
-						break;
-					default:
-						break;
+                    case EVENT_OLD_WOUNDS:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
+                            DoCast(target, SPELL_OLD_WOUNDS);
+                        _events.Repeat(11s, 13s);
+                        break;
+                    case EVENT_SHADOWS_PAST:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                            DoCast(target, SPELL_SHADOWS_PAST);
+                        _events.Repeat(5s, 7s);
+                        break;
+                    case EVENT_WAKING_NIGHTMARE:
+                        Talk(EMOTE_WAKING_NIGHTMARE);
+                        DoCastAOE(SPELL_WAKING_NIGHTMARE);
+                        _events.Repeat(20s, 40s);
+                        break;
+                    default:
+                        break;
                 }
             }
 
