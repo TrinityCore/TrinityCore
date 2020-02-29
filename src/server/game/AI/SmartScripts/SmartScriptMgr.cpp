@@ -114,8 +114,8 @@ void SmartAIMgr::LoadSmartAIFromDB()
 
     uint32 oldMSTime = getMSTime();
 
-    for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
-        mEventMap[i].clear();  //Drop Existing SmartAI List
+    for (SmartAIEventMap& eventmap : mEventMap)
+        eventmap.clear();  //Drop Existing SmartAI List
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMART_SCRIPTS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
@@ -384,15 +384,15 @@ void SmartAIMgr::LoadSmartAIFromDB()
     while (result->NextRow());
 
     // Post Loading Validation
-    for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; ++i)
+    for (SmartAIEventMap& eventmap : mEventMap)
     {
-        for (SmartAIEventMap::iterator itr = mEventMap[i].begin(); itr != mEventMap[i].end(); ++itr)
+        for (std::pair<int64 const, SmartAIEventList>& eventlistpair : eventmap)
         {
-            for (SmartScriptHolder const& e : itr->second)
+            for (SmartScriptHolder const& e : eventlistpair.second)
             {
                 if (e.link)
                 {
-                    if (!FindLinkedEvent(itr->second, e.link))
+                    if (!FindLinkedEvent(eventlistpair.second, e.link))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry " SI64FMTD " SourceType %u, Event %u, Link Event %u not found or invalid.",
                             e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
@@ -401,7 +401,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
 
                 if (e.GetEventType() == SMART_EVENT_LINK)
                 {
-                    if (!FindLinkedSourceEvent(itr->second, e.event_id))
+                    if (!FindLinkedSourceEvent(eventlistpair.second, e.event_id))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry " SI64FMTD " SourceType %u, Event %u, Link Source Event not found or invalid. Event will never trigger.",
                             e.entryOrGuid, e.GetScriptType(), e.event_id);
