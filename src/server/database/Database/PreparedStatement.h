@@ -22,26 +22,11 @@
 #include "SQLOperation.h"
 #include <future>
 #include <vector>
+#include <variant>
 
 #ifdef __APPLE__
 #undef TYPE_BOOL
 #endif
-
-//- Union for data buffer (upper-level bind -> queue -> lower-level bind)
-union PreparedStatementDataUnion
-{
-    bool boolean;
-    uint8 ui8;
-    int8 i8;
-    uint16 ui16;
-    int16 i16;
-    uint32 ui32;
-    int32 i32;
-    uint64 ui64;
-    int64 i64;
-    float f;
-    double d;
-};
 
 //- This enum helps us differ data held in above union
 enum PreparedStatementValueType
@@ -64,9 +49,22 @@ enum PreparedStatementValueType
 
 struct PreparedStatementData
 {
-    PreparedStatementDataUnion data;
+    std::variant<
+    bool,               // TYPE_BOOL
+    uint8,              // TYPE_UI8
+    uint16,             // TYPE_UI16
+    uint32,             // TYPE_UI32
+    uint64,             // TYPE_UI64
+    int8,               // TYPE_I8
+    int16,              // TYPE_I16
+    int32,              // TYPE_UI32
+    int64,              // TYPE_UI64
+    float,              // TYPE_FLOAT
+    double,             // TYPE_DOUBLE
+    std::string,        // TYPE_STRING
+    std::vector<uint8>> // TYPE_BINARY
+    data;
     PreparedStatementValueType type;
-    std::vector<uint8> binary;
 };
 
 //- Forward declare

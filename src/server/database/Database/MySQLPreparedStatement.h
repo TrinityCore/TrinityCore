@@ -51,7 +51,8 @@ class TC_DATABASE_API MySQLPreparedStatement
         void setInt64(const uint8 index, const int64 value);
         void setFloat(const uint8 index, const float value);
         void setDouble(const uint8 index, const double value);
-        void setBinary(const uint8 index, const std::vector<uint8>& value, bool isString);
+        void setString(const uint8 index, const std::string& value);
+        void setBinary(const uint8 index, const std::vector<uint8>& value);
 
         uint32 GetParameterCount() const { return m_paramCount; }
 

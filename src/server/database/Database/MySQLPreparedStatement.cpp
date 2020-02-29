@@ -187,7 +187,24 @@ void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
     SetParameterValue(param, MYSQL_TYPE_DOUBLE, &value, sizeof(double), (value > 0.0f));
 }
 
-void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint8>& value, bool isString)
+void MySQLPreparedStatement::setString(const uint8 index, const std::string& value)
+{
+    AssertValidIndex(index);
+    m_paramsSet[index] = true;
+    MYSQL_BIND* param = &m_bind[index];
+    uint32 len = uint32(value.size());
+    param->buffer_type = MYSQL_TYPE_VAR_STRING;
+    delete [] static_cast<char*>(param->buffer);
+    param->buffer = new char[len];
+    param->buffer_length = len;
+    param->is_null_value = 0;
+    delete param->length;
+    param->length = new unsigned long(len);
+
+    memcpy(param->buffer, value.c_str(), len);
+}
+
+void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint8>& value)
 {
     AssertValidIndex(index);
     m_paramsSet[index] = true;
@@ -200,11 +217,6 @@ void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint
     param->is_null_value = 0;
     delete param->length;
     param->length = new unsigned long(len);
-    if (isString)
-    {
-        *param->length -= 1;
-        param->buffer_type = MYSQL_TYPE_VAR_STRING;
-    }
 
     memcpy(param->buffer, value.data(), len);
 }
@@ -214,48 +226,48 @@ std::string MySQLPreparedStatement::getQueryString() const
     std::string queryString(m_queryString);
 
     size_t pos = 0;
-    for (uint32 i = 0; i < m_stmt->statement_data.size(); i++)
+    for (PreparedStatementData& data : m_stmt->statement_data)
     {
         pos = queryString.find('?', pos);
         std::stringstream ss;
 
-        switch (m_stmt->statement_data[i].type)
+        switch (data.type)
         {
             case TYPE_BOOL:
-                ss << uint16(m_stmt->statement_data[i].data.boolean);
+                ss << uint16(std::get<bool>(data.data)); // stringstream will append a character with that code instead of numeric representation
                 break;
             case TYPE_UI8:
-                ss << uint16(m_stmt->statement_data[i].data.ui8);  // stringstream will append a character with that code instead of numeric representation
+                ss << uint16(std::get<uint8>(data.data)); // stringstream will append a character with that code instead of numeric representation
                 break;
             case TYPE_UI16:
-                ss << m_stmt->statement_data[i].data.ui16;
+                ss << std::get<uint16>(data.data);
                 break;
             case TYPE_UI32:
-                ss << m_stmt->statement_data[i].data.ui32;
+                ss << std::get<uint32>(data.data);
                 break;
             case TYPE_I8:
-                ss << int16(m_stmt->statement_data[i].data.i8);  // stringstream will append a character with that code instead of numeric representation
+                ss << int16(std::get<int8>(data.data)); // stringstream will append a character with that code instead of numeric representation
                 break;
             case TYPE_I16:
-                ss << m_stmt->statement_data[i].data.i16;
+                ss << std::get<int16>(data.data);
                 break;
             case TYPE_I32:
-                ss << m_stmt->statement_data[i].data.i32;
+                ss << std::get<int32>(data.data);
                 break;
             case TYPE_UI64:
-                ss << m_stmt->statement_data[i].data.ui64;
+                ss << std::get<uint64>(data.data);
                 break;
             case TYPE_I64:
-                ss << m_stmt->statement_data[i].data.i64;
+                ss << std::get<int64>(data.data);
                 break;
             case TYPE_FLOAT:
-                ss << m_stmt->statement_data[i].data.f;
+                ss << std::get<float>(data.data);
                 break;
             case TYPE_DOUBLE:
-                ss << m_stmt->statement_data[i].data.d;
+                ss << std::get<double>(data.data);
                 break;
             case TYPE_STRING:
-                ss << '\'' << (char const*)m_stmt->statement_data[i].binary.data() << '\'';
+                ss << '\'' << std::get<std::string>(data.data) << '\'';
                 break;
             case TYPE_BINARY:
                 ss << "BINARY";
