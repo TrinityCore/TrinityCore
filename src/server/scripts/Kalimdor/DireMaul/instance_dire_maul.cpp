@@ -79,6 +79,7 @@ enum DIRE_MAUL_NPC
     NPC_MANA_REMNANT = 11483,
     NPC_ILLYANNA_RAVENOAK = 11488,
     NPC_FERRA = 14308,
+    NPC_ANCIENT_EQUINE_SPIRIT = 14566,
 };
 
 enum DIRE_MAUL_GAMEOBJECT
@@ -157,6 +158,7 @@ enum DIRE_MAUL_SPELL
     SPELL_SUMMON_NETHERWALKER = 22876,
     SPELL_CHARGE = 22911,
     SPELL_MAUL = 17156,
+    SPELL_SUMMON_VISUAL = 26638,
 };
 
 enum DIRE_MAUL_EVENT_IRONBARK_THE_REDEEMED
@@ -531,6 +533,12 @@ public:
                 {
                     if (!checkBoss->IsAlive())
                     {
+                        if (TempSummon* tsEquine = instance->SummonCreature(DIRE_MAUL_NPC::NPC_ANCIENT_EQUINE_SPIRIT, checkBoss->GetPosition()))
+                        {
+                            tsEquine->CastSpell(tsEquine, DIRE_MAUL_SPELL::SPELL_SUMMON_VISUAL);
+                            tsEquine->SetWalk(false);
+                            tsEquine->GetMotionMaster()->MovePoint(0, 39.754f, 488.723f, -23.27f, true, 3.56f);
+                        }
                         SetBossState(DIRE_MAUL_BOSS::BOSS_TENDRIS_WARPWOOD, EncounterState::DONE);
                     }
                     else if (checkBoss->GetThreatManager().IsThreatListEmpty())
@@ -565,8 +573,9 @@ public:
                         {
                             if (eachC->GetEntry() == DIRE_MAUL_NPC::NPC_HIGHBORNE_SUMMONER)
                             {
+                                eachC->SetWalk(false);
                                 eachC->SetFaction(playerFaction);
-                                eachC->AI()->AttackStart(im);
+                                eachC->GetThreatManager().AddThreat(im, 100);                                
                                 im->GetThreatManager().AddThreat(eachC, 100);
                             }
                         }
@@ -870,45 +879,49 @@ public:
             {
                 return;
             }
-            if (!me->GetThreatManager().IsThreatListEmpty())
+            if (Map* map = me->GetMap())
             {
-                if (chargeDelay <= 0)
+                if (Creature* master = map->GetCreatureBySpawnId(DIRE_MAUL_DATA::DATA_ILLYANNA_RAVENOAK_SPAWNID))
                 {
-                    for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
+                    if (!me->GetThreatManager().IsThreatListEmpty())
                     {
-                        if (Unit* eachV = ref->GetVictim())
+                        if (master->GetThreatManager().IsThreatListEmpty())
                         {
-                            float eachDistance = me->GetDistance(eachV);
-                            if (eachDistance > 8.0f&&eachDistance < 25.0f)
+                            master->GetThreatManager().AddThreat(me->GetThreatManager().GetAnyTarget(), 100);
+                        }
+                        if (chargeDelay <= 0)
+                        {
+                            for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                             {
-                                AttackStart(eachV);
-                                me->CastSpell(eachV, DIRE_MAUL_SPELL::SPELL_CHARGE);
-                                chargeDelay = 2000;
-                                return;
+                                if (Unit* eachV = ref->GetVictim())
+                                {
+                                    float eachDistance = me->GetDistance(eachV);
+                                    if (eachDistance > 8.0f&&eachDistance < 25.0f)
+                                    {
+                                        AttackStart(eachV);
+                                        me->CastSpell(eachV, DIRE_MAUL_SPELL::SPELL_CHARGE);
+                                        chargeDelay = 2000;
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                        if (maulDelay <= 0)
+                        {
+                            if (Unit* currentV = me->GetVictim())
+                            {
+                                if (!me->IsNonMeleeSpellCast(true))
+                                {
+                                    if (urand(0, 2) == 0)
+                                    {
+                                        me->CastSpell(currentV, DIRE_MAUL_SPELL::SPELL_MAUL);
+                                        maulDelay = urand(4000, 8000);
+                                    }
+                                }
                             }
                         }
                     }
-                }
-                if (maulDelay <= 0)
-                {
-                    if (Unit* currentV = me->GetVictim())
-                    {
-                        if (!me->IsNonMeleeSpellCast(true))
-                        {
-                            if (urand(0, 2) == 0)
-                            {
-                                me->CastSpell(currentV, DIRE_MAUL_SPELL::SPELL_MAUL);
-                                maulDelay = urand(4000, 8000);
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (Map* map = me->GetMap())
-                {
-                    if (Creature* master = map->GetCreatureBySpawnId(DIRE_MAUL_DATA::DATA_ILLYANNA_RAVENOAK_SPAWNID))
+                    else
                     {
                         if (!master->GetThreatManager().IsThreatListEmpty())
                         {

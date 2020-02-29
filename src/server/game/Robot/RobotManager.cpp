@@ -949,6 +949,24 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                     is->SetData(2, 0);
                 }
             }
+            else if (testPart == "charger")
+            {
+                if (Map* currentMap = pmPlayer->GetMap())
+                {
+                    currentMap->SummonCreature(14516, pmPlayer->GetPosition());
+                }
+            }
+        }
+    }
+    else if (commandName == "cast")
+    {
+        if (Unit* targetUnit = pmPlayer->GetSelectedUnit())
+        {
+            if (commandVector.size() > 1)
+            {
+                uint32 spellID = std::stoi(commandVector.at(1));
+                targetUnit->CastSpell(targetUnit, spellID);
+            }
         }
     }
 }
