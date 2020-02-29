@@ -59,11 +59,11 @@ namespace VMAP
 
     VMapManager2::~VMapManager2()
     {
-        for (auto i = iInstanceMapTrees.begin(); i != iInstanceMapTrees.end(); ++i)
-            delete i->second;
+        for (std::pair<uint32 const, StaticMapTree*>& iInstanceMapTree : iInstanceMapTrees)
+            delete iInstanceMapTree.second;
 
-        for (auto i = iLoadedModelFiles.begin(); i != iLoadedModelFiles.end(); ++i)
-            delete i->second;
+        for (std::pair<std::string const, ManagedModel*>& iLoadedModelFile : iLoadedModelFiles)
+            delete iLoadedModelFile.second;
     }
 
     InstanceTreeMap::const_iterator VMapManager2::GetMapTree(uint32 mapId) const
