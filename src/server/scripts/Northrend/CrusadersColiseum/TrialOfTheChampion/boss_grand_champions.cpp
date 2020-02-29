@@ -108,7 +108,7 @@ enum Spells
     SPELL_MULTI_SHOT                    = 66081,
     SPELL_SHOOT                         = 66079,
 
-    // Lana Stouthammer && Deathstalker Visceri || Rouge
+    // Lana Stouthammer && Deathstalker Visceri || Rogue
     SPELL_EVISCERATE                    = 67709,
     SPELL_FAN_OF_KNIVES                 = 67706,
     SPELL_POISON_BOTTLE                 = 67701,

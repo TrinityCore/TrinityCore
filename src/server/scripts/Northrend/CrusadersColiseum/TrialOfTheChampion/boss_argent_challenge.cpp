@@ -18,6 +18,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "PassiveAI.h"
+#include "Log.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "trial_of_the_champion.h"
@@ -405,6 +406,7 @@ public:
 
         uint32 GetData(uint32 type) const override
         {
+            Creature* _memory = ObjectAccessor::GetCreature(*me, _memoryGuid);
             if (type != DATA_MEMORY_ENTRY || !_memory)
                 return 0;
 
@@ -447,11 +449,18 @@ public:
         void JustSummoned(Creature* summon) override
         {
             argent_challenge_baseAI::JustSummoned(summon);
-            
-            ObjectGuid _memoryGuid = summon->GetGUID();
-            _memory = ObjectAccessor::GetCreature(*me, _memoryGuid);
-            me->GetMotionMaster()->MoveFollow(summon, 30.0f, 0.0f);
-            events.ScheduleEvent(EVENT_MEMORY_AGGRESSIVE, 3s);
+            // does it need a check to check if summoned creature is memory or is that never going to happen?
+            _memoryGuid = summon->GetGUID();
+            Creature* _memory = ObjectAccessor::GetCreature(*me, _memoryGuid);
+            if (_memory) //is this likely to fail here?
+            {
+                me->GetMotionMaster()->MoveFollow(summon, 30.0f, 0.0f);
+                events.ScheduleEvent(EVENT_MEMORY_AGGRESSIVE, 3s);
+            }
+            else
+            {
+                TC_LOG_DEBUG("scripts.ai", "Paletress memory JustSummoned null");
+            }
         }
 
         void JustEngagedWith(Unit* who) override
@@ -492,10 +501,13 @@ public:
                         break;
                     case EVENT_RENEW:
                         me->InterruptNonMeleeSpells(true);
+                        TC_LOG_DEBUG("scripts.ai", "Paletress EVENT_RENEW");
                         if (roll_chance_i(50) && me->GetHealthPct() < 100)
                             DoCastSelf(SPELL_RENEW);
                         else
                         {
+                            TC_LOG_DEBUG("scripts.ai", "Paletress Cast renew on memory (%s)", _memoryGuid.ToString().c_str());
+                            Creature* _memory = ObjectAccessor::GetCreature(*me, _memoryGuid);
                             if (_memory && _memory->GetHealth() > 1)
                                 DoCast(_memory, SPELL_RENEW);
                             else
@@ -509,12 +521,15 @@ public:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                             DoCast(target, SPELL_SUMMON_MEMORY, true);
                         break;
-                    case EVENT_MEMORY_AGGRESSIVE:
-                        if(_memory) {
+                    case EVENT_MEMORY_AGGRESSIVE: {
+                        Creature* _memory = ObjectAccessor::GetCreature(*me, _memoryGuid);
+                        TC_LOG_DEBUG("scripts.ai", "Paletress EVENT_MEMORY_AGRESSIVE (%s)", _memoryGuid.ToString().c_str());
+                        if (_memory) {
                             _memory->SetReactState(REACT_AGGRESSIVE);
                             _memory->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         }
                         break;
+                    }
                     case EVENT_CHALLENGE_DONE:
                         me->RemoveAllAuras();
                         me->GetThreatManager().ClearAllThreat();
@@ -542,7 +557,7 @@ public:
 
     private:
         bool _memorySummoned;
-        Creature* _memory;
+        ObjectGuid _memoryGuid;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

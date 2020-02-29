@@ -18,6 +18,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Player.h"
+#include "Log.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "trial_of_the_champion.h"
@@ -241,6 +242,7 @@ class instance_trial_of_the_champion : public InstanceMapScript
                                         dataType = DATA_CONFESSOR_S_CACHE;
                                         break;
                                     default:
+                                        TC_LOG_DEBUG("script", "_argentChampionGUID == something went wrong");
                                         ABORT();
                                         break;
                                 }
