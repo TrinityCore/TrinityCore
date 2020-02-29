@@ -690,6 +690,9 @@ void SmartAI::OnCharmed(bool /*isNew*/)
 
     _charmed = charmed;
 
+    if (charmed)
+        me->GetMotionMaster()->MoveFollow(me->GetCharmer(), PET_FOLLOW_DIST, me->GetFollowAngle());
+
     if (!charmed && !me->IsInEvadeMode())
     {
         if (_repeatWaypointPath)
