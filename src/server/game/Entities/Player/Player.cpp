@@ -20304,11 +20304,6 @@ void Player::UpdateSpeakTime()
     m_speakTime = current + sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_DELAY);
 }
 
-bool Player::CanSpeak() const
-{
-    return  GetSession()->m_muteTime <= GameTime::GetGameTime();
-}
-
 /*********************************************************/
 /***              LOW LEVEL FUNCTIONS:Notifiers        ***/
 /*********************************************************/

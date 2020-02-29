@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "Containers.h"
 #include "IpAddress.h"
+#include "StringFormat.h"
 #include <utf8.h>
 #include <algorithm>
 #include <iomanip>
@@ -115,35 +116,54 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
     uint64 hours   = timeInSecs % DAY  / HOUR;
     uint64 days    = timeInSecs / DAY;
 
+    if (timeFormat == TimeFormat::Numeric)
+    {
+        if (days)
+            return Trinity::StringFormat("%u:%02u:%02u:%02u", days, hours, minutes, secs);
+        else if (hours)
+            return Trinity::StringFormat("%u:%02u:%02u", hours, minutes, secs);
+        else if (minutes)
+            return Trinity::StringFormat("%u:%02u", minutes, secs);
+        else
+            return Trinity::StringFormat("0:%02u", secs);
+    }
+
     std::ostringstream ss;
     if (days)
     {
         ss << days;
-        if (timeFormat == TimeFormat::Numeric)
-            ss << ":";
-        else if (timeFormat == TimeFormat::ShortText)
-            ss << "d";
-        else // if (timeFormat == TimeFormat::FullText)
+        switch (timeFormat)
         {
-            if (days == 1)
-                ss << " Day ";
-            else
-                ss << " Days ";
+            case TimeFormat::ShortText:
+                ss << "d";
+                break;
+            case TimeFormat::FullText:
+                if (days == 1)
+                    ss << " Day ";
+                else
+                    ss << " Days ";
+                break;
+            default:
+                return "<Unknown time format>";
         }
     }
+
     if (hours || hoursOnly)
     {
         ss << hours;
-        if (timeFormat == TimeFormat::Numeric)
-            ss << ":";
-        else if (timeFormat == TimeFormat::ShortText)
-            ss << "h";
-        else // if (timeFormat == TimeFormat::FullText)
+        switch (timeFormat)
         {
-            if (hours <= 1)
-                ss << " Hour ";
-            else
-                ss << " Hours ";
+            case TimeFormat::ShortText:
+                ss << "h";
+                break;
+            case TimeFormat::FullText:
+                if (hours <= 1)
+                    ss << " Hour ";
+                else
+                    ss << " Hours ";
+                break;
+            default:
+                return "<Unknown time format>";
         }
     }
     if (!hoursOnly)
@@ -151,40 +171,39 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
         if (minutes)
         {
             ss << minutes;
-            if (timeFormat == TimeFormat::Numeric)
-                ss << ":";
-            else if (timeFormat == TimeFormat::ShortText)
-                ss << "m";
-            else // if (timeFormat == TimeFormat::FullText)
+            switch (timeFormat)
             {
-                if (minutes == 1)
-                    ss << " Minute ";
-                else
-                    ss << " Minutes ";
+                case TimeFormat::ShortText:
+                    ss << "m";
+                    break;
+                case TimeFormat::FullText:
+                    if (minutes == 1)
+                        ss << " Minute ";
+                    else
+                        ss << " Minutes ";
+                    break;
+                default:
+                    return "<Unknown time format>";
             }
         }
-        else
-        {
-            if (timeFormat == TimeFormat::Numeric)
-                ss << "0:";
-        }
+
         if (secs || (!days && !hours && !minutes))
         {
-            ss << std::setw(2) << std::setfill('0') << secs;
-            if (timeFormat == TimeFormat::ShortText)
-                ss << "s";
-            else if (timeFormat == TimeFormat::FullText)
+            ss << secs;
+            switch (timeFormat)
             {
-                if (secs <= 1)
-                    ss << " Second.";
-                else
-                    ss << " Seconds.";
+                case TimeFormat::ShortText:
+                    ss << "s";
+                    break;
+                case TimeFormat::FullText:
+                    if (secs <= 1)
+                        ss << " Second.";
+                    else
+                        ss << " Seconds.";
+                    break;
+                default:
+                    return "<Unknown time format>";
             }
-        }
-        else
-        {
-            if (timeFormat == TimeFormat::Numeric)
-                ss << "00";
         }
     }
 

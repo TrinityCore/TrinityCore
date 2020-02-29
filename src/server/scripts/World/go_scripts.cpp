@@ -20,7 +20,6 @@ go_ethereum_prison
 go_ethereum_stasis
 go_shrine_of_the_birds
 go_southfury_moonstone
-go_orb_of_command
 go_resonite_cask
 go_tablet_of_madness
 go_tablet_of_the_seven
@@ -94,34 +93,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_gilded_brazierAI(go);
-    }
-};
-
-/*######
-## go_orb_of_command
-######*/
-
-class go_orb_of_command : public GameObjectScript
-{
-public:
-    go_orb_of_command() : GameObjectScript("go_orb_of_command") { }
-
-    struct go_orb_of_commandAI : public GameObjectAI
-    {
-        go_orb_of_commandAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestRewardStatus(7761))
-                player->CastSpell(player, 23460, true);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_orb_of_commandAI(go);
     }
 };
 
@@ -1976,7 +1947,6 @@ public:
 void AddSC_go_scripts()
 {
     new go_gilded_brazier();
-    new go_orb_of_command();
     new go_shrine_of_the_birds();
     new go_southfury_moonstone();
     new go_tablet_of_madness();
