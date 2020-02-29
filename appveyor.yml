@@ -1,10 +1,10 @@
 version: 1.0.{build}
-image: Visual Studio 2017
+image: Visual Studio 2019
 clone_depth: 1
 init:
 - ps: ''
 environment:
-  BOOST_ROOT: C:\Libraries\boost_1_67_0
+  BOOST_ROOT: C:\Libraries\boost_1_71_0
   OPENSSL_ROOT_DIR: C:\OpenSSL-Win64
 build_script:
 - cmd: >-
@@ -14,9 +14,9 @@ build_script:
 
     md build && cd build
 
-    cmake -G"Visual Studio 15 Win64" -DSCRIPTS=dynamic -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..
+    cmake -G"Visual Studio 16 2019" -A x64 -DSCRIPTS=dynamic -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..
 
-    "%programfiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\amd64\MsBuild.exe" /nologo /m:2 /p:Configuration=RelWithDebInfo /p:Platform="X64" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "TrinityCore.sln"
+    "%programfiles(x86)%\Microsoft Visual Studio\2019\Community\MSBuild\16.0\Bin\amd64\MsBuild.exe" /nologo /m:2 /p:Configuration=RelWithDebInfo /p:Platform="X64" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "TrinityCore.sln"
 
     cd bin\RelWithDebInfo\
 
@@ -28,4 +28,4 @@ build_script:
 test: off
 artifacts:
 - path: build\bin\RelWithDebInfo\
-  name: TrinityCoreWin64VS2017
+  name: TrinityCoreWin64VS2019
