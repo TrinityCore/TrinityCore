@@ -15,29 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYSERVER_PACKET_BUILDER_H
-#define TRINITYSERVER_PACKET_BUILDER_H
+#include "ChatPackets.h"
 
-#include "Define.h"
-
-class ByteBuffer;
-namespace G3D
+WorldPacket const* WorldPackets::Chat::Emote::Write()
 {
-    class Vector3;
+    _worldPacket << EmoteID;
+    _worldPacket << Guid;
+
+    return &_worldPacket;
 }
 
-namespace Movement
+void WorldPackets::Chat::EmoteClient::Read()
 {
-    class MoveSpline;
-    class PacketBuilder
-    {
-        static void WriteCommonMonsterMovePart(MoveSpline const& mov, ByteBuffer& data);
-    public:
-
-        static void WriteMonsterMove(MoveSpline const& mov, ByteBuffer& data);
-        static void WriteStopMovement(G3D::Vector3 const& loc, uint32 splineId, ByteBuffer& data);
-        static void WriteCreate(MoveSpline const& mov, ByteBuffer& data);
-        static void WriteSplineSync(MoveSpline const& mov, ByteBuffer& data);
-    };
+    _worldPacket >> EmoteID;
 }
-#endif // TRINITYSERVER_PACKET_BUILDER_H
