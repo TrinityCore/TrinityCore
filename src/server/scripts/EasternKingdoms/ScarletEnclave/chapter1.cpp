@@ -1045,11 +1045,7 @@ struct npc_scarlet_ghoul : public ScriptedAI
                 Player* plrOwner = owner->ToPlayer();
                 if (plrOwner && plrOwner->IsInCombat())
                 {
-                    if (plrOwner->getAttackerForHelper() && plrOwner
-                                                            ->
-                                                            getAttackerForHelper()
-                                                            ->GetEntry() ==
-                        NPC_GHOSTS)
+                    if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_GHOSTS)
                         AttackStart(plrOwner->getAttackerForHelper());
                     else
                         FindMinions(owner);
