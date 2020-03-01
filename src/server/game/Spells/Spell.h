@@ -325,6 +325,7 @@ class TC_GAME_API Spell
         void EffectSendTaxi();
         void EffectKnockBack();
         void EffectPullTowards();
+        void EffectPullTowardsDest();
         void EffectDispelMechanic();
         void EffectResurrectPet();
         void EffectDestroyAllTotems();
