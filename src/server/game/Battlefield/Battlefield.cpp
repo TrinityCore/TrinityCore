@@ -504,8 +504,8 @@ Group* Battlefield::GetFreeBfRaid(TeamId TeamId)
 
 Group* Battlefield::GetGroupPlayer(ObjectGuid guid, TeamId TeamId)
 {
-    for (ObjectGuid guid : m_Groups[TeamId])
-        if (Group* group = sGroupMgr->GetGroupByGUID(guid.GetCounter()))
+    for (ObjectGuid gguid : m_Groups[TeamId])
+        if (Group* group = sGroupMgr->GetGroupByGUID(gguid.GetCounter()))
             if (group->IsMember(guid))
                 return group;
 
