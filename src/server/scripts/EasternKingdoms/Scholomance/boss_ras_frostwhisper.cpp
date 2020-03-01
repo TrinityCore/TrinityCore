@@ -18,15 +18,16 @@
 #include "scholomance.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObject.h"
 
 enum Spells
 {
-    SPELL_FROSTBOLT         = 21369,
-    SPELL_ICE_ARMOR         = 18100, // This is actually a buff he gives himself
-    SPELL_FREEZE            = 18763,
-    SPELL_FEAR              = 26070,
-    SPELL_CHILL_NOVA        = 18099,
-    SPELL_FROSTVOLLEY       = 8398
+    SPELL_FROSTBOLT = 21369,
+    SPELL_ICE_ARMOR = 18100, // This is actually a buff he gives himself
+    SPELL_FREEZE = 18763,
+    SPELL_FEAR = 26070,
+    SPELL_CHILL_NOVA = 18099,
+    SPELL_FROSTVOLLEY = 8398
 };
 
 enum Events
@@ -44,12 +45,19 @@ class boss_boss_ras_frostwhisper : public CreatureScript
 public:
     boss_boss_ras_frostwhisper() : CreatureScript("boss_boss_ras_frostwhisper") { }
 
-    struct boss_rasfrostAI : public ScriptedAI
+    struct boss_rasfrostAI : public BossAI
     {
-        boss_rasfrostAI(Creature* creature) : ScriptedAI(creature) { }
+        boss_rasfrostAI(Creature* creature) : BossAI(creature, SCDataTypes::DATA_RAS_FROSTWHISPER)
+        {
+            boonOfLifeDuration = 0;
+            isHuman = false;
+            canNotDie = false;
+        }
 
         void Reset() override
         {
+            boonOfLifeDuration = 0;
+            isHuman = false;
             events.Reset();
             DoCast(me, SPELL_ICE_ARMOR);
         }
@@ -63,10 +71,44 @@ public:
             events.ScheduleEvent(EVENT_FEAR, 45000);
         }
 
+        void DamageTaken(Unit* /*done_by*/, uint32 &damage) override
+        {
+            if (me->GetHealth() <= damage)
+            {
+                if (!isHuman)
+                {
+                    damage = 0;
+                    if (!canNotDie)
+                    {
+                        me->Yell("I CAN NEVER DIE, MORTALS!", Language::LANG_UNIVERSAL);
+                        canNotDie = true;
+                    }
+                }
+            }
+        }
+
         void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
+
+            if (!isHuman)
+            {
+                if (me->HasAura(SCHOLOMANCE_SPELL::SPELL_BOON_OF_LIFE))
+                {
+                    boonOfLifeDuration += diff;
+                    if (boonOfLifeDuration > 19000)                    
+                    {
+                        Talk(SCHOLOMANCE_LINE_RAS_FROSTWHISPER::LINE_RAS_FROSTWHISPER_0);
+                        me->SetDisplayId(3974);
+                        isHuman = true;
+                    }
+                }
+                else
+                {
+                    boonOfLifeDuration = 0;
+                }
+            }
 
             events.Update(diff);
 
@@ -77,33 +119,33 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_ICE_ARMOR:
-                        DoCast(me, SPELL_ICE_ARMOR);
-                        events.ScheduleEvent(EVENT_ICE_ARMOR, 3min);
-                        break;
-                    case EVENT_FROSTBOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
-                            DoCast(target, SPELL_FROSTBOLT);
-                        events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
-                        break;
-                    case EVENT_FREEZE:
-                        DoCastVictim(SPELL_FREEZE);
-                        events.ScheduleEvent(EVENT_FREEZE, 24s);
-                        break;
-                    case EVENT_FEAR:
-                        DoCastVictim(SPELL_FEAR);
-                        events.ScheduleEvent(EVENT_FEAR, 30s);
-                        break;
-                    case EVENT_CHILL_NOVA:
-                        DoCastVictim(SPELL_CHILL_NOVA);
-                        events.ScheduleEvent(EVENT_CHILL_NOVA, 14s);
-                        break;
-                    case EVENT_FROSTVOLLEY:
-                        DoCastVictim(SPELL_FROSTVOLLEY);
-                        events.ScheduleEvent(EVENT_FROSTVOLLEY, 15000);
-                        break;
-                    default:
-                        break;
+                case EVENT_ICE_ARMOR:
+                    DoCast(me, SPELL_ICE_ARMOR);
+                    events.ScheduleEvent(EVENT_ICE_ARMOR, 3min);
+                    break;
+                case EVENT_FROSTBOLT:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                        DoCast(target, SPELL_FROSTBOLT);
+                    events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
+                    break;
+                case EVENT_FREEZE:
+                    DoCastVictim(SPELL_FREEZE);
+                    events.ScheduleEvent(EVENT_FREEZE, 24s);
+                    break;
+                case EVENT_FEAR:
+                    DoCastVictim(SPELL_FEAR);
+                    events.ScheduleEvent(EVENT_FEAR, 30s);
+                    break;
+                case EVENT_CHILL_NOVA:
+                    DoCastVictim(SPELL_CHILL_NOVA);
+                    events.ScheduleEvent(EVENT_CHILL_NOVA, 14s);
+                    break;
+                case EVENT_FROSTVOLLEY:
+                    DoCastVictim(SPELL_FROSTVOLLEY);
+                    events.ScheduleEvent(EVENT_FROSTVOLLEY, 15000);
+                    break;
+                default:
+                    break;
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -113,8 +155,10 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        private:
-            EventMap events;
+    private:
+        int boonOfLifeDuration;
+        bool isHuman;
+        bool canNotDie;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

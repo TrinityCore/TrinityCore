@@ -90,6 +90,8 @@ public:
                         events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 30s);
                         break;
                     case EVENT_ILLUSION:
+                    {
+                        Talk(SCHOLOMANCE_LINE_JANDICE_BAROV::LINE_JANDICE_BAROV_0);
                         DoCast(SPELL_ILLUSION);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisplayId(11686);  // Invisible Model
@@ -97,6 +99,7 @@ public:
                         events.ScheduleEvent(EVENT_SET_VISIBILITY, 3s);
                         events.ScheduleEvent(EVENT_ILLUSION, 25s);
                         break;
+                    }
                     case EVENT_SET_VISIBILITY:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisplayId(11073);     //Jandice Model

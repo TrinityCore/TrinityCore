@@ -2541,7 +2541,7 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
         // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
         if (MissCondition == SPELL_MISS_NONE && spell->m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
             caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
-    }
+    }    
 
     if (_spellHitTarget)
     {

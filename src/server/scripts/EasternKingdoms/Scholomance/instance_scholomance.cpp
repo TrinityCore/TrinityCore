@@ -55,6 +55,11 @@ public:
 
         void OnCreatureCreate(Creature* creature) override
         {
+            if (creature->GetEntry() == SCCreatureIds::NPC_DARKMASTER_GANDLING)
+            {
+                creature->AI()->Talk(SCHOLOMANCE_LINE_DARKMASTER_GANDLING::LINE_DARKMASTER_GANDLING_0);
+                creature->GetMotionMaster()->MoveRandom(5);
+            }
             if (creature->GetEntry() == SCHOLOMANCE_NPC::NPC_DARKREAVER_FALLEN_CHARGER)
             {
                 OGCharger = creature->GetGUID();
@@ -62,6 +67,17 @@ public:
             else if (chargerQuestNPCEntrySet.find(creature->GetEntry()) != chargerQuestNPCEntrySet.end())
             {
                 creature->GetThreatManager().AddThreat(creature->SelectNearestPlayer(50.0f), 100);
+            }
+        }
+
+        void OnCreatureDied(Creature* creature) override
+        {
+            if (creature->GetEntry() == SCCreatureIds::NPC_DARKMASTER_GANDLING)
+            {
+                if (GameObject* goGateRas = instance->GetGameObject(OGGateRasFrostwhisper))
+                {
+                    goGateRas->SetGoState(GOState::GO_STATE_ACTIVE);
+                }
             }
         }
 
@@ -96,6 +112,12 @@ public:
             case GO_BRAZIER_OF_THE_HERALD:
                 BrazierOfTheHeraldGUID = go->GetGUID();
                 break;
+            case SCGameobjectIds::GO_GATE_RAS_FROSTWHISPER:
+            {
+                OGGateRasFrostwhisper = go->GetGUID();
+                go->SetGoState(GOState::GO_STATE_READY);
+                break;
+            }
             default:
                 break;
             }
@@ -227,6 +249,7 @@ public:
         ObjectGuid GateIlluciaGUID;
         ObjectGuid BrazierOfTheHeraldGUID;
 
+        ObjectGuid OGGateRasFrostwhisper;
         ObjectGuid OGCharger;
 
     private:

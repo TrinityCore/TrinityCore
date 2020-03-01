@@ -84,6 +84,8 @@ public:
         events.ScheduleEvent(EVENT_MORTALSTRIKE, 12s);
         events.ScheduleEvent(EVENT_RAISE_DEAD, 15s);
 
+
+
         BossAI::JustEngagedWith(who);
     }
 

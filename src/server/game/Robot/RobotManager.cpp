@@ -882,6 +882,36 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                     {
                         goTarget->Use(pmPlayer);
                     }
+                    else if (newState == "flag")
+                    {
+                        if (commandVector.size() > 3)
+                        {
+                            uint32 flagValue = std::stoi(commandVector.at(3));
+                            if (goTarget->HasFlag(GAMEOBJECT_FLAGS, flagValue))
+                            {
+                                goTarget->RemoveFlag(GAMEOBJECT_FLAGS, flagValue);
+                            }
+                            else
+                            {
+                                goTarget->SetFlag(GAMEOBJECT_FLAGS, flagValue);
+                            }
+                        }
+                    }
+                    else if (newState == "dflag")
+                    {
+                        if (commandVector.size() > 3)
+                        {
+                            uint32 flagValue = std::stoi(commandVector.at(3));
+                            if (goTarget->HasFlag(EGameObjectFields::GAMEOBJECT_DYNAMIC, flagValue))
+                            {
+                                goTarget->RemoveFlag(EGameObjectFields::GAMEOBJECT_DYNAMIC, flagValue);
+                            }
+                            else
+                            {
+                                goTarget->SetFlag(EGameObjectFields::GAMEOBJECT_DYNAMIC, flagValue);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -968,6 +998,34 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                 targetUnit->CastSpell(targetUnit, spellID);
             }
         }
+    }
+    else if (commandName == "aura")
+    {
+        std::ostringstream replyStream;
+        if (commandVector.size() > 1)
+        {
+            if (Unit* targetUnit = pmPlayer->GetSelectedUnit())
+            {
+                uint32 spellID = std::stoi(commandVector.at(1));
+                if (targetUnit->HasAura(spellID))
+                {
+                    replyStream << "Has aura : " << spellID;
+                }
+                else
+                {
+                    replyStream << "No aura : " << spellID;
+                }
+            }
+            else
+            {
+                replyStream << "No target";
+            }
+        }
+        else
+        {
+            replyStream << "No spell id";
+        }
+        sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
 }
 

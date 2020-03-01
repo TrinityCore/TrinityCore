@@ -33,11 +33,6 @@ Category: Scholomance
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum Says
-{
-   YELL_SUMMONED                = 0
-};
-
 enum Spells
 {
     SPELL_ARCANEMISSILES        = 15790,
@@ -86,12 +81,6 @@ class boss_darkmaster_gandling : public CreatureScript
 
                 if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_READY);
-            }
-
-            void IsSummonedBy(WorldObject* /*summoner*/) override
-            {
-                Talk(YELL_SUMMONED);
-                me->GetMotionMaster()->MoveRandom(5);
             }
 
             void UpdateAI(uint32 diff) override
