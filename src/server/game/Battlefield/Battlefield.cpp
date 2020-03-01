@@ -1098,8 +1098,8 @@ void BfCapturePoint::SendObjectiveComplete(uint32 id, ObjectGuid guid)
     }
 
     // send to all players present in the area
-    for (ObjectGuid guid : m_activePlayers[team])
-        if (Player* player = ObjectAccessor::FindPlayer(guid))
+    for (ObjectGuid pguid : m_activePlayers[team])
+        if (Player* player = ObjectAccessor::FindPlayer(pguid))
             player->KilledMonsterCredit(id, guid);
 }
 
