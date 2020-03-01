@@ -760,8 +760,8 @@ void AuctionBotSeller::SetItemsRatio(uint32 al, uint32 ho, uint32 ne)
     sAuctionBotConfig->SetConfig(CONFIG_AHBOT_HORDE_ITEM_AMOUNT_RATIO, std::max(ho, 100000u));
     sAuctionBotConfig->SetConfig(CONFIG_AHBOT_NEUTRAL_ITEM_AMOUNT_RATIO, std::max(ne, 100000u));
 
-    for (int i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
-        LoadItemsQuantity(_houseConfig[i]);
+    for (SellerConfiguration& config : _houseConfig)
+        LoadItemsQuantity(config);
 }
 
 void AuctionBotSeller::SetItemsRatioForHouse(AuctionHouseType house, uint32 val)
@@ -788,8 +788,8 @@ void AuctionBotSeller::SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY])
     sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_ORANGE_AMOUNT, vals[AUCTION_QUALITY_ORANGE]);
     sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_YELLOW_AMOUNT, vals[AUCTION_QUALITY_YELLOW]);
 
-    for (int i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
-        LoadItemsQuantity(_houseConfig[i]);
+    for (SellerConfiguration& config : _houseConfig)
+        LoadItemsQuantity(config);
 }
 
 void AuctionBotSeller::SetItemsAmountForQuality(AuctionQuality quality, uint32 val)
@@ -812,8 +812,8 @@ void AuctionBotSeller::SetItemsAmountForQuality(AuctionQuality quality, uint32 v
             sAuctionBotConfig->SetConfig(CONFIG_AHBOT_ITEM_YELLOW_AMOUNT, val); break;
     }
 
-    for (int i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
-        LoadItemsQuantity(_houseConfig[i]);
+    for (SellerConfiguration& config : _houseConfig)
+        LoadItemsQuantity(config);
 }
 
 // Add new auction to one of the factions.

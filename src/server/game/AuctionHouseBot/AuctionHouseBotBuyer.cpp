@@ -39,9 +39,9 @@ bool AuctionBotBuyer::Initialize()
     LoadConfig();
 
     bool activeHouse = false;
-    for (int i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
+    for (BuyerConfiguration& buyerconfig : _houseConfig)
     {
-        if (_houseConfig[i].BuyerEnabled)
+        if (buyerconfig.BuyerEnabled)
         {
             activeHouse = true;
             break;

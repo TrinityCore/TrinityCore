@@ -20,7 +20,7 @@
 
 #include "Appender.h"
 
-enum ColorTypes
+enum ColorTypes : uint8
 {
     BLACK,
     RED,
@@ -36,10 +36,9 @@ enum ColorTypes
     LBLUE,
     LMAGENTA,
     LCYAN,
-    WHITE
+    WHITE,
+    MAX_COLORS
 };
-
-const uint8 MaxColors = uint8(WHITE) + 1;
 
 class TC_COMMON_API AppenderConsole : public Appender
 {

@@ -27,8 +27,8 @@ BattlefieldMgr::BattlefieldMgr()
 
 BattlefieldMgr::~BattlefieldMgr()
 {
-    for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
-        delete *itr;
+    for (Battlefield* battlefield : _battlefieldSet)
+        delete battlefield;
 
     _battlefieldMap.clear();
 }
@@ -121,10 +121,10 @@ Battlefield* BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneId)
 
 Battlefield* BattlefieldMgr::GetBattlefieldByBattleId(uint32 battleId)
 {
-    for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
+    for (Battlefield* battlefield : _battlefieldSet)
     {
-        if ((*itr)->GetBattleId() == battleId)
-            return *itr;
+        if (battlefield->GetBattleId() == battleId)
+            return battlefield;
     }
     return nullptr;
 }
@@ -143,9 +143,9 @@ void BattlefieldMgr::Update(uint32 diff)
     _updateTimer += diff;
     if (_updateTimer > BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL)
     {
-        for (BattlefieldSet::iterator itr = _battlefieldSet.begin(); itr != _battlefieldSet.end(); ++itr)
-            if ((*itr)->IsEnabled())
-                (*itr)->Update(_updateTimer);
+        for (Battlefield* battlefield : _battlefieldSet)
+            if (battlefield->IsEnabled())
+                battlefield->Update(_updateTimer);
         _updateTimer = 0;
     }
 }

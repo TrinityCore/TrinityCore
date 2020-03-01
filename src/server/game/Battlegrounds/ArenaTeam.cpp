@@ -611,8 +611,8 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
 
 bool ArenaTeam::IsMember(ObjectGuid guid) const
 {
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (itr->Guid == guid)
+    for (ArenaTeamMember const& member : Members)
+        if (member.Guid == guid)
             return true;
 
     return false;
@@ -653,17 +653,17 @@ uint32 ArenaTeam::GetAverageMMR(Group* group) const
 
     uint32 matchMakerRating = 0;
     uint32 playerDivider = 0;
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember const& member : Members)
     {
         // Skip if player is not online
-        if (!ObjectAccessor::FindConnectedPlayer(itr->Guid))
+        if (!ObjectAccessor::FindConnectedPlayer(member.Guid))
             continue;
 
         // Skip if player is not member of group
-        if (!group->IsMember(itr->Guid))
+        if (!group->IsMember(member.Guid))
             continue;
 
-        matchMakerRating += itr->MatchMakerRating;
+        matchMakerRating += member.MatchMakerRating;
         ++playerDivider;
     }
 
@@ -749,8 +749,8 @@ void ArenaTeam::FinishGame(int32 mod)
         Stats.Rating += mod;
 
         // Check if rating related achivements are met
-        for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
-            if (Player* member = ObjectAccessor::FindConnectedPlayer(itr->Guid))
+        for (ArenaTeamMember& rember : Members)
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(rember.Guid))
                 member->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, Stats.Rating, Type);
     }
 
@@ -807,24 +807,24 @@ int32 ArenaTeam::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int3
 void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // Called for each participant of a match after losing
-    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember& member : Members)
     {
-        if (itr->Guid == player->GetGUID())
+        if (member.Guid == player->GetGUID())
         {
             // Update personal rating
-            int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, false);
-            itr->ModifyPersonalRating(player, mod, GetType());
+            int32 mod = GetRatingMod(member.PersonalRating, againstMatchmakerRating, false);
+            member.ModifyPersonalRating(player, mod, GetType());
 
             // Update matchmaker rating
-            itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
+            member.ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
 
             // Update personal played stats
-            itr->WeekGames +=1;
-            itr->SeasonGames +=1;
+            member.WeekGames +=1;
+            member.SeasonGames +=1;
 
             // update the unit fields
-            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK,  itr->WeekGames);
-            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON,  itr->SeasonGames);
+            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK,  member.WeekGames);
+            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON,  member.SeasonGames);
             return;
         }
     }
@@ -833,20 +833,20 @@ void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32
 void ArenaTeam::OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // Called for offline player after ending rated arena match!
-    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember& member : Members)
     {
-        if (itr->Guid == guid)
+        if (member.Guid == guid)
         {
             // update personal rating
-            int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, false);
-            itr->ModifyPersonalRating(nullptr, mod, GetType());
+            int32 mod = GetRatingMod(member.PersonalRating, againstMatchmakerRating, false);
+            member.ModifyPersonalRating(nullptr, mod, GetType());
 
             // update matchmaker rating
-            itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
+            member.ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
 
             // update personal played stats
-            itr->WeekGames += 1;
-            itr->SeasonGames += 1;
+            member.WeekGames += 1;
+            member.SeasonGames += 1;
             return;
         }
     }
@@ -855,25 +855,25 @@ void ArenaTeam::OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRatin
 void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // called for each participant after winning a match
-    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember& member : Members)
     {
-        if (itr->Guid == player->GetGUID())
+        if (member.Guid == player->GetGUID())
         {
             // update personal rating
-            int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, true);
-            itr->ModifyPersonalRating(player, mod, GetType());
+            int32 mod = GetRatingMod(member.PersonalRating, againstMatchmakerRating, true);
+            member.ModifyPersonalRating(player, mod, GetType());
 
             // update matchmaker rating
-            itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
+            member.ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
 
             // update personal stats
-            itr->WeekGames +=1;
-            itr->SeasonGames +=1;
-            itr->SeasonWins += 1;
-            itr->WeekWins += 1;
+            member.WeekGames +=1;
+            member.SeasonGames +=1;
+            member.SeasonWins += 1;
+            member.WeekWins += 1;
             // update unit fields
-            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK, itr->WeekGames);
-            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON, itr->SeasonGames);
+            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK, member.WeekGames);
+            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON, member.SeasonGames);
             return;
         }
     }
@@ -963,10 +963,10 @@ bool ArenaTeam::FinishWeek()
     Stats.WeekWins = 0;
 
     // Reset member stats
-    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    for (ArenaTeamMember& member : Members)
     {
-        itr->WeekGames = 0;
-        itr->WeekWins = 0;
+        member.WeekGames = 0;
+        member.WeekWins = 0;
     }
 
     return true;
@@ -974,8 +974,8 @@ bool ArenaTeam::FinishWeek()
 
 bool ArenaTeam::IsFighting() const
 {
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+    for (ArenaTeamMember const& member : Members)
+        if (Player* player = ObjectAccessor::FindPlayer(member.Guid))
             if (player->GetMap()->IsBattleArena())
                 return true;
 
@@ -984,18 +984,18 @@ bool ArenaTeam::IsFighting() const
 
 ArenaTeamMember* ArenaTeam::GetMember(const std::string& name)
 {
-    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (itr->Name == name)
-            return &(*itr);
+    for (ArenaTeamMember& member : Members)
+        if (member.Name == name)
+            return &member;
 
     return nullptr;
 }
 
 ArenaTeamMember* ArenaTeam::GetMember(ObjectGuid guid)
 {
-    for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (itr->Guid == guid)
-            return &(*itr);
+    for (ArenaTeamMember& member : Members)
+        if (member.Guid == guid)
+            return &member;
 
     return nullptr;
 }
