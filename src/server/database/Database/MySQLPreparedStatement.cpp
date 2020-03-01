@@ -231,51 +231,22 @@ std::string MySQLPreparedStatement::getQueryString() const
         pos = queryString.find('?', pos);
         std::stringstream ss;
 
-        switch (data.type)
-        {
-            case TYPE_BOOL:
-                ss << uint16(std::get<bool>(data.data)); // stringstream will append a character with that code instead of numeric representation
-                break;
-            case TYPE_UI8:
-                ss << uint16(std::get<uint8>(data.data)); // stringstream will append a character with that code instead of numeric representation
-                break;
-            case TYPE_UI16:
-                ss << std::get<uint16>(data.data);
-                break;
-            case TYPE_UI32:
-                ss << std::get<uint32>(data.data);
-                break;
-            case TYPE_I8:
-                ss << int16(std::get<int8>(data.data)); // stringstream will append a character with that code instead of numeric representation
-                break;
-            case TYPE_I16:
-                ss << std::get<int16>(data.data);
-                break;
-            case TYPE_I32:
-                ss << std::get<int32>(data.data);
-                break;
-            case TYPE_UI64:
-                ss << std::get<uint64>(data.data);
-                break;
-            case TYPE_I64:
-                ss << std::get<int64>(data.data);
-                break;
-            case TYPE_FLOAT:
-                ss << std::get<float>(data.data);
-                break;
-            case TYPE_DOUBLE:
-                ss << std::get<double>(data.data);
-                break;
-            case TYPE_STRING:
-                ss << '\'' << std::get<std::string>(data.data) << '\'';
-                break;
-            case TYPE_BINARY:
+        std::visit([&](auto&& data) {
+            // Convert some types to get correct string representation
+            using T = std::decay_t<decltype(data)>;
+            if constexpr (std::is_same_v<T, bool>)
+                ss << uint16(data);
+            else if constexpr (std::is_same_v<T, uint8>)
+                ss << uint16(data);
+            else if constexpr (std::is_same_v<T, int8>)
+                ss << int16(data);
+            else if constexpr (std::is_same_v<T, std::vector<uint8>>)
                 ss << "BINARY";
-                break;
-            case TYPE_NULL:
+            else if constexpr (std::is_same_v<T, decltype(nullptr)>)
                 ss << "NULL";
-                break;
-        }
+            else // Default type overload is fine
+                ss << data;
+        }, data);
 
         std::string replaceStr = ss.str();
         queryString.replace(pos, 1, replaceStr);

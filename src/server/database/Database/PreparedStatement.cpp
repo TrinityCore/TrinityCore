@@ -36,51 +36,39 @@ void PreparedStatement::BindParameters(MySQLPreparedStatement* stmt)
     uint8 pos = 0;
     for (PreparedStatementData const& data : statement_data)
     {
-        switch (data.type)
-        {
-            case TYPE_BOOL:
-                stmt->setBool(pos, std::get<bool>(data.data));
-                break;
-            case TYPE_UI8:
-                stmt->setUInt8(pos, std::get<uint8>(data.data));
-                break;
-            case TYPE_UI16:
-                stmt->setUInt16(pos, std::get<uint16>(data.data));
-                break;
-            case TYPE_UI32:
-                stmt->setUInt32(pos, std::get<uint32>(data.data));
-                break;
-            case TYPE_I8:
-                stmt->setInt8(pos, std::get<int8>(data.data));
-                break;
-            case TYPE_I16:
-                stmt->setInt16(pos, std::get<int16>(data.data));
-                break;
-            case TYPE_I32:
-                stmt->setInt32(pos, std::get<int32>(data.data));
-                break;
-            case TYPE_UI64:
-                stmt->setUInt64(pos, std::get<uint64>(data.data));
-                break;
-            case TYPE_I64:
-                stmt->setInt64(pos, std::get<int64>(data.data));
-                break;
-            case TYPE_FLOAT:
-                stmt->setFloat(pos, std::get<float>(data.data));
-                break;
-            case TYPE_DOUBLE:
-                stmt->setDouble(pos, std::get<double>(data.data));
-                break;
-            case TYPE_STRING:
-                stmt->setString(pos, std::get<std::string>(data.data));
-                break;
-            case TYPE_BINARY:
-                stmt->setBinary(pos, std::get<std::vector<uint8>>(data.data));
-                break;
-            case TYPE_NULL:
+        std::visit([&](auto&& data) {
+            using T = std::decay_t<decltype(data)>;
+            if constexpr (std::is_same_v<T, bool>)
+                stmt->setBool(pos, data);
+            else if constexpr (std::is_same_v<T, uint8>)
+                stmt->setUInt8(pos, data);
+            else if constexpr (std::is_same_v<T, uint16>)
+                stmt->setUInt16(pos, data);
+            else if constexpr (std::is_same_v<T, uint32>)
+                stmt->setUInt32(pos, data);
+            else if constexpr (std::is_same_v<T, uint64>)
+                stmt->setUInt64(pos, data);
+            else if constexpr (std::is_same_v<T, int8>)
+                stmt->setInt8(pos, data);
+            else if constexpr (std::is_same_v<T, int16>)
+                stmt->setInt16(pos, data);
+            else if constexpr (std::is_same_v<T, int32>)
+                stmt->setInt32(pos, data);
+            else if constexpr (std::is_same_v<T, int64>)
+                stmt->setInt64(pos, data);
+            else if constexpr (std::is_same_v<T, float>)
+                stmt->setFloat(pos, data);
+            else if constexpr (std::is_same_v<T, double>)
+                stmt->setDouble(pos, data);
+            else if constexpr (std::is_same_v<T, std::string>)
+                stmt->setString(pos, data);
+            else if constexpr (std::is_same_v<T, std::vector<uint8>>)
+                stmt->setBinary(pos, data);
+            else if constexpr (std::is_same_v<T, decltype(nullptr)>)
                 stmt->setNull(pos);
-                break;
-        }
+
+        }, data);
+
         ++pos;
     }
     #ifdef _DEBUG
@@ -93,98 +81,85 @@ void PreparedStatement::BindParameters(MySQLPreparedStatement* stmt)
 void PreparedStatement::setBool(const uint8 index, const bool value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_BOOL;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setUInt8(const uint8 index, const uint8 value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_UI8;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setUInt16(const uint8 index, const uint16 value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_UI16;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setUInt32(const uint8 index, const uint32 value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_UI32;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setUInt64(const uint8 index, const uint64 value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_UI64;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setInt8(const uint8 index, const int8 value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_I8;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setInt16(const uint8 index, const int16 value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_I16;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setInt32(const uint8 index, const int32 value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_I32;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setInt64(const uint8 index, const int64 value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_I64;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setFloat(const uint8 index, const float value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_FLOAT;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setDouble(const uint8 index, const double value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_DOUBLE;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setString(const uint8 index, const std::string& value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_STRING;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setBinary(const uint8 index, const std::vector<uint8>& value)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].data = value;
-    statement_data[index].type = TYPE_BINARY;
+    statement_data[index] = value;
 }
 
 void PreparedStatement::setNull(const uint8 index)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].type = TYPE_NULL;
+    statement_data[index] = nullptr;
 }
 
 //- Execution

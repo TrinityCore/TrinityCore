@@ -28,44 +28,22 @@
 #undef TYPE_BOOL
 #endif
 
-//- This enum helps us differ data held in above union
-enum PreparedStatementValueType
-{
-    TYPE_BOOL,
-    TYPE_UI8,
-    TYPE_UI16,
-    TYPE_UI32,
-    TYPE_UI64,
-    TYPE_I8,
-    TYPE_I16,
-    TYPE_I32,
-    TYPE_I64,
-    TYPE_FLOAT,
-    TYPE_DOUBLE,
-    TYPE_STRING,
-    TYPE_BINARY,
-    TYPE_NULL
-};
+typedef std::variant<
+    bool,
+    uint8,
+    uint16,
+    uint32,
+    uint64,
+    int8,
+    int16,
+    int32,
+    int64,
+    float,
+    double,
+    std::string,
+    std::vector<uint8>,
+    decltype(nullptr)> PreparedStatementData;
 
-struct PreparedStatementData
-{
-    std::variant<
-    bool,               // TYPE_BOOL
-    uint8,              // TYPE_UI8
-    uint16,             // TYPE_UI16
-    uint32,             // TYPE_UI32
-    uint64,             // TYPE_UI64
-    int8,               // TYPE_I8
-    int16,              // TYPE_I16
-    int32,              // TYPE_UI32
-    int64,              // TYPE_UI64
-    float,              // TYPE_FLOAT
-    double,             // TYPE_DOUBLE
-    std::string,        // TYPE_STRING
-    std::vector<uint8>> // TYPE_BINARY
-    data;
-    PreparedStatementValueType type;
-};
 
 //- Forward declare
 class MySQLPreparedStatement;
