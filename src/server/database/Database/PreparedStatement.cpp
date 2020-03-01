@@ -84,7 +84,7 @@ void PreparedStatement::BindParameters(MySQLPreparedStatement* stmt)
         ++pos;
     }
     #ifdef _DEBUG
-    if (i < stmt->m_paramCount)
+    if (pos < stmt->m_paramCount)
         TC_LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement %u did not bind all allocated parameters", m_index);
     #endif
 }
