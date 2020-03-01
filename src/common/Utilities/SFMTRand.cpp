@@ -27,8 +27,10 @@
         #include <mm_malloc.h>
     #elif defined(__GNUC__)
         static __inline__ void *__attribute__((__always_inline__, __nodebug__, __malloc__))
-        _mm_malloc(size_t __size, size_t __align) {
-            if (__align == 1) {
+        _mm_malloc(size_t __size, size_t __align)
+        {
+            if (__align == 1)
+            {
                 return malloc(__size);
             }
 
@@ -44,7 +46,8 @@
         }
 
         static __inline__ void __attribute__((__always_inline__, __nodebug__))
-        _mm_free(void *__p) {
+        _mm_free(void *__p)
+        {
             free(__p);
         }
     #else
