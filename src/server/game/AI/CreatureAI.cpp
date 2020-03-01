@@ -290,6 +290,9 @@ void CreatureAI::EngagementOver()
 
 bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
 {
+    if (me->IsInEvadeMode())
+        return false;
+
     if (!me->IsAlive())
     {
         EngagementOver();
