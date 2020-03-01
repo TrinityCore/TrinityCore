@@ -38,11 +38,11 @@ BattlegroundIC::BattlegroundIC()
     BgObjects.resize(MAX_NORMAL_GAMEOBJECTS_SPAWNS + MAX_AIRSHIPS_SPAWNS + MAX_HANGAR_TELEPORTERS_SPAWNS + MAX_FORTRESS_TELEPORTERS_SPAWNS + MAX_HANGAR_TELEPORTER_EFFECTS_SPAWNS + MAX_FORTRESS_TELEPORTER_EFFECTS_SPAWNS);
     BgCreatures.resize(MAX_NORMAL_NPCS_SPAWNS + MAX_WORKSHOP_SPAWNS + MAX_DOCKS_SPAWNS + MAX_SPIRIT_GUIDES_SPAWNS + MAX_HANGAR_NPCS_SPAWNS);
 
-    for (uint8 i = 0; i < 2; ++i)
-        factionReinforcements[i] = MAX_REINFORCEMENTS;
+    for (uint16& factionReinforcement : factionReinforcements)
+        factionReinforcement = MAX_REINFORCEMENTS;
 
-    for (uint8 i = 0; i < BG_IC_MAXDOOR; ++i)
-        GateStatus[i] = BG_IC_GATE_OK;
+    for (BG_IC_GateState& gatestatus : GateStatus)
+        gatestatus = BG_IC_GATE_OK;
 
     closeFortressDoorsTimer = CLOSE_DOORS_TIME; // the doors are closed again... in a special way
     doorsClosed = false;
@@ -239,11 +239,11 @@ void BattlegroundIC::StartingEventOpenDoors()
     DoorOpen(BG_IC_GO_DOODAD_VR_PORTCULLIS01_1);
     DoorOpen(BG_IC_GO_DOODAD_VR_PORTCULLIS01_2);
 
-    for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTERS_SPAWNS; ++i)
-        GetBGObject(BG_IC_Teleporters[i].type)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+    for (ICGo const& BG_IC_Teleporter : BG_IC_Teleporters)
+        GetBGObject(BG_IC_Teleporter.type)->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
-    for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTER_EFFECTS_SPAWNS; ++i)
-        GetBGObject(BG_IC_TeleporterEffects[i].type)->SetGoState(GO_STATE_ACTIVE);
+    for (ICGo const& BG_IC_TeleporterEffect : BG_IC_TeleporterEffects)
+        GetBGObject(BG_IC_TeleporterEffect.type)->SetGoState(GO_STATE_ACTIVE);
 }
 
 void BattlegroundIC::AddPlayer(Player* player)
@@ -303,26 +303,26 @@ void BattlegroundIC::FillInitialWorldStates(WorldPackets::WorldState::InitWorldS
         packet.Worldstates.emplace_back(worldState, 1);
     }
 
-    for (uint8 itr = 0; itr < MAX_NODE_TYPES; ++itr)
-        packet.Worldstates.emplace_back(nodePoint[itr].worldStates[nodePoint[itr].nodeState], 1);
+    for (ICNodePoint& nodepoint : nodePoint)
+        packet.Worldstates.emplace_back(nodepoint.worldStates[nodepoint.nodeState], 1);
 }
 
 bool BattlegroundIC::SetupBattleground()
 {
-    for (uint8 i = 0; i < MAX_NORMAL_GAMEOBJECTS_SPAWNS; ++i)
+    for (ICGo const& BG_IC_ObjSpawnloc : BG_IC_ObjSpawnlocs)
     {
-        if (!AddObject(BG_IC_ObjSpawnlocs[i].type, BG_IC_ObjSpawnlocs[i].entry, BG_IC_ObjSpawnlocs[i].x, BG_IC_ObjSpawnlocs[i].y, BG_IC_ObjSpawnlocs[i].z, BG_IC_ObjSpawnlocs[i].o, 0, 0, 0, 0, RESPAWN_ONE_DAY))
+        if (!AddObject(BG_IC_ObjSpawnloc.type, BG_IC_ObjSpawnloc.entry, BG_IC_ObjSpawnloc.x, BG_IC_ObjSpawnloc.y, BG_IC_ObjSpawnloc.z, BG_IC_ObjSpawnloc.o, 0, 0, 0, 0, RESPAWN_ONE_DAY))
         {
-            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning gameobject %u", BG_IC_ObjSpawnlocs[i].entry);
+            TC_LOG_ERROR("bg.battleground", "Isle of Conquest: There was an error spawning gameobject %u", BG_IC_ObjSpawnloc.entry);
             return false;
         }
     }
 
-    for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTERS_SPAWNS; ++i)
+    for (ICGo const& BG_IC_Teleporter : BG_IC_Teleporters)
     {
-        if (!AddObject(BG_IC_Teleporters[i].type, BG_IC_Teleporters[i].entry, BG_IC_Teleporters[i].x, BG_IC_Teleporters[i].y, BG_IC_Teleporters[i].z, BG_IC_Teleporters[i].o, 0, 0, 0, 0, RESPAWN_ONE_DAY))
+        if (!AddObject(BG_IC_Teleporter.type, BG_IC_Teleporter.entry, BG_IC_Teleporter.x, BG_IC_Teleporter.y, BG_IC_Teleporter.z, BG_IC_Teleporter.o, 0, 0, 0, 0, RESPAWN_ONE_DAY))
         {
-            TC_LOG_ERROR("bg.battleground", "Isle of Conquest | Starting Event Open Doors: There was an error spawning gameobject %u", BG_IC_Teleporters[i].entry);
+            TC_LOG_ERROR("bg.battleground", "Isle of Conquest | Starting Event Open Doors: There was an error spawning gameobject %u", BG_IC_Teleporter.entry);
             return false;
         }
     }
@@ -515,11 +515,11 @@ void BattlegroundIC::UpdateNodeWorldState(ICNodePoint* node)
     uint32 worldstate = node->worldStates[node->nodeState];
 
     // with this we are sure we dont bug the client
-    for (uint8 i = 0; i < 5; ++i)
+    for (uint32 worldState : node->worldStates)
     {
-        if (node->worldStates[i] == worldstate)
+        if (worldState == worldstate)
             continue;
-        UpdateWorldState(node->worldStates[i], 0);
+        UpdateWorldState(worldState, 0);
     }
 
     UpdateWorldState(worldstate, 1);
@@ -879,9 +879,9 @@ WorldSafeLocsEntry const* BattlegroundIC::GetClosestGraveyard(Player* player)
         float player_y = player->GetPositionY();
 
         float mindist = 999999.0f;
-        for (uint8 i = 0; i < nodes.size(); ++i)
+        for (uint8 node : nodes)
         {
-            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[nodes[i]]);
+            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_IC_GraveyardIds[node]);
             if (!entry)
                 continue;
             float dist = (entry->x - player_x)*(entry->x - player_x)+(entry->y - player_y)*(entry->y - player_y);
