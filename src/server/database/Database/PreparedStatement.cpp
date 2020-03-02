@@ -24,70 +24,9 @@
 #include "MySQLWorkaround.h"
 
 PreparedStatement::PreparedStatement(uint32 index, uint8 capacity) :
-m_stmt(nullptr), m_index(index), statement_data(capacity) { }
+m_index(index), statement_data(capacity) { }
 
 PreparedStatement::~PreparedStatement() { }
-
-void PreparedStatement::BindParameters(MySQLPreparedStatement* stmt)
-{
-    ASSERT(stmt);
-    m_stmt = stmt;
-
-    uint8 pos = 0;
-    for (PreparedStatementData const& data : statement_data)
-    {
-        switch (data.type)
-        {
-            case TYPE_BOOL:
-                stmt->setBool(pos, std::get<bool>(data.data));
-                break;
-            case TYPE_UI8:
-                stmt->setUInt8(pos, std::get<uint8>(data.data));
-                break;
-            case TYPE_UI16:
-                stmt->setUInt16(pos, std::get<uint16>(data.data));
-                break;
-            case TYPE_UI32:
-                stmt->setUInt32(pos, std::get<uint32>(data.data));
-                break;
-            case TYPE_I8:
-                stmt->setInt8(pos, std::get<int8>(data.data));
-                break;
-            case TYPE_I16:
-                stmt->setInt16(pos, std::get<int16>(data.data));
-                break;
-            case TYPE_I32:
-                stmt->setInt32(pos, std::get<int32>(data.data));
-                break;
-            case TYPE_UI64:
-                stmt->setUInt64(pos, std::get<uint64>(data.data));
-                break;
-            case TYPE_I64:
-                stmt->setInt64(pos, std::get<int64>(data.data));
-                break;
-            case TYPE_FLOAT:
-                stmt->setFloat(pos, std::get<float>(data.data));
-                break;
-            case TYPE_DOUBLE:
-                stmt->setDouble(pos, std::get<double>(data.data));
-                break;
-            case TYPE_STRING:
-                stmt->setString(pos, std::get<std::string>(data.data));
-                break;
-            case TYPE_BINARY:
-                stmt->setBinary(pos, std::get<std::vector<uint8>>(data.data));
-                break;
-            case TYPE_NULL:
-                stmt->setNull(pos);
-                break;
-        }
-        ++pos;
-    }
-    #ifdef _DEBUG
-    if (pos < stmt->m_paramCount)
-        TC_LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement %u did not bind all allocated parameters", m_index);
-    #endif
-}
 
 //- Bind to buffer
 void PreparedStatement::setBool(const uint8 index, const bool value)

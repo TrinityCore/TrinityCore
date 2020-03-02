@@ -48,6 +48,66 @@ MySQLPreparedStatement::~MySQLPreparedStatement()
     delete[] m_bind;
 }
 
+void MySQLPreparedStatement::BindParameters(PreparedStatement* stmt)
+{
+    m_stmt = stmt;     // Cross reference them for debug output
+
+    uint8 pos = 0;
+    for (PreparedStatementData const& data : stmt->GetParameters())
+    {
+        switch (data.type)
+        {
+            case TYPE_BOOL:
+                setBool(pos, std::get<bool>(data.data));
+                break;
+            case TYPE_UI8:
+                setUInt8(pos, std::get<uint8>(data.data));
+                break;
+            case TYPE_UI16:
+                setUInt16(pos, std::get<uint16>(data.data));
+                break;
+            case TYPE_UI32:
+                setUInt32(pos, std::get<uint32>(data.data));
+                break;
+            case TYPE_I8:
+                setInt8(pos, std::get<int8>(data.data));
+                break;
+            case TYPE_I16:
+                setInt16(pos, std::get<int16>(data.data));
+                break;
+            case TYPE_I32:
+                setInt32(pos, std::get<int32>(data.data));
+                break;
+            case TYPE_UI64:
+                setUInt64(pos, std::get<uint64>(data.data));
+                break;
+            case TYPE_I64:
+                setInt64(pos, std::get<int64>(data.data));
+                break;
+            case TYPE_FLOAT:
+                setFloat(pos, std::get<float>(data.data));
+                break;
+            case TYPE_DOUBLE:
+                setDouble(pos, std::get<double>(data.data));
+                break;
+            case TYPE_STRING:
+                setString(pos, std::get<std::string>(data.data));
+                break;
+            case TYPE_BINARY:
+                setBinary(pos, std::get<std::vector<uint8>>(data.data));
+                break;
+            case TYPE_NULL:
+                setNull(pos);
+                break;
+        }
+        ++pos;
+    }
+#ifdef _DEBUG
+    if (pos < m_paramCount)
+        TC_LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement %u did not bind all allocated parameters", stmt->GetIndex());
+#endif
+}
+
 void MySQLPreparedStatement::ClearParameters()
 {
     for (uint32 i=0; i < m_paramCount; ++i)
@@ -82,10 +142,10 @@ static void SetParameterValue(MYSQL_BIND* param, enum_field_types type, void con
 //- Bind on mysql level
 void MySQLPreparedStatement::AssertValidIndex(uint8 index)
 {
-    ASSERT(index < m_paramCount || ParamenterIndexAssertFail(m_stmt->m_index, index, m_paramCount));
+    ASSERT(index < m_paramCount || ParamenterIndexAssertFail(m_stmt->GetIndex(), index, m_paramCount));
 
     if (m_paramsSet[index])
-        TC_LOG_ERROR("sql.sql", "[ERROR] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
+        TC_LOG_ERROR("sql.sql", "[ERROR] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->GetIndex(), index);
 }
 
 void MySQLPreparedStatement::setNull(const uint8 index)
@@ -226,7 +286,7 @@ std::string MySQLPreparedStatement::getQueryString() const
     std::string queryString(m_queryString);
 
     size_t pos = 0;
-    for (PreparedStatementData& data : m_stmt->statement_data)
+    for (PreparedStatementData const& data : m_stmt->GetParameters())
     {
         pos = queryString.find('?', pos);
         std::stringstream ss;

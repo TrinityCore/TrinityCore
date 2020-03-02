@@ -67,15 +67,10 @@ struct PreparedStatementData
     PreparedStatementValueType type;
 };
 
-//- Forward declare
-class MySQLPreparedStatement;
-
 //- Upper-level class that is used in code
 class TC_DATABASE_API PreparedStatement
 {
     friend class PreparedStatementTask;
-    friend class MySQLPreparedStatement;
-    friend class MySQLConnection;
 
     public:
         PreparedStatement(uint32 index, uint8 capacity);
@@ -97,12 +92,9 @@ class TC_DATABASE_API PreparedStatement
         void setBinary(const uint8 index, const std::vector<uint8>& value);
 
         uint32 GetIndex() const { return m_index; }
+        std::vector<PreparedStatementData> const& GetParameters() const { return statement_data; }
 
     protected:
-        void BindParameters(MySQLPreparedStatement* stmt);
-
-    protected:
-        MySQLPreparedStatement* m_stmt;
         uint32 m_index;
 
         //- Buffer of parameters, not tied to MySQL in any way yet

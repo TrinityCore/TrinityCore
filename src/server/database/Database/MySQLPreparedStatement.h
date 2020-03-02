@@ -39,6 +39,8 @@ class TC_DATABASE_API MySQLPreparedStatement
         MySQLPreparedStatement(MySQLStmt* stmt, std::string queryString);
         ~MySQLPreparedStatement();
 
+        void BindParameters(PreparedStatement* stmt);
+
         void setNull(const uint8 index);
         void setBool(const uint8 index, const bool value);
         void setUInt8(const uint8 index, const uint8 value);
