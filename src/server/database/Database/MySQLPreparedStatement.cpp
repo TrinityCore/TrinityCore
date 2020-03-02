@@ -20,7 +20,20 @@
 #include "Log.h"
 #include "MySQLHacks.h"
 #include "PreparedStatement.h"
-#include <sstream>
+
+template<typename T>
+struct MySQLType { };
+
+template<> struct MySQLType<uint8> : std::integral_constant<enum_field_types, MYSQL_TYPE_TINY> { };
+template<> struct MySQLType<uint16> : std::integral_constant<enum_field_types, MYSQL_TYPE_SHORT> { };
+template<> struct MySQLType<uint32> : std::integral_constant<enum_field_types, MYSQL_TYPE_LONG> { };
+template<> struct MySQLType<uint64> : std::integral_constant<enum_field_types, MYSQL_TYPE_LONGLONG> { };
+template<> struct MySQLType<int8> : std::integral_constant<enum_field_types, MYSQL_TYPE_TINY> { };
+template<> struct MySQLType<int16> : std::integral_constant<enum_field_types, MYSQL_TYPE_SHORT> { };
+template<> struct MySQLType<int32> : std::integral_constant<enum_field_types, MYSQL_TYPE_LONG> { };
+template<> struct MySQLType<int64> : std::integral_constant<enum_field_types, MYSQL_TYPE_LONGLONG> { };
+template<> struct MySQLType<float> : std::integral_constant<enum_field_types, MYSQL_TYPE_FLOAT> { };
+template<> struct MySQLType<double> : std::integral_constant<enum_field_types, MYSQL_TYPE_DOUBLE> { };
 
 MySQLPreparedStatement::MySQLPreparedStatement(MySQLStmt* stmt, std::string queryString) :
     m_stmt(nullptr), m_Mstmt(stmt), m_bind(nullptr), m_queryString(std::move(queryString))
@@ -55,51 +68,10 @@ void MySQLPreparedStatement::BindParameters(PreparedStatement* stmt)
     uint8 pos = 0;
     for (PreparedStatementData const& data : stmt->GetParameters())
     {
-        switch (data.type)
+        std::visit([&](auto&& param)
         {
-            case TYPE_BOOL:
-                setBool(pos, std::get<bool>(data.data));
-                break;
-            case TYPE_UI8:
-                setUInt8(pos, std::get<uint8>(data.data));
-                break;
-            case TYPE_UI16:
-                setUInt16(pos, std::get<uint16>(data.data));
-                break;
-            case TYPE_UI32:
-                setUInt32(pos, std::get<uint32>(data.data));
-                break;
-            case TYPE_I8:
-                setInt8(pos, std::get<int8>(data.data));
-                break;
-            case TYPE_I16:
-                setInt16(pos, std::get<int16>(data.data));
-                break;
-            case TYPE_I32:
-                setInt32(pos, std::get<int32>(data.data));
-                break;
-            case TYPE_UI64:
-                setUInt64(pos, std::get<uint64>(data.data));
-                break;
-            case TYPE_I64:
-                setInt64(pos, std::get<int64>(data.data));
-                break;
-            case TYPE_FLOAT:
-                setFloat(pos, std::get<float>(data.data));
-                break;
-            case TYPE_DOUBLE:
-                setDouble(pos, std::get<double>(data.data));
-                break;
-            case TYPE_STRING:
-                setString(pos, std::get<std::string>(data.data));
-                break;
-            case TYPE_BINARY:
-                setBinary(pos, std::get<std::vector<uint8>>(data.data));
-                break;
-            case TYPE_NULL:
-                setNull(pos);
-                break;
-        }
+            SetParameter(pos, param);
+        }, data.data);
         ++pos;
     }
 #ifdef _DEBUG
@@ -126,19 +98,6 @@ static bool ParamenterIndexAssertFail(uint32 stmtIndex, uint8 index, uint32 para
     return false;
 }
 
-static void SetParameterValue(MYSQL_BIND* param, enum_field_types type, void const* value, uint32 len, bool isUnsigned)
-{
-    param->buffer_type = type;
-    delete[] static_cast<char*>(param->buffer);
-    param->buffer = new char[len];
-    param->buffer_length = 0;
-    param->is_null_value = 0;
-    param->length = nullptr;               // Only != NULL for strings
-    param->is_unsigned = isUnsigned;
-
-    memcpy(param->buffer, value, len);
-}
-
 //- Bind on mysql level
 void MySQLPreparedStatement::AssertValidIndex(uint8 index)
 {
@@ -148,7 +107,7 @@ void MySQLPreparedStatement::AssertValidIndex(uint8 index)
         TC_LOG_ERROR("sql.sql", "[ERROR] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->GetIndex(), index);
 }
 
-void MySQLPreparedStatement::setNull(const uint8 index)
+void MySQLPreparedStatement::SetParameter(uint8 index, std::nullptr_t)
 {
     AssertValidIndex(index);
     m_paramsSet[index] = true;
@@ -162,92 +121,30 @@ void MySQLPreparedStatement::setNull(const uint8 index)
     param->length = nullptr;
 }
 
-void MySQLPreparedStatement::setBool(const uint8 index, const bool value)
+void MySQLPreparedStatement::SetParameter(uint8 index, bool value)
 {
-    setUInt8(index, value ? 1 : 0);
+    SetParameter(index, uint8(value ? 1 : 0));
 }
 
-void MySQLPreparedStatement::setUInt8(const uint8 index, const uint8 value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_TINY, &value, sizeof(uint8), true);
-}
-
-void MySQLPreparedStatement::setUInt16(const uint8 index, const uint16 value)
+template<typename T>
+void MySQLPreparedStatement::SetParameter(uint8 index, T value)
 {
     AssertValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_SHORT, &value, sizeof(uint16), true);
+    uint32 len = uint32(sizeof(T));
+    param->buffer_type = MySQLType<T>::value;
+    delete[] static_cast<char*>(param->buffer);
+    param->buffer = new char[len];
+    param->buffer_length = 0;
+    param->is_null_value = 0;
+    param->length = nullptr;               // Only != NULL for strings
+    param->is_unsigned = std::is_unsigned_v<T>;
+
+    memcpy(param->buffer, &value, len);
 }
 
-void MySQLPreparedStatement::setUInt32(const uint8 index, const uint32 value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_LONG, &value, sizeof(uint32), true);
-}
-
-void MySQLPreparedStatement::setUInt64(const uint8 index, const uint64 value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_LONGLONG, &value, sizeof(uint64), true);
-}
-
-void MySQLPreparedStatement::setInt8(const uint8 index, const int8 value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_TINY, &value, sizeof(int8), false);
-}
-
-void MySQLPreparedStatement::setInt16(const uint8 index, const int16 value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_SHORT, &value, sizeof(int16), false);
-}
-
-void MySQLPreparedStatement::setInt32(const uint8 index, const int32 value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_LONG, &value, sizeof(int32), false);
-}
-
-void MySQLPreparedStatement::setInt64(const uint8 index, const int64 value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_LONGLONG, &value, sizeof(int64), false);
-}
-
-void MySQLPreparedStatement::setFloat(const uint8 index, const float value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_FLOAT, &value, sizeof(float), (value > 0.0f));
-}
-
-void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
-{
-    AssertValidIndex(index);
-    m_paramsSet[index] = true;
-    MYSQL_BIND* param = &m_bind[index];
-    SetParameterValue(param, MYSQL_TYPE_DOUBLE, &value, sizeof(double), (value > 0.0f));
-}
-
-void MySQLPreparedStatement::setString(const uint8 index, const std::string& value)
+void MySQLPreparedStatement::SetParameter(uint8 index, std::string const& value)
 {
     AssertValidIndex(index);
     m_paramsSet[index] = true;
@@ -264,7 +161,7 @@ void MySQLPreparedStatement::setString(const uint8 index, const std::string& val
     memcpy(param->buffer, value.c_str(), len);
 }
 
-void MySQLPreparedStatement::setBinary(const uint8 index, const std::vector<uint8>& value)
+void MySQLPreparedStatement::SetParameter(uint8 index, std::vector<uint8> const& value)
 {
     AssertValidIndex(index);
     m_paramsSet[index] = true;
@@ -289,55 +186,12 @@ std::string MySQLPreparedStatement::getQueryString() const
     for (PreparedStatementData const& data : m_stmt->GetParameters())
     {
         pos = queryString.find('?', pos);
-        std::stringstream ss;
 
-        switch (data.type)
+        std::string replaceStr = std::visit([&](auto&& data)
         {
-            case TYPE_BOOL:
-                ss << uint16(std::get<bool>(data.data)); // stringstream will append a character with that code instead of numeric representation
-                break;
-            case TYPE_UI8:
-                ss << uint16(std::get<uint8>(data.data)); // stringstream will append a character with that code instead of numeric representation
-                break;
-            case TYPE_UI16:
-                ss << std::get<uint16>(data.data);
-                break;
-            case TYPE_UI32:
-                ss << std::get<uint32>(data.data);
-                break;
-            case TYPE_I8:
-                ss << int16(std::get<int8>(data.data)); // stringstream will append a character with that code instead of numeric representation
-                break;
-            case TYPE_I16:
-                ss << std::get<int16>(data.data);
-                break;
-            case TYPE_I32:
-                ss << std::get<int32>(data.data);
-                break;
-            case TYPE_UI64:
-                ss << std::get<uint64>(data.data);
-                break;
-            case TYPE_I64:
-                ss << std::get<int64>(data.data);
-                break;
-            case TYPE_FLOAT:
-                ss << std::get<float>(data.data);
-                break;
-            case TYPE_DOUBLE:
-                ss << std::get<double>(data.data);
-                break;
-            case TYPE_STRING:
-                ss << '\'' << std::get<std::string>(data.data) << '\'';
-                break;
-            case TYPE_BINARY:
-                ss << "BINARY";
-                break;
-            case TYPE_NULL:
-                ss << "NULL";
-                break;
-        }
+            return PreparedStatementData::ToString(data);
+        }, data.data);
 
-        std::string replaceStr = ss.str();
         queryString.replace(pos, 1, replaceStr);
         pos += replaceStr.length();
     }

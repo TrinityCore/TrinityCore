@@ -33,97 +33,84 @@ void PreparedStatement::setBool(const uint8 index, const bool value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_BOOL;
 }
 
 void PreparedStatement::setUInt8(const uint8 index, const uint8 value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_UI8;
 }
 
 void PreparedStatement::setUInt16(const uint8 index, const uint16 value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_UI16;
 }
 
 void PreparedStatement::setUInt32(const uint8 index, const uint32 value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_UI32;
 }
 
 void PreparedStatement::setUInt64(const uint8 index, const uint64 value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_UI64;
 }
 
 void PreparedStatement::setInt8(const uint8 index, const int8 value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_I8;
 }
 
 void PreparedStatement::setInt16(const uint8 index, const int16 value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_I16;
 }
 
 void PreparedStatement::setInt32(const uint8 index, const int32 value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_I32;
 }
 
 void PreparedStatement::setInt64(const uint8 index, const int64 value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_I64;
 }
 
 void PreparedStatement::setFloat(const uint8 index, const float value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_FLOAT;
 }
 
 void PreparedStatement::setDouble(const uint8 index, const double value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_DOUBLE;
 }
 
 void PreparedStatement::setString(const uint8 index, const std::string& value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_STRING;
 }
 
 void PreparedStatement::setBinary(const uint8 index, const std::vector<uint8>& value)
 {
     ASSERT(index < statement_data.size());
     statement_data[index].data = value;
-    statement_data[index].type = TYPE_BINARY;
 }
 
 void PreparedStatement::setNull(const uint8 index)
 {
     ASSERT(index < statement_data.size());
-    statement_data[index].type = TYPE_NULL;
+    statement_data[index].data = nullptr;
 }
 
 //- Execution
@@ -158,4 +145,50 @@ bool PreparedStatementTask::Execute()
     }
 
     return m_conn->Execute(m_stmt);
+}
+
+template<typename T>
+std::string PreparedStatementData::ToString(T value)
+{
+    return fmt::format("{}", value);
+}
+
+std::string PreparedStatementData::ToString(bool value)
+{
+    return ToString<uint32>(value);
+}
+
+std::string PreparedStatementData::ToString(uint8 value)
+{
+    return ToString<uint32>(value);
+}
+
+template std::string PreparedStatementData::ToString<uint16>(uint16);
+template std::string PreparedStatementData::ToString<uint32>(uint32);
+template std::string PreparedStatementData::ToString<uint64>(uint64);
+
+std::string PreparedStatementData::ToString(int8 value)
+{
+    return ToString<int32>(value);
+}
+
+template std::string PreparedStatementData::ToString<int16>(int16);
+template std::string PreparedStatementData::ToString<int32>(int32);
+template std::string PreparedStatementData::ToString<int64>(int64);
+template std::string PreparedStatementData::ToString<float>(float);
+template std::string PreparedStatementData::ToString<double>(double);
+
+std::string PreparedStatementData::ToString(std::string const& value)
+{
+    return fmt::format("'{}'", value);
+}
+
+std::string PreparedStatementData::ToString(std::vector<uint8> const& /*value*/)
+{
+    return "BINARY";
+}
+
+std::string PreparedStatementData::ToString(std::nullptr_t)
+{
+    return "NULL";
 }
