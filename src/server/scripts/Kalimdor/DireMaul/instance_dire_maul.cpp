@@ -577,6 +577,7 @@ public:
                                 eachC->SetFaction(playerFaction);
                                 eachC->GetThreatManager().AddThreat(im, 100);                                
                                 im->GetThreatManager().AddThreat(eachC, 100);
+                                eachC->AI()->AttackStart(im);
                             }
                         }
                     }

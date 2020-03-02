@@ -47,34 +47,38 @@ enum STRDataTypes
 
 enum STRCreatureIds
 {
-    NPC_CRYSTAL                         = 10415, // ziggurat crystal
-    NPC_BARON                           = 10440, // ziggurat crystal
-    NPC_YSIDA_TRIGGER                   = 16100, // ziggurat crystal
+    NPC_CRYSTAL = 10415, // ziggurat crystal
+    NPC_BARON = 10440, // ziggurat crystal
+    NPC_YSIDA_TRIGGER = 16100, // ziggurat crystal
 
-    NPC_RAMSTEIN                        = 10439,
-    NPC_ABOM_BILE                       = 10416,
-    NPC_ABOM_VENOM                      = 10417,
-    NPC_BLACK_GUARD                     = 10394,
-    NPC_YSIDA                           = 16031,
+    NPC_RAMSTEIN = 10439,
+    NPC_ABOM_BILE = 10416,
+    NPC_ABOM_VENOM = 10417,
+    NPC_BLACK_GUARD = 10394,
+    NPC_YSIDA = 16031,
 
     // Scarlet side creatures
-    NPC_CRIMSON_GUARDSMAN               = 10418,
-    NPC_CRIMSON_CONJUROR                = 10419,
-    NPC_CRIMSON_INITATE                 = 10420,
-    NPC_CRIMSON_GALLANT                 = 10424,
+    NPC_CRIMSON_GUARDSMAN = 10418,
+    NPC_CRIMSON_CONJUROR = 10419,
+    NPC_CRIMSON_INITATE = 10420,
+    NPC_CRIMSON_GALLANT = 10424,
 
-    NPC_TIMMY_THE_CRUEL                 = 10808,
+    NPC_TIMMY_THE_CRUEL = 10808,
 
     NPC_MANGLED_CADAVER = 10382,
     NPC_BROKEN_CADAVER = 10383,
 
-    NPC_THUZADIN_ACOLYTE = 10399,
+    NPC_THUZADIN_ACOLYTE = 10399,    
+
+    NPC_MAGISTRATE_BARTHILAS = 10435,
 
     NPC_AURIUS = 10917,
 };
 
 enum STRATHOLME_NPC_SPAWN_ID
 {
+    NPC_SPAWN_ID_BARON_RIVENDARE = 54241,
+
     NPC_SPAWN_ID_CRIMSON_GUARDSMAN_0 = 54052,
     NPC_SPAWN_ID_CRIMSON_GUARDSMAN_1 = 54056,
     NPC_SPAWN_ID_CRIMSON_GUARDSMAN_2 = 54055,
@@ -100,6 +104,13 @@ enum STRATHOLME_NPC_SPAWN_ID
     NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_2 = 53264,
     NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_3 = 53262,
     NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_4 = 53263,
+
+    NPC_SPAWN_ID_SKELETON_0_0 = 53097,
+    NPC_SPAWN_ID_SKELETON_0_1 = 53192,
+    NPC_SPAWN_ID_SKELETON_1_0 = 53191,
+    NPC_SPAWN_ID_SKELETON_1_1 = 53098,
+
+    GO_ZOMBIE_GATE = 49594,
 };
 
 enum STRATHOLME_LINE_CRIMSON_GUARDSMAN
@@ -111,7 +122,7 @@ enum STRATHOLME_LINE_CRIMSON_GUARDSMAN
 
 enum STRATHOLME_LINE_CRIMSON_GALLANT
 {
-    LINE_CRIMSON_GALLANT_0 = 0,    
+    LINE_CRIMSON_GALLANT_0 = 0,
 };
 
 enum STRATHOLME_LINE_THUZADIN_ACOLYTE
@@ -119,6 +130,7 @@ enum STRATHOLME_LINE_THUZADIN_ACOLYTE
     LINE_THUZADIN_ACOLYTE_0 = 0,
     LINE_THUZADIN_ACOLYTE_1 = 1,
     LINE_THUZADIN_ACOLYTE_2 = 2,
+    LINE_THUZADIN_ACOLYTE_3 = 3,
 };
 
 enum STRATHOLME_LINE_BARON_RIVENDARE
@@ -128,7 +140,6 @@ enum STRATHOLME_LINE_BARON_RIVENDARE
     LINE_BARON_RIVENDARE_2 = 2,
     LINE_BARON_RIVENDARE_3 = 3,
     LINE_BARON_RIVENDARE_4 = 4,
-    LINE_BARON_RIVENDARE_5 = 5,
 };
 
 enum STRATHOLME_LINE_RAMSTEIN
@@ -142,9 +153,20 @@ enum STRATHOLME_LINE_AURIUS
     LINE_AURIUS_1 = 1,
 };
 
+enum STRATHOLME_LINE_MAGISTRATE_BARTHILAS
+{
+    LINE_MAGISTRATE_BARTHILAS_0 = 0,
+};
+
+enum STRATHOLME_LINE_BLACK_GUARD
+{
+    LINE_BLACK_GUARD_0 = 0,
+};
+
 enum STRATHOLME_QUEST
 {
     QUEST_THE_MEDALLION_OF_FAITH = 5122,
+    QUEST_AURIUS_RECKONING = 5125,
 };
 
 enum STRGameobjectIds
@@ -161,12 +183,12 @@ enum STRGameobjectIds
     GO_PORT_GAUNTLET = 175374,  // port from gauntlet to slaugther
     GO_PORT_SLAUGTHER = 175373,  // port at slaugther
     GO_PORT_ELDERS = 175377,  // port at elders square
-    GO_YSIDA_CAGE = 181071
+    GO_YSIDA_CAGE = 181071,
 };
 
 enum STRQuestIds
 {
-    QUEST_DEAD_MAN_PLEA                 = 8945
+    QUEST_DEAD_MAN_PLEA = 8945
 };
 
 enum STRSpellIds
@@ -182,19 +204,33 @@ enum STRSpellIds
     SPELL_AURIUS_DIVINE_SHIELD = 13874,
 };
 
+enum AURIUS_DATA_TYPE
+{
+    DATA_TYPE_ENGAGE = 1,
+    DATA_TYPE_VICTORY = 2,
+};
+
 enum AURIUS_EVENT
 {
-    EVENT_CRUSADER_STRIKE = 1,
-    EVENT_EXORCISM = 2,
-    EVENT_HOLY_LIGHT = 3,
-    EVENT_DIVINE_SHIELD = 4,
+    EVENT_ENGAGE = 1,
+    EVENT_CRUSADER_STRIKE = 2,
+    EVENT_EXORCISM = 3,
+    EVENT_HOLY_LIGHT = 4,
+    EVENT_DIVINE_SHIELD = 5,
+};
+
+enum AURIUS_GOSSIP_ID
+{
+    GOSSIP_ID_0 = 3755,
+    GOSSIP_ID_1 = 3756,
+    GOSSIP_ID_2 = 3757,
 };
 
 enum STRMisc
 {
     //! amount of crusade monsters required to be killed in order for timmy the cruel to spawn
-    TIMMY_THE_CRUEL_CRUSADERS_REQUIRED  = 15,
-    MAX_ENCOUNTER                       = 6
+    TIMMY_THE_CRUEL_CRUSADERS_REQUIRED = 15,
+    MAX_ENCOUNTER = 6
 };
 
 template <class AI, class T>

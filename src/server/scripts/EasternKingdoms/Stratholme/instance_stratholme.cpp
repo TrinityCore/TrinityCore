@@ -49,8 +49,9 @@ enum InstanceEvents
     EVENT_CLOSE_DOOR_4_0 = 7,
     EVENT_SUMMON_BLACK_GUARD = 8,
     EVENT_OPEN_DOOR_4_1 = 9,
-    EVENT_BLACK_GUARD_MOVE = 10,
-    EVENT_OPEN_DOOR_5 = 11,
+    EVENT_BLACK_GUARD_LINE = 10,
+    EVENT_BLACK_GUARD_MOVE = 11,
+    EVENT_OPEN_DOOR_5 = 12,
 };
 
 enum StratholmeMisc
@@ -103,6 +104,11 @@ public:
             crystalMap[STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_2].insert(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_2);
             crystalMap[STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_2].insert(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_3);
             crystalMap[STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_2].insert(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_4);
+
+            barthilasLine0 = false;
+            barthilasLine0CheckDelay = 1000;
+            rivendareLine2 = false;
+            rivendareLine2CheckDelay = 1000;
         }
 
         uint32 EncounterState[MAX_ENCOUNTER];
@@ -131,6 +137,7 @@ public:
 
         ObjectGuid OGGauntletGate2;
         ObjectGuid OGAurius;
+        ObjectGuid OGBossMagistrateBarthilas;
         ObjectGuid OGBossRamstein;
         ObjectGuid OGBlackGuard0;
         ObjectGuid OGBlackGuard1;
@@ -146,7 +153,10 @@ public:
         int crystalDestroyedDelay1;
         int crystalDestroyedDelay2;
         bool slauterOpened;
-        bool rivendareLine0 = false;
+        bool barthilasLine0;
+        int barthilasLine0CheckDelay;
+        bool rivendareLine2;
+        int rivendareLine2CheckDelay;
 
         void OnUnitDeath(Unit* who) override
         {
@@ -198,10 +208,6 @@ public:
                 goGate->SetGoState(GOState::GO_STATE_ACTIVE);
             }
             slauterOpened = true;
-            if (Creature* pBaron = instance->GetCreature(baronGUID))
-            {
-                pBaron->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_5);
-            }
 
             return true;
         }
@@ -247,7 +253,7 @@ public:
             {
                 if (creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_0 || creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_0 || creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_0)
                 {
-                    creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_2);
+                    creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_3);
                 }
                 break;
             }
@@ -259,6 +265,12 @@ public:
             case STRCreatureIds::NPC_AURIUS:
             {
                 OGAurius = creature->GetGUID();
+                break;
+            }
+            case STRCreatureIds::NPC_MAGISTRATE_BARTHILAS:
+            {
+                OGBossMagistrateBarthilas = creature->GetGUID();
+                break;
             }
             default:
             {
@@ -368,6 +380,7 @@ public:
                         }
                         else if (destroyedCount == 3)
                         {
+                            creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_2);
                             StartSlaugtherSquare();
                         }
                     }
@@ -397,7 +410,7 @@ public:
                         {
                             checkCrystal->DespawnOrUnsummon(500, 2h);
                         }
-                        crystalDestroyedDelay0 = 1200000;
+                        crystalDestroyedDelay1 = 1200000;
                         int destroyedCount = 0;
                         if (crystalDestroyedDelay0 > 0)
                         {
@@ -421,6 +434,7 @@ public:
                         }
                         else if (destroyedCount == 3)
                         {
+                            creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_2);
                             StartSlaugtherSquare();
                         }
                     }
@@ -450,7 +464,7 @@ public:
                         {
                             checkCrystal->DespawnOrUnsummon(500, 2h);
                         }
-                        crystalDestroyedDelay0 = 1200000;
+                        crystalDestroyedDelay2 = 1200000;
                         int destroyedCount = 0;
                         if (crystalDestroyedDelay0 > 0)
                         {
@@ -474,6 +488,7 @@ public:
                         }
                         else if (destroyedCount == 3)
                         {
+                            creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_2);
                             StartSlaugtherSquare();
                         }
                     }
@@ -604,14 +619,6 @@ public:
                 if (data == IN_PROGRESS)
                 {
                     HandleGameObject(ziggurat1GUID, true);
-                    if (!rivendareLine0)
-                    {
-                        if (Creature* checkC = instance->GetCreature(baronGUID))
-                        {
-                            checkC->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_2);
-                        }
-                        rivendareLine0 = true;
-                    }
                 }
                 break;
             }
@@ -621,14 +628,6 @@ public:
                 if (data == IN_PROGRESS)
                 {
                     HandleGameObject(ziggurat2GUID, true);
-                    if (!rivendareLine0)
-                    {
-                        if (Creature* checkC = instance->GetCreature(baronGUID))
-                        {
-                            checkC->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_2);
-                        }
-                        rivendareLine0 = true;
-                    }
                 }
                 break;
             }
@@ -638,14 +637,6 @@ public:
                 if (data == IN_PROGRESS)
                 {
                     HandleGameObject(ziggurat3GUID, true);
-                    if (!rivendareLine0)
-                    {
-                        if (Creature* checkC = instance->GetCreature(baronGUID))
-                        {
-                            checkC->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_2);
-                        }
-                        rivendareLine0 = true;
-                    }
                 }
                 break;
             }
@@ -692,12 +683,10 @@ public:
                     HandleGameObject(ziggurat5GUID, false);
                     if (Creature* aurius = instance->GetCreature(OGAurius))
                     {
+                        aurius->RemoveFlag(EUnitFields::UNIT_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);
+                        aurius->RemoveFlag(EUnitFields::UNIT_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_QUESTGIVER);
                         aurius->NearTeleportTo(4024.22f, -3355.63f, 115.1f, 0.36f);
-                        if (Creature* pBaron = instance->GetCreature(baronGUID))
-                        {
-                            aurius->AI()->AttackStart(pBaron);
-                            aurius->AI()->Talk(STRATHOLME_LINE_AURIUS::LINE_AURIUS_0);
-                        }
+                        aurius->AI()->SetData(AURIUS_DATA_TYPE::DATA_TYPE_ENGAGE, 0);
                     }
                 }
                 if (data == DONE || data == NOT_STARTED)
@@ -715,9 +704,7 @@ public:
 
                     if (Creature* aurius = instance->GetCreature(OGAurius))
                     {
-                        aurius->AI()->Talk(STRATHOLME_LINE_AURIUS::LINE_AURIUS_1);
-                        aurius->SetStandState(UnitStandStateType::UNIT_STAND_STATE_KNEEL);
-                        aurius->SetFlag(UNIT_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_QUESTGIVER);
+                        aurius->AI()->SetData(AURIUS_DATA_TYPE::DATA_TYPE_VICTORY, 0);
                     }
                 }
                 EncounterState[5] = data;
@@ -824,10 +811,56 @@ public:
 
         void Update(uint32 diff) override
         {
+            if (!barthilasLine0)
+            {
+                barthilasLine0CheckDelay -= diff;
+                if (barthilasLine0CheckDelay < 0)
+                {
+                    barthilasLine0CheckDelay = 1000;
+                    if (GameObject* goServiceDoor = instance->GetGameObject(serviceEntranceGUID))
+                    {
+                        if (goServiceDoor->GetGoState() == GOState::GO_STATE_ACTIVE)
+                        {
+                            if (Creature* checkC = instance->GetCreature(OGBossMagistrateBarthilas))
+                            {
+                                if (checkC->IsAlive())
+                                {
+                                    checkC->AI()->Talk(STRATHOLME_LINE_MAGISTRATE_BARTHILAS::LINE_MAGISTRATE_BARTHILAS_0);
+                                }
+                                barthilasLine0 = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!rivendareLine2)
+            {
+                rivendareLine2CheckDelay -= diff;
+                if (rivendareLine2CheckDelay < 0)
+                {
+                    rivendareLine2CheckDelay = 1000;
+                    if (GameObject* goSlaugtherDoor = instance->GetGameObject(portSlaugtherGUID))
+                    {
+                        if (goSlaugtherDoor->GetGoState() == GOState::GO_STATE_ACTIVE)
+                        {
+                            if (goSlaugtherDoor->SelectNearestPlayer(10.0f))
+                            {
+                                if (Creature* checkC = instance->GetCreature(baronGUID))
+                                {
+                                    checkC->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_2);
+                                    rivendareLine2 = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             guardsmanActionDelay0 -= diff;
             if (guardsmanActionDelay0 < 0)
             {
-                guardsmanActionDelay0 = urand(60000, 120000);
+                guardsmanActionDelay0 = urand(10000, 20000);
                 if (Creature* checkGuardsman = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_CRIMSON_GUARDSMAN_0))
                 {
                     if (checkGuardsman->IsAlive())
@@ -836,12 +869,18 @@ public:
                         {
                             if (checkGuardsman->GetThreatManager().IsThreatListEmpty())
                             {
-                                if (Unit* victim = checkGuardsman->SelectNearestHostileUnitInAggroRange(true, true))
+                                if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_0))
                                 {
                                     checkGuardsman->AI()->AttackStart(victim);
+                                    victim->AI()->AttackStart(checkGuardsman);
                                 }
+                                if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_1))
+                                {
+                                    checkGuardsman->AI()->AttackStart(victim);
+                                    victim->AI()->AttackStart(checkGuardsman);
+                                }
+                                checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_0);
                             }
-                            checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_0);
                         }
                     }
                 }
@@ -850,7 +889,7 @@ public:
             guardsmanActionDelay1 -= diff;
             if (guardsmanActionDelay1 < 0)
             {
-                guardsmanActionDelay1 = urand(60000, 120000);
+                guardsmanActionDelay1 = urand(10000, 20000);
                 if (Creature* checkGuardsman = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_CRIMSON_GUARDSMAN_1))
                 {
                     if (checkGuardsman->IsAlive())
@@ -859,12 +898,18 @@ public:
                         {
                             if (checkGuardsman->GetThreatManager().IsThreatListEmpty())
                             {
-                                if (Unit* victim = checkGuardsman->SelectNearestHostileUnitInAggroRange(true, true))
+                                if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_0))
                                 {
                                     checkGuardsman->AI()->AttackStart(victim);
+                                    victim->AI()->AttackStart(checkGuardsman);
                                 }
+                                if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_1))
+                                {
+                                    checkGuardsman->AI()->AttackStart(victim);
+                                    victim->AI()->AttackStart(checkGuardsman);
+                                }
+                                checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_1);
                             }
-                            checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_1);
                         }
                     }
                 }
@@ -989,7 +1034,8 @@ public:
                 {
                     events.ScheduleEvent(InstanceEvents::EVENT_SUMMON_BLACK_GUARD, 1s);
                     events.ScheduleEvent(InstanceEvents::EVENT_OPEN_DOOR_4_1, 2s);
-                    events.ScheduleEvent(InstanceEvents::EVENT_BLACK_GUARD_MOVE, 4s);
+                    events.ScheduleEvent(InstanceEvents::EVENT_BLACK_GUARD_LINE, 4s);
+                    events.ScheduleEvent(InstanceEvents::EVENT_BLACK_GUARD_MOVE, 5s);
                     break;
                 }
                 case InstanceEvents::EVENT_SUMMON_RAMSTEIN:
@@ -1053,7 +1099,6 @@ public:
                         {
                             OGBlackGuard3 = tsBG->GetGUID();
                         }
-                        pBaron->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_4);
                     }
                     break;
                 }
@@ -1062,6 +1107,14 @@ public:
                     if (GameObject* goGate4 = instance->GetGameObject(ziggurat4GUID))
                     {
                         goGate4->SetGoState(GOState::GO_STATE_ACTIVE);
+                    }
+                    break;
+                }
+                case InstanceEvents::EVENT_BLACK_GUARD_LINE:
+                {
+                    if (Creature* checkC = instance->GetCreature(OGBlackGuard0))
+                    {
+                        checkC->AI()->Talk(STRATHOLME_LINE_BLACK_GUARD::LINE_BLACK_GUARD_0);
                     }
                     break;
                 }
@@ -1087,6 +1140,10 @@ public:
                 }
                 case InstanceEvents::EVENT_OPEN_DOOR_5:
                 {
+                    if (Creature* pBaron = instance->GetCreature(baronGUID))
+                    {
+                        pBaron->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_4);
+                    }
                     if (GameObject* goGate5 = instance->GetGameObject(ziggurat5GUID))
                     {
                         goGate5->SetGoState(GOState::GO_STATE_ACTIVE);
@@ -1115,17 +1172,49 @@ public:
     {
         npc_auriusAI(Creature* creature) : ScriptedAI(creature)
         {
-
+            victory = false;
         }
 
         bool GossipHello(Player* player) override
         {
             if (player->GetQuestStatus(STRATHOLME_QUEST::QUEST_THE_MEDALLION_OF_FAITH) == QuestStatus::QUEST_STATUS_REWARDED)
             {
-                ClearGossipMenuFor(player);
+                if (victory)
+                {
+                    player->PrepareQuestMenu(me->GetGUID());
+                    SendGossipMenuFor(player, AURIUS_GOSSIP_ID::GOSSIP_ID_2, me);
+                }
+                else
+                {
+                    SendGossipMenuFor(player, AURIUS_GOSSIP_ID::GOSSIP_ID_1, me);
+                }
+            }
+            else
+            {
+                player->PrepareQuestMenu(me->GetGUID());
+                SendGossipMenuFor(player, AURIUS_GOSSIP_ID::GOSSIP_ID_0, me);
             }
 
             return true;
+        }
+
+        void SetData(uint32 type, uint32 data) override
+        {
+            if (type == AURIUS_DATA_TYPE::DATA_TYPE_ENGAGE)
+            {
+                events.ScheduleEvent(AURIUS_EVENT::EVENT_ENGAGE, 1s);
+            }
+            else if (type == AURIUS_DATA_TYPE::DATA_TYPE_VICTORY)
+            {
+                if (me->IsAlive())
+                {
+                    Talk(STRATHOLME_LINE_AURIUS::LINE_AURIUS_1);
+                    me->SetStandState(UnitStandStateType::UNIT_STAND_STATE_KNEEL);
+                    me->SetFlag(EUnitFields::UNIT_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(EUnitFields::UNIT_NPC_FLAGS, NPCFlags::UNIT_NPC_FLAG_QUESTGIVER);
+                    victory = true;
+                }
+            }
         }
 
         void JustEngagedWith(Unit* who) override
@@ -1138,7 +1227,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim())
+            if (victory)
             {
                 return;
             }
@@ -1147,14 +1236,28 @@ public:
             {
                 return;
             }
-            if (me->GetHealthPct() < 50.0f)
-            {
-
-            }
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
+                case AURIUS_EVENT::EVENT_ENGAGE:
+                {
+                    if (Map* currentMap = me->GetMap())
+                    {
+                        if (Creature* pBaron = currentMap->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_BARON_RIVENDARE))
+                        {
+                            if (Player* checkP = me->SelectNearestPlayer(50.0f))
+                            {
+                                me->SetFaction(checkP->GetFaction());
+                                Talk(STRATHOLME_LINE_AURIUS::LINE_AURIUS_0);
+                                me->GetThreatManager().AddThreat(pBaron, 100);
+                                pBaron->GetThreatManager().AddThreat(me, 100);
+                                AttackStart(pBaron);
+                            }
+                        }
+                    }
+                    break;
+                }
                 case AURIUS_EVENT::EVENT_CRUSADER_STRIKE:
                 {
                     if (Unit* victim = me->GetVictim())
@@ -1187,17 +1290,26 @@ public:
                 }
                 case AURIUS_EVENT::EVENT_HOLY_LIGHT:
                 {
-                    std::list<Player*> players;
-                    Trinity::AnyPlayerInObjectRangeCheck checker(me, 20.0f);
-                    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-                    Cell::VisitWorldObjects(me, searcher, 20.0f);
-                    for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+                    if (me->GetHealthPct() < 50.0f)
                     {
-                        if ((*itr)->GetHealthPct() < 50.0f)
+                        DoCast(me, STRSpellIds::SPELL_AURIUS_HOLY_LIGHT);
+                        events.Repeat(10s);
+                        return;
+                    }
+                    else
+                    {
+                        std::list<Player*> players;
+                        Trinity::AnyPlayerInObjectRangeCheck checker(me, 20.0f);
+                        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+                        Cell::VisitWorldObjects(me, searcher, 20.0f);
+                        for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
-                            DoCast((*itr), STRSpellIds::SPELL_AURIUS_HOLY_LIGHT);
-                            events.Repeat(10s);
-                            return;
+                            if ((*itr)->GetHealthPct() < 50.0f)
+                            {
+                                DoCast((*itr), STRSpellIds::SPELL_AURIUS_HOLY_LIGHT);
+                                events.Repeat(10s);
+                                return;
+                            }
                         }
                     }
                     events.Repeat(2s);
@@ -1208,13 +1320,12 @@ public:
                     break;
                 }
                 }
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
+                DoMeleeAttackIfReady();
             }
-            DoMeleeAttackIfReady();
         }
 
         EventMap events;
+        bool victory;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

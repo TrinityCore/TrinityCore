@@ -176,7 +176,7 @@ public:
 
                     //restore hp, mana and stun
                     DoCast(me, SPELL_BALNAZZARTRANSFORM);
-                    me->UpdateEntry(NPC_BALNAZZAR);
+                    me->UpdateEntry(NPC_BALNAZZAR);                    
                     Talk(0);
                     m_bTransformed = true;
                 }

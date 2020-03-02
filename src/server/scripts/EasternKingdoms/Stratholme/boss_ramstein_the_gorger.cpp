@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 #include "TemporarySummon.h"
+#include "GameObject.h"
 
 enum Spells
 {
@@ -79,6 +80,13 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+            if (Map* currentMap = me->GetMap())
+            {
+                if (GameObject* zombieGate = currentMap->GetGameObjectBySpawnId(STRATHOLME_NPC_SPAWN_ID::GO_ZOMBIE_GATE))
+                {
+                    zombieGate->SetGoState(GOState::GO_STATE_ACTIVE);
+                }
+            }
             for (uint8 i = 0; i < 30; ++i)
             {
                 if (Creature* mob = me->SummonCreature(NPC_MINDLESS_UNDEAD, 3969.35f+irand(-10, 10), -3391.87f+irand(-10, 10), 119.11f, 5.91f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000))
