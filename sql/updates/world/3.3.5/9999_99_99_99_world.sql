@@ -1,17 +1,17 @@
 -- Scarlet Ghoul
 DELETE FROM `creature_text` WHERE `CreatureID`=28845;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(28845,0,0,'So hungry...',12,0,100,0,0,0,29184,0,'Scarlet Ghoul'),
-(28845,0,1,'Must feed...',12,0,100,0,0,0,29185,0,'Scarlet Ghoul'),
-(28845,0,2,'GIVE ME BRAINS!',12,0,100,0,0,0,29186,0,'Scarlet Ghoul'),
-(28845,0,3,'Smell flesh... close...',12,0,100,0,0,0,29187,0,'Scarlet Ghoul'),
-(28845,0,4,'Mommy?',12,0,100,0,0,0,28960,0,'Scarlet Ghoul'),
+(28845,0,0,'So hungry...',12,0,100,0,0,0,28955,0,'Scarlet Ghoul'),
+(28845,0,1,'Must feed...',12,0,100,0,0,0,28956,0,'Scarlet Ghoul'),
+(28845,0,2,'GIVE ME BRAINS!',12,0,100,0,0,0,28957,0,'Scarlet Ghoul'),
+(28845,0,3,'Smell flesh... close...',12,0,100,0,0,0,28958,0,'Scarlet Ghoul'),
+(28845,0,4,'Mommy?',12,0,100,0,0,0,28959,0,'Scarlet Ghoul'),
 (28845,0,5,'$g Poppy:Mama;!',12,0,100,0,0,0,28960,0,'Scarlet Ghoul');
 
 -- Scarlet Ghost
 DELETE FROM `creature_text` WHERE `CreatureID`=28846;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(28969,0,0,'Vengeance is mine!',12,0,100,0,0,0,29187,0,'Scarlet Ghost'),
+(28846,0,0,'Vengeance is mine!',12,0,100,0,0,0,28969,0,'Scarlet Ghost'),
 (28846,0,1,'I\'ll take you with me!',12,0,100,0,0,0,28964,0,'Scarlet Ghost'),
 (28846,0,2,'The grave calls to us all!',12,0,100,0,0,0,28966,0,'Scarlet Ghost'),
 (28846,0,3,'Die, Scourge filth!',12,0,100,0,0,0,28968,0,'Scarlet Ghost'),

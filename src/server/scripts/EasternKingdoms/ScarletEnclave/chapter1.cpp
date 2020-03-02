@@ -1022,14 +1022,13 @@ struct npc_scarlet_ghoul : public ScriptedAI
 
         if (!MinionList.empty())
         {
-            for (std::list<Creature*>::const_iterator itr = MinionList.begin();
-                 itr != MinionList.end(); ++itr)
+            for (Creature* creature : MinionList)
             {
-                if ((*itr)->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
+                if (creature->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
                 {
-                    if ((*itr)->IsInCombat() && (*itr)->getAttackerForHelper())
+                    if (creature->IsInCombat() && creature->getAttackerForHelper())
                     {
-                        AttackStart((*itr)->getAttackerForHelper());
+                        AttackStart(creature->getAttackerForHelper());
                     }
                 }
             }
