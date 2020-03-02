@@ -3289,24 +3289,10 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
     }
 
-    float step = dist / 10.0f;
-
-    for (uint8 j = 0; j < 10; ++j)
-    {
-        // do not allow too big z changes
-        if (std::fabs(pos.m_positionZ - destz) > 6.0f)
-        {
-            destx -= step * std::cos(angle);
-            desty -= step * std::sin(angle);
-            UpdateAllowedPositionZ(destx, desty, destz);
-        }
-        // we have correct destz now
-        else
-        {
-            pos.Relocate(destx, desty, destz);
-            break;
-        }
-    }
+    // Use a detour raycast to get our first collision point
+    PathGenerator path(this);
+    path.CalculatePath(destx, desty, destz, false, true);
+    pos.Relocate(Vector3ToPosition(path.GetPath().back()));
 
     float groundZ = VMAP_INVALID_HEIGHT_VALUE;
     Trinity::NormalizeMapCoord(pos.m_positionX);
