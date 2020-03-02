@@ -1003,16 +1003,16 @@ struct npc_scarlet_ghoul : public ScriptedAI
 {
     npc_scarlet_ghoul(Creature* creature) : ScriptedAI(creature)
     {
-        Initialize();
+        me->SetReactState(REACT_DEFENSIVE);
     }
 
-    void Initialize()
+    void JustAppeared() override
     {
+        CreatureAI::JustAppeared();
+
         if (urand(0, 1))
             if (Unit* owner = me->GetOwner())
                 Talk(SAY_LINE_0, owner);
-
-        me->SetReactState(REACT_DEFENSIVE);
     }
 
     void FindMinions(Unit* owner)
