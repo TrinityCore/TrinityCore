@@ -62,6 +62,9 @@ void CreatureAI::OnCharmed(bool isNew)
         }
 
         me->LastCharmerGUID.Clear();
+
+        if (!me->IsInCombat())
+            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
     }
 
     UnitAI::OnCharmed(isNew);

@@ -706,6 +706,9 @@ void SmartAI::OnCharmed(bool /*isNew*/)
                 if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
                     me->EngageWithTarget(lastCharmer);
             me->LastCharmerGUID.Clear();
+
+            if (!me->IsInCombat())
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
         }
     }
 
