@@ -211,9 +211,13 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
         }
     }
 
-    if (sourceAI->CastSpell(pmTarget, "Curse of the Elements", WARLOCK_RANGE_DISTANCE, true))
+    // when facing boss 
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3.0f)
     {
-        return true;
+        if (sourceAI->CastSpell(pmTarget, "Curse of the Elements", WARLOCK_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
     }
     if (sourceAI->CastSpell(pmTarget, "Immolate", WARLOCK_RANGE_DISTANCE, true, true))
     {

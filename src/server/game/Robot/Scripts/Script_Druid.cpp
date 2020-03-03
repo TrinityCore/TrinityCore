@@ -128,51 +128,77 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Faerie Fire", DRUID_RANGE_DISTANCE, true))
-    {
-        return true;
-    }
-    if (sourceAI->CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
-    {
-        return true;
-    }
-    if (sourceAI->CastSpell(pmTarget, "Insect Swarm", DRUID_RANGE_DISTANCE, true, true))
-    {
-        return true;
-    }
-    //if (sourceAI->CastSpell(pmTarget, "Typhoon", DRUID_RANGE_DISTANCE))
-    //{
-    //    return true;
-    //}
     // when facing boss 
-    if (sObjectMgr->ieSet.find(pmTarget->GetEntry()) != sObjectMgr->ieSet.end())
+    if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3.0f)
     {
         if (sourceAI->CastSpell(me, "Force of Nature", DRUID_RANGE_DISTANCE))
         {
             me->Yell("Force of Nature !", Language::LANG_UNIVERSAL);
+            return true;
         }
-    }
-    if (me->HasAura(DRUID_AURA_ECLIPSE_LUNAR))
-    {
+        if (sourceAI->CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
+        {
+            return true;
+        }
+        if (sourceAI->CastSpell(pmTarget, "Insect Swarm", DRUID_RANGE_DISTANCE, true, true))
+        {
+            return true;
+        }
+        if (sourceAI->CastSpell(pmTarget, "Faerie Fire", DRUID_RANGE_DISTANCE, true))
+        {
+            return true;
+        }
+        if (me->HasAura(DRUID_AURA_ECLIPSE_LUNAR))
+        {
+            if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+        if (me->HasAura(DRUID_AURA_ECLIPSE_SOLAR))
+        {
+            if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
         if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
-    }
-    if (me->HasAura(DRUID_AURA_ECLIPSE_SOLAR))
-    {
         if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+    else
     {
-        return true;
-    }
-    if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
-    {
-        return true;
+        if (sourceAI->CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
+        {
+            return true;
+        }
+        if (me->HasAura(DRUID_AURA_ECLIPSE_LUNAR))
+        {
+            if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+        if (me->HasAura(DRUID_AURA_ECLIPSE_SOLAR))
+        {
+            if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+        if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
+        {
+            return true;
+        }
+        if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+        {
+            return true;
+        }
     }
 
     return true;
