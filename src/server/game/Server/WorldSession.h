@@ -85,6 +85,10 @@ class RBACData;
 
 namespace WorldPackets
 {
+    namespace Chat
+    {
+        class EmoteClient;
+    }
     namespace NPC
     {
         class Hello;
@@ -451,6 +455,7 @@ class TC_GAME_API WorldSession
         void DoLootRelease(ObjectGuid lguid);
 
         // Account mute time
+        bool CanSpeak() const;
         time_t m_muteTime;
 
         // Locales
@@ -573,7 +578,7 @@ class TC_GAME_API WorldSession
         void HandleZoneUpdateOpcode(WorldPacket& recvPacket);
         void HandleSetSelectionOpcode(WorldPacket& recvPacket);
         void HandleStandStateChangeOpcode(WorldPacket& recvPacket);
-        void HandleEmoteOpcode(WorldPacket& recvPacket);
+        void HandleEmoteOpcode(WorldPackets::Chat::EmoteClient& packet);
 
         // Social
         void HandleContactListOpcode(WorldPacket& recvPacket);

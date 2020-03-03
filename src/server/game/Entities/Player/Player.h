@@ -1963,7 +1963,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         void UpdateSpeakTime();
-        bool CanSpeak() const;
 
         /*********************************************************/
         /***                 VARIOUS SYSTEMS                   ***/
