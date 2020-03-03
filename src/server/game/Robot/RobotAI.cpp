@@ -393,7 +393,7 @@ void RobotAI::InitializeCharacter()
         }
         else if (me->GetClass() == Classes::CLASS_DRUID)
         {
-            specialty = 1;
+            specialty = 0;
         }
         else if (me->GetClass() == Classes::CLASS_HUNTER)
         {

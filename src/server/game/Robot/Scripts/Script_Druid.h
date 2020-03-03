@@ -1,6 +1,14 @@
 #ifndef ROBOT_STRATEGIES_SCRIPT_DRUID_H
 #define ROBOT_STRATEGIES_SCRIPT_DRUID_H
 
+#ifndef DRUID_AURA_ECLIPSE_LUNAR
+# define DRUID_AURA_ECLIPSE_LUNAR 48518
+#endif
+
+#ifndef DRUID_AURA_ECLIPSE_SOLAR
+# define DRUID_AURA_ECLIPSE_SOLAR 48517
+#endif
+
 #include "Script_Base.h"
 
 class Script_Druid :public Script_Base

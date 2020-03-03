@@ -87,32 +87,88 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
     }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
-        if (sourceAI->CastSpell(me, "Innervate", DRUID_RANGE_DISTANCE, false, false, true))
+        if (sourceAI->CastSpell(me, "Innervate", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
     }
     sourceAI->BaseMove(pmTarget, DRUID_CLOSER_DISTANCE, false);
-    if (!pmTarget->GetTarget().IsEmpty())
+    Group* myGroup = me->GetGroup();
+    if (myGroup)
+    {
+        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        {
+            Player* member = groupRef->GetSource();
+            if (member->groupRole == 1)
+            {
+                if (member->getAttackers().size() >= 3)
+                {
+                    uint32 inRangeCount = 0;
+                    for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                    {
+                        if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                        {
+                            inRangeCount++;
+                            if (inRangeCount >= 3)
+                            {
+                                if (sourceAI->CastSpell((*i), "Starfall", DRUID_RANGE_DISTANCE))
+                                {
+                                    return true;
+                                }
+                                if (sourceAI->CastSpell((*i), "Hurricane", DRUID_RANGE_DISTANCE))
+                                {
+                                    return true;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+    if (sourceAI->CastSpell(pmTarget, "Faerie Fire", DRUID_RANGE_DISTANCE, true))
+    {
+        return true;
+    }
+    if (sourceAI->CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
+    {
+        return true;
+    }
+    if (sourceAI->CastSpell(pmTarget, "Insect Swarm", DRUID_RANGE_DISTANCE, true, true))
+    {
+        return true;
+    }
+    //if (sourceAI->CastSpell(pmTarget, "Typhoon", DRUID_RANGE_DISTANCE))
+    //{
+    //    return true;
+    //}
+    // when facing boss 
+    if (sObjectMgr->ieSet.find(pmTarget->GetEntry()) != sObjectMgr->ieSet.end())
+    {
+        if (sourceAI->CastSpell(me, "Force of Nature", DRUID_RANGE_DISTANCE))
+        {
+            me->Yell("Force of Nature !", Language::LANG_UNIVERSAL);
+        }
+    }
+    if (me->HasAura(DRUID_AURA_ECLIPSE_LUNAR))
     {
         if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
     }
-    else
+    if (me->HasAura(DRUID_AURA_ECLIPSE_SOLAR))
     {
-        if (sourceAI->CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
+        if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
-        if (me->GetGUID() != pmTarget->GetTarget())
-        {
-            if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
-            {
-                return true;
-            }
-        }
+    }
+    if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+    {
+        return true;
     }
     if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
     {
@@ -440,7 +496,7 @@ bool Script_Druid::Attack(Unit* pmTarget)
     }
     default:
     {
-        break;
+        return Attack_Balance(pmTarget);
     }
     }
 
@@ -507,6 +563,10 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
                 return true;
             }
         }
+    }
+    if (sourceAI->CastSpell(pmTarget, "Typhoon", DRUID_RANGE_DISTANCE))
+    {
+        return true;
     }
     if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
     {
@@ -807,14 +867,14 @@ bool Script_Druid::HealMe()
                 {
                     if (pST->Dispel == DispelType::DISPEL_POISON)
                     {
-                        if (sourceAI->CastSpell(me, "Cure Poison", DRUID_RANGE_DISTANCE, false, false, true))
+                        if (sourceAI->CastSpell(me, "Cure Poison", DRUID_RANGE_DISTANCE))
                         {
                             return true;
                         }
                     }
                     else if (pST->Dispel == DispelType::DISPEL_CURSE)
                     {
-                        if (sourceAI->CastSpell(me, "Remove Curse", DRUID_RANGE_DISTANCE, false, false, true))
+                        if (sourceAI->CastSpell(me, "Remove Curse", DRUID_RANGE_DISTANCE))
                         {
                             return true;
                         }
@@ -868,6 +928,46 @@ bool Script_Druid::Buff()
                     if (sourceAI->CastSpell(member, "Mark of the Wild", DRUID_RANGE_DISTANCE, true, false, true))
                     {
                         return true;
+                    }
+                }
+            }
+        }
+
+        if (sourceAI->cure)
+        {
+            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
+                Player* member = groupRef->GetSource();
+                if (member)
+                {
+                    float targetDistance = me->GetDistance(member);
+                    if (targetDistance < DRUID_RANGE_DISTANCE)
+                    {
+                        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+                        {
+                            std::list<AuraEffect*> auraList = member->GetAuraEffectsByType((AuraType)type);
+                            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+                            {
+                                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                                if (!pST->IsPositive())
+                                {
+                                    if (pST->Dispel == DispelType::DISPEL_POISON)
+                                    {
+                                        if (sourceAI->CastSpell(member, "Cure Poison", DRUID_RANGE_DISTANCE))
+                                        {
+                                            return true;
+                                        }
+                                    }
+                                    else if (pST->Dispel == DispelType::DISPEL_CURSE)
+                                    {
+                                        if (sourceAI->CastSpell(member, "Remove Curse", DRUID_RANGE_DISTANCE))
+                                        {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
