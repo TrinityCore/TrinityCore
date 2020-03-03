@@ -106,7 +106,7 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     {
         return;
     }
-    if (me->IsEngaged())
+    if (me->IsInCombat())
     {
         instruction = Solo_Instruction::Solo_Instruction_Battle;
         sourceAI->restDelay = 0;
@@ -167,6 +167,10 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
         if (Battle())
         {
             return;
+        }
+        if (me->GetClass() == Classes::CLASS_HUNTER)
+        {
+            me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_CHEER);
         }
         instruction = Solo_Instruction::Solo_Instruction_Wander;
         break;
@@ -230,7 +234,7 @@ bool Strategy_Solo_Normal::Rest()
     {
         return false;
     }
-    if (me->IsEngaged())
+    if (me->IsInCombat())
     {
         return false;
     }

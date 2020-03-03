@@ -133,6 +133,7 @@ RobotAI::RobotAI(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace
 
     staying = false;
     holding = false;
+    cure = true;
 }
 
 RobotAI::~RobotAI()
@@ -162,6 +163,7 @@ void RobotAI::ResetStrategy()
     strategiesMap["group_normal"] = false;
     staying = false;
     holding = false;
+    cure = true;
     masterGUID = ObjectGuid::Empty;
     me->Say("Strategy reset", Language::LANG_UNIVERSAL);
     Prepare();
@@ -1118,6 +1120,10 @@ void RobotAI::Prepare()
                         checkPet->ToggleAutocast(pST, false);
                     }
                     else if (checkNameStr == "Phase Shift")
+                    {
+                        checkPet->ToggleAutocast(pST, false);
+                    }
+                    else if (checkNameStr == "Cower")
                     {
                         checkPet->ToggleAutocast(pST, false);
                     }
@@ -2917,6 +2923,152 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
         }
         WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
     }
+    else if (commandName == "threat")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        std::ostringstream replyStream;
+        replyStream << "Threat list : ";
+        for (auto* ref : me->getAttackers())
+        {
+            replyStream << ref->GetName() << ", ";
+        }
+        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+    }
+    else if (commandName == "revive")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        std::ostringstream reviveSpellName;
+        std::ostringstream replyStream;
+        if (me->GetClass() == Classes::CLASS_DRUID || me->GetClass() == Classes::CLASS_PRIEST || me->GetClass() == Classes::CLASS_PALADIN)
+        {
+            if (me->GetClass() == Classes::CLASS_DRUID)
+            {
+                reviveSpellName << "Revive";
+            }
+            else if (me->GetClass() == Classes::CLASS_PRIEST)
+            {
+                reviveSpellName << "Resurrection";
+            }
+            else if (me->GetClass() == Classes::CLASS_PALADIN)
+            {
+                reviveSpellName << "Redemption";
+            }
+            if (Group* myGroup = me->GetGroup())
+            {
+                for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                {
+                    if (Player* member = groupRef->GetSource())
+                    {
+                        if (!member->IsAlive())
+                        {
+                            if (!member->IsResurrectRequested())
+                            {
+                                if (me->GetDistance(member) < 30.0f)
+                                {
+                                    if (me->IsWithinLOSInMap(member))
+                                    {
+                                        if (CastSpell(member, reviveSpellName.str()))
+                                        {
+                                            replyStream << "Reviving " << member->GetName();
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+    }
+    else if (commandName == "cure")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        std::ostringstream replyStream;
+        if (commandVector.size() > 1)
+        {
+            std::string cureCMD = commandVector.at(1);
+            if (cureCMD == "on")
+            {
+                cure = true;
+                replyStream << "Auto cure set to on";
+            }
+            else if (cureCMD == "off")
+            {
+                cure = false;
+                replyStream << "Auto cure set to off";
+            }
+            else
+            {
+                replyStream << "Unknown state";
+            }
+        }
+        else
+        {
+            if (cure)
+            {
+                replyStream << "Auto cure is on";
+            }
+            else
+            {
+                replyStream << "Auto cure is off";
+            }
+        }
+        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+    }
+    else if (commandName == "emote")
+    {
+        if (!master)
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        if (pmSender->GetGUID() != master->GetGUID())
+        {
+            WhisperTo("You are not my master", Language::LANG_UNIVERSAL, pmSender);
+            return;
+        }
+        std::ostringstream replyStream;
+        if (commandVector.size() > 1)
+        {
+            int emoteCMD = std::stoi(commandVector.at(1));
+            me->HandleEmoteCommand(emoteCMD);
+        }
+        else
+        {
+            me->AttackStop();
+            me->CombatStop();
+        }
+        WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+    }
 }
 
 uint32 RobotAI::FindSpellID(std::string pmSpellName)
@@ -3064,7 +3216,7 @@ bool RobotAI::ApplyGlyph(Player* pmPlayer, uint32 pmGlyphSpellID, uint32 pmSlot)
                         if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(pmPlayer->GetGlyphSlot(pmSlot)))
                         {
                             if (gp->TypeFlags != gs->TypeFlags)
-                            {                                
+                            {
                                 return false;
                             }
                         }

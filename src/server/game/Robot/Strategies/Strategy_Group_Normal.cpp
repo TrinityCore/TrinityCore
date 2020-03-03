@@ -7,6 +7,7 @@
 #include "Item.h"
 #include "MotionMaster.h"
 #include "Pet.h"
+#include "Spell.h"
 
 Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
 {
@@ -167,6 +168,10 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     {
         if (!GroupInCombat())
         {
+            if (me->GetClass() == Classes::CLASS_HUNTER)
+            {
+                me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_CHEER);
+            }
             instruction = Group_Instruction::Group_Instruction_Wander;
             return;
         }

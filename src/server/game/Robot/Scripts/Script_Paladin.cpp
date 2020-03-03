@@ -39,19 +39,22 @@ bool Script_Paladin::HealMe()
         }
     }
 
-    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+    if (sourceAI->cure)
     {
-        std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
-        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
         {
-            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-            if (!pST->IsPositive())
+            std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
             {
-                if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
                 {
-                    if (sourceAI->CastSpell(me, "Purify"))
+                    if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
                     {
-                        return true;
+                        if (sourceAI->CastSpell(me, "Purify"))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -186,19 +189,22 @@ bool Script_Paladin::Healer()
             }
         }
 
-        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+        if(sourceAI->cure)
         {
-            std::list<AuraEffect*> auraList = tank->GetAuraEffectsByType((AuraType)type);
-            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+            for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
             {
-                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-                if (!pST->IsPositive())
+                std::list<AuraEffect*> auraList = tank->GetAuraEffectsByType((AuraType)type);
+                for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
                 {
-                    if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
+                    const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                    if (!pST->IsPositive())
                     {
-                        if (sourceAI->CastSpell(tank, "Purify"))
+                        if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
                         {
-                            return true;
+                            if (sourceAI->CastSpell(tank, "Purify"))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -567,19 +573,22 @@ bool Script_Paladin::Buff()
         break;
     }
     }
-    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+    if (sourceAI->cure)
     {
-        std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
-        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
         {
-            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-            if (!pST->IsPositive())
+            std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
             {
-                if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
                 {
-                    if (sourceAI->CastSpell(me, "Purify"))
+                    if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
                     {
-                        return true;
+                        if (sourceAI->CastSpell(me, "Purify"))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
@@ -605,19 +614,22 @@ bool Script_Paladin::Buff()
                     {
                         return true;
                     }
-                    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+                    if (sourceAI->cure)
                     {
-                        std::list<AuraEffect*> auraList = member->GetAuraEffectsByType((AuraType)type);
-                        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+                        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
                         {
-                            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-                            if (!pST->IsPositive())
+                            std::list<AuraEffect*> auraList = member->GetAuraEffectsByType((AuraType)type);
+                            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
                             {
-                                if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
+                                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                                if (!pST->IsPositive())
                                 {
-                                    if (sourceAI->CastSpell(member, "Purify"))
+                                    if (pST->Dispel == DispelType::DISPEL_POISON || pST->Dispel == DispelType::DISPEL_DISEASE)
                                     {
-                                        return true;
+                                        if (sourceAI->CastSpell(member, "Purify"))
+                                        {
+                                            return true;
+                                        }
                                     }
                                 }
                             }

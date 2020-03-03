@@ -84,9 +84,12 @@ public:
             guardsmanActionDelay0 = urand(30000, 60000);
             guardsmanActionDelay1 = urand(30000, 60000);
             guardsmanActionDelay2 = 10000;
-            crystalDestroyedDelay0 = 0;
-            crystalDestroyedDelay1 = 0;
-            crystalDestroyedDelay2 = 0;
+            guardsmanLine0 = false;
+            guardsmanLine1 = false;
+            guardsmanLine2 = false;
+            crystalDestroyed0 = false;
+            crystalDestroyed1 = false;
+            crystalDestroyed2 = false;
             slauterOpened = false;
             crystalMap.clear();
             crystalMap[STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_0].insert(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_0);
@@ -148,10 +151,13 @@ public:
         int guardsmanActionDelay0;
         int guardsmanActionDelay1;
         int guardsmanActionDelay2;
+        bool guardsmanLine0;
+        bool guardsmanLine1;
+        bool guardsmanLine2;
 
-        int crystalDestroyedDelay0;
-        int crystalDestroyedDelay1;
-        int crystalDestroyedDelay2;
+        bool crystalDestroyed0;
+        bool crystalDestroyed1;
+        bool crystalDestroyed2;
         bool slauterOpened;
         bool barthilasLine0;
         int barthilasLine0CheckDelay;
@@ -251,9 +257,89 @@ public:
                 break;
             case STRCreatureIds::NPC_THUZADIN_ACOLYTE:
             {
-                if (creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_0 || creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_0 || creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_0)
+                if (creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_0)
                 {
-                    creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_3);
+                    if (crystalDestroyed0)
+                    {
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_0))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_1))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_2))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_3))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_4))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_3);
+                        crystalDestroyed0 = false;
+                    }
+                }
+                else if (creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_0)
+                {
+                    if (crystalDestroyed1)
+                    {
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_1))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_1))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_2))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_3))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_4))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_3);
+                        crystalDestroyed1 = false;
+                    }
+                }
+                else if (creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_0)
+                {
+                    if (crystalDestroyed2)
+                    {
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_2))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_1))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_2))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_3))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_4))
+                        {
+                            instance->Respawn(ri);
+                        }
+                        creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_3);
+                        crystalDestroyed2 = false;
+                    }
                 }
                 break;
             }
@@ -356,17 +442,17 @@ public:
                         {
                             checkCrystal->DespawnOrUnsummon(500, 2h);
                         }
-                        crystalDestroyedDelay0 = 1200000;
+                        crystalDestroyed0 = true;
                         int destroyedCount = 0;
-                        if (crystalDestroyedDelay0 > 0)
+                        if (crystalDestroyed0)
                         {
                             destroyedCount++;
                         }
-                        if (crystalDestroyedDelay1 > 0)
+                        if (crystalDestroyed1)
                         {
                             destroyedCount++;
                         }
-                        if (crystalDestroyedDelay2 > 0)
+                        if (crystalDestroyed2)
                         {
                             destroyedCount++;
                         }
@@ -410,17 +496,17 @@ public:
                         {
                             checkCrystal->DespawnOrUnsummon(500, 2h);
                         }
-                        crystalDestroyedDelay1 = 1200000;
+                        crystalDestroyed1 = true;
                         int destroyedCount = 0;
-                        if (crystalDestroyedDelay0 > 0)
+                        if (crystalDestroyed0)
                         {
                             destroyedCount++;
                         }
-                        if (crystalDestroyedDelay1 > 0)
+                        if (crystalDestroyed1)
                         {
                             destroyedCount++;
                         }
-                        if (crystalDestroyedDelay2 > 0)
+                        if (crystalDestroyed2)
                         {
                             destroyedCount++;
                         }
@@ -464,17 +550,17 @@ public:
                         {
                             checkCrystal->DespawnOrUnsummon(500, 2h);
                         }
-                        crystalDestroyedDelay2 = 1200000;
+                        crystalDestroyed2 = true;
                         int destroyedCount = 0;
-                        if (crystalDestroyedDelay0 > 0)
+                        if (crystalDestroyed0)
                         {
                             destroyedCount++;
                         }
-                        if (crystalDestroyedDelay1 > 0)
+                        if (crystalDestroyed1)
                         {
                             destroyedCount++;
                         }
-                        if (crystalDestroyedDelay2 > 0)
+                        if (crystalDestroyed2)
                         {
                             destroyedCount++;
                         }
@@ -848,7 +934,10 @@ public:
                             {
                                 if (Creature* checkC = instance->GetCreature(baronGUID))
                                 {
-                                    checkC->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_2);
+                                    if (checkC->IsAlive())
+                                    {
+                                        checkC->AI()->Talk(STRATHOLME_LINE_BARON_RIVENDARE::LINE_BARON_RIVENDARE_2);
+                                    }
                                     rivendareLine2 = true;
                                 }
                             }
@@ -857,164 +946,188 @@ public:
                 }
             }
 
-            guardsmanActionDelay0 -= diff;
-            if (guardsmanActionDelay0 < 0)
+            if (!guardsmanLine0)
             {
-                guardsmanActionDelay0 = urand(10000, 20000);
-                if (Creature* checkGuardsman = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_CRIMSON_GUARDSMAN_0))
+                guardsmanActionDelay0 -= diff;
+                if (guardsmanActionDelay0 < 0)
                 {
-                    if (checkGuardsman->IsAlive())
+                    guardsmanActionDelay0 = urand(10000, 20000);
+                    if (Creature* checkGuardsman = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_CRIMSON_GUARDSMAN_0))
                     {
-                        if (checkGuardsman->SelectNearestPlayer(100.0f))
+                        if (checkGuardsman->IsAlive())
                         {
-                            if (checkGuardsman->GetThreatManager().IsThreatListEmpty())
+                            if (Player* checkP = checkGuardsman->SelectNearestPlayer(100.0f))
                             {
-                                if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_0))
+                                if (checkGuardsman->GetThreatManager().IsThreatListEmpty())
                                 {
-                                    checkGuardsman->AI()->AttackStart(victim);
-                                    victim->AI()->AttackStart(checkGuardsman);
+                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_0))
+                                    {
+                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
+                                        }
+                                        else
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
+                                        }
+                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
+                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
+                                        checkGuardsman->AI()->AttackStart(victim);
+                                        victim->AI()->AttackStart(checkGuardsman);
+                                    }
+                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_1))
+                                    {
+                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
+                                        }
+                                        else
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
+                                        }
+                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
+                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
+                                        checkGuardsman->AI()->AttackStart(victim);
+                                        victim->AI()->AttackStart(checkGuardsman);
+                                    }
+                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_2))
+                                    {
+                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
+                                        }
+                                        else
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
+                                        }
+                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
+                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
+                                        checkGuardsman->AI()->AttackStart(victim);
+                                        victim->AI()->AttackStart(checkGuardsman);
+                                    }
+                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_3))
+                                    {
+                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
+                                        }
+                                        else
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
+                                        }
+                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
+                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
+                                        checkGuardsman->AI()->AttackStart(victim);
+                                        victim->AI()->AttackStart(checkGuardsman);
+                                    }
+                                    checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_0);
+                                    guardsmanLine0 = true;
                                 }
-                                if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_0_1))
-                                {
-                                    checkGuardsman->AI()->AttackStart(victim);
-                                    victim->AI()->AttackStart(checkGuardsman);
-                                }
-                                checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_0);
                             }
                         }
                     }
                 }
             }
 
-            guardsmanActionDelay1 -= diff;
-            if (guardsmanActionDelay1 < 0)
+            if (!guardsmanLine1)
             {
-                guardsmanActionDelay1 = urand(10000, 20000);
-                if (Creature* checkGuardsman = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_CRIMSON_GUARDSMAN_1))
+                guardsmanActionDelay1 -= diff;
+                if (guardsmanActionDelay1 < 0)
                 {
-                    if (checkGuardsman->IsAlive())
+                    guardsmanActionDelay1 = urand(10000, 20000);
+                    if (Creature* checkGuardsman = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_CRIMSON_GUARDSMAN_1))
                     {
-                        if (checkGuardsman->SelectNearestPlayer(100.0f))
+                        if (checkGuardsman->IsAlive())
                         {
-                            if (checkGuardsman->GetThreatManager().IsThreatListEmpty())
+                            if (Player* checkP = checkGuardsman->SelectNearestPlayer(100.0f))
                             {
-                                if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_0))
+                                if (checkGuardsman->GetThreatManager().IsThreatListEmpty())
                                 {
-                                    checkGuardsman->AI()->AttackStart(victim);
-                                    victim->AI()->AttackStart(checkGuardsman);
+                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_0))
+                                    {
+                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
+                                        }
+                                        else
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
+                                        }
+                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
+                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
+                                        checkGuardsman->AI()->AttackStart(victim);
+                                        victim->AI()->AttackStart(checkGuardsman);
+                                    }
+                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_1))
+                                    {
+                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
+                                        }
+                                        else
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
+                                        }
+                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
+                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
+                                        checkGuardsman->AI()->AttackStart(victim);
+                                        victim->AI()->AttackStart(checkGuardsman);
+                                    }
+                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_2))
+                                    {
+                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
+                                        }
+                                        else
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
+                                        }
+                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
+                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
+                                        checkGuardsman->AI()->AttackStart(victim);
+                                        victim->AI()->AttackStart(checkGuardsman);
+                                    }
+                                    if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_3))
+                                    {
+                                        if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
+                                        }
+                                        else
+                                        {
+                                            victim->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
+                                        }
+                                        checkGuardsman->GetThreatManager().AddThreat(victim, 100);
+                                        victim->GetThreatManager().AddThreat(checkGuardsman, 100);
+                                        checkGuardsman->AI()->AttackStart(victim);
+                                        victim->AI()->AttackStart(checkGuardsman);
+                                    }
+                                    checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_1);
+                                    guardsmanLine1 = true;
                                 }
-                                if (Creature* victim = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_SKELETON_1_1))
-                                {
-                                    checkGuardsman->AI()->AttackStart(victim);
-                                    victim->AI()->AttackStart(checkGuardsman);
-                                }
-                                checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_1);
                             }
                         }
                     }
                 }
             }
 
-            guardsmanActionDelay2 -= diff;
-            if (guardsmanActionDelay2 < 0)
+            if (!guardsmanLine2)
             {
-                guardsmanActionDelay2 = 10000;
-                if (Creature* checkGuardsman = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_CRIMSON_GUARDSMAN_2))
+                guardsmanActionDelay2 -= diff;
+                if (guardsmanActionDelay2 < 0)
                 {
-                    if (checkGuardsman->IsAlive())
+                    guardsmanActionDelay2 = 10000;
+                    if (Creature* checkGuardsman = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_CRIMSON_GUARDSMAN_2))
                     {
-                        if (checkGuardsman->SelectNearestPlayer(5.0f))
+                        if (checkGuardsman->IsAlive())
                         {
-                            checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_2);
+                            if (checkGuardsman->SelectNearestPlayer(5.0f))
+                            {
+                                checkGuardsman->AI()->Talk(STRATHOLME_LINE_CRIMSON_GUARDSMAN::LINE_CRIMSON_GUARDSMAN_2);
+                                guardsmanLine2 = true;
+                            }
                         }
-                    }
-                }
-            }
-
-            if (!slauterOpened)
-            {
-                if (crystalDestroyedDelay0 > 0)
-                {
-                    crystalDestroyedDelay0 -= diff;
-                    if (crystalDestroyedDelay0 <= 0)
-                    {
-                        if (Creature* checkC = instance->GetCreatureBySpawnId(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_0))
-                        {
-                            bool breakPoint = true;
-                        }
-                        RespawnInfo* riC = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_0);
-                        instance->Respawn(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_0);
-                        int checkValue = instance->GetCreatureRespawnTime(STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_0);
-                        RespawnInfo* riTA0 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_0);
-                        riTA0->respawnTime = 500;
-                        instance->Respawn(riTA0);
-                        RespawnInfo* riTA1 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_1);
-                        riTA1->respawnTime = 500;
-                        instance->Respawn(riTA1);
-                        RespawnInfo* riTA2 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_2);
-                        riTA2->respawnTime = 500;
-                        instance->Respawn(riTA2);
-                        RespawnInfo* riTA3 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_3);
-                        riTA3->respawnTime = 500;
-                        instance->Respawn(riTA3);
-                        RespawnInfo* riTA4 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_4);
-                        riTA4->respawnTime = 500;
-                        instance->Respawn(riTA4);
-                        crystalDestroyedDelay0 = 0;
-                    }
-                }
-
-                if (crystalDestroyedDelay1 > 0)
-                {
-                    crystalDestroyedDelay1 -= diff;
-                    if (crystalDestroyedDelay1 <= 0)
-                    {
-                        RespawnInfo* riC = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_1);
-                        riC->respawnTime = 500;
-                        instance->Respawn(riC);
-                        RespawnInfo* riTA0 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_0);
-                        riTA0->respawnTime = 500;
-                        instance->Respawn(riTA0);
-                        RespawnInfo* riTA1 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_1);
-                        riTA1->respawnTime = 500;
-                        instance->Respawn(riTA1);
-                        RespawnInfo* riTA2 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_2);
-                        riTA2->respawnTime = 500;
-                        instance->Respawn(riTA2);
-                        RespawnInfo* riTA3 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_3);
-                        riTA3->respawnTime = 500;
-                        instance->Respawn(riTA3);
-                        RespawnInfo* riTA4 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_4);
-                        riTA4->respawnTime = 500;
-                        instance->Respawn(riTA4);
-                        crystalDestroyedDelay1 = 0;
-                    }
-                }
-
-                if (crystalDestroyedDelay2 > 0)
-                {
-                    crystalDestroyedDelay2 -= diff;
-                    if (crystalDestroyedDelay2 <= 0)
-                    {
-                        RespawnInfo* riC = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_2);
-                        riC->respawnTime = 500;
-                        instance->Respawn(riC);
-                        RespawnInfo* riTA0 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_0);
-                        riTA0->respawnTime = 500;
-                        instance->Respawn(riTA0);
-                        RespawnInfo* riTA1 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_1);
-                        riTA1->respawnTime = 500;
-                        instance->Respawn(riTA1);
-                        RespawnInfo* riTA2 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_2);
-                        riTA2->respawnTime = 500;
-                        instance->Respawn(riTA2);
-                        RespawnInfo* riTA3 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_3);
-                        riTA3->respawnTime = 500;
-                        instance->Respawn(riTA3);
-                        RespawnInfo* riTA4 = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_4);
-                        riTA4->respawnTime = 500;
-                        instance->Respawn(riTA4);
-                        crystalDestroyedDelay0 = 2;
                     }
                 }
             }
@@ -1217,14 +1330,6 @@ public:
             }
         }
 
-        void JustEngagedWith(Unit* who) override
-        {
-            events.ScheduleEvent(AURIUS_EVENT::EVENT_CRUSADER_STRIKE, 1s);
-            events.ScheduleEvent(AURIUS_EVENT::EVENT_EXORCISM, 3s);
-            events.ScheduleEvent(AURIUS_EVENT::EVENT_DIVINE_SHIELD, 5s);
-            events.ScheduleEvent(AURIUS_EVENT::EVENT_HOLY_LIGHT, 5s);
-        }
-
         void UpdateAI(uint32 diff) override
         {
             if (victory)
@@ -1248,11 +1353,23 @@ public:
                         {
                             if (Player* checkP = me->SelectNearestPlayer(50.0f))
                             {
-                                me->SetFaction(checkP->GetFaction());
+                                //me->SetFaction(checkP->GetFaction());
                                 Talk(STRATHOLME_LINE_AURIUS::LINE_AURIUS_0);
+                                if (checkP->GetFaction() == PLAYER_FACTION::PLAYER_FACTION_1)
+                                {
+                                    me->SetFaction(PLAYER_FACTION::PLAYER_FACTION_1);
+                                }
+                                else
+                                {
+                                    me->SetFaction(PLAYER_FACTION::PLAYER_FACTION_2);
+                                }
                                 me->GetThreatManager().AddThreat(pBaron, 100);
                                 pBaron->GetThreatManager().AddThreat(me, 100);
                                 AttackStart(pBaron);
+                                events.ScheduleEvent(AURIUS_EVENT::EVENT_CRUSADER_STRIKE, 1s);
+                                events.ScheduleEvent(AURIUS_EVENT::EVENT_EXORCISM, 3s);
+                                events.ScheduleEvent(AURIUS_EVENT::EVENT_DIVINE_SHIELD, 5s);
+                                events.ScheduleEvent(AURIUS_EVENT::EVENT_HOLY_LIGHT, 5s);
                             }
                         }
                     }

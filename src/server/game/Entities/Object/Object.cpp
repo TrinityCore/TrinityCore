@@ -2876,10 +2876,17 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
         if (unitTarget->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && unit->IsImmuneToPC())
             return false;
     }
-
+        
     // CvC case - can attack each other only when one of them is hostile
     if (ToUnit() && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED) && target->ToUnit() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+    {        
         return IsHostileTo(target) || target->IsHostileTo(this);
+        // EJ fix CvC can happen when nutrual
+        //if (GetReactionTo(target) <= REP_NEUTRAL || target->GetReactionTo(this) <= REP_NEUTRAL)
+        //{
+        //    return true;
+        //}
+    }
 
     // PvP, PvC, CvP case
     // can't attack friendly targets

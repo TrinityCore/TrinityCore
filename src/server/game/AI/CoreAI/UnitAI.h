@@ -44,6 +44,13 @@ struct AISpellInfoType;
 enum DamageEffectType : uint8;
 enum SpellEffIndex : uint8;
 
+// EJ for cvc 
+enum PLAYER_FACTION
+{
+    PLAYER_FACTION_1 = 1,
+    PLAYER_FACTION_2 = 2,
+};
+
 //Selection method used by SelectTarget
 enum SelectAggroTarget
 {

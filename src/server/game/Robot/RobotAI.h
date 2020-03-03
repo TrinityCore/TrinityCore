@@ -122,5 +122,6 @@ public:
 
     bool staying;
     bool holding;
+    bool cure;
 };
 #endif

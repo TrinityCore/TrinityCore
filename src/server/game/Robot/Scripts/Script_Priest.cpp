@@ -45,6 +45,28 @@ bool Script_Priest::HealMe()
         }
     }
 
+    if (sourceAI->cure)
+    {
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+        {
+            std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+            {
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
+                {
+                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
+                    {
+                        if (sourceAI->CastSpell(me, "Cure Disease"))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     return false;
 }
 
@@ -158,19 +180,22 @@ bool Script_Priest::Healer()
             }
         }
 
-        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+        if (sourceAI->cure)
         {
-            std::list<AuraEffect*> auraList = tank->GetAuraEffectsByType((AuraType)type);
-            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+            for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
             {
-                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-                if (!pST->IsPositive())
+                std::list<AuraEffect*> auraList = tank->GetAuraEffectsByType((AuraType)type);
+                for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
                 {
-                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
+                    const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                    if (!pST->IsPositive())
                     {
-                        if (sourceAI->CastSpell(tank, "Cure Disease"))
+                        if (pST->Dispel == DispelType::DISPEL_DISEASE)
                         {
-                            return true;
+                            if (sourceAI->CastSpell(tank, "Cure Disease"))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
@@ -345,19 +370,22 @@ bool Script_Priest::Buff()
                         return true;
                     }
 
-                    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+                    if (sourceAI->cure)
                     {
-                        std::list<AuraEffect*> auraList = member->GetAuraEffectsByType((AuraType)type);
-                        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+                        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
                         {
-                            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-                            if (!pST->IsPositive())
+                            std::list<AuraEffect*> auraList = member->GetAuraEffectsByType((AuraType)type);
+                            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
                             {
-                                if (pST->Dispel == DispelType::DISPEL_DISEASE)
+                                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                                if (!pST->IsPositive())
                                 {
-                                    if (sourceAI->CastSpell(member, "Cure Disease"))
+                                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
                                     {
-                                        return true;
+                                        if (sourceAI->CastSpell(member, "Cure Disease"))
+                                        {
+                                            return true;
+                                        }
                                     }
                                 }
                             }

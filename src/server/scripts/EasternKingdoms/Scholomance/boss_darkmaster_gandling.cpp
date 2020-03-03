@@ -69,6 +69,10 @@ class boss_darkmaster_gandling : public CreatureScript
                 _JustDied();
                 if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
+                if (InstanceScript* is = me->GetInstanceScript())
+                {
+                    is->SetBossState(SCDataTypes::DATA_DARKMASTERGANDLING, EncounterState::DONE);
+                }
             }
 
             void JustEngagedWith(Unit* who) override

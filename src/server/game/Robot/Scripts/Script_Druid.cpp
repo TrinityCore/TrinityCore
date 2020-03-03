@@ -795,26 +795,29 @@ bool Script_Druid::HealMe()
         }
     }
 
-    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+    if (sourceAI->cure)
     {
-        std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
-        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
         {
-            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-            if (!pST->IsPositive())
+            std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
             {
-                if (pST->Dispel == DispelType::DISPEL_POISON)
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
                 {
-                    if (sourceAI->CastSpell(me, "Cure Poison", DRUID_RANGE_DISTANCE, false, false, true))
+                    if (pST->Dispel == DispelType::DISPEL_POISON)
                     {
-                        return true;
+                        if (sourceAI->CastSpell(me, "Cure Poison", DRUID_RANGE_DISTANCE, false, false, true))
+                        {
+                            return true;
+                        }
                     }
-                }
-                else if (pST->Dispel == DispelType::DISPEL_CURSE)
-                {
-                    if (sourceAI->CastSpell(me, "Remove Curse", DRUID_RANGE_DISTANCE, false, false, true))
+                    else if (pST->Dispel == DispelType::DISPEL_CURSE)
                     {
-                        return true;
+                        if (sourceAI->CastSpell(me, "Remove Curse", DRUID_RANGE_DISTANCE, false, false, true))
+                        {
+                            return true;
+                        }
                     }
                 }
             }

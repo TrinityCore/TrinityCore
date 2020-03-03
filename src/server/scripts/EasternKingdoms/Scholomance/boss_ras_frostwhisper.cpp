@@ -90,7 +90,10 @@ public:
         void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
+            {
+                boonOfLifeDuration = 0;
                 return;
+            }                
 
             if (!isHuman)
             {
@@ -103,10 +106,6 @@ public:
                         me->SetDisplayId(3974);
                         isHuman = true;
                     }
-                }
-                else
-                {
-                    boonOfLifeDuration = 0;
                 }
             }
 

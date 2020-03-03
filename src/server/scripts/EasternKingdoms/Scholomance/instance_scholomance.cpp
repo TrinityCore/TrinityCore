@@ -51,16 +51,21 @@ public:
             chargerQuestNPCEntrySet.insert(SCHOLOMANCE_NPC::NPC_SHADOWED_SPIRIT);
 
             chargerQuestNPCEntrySet.insert(SCHOLOMANCE_NPC::NPC_DEATH_KNIGHT_DARKREAVER);
+
+            rasGateOpened = false;
+            rasGateCheckDelay = 1000;
+
+            SetBossState(SCDataTypes::DATA_DARKMASTERGANDLING, EncounterState::NOT_STARTED);
         }
 
         void OnCreatureCreate(Creature* creature) override
         {
             if (creature->GetEntry() == SCCreatureIds::NPC_DARKMASTER_GANDLING)
-            {
+            {                
                 creature->AI()->Talk(SCHOLOMANCE_LINE_DARKMASTER_GANDLING::LINE_DARKMASTER_GANDLING_0);
                 creature->GetMotionMaster()->MoveRandom(5);
             }
-            if (creature->GetEntry() == SCHOLOMANCE_NPC::NPC_DARKREAVER_FALLEN_CHARGER)
+            else if (creature->GetEntry() == SCHOLOMANCE_NPC::NPC_DARKREAVER_FALLEN_CHARGER)
             {
                 OGCharger = creature->GetGUID();
             }
@@ -68,18 +73,7 @@ public:
             {
                 creature->GetThreatManager().AddThreat(creature->SelectNearestPlayer(50.0f), 100);
             }
-        }
-
-        void OnCreatureDied(Creature* creature) override
-        {
-            if (creature->GetEntry() == SCCreatureIds::NPC_DARKMASTER_GANDLING)
-            {
-                if (GameObject* goGateRas = instance->GetGameObject(OGGateRasFrostwhisper))
-                {
-                    goGateRas->SetGoState(GOState::GO_STATE_ACTIVE);
-                }
-            }
-        }
+        }        
 
         void OnGameObjectCreate(GameObject* go) override
         {
@@ -236,6 +230,25 @@ public:
                     }
                 }
             }
+
+            if (!rasGateOpened)
+            {
+                rasGateCheckDelay -= diff;
+                if (rasGateCheckDelay < 0)
+                {
+                    if (GetBossState(SCDataTypes::DATA_DARKMASTERGANDLING) == EncounterState::DONE)
+                    {
+                        if (GameObject* goGateRas = instance->GetGameObject(OGGateRasFrostwhisper))
+                        {
+                            if (goGateRas->SelectNearestPlayer(5.0f))
+                            {
+                                goGateRas->SetGoState(GOState::GO_STATE_ACTIVE);
+                                rasGateOpened = true;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
     protected:
@@ -250,6 +263,8 @@ public:
         ObjectGuid BrazierOfTheHeraldGUID;
 
         ObjectGuid OGGateRasFrostwhisper;
+        int rasGateCheckDelay;
+        bool rasGateOpened;
         ObjectGuid OGCharger;
 
     private:
