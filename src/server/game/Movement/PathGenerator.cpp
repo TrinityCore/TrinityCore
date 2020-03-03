@@ -456,6 +456,8 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
                 _type = PATHFIND_INCOMPLETE;
                 return;
             }
+            else
+                _navMeshQuery->getPolyHeight(_pathPolyRefs[_polyLength - 1], endPoint, &endPoint[1]);
         }
         else
         {
