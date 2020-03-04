@@ -177,6 +177,10 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
         {
             return true;
         }
+        if (sourceAI->CastSpell(pmTarget, "Insect Swarm", DRUID_RANGE_DISTANCE, true, true))
+        {
+            return true;
+        }
         if (me->HasAura(DRUID_AURA_ECLIPSE_LUNAR))
         {
             if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
@@ -191,11 +195,11 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
                 return true;
             }
         }
-        if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+        if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
