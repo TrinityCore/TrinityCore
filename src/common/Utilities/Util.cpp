@@ -19,8 +19,10 @@
 #include "Common.h"
 #include "Containers.h"
 #include "IpAddress.h"
+#include "StringFormat.h"
 #include <utf8.h>
 #include <algorithm>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <cctype>
@@ -107,24 +109,102 @@ time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
     return hourLocal;
 }
 
-std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
+std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hoursOnly)
 {
     uint64 secs    = timeInSecs % MINUTE;
     uint64 minutes = timeInSecs % HOUR / MINUTE;
     uint64 hours   = timeInSecs % DAY  / HOUR;
     uint64 days    = timeInSecs / DAY;
 
+    if (timeFormat == TimeFormat::Numeric)
+    {
+        if (days)
+            return Trinity::StringFormat("%u:%02u:%02u:%02u", days, hours, minutes, secs);
+        else if (hours)
+            return Trinity::StringFormat("%u:%02u:%02u", hours, minutes, secs);
+        else if (minutes)
+            return Trinity::StringFormat("%u:%02u", minutes, secs);
+        else
+            return Trinity::StringFormat("0:%02u", secs);
+    }
+
     std::ostringstream ss;
     if (days)
-        ss << days << (shortText ? "d" : " Day(s) ");
+    {
+        ss << days;
+        switch (timeFormat)
+        {
+            case TimeFormat::ShortText:
+                ss << "d";
+                break;
+            case TimeFormat::FullText:
+                if (days == 1)
+                    ss << " Day ";
+                else
+                    ss << " Days ";
+                break;
+            default:
+                return "<Unknown time format>";
+        }
+    }
+
     if (hours || hoursOnly)
-        ss << hours << (shortText ? "h" : " Hour(s) ");
+    {
+        ss << hours;
+        switch (timeFormat)
+        {
+            case TimeFormat::ShortText:
+                ss << "h";
+                break;
+            case TimeFormat::FullText:
+                if (hours <= 1)
+                    ss << " Hour ";
+                else
+                    ss << " Hours ";
+                break;
+            default:
+                return "<Unknown time format>";
+        }
+    }
     if (!hoursOnly)
     {
         if (minutes)
-            ss << minutes << (shortText ? "m" : " Minute(s) ");
-        if (secs || (!days && !hours && !minutes) )
-            ss << secs << (shortText ? "s" : " Second(s).");
+        {
+            ss << minutes;
+            switch (timeFormat)
+            {
+                case TimeFormat::ShortText:
+                    ss << "m";
+                    break;
+                case TimeFormat::FullText:
+                    if (minutes == 1)
+                        ss << " Minute ";
+                    else
+                        ss << " Minutes ";
+                    break;
+                default:
+                    return "<Unknown time format>";
+            }
+        }
+
+        if (secs || (!days && !hours && !minutes))
+        {
+            ss << secs;
+            switch (timeFormat)
+            {
+                case TimeFormat::ShortText:
+                    ss << "s";
+                    break;
+                case TimeFormat::FullText:
+                    if (secs <= 1)
+                        ss << " Second.";
+                    else
+                        ss << " Seconds.";
+                    break;
+                default:
+                    return "<Unknown time format>";
+            }
+        }
     }
 
     return ss.str();
@@ -140,16 +220,16 @@ int32 MoneyStringToMoney(std::string const& moneyString)
         return 0; // Bad format
 
     Tokenizer tokens(moneyString, ' ');
-    for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+    for (char const* token : tokens)
     {
-        std::string tokenString(*itr);
+        std::string tokenString(token);
         size_t gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
         size_t sCount = std::count(tokenString.begin(), tokenString.end(), 's');
         size_t cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
         if (gCount + sCount + cCount != 1)
             return 0;
 
-        uint32 amount = strtoul(*itr, nullptr, 10);
+        uint32 amount = strtoul(token, nullptr, 10);
         if (gCount == 1)
             money += amount * 100 * 100;
         else if (sCount == 1)
@@ -167,16 +247,16 @@ uint32 TimeStringToSecs(std::string const& timestring)
     uint32 buffer     = 0;
     uint32 multiplier = 0;
 
-    for (std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); ++itr)
+    for (char itr : timestring)
     {
-        if (isdigit(*itr))
+        if (isdigit(itr))
         {
             buffer *= 10;
-            buffer += (*itr) - '0';
+            buffer += itr - '0';
         }
         else
         {
-            switch (*itr)
+            switch (itr)
             {
                 case 'd': multiplier = DAY;     break;
                 case 'h': multiplier = HOUR;    break;
