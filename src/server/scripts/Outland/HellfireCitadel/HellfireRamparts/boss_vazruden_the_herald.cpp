@@ -192,7 +192,7 @@ class boss_nazan : public CreatureScript
                 uint32 Fly_Timer;
                 uint32 Turn_Timer;
                 bool flight;
-                Creature* Vazruden;
+                ObjectGuid VazrudenGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
