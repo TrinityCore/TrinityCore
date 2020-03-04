@@ -3257,6 +3257,14 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         return;
     }
 
+    // Use a detour raycast to get our first collision point
+    PathGenerator path(this);
+    path.CalculatePath(destx, desty, destz, false, true);
+    G3D::Vector3 result = path.GetPath().back();
+    destx = result.x;
+    desty = result.y;
+    destz = result.z;
+
     float halfHeight = GetCollisionHeight() * 0.5f;
     UpdateAllowedPositionZ(destx, desty, destz);
     bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(),
@@ -3291,10 +3299,24 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         dist = std::sqrt((pos.m_positionX - destx)*(pos.m_positionX - destx) + (pos.m_positionY - desty)*(pos.m_positionY - desty));
     }
 
-    // Use a detour raycast to get our first collision point
-    PathGenerator path(this);
-    path.CalculatePath(destx, desty, destz, false, true);
-    pos.Relocate(Vector3ToPosition(path.GetPath().back()));
+    float step = dist / 10.0f;
+
+    for (uint8 j = 0; j < 10; ++j)
+    {
+        // do not allow too big z changes
+        if (std::fabs(pos.m_positionZ - destz) > 6.0f)
+        {
+            destx -= step * std::cos(angle);
+            desty -= step * std::sin(angle);
+            UpdateAllowedPositionZ(destx, desty, destz);
+        }
+        // we have correct destz now
+        else
+        {
+            pos.Relocate(destx, desty, destz);
+            break;
+        }
+    }
 
     float groundZ = VMAP_INVALID_HEIGHT_VALUE;
     Trinity::NormalizeMapCoord(pos.m_positionX);
