@@ -42,7 +42,7 @@ WorldPacket const* WorldPackets::Combat::SAttackStop::Write()
 {
     _worldPacket << Attacker;
     _worldPacket << Victim;
-    _worldPacket << unk;
+    _worldPacket << uint32(unk);
 
     return &_worldPacket;
 }
