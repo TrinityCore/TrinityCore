@@ -2843,9 +2843,9 @@ void RobotAI::HandleChatCommand(Player* pmSender, std::string pmCMD)
                         if ((*it)->GetName() == goName)
                         {
                             me->SetFacingToObject((*it));
-                            WorldPacket* const packetgouse = new WorldPacket(CMSG_GAMEOBJ_REPORT_USE, 8);
-                            *packetgouse << (*it)->GetGUID();
-                            me->GetSession()->HandleGameObjectUseOpcode(*packetgouse);
+                            me->StopMoving();
+                            me->GetMotionMaster()->Clear();
+                            (*it)->Use(me);
                             replyStream << "Use game object : " << goName;
                             validToUse = true;
                             break;

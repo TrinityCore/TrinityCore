@@ -880,7 +880,14 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                     }
                     else if (newState == "use")
                     {
-                        goTarget->Use(pmPlayer);
+                        if (Unit* playerTarget = pmPlayer->GetSelectedUnit())
+                        {
+                            goTarget->Use(playerTarget);
+                        }
+                        else
+                        {
+                            goTarget->Use(pmPlayer);
+                        }
                     }
                     else if (newState == "flag")
                     {
