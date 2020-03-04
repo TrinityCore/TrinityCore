@@ -352,7 +352,7 @@ class boss_vazruden_the_herald : public CreatureScript
                         NazanGUID = Nazan->GetGUID();
                         Unit* player = Nazan->SelectNearestPlayer(60.00f);
                         Nazan->AI()->AttackStart(player);
-		    }
+                    }
                     summoned = true;
                     me->SetVisible(false);
                     me->AddUnitState(UNIT_STATE_ROOT);
