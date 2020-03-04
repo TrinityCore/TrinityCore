@@ -19,6 +19,7 @@
 #define AllPackets_h__
 
 #include "ChatPackets.h"
+#include "CombatPackets.h"
 #include "NPCPackets.h"
 #include "MiscPackets.h"
 #include "QueryPackets.h"

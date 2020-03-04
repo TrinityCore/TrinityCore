@@ -1359,7 +1359,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_NAME_QUERY:                           //   0               1
         case CMSG_PET_NAME_QUERY:                       //   0               1
         case CMSG_NPC_TEXT_QUERY:                       //   0               1
-        case CMSG_ATTACKSTOP:                           //   0               1
+        case CMSG_ATTACK_STOP:                          //   0               1
         case CMSG_QUERY_QUESTS_COMPLETED:               //   0               1
         case CMSG_QUERY_TIME:                           //   0               1
         case CMSG_CORPSE_MAP_POSITION_QUERY:            //   0               1
