@@ -50,7 +50,7 @@
 #include <vector>
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','8'} };
+u_map_magic MapVersionMagic = { {'v','1','.','9'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
 u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
 u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
@@ -1841,7 +1841,6 @@ bool GridMap::loadData(char const* filename)
         return true;
 
     _fileExists = true;
-
     if (fread(&header, sizeof(header), 1, in) != 1)
     {
         fclose(in);
@@ -1922,7 +1921,7 @@ bool GridMap::loadAreaData(FILE* in, uint32 offset, uint32 /*size*/)
     if (!(header.flags & MAP_AREA_NO_AREA))
     {
         _areaMap = new uint16[16 * 16];
-        if (fread(_areaMap, sizeof(uint16), 16*16, in) != 16*16)
+        if (fread(_areaMap, sizeof(uint16), 16 * 16, in) != 16 * 16)
             return false;
     }
     return true;
@@ -2086,15 +2085,15 @@ float GridMap::getHeightFromFloat(float x, float y) const
     if (!m_V8 || !m_V9)
         return _gridHeight;
 
-    x = MAP_RESOLUTION * (CENTER_GRID_ID - x/SIZE_OF_GRIDS);
-    y = MAP_RESOLUTION * (CENTER_GRID_ID - y/SIZE_OF_GRIDS);
+    x = MAP_RESOLUTION * (CENTER_GRID_ID - x / SIZE_OF_GRIDS);
+    y = MAP_RESOLUTION * (CENTER_GRID_ID - y / SIZE_OF_GRIDS);
 
     int x_int = (int)x;
     int y_int = (int)y;
     x -= x_int;
     y -= y_int;
-    x_int&=(MAP_RESOLUTION - 1);
-    y_int&=(MAP_RESOLUTION - 1);
+    x_int &= (MAP_RESOLUTION - 1);
+    y_int &= (MAP_RESOLUTION - 1);
 
     if (isHole(x_int, y_int))
         return INVALID_HEIGHT;
@@ -2116,24 +2115,24 @@ float GridMap::getHeightFromFloat(float x, float y) const
 
     float a, b, c;
     // Select triangle:
-    if (x+y < 1)
+    if (x + y < 1)
     {
         if (x > y)
         {
             // 1 triangle (h1, h2, h5 points)
-            float h1 = m_V9[(x_int)*129 + y_int];
-            float h2 = m_V9[(x_int+1)*129 + y_int];
-            float h5 = 2 * m_V8[x_int*128 + y_int];
-            a = h2-h1;
-            b = h5-h1-h2;
+            float h1 = m_V9[(x_int) * 129 + y_int];
+            float h2 = m_V9[(x_int + 1) * 129 + y_int];
+            float h5 = 2 * m_V8[x_int * 128 + y_int];
+            a = h2 - h1;
+            b = h5 - h1 - h2;
             c = h1;
         }
         else
         {
             // 2 triangle (h1, h3, h5 points)
-            float h1 = m_V9[x_int*129 + y_int  ];
-            float h3 = m_V9[x_int*129 + y_int+1];
-            float h5 = 2 * m_V8[x_int*128 + y_int];
+            float h1 = m_V9[x_int * 129 + y_int];
+            float h3 = m_V9[x_int * 129 + y_int + 1];
+            float h5 = 2 * m_V8[x_int * 128 + y_int];
             a = h5 - h1 - h3;
             b = h3 - h1;
             c = h1;
@@ -2144,9 +2143,9 @@ float GridMap::getHeightFromFloat(float x, float y) const
         if (x > y)
         {
             // 3 triangle (h2, h4, h5 points)
-            float h2 = m_V9[(x_int+1)*129 + y_int  ];
-            float h4 = m_V9[(x_int+1)*129 + y_int+1];
-            float h5 = 2 * m_V8[x_int*128 + y_int];
+            float h2 = m_V9[(x_int + 1) * 129 + y_int];
+            float h4 = m_V9[(x_int + 1) * 129 + y_int + 1];
+            float h5 = 2 * m_V8[x_int * 128 + y_int];
             a = h2 + h4 - h5;
             b = h4 - h2;
             c = h5 - h4;
@@ -2154,9 +2153,9 @@ float GridMap::getHeightFromFloat(float x, float y) const
         else
         {
             // 4 triangle (h3, h4, h5 points)
-            float h3 = m_V9[(x_int)*129 + y_int+1];
-            float h4 = m_V9[(x_int+1)*129 + y_int+1];
-            float h5 = 2 * m_V8[x_int*128 + y_int];
+            float h3 = m_V9[(x_int) * 129 + y_int + 1];
+            float h4 = m_V9[(x_int + 1) * 129 + y_int + 1];
+            float h5 = 2 * m_V8[x_int * 128 + y_int];
             a = h4 - h3;
             b = h3 + h4 - h5;
             c = h5 - h4;
@@ -2165,6 +2164,7 @@ float GridMap::getHeightFromFloat(float x, float y) const
     // Calculate height
     return a * x + b * y + c;
 }
+
 
 float GridMap::getHeightFromUint8(float x, float y) const
 {

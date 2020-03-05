@@ -418,7 +418,7 @@ void ReadLiquidTypeTable()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.8";
+static char const* MAP_VERSION_MAGIC = "v1.9";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -508,7 +508,8 @@ uint16 liquid_entry[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 uint8 liquid_flags[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
-uint8 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID][8];
+uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+
 int16 flight_box_max[3][3];
 int16 flight_box_min[3][3];
 
@@ -529,21 +530,6 @@ LiquidVertexFormatType adt_MH2O::GetLiquidVertexFormat(adt_liquid_instance const
     }
 
     return static_cast<LiquidVertexFormatType>(-1);
-}
-
-bool TransformToHighRes(uint16 lowResHoles, uint8 hiResHoles[8])
-{
-    for (uint8 i = 0; i < 8; i++)
-    {
-        for (uint8 j = 0; j < 8; j++)
-        {
-            int32 holeIdxL = (i / 2) * 4 + (j / 2);
-            if (((lowResHoles >> holeIdxL) & 1) == 1)
-                hiResHoles[i] |= (1 << j);
-        }
-    }
-
-    return *((uint64*)hiResHoles) != 0;
 }
 
 bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int /*cell_y*/, int /*cell_x*/, uint32 build, bool ignoreDeepWater)
@@ -580,7 +566,7 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
         // Area data
         area_ids[mcnk->iy][mcnk->ix] = mcnk->areaid;
 
-                // Height
+        // Height
         // Height values for triangles stored in order:
         // 1     2     3     4     5     6     7     8     9
         //    10    11    12    13    14    15    16    17
@@ -629,7 +615,7 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
                 for (int x = 0; x <= ADT_CELL_SIZE; x++)
                 {
                     int cx = mcnk->ix * ADT_CELL_SIZE + x;
-                    V9[cy][cx] += mcvt->height_map[y*(ADT_CELL_SIZE * 2 + 1) + x];
+                    V9[cy][cx] += mcvt->height_map[y * (ADT_CELL_SIZE * 2 + 1) + x];
                 }
             }
             // get V8 height map
@@ -639,12 +625,12 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
                 for (int x = 0; x < ADT_CELL_SIZE; x++)
                 {
                     int cx = mcnk->ix * ADT_CELL_SIZE + x;
-                    V8[cy][cx] += mcvt->height_map[y*(ADT_CELL_SIZE * 2 + 1) + ADT_CELL_SIZE + 1 + x];
+                    V8[cy][cx] += mcvt->height_map[y * (ADT_CELL_SIZE * 2 + 1) + ADT_CELL_SIZE + 1 + x];
                 }
             }
         }
 
-                // Liquid data
+        // Liquid data
         if (mcnk->sizeMCLQ > 8)
         {
             if (FileChunk* chunk = itr->second->GetSubChunk("MCLQ"))
@@ -700,18 +686,9 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
         }
 
         // Hole data
-        if (!(mcnk->flags & 0x10000))
-        {
-            if (uint16 hole = mcnk->holes)
-                if (TransformToHighRes(hole, holes[mcnk->iy][mcnk->ix]))
-                    hasHoles = true;
-        }
-        else
-        {
-            memcpy(holes[mcnk->iy][mcnk->ix], mcnk->union_5_3_0.HighResHoles, sizeof(uint64));
-            if (*((uint64*)holes[mcnk->iy][mcnk->ix]) != 0)
-                hasHoles = true;
-        }
+        holes[mcnk->iy][mcnk->ix] = mcnk->holes;
+        if (!hasHoles && mcnk->holes != 0)
+            hasHoles = true;
     }
 
     // Get liquid map for grid (in WOTLK used MH2O chunk)
@@ -926,7 +903,7 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
             map.heightMapSize+= sizeof(V9) + sizeof(V8);
     }
 
-        //============================================
+    //============================================
     // Pack liquid data
     //============================================
     uint16 firstLiquidType = liquid_entry[0][0];
