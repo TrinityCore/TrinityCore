@@ -177,7 +177,7 @@ namespace MMAP
         }
 
         // data used later
-        uint8 holes[16][16][8];
+        uint16 holes[16][16];
         memset(holes, 0, sizeof(holes));
         uint16 liquid_entry[16][16];
         memset(liquid_entry, 0, sizeof(liquid_entry));
@@ -611,17 +611,22 @@ namespace MMAP
         coord[2] = v[index2];
     }
 
+    static uint16 holetab_h[4] = { 0x1111, 0x2222, 0x4444, 0x8888 };
+    static uint16 holetab_v[4] = { 0x000F, 0x00F0, 0x0F00, 0xF000 };
+
     /**************************************************************************/
-    bool TerrainBuilder::isHole(int square, uint8 const holes[16][16][8])
+    bool TerrainBuilder::isHole(int square, const uint16 holes[16][16])
     {
         int row = square / 128;
         int col = square % 128;
         int cellRow = row / 8;     // 8 squares per cell
         int cellCol = col / 8;
-        int holeRow = row % 8;
-        int holeCol = (square - (row * 128 + cellCol * 8));
+        int holeRow = row % 8 / 2;
+        int holeCol = (square - (row * 128 + cellCol * 8)) / 2;
 
-        return (holes[cellRow][cellCol][holeRow] & (1 << holeCol)) != 0;
+        uint16 hole = holes[cellRow][cellCol];
+
+        return (hole & holetab_h[holeCol] & holetab_v[holeRow]) != 0;
     }
 
     /**************************************************************************/

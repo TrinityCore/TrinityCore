@@ -112,7 +112,7 @@ namespace MMAP
             void getHeightTriangle(int square, Spot triangle, int* indices, bool liquid = false);
 
             /// Determines if the specific position's triangles should be rendered
-            bool isHole(int square, uint8 const holes[16][16][8]);
+            bool isHole(int square, uint16 const holes[16][16]);
 
             /// Get the liquid vector coordinate for a specific position
             void getLiquidCoord(int index, int index2, float xOffset, float yOffset, float* coord, float* v);
