@@ -319,17 +319,16 @@ bool ExtractSingleWmo(std::string& fname)
         return true;
 
     bool file_ok = true;
-    std::cout << "Extracting " << originalName << std::endl;
     WMORoot froot(originalName);
     if (!froot.open())
     {
-        printf("Couldn't open RootWmo!!!\n");
+        printf("Couldn't open RootWmo!\n");
         return true;
     }
     FILE *output = fopen(szLocalFile,"wb");
     if (!output)
     {
-        printf("couldn't open %s for writing!\n", szLocalFile);
+        printf("Couldn't open %s for writing!\n", szLocalFile);
         return false;
     }
     froot.ConvertToVMAPRootWmo(output);
