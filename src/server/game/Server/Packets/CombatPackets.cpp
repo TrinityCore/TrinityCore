@@ -35,14 +35,17 @@ WorldPackets::Combat::SAttackStop::SAttackStop(Unit const* attacker, Unit const*
 {
     Attacker = attacker->GetPackGUID();
     if (victim)
+    {
         Victim = victim->GetPackGUID();
+        NowDead = victim->isDead();
+    }
 }
 
 WorldPacket const* WorldPackets::Combat::SAttackStop::Write()
 {
     _worldPacket << Attacker;
     _worldPacket << Victim;
-    _worldPacket << uint32(unk);
+    _worldPacket << uint32(NowDead);
 
     return &_worldPacket;
 }

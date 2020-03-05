@@ -98,7 +98,7 @@ namespace WorldPackets
 
             PackedGuid Attacker;
             PackedGuid Victim;
-            uint32 unk = 0;
+            bool NowDead = false;
         };
 
         class CancelCombat final : public ServerPacket
