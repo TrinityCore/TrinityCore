@@ -299,7 +299,7 @@ namespace VMAP
 
     bool StaticMapTree::InitMap(std::string const& fname)
     {
-        VMAP_DEBUG_LOG("maps", "StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
+        TC_LOG_DEBUG("maps", "StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
         bool success = false;
         std::string fullname = iBasePath + fname;
         FILE* rf = fopen(fullname.c_str(), "rb");
@@ -357,7 +357,7 @@ namespace VMAP
     {
         if (!iTreeValues)
         {
-            VMAP_ERROR_LOG("misc", "StaticMapTree::LoadMapTile() : tree has not been initialized [%u, %u]", tileX, tileY);
+            TC_LOG_ERROR("misc", "StaticMapTree::LoadMapTile() : tree has not been initialized [%u, %u]", tileX, tileY);
             return false;
         }
         bool result = true;
@@ -372,7 +372,7 @@ namespace VMAP
             uint32 numSpawns = 0;
             if (result && fread(&numSpawns, sizeof(uint32), 1, fileResult.File) != 1)
                 result = false;
-            for (uint32 i=0; i<numSpawns && result; ++i)
+            for (uint32 i = 0; i < numSpawns && result; ++i)
             {
                 // read model spawns
                 ModelSpawn spawn;
@@ -382,7 +382,7 @@ namespace VMAP
                     // acquire model instance
                     WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name, spawn.flags);
                     if (!model)
-                        VMAP_ERROR_LOG("misc", "StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u, %u]", tileX, tileY);
+                        TC_LOG_ERROR("misc", "StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u, %u]", tileX, tileY);
 
                     // update tree
                     auto spawnIndex = iSpawnIndices.find(spawn.ID);
@@ -393,7 +393,7 @@ namespace VMAP
                         {
                             if (referencedVal >= iNTreeValues)
                             {
-                                VMAP_ERROR_LOG("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u) referenced in tile %s", referencedVal, iNTreeValues, fileResult.Name.c_str());
+                                TC_LOG_ERROR("maps", "StaticMapTree::LoadMapTile() : invalid tree element (%u/%u) referenced in tile %s", referencedVal, iNTreeValues, fileResult.Name.c_str());
                                 continue;
                             }
 
@@ -420,6 +420,8 @@ namespace VMAP
         }
         else
             iLoadedTiles[packTileID(tileX, tileY)] = false;
+        TC_METRIC_EVENT("map_events", "LoadMapTile",
+            "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
         return result;
     }
 

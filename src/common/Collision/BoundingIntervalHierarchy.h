@@ -117,19 +117,19 @@ class TC_COMMON_API BIH
         uint32 primCount() const { return uint32(objects.size()); }
 
         template<typename RayCallback>
-        void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst=false) const
+        void intersectRay(const G3D::Ray& r, RayCallback& intersectCallback, float& maxDist, bool stopAtFirst = false) const
         {
             float intervalMin = -1.f;
             float intervalMax = -1.f;
             G3D::Vector3 org = r.origin();
             G3D::Vector3 dir = r.direction();
             G3D::Vector3 invDir;
-            for (int i=0; i<3; ++i)
+            for (int i = 0; i < 3; ++i)
             {
                 invDir[i] = 1.f / dir[i];
                 if (G3D::fuzzyNe(dir[i], 0.0f))
                 {
-                    float t1 = (bounds.low()[i]  - org[i]) * invDir[i];
+                    float t1 = (bounds.low()[i] - org[i]) * invDir[i];
                     float t2 = (bounds.high()[i] - org[i]) * invDir[i];
                     if (t1 > t2)
                         std::swap(t1, t2);
@@ -155,7 +155,7 @@ class TC_COMMON_API BIH
             uint32 offsetBack3[3];
             // compute custom offsets from direction sign bit
 
-            for (int i=0; i<3; ++i)
+            for (int i = 0; i < 3; ++i)
             {
                 offsetFront[i] = floatToRawIntBits(dir[i]) >> 31;
                 offsetBack[i] = offsetFront[i] ^ 1;
@@ -226,7 +226,7 @@ class TC_COMMON_API BIH
                     }
                     else
                     {
-                        if (axis>2)
+                        if (axis > 2)
                             return; // should not happen
                         float tf = (intBitsToFloat(tree[node + offsetFront[axis]]) - org[axis]) * invDir[axis];
                         float tb = (intBitsToFloat(tree[node + offsetBack[axis]]) - org[axis]) * invDir[axis];
