@@ -633,6 +633,19 @@ CREATE TABLE `creature_template_addon` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+DROP TABLE IF EXISTS `creature_template_movement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_template_movement` (
+  `CreatureId` int(10) unsigned NOT NULL DEFAULT '0',
+  `Ground` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Swim` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `Flight` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Rooted` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Random` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`CreatureId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 --
 -- Table structure for table `creature_template_locale`
 --
