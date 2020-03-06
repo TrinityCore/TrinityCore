@@ -66,7 +66,7 @@ GridState* si_GridStates[MAX_GRID_STATE];
 
 
 ZoneDynamicInfo::ZoneDynamicInfo() : MusicId(0), DefaultWeather(nullptr), WeatherId(WEATHER_STATE_FINE),
-    Intensity(0.0f), OverrideLightId(0), TransitionMilliseconds(0) { }
+    Intensity(0.0f) { }
 
 Map::~Map()
 {
@@ -270,7 +270,7 @@ m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry),
-i_scriptLock(false), _respawnCheckTimer(0), _defaultLight(GetDefaultMapLight(id))
+i_scriptLock(false), _respawnCheckTimer(0)
 {
     m_parentMap = (_parent ? _parent : this);
     for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
@@ -4565,12 +4565,12 @@ void Map::SendZoneDynamicInfo(uint32 zoneId, Player* player) const
 
     SendZoneWeather(itr->second, player);
 
-    if (uint32 overrideLightId = itr->second.OverrideLightId)
+    for (ZoneDynamicInfo::LightOverride const& lightOverride : itr->second.LightOverrides)
     {
         WorldPackets::Misc::OverrideLight overrideLight;
-        overrideLight.AreaLightID = _defaultLight;
-        overrideLight.OverrideLightID = overrideLightId;
-        overrideLight.TransitionMilliseconds = itr->second.TransitionMilliseconds;
+        overrideLight.AreaLightID = lightOverride.AreaLightId;
+        overrideLight.OverrideLightID = lightOverride.OverrideLightId;
+        overrideLight.TransitionMilliseconds = lightOverride.TransitionMilliseconds;
         player->SendDirectMessage(overrideLight.Write());
     }
 }
@@ -4652,17 +4652,29 @@ void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity)
     }
 }
 
-void Map::SetZoneOverrideLight(uint32 zoneId, uint32 overrideLightId, uint32 transitionMilliseconds)
+void Map::SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrideLightId, uint32 transitionMilliseconds)
 {
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
-    info.OverrideLightId = overrideLightId;
-    info.TransitionMilliseconds = transitionMilliseconds;
+    // client can support only one override for each light (zone independent)
+    info.LightOverrides.erase(std::remove_if(info.LightOverrides.begin(), info.LightOverrides.end(), [areaLightId](ZoneDynamicInfo::LightOverride const& lightOverride)
+    {
+        return lightOverride.AreaLightId == areaLightId;
+    }), info.LightOverrides.end());
+
+    // set new override (if any)
+    if (overrideLightId)
+    {
+        ZoneDynamicInfo::LightOverride& lightOverride = info.LightOverrides.emplace_back();
+        lightOverride.AreaLightId = areaLightId;
+        lightOverride.OverrideLightId = overrideLightId;
+        lightOverride.TransitionMilliseconds = transitionMilliseconds;
+    }
 
     Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())
     {
         WorldPackets::Misc::OverrideLight overrideLight;
-        overrideLight.AreaLightID = _defaultLight;
+        overrideLight.AreaLightID = areaLightId;
         overrideLight.OverrideLightID = overrideLightId;
         overrideLight.TransitionMilliseconds = transitionMilliseconds;
         overrideLight.Write();
