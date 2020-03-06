@@ -4565,10 +4565,12 @@ void Map::SendZoneDynamicInfo(uint32 zoneId, Player* player) const
 
     SendZoneWeather(itr->second, player);
 
+    uint32 const defaultLightOverride = sObjectMgr->GetDefaultLightForZone(zoneId);
+
     if (uint32 overrideLightId = itr->second.OverrideLightId)
     {
         WorldPackets::Misc::OverrideLight overrideLight;
-        overrideLight.AreaLightID = _defaultLight;
+        overrideLight.AreaLightID = defaultLightOverride ? defaultLightOverride : _defaultLight;
         overrideLight.OverrideLightID = overrideLightId;
         overrideLight.TransitionMilliseconds = itr->second.TransitionMilliseconds;
         player->SendDirectMessage(overrideLight.Write());
@@ -4657,12 +4659,13 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 overrideLightId, uint32 tra
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
     info.OverrideLightId = overrideLightId;
     info.TransitionMilliseconds = transitionMilliseconds;
+    uint32 const defaultLightOverride = sObjectMgr->GetDefaultLightForZone(zoneId);
 
     Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())
     {
         WorldPackets::Misc::OverrideLight overrideLight;
-        overrideLight.AreaLightID = _defaultLight;
+        overrideLight.AreaLightID = defaultLightOverride ? defaultLightOverride : _defaultLight;
         overrideLight.OverrideLightID = overrideLightId;
         overrideLight.TransitionMilliseconds = transitionMilliseconds;
         overrideLight.Write();

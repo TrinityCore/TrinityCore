@@ -2030,6 +2030,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading client addons...");
     AddonMgr::LoadFromDB();
 
+    TC_LOG_INFO("server.loading", "Loading default zone light overrides...");
+    sObjectMgr->LoadZoneDefaultLightOverrides();
+
     ///- Handle outdated emails (delete/return)
     TC_LOG_INFO("server.loading", "Returning old mails...");
     sObjectMgr->ReturnOrDeleteOldMails(false);

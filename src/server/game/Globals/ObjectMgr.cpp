@@ -10319,3 +10319,43 @@ ByteBuffer QuestPOIWrapper::BuildQueryData() const
 
     return tempBuffer;
 }
+
+void ObjectMgr::LoadZoneDefaultLightOverrides()
+{
+    uint32 const oldMSTime = getMSTime();
+
+    //                                                  0          1
+    QueryResult result = WorldDatabase.Query("SELECT zoneId, defaultLight FROM zone_default_light_override");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 default light overrides. DB table `zone_default_light_override` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field const* fields = result->Fetch();
+
+        uint32 const zoneId = fields[0].GetUInt32();
+        if (!sAreaTableStore.LookupEntry(zoneId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `zone_default_light_override` has data for nonexistent zone id %u. Skipped", zoneId);
+            continue;
+        }
+
+        uint32 const lightId = fields[1].GetUInt32();
+        if (!sLightStore.LookupEntry(lightId))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `zone_default_light_override` has data for nonexistent light id %u for zone %u. Skipped", lightId, zoneId);
+            continue;
+        }
+
+        _defaultZoneLightOverride[zoneId] = lightId;
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u zone default light overrides in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}

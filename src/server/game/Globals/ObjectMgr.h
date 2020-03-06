@@ -1566,6 +1566,16 @@ class TC_GAME_API ObjectMgr
             return &itr->second;
         }
 
+        void LoadZoneDefaultLightOverrides();
+        uint32 GetDefaultLightForZone(uint32 zoneId) const
+        {
+            std::unordered_map<uint32, uint32>::const_iterator itr = _defaultZoneLightOverride.find(zoneId);
+            if (itr != _defaultZoneLightOverride.end())
+                return itr->second;
+
+            return 0;
+        }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1728,6 +1738,7 @@ class TC_GAME_API ObjectMgr
 
         PlayerTotemModelMap _playerTotemModel;
         VehicleSeatAddonContainer _vehicleSeatAddonStore;
+        std::unordered_map<uint32, uint32> _defaultZoneLightOverride;
 };
 
 #define sObjectMgr ObjectMgr::instance()
