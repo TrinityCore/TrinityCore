@@ -10329,7 +10329,7 @@ void ObjectMgr::LoadZoneDefaultLightOverrides()
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 default light overrides. DB table `zone_default_light_override` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 zone default light overrides. DB table `zone_default_light_override` is empty.");
         return;
     }
 

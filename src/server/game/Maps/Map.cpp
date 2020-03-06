@@ -4565,7 +4565,7 @@ void Map::SendZoneDynamicInfo(uint32 zoneId, Player* player) const
 
     SendZoneWeather(itr->second, player);
 
-    uint32 const defaultLightOverride = sObjectMgr->GetDefaultLightForZone(zoneId);
+    uint32 const defaultLightOverride = sObjectMgr->GetDefaultLightOverrideForZone(zoneId);
 
     if (uint32 overrideLightId = itr->second.OverrideLightId)
     {
@@ -4659,7 +4659,7 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 overrideLightId, uint32 tra
     ZoneDynamicInfo& info = _zoneDynamicInfo[zoneId];
     info.OverrideLightId = overrideLightId;
     info.TransitionMilliseconds = transitionMilliseconds;
-    uint32 const defaultLightOverride = sObjectMgr->GetDefaultLightForZone(zoneId);
+    uint32 const defaultLightOverride = sObjectMgr->GetDefaultLightOverrideForZone(zoneId);
 
     Map::PlayerList const& players = GetPlayers();
     if (!players.isEmpty())

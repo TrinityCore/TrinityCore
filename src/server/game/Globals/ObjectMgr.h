@@ -1567,7 +1567,7 @@ class TC_GAME_API ObjectMgr
         }
 
         void LoadZoneDefaultLightOverrides();
-        uint32 GetDefaultLightForZone(uint32 zoneId) const
+        uint32 GetDefaultLightOverrideForZone(uint32 zoneId) const
         {
             std::unordered_map<uint32, uint32>::const_iterator itr = _defaultZoneLightOverride.find(zoneId);
             if (itr != _defaultZoneLightOverride.end())
