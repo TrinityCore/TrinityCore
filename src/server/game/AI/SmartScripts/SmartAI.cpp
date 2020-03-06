@@ -690,6 +690,9 @@ void SmartAI::OnCharmed(bool /*isNew*/)
 
     _charmed = charmed;
 
+    if (charmed)
+        me->GetMotionMaster()->MoveFollow(me->GetCharmer(), PET_FOLLOW_DIST, me->GetFollowAngle());
+
     if (!charmed && !me->IsInEvadeMode())
     {
         if (_repeatWaypointPath)
@@ -703,6 +706,9 @@ void SmartAI::OnCharmed(bool /*isNew*/)
                 if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
                     me->EngageWithTarget(lastCharmer);
             me->LastCharmerGUID.Clear();
+
+            if (!me->IsInCombat())
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
         }
     }
 

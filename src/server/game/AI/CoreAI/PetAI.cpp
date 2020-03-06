@@ -631,6 +631,14 @@ void PetAI::UpdateAllies()
         _allySet.insert(owner->GetGUID());
 }
 
+void PetAI::OnCharmed(bool isNew)
+{
+    if (me->IsCharmed())
+        me->GetMotionMaster()->MoveFollow(me->GetCharmer(), PET_FOLLOW_DIST, me->GetFollowAngle());
+
+    CreatureAI::OnCharmed(isNew);
+}
+
 void PetAI::ClearCharmInfoFlags()
 {
     CharmInfo* ci = me->GetCharmInfo();
