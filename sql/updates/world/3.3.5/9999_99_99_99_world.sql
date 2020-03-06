@@ -4,4 +4,4 @@ CREATE TABLE `zone_default_light_override` (
 	`defaultLight` INT(10) UNSIGNED NOT NULL,
 	`comment` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8_general_ci',
 	PRIMARY KEY (`zoneId`)
-)COLLATE='utf8_general_ci'ENGINE=InnoDB;
+) COLLATE='utf8_general_ci' ENGINE=InnoDB;
