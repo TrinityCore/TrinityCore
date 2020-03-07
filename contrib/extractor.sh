@@ -10,7 +10,7 @@ if ! cd $CLIENT_DIR; then
         echo "Cannot access $CLIENT_DIR"
         exit 1
 fi
-if [ ! -d $CLIENT_DIR/maps ]; then
+if [ ! -d $CLIENT_DIR/Data ]; then
         echo "Cannot find client files in $CLIENT_DIR"
         exit 1
 fi
