@@ -690,7 +690,7 @@ void SmartAI::OnCharmed(bool /*isNew*/)
 
     _charmed = charmed;
 
-    if (charmed)
+    if (charmed && !me->isPossessed() && !me->IsVehicle())
         me->GetMotionMaster()->MoveFollow(me->GetCharmer(), PET_FOLLOW_DIST, me->GetFollowAngle());
 
     if (!charmed && !me->IsInEvadeMode())
