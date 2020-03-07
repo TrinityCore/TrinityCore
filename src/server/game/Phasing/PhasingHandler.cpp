@@ -36,6 +36,9 @@ inline PhaseFlags GetPhaseFlags(uint32 phaseId)
 {
     if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
     {
+        if (phase->Flags & PHASE_FLAG_SEND_TO_CLIENT)
+            return PhaseFlags::SendToClient;
+
         if (phase->Flags & PHASE_FLAG_COSMETIC)
             return PhaseFlags::Cosmetic;
 
@@ -398,9 +401,11 @@ void PhasingHandler::SendToPlayer(Player const* player, PhaseShift const& phaseS
     WorldPackets::Misc::PhaseShiftChange phaseShiftChange;
     phaseShiftChange.Client = player->GetGUID();
     phaseShiftChange.Phaseshift.PhaseShiftFlags = phaseShift.Flags.AsUnderlyingType();
-    phaseShiftChange.Phaseshift.Phases.reserve(phaseShift.Phases.size());
-    std::transform(phaseShift.Phases.begin(), phaseShift.Phases.end(), std::back_inserter(phaseShiftChange.Phaseshift.Phases),
-        [](PhaseShift::PhaseRef const& phase) -> uint16 { return phase.Id; });
+
+    for (auto phase : phaseShift.Phases)
+        if (phase.Flags.HasFlag(PhaseFlags::SendToClient))
+            phaseShiftChange.Phaseshift.Phases.push_back(phase.Id);
+
     phaseShiftChange.VisibleMapIDs.reserve(phaseShift.VisibleMapIds.size());
     std::transform(phaseShift.VisibleMapIds.begin(), phaseShift.VisibleMapIds.end(), std::back_inserter(phaseShiftChange.VisibleMapIDs),
         [](PhaseShift::VisibleMapIdContainer::value_type const& visibleMapId) { return visibleMapId.first; });

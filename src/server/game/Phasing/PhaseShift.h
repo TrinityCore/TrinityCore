@@ -43,9 +43,10 @@ enum class PhaseShiftFlags : uint32
 
 enum class PhaseFlags : uint16
 {
-    None        = 0x0,
-    Cosmetic    = 0x1,
-    Personal    = 0x2
+    None            = 0x0,
+    Cosmetic        = 0x1,
+    Personal        = 0x2,
+    SendToClient    = 0x4
 };
 
 class TC_GAME_API PhaseShift
