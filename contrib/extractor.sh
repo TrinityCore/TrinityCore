@@ -1,25 +1,29 @@
 #!/bin/bash
 
-# This is where the WoW client files are located
-CLIENT_DIR=/mnt/disk/client
-# This is where the installed server files are located
-SERVER_DIR=${HOME}/server
+# Set client and server directories as environment variables
+# if you don't want to enter them here
+if [ -z $CLIENT_DIR ]; then
+echo -n "Enter directory where client files are located: "
+read CLIENT_DIR
 
-# Check main dirs
-if [[ ! -d ${CLIENT_DIR} ]]
-then
-	echo "${CLIENT_DIR} client directory not found"
-	echo "Enter directory now, or press ctrl-c and edit the top of this script"
-	read CLIENT_DIR
-	echo
+if ! cd $CLIENT_DIR; then
+        echo "Cannot access $CLIENT_DIR"
+        exit 1
+fi
+if [ ! -d $CLIENT_DIR/maps ]; then
+        echo "Cannot find client files in $CLIENT_DIR"
+        exit 1
+fi
 fi
 
-if [[ ! -d ${SERVER_DIR} ]]
-then
-	echo "${SERVER_DIR} server directory not found"
-	echo "Enter directory now, or press ctrl-c and edit the top of this script"
-	read SERVER_DIR
-	echo
+if [ -z $SERVER_DIR ]; then
+echo -n "Enter directory where server files are located: "
+read SERVER_DIR
+
+if ! cd $SERVER_DIR; then
+        echo "Cannot access $SERVER_DIR"
+        exit 1
+fi
 fi
 
 # These should all be correct on a standard installation
