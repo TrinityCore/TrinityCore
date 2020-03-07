@@ -22,6 +22,7 @@
 #include "DBCStores.h"
 #include "Language.h"
 #include "Map.h"
+#include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "PhaseShift.h"
 #include "Player.h"
@@ -394,50 +395,20 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
 
 void PhasingHandler::SendToPlayer(Player const* player, PhaseShift const& phaseShift)
 {
-    ObjectGuid guid = player->GetGUID();
+    WorldPackets::Misc::PhaseShiftChange phaseShiftChange;
+    phaseShiftChange.Client = player->GetGUID();
+    phaseShiftChange.Phaseshift.PhaseShiftFlags = phaseShift.Flags.AsUnderlyingType();
+    phaseShiftChange.Phaseshift.Phases.reserve(phaseShift.Phases.size());
+    std::transform(phaseShift.Phases.begin(), phaseShift.Phases.end(), std::back_inserter(phaseShiftChange.Phaseshift.Phases),
+        [](PhaseShift::PhaseRef const& phase) -> uint16{ return { phase.Id }; });
+    phaseShiftChange.VisibleMapIDs.reserve(phaseShift.VisibleMapIds.size());
+    std::transform(phaseShift.VisibleMapIds.begin(), phaseShift.VisibleMapIds.end(), std::back_inserter(phaseShiftChange.VisibleMapIDs),
+        [](PhaseShift::VisibleMapIdContainer::value_type const& visibleMapId) { return visibleMapId.first; });
+    phaseShiftChange.UiMapPhaseIDs.reserve(phaseShift.UiMapPhaseIds.size());
+    std::transform(phaseShift.UiMapPhaseIds.begin(), phaseShift.UiMapPhaseIds.end(), std::back_inserter(phaseShiftChange.UiMapPhaseIDs),
+        [](PhaseShift::UiMapPhaseIdContainer::value_type const& uiWorldMapAreaIdSwap) { return uiWorldMapAreaIdSwap.first; });
 
-    WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseShift.Phases.size() + 4 + phaseShift.VisibleMapIds.size() * 2);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[7]);
-
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[4]);
-
-    data << uint32(phaseShift.UiMapPhaseIds.size()) * 2;
-    for (auto itr = phaseShift.UiMapPhaseIds.begin(); itr != phaseShift.UiMapPhaseIds.end(); ++itr)
-        data << uint16(itr->first);                          // WorldMapArea.dbc id (controls map display)
-
-    data.WriteByteSeq(guid[1]);
-
-    data << uint32(phaseShift.Flags.AsUnderlyingType());    // flags
-
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[6]);
-
-    data << uint32(0);                                      // Inactive terrain swaps
-                                                            //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
-                                                            //    data << uint16(0);
-
-    data << uint32(phaseShift.Phases.size()) * 2;           // Phase.dbc ids
-    for (auto itr = phaseShift.Phases.begin(); itr != phaseShift.Phases.end(); ++itr)
-        data << uint16(itr->Id);
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[0]);
-
-    data << uint32(phaseShift.VisibleMapIds.size()) * 2;    // Active terrain swaps
-    for (auto itr = phaseShift.VisibleMapIds.begin(); itr != phaseShift.VisibleMapIds.end(); ++itr)
-        data << uint16(itr->first);
-
-    data.WriteByteSeq(guid[5]);
-
-    player->SendDirectMessage(&data);
+    player->SendDirectMessage(phaseShiftChange.Write());
 }
 
 void PhasingHandler::SendToPlayer(Player const* player)

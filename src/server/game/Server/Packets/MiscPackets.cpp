@@ -86,3 +86,47 @@ WorldPacket const* WorldPackets::Misc::StreamingMovies::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Misc::PhaseShiftChange::Write()
+{
+    _worldPacket.WriteBit(Client[2]);
+    _worldPacket.WriteBit(Client[3]);
+    _worldPacket.WriteBit(Client[1]);
+    _worldPacket.WriteBit(Client[6]);
+    _worldPacket.WriteBit(Client[4]);
+    _worldPacket.WriteBit(Client[5]);
+    _worldPacket.WriteBit(Client[0]);
+    _worldPacket.WriteBit(Client[7]);
+
+    _worldPacket.WriteByteSeq(Client[7]);
+    _worldPacket.WriteByteSeq(Client[4]);
+
+    _worldPacket << uint32(UiMapPhaseIDs.size() * 2);           // size in bytes
+    for (uint16 uiMapPhaseId : UiMapPhaseIDs)
+        _worldPacket << uint16(uiMapPhaseId);                   // phase id, controls only map display (visible on all maps)
+
+    _worldPacket.WriteByteSeq(Client[1]);
+
+    _worldPacket << uint32(Phaseshift.PhaseShiftFlags);
+
+    _worldPacket.WriteByteSeq(Client[2]);
+    _worldPacket.WriteByteSeq(Client[6]);
+
+    _worldPacket << uint32(PreloadMapIDs.size() * 2);           // size in bytes
+    for (uint16 preloadMapId : PreloadMapIDs)
+        _worldPacket << uint16(preloadMapId);                   // Inactive terrain swap map id
+
+    _worldPacket << uint32 (Phaseshift.Phases.size() * 2);      // size in bytes
+    for (uint16 phaseId : Phaseshift.Phases)
+        _worldPacket << uint16(phaseId);                        // active phase ids
+
+    _worldPacket.WriteByteSeq(Client[3]);
+    _worldPacket.WriteByteSeq(Client[0]);
+
+    _worldPacket << uint32(VisibleMapIDs.size() * 2);           // size in bytes
+    for (uint16 visibleMapId : VisibleMapIDs)
+        _worldPacket << uint16(visibleMapId);                   // Active terrain swap map id
+
+    _worldPacket.WriteByteSeq(Client[5]);
+
+    return &_worldPacket;
+}

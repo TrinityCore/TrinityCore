@@ -123,6 +123,26 @@ namespace WorldPackets
 
             std::vector<uint16> MovieIDs;
         };
+
+        struct PhaseShiftData
+        {
+            uint32 PhaseShiftFlags = 0;
+            std::vector<uint16> Phases;
+        };
+
+        class PhaseShiftChange final : public ServerPacket
+        {
+        public:
+            PhaseShiftChange() : ServerPacket(SMSG_PHASE_SHIFT_CHANGE, 8 + 4 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Client;
+            PhaseShiftData Phaseshift;
+            std::vector<uint16> PreloadMapIDs;
+            std::vector<uint16> UiMapPhaseIDs;
+            std::vector<uint16> VisibleMapIDs;
+        };
     }
 }
 
