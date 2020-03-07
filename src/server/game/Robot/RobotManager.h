@@ -1,23 +1,19 @@
 #ifndef ROBOT_MANAGER_H
 #define ROBOT_MANAGER_H
 
-#ifndef ROBOT_GROUP_COUNT
-#define ROBOT_GROUP_COUNT 5
+#ifndef ROBOT_PASSWORD
+# define ROBOT_PASSWORD "robot"
 #endif
+
+#include "RobotEntity.h"
+#include "Strategy_Prepare.h"
+#include "Strategy_Solo.h"
+#include "Strategy_Party.h"
+#include "Strategy_Raid.h"
 
 #include <string>
 #include <iostream>
 #include <sstream>
-
-class RobotAI;
-//class Strategy_Solo_Normal;
-
-class RobotChatCommand
-{
-public:
-    Player* sender;
-    std::string chatCommandContent;
-};
 
 class RobotManager
 {
@@ -28,18 +24,22 @@ class RobotManager
 
 public:
     void InitializeManager();
-    void UpdateManager();
+    void UpdateRobotManager();
+    void UpdatePrepareStrategies();
+    void UpdateSoloStrategies();
+    void UpdatePartyStrategies();
+    void UpdateRaidStrategies();
     bool DeleteRobots();
     bool RobotsDeleted();
     bool IsRobot(uint32 pmSessionID);
-    RobotAI* GetRobotAI(uint32 pmSessionID);
-    Player* GetMaster(uint32 pmSessionID);
+    Strategy_Solo* GetSoloStrategy(uint32 pmSessionID);
+    bool CheckRobotAccount(uint32 pmAccountID);
     uint32 CheckRobotAccount(std::string pmAccountName);
-    bool CreateRobotAccount(std::string pmAccountName);
-    ObjectGuid CheckAccountCharacter(uint32 pmAccountID);
-    bool CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace);
-    Player* CheckLogin(uint32 pmAccountID, ObjectGuid pmGUID);
-    bool LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID);
+    uint32 CreateRobotAccount();
+    uint32 CheckAccountCharacter(uint32 pmAccountID);
+    uint32 CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace);
+    Player* CheckLogin(uint32 pmAccountID, uint32 pmCharacterID);
+    bool LoginRobot(uint32 pmAccountID, uint32 pmCharacterID);
     void LogoutRobots();
     void HandlePlayerSay(Player* pmPlayer, std::string pmContent);
     bool StringEndWith(const std::string &str, const std::string &tail);
@@ -49,15 +49,20 @@ public:
     static RobotManager* instance();
 
 public:
-    std::map<uint32, std::vector<uint32>> availableRaces;
+    uint32 realPrevTime;
+
+    std::unordered_map<uint32, std::unordered_map<uint32, uint32>> availableRaces;
     std::unordered_map<uint32, std::string> robotNameMap;
 
     std::unordered_map<uint8, std::unordered_map<uint8, std::string>> characterTalentTabNameMap;
-    std::set<uint32> deleteRobotAccountSet;
-    std::unordered_map<uint32, std::unordered_set<RobotAI*>> robotMap;
-    uint32 updateRobotGroupIndex;
-    std::unordered_map<uint32, RobotAI*> robotAICache;
-
+    std::set<uint32> deleteRobotAccountSet;    
+    std::unordered_map<uint32, RobotEntity*> robotMap;
+    int prepareCheckDelay;
+    std::unordered_map<uint32, Strategy_Prepare*> prepareStrategyMap;
+    std::unordered_map<uint32, Strategy_Solo*> soloStrategyMap;
+    std::unordered_map<uint32, Strategy_Party*> partyStrategyMap;
+    std::unordered_map<uint32, Strategy_Raid*> raidStrategyMap;
+    
     uint32 nameIndex;
     std::set<uint8> armorInventorySet;
     std::unordered_map<uint8, uint8> miscInventoryMap;

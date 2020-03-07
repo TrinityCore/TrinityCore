@@ -40,6 +40,7 @@ public:
     uint32 Enable;
     uint32 ResetRobots;
     uint32 OnlineLevel;
+    uint32 RobotCountEachLevel;
     uint32 OnlineMinDelay;
     uint32 OnlineMaxDelay;
     std::string RobotAccountNamePrefix;

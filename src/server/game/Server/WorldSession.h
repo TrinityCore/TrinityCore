@@ -50,10 +50,6 @@ class SpellCastTargets;
 class Unit;
 class Warden;
 class WorldPacket;
-
-// EJ robot
-class RobotChatCommand;
-
 class WorldSocket;
 struct AddonInfo;
 struct AreaTableEntry;
@@ -496,7 +492,7 @@ class TC_GAME_API WorldSession
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
 
         // EJ robot 
-        void HandlePlayerLogin_Simple(ObjectGuid pmPlayerGUID);
+        void HandlePlayerLogin_Simple(uint32 pmCharacterID);
 
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(PreparedQueryResult result);

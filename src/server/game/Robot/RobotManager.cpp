@@ -14,19 +14,19 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "RobotConfig.h"
-#include "RobotAI.h"
-#include "Strategy_Solo_Normal.h"
 #include "CharacterCache.h"
 #include "CreatureAI.h"
 #include "InstanceScript.h"
 
 RobotManager::RobotManager()
 {
-    updateRobotGroupIndex = 0;
-
     nameIndex = 0;
-    robotMap.clear();
-    robotAICache.clear();
+    prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    prepareStrategyMap.clear();
+    soloStrategyMap.clear();
+    partyStrategyMap.clear();
+    raidStrategyMap.clear();
+
     deleteRobotAccountSet.clear();
     meleeWeaponMap.clear();
     rangeWeaponMap.clear();
@@ -70,65 +70,65 @@ void RobotManager::InitializeManager()
         robotNameMap[robotNameMap.size()] = eachName;
     } while (robotNamesQR->NextRow());
 
-    availableRaces[CLASS_WARRIOR].push_back(RACE_HUMAN);
-    availableRaces[CLASS_WARRIOR].push_back(RACE_NIGHTELF);
-    availableRaces[CLASS_WARRIOR].push_back(RACE_GNOME);
-    availableRaces[CLASS_WARRIOR].push_back(RACE_DWARF);
-    availableRaces[CLASS_WARRIOR].push_back(RACE_ORC);
-    availableRaces[CLASS_WARRIOR].push_back(RACE_UNDEAD_PLAYER);
-    availableRaces[CLASS_WARRIOR].push_back(RACE_TAUREN);
-    availableRaces[CLASS_WARRIOR].push_back(RACE_TROLL);
-    availableRaces[CLASS_WARRIOR].push_back(Races::RACE_DRAENEI);
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = RACE_HUMAN;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_NIGHTELF;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_GNOME;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_DWARF;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_ORC;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_UNDEAD_PLAYER;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_TAUREN;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_TROLL;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=Races::RACE_DRAENEI;
 
-    availableRaces[CLASS_PALADIN].push_back(RACE_HUMAN);
-    availableRaces[CLASS_PALADIN].push_back(RACE_DWARF);
-    availableRaces[CLASS_PALADIN].push_back(Races::RACE_DRAENEI);
-    availableRaces[CLASS_PALADIN].push_back(Races::RACE_BLOODELF);
+    availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()]=RACE_HUMAN;
+    availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()]=RACE_DWARF;
+    availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()] = Races::RACE_DRAENEI;
+    availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()] = Races::RACE_BLOODELF;
 
-    availableRaces[CLASS_ROGUE].push_back(RACE_HUMAN);
-    availableRaces[CLASS_ROGUE].push_back(RACE_DWARF);
-    availableRaces[CLASS_ROGUE].push_back(RACE_NIGHTELF);
-    availableRaces[CLASS_ROGUE].push_back(RACE_GNOME);
-    availableRaces[CLASS_ROGUE].push_back(RACE_ORC);
-    availableRaces[CLASS_ROGUE].push_back(RACE_TROLL);
-    availableRaces[CLASS_ROGUE].push_back(Races::RACE_BLOODELF);
+    availableRaces[CLASS_ROGUE][availableRaces[CLASS_ROGUE].size()] = RACE_HUMAN;
+    availableRaces[CLASS_ROGUE][availableRaces[CLASS_ROGUE].size()] = RACE_DWARF;
+    availableRaces[CLASS_ROGUE][availableRaces[CLASS_ROGUE].size()] = RACE_NIGHTELF;
+    availableRaces[CLASS_ROGUE][availableRaces[CLASS_ROGUE].size()] = RACE_GNOME;
+    availableRaces[CLASS_ROGUE][availableRaces[CLASS_ROGUE].size()] = RACE_ORC;
+    availableRaces[CLASS_ROGUE][availableRaces[CLASS_ROGUE].size()] = RACE_TROLL;
+    availableRaces[CLASS_ROGUE][availableRaces[CLASS_ROGUE].size()] = Races::RACE_BLOODELF;
 
-    availableRaces[CLASS_PRIEST].push_back(RACE_HUMAN);
-    availableRaces[CLASS_PRIEST].push_back(RACE_DWARF);
-    availableRaces[CLASS_PRIEST].push_back(RACE_NIGHTELF);
-    availableRaces[CLASS_PRIEST].push_back(RACE_TROLL);
-    availableRaces[CLASS_PRIEST].push_back(RACE_UNDEAD_PLAYER);
-    availableRaces[CLASS_PRIEST].push_back(Races::RACE_DRAENEI);
-    availableRaces[CLASS_PRIEST].push_back(Races::RACE_BLOODELF);
+    availableRaces[CLASS_PRIEST][availableRaces[CLASS_PRIEST].size()] = RACE_HUMAN;
+    availableRaces[CLASS_PRIEST][availableRaces[CLASS_PRIEST].size()] = RACE_DWARF;
+    availableRaces[CLASS_PRIEST][availableRaces[CLASS_PRIEST].size()] = RACE_NIGHTELF;
+    availableRaces[CLASS_PRIEST][availableRaces[CLASS_PRIEST].size()] = RACE_TROLL;
+    availableRaces[CLASS_PRIEST][availableRaces[CLASS_PRIEST].size()] = RACE_UNDEAD_PLAYER;
+    availableRaces[CLASS_PRIEST][availableRaces[CLASS_PRIEST].size()] = Races::RACE_DRAENEI;
+    availableRaces[CLASS_PRIEST][availableRaces[CLASS_PRIEST].size()] = Races::RACE_BLOODELF;
 
-    availableRaces[CLASS_MAGE].push_back(RACE_HUMAN);
-    availableRaces[CLASS_MAGE].push_back(RACE_GNOME);
-    availableRaces[CLASS_MAGE].push_back(RACE_UNDEAD_PLAYER);
-    availableRaces[CLASS_MAGE].push_back(RACE_TROLL);
-    availableRaces[CLASS_MAGE].push_back(Races::RACE_DRAENEI);
-    availableRaces[CLASS_MAGE].push_back(Races::RACE_BLOODELF);
+    availableRaces[CLASS_MAGE][availableRaces[CLASS_MAGE].size()] = RACE_HUMAN;
+    availableRaces[CLASS_MAGE][availableRaces[CLASS_MAGE].size()] = RACE_GNOME;
+    availableRaces[CLASS_MAGE][availableRaces[CLASS_MAGE].size()] = RACE_UNDEAD_PLAYER;
+    availableRaces[CLASS_MAGE][availableRaces[CLASS_MAGE].size()] = RACE_TROLL;
+    availableRaces[CLASS_MAGE][availableRaces[CLASS_MAGE].size()] = Races::RACE_DRAENEI;
+    availableRaces[CLASS_MAGE][availableRaces[CLASS_MAGE].size()] = Races::RACE_BLOODELF;
 
-    availableRaces[CLASS_WARLOCK].push_back(RACE_HUMAN);
-    availableRaces[CLASS_WARLOCK].push_back(RACE_GNOME);
-    availableRaces[CLASS_WARLOCK].push_back(RACE_UNDEAD_PLAYER);
-    availableRaces[CLASS_WARLOCK].push_back(RACE_ORC);
-    availableRaces[CLASS_WARLOCK].push_back(Races::RACE_BLOODELF);
+    availableRaces[CLASS_WARLOCK][availableRaces[CLASS_WARLOCK].size()] = RACE_HUMAN;
+    availableRaces[CLASS_WARLOCK][availableRaces[CLASS_WARLOCK].size()] = RACE_GNOME;
+    availableRaces[CLASS_WARLOCK][availableRaces[CLASS_WARLOCK].size()] = RACE_UNDEAD_PLAYER;
+    availableRaces[CLASS_WARLOCK][availableRaces[CLASS_WARLOCK].size()] = RACE_ORC;
+    availableRaces[CLASS_WARLOCK][availableRaces[CLASS_WARLOCK].size()] = Races::RACE_BLOODELF;
 
-    availableRaces[CLASS_SHAMAN].push_back(RACE_ORC);
-    availableRaces[CLASS_SHAMAN].push_back(RACE_TAUREN);
-    availableRaces[CLASS_SHAMAN].push_back(RACE_TROLL);
-    availableRaces[CLASS_SHAMAN].push_back(Races::RACE_DRAENEI);
+    availableRaces[CLASS_SHAMAN][availableRaces[CLASS_SHAMAN].size()] = RACE_ORC;
+    availableRaces[CLASS_SHAMAN][availableRaces[CLASS_SHAMAN].size()] = RACE_TAUREN;
+    availableRaces[CLASS_SHAMAN][availableRaces[CLASS_SHAMAN].size()] = RACE_TROLL;
+    availableRaces[CLASS_SHAMAN][availableRaces[CLASS_SHAMAN].size()] = Races::RACE_DRAENEI;
 
-    availableRaces[CLASS_HUNTER].push_back(RACE_DWARF);
-    availableRaces[CLASS_HUNTER].push_back(RACE_NIGHTELF);
-    availableRaces[CLASS_HUNTER].push_back(RACE_ORC);
-    availableRaces[CLASS_HUNTER].push_back(RACE_TAUREN);
-    availableRaces[CLASS_HUNTER].push_back(RACE_TROLL);
-    availableRaces[CLASS_HUNTER].push_back(Races::RACE_DRAENEI);
-    availableRaces[CLASS_HUNTER].push_back(Races::RACE_BLOODELF);
+    availableRaces[CLASS_HUNTER][availableRaces[CLASS_HUNTER].size()] = RACE_DWARF;
+    availableRaces[CLASS_HUNTER][availableRaces[CLASS_HUNTER].size()] = RACE_NIGHTELF;
+    availableRaces[CLASS_HUNTER][availableRaces[CLASS_HUNTER].size()] = RACE_ORC;
+    availableRaces[CLASS_HUNTER][availableRaces[CLASS_HUNTER].size()] = RACE_TAUREN;
+    availableRaces[CLASS_HUNTER][availableRaces[CLASS_HUNTER].size()] = RACE_TROLL;
+    availableRaces[CLASS_HUNTER][availableRaces[CLASS_HUNTER].size()] = Races::RACE_DRAENEI;
+    availableRaces[CLASS_HUNTER][availableRaces[CLASS_HUNTER].size()] = Races::RACE_BLOODELF;
 
-    availableRaces[CLASS_DRUID].push_back(RACE_NIGHTELF);
-    availableRaces[CLASS_DRUID].push_back(RACE_TAUREN);
+    availableRaces[CLASS_DRUID][availableRaces[CLASS_DRUID].size()] = RACE_NIGHTELF;
+    availableRaces[CLASS_DRUID][availableRaces[CLASS_DRUID].size()] = RACE_TAUREN;
 
 
     armorInventorySet.insert(InventoryType::INVTYPE_CHEST);
@@ -413,33 +413,6 @@ void RobotManager::InitializeManager()
         }
     }
 
-    uint32 checkLevel = 20;
-    uint32 maxLevel = 80;
-    uint32 checkGroupIndex = 0;
-    while (checkLevel <= maxLevel)
-    {
-        for (std::map<uint32, std::vector<uint32>>::iterator classIT = availableRaces.begin(); classIT != availableRaces.end(); classIT++)
-        {
-            // EJ debug shaman and mage will be ignored for now
-            if (classIT->first == Classes::CLASS_SHAMAN || classIT->first == Classes::CLASS_MAGE)
-            {
-                continue;
-            }
-            std::vector<uint32> raceVector = classIT->second;
-            for (std::vector<uint32>::iterator raceIT = raceVector.begin(); raceIT != raceVector.end(); raceIT++)
-            {
-                RobotAI* eachRAI = new RobotAI(checkLevel, classIT->first, *raceIT);
-                robotMap[checkGroupIndex].insert(eachRAI);
-                checkGroupIndex++;
-                if (checkGroupIndex >= ROBOT_GROUP_COUNT)
-                {
-                    checkGroupIndex = 0;
-                }
-            }
-        }
-        checkLevel++;
-    }
-
     sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot system ready");
 }
 
@@ -449,23 +422,166 @@ RobotManager* RobotManager::instance()
     return &instance;
 }
 
-void RobotManager::UpdateManager()
+void RobotManager::UpdateRobotManager()
 {
     if (sRobotConfig->Enable == 0)
     {
         return;
     }
 
-    if (updateRobotGroupIndex >= ROBOT_GROUP_COUNT)
+    uint32 realCurrTime = getMSTime();
+    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
+    realPrevTime = realCurrTime;
+
+    prepareCheckDelay -= diff;
+    if (prepareCheckDelay < 0)
     {
-        updateRobotGroupIndex = 0;
+        prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+        std::unordered_set<uint32> onlinePlayerLevelSet;
+        for (std::unordered_map<uint32, WorldSession*>::const_iterator wsIT = sWorld->GetAllSessions().begin(); wsIT != sWorld->GetAllSessions().end(); wsIT++)
+        {
+            if (robotMap.find(wsIT->first) == robotMap.end())
+            {
+                if (Player* eachPlayer = wsIT->second->GetPlayer())
+                {
+                    if (eachPlayer->GetLevel() < 20)
+                    {
+                        continue;
+                    }
+                    if (onlinePlayerLevelSet.find(eachPlayer->GetLevel()) == onlinePlayerLevelSet.end())
+                    {
+                        onlinePlayerLevelSet.insert(eachPlayer->GetLevel());
+                    }
+                }
+            }
+        }
+
+        for (std::unordered_set<uint32>::iterator levelIT = onlinePlayerLevelSet.begin(); levelIT != onlinePlayerLevelSet.end(); levelIT++)
+        {
+            uint32 prepareCount = 0;
+            for (std::unordered_map<uint32, Strategy_Prepare*>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
+            {
+                if (spIT->second->targetLevel == *levelIT)
+                {
+                    if (spIT->second->prepareState == RobotPrepareState::RobotPrepareState_OffLine)
+                    {
+                        spIT->second->actionDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+                    }
+                    prepareCount++;
+                }
+            }
+            if (sRobotConfig->RobotCountEachLevel > prepareCount)
+            {
+                uint32 toAdd = sRobotConfig->RobotCountEachLevel - prepareCount;
+                uint32 checkCount = 0;
+                while (checkCount < toAdd)
+                {
+                    Strategy_Prepare* sp = new Strategy_Prepare();
+                    sp->targetLevel = *levelIT;
+                    while (true)
+                    {
+                        sp->targetClass = urand(Classes::CLASS_WARRIOR, Classes::CLASS_DRUID);
+                        if (sp->targetClass != 6 && sp->targetClass != 10 && sp->targetClass != Classes::CLASS_WARRIOR && sp->targetClass != Classes::CLASS_ROGUE && sp->targetClass != Classes::CLASS_SHAMAN && sp->targetClass != Classes::CLASS_MAGE)
+                        {
+                            break;
+                        }
+                    }
+                    uint32 raceIndex = urand(0, availableRaces[sp->targetClass].size() - 1);
+                    sp->targetRace = availableRaces[sp->targetClass][raceIndex];
+                }
+            }
+        }
     }
-    std::unordered_set<RobotAI*> eachRobotGroup = robotMap[updateRobotGroupIndex];
-    for (std::unordered_set<RobotAI*>::iterator rit = eachRobotGroup.begin(); rit != eachRobotGroup.end(); rit++)
+
+    for (std::unordered_map<uint32, Strategy_Solo*>::iterator ssIT = soloStrategyMap.begin(); ssIT != soloStrategyMap.end(); ssIT++)
     {
-        (*rit)->Update();
+
     }
-    updateRobotGroupIndex++;
+
+    for (std::unordered_map<uint32, RobotEntity*>::iterator seIT = robotMap.begin(); seIT != robotMap.end(); seIT++)
+    {
+        if (Player* onlinePlayer = ObjectAccessor::FindConnectedPlayer(seIT->second->characterGUID))
+        {
+            if (Group* checkGroup = onlinePlayer->GetGroup())
+            {
+                if (soloStrategyMap.find(seIT->first) != soloStrategyMap.end())
+                {
+                    delete seIT->second;
+                    soloStrategyMap.erase(seIT->first);
+                }
+                if (checkGroup->isRaidGroup())
+                {
+                    if (partyStrategyMap.find(checkGroup->GetLowGUID()) != partyStrategyMap.end())
+                    {
+                        delete partyStrategyMap[checkGroup->GetLowGUID()];
+                        partyStrategyMap.erase(checkGroup->GetLowGUID());
+                    }
+                    if (raidStrategyMap.find(checkGroup->GetLowGUID()) == raidStrategyMap.end())
+                    {
+                        Strategy_Raid* sp = new Strategy_Raid(checkGroup->GetLowGUID());
+                        raidStrategyMap[checkGroup->GetLowGUID()] = sp;
+                    }
+                    if (raidStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.find(onlinePlayer->GetSession()->GetAccountId()) == raidStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.end())
+                    {
+                        raidStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.insert(onlinePlayer->GetSession()->GetAccountId());
+                    }
+                }
+                else
+                {
+                    if (raidStrategyMap.find(checkGroup->GetLowGUID()) != raidStrategyMap.end())
+                    {
+                        delete raidStrategyMap[checkGroup->GetLowGUID()];
+                        raidStrategyMap.erase(checkGroup->GetLowGUID());
+                    }
+                    if (partyStrategyMap.find(checkGroup->GetLowGUID()) == partyStrategyMap.end())
+                    {
+                        Strategy_Party* sp = new Strategy_Party(checkGroup->GetLowGUID());
+                        partyStrategyMap[checkGroup->GetLowGUID()] = sp;
+                    }
+                    if (partyStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.find(onlinePlayer->GetSession()->GetAccountId()) == partyStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.end())
+                    {
+                        partyStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.insert(onlinePlayer->GetSession()->GetAccountId());
+                    }
+                }
+            }
+        }
+    }
+
+    UpdateSoloStrategies();
+    UpdatePartyStrategies();
+    UpdateRaidStrategies();
+}
+
+void RobotManager::UpdatePrepareStrategies()
+{
+    for (std::unordered_map<uint32, Strategy_Prepare*>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
+    {
+        spIT->second->Update();
+    }
+}
+
+void RobotManager::UpdateSoloStrategies()
+{
+    for (std::unordered_map<uint32, Strategy_Solo*>::iterator ssIT = soloStrategyMap.begin(); ssIT != soloStrategyMap.end(); ssIT++)
+    {
+        ssIT->second->Update();
+    }
+}
+
+void RobotManager::UpdatePartyStrategies()
+{
+    for (std::unordered_map<uint32, Strategy_Party*>::iterator spIT = partyStrategyMap.begin(); spIT != partyStrategyMap.end(); spIT++)
+    {
+        spIT->second->Update();
+    }
+}
+
+void RobotManager::UpdateRaidStrategies()
+{
+    for (std::unordered_map<uint32, Strategy_Raid*>::iterator srIT = raidStrategyMap.begin(); srIT != raidStrategyMap.end(); srIT++)
+    {
+        srIT->second->Update();
+    }
 }
 
 bool RobotManager::DeleteRobots()
@@ -516,6 +632,16 @@ bool RobotManager::RobotsDeleted()
     return true;
 }
 
+bool RobotManager::CheckRobotAccount(uint32 pmAccountID)
+{
+    QueryResult accountQR = LoginDatabase.PQuery("SELECT id FROM account where id = '%d'", pmAccountID);
+    if (accountQR)
+    {
+        return true;
+    }
+    return false;
+}
+
 uint32 RobotManager::CheckRobotAccount(std::string pmAccountName)
 {
     uint32 accountID = 0;
@@ -529,33 +655,50 @@ uint32 RobotManager::CheckRobotAccount(std::string pmAccountName)
     return accountID;
 }
 
-bool RobotManager::CreateRobotAccount(std::string pmAccountName)
+uint32 RobotManager::CreateRobotAccount()
 {
-    AccountOpResult aor = sAccountMgr->CreateAccount(pmAccountName, "robot");
-    if (aor == AccountOpResult::AOR_OK)
+    uint32 result = 0;
+
+    uint32 checkIndex = 0;
+    while (true)
     {
-        sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create robot account %s", pmAccountName.c_str());
-        return true;
+        std::ostringstream accountNameStream;
+        accountNameStream << sRobotConfig->RobotAccountNamePrefix << checkIndex;
+        AccountOpResult aor = sAccountMgr->CreateAccount(accountNameStream.str(), ROBOT_PASSWORD);
+        if (aor == AccountOpResult::AOR_NAME_ALREADY_EXIST)
+        {
+            checkIndex++;
+        }
+        else if (aor == AccountOpResult::AOR_OK)
+        {
+            result = CheckRobotAccount(accountNameStream.str());
+        }
+        else
+        {
+            break;
+        }
     }
-    return false;
+
+    return result;
 }
 
-ObjectGuid RobotManager::CheckAccountCharacter(uint32 pmAccountID)
+uint32 RobotManager::CheckAccountCharacter(uint32 pmAccountID)
 {
-    ObjectGuid resultGUID = ObjectGuid::Empty;
+    uint32 result = 0;
 
     QueryResult characterQR = CharacterDatabase.PQuery("SELECT guid FROM characters where account = '%d'", pmAccountID);
     if (characterQR)
     {
         Field* characterFields = characterQR->Fetch();
-        uint32 lowID = characterFields[0].GetUInt32();
-        resultGUID = ObjectGuid(HighGuid::Player, lowID);
+        result = characterFields[0].GetUInt32();        
     }
-    return resultGUID;
+    return result;
 }
 
-bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace)
+uint32 RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace)
 {
+    uint32 result = 0;
+
     std::string currentName = "";
     bool nameValid = false;
     while (nameIndex < robotNameMap.size())
@@ -626,17 +769,19 @@ bool RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterCl
         newPlayer->SetAtLoginFlag(AT_LOGIN_NONE);
         newPlayer->SetPvP(true);
         newPlayer->SaveToDB(true);
+        result = newPlayer->GetGUID().GetRawValue();
         sWorld->AddSession(eachSession);
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create character %d - %s for account %d", newPlayer->GetGUID().GetCounter(), currentName.c_str(), pmAccountID);
         break;
     }
 
-    return true;
+    return result;
 }
 
-Player* RobotManager::CheckLogin(uint32 pmAccountID, ObjectGuid pmGUID)
+Player* RobotManager::CheckLogin(uint32 pmAccountID, uint32 pmCharacterID)
 {
-    Player* currentPlayer = ObjectAccessor::FindConnectedPlayer(pmGUID);
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, pmCharacterID);
+    Player* currentPlayer = ObjectAccessor::FindConnectedPlayer(guid);
     if (currentPlayer)
     {
         return currentPlayer;
@@ -644,18 +789,18 @@ Player* RobotManager::CheckLogin(uint32 pmAccountID, ObjectGuid pmGUID)
     return NULL;
 }
 
-bool RobotManager::LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID)
+bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmCharacterID)
 {
-    Player* currentPlayer = ObjectAccessor::FindPlayer(pmGUID);
+    Player* currentPlayer = ObjectAccessor::FindPlayerByLowGUID(pmCharacterID);
     if (currentPlayer)
     {
         if (currentPlayer->IsInWorld())
         {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot %d %s is already in world", pmGUID, currentPlayer->GetName());
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot %d %s is already in world", pmCharacterID, currentPlayer->GetName());
             return false;
         }
     }
-    QueryResult characterQR = CharacterDatabase.PQuery("SELECT name, level FROM characters where guid = '%d'", pmGUID);
+    QueryResult characterQR = CharacterDatabase.PQuery("SELECT name, level FROM characters where guid = '%d'", pmCharacterID);
     if (!characterQR)
     {
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Found zero robot characters for account %d while processing logging in", pmAccountID);
@@ -671,17 +816,17 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, ObjectGuid pmGUID)
         sWorld->AddSession(loginSession);
     }
 
-    loginSession->HandlePlayerLogin_Simple(pmGUID);
-    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmGUID, characterName.c_str(), characterLevel);
+    loginSession->HandlePlayerLogin_Simple(pmCharacterID);
+    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log in character %d %s (level %d)", pmCharacterID, characterName.c_str(), characterLevel);
 
     return true;
 }
 
 void RobotManager::LogoutRobots()
 {
-    for (std::unordered_map<uint32, RobotAI*>::iterator rit = sRobotManager->robotAICache.begin(); rit != sRobotManager->robotAICache.end(); rit++)
+    for (std::unordered_map<uint32, RobotEntity*>::iterator reIT = robotMap.begin(); reIT != robotMap.end(); reIT++)
     {
-        Player* checkP = ObjectAccessor::FindConnectedPlayer(rit->second->characterGUID);
+        Player* checkP = ObjectAccessor::FindConnectedPlayer(reIT->second->characterGUID);
         if (checkP)
         {
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
@@ -1046,22 +1191,11 @@ bool RobotManager::StringStartWith(const std::string& str, const std::string& he
     return str.compare(0, head.size(), head) == 0;
 }
 
-Player* RobotManager::GetMaster(uint32 pmSessionID)
+Strategy_Solo* RobotManager::GetSoloStrategy(uint32 pmSessionID)
 {
-    if (sRobotManager->robotAICache.find(pmSessionID) != sRobotManager->robotAICache.end())
+    if (soloStrategyMap.find(pmSessionID) != soloStrategyMap.end())
     {
-        Player* masterPlayer = ObjectAccessor::FindConnectedPlayer(sRobotManager->robotAICache[pmSessionID]->masterGUID);
-        return masterPlayer;
-    }
-
-    return NULL;
-}
-
-RobotAI* RobotManager::GetRobotAI(uint32 pmSessionID)
-{
-    if (sRobotManager->robotAICache.find(pmSessionID) != sRobotManager->robotAICache.end())
-    {
-        return sRobotManager->robotAICache[pmSessionID];
+        return soloStrategyMap[pmSessionID];
     }
 
     return NULL;
@@ -1069,7 +1203,7 @@ RobotAI* RobotManager::GetRobotAI(uint32 pmSessionID)
 
 bool RobotManager::IsRobot(uint32 pmSessionID)
 {
-    if (sRobotManager->robotAICache.find(pmSessionID) != sRobotManager->robotAICache.end())
+    if (robotMap.find(pmSessionID) != robotMap.end())
     {
         return true;
     }

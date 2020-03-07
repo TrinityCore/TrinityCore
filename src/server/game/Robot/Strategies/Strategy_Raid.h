@@ -1,28 +1,18 @@
-#ifndef ROBOT_STRATEGIES_GROUP_NORMAL_H
-#define ROBOT_STRATEGIES_GROUP_NORMAL_H
+#ifndef ROBOT_STRATEGIES_RAID_H
+#define ROBOT_STRATEGIES_RAID_H
 
 #ifndef DPS_DELAY
 # define DPS_DELAY 4000
 #endif
 
-class RobotAI;
-
-enum Group_Instruction :uint8
-{
-    Group_Instruction_None = 0,
-    Group_Instruction_Wander = 1,
-    Group_Instruction_Battle = 2,
-    Group_Instruction_Rest = 3
-};
-
-class Strategy_Group_Normal
+class Strategy_Raid
 {
 public:
-    Strategy_Group_Normal(RobotAI* pmSourceAI);
+    Strategy_Raid(uint32 pmID);
     void Set();
-    void Update(uint32 pmDiff);
+    void Update();
     bool Rest(bool pmForce = false);
-    bool Buff();    
+    bool Buff();
     bool Battle();
     bool DPS();
     bool DPS(Unit* pmTarget);
@@ -37,9 +27,11 @@ public:
     bool GroupInCombat();
 
 public:
-    RobotAI* sourceAI;
+    uint32 realPrevTime;
     uint8 memberNumber;
 
+    uint32 raidID;
+    std::unordered_set<uint32> memberSessionIDSet;
     uint8 instruction;
     int32 assembleDelay;
     int32 dpsDelay;

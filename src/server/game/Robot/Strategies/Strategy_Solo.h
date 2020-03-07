@@ -1,10 +1,13 @@
-#ifndef ROBOT_STRATEGIES_SOLO_NORMAL_H
-#define ROBOT_STRATEGIES_SOLO_NORMAL_H
+#ifndef ROBOT_STRATEGIES_SOLO_H
+#define ROBOT_STRATEGIES_SOLO_H
 
-#include "RobotAI.h"
-#include "Player.h"
+#include "Script_Base.h"
 
-class RobotAI;
+enum RobotSoloState :uint32
+{
+    RobotSoloState_None = 0,
+    RobotSoloState_Wander,
+};
 
 enum Solo_Instruction :uint8
 {
@@ -17,12 +20,12 @@ enum Solo_Instruction :uint8
 	Solo_Instruction_Confuse = 6
 };
 
-class Strategy_Solo_Normal
+class Strategy_Solo
 {
 public:
-	Strategy_Solo_Normal(RobotAI* pmSourceAI);
-	void Update(uint32 pmDiff);
-
+    Strategy_Solo(uint32 pmAccount, uint32 pmCharacter);
+	void Update();
+    void Reset();
     bool Buff();
 	bool Rest();
 	bool Battle();
@@ -33,14 +36,18 @@ public:
 	bool Confuse();
 
 public:
-	RobotAI* sourceAI;
+    uint32 realPrevTime;
+    uint32 account;
+    uint32 character;
 
-	uint8 instruction;
+    uint32 soloState;
 	int32 deathDuration;
 	int32 soloDuration;	
 	int32 waitDelay;
 	int32 strollDelay;
 	int32 confuseDelay;
 	int32 interestsDelay;
+
+    Script_Base* s_base;
 };
 #endif

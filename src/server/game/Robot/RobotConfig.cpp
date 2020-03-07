@@ -168,6 +168,7 @@ bool RobotConfig::StartRobotSystem()
     ResetRobots = GetIntDefault("ResetRobots", 0);
     RobotAccountNamePrefix = GetStringDefault("RobotAccountNamePrefix", "ROBOT");
     OnlineLevel = GetIntDefault("OnlineLevel", 0);
+    RobotCountEachLevel = GetIntDefault("RobotCountEachLevel", 100);
     OnlineMinDelay = GetIntDefault("OnlineMinDelay", 60000);
     OnlineMaxDelay = GetIntDefault("OnlineMaxDelay", 300000);
 

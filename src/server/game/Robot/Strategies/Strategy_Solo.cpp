@@ -1,31 +1,96 @@
-#include "Strategy_Solo_Normal.h"
+#include "Strategy_Solo.h"
+#include "RobotManager.h"
+#include "Script_Warrior.h"
+#include "Script_Hunter.h"
+#include "Script_Shaman.h"
+#include "Script_Paladin.h"
+#include "Script_Warlock.h"
+#include "Script_Priest.h"
+#include "Script_Rogue.h"
+#include "Script_Mage.h"
+#include "Script_Druid.h"
 
-#include "Script_Base.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "MotionMaster.h"
-#include "Pet.h"
-#include "Item.h"
-#include "Strategy_Group_Normal.h"
-
-Strategy_Solo_Normal::Strategy_Solo_Normal(RobotAI* pmSourceAI)
+Strategy_Solo::Strategy_Solo(uint32 pmAccount, uint32 pmCharacter)
 {
-    sourceAI = pmSourceAI;
+    realPrevTime = 0;
 
-    instruction = Solo_Instruction::Solo_Instruction_None;
+    account = pmAccount;
+    character = pmCharacter;
+
+    soloState = RobotSoloState::RobotSoloState_Wander;
+
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        soloState = RobotSoloState::RobotSoloState_None;
+        return;
+    }
+    switch (me->GetClass())
+    {
+    case Classes::CLASS_WARRIOR:
+    {
+        s_base = new Script_Warrior(this);
+        break;
+    }
+    case Classes::CLASS_HUNTER:
+    {
+        s_base = new Script_Hunter(this);
+        break;
+    }
+    case Classes::CLASS_SHAMAN:
+    {
+        s_base = new Script_Shaman(this);
+        break;
+    }
+    case Classes::CLASS_PALADIN:
+    {
+        s_base = new Script_Paladin(this);
+        break;
+    }
+    case Classes::CLASS_WARLOCK:
+    {
+        s_base = new Script_Warlock(this);
+        break;
+    }
+    case Classes::CLASS_PRIEST:
+    {
+        s_base = new Script_Priest(this);
+        break;
+    }
+    case Classes::CLASS_ROGUE:
+    {
+        s_base = new Script_Rogue(this);
+        break;
+    }
+    case Classes::CLASS_MAGE:
+    {
+        s_base = new Script_Mage(this);
+        break;
+    }
+    case Classes::CLASS_DRUID:
+    {
+        s_base = new Script_Druid(this);
+        break;
+    }
+    }
+
     deathDuration = 0;
     soloDuration = 0;
-    sourceAI->restDelay = 0;
     waitDelay = 0;
     strollDelay = 0;
     confuseDelay = 0;
     interestsDelay = 0;
 }
 
-void Strategy_Solo_Normal::Update(uint32 pmDiff)
+void Strategy_Solo::Update()
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    uint32 realCurrTime = getMSTime();
+    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
+    realPrevTime = realCurrTime;
+
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return;
@@ -222,12 +287,17 @@ void Strategy_Solo_Normal::Update(uint32 pmDiff)
     }
 }
 
-bool Strategy_Solo_Normal::Buff()
+void Strategy_Solo::Reset()
+{
+    s_base->Prepare();
+}
+
+bool Strategy_Solo::Buff()
 {
     return sourceAI->s_base->Buff();
 }
 
-bool Strategy_Solo_Normal::Rest()
+bool Strategy_Solo::Rest()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
@@ -359,7 +429,7 @@ bool Strategy_Solo_Normal::Rest()
     return false;
 }
 
-bool Strategy_Solo_Normal::Battle()
+bool Strategy_Solo::Battle()
 {
     bool result = false;
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
@@ -490,18 +560,18 @@ bool Strategy_Solo_Normal::Battle()
     return result;
 }
 
-bool Strategy_Solo_Normal::Attack(Unit* pmTarget)
+bool Strategy_Solo::Attack(Unit* pmTarget)
 {
     return sourceAI->s_base->Attack(pmTarget);
     //return sourceAI->scriptMap[me->getClass()]->Attack(pmTarget);
 }
 
-bool Strategy_Solo_Normal::Heal()
+bool Strategy_Solo::Heal()
 {
     return sourceAI->s_base->HealMe();
 }
 
-bool Strategy_Solo_Normal::Wait()
+bool Strategy_Solo::Wait()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
@@ -516,7 +586,7 @@ bool Strategy_Solo_Normal::Wait()
     return true;
 }
 
-bool Strategy_Solo_Normal::Stroll()
+bool Strategy_Solo::Stroll()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
@@ -533,7 +603,7 @@ bool Strategy_Solo_Normal::Stroll()
     return true;
 }
 
-bool Strategy_Solo_Normal::Confuse()
+bool Strategy_Solo::Confuse()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)

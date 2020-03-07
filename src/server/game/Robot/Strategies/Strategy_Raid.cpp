@@ -1,6 +1,5 @@
-#include "Strategy_Group_Normal.h"
+#include "Strategy_Raid.h"
 
-#include "RobotAI.h"
 #include "Player.h"
 #include "Script_Base.h"
 #include "Group.h"
@@ -9,12 +8,12 @@
 #include "Pet.h"
 #include "Spell.h"
 
-Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
+Strategy_Raid::Strategy_Raid(uint32 pmID)
 {
-    sourceAI = pmSourceAI;
     memberNumber = 0;
 
-    instruction = Group_Instruction::Group_Instruction_None;
+    raidID = pmID;
+    memberSessionIDSet.clear();
 
     assembleDelay = 0;
     dpsDelay = DPS_DELAY;
@@ -23,7 +22,7 @@ Strategy_Group_Normal::Strategy_Group_Normal(RobotAI* pmSourceAI)
     followDistance = FOLLOW_MIN_DISTANCE;
 }
 
-void Strategy_Group_Normal::Set()
+void Strategy_Raid::Set()
 {
     if (sourceAI->targetClass == Classes::CLASS_HUNTER || sourceAI->targetClass == Classes::CLASS_MAGE || sourceAI->targetClass == Classes::CLASS_PRIEST || sourceAI->targetClass == Classes::CLASS_WARLOCK)
     {
@@ -45,8 +44,12 @@ void Strategy_Group_Normal::Set()
     }
 }
 
-void Strategy_Group_Normal::Update(uint32 pmDiff)
+void Strategy_Raid::Update()
 {
+    uint32 realCurrTime = getMSTime();
+    uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
+    realPrevTime = realCurrTime;
+
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {
@@ -202,7 +205,7 @@ void Strategy_Group_Normal::Update(uint32 pmDiff)
     }
 }
 
-bool Strategy_Group_Normal::Rest(bool pmForce)
+bool Strategy_Raid::Rest(bool pmForce)
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (GroupInCombat())
@@ -325,12 +328,12 @@ bool Strategy_Group_Normal::Rest(bool pmForce)
     return false;
 }
 
-bool Strategy_Group_Normal::Buff()
+bool Strategy_Raid::Buff()
 {
     return sourceAI->s_base->Buff();
 }
 
-bool Strategy_Group_Normal::Battle()
+bool Strategy_Raid::Battle()
 {
     bool result = false;
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
@@ -371,7 +374,7 @@ bool Strategy_Group_Normal::Battle()
     return result;
 }
 
-bool Strategy_Group_Normal::DPS()
+bool Strategy_Raid::DPS()
 {
     bool result = false;
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
@@ -475,12 +478,12 @@ bool Strategy_Group_Normal::DPS()
     return result;
 }
 
-bool Strategy_Group_Normal::DPS(Unit* pmTarget)
+bool Strategy_Raid::DPS(Unit* pmTarget)
 {
     return sourceAI->s_base->DPS(pmTarget);
 }
 
-bool Strategy_Group_Normal::Tank()
+bool Strategy_Raid::Tank()
 {
     bool result = false;
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
@@ -597,12 +600,12 @@ bool Strategy_Group_Normal::Tank()
     return result;
 }
 
-bool Strategy_Group_Normal::Tank(Unit* pmTarget)
+bool Strategy_Raid::Tank(Unit* pmTarget)
 {
     return sourceAI->s_base->Tank(pmTarget);
 }
 
-bool Strategy_Group_Normal::Attack(Unit* pmTarget)
+bool Strategy_Raid::Attack(Unit* pmTarget)
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     switch (me->groupRole)
@@ -624,7 +627,7 @@ bool Strategy_Group_Normal::Attack(Unit* pmTarget)
     return false;
 }
 
-bool Strategy_Group_Normal::Healer()
+bool Strategy_Raid::Healer()
 {
     bool result = false;
     result = sourceAI->s_base->Healer();
@@ -637,7 +640,7 @@ bool Strategy_Group_Normal::Healer()
     return result;
 }
 
-bool Strategy_Group_Normal::GroupInCombat()
+bool Strategy_Raid::GroupInCombat()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     Group* myGroup = me->GetGroup();
@@ -662,7 +665,7 @@ bool Strategy_Group_Normal::GroupInCombat()
     return false;
 }
 
-bool Strategy_Group_Normal::Follow()
+bool Strategy_Raid::Follow()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me->IsAlive())
@@ -697,13 +700,13 @@ bool Strategy_Group_Normal::Follow()
     return true;
 }
 
-bool Strategy_Group_Normal::Follow(float pmFollowDistance)
+bool Strategy_Raid::Follow(float pmFollowDistance)
 {
     followDistance = pmFollowDistance;
     return Follow();
 }
 
-bool Strategy_Group_Normal::Stay()
+bool Strategy_Raid::Stay()
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     me->StopMoving();

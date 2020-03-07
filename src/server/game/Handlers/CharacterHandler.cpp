@@ -687,7 +687,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 }
 
 // EJ robot 
-void WorldSession::HandlePlayerLogin_Simple(ObjectGuid pmPlayerGUID)
+void WorldSession::HandlePlayerLogin_Simple(uint32 pmCharacterID)
 {
     if (PlayerLoading() || GetPlayer() != nullptr)
     {
@@ -696,7 +696,8 @@ void WorldSession::HandlePlayerLogin_Simple(ObjectGuid pmPlayerGUID)
         return;
     }
     m_playerLoading = true;
-    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), pmPlayerGUID);
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, pmCharacterID);
+    LoginQueryHolder *holder = new LoginQueryHolder(GetAccountId(), guid);
     if (!holder->Initialize())
     {
         delete holder;                                      // delete all unprocessed queries
