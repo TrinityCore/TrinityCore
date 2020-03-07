@@ -400,7 +400,7 @@ void PhasingHandler::SendToPlayer(Player const* player, PhaseShift const& phaseS
     phaseShiftChange.Phaseshift.PhaseShiftFlags = phaseShift.Flags.AsUnderlyingType();
     phaseShiftChange.Phaseshift.Phases.reserve(phaseShift.Phases.size());
     std::transform(phaseShift.Phases.begin(), phaseShift.Phases.end(), std::back_inserter(phaseShiftChange.Phaseshift.Phases),
-        [](PhaseShift::PhaseRef const& phase) -> uint16{ return { phase.Id }; });
+        [](PhaseShift::PhaseRef const& phase) -> uint16 { return phase.Id; });
     phaseShiftChange.VisibleMapIDs.reserve(phaseShift.VisibleMapIds.size());
     std::transform(phaseShift.VisibleMapIds.begin(), phaseShift.VisibleMapIds.end(), std::back_inserter(phaseShiftChange.VisibleMapIDs),
         [](PhaseShift::VisibleMapIdContainer::value_type const& visibleMapId) { return visibleMapId.first; });
