@@ -947,11 +947,14 @@ public:
 };
 
 // correct way: 52312 52314 52555 ...
-enum Creatures_SG
+enum TheGiftThatKeepsOnGiving
 {
-    NPC_GHOULS = 28845,
-    NPC_GHOSTS = 28846,
+    SAY_LINE_0  = 0,
+
+    NPC_GHOULS  = 28845,
+    NPC_GHOSTS  = 28846,
 };
+
 class npc_dkc1_gothik : public CreatureScript
 {
 public:
@@ -996,83 +999,77 @@ public:
 
 };
 
-class npc_scarlet_ghoul : public CreatureScript
+struct npc_scarlet_ghoul : public ScriptedAI
 {
-public:
-    npc_scarlet_ghoul() : CreatureScript("npc_scarlet_ghoul") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
+    npc_scarlet_ghoul(Creature* creature) : ScriptedAI(creature)
     {
-        return new npc_scarlet_ghoulAI(creature);
+        me->SetReactState(REACT_DEFENSIVE);
     }
 
-    struct npc_scarlet_ghoulAI : public ScriptedAI
+    void JustAppeared() override
     {
-        npc_scarlet_ghoulAI(Creature* creature) : ScriptedAI(creature)
-        {
-            // Ghouls should display their Birth Animation
-            // Crawling out of the ground
-            //DoCast(me, 35177, true);
-            //me->MonsterSay("Mommy?", LANG_UNIVERSAL, 0);
-            me->SetReactState(REACT_DEFENSIVE);
-        }
+        CreatureAI::JustAppeared();
 
-        void FindMinions(Unit* owner)
-        {
-            std::list<Creature*> MinionList;
-            owner->GetAllMinionsByEntry(MinionList, NPC_GHOULS);
+        if (urand(0, 1))
+            if (Unit* owner = me->GetOwner())
+                Talk(SAY_LINE_0, owner);
+    }
 
-            if (!MinionList.empty())
+    void FindMinions(Unit* owner)
+    {
+        std::list<Creature*> MinionList;
+        owner->GetAllMinionsByEntry(MinionList, NPC_GHOULS);
+
+        if (!MinionList.empty())
+        {
+            for (Creature* creature : MinionList)
             {
-                for (std::list<Creature*>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
+                if (creature->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
                 {
-                    if ((*itr)->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
+                    if (creature->IsInCombat() && creature->getAttackerForHelper())
                     {
-                        if ((*itr)->IsInCombat() && (*itr)->getAttackerForHelper())
-                        {
-                            AttackStart((*itr)->getAttackerForHelper());
-                        }
+                        AttackStart(creature->getAttackerForHelper());
                     }
                 }
             }
         }
+    }
 
-        void UpdateAI(uint32 /*diff*/) override
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!me->IsInCombat())
         {
-            if (!me->IsInCombat())
+            if (Unit* owner = me->GetOwner())
             {
-                if (Unit* owner = me->GetOwner())
+                Player* plrOwner = owner->ToPlayer();
+                if (plrOwner && plrOwner->IsInCombat())
                 {
-                    Player* plrOwner = owner->ToPlayer();
-                    if (plrOwner && plrOwner->IsInCombat())
-                    {
-                        if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_GHOSTS)
-                            AttackStart(plrOwner->getAttackerForHelper());
-                        else
-                            FindMinions(owner);
-                    }
-                }
-            }
-
-            if (!UpdateVictim() || !me->GetVictim())
-                return;
-
-            //ScriptedAI::UpdateAI(diff);
-            //Check if we have a current target
-            if (me->EnsureVictim()->GetEntry() == NPC_GHOSTS)
-            {
-                if (me->isAttackReady())
-                {
-                    //If we are within range melee the target
-                    if (me->IsWithinMeleeRange(me->GetVictim()))
-                    {
-                        me->AttackerStateUpdate(me->GetVictim());
-                        me->resetAttackTimer();
-                    }
+                    if (plrOwner->getAttackerForHelper() && plrOwner->getAttackerForHelper()->GetEntry() == NPC_GHOSTS)
+                        AttackStart(plrOwner->getAttackerForHelper());
+                    else
+                        FindMinions(owner);
                 }
             }
         }
-    };
+
+        if (!UpdateVictim() || !me->GetVictim())
+            return;
+
+        //ScriptedAI::UpdateAI(diff);
+        //Check if we have a current target
+        if (me->EnsureVictim()->GetEntry() == NPC_GHOSTS)
+        {
+            if (me->isAttackReady())
+            {
+                //If we are within range melee the target
+                if (me->IsWithinMeleeRange(me->GetVictim()))
+                {
+                    me->AttackerStateUpdate(me->GetVictim());
+                    me->resetAttackTimer();
+                }
+            }
+        }
+    }
 };
 
 enum GiftOfTheHarvester
@@ -1123,6 +1120,6 @@ void AddSC_the_scarlet_enclave_c1()
     RegisterSpellScript(spell_deliver_stolen_horse);
     new npc_ros_dark_rider();
     new npc_dkc1_gothik();
-    new npc_scarlet_ghoul();
+    RegisterCreatureAI(npc_scarlet_ghoul);
     RegisterSpellScript(spell_gift_of_the_harvester);
 }
