@@ -7233,7 +7233,7 @@ void Player::UpdateArea(uint32 newArea)
     {
         AddPvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
         pvpInfo.IsInNoPvPArea = true;
-        if (!duel)
+        if (!duel && GetCombatManager().HasPvPCombat())
             CombatStopWithPets();
     }
     else
