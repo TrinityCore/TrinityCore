@@ -39,7 +39,7 @@ do
 	if [[ ! -x $i ]]
 	then
 		echo "Invalid executable: $i"
-		echo "Check tools are installed correctly"
+		echo "Check that the extraction tools are installed correctly."
 		exit
 	fi
 done
