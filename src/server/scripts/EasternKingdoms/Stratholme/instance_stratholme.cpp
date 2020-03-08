@@ -245,6 +245,7 @@ public:
                 break;
             case NPC_CRYSTAL:
             {
+                // EJ todo spawn acolytes when crystal spawned
                 break;
             }
             case NPC_ABOM_BILE:
@@ -254,95 +255,7 @@ public:
             case NPC_YSIDA:
                 ysidaGUID = creature->GetGUID();
                 creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                break;
-            case STRCreatureIds::NPC_THUZADIN_ACOLYTE:
-            {
-                if (creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_0)
-                {
-                    if (crystalDestroyed0)
-                    {
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_0))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_1))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_2))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_3))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_0_4))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_3);
-                        crystalDestroyed0 = false;
-                    }
-                }
-                else if (creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_0)
-                {
-                    if (crystalDestroyed1)
-                    {
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_1))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_1))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_2))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_3))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_1_4))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_3);
-                        crystalDestroyed1 = false;
-                    }
-                }
-                else if (creature->GetSpawnId() == STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_0)
-                {
-                    if (crystalDestroyed2)
-                    {
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_ASHARI_CRYSTAL_2))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_1))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_2))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_3))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        if (RespawnInfo* ri = instance->GetRespawnInfo(SpawnObjectType::SPAWN_TYPE_CREATURE, STRATHOLME_NPC_SPAWN_ID::NPC_SPAWN_ID_THUZADIN_ACOLYTE_2_4))
-                        {
-                            instance->Respawn(ri);
-                        }
-                        creature->AI()->Talk(STRATHOLME_LINE_THUZADIN_ACOLYTE::LINE_THUZADIN_ACOLYTE_3);
-                        crystalDestroyed2 = false;
-                    }
-                }
-                break;
-            }
+                break;            
             case STRCreatureIds::NPC_RAMSTEIN:
             {
                 OGBossRamstein = creature->GetGUID();
