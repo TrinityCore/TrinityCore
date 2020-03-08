@@ -16,7 +16,6 @@
  */
 
 /* ContentData
-go_cat_figurine (the "trap" version of GO, two different exist)
 go_barov_journal
 go_ethereum_prison
 go_ethereum_stasis
@@ -59,37 +58,6 @@ EndContentData */
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
-
-/*######
-## go_cat_figurine
-######*/
-
-enum CatFigurine
-{
-    SPELL_SUMMON_GHOST_SABER    = 5968,
-};
-
-class go_cat_figurine : public GameObjectScript
-{
-public:
-    go_cat_figurine() : GameObjectScript("go_cat_figurine") { }
-
-    struct go_cat_figurineAI : public GameObjectAI
-    {
-        go_cat_figurineAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_cat_figurineAI(go);
-    }
-};
 
 /*######
 ## go_barov_journal
@@ -1898,22 +1866,25 @@ public:
 
 enum BellHourlySoundFX
 {
-    BELLTOLLHORDE          = 6595, // Horde
-    BELLTOLLTRIBAL         = 6675,
-    BELLTOLLALLIANCE       = 6594, // Alliance
-    BELLTOLLNIGHTELF       = 6674,
-    BELLTOLLDWARFGNOME     = 7234,
-    BELLTOLLKHARAZHAN      = 9154 // Kharazhan
+    BELLTOLLHORDE      = 6595, // Undercity
+    BELLTOLLTRIBAL     = 6675, // Orgrimma/Thunderbluff
+    BELLTOLLALLIANCE   = 6594, // Stormwind
+    BELLTOLLNIGHTELF   = 6674, // Darnassus
+    BELLTOLLDWARFGNOME = 7234, // Ironforge
+    BELLTOLLKHARAZHAN  = 9154  // Kharazhan
 };
 
-enum BellHourlySoundAreas
+enum BellHourlySoundZones
 {
-    UNDERCITY_AREA         = 1497,
-    IRONFORGE_1_AREA       = 809,
-    IRONFORGE_2_AREA       = 1,
-    DARNASSUS_AREA         = 1657,
-    TELDRASSIL_ZONE        = 141,
-    KHARAZHAN_MAPID        = 532
+    TIRISFAL_ZONE       = 85,
+    UNDERCITY_ZONE      = 1497,
+    DUN_MOROGH_ZONE     = 1,
+    IRONFORGE_ZONE      = 1537,
+    TELDRASSIL_ZONE     = 141,
+    DARNASSUS_ZONE      = 1657,
+    ASHENVALE_ZONE      = 331,
+    HILLSBRAD_FOOTHILLS = 267,
+    DUSKWOOD_ZONE       = 42
 };
 
 enum BellHourlyObjects
@@ -1940,25 +1911,45 @@ public:
 
         void InitializeAI() override
         {
+            uint32 zoneId = me->GetZoneId();
+
             switch (me->GetEntry())
             {
                 case GO_HORDE_BELL:
-                    _soundId = me->GetAreaId() == UNDERCITY_AREA ? BELLTOLLHORDE : BELLTOLLTRIBAL;
-                    break;
+                {
+                    switch (zoneId) {
+                    case TIRISFAL_ZONE:
+                    case UNDERCITY_ZONE:
+                    case HILLSBRAD_FOOTHILLS:
+                    case DUSKWOOD_ZONE:
+                        _soundId = BELLTOLLHORDE;  // undead bell sound
+                        break;
+                    default:
+                        _soundId = BELLTOLLTRIBAL; // orc drum sound 
+                        break;
+                    }
+                }
                 case GO_ALLIANCE_BELL:
                 {
-                    if (me->GetAreaId() == IRONFORGE_1_AREA || me->GetAreaId() == IRONFORGE_2_AREA)
-                        _soundId = BELLTOLLDWARFGNOME;
-                    else if (me->GetAreaId() == DARNASSUS_AREA || me->GetZoneId() == TELDRASSIL_ZONE)
-                        _soundId = BELLTOLLNIGHTELF;
-                    else
-                        _soundId = BELLTOLLALLIANCE;
-
-                    break;
+                    switch (zoneId) {
+                    case IRONFORGE_ZONE:
+                    case DUN_MOROGH_ZONE:
+                        _soundId = BELLTOLLDWARFGNOME; // horn sound
+                        break;
+                    case DARNASSUS_ZONE:
+                    case TELDRASSIL_ZONE:
+                    case ASHENVALE_ZONE:
+                        _soundId = BELLTOLLNIGHTELF;   // nightelf bell sound
+                        break;
+                    default:
+                        _soundId = BELLTOLLALLIANCE;   // human bell sound 
+                    }
                 }
                 case GO_KHARAZHAN_BELL:
-                    _soundId = BELLTOLLKHARAZHAN;
-                    break;
+                {
+                _soundId = BELLTOLLKHARAZHAN;
+                break;
+                }
             }
         }
 
@@ -2005,7 +1996,6 @@ public:
 
 void AddSC_go_scripts()
 {
-    new go_cat_figurine();
     new go_barov_journal();
     new go_gilded_brazier();
     new go_orb_of_command();
