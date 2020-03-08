@@ -24,11 +24,7 @@ class RobotManager
 
 public:
     void InitializeManager();
-    void UpdateRobotManager();
-    void UpdatePrepareStrategies();
-    void UpdateSoloStrategies();
-    void UpdatePartyStrategies();
-    void UpdateRaidStrategies();
+    void UpdateRobotManager();    
     bool DeleteRobots();
     bool RobotsDeleted();
     bool IsRobot(uint32 pmSessionID);

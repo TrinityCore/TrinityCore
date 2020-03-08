@@ -9,6 +9,9 @@
 #include "Script_Rogue.h"
 #include "Script_Mage.h"
 #include "Script_Druid.h"
+#include "MotionMaster.h"
+#include "Pet.h"
+#include "GridNotifiers.h"
 
 Strategy_Solo::Strategy_Solo(uint32 pmAccount, uint32 pmCharacter)
 {
@@ -30,53 +33,54 @@ Strategy_Solo::Strategy_Solo(uint32 pmAccount, uint32 pmCharacter)
     {
     case Classes::CLASS_WARRIOR:
     {
-        s_base = new Script_Warrior(this);
+        sb = new Script_Warrior(this);
         break;
     }
     case Classes::CLASS_HUNTER:
     {
-        s_base = new Script_Hunter(this);
+        sb = new Script_Hunter(this);
         break;
     }
     case Classes::CLASS_SHAMAN:
     {
-        s_base = new Script_Shaman(this);
+        sb = new Script_Shaman(this);
         break;
     }
     case Classes::CLASS_PALADIN:
     {
-        s_base = new Script_Paladin(this);
+        sb = new Script_Paladin(this);
         break;
     }
     case Classes::CLASS_WARLOCK:
     {
-        s_base = new Script_Warlock(this);
+        sb = new Script_Warlock(this);
         break;
     }
     case Classes::CLASS_PRIEST:
     {
-        s_base = new Script_Priest(this);
+        sb = new Script_Priest(this);
         break;
     }
     case Classes::CLASS_ROGUE:
     {
-        s_base = new Script_Rogue(this);
+        sb = new Script_Rogue(this);
         break;
     }
     case Classes::CLASS_MAGE:
     {
-        s_base = new Script_Mage(this);
+        sb = new Script_Mage(this);
         break;
     }
     case Classes::CLASS_DRUID:
     {
-        s_base = new Script_Druid(this);
+        sb = new Script_Druid(this);
         break;
     }
     }
 
-    deathDuration = 0;
-    soloDuration = 0;
+    deathDelay = 0;
+    soloDelay = urand(30 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    restDelay = 0;
     waitDelay = 0;
     strollDelay = 0;
     confuseDelay = 0;
@@ -95,97 +99,52 @@ void Strategy_Solo::Update()
     {
         return;
     }
-    soloDuration += pmDiff;
-    if (sourceAI->restDelay > 0)
+    if (me->GetGroup())
     {
-        sourceAI->restDelay -= pmDiff;
-        if (sourceAI->restDelay == 0)
-        {
-            sourceAI->restDelay = -1;
-        }
-    }
-    if (waitDelay > 0)
-    {
-        waitDelay -= pmDiff;
-        if (waitDelay == 0)
-        {
-            waitDelay = -1;
-        }
-    }
-    if (strollDelay > 0)
-    {
-        strollDelay -= pmDiff;
-        if (strollDelay == 0)
-        {
-            strollDelay = -1;
-        }
-    }
-    if (confuseDelay > 0)
-    {
-        confuseDelay -= pmDiff;
-        if (confuseDelay == 0)
-        {
-            confuseDelay = -1;
-        }
+        return;
     }
     if (interestsDelay > 0)
     {
-        interestsDelay -= pmDiff;
-        if (interestsDelay == 0)
-        {
-            interestsDelay = -1;
-        }
+        interestsDelay -= diff;
     }
     if (!me->IsAlive())
     {
-        deathDuration += pmDiff;
-        sourceAI->restDelay = 0;
-        waitDelay = 0;
-        strollDelay = 0;
-        confuseDelay = 0;
-        if (deathDuration > TimeConstants::MINUTE* TimeConstants::IN_MILLISECONDS)
+        if (deathDelay > 0)
         {
-            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Revive solo robot %s", me->GetName());
-            sourceAI->Refresh();
-            sourceAI->RandomTeleport();
-            deathDuration = 0;
-            return;
+            deathDelay -= diff;
+            if (deathDelay <= 0)
+            {
+                me->ResurrectPlayer(100.0f);
+                sb->Prepare();
+                sb->RandomTeleport();
+                return;
+            }
         }
-    }
-    if (me->IsBeingTeleported())
-    {
+        else
+        {
+            deathDelay = urand(1 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 2 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+        }
         return;
     }
-    if (!me->IsAlive())
+    soloDelay -= diff;
+    if (soloDelay < 0)
     {
-        return;
-    }
-    if (soloDuration > TimeConstants::HOUR* TimeConstants::IN_MILLISECONDS)
-    {
-        soloDuration = 0;
-        sourceAI->Refresh();
-        sourceAI->RandomTeleport();
-        instruction = Solo_Instruction::Solo_Instruction_None;
-    }
-    if (me->IsNonMeleeSpellCast(false, false, true))
-    {
+        soloDelay = urand(30 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+        sb->Prepare();
+        sb->RandomTeleport();
         return;
     }
     if (me->IsInCombat())
     {
-        instruction = Solo_Instruction::Solo_Instruction_Battle;
-        sourceAI->restDelay = 0;
-        waitDelay = 0;
-        strollDelay = 0;
+        soloState = RobotSoloState::RobotSoloState_Battle;
     }
-    switch (instruction)
+    switch (soloState)
     {
-    case Solo_Instruction::Solo_Instruction_None:
+    case RobotSoloState::RobotSoloState_None:
     {
-        instruction = Solo_Instruction::Solo_Instruction_Wander;
         return;
     }
-    case Solo_Instruction::Solo_Instruction_Wander:
+    case RobotSoloState::RobotSoloState_Wander:
     {
         if (Rest())
         {
@@ -219,7 +178,7 @@ void Strategy_Solo::Update()
         }
         break;
     }
-    case Solo_Instruction::Solo_Instruction_Battle:
+    case RobotSoloState::RobotSoloState_Battle:
     {
         if (Rest())
         {
@@ -237,45 +196,45 @@ void Strategy_Solo::Update()
         {
             me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_CHEER);
         }
-        instruction = Solo_Instruction::Solo_Instruction_Wander;
+        soloState = RobotSoloState::RobotSoloState_Wander;
         break;
     }
-    case Solo_Instruction::Solo_Instruction_Rest:
+    case RobotSoloState::RobotSoloState_Rest:
     {
-        if (sourceAI->restDelay < 0)
+        restDelay -= diff;
+        if (restDelay < 0)
         {
-            sourceAI->restDelay = 0;
-            instruction = Solo_Instruction::Solo_Instruction_Wander;
+            soloState = RobotSoloState::RobotSoloState_Wander;
             return;
         }
         break;
     }
-    case Solo_Instruction::Solo_Instruction_Wait:
+    case RobotSoloState::RobotSoloState_Wait:
     {
-        if (waitDelay <= 0)
+        waitDelay -= diff;
+        if (waitDelay < 0)
         {
-            waitDelay = 0;
-            instruction = Solo_Instruction::Solo_Instruction_Wander;
+            soloState = RobotSoloState::RobotSoloState_Wander;
             return;
         }
         break;
     }
-    case Solo_Instruction::Solo_Instruction_Stroll:
+    case RobotSoloState::RobotSoloState_Stroll:
     {
-        if (strollDelay <= 0)
+        strollDelay -= diff;
+        if (strollDelay < 0)
         {
-            strollDelay = 0;
-            instruction = Solo_Instruction::Solo_Instruction_Wander;
+            soloState = RobotSoloState::RobotSoloState_Wander;
             return;
         }
         break;
     }
-    case Solo_Instruction::Solo_Instruction_Confuse:
+    case RobotSoloState::RobotSoloState_Confuse:
     {
-        if (confuseDelay <= 0)
+        confuseDelay -= diff;
+        if (confuseDelay < 0)
         {
-            confuseDelay = 0;
-            instruction = Solo_Instruction::Solo_Instruction_Wander;
+            soloState = RobotSoloState::RobotSoloState_Wander;
             return;
         }
         break;
@@ -289,17 +248,24 @@ void Strategy_Solo::Update()
 
 void Strategy_Solo::Reset()
 {
-    s_base->Prepare();
+    sb->Prepare();
 }
 
 bool Strategy_Solo::Buff()
 {
-    return sourceAI->s_base->Buff();
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (me)
+    {
+        return sb->Buff(me);
+    }
+    return false;
 }
 
 bool Strategy_Solo::Rest()
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
@@ -401,26 +367,25 @@ bool Strategy_Solo::Rest()
         me->StopMoving();
         me->SetSelection(ObjectGuid());
 
-        sourceAI->ClearShapeshift();
-        Item* pFood = sourceAI->GetItemInInventory(foodEntry);
+        Item* pFood = sb->GetItemInInventory(foodEntry);
         if (pFood && !pFood->IsInTrade())
         {
-            if (sourceAI->UseItem(pFood, me))
+            if (sb->UseItem(pFood, me))
             {
-                instruction = Group_Instruction::Group_Instruction_Rest;
-                sourceAI->restDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                soloState = RobotSoloState::RobotSoloState_Rest;
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
             }
         }
-        Item* pDrink = sourceAI->GetItemInInventory(drinkEntry);
+        Item* pDrink = sb->GetItemInInventory(drinkEntry);
         if (pDrink && !pDrink->IsInTrade())
         {
-            if (sourceAI->UseItem(pDrink, me))
+            if (sb->UseItem(pDrink, me))
             {
-                instruction = Group_Instruction::Group_Instruction_Rest;
-                sourceAI->restDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                soloState = RobotSoloState::RobotSoloState_Rest;
+                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
             }
         }
-        if (sourceAI->restDelay > 0)
+        if (restDelay > 0)
         {
             return true;
         }
@@ -431,26 +396,44 @@ bool Strategy_Solo::Rest()
 
 bool Strategy_Solo::Battle()
 {
-    bool result = false;
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
     }
-    if (!result)
+    if (Unit* myTarget = me->GetSelectedUnit())
     {
-        Unit* myTarget = me->GetSelectedUnit();
-        if (Attack(myTarget))
+        if (sb->Attack(myTarget))
         {
-            result = true;
+            return true;
         }
     }
-    if (!result)
+    Unit* closestAttacker = NULL;
+    float closestDistance = DEFAULT_VISIBILITY_DISTANCE;
+    for (Unit::AttackerSet::const_iterator attackerIT = me->getAttackers().begin(); attackerIT != me->getAttackers().end(); attackerIT++)
     {
-        Unit* closestAttacker = NULL;
-        float closestDistance = DEFAULT_VISIBILITY_DISTANCE;
+        if (Unit* pTarget = *attackerIT)
+        {
+            float distance = me->GetDistance(pTarget);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestAttacker = pTarget;
+            }
+        }
+    }
+    if (sb->Attack(closestAttacker))
+    {
+        return true;
+    }
+    Pet* myPet = me->GetPet();
+    if (myPet)
+    {
+        Unit* petClosestAttacker = NULL;
+        float closestDistance = 100;
 
-        for (Unit::AttackerSet::const_iterator attackerIT = me->getAttackers().begin(); attackerIT != me->getAttackers().end(); attackerIT++)
+        for (Unit::AttackerSet::const_iterator attackerIT = myPet->getAttackers().begin(); attackerIT != myPet->getAttackers().end(); attackerIT++)
         {
             if (Unit* pTarget = *attackerIT)
             {
@@ -458,82 +441,51 @@ bool Strategy_Solo::Battle()
                 if (distance < closestDistance)
                 {
                     closestDistance = distance;
-                    closestAttacker = pTarget;
+                    petClosestAttacker = pTarget;
                 }
             }
         }
 
-        if (Attack(closestAttacker))
+        if (sb->Attack(petClosestAttacker))
         {
-            result = true;
-        }
-    }
-    if (!result)
-    {
-        Pet* memberPet = me->GetPet();
-        if (memberPet)
-        {
-            Unit* closestAttacker = NULL;
-            float closestDistance = 100;
-
-            for (Unit::AttackerSet::const_iterator attackerIT = memberPet->getAttackers().begin(); attackerIT != memberPet->getAttackers().end(); attackerIT++)
-            {
-                if (Unit* pTarget = *attackerIT)
-                {
-                    float distance = me->GetDistance(pTarget);
-                    if (distance < closestDistance)
-                    {
-                        closestDistance = distance;
-                        closestAttacker = pTarget;
-                    }
-                }
-            }
-
-            if (Attack(closestAttacker))
-            {
-                result = true;
-            }
+            return true;
         }
     }
-    if (!result)
+    std::list<Unit*> attackTargets;
+    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, DEFAULT_VISIBILITY_DISTANCE);
+    Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, attackTargets, u_check);
+    Cell::VisitAllObjects(me, searcher, DEFAULT_VISIBILITY_DISTANCE);
+    Unit* nearestAttackableTarget = NULL;
+    float nearestDistance = MAX_VISIBILITY_DISTANCE;
+    for (std::list<Unit*>::iterator it = attackTargets.begin(); it != attackTargets.end(); it++)
     {
-        std::list<Unit*> attackTargets;
-        Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, DEFAULT_VISIBILITY_DISTANCE);
-        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, attackTargets, u_check);
-        Cell::VisitAllObjects(me, searcher, DEFAULT_VISIBILITY_DISTANCE);
-
-        Unit* nearestAttackableTarget = NULL;
-        float nearestDistance = MAX_VISIBILITY_DISTANCE;
-        for (std::list<Unit*>::iterator it = attackTargets.begin(); it != attackTargets.end(); it++)
+        if ((*it)->IsPet())
         {
-            if ((*it)->IsPet())
+            if (Pet* pet = (*it)->ToPet())
             {
-                continue;
-            }
-            if (!me->IsValidAttackTarget((*it)))
-            {
-                continue;
-            }
-            if (!me->IsWithinLOSInMap((*it)))
-            {
-                continue;
-            }
-            if ((*it)->GetTypeId() == TypeID::TYPEID_PLAYER)
-            {
-                if (Attack((*it)))
-                {
-                    result = true;
-                    break;
-                }
-            }
-            Creature* targetCreature = (Creature*)(*it);
-            if (targetCreature)
-            {
-                if (!targetCreature->CanWalk())
+                if (pet->GetCharmerOrOwner())
                 {
                     continue;
                 }
             }
+        }
+        if (!me->IsValidAttackTarget((*it)))
+        {
+            continue;
+        }
+        if (!me->IsWithinLOSInMap((*it)))
+        {
+            continue;
+        }
+        if ((*it)->GetTypeId() == TypeID::TYPEID_PLAYER)
+        {
+            if (sb->Attack((*it)))
+            {
+                return true;
+            }
+        }
+        if (Creature* targetCreature = (Creature*)(*it))
+        {
             float checkDistance = me->GetDistance((*it));
             if (checkDistance < nearestDistance)
             {
@@ -541,78 +493,70 @@ bool Strategy_Solo::Battle()
                 nearestAttackableTarget = (*it);
             }
         }
-        if (!result)
-        {
-            if (Attack(nearestAttackableTarget))
-            {
-                result = true;
-            }
-        }
     }
-    if (result)
+    if (sb->Attack(nearestAttackableTarget))
     {
-        instruction = Solo_Instruction::Solo_Instruction_Battle;
+        return true;
     }
-    else
-    {
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-    }
-    return result;
-}
 
-bool Strategy_Solo::Attack(Unit* pmTarget)
-{
-    return sourceAI->s_base->Attack(pmTarget);
-    //return sourceAI->scriptMap[me->getClass()]->Attack(pmTarget);
+    return false;
 }
 
 bool Strategy_Solo::Heal()
 {
-    return sourceAI->s_base->HealMe();
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (me)
+    {
+        return sb->Heal(me);
+    }
+    return false;
 }
 
 bool Strategy_Solo::Wait()
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (me)
     {
-        return false;
+        me->GetMotionMaster()->Clear();
+        me->StopMoving();
+        waitDelay = 5 * TimeConstants::IN_MILLISECONDS;
+        soloState = RobotSoloState::RobotSoloState_Wait;
+        return true;
     }
-    me->GetMotionMaster()->Clear();
-    me->StopMoving();
-    waitDelay = 5 * TimeConstants::IN_MILLISECONDS;
-    instruction = Solo_Instruction::Solo_Instruction_Wait;
-
-    return true;
+    return false;
 }
 
 bool Strategy_Solo::Stroll()
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (me)
     {
-        return false;
+        float destX = 0;
+        float destY = 0;
+        float destZ = 0;
+        Position rdp = me->GetRandomPoint(me->GetPosition(), DEFAULT_VISIBILITY_DISTANCE);
+        me->GetMotionMaster()->MovePoint(0, rdp);
+        strollDelay = 5 * TimeConstants::IN_MILLISECONDS;
+        soloState = RobotSoloState::RobotSoloState_Stroll;
+        return true;
     }
-    float destX = 0;
-    float destY = 0;
-    float destZ = 0;
-    Position rdp = me->GetRandomPoint(me->GetPosition(), DEFAULT_VISIBILITY_DISTANCE);
-    me->GetMotionMaster()->MovePoint(0, rdp);
-    strollDelay = 5 * TimeConstants::IN_MILLISECONDS;
-    instruction = Solo_Instruction::Solo_Instruction_Stroll;
-    return true;
+    return false;
 }
 
 bool Strategy_Solo::Confuse()
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (me)
     {
-        return false;
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        me->GetMotionMaster()->MoveConfused();
+        confuseDelay = 5 * TimeConstants::IN_MILLISECONDS;
+        soloState = RobotSoloState::RobotSoloState_Confuse;
+        return true;
     }
-    me->SetStandState(UNIT_STAND_STATE_STAND);
-    me->GetMotionMaster()->MoveConfused();
-    confuseDelay = 5 * TimeConstants::IN_MILLISECONDS;
-    instruction = Solo_Instruction::Solo_Instruction_Confuse;
-    return true;
+    return false;
 }

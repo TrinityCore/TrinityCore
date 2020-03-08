@@ -33,12 +33,8 @@
 # define RANGED_MAX_DISTANCE 30.0f
 #endif
 
-#include "Player.h"
-#include "RobotEntity.h"
-#include "SpellMgr.h"
-#include "SpellAuras.h"
-#include "SpellAuraEffects.h"
-#include "Group.h"
+#include "Unit.h"
+#include "Item.h"
 
 class RobotAI;
 
@@ -56,6 +52,8 @@ public:
     void InitialEquipment(uint32 pmWeaponType, bool pmDual, uint32 pmArmorType, bool pmHasRange, uint32 pmRangeType, bool pmHasShield);
     bool EquipNewItem(uint32 pmEntry);
     bool EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot);
+    Item* GetItemInInventory(uint32 pmEntry);
+    bool UseItem(Item* pmItem, Unit* pmTarget);
     bool ApplyGlyph(uint32 pmGlyphItemEntry, uint32 pmSlot);
     void RandomTeleport();
     void Prepare();

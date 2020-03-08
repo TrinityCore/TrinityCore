@@ -1,8 +1,11 @@
 #include "Script_Base.h"
 #include "RobotManager.h"
-#include "Item.h"
 #include "MapManager.h"
 #include "Pet.h"
+#include "Bag.h"
+#include "Spell.h"
+#include "SpellMgr.h"
+#include "SpellAuraEffects.h"
 
 Script_Base::Script_Base()
 {
@@ -1163,4 +1166,73 @@ void Script_Base::Logout()
             checkWS->LogoutPlayer(true);
         }
     }
+}
+
+Item* Script_Base::GetItemInInventory(uint32 pmEntry)
+{
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return NULL;
+    }
+    for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
+    {
+        Item* pItem = me->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (pItem)
+        {
+            if (pItem->GetEntry() == pmEntry)
+            {
+                return pItem;
+            }
+        }
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    {
+        if (Bag* pBag = (Bag*)me->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        {
+            for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+            {
+                Item* pItem = me->GetItemByPos(i, j);
+                if (pItem)
+                {
+                    if (pItem->GetEntry() == pmEntry)
+                    {
+                        return pItem;
+                    }
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
+bool Script_Base::UseItem(Item* pmItem, Unit* pmTarget)
+{
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }
+    if (me->CanUseItem(pmItem) != EQUIP_ERR_OK)
+    {
+        return false;
+    }
+
+    if (me->IsNonMeleeSpellCast(true))
+    {
+        return false;
+    }
+    SpellCastTargets targets;
+    targets.Update(pmTarget);
+    me->CastItemUseSpell(pmItem, targets, 0, 0);
+
+    std::ostringstream useRemarksStream;
+    useRemarksStream << "Prepare to use item " << pmItem->GetTemplate()->Name1;
+
+    me->Say(useRemarksStream.str(), Language::LANG_UNIVERSAL);
+    return true;
 }

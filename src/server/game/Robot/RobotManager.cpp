@@ -495,7 +495,17 @@ void RobotManager::UpdateRobotManager()
 
     for (std::unordered_map<uint32, Strategy_Solo*>::iterator ssIT = soloStrategyMap.begin(); ssIT != soloStrategyMap.end(); ssIT++)
     {
+        ssIT->second->Update();
+    }
 
+    for (std::unordered_map<uint32, Strategy_Party*>::iterator spIT = partyStrategyMap.begin(); spIT != partyStrategyMap.end(); spIT++)
+    {
+        spIT->second->Update();
+    }
+
+    for (std::unordered_map<uint32, Strategy_Raid*>::iterator srIT = raidStrategyMap.begin(); srIT != raidStrategyMap.end(); srIT++)
+    {
+        srIT->second->Update();
     }
 
     for (std::unordered_map<uint32, RobotEntity*>::iterator seIT = robotMap.begin(); seIT != robotMap.end(); seIT++)
@@ -545,42 +555,6 @@ void RobotManager::UpdateRobotManager()
                 }
             }
         }
-    }
-
-    UpdateSoloStrategies();
-    UpdatePartyStrategies();
-    UpdateRaidStrategies();
-}
-
-void RobotManager::UpdatePrepareStrategies()
-{
-    for (std::unordered_map<uint32, Strategy_Prepare*>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
-    {
-        spIT->second->Update();
-    }
-}
-
-void RobotManager::UpdateSoloStrategies()
-{
-    for (std::unordered_map<uint32, Strategy_Solo*>::iterator ssIT = soloStrategyMap.begin(); ssIT != soloStrategyMap.end(); ssIT++)
-    {
-        ssIT->second->Update();
-    }
-}
-
-void RobotManager::UpdatePartyStrategies()
-{
-    for (std::unordered_map<uint32, Strategy_Party*>::iterator spIT = partyStrategyMap.begin(); spIT != partyStrategyMap.end(); spIT++)
-    {
-        spIT->second->Update();
-    }
-}
-
-void RobotManager::UpdateRaidStrategies()
-{
-    for (std::unordered_map<uint32, Strategy_Raid*>::iterator srIT = raidStrategyMap.begin(); srIT != raidStrategyMap.end(); srIT++)
-    {
-        srIT->second->Update();
     }
 }
 

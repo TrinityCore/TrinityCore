@@ -10,8 +10,7 @@ class RobotEntity
 public:
     RobotEntity(uint32 pmTargetLevel, uint32 pmTargetClass, uint32 pmTargetRace);
     ~RobotEntity();
-    void Update();
-    Item* GetItemInInventory(uint32 pmEntry);    
+    void Update();    
     void SetStrategy(std::string pmStrategyName, bool pmEnable);
     
     uint32 FindSpellID(std::string pmSpellName);
@@ -19,8 +18,7 @@ public:
     bool CancelAura(std::string pmSpellName);
     void CancelAura(uint32 pmSpellID);
     void ClearShapeshift();
-    void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
-    bool ApplyGlyph(Player* pmPlayer, uint32 pmGlyphItemEntry, uint32 pmSlot);
+    void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);    
     void Logout();
 
 public:
@@ -51,8 +49,6 @@ public:
     Strategy_Group_Normal* st_Group_Normal;
 
     Script_Base* s_base;
-
-    int32 restDelay;
 
     bool staying;
     bool holding;
