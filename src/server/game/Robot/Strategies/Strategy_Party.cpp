@@ -1,50 +1,43 @@
 #include "Strategy_Party.h"
-
-#include "Player.h"
-#include "Script_Base.h"
-#include "Group.h"
-#include "Item.h"
+#include "RobotManager.h"
+#include "Script_Warrior.h"
+#include "Script_Hunter.h"
+#include "Script_Shaman.h"
+#include "Script_Paladin.h"
+#include "Script_Warlock.h"
+#include "Script_Priest.h"
+#include "Script_Rogue.h"
+#include "Script_Mage.h"
+#include "Script_Druid.h"
 #include "MotionMaster.h"
 #include "Pet.h"
-#include "Spell.h"
+#include "GridNotifiers.h"
+#include "GroupMgr.h"
 
 Strategy_Party::Strategy_Party(uint32 pmID)
 {
-    realPrevTime = 0;
-    memberNumber = 0;
-
+    realPrevTime = 0;    
     partyID = pmID;
-    memberSessionIDSet.clear();
-
-    instruction = Group_Instruction::Group_Instruction_None;
-
-    assembleDelay = 0;
-    dpsDelay = DPS_DELAY;
-    groupCombatTime = 0;
-
-    followDistance = FOLLOW_MIN_DISTANCE;
+    memberMap.clear();
 }
 
-void Strategy_Party::Set()
+std::unordered_map<uint32, PartyMember*> Strategy_Party::GetPartyMapByRole(uint32 pmRole)
 {
-    if (sourceAI->targetClass == Classes::CLASS_HUNTER || sourceAI->targetClass == Classes::CLASS_MAGE || sourceAI->targetClass == Classes::CLASS_PRIEST || sourceAI->targetClass == Classes::CLASS_WARLOCK)
+    std::unordered_map<uint32, PartyMember*> result;
+
+    for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
     {
-        followDistance = RANGED_MIN_DISTANCE;
-    }
-    else if (sourceAI->targetClass == Classes::CLASS_DRUID)
-    {
-        if (sourceAI->characterTalentTab == 0 || sourceAI->characterTalentTab == 2)
+        if (!sRobotManager->IsRobot(pmIT->first))
         {
-            followDistance = RANGED_MIN_DISTANCE;
+            continue;
+        }
+        if (pmIT->second->partyRole == pmRole)
+        {
+            result[pmIT->second->character] = pmIT->second;
         }
     }
-    else if (sourceAI->targetClass == Classes::CLASS_SHAMAN)
-    {
-        if (sourceAI->characterTalentTab == 0 || sourceAI->characterTalentTab == 2)
-        {
-            followDistance = RANGED_MIN_DISTANCE;
-        }
-    }
+
+    return result;
 }
 
 void Strategy_Party::Update()
@@ -53,6 +46,90 @@ void Strategy_Party::Update()
     uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
     realPrevTime = realCurrTime;
 
+    if (Group* party = sGroupMgr->GetGroupByGUID(partyID))
+    {
+        for (GroupReference* groupRef = party->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        {
+            Player* member = groupRef->GetSource();
+            if (!sRobotManager->IsRobot(member->GetGUID().GetCounter()))
+            {
+                continue;
+            }
+            if (memberMap.find(member->GetGUID().GetCounter()) == memberMap.end())
+            {
+                PartyMember* pm = new PartyMember(member->GetGUID().GetCounter());
+                pm->sb->InitializeCharacter(member->GetLevel());
+                pm->partyRole = pm->sb->characterType;
+            }
+        }
+    }
+
+    for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+    {
+        if (!sRobotManager->IsRobot(pmIT->first))
+        {
+            continue;
+        }       
+        if (Player* eachMember = ObjectAccessor::FindPlayerByLowGUID(pmIT->second->character))
+        {
+            if (Group* eachGroup = eachMember->GetGroup())
+            {
+                if (eachGroup->GetLowGUID() != partyID)
+                {
+                    delete memberMap[pmIT->second->character];
+                    memberMap.erase(pmIT->second->character);
+                }
+            }
+            else
+            {
+                delete memberMap[pmIT->second->character];
+                memberMap.erase(pmIT->second->character);
+            }
+        }
+        else
+        {
+            delete memberMap[pmIT->second->character];
+            memberMap.erase(pmIT->second->character);
+        }
+    }
+    
+    std::unordered_map<uint32, PartyMember*> healerMap = GetPartyMapByRole(PartyRole::PartyRole_Healer);
+    std::unordered_map<uint32, PartyMember*> tankMap = GetPartyMapByRole(PartyRole::PartyRole_Tank);
+    std::unordered_map<uint32, PartyMember*> dpsMap = GetPartyMapByRole(PartyRole::PartyRole_DPS);
+    for (std::unordered_map<uint32, PartyMember*>::iterator healerIT = healerMap.begin(); healerIT != healerMap.end(); healerIT++)
+    {
+        ObjectGuid healerGUID = ObjectGuid(HighGuid::Player, healerIT->first);
+        if (Player* healer = ObjectAccessor::FindConnectedPlayer(healerGUID))
+        {
+            if (healer->IsInCombat())
+            {
+                std::unordered_map<ObjectGuid, Unit*> otAttackers;
+                for (Unit::AttackerSet::const_iterator attackerIT = healer->getAttackers().begin(); attackerIT != healer->getAttackers().end(); attackerIT++)
+                {
+                    if (Unit* eachAttacker = *attackerIT)
+                    {
+                        if (eachAttacker->GetTarget() == healerGUID)
+                        {
+                            otAttackers[eachAttacker->GetGUID()] = eachAttacker;                            
+                        }
+                    }
+                }
+                for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = tankMap.begin(); tankIT != tankMap.end(); tankIT++)
+                {
+                    ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, tankIT->first);
+                    if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                    {
+                        if (otAttackers.find(tank->GetTarget()) == otAttackers.end())
+                        {                            
+                            tankIT->second->sb->Tank(otAttackers.begin()->second);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
     {

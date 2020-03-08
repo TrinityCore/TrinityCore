@@ -36,8 +36,6 @@
 #include "Unit.h"
 #include "Item.h"
 
-class RobotAI;
-
 class Script_Base
 {
 public:
@@ -48,7 +46,7 @@ public:
 	virtual bool Attack(Unit* pmTarget) = 0;
 	virtual bool Buff(Unit* pmTarget) = 0;
 
-    void InitializeCharacter(uint32 pmTargetLevel);
+    void InitializeCharacter(uint32 pmTargetLevel);    
     void InitialEquipment(uint32 pmWeaponType, bool pmDual, uint32 pmArmorType, bool pmHasRange, uint32 pmRangeType, bool pmHasShield);
     bool EquipNewItem(uint32 pmEntry);
     bool EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot);
@@ -58,6 +56,8 @@ public:
     void RandomTeleport();
     void Prepare();
     void Logout();
+
+    void Chase(Unit* pmTarget, float pmMinDistance, float pmMaxDistance);
 
     uint32 account;
     uint32 character;

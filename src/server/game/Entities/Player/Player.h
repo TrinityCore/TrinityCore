@@ -885,10 +885,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         explicit Player(WorldSession* session);
         ~Player();
 
-        // EJ robot
-        // 0 dps, 1 tank, 2 healer 
-        uint32 groupRole;
-
         PlayerAI* AI() const { return reinterpret_cast<PlayerAI*>(GetAI()); }
 
         void CleanupsBeforeDelete(bool finalCleanup = true) override;

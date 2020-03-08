@@ -19,55 +19,7 @@ Strategy_Prepare::Strategy_Prepare()
     checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
     actionDelay = 0;
     prepareState = RobotPrepareState::RobotPrepareState_OffLine;
-
-    switch (targetClass)
-    {
-    case Classes::CLASS_WARRIOR:
-    {
-        s_base = new Script_Warrior(this);
-        break;
-    }
-    case Classes::CLASS_HUNTER:
-    {
-        s_base = new Script_Hunter(this);
-        break;
-    }
-    case Classes::CLASS_SHAMAN:
-    {
-        s_base = new Script_Shaman(this);
-        break;
-    }
-    case Classes::CLASS_PALADIN:
-    {
-        s_base = new Script_Paladin(this);
-        break;
-    }
-    case Classes::CLASS_WARLOCK:
-    {
-        s_base = new Script_Warlock(this);
-        break;
-    }
-    case Classes::CLASS_PRIEST:
-    {
-        s_base = new Script_Priest(this);
-        break;
-    }
-    case Classes::CLASS_ROGUE:
-    {
-        s_base = new Script_Rogue(this);
-        break;
-    }
-    case Classes::CLASS_MAGE:
-    {
-        s_base = new Script_Mage(this);
-        break;
-    }
-    case Classes::CLASS_DRUID:
-    {
-        s_base = new Script_Druid(this);
-        break;
-    }
-    }
+    s_base = new Script_Base();
 }
 
 void Strategy_Prepare::Update()

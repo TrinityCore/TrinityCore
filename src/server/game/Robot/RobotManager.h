@@ -27,7 +27,7 @@ public:
     void UpdateRobotManager();    
     bool DeleteRobots();
     bool RobotsDeleted();
-    bool IsRobot(uint32 pmSessionID);
+    bool IsRobot(uint32 pmCharacterID);
     Strategy_Solo* GetSoloStrategy(uint32 pmSessionID);
     bool CheckRobotAccount(uint32 pmAccountID);
     uint32 CheckRobotAccount(std::string pmAccountName);

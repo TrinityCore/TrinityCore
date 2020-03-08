@@ -410,9 +410,6 @@ Player::Player(WorldSession* session): Unit(true)
     m_reputationMgr = new ReputationMgr(this);
 
     m_groupUpdateTimer.Reset(5000);
-
-    // EJ robot
-    groupRole = 0;
 }
 
 Player::~Player()

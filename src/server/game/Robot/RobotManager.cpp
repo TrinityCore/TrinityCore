@@ -1175,9 +1175,9 @@ Strategy_Solo* RobotManager::GetSoloStrategy(uint32 pmSessionID)
     return NULL;
 }
 
-bool RobotManager::IsRobot(uint32 pmSessionID)
+bool RobotManager::IsRobot(uint32 pmCharacterID)
 {
-    if (robotMap.find(pmSessionID) != robotMap.end())
+    if (prepareStrategyMap.find(pmCharacterID) != prepareStrategyMap.end())
     {
         return true;
     }

@@ -33,47 +33,47 @@ Strategy_Solo::Strategy_Solo(uint32 pmAccount, uint32 pmCharacter)
     {
     case Classes::CLASS_WARRIOR:
     {
-        sb = new Script_Warrior(this);
+        sb = new Script_Warrior(character);
         break;
     }
     case Classes::CLASS_HUNTER:
     {
-        sb = new Script_Hunter(this);
+        sb = new Script_Hunter(character);
         break;
     }
     case Classes::CLASS_SHAMAN:
     {
-        sb = new Script_Shaman(this);
+        sb = new Script_Shaman(character);
         break;
     }
     case Classes::CLASS_PALADIN:
     {
-        sb = new Script_Paladin(this);
+        sb = new Script_Paladin(character);
         break;
     }
     case Classes::CLASS_WARLOCK:
     {
-        sb = new Script_Warlock(this);
+        sb = new Script_Warlock(character);
         break;
     }
     case Classes::CLASS_PRIEST:
     {
-        sb = new Script_Priest(this);
+        sb = new Script_Priest(character);
         break;
     }
     case Classes::CLASS_ROGUE:
     {
-        sb = new Script_Rogue(this);
+        sb = new Script_Rogue(character);
         break;
     }
     case Classes::CLASS_MAGE:
     {
-        sb = new Script_Mage(this);
+        sb = new Script_Mage(character);
         break;
     }
     case Classes::CLASS_DRUID:
     {
-        sb = new Script_Druid(this);
+        sb = new Script_Druid(character);
         break;
     }
     }

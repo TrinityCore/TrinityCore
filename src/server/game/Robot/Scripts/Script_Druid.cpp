@@ -12,9 +12,9 @@
 # define DRUID_RANGE_DISTANCE 30
 #endif
 
-Script_Druid::Script_Druid(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
+Script_Druid::Script_Druid(uint32 pmCharacterID) :Script_Base()
 {
-
+    character = pmCharacterID;
 }
 
 bool Script_Druid::DPS(Unit* pmTarget)
@@ -309,16 +309,7 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
 
 bool Script_Druid::Tank(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -326,11 +317,28 @@ bool Script_Druid::Tank(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
     {
-        return false;
+        if (!me->IsValidAttackTarget(pmTarget))
+        {
+            return false;
+        }
+        float targetDistance = me->GetDistance(pmTarget);
+        if (targetDistance > 100.0f)
+        {
+            return false;
+        }
+        if (me->GetTarget() == pmTarget->GetGUID())
+        {
+            return true;
+        }
+        me->SetSelection(ObjectGuid::Empty);
     }
+
+    
+   
 
     switch (me->GetShapeshiftForm())
     {
@@ -856,12 +864,7 @@ bool Script_Druid::Attack_Restoration(Unit* pmTarget)
     return Attack_Balance(pmTarget);
 }
 
-bool Script_Druid::Healer()
-{
-    return false;
-}
-
-bool Script_Druid::HealMe()
+bool Script_Druid::Heal(Unit* pmTarget)
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
@@ -917,7 +920,7 @@ bool Script_Druid::HealMe()
     return false;
 }
 
-bool Script_Druid::Buff()
+bool Script_Druid::Buff(Unit* pmTarget)
 {
     Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
     if (!me)
