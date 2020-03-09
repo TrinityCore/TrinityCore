@@ -34,9 +34,6 @@
 #include <unordered_map>
 #include <boost/circular_buffer.hpp>
 
-// EJ robot
-#include "RobotAI.h"
-
 class BigNumber;
 class Creature;
 class GameObject;

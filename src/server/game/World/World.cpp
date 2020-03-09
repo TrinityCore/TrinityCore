@@ -2529,7 +2529,7 @@ void World::Update(uint32 diff)
     sMarketerManager->UpdateMarketer();    
 
     // EJ robot
-    sRobotManager->UpdateManager();
+    sRobotManager->UpdateRobotManager();
 
     // EJ joker
     sJokerManager->UpdateJoker(diff);

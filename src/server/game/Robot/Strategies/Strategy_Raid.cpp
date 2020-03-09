@@ -1,14 +1,5 @@
 #include "Strategy_Raid.h"
 #include "RobotManager.h"
-#include "Script_Warrior.h"
-#include "Script_Hunter.h"
-#include "Script_Shaman.h"
-#include "Script_Paladin.h"
-#include "Script_Warlock.h"
-#include "Script_Priest.h"
-#include "Script_Rogue.h"
-#include "Script_Mage.h"
-#include "Script_Druid.h"
 #include "MotionMaster.h"
 #include "Pet.h"
 #include "GridNotifiers.h"
@@ -48,7 +39,7 @@ void Strategy_Raid::Update()
             Player* member = groupRef->GetSource();
             if (memberMap.find(member->GetGUID().GetCounter()) == memberMap.end())
             {
-                RaidMember* pm = new RaidMember(member->GetGUID().GetCounter(), sRobotManager->IsRobot(member->GetGUID().GetCounter()));
+                RaidMember* pm = new RaidMember(member->GetGUID().GetCounter(), sRobotManager->IsRobot(member->GetSession()->GetAccountId()));
                 if (pm->isRobot)
                 {
                     pm->sb->InitializeCharacter(member->GetLevel());

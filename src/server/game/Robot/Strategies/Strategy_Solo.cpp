@@ -12,6 +12,7 @@
 #include "MotionMaster.h"
 #include "Pet.h"
 #include "GridNotifiers.h"
+#include "Group.h"
 
 Strategy_Solo::Strategy_Solo(uint32 pmAccount, uint32 pmCharacter)
 {
@@ -99,8 +100,24 @@ void Strategy_Solo::Update()
     {
         return;
     }
-    if (me->GetGroup())
+    if (Group* checkGroup = me->GetGroup())
     {
+        if (checkGroup->isRaidGroup())
+        {
+            if (sRobotManager->raidStrategyMap.find(checkGroup->GetLowGUID()) == sRobotManager->raidStrategyMap.end())
+            {
+                Strategy_Raid* sr = new  Strategy_Raid(checkGroup->GetLowGUID());
+                sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()] = sr;
+            }
+        }
+        else
+        {
+            if (sRobotManager->partyStrategyMap.find(checkGroup->GetLowGUID()) == sRobotManager->partyStrategyMap.end())
+            {
+                Strategy_Party* sp = new  Strategy_Party(checkGroup->GetLowGUID());
+                sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()] = sp;
+            }
+        }
         return;
     }
     if (interestsDelay > 0)

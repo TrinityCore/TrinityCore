@@ -136,7 +136,7 @@ void Strategy_Prepare::Update()
                 if (sRobotManager->soloStrategyMap.find(account) != sRobotManager->soloStrategyMap.end())
                 {
                     delete sRobotManager->soloStrategyMap[account];
-                    Strategy_Solo* ss = new Strategy_Solo(account);
+                    Strategy_Solo* ss = new Strategy_Solo(account, me->GetGUID().GetCounter());
                     sRobotManager->soloStrategyMap[account] = ss;
                     sRobotManager->soloStrategyMap[account]->Reset();
                 }

@@ -205,11 +205,10 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 {
     ASSERT(packet->GetOpcode() != NULL_OPCODE);
 
-    // EJ robot
-    RobotAI* rai = sRobotManager->GetRobotAI(GetAccountId());
-    if (rai)
+    // EJ robot    
+    if (sRobotManager->IsRobot(GetAccountId()))
     {
-        rai->HandlePacket(packet);
+        sRobotManager->HandlePacket(GetAccountId(), packet);
         return;
     }
 

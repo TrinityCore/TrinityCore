@@ -5,11 +5,11 @@
 # define ROBOT_PASSWORD "robot"
 #endif
 
-#include "RobotEntity.h"
 #include "Strategy_Prepare.h"
 #include "Strategy_Solo.h"
 #include "Strategy_Party.h"
 #include "Strategy_Raid.h"
+#include "Player.h"
 
 #include <string>
 #include <iostream>
@@ -27,7 +27,7 @@ public:
     void UpdateRobotManager();    
     bool DeleteRobots();
     bool RobotsDeleted();
-    bool IsRobot(uint32 pmCharacterID);
+    bool IsRobot(uint32 pmAccountID);
     Strategy_Solo* GetSoloStrategy(uint32 pmSessionID);
     bool CheckRobotAccount(uint32 pmAccountID);
     uint32 CheckRobotAccount(std::string pmAccountName);
@@ -43,6 +43,8 @@ public:
     std::vector<std::string> SplitString(std::string srcStr, std::string delimStr, bool repeatedCharIgnored);
     std::string TrimString(std::string srcStr);
     static RobotManager* instance();
+    void HandlePacket(uint32 pmSessionID, WorldPacket const* pmPacket);
+    void WhisperTo(Player* pmSender, std::string pmContent, Language pmLanguage, Player* pmTarget);
 
 public:
     uint32 realPrevTime;
@@ -51,9 +53,9 @@ public:
     std::unordered_map<uint32, std::string> robotNameMap;
 
     std::unordered_map<uint8, std::unordered_map<uint8, std::string>> characterTalentTabNameMap;
-    std::set<uint32> deleteRobotAccountSet;    
-    std::unordered_map<uint32, RobotEntity*> robotMap;
+    std::set<uint32> deleteRobotAccountSet;        
     int prepareCheckDelay;
+    std::unordered_map<uint32, uint32> onlineRobotAccountMap;
     std::unordered_map<uint32, Strategy_Prepare*> prepareStrategyMap;
     std::unordered_map<uint32, Strategy_Solo*> soloStrategyMap;
     std::unordered_map<uint32, Strategy_Party*> partyStrategyMap;

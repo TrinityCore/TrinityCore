@@ -17,216 +17,245 @@ Script_Base::Script_Base()
     character = 0;
 }
 
+bool Script_Base::DPS(Unit* pmTarget)
+{
+    return false;
+}
+
+bool Script_Base::Tank(Unit* pmTarget)
+{
+    return false;
+}
+
+bool Script_Base::Heal(Unit* pmTarget, bool pmCure)
+{
+    return false;
+}
+
+bool Script_Base::Attack(Unit* pmTarget)
+{
+    return false;
+}
+
+bool Script_Base::Buff(Unit* pmTarget, bool pmCure)
+{
+    return false;
+}
+
 void Script_Base::InitializeValues()
 {
     spellLevelMap.clear();
     bool typeChecked = false;
     characterType = 0;
-    for (PlayerSpellMap::iterator it = me->GetSpellMap().begin(); it != me->GetSpellMap().end(); it++)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
     {
-        const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
-        if (pST)
+        for (PlayerSpellMap::iterator it = me->GetSpellMap().begin(); it != me->GetSpellMap().end(); it++)
         {
-            std::string checkNameStr = std::string(pST->SpellName[0]);
-            if (!typeChecked)
+            const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+            if (pST)
             {
-                switch (me->GetClass())
+                std::string checkNameStr = std::string(pST->SpellName[0]);
+                if (!typeChecked)
                 {
-                case Classes::CLASS_WARRIOR:
-                {
-                    if (checkNameStr == "Improved Heroic Strike")
+                    switch (me->GetClass())
                     {
-                        characterTalentTab = 0;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Booming Voice")
+                    case Classes::CLASS_WARRIOR:
                     {
-                        characterTalentTab = 1;
-                        typeChecked = true;
+                        if (checkNameStr == "Improved Heroic Strike")
+                        {
+                            characterTalentTab = 0;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Booming Voice")
+                        {
+                            characterTalentTab = 1;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Shield Specialization")
+                        {
+                            characterTalentTab = 2;
+                            characterType = 1;
+                            typeChecked = true;
+                        }
+                        break;
                     }
-                    if (checkNameStr == "Shield Specialization")
+                    case Classes::CLASS_HUNTER:
                     {
-                        characterTalentTab = 2;
-                        characterType = 1;
-                        typeChecked = true;
+                        if (checkNameStr == "Improved Aspect of the Hawk")
+                        {
+                            characterTalentTab = 0;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Improved Concussive Shot")
+                        {
+                            characterTalentTab = 1;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Improved Tracking")
+                        {
+                            characterTalentTab = 2;
+                            typeChecked = true;
+                        }
+                        break;
                     }
-                    break;
+                    case Classes::CLASS_SHAMAN:
+                    {
+                        if (checkNameStr == "Convection")
+                        {
+                            characterTalentTab = 0;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Ancestral Knowledge")
+                        {
+                            characterTalentTab = 1;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Improved Healing Wave")
+                        {
+                            characterTalentTab = 2;
+                            characterType = 2;
+                            typeChecked = true;
+                        }
+                        break;
+                    }
+                    case Classes::CLASS_PALADIN:
+                    {
+                        if (checkNameStr == "Spiritual Focus")
+                        {
+                            characterTalentTab = 0;
+                            characterType = 2;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Divinity")
+                        {
+                            characterTalentTab = 1;
+                            characterType = 1;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Deflection")
+                        {
+                            characterTalentTab = 2;
+                            typeChecked = true;
+                        }
+                        break;
+                    }
+                    case Classes::CLASS_WARLOCK:
+                    {
+                        if (checkNameStr == "Suppression")
+                        {
+                            characterTalentTab = 0;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Improved Healthstone")
+                        {
+                            characterTalentTab = 1;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Improved Shadow Bolt")
+                        {
+                            characterTalentTab = 2;
+                            typeChecked = true;
+                        }
+                        break;
+                    }
+                    case Classes::CLASS_PRIEST:
+                    {
+                        if (checkNameStr == "Unbreakable Will")
+                        {
+                            characterTalentTab = 0;
+                            characterType = 2;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Healing Focus")
+                        {
+                            characterTalentTab = 1;
+                            characterType = 2;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Spirit Tap")
+                        {
+                            characterTalentTab = 2;
+                            typeChecked = true;
+                        }
+                        break;
+                    }
+                    case Classes::CLASS_ROGUE:
+                    {
+                        if (checkNameStr == "Improved Eviscerate")
+                        {
+                            characterTalentTab = 0;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Improved Gouge")
+                        {
+                            characterTalentTab = 1;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Master of Deception")
+                        {
+                            characterTalentTab = 2;
+                            typeChecked = true;
+                        }
+                        break;
+                    }
+                    case Classes::CLASS_MAGE:
+                    {
+                        if (checkNameStr == "Arcane Subtlety")
+                        {
+                            characterTalentTab = 0;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Improved Fireball")
+                        {
+                            characterTalentTab = 1;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Frost Warding")
+                        {
+                            characterTalentTab = 2;
+                            typeChecked = true;
+                        }
+                        break;
+                    }
+                    case Classes::CLASS_DRUID:
+                    {
+                        if (checkNameStr == "Genesis")
+                        {
+                            characterTalentTab = 0;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Ferocity")
+                        {
+                            characterTalentTab = 1;
+                            typeChecked = true;
+                        }
+                        if (checkNameStr == "Furor")
+                        {
+                            characterTalentTab = 2;
+                            characterType = 2;
+                            typeChecked = true;
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                    }
                 }
-                case Classes::CLASS_HUNTER:
-                {
-                    if (checkNameStr == "Improved Aspect of the Hawk")
-                    {
-                        characterTalentTab = 0;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Improved Concussive Shot")
-                    {
-                        characterTalentTab = 1;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Improved Tracking")
-                    {
-                        characterTalentTab = 2;
-                        typeChecked = true;
-                    }
-                    break;
-                }
-                case Classes::CLASS_SHAMAN:
-                {
-                    if (checkNameStr == "Convection")
-                    {
-                        characterTalentTab = 0;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Ancestral Knowledge")
-                    {
-                        characterTalentTab = 1;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Improved Healing Wave")
-                    {
-                        characterTalentTab = 2;
-                        characterType = 2;
-                        typeChecked = true;
-                    }
-                    break;
-                }
-                case Classes::CLASS_PALADIN:
-                {
-                    if (checkNameStr == "Spiritual Focus")
-                    {
-                        characterTalentTab = 0;
-                        characterType = 2;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Divinity")
-                    {
-                        characterTalentTab = 1;
-                        characterType = 1;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Deflection")
-                    {
-                        characterTalentTab = 2;
-                        typeChecked = true;
-                    }
-                    break;
-                }
-                case Classes::CLASS_WARLOCK:
-                {
-                    if (checkNameStr == "Suppression")
-                    {
-                        characterTalentTab = 0;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Improved Healthstone")
-                    {
-                        characterTalentTab = 1;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Improved Shadow Bolt")
-                    {
-                        characterTalentTab = 2;
-                        typeChecked = true;
-                    }
-                    break;
-                }
-                case Classes::CLASS_PRIEST:
-                {
-                    if (checkNameStr == "Unbreakable Will")
-                    {
-                        characterTalentTab = 0;
-                        characterType = 2;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Healing Focus")
-                    {
-                        characterTalentTab = 1;
-                        characterType = 2;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Spirit Tap")
-                    {
-                        characterTalentTab = 2;
-                        typeChecked = true;
-                    }
-                    break;
-                }
-                case Classes::CLASS_ROGUE:
-                {
-                    if (checkNameStr == "Improved Eviscerate")
-                    {
-                        characterTalentTab = 0;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Improved Gouge")
-                    {
-                        characterTalentTab = 1;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Master of Deception")
-                    {
-                        characterTalentTab = 2;
-                        typeChecked = true;
-                    }
-                    break;
-                }
-                case Classes::CLASS_MAGE:
-                {
-                    if (checkNameStr == "Arcane Subtlety")
-                    {
-                        characterTalentTab = 0;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Improved Fireball")
-                    {
-                        characterTalentTab = 1;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Frost Warding")
-                    {
-                        characterTalentTab = 2;
-                        typeChecked = true;
-                    }
-                    break;
-                }
-                case Classes::CLASS_DRUID:
-                {
-                    if (checkNameStr == "Genesis")
-                    {
-                        characterTalentTab = 0;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Ferocity")
-                    {
-                        characterTalentTab = 1;
-                        typeChecked = true;
-                    }
-                    if (checkNameStr == "Furor")
-                    {
-                        characterTalentTab = 2;
-                        characterType = 2;
-                        typeChecked = true;
-                    }
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
-                }
-            }
-            if (spellLevelMap.find(checkNameStr) == spellLevelMap.end())
-            {
-                spellLevelMap[checkNameStr] = pST->BaseLevel;
-                spellIDMap[checkNameStr] = it->first;
-            }
-            else
-            {
-                if (pST->BaseLevel > spellLevelMap[checkNameStr])
+                if (spellLevelMap.find(checkNameStr) == spellLevelMap.end())
                 {
                     spellLevelMap[checkNameStr] = pST->BaseLevel;
                     spellIDMap[checkNameStr] = it->first;
+                }
+                else
+                {
+                    if (pST->BaseLevel > spellLevelMap[checkNameStr])
+                    {
+                        spellLevelMap[checkNameStr] = pST->BaseLevel;
+                        spellIDMap[checkNameStr] = it->first;
+                    }
                 }
             }
         }
@@ -1238,7 +1267,7 @@ bool Script_Base::UseItem(Item* pmItem, Unit* pmTarget)
     return true;
 }
 
-bool Script_Base::Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE)
+bool Script_Base::Follow(Unit* pmTarget, float pmDistance)
 {
     ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
     Player* me = ObjectAccessor::FindConnectedPlayer(guid);
@@ -1492,7 +1521,7 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     if (pST->CalcCastTime() > 0)
     {
         me->StopMoving();
-    }    
+    }
     me->CastSpell(target, spellID, TriggerCastFlags::TRIGGERED_NONE);
 
     return true;

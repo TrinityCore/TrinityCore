@@ -5,6 +5,15 @@
 # define DPS_DEFAULT_DELAY_RAID 4000
 #endif
 
+#include "Script_Warrior.h"
+#include "Script_Hunter.h"
+#include "Script_Shaman.h"
+#include "Script_Paladin.h"
+#include "Script_Warlock.h"
+#include "Script_Priest.h"
+#include "Script_Rogue.h"
+#include "Script_Mage.h"
+#include "Script_Druid.h"
 
 enum RaidRole :uint32
 {

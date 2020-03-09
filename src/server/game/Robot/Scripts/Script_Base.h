@@ -44,12 +44,12 @@
 class Script_Base
 {
 public:
-	Script_Base();
-	virtual bool DPS(Unit* pmTarget) = 0;
-	virtual bool Tank(Unit* pmTarget) = 0;
-	virtual bool Heal(Unit* pmTarget, bool pmCure) = 0;
-	virtual bool Attack(Unit* pmTarget) = 0;
-	virtual bool Buff(Unit* pmTarget, bool pmCure) = 0;
+    Script_Base();
+    bool DPS(Unit* pmTarget);
+    bool Tank(Unit* pmTarget);
+    bool Heal(Unit* pmTarget, bool pmCure);
+    bool Attack(Unit* pmTarget);
+    bool Buff(Unit* pmTarget, bool pmCure);
 
     void InitializeCharacter(uint32 pmTargetLevel);
     void InitializeValues();
@@ -76,7 +76,7 @@ public:
     bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
 
     uint32 account;
-    uint32 character;    
+    uint32 character;
 
     std::unordered_map<std::string, uint32> spellIDMap;
     std::unordered_map<std::string, uint8> spellLevelMap;

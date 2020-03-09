@@ -22,6 +22,7 @@ RobotManager::RobotManager()
 {
     nameIndex = 0;
     prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    onlineRobotAccountMap.clear();
     prepareStrategyMap.clear();
     soloStrategyMap.clear();
     partyStrategyMap.clear();
@@ -440,7 +441,7 @@ void RobotManager::UpdateRobotManager()
         std::unordered_set<uint32> onlinePlayerLevelSet;
         for (std::unordered_map<uint32, WorldSession*>::const_iterator wsIT = sWorld->GetAllSessions().begin(); wsIT != sWorld->GetAllSessions().end(); wsIT++)
         {
-            if (robotMap.find(wsIT->first) == robotMap.end())
+            if (!IsRobot(wsIT->first))
             {
                 if (Player* eachPlayer = wsIT->second->GetPlayer())
                 {
@@ -453,6 +454,13 @@ void RobotManager::UpdateRobotManager()
                         onlinePlayerLevelSet.insert(eachPlayer->GetLevel());
                     }
                 }
+            }
+        }
+        if (sRobotConfig->OnlineLevel >= 20)
+        {
+            if (onlinePlayerLevelSet.find(sRobotConfig->OnlineLevel) == onlinePlayerLevelSet.end())
+            {
+                onlinePlayerLevelSet.insert(sRobotConfig->OnlineLevel);
             }
         }
 
@@ -470,9 +478,9 @@ void RobotManager::UpdateRobotManager()
                     prepareCount++;
                 }
             }
-            if (sRobotConfig->RobotCountEachLevel > prepareCount)
+            if (sRobotConfig->CountEachLevel > prepareCount)
             {
-                uint32 toAdd = sRobotConfig->RobotCountEachLevel - prepareCount;
+                uint32 toAdd = sRobotConfig->CountEachLevel - prepareCount;
                 uint32 checkCount = 0;
                 while (checkCount < toAdd)
                 {
@@ -488,9 +496,16 @@ void RobotManager::UpdateRobotManager()
                     }
                     uint32 raceIndex = urand(0, availableRaces[sp->targetClass].size() - 1);
                     sp->targetRace = availableRaces[sp->targetClass][raceIndex];
+                    prepareStrategyMap[prepareStrategyMap.size()] = sp;
+                    checkCount++;
                 }
             }
         }
+    }
+
+    for (std::unordered_map<uint32, Strategy_Prepare*>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
+    {
+        spIT->second->Update();
     }
 
     for (std::unordered_map<uint32, Strategy_Solo*>::iterator ssIT = soloStrategyMap.begin(); ssIT != soloStrategyMap.end(); ssIT++)
@@ -511,7 +526,7 @@ void RobotManager::UpdateRobotManager()
 
 bool RobotManager::DeleteRobots()
 {
-    QueryResult accountQR = LoginDatabase.PQuery("SELECT id, username FROM account where username like '%s%%'", sRobotConfig->RobotAccountNamePrefix.c_str());
+    QueryResult accountQR = LoginDatabase.PQuery("SELECT id, username FROM account where username like '%s%%'", sRobotConfig->AccountNamePrefix.c_str());
 
     if (accountQR)
     {
@@ -588,7 +603,7 @@ uint32 RobotManager::CreateRobotAccount()
     while (true)
     {
         std::ostringstream accountNameStream;
-        accountNameStream << sRobotConfig->RobotAccountNamePrefix << checkIndex;
+        accountNameStream << sRobotConfig->AccountNamePrefix << checkIndex;
         AccountOpResult aor = sAccountMgr->CreateAccount(accountNameStream.str(), ROBOT_PASSWORD);
         if (aor == AccountOpResult::AOR_NAME_ALREADY_EXIST)
         {
@@ -597,6 +612,7 @@ uint32 RobotManager::CreateRobotAccount()
         else if (aor == AccountOpResult::AOR_OK)
         {
             result = CheckRobotAccount(accountNameStream.str());
+            break;
         }
         else
         {
@@ -695,6 +711,7 @@ uint32 RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacter
         newPlayer->SetPvP(true);
         newPlayer->SaveToDB(true);
         result = newPlayer->GetGUID().GetRawValue();
+        onlineRobotAccountMap[eachSession->GetAccountId()] = newPlayer->GetGUID().GetRawValue();
         sWorld->AddSession(eachSession);
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Create character %d - %s for account %d", newPlayer->GetGUID().GetCounter(), currentName.c_str(), pmAccountID);
         break;
@@ -738,6 +755,7 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmCharacterID)
     if (!loginSession)
     {
         loginSession = new WorldSession(pmAccountID, "robot", NULL, SEC_PLAYER, 2, 0, LOCALE_enUS, 0, false);
+        onlineRobotAccountMap[pmAccountID] = pmCharacterID;
         sWorld->AddSession(loginSession);
     }
 
@@ -749,9 +767,10 @@ bool RobotManager::LoginRobot(uint32 pmAccountID, uint32 pmCharacterID)
 
 void RobotManager::LogoutRobots()
 {
-    for (std::unordered_map<uint32, RobotEntity*>::iterator reIT = robotMap.begin(); reIT != robotMap.end(); reIT++)
+    for (std::unordered_map<uint32, uint32>::iterator onlineIT = onlineRobotAccountMap.begin(); onlineIT != onlineRobotAccountMap.end(); onlineIT++)
     {
-        Player* checkP = ObjectAccessor::FindConnectedPlayer(reIT->second->characterGUID);
+        ObjectGuid guid = ObjectGuid(HighGuid::Player, onlineIT->second);
+        Player* checkP = ObjectAccessor::FindConnectedPlayer(guid);
         if (checkP)
         {
             sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Log out robot %s", checkP->GetName());
@@ -1173,9 +1192,9 @@ Strategy_Solo* RobotManager::GetSoloStrategy(uint32 pmSessionID)
     return NULL;
 }
 
-bool RobotManager::IsRobot(uint32 pmCharacterID)
+bool RobotManager::IsRobot(uint32 pmAccountID)
 {
-    if (prepareStrategyMap.find(pmCharacterID) != prepareStrategyMap.end())
+    if (onlineRobotAccountMap.find(pmAccountID) != onlineRobotAccountMap.end())
     {
         return true;
     }
@@ -1213,4 +1232,164 @@ std::string RobotManager::TrimString(std::string srcStr)
     }
 
     return result;
+}
+
+void RobotManager::HandlePacket(uint32 pmSessionID, WorldPacket const* pmPacket)
+{
+    if (pmPacket)
+    {
+        ObjectGuid guid = ObjectGuid(HighGuid::Player, onlineRobotAccountMap[pmSessionID]);
+        Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+        if (!me)
+        {
+            return;
+        }
+        switch (pmPacket->GetOpcode())
+        {
+        case SMSG_SPELL_FAILURE:
+        {
+            break;
+        }
+        case SMSG_SPELL_DELAYED:
+        {
+            break;
+        }
+        case SMSG_GROUP_INVITE:
+        {
+            Group* grp = me->GetGroupInvite();
+            if (!grp)
+            {
+                break;
+            }
+            Player* inviter = ObjectAccessor::FindPlayer(grp->GetLeaderGUID());
+            if (!inviter)
+            {
+                break;
+            }
+            uint32 acceptInvite = urand(0, 3);
+            if (acceptInvite == 0)
+            {
+                if (soloStrategyMap.find(me->GetGUID().GetCounter()) != soloStrategyMap.end())
+                {
+                    WorldPacket p;
+                    uint32 roles_mask = 0;
+                    p << roles_mask;
+                    me->GetSession()->HandleGroupAcceptOpcode(p);
+                    std::ostringstream replyStream_Talent;
+                    replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[me->GetClass()][soloStrategyMap[me->GetGUID().GetCounter()]->sb->characterTalentTab];
+                    WhisperTo(me, replyStream_Talent.str(), Language::LANG_UNIVERSAL, inviter);
+                }
+                break;
+            }
+            else
+            {
+                WorldPacket p;
+                me->GetSession()->HandleGroupDeclineOpcode(p);
+                std::ostringstream timeLeftStream;
+                timeLeftStream << "Not interested.";
+                WhisperTo(me, timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
+                break;
+            }
+        }
+        case BUY_ERR_NOT_ENOUGHT_MONEY:
+        {
+            break;
+        }
+        case BUY_ERR_REPUTATION_REQUIRE:
+        {
+            break;
+        }
+        case SMSG_GROUP_SET_LEADER:
+        {
+            //std::string leaderName = "";
+            //pmPacket >> leaderName;
+            //Player* newLeader = ObjectAccessor::FindPlayerByName(leaderName);
+            //if (newLeader)
+            //{
+            //    if (newLeader->GetGUID() == me->GetGUID())
+            //    {
+            //        WorldPacket data(CMSG_GROUP_SET_LEADER, 8);
+            //        data << master->GetGUID().WriteAsPacked();
+            //        me->GetSession()->HandleGroupSetLeaderOpcode(data);
+            //    }
+            //    else
+            //    {
+            //        if (!newLeader->isRobot)
+            //        {
+            //            master = newLeader;
+            //        }
+            //    }
+            //}
+            break;
+        }
+        case SMSG_FORCE_RUN_SPEED_CHANGE:
+        {
+            break;
+        }
+        case SMSG_RESURRECT_REQUEST:
+        {
+            if (!me->IsAlive())
+            {
+                if (!me->GetGroup())
+                {
+                    if (soloStrategyMap.find(me->GetGUID().GetCounter()) != soloStrategyMap.end())
+                    {
+                        soloStrategyMap[me->GetGUID().GetCounter()]->deathDelay = 0;
+                    }
+                }
+            }
+            if (me->IsResurrectRequested())
+            {
+                me->ResurrectUsingRequestData();
+            }
+            break;
+        }
+        case SMSG_INVENTORY_CHANGE_FAILURE:
+        {
+            break;
+        }
+        case SMSG_TRADE_STATUS:
+        {
+            break;
+        }
+        case SMSG_LOOT_RESPONSE:
+        {
+            break;
+        }
+        case SMSG_QUESTUPDATE_ADD_KILL:
+        {
+            break;
+        }
+        case SMSG_ITEM_PUSH_RESULT:
+        {
+            break;
+        }
+        case SMSG_PARTY_COMMAND_RESULT:
+        {
+            break;
+        }
+        case SMSG_DUEL_REQUESTED:
+        {
+            if (!me->duel)
+            {
+                break;
+            }
+            me->DuelComplete(DuelCompleteType::DUEL_INTERRUPTED);
+            WhisperTo(me, "Not interested", Language::LANG_UNIVERSAL, me->duel->Opponent);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+    }
+}
+
+void RobotManager::WhisperTo(Player* pmSender, std::string pmContent, Language pmLanguage, Player* pmTarget)
+{
+    if (pmSender&&pmTarget)
+    {
+        pmSender->Whisper(pmContent, pmLanguage, pmTarget);
+    }
 }
