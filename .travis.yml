@@ -5,7 +5,7 @@ compiler:
   - clang
 
 git:
-  depth: 100
+  depth: 1000
 
 addons:
   apt:
@@ -57,4 +57,4 @@ script:
   - ./worldserver --version
 
 after_success:
-  - if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then git push https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git HEAD:${TRAVIS_BRANCH}; fi;
+  - if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then git push https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git HEAD:${TRAVIS_BRANCH} >/dev/null 2>&1; fi;
