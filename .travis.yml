@@ -5,7 +5,7 @@ compiler:
   - clang
 
 git:
-  depth: 1000
+  depth: false
 
 addons:
   apt:
