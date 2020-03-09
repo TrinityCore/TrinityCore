@@ -38,7 +38,7 @@ INSERT INTO `quest_template_addon` (`ID`, `PrevQuestID`) VALUES
 
 -- Pooling
 SET @POOL := 645019;
-DELETE FROM `pool_template` WHERE `entry` BETWEEN @POOL+0 AND @POOL+10;
+DELETE FROM `pool_template` WHERE `entry` BETWEEN @POOL+0 AND @POOL+11;
 INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
 (@POOL+0, 1, 'Molten Front Dalies 1'),
 (@POOL+1, 1, 'Molten Front Dalies 2'),
@@ -53,7 +53,7 @@ INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
 (@POOL+10, 2, 'Molten Front Dalies 10'),
 (@POOL+11, 1, 'Molten Front Dalies Pool 2');
 
-DELETE FROM `pool_quest` WHERE `pool_entry` BETWEEN @POOL+0 AND @POOL+10;
+DELETE FROM `pool_quest` WHERE `pool_entry` BETWEEN @POOL+0 AND @POOL+11;
 INSERT INTO `pool_quest` (`entry`, `pool_entry`, `description`) VALUES
 -- 0
 (29139, @POOL+0, 'Molten Front - Aggressive Growth'),
@@ -91,7 +91,7 @@ INSERT INTO `pool_quest` (`entry`, `pool_entry`, `description`) VALUES
 (29162, @POOL+10, 'Molten Front - Nature''s Blessing');
 
 
-DELETE FROM `pool_pool` WHERE `pool_id` BETWEEN @POOL+0 AND @POOL+10;
+DELETE FROM `pool_pool` WHERE `pool_id` BETWEEN @POOL+0 AND @POOL+11;
 INSERT INTO `pool_pool` (`pool_id`, `mother_pool`, `chance`, `description`) VALUES
 (@POOL+3, @POOL+5, 0, 'Molten Front Dailies'),
 (@POOL+4, @POOL+5, 0, 'Molten Front Dailies'),
