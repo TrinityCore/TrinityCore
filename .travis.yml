@@ -26,7 +26,6 @@ services:
 
 before_install:
   - git config user.email "rochet2@post.com" && git config user.name "Rochet2"
-  - git tag -a -m "Travis build" init
 
 install:
   - mysql -uroot -e 'create database test_mysql;'
