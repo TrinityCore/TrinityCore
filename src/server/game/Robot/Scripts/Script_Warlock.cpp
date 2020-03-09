@@ -2,21 +2,14 @@
 #include "Pet.h"
 #include "PetAI.h"
 #include "Group.h"
+#include "RobotManager.h"
 
-#ifndef WARLOCK_CLOSER_DISTANCE
-# define WARLOCK_CLOSER_DISTANCE 25
-#endif
-
-#ifndef WARLOCK_RANGE_DISTANCE
-# define WARLOCK_RANGE_DISTANCE 30
-#endif
-
-Script_Warlock::Script_Warlock(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
+Script_Warlock::Script_Warlock(uint32 pmCharacterID) :Script_Base()
 {
-
+    character = pmCharacterID;
 }
 
-bool Script_Warlock::HealMe()
+bool Script_Warlock::Heal(Unit* pmTarget, bool pmCure)
 {
     return false;
 }
@@ -26,14 +19,9 @@ bool Script_Warlock::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Warlock::Healer()
-{
-    return false;
-}
-
 bool Script_Warlock::DPS(Unit* pmTarget)
 {
-    switch (sourceAI->characterTalentTab)
+    switch (characterTalentTab)
     {
     case 0:
     {
@@ -54,16 +42,7 @@ bool Script_Warlock::DPS(Unit* pmTarget)
 
 bool Script_Warlock::DPS_Affliction(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -71,23 +50,32 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    sourceAI->BaseMove(pmTarget, WARLOCK_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
@@ -97,16 +85,7 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget)
 
 bool Script_Warlock::DPS_Demonology(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -114,23 +93,32 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    sourceAI->BaseMove(pmTarget, WARLOCK_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
@@ -140,16 +128,7 @@ bool Script_Warlock::DPS_Demonology(Unit* pmTarget)
 
 bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -157,18 +136,27 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    sourceAI->BaseMove(pmTarget, WARLOCK_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
     PetAttack(me->GetPet(), pmTarget);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
             {
                 return true;
             }
@@ -178,35 +166,84 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
     Group* myGroup = me->GetGroup();
     if (myGroup)
     {
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        if (myGroup->isRaidGroup())
         {
-            Player* member = groupRef->GetSource();
-            if (member->groupRole == 1)
+            if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
             {
-                if (member->getAttackers().size() >= 3)
+                for (std::unordered_map<uint32, RaidMember*>::iterator pmIT = sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
                 {
-                    uint32 inRangeCount = 0;
-                    for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                    if (pmIT->second->raidRole == RaidRole::RaidRole_Tank)
                     {
-                        if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
                         {
-                            inRangeCount++;
-                            if (inRangeCount >= 3)
+                            if (member->getAttackers().size() >= 3)
                             {
-                                if (sourceAI->CastSpell((*i), "Shadowfury", WARLOCK_RANGE_DISTANCE))
+                                uint32 inRangeCount = 0;
+                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
                                 {
-                                    return true;
+                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                    {
+                                        inRangeCount++;
+                                        if (inRangeCount >= 3)
+                                        {
+                                            if (CastSpell((*i), "Shadowfury", WARLOCK_RANGE_DISTANCE))
+                                            {
+                                                return true;
+                                            }
+                                            if (CastSpell((*i), "Rain of Fire", WARLOCK_RANGE_DISTANCE))
+                                            {
+                                                return true;
+                                            }
+                                            break;
+                                        }
+                                    }
                                 }
-                                if (sourceAI->CastSpell((*i), "Rain of Fire", WARLOCK_RANGE_DISTANCE))
-                                {
-                                    return true;
-                                }
-                                break;
                             }
                         }
+                        break;
                     }
                 }
-                break;
+            }
+        }
+        else
+        {
+            if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+            {
+                for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
+                {
+                    if (pmIT->second->partyRole == PartyRole::PartyRole_Tank)
+                    {
+                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+                        {
+                            if (member->getAttackers().size() >= 3)
+                            {
+                                uint32 inRangeCount = 0;
+                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                                {
+                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                    {
+                                        inRangeCount++;
+                                        if (inRangeCount >= 3)
+                                        {
+                                            if (CastSpell((*i), "Shadowfury", WARLOCK_RANGE_DISTANCE))
+                                            {
+                                                return true;
+                                            }
+                                            if (CastSpell((*i), "Rain of Fire", WARLOCK_RANGE_DISTANCE))
+                                            {
+                                                return true;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
             }
         }
     }
@@ -214,29 +251,29 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
     // when facing boss 
     if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3.0f)
     {
-        if (sourceAI->CastSpell(pmTarget, "Curse of the Elements", WARLOCK_RANGE_DISTANCE, true))
+        if (CastSpell(pmTarget, "Curse of the Elements", WARLOCK_RANGE_DISTANCE, true))
         {
             return true;
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Immolate", WARLOCK_RANGE_DISTANCE, true, true))
+    if (CastSpell(pmTarget, "Immolate", WARLOCK_RANGE_DISTANCE, true, true))
     {
         return true;
     }
-    if (sourceAI->CastSpell(pmTarget, "Conflagrate", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Conflagrate", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
-    if (sourceAI->CastSpell(pmTarget, "Chaos Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Chaos Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
-    if (sourceAI->CastSpell(pmTarget, "Incinerate", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Incinerate", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
 
-    if (sourceAI->CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
@@ -246,16 +283,7 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
 
 bool Script_Warlock::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -263,23 +291,32 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    sourceAI->BaseMove(pmTarget, WARLOCK_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
@@ -289,7 +326,7 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget)
 
 bool Script_Warlock::Attack(Unit* pmTarget)
 {
-    switch (sourceAI->characterTalentTab)
+    switch (characterTalentTab)
     {
     case 0:
     {
@@ -310,16 +347,7 @@ bool Script_Warlock::Attack(Unit* pmTarget)
 
 bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -327,23 +355,32 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    sourceAI->BaseMove(pmTarget, WARLOCK_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
@@ -353,16 +390,7 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
 
 bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -370,23 +398,32 @@ bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    sourceAI->BaseMove(pmTarget, WARLOCK_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
@@ -396,16 +433,7 @@ bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
 
 bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -413,40 +441,49 @@ bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    sourceAI->BaseMove(pmTarget, WARLOCK_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Immolate", WARLOCK_RANGE_DISTANCE, true, true))
+    if (CastSpell(pmTarget, "Immolate", WARLOCK_RANGE_DISTANCE, true, true))
     {
         return true;
     }
-    if (sourceAI->CastSpell(pmTarget, "Conflagrate", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Conflagrate", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
-    if (sourceAI->CastSpell(pmTarget, "Chaos Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Chaos Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
-    if (sourceAI->CastSpell(pmTarget, "Incinerate", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Incinerate", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
 
-    if (sourceAI->CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
@@ -456,16 +493,7 @@ bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
 
 bool Script_Warlock::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -473,23 +501,32 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    sourceAI->BaseMove(pmTarget, WARLOCK_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
     {
         return true;
     }
@@ -497,35 +534,46 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warlock::Buff()
+bool Script_Warlock::Buff(Unit* pmTarget, bool pmCure)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
     }
-
-    if (sourceAI->FindSpellID("Fel Armor") > 0)
+    if (me->GetGUID() == pmTarget->GetGUID())
     {
-        if (sourceAI->CastSpell(me, "Fel Armor", WARLOCK_RANGE_DISTANCE, true))
+        if (FindSpellID("Fel Armor") > 0)
         {
-            return true;
+            if (CastSpell(me, "Fel Armor", WARLOCK_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
         }
-    }
-    else
-    {
-        if (sourceAI->CastSpell(me, "Demon Armor", WARLOCK_RANGE_DISTANCE, true))
+        else
         {
-            return true;
+            if (CastSpell(me, "Demon Armor", WARLOCK_RANGE_DISTANCE, true))
+            {
+                return true;
+            }
         }
-    }
 
-    Pet* myPet = me->GetPet();
-    if (!myPet)
-    {
-        if (sourceAI->CastSpell(me, "Summon Imp"))
+        Pet* myPet = me->GetPet();
+        if (!myPet)
         {
-            return true;
+            if (CastSpell(me, "Summon Imp"))
+            {
+                return true;
+            }
         }
     }
 

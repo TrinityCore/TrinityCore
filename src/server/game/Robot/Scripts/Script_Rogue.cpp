@@ -8,12 +8,12 @@
 # define ROGUE_RANGE_DISTANCE 25
 #endif
 
-Script_Rogue::Script_Rogue(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
+Script_Rogue::Script_Rogue(uint32 pmCharacterID) :Script_Base()
 {
-
+    character = pmCharacterID;
 }
 
-bool Script_Rogue::HealMe()
+bool Script_Rogue::Heal(Unit* pmTarget, bool pmCure)
 {
     return false;
 }
@@ -23,14 +23,9 @@ bool Script_Rogue::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Rogue::Healer()
-{
-    return false;
-}
-
 bool Script_Rogue::DPS(Unit* pmTarget)
 {
-    switch (sourceAI->characterTalentTab)
+    switch (characterTalentTab)
     {
     case 0:
     {
@@ -51,16 +46,7 @@ bool Script_Rogue::DPS(Unit* pmTarget)
 
 bool Script_Rogue::DPS_Combat(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -68,20 +54,27 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
-    sourceAI->BaseMove(pmTarget);
-
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget);
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
     if (energy > 25)
     {
         if (pmTarget->IsNonMeleeSpellCast(false))
         {
-            if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
@@ -90,14 +83,14 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget)
     // when facing boss 
     if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
     {
-        if (sourceAI->CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
         {
             me->Yell("ADRENALINE RUSH !", Language::LANG_UNIVERSAL);
             return true;
         }
         if (energy > 25)
         {
-            if (sourceAI->CastSpell(pmTarget, "Blade Flurry", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Blade Flurry", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
@@ -106,7 +99,7 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget)
 
     if (energy > 10)
     {
-        if (sourceAI->CastSpell(pmTarget, "Riposte", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Riposte", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -116,10 +109,10 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget)
         uint8 comboPoints = me->GetComboPoints();
         if (urand(1, 5) <= comboPoints)
         {
-            sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+            CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -130,16 +123,7 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget)
 
 bool Script_Rogue::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -147,20 +131,27 @@ bool Script_Rogue::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
-    sourceAI->BaseMove(pmTarget);
-
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget);
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
     if (energy > 25)
     {
         if (pmTarget->IsNonMeleeSpellCast(false))
         {
-            if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
@@ -171,10 +162,10 @@ bool Script_Rogue::DPS_Common(Unit* pmTarget)
         uint8 comboPoints = me->GetComboPoints();
         if (urand(1, 5) <= comboPoints)
         {
-            sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+            CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -185,7 +176,7 @@ bool Script_Rogue::DPS_Common(Unit* pmTarget)
 
 bool Script_Rogue::Attack(Unit* pmTarget)
 {
-    switch (sourceAI->characterTalentTab)
+    switch (characterTalentTab)
     {
     case 0:
     {
@@ -206,16 +197,7 @@ bool Script_Rogue::Attack(Unit* pmTarget)
 
 bool Script_Rogue::Attack_Combat(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -223,20 +205,27 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
-    sourceAI->BaseMove(pmTarget);
-
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget);
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
     if (energy > 25)
     {
         if (pmTarget->IsNonMeleeSpellCast(false))
         {
-            if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
@@ -245,14 +234,14 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
     // when facing boss 
     if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
     {
-        if (sourceAI->CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Adrenaline Rush", MELEE_MAX_DISTANCE))
         {
             me->Yell("ADRENALINE RUSH !", Language::LANG_UNIVERSAL);
             return true;
         }
         if (energy > 25)
         {
-            if (sourceAI->CastSpell(pmTarget, "Blade Flurry", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Blade Flurry", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
@@ -261,7 +250,7 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
 
     if (energy > 10)
     {
-        if (sourceAI->CastSpell(pmTarget, "Riposte", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Riposte", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -271,10 +260,10 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
         uint8 comboPoints = me->GetComboPoints();
         if (urand(1, 5) <= comboPoints)
         {
-            sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+            CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -285,16 +274,7 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
 
 bool Script_Rogue::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -302,18 +282,27 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    sourceAI->BaseMove(pmTarget);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget);    
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);    
     if (energy > 25)
     {
         if (pmTarget->IsNonMeleeSpellCast(false))
         {
-            if (sourceAI->CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Kick", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
@@ -324,10 +313,10 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
         uint8 comboPoints = me->GetComboPoints();
         if (urand(1, 5) <= comboPoints)
         {
-            sourceAI->CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
+            CastSpell(pmTarget, "Eviscerate", MELEE_MAX_DISTANCE);
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Sinister Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -336,7 +325,7 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Rogue::Buff()
+bool Script_Rogue::Buff(Unit* pmTarget, bool pmCure)
 {
     return false;
 }

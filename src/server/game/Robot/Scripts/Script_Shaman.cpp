@@ -1,35 +1,8 @@
 #include "Script_Shaman.h"
 
-#ifndef SHAMAN_CLOSER_DISTANCE
-# define SHAMAN_CLOSER_DISTANCE 25
-#endif
-
-#ifndef SHAMAN_RANGE_DISTANCE
-# define SHAMAN_RANGE_DISTANCE 30
-#endif
-
-Script_Shaman::Script_Shaman(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
+Script_Shaman::Script_Shaman(uint32 pmCharacterID) :Script_Base()
 {
-
-}
-
-bool Script_Shaman::HealMe()
-{
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
-    float healthPCT = me->GetHealthPct();
-    if (healthPCT < 30)
-    {
-        if (sourceAI->CastSpell(me, "Healing Wave"))
-        {
-            return true;
-        }
-    }
-
-    return false;
+    character = pmCharacterID;
 }
 
 bool Script_Shaman::Tank(Unit* pmTarget)
@@ -37,7 +10,7 @@ bool Script_Shaman::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Shaman::Healer()
+bool Script_Shaman::Heal(Unit* pmTarget, bool pmCure)
 {
     return false;
 }
@@ -49,16 +22,7 @@ bool Script_Shaman::DPS(Unit* pmTarget)
 
 bool Script_Shaman::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -66,14 +30,22 @@ bool Script_Shaman::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
-    sourceAI->BaseMove(pmTarget, SHAMAN_CLOSER_DISTANCE, false);
-    if (sourceAI->CastSpell(pmTarget, "Lightning Bolt", SHAMAN_RANGE_DISTANCE))
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, SHAMAN_RANGE_DISTANCE);
+    if (CastSpell(pmTarget, "Lightning Bolt", SHAMAN_RANGE_DISTANCE))
     {
         return true;
     }
@@ -88,16 +60,7 @@ bool Script_Shaman::Attack(Unit* pmTarget)
 
 bool Script_Shaman::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -105,14 +68,22 @@ bool Script_Shaman::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
-    sourceAI->BaseMove(pmTarget, SHAMAN_CLOSER_DISTANCE, false);
-    if (sourceAI->CastSpell(pmTarget, "Lightning Bolt", SHAMAN_RANGE_DISTANCE))
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, SHAMAN_RANGE_DISTANCE);    
+    if (CastSpell(pmTarget, "Lightning Bolt", SHAMAN_RANGE_DISTANCE))
     {
         return true;
     }
@@ -120,7 +91,7 @@ bool Script_Shaman::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Shaman::Buff()
+bool Script_Shaman::Buff(Unit* pmTarget, bool pmCure)
 {
     return false;
 }

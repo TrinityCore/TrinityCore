@@ -1,37 +1,20 @@
 #include "Script_Warrior.h"
-
 #include "Group.h"
+#include "RobotManager.h"
 
-#ifndef WARRIOR_CHARGE_DISTANCE
-# define WARRIOR_CHARGE_DISTANCE 10
-#endif
-
-#ifndef WARRIOR_RANGE_DISTANCE
-# define WARRIOR_RANGE_DISTANCE 25
-#endif
-
-Script_Warrior::Script_Warrior(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
+Script_Warrior::Script_Warrior(uint32 pmCharacterID) :Script_Base()
 {
-
+    character = pmCharacterID;
 }
 
-bool Script_Warrior::HealMe()
+bool Script_Warrior::Heal(Unit* pmTarget, bool pmCure)
 {
     return false;
 }
 
 bool Script_Warrior::Tank(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -39,49 +22,58 @@ bool Script_Warrior::Tank(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }    
     else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
     {
-        if (sourceAI->CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
         {
             return true;
         }
     }
-
-    sourceAI->BaseMove(pmTarget);
+    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
     }
     if (rage > 500)
     {
-        if (sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     if (rage > 150)
     {
-        if (sourceAI->CastSpell(pmTarget, "Thunder Clap", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Thunder Clap", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     if (rage > 200)
     {
-        if (sourceAI->CastSpell(pmTarget, "Sunder Armor", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Sunder Armor", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -90,14 +82,9 @@ bool Script_Warrior::Tank(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warrior::Healer()
-{
-    return false;
-}
-
 bool Script_Warrior::DPS(Unit* pmTarget)
 {
-    switch (sourceAI->characterTalentTab)
+    switch (characterTalentTab)
     {
     case 0:
     {
@@ -118,16 +105,7 @@ bool Script_Warrior::DPS(Unit* pmTarget)
 
 bool Script_Warrior::DPS_Arms(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -135,114 +113,157 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
+    else if (!me->IsValidAttackTarget(pmTarget))
     {
-        if (sourceAI->CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
-        {
-            return true;
-        }
+        return false;
     }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }    
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
-        if (sourceAI->CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
+        if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
-
-    sourceAI->BaseMove(pmTarget);
+    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 300)
     {
         Group* myGroup = me->GetGroup();
         if (myGroup)
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (myGroup->isRaidGroup())
             {
-                Player* member = groupRef->GetSource();
-                if (member->groupRole == 1)
+                if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
                 {
-                    if (member->getAttackers().size() >= 3)
+                    for (std::unordered_map<uint32, RaidMember*>::iterator pmIT = sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
                     {
-                        uint32 inRangeCount = 0;
-                        for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                        if (pmIT->second->raidRole == RaidRole::RaidRole_Tank)
                         {
-                            if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                            ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+                            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
                             {
-                                inRangeCount++;
-                                if (inRangeCount >= 3)
+                                if (member->getAttackers().size() >= 3)
                                 {
-                                    if (sourceAI->CastSpell((*i), "Bladestorm", MELEE_MAX_DISTANCE))
+                                    uint32 inRangeCount = 0;
+                                    for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
                                     {
-                                        return true;
+                                        if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                        {
+                                            inRangeCount++;
+                                            if (inRangeCount >= 3)
+                                            {
+                                                if (CastSpell((*i), "Bladestorm", MELEE_MAX_DISTANCE))
+                                                {
+                                                    return true;
+                                                }
+                                                if (CastSpell((*i), "Sweeping Strikes", MELEE_MAX_DISTANCE))
+                                                {
+                                                    return true;
+                                                }
+                                                break;
+                                            }
+                                        }
                                     }
-                                    if (sourceAI->CastSpell((*i), "Sweeping Strikes", MELEE_MAX_DISTANCE))
-                                    {
-                                        return true;
-                                    }
-                                    break;
                                 }
                             }
+                            break;
                         }
                     }
-                    break;
+                }
+            }
+            else
+            {
+                if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+                {
+                    for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
+                    {
+                        if (pmIT->second->partyRole == PartyRole::PartyRole_Tank)
+                        {
+                            ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+                            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+                            {
+                                if (member->getAttackers().size() >= 3)
+                                {
+                                    uint32 inRangeCount = 0;
+                                    for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                                    {
+                                        if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                        {
+                                            inRangeCount++;
+                                            if (inRangeCount >= 3)
+                                            {
+                                                if (CastSpell((*i), "Bladestorm", MELEE_MAX_DISTANCE))
+                                                {
+                                                    return true;
+                                                }
+                                                if (CastSpell((*i), "Sweeping Strikes", MELEE_MAX_DISTANCE))
+                                                {
+                                                    return true;
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
-        sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
-        if (sourceAI->CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE, true))
+
+        CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
+        if (CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
     }
     if (rage > 100)
     {
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
-        //if (sourceAI->CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
+        //if (CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
         //{
         //	return true;
         //}
-        if (sourceAI->CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Overpower", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Overpower", MELEE_MAX_DISTANCE))
         {
             return true;
         }
         if (pmTarget->GetHealthPct() < 30.0f)
         {
-            if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+            if (CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
             {
                 return true;
             }
         }
     }
-    sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
+    CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
 
     return true;
 }
 
 bool Script_Warrior::DPS_Fury(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -250,41 +271,50 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
     {
         return false;
     }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
-        if (sourceAI->CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
+        if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(me, "Recklessness", MELEE_MAX_DISTANCE))
+        if (CastSpell(me, "Recklessness", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
-
-    sourceAI->BaseMove(pmTarget);
+    Chase(pmTarget);    
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
         if (pmTarget->IsNonMeleeSpellCast(false))
         {
-            if (sourceAI->CastSpell(pmTarget, "Pummel", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Pummel", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
         }
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
         if (pmTarget->GetHealthPct() < 30.0f)
         {
-            if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+            if (CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
             {
                 return true;
             }
@@ -292,15 +322,15 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
     }
     if (rage > 250)
     {
-        if (sourceAI->CastSpell(pmTarget, "Bloodthirst", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Bloodthirst", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Whirlwind", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Whirlwind", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Cleave", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Cleave", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -311,16 +341,7 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
 
 bool Script_Warrior::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -328,50 +349,52 @@ bool Script_Warrior::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-    else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
+    else if (!me->IsValidAttackTarget(pmTarget))
     {
-        if (sourceAI->CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
-        {
-            return true;
-        }
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
     }
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
-        if (sourceAI->CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
+        if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
-
-    sourceAI->BaseMove(pmTarget);
+    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
-        //if (sourceAI->CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
+        //if (CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
         //{
         //	return true;
         //}
-        if (sourceAI->CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
     }
     if (rage > 200)
     {
-        sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
+        CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
     }
 
     return true;
@@ -379,7 +402,7 @@ bool Script_Warrior::DPS_Common(Unit* pmTarget)
 
 bool Script_Warrior::Attack(Unit* pmTarget)
 {
-    switch (sourceAI->characterTalentTab)
+    switch (characterTalentTab)
     {
     case 0:
     {
@@ -400,16 +423,7 @@ bool Script_Warrior::Attack(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Arms(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -417,49 +431,58 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
     {
         return false;
     }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
     else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
     {
-        if (sourceAI->CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
         {
             return true;
         }
     }
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
-        if (sourceAI->CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
+        if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
-
-    sourceAI->BaseMove(pmTarget);
+    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
-        //if (sourceAI->CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
+        //if (CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
         //{
         //	return true;
         //}
-        if (sourceAI->CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Overpower", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Overpower", MELEE_MAX_DISTANCE))
         {
             return true;
         }
         if (pmTarget->GetHealthPct() < 30.0f)
         {
-            if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+            if (CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
             {
                 return true;
             }
@@ -468,14 +491,14 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
 
     if (rage > 300)
     {
-        if (sourceAI->CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Mortal Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     if (rage > 150)
     {
-        if (sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -486,16 +509,7 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Fury(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -503,8 +517,18 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
     {
         return false;
     }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
@@ -512,52 +536,51 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
     {
         if (me->GetLevel() >= 20)
         {
-            if (sourceAI->CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
+            if (CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
             {
                 return true;
             }
         }
-        if (sourceAI->CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
+        if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(me, "Recklessness", MELEE_MAX_DISTANCE))
+        if (CastSpell(me, "Recklessness", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
-
-    sourceAI->BaseMove(pmTarget);
+    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
         if (pmTarget->IsNonMeleeSpellCast(false))
         {
-            if (sourceAI->CastSpell(pmTarget, "Pummel", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Pummel", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
         }
-        if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
     }
     if (rage > 250)
     {
-        if (sourceAI->CastSpell(pmTarget, "Bloodthirst", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Bloodthirst", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Whirlwind", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Whirlwind", MELEE_MAX_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Cleave", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Cleave", MELEE_MAX_DISTANCE))
         {
             return true;
         }
@@ -568,16 +591,7 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Protection(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -585,43 +599,52 @@ bool Script_Warrior::Attack_Protection(Unit* pmTarget)
     {
         return false;
     }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
-        if (sourceAI->CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
+        if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
-
-    sourceAI->BaseMove(pmTarget);
+    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
-        //if (sourceAI->CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
+        //if (CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
         //{
         //	return true;
         //}
-        if (sourceAI->CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Revenge", MELEE_MAX_DISTANCE))
+        if (CastSpell(pmTarget, "Revenge", MELEE_MAX_DISTANCE))
         {
             return true;
         }
     }
     if (rage > 200)
     {
-        sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
+        CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
     }
 
     return true;
@@ -629,16 +652,7 @@ bool Script_Warrior::Attack_Protection(Unit* pmTarget)
 
 bool Script_Warrior::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -646,132 +660,255 @@ bool Script_Warrior::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
     else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
     {
-        if (sourceAI->CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
         {
             return true;
         }
     }
-    sourceAI->BaseMove(pmTarget);
+    Chase(pmTarget);    
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
-        if (sourceAI->CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(me, "Battle Shout", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
-        //if (sourceAI->CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
+        //if (CastSpell(pmTarget, "Demoralizing Shout", MELEE_MAX_DISTANCE, true))
         //{
         //	return true;
         //}
-        if (sourceAI->CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Rend", MELEE_MAX_DISTANCE, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(pmTarget, "Hamstring", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
     }
     if (rage > 200)
     {
-        sourceAI->CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
+        CastSpell(pmTarget, "Heroic Strike", MELEE_MAX_DISTANCE);
     }
 
     return true;
 }
 
-bool Script_Warrior::Buff()
+bool Script_Warrior::Buff(Unit* pmTarget, bool pmCure)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
     }
-    switch (me->groupRole)
+    if (me->GetGUID() == pmTarget->GetGUID())
     {
-    case 1:
-    {
-        if (me->GetLevel() >= 10)
+        Group* myGroup = me->GetGroup();
+        if (myGroup)
         {
-            if (sourceAI->CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+            if (myGroup->isRaidGroup())
             {
-                return true;
-            }
-        }
-        else
-        {
-            if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-            {
-                return true;
-            }
-        }
-        break;
-    }
-    default:
-    {
-        switch (sourceAI->characterTalentTab)
-        {
-        case 0:
-        {
-            if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        case 1:
-        {
-            if (me->GetLevel() >= 20)
-            {
-                if (sourceAI->CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
+                if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
                 {
-                    return true;
+                    if (sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.find(character) != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end())
+                    {
+                        switch (sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap[character]->raidRole)
+                        {
+                        case RaidRole::RaidRole_Tank:
+                        {
+                            if (me->GetLevel() >= 10)
+                            {
+                                if (CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+                                {
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                {
+                                    return true;
+                                }
+                            }
+                            break;
+                        }
+                        default:
+                        {
+                            switch (characterTalentTab)
+                            {
+                            case 0:
+                            {
+                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                {
+                                    return true;
+                                }
+                                break;
+                            }
+                            case 1:
+                            {
+                                if (me->GetLevel() >= 20)
+                                {
+                                    if (CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                else
+                                {
+                                    if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                break;
+                            }
+                            case 2:
+                            {
+                                if (me->GetLevel() >= 10)
+                                {
+                                    if (CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                else
+                                {
+                                    if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                break;
+                            }
+                            default:
+                            {
+                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                {
+                                    return true;
+                                }
+                                break;
+                            }
+                            }
+                        }
+                        }
+                    }
                 }
             }
             else
             {
-                if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
                 {
-                    return true;
+                    if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.find(character) != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end())
+                    {
+                        switch (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap[character]->partyRole)
+                        {
+                        case RaidRole::RaidRole_Tank:
+                        {
+                            if (me->GetLevel() >= 10)
+                            {
+                                if (CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+                                {
+                                    return true;
+                                }
+                            }
+                            else
+                            {
+                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                {
+                                    return true;
+                                }
+                            }
+                            break;
+                        }
+                        default:
+                        {
+                            switch (characterTalentTab)
+                            {
+                            case 0:
+                            {
+                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                {
+                                    return true;
+                                }
+                                break;
+                            }
+                            case 1:
+                            {
+                                if (me->GetLevel() >= 20)
+                                {
+                                    if (CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                else
+                                {
+                                    if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                break;
+                            }
+                            case 2:
+                            {
+                                if (me->GetLevel() >= 10)
+                                {
+                                    if (CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                else
+                                {
+                                    if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                    {
+                                        return true;
+                                    }
+                                }
+                                break;
+                            }
+                            default:
+                            {
+                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
+                                {
+                                    return true;
+                                }
+                                break;
+                            }
+                            }
+                        }
+                        }
+                    }
                 }
             }
-            break;
         }
-        case 2:
-        {
-            if (me->GetLevel() >= 10)
-            {
-                if (sourceAI->CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                {
-                    return true;
-                }
-            }
-            break;
-        }
-        default:
-        {
-            if (sourceAI->CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-            {
-                return true;
-            }
-            break;
-        }
-        }
-    }
     }
 
     return false;

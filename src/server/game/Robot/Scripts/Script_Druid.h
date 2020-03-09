@@ -9,6 +9,18 @@
 # define DRUID_AURA_ECLIPSE_SOLAR 48517
 #endif
 
+#ifndef DRUID_PREPARE_DISTANCE
+# define DRUID_PREPARE_DISTANCE 10
+#endif
+
+#ifndef DRUID_CLOSER_DISTANCE
+# define DRUID_CLOSER_DISTANCE 25
+#endif
+
+#ifndef DRUID_RANGE_DISTANCE
+# define DRUID_RANGE_DISTANCE 30
+#endif
+
 #include "Script_Base.h"
 
 class Script_Druid :public Script_Base
@@ -17,12 +29,13 @@ public:
 	Script_Druid(uint32 pmCharacterID);
     bool DPS(Unit* pmTarget);
     bool Tank(Unit* pmTarget);
-    bool Heal(Unit* pmTarget);
+    bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
-    bool Buff(Unit* pmTarget);
+    bool Buff(Unit* pmTarget, bool pmCure);
 
 	bool DPS_Balance(Unit* pmTarget);
 	bool DPS_Feral(Unit* pmTarget);
+    bool DPS_Plain(Unit* pmTarget);
 	bool Attack_Balance(Unit* pmTarget);
 	bool Attack_Feral(Unit* pmTarget);
 	bool Attack_Feral_Cat(Unit* pmTarget);

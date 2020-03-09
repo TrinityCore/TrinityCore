@@ -1,16 +1,8 @@
 #include "Script_Druid.h"
-
-#ifndef DRUID_PREPARE_DISTANCE
-# define DRUID_PREPARE_DISTANCE 10
-#endif
-
-#ifndef DRUID_CLOSER_DISTANCE
-# define DRUID_CLOSER_DISTANCE 25
-#endif
-
-#ifndef DRUID_RANGE_DISTANCE
-# define DRUID_RANGE_DISTANCE 30
-#endif
+#include "Group.h"
+#include "RobotManager.h"
+#include "SpellInfo.h"
+#include "SpellAuraEffects.h"
 
 Script_Druid::Script_Druid(uint32 pmCharacterID) :Script_Base()
 {
@@ -19,43 +11,32 @@ Script_Druid::Script_Druid(uint32 pmCharacterID) :Script_Base()
 
 bool Script_Druid::DPS(Unit* pmTarget)
 {
-    switch (sourceAI->characterType)
+    switch (characterTalentTab)
     {
     case 0:
     {
-        switch (sourceAI->characterTalentTab)
-        {
-        case 0:
-        {
-            return DPS_Balance(pmTarget);
-        }
-        case 1:
-        {
-            return DPS_Feral(pmTarget);
-        }
-        default:
-        {
-            return DPS_Balance(pmTarget);
-        }
-        }
         return DPS_Balance(pmTarget);
     }
     case 1:
     {
-        return Tank(pmTarget);
+        return DPS_Feral(pmTarget);
+    }
+    case 2:
+    {
+        return DPS_Plain(pmTarget);
     }
     default:
     {
-        return DPS_Balance(pmTarget);
+        return DPS_Plain(pmTarget);
     }
     }
-
     return false;
 }
 
 bool Script_Druid::DPS_Balance(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
@@ -73,133 +54,182 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
         return false;
     }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
 
     if (me->GetShapeshiftForm() == ShapeshiftForm::FORM_NONE)
     {
-        if (sourceAI->CastSpell(me, "Moonkin Form"))
+        if (CastSpell(me, "Moonkin Form"))
         {
             return true;
         }
     }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
-        if (sourceAI->CastSpell(me, "Innervate", DRUID_RANGE_DISTANCE))
+        if (CastSpell(me, "Innervate", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
     }
-    sourceAI->BaseMove(pmTarget, DRUID_CLOSER_DISTANCE, false);
+    Chase(pmTarget, false, DRUID_CLOSER_DISTANCE);
     Group* myGroup = me->GetGroup();
     if (myGroup)
     {
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        if (myGroup->isRaidGroup())
         {
-            Player* member = groupRef->GetSource();
-            if (member->groupRole == 1)
+            if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
             {
-                if (member->getAttackers().size() >= 3)
+                for (std::unordered_map<uint32, RaidMember*>::iterator pmIT = sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
                 {
-                    uint32 inRangeCount = 0;
-                    for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                    if (pmIT->second->raidRole == RaidRole::RaidRole_Tank)
                     {
-                        if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
                         {
-                            inRangeCount++;
-                            if (inRangeCount >= 3)
+                            if (member->getAttackers().size() >= 3)
                             {
-                                if (sourceAI->CastSpell((*i), "Starfall", DRUID_RANGE_DISTANCE))
+                                uint32 inRangeCount = 0;
+                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
                                 {
-                                    return true;
+                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                    {
+                                        inRangeCount++;
+                                        if (inRangeCount >= 3)
+                                        {
+                                            if (CastSpell((*i), "Starfall", DRUID_RANGE_DISTANCE))
+                                            {
+                                                return true;
+                                            }
+                                            if (CastSpell((*i), "Hurricane", DRUID_RANGE_DISTANCE))
+                                            {
+                                                return true;
+                                            }
+                                            break;
+                                        }
+                                    }
                                 }
-                                if (sourceAI->CastSpell((*i), "Hurricane", DRUID_RANGE_DISTANCE))
-                                {
-                                    return true;
-                                }
-                                break;
                             }
                         }
+                        break;
                     }
                 }
-                break;
+            }
+        }
+        else
+        {
+            if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+            {
+                for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
+                {
+                    if (pmIT->second->partyRole == PartyRole::PartyRole_Tank)
+                    {
+                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+                        {
+                            if (member->getAttackers().size() >= 3)
+                            {
+                                uint32 inRangeCount = 0;
+                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                                {
+                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                    {
+                                        inRangeCount++;
+                                        if (inRangeCount >= 3)
+                                        {
+                                            if (CastSpell((*i), "Starfall", DRUID_RANGE_DISTANCE))
+                                            {
+                                                return true;
+                                            }
+                                            if (CastSpell((*i), "Hurricane", DRUID_RANGE_DISTANCE))
+                                            {
+                                                return true;
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
             }
         }
     }
     // when facing boss 
     if (pmTarget->GetMaxHealth() / me->GetMaxHealth() > 3.0f)
     {
-        if (sourceAI->CastSpell(me, "Force of Nature", DRUID_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Force of Nature", DRUID_RANGE_DISTANCE))
         {
             me->Yell("Force of Nature !", Language::LANG_UNIVERSAL);
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Insect Swarm", DRUID_RANGE_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Insect Swarm", DRUID_RANGE_DISTANCE, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Faerie Fire", DRUID_RANGE_DISTANCE, true))
+        if (CastSpell(pmTarget, "Faerie Fire", DRUID_RANGE_DISTANCE, true))
         {
             return true;
         }
         if (me->HasAura(DRUID_AURA_ECLIPSE_LUNAR))
         {
-            if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
             {
                 return true;
             }
         }
         if (me->HasAura(DRUID_AURA_ECLIPSE_SOLAR))
         {
-            if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
             {
                 return true;
             }
         }
-        if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
     }
     else
     {
-        if (sourceAI->CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Insect Swarm", DRUID_RANGE_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Insect Swarm", DRUID_RANGE_DISTANCE, true, true))
         {
             return true;
         }
         if (me->HasAura(DRUID_AURA_ECLIPSE_LUNAR))
         {
-            if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
             {
                 return true;
             }
         }
         if (me->HasAura(DRUID_AURA_ECLIPSE_SOLAR))
         {
-            if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
             {
                 return true;
             }
         }
-        if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
-        if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
@@ -210,16 +240,7 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
 
 bool Script_Druid::DPS_Feral(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -227,8 +248,18 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
     {
         return false;
     }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
     float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
@@ -237,51 +268,51 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
     {
     case ShapeshiftForm::FORM_NONE:
     {
-        sourceAI->CastSpell(me, "Cat Form");
+        CastSpell(me, "Cat Form");
         break;
     }
     case ShapeshiftForm::FORM_CAT:
     {
-        sourceAI->BaseMove(pmTarget);
-        sourceAI->CastSpell(me, "Dash");
+        Chase(pmTarget);
+        CastSpell(me, "Dash");
         uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-        if (sourceAI->CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
+        if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
         {
             return true;
         }
         if (energy < 30)
         {
-            if (sourceAI->CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
+            if (CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
             {
                 return true;
             }
         }
         if (energy > 45)
         {
-            if (sourceAI->CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
+            if (CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
             {
                 return true;
             }
-            if (sourceAI->CastSpell(pmTarget, "Mangle (Cat)", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Mangle (Cat)", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
-            if (sourceAI->CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
         }
         if (energy > 35)
         {
-            uint32 spellID = sourceAI->FindSpellID("Rip");
+            uint32 spellID = FindSpellID("Rip");
             if (spellID != 0)
             {
                 uint8 comboPoints = me->GetComboPoints();
-                if (sourceAI->HasAura(pmTarget, "Rip", true))
+                if (HasAura(pmTarget, "Rip", true))
                 {
                     if (urand(1, 5) <= comboPoints)
                     {
-                        sourceAI->CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE);
+                        CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE);
                         return true;
                     }
                 }
@@ -289,7 +320,7 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
                 {
                     if (urand(1, 5) <= comboPoints)
                     {
-                        sourceAI->CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE);
+                        CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE);
                         return true;
                     }
                 }
@@ -299,11 +330,16 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
     }
     default:
     {
-        sourceAI->ClearShapeshift();
+        ClearShapeshift();
         break;
     }
     }
 
+    return true;
+}
+
+bool Script_Druid::DPS_Plain(Unit* pmTarget)
+{
     return true;
 }
 
@@ -317,200 +353,118 @@ bool Script_Druid::Tank(Unit* pmTarget)
     {
         return false;
     }
-
     ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
-        if (!me->IsValidAttackTarget(pmTarget))
-        {
-            return false;
-        }
-        float targetDistance = me->GetDistance(pmTarget);
-        if (targetDistance > 100.0f)
-        {
-            return false;
-        }
-        if (me->GetTarget() == pmTarget->GetGUID())
-        {
-            return true;
-        }
-        me->SetSelection(ObjectGuid::Empty);
+        return false;
     }
-
-    
-   
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
 
     switch (me->GetShapeshiftForm())
     {
     case ShapeshiftForm::FORM_NONE:
     {
-        if (sourceAI->CastSpell(me, "Dire Bear Form"))
-        {
-            break;
-        }
-        if (sourceAI->CastSpell(me, "Bear Form"))
-        {
-            break;
-        }
-        break;
-    }
-    case ShapeshiftForm::FORM_DIREBEAR:
-    {
-        if (me->GetHealthPct() < 80)
-        {
-            sourceAI->CastSpell(me, "Barkskin");
-        }
-        sourceAI->BaseMove(pmTarget);
-        sourceAI->CastSpell(me, "Enrage");
-        sourceAI->CastSpell(pmTarget, "Growl");
-        uint32 rage = me->GetPower(Powers::POWER_RAGE);
-        if (rage > 500)
-        {
-            if (me->GetHealthPct() < 60)
-            {
-                if (sourceAI->CastSpell(me, "Frenzied Regeneration"))
-                {
-                    return true;
-                }
-            }
-        }
-        if (sourceAI->CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
+        if (CastSpell(me, "Dire Bear Form"))
         {
             return true;
         }
-        if (rage > 100)
-        {
-            if (sourceAI->CastSpell(pmTarget, "Demoralizing Roar", MELEE_MAX_DISTANCE, true))
-            {
-                return true;
-            }
-            if (pmTarget->IsNonMeleeSpellCast(false))
-            {
-                if (sourceAI->CastSpell(pmTarget, "Bash", MELEE_MAX_DISTANCE))
-                {
-                    return true;
-                }
-            }
-        }
-        uint16 validAttackerCount = 0;
-        for (Unit::AttackerSet::const_iterator itr = me->getAttackers().begin(); itr != me->getAttackers().end(); ++itr)
-        {
-            float distance = me->GetDistance((*itr));
-            if (distance <= 5)
-            {
-                validAttackerCount++;
-            }
-        }
-        if (validAttackerCount > 1)
-        {
-            if (rage > 150)
-            {
-                if (me->GetDistance(pmTarget) < DRUID_PREPARE_DISTANCE)
-                {
-                    if (sourceAI->CastSpell(me, "Challenging Roar"))
-                    {
-                        return true;
-                    }
-                }
-            }
-            if (rage > 200)
-            {
-                if (sourceAI->CastSpell(pmTarget, "Swipe", MELEE_MAX_DISTANCE))
-                {
-                    return true;
-                }
-            }
-        }
-        if (rage > 200)
-        {
-            if (sourceAI->CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
-        }
-        break;
-    }
-    case ShapeshiftForm::FORM_BEAR:
-    {
-        if (me->GetHealthPct() < 80)
-        {
-            sourceAI->CastSpell(me, "Barkskin");
-        }
-        sourceAI->BaseMove(pmTarget);
-        sourceAI->CastSpell(me, "Enrage");
-        sourceAI->CastSpell(pmTarget, "Growl");
-        uint32 rage = me->GetPower(Powers::POWER_RAGE);
-        if (rage > 500)
-        {
-            if (me->GetHealthPct() < 60)
-            {
-                if (sourceAI->CastSpell(me, "Frenzied Regeneration"))
-                {
-                    return true;
-                }
-            }
-        }
-        if (sourceAI->CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
+        if (CastSpell(me, "Bear Form"))
         {
             return true;
-        }
-        if (rage > 100)
-        {
-            if (sourceAI->CastSpell(pmTarget, "Demoralizing Roar", MELEE_MAX_DISTANCE, true))
-            {
-                return true;
-            }
-            if (pmTarget->IsNonMeleeSpellCast(false))
-            {
-                if (sourceAI->CastSpell(pmTarget, "Bash", MELEE_MAX_DISTANCE))
-                {
-                    return true;
-                }
-            }
-        }
-        uint16 validAttackerCount = 0;
-        for (Unit::AttackerSet::const_iterator itr = me->getAttackers().begin(); itr != me->getAttackers().end(); ++itr)
-        {
-            float distance = me->GetDistance((*itr));
-            if (distance <= 5)
-            {
-                validAttackerCount++;
-            }
-        }
-        if (validAttackerCount > 1)
-        {
-            if (rage > 150)
-            {
-                if (me->GetDistance(pmTarget) < DRUID_PREPARE_DISTANCE)
-                {
-                    if (sourceAI->CastSpell(me, "Challenging Roar"))
-                    {
-                        return true;
-                    }
-                }
-            }
-            if (rage > 200)
-            {
-                if (sourceAI->CastSpell(pmTarget, "Swipe", MELEE_MAX_DISTANCE))
-                {
-                    return true;
-                }
-            }
-        }
-        if (rage > 200)
-        {
-            if (sourceAI->CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
-            {
-                return true;
-            }
         }
         break;
     }
     default:
     {
-        sourceAI->ClearShapeshift();
-        break;
+        ClearShapeshift();
+        return true;
     }
+    }
+
+    Chase(pmTarget);
+    if (me->GetHealthPct() < 80)
+    {
+        CastSpell(me, "Barkskin");
+    }
+    CastSpell(me, "Enrage");
+    CastSpell(pmTarget, "Growl");
+    uint32 rage = me->GetPower(Powers::POWER_RAGE);
+    if (rage > 500)
+    {
+        if (me->GetHealthPct() < 60.0f)
+        {
+            if (CastSpell(me, "Frenzied Regeneration"))
+            {
+                return true;
+            }
+        }
+    }
+    if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
+    {
+        return true;
+    }
+    if (rage > 150)
+    {
+        CastSpell(pmTarget, "Mangle (Bear)");
+    }
+    else if (rage > 100)
+    {
+        if (CastSpell(pmTarget, "Demoralizing Roar", MELEE_MAX_DISTANCE, true))
+        {
+            return true;
+        }
+        if (pmTarget->IsNonMeleeSpellCast(false))
+        {
+            if (CastSpell(pmTarget, "Bash", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    uint16 validAttackerCount = 0;
+    for (Unit::AttackerSet::const_iterator itr = me->getAttackers().begin(); itr != me->getAttackers().end(); ++itr)
+    {
+        float distance = me->GetDistance((*itr));
+        if (distance <= 5)
+        {
+            validAttackerCount++;
+        }
+    }
+    if (validAttackerCount > 1)
+    {
+        if (validAttackerCount > 2)
+        {
+            if (rage > 150)
+            {
+                if (me->GetDistance(pmTarget) < DRUID_PREPARE_DISTANCE)
+                {
+                    if (CastSpell(pmTarget, "Challenging Roar"))
+                    {
+                        return true;
+                    }
+                }
+                if (CastSpell(pmTarget, "Swipe", MELEE_MAX_DISTANCE))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    else
+    {
+        if (CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
+        {
+            return true;
+        }
     }
 
     return true;
@@ -518,7 +472,7 @@ bool Script_Druid::Tank(Unit* pmTarget)
 
 bool Script_Druid::Attack(Unit* pmTarget)
 {
-    switch (sourceAI->characterType)
+    switch (characterTalentTab)
     {
     case 0:
     {
@@ -543,16 +497,7 @@ bool Script_Druid::Attack(Unit* pmTarget)
 
 bool Script_Druid::Attack_Balance(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -560,53 +505,62 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
     {
-        if (sourceAI->CastSpell(me, "Innervate", DRUID_RANGE_DISTANCE, false, false, true))
+        if (CastSpell(me, "Innervate"))
         {
             return true;
         }
     }
     if (me->GetShapeshiftForm() == ShapeshiftForm::FORM_NONE)
     {
-        if (sourceAI->CastSpell(me, "Moonkin Form"))
+        if (CastSpell(me, "Moonkin Form"))
         {
             return true;
         }
     }
-    sourceAI->BaseMove(pmTarget, DRUID_CLOSER_DISTANCE, false);
+    Chase(pmTarget, false, DRUID_CLOSER_DISTANCE);
     if (pmTarget->GetTarget().IsEmpty())
     {
-        if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
     }
     else
     {
-        if (sourceAI->CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
+        if (CastSpell(pmTarget, "Moonfire", DRUID_RANGE_DISTANCE, true, true))
         {
             return true;
         }
         if (me->GetGUID() != pmTarget->GetTarget())
         {
-            if (sourceAI->CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Typhoon", DRUID_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Typhoon", DRUID_RANGE_DISTANCE))
     {
         return true;
     }
-    if (sourceAI->CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Wrath", DRUID_RANGE_DISTANCE))
     {
         return true;
     }
@@ -616,8 +570,26 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
 
 bool Script_Druid::Attack_Feral(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
     }
@@ -627,16 +599,16 @@ bool Script_Druid::Attack_Feral(Unit* pmTarget)
     {
         if (urand(0, 1) == 1)
         {
-            if (sourceAI->CastSpell(me, "Cat Form"))
+            if (CastSpell(me, "Cat Form"))
             {
                 break;
             }
         }
-        if (sourceAI->CastSpell(me, "Dire Bear Form"))
+        if (CastSpell(me, "Dire Bear Form"))
         {
             break;
         }
-        if (sourceAI->CastSpell(me, "Bear Form"))
+        if (CastSpell(me, "Bear Form"))
         {
             break;
         }
@@ -656,7 +628,7 @@ bool Script_Druid::Attack_Feral(Unit* pmTarget)
     }
     default:
     {
-        sourceAI->ClearShapeshift();
+        ClearShapeshift();
         return true;
     }
     }
@@ -666,16 +638,7 @@ bool Script_Druid::Attack_Feral(Unit* pmTarget)
 
 bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -683,61 +646,70 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
     switch (me->GetShapeshiftForm())
     {
     case ShapeshiftForm::FORM_NONE:
     {
-        sourceAI->CastSpell(me, "Cat Form");
+        CastSpell(me, "Cat Form");
         break;
     }
     case ShapeshiftForm::FORM_CAT:
     {
-        sourceAI->BaseMove(pmTarget);
-        sourceAI->CastSpell(me, "Dash");
+        Chase(pmTarget);
+        CastSpell(me, "Dash");
         uint32 energy = me->GetPower(Powers::POWER_ENERGY);
-        if (sourceAI->CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
+        if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
         {
             return true;
         }
         if (energy < 30)
         {
-            if (sourceAI->CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
+            if (CastSpell(me, "Tiger's Fury", MELEE_MAX_DISTANCE, true))
             {
                 return true;
             }
         }
         if (energy > 45)
         {
-            if (sourceAI->CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
+            if (CastSpell(pmTarget, "Rake", MELEE_MAX_DISTANCE, true, true))
             {
                 return true;
             }
-            if (sourceAI->CastSpell(pmTarget, "Mangle (Cat)", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Mangle (Cat)", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
-            if (sourceAI->CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Claw", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
         }
         if (energy > 35)
         {
-            uint32 spellID = sourceAI->FindSpellID("Rip");
+            uint32 spellID = FindSpellID("Rip");
             if (spellID != 0)
             {
                 uint8 comboPoints = me->GetComboPoints();
-                if (sourceAI->HasAura(pmTarget, "Rip", true))
+                if (HasAura(pmTarget, "Rip", true))
                 {
                     if (urand(1, 5) <= comboPoints)
                     {
-                        sourceAI->CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE);
+                        CastSpell(pmTarget, "Ferocious Bite", MELEE_MAX_DISTANCE);
                         return true;
                     }
                 }
@@ -745,7 +717,7 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
                 {
                     if (urand(1, 5) <= comboPoints)
                     {
-                        sourceAI->CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE);
+                        CastSpell(pmTarget, "Rip", MELEE_MAX_DISTANCE);
                         return true;
                     }
                 }
@@ -755,7 +727,7 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
     }
     default:
     {
-        sourceAI->ClearShapeshift();
+        ClearShapeshift();
         break;
     }
     }
@@ -765,16 +737,7 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
 
 bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -782,21 +745,27 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
-    sourceAI->BaseMove(pmTarget);
-    if (sourceAI->CastSpell(me, "Enrage"))
+    else if (!me->IsValidAttackTarget(pmTarget))
     {
-        return true;
+        return false;
     }
+    float targetDistance = me->GetDistance(pmTarget);
+    if (targetDistance > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget);
+    CastSpell(me, "Enrage");
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 50)
     {
-        if (sourceAI->CastSpell(pmTarget, "Feral Charge - Bear", DRUID_RANGE_DISTANCE))
+        if (CastSpell(pmTarget, "Feral Charge - Bear", DRUID_RANGE_DISTANCE))
         {
             return true;
         }
@@ -805,25 +774,25 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
     {
         if (me->GetHealthPct() < 60)
         {
-            if (sourceAI->CastSpell(me, "Frenzied Regeneration"))
+            if (CastSpell(me, "Frenzied Regeneration"))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
+    if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
     {
         return true;
     }
     if (rage > 100)
     {
-        if (sourceAI->CastSpell(pmTarget, "Demoralizing Roar", MELEE_MAX_DISTANCE, true))
+        if (CastSpell(pmTarget, "Demoralizing Roar", MELEE_MAX_DISTANCE, true))
         {
             return true;
         }
         if (pmTarget->IsNonMeleeSpellCast(false))
         {
-            if (sourceAI->CastSpell(pmTarget, "Bash", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Bash", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
@@ -838,21 +807,22 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
             validAttackerCount++;
         }
     }
-    if (validAttackerCount > 1)
+
+    if (rage > 200)
     {
-        if (rage > 200)
+        if (validAttackerCount > 1)
         {
-            if (sourceAI->CastSpell(pmTarget, "Swipe", MELEE_MAX_DISTANCE))
+            if (CastSpell(pmTarget, "Swipe", MELEE_MAX_DISTANCE))
             {
                 return true;
             }
         }
-    }
-    if (rage > 200)
-    {
-        if (sourceAI->CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
+        else
         {
-            return true;
+            if (CastSpell(pmTarget, "Maul", MELEE_MAX_DISTANCE))
+            {
+                return true;
+            }
         }
     }
 
@@ -864,31 +834,58 @@ bool Script_Druid::Attack_Restoration(Unit* pmTarget)
     return Attack_Balance(pmTarget);
 }
 
-bool Script_Druid::Heal(Unit* pmTarget)
+bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
+    if (!pmTarget)
     {
         return false;
     }
-    float healthPCT = me->GetHealthPct();
-    if (healthPCT < 20)
+    else if (!pmTarget->IsAlive())
     {
-        if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
+        return false;
+    }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }    
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 20)
+    {
+        if (CastSpell(me, "Innervate"))
         {
-            if (sourceAI->CastSpell(me, "Innervate", DRUID_RANGE_DISTANCE, false, false, true))
-            {
-                return true;
-            }
+            return true;
         }
-        sourceAI->CastSpell(me, "Barkskin");
-        if (sourceAI->CastSpell(me, "Healing Touch", DRUID_RANGE_DISTANCE, false, false, true))
+    }
+    Chase(pmTarget, false, DRUID_RANGE_DISTANCE);
+    float healthPCT = pmTarget->GetHealthPct();
+    if (healthPCT < 60.0f)
+    {
+        if (CastSpell(pmTarget, "Healing Touch", DRUID_RANGE_DISTANCE))
+        {
+            return true;
+        }
+    }
+    else if (healthPCT < 80.0f)
+    {
+        if (CastSpell(pmTarget, "Regrowth", DRUID_RANGE_DISTANCE))
+        {
+            return true;
+        }
+    }
+    else if (healthPCT < 90.0f)
+    {
+        if (CastSpell(pmTarget, "Rejuvenation", DRUID_RANGE_DISTANCE, true))
         {
             return true;
         }
     }
 
-    if (sourceAI->cure)
+    if (pmCure)
     {
         for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
         {
@@ -900,14 +897,18 @@ bool Script_Druid::Heal(Unit* pmTarget)
                 {
                     if (pST->Dispel == DispelType::DISPEL_POISON)
                     {
-                        if (sourceAI->CastSpell(me, "Cure Poison", DRUID_RANGE_DISTANCE))
+                        if (CastSpell(pmTarget, "Abolish Poison", DRUID_RANGE_DISTANCE))
+                        {
+                            return true;
+                        }
+                        if (CastSpell(pmTarget, "Cure Poison", DRUID_RANGE_DISTANCE))
                         {
                             return true;
                         }
                     }
                     else if (pST->Dispel == DispelType::DISPEL_CURSE)
                     {
-                        if (sourceAI->CastSpell(me, "Remove Curse", DRUID_RANGE_DISTANCE))
+                        if (CastSpell(pmTarget, "Remove Curse", DRUID_RANGE_DISTANCE))
                         {
                             return true;
                         }
@@ -920,86 +921,92 @@ bool Script_Druid::Heal(Unit* pmTarget)
     return false;
 }
 
-bool Script_Druid::Buff(Unit* pmTarget)
+bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
     }
-    if (sourceAI->CastSpell(me, "Thorns", DRUID_RANGE_DISTANCE, true, false, true))
+    if (me->GetDistance(pmTarget) < DRUID_RANGE_DISTANCE)
     {
-        return true;
-    }
-
-    if (sourceAI->CastSpell(me, "Mark of the Wild", DRUID_RANGE_DISTANCE, true, false, true))
-    {
-        return true;
-    }
-    Group* myGroup = me->GetGroup();
-    if (myGroup)
-    {
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        if (Group* myGroup = me->GetGroup())
         {
-            Player* member = groupRef->GetSource();
-            if (member)
+            if (myGroup->isRaidGroup())
             {
-                if (member->GetGUID() == me->GetGUID())
+                if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
                 {
-                    continue;
-                }
-                float targetDistance = me->GetDistance(member);
-                if (targetDistance < DRUID_RANGE_DISTANCE)
-                {
-                    if (member->groupRole == 1)
+                    if (sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.find(pmTarget->GetGUID().GetCounter()) != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end())
                     {
-                        if (sourceAI->CastSpell(member, "Thorns", DRUID_RANGE_DISTANCE, true, false, true))
+                        if (sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap[pmTarget->GetGUID().GetCounter()]->raidRole == RaidRole::RaidRole_Tank)
                         {
-                            return true;
+                            if (CastSpell(pmTarget, "Thorns", DRUID_RANGE_DISTANCE, true))
+                            {
+                                return true;
+                            }
                         }
                     }
-                    if (sourceAI->CastSpell(member, "Mark of the Wild", DRUID_RANGE_DISTANCE, true, false, true))
+                }
+            }
+            else
+            {
+                if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+                {
+                    if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.find(pmTarget->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end())
                     {
-                        return true;
+                        if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap[pmTarget->GetGUID().GetCounter()]->partyRole == PartyRole::PartyRole_Tank)
+                        {
+                            if (CastSpell(pmTarget, "Thorns", DRUID_RANGE_DISTANCE, true))
+                            {
+                                return true;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        if (sourceAI->cure)
+        if (CastSpell(pmTarget, "Mark of the Wild", DRUID_RANGE_DISTANCE, true))
         {
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            return true;
+        }
+    }
+
+    if (pmCure)
+    {
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+        {
+            std::list<AuraEffect*> auraList = pmTarget->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
             {
-                Player* member = groupRef->GetSource();
-                if (member)
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
                 {
-                    float targetDistance = me->GetDistance(member);
-                    if (targetDistance < DRUID_RANGE_DISTANCE)
+                    if (pST->Dispel == DispelType::DISPEL_POISON)
                     {
-                        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+                        if (CastSpell(pmTarget, "Abolish Poison", DRUID_RANGE_DISTANCE))
                         {
-                            std::list<AuraEffect*> auraList = member->GetAuraEffectsByType((AuraType)type);
-                            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
-                            {
-                                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-                                if (!pST->IsPositive())
-                                {
-                                    if (pST->Dispel == DispelType::DISPEL_POISON)
-                                    {
-                                        if (sourceAI->CastSpell(member, "Cure Poison", DRUID_RANGE_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                    }
-                                    else if (pST->Dispel == DispelType::DISPEL_CURSE)
-                                    {
-                                        if (sourceAI->CastSpell(member, "Remove Curse", DRUID_RANGE_DISTANCE))
-                                        {
-                                            return true;
-                                        }
-                                    }
-                                }
-                            }
+                            return true;
+                        }
+                        if (CastSpell(pmTarget, "Cure Poison", DRUID_RANGE_DISTANCE))
+                        {
+                            return true;
+                        }
+                    }
+                    else if (pST->Dispel == DispelType::DISPEL_CURSE)
+                    {
+                        if (CastSpell(pmTarget, "Remove Curse", DRUID_RANGE_DISTANCE))
+                        {
+                            return true;
                         }
                     }
                 }

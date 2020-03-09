@@ -45,7 +45,6 @@
 #include <algorithm>
 
  // EJ robot
-#include "RobotAI.h"
 #include "RobotManager.h"
 
 inline bool isNasty(uint8 c)
@@ -382,10 +381,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             GetPlayer()->Whisper(msg, Language(lang), receiver);
 
             // EJ robot
-            RobotAI* rai = sRobotManager->GetRobotAI(receiver->GetSession()->GetAccountId());
-            if (rai)
+            if (sRobotManager->soloStrategyMap.find(receiver->GetGUID().GetRawValue())!=sRobotManager->soloStrategyMap.end())
             {
-                rai->HandleChatCommand(GetPlayer(), msg);
+                sRobotManager->soloStrategyMap[receiver->GetGUID().GetRawValue()]->HandleChatCommand(GetPlayer(), msg);
             }
 
             break;
@@ -412,14 +410,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             group->BroadcastPacket(&data, false, group->GetMemberGroup(GetPlayer()->GetGUID()));
 
             // EJ robot
-            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (sRobotManager->partyStrategyMap.find(group->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
             {
-                Player* member = groupRef->GetSource();
-                RobotAI* rai = sRobotManager->GetRobotAI(member->GetSession()->GetAccountId());
-                if (rai)
-                {
-                    rai->HandleChatCommand(GetPlayer(), msg);
-                }
+                sRobotManager->partyStrategyMap[group->GetLowGUID()]->HandleChatCommand(GetPlayer(), msg);
             }
             break;
         }
@@ -485,14 +478,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             group->BroadcastPacket(&data, false);
 
             // EJ robot
-            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            if (sRobotManager->raidStrategyMap.find(group->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
             {
-                Player* member = groupRef->GetSource();
-                RobotAI* rai = sRobotManager->GetRobotAI(member->GetSession()->GetAccountId());
-                if (rai)
-                {
-                    rai->HandleChatCommand(GetPlayer(), msg);
-                }
+                //sRobotManager->raidStrategyMap[group->GetLowGUID()]->HandleChatCommand(GetPlayer(), msg);
             }
 
             break;

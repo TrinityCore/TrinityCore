@@ -257,7 +257,7 @@ bool Strategy_Solo::Buff()
     Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (me)
     {
-        return sb->Buff(me);
+        return sb->Buff(me, true);
     }
     return false;
 }
@@ -286,108 +286,14 @@ bool Strategy_Solo::Rest()
         {
             return false;
         }
-        uint32 foodEntry = 0;
-        if (me->GetLevel() >= 75)
-        {
-            foodEntry = 35950;
-        }
-        else if (me->GetLevel() >= 65)
-        {
-            foodEntry = 33449;
-        }
-        else if (me->GetLevel() >= 55)
-        {
-            foodEntry = 21023;
-        }
-        else if (me->GetLevel() >= 45)
-        {
-            foodEntry = 8932;
-        }
-        else if (me->GetLevel() >= 35)
-        {
-            foodEntry = 3927;
-        }
-        else if (me->GetLevel() >= 25)
-        {
-            foodEntry = 1707;
-        }
-        else if (me->GetLevel() >= 15)
-        {
-            foodEntry = 422;
-        }
         else
         {
-            return false;
-        }
-        uint32 drinkEntry = 0;
-        if (me->GetLevel() >= 75)
-        {
-            drinkEntry = 33445;
-        }
-        else if (me->GetLevel() >= 65)
-        {
-            drinkEntry = 35954;
-        }
-        else if (me->GetLevel() >= 55)
-        {
-            drinkEntry = 18300;
-        }
-        else if (me->GetLevel() >= 45)
-        {
-            drinkEntry = 8766;
-        }
-        else if (me->GetLevel() >= 45)
-        {
-            drinkEntry = 8766;
-        }
-        else if (me->GetLevel() >= 35)
-        {
-            drinkEntry = 1645;
-        }
-        else if (me->GetLevel() >= 25)
-        {
-            drinkEntry = 1708;
-        }
-        else if (me->GetLevel() >= 15)
-        {
-            drinkEntry = 1205;
-        }
-
-        if (!me->HasItemCount(foodEntry, 1))
-        {
-            me->StoreNewItemInBestSlots(foodEntry, 20);
-        }
-        if (!me->HasItemCount(drinkEntry, 1))
-        {
-            me->StoreNewItemInBestSlots(drinkEntry, 20);
-        }
-
-        me->CombatStop(true);
-        me->GetMotionMaster()->Clear();
-        me->StopMoving();
-        me->SetSelection(ObjectGuid());
-
-        Item* pFood = sb->GetItemInInventory(foodEntry);
-        if (pFood && !pFood->IsInTrade())
-        {
-            if (sb->UseItem(pFood, me))
+            if (sb->Rest())
             {
                 soloState = RobotSoloState::RobotSoloState_Rest;
                 restDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                return true;
             }
-        }
-        Item* pDrink = sb->GetItemInInventory(drinkEntry);
-        if (pDrink && !pDrink->IsInTrade())
-        {
-            if (sb->UseItem(pDrink, me))
-            {
-                soloState = RobotSoloState::RobotSoloState_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
-            }
-        }
-        if (restDelay > 0)
-        {
-            return true;
         }
     }
 
@@ -508,7 +414,7 @@ bool Strategy_Solo::Heal()
     Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (me)
     {
-        return sb->Heal(me);
+        return sb->Heal(me, true);
     }
     return false;
 }
@@ -559,4 +465,25 @@ bool Strategy_Solo::Confuse()
         return true;
     }
     return false;
+}
+
+void Strategy_Solo::HandleChatCommand(Player* pmSender, std::string pmCMD)
+{
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return;
+    }
+    std::vector<std::string> commandVector = sRobotManager->SplitString(pmCMD, " ", true);
+    std::string commandName = commandVector.at(0);
+    if (commandName == "who")
+    {
+        sb->WhisperTo(sRobotManager->characterTalentTabNameMap[me->GetClass()][sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
+    }
+    else if (commandName == "prepare")
+    {
+        sb->Prepare();
+        sb->WhisperTo("I am prepared", Language::LANG_UNIVERSAL, pmSender);
+    }
 }

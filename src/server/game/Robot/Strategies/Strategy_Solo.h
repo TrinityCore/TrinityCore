@@ -28,6 +28,8 @@ public:
 	bool Stroll();
 	bool Confuse();
 
+    void HandleChatCommand(Player* pmSender, std::string pmCMD);
+
 public:
     uint32 realPrevTime;
     uint32 account;

@@ -1,8 +1,8 @@
 #ifndef ROBOT_STRATEGIES_PARTY_H
 #define ROBOT_STRATEGIES_PARTY_H
 
-#ifndef DPS_DEFAULT_DELAY
-# define DPS_DEFAULT_DELAY 4000
+#ifndef DPS_DEFAULT_DELAY_PARTY
+# define DPS_DEFAULT_DELAY_PARTY 4000
 #endif
 
 enum PartyRole :uint32
@@ -12,34 +12,52 @@ enum PartyRole :uint32
     PartyRole_Healer = 2,
 };
 
-enum RobotPartyState :uint32
+enum RobotPartyInstructionType :uint32
 {
-    RobotPartyState_None = 0,
-    RobotPartyState_Idle,
-    RobotPartyState_Battle,
-    RobotPartyState_Rest,
+    RobotPartyInstructionType_None = 0,
+    RobotPartyInstructionType_Follow,
+    RobotPartyInstructionType_Tank,
+    RobotPartyInstructionType_Attack,
+    RobotPartyInstructionType_Engage,
+};
+
+struct PartyInstruction
+{
+public:
+    PartyInstruction()
+    {
+        instructionType = RobotPartyInstructionType::RobotPartyInstructionType_None;
+    }
+
+    void Clear()
+    {
+        instructionType = RobotPartyInstructionType::RobotPartyInstructionType_None;
+        targetOG.Clear();
+    }
+
+    uint32 instructionType;
+    ObjectGuid targetOG;    
 };
 
 struct PartyMember
 {
 public:
-    PartyMember(uint32 pmCharacterID)
+    PartyMember(uint32 pmCharacterID, bool pmIsRobot = true)
     {
         character = pmCharacterID;
         partyRole = 0;
         assembleDelay = 0;
-        dpsDelay = DPS_DEFAULT_DELAY;
-        partyCombatTime = 0;
-        partyState = RobotPartyState::RobotPartyState_Idle;
+        restDelay = 0;
+        dpsDelay = DPS_DEFAULT_DELAY_PARTY;
         staying = false;
         holding = false;
         cure = true;
+        isRobot = pmIsRobot;
 
         ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
         Player* me = ObjectAccessor::FindConnectedPlayer(guid);
         if (!me)
         {
-            partyState = RobotPartyState::RobotPartyState_None;
             return;
         }
         switch (me->GetClass())
@@ -90,6 +108,8 @@ public:
             break;
         }
         }
+        sb->InitializeCharacter(me->GetLevel());
+        partyRole = sb->characterType;
     }
 
     uint32 character;
@@ -98,12 +118,14 @@ public:
 
     int32 assembleDelay;
     int32 dpsDelay;
-    int32 partyCombatTime;
+    int32 restDelay;
+    float followDistance;
 
-    uint32 partyState;
+    PartyInstruction instruction;
     bool staying;
     bool holding;
     bool cure;
+    bool isRobot;
 
     Script_Base* sb;
 };
@@ -113,23 +135,14 @@ class Strategy_Party
 public:
     Strategy_Party(uint32 pmID);    
     void Update();
-    std::unordered_map<uint32, PartyMember*> GetPartyMapByRole(uint32 pmRole);
-    bool Rest(bool pmForce = false);
-    bool Buff();    
-    bool Battle();
-    bool DPS();
-    bool DPS(Unit* pmTarget);
-    bool Tank();
-    bool Tank(Unit* pmTarget);
-    bool Attack(Unit* pmTarget);
-    bool Healer();
-    bool Follow();
-    bool Follow(float pmFollowDistance);
-    bool Stay();
+    bool PartyInCombat();        
+
+    void HandleChatCommand(Player* pmSender, std::string pmCMD);
 
 public:
     uint32 realPrevTime;
-    uint32 partyID;        
+    uint32 partyID;
+    int32 partyCombatTime;
     std::unordered_map<uint32, PartyMember*> memberMap;
 };
 #endif

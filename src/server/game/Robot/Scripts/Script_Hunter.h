@@ -5,19 +5,29 @@
 #define TAME_SPELL_ID 13481
 #endif
 
+#ifndef HUNTER_CLOSER_DISTANCE
+# define HUNTER_CLOSER_DISTANCE 25
+#endif
+
+#ifndef HUNTER_MIN_RANGE_DISTANCE
+# define HUNTER_MIN_RANGE_DISTANCE 6
+#endif
+
+#ifndef HUNTER_RANGE_DISTANCE
+# define HUNTER_RANGE_DISTANCE 30
+#endif
+
 #include "Script_Base.h"
-#include "RobotAI.h"
 
 class Script_Hunter :public Script_Base
 {
 public:
-    Script_Hunter(RobotAI* pmSourceAI);
-    virtual bool DPS(Unit* pmTarget);
-    virtual bool Tank(Unit* pmTarget);
-    virtual bool Healer();
-    virtual bool Attack(Unit* pmTarget);
-    virtual bool Buff();
-    virtual bool HealMe();
+    Script_Hunter(uint32 pmCharacterID);
+    bool DPS(Unit* pmTarget);
+    bool Tank(Unit* pmTarget);
+    bool Heal(Unit* pmTarget, bool pmCure);
+    bool Attack(Unit* pmTarget);
+    bool Buff(Unit* pmTarget, bool pmCure);
 
     void PetAttack(Pet* pmMyPet, Unit* pmTarget);
 

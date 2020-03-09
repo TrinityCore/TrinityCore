@@ -33,8 +33,13 @@
 # define RANGED_MAX_DISTANCE 30.0f
 #endif
 
+#ifndef ATTACK_RANGE_LIMIT
+# define ATTACK_RANGE_LIMIT 200.0f
+#endif
+
 #include "Unit.h"
 #include "Item.h"
+#include "Player.h"
 
 class Script_Base
 {
@@ -42,25 +47,36 @@ public:
 	Script_Base();
 	virtual bool DPS(Unit* pmTarget) = 0;
 	virtual bool Tank(Unit* pmTarget) = 0;
-	virtual bool Heal(Unit* pmTarget) = 0;
+	virtual bool Heal(Unit* pmTarget, bool pmCure) = 0;
 	virtual bool Attack(Unit* pmTarget) = 0;
-	virtual bool Buff(Unit* pmTarget) = 0;
+	virtual bool Buff(Unit* pmTarget, bool pmCure) = 0;
 
-    void InitializeCharacter(uint32 pmTargetLevel);    
+    void InitializeCharacter(uint32 pmTargetLevel);
+    void InitializeValues();
     void InitialEquipment(uint32 pmWeaponType, bool pmDual, uint32 pmArmorType, bool pmHasRange, uint32 pmRangeType, bool pmHasShield);
     bool EquipNewItem(uint32 pmEntry);
     bool EquipNewItem(uint32 pmEntry, uint8 pmEquipSlot);
     Item* GetItemInInventory(uint32 pmEntry);
     bool UseItem(Item* pmItem, Unit* pmTarget);
     bool ApplyGlyph(uint32 pmGlyphItemEntry, uint32 pmSlot);
+    uint32 FindSpellID(std::string pmSpellName);
+    bool SpellValid(uint32 pmSpellID);
+    bool CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDistance = MELEE_MAX_DISTANCE, bool pmCheckAura = false, bool pmOnlyMyAura = false);
+    bool HasAura(Unit* pmTarget, std::string pmSpellName, bool pmOnlyMyAura = false);
+    void ClearShapeshift();
+    void CancelAura(uint32 pmSpellID);
+    bool CancelAura(std::string pmSpellName);
+    bool Rest();
+    void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
     void RandomTeleport();
     void Prepare();
     void Logout();
 
-    void Chase(Unit* pmTarget, float pmMinDistance, float pmMaxDistance);
+    bool Chase(Unit* pmTarget, bool pmAttack = true, float pmMaxDistance = MELEE_MIN_DISTANCE, float pmMinDistance = MIN_DISTANCE_GAP);
+    bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
 
     uint32 account;
-    uint32 character;
+    uint32 character;    
 
     std::unordered_map<std::string, uint32> spellIDMap;
     std::unordered_map<std::string, uint8> spellLevelMap;

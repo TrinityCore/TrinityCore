@@ -1,73 +1,13 @@
 #include "Script_Priest.h"
-
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include "SpellAuraEffects.h"
+#include "RobotManager.h"
 #include "Group.h"
 
-#ifndef PRIEST_CLOSER_DISTANCE
-# define PRIEST_CLOSER_DISTANCE 25
-#endif
-
-#ifndef PRIEST_RANGE_DISTANCE
-# define PRIEST_RANGE_DISTANCE 30
-#endif
-
-Script_Priest::Script_Priest(RobotAI* pmSourceAI) :Script_Base(pmSourceAI)
+Script_Priest::Script_Priest(uint32 pmCharacterID) :Script_Base()
 {
-
-}
-
-bool Script_Priest::HealMe()
-{
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
-    float healthPCT = me->GetHealthPct();
-    if (healthPCT < 90)
-    {
-        if (!sourceAI->HasAura(me, "Weakened Soul"))
-        {
-            if (sourceAI->CastSpell(me, "Power Word: Shield"))
-            {
-                return true;
-            }
-        }
-        if (sourceAI->CastSpell(me, "Renew", PRIEST_RANGE_DISTANCE, true))
-        {
-            return true;
-        }
-    }
-    if (healthPCT < 50)
-    {
-        if (sourceAI->CastSpell(me, "Heal"))
-        {
-            return true;
-        }
-    }
-
-    if (sourceAI->cure)
-    {
-        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
-        {
-            std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
-            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
-            {
-                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-                if (!pST->IsPositive())
-                {
-                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
-                    {
-                        if (sourceAI->CastSpell(me, "Cure Disease"))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return false;
+    character = pmCharacterID;
 }
 
 bool Script_Priest::Tank(Unit* pmTarget)
@@ -75,139 +15,100 @@ bool Script_Priest::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Priest::Healer()
+bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
     }
-    Player* tank = NULL;
-    Player* lowestMember = NULL;
-    Group* myGroup = me->GetGroup();
-    if (myGroup)
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        return false;
+    }
+    Chase(pmTarget, false, PRIEST_RANGE_DISTANCE);
+    float healthPCT = pmTarget->GetHealthPct();
+    if (healthPCT < 30)
+    {
+        if (CastSpell(pmTarget, "Desperate Prayer", PRIEST_RANGE_DISTANCE))
         {
-            Player* member = groupRef->GetSource();
-            if (!member->IsAlive())
-            {
-                continue;
-            }
-            if (me->GetDistance(member) > 100.0f)
-            {
-                continue;
-            }
-            if (member->groupRole == 1)
-            {
-                tank = member;
-                break;
-            }
-            else
-            {
-                if (member->GetHealthPct() < 50.0f)
-                {
-                    if (lowestMember)
-                    {
-                        if (member->GetHealthPct() < lowestMember->GetHealthPct())
-                        {
-                            lowestMember = member;
-                        }
-                    }
-                    else
-                    {
-                        lowestMember = member;
-                    }
-                }
-            }
+            return true;
         }
     }
-
-    if (tank)
-    {           
-        sourceAI->BaseMove(tank, PRIEST_RANGE_DISTANCE, false);        
-        float healthPCT = tank->GetHealthPct();
-        if (healthPCT < 30)
+    if (healthPCT < 60)
+    {
+        if (CastSpell(pmTarget, "Greater Heal", PRIEST_RANGE_DISTANCE))
         {
-            if (sourceAI->CastSpell(tank, "Desperate Prayer", PRIEST_RANGE_DISTANCE))
-            {
-                return true;
-            }
+            return true;
         }
-        if (healthPCT < 60)
-        {            
-            if (sourceAI->CastSpell(tank, "Greater Heal", PRIEST_RANGE_DISTANCE))
-            {
-                return true;
-            }
-            if (sourceAI->CastSpell(tank, "Heal", PRIEST_RANGE_DISTANCE))
-            {
-                return true;
-            }
-        }
-        if (healthPCT < 80)
+        if (CastSpell(pmTarget, "Heal", PRIEST_RANGE_DISTANCE))
         {
-            Unit* tankTarget = tank->GetSelectedUnit();
-            if (tankTarget)
+            return true;
+        }
+    }
+    if (healthPCT < 80)
+    {
+        Unit* tankTarget = pmTarget->GetVictim();
+        if (tankTarget)
+        {
+            // when facing boss
+            if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
             {
-                // when facing boss
-                if (tankTarget->GetMaxHealth() / me->GetMaxHealth() > 3)
+                if (CastSpell(pmTarget, "Lightwell", PRIEST_RANGE_DISTANCE))
                 {
-                    if (sourceAI->CastSpell(tank, "Lightwell", PRIEST_RANGE_DISTANCE))
-                    {
-                        me->Yell("LIGHTWELL !", Language::LANG_UNIVERSAL);
-                        return true;
-                    }
-                }
-            }
-            if (sourceAI->CastSpell(tank, "Flash Heal", PRIEST_RANGE_DISTANCE))
-            {
-                return true;
-            }
-        }
-        if (healthPCT < 90)
-        {
-            if (!sourceAI->HasAura(tank, "Weakened Soul"))
-            {
-                if (sourceAI->CastSpell(tank, "Power Word: Shield", PRIEST_RANGE_DISTANCE))
-                {
+                    me->Yell("LIGHTWELL !", Language::LANG_UNIVERSAL);
                     return true;
                 }
             }
-            if (sourceAI->CastSpell(tank, "Renew", PRIEST_RANGE_DISTANCE, true))
+        }
+        if (CastSpell(pmTarget, "Flash Heal", PRIEST_RANGE_DISTANCE))
+        {
+            return true;
+        }
+    }
+    if (healthPCT < 90)
+    {
+        if (!HasAura(pmTarget, "Weakened Soul"))
+        {
+            if (CastSpell(pmTarget, "Power Word: Shield", PRIEST_RANGE_DISTANCE))
             {
                 return true;
             }
         }
-
-        if (sourceAI->cure)
+        if (CastSpell(pmTarget, "Renew", PRIEST_RANGE_DISTANCE, true))
         {
-            for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+            return true;
+        }
+    }
+
+    if (pmCure)
+    {
+        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+        {
+            std::list<AuraEffect*> auraList = pmTarget->GetAuraEffectsByType((AuraType)type);
+            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
             {
-                std::list<AuraEffect*> auraList = tank->GetAuraEffectsByType((AuraType)type);
-                for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                if (!pST->IsPositive())
                 {
-                    const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-                    if (!pST->IsPositive())
+                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
                     {
-                        if (pST->Dispel == DispelType::DISPEL_DISEASE)
+                        if (CastSpell(pmTarget, "Cure Disease"))
                         {
-                            if (sourceAI->CastSpell(tank, "Cure Disease"))
-                            {
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }
             }
-        }
-    }
-    if (lowestMember)
-    {
-        sourceAI->BaseMove(lowestMember, PRIEST_RANGE_DISTANCE, false);
-        if (sourceAI->CastSpell(lowestMember, "Renew", PRIEST_RANGE_DISTANCE, true))
-        {
-            return true;
         }
     }
 
@@ -221,16 +122,7 @@ bool Script_Priest::DPS(Unit* pmTarget)
 
 bool Script_Priest::DPS_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -238,28 +130,36 @@ bool Script_Priest::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
-    sourceAI->BaseMove(pmTarget, PRIEST_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, PRIEST_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", PRIEST_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", PRIEST_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Shadow Word: Pain", PRIEST_RANGE_DISTANCE, true, true))
+    if (CastSpell(pmTarget, "Shadow Word: Pain", PRIEST_RANGE_DISTANCE, true, true))
     {
         return true;
     }
-    if (sourceAI->CastSpell(pmTarget, "Smite", PRIEST_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Smite", PRIEST_RANGE_DISTANCE))
     {
         return true;
     }
@@ -274,16 +174,7 @@ bool Script_Priest::Attack(Unit* pmTarget)
 
 bool Script_Priest::Attack_Common(Unit* pmTarget)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
-    {
-        return false;
-    }
     if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
     }
@@ -291,28 +182,36 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    float targetDistance = me->GetDistance(pmTarget);
-    if (targetDistance > 200)
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
     {
         return false;
     }
-
-    sourceAI->BaseMove(pmTarget, PRIEST_CLOSER_DISTANCE, false);
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    Chase(pmTarget, false, PRIEST_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
         {
-            if (sourceAI->CastSpell(pmTarget, "Shoot", PRIEST_RANGE_DISTANCE))
+            if (CastSpell(pmTarget, "Shoot", PRIEST_RANGE_DISTANCE))
             {
                 return true;
             }
         }
     }
-    if (sourceAI->CastSpell(pmTarget, "Shadow Word: Pain", PRIEST_RANGE_DISTANCE, true, true))
+    if (CastSpell(pmTarget, "Shadow Word: Pain", PRIEST_RANGE_DISTANCE, true, true))
     {
         return true;
     }
-    if (sourceAI->CastSpell(pmTarget, "Smite", PRIEST_RANGE_DISTANCE))
+    if (CastSpell(pmTarget, "Smite", PRIEST_RANGE_DISTANCE))
     {
         return true;
     }
@@ -320,74 +219,44 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
     return true;
 }
 
-bool Script_Priest::Buff()
+bool Script_Priest::Buff(Unit* pmTarget, bool pmCure)
 {
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (!me)
     {
         return false;
     }
-    if (sourceAI->CastSpell(me, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
+    if (me->GetDistance(pmTarget) < PRIEST_RANGE_DISTANCE)
     {
-        return true;
-    }
-
-    for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
-    {
-        std::list<AuraEffect*> auraList = me->GetAuraEffectsByType((AuraType)type);
-        for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+        if (CastSpell(pmTarget, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
         {
-            const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-            if (!pST->IsPositive())
-            {
-                if (pST->Dispel == DispelType::DISPEL_DISEASE)
-                {
-                    if (sourceAI->CastSpell(me, "Cure Disease"))
-                    {
-                        return true;
-                    }
-                }
-            }
+            return true;
         }
-    }
-    Group* myGroup = me->GetGroup();
-    if (myGroup)
-    {
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-        {
-            Player* member = groupRef->GetSource();
-            if (member)
-            {
-                if (member->GetGUID() == me->GetGUID())
-                {
-                    continue;
-                }
-                float targetDistance = me->GetDistance(member);
-                if (targetDistance < PRIEST_RANGE_DISTANCE)
-                {
-                    if (sourceAI->CastSpell(member, "Power Word: Fortitude", PRIEST_RANGE_DISTANCE, true))
-                    {
-                        return true;
-                    }
 
-                    if (sourceAI->cure)
+        if (pmCure)
+        {
+            for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+            {
+                std::list<AuraEffect*> auraList = pmTarget->GetAuraEffectsByType((AuraType)type);
+                for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+                {
+                    const SpellInfo* pST = (*auraIT)->GetSpellInfo();
+                    if (!pST->IsPositive())
                     {
-                        for (uint32 type = SPELL_AURA_NONE; type < TOTAL_AURAS; ++type)
+                        if (pST->Dispel == DispelType::DISPEL_DISEASE)
                         {
-                            std::list<AuraEffect*> auraList = member->GetAuraEffectsByType((AuraType)type);
-                            for (auto auraIT = auraList.begin(), end = auraList.end(); auraIT != end; ++auraIT)
+                            if (CastSpell(pmTarget, "Cure Disease"))
                             {
-                                const SpellInfo* pST = (*auraIT)->GetSpellInfo();
-                                if (!pST->IsPositive())
-                                {
-                                    if (pST->Dispel == DispelType::DISPEL_DISEASE)
-                                    {
-                                        if (sourceAI->CastSpell(member, "Cure Disease"))
-                                        {
-                                            return true;
-                                        }
-                                    }
-                                }
+                                return true;
                             }
                         }
                     }

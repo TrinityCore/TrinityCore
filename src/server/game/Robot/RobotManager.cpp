@@ -71,17 +71,17 @@ void RobotManager::InitializeManager()
     } while (robotNamesQR->NextRow());
 
     availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = RACE_HUMAN;
-    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_NIGHTELF;
-    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_GNOME;
-    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_DWARF;
-    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_ORC;
-    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_UNDEAD_PLAYER;
-    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_TAUREN;
-    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=RACE_TROLL;
-    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()]=Races::RACE_DRAENEI;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = RACE_NIGHTELF;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = RACE_GNOME;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = RACE_DWARF;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = RACE_ORC;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = RACE_UNDEAD_PLAYER;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = RACE_TAUREN;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = RACE_TROLL;
+    availableRaces[CLASS_WARRIOR][availableRaces[CLASS_WARRIOR].size()] = Races::RACE_DRAENEI;
 
-    availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()]=RACE_HUMAN;
-    availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()]=RACE_DWARF;
+    availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()] = RACE_HUMAN;
+    availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()] = RACE_DWARF;
     availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()] = Races::RACE_DRAENEI;
     availableRaces[CLASS_PALADIN][availableRaces[CLASS_PALADIN].size()] = Races::RACE_BLOODELF;
 
@@ -507,55 +507,6 @@ void RobotManager::UpdateRobotManager()
     {
         srIT->second->Update();
     }
-
-    for (std::unordered_map<uint32, RobotEntity*>::iterator seIT = robotMap.begin(); seIT != robotMap.end(); seIT++)
-    {
-        if (Player* onlinePlayer = ObjectAccessor::FindConnectedPlayer(seIT->second->characterGUID))
-        {
-            if (Group* checkGroup = onlinePlayer->GetGroup())
-            {
-                if (soloStrategyMap.find(seIT->first) != soloStrategyMap.end())
-                {
-                    delete seIT->second;
-                    soloStrategyMap.erase(seIT->first);
-                }
-                if (checkGroup->isRaidGroup())
-                {
-                    if (partyStrategyMap.find(checkGroup->GetLowGUID()) != partyStrategyMap.end())
-                    {
-                        delete partyStrategyMap[checkGroup->GetLowGUID()];
-                        partyStrategyMap.erase(checkGroup->GetLowGUID());
-                    }
-                    if (raidStrategyMap.find(checkGroup->GetLowGUID()) == raidStrategyMap.end())
-                    {
-                        Strategy_Raid* sp = new Strategy_Raid(checkGroup->GetLowGUID());
-                        raidStrategyMap[checkGroup->GetLowGUID()] = sp;
-                    }
-                    if (raidStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.find(onlinePlayer->GetSession()->GetAccountId()) == raidStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.end())
-                    {
-                        raidStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.insert(onlinePlayer->GetSession()->GetAccountId());
-                    }
-                }
-                else
-                {
-                    if (raidStrategyMap.find(checkGroup->GetLowGUID()) != raidStrategyMap.end())
-                    {
-                        delete raidStrategyMap[checkGroup->GetLowGUID()];
-                        raidStrategyMap.erase(checkGroup->GetLowGUID());
-                    }
-                    if (partyStrategyMap.find(checkGroup->GetLowGUID()) == partyStrategyMap.end())
-                    {
-                        Strategy_Party* sp = new Strategy_Party(checkGroup->GetLowGUID());
-                        partyStrategyMap[checkGroup->GetLowGUID()] = sp;
-                    }
-                    if (partyStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.find(onlinePlayer->GetSession()->GetAccountId()) == partyStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.end())
-                    {
-                        partyStrategyMap[checkGroup->GetLowGUID()]->memberSessionIDSet.insert(onlinePlayer->GetSession()->GetAccountId());
-                    }
-                }
-            }
-        }
-    }
 }
 
 bool RobotManager::DeleteRobots()
@@ -664,7 +615,7 @@ uint32 RobotManager::CheckAccountCharacter(uint32 pmAccountID)
     if (characterQR)
     {
         Field* characterFields = characterQR->Fetch();
-        result = characterFields[0].GetUInt32();        
+        result = characterFields[0].GetUInt32();
     }
     return result;
 }
@@ -818,30 +769,77 @@ void RobotManager::LogoutRobots()
 
 void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
 {
-    std::vector<std::string> commandVector = sRobotManager->SplitString(pmContent, " ", true);
+    std::vector<std::string> commandVector = SplitString(pmContent, " ", true);
     std::string commandName = commandVector.at(0);
     if (commandName == "role")
     {
         std::ostringstream replyStream;
+        uint32 checkRole = 0;
+        if (Group* checkGroup = pmPlayer->GetGroup())
+        {
+            if (checkGroup->isRaidGroup())
+            {
+                //if (sRobotManager->raidStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
+                //{
+                //    if (sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap.end())
+                //    {
+                //        checkRole = sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap[pmPlayer->GetGUID().GetCounter()]->partyRole;
+                //    }
+                //}
+            }
+            else
+            {
+                if (sRobotManager->partyStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+                {
+                    if (sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap.end())
+                    {
+                        checkRole = sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap[pmPlayer->GetGUID().GetCounter()]->partyRole;
+                    }
+                }
+            }
+        }
         if (commandVector.size() > 1)
         {
             std::string newRole = commandVector.at(1);
             if (newRole == "dps")
             {
-                pmPlayer->groupRole = 0;
+                checkRole = PartyRole::PartyRole_DPS;
             }
             else if (newRole == "tank")
             {
-                pmPlayer->groupRole = 1;
+                checkRole = PartyRole::PartyRole_Tank;
             }
             else if (newRole == "healer")
             {
-                pmPlayer->groupRole = 2;
+                checkRole = PartyRole::PartyRole_Healer;
+            }
+            if (Group* checkGroup = pmPlayer->GetGroup())
+            {
+                if (checkGroup->isRaidGroup())
+                {
+                    //if (sRobotManager->raidStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
+                    //{
+                    //    if (sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap.end())
+                    //    {
+                    //        checkRole = sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap[pmPlayer->GetGUID().GetCounter()]->partyRole;
+                    //    }
+                    //}
+                }
+                else
+                {
+                    if (sRobotManager->partyStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+                    {
+                        if (sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap.end())
+                        {
+                            sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap[pmPlayer->GetGUID().GetCounter()]->partyRole = checkRole;
+                        }
+                    }
+                }
             }
         }
 
         replyStream << "Your group role is ";
-        switch (pmPlayer->groupRole)
+        switch (checkRole)
         {
         case 0:
         {

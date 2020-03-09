@@ -13,31 +13,17 @@
 #include "Pet.h"
 #include "GridNotifiers.h"
 #include "GroupMgr.h"
+#include "FollowMovementGenerator.h"
+#include "Map.h"
+#include "SpellMgr.h"
+#include "ThreatManager.h"
 
 Strategy_Party::Strategy_Party(uint32 pmID)
 {
-    realPrevTime = 0;    
+    realPrevTime = 0;
     partyID = pmID;
+    partyCombatTime = 0;
     memberMap.clear();
-}
-
-std::unordered_map<uint32, PartyMember*> Strategy_Party::GetPartyMapByRole(uint32 pmRole)
-{
-    std::unordered_map<uint32, PartyMember*> result;
-
-    for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
-    {
-        if (!sRobotManager->IsRobot(pmIT->first))
-        {
-            continue;
-        }
-        if (pmIT->second->partyRole == pmRole)
-        {
-            result[pmIT->second->character] = pmIT->second;
-        }
-    }
-
-    return result;
 }
 
 void Strategy_Party::Update()
@@ -46,30 +32,37 @@ void Strategy_Party::Update()
     uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
     realPrevTime = realCurrTime;
 
+    if (PartyInCombat())
+    {
+        partyCombatTime += diff;
+    }
+    else
+    {
+        partyCombatTime = 0;
+    }
+
     if (Group* party = sGroupMgr->GetGroupByGUID(partyID))
     {
         for (GroupReference* groupRef = party->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
         {
             Player* member = groupRef->GetSource();
-            if (!sRobotManager->IsRobot(member->GetGUID().GetCounter()))
-            {
-                continue;
-            }
             if (memberMap.find(member->GetGUID().GetCounter()) == memberMap.end())
             {
-                PartyMember* pm = new PartyMember(member->GetGUID().GetCounter());
-                pm->sb->InitializeCharacter(member->GetLevel());
-                pm->partyRole = pm->sb->characterType;
+                PartyMember* pm = new PartyMember(member->GetGUID().GetCounter(), sRobotManager->IsRobot(member->GetGUID().GetCounter()));
+                if (pm->isRobot)
+                {
+                    pm->sb->InitializeCharacter(member->GetLevel());
+                }
+                else
+                {
+                    pm->sb->InitializeValues();
+                }
             }
         }
     }
 
     for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
     {
-        if (!sRobotManager->IsRobot(pmIT->first))
-        {
-            continue;
-        }       
         if (Player* eachMember = ObjectAccessor::FindPlayerByLowGUID(pmIT->second->character))
         {
             if (Group* eachGroup = eachMember->GetGroup())
@@ -92,704 +85,1241 @@ void Strategy_Party::Update()
             memberMap.erase(pmIT->second->character);
         }
     }
-    
-    std::unordered_map<uint32, PartyMember*> healerMap = GetPartyMapByRole(PartyRole::PartyRole_Healer);
-    std::unordered_map<uint32, PartyMember*> tankMap = GetPartyMapByRole(PartyRole::PartyRole_Tank);
-    std::unordered_map<uint32, PartyMember*> dpsMap = GetPartyMapByRole(PartyRole::PartyRole_DPS);
-    for (std::unordered_map<uint32, PartyMember*>::iterator healerIT = healerMap.begin(); healerIT != healerMap.end(); healerIT++)
+
+    std::unordered_map<uint32, std::unordered_map<uint32, PartyMember*>> roleMap;
+    for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
     {
-        ObjectGuid healerGUID = ObjectGuid(HighGuid::Player, healerIT->first);
-        if (Player* healer = ObjectAccessor::FindConnectedPlayer(healerGUID))
+        if (pmIT->second->instruction.instructionType == RobotPartyInstructionType::RobotPartyInstructionType_None)
         {
-            if (healer->IsInCombat())
+            roleMap[pmIT->second->partyRole][pmIT->second->character] = pmIT->second;
+        }
+        else
+        {
+            // handle instruction
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
             {
-                std::unordered_map<ObjectGuid, Unit*> otAttackers;
-                for (Unit::AttackerSet::const_iterator attackerIT = healer->getAttackers().begin(); attackerIT != healer->getAttackers().end(); attackerIT++)
+                Unit* targetUnit = NULL;
+                if (pmIT->second->instruction.targetOG.GetHigh() == HighGuid::Player)
                 {
-                    if (Unit* eachAttacker = *attackerIT)
+                    targetUnit = ObjectAccessor::FindConnectedPlayer(pmIT->second->instruction.targetOG);
+                }
+                else
+                {
+                    if (Map* currentMap = member->GetMap())
                     {
-                        if (eachAttacker->GetTarget() == healerGUID)
+                        if (pmIT->second->instruction.targetOG.GetHigh() == HighGuid::Unit)
                         {
-                            otAttackers[eachAttacker->GetGUID()] = eachAttacker;                            
+                            targetUnit = currentMap->GetCreature(pmIT->second->instruction.targetOG);
                         }
                     }
                 }
-                for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = tankMap.begin(); tankIT != tankMap.end(); tankIT++)
+                switch (pmIT->second->instruction.instructionType)
                 {
-                    ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, tankIT->first);
-                    if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                case RobotPartyInstructionType::RobotPartyInstructionType_Attack:
+                {
+                    if (pmIT->second->partyRole == PartyRole::PartyRole_Healer)
                     {
-                        if (otAttackers.find(tank->GetTarget()) == otAttackers.end())
-                        {                            
-                            tankIT->second->sb->Tank(otAttackers.begin()->second);
+                        pmIT->second->instruction.Clear();
+                    }
+                    if (!pmIT->second->sb->Attack(targetUnit))
+                    {
+                        pmIT->second->instruction.Clear();
+                    }
+                    break;
+                }
+                case RobotPartyInstructionType::RobotPartyInstructionType_Engage:
+                {
+                    if (pmIT->second->partyRole == PartyRole::PartyRole_Healer)
+                    {
+                        pmIT->second->instruction.Clear();
+                    }
+                    if (!pmIT->second->sb->Attack(targetUnit))
+                    {
+                        pmIT->second->instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_None;
+                    }
+                    else
+                    {
+                        if (targetUnit->CanHaveThreatList())
+                        {
+                            if (member->GetThreatManager().GetThreatenedByMeList().find(targetUnit->GetGUID()) != member->GetThreatManager().GetThreatenedByMeList().end())
+                            {
+                                pmIT->second->instruction.Clear();
+                            }
+                        }
+                    }
+                    break;
+                }
+                case RobotPartyInstructionType::RobotPartyInstructionType_Follow:
+                {
+                    if (!targetUnit)
+                    {
+                        pmIT->second->instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_None;
+                    }
+                    else
+                    {
+                        if (member->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
+                        {
+                            FollowMovementGenerator* mg = (FollowMovementGenerator*)member->GetMotionMaster()->GetCurrentMovementGenerator();
+                            if (mg)
+                            {
+                                if (mg->GetTarget())
+                                {
+                                    if (mg->GetTarget()->GetGUID() == targetUnit->GetGUID())
+                                    {
+                                        pmIT->second->instruction.Clear();
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        member->StopMoving();
+                        member->GetMotionMaster()->MoveFollow(targetUnit, pmIT->second->followDistance, ChaseAngle(0, 2 * M_PI));
+                    }
+                    break;
+                }
+                case RobotPartyInstructionType::RobotPartyInstructionType_Tank:
+                {
+                    if (pmIT->second->partyRole != PartyRole::PartyRole_Tank)
+                    {
+                        pmIT->second->instruction.Clear();
+                    }
+                    if (pmIT->second->partyRole != PartyRole::PartyRole_Tank)
+                    {
+                        pmIT->second->instruction.Clear();
+                    }
+                    else if (!pmIT->second->sb->Attack(targetUnit))
+                    {
+                        pmIT->second->instruction.Clear();
+                    }
+                    else
+                    {
+                        if (targetUnit->GetTarget() == member->GetGUID())
+                        {
+                            pmIT->second->instruction.Clear();
+
+                        }
+                    }
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+                }
+            }
+        }
+    }
+
+    if (roleMap.find(PartyRole::PartyRole_Healer) != roleMap.end())
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator healerIT = roleMap[PartyRole::PartyRole_Healer].begin(); healerIT != roleMap[PartyRole::PartyRole_Healer].end(); healerIT++)
+        {
+            if (!healerIT->second->isRobot)
+            {
+                continue;
+            }
+            ObjectGuid healerGUID = ObjectGuid(HighGuid::Player, healerIT->first);
+            if (Player* healer = ObjectAccessor::FindConnectedPlayer(healerGUID))
+            {
+                if (healerIT->second->assembleDelay > 0)
+                {
+                    healerIT->second->assembleDelay -= diff;
+                    if (healerIT->second->assembleDelay < 0)
+                    {
+                        if (Group* party = sGroupMgr->GetGroupByGUID(partyID))
+                        {
+                            if (Player* master = ObjectAccessor::FindConnectedPlayer(party->GetLeaderGUID()))
+                            {
+                                healer->GetThreatManager().ClearAllThreat();
+                                if (!healer->IsAlive())
+                                {
+                                    healer->ResurrectPlayer(10.0f);
+                                }
+                                healer->TeleportTo(master->GetWorldLocation());
+                                continue;
+                            }
+                        }
+                    }
+                }
+                bool actioned = false;
+                if (healer->IsInCombat())
+                {
+                    std::unordered_map<ObjectGuid, Unit*> otAttackers;
+                    for (Unit::AttackerSet::const_iterator attackerIT = healer->getAttackers().begin(); attackerIT != healer->getAttackers().end(); attackerIT++)
+                    {
+                        if (Unit* eachAttacker = *attackerIT)
+                        {
+                            if (eachAttacker->GetTarget() == healerGUID)
+                            {
+                                otAttackers[eachAttacker->GetGUID()] = eachAttacker;
+                            }
+                        }
+                    }
+                    if (otAttackers.size() > 0)
+                    {
+                        if (roleMap.find(PartyRole::PartyRole_Tank) != roleMap.end())
+                        {
+                            for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = roleMap[PartyRole::PartyRole_Tank].begin(); tankIT != roleMap[PartyRole::PartyRole_Tank].end(); tankIT++)
+                            {
+                                tankIT->second->instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_Tank;
+                                tankIT->second->instruction.targetOG = otAttackers.begin()->first;
+                            }
+                        }
+                    }
+                    if (roleMap.find(PartyRole::PartyRole_Tank) != roleMap.end())
+                    {
+                        for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = roleMap[PartyRole::PartyRole_Tank].begin(); tankIT != roleMap[PartyRole::PartyRole_Tank].end(); tankIT++)
+                        {
+                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, tankIT->first);
+                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                            {
+                                if (healerIT->second->sb->Heal(tank, healerIT->second->cure))
+                                {
+                                    actioned = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (actioned)
+                    {
+                        continue;
+                    }
+                    if (roleMap.find(PartyRole::PartyRole_DPS) != roleMap.end())
+                    {
+                        for (std::unordered_map<uint32, PartyMember*>::iterator dpsIT = roleMap[PartyRole::PartyRole_DPS].begin(); dpsIT != roleMap[PartyRole::PartyRole_DPS].end(); dpsIT++)
+                        {
+                            ObjectGuid dpsGUID = ObjectGuid(HighGuid::Player, dpsIT->first);
+                            if (Player* dps = ObjectAccessor::FindConnectedPlayer(dpsGUID))
+                            {
+                                if (dps->GetHealthPct() < 40.0f)
+                                {
+                                    if (healerIT->second->sb->Heal(dps, healerIT->second->cure))
+                                    {
+                                        actioned = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (healerIT->second->restDelay > 0)
+                    {
+                        healerIT->second->restDelay -= diff;
+                        continue;
+                    }
+                    if (roleMap.find(PartyRole::PartyRole_Tank) != roleMap.end())
+                    {
+                        for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = roleMap[PartyRole::PartyRole_Tank].begin(); tankIT != roleMap[PartyRole::PartyRole_Tank].end(); tankIT++)
+                        {
+                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, tankIT->first);
+                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                            {
+                                if (healerIT->second->sb->Heal(tank, healerIT->second->cure))
+                                {
+                                    actioned = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (actioned)
+                    {
+                        continue;
+                    }
+                    if (roleMap.find(PartyRole::PartyRole_DPS) != roleMap.end())
+                    {
+                        for (std::unordered_map<uint32, PartyMember*>::iterator dpsIT = roleMap[PartyRole::PartyRole_DPS].begin(); dpsIT != roleMap[PartyRole::PartyRole_DPS].end(); dpsIT++)
+                        {
+                            ObjectGuid dpsGUID = ObjectGuid(HighGuid::Player, dpsIT->first);
+                            if (Player* dps = ObjectAccessor::FindConnectedPlayer(dpsGUID))
+                            {
+                                if (dps->GetHealthPct() < 40.0f)
+                                {
+                                    if (healerIT->second->sb->Heal(dps, healerIT->second->cure))
+                                    {
+                                        actioned = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (actioned)
+                    {
+                        continue;
+                    }
+                    if (roleMap.find(PartyRole::PartyRole_Tank) != roleMap.end())
+                    {
+                        for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = roleMap[PartyRole::PartyRole_Tank].begin(); tankIT != roleMap[PartyRole::PartyRole_Tank].end(); tankIT++)
+                        {
+                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, tankIT->first);
+                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                            {
+                                if (healerIT->second->sb->Buff(tank, healerIT->second->cure))
+                                {
+                                    actioned = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (actioned)
+                    {
+                        continue;
+                    }
+                    if (roleMap.find(PartyRole::PartyRole_DPS) != roleMap.end())
+                    {
+                        for (std::unordered_map<uint32, PartyMember*>::iterator dpsIT = roleMap[PartyRole::PartyRole_DPS].begin(); dpsIT != roleMap[PartyRole::PartyRole_DPS].end(); dpsIT++)
+                        {
+                            ObjectGuid dpsGUID = ObjectGuid(HighGuid::Player, dpsIT->first);
+                            if (Player* dps = ObjectAccessor::FindConnectedPlayer(dpsGUID))
+                            {
+                                if (healerIT->second->sb->Buff(dps, healerIT->second->cure))
+                                {
+                                    actioned = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (actioned)
+                    {
+                        continue;
+                    }
+                    if (roleMap.find(PartyRole::PartyRole_Tank) != roleMap.end())
+                    {
+                        for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = roleMap[PartyRole::PartyRole_Tank].begin(); tankIT != roleMap[PartyRole::PartyRole_Tank].end(); tankIT++)
+                        {
+                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, tankIT->first);
+                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                            {
+                                if (healerIT->second->sb->Follow(tank, healerIT->second->followDistance))
+                                {
+                                    actioned = true;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
-    
-    
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me)
+
+    if (roleMap.find(PartyRole::PartyRole_DPS) != roleMap.end())
     {
-        return;
-    }
-    Player* master = ObjectAccessor::FindConnectedPlayer(sourceAI->masterGUID);
-    if (!master)
-    {
-        // wait for checking to reset
-        return;
-    }
-    if (!me->GetGroup())
-    {
-        sourceAI->ResetStrategy();
-        return;
-    }
-    if (!me->IsInSameRaidWith(master))
-    {
-        return;
-    }
-    if (sourceAI->restDelay > 0)
-    {
-        sourceAI->restDelay -= pmDiff;
-        if (sourceAI->restDelay == 0)
+        for (std::unordered_map<uint32, PartyMember*>::iterator dpsIT = roleMap[PartyRole::PartyRole_DPS].begin(); dpsIT != roleMap[PartyRole::PartyRole_DPS].end(); dpsIT++)
         {
-            sourceAI->restDelay = -1;
-        }
-    }
-    if (assembleDelay > 0)
-    {
-        assembleDelay -= pmDiff;
-        if (assembleDelay == 0)
-        {
-            assembleDelay = -1;
-        }
-        if (assembleDelay < 0)
-        {
-            if (master) {
-                sourceAI->WhisperTo("I have come", Language::LANG_UNIVERSAL, master);
-                if (!me->IsAlive())
-                {
-                    me->ResurrectPlayer(0.1f);
-                }
-                instruction = Group_Instruction::Group_Instruction_Wander;
-                me->ClearInCombat();
-                me->GetThreatManager().ClearAllThreat();
-                me->GetMotionMaster()->Clear();
-                me->StopMoving();
-                me->TeleportTo(master->GetMapId(), master->GetPositionX(), master->GetPositionY(), master->GetPositionZ(), master->GetOrientation());
-            }
-            assembleDelay = 0;
-            return;
-        }
-    }
-    if (me->IsBeingTeleported())
-    {
-        return;
-    }
-    if (!me->IsAlive())
-    {
-        sourceAI->restDelay = 0;
-        return;
-    }
-    Group* myGroup = me->GetGroup();
-    if (!master)
-    {
-        sourceAI->ResetStrategy();
-        me->Say("I do not have a master. I will reset my strategy", Language::LANG_UNIVERSAL);
-        return;
-    }
-    if (!myGroup)
-    {
-        sourceAI->ResetStrategy();
-        me->Say("I am not in a group. I will reset my strategy", Language::LANG_UNIVERSAL);
-        return;
-    }
-    if (sourceAI->staying)
-    {
-        return;
-    }
-    if (me->IsNonMeleeSpellCast(false, false, true))
-    {
-        return;
-    }
-    if (GroupInCombat())
-    {
-        sourceAI->restDelay = 0;
-        groupCombatTime += pmDiff;
-        instruction = Group_Instruction::Group_Instruction_Battle;
-    }
-    else
-    {
-        groupCombatTime = 0;
-    }
-    switch (instruction)
-    {
-    case Group_Instruction::Group_Instruction_None:
-    {
-        instruction = Group_Instruction::Group_Instruction_Wander;
-        break;
-    }
-    case Group_Instruction::Group_Instruction_Wander:
-    {
-        if (Rest())
-        {
-            return;
-        }
-        if (Buff())
-        {
-            return;
-        }
-        if (Follow())
-        {
-            return;
-        }
-        break;
-    }
-    case Group_Instruction::Group_Instruction_Battle:
-    {
-        if (!GroupInCombat())
-        {
-            if (me->GetClass() == Classes::CLASS_HUNTER)
+            ObjectGuid dpsGUID = ObjectGuid(HighGuid::Player, dpsIT->first);
+            if (Player* dps = ObjectAccessor::FindConnectedPlayer(dpsGUID))
             {
-                me->HandleEmoteCommand(Emote::EMOTE_ONESHOT_CHEER);
-            }
-            instruction = Group_Instruction::Group_Instruction_Wander;
-            return;
-        }
-        if (Battle())
-        {
-            return;
-        }
-        if (Follow())
-        {
-            return;
-        }
-        break;
-    }
-    case Group_Instruction::Group_Instruction_Rest:
-    {
-        if (sourceAI->restDelay <= 0)
-        {
-            sourceAI->restDelay = 0;
-            instruction = Group_Instruction::Group_Instruction_Wander;
-            return;
-        }
-        break;
-    }
-    default:
-    {
-        break;
-    }
-    }
-}
-
-bool Strategy_Party::Rest(bool pmForce)
-{
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (GroupInCombat())
-    {
-        return false;
-    }
-    else
-    {
-        if (!pmForce)
-        {
-            float hpRate = me->GetHealthPct();
-            float mpRate = 100;
-            if (me->GetPowerType() == Powers::POWER_MANA)
-            {
-                mpRate = me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA);
-            }
-            if (hpRate > 30 && mpRate > 30)
-            {
-                return false;
-            }
-        }
-        uint32 foodEntry = 0;
-        if (me->GetLevel() >= 75)
-        {
-            foodEntry = 35950;
-        }
-        else if (me->GetLevel() >= 65)
-        {
-            foodEntry = 33449;
-        }
-        else if (me->GetLevel() >= 55)
-        {
-            foodEntry = 21023;
-        }
-        else if (me->GetLevel() >= 45)
-        {
-            foodEntry = 8932;
-        }
-        else if (me->GetLevel() >= 35)
-        {
-            foodEntry = 3927;
-        }
-        else if (me->GetLevel() >= 25)
-        {
-            foodEntry = 1707;
-        }
-        else if (me->GetLevel() >= 15)
-        {
-            foodEntry = 422;
-        }
-        uint32 drinkEntry = 0;
-        if (me->GetLevel() >= 75)
-        {
-            drinkEntry = 33445;
-        }
-        else if (me->GetLevel() >= 65)
-        {
-            drinkEntry = 35954;
-        }
-        else if (me->GetLevel() >= 55)
-        {
-            drinkEntry = 18300;
-        }
-        else if (me->GetLevel() >= 45)
-        {
-            drinkEntry = 8766;
-        }
-        else if (me->GetLevel() >= 35)
-        {
-            drinkEntry = 1645;
-        }
-        else if (me->GetLevel() >= 25)
-        {
-            drinkEntry = 1708;
-        }
-        else if (me->GetLevel() >= 15)
-        {
-            drinkEntry = 1205;
-        }
-
-        if (!me->HasItemCount(foodEntry, 1))
-        {
-            me->StoreNewItemInBestSlots(foodEntry, 20);
-        }
-        if (!me->HasItemCount(drinkEntry, 1))
-        {
-            me->StoreNewItemInBestSlots(drinkEntry, 20);
-        }
-
-        me->CombatStop(true);
-        me->GetMotionMaster()->Clear();
-        me->StopMoving();
-        me->SetSelection(ObjectGuid());
-
-        sourceAI->ClearShapeshift();
-        Item* pFood = sourceAI->GetItemInInventory(foodEntry);
-        if (pFood && !pFood->IsInTrade())
-        {
-            if (sourceAI->UseItem(pFood, me))
-            {
-                instruction = Group_Instruction::Group_Instruction_Rest;
-                sourceAI->restDelay = 20 * TimeConstants::IN_MILLISECONDS;
-            }
-        }
-        Item* pDrink = sourceAI->GetItemInInventory(drinkEntry);
-        if (pDrink && !pDrink->IsInTrade())
-        {
-            if (sourceAI->UseItem(pDrink, me))
-            {
-                instruction = Group_Instruction::Group_Instruction_Rest;
-                sourceAI->restDelay = 20 * TimeConstants::IN_MILLISECONDS;
-            }
-        }
-        if (sourceAI->restDelay > 0)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool Strategy_Party::Buff()
-{
-    return sourceAI->s_base->Buff();
-}
-
-bool Strategy_Party::Battle()
-{
-    bool result = false;
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    switch (me->groupRole)
-    {
-    case 0:
-    {
-        if (groupCombatTime > dpsDelay)
-        {
-            result = DPS();
-        }
-        break;
-    }
-    case 1:
-    {
-        result = Tank();
-        break;
-    }
-    case 2:
-    {
-        result = Healer();
-        break;
-    }
-    default:
-    {
-        break;
-    }
-    }
-    if (result)
-    {
-        instruction = Group_Instruction::Group_Instruction_Battle;
-    }
-    else
-    {
-        me->InterruptSpell(CURRENT_AUTOREPEAT_SPELL, false);
-    }
-
-    return result;
-}
-
-bool Strategy_Party::DPS()
-{
-    bool result = false;
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    Player* master = ObjectAccessor::FindConnectedPlayer(sourceAI->masterGUID);
-    if (!result)
-    {
-        if (GroupInCombat())
-        {
-            Group* myGroup = me->GetGroup();
-            for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-            {
-                Player* member = groupRef->GetSource();
-                if (member->groupRole == 1)
-                {
-                    Unit* tankTarget = member->GetSelectedUnit();
-                    if (DPS(tankTarget))
-                    {
-                        result = true;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    if (!result)
-    {
-        if (master)
-        {
-            Unit* masterTarget = master->GetSelectedUnit();
-            if (DPS(masterTarget))
-            {
-                result = true;
-            }
-        }
-    }
-
-    if (!result)
-    {
-        Unit* myTarget = me->GetSelectedUnit();
-        if (DPS(myTarget))
-        {
-            result = true;
-        }
-    }
-
-    if (!result)
-    {
-        Unit* closestAttacker = NULL;
-        float closestDistance = DEFAULT_VISIBILITY_DISTANCE;
-        Group* myGroup = me->GetGroup();
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-        {
-            Player* member = groupRef->GetSource();
-            if (Unit* memberAttacker = member->getAttackerForHelper())
-            {
-                float distance = me->GetDistance(memberAttacker);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestAttacker = memberAttacker;
-                }
-            }
-        }
-
-        if (DPS(closestAttacker))
-        {
-            result = true;
-        }
-    }
-
-    if (!result)
-    {
-        Unit* closestAttacker = NULL;
-        float closestDistance = DEFAULT_VISIBILITY_DISTANCE;
-        Group* myGroup = me->GetGroup();
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-        {
-            Player* member = groupRef->GetSource();
-            Pet* memberPet = member->GetPet();
-            if (memberPet)
-            {
-                if (Unit* memberPetAttacker = memberPet->getAttackerForHelper())
-                {
-                    float distance = me->GetDistance(memberPetAttacker);
-                    if (distance < closestDistance)
-                    {
-                        closestDistance = distance;
-                        closestAttacker = memberPetAttacker;
-                    }
-                }
-            }
-        }
-
-        if (DPS(closestAttacker))
-        {
-            result = true;
-        }
-    }
-
-    return result;
-}
-
-bool Strategy_Party::DPS(Unit* pmTarget)
-{
-    return sourceAI->s_base->DPS(pmTarget);
-}
-
-bool Strategy_Party::Tank()
-{
-    bool result = false;
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    Player* master = ObjectAccessor::FindConnectedPlayer(sourceAI->masterGUID);
-    Group* myGroup = me->GetGroup();
-    // tank OT target first
-    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-    {
-        Player* member = groupRef->GetSource();
-        if (member->getAttackers().size() > 0)
-        {
-            for (Unit::AttackerSet::const_iterator attackerIT = member->getAttackers().begin(); attackerIT != member->getAttackers().end(); attackerIT++)
-            {
-                Unit* pTarget = *attackerIT;
-                if (!pTarget)
+                if (!dpsIT->second->isRobot)
                 {
                     continue;
                 }
-                float distance = me->GetDistance(pTarget);
-                if (distance < DEFAULT_VISIBILITY_DISTANCE)
+                bool actioned = false;
+                if (dps->IsInCombat())
                 {
-                    if (pTarget->GetTarget() != me->GetGUID())
+                    std::unordered_map<ObjectGuid, Unit*> otAttackers;
+                    for (Unit::AttackerSet::const_iterator attackerIT = dps->getAttackers().begin(); attackerIT != dps->getAttackers().end(); attackerIT++)
                     {
-                        if (Tank(pTarget))
+                        if (Unit* eachAttacker = *attackerIT)
                         {
-                            result = true;
-                            break;
+                            if (eachAttacker->GetTarget() == dpsGUID)
+                            {
+                                otAttackers[eachAttacker->GetGUID()] = eachAttacker;
+                            }
+                        }
+                    }
+                    if (otAttackers.size() > 0)
+                    {
+                        if (roleMap.find(PartyRole::PartyRole_Tank) != roleMap.end())
+                        {
+                            for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = roleMap[PartyRole::PartyRole_Tank].begin(); tankIT != roleMap[PartyRole::PartyRole_Tank].end(); tankIT++)
+                            {
+                                tankIT->second->instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_Tank;
+                                tankIT->second->instruction.targetOG = otAttackers.begin()->first;
+                            }
+                        }
+                    }
+                    if (partyCombatTime > dpsIT->second->dpsDelay)
+                    {
+                        if (roleMap.find(PartyRole::PartyRole_Tank) != roleMap.end())
+                        {
+                            for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = roleMap[PartyRole::PartyRole_Tank].begin(); tankIT != roleMap[PartyRole::PartyRole_Tank].end(); tankIT++)
+                            {
+                                ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, tankIT->first);
+                                if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                                {
+                                    if (Unit* tankVictim = tank->GetVictim())
+                                    {
+                                        if (dpsIT->second->sb->DPS(tankVictim))
+                                        {
+                                            actioned = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (actioned)
+                        {
+                            continue;
+                        }
+                        Unit* closestAttacker = NULL;
+                        float closestDistance = 100.0f;
+                        for (Unit::AttackerSet::const_iterator attackerIT = dps->getAttackers().begin(); attackerIT != dps->getAttackers().end(); attackerIT++)
+                        {
+                            if (dps->GetDistance(*attackerIT) < closestDistance)
+                            {
+                                closestAttacker = *attackerIT;
+                                closestDistance = dps->GetDistance(*attackerIT);
+                            }
+                        }
+                        dpsIT->second->sb->DPS(closestAttacker);
+                    }
+                }
+                else
+                {
+                    if (roleMap.find(PartyRole::PartyRole_Tank) != roleMap.end())
+                    {
+                        for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = roleMap[PartyRole::PartyRole_Tank].begin(); tankIT != roleMap[PartyRole::PartyRole_Tank].end(); tankIT++)
+                        {
+                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, tankIT->first);
+                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
+                            {
+                                if (dpsIT->second->sb->Follow(tank, dpsIT->second->followDistance))
+                                {
+                                    actioned = true;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
             }
-            if (result)
-            {
-                break;
-            }
         }
     }
 
-    if (!result)
+    if (roleMap.find(PartyRole::PartyRole_Tank) != roleMap.end())
     {
-        if (master)
+        for (std::unordered_map<uint32, PartyMember*>::iterator tankIT = roleMap[PartyRole::PartyRole_Tank].begin(); tankIT != roleMap[PartyRole::PartyRole_Tank].end(); tankIT++)
         {
-            Unit* masterTarget = master->GetSelectedUnit();
-            if (Tank(masterTarget))
+            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, tankIT->first);
+            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
             {
-                result = true;
-            }
-        }
-    }
-
-    if (!result)
-    {
-        Unit* myTarget = me->GetSelectedUnit();
-        if (Tank(myTarget))
-        {
-            result = true;
-        }
-    }
-
-    if (!result)
-    {
-        Unit* closestAttacker = NULL;
-        float closestDistance = DEFAULT_VISIBILITY_DISTANCE;
-        Group* myGroup = me->GetGroup();
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-        {
-            Player* member = groupRef->GetSource();
-            if (Unit* memberAttacker = member->getAttackerForHelper())
-            {
-                float distance = me->GetDistance(memberAttacker);
-                if (distance < closestDistance)
+                if (!tankIT->second->isRobot)
                 {
-                    closestDistance = distance;
-                    closestAttacker = memberAttacker;
+                    continue;
                 }
-            }
-        }
-
-        if (Tank(closestAttacker))
-        {
-            result = true;
-        }
-    }
-
-    if (!result)
-    {
-        Unit* closestAttacker = NULL;
-        float closestDistance = DEFAULT_VISIBILITY_DISTANCE;
-        Group* myGroup = me->GetGroup();
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-        {
-            Player* member = groupRef->GetSource();
-            Pet* memberPet = member->GetPet();
-            if (memberPet)
-            {
-                if (Unit* memberPetAttacker = memberPet->getAttackerForHelper())
+                bool actioned = false;
+                if (tank->IsInCombat())
                 {
-                    float distance = me->GetDistance(memberPetAttacker);
-                    if (distance < closestDistance)
+                    if (tankIT->second->sb->Tank(tank->GetVictim()))
                     {
-                        closestDistance = distance;
-                        closestAttacker = memberPetAttacker;
+                        actioned = true;
+                    }
+                    if (actioned)
+                    {
+                        continue;
+                    }
+                    Unit* closestAttacker = NULL;
+                    float closestDistance = 100.0f;
+                    for (Unit::AttackerSet::const_iterator attackerIT = tank->getAttackers().begin(); attackerIT != tank->getAttackers().end(); attackerIT++)
+                    {
+                        if (tank->GetDistance(*attackerIT) < closestDistance)
+                        {
+                            closestAttacker = *attackerIT;
+                            closestDistance = tank->GetDistance(*attackerIT);
+                        }
+                    }
+                    tankIT->second->sb->Tank(closestAttacker);
+                }
+                else
+                {
+                    if (Group* memberGroup = tank->GetGroup())
+                    {
+                        if (Player* master = ObjectAccessor::FindConnectedPlayer(memberGroup->GetLeaderGUID()))
+                        {
+                            if (tankIT->second->sb->Follow(master, tankIT->second->followDistance))
+                            {
+                                actioned = true;
+                                break;
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
 
-        if (Tank(closestAttacker))
+bool Strategy_Party::PartyInCombat()
+{
+    for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+    {
+        ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->first);
+        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
         {
-            result = true;
+            if (member->IsInCombat())
+            {
+                return true;
+            }
         }
     }
-
-    return result;
-}
-
-bool Strategy_Party::Tank(Unit* pmTarget)
-{
-    return sourceAI->s_base->Tank(pmTarget);
-}
-
-bool Strategy_Party::Attack(Unit* pmTarget)
-{
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    switch (me->groupRole)
-    {
-    case 0:
-    {
-        return DPS(pmTarget);
-    }
-    case 1:
-    {
-        return Tank(pmTarget);
-    }
-    default:
-    {
-        break;
-    }
-    }
-
     return false;
 }
 
-bool Strategy_Party::Healer()
+void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD)
 {
-    bool result = false;
-    result = sourceAI->s_base->Healer();
-
-    if (GroupInCombat())
+    std::vector<std::string> commandVector = sRobotManager->SplitString(pmCMD, " ", true);
+    std::string commandName = commandVector.at(0);
+    if (commandName == "role")
     {
-        result = true;
-    }
-
-    return result;
-}
-
-bool Strategy_Party::GroupInCombat()
-{
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    Group* myGroup = me->GetGroup();
-    if (!myGroup)
-    {
-        return false;
-    }
-    for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-    {
-        Player* member = groupRef->GetSource();
-        if (me->GetDistance(member) < 100)
+        std::ostringstream replyStream;
+        if (commandVector.size() > 1)
         {
-            if (member->IsAlive())
+            std::string newRole = commandVector.at(1);
+            for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
             {
-                if (member->IsInCombat())
+                if (newRole == "dps")
                 {
-                    return true;
+                    pmIT->second->partyRole = PartyRole::PartyRole_DPS;
+                }
+                else if (newRole == "tank")
+                {
+                    pmIT->second->partyRole = PartyRole::PartyRole_Tank;
+                }
+                else if (newRole == "healer")
+                {
+                    pmIT->second->partyRole = PartyRole::PartyRole_Healer;
+                }
+
+                replyStream << "My group role is ";
+                switch (pmIT->second->partyRole)
+                {
+                case 0:
+                {
+                    replyStream << "dps";
+                    break;
+                }
+                case 1:
+                {
+                    replyStream << "tank";
+                    break;
+                }
+                case 2:
+                {
+                    replyStream << "healer";
+                    break;
+                }
+                default:
+                {
+                    replyStream << "dps";
+                    break;
+                }
+                }
+                pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+            }
+        }
+    }
+    else if (commandName == "follow")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (!member->IsAlive())
+                {
+                    pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+
+                pmIT->second->restDelay = 0;
+                pmIT->second->staying = false;
+                pmIT->second->holding = false;
+                if (commandVector.size() > 1)
+                {
+                    std::string cmdDistanceStr = commandVector.at(1);
+                    float cmdDistance = atof(cmdDistanceStr.c_str());
+                    if (cmdDistance > FOLLOW_MIN_DISTANCE&& cmdDistance < FOLLOW_MAX_DISTANCE)
+                    {
+                        pmIT->second->followDistance = cmdDistance;
+                    }
+                    else
+                    {
+                        pmIT->second->sb->WhisperTo("Follow distance is invalid", Language::LANG_UNIVERSAL, pmSender);
+                    }
+                }
+                if (pmIT->second->sb->Follow(pmSender, pmIT->second->followDistance))
+                {
+                    pmIT->second->sb->WhisperTo("Following", Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    pmIT->second->sb->WhisperTo("I will not follow you", Language::LANG_UNIVERSAL, pmSender);
                 }
             }
         }
     }
-    return false;
-}
-
-bool Strategy_Party::Follow()
-{
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    if (!me->IsAlive())
+    else if (commandName == "stay")
     {
-        return false;
-    }
-    Player* master = ObjectAccessor::FindConnectedPlayer(sourceAI->masterGUID);
-    if (!master)
-    {
-        return false;
-    }
-    Player* followTarget = master;
-    if (me->groupRole != 1)
-    {
-        Group* myGroup = me->GetGroup();
-        for (GroupReference* groupRef = myGroup->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
         {
-            Player* member = groupRef->GetSource();
-            if (member->groupRole == 1)
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
             {
-                followTarget = member;
-                break;
+                if (!member->IsAlive())
+                {
+                    pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+                member->StopMoving();
+                member->GetMotionMaster()->Clear();
+                pmIT->second->staying = true;
+                pmIT->second->sb->WhisperTo("Staying", Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
-    if (!followTarget)
+    else if (commandName == "hold")
     {
-        return false;
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (!member->IsAlive())
+                {
+                    pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+                member->StopMoving();
+                member->GetMotionMaster()->Clear();
+                pmIT->second->staying = false;
+                pmIT->second->holding = true;
+                pmIT->second->sb->WhisperTo("Holding", Language::LANG_UNIVERSAL, pmSender);
+            }
+        }
     }
-    sourceAI->BaseMove(followTarget, followDistance, false, MIN_DISTANCE_GAP);
+    else if (commandName == "attack")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (!member->IsAlive())
+                {
+                    pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+                pmIT->second->staying = false;
+                if (pmIT->second->partyRole == PartyRole::PartyRole_Healer)
+                {
+                    continue;
+                }
+                if (!pmSender->GetTarget().IsEmpty())
+                {
+                    pmIT->second->instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_Attack;
+                    pmIT->second->instruction.targetOG = pmSender->GetTarget();
+                    pmIT->second->sb->WhisperTo("Try to attack your target", Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    pmIT->second->sb->WhisperTo("No target", Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+        }
+    }
+    else if (commandName == "rest")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (!member->IsAlive())
+                {
+                    pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+                if (pmIT->second->sb->Rest())
+                {
+                    pmIT->second->restDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                    pmIT->second->sb->WhisperTo("Resting", Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    pmIT->second->sb->WhisperTo("Can not rest", Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+        }
+    }
+    else if (commandName == "who")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                pmIT->second->sb->WhisperTo(sRobotManager->characterTalentTabNameMap[member->GetClass()][pmIT->second->sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
+            }
+        }
+    }
+    else if (commandName == "assemble")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (pmIT->second->assembleDelay > 0)
+                {
+                    pmIT->second->sb->WhisperTo("I am coming", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+                if (member->IsAlive())
+                {
+                    if (member->GetDistance(pmSender) < 50.0f)
+                    {
+                        if (member->HasUnitState(UnitState::UNIT_STATE_NOT_MOVE))
+                        {
+                            pmIT->second->sb->WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                            continue;
+                        }
+                        if (member->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
+                        {
+                            pmIT->second->sb->WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                            continue;
+                        }
+                        if (member->HasUnitState(UnitState::UNIT_STATE_CASTING))
+                        {
+                            pmIT->second->sb->WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                            continue;
+                        }
+                        if (member->IsNonMeleeSpellCast(false, false, true))
+                        {
+                            pmIT->second->sb->WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                            continue;
+                        }
+                        if (member->HasAuraType(SPELL_AURA_MOD_PACIFY))
+                        {
+                            continue;
+                        }
+                        if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                        {
+                            member->SetStandState(UNIT_STAND_STATE_STAND);
+                        }
+                        if (member->IsWalking())
+                        {
+                            member->SetWalk(false);
+                        }
+                        member->StopMoving();
+                        member->GetMotionMaster()->Clear();
+                        member->GetMotionMaster()->MovePoint(0, pmSender->GetPosition());
+                        pmIT->second->sb->WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, pmSender);
+                    }
+                    else
+                    {
+                        pmIT->second->assembleDelay = 30 * TimeConstants::IN_MILLISECONDS;
+                        pmIT->second->sb->WhisperTo("I will come to you in 30 seconds", Language::LANG_UNIVERSAL, pmSender);
+                    }
+                }
+                else
+                {
+                    pmIT->second->assembleDelay = 60 * TimeConstants::IN_MILLISECONDS;
+                    pmIT->second->sb->WhisperTo("I will revive and come to you in 60 seconds", Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+        }
+    }
+    else if (commandName == "tank")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (!member->IsAlive())
+                {
+                    pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+                pmIT->second->staying = false;
+                if (pmIT->second->partyRole != PartyRole::PartyRole_Tank)
+                {
+                    continue;
+                }
+                if (!pmSender->GetTarget().IsEmpty())
+                {
+                    pmIT->second->instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_Tank;
+                    pmIT->second->instruction.targetOG = pmSender->GetTarget();
+                    pmIT->second->sb->WhisperTo("Try to tank your target", Language::LANG_UNIVERSAL, pmSender);
+                }
+                else
+                {
+                    pmIT->second->sb->WhisperTo("No target", Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+        }
+    }
+    else if (commandName == "prepare")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            pmIT->second->sb->Prepare();
+            pmIT->second->sb->WhisperTo("I am prepared", Language::LANG_UNIVERSAL, pmSender);
+        }
+    }
+    else if (commandName == "switch")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (member->GetClass() == Classes::CLASS_WARLOCK || member->GetClass() == Classes::CLASS_HUNTER)
+                {
+                    Pet* checkPet = member->GetPet();
+                    if (!checkPet)
+                    {
+                        pmIT->second->sb->WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, pmSender);
+                        continue;
+                    }
+                    if (commandVector.size() > 1)
+                    {
+                        std::string autoState = commandVector.at(1);
+                        if (commandVector.size() > 2)
+                        {
+                            std::ostringstream spellNameStream;
+                            uint32 checkPos = 2;
+                            while (checkPos < commandVector.size())
+                            {
+                                spellNameStream << commandVector.at(checkPos) << " ";
+                                checkPos++;
+                            }
+                            std::string spellName = sRobotManager->TrimString(spellNameStream.str());
+                            std::unordered_map<uint32, PetSpell> petSpellMap = checkPet->m_spells;
+                            for (std::unordered_map<uint32, PetSpell>::iterator it = petSpellMap.begin(); it != petSpellMap.end(); it++)
+                            {
+                                if (it->second.active == ACT_DISABLED || it->second.active == ACT_ENABLED)
+                                {
+                                    const SpellInfo* pST = sSpellMgr->GetSpellInfo(it->first);
+                                    if (pST)
+                                    {
+                                        std::string checkNameStr = std::string(pST->SpellName[0]);
+                                        if (checkNameStr == spellName)
+                                        {
+                                            std::ostringstream replyStream;
+                                            if (autoState == "on")
+                                            {
+                                                checkPet->ToggleAutocast(pST, true);
+                                                replyStream << "Switched " << spellName << " on";
+                                            }
+                                            else if (autoState == "off")
+                                            {
+                                                checkPet->ToggleAutocast(pST, false);
+                                                replyStream << "Switched " << spellName << " off";
+                                            }
+                                            else
+                                            {
+                                                replyStream << "Wrong auto state";
+                                            }
+                                            pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
+                            pmIT->second->sb->WhisperTo("Spell not found", Language::LANG_UNIVERSAL, pmSender);
+                            continue;
+                        }
+                        else
+                        {
+                            pmIT->second->sb->WhisperTo("No spell name", Language::LANG_UNIVERSAL, pmSender);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        pmIT->second->sb->WhisperTo("No auto state", Language::LANG_UNIVERSAL, pmSender);
+                        continue;
+                    }
+                }
+                else
+                {
+                    pmIT->second->sb->WhisperTo("I am not hunter or a warlock", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+            }
+        }
+    }
+    else if (commandName == "cast")
+    {
+        if (commandVector.size() > 1)
+        {
+            std::ostringstream targetStream;
+            uint8 arrayCount = 0;
+            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+            {
+                if (arrayCount > 0)
+                {
+                    targetStream << (*it) << " ";
+                }
+                arrayCount++;
+            }
+            std::string spellName = sRobotManager->TrimString(targetStream.str());
+            std::ostringstream replyStream;
+            for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+            {
+                ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+                if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+                {
+                    if (!member->IsAlive())
+                    {
+                        pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                        continue;
+                    }
+                    Unit* senderTarget = pmSender->GetSelectedUnit();
+                    if (!senderTarget)
+                    {
+                        pmIT->second->sb->WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, pmSender);
+                        continue;
+                    }
+                    if (pmIT->second->sb->CastSpell(senderTarget, spellName))
+                    {
+                        replyStream << "Cast spell " << spellName << " on " << senderTarget->GetName();
+                    }
+                    else
+                    {
+                        replyStream << "Can not cast spell " << spellName << " on " << senderTarget->GetName();
+                    }
+                    pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+        }
+    }
+    else if (commandName == "cancel")
+    {
+        if (commandVector.size() > 1)
+        {
+            std::ostringstream targetStream;
+            uint8 arrayCount = 0;
+            for (std::vector<std::string>::iterator it = commandVector.begin(); it != commandVector.end(); it++)
+            {
+                if (arrayCount > 0)
+                {
+                    targetStream << (*it) << " ";
+                }
+                arrayCount++;
+            }
+            std::string spellName = sRobotManager->TrimString(targetStream.str());
+            std::ostringstream replyStream;
+            for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+            {
+                ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+                if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+                {
+                    if (!member->IsAlive())
+                    {
+                        pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                        continue;
+                    }
+                    Unit* senderTarget = pmSender->GetSelectedUnit();
+                    if (!senderTarget)
+                    {
+                        pmIT->second->sb->WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, pmSender);
+                        continue;
+                    }
+                    if (pmIT->second->sb->CancelAura(spellName))
+                    {
+                        replyStream << "Cancel aura " << spellName;
+                    }
+                    else
+                    {
+                        replyStream << "Unknown spell " << spellName;
+                    }
+                    pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+        }
+    }
+    else if (commandName == "use")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                std::ostringstream replyStream;
+                if (!member->IsAlive())
+                {
+                    pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+                if (commandVector.size() > 1)
+                {
+                    std::string useType = commandVector.at(1);
+                    if (useType == "go")
+                    {
+                        if (commandVector.size() > 2)
+                        {
+                            std::ostringstream goNameStream;
+                            uint32 checkPos = 2;
+                            while (checkPos < commandVector.size())
+                            {
+                                goNameStream << commandVector.at(checkPos) << " ";
+                                checkPos++;
+                            }
+                            std::string goName = sRobotManager->TrimString(goNameStream.str());
 
-    return true;
-}
+                            bool validToUse = false;
+                            std::list<GameObject*> nearGOList;
+                            Trinity::GameObjectInRangeCheck check(member->GetPositionX(), member->GetPositionY(), member->GetPositionZ(), MELEE_MAX_DISTANCE);
+                            Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(member, nearGOList, check);
+                            Cell::VisitGridObjects(member, searcher, SIZE_OF_GRIDS);
+                            for (std::list<GameObject*>::iterator it = nearGOList.begin(); it != nearGOList.end(); it++)
+                            {
+                                if ((*it)->GetName() == goName)
+                                {
+                                    member->SetFacingToObject((*it));
+                                    member->StopMoving();
+                                    member->GetMotionMaster()->Clear();
+                                    (*it)->Use(member);
+                                    replyStream << "Use game object : " << goName;
+                                    validToUse = true;
+                                    break;
+                                }
+                            }
+                            if (!validToUse)
+                            {
+                                replyStream << "No go with name " << goName << " nearby";
+                            }
+                        }
+                        else
+                        {
+                            replyStream << "No go name";
+                        }
+                    }
+                    else if (useType == "item")
+                    {
 
-bool Strategy_Party::Follow(float pmFollowDistance)
-{
-    followDistance = pmFollowDistance;
-    return Follow();
-}
-
-bool Strategy_Party::Stay()
-{
-    Player* me = ObjectAccessor::FindConnectedPlayer(sourceAI->characterGUID);
-    me->StopMoving();
-    me->GetMotionMaster()->Clear();
-    return true;
+                    }
+                    else
+                    {
+                        replyStream << "Unknown type";
+                    }
+                }
+                else
+                {
+                    replyStream << "Use what?";
+                }
+                pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+            }
+        }
+    }
+    else if (commandName == "stop")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (!member->IsAlive())
+                {
+                    pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+                member->StopMoving();
+                member->InterruptSpell(CurrentSpellTypes::CURRENT_AUTOREPEAT_SPELL);
+                member->InterruptSpell(CurrentSpellTypes::CURRENT_CHANNELED_SPELL);
+                member->InterruptSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL);
+                member->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
+                std::ostringstream replyStream;
+                replyStream << "Stopped";
+                pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+            }
+        }
+    }
+    else if (commandName == "delay")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                std::ostringstream replyStream;
+                if (commandVector.size() > 1)
+                {
+                    int delayMS = std::stoi(commandVector.at(1));
+                    pmIT->second->dpsDelay = delayMS;
+                    replyStream << "DPS delay set to : " << delayMS;
+                }
+                else
+                {
+                    replyStream << "Missing time";
+                }
+                pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+            }
+        }
+    }
+    else if (commandName == "threat")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (!member->IsAlive())
+                {
+                    pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    continue;
+                }
+                std::ostringstream replyStream;
+                replyStream << "Threat list : ";
+                for (auto& pair : member->GetThreatManager().GetThreatenedByMeList())
+                {
+                    replyStream << pair.second->GetOwner()->GetName() << ", ";
+                }
+                pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+            }
+        }
+    }
+    else if (commandName == "revive")
+    {
+        std::unordered_map<uint32, uint32> deadMap;
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (!member->IsAlive())
+                {
+                    deadMap[deadMap.size()] = member->GetGUID().GetCounter();
+                }
+            }
+        }
+        if (deadMap.size() > 0)
+        {
+            uint32 reviveIndex = 0;
+            for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+            {
+                ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+                if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+                {
+                    if (!member->IsAlive())
+                    {
+                        pmIT->second->sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                        continue;
+                    }
+                    std::ostringstream reviveSpellName;
+                    std::ostringstream replyStream;
+                    if (member->GetClass() == Classes::CLASS_DRUID || member->GetClass() == Classes::CLASS_PRIEST || member->GetClass() == Classes::CLASS_PALADIN)
+                    {
+                        if (member->GetClass() == Classes::CLASS_DRUID)
+                        {
+                            reviveSpellName << "Revive";
+                        }
+                        else if (member->GetClass() == Classes::CLASS_PRIEST)
+                        {
+                            reviveSpellName << "Resurrection";
+                        }
+                        else if (member->GetClass() == Classes::CLASS_PALADIN)
+                        {
+                            reviveSpellName << "Redemption";
+                        }
+                        if (deadMap.find(reviveIndex) == deadMap.end())
+                        {
+                            break;
+                        }
+                        ObjectGuid deadGUID = ObjectGuid(HighGuid::Player, deadMap[reviveIndex]);
+                        if (Player* dead = ObjectAccessor::FindConnectedPlayer(deadGUID))
+                        {
+                            if (!dead->IsAlive())
+                            {
+                                if (member->GetDistance(dead) < RANGED_MAX_DISTANCE)
+                                {
+                                    if (pmIT->second->sb->CastSpell(dead, reviveSpellName.str(), RANGED_MAX_DISTANCE))
+                                    {
+                                        replyStream << "Reviving " << member->GetName();
+                                        reviveIndex++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                }
+            }
+        }
+    }
+    else if (commandName == "cure")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                std::ostringstream replyStream;
+                if (commandVector.size() > 1)
+                {
+                    std::string cureCMD = commandVector.at(1);
+                    if (cureCMD == "on")
+                    {
+                        pmIT->second->cure = true;
+                        replyStream << "Auto cure set to on";
+                    }
+                    else if (cureCMD == "off")
+                    {
+                        pmIT->second->cure = false;
+                        replyStream << "Auto cure set to off";
+                    }
+                    else
+                    {
+                        replyStream << "Unknown state";
+                    }
+                }
+                else
+                {
+                    if (pmIT->second->cure)
+                    {
+                        replyStream << "Auto cure is on";
+                    }
+                    else
+                    {
+                        replyStream << "Auto cure is off";
+                    }
+                }
+                pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+            }
+        }
+    }
+    else if (commandName == "emote")
+    {
+        for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second->character);
+            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                std::ostringstream replyStream;
+                if (commandVector.size() > 1)
+                {
+                    int emoteCMD = std::stoi(commandVector.at(1));
+                    member->HandleEmoteCommand(emoteCMD);
+                }
+                else
+                {
+                    member->AttackStop();
+                    member->CombatStop();
+                }
+                pmIT->second->sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+            }
+        }
+    }
 }
