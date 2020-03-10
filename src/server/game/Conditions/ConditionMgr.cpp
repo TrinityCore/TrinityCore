@@ -63,7 +63,9 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] 
     "Npc Vendor",
     "Spell Proc",
     "Terrain Swap",
-    "Phase"
+    "Phase",
+    "Graveyard",
+    "Spell Area"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -897,7 +899,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR ||
-            sourceType == CONDITION_SOURCE_TYPE_PHASE);
+            sourceType == CONDITION_SOURCE_TYPE_PHASE ||
+            sourceType == CONDITION_SOURCE_TYPE_SPELL_AREA);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -1055,6 +1058,8 @@ void ConditionMgr::LoadConditions(bool isReload)
         sObjectMgr->LoadGossipMenuItems();
 
         sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
+
+        sSpellMgr->UnloadSpellAreaConditions();
 
         sObjectMgr->UnloadPhaseConditions();
     }
@@ -1256,6 +1261,9 @@ void ConditionMgr::LoadConditions(bool isReload)
                 }
                 case CONDITION_SOURCE_TYPE_PHASE:
                     valid = addToPhases(cond);
+                    break;
+                case CONDITION_SOURCE_TYPE_SPELL_AREA:
+                    valid = addToSpellArea(cond);
                     break;
                 default:
                     break;
@@ -1488,6 +1496,33 @@ bool ConditionMgr::addToPhases(Condition* cond) const
     }
 
     TC_LOG_ERROR("sql.sql", "%s Area %u does not have phase %u.", cond->ToString().c_str(), cond->SourceGroup, cond->SourceEntry);
+    return false;
+}
+
+bool ConditionMgr::addToSpellArea(Condition* cond) const
+{
+    if (cond->SourceGroup)
+    {
+        bool found = false;
+        SpellAreaForAreaMapBounds bounds = sSpellMgr->GetSpellAreaForAreaMapBounds(cond->SourceEntry);
+        for (SpellAreaForAreaMap::const_iterator& itr = bounds.first; itr != bounds.second; ++itr)
+        {
+            if (itr->second->spellId != cond->SourceGroup)
+                continue;
+
+            itr->second->Conditions.push_back(cond);
+            found = true;
+        }
+
+        return found;
+    }
+    else
+    {
+        TC_LOG_ERROR("sql.sql", "%s invalid spell ID %u specified for area/zone ID %u.", cond->ToString().c_str(), cond->SourceGroup, cond->SourceEntry);
+        return false;
+    }
+
+    TC_LOG_ERROR("sql.sql", "%s SpellID %u does not have a entry for area/zone ID %u.", cond->ToString().c_str(), cond->SourceGroup, cond->SourceEntry);
     return false;
 }
 

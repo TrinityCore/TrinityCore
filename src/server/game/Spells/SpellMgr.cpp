@@ -723,6 +723,10 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     {
         if (Battleground* bg = player->GetBattleground())
             return bg->IsSpellAllowed(spellId, player);
+
+        ConditionSourceInfo srcInfo = ConditionSourceInfo(const_cast<Player*>(player));
+        if (!sConditionMgr->IsObjectMeetToConditions(srcInfo, Conditions))
+            return false;
     }
 
     // Extra conditions
@@ -2588,7 +2592,7 @@ void SpellMgr::LoadSpellAreas()
             continue;
         }
 
-        SpellArea const* sa = &mSpellAreaMap.insert(SpellAreaMap::value_type(spell, spellArea))->second;
+        SpellArea* sa = &mSpellAreaMap.insert(SpellAreaMap::value_type(spell, spellArea))->second;
 
         // for search by current zone/subzone at zone/subzone change
         if (spellArea.areaId)
@@ -2670,6 +2674,12 @@ void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
         if (mSpellInfoMap[i])
             mSpellInfoMap[i]->_UnloadImplicitTargetConditionLists();
+}
+
+void SpellMgr::UnloadSpellAreaConditions()
+{
+    for (auto spellAreaData : mSpellAreaForAreaMap)
+        spellAreaData.second->Conditions.clear();
 }
 
 void SpellMgr::LoadSpellInfoCustomAttributes()

@@ -142,7 +142,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_TERRAIN_SWAP                   = 25,
     CONDITION_SOURCE_TYPE_PHASE                          = 26,
     CONDITION_SOURCE_TYPE_GRAVEYARD                      = 27,
-    CONDITION_SOURCE_TYPE_MAX                            = 28  // MAX
+    CONDITION_SOURCE_TYPE_SPELL_AREA                     = 28,
+    CONDITION_SOURCE_TYPE_MAX                            = 29  // MAX
 };
 
 enum RelationType
@@ -280,6 +281,7 @@ class TC_GAME_API ConditionMgr
         bool addToGossipMenuItems(Condition* cond) const;
         bool addToSpellImplicitTargetConditions(Condition* cond) const;
         bool addToPhases(Condition* cond) const;
+        bool addToSpellArea(Condition* cond) const;
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionContainer const& conditions) const;
 
         static void LogUselessConditionValue(Condition* cond, uint8 index, uint32 value);
