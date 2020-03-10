@@ -567,7 +567,13 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_DOOR:          return door.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_DOOR:                      return door.InfiniteAOI != 0;
+            case GAMEOBJECT_TYPE_FLAGSTAND:                 return true;
+            case GAMEOBJECT_TYPE_FLAGDROP:                  return true;
+            case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:        return true;
+            case GAMEOBJECT_TYPE_TRAPDOOR:                  return true;
+            case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:     return true;
+            case GAMEOBJECT_TYPE_TRANSPORT:                 return true;
             default: return false;
         }
     }
