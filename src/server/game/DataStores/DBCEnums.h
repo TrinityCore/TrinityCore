@@ -470,10 +470,9 @@ enum MountCapabilityFlags
 
 enum PhaseEntryFlags : uint16
 {
-    PHASE_FLAG_SEND_TO_CLIENT   = 0x04,
-    PHASE_FLAG_NORMAL           = 0x08,
-    PHASE_FLAG_COSMETIC         = 0x10,
-    PHASE_FLAG_PERSONAL         = 0x20
+    PHASE_FLAG_NORMAL   = 0x08,
+    PHASE_FLAG_COSMETIC = 0x10,
+    PHASE_FLAG_PERSONAL = 0x20
 };
 
 // PhaseUseFlags fields in different DBCs
