@@ -19,19 +19,18 @@
 
 #include "Script_Base.h"
 
-class Script_Paladin :public Script_Base
+struct Script_Paladin :public Script_Base
 {
 public:
 	Script_Paladin(uint32 pmCharacterID);
-    bool DPS(Unit* pmTarget);
+    bool DPS(Unit* pmTarget, bool pmChase = true);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
 
-	bool DPS_Retribution(Unit* pmTarget);
-
-    bool DPS_Common(Unit* pmTarget);
+	bool DPS_Retribution(Unit* pmTarget, bool pmChase);
+    bool DPS_Common(Unit* pmTarget, bool pmChase);
 
     bool Attack_Retribution(Unit* pmTarget);
     bool Attack_Common(Unit* pmTarget);

@@ -36,7 +36,7 @@ bool Script_Warrior::Tank(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     else if (targetDistance > WARRIOR_CHARGE_DISTANCE&& targetDistance < WARRIOR_RANGE_DISTANCE)
     {
         if (CastSpell(pmTarget, "Charge", WARRIOR_RANGE_DISTANCE))
@@ -44,6 +44,7 @@ bool Script_Warrior::Tank(Unit* pmTarget)
             return true;
         }
     }
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
@@ -82,28 +83,28 @@ bool Script_Warrior::Tank(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warrior::DPS(Unit* pmTarget)
+bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Arms(pmTarget);
+        return DPS_Arms(pmTarget, pmChase);
     }
     case 1:
     {
-        return DPS_Fury(pmTarget);
+        return DPS_Fury(pmTarget, pmChase);
     }
     case 2:
     {
-        return Tank(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
     default:
-        return DPS_Common(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
 }
 
-bool Script_Warrior::DPS_Arms(Unit* pmTarget)
+bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -127,7 +128,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
     if (targetDistance > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }    
+    }
     else if (targetDistance < WARRIOR_CHARGE_DISTANCE)
     {
         if (CastSpell(me, "Bloodrage", MELEE_MAX_DISTANCE))
@@ -135,7 +136,18 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
             return true;
         }
     }
-    Chase(pmTarget);
+    me->Attack(pmTarget, true);
+    if (pmChase)
+    {
+        Chase(pmTarget);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 300)
     {
@@ -144,51 +156,15 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
         {
             if (myGroup->isRaidGroup())
             {
-                if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
-                {
-                    for (std::unordered_map<uint32, RaidMember*>::iterator pmIT = sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
-                    {
-                        if (pmIT->second->raidRole == RaidRole::RaidRole_Tank)
-                        {
-                            ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-                            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
-                            {
-                                if (member->getAttackers().size() >= 3)
-                                {
-                                    uint32 inRangeCount = 0;
-                                    for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
-                                    {
-                                        if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
-                                        {
-                                            inRangeCount++;
-                                            if (inRangeCount >= 3)
-                                            {
-                                                if (CastSpell((*i), "Bladestorm", MELEE_MAX_DISTANCE))
-                                                {
-                                                    return true;
-                                                }
-                                                if (CastSpell((*i), "Sweeping Strikes", MELEE_MAX_DISTANCE))
-                                                {
-                                                    return true;
-                                                }
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
+                // todo raid aoe
             }
             else
             {
                 if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
                 {
-                    for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
+                    for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
                     {
-                        if (pmIT->second->partyRole == PartyRole::PartyRole_Tank)
+                        if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
                         {
                             ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
                             if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
@@ -261,7 +237,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warrior::DPS_Fury(Unit* pmTarget)
+bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -297,7 +273,18 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
             return true;
         }
     }
-    Chase(pmTarget);    
+    me->Attack(pmTarget, true);
+    if (pmChase)
+    {
+        Chase(pmTarget);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
@@ -339,7 +326,7 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warrior::DPS_Common(Unit* pmTarget)
+bool Script_Warrior::DPS_Common(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -371,7 +358,18 @@ bool Script_Warrior::DPS_Common(Unit* pmTarget)
             return true;
         }
     }
-    Chase(pmTarget);
+    me->Attack(pmTarget, true);
+    if (pmChase)
+    {
+        Chase(pmTarget);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
@@ -460,6 +458,7 @@ bool Script_Warrior::Attack_Arms(Unit* pmTarget)
             return true;
         }
     }
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
@@ -550,6 +549,7 @@ bool Script_Warrior::Attack_Fury(Unit* pmTarget)
             return true;
         }
     }
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
@@ -621,6 +621,7 @@ bool Script_Warrior::Attack_Protection(Unit* pmTarget)
             return true;
         }
     }
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
@@ -682,7 +683,8 @@ bool Script_Warrior::Attack_Common(Unit* pmTarget)
             return true;
         }
     }
-    Chase(pmTarget);    
+    me->Attack(pmTarget, true);
+    Chase(pmTarget);
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
     if (rage > 100)
     {
@@ -734,101 +736,17 @@ bool Script_Warrior::Buff(Unit* pmTarget, bool pmCure)
         {
             if (myGroup->isRaidGroup())
             {
-                if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
-                {
-                    if (sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.find(character) != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end())
-                    {
-                        switch (sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap[character]->raidRole)
-                        {
-                        case RaidRole::RaidRole_Tank:
-                        {
-                            if (me->GetLevel() >= 10)
-                            {
-                                if (CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
-                                {
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                {
-                                    return true;
-                                }
-                            }
-                            break;
-                        }
-                        default:
-                        {
-                            switch (characterTalentTab)
-                            {
-                            case 0:
-                            {
-                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                {
-                                    return true;
-                                }
-                                break;
-                            }
-                            case 1:
-                            {
-                                if (me->GetLevel() >= 20)
-                                {
-                                    if (CastSpell(me, "Berserker Stance", MELEE_MAX_DISTANCE, true))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                else
-                                {
-                                    if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                break;
-                            }
-                            case 2:
-                            {
-                                if (me->GetLevel() >= 10)
-                                {
-                                    if (CastSpell(me, "Defensive Stance", MELEE_MAX_DISTANCE, true))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                else
-                                {
-                                    if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                    {
-                                        return true;
-                                    }
-                                }
-                                break;
-                            }
-                            default:
-                            {
-                                if (CastSpell(me, "Battle Stance", MELEE_MAX_DISTANCE, true))
-                                {
-                                    return true;
-                                }
-                                break;
-                            }
-                            }
-                        }
-                        }
-                    }
-                }
+                // todo raid buff
             }
             else
             {
                 if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
                 {
-                    if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.find(character) != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end())
+                    if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.find(character) != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end())
                     {
-                        switch (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap[character]->partyRole)
+                        switch (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap[character].partyRole)
                         {
-                        case RaidRole::RaidRole_Tank:
+                        case PartyRole::PartyRole_Tank:
                         {
                             if (me->GetLevel() >= 10)
                             {

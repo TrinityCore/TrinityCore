@@ -17,7 +17,7 @@ Script_Base::Script_Base()
     character = 0;
 }
 
-bool Script_Base::DPS(Unit* pmTarget)
+bool Script_Base::DPS(Unit* pmTarget, bool pmChase)
 {
     return false;
 }
@@ -482,11 +482,7 @@ void Script_Base::InitializeCharacter(uint32 pmTargetLevel)
         me->SaveToDB();
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Player %s basic info initialized", me->GetName());
     }
-
-    me->UpdateSkillsForLevel();
-    me->UpdateWeaponsSkillsToMaxSkillsForLevel();
-    me->SetPvP(true);
-
+    
     InitializeValues();
 
     if (newCharacter)
@@ -738,9 +734,11 @@ void Script_Base::InitializeCharacter(uint32 pmTargetLevel)
     }
     }
 
-    me->SaveToDB();
+    me->UpdateSkillsForLevel();
+    me->UpdateWeaponsSkillsToMaxSkillsForLevel();
+    me->SetPvP(true);
 
-    RandomTeleport();
+    me->SaveToDB();
 
     std::ostringstream msgStream;
     msgStream << me->GetName() << " initialized";
@@ -1333,7 +1331,7 @@ bool Script_Base::Follow(Unit* pmTarget, float pmDistance)
     return true;
 }
 
-bool Script_Base::Chase(Unit* pmTarget, bool pmAttack, float pmMaxDistance, float pmMinDistance)
+bool Script_Base::Chase(Unit* pmTarget, float pmMaxDistance, float pmMinDistance)
 {
     ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
     Player* me = ObjectAccessor::FindConnectedPlayer(guid);
@@ -1372,18 +1370,6 @@ bool Script_Base::Chase(Unit* pmTarget, bool pmAttack, float pmMaxDistance, floa
     if (me->IsWalking())
     {
         me->SetWalk(false);
-    }
-
-    if (pmAttack)
-    {
-        if (!me->GetVictim())
-        {
-            me->Attack(pmTarget, true);
-        }
-        else if (me->GetVictim()->GetGUID() != pmTarget->GetGUID())
-        {
-            me->Attack(pmTarget, true);
-        }
     }
 
     bool chasing = false;
@@ -1480,22 +1466,18 @@ bool Script_Base::CastSpell(Unit* pmTarget, std::string pmSpellName, float pmDis
     {
         target = me;
     }
+    const SpellInfo* pST = sSpellMgr->GetSpellInfo(spellID);
     if (target->GetGUID() != me->GetGUID())
     {
         if (me->GetDistance(target) > pmDistance)
         {
             return false;
-        }
-        if (!me->isInFront(pmTarget))
-        {
-            me->SetFacingToObject(pmTarget);
-        }
+        }        
     }
     if (me->GetTarget() != target->GetGUID())
     {
         me->SetSelection(target->GetGUID());
     }
-    const SpellInfo* pST = sSpellMgr->GetSpellInfo(spellID);
     if (!pST)
     {
         return false;

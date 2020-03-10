@@ -14,6 +14,7 @@
 #include "Script_Rogue.h"
 #include "Script_Mage.h"
 #include "Script_Druid.h"
+#include "Player.h"
 
 enum PartyRole :uint32
 {
@@ -28,6 +29,7 @@ enum RobotPartyInstructionType :uint32
     RobotPartyInstructionType_Follow,
     RobotPartyInstructionType_Tank,
     RobotPartyInstructionType_Attack,
+    RobotPartyInstructionType_Rest,
     RobotPartyInstructionType_Engage,
 };
 
@@ -46,22 +48,29 @@ public:
     }
 
     uint32 instructionType;
-    ObjectGuid targetOG;    
+    ObjectGuid targetOG;
 };
 
 struct PartyMember
 {
 public:
+    PartyMember()
+    {
+
+    }
+
     PartyMember(uint32 pmCharacterID, bool pmIsRobot = true)
     {
         character = pmCharacterID;
         partyRole = 0;
+        combatTime = 0;
         assembleDelay = 0;
         restDelay = 0;
         dpsDelay = DPS_DEFAULT_DELAY_PARTY;
         staying = false;
         holding = false;
         cure = true;
+        followDistance = FOLLOW_NORMAL_DISTANCE;
         isRobot = pmIsRobot;
 
         ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
@@ -74,85 +83,97 @@ public:
         {
         case Classes::CLASS_WARRIOR:
         {
-            sb = new Script_Warrior(character);
+            sb = Script_Warrior(character);
+            followDistance = MELEE_MAX_DISTANCE;
             break;
         }
         case Classes::CLASS_HUNTER:
         {
-            sb = new Script_Hunter(character);
+            sb = Script_Hunter(character);
             break;
         }
         case Classes::CLASS_SHAMAN:
         {
-            sb = new Script_Shaman(character);
+            sb = Script_Shaman(character);
             break;
         }
         case Classes::CLASS_PALADIN:
         {
-            sb = new Script_Paladin(character);
+            sb = Script_Paladin(character);
+            followDistance = MELEE_MAX_DISTANCE;
             break;
         }
         case Classes::CLASS_WARLOCK:
         {
-            sb = new Script_Warlock(character);
+            sb = Script_Warlock(character);
             break;
         }
         case Classes::CLASS_PRIEST:
         {
-            sb = new Script_Priest(character);
+            sb = Script_Priest(character);
             break;
         }
         case Classes::CLASS_ROGUE:
         {
-            sb = new Script_Rogue(character);
+            sb = Script_Rogue(character);
+            followDistance = MELEE_MAX_DISTANCE;
             break;
         }
         case Classes::CLASS_MAGE:
         {
-            sb = new Script_Mage(character);
+            sb = Script_Mage(character);
             break;
         }
         case Classes::CLASS_DRUID:
         {
-            sb = new Script_Druid(character);
+            sb = Script_Druid(character);
             break;
         }
         }
-        sb->InitializeCharacter(me->GetLevel());
-        partyRole = sb->characterType;
+        sb.InitializeValues();
+        partyRole = sb.characterType;
     }
 
     uint32 character;
     // 0 dps, 1 tank, 2 healer
     uint32 partyRole;
-
+    int32 combatTime;
     int32 assembleDelay;
     int32 dpsDelay;
     int32 restDelay;
     float followDistance;
-
     PartyInstruction instruction;
     bool staying;
     bool holding;
     bool cure;
     bool isRobot;
 
-    Script_Base* sb;
+    Script_Base sb;
 };
 
-class Strategy_Party
+struct Strategy_Party
 {
 public:
-    Strategy_Party(uint32 pmID);    
-    void Update();
-    bool PartyInCombat();        
+    Strategy_Party()
+    {
 
-    void HandleChatCommand(Player* pmSender, std::string pmCMD);
+    }
+
+    Strategy_Party(uint32 pmID);
+    void Update();
+    bool PartyInCombat(Player* pmChecker);
+    Unit* GetTankVictim(Player* pmChecker);
+    Unit* GetPartyVictim(Player* pmChecker);
+    bool Rest(Player* pmChecker);
+    bool Heal(Player* pmChecker);
+    bool Buff(Player* pmChecker);
+    bool Follow(Player* pmChecker);
+
+    void HandleChatCommand(Player* pmSender, std::string pmCMD, Player* pmReceiver = NULL);
 
 public:
     uint32 realPrevTime;
-    uint32 partyID;
-    int32 partyCombatTime;
-    std::unordered_map<uint32, PartyMember*> memberMap;
+    uint32 partyID;    
+    std::unordered_map<uint32, PartyMember> memberMap;
 };
 #endif

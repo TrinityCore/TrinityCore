@@ -13,6 +13,10 @@
 # define FOLLOW_MIN_DISTANCE 1.0f
 #endif
 
+#ifndef FOLLOW_NORMAL_DISTANCE
+# define FOLLOW_NORMAL_DISTANCE 20.0f
+#endif
+
 #ifndef FOLLOW_MAX_DISTANCE
 # define FOLLOW_MAX_DISTANCE 30.0f
 #endif
@@ -41,15 +45,15 @@
 #include "Item.h"
 #include "Player.h"
 
-class Script_Base
+struct Script_Base
 {
 public:
     Script_Base();
-    bool DPS(Unit* pmTarget);
-    bool Tank(Unit* pmTarget);
-    bool Heal(Unit* pmTarget, bool pmCure);
-    bool Attack(Unit* pmTarget);
-    bool Buff(Unit* pmTarget, bool pmCure);
+    virtual bool DPS(Unit* pmTarget, bool pmChase = true);
+    virtual bool Tank(Unit* pmTarget);
+    virtual bool Heal(Unit* pmTarget, bool pmCure);
+    virtual bool Attack(Unit* pmTarget);
+    virtual bool Buff(Unit* pmTarget, bool pmCure);
 
     void InitializeCharacter(uint32 pmTargetLevel);
     void InitializeValues();
@@ -70,9 +74,8 @@ public:
     void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
     void RandomTeleport();
     void Prepare();
-    void Logout();
-
-    bool Chase(Unit* pmTarget, bool pmAttack = true, float pmMaxDistance = MELEE_MIN_DISTANCE, float pmMinDistance = MIN_DISTANCE_GAP);
+    void Logout();    
+    bool Chase(Unit* pmTarget, float pmMaxDistance = MELEE_MIN_DISTANCE, float pmMinDistance = MIN_DISTANCE_GAP);
     bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
 
     uint32 account;

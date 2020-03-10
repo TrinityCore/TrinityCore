@@ -19,28 +19,28 @@ bool Script_Warlock::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Warlock::DPS(Unit* pmTarget)
+bool Script_Warlock::DPS(Unit* pmTarget, bool pmChase)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Affliction(pmTarget);
+        return DPS_Affliction(pmTarget, pmChase);
     }
     case 1:
     {
-        return DPS_Demonology(pmTarget);
+        return DPS_Demonology(pmTarget, pmChase);
     }
     case 2:
     {
-        return DPS_Destruction(pmTarget);
+        return DPS_Destruction(pmTarget, pmChase);
     }
     default:
-        return DPS_Common(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
 }
 
-bool Script_Warlock::DPS_Affliction(Unit* pmTarget)
+bool Script_Warlock::DPS_Affliction(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -64,94 +64,126 @@ bool Script_Warlock::DPS_Affliction(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
-    {
-        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-        {
-            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
-            {
-                return true;
-            }
-        }
-    }
-    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
-    {
-        return true;
-    }
-
-    return true;
-}
-
-bool Script_Warlock::DPS_Demonology(Unit* pmTarget)
-{
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
-    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
-    {
-        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-        {
-            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
-            {
-                return true;
-            }
-        }
-    }
-    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
-    {
-        return true;
-    }
-
-    return true;
-}
-
-bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
-{
-    if (!pmTarget)
-    {
-        return false;
-    }
-    else if (!pmTarget->IsAlive())
-    {
-        return false;
-    }
-    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
-    if (!me)
-    {
-        return false;
-    }
-    else if (!me->IsValidAttackTarget(pmTarget))
-    {
-        return false;
-    }
-    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
-    {
-        return false;
-    }
-    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
     PetAttack(me->GetPet(), pmTarget);
+    if (pmChase)
+    {
+        Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    {
+        return true;
+    }
+
+    return true;
+}
+
+bool Script_Warlock::DPS_Demonology(Unit* pmTarget, bool pmChase)
+{
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    PetAttack(me->GetPet(), pmTarget);
+    if (pmChase)
+    {
+        Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
+    if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
+    {
+        if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (CastSpell(pmTarget, "Shoot", WARLOCK_RANGE_DISTANCE))
+            {
+                return true;
+            }
+        }
+    }
+    if (CastSpell(pmTarget, "Shadow Bolt", WARLOCK_RANGE_DISTANCE))
+    {
+        return true;
+    }
+
+    return true;
+}
+
+bool Script_Warlock::DPS_Destruction(Unit* pmTarget, bool pmChase)
+{
+    if (!pmTarget)
+    {
+        return false;
+    }
+    else if (!pmTarget->IsAlive())
+    {
+        return false;
+    }
+    ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+    Player* me = ObjectAccessor::FindConnectedPlayer(guid);
+    if (!me)
+    {
+        return false;
+    }
+    else if (!me->IsValidAttackTarget(pmTarget))
+    {
+        return false;
+    }
+    if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
+    {
+        return false;
+    }
+    PetAttack(me->GetPet(), pmTarget);
+    if (pmChase)
+    {
+        Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -168,51 +200,15 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
     {
         if (myGroup->isRaidGroup())
         {
-            if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
-            {
-                for (std::unordered_map<uint32, RaidMember*>::iterator pmIT = sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
-                {
-                    if (pmIT->second->raidRole == RaidRole::RaidRole_Tank)
-                    {
-                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
-                        {
-                            if (member->getAttackers().size() >= 3)
-                            {
-                                uint32 inRangeCount = 0;
-                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
-                                {
-                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
-                                    {
-                                        inRangeCount++;
-                                        if (inRangeCount >= 3)
-                                        {
-                                            if (CastSpell((*i), "Shadowfury", WARLOCK_RANGE_DISTANCE))
-                                            {
-                                                return true;
-                                            }
-                                            if (CastSpell((*i), "Rain of Fire", WARLOCK_RANGE_DISTANCE))
-                                            {
-                                                return true;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
+            // todo raid aoe
         }
         else
         {
             if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
             {
-                for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
+                for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
                 {
-                    if (pmIT->second->partyRole == PartyRole::PartyRole_Tank)
+                    if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
                     {
                         ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
                         if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
@@ -281,7 +277,7 @@ bool Script_Warlock::DPS_Destruction(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warlock::DPS_Common(Unit* pmTarget)
+bool Script_Warlock::DPS_Common(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -305,7 +301,17 @@ bool Script_Warlock::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
+    if (pmChase)
+    {
+        Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -369,7 +375,8 @@ bool Script_Warlock::Attack_Affliction(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
+    PetAttack(me->GetPet(), pmTarget);
+    Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -412,7 +419,8 @@ bool Script_Warlock::Attack_Demonology(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
+    PetAttack(me->GetPet(), pmTarget);
+    Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -455,7 +463,8 @@ bool Script_Warlock::Attack_Destruction(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
+    PetAttack(me->GetPet(), pmTarget);
+    Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -515,7 +524,7 @@ bool Script_Warlock::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, WARLOCK_CLOSER_DISTANCE);
+    Chase(pmTarget, WARLOCK_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))

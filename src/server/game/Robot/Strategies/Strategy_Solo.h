@@ -14,9 +14,14 @@ enum RobotSoloState :uint32
     RobotSoloState_Confuse,
 };
 
-class Strategy_Solo
+struct Strategy_Solo
 {
 public:
+    Strategy_Solo()
+    {
+
+    }
+
     Strategy_Solo(uint32 pmAccount, uint32 pmCharacter);
 	void Update();
     void Reset();
@@ -44,6 +49,6 @@ public:
 	int32 confuseDelay;
 	int32 interestsDelay;
 
-    Script_Base* sb;
+    Script_Base sb;
 };
 #endif

@@ -1,5 +1,5 @@
 #include "RobotManager.h"
-
+#include "GroupMgr.h"
 #include "Log.h"
 #include "AccountMgr.h"
 #include "Player.h"
@@ -21,7 +21,10 @@
 RobotManager::RobotManager()
 {
     nameIndex = 0;
-    prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    // EJ debug
+    //prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    prepareCheckDelay = 10 * TimeConstants::IN_MILLISECONDS;
+
     onlineRobotAccountMap.clear();
     prepareStrategyMap.clear();
     soloStrategyMap.clear();
@@ -36,6 +39,8 @@ RobotManager::RobotManager()
     teleportCacheMap.clear();
     tamableBeastEntryMap.clear();
     spellNameEntryMap.clear();
+
+    realPrevTime = getMSTime();
 }
 
 void RobotManager::InitializeManager()
@@ -50,6 +55,7 @@ void RobotManager::InitializeManager()
         sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Reset robots");
         if (DeleteRobots())
         {
+            sRobotConfig->Enable = 0;
             sWorld->ShutdownServ(10, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
             return;
         }
@@ -437,7 +443,9 @@ void RobotManager::UpdateRobotManager()
     prepareCheckDelay -= diff;
     if (prepareCheckDelay < 0)
     {
+        // EJ debug
         prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+        //prepareCheckDelay = 10 * TimeConstants::IN_MILLISECONDS;
         std::unordered_set<uint32> onlinePlayerLevelSet;
         for (std::unordered_map<uint32, WorldSession*>::const_iterator wsIT = sWorld->GetAllSessions().begin(); wsIT != sWorld->GetAllSessions().end(); wsIT++)
         {
@@ -466,66 +474,115 @@ void RobotManager::UpdateRobotManager()
 
         for (std::unordered_set<uint32>::iterator levelIT = onlinePlayerLevelSet.begin(); levelIT != onlinePlayerLevelSet.end(); levelIT++)
         {
-            uint32 prepareCount = 0;
-            for (std::unordered_map<uint32, Strategy_Prepare*>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
+            uint32 onlineCount = 0;
+            for (std::unordered_map<uint32, Strategy_Prepare>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
             {
-                if (spIT->second->targetLevel == *levelIT)
+                if (spIT->second.targetLevel == *levelIT)
                 {
-                    if (spIT->second->prepareState == RobotPrepareState::RobotPrepareState_OffLine)
+                    if (spIT->second.prepareState == RobotPrepareState::RobotPrepareState_Online)
                     {
-                        spIT->second->actionDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 15 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+                        onlineCount++;
                     }
-                    prepareCount++;
                 }
             }
-            if (sRobotConfig->CountEachLevel > prepareCount)
+            if (sRobotConfig->CountEachLevel > onlineCount)
             {
-                uint32 toAdd = sRobotConfig->CountEachLevel - prepareCount;
-                uint32 checkCount = 0;
-                while (checkCount < toAdd)
+                int toAdd = sRobotConfig->CountEachLevel - onlineCount;
+                for (std::unordered_map<uint32, Strategy_Prepare>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
                 {
-                    Strategy_Prepare* sp = new Strategy_Prepare();
-                    sp->targetLevel = *levelIT;
-                    while (true)
+                    if (spIT->second.targetLevel == *levelIT)
                     {
-                        sp->targetClass = urand(Classes::CLASS_WARRIOR, Classes::CLASS_DRUID);
-                        if (sp->targetClass != 6 && sp->targetClass != 10 && sp->targetClass != Classes::CLASS_WARRIOR && sp->targetClass != Classes::CLASS_ROGUE && sp->targetClass != Classes::CLASS_SHAMAN && sp->targetClass != Classes::CLASS_MAGE)
+                        if (spIT->second.prepareState == RobotPrepareState::RobotPrepareState_OffLine)
                         {
-                            break;
+                            spIT->second.prepareState = RobotPrepareState::RobotPrepareState_Enter;
+                            spIT->second.checkDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
+                            toAdd--;
+                            if (toAdd <= 0)
+                            {
+                                break;
+                            }
                         }
                     }
-                    uint32 raceIndex = urand(0, availableRaces[sp->targetClass].size() - 1);
-                    sp->targetRace = availableRaces[sp->targetClass][raceIndex];
-                    prepareStrategyMap[prepareStrategyMap.size()] = sp;
-                    checkCount++;
+                }
+                if (toAdd > 0)
+                {
+                    // get from DB
+                    QueryResult robotQR = CharacterDatabase.PQuery("SELECT entry, account_id, character_id FROM robot where target_level = '%d' order by rand()", *levelIT);
+                    if (robotQR)
+                    {
+                        do
+                        {
+                            Field* fields = robotQR->Fetch();
+                            uint32 entry = fields[0].GetUInt32();
+                            uint32 account_id = fields[1].GetUInt32();
+                            uint32 character_id = fields[2].GetUInt32();
+                            if (prepareStrategyMap.find(entry) == prepareStrategyMap.end())
+                            {
+                                Strategy_Prepare sp(entry);
+                                sp.account = account_id;
+                                sp.character = character_id;
+                                sp.targetLevel = *levelIT;
+                                sp.prepareState = RobotPrepareState::RobotPrepareState_Enter;
+                                // EJ debug
+                                sp.checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
+                                //sp->actionDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
+                                prepareStrategyMap[entry] = sp;
+                                toAdd--;
+                                if (toAdd <= 0)
+                                {
+                                    break;
+                                }
+                            }
+                        } while (robotQR->NextRow());
+                    }
+                }
+                while (toAdd > 0)
+                {
+                    // add to DB
+                    std::ostringstream sqlStream;
+                    sqlStream << "INSERT INTO robot (account_id, character_id, target_level) VALUES (0, 0, " << *levelIT << ")";
+                    std::string sql = sqlStream.str();
+                    CharacterDatabase.DirectExecute(sql.c_str());
+                    toAdd--;
                 }
             }
         }
     }
 
-    for (std::unordered_map<uint32, Strategy_Prepare*>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
+    for (std::unordered_map<uint32, Strategy_Prepare>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
     {
-        spIT->second->Update();
+        spIT->second.Update();
     }
 
-    for (std::unordered_map<uint32, Strategy_Solo*>::iterator ssIT = soloStrategyMap.begin(); ssIT != soloStrategyMap.end(); ssIT++)
+    for (std::unordered_map<uint32, Strategy_Solo>::iterator ssIT = soloStrategyMap.begin(); ssIT != soloStrategyMap.end(); ssIT++)
     {
-        ssIT->second->Update();
+        ssIT->second.Update();
     }
 
-    for (std::unordered_map<uint32, Strategy_Party*>::iterator spIT = partyStrategyMap.begin(); spIT != partyStrategyMap.end(); spIT++)
+    for (std::unordered_map<uint32, Strategy_Party>::iterator spIT = partyStrategyMap.begin(); spIT != partyStrategyMap.end(); spIT++)
     {
-        spIT->second->Update();
+        if (Group* party = sGroupMgr->GetGroupByGUID(spIT->first))
+        {
+            spIT->second.Update();
+        }
     }
 
-    for (std::unordered_map<uint32, Strategy_Raid*>::iterator srIT = raidStrategyMap.begin(); srIT != raidStrategyMap.end(); srIT++)
+    for (std::unordered_map<uint32, Strategy_Raid>::iterator srIT = raidStrategyMap.begin(); srIT != raidStrategyMap.end(); srIT++)
     {
-        srIT->second->Update();
+        if (Group* party = sGroupMgr->GetGroupByGUID(srIT->first))
+        {
+            // todo raid strategy update
+        }
     }
 }
 
 bool RobotManager::DeleteRobots()
 {
+    std::ostringstream sqlStream;
+    sqlStream << "delete from robot";
+    std::string sql = sqlStream.str();
+    CharacterDatabase.Execute(sql.c_str());
+
     QueryResult accountQR = LoginDatabase.PQuery("SELECT id, username FROM account where username like '%s%%'", sRobotConfig->AccountNamePrefix.c_str());
 
     if (accountQR)
@@ -634,6 +691,23 @@ uint32 RobotManager::CheckAccountCharacter(uint32 pmAccountID)
         result = characterFields[0].GetUInt32();
     }
     return result;
+}
+
+uint32 RobotManager::CreateRobotCharacter(uint32 pmAccountID)
+{
+    uint32 targetClass = 0;
+    while (true)
+    {
+        targetClass = urand(Classes::CLASS_WARRIOR, Classes::CLASS_DRUID);
+        if (targetClass != 6 && targetClass != 10 && targetClass != Classes::CLASS_WARRIOR && targetClass != Classes::CLASS_ROGUE && targetClass != Classes::CLASS_SHAMAN && targetClass != Classes::CLASS_MAGE)
+        {
+            break;
+        }
+    }
+    uint32 raceIndex = urand(0, availableRaces[targetClass].size() - 1);
+    uint32 targetRace = availableRaces[targetClass][raceIndex];
+
+    return CreateRobotCharacter(pmAccountID, targetClass, targetRace);
 }
 
 uint32 RobotManager::CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace)
@@ -798,21 +872,15 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
         {
             if (checkGroup->isRaidGroup())
             {
-                //if (sRobotManager->raidStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
-                //{
-                //    if (sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap.end())
-                //    {
-                //        checkRole = sRobotManager->raidStrategyMap[checkGroup->GetLowGUID()]->memberMap[pmPlayer->GetGUID().GetCounter()]->partyRole;
-                //    }
-                //}
+                // todo raid player say
             }
             else
             {
                 if (sRobotManager->partyStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
                 {
-                    if (sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap.end())
+                    if (sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap.end())
                     {
-                        checkRole = sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap[pmPlayer->GetGUID().GetCounter()]->partyRole;
+                        checkRole = sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap[pmPlayer->GetGUID().GetCounter()].partyRole;
                     }
                 }
             }
@@ -848,9 +916,9 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
                 {
                     if (sRobotManager->partyStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
                     {
-                        if (sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap.end())
+                        if (sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap.find(pmPlayer->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap.end())
                         {
-                            sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()]->memberMap[pmPlayer->GetGUID().GetCounter()]->partyRole = checkRole;
+                            sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].memberMap[pmPlayer->GetGUID().GetCounter()].partyRole = checkRole;
                         }
                     }
                 }
@@ -1182,16 +1250,6 @@ bool RobotManager::StringStartWith(const std::string& str, const std::string& he
     return str.compare(0, head.size(), head) == 0;
 }
 
-Strategy_Solo* RobotManager::GetSoloStrategy(uint32 pmSessionID)
-{
-    if (soloStrategyMap.find(pmSessionID) != soloStrategyMap.end())
-    {
-        return soloStrategyMap[pmSessionID];
-    }
-
-    return NULL;
-}
-
 bool RobotManager::IsRobot(uint32 pmAccountID)
 {
     if (onlineRobotAccountMap.find(pmAccountID) != onlineRobotAccountMap.end())
@@ -1276,7 +1334,7 @@ void RobotManager::HandlePacket(uint32 pmSessionID, WorldPacket const* pmPacket)
                     p << roles_mask;
                     me->GetSession()->HandleGroupAcceptOpcode(p);
                     std::ostringstream replyStream_Talent;
-                    replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[me->GetClass()][soloStrategyMap[me->GetGUID().GetCounter()]->sb->characterTalentTab];
+                    replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[me->GetClass()][soloStrategyMap[me->GetGUID().GetCounter()].sb.characterTalentTab];
                     WhisperTo(me, replyStream_Talent.str(), Language::LANG_UNIVERSAL, inviter);
                 }
                 break;
@@ -1334,7 +1392,7 @@ void RobotManager::HandlePacket(uint32 pmSessionID, WorldPacket const* pmPacket)
                 {
                     if (soloStrategyMap.find(me->GetGUID().GetCounter()) != soloStrategyMap.end())
                     {
-                        soloStrategyMap[me->GetGUID().GetCounter()]->deathDelay = 0;
+                        soloStrategyMap[me->GetGUID().GetCounter()].deathDelay = 0;
                     }
                 }
             }

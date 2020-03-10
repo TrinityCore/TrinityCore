@@ -15,12 +15,12 @@ bool Script_Shaman::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Shaman::DPS(Unit* pmTarget)
+bool Script_Shaman::DPS(Unit* pmTarget, bool pmChase)
 {
-    return DPS_Common(pmTarget);
+    return DPS_Common(pmTarget, pmChase);
 }
 
-bool Script_Shaman::DPS_Common(Unit* pmTarget)
+bool Script_Shaman::DPS_Common(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -44,7 +44,17 @@ bool Script_Shaman::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, SHAMAN_RANGE_DISTANCE);
+    if (pmChase)
+    {
+        Chase(pmTarget, SHAMAN_RANGE_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if (CastSpell(pmTarget, "Lightning Bolt", SHAMAN_RANGE_DISTANCE))
     {
         return true;
@@ -82,7 +92,7 @@ bool Script_Shaman::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, SHAMAN_RANGE_DISTANCE);    
+    Chase(pmTarget, SHAMAN_RANGE_DISTANCE);
     if (CastSpell(pmTarget, "Lightning Bolt", SHAMAN_RANGE_DISTANCE))
     {
         return true;

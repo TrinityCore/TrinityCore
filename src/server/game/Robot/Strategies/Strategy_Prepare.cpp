@@ -11,15 +11,15 @@
 #include "Script_Druid.h"
 #include "Strategy_Solo.h"
 
-Strategy_Prepare::Strategy_Prepare()
+Strategy_Prepare::Strategy_Prepare(uint32 pmEntry)
 {
-    realPrevTime = 0;
+    realPrevTime = getMSTime();
+    entry = pmEntry;
     account = 0;
     character = 0;
     checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
-    actionDelay = 0;
     prepareState = RobotPrepareState::RobotPrepareState_OffLine;
-    s_base = new Script_Base();
+    sb = Script_Base();
 }
 
 void Strategy_Prepare::Update()
@@ -40,16 +40,12 @@ void Strategy_Prepare::Update()
         }
         case RobotPrepareState::RobotPrepareState_OffLine:
         {
-            if (actionDelay > 0)
-            {
-                actionDelay -= diff;
-                if (actionDelay <= 0)
-                {
-                    actionDelay = 0;
-                    prepareState = RobotPrepareState::RobotPrepareState_CheckAccount;
-                    sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot is ready to go online.");
-                }
-            }
+            break;
+        }
+        case RobotPrepareState::RobotPrepareState_Enter:
+        {
+            prepareState = RobotPrepareState::RobotPrepareState_CheckAccount;
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot %d is ready to go online.", entry);
             break;
         }
         case RobotPrepareState::RobotPrepareState_CheckAccount:
@@ -64,7 +60,7 @@ void Strategy_Prepare::Update()
             }
             else
             {
-                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %d is not ready.", account);
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account level-%d is not ready.", targetLevel);
                 prepareState = RobotPrepareState::RobotPrepareState_CreateAccount;
             }
             break;
@@ -74,7 +70,11 @@ void Strategy_Prepare::Update()
             account = sRobotManager->CreateRobotAccount();
             if (account > 0)
             {
-                prepareState = RobotPrepareState::RobotPrepareState_CheckCharacter;
+                std::ostringstream sqlStream;
+                sqlStream << "update robot set account_id = " << account << " where entry = " << entry << ";";
+                std::string sql = sqlStream.str();
+                CharacterDatabase.DirectExecute(sql.c_str());
+                prepareState = RobotPrepareState::RobotPrepareState_CheckAccount;
             }
             else
             {
@@ -92,16 +92,20 @@ void Strategy_Prepare::Update()
             }
             else
             {
-                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %d character %d is not ready.", account, character);
+                sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot account %d character is not ready.", account);
                 prepareState = RobotPrepareState::RobotPrepareState_CreateCharacter;
             }
             break;
         }
         case RobotPrepareState::RobotPrepareState_CreateCharacter:
         {
-            character = sRobotManager->CreateRobotCharacter(account, targetClass, targetRace);
+            character = sRobotManager->CreateRobotCharacter(account);
             if (character > 0)
             {
+                std::ostringstream sqlStream;
+                sqlStream << "update robot set character_id = " << character << " where entry = " << entry;
+                std::string sql = sqlStream.str();
+                CharacterDatabase.DirectExecute(sql.c_str());
                 prepareState = RobotPrepareState::RobotPrepareState_CheckCharacter;
             }
             else
@@ -113,33 +117,34 @@ void Strategy_Prepare::Update()
         case RobotPrepareState::RobotPrepareState_DoLogin:
         {
             sRobotManager->LoginRobot(account, character);
+            checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
             prepareState = RobotPrepareState::RobotPrepareState_CheckLogin;
             break;
         }
         case RobotPrepareState::RobotPrepareState_CheckLogin:
         {
-            checkDelay = 10 * TimeConstants::IN_MILLISECONDS;
             Player* me = sRobotManager->CheckLogin(account, character);
             if (me)
             {
-                WorldSession* mySession = me->GetSession();
-                s_base->InitializeCharacter(targetLevel);
-                me->SetPvP(true);                
-                actionDelay = 0;
-                prepareState = RobotPrepareState::RobotPrepareState_Online;
-
-                // todo : new strategy initialize
                 if (me->GetGroup())
                 {
                     me->UninviteFromGroup();
                 }
-                if (sRobotManager->soloStrategyMap.find(account) != sRobotManager->soloStrategyMap.end())
-                {
-                    delete sRobotManager->soloStrategyMap[account];
-                    Strategy_Solo* ss = new Strategy_Solo(account, me->GetGUID().GetCounter());
-                    sRobotManager->soloStrategyMap[account] = ss;
-                    sRobotManager->soloStrategyMap[account]->Reset();
+                sb.account = account;
+                sb.character = character;
+                sb.InitializeCharacter(targetLevel);
+                if (sRobotManager->soloStrategyMap.find(character) == sRobotManager->soloStrategyMap.end())
+                {                    
+                    Strategy_Solo ss(account, character);
+                    sRobotManager->soloStrategyMap[character] = ss;
                 }
+                else
+                {
+                    sRobotManager->soloStrategyMap[character].account = account;
+                    sRobotManager->soloStrategyMap[character].character = character;
+                }                
+                sRobotManager->soloStrategyMap[character].Reset();
+                prepareState = RobotPrepareState::RobotPrepareState_Online;
             }
             else
             {
@@ -154,7 +159,7 @@ void Strategy_Prepare::Update()
         }
         case RobotPrepareState::RobotPrepareState_DoLogoff:
         {
-            s_base->Logout();
+            sb.Logout();
             prepareState = RobotPrepareState::RobotPrepareState_CheckLogoff;
             break;
         }
@@ -167,9 +172,7 @@ void Strategy_Prepare::Update()
                 sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Log out robot %s failed", me->GetName());
                 prepareState = RobotPrepareState::RobotPrepareState_None;
                 break;
-            }
-            //sRobotManager->robotAICache.erase(accountID);
-            actionDelay = 0;
+            }            
             prepareState = RobotPrepareState::RobotPrepareState_OffLine;
             break;
         }

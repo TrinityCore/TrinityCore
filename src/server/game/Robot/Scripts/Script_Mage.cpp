@@ -17,28 +17,28 @@ bool Script_Mage::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Mage::DPS(Unit* pmTarget)
+bool Script_Mage::DPS(Unit* pmTarget, bool pmChase)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Arcane(pmTarget);
+        return DPS_Arcane(pmTarget, pmChase);
     }
     case 1:
     {
-        return DPS_Fire(pmTarget);
+        return DPS_Fire(pmTarget, pmChase);
     }
     case 2:
     {
-        return DPS_Frost(pmTarget);
+        return DPS_Frost(pmTarget, pmChase);
     }
     default:
-        return DPS_Common(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
 }
 
-bool Script_Mage::DPS_Arcane(Unit* pmTarget)
+bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -62,8 +62,17 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget)
     {
         return false;
     }
-
-    Chase(pmTarget, false, MAGE_CLOSER_DISTANCE);
+    if (pmChase)
+    {
+        Chase(pmTarget, MAGE_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
@@ -86,7 +95,7 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget)
     return true;
 }
 
-bool Script_Mage::DPS_Fire(Unit* pmTarget)
+bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -111,8 +120,17 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget)
     {
         return false;
     }
-
-    Chase(pmTarget, false, MAGE_CLOSER_DISTANCE);
+    if (pmChase)
+    {
+        Chase(pmTarget, MAGE_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
@@ -135,7 +153,7 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget)
     return true;
 }
 
-bool Script_Mage::DPS_Frost(Unit* pmTarget)
+bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -159,8 +177,17 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget)
     {
         return false;
     }
-
-    Chase(pmTarget, false, MAGE_CLOSER_DISTANCE);
+    if (pmChase)
+    {
+        Chase(pmTarget, MAGE_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
@@ -180,47 +207,15 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget)
     {
         if (myGroup->isRaidGroup())
         {
-            if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
-            {
-                for (std::unordered_map<uint32, RaidMember*>::iterator pmIT = sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
-                {
-                    if (pmIT->second->raidRole == RaidRole::RaidRole_Tank)
-                    {
-                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
-                        {
-                            if (member->getAttackers().size() >= 3)
-                            {
-                                uint32 inRangeCount = 0;
-                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
-                                {
-                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
-                                    {
-                                        inRangeCount++;
-                                        if (inRangeCount >= 3)
-                                        {
-                                            if (CastSpell((*i), "Blizzard", MAGE_RANGE_DISTANCE))
-                                            {
-                                                return true;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
+            // todo raid aoe
         }
         else
         {
             if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
             {
-                for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
+                for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
                 {
-                    if (pmIT->second->partyRole == PartyRole::PartyRole_Tank)
+                    if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
                     {
                         ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
                         if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
@@ -260,7 +255,7 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget)
     return true;
 }
 
-bool Script_Mage::DPS_Common(Unit* pmTarget)
+bool Script_Mage::DPS_Common(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -285,8 +280,17 @@ bool Script_Mage::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-
-    Chase(pmTarget, false, MAGE_CLOSER_DISTANCE);
+    if (pmChase)
+    {
+        Chase(pmTarget, MAGE_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -352,7 +356,7 @@ bool Script_Mage::Attack_Arcane(Unit* pmTarget)
         return false;
     }
 
-    Chase(pmTarget, false, MAGE_CLOSER_DISTANCE);
+    Chase(pmTarget, MAGE_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
@@ -401,7 +405,7 @@ bool Script_Mage::Attack_Fire(Unit* pmTarget)
         return false;
     }
 
-    Chase(pmTarget, false, MAGE_CLOSER_DISTANCE);
+    Chase(pmTarget, MAGE_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
@@ -450,7 +454,7 @@ bool Script_Mage::Attack_Frost(Unit* pmTarget)
         return false;
     }
 
-    Chase(pmTarget, false, MAGE_CLOSER_DISTANCE);
+    Chase(pmTarget, MAGE_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (CastSpell(me, "Evocation", MAGE_RANGE_DISTANCE))
@@ -498,7 +502,7 @@ bool Script_Mage::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, MAGE_CLOSER_DISTANCE);
+    Chase(pmTarget, MAGE_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))

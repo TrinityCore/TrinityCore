@@ -381,10 +381,30 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             GetPlayer()->Whisper(msg, Language(lang), receiver);
 
             // EJ robot
-            if (sRobotManager->soloStrategyMap.find(receiver->GetGUID().GetRawValue())!=sRobotManager->soloStrategyMap.end())
+            if (Group* checkGroup = receiver->GetGroup())
             {
-                sRobotManager->soloStrategyMap[receiver->GetGUID().GetRawValue()]->HandleChatCommand(GetPlayer(), msg);
+                if (checkGroup->isRaidGroup())
+                {
+                    if (sRobotManager->raidStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
+                    {
+                        // todo raid chat handler
+                    }
+                }
+                else
+                {
+                    if (sRobotManager->partyStrategyMap.find(checkGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+                    {
+                        sRobotManager->partyStrategyMap[checkGroup->GetLowGUID()].HandleChatCommand(GetPlayer(), msg, receiver);
+                    }
+                }
             }
+            else
+            {
+                if (sRobotManager->soloStrategyMap.find(receiver->GetGUID().GetRawValue()) != sRobotManager->soloStrategyMap.end())
+                {
+                    sRobotManager->soloStrategyMap[receiver->GetGUID().GetRawValue()].HandleChatCommand(GetPlayer(), msg);
+                }
+            }            
 
             break;
         }
@@ -412,7 +432,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             // EJ robot
             if (sRobotManager->partyStrategyMap.find(group->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
             {
-                sRobotManager->partyStrategyMap[group->GetLowGUID()]->HandleChatCommand(GetPlayer(), msg);
+                sRobotManager->partyStrategyMap[group->GetLowGUID()].HandleChatCommand(GetPlayer(), msg);
             }
             break;
         }
@@ -480,7 +500,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             // EJ robot
             if (sRobotManager->raidStrategyMap.find(group->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
             {
-                //sRobotManager->raidStrategyMap[group->GetLowGUID()]->HandleChatCommand(GetPlayer(), msg);
+                // todo raid chat handler
             }
 
             break;

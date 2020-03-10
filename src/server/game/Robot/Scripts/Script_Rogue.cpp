@@ -23,28 +23,28 @@ bool Script_Rogue::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Rogue::DPS(Unit* pmTarget)
+bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Common(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
     case 1:
     {
-        return DPS_Combat(pmTarget);
+        return DPS_Combat(pmTarget, pmChase);
     }
     case 2:
     {
-        return DPS_Common(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
     default:
-        return DPS_Common(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
 }
 
-bool Script_Rogue::DPS_Combat(Unit* pmTarget)
+bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -68,7 +68,18 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget);
+    me->Attack(pmTarget, true);
+    if (pmChase)
+    {
+        Chase(pmTarget);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
     if (energy > 25)
     {
@@ -121,7 +132,7 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget)
     return true;
 }
 
-bool Script_Rogue::DPS_Common(Unit* pmTarget)
+bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -145,7 +156,18 @@ bool Script_Rogue::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget);
+    me->Attack(pmTarget, true);
+    if (pmChase)
+    {
+        Chase(pmTarget);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
     if (energy > 25)
     {
@@ -219,6 +241,7 @@ bool Script_Rogue::Attack_Combat(Unit* pmTarget)
     {
         return false;
     }
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);
     if (energy > 25)
@@ -296,6 +319,7 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
+    me->Attack(pmTarget, true);
     Chase(pmTarget);    
     uint32 energy = me->GetPower(Powers::POWER_ENERGY);    
     if (energy > 25)

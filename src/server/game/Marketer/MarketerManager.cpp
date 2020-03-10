@@ -4,7 +4,7 @@
 
 MarketerManager::MarketerManager()
 {
-    realPrevTime = 0;
+    realPrevTime = getMSTime();
 
     buyerCheckDelay = 120000;
     sellerCheckDelay = 60000;

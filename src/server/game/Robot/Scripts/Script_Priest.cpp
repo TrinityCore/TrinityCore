@@ -35,7 +35,7 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    Chase(pmTarget, false, PRIEST_RANGE_DISTANCE);
+    Chase(pmTarget, PRIEST_RANGE_DISTANCE);
     float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 30)
     {
@@ -115,12 +115,12 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Priest::DPS(Unit* pmTarget)
+bool Script_Priest::DPS(Unit* pmTarget, bool pmChase)
 {
-    return DPS_Common(pmTarget);
+    return DPS_Common(pmTarget, pmChase);
 }
 
-bool Script_Priest::DPS_Common(Unit* pmTarget)
+bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -144,7 +144,17 @@ bool Script_Priest::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, PRIEST_CLOSER_DISTANCE);
+    if (pmChase)
+    {
+        Chase(pmTarget, PRIEST_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
@@ -196,7 +206,7 @@ bool Script_Priest::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget, false, PRIEST_CLOSER_DISTANCE);
+    Chase(pmTarget, PRIEST_CLOSER_DISTANCE);
     if ((me->GetPower(Powers::POWER_MANA) * 100 / me->GetMaxPower(Powers::POWER_MANA)) < 10)
     {
         if (!me->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))

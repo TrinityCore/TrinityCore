@@ -24,15 +24,15 @@ class RobotManager
 
 public:
     void InitializeManager();
-    void UpdateRobotManager();    
+    void UpdateRobotManager();
     bool DeleteRobots();
     bool RobotsDeleted();
     bool IsRobot(uint32 pmAccountID);
-    Strategy_Solo* GetSoloStrategy(uint32 pmSessionID);
     bool CheckRobotAccount(uint32 pmAccountID);
     uint32 CheckRobotAccount(std::string pmAccountName);
     uint32 CreateRobotAccount();
     uint32 CheckAccountCharacter(uint32 pmAccountID);
+    uint32 CreateRobotCharacter(uint32 pmAccountID);
     uint32 CreateRobotCharacter(uint32 pmAccountID, uint32 pmCharacterClass, uint32 pmCharacterRace);
     Player* CheckLogin(uint32 pmAccountID, uint32 pmCharacterID);
     bool LoginRobot(uint32 pmAccountID, uint32 pmCharacterID);
@@ -53,14 +53,14 @@ public:
     std::unordered_map<uint32, std::string> robotNameMap;
 
     std::unordered_map<uint8, std::unordered_map<uint8, std::string>> characterTalentTabNameMap;
-    std::set<uint32> deleteRobotAccountSet;        
+    std::set<uint32> deleteRobotAccountSet;
     int prepareCheckDelay;
     std::unordered_map<uint32, uint32> onlineRobotAccountMap;
-    std::unordered_map<uint32, Strategy_Prepare*> prepareStrategyMap;
-    std::unordered_map<uint32, Strategy_Solo*> soloStrategyMap;
-    std::unordered_map<uint32, Strategy_Party*> partyStrategyMap;
-    std::unordered_map<uint32, Strategy_Raid*> raidStrategyMap;
-    
+    std::unordered_map<uint32, Strategy_Prepare> prepareStrategyMap;
+    std::unordered_map<uint32, Strategy_Solo> soloStrategyMap;
+    std::unordered_map<uint32, Strategy_Party> partyStrategyMap;
+    std::unordered_map<uint32, Strategy_Raid> raidStrategyMap;
+
     uint32 nameIndex;
     std::set<uint8> armorInventorySet;
     std::unordered_map<uint8, uint8> miscInventoryMap;

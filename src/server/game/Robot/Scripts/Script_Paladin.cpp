@@ -30,7 +30,7 @@ bool Script_Paladin::Heal(Unit* pmTarget, bool pmCure)
     {
         return false;
     }
-    Chase(pmTarget, false, PALADIN_RANGE_DISTANCE);
+    Chase(pmTarget, PALADIN_RANGE_DISTANCE);
     float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 20.0f)
     {
@@ -107,8 +107,8 @@ bool Script_Paladin::Tank(Unit* pmTarget)
     {
         return false;
     }
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
-
     if (pmTarget->IsNonMeleeSpellCast(false))
     {
         if (CastSpell(pmTarget, "Hammer of Justice", MELEE_MAX_DISTANCE))
@@ -127,28 +127,28 @@ bool Script_Paladin::Tank(Unit* pmTarget)
     return true;
 }
 
-bool Script_Paladin::DPS(Unit* pmTarget)
+bool Script_Paladin::DPS(Unit* pmTarget, bool pmChase)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Common(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
     case 1:
     {
-        return DPS_Common(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
     case 2:
     {
-        return DPS_Retribution(pmTarget);
+        return DPS_Retribution(pmTarget, pmChase);
     }
     default:
-        return DPS_Common(pmTarget);
+        return DPS_Common(pmTarget, pmChase);
     }
 }
 
-bool Script_Paladin::DPS_Retribution(Unit* pmTarget)
+bool Script_Paladin::DPS_Retribution(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -173,53 +173,32 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget);
+    me->Attack(pmTarget, true);
+    if (pmChase)
+    {
+        Chase(pmTarget);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     Group* myGroup = me->GetGroup();
     if (myGroup)
     {
         if (myGroup->isRaidGroup())
         {
-            if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
-            {
-                for (std::unordered_map<uint32, RaidMember*>::iterator pmIT = sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
-                {
-                    if (pmIT->second->raidRole == RaidRole::RaidRole_Tank)
-                    {
-                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
-                        {
-                            if (member->getAttackers().size() >= 3)
-                            {
-                                uint32 inRangeCount = 0;
-                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
-                                {
-                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
-                                    {
-                                        inRangeCount++;
-                                        if (inRangeCount >= 3)
-                                        {
-                                            if (CastSpell((*i), "Consecration", MELEE_MAX_DISTANCE))
-                                            {
-                                                return true;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
+            // todo raid aoe
         }
         else
         {
             if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
             {
-                for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
+                for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
                 {
-                    if (pmIT->second->partyRole == PartyRole::PartyRole_Tank)
+                    if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
                     {
                         ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
                         if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
@@ -283,7 +262,7 @@ bool Script_Paladin::DPS_Retribution(Unit* pmTarget)
     return true;
 }
 
-bool Script_Paladin::DPS_Common(Unit* pmTarget)
+bool Script_Paladin::DPS_Common(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -308,8 +287,18 @@ bool Script_Paladin::DPS_Common(Unit* pmTarget)
     {
         return false;
     }
-    Chase(pmTarget);
-
+    me->Attack(pmTarget, true);
+    if (pmChase)
+    {
+        Chase(pmTarget);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     if (pmTarget->IsNonMeleeSpellCast(false))
     {
         if (CastSpell(pmTarget, "Hammer of Justice", MELEE_MAX_DISTANCE))
@@ -365,7 +354,8 @@ bool Script_Paladin::Attack_Retribution(Unit* pmTarget)
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
-    }
+    }    
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
     if (pmTarget->GetHealthPct() < 20.0f)
     {
@@ -425,8 +415,8 @@ bool Script_Paladin::Attack_Common(Unit* pmTarget)
     {
         return false;
     }
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
-
     if (pmTarget->GetHealthPct() < 20.0f)
     {
         if (CastSpell(pmTarget, "Hammer of Wrath", MELEE_MAX_DISTANCE))

@@ -9,31 +9,31 @@ Script_Druid::Script_Druid(uint32 pmCharacterID) :Script_Base()
     character = pmCharacterID;
 }
 
-bool Script_Druid::DPS(Unit* pmTarget)
+bool Script_Druid::DPS(Unit* pmTarget, bool pmChase)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Balance(pmTarget);
+        return DPS_Balance(pmTarget, pmChase);
     }
     case 1:
     {
-        return DPS_Feral(pmTarget);
+        return DPS_Feral(pmTarget, pmChase);
     }
     case 2:
     {
-        return DPS_Plain(pmTarget);
+        return DPS_Plain(pmTarget, pmChase);
     }
     default:
     {
-        return DPS_Plain(pmTarget);
+        return DPS_Plain(pmTarget, pmChase);
     }
     }
     return false;
 }
 
-bool Script_Druid::DPS_Balance(Unit* pmTarget)
+bool Script_Druid::DPS_Balance(Unit* pmTarget, bool pmChase)
 {
     ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
     Player* me = ObjectAccessor::FindConnectedPlayer(guid);
@@ -73,7 +73,17 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
             return true;
         }
     }
-    Chase(pmTarget, false, DRUID_CLOSER_DISTANCE);
+    if (pmChase)
+    {
+        Chase(pmTarget, DRUID_CLOSER_DISTANCE);
+    }
+    else
+    {
+        if (!me->isInFront(pmTarget))
+        {
+            me->SetFacingToObject(pmTarget);
+        }
+    }
     Group* myGroup = me->GetGroup();
     if (myGroup)
     {
@@ -81,49 +91,16 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
         {
             if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
             {
-                for (std::unordered_map<uint32, RaidMember*>::iterator pmIT = sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
-                {
-                    if (pmIT->second->raidRole == RaidRole::RaidRole_Tank)
-                    {
-                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
-                        {
-                            if (member->getAttackers().size() >= 3)
-                            {
-                                uint32 inRangeCount = 0;
-                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
-                                {
-                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
-                                    {
-                                        inRangeCount++;
-                                        if (inRangeCount >= 3)
-                                        {
-                                            if (CastSpell((*i), "Starfall", DRUID_RANGE_DISTANCE))
-                                            {
-                                                return true;
-                                            }
-                                            if (CastSpell((*i), "Hurricane", DRUID_RANGE_DISTANCE))
-                                            {
-                                                return true;
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
+                // todo raid aoe 
             }
         }
         else
         {
             if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
             {
-                for (std::unordered_map<uint32, PartyMember*>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end(); pmIT++)
+                for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
                 {
-                    if (pmIT->second->partyRole == PartyRole::PartyRole_Tank)
+                    if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
                     {
                         ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
                         if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
@@ -238,7 +215,7 @@ bool Script_Druid::DPS_Balance(Unit* pmTarget)
     return true;
 }
 
-bool Script_Druid::DPS_Feral(Unit* pmTarget)
+bool Script_Druid::DPS_Feral(Unit* pmTarget, bool pmChase)
 {
     if (!pmTarget)
     {
@@ -273,8 +250,19 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
     }
     case ShapeshiftForm::FORM_CAT:
     {
-        Chase(pmTarget);
-        CastSpell(me, "Dash");
+        me->Attack(pmTarget, true);
+        if (pmChase)
+        {
+            Chase(pmTarget);
+            CastSpell(me, "Dash");
+        }
+        else
+        {
+            if (!me->isInFront(pmTarget))
+            {
+                me->SetFacingToObject(pmTarget);
+            }
+        }
         uint32 energy = me->GetPower(Powers::POWER_ENERGY);
         if (CastSpell(pmTarget, "Faerie Fire (Feral)", DRUID_RANGE_DISTANCE, true))
         {
@@ -338,7 +326,7 @@ bool Script_Druid::DPS_Feral(Unit* pmTarget)
     return true;
 }
 
-bool Script_Druid::DPS_Plain(Unit* pmTarget)
+bool Script_Druid::DPS_Plain(Unit* pmTarget, bool pmChase)
 {
     return true;
 }
@@ -389,7 +377,7 @@ bool Script_Druid::Tank(Unit* pmTarget)
         return true;
     }
     }
-
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
     if (me->GetHealthPct() < 80)
     {
@@ -534,7 +522,7 @@ bool Script_Druid::Attack_Balance(Unit* pmTarget)
             return true;
         }
     }
-    Chase(pmTarget, false, DRUID_CLOSER_DISTANCE);
+    Chase(pmTarget, DRUID_CLOSER_DISTANCE);
     if (pmTarget->GetTarget().IsEmpty())
     {
         if (CastSpell(pmTarget, "Starfire", DRUID_RANGE_DISTANCE))
@@ -670,6 +658,7 @@ bool Script_Druid::Attack_Feral_Cat(Unit* pmTarget)
     }
     case ShapeshiftForm::FORM_CAT:
     {
+        me->Attack(pmTarget, true);
         Chase(pmTarget);
         CastSpell(me, "Dash");
         uint32 energy = me->GetPower(Powers::POWER_ENERGY);
@@ -760,6 +749,7 @@ bool Script_Druid::Attack_Feral_Bear(Unit* pmTarget)
     {
         return false;
     }
+    me->Attack(pmTarget, true);
     Chase(pmTarget);
     CastSpell(me, "Enrage");
     uint32 rage = me->GetPower(Powers::POWER_RAGE);
@@ -849,7 +839,7 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
     if (!me)
     {
         return false;
-    }    
+    }
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
@@ -861,10 +851,14 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
             return true;
         }
     }
-    Chase(pmTarget, false, DRUID_RANGE_DISTANCE);
+    Chase(pmTarget, DRUID_RANGE_DISTANCE);
     float healthPCT = pmTarget->GetHealthPct();
     if (healthPCT < 60.0f)
     {
+        if (me->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE && me->GetShapeshiftForm() != ShapeshiftForm::FORM_TREE)
+        {
+            ClearShapeshift();
+        }
         if (CastSpell(pmTarget, "Healing Touch", DRUID_RANGE_DISTANCE))
         {
             return true;
@@ -872,6 +866,10 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
     }
     else if (healthPCT < 80.0f)
     {
+        if (me->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE && me->GetShapeshiftForm() != ShapeshiftForm::FORM_TREE)
+        {
+            ClearShapeshift();
+        }
         if (CastSpell(pmTarget, "Regrowth", DRUID_RANGE_DISTANCE))
         {
             return true;
@@ -879,6 +877,10 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
     }
     else if (healthPCT < 90.0f)
     {
+        if (me->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE && me->GetShapeshiftForm() != ShapeshiftForm::FORM_TREE)
+        {
+            ClearShapeshift();
+        }
         if (CastSpell(pmTarget, "Rejuvenation", DRUID_RANGE_DISTANCE, true))
         {
             return true;
@@ -897,6 +899,10 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
                 {
                     if (pST->Dispel == DispelType::DISPEL_POISON)
                     {
+                        if (me->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE && me->GetShapeshiftForm() != ShapeshiftForm::FORM_TREE)
+                        {
+                            ClearShapeshift();
+                        }
                         if (CastSpell(pmTarget, "Abolish Poison", DRUID_RANGE_DISTANCE))
                         {
                             return true;
@@ -908,6 +914,10 @@ bool Script_Druid::Heal(Unit* pmTarget, bool pmCure)
                     }
                     else if (pST->Dispel == DispelType::DISPEL_CURSE)
                     {
+                        if (me->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE && me->GetShapeshiftForm() != ShapeshiftForm::FORM_TREE)
+                        {
+                            ClearShapeshift();
+                        }
                         if (CastSpell(pmTarget, "Remove Curse", DRUID_RANGE_DISTANCE))
                         {
                             return true;
@@ -943,27 +953,15 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
         {
             if (myGroup->isRaidGroup())
             {
-                if (sRobotManager->raidStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->raidStrategyMap.end())
-                {
-                    if (sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.find(pmTarget->GetGUID().GetCounter()) != sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap.end())
-                    {
-                        if (sRobotManager->raidStrategyMap[myGroup->GetLowGUID()]->memberMap[pmTarget->GetGUID().GetCounter()]->raidRole == RaidRole::RaidRole_Tank)
-                        {
-                            if (CastSpell(pmTarget, "Thorns", DRUID_RANGE_DISTANCE, true))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
+                // todo raid buff
             }
             else
             {
                 if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
                 {
-                    if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.find(pmTarget->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap.end())
+                    if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.find(pmTarget->GetGUID().GetCounter()) != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end())
                     {
-                        if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()]->memberMap[pmTarget->GetGUID().GetCounter()]->partyRole == PartyRole::PartyRole_Tank)
+                        if (sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap[pmTarget->GetGUID().GetCounter()].partyRole == PartyRole::PartyRole_Tank)
                         {
                             if (CastSpell(pmTarget, "Thorns", DRUID_RANGE_DISTANCE, true))
                             {
@@ -993,6 +991,10 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
                 {
                     if (pST->Dispel == DispelType::DISPEL_POISON)
                     {
+                        if (me->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE && me->GetShapeshiftForm() != ShapeshiftForm::FORM_TREE)
+                        {
+                            ClearShapeshift();
+                        }
                         if (CastSpell(pmTarget, "Abolish Poison", DRUID_RANGE_DISTANCE))
                         {
                             return true;
@@ -1004,6 +1006,10 @@ bool Script_Druid::Buff(Unit* pmTarget, bool pmCure)
                     }
                     else if (pST->Dispel == DispelType::DISPEL_CURSE)
                     {
+                        if (me->GetShapeshiftForm() != ShapeshiftForm::FORM_NONE && me->GetShapeshiftForm() != ShapeshiftForm::FORM_TREE)
+                        {
+                            ClearShapeshift();
+                        }
                         if (CastSpell(pmTarget, "Remove Curse", DRUID_RANGE_DISTANCE))
                         {
                             return true;
