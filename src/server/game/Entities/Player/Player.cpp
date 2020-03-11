@@ -22611,7 +22611,7 @@ void Player::InitDisplayIds()
             TC_LOG_ERROR("entities.player", "Player::InitDisplayIds: Player '%s' (%s) has invalid gender %u", GetName().c_str(), GetGUID().ToString().c_str(), gender);
     }
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sAnimationDataStore.GetNumRows());
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDB2Manager.GetEmptyAnimStateID());
 }
 
 inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int64 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
