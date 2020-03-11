@@ -18,6 +18,8 @@
 #ifndef GRIM_BATOL_H_
 #define GRIM_BATOL_H_
 
+#include "CreatureAIImpl.h"
+
 #define GBScriptName "instance_grim_batol"
 #define DataHeader   "GB"
 

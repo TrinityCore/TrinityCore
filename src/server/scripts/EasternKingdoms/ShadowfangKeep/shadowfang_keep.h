@@ -18,6 +18,7 @@
 #ifndef DEF_SHADOWFANG_H
 #define DEF_SHADOWFANG_H
 
+#include "CreatureAIImpl.h"
 #include "SpellScript.h"
 
 #define DataHeader "SK"

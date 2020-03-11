@@ -30,6 +30,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "MotionMaster.h"
 
 enum Texts
 {

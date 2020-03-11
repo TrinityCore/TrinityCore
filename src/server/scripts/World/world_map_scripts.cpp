@@ -24,6 +24,7 @@
 #include "Unit.h"
 #include "Weather.h"
 #include "ObjectMgr.h"
+#include "SpellInfo.h"
 
 enum DeeprunTram
 {

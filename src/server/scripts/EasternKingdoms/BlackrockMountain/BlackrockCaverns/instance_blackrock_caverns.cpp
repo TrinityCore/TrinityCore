@@ -18,6 +18,10 @@
 #include "ScriptMgr.h"
 #include "blackrock_caverns.h"
 #include "InstanceScript.h"
+#include "Creature.h"
+#include "InstanceScript.h"
+#include "CreatureAI.h"
+#include "Map.h"
 
 ObjectData const creatureData[] =
 {

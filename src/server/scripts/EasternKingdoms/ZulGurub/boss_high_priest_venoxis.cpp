@@ -23,6 +23,11 @@
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "MotionMaster.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "Map.h"
 
 enum Yells
 {

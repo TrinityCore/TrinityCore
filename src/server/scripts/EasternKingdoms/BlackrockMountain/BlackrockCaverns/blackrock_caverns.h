@@ -19,6 +19,7 @@
 #define BLACKROCKCAVERNS_H_
 
 #include "CreatureAIImpl.h"
+#include "Position.h"
 
 #define BCScriptName "instance_blackrock_caverns"
 #define DataHeader "BRC"

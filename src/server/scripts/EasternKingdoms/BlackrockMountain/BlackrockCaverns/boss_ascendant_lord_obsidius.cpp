@@ -15,11 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "blackrock_caverns.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "SpellScript.h"
+#include "Position.h"
 
 enum Text
 {

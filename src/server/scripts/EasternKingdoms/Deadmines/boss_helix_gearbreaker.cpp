@@ -29,6 +29,7 @@
 #include "SpellMgr.h"
 #include "VehicleDefines.h"
 #include "GridNotifiers.h"
+#include "Map.h"
 
 enum Texts
 {

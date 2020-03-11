@@ -27,6 +27,8 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 #include "SpellScript.h"
 
 enum Texts

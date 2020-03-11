@@ -24,6 +24,11 @@
 #include "Player.h"
 #include "PhasingHandler.h"
 #include "PassiveAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "TemporarySummon.h"
+#include "Map.h"
 #include "bastion_of_twilight.h"
 
 enum Texts

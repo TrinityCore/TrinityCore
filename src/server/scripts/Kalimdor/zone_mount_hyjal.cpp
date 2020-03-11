@@ -25,6 +25,12 @@
 #include "PassiveAI.h"
 #include "Spell.h"
 #include "Vehicle.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "TemporarySummon.h"
+#include "Player.h"
+#include "SpellScript.h"
 
 enum CommonDefines
 {

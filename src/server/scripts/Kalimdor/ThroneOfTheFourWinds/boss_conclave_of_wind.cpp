@@ -26,6 +26,9 @@
 #include "SpellMgr.h"
 #include "Spell.h"
 #include "Player.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 
 enum Spells
 {

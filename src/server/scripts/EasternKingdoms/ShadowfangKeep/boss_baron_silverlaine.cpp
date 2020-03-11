@@ -23,6 +23,9 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Player.h"
+#include "InstanceScript.h"
+#include "CreatureAIImpl.h"
+#include "ObjectAccessor.h"
 
 enum Texts
 {

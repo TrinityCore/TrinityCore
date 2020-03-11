@@ -26,6 +26,11 @@
 #include "SpellMgr.h"
 #include "Spell.h"
 #include "Vehicle.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "TemporarySummon.h"
+#include "Map.h"
 
 enum Spells
 {

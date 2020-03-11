@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "baradin_hold.h"
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"

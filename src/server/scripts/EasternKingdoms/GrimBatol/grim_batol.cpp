@@ -21,6 +21,10 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "CombatAI.h"
+#include "MotionMaster.h"
+#include "InstanceScript.h"
+#include "Player.h"
+#include "ObjectAccessor.h"
 #include "grim_batol.h"
 
 enum TwilightBeguiler

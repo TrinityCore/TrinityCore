@@ -21,6 +21,10 @@
 #include "InstanceScript.h"
 #include "Spell.h"
 #include "SpellScript.h"
+#include "SpellInfo.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Map.h"
 
 enum Spells
 {

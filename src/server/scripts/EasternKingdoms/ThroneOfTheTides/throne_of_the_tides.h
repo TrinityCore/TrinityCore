@@ -19,6 +19,7 @@
 #define THRONEOFTHETIDES_H_
 
 #include "CreatureAIImpl.h"
+#include "Position.h"
 
 #define TotTScriptName "instance_throne_of_the_tides"
 #define DataHeader "TOTT"

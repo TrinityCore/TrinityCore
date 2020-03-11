@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "GridNotifiers.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"

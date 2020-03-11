@@ -20,6 +20,9 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "SpellScript.h"
 #include "zulgurub.h"
 
 enum Yells

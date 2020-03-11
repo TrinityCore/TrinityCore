@@ -23,6 +23,10 @@
 #include "PassiveAI.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
+#include "TemporarySummon.h"
 #include "blackwing_descent.h"
 
 enum Spells

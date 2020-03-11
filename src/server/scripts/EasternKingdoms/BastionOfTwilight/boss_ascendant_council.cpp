@@ -16,7 +16,10 @@
 */
 
 #include "CommonPredicates.h"
+#include "Creature.h"
+#include "InstanceScript.h"
 #include "GridNotifiers.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -25,8 +28,12 @@
 #include "SpellMgr.h"
 #include "SpellHistory.h"
 #include "Player.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
 #include "DBCStores.h"
 #include "bastion_of_twilight.h"
+#include "MotionMaster.h"
+#include "Map.h"
 
 enum Texts
 {

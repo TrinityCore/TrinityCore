@@ -23,6 +23,9 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {

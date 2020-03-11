@@ -20,6 +20,8 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "CreatureAI.h"
+#include "Map.h"
 #include "zulgurub.h"
 
 ObjectData const creatureData[] =

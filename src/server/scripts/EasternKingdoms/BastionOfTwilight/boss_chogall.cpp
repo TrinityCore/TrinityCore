@@ -15,7 +15,12 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Creature.h"
+#include "CreatureAIImpl.h"
+#include "InstanceScript.h"
 #include "GridNotifiers.h"
+#include "MotionMaster.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "PassiveAI.h"
 #include "ScriptMgr.h"
@@ -24,6 +29,8 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
 #include "Vehicle.h"
 #include "bastion_of_twilight.h"
 

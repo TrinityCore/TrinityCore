@@ -18,6 +18,12 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "grim_batol.h"
+#include "Creature.h"
+#include "EventMap.h"
+#include "Map.h"
+#include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "CreatureAI.h"
 
 ObjectData const creatureData[] =
 {

@@ -19,6 +19,7 @@
 #define THE_STOCKADE_H
 
 #include "CreatureAIImpl.h"
+#include "MotionMaster.h"
 
 #define StormwindStockadeScriptName "instance_the_stockade"
 #define DataHeader "SS"

@@ -28,6 +28,7 @@
 #include "shadowfang_keep.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "CreatureAIImpl.h"
 
 enum ApothecarySpells
 {

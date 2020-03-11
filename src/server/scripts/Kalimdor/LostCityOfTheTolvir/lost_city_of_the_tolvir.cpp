@@ -18,6 +18,8 @@
 #include "lost_city_of_the_tolvir.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 
 enum Texts
 {

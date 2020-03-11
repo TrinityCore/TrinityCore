@@ -27,6 +27,11 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ObjectAccessor.h"
+#include "Map.h"
 
 enum Texts
 {

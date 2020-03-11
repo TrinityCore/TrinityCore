@@ -20,6 +20,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ScriptedCreature.h"
+#include "MotionMaster.h"
 #include "zulaman.h"
 
 ObjectData const creatureData[] =

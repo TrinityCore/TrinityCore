@@ -23,6 +23,10 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Player.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "CreatureAIImpl.h"
+#include "Map.h"
 
 enum Spells
 {

@@ -27,6 +27,7 @@
 #include "MotionMaster.h"
 #include "PetAI.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {

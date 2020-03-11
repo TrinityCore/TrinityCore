@@ -25,6 +25,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "ObjectAccessor.h"
 #include "vortex_pinnacle.h"
 
 enum Spells

@@ -25,6 +25,9 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "Map.h"
 #include "blackwing_descent.h"
 
 enum Spells

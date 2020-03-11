@@ -19,6 +19,14 @@
 #include "PhasingHandler.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Unit.h"
+#include "SpellInfo.h"
 #include "zulgurub.h"
 
 enum Yells

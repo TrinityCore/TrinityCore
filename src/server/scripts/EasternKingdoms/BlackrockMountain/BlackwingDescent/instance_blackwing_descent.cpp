@@ -21,6 +21,9 @@
 #include "InstanceScript.h"
 #include "MapManager.h"
 #include "Transport.h"
+#include "EventMap.h"
+#include "CreatureAI.h"
+#include "TemporarySummon.h"
 #include "blackwing_descent.h"
 
 ObjectData const creatureData[] =

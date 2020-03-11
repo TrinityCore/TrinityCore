@@ -25,6 +25,9 @@
 #include "MoveSplineInit.h"
 #include "Player.h"
 #include "Vehicle.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 #include "throne_of_the_four_winds.h"
 
 enum Spells

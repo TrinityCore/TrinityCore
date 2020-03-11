@@ -23,6 +23,9 @@
 #include "SpellAuraEffects.h"
 #include "Player.h"
 #include "deadmines.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 
 enum Texts
 {

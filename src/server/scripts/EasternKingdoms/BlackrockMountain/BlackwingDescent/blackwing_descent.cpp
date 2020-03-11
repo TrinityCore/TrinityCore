@@ -24,6 +24,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Player.h"
+#include "InstanceScript.h"
 #include "blackwing_descent.h"
 
 struct go_bwd_ancient_bell : public GameObjectAI

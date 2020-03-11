@@ -21,6 +21,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "halls_of_origination.h"
+#include "InstanceScript.h"
 #include "TemporarySummon.h"
 
 enum Spells

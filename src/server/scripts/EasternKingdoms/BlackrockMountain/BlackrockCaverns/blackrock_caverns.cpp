@@ -24,6 +24,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "InstanceScript.h"
 
 /*#####
 # npc_fire_cyclone

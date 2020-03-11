@@ -21,6 +21,8 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Player.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "lost_city_of_the_tolvir.h"
 
 enum Texts

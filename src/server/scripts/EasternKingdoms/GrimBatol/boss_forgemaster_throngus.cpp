@@ -22,6 +22,8 @@
 #include "SpellAuraEffects.h"
 #include "PassiveAI.h"
 #include "Player.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "grim_batol.h"
 
 enum Spells

@@ -18,6 +18,10 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "blackrock_caverns.h"
+#include "MotionMaster.h"
+#include "InstanceScript.h"
+#include "SpellScript.h"
+#include "ObjectAccessor.h"
 
 enum Sounds
 {

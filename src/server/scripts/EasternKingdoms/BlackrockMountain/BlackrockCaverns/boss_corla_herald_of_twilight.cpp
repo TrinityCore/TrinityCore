@@ -22,6 +22,8 @@
 #include "SpellScript.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 
 enum Texts
 {

@@ -23,6 +23,10 @@
 #include "SpellAuraEffects.h"
 #include "Player.h"
 #include "Vehicle.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
+#include "Map.h"
 #include "blackwing_descent.h"
 
 enum Spells

@@ -24,6 +24,10 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Player.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 #include "bastion_of_twilight.h"
 
 enum Spells

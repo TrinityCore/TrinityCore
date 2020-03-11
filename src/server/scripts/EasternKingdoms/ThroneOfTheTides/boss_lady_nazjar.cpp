@@ -25,6 +25,8 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Player.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 
 enum Texts
 {

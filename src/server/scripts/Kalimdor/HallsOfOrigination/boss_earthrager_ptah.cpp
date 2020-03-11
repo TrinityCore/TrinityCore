@@ -30,6 +30,8 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "Weather.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 
 enum Texts
 {

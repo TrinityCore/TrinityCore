@@ -21,6 +21,7 @@
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "PassiveAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuras.h"

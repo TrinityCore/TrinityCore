@@ -17,10 +17,12 @@
 
 #include "ScriptMgr.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "CreatureGroups.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "EventMap.h"
 #include "stonecore.h"
 
 #define MAX_ENCOUNTER 4

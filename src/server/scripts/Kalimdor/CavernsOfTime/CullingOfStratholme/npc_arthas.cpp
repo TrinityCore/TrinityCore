@@ -30,6 +30,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 #include "ScriptSystem.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "SplineChainMovementGenerator.h"
 #include "TemporarySummon.h"

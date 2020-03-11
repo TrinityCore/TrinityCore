@@ -23,6 +23,9 @@
 #include "SpellAuraEffects.h"
 #include "MoveSplineInit.h"
 #include "Player.h"
+#include "MotionMaster.h"
+#include "InstanceScript.h"
+#include "TemporarySummon.h"
 #include "grim_batol.h"
 
 enum Spells

@@ -21,6 +21,7 @@
 #include "CombatAI.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "PassiveAI.h"
 #include "PhasingHandler.h"
@@ -28,6 +29,7 @@
 #include "SpellScript.h"
 #include "SpellMgr.h"
 #include "SpellHistory.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
 
 enum PlansVsZombies

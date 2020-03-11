@@ -19,6 +19,11 @@
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "DynamicObject.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "SpellInfo.h"
+#include "MotionMaster.h"
+#include "SpellScript.h"
 #include "zulgurub.h"
 
 enum Yells

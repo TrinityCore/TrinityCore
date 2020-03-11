@@ -30,6 +30,11 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Transport.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "TemporarySummon.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "blackwing_descent.h"
 
 enum Spells

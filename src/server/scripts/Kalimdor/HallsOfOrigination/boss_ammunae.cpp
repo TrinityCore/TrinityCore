@@ -20,6 +20,7 @@
 #include "SpellMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "InstanceScript.h"
 
 enum Spells
 {

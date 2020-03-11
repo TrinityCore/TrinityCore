@@ -21,6 +21,8 @@
 #define DataHeader "BoT"
 #define BoTScriptName "instance_bastion_of_twilight"
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCountNormal = 4;
 uint32 const EncounterCountHeroic = 5;
 

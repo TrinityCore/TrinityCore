@@ -25,6 +25,7 @@
 #include "SpellAuraEffects.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "InstanceScript.h"
 
 enum Events
 {

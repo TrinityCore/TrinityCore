@@ -41,6 +41,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "CreatureAIImpl.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {

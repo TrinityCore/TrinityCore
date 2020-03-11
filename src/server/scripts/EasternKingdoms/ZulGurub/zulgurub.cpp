@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 #include "GridNotifiers.h"
+#include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"

@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "Player.h"
 #include "CreatureGroups.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "MotionMaster.h"
+#include "SpellScript.h"
+#include "Map.h"
 #include "stonecore.h"
 
 enum Spells

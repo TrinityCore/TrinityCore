@@ -18,6 +18,9 @@
 #ifndef DEF_DEADMINES_H
 #define DEF_DEADMINES_H
 
+#include "CreatureAIImpl.h"
+#include "Position.h"
+
 #define DataHeader "DM"
 #define DMScriptName "instance_deadmines"
 

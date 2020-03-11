@@ -17,11 +17,16 @@
 
 #include "ScriptMgr.h"
 #include "throne_of_the_tides.h"
+#include "Creature.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Vehicle.h"
 #include "MoveSpline.h"
+#include "MotionMaster.h"
+#include "Map.h"
+#include "Player.h"
+#include "TemporarySummon.h"
 
 ObjectData const creatureData[] =
 {

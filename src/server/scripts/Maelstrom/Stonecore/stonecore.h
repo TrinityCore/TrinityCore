@@ -19,6 +19,7 @@
 #define DEF_STONECORE_H
 
 #include "CreatureAIImpl.h"
+#include "Position.h"
 
 #define SCScriptName "instance_stonecore"
 #define DataHeader "SC"

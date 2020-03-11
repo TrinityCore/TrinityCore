@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CreatureAI.h"
 #include "ScriptMgr.h"
 #include "baradin_hold.h"
 #include "Creature.h"

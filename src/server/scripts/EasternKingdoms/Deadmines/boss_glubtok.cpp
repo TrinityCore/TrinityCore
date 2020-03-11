@@ -23,6 +23,9 @@
 #include "MoveSplineInit.h"
 #include "Player.h"
 #include "Vehicle.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 #include "deadmines.h"
 
 enum Spells

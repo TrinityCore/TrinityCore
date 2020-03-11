@@ -19,6 +19,7 @@
 #include "CreatureAIImpl.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
 enum VoodooSpells
