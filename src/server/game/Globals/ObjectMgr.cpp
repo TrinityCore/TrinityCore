@@ -9369,7 +9369,14 @@ void ObjectMgr::LoadCreatureDefaultTrainers()
                 continue;
             }
 
-            _creatureDefaultTrainers[creatureId] = trainerId;
+            Trainer::Trainer* trainer = Trinity::Containers::MapGetValuePtr(_trainers, trainerId);
+            if (!trainer)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `creature_default_trainer` references non-existing trainer (TrainerId: %u) for CreatureId %u, ignoring", trainerId, creatureId);
+                continue;
+            }
+
+            _creatureDefaultTrainers[creatureId] = trainer;
 
         } while (result->NextRow());
     }
@@ -9583,7 +9590,7 @@ Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 creatureId) const
 {
     auto itr = _creatureDefaultTrainers.find(creatureId);
     if (itr != _creatureDefaultTrainers.end())
-        return Trinity::Containers::MapGetValuePtr(_trainers, itr->second);
+        return itr->second;
 
     return nullptr;
 }
