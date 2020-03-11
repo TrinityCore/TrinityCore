@@ -20,6 +20,7 @@
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
+#include "DBCStores.h"
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"

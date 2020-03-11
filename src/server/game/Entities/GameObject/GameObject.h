@@ -29,6 +29,7 @@ class GameObjectAI;
 class GameObjectModel;
 class Group;
 class OPvPCapturePoint;
+class SpellInfo;
 class Transport;
 class Unit;
 struct TransportAnimation;

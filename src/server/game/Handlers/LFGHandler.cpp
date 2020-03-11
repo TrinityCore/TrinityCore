@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LFGMgr.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "Group.h"
+#include "LFGMgr.h"
 #include "LFGPackets.h"
 #include "Log.h"
 #include "ObjectAccessor.h"

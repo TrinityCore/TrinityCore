@@ -19,6 +19,7 @@
 #define _ITEMPROTOTYPE_H
 
 #include "DB2Structure.h"
+#include "Errors.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <vector>
@@ -624,7 +625,9 @@ struct ItemEffect
 #define MAX_ITEM_PROTO_SPELLS  5
 #define MAX_ITEM_PROTO_STATS  10
 
-struct ItemTemplate
+class Player;
+
+struct TC_GAME_API ItemTemplate
 {
     ItemEntry const* BasicData;
     ItemSparseEntry const* ExtendedData;

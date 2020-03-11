@@ -23,6 +23,7 @@
 #include "ItemTemplate.h"
 #include "Log.h"
 #include "ObjectDefines.h"
+#include "Player.h"
 #include "Regex.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"

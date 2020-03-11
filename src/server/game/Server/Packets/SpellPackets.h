@@ -24,6 +24,8 @@
 #include "Position.h"
 #include "SharedDefines.h"
 
+#include <array>
+
 namespace WorldPackets
 {
     namespace Spells

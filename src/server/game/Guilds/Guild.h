@@ -21,6 +21,8 @@
 #include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
+
+#include <array>
 #include <unordered_map>
 
 template<class T>
@@ -29,6 +31,7 @@ class AchievementMgr;
 class Item;
 class Player;
 class Unit;
+class GameObject;
 class WorldPacket;
 class WorldSession;
 struct ItemPosCount;

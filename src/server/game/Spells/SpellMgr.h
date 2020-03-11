@@ -20,6 +20,7 @@
 
 // For static or at-server-startup loaded spell data
 
+#include "ConditionMgr.h"
 #include "Define.h"
 #include "Duration.h"
 #include "IteratorPair.h"

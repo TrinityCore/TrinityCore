@@ -25,6 +25,7 @@
 #include <G3D/Vector3.h>
 
 class Unit;
+class WorldObject;
 
 // 74*4.0f=296y  number_of_points*interval = max_path_len
 // this is way more than actual evade range

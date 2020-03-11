@@ -17,6 +17,7 @@
 
 #include "TransportMgr.h"
 #include "DatabaseEnv.h"
+#include "GameObjectData.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "MapManager.h"

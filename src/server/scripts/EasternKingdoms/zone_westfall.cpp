@@ -15,10 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "CombatAI.h"
+#include "CreatureAIImpl.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "SharedDefines.h"
 
 class spell_westfall_unbound_energy : public SpellScript

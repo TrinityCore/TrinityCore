@@ -20,9 +20,11 @@
 #include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+
 enum Northshire
 {
     NPC_STORWIND_INFANTRY                   = 49869,

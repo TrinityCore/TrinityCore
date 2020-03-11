@@ -25,6 +25,7 @@
 struct KeyFrame;
 struct GameObjectTemplate;
 struct TransportTemplate;
+class Transport;
 class MapTransport;
 class Map;
 
@@ -33,12 +34,12 @@ namespace Movement
     template <typename length_type> class Spline;
 }
 
-typedef Movement::Spline<double>                 TransportSpline;
-typedef std::vector<KeyFrame>                    KeyFrameVec;
-typedef std::unordered_map<uint32, TransportTemplate> TransportTemplates;
-typedef std::set<Transport*>                     TransportSet;
-typedef std::unordered_map<uint32, TransportSet>      TransportMap;
-typedef std::unordered_map<uint32, std::set<uint32> > TransportInstanceMap;
+typedef Movement::Spline<double>                        TransportSpline;
+typedef std::vector<KeyFrame>                           KeyFrameVec;
+typedef std::unordered_map<uint32, TransportTemplate>   TransportTemplates;
+typedef std::set<Transport*>                            TransportSet;
+typedef std::unordered_map<uint32, TransportSet>        TransportMap;
+typedef std::unordered_map<uint32, std::set<uint32>>    TransportInstanceMap;
 
 struct KeyFrame
 {
@@ -82,6 +83,8 @@ struct TransportTemplate
     float accelDist;
     uint32 entry;
 };
+
+struct QuaternionData;
 
 typedef std::map<uint32, TransportAnimationEntry const*> TransportPathContainer;
 typedef std::map<uint32, TransportRotationEntry const*> TransportPathRotationContainer;

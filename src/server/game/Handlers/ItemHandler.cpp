@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "SpellInfo.h"
 #include "WorldPacket.h"
+#include "World.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 {

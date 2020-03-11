@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "scarlet_monastery.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "scarlet_monastery.h"
+#include "InstanceScript.h"
 
 enum Yells
 {

@@ -20,6 +20,8 @@
 
 #include "DB2Store.h"
 #include "DB2Structure.h"
+
+#include <map>
 #include <string>
 
 TC_GAME_API extern DB2Storage<ItemEntry>                sItemStore;

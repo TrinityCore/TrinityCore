@@ -16,6 +16,7 @@
  */
 
 #include "Loot.h"
+#include "DBCStores.h"
 #include "Group.h"
 #include "ItemEnchantmentMgr.h"
 #include "ItemTemplate.h"

@@ -20,6 +20,7 @@
 #include "ScriptMgr.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
+#include "World.h"
 
 #include <boost/system/error_code.hpp>
 

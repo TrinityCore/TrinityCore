@@ -19,6 +19,7 @@
 #define QuestPackets_h__
 
 #include "Packet.h"
+#include "QuestDef.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 

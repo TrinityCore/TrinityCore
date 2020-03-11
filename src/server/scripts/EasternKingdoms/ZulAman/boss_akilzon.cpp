@@ -17,6 +17,8 @@
 
 #include "zulaman.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptMgr.h"
@@ -25,6 +27,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 #include "Weather.h"
 
 enum Texts

@@ -15,12 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DB2Stores.h"
 #include "Common.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "DB2fmt.h"
 #include "Errors.h"
+#include "HotfixDatabase.h"
 #include "Log.h"
 #include "World.h"
+
 #include <sstream>
 
 DB2Storage<ItemEntry>               sItemStore("Item.db2", Itemfmt, HOTFIX_SEL_ITEM);

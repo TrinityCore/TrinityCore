@@ -19,6 +19,7 @@
 #include "DB2StorageLoader.h"
 #include "Database/Implementation/HotfixDatabase.h"
 #include "Database/DatabaseEnv.h"
+#include "Errors.h"
 #include "Log.h"
 
 DB2FileLoader::DB2FileLoader()

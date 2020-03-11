@@ -63,6 +63,8 @@ class TC_GAME_API FormationMgr
         CreatureGroupInfoType CreatureGroupMap;
 };
 
+struct Position;
+
 class TC_GAME_API CreatureGroup
 {
     private:

@@ -18,6 +18,8 @@
 #ifndef GILNEAS_M_
 #define GILNEAS_M_
 
+#include "Position.h"
+
 /*######
 ## Quest 14154 - By the Skin of his Teeth
 ######*/

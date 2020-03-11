@@ -19,6 +19,8 @@
 #define QueryPackets_h__
 
 #include "Packet.h"
+#include "DB2Stores.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {

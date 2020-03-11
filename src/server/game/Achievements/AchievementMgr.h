@@ -28,6 +28,7 @@
 
 class Unit;
 class Player;
+class GameObject;
 class WorldPacket;
 
 typedef std::vector<AchievementCriteriaEntry const*> AchievementCriteriaEntryList;

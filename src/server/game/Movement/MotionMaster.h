@@ -22,6 +22,7 @@
 #include "Errors.h"
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include <vector>

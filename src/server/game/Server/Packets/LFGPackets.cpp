@@ -16,6 +16,8 @@
  */
 
 #include "LFGPackets.h"
+#include "ItemTemplate.h"
+#include "ObjectMgr.h"
 
 void WorldPackets::LFG::LFGJoin::Read()
 {
