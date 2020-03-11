@@ -1467,6 +1467,13 @@ std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 
     return Trinity::Containers::MapGetValuePtr(_hotfixBlob, std::make_pair(tableHash, recordId));
 }
 
+uint32 DB2Manager::GetEmptyAnimStateID() const
+{
+    return 1484;
+    // TEMP: well... AnimationData.db2 in 8.3.0 has more rows than max hardcoded anim id in client
+    // return sAnimationDataStore.GetNumRows();
+}
+
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
 {
     _hotfixData[++_maxHotfixId].emplace_back(tableHash, recordId);
