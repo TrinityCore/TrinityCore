@@ -16,9 +16,10 @@
  */
 
 #include "scarlet_monastery.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "InstanceScript.h"
 
 enum Yells
 {
