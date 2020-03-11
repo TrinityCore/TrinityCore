@@ -53,7 +53,7 @@ void Strategy_Party::Update()
                                     {
                                         if (Creature* targetCreature = currentMap->GetCreature(memberMap[memberLowGUID].instruction.targetOG))
                                         {
-                                            if (!memberMap[memberLowGUID].sb.Attack(targetCreature))
+                                            if (!memberMap[memberLowGUID].sb->Attack(targetCreature))
                                             {
                                                 memberMap[memberLowGUID].instruction.Clear();
                                             }
@@ -64,7 +64,7 @@ void Strategy_Party::Update()
                                 {
                                     if (Player* targetPlayer = ObjectAccessor::FindConnectedPlayer(memberMap[memberLowGUID].instruction.targetOG))
                                     {
-                                        if (!memberMap[memberLowGUID].sb.Attack(targetPlayer))
+                                        if (!memberMap[memberLowGUID].sb->Attack(targetPlayer))
                                         {
                                             memberMap[memberLowGUID].instruction.Clear();
                                         }
@@ -104,30 +104,6 @@ void Strategy_Party::Update()
                             }
                             break;
                         }
-                        case RobotPartyInstructionType::RobotPartyInstructionType_Follow:
-                        {
-                            if (member->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
-                            {
-                                FollowMovementGenerator* mg = (FollowMovementGenerator*)member->GetMotionMaster()->GetCurrentMovementGenerator();
-                                if (mg)
-                                {
-                                    if (mg->GetTarget())
-                                    {
-                                        if (mg->GetTarget()->GetGUID() == party->GetLeaderGUID())
-                                        {
-                                            memberMap[memberLowGUID].instruction.Clear();
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            if (Player* targetPlayer = ObjectAccessor::FindConnectedPlayer(party->GetLeaderGUID()))
-                            {
-                                member->StopMoving();
-                                member->GetMotionMaster()->MoveFollow(targetPlayer, memberMap[memberLowGUID].followDistance, ChaseAngle(0, 2 * M_PI));
-                            }
-                            break;
-                        }
                         case RobotPartyInstructionType::RobotPartyInstructionType_Tank:
                         {
                             if (memberMap[memberLowGUID].partyRole != PartyRole::PartyRole_Tank)
@@ -159,22 +135,6 @@ void Strategy_Party::Update()
                             }
                             break;
                         }
-                        case RobotPartyInstructionType::RobotPartyInstructionType_Rest:
-                        {
-                            if (member->IsInCombat())
-                            {
-                                memberMap[memberLowGUID].instruction.Clear();
-                            }
-                            else
-                            {
-                                if (memberMap[memberLowGUID].sb.Rest())
-                                {
-                                    memberMap[memberLowGUID].restDelay = 20 * TimeConstants::IN_MILLISECONDS;
-                                }
-                                memberMap[memberLowGUID].instruction.Clear();
-                            }
-                            break;
-                        }
                         default:
                         {
                             break;
@@ -186,6 +146,22 @@ void Strategy_Party::Update()
                         if (memberMap[memberLowGUID].staying)
                         {
                             continue;
+                        }
+                        if (memberMap[memberLowGUID].assembleDelay > 0)
+                        {
+                            memberMap[memberLowGUID].assembleDelay -= diff;
+                            if (memberMap[memberLowGUID].assembleDelay < 0)
+                            {
+                                if (Player* leaderPlayer = ObjectAccessor::FindConnectedPlayer(party->GetLeaderGUID()))
+                                {
+                                    if (!member->IsAlive())
+                                    {
+                                        member->ResurrectPlayer(0.2f);
+                                    }
+                                    member->TeleportTo(leaderPlayer->GetWorldLocation());
+                                    memberMap[memberLowGUID].sb->WhisperTo("I have come", Language::LANG_UNIVERSAL, leaderPlayer);
+                                }
+                            }
                         }
                         if (member->IsInCombat())
                         {
@@ -205,23 +181,24 @@ void Strategy_Party::Update()
                                 memberMap[memberLowGUID].combatTime += diff;
                                 if (memberMap[memberLowGUID].combatTime > memberMap[memberLowGUID].dpsDelay)
                                 {
+                                    bool aoe = memberMap[memberLowGUID].combatTime > memberMap[memberLowGUID].aoeDelay;
                                     if (Unit* tankVictim = GetTankVictim(member))
                                     {
-                                        if (memberMap[memberLowGUID].sb.DPS(tankVictim))
+                                        if (memberMap[memberLowGUID].sb->DPS(tankVictim, !memberMap[memberLowGUID].holding, aoe))
                                         {
                                             break;
                                         }
                                     }
                                     if (Unit* myVictim = member->GetVictim())
                                     {
-                                        if (memberMap[memberLowGUID].sb.DPS(myVictim))
+                                        if (memberMap[memberLowGUID].sb->DPS(myVictim, !memberMap[memberLowGUID].holding, aoe))
                                         {
                                             break;
                                         }
                                     }
                                     if (Unit* partyVictim = GetPartyVictim(member))
                                     {
-                                        if (memberMap[memberLowGUID].sb.DPS(partyVictim))
+                                        if (memberMap[memberLowGUID].sb->DPS(partyVictim, !memberMap[memberLowGUID].holding, aoe))
                                         {
                                             break;
                                         }
@@ -231,6 +208,10 @@ void Strategy_Party::Update()
                             else
                             {
                                 memberMap[memberLowGUID].combatTime = 0;
+                                if (Rest(member))
+                                {
+                                    break;
+                                }
                                 if (Buff(member))
                                 {
                                     break;
@@ -250,6 +231,10 @@ void Strategy_Party::Update()
                             }
                             if (!member->IsInCombat())
                             {
+                                if (Rest(member))
+                                {
+                                    break;
+                                }
                                 if (Buff(member))
                                 {
                                     break;
@@ -263,19 +248,19 @@ void Strategy_Party::Update()
                         }
                         case PartyRole::PartyRole_Tank:
                         {
-                            if (Unit* myVictim = member->GetVictim())
-                            {
-                                if (myVictim->GetTarget() != member->GetGUID())
-                                {
-                                    if (memberMap[memberLowGUID].sb.Tank(myVictim))
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                            // check OT
                             if (PartyInCombat(member))
                             {
+                                if (Unit* myVictim = member->GetVictim())
+                                {
+                                    if (myVictim->GetTarget() != member->GetGUID())
+                                    {
+                                        if (memberMap[memberLowGUID].sb->Tank(myVictim))
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                                // check OT
                                 bool otHandled = false;
                                 for (GroupReference* otCheckRef = party->GetFirstMember(); otCheckRef != nullptr; otCheckRef = otCheckRef->next())
                                 {
@@ -289,7 +274,7 @@ void Strategy_Party::Update()
                                                 {
                                                     if (member->GetDistance(*attackerIT) < RANGED_MAX_DISTANCE)
                                                     {
-                                                        if (memberMap[memberLowGUID].sb.Tank(*attackerIT))
+                                                        if (memberMap[memberLowGUID].sb->Tank(*attackerIT))
                                                         {
                                                             otHandled = true;
                                                             break;
@@ -310,22 +295,29 @@ void Strategy_Party::Update()
                                 }
                                 if (Unit* myVictim = member->GetVictim())
                                 {
-                                    if (memberMap[memberLowGUID].sb.Tank(myVictim))
+                                    if (memberMap[memberLowGUID].sb->Tank(myVictim))
                                     {
                                         break;
                                     }
                                 }
                                 if (Unit* partyVictim = GetPartyVictim(member))
                                 {
-                                    if (memberMap[memberLowGUID].sb.DPS(partyVictim))
+                                    if (memberMap[memberLowGUID].sb->Tank(partyVictim))
                                     {
                                         break;
                                     }
                                 }
                             }
-                            else if (Buff(member))
+                            else
                             {
-                                break;
+                                if (Rest(member))
+                                {
+                                    break;
+                                }
+                                if (Buff(member))
+                                {
+                                    break;
+                                }
                             }
                             if (Follow(member))
                             {
@@ -448,18 +440,25 @@ bool Strategy_Party::Rest(Player* pmChecker)
     }
     if (pmChecker->GetPowerType() == Powers::POWER_MANA)
     {
-        if (pmChecker->GetPower(Powers::POWER_MANA) / pmChecker->GetMaxPower(Powers::POWER_MANA) < 0.4f)
+        if (pmChecker->GetPower(Powers::POWER_MANA) * 100 / pmChecker->GetMaxPower(Powers::POWER_MANA) < 40.0f)
         {
             canTry = true;
         }
     }
     if (canTry)
     {
-        if (memberMap.find(pmChecker->GetGUID().GetCounter()) != memberMap.end())
+        uint32 checkerLowGUID = pmChecker->GetGUID().GetCounter();
+        if (memberMap.find(checkerLowGUID) != memberMap.end())
         {
-            return memberMap[pmChecker->GetGUID().GetCounter()].sb.Rest();
+            if (memberMap[checkerLowGUID].sb->Rest())
+            {
+                memberMap[checkerLowGUID].restDelay = REST_DELAY_DEFAULT;
+                return true;
+            }
         }
     }
+
+    return false;
 }
 
 bool Strategy_Party::Heal(Player* pmChecker)
@@ -481,7 +480,7 @@ bool Strategy_Party::Heal(Player* pmChecker)
                         {
                             if (memberMap.find(checkerLowGUID) != memberMap.end())
                             {
-                                if (memberMap[checkerLowGUID].sb.Heal(member, memberMap[checkerLowGUID].cure))
+                                if (memberMap[checkerLowGUID].sb->Heal(member, memberMap[checkerLowGUID].cure))
                                 {
                                     return true;
                                 }
@@ -502,7 +501,7 @@ bool Strategy_Party::Heal(Player* pmChecker)
                     {
                         if (memberMap.find(checkerLowGUID) != memberMap.end())
                         {
-                            if (memberMap[checkerLowGUID].sb.Heal(member, memberMap[checkerLowGUID].cure))
+                            if (memberMap[checkerLowGUID].sb->Heal(member, memberMap[checkerLowGUID].cure))
                             {
                                 return true;
                             }
@@ -526,14 +525,11 @@ bool Strategy_Party::Buff(Player* pmChecker)
             {
                 if (pmChecker->GetDistance(member) < ATTACK_RANGE_LIMIT)
                 {
-                    if (member->GetHealthPct() < 50.0f)
+                    if (memberMap.find(checkerLowGUID) != memberMap.end())
                     {
-                        if (memberMap.find(checkerLowGUID) != memberMap.end())
+                        if (memberMap[checkerLowGUID].sb->Buff(member, memberMap[checkerLowGUID].cure))
                         {
-                            if (memberMap[checkerLowGUID].sb.Buff(member, memberMap[checkerLowGUID].cure))
-                            {
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }
@@ -544,27 +540,47 @@ bool Strategy_Party::Buff(Player* pmChecker)
 
 bool Strategy_Party::Follow(Player* pmChecker)
 {
+    uint32 checkerLowGUID = pmChecker->GetGUID().GetCounter();
+    if (memberMap[checkerLowGUID].holding)
+    {
+        return false;
+    }
     if (Group* party = sGroupMgr->GetGroupByGUID(partyID))
     {
-        uint32 checkerLowGUID = pmChecker->GetGUID().GetCounter();
-        if (pmChecker->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
+        if (Player* targetPlayer = ObjectAccessor::FindConnectedPlayer(party->GetLeaderGUID()))
         {
-            FollowMovementGenerator* mg = (FollowMovementGenerator*)pmChecker->GetMotionMaster()->GetCurrentMovementGenerator();
-            if (mg)
+            if (pmChecker->GetDistance(targetPlayer) > ATTACK_RANGE_LIMIT)
             {
-                if (mg->GetTarget())
+                pmChecker->StopMoving();
+                pmChecker->GetMotionMaster()->Clear();
+                return false;
+            }
+            if (pmChecker->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::FOLLOW_MOTION_TYPE)
+            {
+                FollowMovementGenerator* mg = (FollowMovementGenerator*)pmChecker->GetMotionMaster()->GetCurrentMovementGenerator();
+                if (mg)
                 {
-                    if (mg->GetTarget()->GetGUID() == party->GetLeaderGUID())
+                    if (mg->GetTarget())
                     {
-                        return true;
+                        if (mg->GetTarget()->GetGUID() == party->GetLeaderGUID())
+                        {
+                            return true;
+                        }
                     }
                 }
             }
-        }
-        if (Player* targetPlayer = ObjectAccessor::FindConnectedPlayer(party->GetLeaderGUID()))
-        {
+            if (pmChecker->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+            {
+                pmChecker->SetStandState(UNIT_STAND_STATE_STAND);
+            }
+            if (pmChecker->IsWalking())
+            {
+                pmChecker->SetWalk(false);
+            }
             pmChecker->StopMoving();
+            pmChecker->GetMotionMaster()->Clear();
             pmChecker->GetMotionMaster()->MoveFollow(targetPlayer, memberMap[checkerLowGUID].followDistance, ChaseAngle(0, 2 * M_PI));
+            return true;
         }
     }
     return false;
@@ -576,7 +592,6 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
     std::string commandName = commandVector.at(0);
     if (commandName == "role")
     {
-        std::ostringstream replyStream;
         if (commandVector.size() > 1)
         {
             std::string newRole = commandVector.at(1);
@@ -605,33 +620,41 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 {
                     pmIT->second.partyRole = PartyRole::PartyRole_Healer;
                 }
-
-                replyStream << "My group role is ";
-                switch (pmIT->second.partyRole)
-                {
-                case 0:
-                {
-                    replyStream << "dps";
-                    break;
-                }
-                case 1:
-                {
-                    replyStream << "tank";
-                    break;
-                }
-                case 2:
-                {
-                    replyStream << "healer";
-                    break;
-                }
-                default:
-                {
-                    replyStream << "dps";
-                    break;
-                }
-                }
-                pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
             }
+        }
+
+        for (std::unordered_map<uint32, PartyMember>::iterator pmIT = memberMap.begin(); pmIT != memberMap.end(); pmIT++)
+        {
+            if (!pmIT->second.isRobot)
+            {
+                continue;
+            }
+            std::ostringstream replyStream;
+            replyStream << "My group role is ";
+            switch (pmIT->second.partyRole)
+            {
+            case 0:
+            {
+                replyStream << "dps";
+                break;
+            }
+            case 1:
+            {
+                replyStream << "tank";
+                break;
+            }
+            case 2:
+            {
+                replyStream << "healer";
+                break;
+            }
+            default:
+            {
+                replyStream << "dps";
+                break;
+            }
+            }
+            pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
         }
     }
     else if (commandName == "follow")
@@ -654,29 +677,50 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             {
                 if (!member->IsAlive())
                 {
-                    pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
-                member->StopMoving();
-                member->GetMotionMaster()->Clear();
-                pmIT->second.restDelay = 0;
-                pmIT->second.staying = false;
-                pmIT->second.holding = false;
-                if (commandVector.size() > 1)
+                if (Group* party = sGroupMgr->GetGroupByGUID(partyID))
                 {
-                    std::string cmdDistanceStr = commandVector.at(1);
-                    float cmdDistance = atof(cmdDistanceStr.c_str());
-                    if (cmdDistance > FOLLOW_MIN_DISTANCE&& cmdDistance < FOLLOW_MAX_DISTANCE)
+                    if (Player* targetPlayer = ObjectAccessor::FindConnectedPlayer(party->GetLeaderGUID()))
                     {
-                        pmIT->second.followDistance = cmdDistance;
-                    }
-                    else
-                    {
-                        pmIT->second.sb.WhisperTo("Follow distance is invalid", Language::LANG_UNIVERSAL, pmSender);
+                        if (member->GetDistance(targetPlayer) > ATTACK_RANGE_LIMIT)
+                        {
+                            pmIT->second.sb->WhisperTo("Too faraway", Language::LANG_UNIVERSAL, pmSender);
+                        }
+                        else
+                        {
+                            member->StopMoving();
+                            member->GetMotionMaster()->Clear();
+                            if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
+                            {
+                                member->SetStandState(UNIT_STAND_STATE_STAND);
+                            }
+                            if (member->IsWalking())
+                            {
+                                member->SetWalk(false);
+                            }
+                            pmIT->second.restDelay = 0;
+                            pmIT->second.staying = false;
+                            pmIT->second.holding = false;
+                            if (commandVector.size() > 1)
+                            {
+                                std::string cmdDistanceStr = commandVector.at(1);
+                                float cmdDistance = atof(cmdDistanceStr.c_str());
+                                if (cmdDistance > FOLLOW_MIN_DISTANCE&& cmdDistance < FOLLOW_MAX_DISTANCE)
+                                {
+                                    pmIT->second.followDistance = cmdDistance;
+                                }
+                                else
+                                {
+                                    pmIT->second.sb->WhisperTo("Follow distance is invalid", Language::LANG_UNIVERSAL, pmSender);
+                                }
+                            }
+                            member->GetMotionMaster()->MoveFollow(targetPlayer, pmIT->second.followDistance, ChaseAngle(0, 2 * M_PI));
+                            pmIT->second.sb->WhisperTo("Following", Language::LANG_UNIVERSAL, pmSender);
+                        }
                     }
                 }
-                pmIT->second.instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_Follow;
-                pmIT->second.sb.WhisperTo("I try to follow party leader", Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
@@ -700,13 +744,13 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             {
                 if (!member->IsAlive())
                 {
-                    pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
                 member->StopMoving();
                 member->GetMotionMaster()->Clear();
                 pmIT->second.staying = true;
-                pmIT->second.sb.WhisperTo("Staying", Language::LANG_UNIVERSAL, pmSender);
+                pmIT->second.sb->WhisperTo("Staying", Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
@@ -730,14 +774,14 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             {
                 if (!member->IsAlive())
                 {
-                    pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
                 member->StopMoving();
                 member->GetMotionMaster()->Clear();
                 pmIT->second.staying = false;
                 pmIT->second.holding = true;
-                pmIT->second.sb.WhisperTo("Holding", Language::LANG_UNIVERSAL, pmSender);
+                pmIT->second.sb->WhisperTo("Holding", Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
@@ -761,7 +805,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             {
                 if (!member->IsAlive())
                 {
-                    pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
                 pmIT->second.staying = false;
@@ -773,11 +817,11 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 {
                     pmIT->second.instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_Attack;
                     pmIT->second.instruction.targetOG = pmSender->GetTarget();
-                    pmIT->second.sb.WhisperTo("Try to attack your target", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("Try to attack your target", Language::LANG_UNIVERSAL, pmSender);
                 }
                 else
                 {
-                    pmIT->second.sb.WhisperTo("No target", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("No target", Language::LANG_UNIVERSAL, pmSender);
                 }
             }
         }
@@ -802,15 +846,18 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             {
                 if (!member->IsAlive())
                 {
-                    pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
                 if (member->IsInCombat())
                 {
-                    pmIT->second.sb.WhisperTo("I am in combat", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am in combat", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
-                pmIT->second.instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_Rest;
+                if (pmIT->second.sb->Rest())
+                {
+                    pmIT->second.restDelay = REST_DELAY_DEFAULT;
+                }
             }
         }
     }
@@ -832,7 +879,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             ObjectGuid guid = ObjectGuid(HighGuid::Player, pmIT->second.character);
             if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
             {
-                pmIT->second.sb.WhisperTo(sRobotManager->characterTalentTabNameMap[member->GetClass()][pmIT->second.sb.characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
+                pmIT->second.sb->WhisperTo(sRobotManager->characterTalentTabNameMap[member->GetClass()][pmIT->second.sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
@@ -856,7 +903,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             {
                 if (pmIT->second.assembleDelay > 0)
                 {
-                    pmIT->second.sb.WhisperTo("I am coming", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am coming", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
                 if (member->IsAlive())
@@ -865,22 +912,22 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                     {
                         if (member->HasUnitState(UnitState::UNIT_STATE_NOT_MOVE))
                         {
-                            pmIT->second.sb.WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                            pmIT->second.sb->WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
                             continue;
                         }
                         if (member->HasUnitState(UnitState::UNIT_STATE_ROAMING_MOVE))
                         {
-                            pmIT->second.sb.WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                            pmIT->second.sb->WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
                             continue;
                         }
                         if (member->HasUnitState(UnitState::UNIT_STATE_CASTING))
                         {
-                            pmIT->second.sb.WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                            pmIT->second.sb->WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
                             continue;
                         }
                         if (member->IsNonMeleeSpellCast(false, false, true))
                         {
-                            pmIT->second.sb.WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
+                            pmIT->second.sb->WhisperTo("I can not move", Language::LANG_UNIVERSAL, pmSender);
                             continue;
                         }
                         if (member->HasAuraType(SPELL_AURA_MOD_PACIFY))
@@ -898,18 +945,18 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                         member->StopMoving();
                         member->GetMotionMaster()->Clear();
                         member->GetMotionMaster()->MovePoint(0, pmSender->GetPosition());
-                        pmIT->second.sb.WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, pmSender);
+                        pmIT->second.sb->WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, pmSender);
                     }
                     else
                     {
                         pmIT->second.assembleDelay = 30 * TimeConstants::IN_MILLISECONDS;
-                        pmIT->second.sb.WhisperTo("I will come to you in 30 seconds", Language::LANG_UNIVERSAL, pmSender);
+                        pmIT->second.sb->WhisperTo("I will come to you in 30 seconds", Language::LANG_UNIVERSAL, pmSender);
                     }
                 }
                 else
                 {
                     pmIT->second.assembleDelay = 60 * TimeConstants::IN_MILLISECONDS;
-                    pmIT->second.sb.WhisperTo("I will revive and come to you in 60 seconds", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I will revive and come to you in 60 seconds", Language::LANG_UNIVERSAL, pmSender);
                 }
             }
         }
@@ -934,7 +981,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             {
                 if (!member->IsAlive())
                 {
-                    pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
                 pmIT->second.staying = false;
@@ -946,11 +993,11 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 {
                     pmIT->second.instruction.instructionType = RobotPartyInstructionType::RobotPartyInstructionType_Tank;
                     pmIT->second.instruction.targetOG = pmSender->GetTarget();
-                    pmIT->second.sb.WhisperTo("Try to tank your target", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("Try to tank your target", Language::LANG_UNIVERSAL, pmSender);
                 }
                 else
                 {
-                    pmIT->second.sb.WhisperTo("No target", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("No target", Language::LANG_UNIVERSAL, pmSender);
                 }
             }
         }
@@ -970,8 +1017,8 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                     continue;
                 }
             }
-            pmIT->second.sb.Prepare();
-            pmIT->second.sb.WhisperTo("I am prepared", Language::LANG_UNIVERSAL, pmSender);
+            pmIT->second.sb->Prepare();
+            pmIT->second.sb->WhisperTo("I am prepared", Language::LANG_UNIVERSAL, pmSender);
         }
     }
     else if (commandName == "switch")
@@ -997,7 +1044,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                     Pet* checkPet = member->GetPet();
                     if (!checkPet)
                     {
-                        pmIT->second.sb.WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, pmSender);
+                        pmIT->second.sb->WhisperTo("I do not have an active pet", Language::LANG_UNIVERSAL, pmSender);
                         continue;
                     }
                     if (commandVector.size() > 1)
@@ -1039,30 +1086,30 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                                             {
                                                 replyStream << "Wrong auto state";
                                             }
-                                            pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                                            pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                                             continue;
                                         }
                                     }
                                 }
                             }
-                            pmIT->second.sb.WhisperTo("Spell not found", Language::LANG_UNIVERSAL, pmSender);
+                            pmIT->second.sb->WhisperTo("Spell not found", Language::LANG_UNIVERSAL, pmSender);
                             continue;
                         }
                         else
                         {
-                            pmIT->second.sb.WhisperTo("No spell name", Language::LANG_UNIVERSAL, pmSender);
+                            pmIT->second.sb->WhisperTo("No spell name", Language::LANG_UNIVERSAL, pmSender);
                             continue;
                         }
                     }
                     else
                     {
-                        pmIT->second.sb.WhisperTo("No auto state", Language::LANG_UNIVERSAL, pmSender);
+                        pmIT->second.sb->WhisperTo("No auto state", Language::LANG_UNIVERSAL, pmSender);
                         continue;
                     }
                 }
                 else
                 {
-                    pmIT->second.sb.WhisperTo("I am not hunter or a warlock", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am not hunter or a warlock", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
             }
@@ -1102,16 +1149,16 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 {
                     if (!member->IsAlive())
                     {
-                        pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                        pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                         continue;
                     }
                     Unit* senderTarget = pmSender->GetSelectedUnit();
                     if (!senderTarget)
                     {
-                        pmIT->second.sb.WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, pmSender);
+                        pmIT->second.sb->WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, pmSender);
                         continue;
                     }
-                    if (pmIT->second.sb.CastSpell(senderTarget, spellName))
+                    if (pmIT->second.sb->CastSpell(senderTarget, spellName))
                     {
                         replyStream << "Cast spell " << spellName << " on " << senderTarget->GetName();
                     }
@@ -1119,7 +1166,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                     {
                         replyStream << "Can not cast spell " << spellName << " on " << senderTarget->GetName();
                     }
-                    pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                 }
             }
         }
@@ -1158,16 +1205,16 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 {
                     if (!member->IsAlive())
                     {
-                        pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                        pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                         continue;
                     }
                     Unit* senderTarget = pmSender->GetSelectedUnit();
                     if (!senderTarget)
                     {
-                        pmIT->second.sb.WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, pmSender);
+                        pmIT->second.sb->WhisperTo("You do not have a target", Language::LANG_UNIVERSAL, pmSender);
                         continue;
                     }
-                    if (pmIT->second.sb.CancelAura(spellName))
+                    if (pmIT->second.sb->CancelAura(spellName))
                     {
                         replyStream << "Cancel aura " << spellName;
                     }
@@ -1175,7 +1222,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                     {
                         replyStream << "Unknown spell " << spellName;
                     }
-                    pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                 }
             }
         }
@@ -1201,7 +1248,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 std::ostringstream replyStream;
                 if (!member->IsAlive())
                 {
-                    pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
                 if (commandVector.size() > 1)
@@ -1261,7 +1308,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 {
                     replyStream << "Use what?";
                 }
-                pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
@@ -1285,7 +1332,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             {
                 if (!member->IsAlive())
                 {
-                    pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
                 member->StopMoving();
@@ -1295,7 +1342,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 member->InterruptSpell(CurrentSpellTypes::CURRENT_MELEE_SPELL);
                 std::ostringstream replyStream;
                 replyStream << "Stopped";
-                pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
@@ -1320,15 +1367,46 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 std::ostringstream replyStream;
                 if (commandVector.size() > 1)
                 {
-                    int delayMS = std::stoi(commandVector.at(1));
-                    pmIT->second.dpsDelay = delayMS;
-                    replyStream << "DPS delay set to : " << delayMS;
+                    std::string delayType = commandVector.at(1);
+                    if (commandVector.size() > 2)
+                    {
+                        int delayMS = std::stoi(commandVector.at(2));
+                        if (delayType == "dps")
+                        {
+                            pmIT->second.dpsDelay = delayMS;
+                            replyStream << "DPS delay set to : " << delayMS;
+                        }
+                        else if (delayType == "aoe")
+                        {
+                            pmIT->second.aoeDelay = delayMS;
+                            replyStream << "AOE delay set to : " << delayMS;
+                        }
+                        else
+                        {
+                            replyStream << "Unknown type";
+                        }
+                    }
+                    else
+                    {
+                        if (delayType == "dps")
+                        {
+                            replyStream << "DPS delay is : " << pmIT->second.dpsDelay;
+                        }
+                        else if (delayType == "aoe")
+                        {
+                            replyStream << "AOE delay is : " << pmIT->second.aoeDelay;
+                        }
+                        else
+                        {
+                            replyStream << "Unknown type";
+                        }
+                    }
                 }
                 else
                 {
-                    replyStream << "Missing time";
+                    replyStream << "Missing type";
                 }
-                pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
@@ -1352,7 +1430,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
             {
                 if (!member->IsAlive())
                 {
-                    pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                     continue;
                 }
                 std::ostringstream replyStream;
@@ -1361,7 +1439,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 {
                     replyStream << pair.second->GetOwner()->GetName() << ", ";
                 }
-                pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
@@ -1400,7 +1478,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                 {
                     if (!member->IsAlive())
                     {
-                        pmIT->second.sb.WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
+                        pmIT->second.sb->WhisperTo("I am dead", Language::LANG_UNIVERSAL, pmSender);
                         continue;
                     }
                     std::ostringstream reviveSpellName;
@@ -1430,16 +1508,16 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                             {
                                 if (member->GetDistance(dead) < RANGED_MAX_DISTANCE)
                                 {
-                                    if (pmIT->second.sb.CastSpell(dead, reviveSpellName.str(), RANGED_MAX_DISTANCE))
+                                    if (pmIT->second.sb->CastSpell(dead, reviveSpellName.str(), RANGED_MAX_DISTANCE))
                                     {
-                                        replyStream << "Reviving " << member->GetName();
+                                        replyStream << "Reviving " << dead->GetName();
                                         reviveIndex++;
                                     }
                                 }
                             }
                         }
                     }
-                    pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                    pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
                 }
             }
         }
@@ -1492,7 +1570,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                         replyStream << "Auto cure is off";
                     }
                 }
-                pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }
@@ -1525,7 +1603,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                     member->AttackStop();
                     member->CombatStop();
                 }
-                pmIT->second.sb.WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
+                pmIT->second.sb->WhisperTo(replyStream.str(), Language::LANG_UNIVERSAL, pmSender);
             }
         }
     }

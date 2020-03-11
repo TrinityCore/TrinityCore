@@ -15,6 +15,7 @@ enum RobotPrepareState :uint32
     RobotPrepareState_CheckLogin,
     RobotPrepareState_DoLogin,
     RobotPrepareState_Online,
+    RobotPrepareState_Exit,
     RobotPrepareState_CheckLogoff,
     RobotPrepareState_DoLogoff,
 };
@@ -39,6 +40,6 @@ public:
     int checkDelay;    
     uint32 prepareState;
 
-    Script_Base sb;
+    Script_Base* sb;
 };
 #endif

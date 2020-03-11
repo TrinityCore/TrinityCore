@@ -19,11 +19,15 @@
 
 #include "Script_Base.h"
 
-struct Script_Hunter :public Script_Base
+class Script_Hunter :public Script_Base
 {
 public:
+    Script_Hunter()
+    {
+
+    }
     Script_Hunter(uint32 pmCharacterID);
-    bool DPS(Unit* pmTarget, bool pmChase = true);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
@@ -31,13 +35,13 @@ public:
 
     void PetAttack(Pet* pmMyPet, Unit* pmTarget);
 
-    bool DPS_Common(Unit* pmTarget, bool pmChase);
-    bool DPS_BeastMastery(Unit* pmTarget, bool pmChase);
-    bool DPS_Marksmanship(Unit* pmTarget, bool pmChase);
-    bool DPS_Survival(Unit* pmTarget, bool pmChase);
+    bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE);
 
-    bool Attack_Common(Unit* pmTarget);    
-    bool Attack_BeastMastery(Unit* pmTarget);    
+    bool Attack_Common(Unit* pmTarget);
+    bool Attack_BeastMastery(Unit* pmTarget);
     bool Attack_Marksmanship(Unit* pmTarget);
     bool Attack_Survival(Unit* pmTarget);
 };

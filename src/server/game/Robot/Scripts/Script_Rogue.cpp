@@ -23,28 +23,28 @@ bool Script_Rogue::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase)
+bool Script_Rogue::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Common(pmTarget, pmChase);
+        return DPS_Common(pmTarget, pmChase, pmAOE);
     }
     case 1:
     {
-        return DPS_Combat(pmTarget, pmChase);
+        return DPS_Combat(pmTarget, pmChase, pmAOE);
     }
     case 2:
     {
-        return DPS_Common(pmTarget, pmChase);
+        return DPS_Common(pmTarget, pmChase, pmAOE);
     }
     default:
-        return DPS_Common(pmTarget, pmChase);
+        return DPS_Common(pmTarget, pmChase, pmAOE);
     }
 }
 
-bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase)
+bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -132,7 +132,7 @@ bool Script_Rogue::DPS_Combat(Unit* pmTarget, bool pmChase)
     return true;
 }
 
-bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase)
+bool Script_Rogue::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -320,8 +320,8 @@ bool Script_Rogue::Attack_Common(Unit* pmTarget)
         return false;
     }
     me->Attack(pmTarget, true);
-    Chase(pmTarget);    
-    uint32 energy = me->GetPower(Powers::POWER_ENERGY);    
+    Chase(pmTarget);
+    uint32 energy = me->GetPower(Powers::POWER_ENERGY);
     if (energy > 25)
     {
         if (pmTarget->IsNonMeleeSpellCast(false))

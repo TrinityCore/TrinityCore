@@ -17,7 +17,7 @@ Script_Base::Script_Base()
     character = 0;
 }
 
-bool Script_Base::DPS(Unit* pmTarget, bool pmChase)
+bool Script_Base::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     return false;
 }

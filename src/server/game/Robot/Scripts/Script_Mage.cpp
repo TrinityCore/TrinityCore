@@ -17,28 +17,28 @@ bool Script_Mage::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Mage::DPS(Unit* pmTarget, bool pmChase)
+bool Script_Mage::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Arcane(pmTarget, pmChase);
+        return DPS_Arcane(pmTarget, pmChase, pmAOE);
     }
     case 1:
     {
-        return DPS_Fire(pmTarget, pmChase);
+        return DPS_Fire(pmTarget, pmChase, pmAOE);
     }
     case 2:
     {
-        return DPS_Frost(pmTarget, pmChase);
+        return DPS_Frost(pmTarget, pmChase, pmAOE);
     }
     default:
-        return DPS_Common(pmTarget, pmChase);
+        return DPS_Common(pmTarget, pmChase, pmAOE);
     }
 }
 
-bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase)
+bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -57,7 +57,7 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase)
     else if (!me->IsValidAttackTarget(pmTarget))
     {
         return false;
-    }    
+    }
     if (me->GetDistance(pmTarget) > ATTACK_RANGE_LIMIT)
     {
         return false;
@@ -95,7 +95,7 @@ bool Script_Mage::DPS_Arcane(Unit* pmTarget, bool pmChase)
     return true;
 }
 
-bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase)
+bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -153,7 +153,7 @@ bool Script_Mage::DPS_Fire(Unit* pmTarget, bool pmChase)
     return true;
 }
 
-bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase)
+bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -202,51 +202,53 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase)
             }
         }
     }
-    Group* myGroup = me->GetGroup();
-    if (myGroup)
+    if (pmAOE)
     {
-        if (myGroup->isRaidGroup())
+        Group* myGroup = me->GetGroup();
+        if (myGroup)
         {
-            // todo raid aoe
-        }
-        else
-        {
-            if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+            if (myGroup->isRaidGroup())
             {
-                for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
+                // todo raid aoe
+            }
+            else
+            {
+                if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
                 {
-                    if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
+                    for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
                     {
-                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+                        if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
                         {
-                            if (member->getAttackers().size() >= 3)
+                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, pmIT->second.character);
+                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
                             {
-                                uint32 inRangeCount = 0;
-                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                                if (tank->getAttackers().size() >= 3)
                                 {
-                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                    uint32 inRangeCount = 0;
+                                    for (std::set<Unit*>::const_iterator i = tank->getAttackers().begin(); i != tank->getAttackers().end(); ++i)
                                     {
-                                        inRangeCount++;
-                                        if (inRangeCount >= 3)
+                                        if ((*i)->GetDistance(tank) < AOE_TARGETS_RANGE)
                                         {
-                                            if (CastSpell((*i), "Blizzard", MAGE_RANGE_DISTANCE))
+                                            inRangeCount++;
+                                            if (inRangeCount >= 3)
                                             {
-                                                return true;
+                                                if (CastSpell((*i), "Blizzard", MAGE_RANGE_DISTANCE))
+                                                {
+                                                    return true;
+                                                }
+                                                break;
                                             }
-                                            break;
                                         }
                                     }
                                 }
                             }
+                            break;
                         }
-                        break;
                     }
                 }
             }
         }
     }
-
     if (CastSpell(pmTarget, "Frostbolt", MAGE_RANGE_DISTANCE))
     {
         return true;
@@ -255,7 +257,7 @@ bool Script_Mage::DPS_Frost(Unit* pmTarget, bool pmChase)
     return true;
 }
 
-bool Script_Mage::DPS_Common(Unit* pmTarget, bool pmChase)
+bool Script_Mage::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {

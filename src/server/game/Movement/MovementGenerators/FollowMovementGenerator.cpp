@@ -165,7 +165,8 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
             Movement::MoveSplineInit init(owner);
             init.MovebyPath(_path->GetPath());
             init.SetWalk(target->IsWalking());
-            init.SetFacing(target->GetOrientation());
+            // EJ modify follow same orientation is not necessary 
+            //init.SetFacing(target->GetOrientation());
             init.Launch();
         }
     }

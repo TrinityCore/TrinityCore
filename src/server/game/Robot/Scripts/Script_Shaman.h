@@ -11,17 +11,21 @@
 
 #include "Script_Base.h"
 
-struct Script_Shaman :public Script_Base
+class Script_Shaman :public Script_Base
 {
 public:
+    Script_Shaman()
+    {
+
+    }
     Script_Shaman(uint32 pmCharacterID);
-    bool DPS(Unit* pmTarget, bool pmChase = true);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
 
-	bool DPS_Common(Unit* pmTarget, bool pmChase);
+	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE);
 	bool Attack_Common(Unit* pmTarget);
 };
 #endif

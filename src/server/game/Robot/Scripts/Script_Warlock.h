@@ -11,11 +11,15 @@
 
 #include "Script_Base.h"
 
-struct Script_Warlock :public Script_Base
+class Script_Warlock :public Script_Base
 {
 public:
+    Script_Warlock()
+    {
+
+    }
     Script_Warlock(uint32 pmCharacterID);
-    bool DPS(Unit* pmTarget, bool pmChase = true);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
@@ -23,10 +27,10 @@ public:
 
     void PetAttack(Pet* pmMyPet, Unit* pmTarget);
 
-	bool DPS_Common(Unit* pmTarget, bool pmChase);
-    bool DPS_Affliction(Unit* pmTarget, bool pmChase);
-    bool DPS_Demonology(Unit* pmTarget, bool pmChase);
-    bool DPS_Destruction(Unit* pmTarget, bool pmChase);
+	bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Affliction(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Demonology(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Destruction(Unit* pmTarget, bool pmChase, bool pmAOE);
 
 	bool Attack_Common(Unit* pmTarget);    
     bool Attack_Affliction(Unit* pmTarget);    

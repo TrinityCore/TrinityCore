@@ -10,6 +10,7 @@
 #include "Script_Mage.h"
 #include "Script_Druid.h"
 #include "Strategy_Solo.h"
+#include "Group.h"
 
 Strategy_Prepare::Strategy_Prepare(uint32 pmEntry)
 {
@@ -19,7 +20,7 @@ Strategy_Prepare::Strategy_Prepare(uint32 pmEntry)
     character = 0;
     checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
     prepareState = RobotPrepareState::RobotPrepareState_OffLine;
-    sb = Script_Base();
+    sb = new Script_Base();
 }
 
 void Strategy_Prepare::Update()
@@ -130,11 +131,11 @@ void Strategy_Prepare::Update()
                 {
                     me->UninviteFromGroup();
                 }
-                sb.account = account;
-                sb.character = character;
-                sb.InitializeCharacter(targetLevel);
+                sb->account = account;
+                sb->character = character;
+                sb->InitializeCharacter(targetLevel);
                 if (sRobotManager->soloStrategyMap.find(character) == sRobotManager->soloStrategyMap.end())
-                {                    
+                {
                     Strategy_Solo ss(account, character);
                     sRobotManager->soloStrategyMap[character] = ss;
                 }
@@ -142,8 +143,8 @@ void Strategy_Prepare::Update()
                 {
                     sRobotManager->soloStrategyMap[character].account = account;
                     sRobotManager->soloStrategyMap[character].character = character;
-                }                
-                sRobotManager->soloStrategyMap[character].Reset();
+                }
+                sRobotManager->soloStrategyMap[character].soloState = RobotSoloState::RobotSoloState_Wander;
                 prepareState = RobotPrepareState::RobotPrepareState_Online;
             }
             else
@@ -154,12 +155,43 @@ void Strategy_Prepare::Update()
         }
         case RobotPrepareState::RobotPrepareState_Online:
         {
-            checkDelay = 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS;
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+            if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                sb->Prepare();
+                if (Group* myGroup = me->GetGroup())
+                {
+                    if (Player* leader = ObjectAccessor::FindConnectedPlayer(myGroup->GetLeaderGUID()))
+                    {
+                        if (sRobotManager->IsRobot(leader->GetSession()->GetAccountId()))
+                        {
+                            me->UninviteFromGroup();
+                        }
+                    }
+                    break;
+                }
+            }
+            checkDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+            break;
+        }
+        case RobotPrepareState::RobotPrepareState_Exit:
+        {
+            ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
+            if (Player* me = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                if (me->GetGroup())
+                {
+                    prepareState = RobotPrepareState::RobotPrepareState_Online;
+                    break;
+                }
+            }
+            sLog->outMessage("lfm", LogLevel::LOG_LEVEL_INFO, "Robot %d is ready to go offline.", entry);
+            prepareState = RobotPrepareState::RobotPrepareState_DoLogoff;
             break;
         }
         case RobotPrepareState::RobotPrepareState_DoLogoff:
         {
-            sb.Logout();
+            sb->Logout();
             prepareState = RobotPrepareState::RobotPrepareState_CheckLogoff;
             break;
         }
@@ -172,7 +204,11 @@ void Strategy_Prepare::Update()
                 sLog->outMessage("lfm", LogLevel::LOG_LEVEL_ERROR, "Log out robot %s failed", me->GetName());
                 prepareState = RobotPrepareState::RobotPrepareState_None;
                 break;
-            }            
+            }
+            if (sRobotManager->soloStrategyMap.find(character) != sRobotManager->soloStrategyMap.end())
+            {
+                sRobotManager->soloStrategyMap[character].soloState = RobotSoloState::RobotSoloState_None;
+            }
             prepareState = RobotPrepareState::RobotPrepareState_OffLine;
             break;
         }

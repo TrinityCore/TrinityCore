@@ -115,12 +115,12 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     return false;
 }
 
-bool Script_Priest::DPS(Unit* pmTarget, bool pmChase)
+bool Script_Priest::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
-    return DPS_Common(pmTarget, pmChase);
+    return DPS_Common(pmTarget, pmChase, pmAOE);
 }
 
-bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase)
+bool Script_Priest::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {

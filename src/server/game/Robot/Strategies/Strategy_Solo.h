@@ -23,8 +23,7 @@ public:
     }
 
     Strategy_Solo(uint32 pmAccount, uint32 pmCharacter);
-	void Update();
-    void Reset();
+	void Update();    
     bool Buff();
 	bool Rest();
 	bool Battle();
@@ -49,6 +48,6 @@ public:
 	int32 confuseDelay;
 	int32 interestsDelay;
 
-    Script_Base sb;
+    Script_Base* sb;
 };
 #endif

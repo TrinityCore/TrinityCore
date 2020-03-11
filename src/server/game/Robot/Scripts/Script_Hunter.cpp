@@ -21,28 +21,28 @@ bool Script_Hunter::Tank(Unit* pmTarget)
     return false;
 }
 
-bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase)
+bool Script_Hunter::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_BeastMastery(pmTarget, pmChase);
+        return DPS_BeastMastery(pmTarget, pmChase, pmAOE);
     }
     case 1:
     {
-        return DPS_Marksmanship(pmTarget, pmChase);
+        return DPS_Marksmanship(pmTarget, pmChase, pmAOE);
     }
     case 2:
     {
-        return DPS_Survival(pmTarget, pmChase);
+        return DPS_Survival(pmTarget, pmChase, pmAOE);
     }
     default:
-        return DPS_Common(pmTarget, pmChase);
+        return DPS_Common(pmTarget, pmChase, pmAOE);
     }
 }
 
-bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase)
+bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -134,7 +134,7 @@ bool Script_Hunter::DPS_BeastMastery(Unit* pmTarget, bool pmChase)
     return true;
 }
 
-bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase)
+bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -202,45 +202,48 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase)
             me->SetFacingToObject(pmTarget);
         }
     }
-    Group* myGroup = me->GetGroup();
-    if (myGroup)
+    if (pmAOE)
     {
-        if (myGroup->isRaidGroup())
+        Group* myGroup = me->GetGroup();
+        if (myGroup)
         {
-            // todo aoe
-        }
-        else
-        {
-            if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
+            if (myGroup->isRaidGroup())
             {
-                for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
+                // todo aoe
+            }
+            else
+            {
+                if (sRobotManager->partyStrategyMap.find(myGroup->GetLowGUID()) != sRobotManager->partyStrategyMap.end())
                 {
-                    if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
+                    for (std::unordered_map<uint32, PartyMember>::iterator pmIT = sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.begin(); pmIT != sRobotManager->partyStrategyMap[myGroup->GetLowGUID()].memberMap.end(); pmIT++)
                     {
-                        ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-                        if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+                        if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
                         {
-                            if (member->getAttackers().size() >= 3)
+                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, pmIT->second.character);
+                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
                             {
-                                uint32 inRangeCount = 0;
-                                for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                                if (tank->getAttackers().size() >= 3)
                                 {
-                                    if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                    uint32 inRangeCount = 0;
+                                    for (std::set<Unit*>::const_iterator i = tank->getAttackers().begin(); i != tank->getAttackers().end(); ++i)
                                     {
-                                        inRangeCount++;
-                                        if (inRangeCount >= 3)
+                                        if ((*i)->GetDistance(tank) < AOE_TARGETS_RANGE)
                                         {
-                                            if (CastSpell((*i), "Volley", HUNTER_RANGE_DISTANCE))
+                                            inRangeCount++;
+                                            if (inRangeCount >= 3)
                                             {
-                                                return true;
+                                                if (CastSpell((*i), "Volley", HUNTER_RANGE_DISTANCE))
+                                                {
+                                                    return true;
+                                                }
+                                                break;
                                             }
-                                            break;
                                         }
                                     }
                                 }
                             }
+                            break;
                         }
-                        break;
                     }
                 }
             }
@@ -311,7 +314,7 @@ bool Script_Hunter::DPS_Marksmanship(Unit* pmTarget, bool pmChase)
     return true;
 }
 
-bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase)
+bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -403,7 +406,7 @@ bool Script_Hunter::DPS_Survival(Unit* pmTarget, bool pmChase)
     return true;
 }
 
-bool Script_Hunter::DPS_Common(Unit* pmTarget, bool pmChase)
+bool Script_Hunter::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {

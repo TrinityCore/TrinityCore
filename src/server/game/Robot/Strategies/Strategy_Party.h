@@ -2,7 +2,11 @@
 #define ROBOT_STRATEGIES_PARTY_H
 
 #ifndef DPS_DEFAULT_DELAY_PARTY
-# define DPS_DEFAULT_DELAY_PARTY 4000
+# define DPS_DEFAULT_DELAY_PARTY 500
+#endif
+
+#ifndef AOE_DEFAULT_DELAY_PARTY
+# define AOE_DEFAULT_DELAY_PARTY 4000
 #endif
 
 #include "Script_Warrior.h"
@@ -25,11 +29,9 @@ enum PartyRole :uint32
 
 enum RobotPartyInstructionType :uint32
 {
-    RobotPartyInstructionType_None = 0,
-    RobotPartyInstructionType_Follow,
+    RobotPartyInstructionType_None = 0,    
     RobotPartyInstructionType_Tank,
-    RobotPartyInstructionType_Attack,
-    RobotPartyInstructionType_Rest,
+    RobotPartyInstructionType_Attack,    
     RobotPartyInstructionType_Engage,
 };
 
@@ -66,72 +68,78 @@ public:
         combatTime = 0;
         assembleDelay = 0;
         restDelay = 0;
+        aoeDelay = AOE_DEFAULT_DELAY_PARTY;
         dpsDelay = DPS_DEFAULT_DELAY_PARTY;
         staying = false;
         holding = false;
         cure = true;
         followDistance = FOLLOW_NORMAL_DISTANCE;
         isRobot = pmIsRobot;
-
         ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
         Player* me = ObjectAccessor::FindConnectedPlayer(guid);
-        if (!me)
+        if (me)
         {
-            return;
+            switch (me->GetClass())
+            {
+            case Classes::CLASS_WARRIOR:
+            {
+                sb = new Script_Warrior(character);
+                followDistance = MELEE_MAX_DISTANCE;
+                break;
+            }
+            case Classes::CLASS_HUNTER:
+            {
+                sb = new  Script_Hunter(character);
+                break;
+            }
+            case Classes::CLASS_SHAMAN:
+            {
+                sb = new  Script_Shaman(character);
+                break;
+            }
+            case Classes::CLASS_PALADIN:
+            {
+                sb = new  Script_Paladin(character);
+                followDistance = MELEE_MAX_DISTANCE;
+                break;
+            }
+            case Classes::CLASS_WARLOCK:
+            {
+                sb = new  Script_Warlock(character);
+                break;
+            }
+            case Classes::CLASS_PRIEST:
+            {
+                sb = new  Script_Priest(character);
+                break;
+            }
+            case Classes::CLASS_ROGUE:
+            {
+                sb = new  Script_Rogue(character);
+                followDistance = MELEE_MAX_DISTANCE;
+                break;
+            }
+            case Classes::CLASS_MAGE:
+            {
+                sb = new  Script_Mage(character);
+                break;
+            }
+            case Classes::CLASS_DRUID:
+            {
+                sb = new  Script_Druid(character);
+                break;
+            }
+            default:
+            {
+                sb = new  Script_Base();
+                sb->account = me->GetSession()->GetAccountId();
+                sb->character = character;
+                break;
+            }
+            }
         }
-        switch (me->GetClass())
-        {
-        case Classes::CLASS_WARRIOR:
-        {
-            sb = Script_Warrior(character);
-            followDistance = MELEE_MAX_DISTANCE;
-            break;
-        }
-        case Classes::CLASS_HUNTER:
-        {
-            sb = Script_Hunter(character);
-            break;
-        }
-        case Classes::CLASS_SHAMAN:
-        {
-            sb = Script_Shaman(character);
-            break;
-        }
-        case Classes::CLASS_PALADIN:
-        {
-            sb = Script_Paladin(character);
-            followDistance = MELEE_MAX_DISTANCE;
-            break;
-        }
-        case Classes::CLASS_WARLOCK:
-        {
-            sb = Script_Warlock(character);
-            break;
-        }
-        case Classes::CLASS_PRIEST:
-        {
-            sb = Script_Priest(character);
-            break;
-        }
-        case Classes::CLASS_ROGUE:
-        {
-            sb = Script_Rogue(character);
-            followDistance = MELEE_MAX_DISTANCE;
-            break;
-        }
-        case Classes::CLASS_MAGE:
-        {
-            sb = Script_Mage(character);
-            break;
-        }
-        case Classes::CLASS_DRUID:
-        {
-            sb = Script_Druid(character);
-            break;
-        }
-        }
-        sb.InitializeValues();
-        partyRole = sb.characterType;
+        sb->InitializeValues();
+        partyRole = sb->characterType;
     }
 
     uint32 character;
@@ -139,6 +147,7 @@ public:
     uint32 partyRole;
     int32 combatTime;
     int32 assembleDelay;
+    int32 aoeDelay;
     int32 dpsDelay;
     int32 restDelay;
     float followDistance;
@@ -148,7 +157,7 @@ public:
     bool cure;
     bool isRobot;
 
-    Script_Base sb;
+    Script_Base* sb;
 };
 
 struct Strategy_Party
@@ -168,12 +177,11 @@ public:
     bool Heal(Player* pmChecker);
     bool Buff(Player* pmChecker);
     bool Follow(Player* pmChecker);
-
     void HandleChatCommand(Player* pmSender, std::string pmCMD, Player* pmReceiver = NULL);
 
 public:
     uint32 realPrevTime;
-    uint32 partyID;    
+    uint32 partyID;
     std::unordered_map<uint32, PartyMember> memberMap;
 };
 #endif

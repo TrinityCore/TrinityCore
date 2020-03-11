@@ -83,28 +83,28 @@ bool Script_Warrior::Tank(Unit* pmTarget)
     return true;
 }
 
-bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase)
+bool Script_Warrior::DPS(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     switch (characterTalentTab)
     {
     case 0:
     {
-        return DPS_Arms(pmTarget, pmChase);
+        return DPS_Arms(pmTarget, pmChase, pmAOE);
     }
     case 1:
     {
-        return DPS_Fury(pmTarget, pmChase);
+        return DPS_Fury(pmTarget, pmChase, pmAOE);
     }
     case 2:
     {
-        return DPS_Common(pmTarget, pmChase);
+        return DPS_Common(pmTarget, pmChase, pmAOE);
     }
     default:
-        return DPS_Common(pmTarget, pmChase);
+        return DPS_Common(pmTarget, pmChase, pmAOE);
     }
 }
 
-bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase)
+bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -166,15 +166,15 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase)
                     {
                         if (pmIT->second.partyRole == PartyRole::PartyRole_Tank)
                         {
-                            ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
-                            if (Player* member = ObjectAccessor::FindConnectedPlayer(guid))
+                            ObjectGuid tankGUID = ObjectGuid(HighGuid::Player, pmIT->second.character);
+                            if (Player* tank = ObjectAccessor::FindConnectedPlayer(tankGUID))
                             {
-                                if (member->getAttackers().size() >= 3)
+                                if (tank->getAttackers().size() >= 3)
                                 {
                                     uint32 inRangeCount = 0;
-                                    for (std::set<Unit*>::const_iterator i = member->getAttackers().begin(); i != member->getAttackers().end(); ++i)
+                                    for (std::set<Unit*>::const_iterator i = tank->getAttackers().begin(); i != tank->getAttackers().end(); ++i)
                                     {
-                                        if ((*i)->GetDistance(member) < AOE_TARGETS_RANGE)
+                                        if ((*i)->GetDistance(tank) < AOE_TARGETS_RANGE)
                                         {
                                             inRangeCount++;
                                             if (inRangeCount >= 3)
@@ -237,7 +237,7 @@ bool Script_Warrior::DPS_Arms(Unit* pmTarget, bool pmChase)
     return true;
 }
 
-bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase)
+bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {
@@ -326,7 +326,7 @@ bool Script_Warrior::DPS_Fury(Unit* pmTarget, bool pmChase)
     return true;
 }
 
-bool Script_Warrior::DPS_Common(Unit* pmTarget, bool pmChase)
+bool Script_Warrior::DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE)
 {
     if (!pmTarget)
     {

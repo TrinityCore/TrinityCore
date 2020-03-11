@@ -23,19 +23,23 @@
 
 #include "Script_Base.h"
 
-struct Script_Druid :public Script_Base
+class Script_Druid :public Script_Base
 {
 public:
+    Script_Druid()
+    {
+
+    }
 	Script_Druid(uint32 pmCharacterID);
-    bool DPS(Unit* pmTarget, bool pmChase = true);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
 
-    bool DPS_Balance(Unit* pmTarget, bool pmChase);
-	bool DPS_Feral(Unit* pmTarget, bool pmChase);
-    bool DPS_Plain(Unit* pmTarget, bool pmChase);
+    bool DPS_Balance(Unit* pmTarget, bool pmChase, bool pmAOE);
+	bool DPS_Feral(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Plain(Unit* pmTarget, bool pmChase, bool pmAOE);
 	bool Attack_Balance(Unit* pmTarget);
 	bool Attack_Feral(Unit* pmTarget);
 	bool Attack_Feral_Cat(Unit* pmTarget);

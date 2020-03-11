@@ -22,8 +22,8 @@ RobotManager::RobotManager()
 {
     nameIndex = 0;
     // EJ debug
-    //prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-    prepareCheckDelay = 10 * TimeConstants::IN_MILLISECONDS;
+    prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
+    //prepareCheckDelay = 10 * TimeConstants::IN_MILLISECONDS;
 
     onlineRobotAccountMap.clear();
     prepareStrategyMap.clear();
@@ -472,6 +472,18 @@ void RobotManager::UpdateRobotManager()
             }
         }
 
+        for (std::unordered_map<uint32, Strategy_Prepare>::iterator spIT = prepareStrategyMap.begin(); spIT != prepareStrategyMap.end(); spIT++)
+        {
+            if (spIT->second.prepareState == RobotPrepareState::RobotPrepareState_Online)
+            {
+                if (onlinePlayerLevelSet.find(spIT->second.targetLevel) == onlinePlayerLevelSet.end())
+                {
+                    spIT->second.prepareState = RobotPrepareState::RobotPrepareState_Exit;
+                    spIT->second.checkDelay = urand(TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
+                }
+            }
+        }
+
         for (std::unordered_set<uint32>::iterator levelIT = onlinePlayerLevelSet.begin(); levelIT != onlinePlayerLevelSet.end(); levelIT++)
         {
             uint32 onlineCount = 0;
@@ -524,8 +536,8 @@ void RobotManager::UpdateRobotManager()
                                 sp.targetLevel = *levelIT;
                                 sp.prepareState = RobotPrepareState::RobotPrepareState_Enter;
                                 // EJ debug
-                                sp.checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
-                                //sp->actionDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
+                                //sp.checkDelay = 5 * TimeConstants::IN_MILLISECONDS;
+                                sp.checkDelay = urand(sRobotConfig->OnlineMinDelay, sRobotConfig->OnlineMaxDelay);
                                 prepareStrategyMap[entry] = sp;
                                 toAdd--;
                                 if (toAdd <= 0)
@@ -699,7 +711,7 @@ uint32 RobotManager::CreateRobotCharacter(uint32 pmAccountID)
     while (true)
     {
         targetClass = urand(Classes::CLASS_WARRIOR, Classes::CLASS_DRUID);
-        if (targetClass != 6 && targetClass != 10 && targetClass != Classes::CLASS_WARRIOR && targetClass != Classes::CLASS_ROGUE && targetClass != Classes::CLASS_SHAMAN && targetClass != Classes::CLASS_MAGE)
+        if (targetClass != 6 && targetClass != 10 && targetClass != Classes::CLASS_WARRIOR && targetClass != Classes::CLASS_ROGUE && targetClass != Classes::CLASS_SHAMAN)
         {
             break;
         }
@@ -1324,29 +1336,55 @@ void RobotManager::HandlePacket(uint32 pmSessionID, WorldPacket const* pmPacket)
             {
                 break;
             }
-            uint32 acceptInvite = urand(0, 3);
-            if (acceptInvite == 0)
+            if (soloStrategyMap.find(me->GetGUID().GetCounter()) != soloStrategyMap.end())
             {
-                if (soloStrategyMap.find(me->GetGUID().GetCounter()) != soloStrategyMap.end())
+                if (soloStrategyMap[me->GetGUID().GetCounter()].interestsDelay > 0)
                 {
                     WorldPacket p;
-                    uint32 roles_mask = 0;
-                    p << roles_mask;
-                    me->GetSession()->HandleGroupAcceptOpcode(p);
-                    std::ostringstream replyStream_Talent;
-                    replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[me->GetClass()][soloStrategyMap[me->GetGUID().GetCounter()].sb.characterTalentTab];
-                    WhisperTo(me, replyStream_Talent.str(), Language::LANG_UNIVERSAL, inviter);
+                    me->GetSession()->HandleGroupDeclineOpcode(p);
+                    std::ostringstream timeLeftStream;
+                    timeLeftStream << "Not interested. I will reconsider in " << soloStrategyMap[me->GetGUID().GetCounter()].interestsDelay / 1000 << "seconds";
+                    WhisperTo(me, timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
                 }
-                break;
-            }
-            else
-            {
-                WorldPacket p;
-                me->GetSession()->HandleGroupDeclineOpcode(p);
-                std::ostringstream timeLeftStream;
-                timeLeftStream << "Not interested.";
-                WhisperTo(me, timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
-                break;
+                else
+                {
+                    if (inviter->GetLevel() < me->GetLevel())
+                    {
+                        WorldPacket p;
+                        me->GetSession()->HandleGroupDeclineOpcode(p);
+                        std::ostringstream timeLeftStream;
+                        timeLeftStream << "Your level is low.";
+                        WhisperTo(me, timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
+                    }
+                    else
+                    {
+                        uint32 acceptInvite = urand(0, 3);
+                        if (acceptInvite == 0)
+                        {
+                            if (soloStrategyMap.find(me->GetGUID().GetCounter()) != soloStrategyMap.end())
+                            {
+                                WorldPacket p;
+                                uint32 roles_mask = 0;
+                                p << roles_mask;
+                                me->GetSession()->HandleGroupAcceptOpcode(p);
+                                std::ostringstream replyStream_Talent;
+                                replyStream_Talent << "My talent category is " << sRobotManager->characterTalentTabNameMap[me->GetClass()][soloStrategyMap[me->GetGUID().GetCounter()].sb->characterTalentTab];
+                                WhisperTo(me, replyStream_Talent.str(), Language::LANG_UNIVERSAL, inviter);
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            soloStrategyMap[me->GetGUID().GetCounter()].interestsDelay = urand(5 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE*TimeConstants::IN_MILLISECONDS);
+                            WorldPacket p;
+                            me->GetSession()->HandleGroupDeclineOpcode(p);
+                            std::ostringstream timeLeftStream;
+                            timeLeftStream << "Not interested. I will reconsider in " << soloStrategyMap[me->GetGUID().GetCounter()].interestsDelay / 1000 << "seconds";
+                            WhisperTo(me, timeLeftStream.str(), Language::LANG_UNIVERSAL, inviter);
+                            break;
+                        }
+                    }
+                }
             }
         }
         case BUY_ERR_NOT_ENOUGHT_MONEY:

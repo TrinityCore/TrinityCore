@@ -41,15 +41,19 @@
 # define ATTACK_RANGE_LIMIT 200.0f
 #endif
 
+#ifndef REST_DELAY_DEFAULT
+# define REST_DELAY_DEFAULT 20000
+#endif
+
 #include "Unit.h"
 #include "Item.h"
 #include "Player.h"
 
-struct Script_Base
+class Script_Base
 {
 public:
     Script_Base();
-    virtual bool DPS(Unit* pmTarget, bool pmChase = true);
+    virtual bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     virtual bool Tank(Unit* pmTarget);
     virtual bool Heal(Unit* pmTarget, bool pmCure);
     virtual bool Attack(Unit* pmTarget);
@@ -74,7 +78,7 @@ public:
     void WhisperTo(std::string pmContent, Language pmLanguage, Player* pmTarget);
     void RandomTeleport();
     void Prepare();
-    void Logout();    
+    void Logout();
     bool Chase(Unit* pmTarget, float pmMaxDistance = MELEE_MIN_DISTANCE, float pmMinDistance = MIN_DISTANCE_GAP);
     bool Follow(Unit* pmTarget, float pmDistance = FOLLOW_MIN_DISTANCE);
 

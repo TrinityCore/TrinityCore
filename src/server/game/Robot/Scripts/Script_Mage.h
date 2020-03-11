@@ -11,24 +11,28 @@
 
 #include "Script_Base.h"
 
-struct Script_Mage :public Script_Base
+class Script_Mage :public Script_Base
 {
 public:
+    Script_Mage()
+    {
+
+    }
     Script_Mage(uint32 pmCharacterID);
-    bool DPS(Unit* pmTarget, bool pmChase = true);
+    bool DPS(Unit* pmTarget, bool pmChase, bool pmAOE);
     bool Tank(Unit* pmTarget);
     bool Heal(Unit* pmTarget, bool pmCure);
     bool Attack(Unit* pmTarget);
     bool Buff(Unit* pmTarget, bool pmCure);
 
-	bool DPS_Common(Unit* pmTarget, bool pmChase);
-    bool DPS_Frost(Unit* pmTarget, bool pmChase);
-    bool DPS_Fire(Unit* pmTarget, bool pmChase);
-    bool DPS_Arcane(Unit* pmTarget, bool pmChase);
+    bool DPS_Common(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Frost(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Fire(Unit* pmTarget, bool pmChase, bool pmAOE);
+    bool DPS_Arcane(Unit* pmTarget, bool pmChase, bool pmAOE);
 
-	bool Attack_Common(Unit* pmTarget);    
-    bool Attack_Frost(Unit* pmTarget);    
-    bool Attack_Fire(Unit* pmTarget);    
+    bool Attack_Common(Unit* pmTarget);
+    bool Attack_Frost(Unit* pmTarget);
+    bool Attack_Fire(Unit* pmTarget);
     bool Attack_Arcane(Unit* pmTarget);
 };
 #endif

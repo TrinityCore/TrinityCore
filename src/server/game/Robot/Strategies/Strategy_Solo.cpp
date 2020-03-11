@@ -34,47 +34,47 @@ Strategy_Solo::Strategy_Solo(uint32 pmAccount, uint32 pmCharacter)
     {
     case Classes::CLASS_WARRIOR:
     {
-        sb = Script_Warrior(character);
+        sb = new Script_Warrior(character);
         break;
     }
     case Classes::CLASS_HUNTER:
     {
-        sb = Script_Hunter(character);
+        sb = new Script_Hunter(character);
         break;
     }
     case Classes::CLASS_SHAMAN:
     {
-        sb = Script_Shaman(character);
+        sb = new Script_Shaman(character);
         break;
     }
     case Classes::CLASS_PALADIN:
     {
-        sb = Script_Paladin(character);
+        sb = new Script_Paladin(character);
         break;
     }
     case Classes::CLASS_WARLOCK:
     {
-        sb = Script_Warlock(character);
+        sb = new Script_Warlock(character);
         break;
     }
     case Classes::CLASS_PRIEST:
     {
-        sb = Script_Priest(character);
+        sb = new Script_Priest(character);
         break;
     }
     case Classes::CLASS_ROGUE:
     {
-        sb = Script_Rogue(character);
+        sb = new Script_Rogue(character);
         break;
     }
     case Classes::CLASS_MAGE:
     {
-        sb = Script_Mage(character);
+        sb = new Script_Mage(character);
         break;
     }
     case Classes::CLASS_DRUID:
     {
-        sb = Script_Druid(character);
+        sb = new Script_Druid(character);
         break;
     }
     }
@@ -86,11 +86,15 @@ Strategy_Solo::Strategy_Solo(uint32 pmAccount, uint32 pmCharacter)
     strollDelay = 0;
     confuseDelay = 0;
     interestsDelay = 0;
-    sb.InitializeValues();
+    sb->InitializeValues();
 }
 
 void Strategy_Solo::Update()
 {
+    if (soloState == RobotSoloState::RobotSoloState_None)
+    {
+        return;
+    }
     uint32 realCurrTime = getMSTime();
     uint32 diff = getMSTimeDiff(realPrevTime, realCurrTime);
     realPrevTime = realCurrTime;
@@ -132,8 +136,8 @@ void Strategy_Solo::Update()
             if (deathDelay <= 0)
             {
                 me->ResurrectPlayer(100.0f);
-                sb.Prepare();
-                sb.RandomTeleport();
+                sb->Prepare();
+                sb->RandomTeleport();
                 return;
             }
         }
@@ -147,8 +151,8 @@ void Strategy_Solo::Update()
     if (soloDelay < 0)
     {
         soloDelay = urand(30 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 60 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-        sb.Prepare();
-        sb.RandomTeleport();
+        sb->Prepare();
+        sb->RandomTeleport();
         return;
     }
     if (me->IsInCombat())
@@ -268,18 +272,13 @@ void Strategy_Solo::Update()
     }
 }
 
-void Strategy_Solo::Reset()
-{
-    sb.Prepare();
-}
-
 bool Strategy_Solo::Buff()
 {
     ObjectGuid guid = ObjectGuid(HighGuid::Player, character);
     Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (me)
     {
-        return sb.Buff(me, true);
+        return sb->Buff(me, true);
     }
     return false;
 }
@@ -310,10 +309,10 @@ bool Strategy_Solo::Rest()
         }
         else
         {
-            if (sb.Rest())
+            if (sb->Rest())
             {
                 soloState = RobotSoloState::RobotSoloState_Rest;
-                restDelay = 20 * TimeConstants::IN_MILLISECONDS;
+                restDelay = REST_DELAY_DEFAULT;
                 return true;
             }
         }
@@ -332,7 +331,7 @@ bool Strategy_Solo::Battle()
     }
     if (Unit* myTarget = me->GetSelectedUnit())
     {
-        if (sb.Attack(myTarget))
+        if (sb->Attack(myTarget))
         {
             return true;
         }
@@ -351,7 +350,7 @@ bool Strategy_Solo::Battle()
             }
         }
     }
-    if (sb.Attack(closestAttacker))
+    if (sb->Attack(closestAttacker))
     {
         return true;
     }
@@ -374,7 +373,7 @@ bool Strategy_Solo::Battle()
             }
         }
 
-        if (sb.Attack(petClosestAttacker))
+        if (sb->Attack(petClosestAttacker))
         {
             return true;
         }
@@ -407,7 +406,7 @@ bool Strategy_Solo::Battle()
         }
         if ((*it)->GetTypeId() == TypeID::TYPEID_PLAYER)
         {
-            if (sb.Attack((*it)))
+            if (sb->Attack((*it)))
             {
                 return true;
             }
@@ -422,7 +421,7 @@ bool Strategy_Solo::Battle()
             }
         }
     }
-    if (sb.Attack(nearestAttackableTarget))
+    if (sb->Attack(nearestAttackableTarget))
     {
         return true;
     }
@@ -436,7 +435,7 @@ bool Strategy_Solo::Heal()
     Player* me = ObjectAccessor::FindConnectedPlayer(guid);
     if (me)
     {
-        return sb.Heal(me, true);
+        return sb->Heal(me, true);
     }
     return false;
 }
@@ -501,11 +500,11 @@ void Strategy_Solo::HandleChatCommand(Player* pmSender, std::string pmCMD)
     std::string commandName = commandVector.at(0);
     if (commandName == "who")
     {
-        sb.WhisperTo(sRobotManager->characterTalentTabNameMap[me->GetClass()][sb.characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
+        sb->WhisperTo(sRobotManager->characterTalentTabNameMap[me->GetClass()][sb->characterTalentTab], Language::LANG_UNIVERSAL, pmSender);
     }
     else if (commandName == "prepare")
     {
-        sb.Prepare();
-        sb.WhisperTo("I am prepared", Language::LANG_UNIVERSAL, pmSender);
+        sb->Prepare();
+        sb->WhisperTo("I am prepared", Language::LANG_UNIVERSAL, pmSender);
     }
 }
