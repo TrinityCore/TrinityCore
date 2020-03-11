@@ -228,10 +228,10 @@ INSERT INTO `spell_area` (`spell`, `area`, `gender`, `flags`) VALUES
 (98541, 5738, 2, 3), -- See Quest Invis 6
 (98549, 5733, 2, 3), -- See Quest Invis 14
 (98071, 5733, 2, 3), -- See Quest Invis 18
-(98413, 5733, 2, 3), -- (Serverside/Non-DB2) See Quest Invis 22
+(98413, 5738, 2, 3), -- (Serverside/Non-DB2) See Quest Invis 22
 -- Igneous Depths
-(97745, 5733, 2, 3), -- See Quest Invis 5
-(97746, 5733, 2, 3); -- See Quest Invis 6
+(97745, 5741, 2, 3), -- See Quest Invis 5
+(97746, 5741, 2, 3); -- See Quest Invis 6
 
 DELETE FROM `spell_area` WHERE `spell` IN (98536, 98537, 98513, 98512, 98510, 100554);
 INSERT INTO `spell_area` (`spell`, `area`, `gender`, `flags`, `aura_spell`, `quest_start`, `quest_start_status`, `quest_end`, `quest_end_status`) VALUES
