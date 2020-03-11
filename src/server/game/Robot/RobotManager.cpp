@@ -1225,29 +1225,54 @@ void RobotManager::HandlePlayerSay(Player* pmPlayer, std::string pmContent)
     else if (commandName == "aura")
     {
         std::ostringstream replyStream;
-        if (commandVector.size() > 1)
+        if (Unit* targetUnit = pmPlayer->GetSelectedUnit())
         {
-            if (Unit* targetUnit = pmPlayer->GetSelectedUnit())
+            if (commandVector.size() > 1)
             {
-                uint32 spellID = std::stoi(commandVector.at(1));
-                if (targetUnit->HasAura(spellID))
+                std::string auraCheckType = commandVector.at(1);
+                if (commandVector.size() > 2)
                 {
-                    replyStream << "Has aura : " << spellID;
+                    uint32 spellID = std::stoi(commandVector.at(2));
+                    if (auraCheckType == "has")
+                    {
+                        if (targetUnit->HasAura(spellID))
+                        {
+                            replyStream << "Has aura : " << spellID;
+                        }
+                        else
+                        {
+                            replyStream << "No aura : " << spellID;
+                        }
+                    }
+                    else if (auraCheckType == "add")
+                    {
+                        targetUnit->AddAura(spellID, targetUnit);
+                        replyStream << "Aura added : " << spellID;
+                    }
+                    else if (auraCheckType == "remove")
+                    {
+                        targetUnit->RemoveAura(spellID);
+                        replyStream << "Aura removed : " << spellID;
+                    }
+                    else
+                    {
+                        replyStream << "Unknown check type";
+                    }
                 }
                 else
                 {
-                    replyStream << "No aura : " << spellID;
+                    replyStream << "No spell id";
                 }
             }
             else
             {
-                replyStream << "No target";
-            }
+                replyStream << "No type";
+            }            
         }
         else
         {
-            replyStream << "No spell id";
-        }
+            replyStream << "No target";
+        }        
         sWorld->SendServerMessage(ServerMessageType::SERVER_MSG_STRING, replyStream.str().c_str(), pmPlayer);
     }
 }
