@@ -168,6 +168,10 @@ void Strategy_Prepare::Update()
                             me->UninviteFromGroup();
                         }
                     }
+                    else
+                    {
+                        me->UninviteFromGroup();
+                    }
                     break;
                 }
             }

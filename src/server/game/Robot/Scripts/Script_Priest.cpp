@@ -37,14 +37,14 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
     }
     Chase(pmTarget, PRIEST_RANGE_DISTANCE);
     float healthPCT = pmTarget->GetHealthPct();
-    if (healthPCT < 30)
+    if (healthPCT < 30.0f)
     {
         if (CastSpell(pmTarget, "Desperate Prayer", PRIEST_RANGE_DISTANCE))
         {
             return true;
         }
     }
-    if (healthPCT < 60)
+    if (healthPCT < 60.0f)
     {
         if (CastSpell(pmTarget, "Greater Heal", PRIEST_RANGE_DISTANCE))
         {
@@ -55,7 +55,7 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
             return true;
         }
     }
-    if (healthPCT < 80)
+    if (healthPCT < 80.0f)
     {
         Unit* tankTarget = pmTarget->GetVictim();
         if (tankTarget)
@@ -75,7 +75,7 @@ bool Script_Priest::Heal(Unit* pmTarget, bool pmCure)
             return true;
         }
     }
-    if (healthPCT < 90)
+    if (healthPCT < 90.0f)
     {
         if (!HasAura(pmTarget, "Weakened Soul"))
         {

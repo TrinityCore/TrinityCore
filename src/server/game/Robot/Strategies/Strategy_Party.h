@@ -84,7 +84,7 @@ public:
             case Classes::CLASS_WARRIOR:
             {
                 sb = new Script_Warrior(character);
-                followDistance = MELEE_MAX_DISTANCE;
+                followDistance = MELEE_MIN_DISTANCE;
                 break;
             }
             case Classes::CLASS_HUNTER:
@@ -100,7 +100,7 @@ public:
             case Classes::CLASS_PALADIN:
             {
                 sb = new  Script_Paladin(character);
-                followDistance = MELEE_MAX_DISTANCE;
+                followDistance = MELEE_MIN_DISTANCE;
                 break;
             }
             case Classes::CLASS_WARLOCK:
@@ -116,7 +116,7 @@ public:
             case Classes::CLASS_ROGUE:
             {
                 sb = new  Script_Rogue(character);
-                followDistance = MELEE_MAX_DISTANCE;
+                followDistance = MELEE_MIN_DISTANCE;
                 break;
             }
             case Classes::CLASS_MAGE:

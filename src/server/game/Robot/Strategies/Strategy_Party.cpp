@@ -225,13 +225,20 @@ void Strategy_Party::Update()
                         }
                         case PartyRole::PartyRole_Healer:
                         {
-                            if (Heal(member))
+                            if (member->IsInCombat())
                             {
-                                break;
+                                if (Heal(member))
+                                {
+                                    break;
+                                }
                             }
-                            if (!member->IsInCombat())
+                            else
                             {
                                 if (Rest(member))
+                                {
+                                    break;
+                                }
+                                if (Heal(member))
                                 {
                                     break;
                                 }
@@ -465,24 +472,37 @@ bool Strategy_Party::Heal(Player* pmChecker)
 {
     uint32 checkerLowGUID = pmChecker->GetGUID().GetCounter();
 
-    if (Group* party = sGroupMgr->GetGroupByGUID(partyID))
+    if (memberMap.find(checkerLowGUID) != memberMap.end())
     {
-        for (GroupReference* groupRef = party->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+        if (Group* party = sGroupMgr->GetGroupByGUID(partyID))
         {
-            if (Player* member = groupRef->GetSource())
+            for (GroupReference* groupRef = party->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
             {
-                if (pmChecker->GetDistance(member) < ATTACK_RANGE_LIMIT)
+                if (Player* member = groupRef->GetSource())
                 {
-                    uint32 memberLowGUID = member->GetGUID().GetCounter();
-                    if (memberMap.find(memberLowGUID) != memberMap.end())
+                    if (pmChecker->GetDistance(member) < ATTACK_RANGE_LIMIT)
                     {
-                        if (memberMap[memberLowGUID].partyRole == PartyRole::PartyRole_Tank)
+                        uint32 memberLowGUID = member->GetGUID().GetCounter();
+                        if (memberMap.find(memberLowGUID) != memberMap.end())
                         {
-                            if (memberMap.find(checkerLowGUID) != memberMap.end())
+                            if (memberMap[memberLowGUID].partyRole == PartyRole::PartyRole_Tank)
                             {
-                                if (memberMap[checkerLowGUID].sb->Heal(member, memberMap[checkerLowGUID].cure))
+                                if (member->GetHealthPct() < 90.0f)
                                 {
-                                    return true;
+                                    if (memberMap[checkerLowGUID].sb->Heal(member, memberMap[checkerLowGUID].cure))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (member->GetHealthPct() < 50.0f)
+                                {
+                                    if (memberMap[checkerLowGUID].sb->Heal(member, memberMap[checkerLowGUID].cure))
+                                    {
+                                        return true;
+                                    }
                                 }
                             }
                         }
@@ -490,27 +510,8 @@ bool Strategy_Party::Heal(Player* pmChecker)
                 }
             }
         }
-
-        for (GroupReference* groupRef = party->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-        {
-            if (Player* member = groupRef->GetSource())
-            {
-                if (pmChecker->GetDistance(member) < ATTACK_RANGE_LIMIT)
-                {
-                    if (member->GetHealthPct() < 50.0f)
-                    {
-                        if (memberMap.find(checkerLowGUID) != memberMap.end())
-                        {
-                            if (memberMap[checkerLowGUID].sb->Heal(member, memberMap[checkerLowGUID].cure))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
+    return false;
 }
 
 bool Strategy_Party::Buff(Player* pmChecker)
@@ -523,7 +524,7 @@ bool Strategy_Party::Buff(Player* pmChecker)
         {
             if (Player* member = groupRef->GetSource())
             {
-                if (pmChecker->GetDistance(member) < ATTACK_RANGE_LIMIT)
+                if (pmChecker->GetDistance(member) < RANGED_MAX_DISTANCE)
                 {
                     if (memberMap.find(checkerLowGUID) != memberMap.end())
                     {
@@ -536,6 +537,8 @@ bool Strategy_Party::Buff(Player* pmChecker)
             }
         }
     }
+
+    return false;
 }
 
 bool Strategy_Party::Follow(Player* pmChecker)
@@ -933,7 +936,9 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                         if (member->HasAuraType(SPELL_AURA_MOD_PACIFY))
                         {
                             continue;
-                        }
+                        }                        
+                        member->GetMotionMaster()->Clear();
+                        member->StopMoving();
                         if (member->GetStandState() != UnitStandStateType::UNIT_STAND_STATE_STAND)
                         {
                             member->SetStandState(UNIT_STAND_STATE_STAND);
@@ -942,9 +947,7 @@ void Strategy_Party::HandleChatCommand(Player* pmSender, std::string pmCMD, Play
                         {
                             member->SetWalk(false);
                         }
-                        member->StopMoving();
-                        member->GetMotionMaster()->Clear();
-                        member->GetMotionMaster()->MovePoint(0, pmSender->GetPosition());
+                        member->GetMotionMaster()->MovePoint(1, pmSender->GetPosition(), true, pmSender->GetOrientation());
                         pmIT->second.sb->WhisperTo("We are close, I will be ready in 5 seconds", Language::LANG_UNIVERSAL, pmSender);
                     }
                     else

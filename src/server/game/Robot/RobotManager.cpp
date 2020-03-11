@@ -442,10 +442,8 @@ void RobotManager::UpdateRobotManager()
 
     prepareCheckDelay -= diff;
     if (prepareCheckDelay < 0)
-    {
-        // EJ debug
-        prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);
-        //prepareCheckDelay = 10 * TimeConstants::IN_MILLISECONDS;
+    {        
+        prepareCheckDelay = urand(5 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS, 10 * TimeConstants::MINUTE * TimeConstants::IN_MILLISECONDS);        
         std::unordered_set<uint32> onlinePlayerLevelSet;
         for (std::unordered_map<uint32, WorldSession*>::const_iterator wsIT = sWorld->GetAllSessions().begin(); wsIT != sWorld->GetAllSessions().end(); wsIT++)
         {
