@@ -34,6 +34,7 @@
 #include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
 #include "CinematicMgr.h"
+#include "CombatPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -20300,12 +20301,6 @@ void Player::UpdateSpeakTime()
 /***              LOW LEVEL FUNCTIONS:Notifiers        ***/
 /*********************************************************/
 
-void Player::SendAttackSwingNotInRange() const
-{
-    WorldPacket data(SMSG_ATTACKSWING_NOTINRANGE, 0);
-    SendDirectMessage(&data);
-}
-
 void Player::SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
@@ -20347,35 +20342,36 @@ void Player::Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransacti
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-void Player::SendAttackSwingDeadTarget() const
-{
-    WorldPacket data(SMSG_ATTACKSWING_DEADTARGET, 0);
-    SendDirectMessage(&data);
-}
-
 void Player::SendAttackSwingCantAttack() const
 {
-    WorldPacket data(SMSG_ATTACKSWING_CANT_ATTACK, 0);
-    SendDirectMessage(&data);
+    SendDirectMessage(WorldPackets::Combat::AttackSwingCantAttack().Write());
 }
 
 void Player::SendAttackSwingCancelAttack() const
 {
-    WorldPacket data(SMSG_CANCEL_COMBAT, 0);
-    SendDirectMessage(&data);
+    SendDirectMessage(WorldPackets::Combat::CancelCombat().Write());
+}
+
+void Player::SendAttackSwingDeadTarget() const
+{
+    SendDirectMessage(WorldPackets::Combat::AttackSwingDeadTarget().Write());
+}
+
+void Player::SendAttackSwingNotInRange() const
+{
+    SendDirectMessage(WorldPackets::Combat::AttackSwingNotInRange().Write());
 }
 
 void Player::SendAttackSwingBadFacingAttack() const
 {
-    WorldPacket data(SMSG_ATTACKSWING_BADFACING, 0);
-    SendDirectMessage(&data);
+    SendDirectMessage(WorldPackets::Combat::AttackSwingBadFacing().Write());
 }
 
 void Player::SendAutoRepeatCancel(Unit* target)
 {
-    WorldPacket data(SMSG_CANCEL_AUTO_REPEAT, target->GetPackGUID().size());
-    data << target->GetPackGUID();                     // may be it's target guid
-    SendMessageToSet(&data, true);
+    WorldPackets::Combat::CancelAutoRepeat cancelAutoRepeat;
+    cancelAutoRepeat.Guid = target->GetPackGUID();      // may be it's target guid
+    SendMessageToSet(cancelAutoRepeat.Write(), true);
 }
 
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience) const
