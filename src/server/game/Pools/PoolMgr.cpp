@@ -369,9 +369,26 @@ void PoolGroup<Pool>::Spawn1Object(PoolObject* obj)
 
 // Method that does the respawn job on the specified creature
 template <>
-void PoolGroup<Creature>::ReSpawn1Object(PoolObject* /*obj*/)
+void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
-    // Creature is still on map, nothing to do
+    if (CreatureData const* data = sObjectMgr->GetCreatureData(obj->guid))
+    {
+        Map* map = sMapMgr->CreateBaseMap(data->mapId);
+        if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
+        {
+            // Set the respawn time to 0 so the creature will be respawned
+            if (RespawnInfo* respawnInfo = map->GetRespawnInfo(data->type, data->spawnId))
+                respawnInfo->respawnTime = 0;
+
+            Creature* creature = new Creature();
+            //TC_LOG_DEBUG("pool", "Spawning creature %u", guid);
+            if (!creature->LoadFromDB(obj->guid, map, true, false))
+            {
+                delete creature;
+                return;
+            }
+        }
+    }
 }
 
 // Method that does the respawn job on the specified gameobject
